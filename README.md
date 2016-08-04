@@ -4,7 +4,7 @@ A clone of the xtc project including SuperC and Kmax.  The main homepage for xtc
 
 ## Dependencies and environment variables
 
-Building SuperC may require `bison`, for debian and ubuntu run
+Building SuperC requires `bison`.  For debian and ubuntu run
 
     apt-get install bison
 
@@ -31,7 +31,7 @@ From the root of the source tree, run
 
     make check-cpp
 
-## Using SuperC with Linux
+## Using SuperC with Linux source code
 
 Use the script [`src/xtc/lang/cpp/scripts/superc_linux.sh`](src/xtc/lang/cpp/scripts/superc_linux.sh).  See [`src/xtc/lang/cpp/scripts/data.sh`](src/xtc/lang/cpp/scripts/data.sh) for example usage.  Linux versions past 2013 have not been tested.
 
