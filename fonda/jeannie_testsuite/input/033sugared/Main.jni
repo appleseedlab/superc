@@ -1,0 +1,37 @@
+/* Unicode string length. */
+import java.io.UnsupportedEncodingException;
+
+`.C { }
+
+class Main {
+  static int utf16LengthJava(final String s) {
+    return s.length();
+  }
+
+  static int utf8LengthJava(final String s) {
+    try {
+      final byte[] utf8 = s.getBytes("UTF-8");
+      return utf8.length;
+    } catch (final UnsupportedEncodingException e) {
+      System.err.println(e);
+    }
+    throw new Error();
+  }
+
+  static native int utf16LengthNative(final String s) `{
+    return `s.length();
+  }
+
+  static native int utf8LengthNative(final String s) `{
+    return _stringUTFLength(`s);
+  }
+
+  public static void main(String[] args) {
+    final String s = "Sch\u00F6ne Gr\u00FC\u00DFe!";
+    System.out.println(s);
+    System.out.println("UTF16 length (Java)  : " + utf16LengthJava(s));
+    System.out.println("UTF8  length (Java)  : " + utf8LengthJava(s));
+    System.out.println("UTF16 length (native): " + utf16LengthNative(s));
+    System.out.println("UTF8  length (native): " + utf8LengthNative(s));
+  }
+}

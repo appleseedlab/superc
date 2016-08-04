@@ -1,0 +1,12 @@
+/* CallStatic. */
+`.C{ }
+class Main {
+  native static void foo() `{
+    int y;
+    y = `Math.max(123, 456);
+    printf("return value: %d\n", y);
+  }
+  public static void main(String[] args) {
+    foo();
+  }
+}

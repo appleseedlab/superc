@@ -1,0 +1,5 @@
+// A nested choice in a predicate causes the entire sequence to be lifted.
+
+module NestedChoiceInPredicate2;
+
+public void Top = &("foo" ("bar"/"car")) ;

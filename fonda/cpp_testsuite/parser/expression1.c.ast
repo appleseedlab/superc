@@ -1,0 +1,101 @@
+#superc_args -printAST
+TranslationUnit(
+  ExternalDeclarationList(
+    Conditional(
+      1,
+      FunctionDefinition(
+        FunctionPrototype(
+          xtc.lang.cpp.Syntax$Language(
+            "int"
+          ),
+          FunctionDeclarator(
+            SimpleDeclarator(
+              xtc.lang.cpp.Syntax$Text(
+                "main"
+              )
+            ),
+            ParameterTypeListOpt()
+          )
+        ),
+        CompoundStatement(
+          LocalLabelDeclarationListOpt(),
+          DeclarationOrStatementList(
+            Conditional(
+              (defined END),
+              ExpressionStatement(
+                Conditional(
+                  !(defined A) && (defined END),
+                  xtc.lang.cpp.Syntax$Text(
+                    "1"
+                  ),
+                  (defined A) && (defined END),
+                  AdditiveExpression(
+                    PrimaryIdentifier(
+                      xtc.lang.cpp.Syntax$Text(
+                        "a"
+                      )
+                    ),
+                    xtc.lang.cpp.Syntax$Language(
+                      "+"
+                    ),
+                    xtc.lang.cpp.Syntax$Text(
+                      "1"
+                    )
+                  )
+                )
+              )
+            ),
+            Conditional(
+              1,
+              ExpressionStatement(
+                Conditional(
+                  !(defined END),
+                  AdditiveExpression(
+                    Conditional(
+                      !(defined A) && !(defined END),
+                      PrimaryIdentifier(
+                        xtc.lang.cpp.Syntax$Text(
+                          "b"
+                        )
+                      ),
+                      (defined A) && !(defined END),
+                      AdditiveExpression(
+                        PrimaryIdentifier(
+                          xtc.lang.cpp.Syntax$Text(
+                            "a"
+                          )
+                        ),
+                        xtc.lang.cpp.Syntax$Language(
+                          "+"
+                        ),
+                        PrimaryIdentifier(
+                          xtc.lang.cpp.Syntax$Text(
+                            "b"
+                          )
+                        )
+                      )
+                    ),
+                    xtc.lang.cpp.Syntax$Language(
+                      "+"
+                    ),
+                    PrimaryIdentifier(
+                      xtc.lang.cpp.Syntax$Text(
+                        "c"
+                      )
+                    )
+                  ),
+                  (defined END),
+                  PrimaryIdentifier(
+                    xtc.lang.cpp.Syntax$Text(
+                      "c"
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)

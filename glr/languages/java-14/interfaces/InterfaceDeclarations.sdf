@@ -1,0 +1,44 @@
+%%%
+ %% Section 9.1: Interface Declarations
+ %%
+ %% @author Martin Bravenboer <martin@cs.uu.nl>
+ %%%
+module languages/java-14/interfaces/InterfaceDeclarations
+imports
+  languages/java-14/lexical/Identifiers
+  languages/java-14/lexical/Modifiers
+  languages/java-14/names/Main
+  languages/java-14/types/Main
+  languages/java-14/classes/ClassDeclarations
+  languages/java-14/classes/MethodDeclarations
+  languages/java-14/interfaces/ConstantDeclarations
+  languages/java-14/interfaces/AbstractMethodDeclarations
+
+exports
+  sorts
+    InterfaceDec
+    InterfaceDecHead
+    ExtendsInterfaces
+    InterfaceMemberDec
+    InterfaceMod
+
+  context-free syntax
+    InterfaceDecHead "{" InterfaceMemberDec* "}" -> InterfaceDec {cons("InterfaceDec")}
+
+    InterfaceMod* "interface" Id ExtendsInterfaces? -> InterfaceDecHead {cons("InterfaceDecHead")}
+    "extends" {InterfaceType ","}+ -> ExtendsInterfaces {cons("ExtendsInterfaces")}
+
+  context-free syntax
+    ConstantDec       -> InterfaceMemberDec
+    AbstractMethodDec -> InterfaceMemberDec
+    ClassDec          -> InterfaceMemberDec
+    InterfaceDec      -> InterfaceMemberDec
+    ";"               -> InterfaceMemberDec {cons("Semicolon")}
+
+  context-free syntax
+    Public         -> InterfaceMod
+    Protected      -> InterfaceMod
+    Private        -> InterfaceMod
+    Abstract       -> InterfaceMod
+    Static         -> InterfaceMod
+    StrictFP       -> InterfaceMod

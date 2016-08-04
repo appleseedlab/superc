@@ -1,0 +1,276 @@
+# Makefile.in
+# this is the Makefile for Ella, the Elkhound-based Java Parser
+
+#temporary: iptree iptparse cipart smin
+
+# main target: a Java parser
+all: java.ast.gen.h tlexer javaparse quicktest
+
+# work in progress..
+#iptree smin cipart
+
+# directories of other software
+SMBASE   := @SMBASE@
+AST      := @AST@
+ELKHOUND := @ELKHOUND@
+ELSA     := @ELSA@
+
+# stuff inside those other directories
+LIBSMBASE   := $(SMBASE)/libsmbase.a
+LIBAST      := $(AST)/libast.a
+LIBELKHOUND := $(ELKHOUND)/libelkhound.a
+
+# external tools
+PERL := @PERL@
+MYFLEX := $(PERL) $(SMBASE)/run-flex.pl -nobackup -copies
+
+# list of files to clean in 'clean' (etc.) targets
+# (these get added to below)
+TOCLEAN = tmp.txt testcout
+TOTOOLCLEAN =
+TODISTCLEAN =
+
+# re-create the Makefile if Makefile.in has changed
+TODISTCLEAN += Makefile
+Makefile: Makefile.in config.status
+	./config.status
+
+# reconfigure if the configure script has changed
+config.status: configure.pl $(SMBASE)/sm_config.pm
+	./config.status -reconfigure
+
+# dependencies upon automatically-generated files
+extradep.mk:
+	$(PERL) $(ELKHOUND)/find-extra-deps *.d >$@
+
+-include extradep.mk
+
+# modules to compile with coverage info; I do not build them
+# all with coverage info because it takes about 25% longer to
+# compile for each module with coverage info
+GCOV_MODS := @GCOV_MODS@
+TOCLEAN += *.bb *.bbg *.da
+
+
+# --------------------- extension modules ----------------------
+# base modules
+LEXER_MODS    := java.lex
+TOK_MODS      := java_tokens.tok
+JAVA_AST_MODS := java.ast
+JAVA_GR_MODS  := java.gr
+EXT_OBJS      :=
+
+
+# ----------------------- compiler configuration -------------------
+# C++ preprocessor, compiler and linker
+CXX := g++
+
+# flags for the C++ compiler (and preprocessor)
+CCFLAGS := @CCFLAGS@ -DXML -Woverloaded-virtual -I$(SMBASE) -I$(AST) -I$(ELKHOUND) -I$(ELSA)
+
+# how to enable coverage
+GCOV_OPTS := -fprofile-arcs -ftest-coverage
+
+# flags for the linker
+libraries := $(LIBELKHOUND) $(LIBAST) $(LIBSMBASE)
+LDFLAGS := @LDFLAGS@ $(libraries)
+
+
+# compile .cc in this directory to a .o
+TOCLEAN += *.o *.d
+%.o: %.cc
+	$(CXX) -c -o $@ $< $(if $(findstring $*,$(GCOV_MODS)),$(GCOV_OPTS) )$(CCFLAGS)
+	@$(PERL) $(SMBASE)/depend.pl -o $@ $< $(CCFLAGS) >$*.d
+
+# compile a special module; -O0 will override any earlier setting
+#notopt.o: notopt.cc
+#	$(CXX) -c -o $@ $< $(CCFLAGS) -O0
+#	@$(PERL) $(SMBASE)/depend.pl -o $@ $< $(CCFLAGS) -O0 >$*.d
+
+
+# ------------------------ tlexer -------------------
+LEXER_OBJS := \
+  java_lang.o \
+  $(ELSA)/baselexer.o \
+  lexer.o \
+  java.yy.o \
+  java_tokens.o
+-include $(LEXER_OBJS:.o=.d)
+-include tlexer.d
+
+# program to test the lexer alone
+TOCLEAN += tlexer
+tlexer: tlexer.o $(LEXER_OBJS) $(libraries)
+	$(CXX) -o $@ tlexer.o $(LEXER_OBJS) $(LDFLAGS)
+
+
+# ------------------------- javaparse ---------------------
+# run flex on the lexer description
+TOCLEAN += java.yy.cc
+java.yy.cc: java.lex lexer.h
+	$(MYFLEX) -o$@ java.lex
+
+
+# generate token lists
+TOK_FILES := java_tokens.h java_tokens.cc java_tokens.ids
+TOCLEAN += $(TOK_FILES)
+$(TOK_FILES): $(TOK_MODS) $(ELSA)/make-token-files
+	rm -f $(TOK_FILES)
+	$(PERL) $(ELSA)/make-token-files $(TOK_MODS)
+	chmod a-w $(TOK_FILES)
+
+
+# run astgen to generate the AST implementation
+TOCLEAN += java.ast.gen.h java.ast.gen.cc
+java.ast.gen.h java.ast.gen.cc: $(JAVA_AST_MODS) $(AST)/astgen
+	$(AST)/astgen -ojava.ast.gen $(JAVA_AST_MODS)
+
+
+# run elkhound to generate the parser
+TOCLEAN += java.gr.gen.h java.gr.gen.cc java.gr.gen.out
+java.gr.gen.h java.gr.gen.cc: $(JAVA_GR_MODS) java_tokens.ids $(ELKHOUND)/elkhound
+	$(ELKHOUND)/elkhound -v -tr lrtable -o java.gr.gen $(JAVA_GR_MODS)
+
+
+# list of modules needed for the parser; ideally they're in an order
+# that finds serious compilation problems earliest (it's ok to
+# rearrange as different parts of the code are in flux)
+JAVAPARSE_OBJS := \
+  $(LEXER_OBJS) \
+  $(EXT_OBJS) \
+  java.ast.gen.o \
+  java.gr.gen.o \
+  java_flags.o \
+  javaparse.o
+-include $(JAVAPARSE_OBJS:.o=.d) main.d
+
+
+# parser binary
+TOCLEAN += javaparse
+javaparse: $(JAVAPARSE_OBJS) main.o $(libraries)
+	$(CXX) -o $@ $(JAVAPARSE_OBJS) main.o $(LDFLAGS)
+
+
+# run the binary; the 'quicktest' file is so we don't run it if
+# 'ccparse' hasn't recently changed
+TOCLEAN += quicktest
+quicktest: javaparse
+	./javaparse in/Test01.java
+	@touch quicktest
+	@echo BUILD FINISHED
+
+
+# ------------------ documentation ------------------
+gendoc:
+	mkdir gendoc
+
+gendoc/configure.txt: configure
+	./configure --help >$@
+
+.PHONY: gendoc/dependencies.dot
+gendoc/dependencies.dot:
+	$(PERL) $(SMBASE)/scan-depends.pl -r \
+	  -Xcc_env.h=1 -Xcc_type.h=1 -Xcc_flags.h=1 -Xcc_ast.h=1 -Xvariable.h=1 \
+          -Xcc_print.h -Xsprint.h -Xcc_type_xml.h -Xmain_astxmlparse.h \
+	  -Xgeneric_aux.h -Xcc_ast_aux.h -Xcc_lang.h=1 \
+	  main.cc cc_tcheck.cc >$@
+
+gendoc/3.4.5.dot: ccparse in/std/3.4.5.cc
+	./ccparse -tr printHierarchies in/std/3.4.5.cc | \
+	$(PERL) ./chop_out "--- E ---" "--- F ---" >$@
+
+# because of the above dependency on ccparse, if someone does 'make doc'
+# without first building Elsa, they get an error about libsmbase.a; so
+# this is an attempt to deal with that more gracefully
+$(SMBASE)/libsmbase.a:
+	@echo "You have to build smbase, ast and elkhound first."
+	@exit 2
+
+# check to see if they have dot
+.PHONY: dot
+dot:
+	@if ! which dot >/dev/null; then \
+	  echo "You don't have the 'dot' tool.  It is part of graphviz, available at:"; \
+	  echo "http://www.research.att.com/sw/tools/graphviz/"; \
+	  exit 2; \
+	fi
+
+# use 'dot' to lay out the graph
+%.ps: %.dot dot
+	dot -Tps <$*.dot >$@
+
+# use 'convert' to make a PNG image with resolution not to exceed
+# 1200 in X or 1000 in Y ('convert' will preserve aspect ratio); this
+# also antialiases, so it looks very nice (it's hard to reproduce
+# this using 'gs' alone)
+%.png: %.ps
+	convert -geometry 1200x1000 $^ $@
+
+# 3.4.5 is smaller
+gendoc/3.4.5.png: gendoc/3.4.5.ps
+	convert -geometry 300x400 $^ $@
+
+# rg: There's nothing to do for now.
+.PHONY: doc
+doc:
+	@echo "built documentation"
+
+#doc: gendoc gendoc/configure.txt gendoc/dependencies.png gendoc/3.4.5.png
+#	@echo "built documentation"
+
+#TOCLEAN += TAGS
+#TAGS:
+#	@ETAGS@ *.cc *.h
+
+
+# -------------------- count source lines -------------------
+# dsw: This should give the right answer even after a "make all",
+# since we filter the generated files.
+#
+# sm: I haven't carefully inspected the set of files counted,
+# and it appears to not count cc_tokens.tok (which it should).
+# I don't care about fixing right now it though.
+
+GENREGEX := '\.gen\.\|lexer\.yy\|cc_tokens'
+.PHONY: count-loc
+count-loc:
+	@echo
+	@echo "Count of lines of source code in this directory by file type."
+	@echo "C++, C, and headers:"
+# 	@ls *.cc *.c *.h | grep -v $(GENREGEX) | xargs wc -l | grep total
+	@ls *.cc *.h | grep -v $(GENREGEX) | xargs wc -l | grep total
+	@echo "tok, lex, gr, and ast:"
+# 	@ls *_ext.tok *_ext.lex *.gr *.ast | grep -v $(GENREGEX) | xargs wc -l | grep total
+	@ls *_ext.tok *.gr *.ast | grep -v $(GENREGEX) | xargs wc -l | grep total
+	@echo "sum of those:"
+# 	@ls *.cc *.c *.h *_ext.tok *_ext.lex *.gr *.ast
+	@ls *.cc *.h *_ext.tok *.gr *.ast \
+          | grep -v $(GENREGEX) | xargs wc -l | grep total
+	@echo
+	@echo "Makefiles:"
+	@ls Makefile.in *.mk | xargs wc -l | grep total
+
+
+# -------------------- clean, etc. -------------------
+clean:
+	rm -f $(TOCLEAN)
+
+#	cd outdir && ls | grep -v CVS | xargs rm -f
+
+distclean: clean
+	rm -f $(TODISTCLEAN)
+	rm -f config.status config.summary
+	rm -rf gendoc
+
+toolclean: clean
+	rm -f $(TOTOOLCLEAN)
+
+check: semgrep all
+	MAKE=$(MAKE) ./regrtest
+	@echo ""
+	@echo "Regression tests passed."
+
+# run the xml commutative diagram tests
+.PHONY: checkxml
+checkxml:
+	$(MAKE) -f checkxml.mk

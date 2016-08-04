@@ -1,0 +1,106 @@
+#superc_args -printAST
+TranslationUnit(
+  ExternalDeclarationList(
+    Conditional(
+      1,
+      FunctionDefinition(
+        Conditional(
+          !(defined B) && !C || (defined B),
+          FunctionPrototype(
+            Conditional(
+              !(defined B) && !C,
+              xtc.lang.cpp.Syntax$Language(
+                "int"
+              ),
+              (defined B),
+              BasicTypeSpecifier(
+                TypeQualifierList(
+                  Conditional(
+                    (defined B),
+                    TypeQualifier(
+                      FunctionSpecifier(
+                        xtc.lang.cpp.Syntax$Language(
+                          "inline"
+                        )
+                      )
+                    )
+                  )
+                ),
+                xtc.lang.cpp.Syntax$Language(
+                  "int"
+                )
+              )
+            ),
+            FunctionDeclarator(
+              SimpleDeclarator(
+                xtc.lang.cpp.Syntax$Text(
+                  "main"
+                )
+              ),
+              ParameterTypeListOpt()
+            )
+          ),
+          !(defined B) && C,
+          FunctionPrototype(
+            BasicDeclarationSpecifier(
+              DeclarationQualifierList(
+                Conditional(
+                  !(defined B) && C,
+                  xtc.lang.cpp.Syntax$Language(
+                    "static"
+                  )
+                ),
+                Conditional(
+                  !(defined B) && C,
+                  DeclarationQualifier(
+                    TypeQualifier(
+                      FunctionSpecifier(
+                        xtc.lang.cpp.Syntax$Language(
+                          "inline"
+                        )
+                      )
+                    )
+                  )
+                )
+              ),
+              xtc.lang.cpp.Syntax$Language(
+                "int"
+              )
+            ),
+            FunctionDeclarator(
+              SimpleDeclarator(
+                xtc.lang.cpp.Syntax$Text(
+                  "main"
+                )
+              ),
+              ParameterTypeListOpt()
+            )
+          )
+        ),
+        CompoundStatement(
+          LocalLabelDeclarationListOpt(),
+          DeclarationOrStatementList(
+            Conditional(
+              1,
+              Declaration(
+                DeclaringList(
+                  xtc.lang.cpp.Syntax$Language(
+                    "int"
+                  ),
+                  SimpleDeclarator(
+                    xtc.lang.cpp.Syntax$Text(
+                      "x"
+                    )
+                  ),
+                  AssemblyExpressionOpt(),
+                  AttributeSpecifierListOpt(),
+                  InitializerOpt()
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)

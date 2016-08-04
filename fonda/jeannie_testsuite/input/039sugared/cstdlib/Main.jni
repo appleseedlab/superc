@@ -1,0 +1,20 @@
+package cstdlib;
+import java.util.Random;
+`.C {
+#include <math.h>
+}
+class Math {
+  public static native double pow(double x, double y) `{
+    return (`double)pow(`x, `y);
+  }
+}
+public class Main {
+  public static void main(String[] args) {
+    Random random = new Random(123);
+    for (int i=0; i<3; i++) {
+      double d = 100.0 * random.nextDouble();
+      double r = Math.pow(d, 1.0 / 3.0);
+      System.out.println("d " + d + " r " + r + " ^3 " + r*r*r);
+    }
+  }
+}

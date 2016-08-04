@@ -1,0 +1,11 @@
+// Desugared repetition in a stateful production
+
+module StatefulRepetition;
+
+option stateful(State);
+
+public generic Top = List List ;
+
+stateful Pair<Node> List = Element* ;
+
+generic Element = "Element" ;

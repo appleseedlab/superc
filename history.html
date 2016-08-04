@@ -1,0 +1,3117 @@
+<html>
+<head>
+<title>xtc Release History and Notes</title>
+<link rel="stylesheet" href="http://cs.nyu.edu/rgrimm/bedrock.css"
+  type="text/css">
+<body>
+
+<h1 class="title">xtc Release History and Notes</h1>
+
+<dl>
+
+<!-- ======================================================================= -->
+
+<dt>2.4.0 (8/17/14)</dt>
+
+<dd>Major feature release.
+
+<p>This release significantly improves Blink. The Jeannie expression
+evaluator has been greatly simplified to reduce the number of commands
+sent to the component debuggers. The intermediate agent has been
+enhanced to remove hard-coded limitations such as the maximum number
+of threads and synchronized accesses to shared data structures. This
+version is the one used for all experiment in the SPE&nbsp;&rsquo;14
+paper &ldquo;Debugging Mixed-Environment Programs with Blink&rdquo;
+by Byeongcheol Lee, Martin Hirzel, Robert Grimm, and Kathryn
+S. McKinley.</p>
+
+<p>This release also improves SuperC's AST node names, fixes various
+bugs in AST creation, and adds further regression tests.</p>
+
+<p>Clang's C structure layout appears to be different from that of
+gcc, leading to a regression test failure on Mac OS 10.9.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>2.3.1 (4/4/12)</dt>
+
+<dd>Minor bug fix release.  This release fixes incorrect license
+headers in several source files and replaces 2.3.0 as described
+below.</dd>
+
+<!-- ======================================================================= -->
+
+<dt>2.3.0 (3/25/12)</dt>
+
+<dd>Major feature release.
+
+<p>This release significantly improves <strong>SuperC</strong> again.
+SuperC's performance has been tuned, the regression tests have been
+expanded, numerous bugs have been fixed, and the scripts for running
+and evaluating SuperC have been enhanced.  All SuperC code is now
+released under the GPL version 2.0.  This version is the one used for
+all experiments in the PLDI&nbsp;&rsquo;12 paper
+&ldquo;<a href="http://cs.nyu.edu/rgrimm/papers/pldi12.pdf">SuperC:
+Parsing All of C by Taming the Preprocessor</a>&rdquo; by Paul
+Gazzillo and Robert Grimm.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>2.2.0 (11/19/11)</dt>
+
+<dd>Major feature release.
+
+<p>This release significantly improves <strong>SuperC</strong>.  The
+parsing algorithm, Fork-Merge LR, has been completely reimplemented.
+It is now based on the novel token follow-set, which captures the
+actual variability of static conditionals independent of how they are
+nested within each other and appended to each other.  The parser also
+includes three optimizations, shared reductions, lazy forking, and
+early reductions, which further decrease the number of forked
+subparsers.</p>
+
+<p>Both SuperC preprocessor and parser are now language-independent.
+To support a new language, a user needs to provide an annotated JFlex
+lexer definition, an annotated Bison grammar, and, optionally, a Java
+implementation of semantic actions.</p>
+
+<p>Several new scripts help with running SuperC and collecting
+experimental data.  They include a script to distribute the processing
+of Linux kernel source files across machines and scripts to compute
+summary statistics from SuperC's raw data output, e.g., a CDF of the
+number of subparsers.</p>
+
+<p>The new SuperC technical manual can be found
+in <code>src/xtc/lang/cpp</code>.  It documents basic SuperC usage,
+its scripts, and the format of its statistics output.  The manual is
+built by invoking <code>make&nbsp;manual</code>.</p>
+
+<p>This release also fixes a bug in the <strong>Jeannie</strong>
+regression test harness, which failed on some Linux distributions.
+Thanks to Jacob Shufro and Martin Hirzel for their help in identifying
+and resolving this bug.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>2.1.1 (9/9/11)</dt>
+
+<dd>Minor bug fix release.
+
+<p>This release removes support for type checking the simply typed
+lambda calculus from <code>xtc.lang.TypedLambda</code>, since it
+depends on the already discontinued Typical compiler.  Thanks to
+Thomas Huston for identifying this bug.</p>
+
+<p>This release fixes the C structure layout regression tests to not
+utilize the Typical-generated type checker anymore.</p>
+
+<p>This release also fixes a C type checker regression test to not use
+a deprecated preprocessor feature anymore.  Thanks to Jacob Shufro for
+identifying this bug.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>2.1.0 (9/7/11)</dt>
+
+<dd>Minor feature and bug fix release.
+
+<p>This release improves <strong>SuperC</strong> by adding
+significantly more regression tests and introducing attendant bug
+fixes.  It also adds more code comments and fixes code formatting.</p>
+
+<p>This release adds support for parsing and pretty
+printing <strong>Java 7</strong>.  To support Java 7's
+try-with-resources statements, the AST for regular try-catch
+statements has been changed, even when using parsers for earlier Java
+versions.  The Java analyzer, <code>xtc.lang.JavaAnalyzer</code>, has
+been updated accordingly.  To support Java 7's underscores in numeric
+literals, the definition of Java constants
+in <em>Rats!'</em> <code>xtc.lang.JavaConstant</code> has been
+modified to more closely follow the language specification.</p>
+
+<p><strong>Tokens</strong> are now extensible; the corresponding
+class, <code>xtc.tree.Token</code>, is not final anymore but has
+become abstract.  <em>Rats!'</em> support for parse trees has been
+updated to utilize the new concrete
+subclass <code>xtc.tree.TextToken</code>.  All parsers distributed
+with xtc have been updated accordingly.</p>
+
+<p>To support <strong>Mac OS X 10.7</strong> (Lion), this release adds
+support for the <code>stpncpy_chk()</code> builtin function.</p>
+
+<p>Finally, this release removes a residual dependency on the
+Typical-generated type checker from <code>xtc.lang.C</code>.  Thanks
+to Thomas Huston for identifying this bug.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>2.0.0 (7/20/11)</dt>
+
+<dd>Major feature release.
+
+<p>This release introduces a preview of <strong>SuperC</strong>, a
+new tool for parsing C code with arbitrary preprocessor usage.  SuperC
+first lexes C code, then uses a new configuration-preserving
+preprocessor to resolve all directives modulo conditionals, and
+finally uses a novel variant of LR parsing to generate a well-formed
+AST containing static choice nodes for conditionals.  The
+corresponding Java package is <code>xtc.lang.cpp</code>.</p>
+
+<p>This release removes the following unmaintained code: the ANTLR
+and JavaCC parsers for Java; the C4 compiler; the Overlog compiler;
+the Typical compiler; and the XForm AST query engine.  The last
+release containing this code is
+<a href="http://cs.nyu.edu/rgrimm/xtc/xtc-core-1.15.0.zip">xtc version
+1.15.0</a> (with
+corresponding <a href="http://cs.nyu.edu/rgrimm/xtc/xtc/-testsuite-1.15.0.zip">testsuite</a>).</p>
+
+<p>This release removes the unnecessary dependency on the "perfctr"
+library from Jinn.  Thanks to Mengtao Sun for pointing out this
+bug.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.15.0 (6/14/10)</dt>
+
+<dd>Major feature release.  This release
+introduces <strong>Jinn</strong>, a dynamic bug detector for the Java
+Native Interface (JNI).  It currently supports HotSpot and J9 running
+on the x86 version of Linux.  Support for other OS and processor
+combinations is under development.  The source directory
+is <code>src/xtc/lang/blink/agent</code> and the make target
+is <code>agent</code>.  Please direct any feedback
+to <a href="mailto:bclee@cs.utexas.edu?subject=Jinn">Byeong
+Lee</a>.</p>
+
+<p>This release also removes the unnecessary <code>analyzers</code>
+target from the make file in <code>src/xtc/lang/blink</code>.  Thanks
+to Tony Sloane for pointing out this bug.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.14.4 (9/29/09)</dt>
+
+<dd>Minor bug fix release:
+
+<ul>
+
+<li>Added <code>rats.manifest</code> to the source distribution.
+Thanks to Tony Sloane for pointing out this omission.</li>
+
+<li>Cleaned up <code>xtc.tree.Visitor</code>
+and <code>xtc.lang.C</code> to avoid raw type warnings.</li>
+
+<li>Changed parser generator to correctly handle top-level repetitions
+and options in productions that are marked as resetting or stateful.
+Thanks to Christoff B&uuml;rger for helping to identify this
+issue.</li>
+
+<li>Changed parser regression test to eliminate non-ASCII character,
+which may lead to test failures depending on a system's default
+encoding.  Thanks to Christopher Mangus for helping to identify this
+issue.</li>
+
+<li>Cleaned up <code>limits.c</code> to support 64-bit architectures
+and eliminate compiler warnings.</li>
+
+<li>Changed C grammar to avoid stack overflow errors for large
+compound statements.</li>
+
+<li>Changed the Java and Typical type checkers for C to support
+different structure layout for packed bitfields in gcc 4.2 and later.
+Thanks to Christopher Mangus, Martin Hirzel, and Anh Le for helping to
+resolve this issue.</li>
+
+<li>Changed the C type checkers to support gcc's builtin functions for
+bounds checking memory operations.</li>
+
+<li>Changed Jeannie build scripts to disable Apple's "blocks"
+extension to C, C++, and Objective-C on Mac OS X.  Thanks to Martin
+Hirzel for realizing this change.</li>
+
+<li>Changed Jeannie build scripts to also
+use <code>include/win32</code> as an include file path for Cygwin,
+which is necessary for Sun's JDK 1.6.  Thanks to Martin Hirzel for
+resolving this issue.</li>
+
+<li>Changed Jeannie regression tests to support 64-bit pointers.
+Thanks to Martin Hirzel for orchestrating this change.</li>
+
+<li>Updated <code>xtc.lang.c.ml.Machdep</code> to reflect changed
+constants in <code>xtc.Limits</code>.  Thanks to Mike Chrzanowski for
+identifying this bug.</li>
+
+</ul>
+
+<p>Due to many of the above changes, xtc now passes all regression
+tests on Apple's Mac OS X Snow Leopard (10.6), whose C compiler and
+Java virtual machine default to 64-bit.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.14.3 (4/6/09)</dt>
+
+<dd>Minor feature and bug fix release.
+
+<p><strong><em>Rats!</em></strong> has been updated as follows:<ul>
+
+<li>Text-only productions may now contain syntactic predicates in
+addition to semantic predicates.</li>
+
+<li>The source locations for errors caused by any character constants
+or visibility attributes are now correctly reported.  Thanks to Chris
+Capel for raising this issue.</li>
+
+<li>The code generator now emits <code>break</code> statements for
+character switches in optional expressions.  Thanks to Chris Capel and
+the C# compiler for identifying this bug.</li>
+
+</ul></p>
+
+<p>The Jeannie grammar has been updated to eliminate a bug that caused
+null pointer exceptions.  Thanks to Matt Renzelmann for identifying
+this bug.</p>
+
+<p>The Blink debugger has been updated to perform dynamic consistency
+checks on the arguments to JNI functions.  For example, it detects
+when <code>NULL</code> is passed to <code>NewStringUTF</code> and
+reports this invalid argument.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.14.2 (10/18/08)</dt>
+
+<dd>Minor feature and bug fix release.
+
+<p><strong><em>Rats!</em></strong> has been updated as follows:<ul>
+
+<li>A code generator bug for repetitions nested in options nested
+in repetitions has been fixed.</li>
+
+<li>Based on feedback by Marek Gilbert and Sukyoung Ryu, error
+messages for string literals, string matches, and optional/repeated
+elements have been improved.  Additionally, the new per-production
+<code>explicit</code> attribute instructs <em>Rats!</em> to generate
+error messages relative to the marked production's name (and thus
+ignore any already generated parse errors).</li>
+
+<li>Generic productions that are directly left-recursive and
+explicitly assign <code>yyValue</code> in recursive alternatives are
+now rejected, since <em>Rats!</em> cannot deduce their semantic value.
+Thanks to Chris Capel for raising this issue.</li>
+
+<li>Productions containing expressions lifted from public productions
+do not inherit public visibility anymore.  Thanks to Chris Capel for
+raising this issue.</li>
+
+<li><em>Rats!</em> now has its own JAR file, <code>rats.jar</code>.
+Thanks to Adrian Quark for raising this issue.</li>
+
+<li>The regression tests now check for errors and warnings as well as
+correct inputs and outputs.</li>
+
+</ul></p>
+
+<p><strong>C support</strong> has been improved as follows:<ul>
+
+<li>The C grammar has been changed to avoid stack overflow errors on
+some Java virtual machines when parsing very long character or string
+literals.  Thanks to Eric Hielscher for raising this issue.</li>
+
+<li>The C type checker has been updated to type check programs read in
+with the <code>parsetree</code> option, which preserves all
+formatting.  Thanks to Eric Hielscher for raising this issue.</li>
+
+<li>The C grammar and type checker now support
+the <code>__thread</code> specifier provided by gcc for the ELF object
+format.  Thanks to Matt Renzelmann for raising this issue and aiding
+in its resolution.</li>
+
+<li>The new <code>printFeatures</code> option
+for <code>xtc.lang.C</code> prints major GCC extensions used by the
+code being processed.</li>
+
+</ul>
+
+Please remember to run <code>make&nbsp;configure</code> to recreate
+the appropriate <code>xtc.Limits</code> for your hardware, OS, and
+compiler.  Thanks to BK Lee's tireless help, configuration now also
+works with Microsoft's Visual C.</p>
+
+<p>The <strong>Blink</strong> inter-language debugger has been
+improved as follows:<ul>
+
+<li>Blink now natively supports Microsoft Windows using Microsoft CDB
+as a component debugger.  It features breakpoints, call stack tracing,
+and single stepping across Java and native code.  However,
+mixed-language Jeannie expressions are not (yet) working, since
+Microsoft CDB does not support complete C/C++ expression evaluation
+and convenience variables.</li>
+
+<li>Blink is now more robust by wrapping calls from Java to C through
+JVMTI, the JVM Tool Interface, which is available in JVMs such as
+Sun's HotSpot and IBM's J9.  Previously, Blink relied on native
+breakpoints inside the JVM to interpose on the transition from Java to
+native code.  This approach can lead to surprising behavior during
+inter-language single stepping and has thus been replaced.</li>
+
+</ul></p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.14.1 (7/31/08)</dt>
+
+<dd>Bug fix release.
+
+<p><strong><em>Rats!</em></strong> has been updated as follows:<ul>
+
+<li>User-specified bindings in the base cases of directly
+left-recursive productions are now preserved (instead of being
+renamed).  Thanks to Chris Capel for identifying this bug.</li>
+
+<li>Left-recursive productions are now recognized in time linear to a
+grammar's number of productions.  Thanks to Chris Capel for raising
+the issue of parser generator performance.</li>
+
+<li>If an alternative contains only a predicate, it will not result in
+an unreachable alternative error anymore.  Similarly, if an option
+contains only a predicate, it will not result in a matching empty
+input warning anymore.  Thanks to Chris Capel for identifying these
+bugs.</li>
+
+<li>If an alternative starting with character and/or string literals
+is a prefix of a subsequent alternative, the latter alternative will
+now be reported as unreachable (instead of <em>Rats!</em>  generating
+unreachable Java code).  Thanks to Janus Dam Nielsen for identifying
+this issue.</li>
+
+<li>Voided null literals are now rejected with an error message (as
+they serve no purpose).  Thanks to Eric Hielscher for raising this
+issue.</li>
+
+<li>Java primitive types and keywords are now reported as invalid
+types for productions.</li>
+
+<li>Optional or repeated actions now result in a single error message
+instead of two messages.</li>
+
+</ul></p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.14.0 (7/26/08)</dt>
+
+<dd>Major feature release.
+
+<p>This release introduces <strong>Blink</strong>, a portable
+mixed-mode Java/native debugger.  It currently supports Sun's Java
+virtual machine running on the x86 versions of Linux and Cygwin, with
+support for other JVM, OS and processor configurations under
+development.  Please direct any feedback
+to <a href="mailto:bclee@cs.utexas.edu?subject=Blink">BK Lee</a>.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.13.3 (5/14/08)</dt>
+
+<dd>Minor feature and bug fix release.
+
+<p><strong><em>Rats!</em></strong> has been updated as follows:<ul>
+
+<li>Variant typing now supports constructors with the same simple name
+appearing in different variants.  The corresponding generic nodes must
+be created in different modules.  Furthermore, polymorphic variants
+may not reference different monomorphic variants containing
+constructors with the same simple name.</li>
+
+<li>Variant typing now better handles generic productions that do not
+pass the value through and whose generic nodes have already been
+assigned to monomorphic variants.  Additionally, a bug in processing
+such productions has been fixed.</li>
+
+<li>String literals in string match expressions are now properly
+escaped.  Thanks to Dejan Jovanovi&#263; for identifying this
+bug.</li>
+
+<li>The runtime JAR file now contains nested and anonymous classes as
+well.  Thanks to Chris Jones for identifying this bug.</li>
+
+</ul>
+Due to improvements in variant typing, <em>Rats!</em> now statically
+types the Jeannie grammar, requiring no
+additional <code>variant</code> annotations.</p>
+
+<p>The <strong>Typical compiler</strong> has been updated to
+support <code>fun</code> expressions, and the translation
+of <code>let</code> expressions has been optimized.  Additionally,
+bugs in the exhaustiveness checking for <code>match</code> expressions
+and when explicitly matching <code>bottom</code> have been fixed.
+Thanks to Christopher Conway for reporting these bugs.</p>
+
+<p>The Java, Typical, and O'Caml <strong>type checkers for
+C</strong> have been updated to:<ul>
+
+<li>check for zero width bit-fields with names,</li>
+
+<li>check for discarded qualifiers,</li>
+
+<li>treat string literals as <code>const&nbsp;char&nbsp;*</code>
+instead of <code>char&nbsp;*</code>,</li>
+
+<li>track the compile-time constant values of sizeof, alignof, and
+offsetof expressions,</li>
+
+<li>correctly track the compile-time constant values of enumerators
+that are defined in terms of other enumerators within the same
+enumeration,</li>
+
+<li>warn on (in)equality comparisons between integers and pointers
+(instead of reporting errors).</li>
+
+</ul>
+Thanks to Matt Renzelmann for identifying the last two issues.</p>
+
+<p>To track size, alignment, and offset values, the C type checkers
+now include a re-engineered version of gcc's structure layout
+algorithm.  The local system's C configuration
+in <code>xtc.Limits</code> has been improved in support.
+Run <code>make&nbsp;configure</code> to recreate the appropriate
+version for your hardware and operating system.</p>
+
+<p>The syntax for <strong>Jeannie</strong> top-level compilation
+units has changed.  The package and import declarations now come
+before the initial <code>`.C&nbsp;{&hellip;}</code> block instead of
+after it.  That way, top-level C code can use simple instead of fully
+qualified names when referring to Java entities.</p>
+
+<p>Internally, the Jeannie grammar and AST for array declarators has
+been updated to create "variable length" nodes, just like the C
+grammar and AST in release 1.13.0.  Furthermore, the compiler has been
+updated to address several bugs, mostly thanks to helpful reporting by
+Matt Renzelmann.</p>
+
+<p>Support for <strong>Overlog</strong> has been extended with a
+translator targeting Java.  The corresponding runtime is being
+developed by Nalini Belaramani at UT Austin; the necessary JAR file is
+available <a href="http://cs.nyu.edu/rgrimm/xtc/overlog-runtime.jar">here</a>.
+Additionally, the Overlog language has been extended with tuple and
+function type declarations, the Overlog grammar has been cleaned up,
+and a bug in the inference of function return types has been fixed.
+The corresponding Java package has been renamed
+to <code>xtc.lang.overlog</code> (from <code>xtc.lang.p2</code>).</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.13.2 (12/1/07)</dt>
+
+<dd>Minor feature and bug fix release.
+
+<p>The <strong>Jeannie compiler</strong> now supports backticked Java
+primitive types, e.g., <code>`boolean</code> or <code>`int</code>, as
+C type specifiers.  This change eliminates the need for using the
+equivalent JNI types, e.g., <code>jboolean</code>
+or <code>jint</code>, in C contexts.  This release also includes
+various bug fixes to the Jeannie compiler and
+a <a href="http://cs.nyu.edu/rgrimm/xtc/jeannie.html">user
+guide</a>.</p>
+
+<p>The <strong>Typical compiler</strong> now supports
+the <code>guard</code> construct for protecting
+against <code>bottom</code> values in arbitrary expressions.  It also
+incorporates various bug fixes, including mapping <code>bottom</code>
+to <code>bottom</code> in optimized pattern matches.</p>
+
+<p>This release includes <strong>three type checkers for C</strong>.
+The first is the previously released version, which is written in Java
+and used by the Jeannie compiler.  The second is new to this release
+and written in Typical.  It is invoked through
+the <code>-analyze</code> and <code>-typical</code> options to the C
+driver <code>xtc.lang.C</code>.  Just like the type checker written in
+Java, the type checker written in Typical passes all of gcc 4.1.1's
+regression tests.  Both type checkers also process the entire Linux
+2.6 kernel.  To this end, the handwritten C type checker now:<ul>
+
+<li>supports gcc's <code>__builtin_types_compatible_p()</code> (which
+also required changing the C grammar),</li>
+
+<li>properly creates a scope for gcc statement expressions,</li>
+
+<li>actually recognizes unnamed struct or union fields appearing in
+structs or unions,</li>
+
+<li>correctly pointer decays all address of expressions,</li>
+
+<li>correctly recognizes all type names in sizeof and alignof
+expressions (which also required changing the C grammar),</li>
+
+<li>computes the size and alignment of arbitrary types and expressions
+(though the results do not yet agree with gcc for bitfields),</li>
+
+<li>treats compound literals as compile-time constants,</li>
+
+<li>treats static block-level variables as having a compile-time
+constant memory location,</li>
+
+<li>correctly tracks compile-time constant addresses across all
+address of expressions,</li>
+
+<li>treats offsetof expressions as having a compile-time constant
+value,</li>
+
+<li>suppresses duplicate errors when processing case labels.</li>
+
+</ul>
+The third type checker for C is new to this release as well and
+written in O'Caml.  It re-uses the parser and AST representation
+of <a href="http://www.cs.berkeley.edu/~necula/cil/">CIL</a> and is
+contained in the <code>src/xtc/lang/c/ml</code> directory.  Like the
+other two type checkers, the O'Caml version processes the entire Linux
+2.6 kernel; though it does not recognize C99's variable length
+arrays.</p>
+
+<p>xtc now includes support for type inference and concurrency
+analysis of <strong>Overlog</strong> programs; the corresponding code
+lives in the <code>xtc.lang.p2</code> package.</p>
+
+<p><strong><em>Rats!</em></strong> has been updated as follows:<ul>
+
+<li>Variant typing now supports modularized AST definitions, i.e., it
+now supports variants with the same simple name but in different
+modules.  It also performs stricter error checking.</li>
+
+<li>Support for the <code>rawTypes</code> attribute has been fixed; it
+does not result in a class cast exception anymore.  However, support
+for this attribute has been deprecated and will be removed in a future
+release.</li>
+
+</ul></p>
+
+<p>All <strong>tools</strong> now support a <code>-no-exit</code>
+option for not exiting a Java virtual machine.  As a result, tools can
+now be invoked by other Java code in the same JVM without terminating
+the JVM after tool completion.</p>
+
+<p>The <strong>licensing</strong> of most classes
+in <code>xtc.util</code> has been changed to the LGPL version 2.1.  As
+before, the complete list of LGPL-ed classes can be found
+in <a href="overview.html">overview.html</a>.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.13.1 (10/16/07)</dt>
+
+<dd>Bug fix and minor feature release.
+
+<p>This release makes the following changes
+to <strong><em>Rats!</em></strong>:<ul>
+
+<li>Parsers generated with the <code>withLocation</code> option now
+start counting columns at 1 (instead of 0) for consistency with most
+modern development environments.  The following code fixes Emacs'
+column number mode:
+<pre>
+(add-hook 'post-command-hook (lambda ()
+  (let ((help-echo "mouse-1: select (drag to resize), mouse-2: delete others, mouse-3: delete this")
+        (col (number-to-string (+ 1 (current-column)))))
+    (setq-default mode-line-position
+      `((-3 ,(propertize "%p" 'help-echo help-echo))
+        (size-indication-mode
+         (8 ,(propertize " of %I" 'help-echo help-echo)))
+        (line-number-mode
+         ((column-number-mode
+           (10 ,(propertize (concat " (%l," col ")") 'help-echo help-echo))
+           (6 ,(propertize " L%l" 'help-echo help-echo))))
+         ((column-number-mode
+           (5 ,(propertize (concat " C" col) 'help-echo help-echo))))))))
+    (force-mode-line-update)))
+</pre>
+Thanks to Martin Hirzel for updating Emacs' original hook.  The start
+column is now defined by <code>xtc.Constants.FIRST_COLUMN</code>;
+the <code>xtc.tree.Printer</code> utility has been updated to use this
+constant.</li>
+
+<li>Parsers generated with the <code>withLocation</code> option now
+correctly annotate nodes resulting from directly left-recursive
+generic productions with their source locations (again).  Release
+1.12.0 introduced a regression, which annotated nodes with a source
+location past the position of the recursive nonterminal.  This release
+restores an optimized version of the correct approach introduced in
+release 1.8.0.</li>
+
+<li>A parser's internal state for tracking source locations can now be
+updated through
+the <code>xtc.parser.ParserBase.setLocation(int,String,int,int)</code>
+method.  The C, C4, and Jeannie grammars utilize this method to update
+the corresponding parsers' source location based on gcc line markers
+in the preprocessed input.  As a result, all error messages now report
+the original file name and line number; though the column number may
+be inaccurate due to macro expansion.</li>
+
+<li>Parsers containing generic productions now include a
+static <code>toText()</code> helper method that returns a string.  For
+regular parsers, the method is the identity function for strings.  For
+parsers generated with the <code>withParseTree</code> option, the
+method takes an annotated token as its only argument and returns the
+corresponding string.  The C and Java grammars have been rewritten to
+utilize this method instead of various kludges for converting
+annotated tokens to strings.</li>
+
+<li>Parsers generated with the <code>withParseTree</code> option now
+correctly preserve formatting in list-valued productions.
+Furthermore, they now correctly preserve formatting in some generic
+productions that are not directly left-recursive and end with a
+sequence consisting only of formatting; <em>Rats!</em> also does not
+split such productions any more.</li>
+
+<li>The new <code>noinline</code> attribute for productions prevents
+inlining even if the production is marked as or recognized
+as <code>transient</code>.  Furthermore, the new <code>memoized</code>
+attribute for productions prevents productions from being treated
+as <code>transient</code>.</li>
+
+<li>Variant typing now performs stricter error checking before
+assigning a polymorphic variant to a production.  It also generates
+more consistent constructor names for polymorphic variants.  Finally,
+it now correctly assigns some generic nodes to variants that were
+previously ignored.</li>
+
+<li>The accuracy of production voiding, which voids productions whose
+semantic values are never bound, has been improved.</li>
+
+</ul></p>
+
+<p>The <strong>Typical</strong> compiler now supports the
+hierarchical syntax tree definitions generated by <em>Rats!</em>,
+including polymorphic variants and the <code>'a&nbsp;var</code> type.
+The type describing the syntax tree's root defaults
+to <code>node</code> but can be overridden through
+the <code>-node</code> command line flag.  Additional changes to
+Typical include:<ul>
+
+<li>The Typical type checker itself is now built with all
+optimizations enabled: pattern matches are optimized through switch
+statements, let scopes are collapsed where possible, and the unused
+type record is optimized away.</li>
+
+<li>The implementation of the <code>reduce</code> construct now
+correctly follows its semantics.</li>
+
+<li>Similarly, the implementation of the <code>parent</code>
+and <code>ancestor</code> built-ins now follows their semantics.</li>
+
+</ul></p>
+
+<p>The <strong>Jeannie compiler</strong> has been updated to reflect
+the language described in the OOPSLA paper.  In particular, it now
+supports <code>with</code> statements for non-primitive arrays,
+declarations in <code>with</code> statement initial clauses, and
+compound initializers.  Additional changes include:<ul>
+
+<li>Keywords and built-ins new to Jeannie can now be written without
+leading underscores.  However, to avoid a name clash with the standard
+C library, <code>abort</code> (or <code>_abort</code>) has been
+renamed to <code>cancel</code> (or <code>_cancel</code>).  The
+new <code>-underscores</code> command line option overrides this new
+default behavior, reverting to the underscored versions.</li>
+
+<li>The compiler now emits line marker comments in generated Java code
+of the form
+<pre>
+//#line &lt;line&gt; &lt;file&gt;
+</pre>
+and indents both generated C and Java code identically to the source.
+The new <code>-pretty</code> command line option overrides this new
+default behavior, reverting to the Java and C pretty printers.</li>
+
+<li>The new <code>jeannie.sh</code> shell script
+in <code>src/xtc/lang/jeannie</code> manages the entire build process
+from Jeannie source code to Java and C binaries.</li>
+
+</ul></p>
+
+<p>The C regression tests have been updated to include all relevant
+tests from GCC version 4.1.1.  The <strong>C type checker</strong> has
+been updated accordingly.  In particular, it now explicitly checks
+for:<ul>
+
+<li>structs or unions not being redefined within themselves,</li>
+
+<li>variables, fields, and parameters not being declared as void
+(instead of reporting the types as incomplete),</li>
+
+<li>void parameter type lists not having a storage class, qualifier,
+or function specifier,</li>
+
+<li>identifiers with internal linkage not being redeclared with
+external linkage in a block-level declaration,</li>
+
+<li>labels being declared but not defined and labels being defined but
+not used,</li>
+
+<li>the type of the target in gcc's computed goto statements being a
+non-float scalar,</li>
+
+<li>incomplete types when dereferencing pointers or performing pointer
+arithmetic,</li>
+
+<li>right-hand sides in assignments not being void,</li>
+
+<li>pointer values not being assigned to floating point objects,</li>
+
+<li>structs or unions in compound literals not being incomplete,</li>
+
+<li>extra brace groups in compound initializers,</li>
+
+<li>the return type of <code>main</code> not being an int.</li>
+
+</ul>
+Additionally, the processing of block-level extern declarations has
+been much improved.</p>
+
+<p>The <code>limits.c</code> utility for determining a <strong>local
+system's C configuration</strong> has been improved to more accurately
+determine the local pointer difference, size, and wide character
+types.  The corresponding <code>xtc.Limits</code> class included in
+the source distribution is valid for 32-bit x86-based Mac OS X
+systems, but differs in endianness from PowerPC-based Mac OS X systems
+and in the definitions for size and wide character types from Linux
+and Windows systems.  The new <code>configure</code> target for the
+global Makefile rebuilds <code>xtc.Limits</code>
+and <code>xtc.type.C</code> (whose constants depend
+on <code>Limits</code>) for a local system.</p>
+
+<p>Thanks to Thomas Moschny, the implementation of for expressions in
+the <strong>XForm</strong> AST query and transformation engine has
+been fixed to properly iterate over nested sequences.  Also thanks to
+Thomas Moschny, a bug causing a null pointer exception has been
+fixed.</p>
+
+<p>All <strong>tools</strong> now support
+a <code>-diagnostics</code> option to print tool internal state.
+Given this option, the C driver now prints the local system's
+configuration parameters (as determined by <code>limits.c</code>
+&mdash; see above).</p>
+
+<p>Finally, the Java and C drivers now support
+the <code>-locateAST</code> command line option to print each node's
+source location when printing the AST with the <code>-printAST</code>
+option.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.13.0 (8/31/07)</dt>
+
+<dd>Major feature and bug fix release.
+
+<p>Starting with this release, xtc
+includes <strong>Typical</strong>, a domain-specific language and
+compiler for implementing semantic analysis including type checking.
+The Typical language builds on the functional core of ML and extends
+it with novel declarative constructs specifically designed for
+implementing type checkers.  The package description
+for <code>xtc.typical</code> provides an overview and introduction.
+Examples included with xtc are a type checker for the simply typed
+lambda calculus in <code>src/xtc/lang/TypedLambda.tpcl</code> and for
+the Typical language itself in <code>src/xtc/lang/Typical.tpcl</code>.
+A type checker for C written in Typical is under development.  The
+main developers for Typical are Laune Harris and Anh Le.</p>
+
+<p>Starting with this release, xtc also includes "a compiler
+contributed to xtc" a.k.a. <strong>Jeannie</strong>, which integrates
+Java with C.  In Jeannie, Java and C code are nested within each other
+at the level of individual statements and expressions and compile down
+to JNI, the Java platform's standard foreign function interface.  By
+combining the two languages' syntax and semantics, Jeannie eliminates
+verbose boiler-plate code, enables static error detection across the
+language boundary, and simplifies dynamic resource management.
+The <a
+href="http://cs.nyu.edu/rgrimm/papers/oopsla07.pdf">OOPSLA&nbsp;'07</a>
+paper by Martin Hirzel and Robert Grimm describes both language and
+compiler in detail; the package description
+for <code>xtc.lang.jeannie</code> provides instructions on how to
+compile source code to binaries.</p>
+
+<p>Instead of using strings, <strong><em>Rats!</em></strong> now
+relies on <code>xtc.type.Type</code> and its subclasses to internally
+represent the types of semantic values.  The first new feature to
+leverage this improved internal representation is <strong>variant
+typing for grammars</strong>.  When the <code>-ast</code> command line
+option is combined with the new <code>-variant</code>
+option, <em>Rats!</em>  automatically determines ML-style variant
+types representing a grammar's generic AST.  To facilitate type
+inference, <em>Rats!</em>  relies on the new <code>variant</code>
+attribute for productions, which indicates that all generic nodes
+returned by a production are members of the same variant type, named
+after the production.  The C, Java, Typical, and simply typed lambda
+calculus grammars have been updated accordingly.</p>
+
+<p>The <strong>Java grammar and AST</strong> for <code>this</code>
+expressions have been improved.  Instead of accepting any primary and
+postfix expression, the grammar now recognizes only a qualified
+identifier with a trailing dot before the <code>this</code> keyword.
+For well-formed inputs, this changes replaces zero or more nested
+selection expression nodes as a this expression node's first child
+with an optional qualified identifier.</p>
+
+<p>The <strong>C grammar and AST</strong> have also been improved.
+The "<code>*</code>" string denoting variable-length arrays in array
+declarator nodes and direct abstract declarator nodes has been
+replaced with a dedicated "variable length" node.  Next, the
+identifier string in structure designators has been replaced by a
+primary identifier node.  Finally, goto statement nodes now have two
+children.  A "<code>*</code>" string as the first child now indicates
+a computed goto statement.  The second child always is a node, with a
+primary identifier providing a regular goto statement's label.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.12.0 (7/18/07)</dt>
+
+<dd>Major feature and bug fix release.
+
+<p>As described below, <em>Rats!</em>' handling of list values in
+generic productions has changed.  If your grammar contains generic
+productions and you do not want to update your AST processing code,
+add the <code>flatten</code> option to your grammar.</p>
+
+<p>xtc now supports <strong>parse trees</strong> in addition to
+abstract syntax trees, thus facilitating source code refactorings that
+preserve formatting and layout.  In particular:<ul>
+
+<li>For grammars with the new <code>withParseTree</code>
+attribute, <em>Rats!</em> rewrites generic, list-valued, text-only,
+and void productions as well as productions that pass the value
+through to generate parsers that preserve all formatting as
+annotations.  Annotations are instances of the new
+class <code>xtc.tree.Formatting</code>, which replaces the generic
+annotations introduced in version 1.9.0.</li>
+
+<li>The embedded AST generally has the same structure as for parsers
+generated without the <code>withParseTree</code> attribute.  The
+exception are strings, which are represented as instances
+of <code>xtc.tree.Token</code>.  Additionally, generic nodes include
+additional children (consisting of <code>Formatting</code> annotating
+a <code>null</code> value) if a voided expression or void nonterminal
+appears between two list-valued expressions.</li>
+
+<li>By default, visitors continue to ignore all annotations and
+process only AST nodes, thus ensuring that the same visitors can
+process both parse trees and abstract syntax trees.
+The <code>Token.test</code> and <code>Token.cast</code> methods
+can be used to test for and cast to strings, irrespective of whether
+the tree is a parse tree or abstract syntax tree.</li>
+
+<li>The new <code>xtc.tree.ParseTreePrinter</code> prints parse trees
+including formatting, and the
+new <code>xtc.tree.ParseTreeStripper</code> strips all formatting and
+tokens, extracting the embedded AST (but preserving any other
+annotations).</li>
+
+<li>The C and Java drivers have been updated with
+a <code>-parsetree</code> option to use parse trees instead of
+abstract syntax trees.  Furthermore, the <code>-strip</code> option
+removes all formatting and tokens from a parse tree again.</li>
+
+</ul></p>
+
+<p>The interface to <strong>abstract syntax tree nodes</strong> has
+been improved as following:<ul>
+
+<li>Access to a node's source location has been factored into its own
+interface <code>xtc.tree.Locatable</code>.  The corresponding field
+in <code>xtc.tree.Node</code> has been marked private.  <em>Rats!</em>
+now uses this interface for parsers with the <code>withLocation</code>
+attribute, thus removing the dependency on xtc's node
+representation.</li>
+
+<li>All nodes now support a <code>write(Appendable)</code> method for
+incrementally creating a human-readable
+representation.  <code>Node.toString()</code> now utilizes this
+method.  Similar functionality for classes in <code>xtc.type</code>
+has been modified to utilize this generalized version.</li>
+
+<li>Nodes' support for children that are lists, i.e., instances
+of <code>xtc.util.Pair</code> has been improved.  In particular, the
+new <code>Node.getList</code> method returns a node's child as a list,
+and the new <code>Node.isList</code> and <code>Node.toList</code>
+methods test for and cast to lists of nodes, respectively.
+Additionally, the
+new <code>Visitor.iterate</code>, <code>Visitor.map</code>,
+and <code>Visitor.mapInPlace</code> methods apply a visitor to all
+nodes on a list.</li>
+
+</ul></p>
+
+<p>The representation of <strong>programming language types</strong>
+in <code>xtc.type</code> has been cleaned up and expanded:<ul>
+
+<li>Type annotations, i.e., a type's source location, language, scope,
+constant value, memory shape, and attributes, can now be stored
+in <em>each</em> type instead of only a dedicated wrapped type.
+Correspondingly, the wrapped types for source locations, constant
+values, and memory shapes have been removed;
+though <code>AnnotatedT</code> is still available to annotate a type
+without directly modifying it.</li>
+
+<li>The wrapped types for variables, fields, and C's struct and union
+members have been folded into a single wrapped
+type <code>xtc.type.VariableT</code>.</li>
+
+<li>The new <code>UnitT</code>, <code>VariantT</code>,
+and <code>TupleT</code> classes model the corresponding types in
+functional languages such as ML or Haskell.  The latter two classes
+replace the <code>ListT</code>, <code>OptionT</code>,
+and <code>ProductT</code> classes introduced in version 1.10.0.</li>
+
+<li>Types can now be parameterized through the <code>Parameter</code>
+and <code>Wildcard</code> classes representing named parameters and
+wildcards, respectively.  The new wrapped
+types <code>ParameterizedT</code> and <code>InstantiatedT</code>
+capture a type's declared parameters and its instantiation with
+concrete types, respectively.</li>
+
+<li><code>Type.Tag</code> now defines a Java enumeration over all type
+classes.  Each instance's tag is accessible through the
+<code>Type.tag()</code> and <code>Type.wtag()</code> methods (with
+invocations of the former method being forwarded across wrapped
+types).  As a result, it is now possible to implement switch
+statements for types.</li>
+
+<li>The <code>Tag</code> interface for C's enum, struct, and union
+types has been renamed to <code>Tagged</code> in order to avoid
+confusion with the new <code>Type.Tag</code> enumeration.
+The <code>Constant</code> interface for types' constant values has
+been replaced with a concrete implementation.</li>
+
+<li>All C-specific operations have been factored into a separate
+class, <code>xtc.type.C</code>.</li>
+
+<li>The new class <code>xtc.type.AST</code> contains common constants
+and operations for typing abstract syntax trees.</li>
+
+<li>The C and Java type checkers have been updated to utilize the
+modified package.  <em>Rats!</em> has also been updated to
+utilize <code>xtc.type</code>, though the conversion is not yet
+complete.</li>
+
+</ul></p>
+
+<p>The <strong>Java grammar and AST</strong> have been re-engineered
+to (mostly) eliminate the need for a separate AST simplification
+phase.  Notably, the AST for postfix and primary expressions has been
+significantly cleaned up.  The Java type checker has been updated
+accordingly.</p>
+
+<p >Additionally, xtc now includes a grammar for
+<strong>Java&nbsp;5</strong>.  The Java&nbsp;5 grammar is implemented
+as a modification of the Java&nbsp;1.4 grammar, and ASTs for the two
+versions are compatible, i.e., every valid Java&nbsp;1.4 AST also is a
+valid Java&nbsp;5 AST.  The Java pretty printer has been updaged to
+support both versions.  Furthermore, the <code>FactoryFactory</code>
+concrete syntax tool has been updated to use the Java&nbsp;5 grammar.
+Since ASTs for the two language versions are compatible, the concrete
+syntax tool will create Java&nbsp;1.44 ASTs as long as the input only
+uses Java&nbsp;1.4 features.</p>
+
+
+<p>The <strong>C type checker</strong> now verifies that external
+declarations without initializers are complete only at the end of a
+translation unit, thus correctly allowing for the definition of a
+struct or union type <em>after</em> it has been used in an external
+declaration.  It also adds support for three more GCC extensions:<ol>
+
+<li>Global register variables (but without checking the register
+names),</li>
+
+<li><code>extern</code> and <code>inline</code> functions, which
+effectively are macros and may be defined in the same translation unit
+before a regular function definition,</li>
+
+<li>structures with trailing incomplete arrays as struct member types
+and array element types.</li>
+
+</ol>
+As a result, the C type checker now passes all GCC regression tests
+ported to xtc.</p>
+
+<p>In addition to supporting the generation of parse trees and using
+the new <code>Locatable</code>
+interface, <strong><em>Rats!</em></strong> has been improved as
+follows:<ul>
+
+<li><em>Rats!</em> now deduces the semantic value of productions of
+type <code>Pair&lt;T&gt;</code>, automatically creating a list from
+the values of each alternative's component expressions.  If the last
+component expression has a list value, that value becomes the tail of
+the production's list value.  If the only component expression has a
+list value, that value becomes the production's value.  For
+example,
+<pre>
+   Pair&lt;Node&gt; ExpressionList = Expression (void:",":Symbol Expression)* ;
+</pre>
+creates a list of nodes, automatically consing the first expression's
+value onto the list of expression nodes.  In contrast,
+<pre>
+   Pair&lt;Node&gt; TwoExpressions = Expression Expression ;
+</pre>
+also creates a list of nodes, but by consing the two expressions'
+nodes onto the empty list.</li>
+
+<li><em>Rats!</em> now supports a <code>null</code> literal, which
+simply provides a <code>null</code> value.  Previously, the C
+and Java grammars used a production
+<pre>
+   Node Null = ;
+</pre>
+to generate null values; the null literal provides a more direct and
+efficient alternative.  The old <code>xtc.util.Null</code>
+and <code>xtc.util.NullNode</code> modules have been removed.</li>
+
+<li>When a component expression of a generic production has a list
+value, <em>Rats!</em> now directly adds the list value as the generic
+node's child.  Previously, <em>Rats!</em> flattened the list by adding
+the list's elements as children of the generic node.  The old behavior
+is still available through the grammar-wide <code>flatten</code>
+attribute.</li>
+
+<li>The implementation of the <code>-ast</code> command line option,
+which instructs <em>Rats!</em> to print a formal definition of a
+grammar's abstract syntax tree, has been rewritten (again) to produce
+a more accurate definition.  It now uses the <code>optional</code>
+modifier to indicate that an AST node's child may be <code>null</code>
+and the <code>variable</code> modifier to indicate that a child may
+not even be present.  This feature remains under active
+development.</li>
+
+<li>The new location optimization (<code>-Olocation</code>)
+causes <em>Rats!</em> to (1) use simpler code for updating a node's
+source location where possible and (2) omit updates altogether where
+possible.  This optimization is enabled by default.</li>
+
+<li>The detection of malformed voided expressions, bindings, and
+string matches has been improved.  Notably, string matches on bindings
+and other string matches are now flagged as grammar errors; though
+bindings of string matches are still legal.  This well-formedness
+check prevents a <code>ClassCastException</code> during code
+generation.</li>
+
+<li>The detection of unreachable alternatives has been generalized,
+thus improving error reporting for malformed grammars.</li>
+
+<li>A bug in the code generation for options nested within repetitions
+in transient productions has been fixed.  With this bug, the option's
+semantic value always was <code>null</code>, even if the option was
+matched in the input; furthermore, the repetition was not matched
+completely.  Thanks to Eclipse for raising the "unused variable
+binding" leading to the bug's discovery.</li>
+
+</ul></p>
+
+<p>The <code>AttributeList</code>
+and <code>MalformedNodeException</code> classes
+in <code>xtc.tree</code> have been removed.  All code using the former
+has been changed to use a <code>List&lt;Attribute&gt;</code>; there
+was no code using the latter.</p>
+
+<p>Finally, this release incorporates several fixes to minor bugs
+identified by Eclipse and
+by <a href="http://findbugs.sourceforge.net/">FindBugs</a>.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.11.0 (5/14/07)</dt>
+
+<dd>Major feature and bug fix release.
+
+<p>The <strong>licensing</strong> of several classes has been
+changed.  The <code>Node</code>, <code>GNode</code>,
+and <code>Annotation</code> classes in <code>xtc.tree</code> and
+the <code>Action</code> and <code>State</code> classes
+in <code>xtc.util</code> are now licensed under the LGPL version 2.1
+instead of the GPL version 2.  Consequently, parsers generated from
+grammars with generic or stateful productions are not covered by the
+GPL anymore.</p>
+
+<p>This release simplifies the <strong>interface between nodes and
+visitors</strong>.  Processing methods cannot be specified as part of
+nodes anymore; i.e., <code>visitWith(Visitor)</code> methods are not
+recognized by <code>dispatch()</code> anymore.  Furthermore, if a
+visit method has <code>void</code> as its return
+type, <code>dispatch()</code> now returns <code>null</code>; i.e., it
+does not return the specified node anymore.  The first feature has
+been removed because it has not been used in over 1 1/2 years; the
+second feature has been removed because it is inconsistent with Java
+reflection and programmer expectations about void methods (while also
+having some runtime overhead).</p>
+
+<p>Other changes to nodes and visitors include:<ul>
+
+<li>If <code>dispatch()</code> cannot identify an appropriate visit
+method, it now invokes the new <code>unableToVisit(Node)</code>
+method.  That method's default implementation simply raises a visitor
+exception, thus resulting in the already familiar behavior.  However,
+visitors can override this method and thus implement their own error
+handling strategies.  Note that <code>dispatch()</code> caches
+resolutions to <code>unableToVisit()</code>, just like it caches
+resolved visit methods.</li>
+
+<li>Both <code>VisitorException</code>
+and <code>VisitingException</code> now inherit from a common
+superclass <code>TraversalException</code>.  That class removes stack
+trace elements corresponding to <code>dispatch()</code> and Java
+reflection invocations from a strack trace, thus resulting in less
+clutter when printing the stack trace.  Thanks to Martin Hirzel for
+raising this issue.</li>
+
+<li>Nodes that support generic traversal now also support
+<code>indexOf()</code>,
+<code>lastIndexOf()</code>, and <code>contains()</code> operations
+consistent with the Java collections framework.</li>
+
+</ul></p>
+
+<p><strong><em>Rats!</em></strong> has been improved as follows:<ul>
+
+<li>With the above mentioned relicensing in place, the functionality
+of <code>FullParserBase</code> has been rolled
+into <code>ParserBase</code>, thus eliminating the need to
+differentiate a parser's base class according to license.</li>
+
+<li>Generic productions may now contain so-called node markers, which
+specify the names of automatically created generic nodes, overriding
+the production's name.  Node markers are written as
+"<code>@<i>Name</i></code>"; the last node marker in a sequence
+specifies the created generic node's name.  Node markers are
+especially useful for expressing different left-associative operators
+that have the same precedence with a single directly left-recursive
+production.  Where possible, explicit semantic actions in the C
+grammar have been replaced with node markers.</li>
+
+<li>The new <code>profile</code> attribute instructs <em>Rats!</em>
+to include code for profiling the usage of the memoization table.  For
+grammars with this attribute, <em>Rats!</em> includes a counter for
+every field (i.e., memoized production) in the memoization table.  The
+parser then increments the appropriate counter on every table
+access.  <em>Rats!</em> also includes
+a <code>profile(xtc.tree.Printer)</code> method, which prints
+the <em>maximum</em> value for all of a production's fields across all
+memoized productions.  If that number consistenly is 1 over a sampling
+of representative inputs, the corresponding production should probably
+not be memoized (i.e., marked as transient).  The C and Java drivers
+have been updated to support parsers generated with this
+attribute.</li>
+
+<li>The new <code>factory</code> attribute instructs <em>Rats!</em>
+to use a class different from <code>xtc.tree.GNode</code> for creating
+generic nodes.</li>
+
+<li>The implementation of the <code>verbose</code> attribute has been
+rewritten to produce considerably more informative traces of a
+parser's execution.  In particular, the parser now traces when it (1)
+enters a production, (2) exits a production (with either a match or
+parse error), and (3) looks up a previously memoized result.</li>
+
+<li>The new <code>nowarn</code> attribute instructs <em>Rats!</em>  to
+suppress warnings for a production or the entire grammar.</li>
+
+<li>The implementation of the <code>-ast</code> command line option,
+which instructs <em>Rats!</em> to print a formal definition of a
+grammar's abstract syntax tree, has been generalized (and simplified)
+to produce a more accurate definition.</li>
+
+<li>The interface for turning parser results into either values (on
+success) or exceptions (on failure) has been simplified through the
+new <code>value(Result)</code>, <code>format(ParseError)</code>,
+and <code>signal(ParseError)</code> methods of the parser base
+class <code>xtc.parser.ParserBase</code>.  The old error reporting
+code has been removed from <code>ParserBase</code> and
+<code>ParseException</code>; all tools have been updated accordingly.
+The easiest way to use a parser with the updated interface is:<pre>
+    parser.value(parser.p<em>Nonterminal</em>(0))
+</pre>
+This expression tries to recognize nonterminal <em>Nonterminal</em>,
+starting at the beginning of the input, and either returns the
+corresponding semantic value or signals a parse exception.</li>
+
+<li>The new <code>-valued</code> command line option instructs
+<em>Rats!</em> to reduce a grammar to only those expressions that
+directly contribute to the abstract syntax tree and to then print the
+reduced grammar.  Like the <code>-ast</code> option, it helps
+developers understand a grammar's abstract syntax tree without them
+needing to understand the complete grammar.</li>
+
+<li><em>Rats!</em> now checks that all alternatives in an ordered
+choice are reachable, i.e., are not preceded by an alternative that
+accepts the empty input.  Otherwise, it reports an error.  Thanks to
+Petar Maymounkov for reminding me of this issue.</li>
+
+<li><em>Rats!</em> now checks that the semantic value of each base
+case in a directly left-recursive generic production is a node.
+If <em>Rats!</em> determines that the value definitely is not a node,
+it reports an error.  If it determines that the value possibly may not
+be a node, it reports a warning.</li>
+
+<li>The global state object for stateful grammars is now allocated per
+parser instance and not per parser class anymore.  As a result,
+several instances of the same parser can be used concurrently.</li>
+
+<li>When sole nonterminals are inlined, <i>Rats!</i> now preserves the
+source location of the original nonterminal, leading to more
+informative error locations.  Thanks to Petar Maymounkov for raising
+this issue.</li>
+
+<li>A bug in the code generation for directly left-recursive generic
+productions has been fixed; with this bug, <em>Rats!</em> generated
+malformed Java code for recursive alternatives that result in generic
+nodes with a single child.</li>
+
+<li>A bug in the pretty printing of grammars, which printed the any
+character constant as a dot instead of an underscore, has been
+fixed.</li>
+
+</ul></p>
+
+<p>xtc now supports <strong>concrete syntax</strong> for creating
+Java and C abstract syntax trees.  The
+new <code>xtc.lang.FactoryFactory</code> tool reads in a factory
+declaration, which includes one or more snippets of Java or C code,
+and creates the corresponding factory class.  That class has one
+method per snippet, with each method creating the abstract syntax tree
+representing the code snippet.  Code snippets may be declarations,
+statements, or expressions; they may also contain pattern variables,
+which are bound on method invocation.</p>
+
+<p>The <strong>Java grammar</strong> has been improved by
+introducing a distinct production for variable declarations and by not
+recognizing constructor, method, and field declarations inside method
+bodies anymore.  At the same time, the AST fragment for variable
+declarations has the same structure as that for field declarations;
+i.e., both nodes have the same name ("FieldDeclaration") and one or
+more children indicating the modifiers.</p>
+
+<p>Additionally, the <strong>pretty printing of Java ASTs</strong>
+has been improved: synchronized statements now include parentheses
+around their expressions, compilation units and class bodies do not
+contain unnecessary blank lines any more, and the spacing of class
+declarations, catch clauses, and new expressions has been improved.
+Thanks to Martin Hirzel and Laune Harris for identifying several of
+these issues.</p>
+
+<p>Thanks to Martin Hirzel, xtc now includes a <strong>type checker
+for Java</strong> (version 1.4).  Comparable to the C type checker,
+the Java type checker is invoked through the <code>-analyze</code>
+command line option to <code>xtc.lang.JavaDriver</code>.
+The <code>-printSymbolTable</code> option instructs the Java driver to
+print the symbol table after analysis.  Note that the Java type
+checker requires a simplified AST, as indicated by
+the <code>-simplifyAST</code> option.</p>
+
+<p>Support for processing <strong>C programs</strong> has been
+improved as follows:<ul>
+
+<li>As already indicated above, the C grammar has been modified to
+utilize node markers for recognizing function and array declarators as
+well as for recognizing postfix expressions.</li>
+
+<li>Line marker, source identity, and pragma annotations in C program
+ASTs are now annotated with the correct source location
+information.</li>
+
+<li>The pretty printer now supports lining up printed output with a
+node's original source location; it also supports GNU-like formatting
+of braces in addition to Java-like formatting.
+The <code>CDriver</code> exposes these features through
+the <code>-preserveLines</code> and <code>-formatGNU</code> command
+line options.</li>
+
+<li>The C type checker (<code>xtc.lang.CAnalyzer</code>) now correctly
+type checks variable declarations with compound initializers, even if
+the <code>-markAST</code> command line option is specified.  Under
+certain conditions, it previously aborted with an exception indicating
+that a node already has a type.  Thanks to Martin Hirzel for
+identifying this issue.</li>
+
+</ul></p>
+
+<p><strong>Tool support</strong> for I/O has been improved.  In
+particular, <code>xtc.util.Runtime</code> now manages input/output
+directories and can open chracter streams.
+Furthermore, <code>xtc.util.Tool</code> now allows for the
+specification of character encodings on the command line.  As a
+result, <em>Rats!</em> now supports user-specified character
+encodings.  Thanks to Steven Foster for raising the issue of character
+encodings.</p>
+
+<p>This release fixes the following bugs in <strong>XForm</strong>,
+the AST query and transformation engine:<ul>
+
+<li>When creating new AST nodes in nested expressions, XForm now
+correctly sets the newly created nodes' parents.</li>
+
+<li>A duplicate call to <code>Iterator.next()</code> has been removed
+when processing ASTs.</li>
+
+<li>A duplicate loop when processing <code>for</code> expressions has
+beeen removed.</li>
+
+<li>Duplicate processing of inputs in the XForm driver has been
+removed.</li>
+
+</ul>Thanks to Karen Osmond for identifying several of these issues,
+and thanks to Laune Harris for fixing them.</p>
+
+<p>Finally, this release makes the following <strong>miscellaneous
+changes</strong>:<ul>
+
+<li><code>xtc.util.Pair</code> now has improved support for treating
+pairs as lists.  In particular, the following methods have been
+added: <code>hashCode()</code> to determine a list's
+hashcode, <code>equals()</code> to test for list equality,
+<code>toString()</code> to determine a list's human-readable
+representation, <code>get()</code> and <code>set()</code> to access a
+list's elements, <code>contains()</code> and <code>consists()</code>
+to test for a list's elements, and <code>setLastTail()</code>
+and <code>append()</code> to append two lists (either destructively or
+not).</li>
+
+<li><code>Pair</code> has also been changed to
+implement <code>Iterable&lt;T&gt;</code>, thus enabling the use of
+pairs in Java's enhanced for loop.  Thanks to Petar Maymounkov for
+suggesting this change.</li>
+
+<li>The new <code>printHeader()</code> method
+in <code>xtc.util.Tool</code> prints a header appropriate for
+machine-generated code.  <em>Rats!</em> has been updated to use this
+method.</li>
+
+<li>The new <code>xtc.type.SourcePrinter</code> prints types (that is,
+instances of <code>xtc.type.Type</code>) as C source
+declarations.</li>
+
+<li>The <code>xtc.type.TypePrinter</code> now tracks already printed
+compound types and prints just a reference on subsequent encounters
+(instead of printing the complete type).  This change avoids an
+infinite recursion when a complex type references itself, e.g., a C
+structure containing a pointer itself.</li>
+
+<li><code>xtc.tree.Printer</code> now supports <code>close()</code>.
+Furthermore, a <code>NullPointerException</code> when
+invoking <code>reset()</code> on a <code>Printer</code> that does not
+buffer the output has been fixed.  Thanks to Patrick Winters for
+identifying the latter issue.</li>
+
+<li>A <code>NullPointerException</code> when
+invoking <code>dump()</code> on
+a <code>xtc.util.SymbolTable.Scope</code> containing
+a <code>null</code> value has been fixed.  Thanks to Laune Harris for
+identifying this issue.</li>
+
+<li>The unnecessarily complex <code>fmt()</code>
+and <code>msg()</code> methods of <code>xtc.util.Utilities</code> have
+been removed after refactoring the error reporting code
+in <code>xtc.parser.ParserBase</code>
+and <code>xtc.util.Runtime</code>.</li>
+
+</ul></p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.10.0 (12/24/06)</dt>
+
+<dd>Major feature and bug fix release.
+
+<p>All code is now compiled with <strong>Java 5</strong>:<ul>
+
+<li>Most classes in the <code>xtc.util</code>, <code>xtc.tree</code>,
+<code>xtc.parser</code>, and <code>xtc.type</code> packages have been
+updated to utilize the new language features, notably generics.  As
+part of the conversion process, many classes have been simplified,
+notably by replacing explicit iterations with for-each loops.</li>
+
+<li>Most code in the <code>xtc.lang</code> and <code>xtc.xform</code>
+packages still needs to be updated and thus results in "unchecked
+operation" warnings.</li>
+
+<li>The ANTLR- and JavaCC-generated Java parsers
+in <code>xtc.lang.antlr</code> and <code>xtc.lang.javacc</code> have
+been annotated with "<code>@SuppressWarnings("unchecked")</code>" to
+avoid unnecessary warnings; since they depend on external tools, they
+will not be updated to Java 5.</li>
+
+<li>Tools such
+as <a href="http://retroweaver.sourceforge.net/">Retroweaver</a>
+or <a
+href="http://retrotranslator.sourceforge.net/">Retrotranslator</a> can
+be used to backport compiled binaries to version 1.4 virtual machines.
+Furthermore, parsers generated with the <code>rawTypes</code> grammar
+attribute will still compile with previous versions of the runtime
+classes (after removing one annotation, see below).</li>
+
+<li>Documentation generation has been fixed to automatically link to
+Sun's web site for version 1.5 of the Java platform libraries.</li>
+
+</ul></p>
+
+<p>This release makes the following changes
+to <strong><em>Rats!</em></strong>:<ul>
+
+<li>If a repetition, option, or nested choice that is not the last
+expression in a sequence contains only nonterminals referencing void
+productions, voided expressions, or predicates, <em>Rats!</em> now
+automatically voids the entire repetition, option, or nested choice.
+For example, if <code>nt</code> references a void production, then
+"<code>nt*</code>" is now treated as "<code>void:(nt*)</code>".</li>
+
+<li>The declared type of a production's semantic value may now be a
+parameterized type such as "<code>Set&lt;Integer&gt;</code>" or
+"<code>Map&lt;String,&nbsp;Integer&gt;</code>".  Note
+that <em>Rats!</em> does not recognize wildcards.  It does, however,
+allow white space (but not comments) between typenames, type argument
+brackets, and commas.</li>
+
+<li>The new <code>rawTypes</code> grammar attribute
+instructs <em>Rats!</em> not to use generics and to include a
+"<code>@SuppressWarnings("unchecked")</code>" annotation in the
+generated parser.  Otherwise, <em>Rats!</em> now leverages xtc's new
+support for Java 1.5.  Performance measurements of the Java parser
+show that (1) there is <em>no</em> difference in throughput or heap
+utilization between the version using generic types and the version
+using raw types and (2) both versions running on the Java 5 virtual
+machine are 4-6% slower than previous versions of xtc running on the
+Java 1.4 virtual machine for Mac OS X.</li>
+
+<li>The untyped <code>set</code> grammar attribute has been replaced
+by the more specific <code>setOfString</code> grammar attribute.
+Other type-specific set attributes will be added as needed.</li>
+
+<li>The new "<code>-ast</code>" command line option
+instructs <em>Rats!</em> to print a description of a grammar's
+abstract syntax tree as an ML-like type definition; it only considers
+generic productions.</li>
+
+<li>Parsers now correctly import <code>xtc.tree.Node</code> even if
+the <code>dump</code> option is specified.  Thanks to Sukyoung Ryu for
+identifying this bug.</li>
+
+<li>Semantic predicates spanning several source lines in a grammar now
+result in correct code (instead of each line being terminated with
+"<code>)&nbsp;{</code>").  Thanks to Sukyoung Ryu for identifying this
+bug.</li>
+
+<li>Ordered choices in syntactic predicates within generic productions
+are now correctly lifted into void productions instead of into
+productions returning <code>Object</code> as the semantic value.</li>
+
+<li>A voided expression nested within another voided expression
+without parentheses, i.e. "<code>void:void:<em>expr</em></code>", is
+now parsed as a voided expression and not a voided binding to the
+(illegal) identifier "<code>void</code>".  The redundant voiding
+operator is ignored.</li>
+
+<li>Parser actions do not result in "last element in alternative
+without semantic value" errors anymore.</li>
+
+<li>If an alternative's first expression is a followed-by syntactic
+predicate and that predicate is followed by a string literal, string
+match, or parser action, the parser generator now creates correct code
+instead of using the <code>yyBase</code> variable without declaring
+it.  Thanks to Sukyoung Ryu for identifying this bug.</li>
+
+<li>Parsers do not include casts to <code>Pair</code> anymore when
+creating generic nodes.  These casts became unnecessary with the
+improved deduction of semantic values' types in release 1.9.0; this
+release (1.10.0) further refines type deduction, notably for the types
+of repeated expressions.</li>
+
+<li>In addition to the conversion to Java 5, <em>Rats!</em>' code has
+been significantly cleaned up.  Notably, the
+production's <code>element</code> field, which had
+type <code>Element</code>, has been replaced by the more specific
+<code>choice</code> field (of type <code>OrderedChoice</code>).  Next,
+an ordered choice's alternatives are now sequences (and not arbitrary
+elements anymore).  Finally, all properties used by the parser
+generator are now collected in the new <code>Properties</code>
+class.</li>
+
+</ul></p>
+
+<p>A bug in the implementation of <strong>generic nodes</strong> has
+been fixed: <code>GNode.ensureVariable()</code> does not reverse the
+children anymore if it is invoked on a generic node with a fixed
+number of children.</p>
+
+<p>Support for <strong>language tools</strong> has been improved by
+adding two new methods to <code>xtc.util.Tool</code>:
+The <code>process(String)</code> method recursively processes the file
+with the specified name and the <code>wrapUp()</code> method is called
+after all files have been processed.  Thanks to Hunter Freyer for
+suggesting these improvements.</p>
+
+<p>The <strong>Java grammar</strong> has been changed to support an
+optional comma in array initializers and to allow single-line comments
+to be terminated by the end-of-file.  Thanks to Martin Hirzel for
+identifying and fixing these issues.</p>
+
+<p>The Java simplifier now correctly processes <code>this()</code>
+and <code>super()</code> call expressions.  Thanks to William Moy for
+identifying this bug.</p>
+
+<p>Finally, this release changes the <strong>C type checker</strong>
+to correctly use composite types for function definitions following
+one or more declarations.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.9.3 (9/20/06)</dt>
+
+<dd>Minor bug fix release.
+
+<p>This release fixes bugs when pretty printing switch, case, and
+default constructs for Java ASTs.  Thanks to William Moy for pointing
+out this issue.</p>
+
+<p>Thanks to Martin Hirzel, this release also improves the
+documentation for the Java AST simplifier.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.9.2 (9/12/06)</dt>
+
+<dd>Minor bug fix release.
+
+<p>Thanks to Martin Hirzel, this release includes further fixes for
+simplifying and printing Java abstract syntax trees.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.9.1 (9/7/06)</dt>
+
+<dd>Minor bug fix release.
+
+<p>Thanks to Martin Hirzel, this release fixes a bug when processing
+assignments during simplification of abstract syntax trees for
+Java.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.9.0 (9/5/06)</dt>
+
+<dd>Major feature and bug fix release.
+
+<p>xtc now requires <strong>JDK 1.5</strong> to build and run.
+While xtc still is written in version 1.4 of the Java language, it now
+uses classes and interfaces from version 1.5 of the platform
+libraries.  Notably, all uses of <code>StringBuffer</code> have been
+replaced with <code>StringBuilder</code>.</p>
+
+<p>The interface to <strong>abstract syntax tree nodes</strong> has
+been generalized by moving the methods for generic tree traversal and
+for adding/removing children from <code>xtc.tree.GNode</code> up
+to <code>xtc.tree.Node</code>.  As part of that
+move, <code>hasChildren()</code> was renamed to <code>isEmpty()</code>
+and <code>children()</code> to <code>iterator()</code> to be more
+consistent with the Java platform libraries.</p>
+
+<p>To avoid forcing every subclass into implementing these methods,
+<code>Node</code> provides default implementations for all methods,
+which effectively signal unsupported operation exceptions.  Code using
+nodes can determine whether a node actually supports generic tree
+traversal through the <code>hasTraversal()</code> method and
+adding/removing children through the <code>hasVariable()</code>
+method.  To support generic tree traversal, a subclass only needs to
+implement the <code>size()</code>, <code>get(int)</code>, and
+<code>set(int,&nbsp;Object)</code> methods.  To support
+adding/removing children, a subclass only needs to implement the
+<code>add(Object)</code>, <code>add(int,&nbsp;Object)</code>
+and <code>remove(int)</code> methods.</p>
+
+<p>Support for AST annotations has been improved,
+with <code>xtc.tree.Annotation</code> now supporting generic
+annotations through the <code>before1()</code>, <code>after1()</code>,
+<code>round1()</code>, and <code>variable()</code> factory methods.
+Furthermore, the new node type <code>xtc.tree.Token</code> supports
+the representation of source file symbols as nodes.</p>
+
+<p>In the presence of annotations and tokens, instance tests and
+casts on objects returned from an AST node may not work as expected.
+Code processing trees should use <code>getString()</code> to access
+string children and <code>getGeneric()</code> to access generic nodes.
+Furthermore, it should use <code>Token.test()</code>
+and <code>Token.cast()</code> to test for and cast to strings and
+<code>GNode.test()</code> and <code>GNode.cast()</code> to test for
+and cast to generic nodes.</p>
+
+<p>All code using generic nodes has been updated to reflect the new
+interface.  Furthermore, <code>xtc.tree.Printer.format()</code> now
+accepts any node and uses generic traversal to print that node.</p>
+
+<p>xtc now includes working support for <strong>semantic
+analysis</strong> of C.  <code>xtc.lang.CAnalyzer</code> provides a
+type checker for C99 and commonly used GCC extensions.  While it
+successfully passes most of GCC's regression tests, its support for
+C99's variable length arrays is not yet complete.  It also does not
+support GCC's <code>extern inline</code> functions and variables in
+specified registers.  In support of <code>CAnalyzer</code>,
+the <code>xtc.type</code> package has been significantly improved,
+notably with a class hierarchy of references to model the memory
+layout of lvalues.  Several bugs have also been fixed.  Furthermore,
+the creation of fresh symbols in <code>xtc.util.SymbolTable</code> has
+been fixed so that symbols are, in fact, fresh.</p>
+
+<p>The new type checker is invoked through the <code>-analyze</code>
+command line option to <code>xtc.lang.CDriver</code>.
+The <code>-strict</code> option instructs the C driver to disable
+GCC's extensions.  The <code>-markAST</code> option instructs the C
+driver to annotate AST nodes with their types.  Finally,
+the <code>-printSymbolTable</code> instructs the C driver to print the
+symbol table after analysis.</p>
+
+<p>The <strong>C grammar</strong> has been extended with support for
+unnamed struct and union fields within structs and unions.
+Furthermore, an initialized declarator now starts with an optional
+attribute specifier list, shifting all previous component expressions.
+Next, the C grammar now recognizes
+GCC's <code>__builtin_offsetof()</code> function
+and <code>__complex__</code> as an alternative to
+C99's <code>_Complex</code>.  Finally, the order of identifiers and
+constants in <code>PrimaryExpression</code> has been reversed, so that
+wide C character and string constant are now correctly recognized.</p>
+
+<p>This release makes the following changes
+to <strong><em>Rats!</em></strong>:<ul>
+
+<li>In generic productions, alternatives with semantic actions that
+assign <code>yyValue</code> are now treated just like bindings
+to <code>yyValue</code>: the parser uses the explicitly specified
+value instead of creating a new generic node.</li>
+
+<li>The parser generator now deduces that the semantic value of a
+sequence without any elements is <code>null</code>.  Module
+<code>xtc.util.Null</code> has been updated accordingly, removing the
+explicit semantic action.</li>
+
+<li>The parser generator now more precisely deduces the type of
+productions containing an automatically recognized <code>null</code>
+value.  In particular, productions representing desugared options now
+have the type of the optional expression and not
+necessarily <code>Object</code> anymore.</li>
+
+<li>The parser generator now checks that an expression appearing in a
+repetition does not match the empty input.  Otherwise, <em>Rats!</em>
+reports an error.  This checks prevents infinite recursions during
+parser execution.  Thanks to Christine Flood for identifying this
+issue.</li>
+
+<li>Similarly, the parser generator now checks that an expression
+appearing in an option does not match the empty input.
+Otherwise, <em>Rats!</em> reports a warning.</li>
+
+<li>The parser generator now checks that every alternative in a
+production sets the semantic value, either because the grammar
+specifies the value or because <em>Rats!</em> has deduced the value.
+Otherwise, <em>Rats!</em>  reports an error.  This check preempts Java
+compiler errors reporting that "variable yyValue might not have been
+initialized".</li>
+
+<li>Module resolution has been modified to preserve the source
+location of nonterminals.  It does not replace each nonterminal with
+the nonterminal from the defining production anymore.</li>
+
+<li>If a grammar has the <code>genericAsVoid</code> attribute,
+productions with type <code>Node</code> are now automatically voided
+as well.</li>
+
+<li>For generic productions, <code>yyValue</code> is now declared as
+<code>Node</code> and not as <code>GNode</code>.</li>
+
+<li>Code generation has been modified so that, if the semantic value
+of an optional expression in a generic production is a list (i.e.,
+<code>xtc.util.Pair</code>), parsers now add the list's values to the
+production's generic node only if the list is not <code>null</code>.
+As a result, parsers for grammars containing such expressions do not
+fail with a null pointer exception anymore.  Thanks to Uwe Simm for
+identifying this issue.</li>
+
+<li>The old transformer phase (see release notes for 1.8.2) and any
+supporting code have been removed from <em>Rats!</em>.</li>
+
+</ul>
+
+All grammars have been updated to use <code>Node</code> (instead
+of <code>GNode</code>) as the type of productions that pass generic
+node values through.  That way, they can accommodate annotated
+nodes.</p>
+
+<p>The <strong>XForm</strong> AST query and transformation engine
+now supports add and remove operations.  For example, "<code>add
+Child&lt;&gt; to //Parent</code>" adds a <code>Child</code> node to
+all <code>Parent</code> nodes in the AST, and "<code>remove
+//SomeName</code>" removes all <code>SomeName</code> nodes from the
+AST.  Additionally, an out of range or otherwise malformed integer
+predicate no longer causes a runtime exception; rather, an empty
+sequence is returned.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.8.2 (8/8/06)</dt>
+
+<dd>Minor feature and bug fix release.
+
+<p>This release improves <strong><em>Rats!</em></strong> by
+featuring a completely rewritten <code>Transformer</code> phase.  This
+phase deduces semantic values, lifts nested choices, repetitions, and
+options, and desugars repetitions and options.  The rewritten code is
+more modular and (hopefully) more easily maintainable.  It also is
+more accurate in deducing semantic values and more uniform in
+processing (deeply) nested choices, repetitions, and options.  As a
+result, the rewritten code also fixes a regression identified by
+Thomas Moschny.</p>
+
+<p>A set of regression tests for <em>Rats!</em> has been added.  The
+tests are invoked by typing <code>make&nbsp;check-rats</code> in the
+top-level directory of the distribution.</p>
+
+<p>The old version of the transformer phase is still available
+through the <code>-oldTransform</code> command line option
+to <em>Rats!</em>.  However, it is deprecated and will be removed in
+the near future.</p>
+
+<p>Error checking of grammars has been improved.  In particular:<ul>
+
+<li><em>Rats!</em> now checks that the (unqualified) name of the
+top-level module is consistent with the (unqualified) name of its
+file.</li>
+
+<li><em>Rats!</em> also checks that a production does not have both
+<code>inline</code> and <code>transient</code> attributes,
+since <code>inline</code> subsumes <code>transient</code>.</li>
+
+<li>Finally, <em>Rats!</em> now checks that bindings are not bound
+again and that predicates are neither bound nor matched.</li>
+
+</ul></p>
+
+<p>The folding of equal sequences has been modified so that it does
+not result in a trailing choice of empty alternatives anymore.</p>
+
+<p>Code generation has been modified to avoid declaring and
+assigning the <code>yyPredIndex</code> variable if the variable's
+value is never used.  Thanks to Thomas Moschny (and Eclipse) for
+pointing out this issue.</p>
+
+<p>This release improves the <strong>Java grammar</strong> by adding
+support for empty declarations (a semicolon by itself), assert
+statements, and class selection expressions.  Thanks to Terence Parr
+for identifying these issues.</p>
+
+<p>This release also contains a snapshot of the on-going effort
+towards supporting <strong>semantic analysis</strong>.  Notably,
+the <code>xtc.type</code> package has been significantly improved and
+<code>xtc.lang.CAnalyzer</code> has been updated accordingly.
+However, for now, typing of C programs still is buggy and
+incomplete.</p>
+
+<p>Finally, unnecessary import declarations have been removed
+throughout xtc, including from parsers generated
+by <em>Rats!</em>.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.8.1 (6/10/06)</dt>
+
+<dd>Minor bug fix release.
+
+<p>This release renames <code>xtc.parser.BaseParser</code> to
+<code>ParserBase</code> and <code>xtc.parser.PackratParser</code>
+to <code>FullParserBase</code>.
+Additionally, <code>FullParserBase</code> now inherits from
+<code>ParserBase</code> to avoid code duplication.</p>
+
+<p>Next, this release makes the following changes to <em>Rats!</em>'
+code generator:
+<ul>
+
+<li>Parser classes now inherit from the
+renamed <code>ParserBase</code> and <code>FullParserBase</code>
+classes.</li>
+
+<li>Self-assignments of index variables are now suppressed.  Thanks to
+Thomas Moschny for reporting this issue.</li>
+
+<li>Bindings for optional expressions are now declared with the types
+of the bound values, even if several optional expressions with
+different types appear in a sequence.  <em>Rats!</em>' own grammar has
+been updated accordingly, removing now unnecessary explicit casts.
+Thanks to Thomas Moschny for reporting this issue.</li>
+
+</ul></p>
+
+<p>This release also fixes a bug
+in <code>xtc.lang.JavaAstSimplifier</code>
+and <code>xtc.lang.JavaPrinter</code> that caused a null pointer
+exception when pretty printing simplified method declarations.  The
+fixed version of <code>JavaAstSimplifier</code> preserves the number
+of children in <code>MethodDeclaration</code> AST nodes.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.8.0 (6/6/06)</dt>
+
+<dd>Major feature and bug fix release.
+
+<p>This release considerably improves xtc's support for
+the <strong>semantic analysis</strong> of programs.  In particular,
+the new <code>xtc.util.SymbolTable</code> class implements a scoped
+symbol table that easily integrates with AST traversal through xtc's
+visitors.  The new <code>xtc.type</code> package provides
+representations for a program's types.  It currently covers all of C's
+and Java's types (as of JDK 1.4).  The
+new <code>xtc.lang.CAnalyzer</code> visitor leverages the new classes
+to fill in the symbol table for a program and to check semantic
+correctness along the way.  However, <code>CAnalyzer</code> is still
+incomplete and buggy.</p>
+
+<p>The new interface <code>xtc.Limits</code> specifies
+the <strong>integer range limits</strong> for a local system's C
+compiler.  The version distributed with xtc's release is consistent
+with GCC for Mac OS X on the PowerPC and for Mac OS X, Linux, and
+Windows on x86 processors.  <code>limits.c</code> in the same package
+can be used to generate the correct limits for other operating systems
+and architectures.</p>
+
+<p>Next, the <strong>C grammar</strong> has been changed as
+following:<ul>
+
+<li>Typedef's enum constants are now treated as regular identifiers
+and not as type aliases anymore.</li>
+
+<li>Redefinitions of variables, functions, and typedef names within
+the same scope are now ignored by the C parser's internal state, as
+they are erroneous anyway.</li>
+
+<li>Each component of an integer or floating point type specifier and
+each kind of storage class specifier now results in the creation of a
+separate AST node.  The pretty printer has been changed accordingly.
+This change simplifies semantic analysis.</li>
+
+<li>Array qualifiers are now represented by regular type
+specifiers/qualifiers instead of dedicated array qualifier nodes.  The
+pretty printer has been changed accordingly.</li>
+
+<li>The recognition of GCC attributes now is more accurate.  The
+productions and AST nodes for initialized declarators and bit fields
+have been modified, and a new production and AST node for attributed
+abstract declarators have been added.  The pretty printer has been
+changed accordingly.</li>
+
+<li>Support for imaginary numbers has been removed, since they
+(thankfully) are not part of the C standard anymore.</li>
+
+<li><code>xtc.lang.CParserState</code>, which is used to disambiguate
+typedef names from object, function, or <code>enum</code> constant
+names, has been changed to support subclassing and thus to simplify
+the implementation of extensions to the C language.</li>
+
+</ul></p>
+
+<p>Next, the <strong>Java grammar</strong> has been improved by using
+more descriptive names for a large number of productions, by
+optimizing several productions, and by eliminating the creation of
+unnecessary AST nodes.  The Java printer has been updated
+accordingly.</p>
+
+<p>Both the recognizer-only and the AST-building Java parsers are
+now generated from the <em>same</em> grammar through the
+new <code>genericAsVoid</code> grammar attribute (see below).  The
+top-level module for both versions is <code>xtc.lang.Java</code> and
+the corresponding parsers now are <code>xtc.lang.JavaRecognizer</code>
+(no AST) and <code>xtc.lang.JavaParser</code> (AST).</p>
+
+<p>To better evaluate and compare parser performance, the <strong>Java
+driver</strong> can now generate ASTs when using JavaCC- or
+ANTLR-generated parsers.  The AST-building JavaCC grammar has been
+generated with <a href="http://compilers.cs.ucla.edu/jtb/">Java Tree
+Builder</a> (version 1.2.2) from the original JavaCC grammar (dated
+5/5/02).  The AST-building ANTLR grammar is distributed by the ANTLR
+project, with the recognizer-only version being manually derrived from
+the original.  Both versions of the ANTLR grammar have been updated to
+version 1.21.</p>
+
+<p>The xtc distribution now contains support
+for <strong>SDF</strong> and <strong>Elkhound</strong> generated Java
+parsers (again to evaluate and compare parser performance):<dl>
+
+<dt>SDF</dt>
+
+<dd>The new top-level <code>glr</code> directory contains Java 1.5 and
+1.4 grammars for SDF.  The 1.5 version is the grammar from the
+<a
+href="http://www.program-transformation.org/Stratego/JavaFront">java-front
+0.8</a> distribution (with a differently named top-level module) and
+the 1.4 version has been derrived from the former by removing support
+for generics, the enhanced for loop, typesafe enums, varargs, static
+imports, and metadata.  The <code>glr/buildsdf.sh</code> script is
+used to generate the corresponding parse tables and
+the <code>data/sdf.sh</code> script is used to perform a performance
+evaluation.  The <code>buildsdf.sh</code> script depends on the
+<code>pack-sdf</code> and <code>sdf2table</code> tools, while the
+<code>sdf.sh</code> script depends on the <code>sglr</code>
+and <code>sglri</code> tools.</dd>
+
+<dt>Elkhound</dt>
+
+<dd>The Elkhound-based Java parser, called Ella, is contained in the
+<code>glr/ella</code> directory.  It includes the corresponding
+lexical, syntactic, and AST specifications as well as any supporting
+C++ code.  Ella depends on
+the <code>smbase</code>, <code>ast</code>, <code>elkhound</code>, and
+<code>elsa</code> packages from Elkhound's source distribution.  It
+can be built by copying the corresponding directories into
+the <code>glr</code> directory and then
+executing <code>./configure</code> and <code>make</code> in that
+directory.  The <code>data/ella.sh</code> script is used to evaluate
+Ella's performance.</dd>
+
+</dl></p>
+
+<p>This release makes the following changes
+to <strong><em>Rats!</em></strong>:<ul>
+
+<li>The grammar-wide <code>reserved</code> attribute has been replaced
+with the new <code>set</code> attribute, which results in the
+generation of a static final set with the attribute's value as its
+name.  It also results in the inclusion of a convenience
+method <code>add(Set,Object[])</code> for filling this set.  The
+XForm, C, and Java grammars have been modified accordingly.</li>
+
+<li>The new grammar-wide <code>genericAsVoid</code> attribute can be
+used to generate a parser that only recognizes a language but does not
+build an AST from the same tree-building grammar.  It is now used for
+generating the recognizer-only Java parser from
+the <code>xtc.lang.Java</code> module.</li>
+
+<li>Nonterminals may contain the underscore character again, but only
+if it appears within a name but not at the beginning or end.</li>
+
+<li>The cost (<code>-Ocost</code>), choices2
+(<code>-Ochoices2</code>), and prefixes (<code>-Oprefixes</code>)
+optimizations are now enabled by default.  The choices2 optimization
+now only inlines productions that have been marked with the
+new <code>inline</code> attribute.  Otherwise, this attribute is
+semantically equivalent to <code>transient</code>.</li>
+
+<li>The new gnodes optimization (<code>-Ognodes</code>) leverages
+<code>xtc.tree.GNode</code>'s new factory methods to create leaner
+generic nodes.  It is enabled by default.</li>
+
+<li>The new <code>-lgpl</code> option generates parsers that are not
+restricted by the GPL.  Parsers generated with this option use the
+new <code>xtc.parser.BaseParser</code> base class, which, unlike
+<code>xtc.parser.PackratParser</code>, does not reference any classes
+released under the GPL.</li>
+
+<li>A performance bug in the select optimization
+(<code>-Oselect</code>) has been fixed.  Thanks to Laune Harris for
+helping to identify and fix this issue.</li>
+
+<li>A long-standing bug in the application of actions
+(<code>xtc.util.Action</code>) has been fixed.  Actions are used to
+construct left-recursive data structures from right-recursive
+productions.  But their application did not annotate nodes with
+source code locations; this has been fixed through the new
+<code>PackratParser.apply(Pair, Object, int)</code> method.
+Furthermore, the <code>Action</code> class has been turned into an
+interface.</li>
+
+<li>A bug in the code generator has been fixed so that bindings with
+the same name occurring in subsequent repated or optional expressions
+do not result in compiler errors anymore.</li>
+
+</ul>
+As a result of these changes, the throughput of the AST-building Java
+parser has improved by 31.5% and the throughput of the C parser has
+improved by 52%.</p>
+
+<p>Thanks to Laune Harris, this release makes the following major
+changes to <strong>XForm</strong>:<ul>
+
+<li>XForm's expressivity has been significantly improved.  Notably,
+XForm now supports node insertion ("<code>insert before</code>" and
+("<code>insert after</code>") and set difference
+("<code>differ</code>").  Next, arbitrary expressions including
+function calls can now appear in predicates.  Finally, function
+arguments can now be sequences, strings, or integers instead of just
+integers.</li>
+
+<li>The XForm function library has been extended, including support
+for sequence and string manipulation.  Functions defined by XForm do
+not need to be explicitly imported anymore.</li>
+
+<li>The XForm driver supports more flexible command line options,
+including for specifying the language parser and pretty printer as
+well as for measuring engine performance.</li>
+
+<li>New example queries have been added to
+the <code>xform/samples</code> directory. In addition an example Java
+language extension has been added
+to <code>xform/samples/javaproperty</code>.</li>
+
+</ul>
+Additionally, several minor XForm bugs have been fixed.</p>
+
+<p>Java's access control is now disabled for <strong>xtc's visitor
+dispatch</strong>.  As a result, visitors can now be specified as
+anonymous inner classes.  For example, <code>xtc.lang.CAnalyzer</code>
+uses this feature to analyze declaration specifiers and
+declarators.</p>
+
+<p><strong>Generic nodes</strong> now need to be created through a
+set of factory methods; look for the <code>create()</code> methods
+in <code>xtc.tree.GNode</code>.  Several of these methods directly
+accept a generic node's children and return generic nodes that are
+specialized for the specified number of children.  As a result, such
+fixed size nodes do not support
+the <code>add()</code>, <code>addAll()</code>,
+and <code>remove()</code> methods defined
+by <code>xtc.tree.GNode</code>.  They can be distinguished from
+variable sized nodes through <code>isVariable()</code> and converted
+to variable sized nodes through <code>ensureVariable(GNode)</code>.
+<em>Rats!</em>' new gnodes optimization (see below) utilizes these
+factory methods to reduce the memory and performance overhead of
+parsers with generic productions.</p>
+
+<p>This release introduces improved support for <strong>building
+language tools with xtc</strong>.  In particular, the
+new <code>xtc.util.Runtime</code> class manages command line options,
+errors and warnings, and output to the standard console.  The
+new <code>xtc.util.Tool</code> class provides a skeleton tool
+implementation, including support for several default command line
+options.  <em>Rats!</em> and the C, Java, and XForm drivers have been
+rewritten to utilize both classes.  Note that, as a result of this
+rewrite, some command line options for these tools have changed.</p>
+
+<p>This release also introduces our first <strong>unit
+tests</strong>.  We rely
+on <a href="http://www.junit.org/index.htm">JUnit</a> as our unit
+testing framework and JUnit's binary release (<code>junit.jar</code>)
+must be in the classpath.  Thanks to Anh Le, this release also
+introduces our first <strong>regression tests</strong>, based on GCC's
+regression tests.  Just like GCC, we rely
+on <a href="http://expect.nist.gov/">expect</a>
+and <a href="http://www.gnu.org/software/dejagnu/">DejaGnu</a> to
+perform these tests.  The
+<a href="development.html">description of our development setup</a>
+and the sample shell scripts (<code>setup.bat</code>
+and <code>setup.sh</code>) have been updated accordingly.</p>
+
+<p>xtc now builds with <strong>JDK 1.5</strong> by passing
+the <code>-source 1.4</code> flag to the <code>javac</code> compiler.
+All sources remain at Java version 1.4.</p>
+
+<p>xtc's <strong>licensing</strong> has been changed: Most of the
+code is now released under the GNU General Public License (GPL)
+version 2.  The exceptions
+are <code>xtc.parser.BaseParser</code>, <code>xtc.parser.Column</code>,
+<code>xtc.parser.Result</code>, <code>xtc.parser.SemanticValue</code>,
+<code>xtc.parser.ParseError</code>, <code>xtc.tree.Location</code>,
+and <code>xtc.util.Pair</code>, which are released under the GNU
+Lesser General Public License (LGPL) version 2.1.  The main licensing
+change is that the option of using later versions of the GPL and LGPL
+has been removed.</p>
+
+<p>Thanks to Marco Yuen and Marc Fiuczynski, this release
+incorporates <a href="http://c4.cs.princeton.edu/"><strong>C4, the
+CrossCutting C Compiler</strong></a>.  C4 makes aspect-oriented
+software development techniques available to C programmers, with the
+goal of simplifying the development of software variants, notably for
+the Linux kernel.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.7.1 (8/17/05)</dt>
+
+<dd>Minor feature and bug fix release.
+
+<p>This release makes the following changes to <em>Rats!</em>:<ul>
+
+<li>The new grammar-wide <code>reserved</code> attribute results in
+the generation of a static final set of reserved
+identifiers <code>RESERVED</code> and a convenience
+method <code>reserve(String[])</code> for filling this set.  This
+attribute eliminates the need for explicitly defining this set in a
+body action (though the set still has to be filled in an action).</li>
+
+<li>The new grammar-wide <code>flag</code> attribute results in the
+generation of a static final boolean with the attribute's value as its
+name.  This attribute eliminates the need for explicitly defining such
+a flag in a body action.</li>
+
+<li>To effectively support the new <code>flag</code> attribute, the
+processing of attributes has been updated.  As a result, attributes
+such as <code>transient</code>, whose values used to be ignored, now
+must not have values.  Internally, the
+class <code>xtc.tree.AttributeList</code> has been added and
+<code>xtc.tree.Attribute.equals()</code> has been changed to take an
+attribute's value into account.</li>
+
+<li>A modifying module's attributes now override the modified module's
+attributes, with the exception of any
+<code>stateful</code>, <code>reserved</code>, or <code>flag</code>
+attributes, which are preserved.  When pretty printing modules with
+the <code>-html</code> command line option, globally effective
+attributes are now highlighted (assuming
+the <a
+href="http://cs.nyu.edu/rgrimm/xtc/grammar.css"><code>grammar.css</code></a>
+stylesheet contained in the source distribution's root directory also
+is in the same directory as the HTML files).</li>
+
+<li>A modifying module's header, body, and footer actions are now
+combined with the modified module's actions.</li>
+
+<li>Modules may now contain no productions at all.  This is useful for
+separating header, body, and footer actions as well as globally
+effective attributes
+(i.e., <code>stateful</code>, <code>reserved</code>,
+and <code>flag</code>).</li>
+
+<li>Stateful or resetting productions may now appear in a module if
+any of the dependent modules has a grammar-wide <code>stateful</code>
+attribute and not just the module itself.</li>
+
+<li>Public productions in dependent modules are not treated as
+top-level productions anymore.</li>
+
+<li>Qualified nonterminals are now resolved correctly, even if the
+corresponding production is defined in module modified by a module
+that is imported by the referencing module.  Furthermore, the speed of
+look-ups in presence of multiple definitions (across all grammar
+modules) has been improved.</li>
+
+<li>Sequence names are now preserved when copying sequences.
+Furthermore, productions are now correctly removed
+by <code>Analyzer.remove(Module)</code>.  Finally, ambiguous
+nonterminals are now always detected.  As a result of these bug fixes,
+it is now possible to apply multiple independent modifications to the
+same base module.  Thanks to Martin Hirzel for identifying the first
+bug (whose resolution triggered discovery of the other two).</li>
+
+<li>Error locations are now formatted as
+<em>filename</em><code>:</code><em>linenumber</em><code>:</code><em>column-number</em>
+to better integrate with Emacs.  Thanks to Martin Hirzel for
+suggesting this improvement.</li>
+
+</ul></p>
+
+<p>The C, Java, and XForm grammars have been modified to utilize the
+new attributes.  Additionally, the C and Java grammars have been
+further modularized, up to the respective top-level module, which now
+simply modifies another, parameterized module.</p>
+
+<p>Additionally, this release makes the following changes to xtc's C
+support:
+
+<ul>
+
+<li><code>xtc.lang.CSymbolTable</code> has been renamed
+to <code>CParserState</code> to emphasize that it does not implement a
+full symbol table.</li>
+
+<li><code>xtc.lang.CCounter</code> can now print its own statistics
+through the <code>print(xtc.tree.Printer)</code> method.  It has also
+been updated to reflect recent changes in the C grammar.  The C driver
+has been updated accordingly.</li>
+
+</ul></p>
+
+<p><code>xtc.tree.GNode</code>'s interface has been improved.  In
+particular, <code>numberOfChildren()</code> has been renamed
+to <code>size()</code>, <code>addAll(List)</code> has been changed
+to <code>addAll(Collection)</code>, and <code>add(int,Object)</code>,
+<code>addAll(int,Pair)</code>, and <code>addAll(int,Collection)</code>
+have been added.</p>
+
+<p>A bug in XForm, which causes the result of a query to contain
+internal item objects, has been fixed.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.7.0 (8/9/05)</dt>
+
+<dd>Major feature release.
+
+<p>In short, this release adds a module system to <em>Rats!</em>, adds
+support for building and printing an AST in the Java driver, fixes
+several bugs in the C parser and printer, and includes a significantly
+improved XForm, our AST query and transformation engine.</p>
+
+<p>In more detail, this release introduces a simple yet powerful
+<strong>module system</strong> for <em>Rats!</em>.  The module system
+supports basic modules to factor grammars into re-usable units.  It
+supports module modifications to concisely specify extensions.
+Finally, it supports module parameters to easily compose different
+extensions with each other.  As a result, the format of grammar
+specifications has been changed and grammars not distributed with this
+release need to be modified.  The module system is described in detail
+in the package documentation for <code>xtc.parser</code>.</p>
+
+<p>To get a peek at modules, execute the following command
+in <code>src/xtc/lang</code>:
+<pre>
+java xtc.parser.Rats -in ../.. -instantiated -html C.rats
+</pre>
+Then open the resulting <code>xtc.lang.C.html</code> file in your web
+browser and explore.</p>
+
+<p>This release makes the following, additional changes
+to <em>Rats!</em>:<ul>
+
+<li>The search path for grammar modules can be explicitly specified
+from the command line by using one or more <code>-in</code> options.
+If no such options are present, the search path is the current
+directory.</li>
+
+<li>To help understand and debug grammars, <em>Rats!</em> can now
+print all modules after loading (through the <code>-loaded</code>
+command line option), after instantiating
+(<code>-instantiated</code>), after applying modifications
+(<code>-applied</code>), and after all processing
+(<code>-processed</code>).  If the <code>-html</code> command line
+option is present (as illustrated above), the last three printing
+options will generate hyperlinked HTML in <em>Rats!</em>' output
+directory (which can be set with <code>-out</code>).  The
+corresponding stylesheet is <code>grammar.css</code>.</li>
+
+<li>Grammar-wide attributes can be specified from the command line by
+using one or more <code>-option</code> command line options.  Most
+attributes have also been renamed.  Notably, <code>debug</code> is
+now <code>verbose</code>, <code>constantBinding</code> is now
+<code>constant</code>, <code>state</code> is now <code>stateful</code>,
+<code>reset</code> is now <code>resetting</code>, <code>ignoreCase</code>
+is now <code>ignoringCase</code>, and <code>location</code> is now
+<code>withLocation</code>.  Furthermore, <code>mainMethod</code> is
+now <code>main</code> and <code>usePrinter</code> is
+now <code>printer</code>.</li>
+
+<li>The character constant has been changed from '<code>.</code>' to
+'<code>_</code>'.  Nonterminals may not contain underscores
+anymore.</li>
+
+<li>A <code>NullPointerException</code> when processing undefined
+nonterminals in <code>xtc.parser.TextTester</code> has been
+eliminated.</li>
+
+<li>A <code>NullPointerException</code> when processing optional
+sequences with no bindable value
+in <code>xtc.parser.MetaDataSetter</code> has been eliminated.  Thanks
+to Stacey Kuznetsov for identifying this bug.</li>
+
+<li>Voided repetitions and options do not result in unnecessary
+warnings (indicating a lack of a bindable element) anymore.  Thanks to
+Stacey Kuznetsov for identifying this bug.</li>
+
+<li>The processing of nested repetitions and options in generic
+productions has been improved so that repeated or optional elements
+are only bound if strictly necessary.</li>
+
+<li>The voiding of unbound productions has been improved to recognize
+more opportunities.</li>
+
+<li>The reporting of parse errors has been improved.  The new methods
+<code>PackratParser.format(ParseError)</code>
+and <code>PackratParser.print(ParseError)</code> simplify the display
+of parse errors, while the new
+exception <code>xtc.parser.ParseException</code> simplifies the
+propagation of parse errors.</li>
+
+</ul></p>
+
+<p>The <strong>Java driver</strong> can now optionally build an
+abstract syntax tree and also pretty print that tree.  Thanks to
+Stacey Kuznetsov for implementing the necessary changes.</p>
+
+<p>The <strong>C grammar and pretty printer</strong> have been
+improved as follows:<ul>
+
+<li>GCC attributes can now appear at the end of parameter
+declarations.  Thanks to Marco Yuen for identifying this bug and
+suggesting a fix.</li>
+
+<li>Obsolete GCC field designations when initializing structures and
+unions are now parsed correctly and printed as standard C field
+designations.  Thanks to Marco Yuen for identifying this
+short-coming.</li>
+
+<li>Compiler directives such as line markers nested in structures and
+unions are now added as annotations to the correct nodes and printed
+correctly.</li>
+
+<li>Field names in structures and unions do not shadow type aliases
+anymore.  Thanks to Marco Yuen for identifying this bug.</li>
+
+</ul></p>
+
+<p>XForm, the <strong>query and transformation engine</strong>, has
+been improved as follows.  Thanks to Joe Pamer for realizing these
+changes.<ul>
+
+<li>XForm now supports the <code>or</code> and <code>and</code>
+logical operators.</li>
+
+<li>ASTs can now be traversed inside-out (or bottom-up), instead of
+only outside-in (or top-down), by using the <code>inside_out</code>
+operator.</li>
+
+<li>The structure of results as lists of lists (for example, when
+evaluating comma-separated expressions) is now preserved.  If
+necessary, XForm iterates over individual elements as if such lists of
+lists were flat.</li>
+
+<li>Replacement expressions now return the inserted items instead of
+the AST's root.</li>
+
+<li>The engine implementation has been rewritten for efficiency, with
+considerable savings in heap utilization.  In our experiments, the
+number of <code>xtc.xform.Item</code> objects allocated while
+performing a query has been reduced by a factor of 90.</li>
+
+</ul></p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.6.1 (6/11/05)</dt>
+
+<dd>Minor bug fix release.  This release eliminates
+<code>NullPointerException</code>'s
+in <code>xtc.lang.CPrinter.visitStructureDeclarationList()</code> and
+in <code>xtc.xform.Item.equals()</code>.
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.6.0 (6/11/05)</dt>
+
+<dd>Performance tuning release.  This release focuses on improving
+performance and a corresponding code clean-up; as a
+result, <strong>this release may break existing code</strong>.
+Performance tests on an 2002 iMac (with a 800 MHz PowerPC G4 processor
+and 1 GB of RAM) show that Java driver throughput has improved by 49%,
+from 256 KB/s up to 382 KB/s, and heap utilization has improved by
+25%, from 58:1 (i.e., 58 bytes of heap per 1 byte in the input) down
+to 43:1.  C driver performance for parsing and pretty printing the
+entire Linux 2.6.10 kernel (~1,000 files) has improved by 35%, from
+211 minutes down to 137 minutes.  Improvements are similar for a
+faster machine: C driver performance for parsing and pretty printing
+the Linux kernel on a 2004 PowerMac (with two 2.5 GHz PowerPC G5
+processors and 1 GB of RAM) has improved by 34%, from 56 minutes down
+to 37 minutes.  All our C driver experiments used a Java heap size of
+512 MB (both minimum and maximum size); performance improvements for
+configurations with smaller heaps are likely to be much more
+pronounced.
+
+<p>In detail, this release makes the following performance-related
+improvements:<ul>
+
+<li>Input files are not buffered in their entirety anymore.  The
+corresponding <code>-buffer</code> and <code>-nobuffer</code> command
+line options for <em>Rats!</em> and the C and Java drivers have been
+removed.  Parse error reporting now uses a new method
+(<code>xtc.parser.PackratParser.lineAt()</code>), as input lines are
+not directly available
+anymore.  <code>xtc.util.Utilities.msg()</code>, which is used for
+error printing, has been changed accordingly.</li>
+
+<li>All output is now buffered and not flushed on each newline
+anymore.  <code>xtc.tree.Printer</code>'s constructors have been
+changed accordingly.</li>
+
+<li>Productions that are only referenced once within a grammar are now
+automatically marked as transient.  While such productions were not
+memoized before, repetitions appearing in such productions were
+desugared into the equivalent right-recursions.  With this change,
+repetitions are not desugared any more.  The command line option
+corresponding to this optimization is <code>-Onontransient</code> (for
+"optimize non-transient productions").  This optimization is enabled
+by default.  Since this optimization creates new transient
+productions, the <code>-Oerrors2</code> optimization is now disabled
+by default.</li>
+
+<li>The C and Java grammars have been modified to optimize the
+recognition of hierarchical syntax.  Based on a simple, albeit manual
+analysis most productions are now marked as transient (unless they are
+only referenced once in a grammar and thus automatically recognized as
+transient; see above).  The analysis compares the tokens appearing
+before all occurrences of a nonterminal.  If they are all different,
+the corresponding production is marked as transient.</li>
+
+<li>The C and Java grammars have also been modified to optimize the
+recognition of identifiers and keywords.  Additionally, the Java
+grammar now relies on <code>Character.isJavaIdentifierStart()</code>
+and <code>Character.isJavaIdentifierPart()</code> instead of
+(incorrectly specified) explicit character classes.</li>
+
+<li>Where possible, options are not desugared and lifted into their
+own productions anymore, but rather implemented directly.  The
+corresponding command line option for <em>Rats!</em>
+is <code>-Ooptional</code>.  This optimization is enabled by default.
+Note, however, that this optimization may result in a loss of accuracy
+for deducing the type of a binding.  For example,
+if <code>foo:Foo?</code>  and <code>bar:Bar?</code> both appear in the
+same production, with <code>Foo</code> having <code>String</code> as
+its type and <code>Bar</code> having <code>Pair</code>, then the
+declared type for both <code>foo</code> and <code>bar</code> is the
+common supertype <code>Object</code>.</li>
+
+<li>Direct left-recursive productions are now transformed into
+equivalent (transient) iterations instead of (memoized)
+right-recursions.  The corresponding command line option
+for <em>Rats!</em>  is <code>-Oleft2</code>.  This optimization is
+enabled by default.  The previously supported transformation into
+right-recursions is still available through the <code>-Oleft1</code>
+command line option.</li>
+
+<li>The parser code generated for string matches has been optimized.
+The corresponding command line option for <em>Rats!</em>
+is <code>-Omatches</code>.  This optimization is enabled by
+default.</li>
+
+<li>The parser code generated for selecting the more specific parse
+error has been optimized.  The corresponding command line option
+for <em>Rats!</em> is <code>-Oselect</code>.  This optimization is
+enabled by default.</li>
+
+<li>The parser code for setting a node's location has been optimized
+to avoid unnecessary <code>instanceof</code> tests and casts.  To this
+end, <em>Rats!</em> now interprets any import statements in a
+grammar's header and tries to analyze the corresponding
+classes.</li>
+
+<li>The C and Java drivers now print overall performance statistics
+based on a least squares fit of individual data points.  The
+statistics are the parser throughput in KB/s and the memory
+utilization in bytes per byte in the input.</li>
+
+<li>The new grammar-wide <code>dumpTable</code> attribute results in
+the generation of a method, <code>dump(xtc.tree.Printer)</code>, to
+print the memoization table in a human-readable format.  The dump can
+be used for analyzing allocation patterns.  The C and Java drivers
+include a corresponding command line option (<code>-memo</code>),
+which casues the memoization table to be printed after a successful
+parse.  Though, the C and Java grammars do <em>not</em> include the
+<code>dumpTable</code> attribute.  The
+new <code>xtc.parser.TableAnalyzer</code> utility collects and prints
+(minimal for now) statistics for a previously dumped memoization
+table.</li>
+
+</ul></p>
+
+<p>Thanks to Adam Kravetz for helping to identify several
+opportunities for optimizations.</p>
+
+<p>This release also cleans up the interface between nodes and
+visitors.  In particular, dispatch can now only be initiated by
+calling <code>Visitor.dispatch(Node)</code> (instead
+of <code>Node.accept(Visitor)</code>).  Furthermore, processing
+methods specified as part of nodes are now
+named <code>Node.visitWith(Visitor)</code> (instead
+of <code>Node.process(Visitor)</code>).  In contrast
+to <code>accept()</code>, <code>dispatch()</code>
+handles <code>null</code> nodes, doing nothing and
+returning <code>null</code>.  Furthermore, if the
+selected <code>visit()</code> or <code>visitWith()</code> method
+has <code>void</code> as its return type, <code>dispatch()</code>
+returns the specified node (instead of <code>null</code>).</p>
+
+<p><em>Rats!</em>' internal visitors have been updated to utilize
+<code>dispatch()</code>.  Additionally, many visitors have been
+refactored to utilize a common
+superclass, <code>xtc.parser.GrammarVisitor</code>, which reduces code
+bloat across <em>Rats!</em>' internal visitors.  All visitors
+in <code>xtc.lang</code> were already
+using <code>dispatch()</code>.</p>
+
+<p>Furthermore, this release makes the following changes
+to <em>Rats!</em>:<ul>
+
+<li>A grammar's global state object now <strong>must</strong> be reset
+explicitly by marking the corresponding productions with
+the <code>reset</code> attribute.  <em>Rats!</em>' own grammar and the
+C grammar have been modified accordingly.</li>
+
+<li>Top-level nonterminals may now be declared as void.  The Java
+grammar has been modified accordingly.</li>
+
+<li><em>Rats!</em>-generated parsers now support incremental parsing
+through the <code>resetTo(int)</code> and <code>isEOF(int)</code>
+methods.  Incremental parsing is useful for processing interactive or
+very large inputs.  It is now used by
+the <code>xtc.lang.CDriver</code> by default (and disabled through
+the <code>-noincr</code> command line option).</li>
+
+<li>Direct left-recursions in void and text-only productions are now
+automatically transformed into the corresponding right-recursions,
+comparable to the transformation of direct left-recursions in generic
+productions.  The speed of recognizing transformable productions
+in <em>Rats!</em> has also been improved.  The Java grammar's
+productions for recognizing expressions have been rewritten
+accordingly (i.e., left-associative operators are now expressed
+through left-recursive productions).</li>
+
+<li>Support for generic text productions (i.e., productions with
+pseudo-type "<code>gstring</code>") has been <em>removed</em>.  They
+provide little benefit with considerable complexity (and code
+duplication).  The two generic text productions in the C grammar have
+been rewritten as regular generic productions.</li>
+
+<li>The new <code>ignoreCase</code> attribute instructs <em>Rats!</em>
+to perform comparisons for string matches in a case-insensitive
+manner.  It applies to either the entire grammar or individual
+productions and is useful for languages with case-insensitive
+keywords.  Note that comparisons for string literals, character
+literals, and character classes continue to be case-sensitive, even in
+the presence of this attribute.  Thanks to Ken Britton for suggesting
+this feature and providing me with a prototype
+implementation.</li>
+
+<li><em>Rats!</em> now generates an error if <code>transient</code> is
+used as a production's type and a warning if any other per-production
+attribute is used as a production's type.  In either case, the actual
+type is probably missing from the production.</li>
+
+<li>The simplification of grammars has been improved, with the result
+that fewer repetitions and options need to be lifted into their own
+productions.</li>
+
+<li>If the semantic value of a bound repetition in a transient
+production cannot be determined, <em>Rats!</em> now issues a warning
+and does not fail with a <code>NullPointerException</code> anymore.
+If the value of the repeated element is the value of a nonterminal,
+the corresponding production is not voided anymore, even if the
+repetition is automatically recognized as a production's semantic
+value.</li>
+
+<li>Bound repetitions or options in text-only productions are now
+always lifted into their own productions, independent of whether they
+are desugared or not.  As a result, they now produce the correct
+semantic value, namely the matched input as a string.</li>
+
+<li>String matches against repetitions or options, which are not
+desugared (e.g., because the production is transient), are now
+processed correctly by lifting the repetitions or options into their
+own productions.  As a result, they do not result in a
+<code>ClassCastException</code> anymore.</li>
+
+<li>Reference counting now counts nonterminals appearing within
+once-or-more repetitions in non-transient productions twice, as the
+nonterminal will appear twice in the desugared version.  Furthermore,
+the recursive nonterminal in directly left-recursive productions is
+not counted at all anymore, which is consistent with the transformed
+version.  As a result of these changes, reference counting can now be
+performed before applying transformations, i.e. the <code>Transformer</code>,
+<code>DirectLeftRecurser</code>, and <code>Generifier</code>
+visitors.</li>
+
+<li>The folding of duplicate productions now takes into account
+whether productions are recognized as text-only.</li>
+
+<li>A production containing a lone nonterminal is now inlined only if
+it is transient.  That way, a production containing a lone nonterminal
+can be used to force memoization of another, transient
+production.</li>
+
+</ul></p>
+
+<p>This release also adds support for local label declarations to
+the C grammar and pretty printer.  Additionally, the C grammar, symbol
+table, and pretty printer have been modified, so that annotations
+encapsulating regular AST nodes now represent the compiler directives
+preceding that node's text in the input (instead of the other way
+around).</p>
+
+<p>The new <code>xtc.xform</code> package provides a facility for
+querying and transforming abstract syntax trees (ASTs).  The query
+language is inspired
+by <a href="http://www.developer.com/xml/article.php/3344421">XPath
+2.0</a>, but has some significant differences, notably to
+destructively modify ASTs.  Thanks to Joe Pamer for implementing the
+query and transformation engine.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.5.2 (3/7/05)</dt>
+
+<dd>Minor feature and bug fix release.  This release
+changes <em>Rats!</em> so that <em>all</em> repetitions appearing in
+transient productions are implemented through iterations and are not
+desugared into the corresponding recursive expressions (which can be
+used to avoid stack overflow errors for long sequences of
+expressions).  This release also fixes a bug in <em>Rats!</em>, which
+caused repeated sequences to be lifted too aggressively.
+
+<p>All tools now return appropriate exits codes, 0 on successful
+executions and 1 on error conditions.</p>
+
+<p>This release also improves the C grammar and pretty printer.  In
+particular, it fixes bugs in:<ul>
+<li class="tight">the recognition of structure and union declarations
+(in particular, <code>typedef</code> declarations now only introduce
+the identifiers in the declarator list as type names and field names
+now properly override type names when preceded by a type
+specifier),</li>
+<li class="tight">the recognition of <code>goto</code>
+statements,</li>
+<li class="tight">the recognition of <code>long</code>
+and <code>long&nbsp;long</code> constant suffixes (such
+as <code>LL</code>),</li>
+<li class="tight">the pretty printing of unary expressions with
+the <code>+</code>, <code>-</code>, and <code>&amp;</code>
+operators,</li>
+<li class="tight">the pretty printing of postdecrement
+expressions,</li>
+<li class="tight">the pretty printing of compound literals.</li>
+</ul>
+For some nested expressions (such as arithmetic expressions appearing
+as operands for the bitwise or operator), the pretty printer now emits
+parentheses to avoid warnings when compiling the resulting code with
+GCC under the <code>-Wparentheses</code> command line option.</p>
+
+<p>Additionally, the C grammar and pretty printer now support the
+following (GCC) extensions:<ul>
+<li class="tight"><code>#ident</code> directives in preprocessed
+code,</li>
+<li class="tight">empty external definitions (i.e., a semicolon by
+itself),</li>
+<li class="tight">structures and unions with no members,</li>
+<li class="tight">extra semicolons in structure and union member
+declarations,</li>
+<li class="tight"><code>typeof</code> (and underscored variations) as
+a type specifier,</li>
+<li class="tight">underscored variations of the <code>signed</code>
+type specifier,</li>
+<li class="tight">ranges in <code>case</code> labels,</li>
+<li class="tight">labels without statements at the end of compound
+statements,</li>
+<li class="tight">assembly statements,</li>
+<li class="tight">statements and declarations in expressions,</li>
+<li class="tight">ranges in array designators,</li>
+<li class="tight"><code>__alignof__</code> as an expression,</li>
+<li class="tight">the <code>__builtin_va_arg()</code> function (which
+takes a type name as its second argument),</li>
+<li class="tight">labels as values,</li>
+<li class="tight">attributes (the full GCC mess),</li>
+<li class="tight">underscored variations of
+the <code>const</code>, <code>volatile</code>
+and <code>restrict</code> type qualifiers,</li>
+<li class="tight">the <code>__extension__</code> specifier.</li>
+</ul>
+
+The C grammar now accepts source files with just white space and
+comments.  Furthermore, <em>Rats!</em>-generated parsers, when created
+with an explicit file size argument to the constructor, now accept
+empty files (i.e., of length 0).</p>
+
+<p>The overall effect is that the C driver
+(<code>xtc.lang.CDriver</code>) now parses and pretty prints the
+entire Linux kernel (version 2.6.8).  The resulting source code
+compiles with GCC under the <code>-Wall</code> command line option
+(and no warnings).</p>
+
+<p>Thanks to Marc Fiuczynski for identifying most of the bugs and
+missing language constructs and for testing the C driver against the
+Linux kernel.</p>
+
+<p>This release also changes the format of pretty printed ASTs to be
+more compact (and to be consistent with the AST query language
+currently being developed).  Pairs (<code>xtc.util.Pair</code>) are
+now mutable, but should still be treated as immutable if they are
+memoized by a <em>Rats!</em>-generated parser.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.5.1 (12/16/04)</dt>
+
+<dd>Bug fix release.
+
+<p>It makes the following changes:<ul>
+
+<li>The new <code>visible</code> attribute supports the generation of
+parsers that are package private (instead of public).</li>
+
+<li>The interface to the global state
+object <code>xtc.util.State</code> has been changed to reflect that
+state modifications are modeled as lightweight transactions.</li>
+
+<li>A memoization bug resulting in
+an <code>ArrayIndexOutOfBoundsException</code> has been fixed; thanks
+to Robin Lee Powell for identifying this bug.</li>
+
+<li>A bug resulting in an <code>ArrayIndexOutOfBoundsException</code>
+when printing a default parse error (returned by a transient
+production under the errors2 optimization) has been fixed; thanks to
+Robin Lee Powell for identifying this bug.</li>
+
+<li>The accuracy of error messages under the errors2 optimization has
+been improved (by avoiding to return default parse errors).</li>
+
+<li>A new command line option (<code>-out</code>) to select the output
+directory for parsers generated by <em>Rats!</em> has been added.
+Also, <em>Rats!</em> now prints only errors to the error console.
+Both changes improve integration with Ant; thanks to Yonas Jongkind
+for suggesting them.</li>
+
+</ul></p>
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.5.0 (11/11/04)</dt>
+
+<dd>Performance tuning and bug fix release.  Parsers generated
+by <em>Rats!</em> now use arrays of read-in characters and memoized
+results instead of a linked list of parser objects.  The current
+parser position now is an explicit index into these arrays instead of
+a reference to a parser object.  Performance tests with the Java
+parser show that the parser consumes only half the memory and takes
+only 80% the time when recognizing Java source files when compared
+with previous versions.
+
+<p><strong>Note that this release changes the basic parser interface
+and is not backwards-compatible.</strong>  In particular, parsing
+methods now take an explicit index argument
+(named <code>yyStart</code>), and the <code>character()</code> method
+returns an <code>int</code> instead of a <code>Result</code>.
+Furthermore, parsers perform best if they are created with the
+three-argument constructor, which includes the length of the input.
+For example, the following code snippet parses a file
+named <code>fileName</code> of size <code>fileSize</code> with
+reader <code>in</code> and top-level production <code>TopLevel</code>:
+<pre>
+  Parser p = new Parser(in, fileName, fileSize);
+  Result r = p.pTopLevel(0);
+</pre>
+</p>
+
+<p>This release also makes the following changes:<ul>
+
+<li>Productions returning a <code>String</code> value and containing a
+parser action were incorrectly treated as text-only productions (bug
+fix).</li>
+
+<li>The chunking optimization is now correctly performed when it is
+the only optimization (i.e., when using the "<code>-Ochunks</code>"
+command line flag; bug fix).</li>
+
+</ul></p>
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.4.2 (9/23/04)</dt>
+
+<dd>Performance tuning and bug fix release:<ul>
+
+<li>The inlining of transient productions into choices has been
+generalized; it now works for all types of productions, not just void
+and text-only productions.  However, since JIT-based Java virtual
+machines do not seem to compile the resulting, possibly large methods
+aggressively enough, this optimization can reduce performance and is
+disabled by default.  The corresponding command line option
+for <em>Rats!</em> is <code>-Ochoices2</code>.  The original (though
+slightly improved) optimization for void and text-only productions is
+still available under the <code>-Ochoices1</code> command line option
+and enabled by default.  Note that the <code>choices2</code>
+optimization includes the <code>choices1</code>
+optimization.</li>
+
+<li>A new optimization avoids the creation of error objects when
+transient productions do not match the input.  The corresponding
+command line option for <em>Rats!</em> is <code>-Oerrors2</code>.
+This optimization is complimentary to the previously available error
+object optimization, which is now controlled through
+the <code>-Oerrors1</code> command line option.  Both optimizations
+are enabled by default.</li>
+
+<li><code>xtc.tree.GNode</code> now uses less memory for generic nodes
+with zero or one children.</li>
+
+<li>Nested choices appearing as the last element in another, repeated
+or optional choice are now correctly lifted (bug fix).</li>
+
+<li>A new driver, <code>xtc.lang.CDriver</code>, for parsing and
+printing C has been added.  It provides control over whether to print
+parsed files and also supports the collection of runtime performance
+statistics.  Additionally, the invocation syntax for the main class,
+<code>xtc.Main</code>, has been changed, now using
+the <code>-util</code> comand line option to control tool
+selection.</li>
+
+<li>The C grammar, <code>c.rats</code>, has been tuned so that
+alternatives that are more likely to appear in the input are parsed
+first.  For example, declarations are now parsed before function
+definitions.</li>
+
+</ul></dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.4.1 (9/16/04)</dt>
+
+<dd>Minor feature and bug fix release:<ul>
+
+<li><em>Rats!</em> now allows semantic actions in text-only
+productions, though <code>yyValue</code> may still not be
+referenced.</li>
+
+<li><em>Rats!</em> now recognizes the <code>-Oleft</code> command line
+option to control the automatic transformation of direct
+left-recursions into right-recursions.  It also prints additional
+messages under the <code>-verbose</code> command line option.</li>
+
+<li>Nested code blocks in semantic actions are now properly indented
+when pretty printing grammars or generated parsers.</li>
+
+<li>An index-out-of-bounds condition for sequences containing a
+<code>!</code> syntactic predicate on a character constant or class,
+followed by the any character constant, followed by any element has
+been eliminated (bug fix).</li>
+
+<li>Once-or-more repetitions containing a terminal are now correctly
+desugared into the equivalent right-recursive expressions (bug fix).</li>
+
+<li>The code generator now creates correct code for repeated empty
+sequences or <code>&</code> syntactic predicates appearing in
+transient void or text-only productions (bug fix).</li>
+
+<li>The C grammar now correctly handles enumeration constants,
+unsigned chars, chars, and string constants.  It also recognizes
+several GCC extensions, notably attributes.  Additionally, it
+recognizes pragmas and GCC line markers, which may be present in C
+preprocessor output.</li>
+
+<li>The C pretty printer now correctly parenthesizes expressions,
+observing both precedence and associativity.  The handling of spacing
+(notably, newlines and indentation) has also been improved.</li>
+
+</ul></dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.4.0 (9/7/04)</dt>
+
+<dd>Feature release.
+
+<p>This release focuses on <em>Rats!</em>' automatic generation of
+abstract syntax trees (through generic nodes).  Notable improvements
+include:<ul>
+
+<li>Nested choices, repetitions, and optional expressions in a generic
+production are now treated just like they are in regular productions
+(instead of resulting in separate generic nodes).  In other words, if
+the semantic value of such an expression cannot be automatically
+determined, it needs to be specified in explicit actions.
+Furthermore, the values resulting from a repeated expression are now
+directly added as individual children to a generic production's
+<code>xtc.tree.GNode</code>.</li>
+
+<li>An option in a generic production's ordered choice can now pass
+the semantic value of a component expression through by explicitly
+binding to <code>yyValue</code> (instead of always resulting in a new
+generic node).</li>
+
+<li>A component expression's value can now be omitted from a
+production's generic node, even if it is not a character terminal or
+void nonterminal, by prefacing it with <code>void:</code>.  This new
+prefix operator has lower precedence than all other operators,
+including regular prefix operators, with the exception of the ordered
+choice operator <code>/</code>.</li>
+
+<li>Direct left-recursions in a generic production are now
+automatically transformed into the corresponding right-recursions,
+with the resulting generic nodes preserving left-associativity.
+Non-generic productions can achieve similar results by using the newly
+added <code>xtc.util.Action</code> class.</li>
+
+<li>Newly added generic text productions simplify the recognition of
+text within generic productions.  A generic text production has
+<code>gstring</code> (for "generic string") as its type and a generic
+node as its semantic value, whose only child is the text matched in
+the input.</li>
+
+</ul></p>
+
+<p>Additionally, the newly added <code>state</code> attribute and the
+corresponding <code>xtc.util.State</code> interface help with writing
+grammars that are context-sensitive and require global state.  The
+<code>state</code> attribute, as well as the <code>debug</code>,
+<code>location</code>, and <code>constantBinding</code> attributes can
+now also be specified on a per-production basis, simply by including
+them before the production's type.  Next, sequences can now be named;
+the name is specified as the first element in a sequence by including
+it between less-than <code>&lt;</code> and greater-than
+<code>&gt;</code> signs.  Furthermore, the readability of printed
+grammars and generated code has been improved through new
+line-wrapping facilities in <code>xtc.tree.Printer</code>.  Finally,
+identifiers may now contain underscores (<code>_</code>).</p>
+
+<p>Almost all of the newly added features are utilized by the new
+grammar for C and the corresponding pretty printer (in the
+<code>xtc.lang</code> package).  Parser and pretty printer can be
+tested by executing "<code>java xtc.lang.CParser
+&lt;file&gt;</code>".</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.3.0 (4/21/04)</dt>
+
+<dd>Feature release.  This release adds the ability to automatically
+generate abstract syntax trees (ASTs) in <em>Rats!</em>.  A production
+that should result in a generic node (<code>xtc.tree.GNode</code>) as
+its semantic value has
+<code>generic</code> as its type.  The corresponding generic node has
+the same name as the production, and the children of the generic node
+are the semantic values of all component expressions in the matched
+sequence, with the exception of character terminals and nonterminals
+referencing void productions.</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.2.2 (4/16/04)</dt>
+
+<dd>Internal release.  Fixed a bug in the desugaring of repeated
+sequences for <em>Rats!</em>; thanks to Robin Lee Powell for
+identifying this bug.</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.2.1 (4/13/04)</dt>
+
+<dd>Bug fix release.  Fixed a bug in <em>Rats!</em>, under which
+options were too aggressively simplified; thanks to Robin Lee Powell
+for pointing out the incorrect behavior resulting from this bug.  Also
+fixed two bugs in the processing of nested choices.  Finally, fixed a
+bug in the handling of bindings to nested choices.</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.2.0 (4/9/04)</dt>
+
+<dd>Feature release.  This release improves the reflection-based
+dynamic dispatch for nodes and visitors by also allowing functionality
+to be expressed as part of nodes: While <code>visit()</code> methods
+in visitors are selected based on the type of the node, the
+corresponding <code>process()</code> methods in nodes are selected
+based on the type of the visitor.  The dynamic dispatch mechanism
+first tries to locate a <code>process()</code> method and, if none can
+be found, tries to locate the corresponding <code>visit()</code>
+method.
+
+<p>This release also makes the following improvements
+to <em>Rats!</em>:<p><ul>
+
+<li>Added support for parser actions, which are written like regular
+actions prepended by a caret <code>^</code> and contain low-level code
+that parses languages not expressible by parsing expression grammars.
+This feature has been motivated by Sameer Ajmani and Bryan Ford.</li>
+
+<li>Added an optimization that folds common prefixes in the general
+case.  This optimization is disabled by default because it may
+increase heap utilization of generated parsers.</li>
+
+<li>Added support for the <code>mainMethod</code> grammar attribute,
+which causes a main method to be generated that parses files specified
+on the command line.</li>
+
+<li>Fixed a bug in the detection of left-recursive productions.
+Thanks to Robin Lee Powell for identifying the bug.</li>
+
+</ul>
+This release also includes support for generic abstract syntax tree
+nodes, though they cannot yet be generated automatically.</p>
+
+</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.1.0 (2/3/04)</dt>
+
+<dd>Minor feature and bug fix release.  This release
+improves <em>Rats!</em> by fixing a bug in the processing of syntactic
+predicates and by adding a new optimization that avoids stack overflow
+errors on some Java virtual machines.  The <em>Rats!</em>
+tool, <code>rats</code>, now supports command line flags to control
+which optimizations to perform.  The Java parser
+tool, <code>pjava</code>, now supports the printing of parser
+statistics in white-space delimited format (to easier import data into
+spreadsheets).</dd>
+
+<!-- ======================================================================= -->
+
+<dt>1.0.0 (1/21/04)</dt>
+
+<dd>Initial release.</dd>
+
+</dl>
+
+</body></html>

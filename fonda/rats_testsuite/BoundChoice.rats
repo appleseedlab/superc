@@ -1,0 +1,6 @@
+// A bound choice needs to be lifted, even if it is the last element
+// in a sequence.
+
+module BoundChoice;
+
+public Object Top = "foo" a:( "bar" / "baz" ) { yyValue = a; } ;

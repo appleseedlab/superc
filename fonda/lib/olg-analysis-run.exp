@@ -1,0 +1,111 @@
+load_lib olg-analysis-dg.exp
+proc olg-analysis-dg-test { args } {
+  global check_what
+  set prog [lindex $args 0]
+
+  switch ${check_what} {
+    "type" { set command "java xtc.lang.overlog.Overlog -optionTypeAnalyze $prog" }
+    "concurrency" { set command "java xtc.lang.overlog.Overlog -optionConcurrency $prog" }
+    "output" { set command "java xtc.lang.overlog.Overlog -printAST $prog" }
+    default {
+    set output "Unknown tool"
+    return $output
+    }
+  }       
+  set timeout 120
+  set output ""
+  eval spawn $command
+  # get all output from the tool
+  expect {
+    -i $spawn_id -timeout $timeout -re ".+" {
+      append output $expect_out(buffer)
+      if { [string length $output] < 512000 } {
+        exp_continue -continue_timer
+      }
+    }
+    timeout { 
+      set output "Timeout"
+      wait -i $spawn_id
+      return $output 
+    }
+  }
+        
+  # check if xtc (Analyzer) could not run
+  if ![regsub "Overlog Driver" $output "Overlog Driver" output] {
+    set output "Tool Error" 
+      wait -i $spawn_id
+      return $output
+  }
+	
+  # check and delete the first two lines
+  regsub "\[^\n]*\n" $output "" output
+  regsub "\[^\n]*\n" $output "" output  
+	
+  # delete extra (empty) lines
+  regsub -all "\n+" $output "\n" output
+  regsub "^\n+" $output "" output
+  wait -i $spawn_id
+  return $output	 
+}
+
+proc compare_output { args } {
+  set output [lindex $args 0]
+  set filename [lindex $args 1]
+  set outfile $filename
+  append outfile ".out"
+  
+  set tempfile [file rootname $filename]
+  append tempfile ".out2"
+  
+  # write output to file
+  set tfile [open $tempfile "w"]
+  puts $tfile $output
+  close $tfile
+  
+  # compare the two files
+  set tfile [open $tempfile "r"]
+  set ofile [open $outfile "r"]
+  
+  # compare the rests of the two files
+  while 1 {
+    if {[gets $ofile oline] == -1} {
+      break
+    }
+    if {[gets $tfile tline] == -1} {
+      close $tfile
+      close $ofile
+      exec rm -f $tempfile
+      return "Fail"
+    }
+    if {[string compare $oline $tline] != 0} {
+      close $tfile
+      close $ofile
+      exec rm -f $tempfile
+      return "Fail"
+    }
+  }
+  if {[gets $tfile tline] != -1} {
+    set str [string trim $tline]
+    if ![string match $str ""] {
+      close $tfile
+      close $ofile
+      exec rm -f $tempfile
+      return "Fail"
+    }
+    while 1 {
+      if {[gets $tfile tline] == -1} {
+	break
+      }
+      if ![string match $tline ""] {
+        close $tfile
+        close $ofile
+        exec rm -f $tempfile
+        return "Fail"
+      }
+    }
+  }
+  close $tfile
+  close $ofile
+  exec rm -f $tempfile
+  return "Pass"  
+}

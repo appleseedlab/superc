@@ -1,0 +1,5 @@
+// A nested choice in an option needs to be lifted.
+
+module NestedChoiceInOption1;
+
+public memoized void Top = ("foo" ("bar" / "car") "bar")? ;

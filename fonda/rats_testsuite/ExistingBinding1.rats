@@ -1,0 +1,13 @@
+// An existing binding must not be renamed.
+
+module ExistingBinding1;
+
+public Object Top =
+  Nothing ( Nothing ( u:Something Nothing
+                    / Nothing v:Something Nothing )
+          / Something Nothing Nothing )
+  ;
+
+void Nothing     = "nothing" ;
+
+Object Something = "something" ;

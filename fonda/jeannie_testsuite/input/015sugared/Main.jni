@@ -1,0 +1,17 @@
+`.C{
+#include <stdio.h>
+}
+class Main {
+  public static void main(String[] args) {
+    System.out.println("J1");
+    `{
+      printf("C1\n"); fflush(stdout);
+      `{
+        System.out.println("J2");
+        return;
+      }
+      printf("C2\n"); fflush(stdout);
+    }
+    System.out.println("J3");
+  }
+}

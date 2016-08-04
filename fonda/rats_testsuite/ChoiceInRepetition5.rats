@@ -1,0 +1,6 @@
+// Choices inside repetitions need not be lifted in text-only productions,
+// unless the repetition is bound.
+
+module ChoiceInRepetition5;
+
+public String Top = var:( "foo" / "bar" )* ;

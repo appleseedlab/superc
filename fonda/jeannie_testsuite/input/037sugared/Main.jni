@@ -1,0 +1,19 @@
+/* Different locals with same name should be lifted to different fields. */
+`.C { }
+class Main {
+  public static void main(String[] args) {
+    {
+      int x = 2;
+      x += 1;
+      `{
+        printf("%d\n", (int)`x);
+        fflush(stdout);
+      }
+    }
+    {
+      String x = "two";
+      x += "one";
+      System.out.println(x);
+    }
+  }
+}

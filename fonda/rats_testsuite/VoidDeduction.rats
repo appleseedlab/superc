@@ -1,0 +1,10 @@
+// Propagate lack of semantic values out of repetitions, options, and
+// nested choices that are not the last expression in a sequence.
+
+module VoidDeduction;
+
+public Object Top = ( &Foo Foo (Foo Foo)* (Foo Foo)? / Foo Foo ) Bar ;
+
+void Foo = "Ignored" var:( Foo "Value" Foo)* ;
+
+Object Bar = Foo ( Foo Foo "Value1" / &Foo "Value2" ) ;

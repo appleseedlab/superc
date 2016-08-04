@@ -1,0 +1,52 @@
+load_lib typical-dg.exp
+proc typical-dg-test { args } {
+	global srcdir
+	global subdir
+	global SUBTOOL
+	set prog [lindex $args 0]
+        set name "${srcdir}/typical_testsuite/"
+        append name "[file tail [file dirname $prog]]/[file tail $prog]"
+       
+        switch ${SUBTOOL} {
+ 		"generated" { set command "java xtc.typical.Typical -checkOnly $name" }
+                default {
+			set output "Test driver error"
+			return $output
+                }   
+        }        
+
+	set timeout 120
+	set output ""
+        eval spawn $command
+	# get all output from the tool
+	expect {
+		-i $spawn_id -timeout $timeout -re ".+" {
+		    append output $expect_out(buffer)
+		    if { [string length $output] < 512000 } {
+			exp_continue -continue_timer
+		    }
+		}
+		timeout { 
+			set output "Timeout"
+		        wait -i $spawn_id
+			return $output 
+		}
+	}
+        #puts $output
+	# check if xtc (Analyzer) could not run
+	if ![regsub "Typical" $output "Typical" output] {
+		set output "Tool Error" 
+	        wait -i $spawn_id
+  		return $output
+	}
+	
+	# check and delete the first two lines
+	regsub "\[^\n]*\n" $output "" output
+	regsub "\[^\n]*\n" $output "" output
+	
+	# delete extra (empty) lines
+	regsub -all "\n+" $output "\n" output
+        regsub "^\n+" $output "" output
+        wait -i $spawn_id
+        return $output	 
+}

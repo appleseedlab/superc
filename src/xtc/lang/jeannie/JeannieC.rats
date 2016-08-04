@@ -1,0 +1,116 @@
+/* (C) Copyright IBM Corp 2005-2007. */
+
+/**
+ * Supports Jeannie.rats, embedding Java into C.
+ */
+module xtc.lang.jeannie.JeannieC(CCore, JeannieJava, JavaType);
+
+modify CCore;
+import JeannieJava;
+import JavaType;
+
+body {
+  static {
+    add(C_KEYWORDS, new String[] { "_cancel", "_commit", "_with" });
+  }
+}
+
+option setOfString(C_KEYWORDS);
+
+// array -------------------------------------------------------------
+generic WithStatement =
+  void:"_with":Keyword PushScope
+  void:"(":Symbol WithInitializer void:")":Symbol CInCBlock PopScope;
+
+Node WithInitializer = 
+    <Declaration> DeclarationNoSemicolon
+  / <Assignment>  AssignmentExpression
+  ;
+
+generic DeclarationNoSemicolon =
+  null DeclarationSpecifiers l:InitializedDeclaratorList?
+  &{ yyState.isValid(l) } @Declaration;
+
+generic CancelStatement =
+  void:"_cancel":Keyword PrimaryIdentifier void:";":Symbol;
+
+generic CommitStatement =
+  void:"_commit":Keyword PrimaryIdentifier void:";":Symbol;
+
+// backtick ----------------------------------------------------------
+void JavaInC = QualifiedJavaInC / void:"`":Symbol;
+void QualifiedJavaInC = void:"`":Symbol void:".":Symbol void:"Java" Spacing;
+
+// block -------------------------------------------------------------
+generic CompoundStatement :=
+    <CBlock>    yyValue:CInCBlock
+  / <JavaBlock> yyValue:JavaInCBlock;
+
+generic CInCBlock =
+  void:"{":Symbol PushScope
+  LocalLabelDeclaration*
+  xtc.lang.jeannie.JeannieC.DeclarationOrStatement* Annotations
+  void:"}" Spacing PopScope;
+  //void:"}":Symbol PopScope; //this would be nicer, but it loses line markers
+
+private generic JavaInCBlock = JavaInC JavaInJavaBlock;
+
+// expression --------------------------------------------------------
+Node UnaryExpression +=
+    <JavaInCExpression> JavaInCExpression
+  / <LogicalNot>        ...;
+
+private generic JavaInCExpression = JavaInC JeannieJava.UnaryExpression;
+
+// file --------------------------------------------------------------
+generic TranslationUnit :=
+  Directive Spacing JavaImports?
+  xtc.lang.jeannie.JeannieC.ExternalDeclaration* Annotations EndOfFile;
+
+generic JavaImports =
+  JavaInC void:"{":Symbol ImportDeclaration* void:"}":Symbol;
+
+// statement ---------------------------------------------------------
+Node Statement +=
+    <JavaInCStatement> JavaInCStatement
+  / <Cancel>           CancelStatement
+  / <Commit>           CommitStatement
+  / <With>             WithStatement
+  / <Compound>         ...;
+
+generic JavaInCStatement =
+    <Try>          JavaInC TryCatchFinallyStatement
+  / <Synchronized> JavaInC SynchronizedStatement
+  / <Throw>        JavaInC ThrowStatement;
+
+// throws clause -----------------------------------------------------
+generic DirectDeclarator :=
+    <NewFunction>   DirectDeclarator void:"(":Symbol 
+                                     PushScope ParameterTypeList
+                                     void:")":Symbol ParameterContext
+                                     javaThrows:JavaThrows
+                                     @FunctionDeclarator
+  / <OldFunction>   DirectDeclarator void:"(":Symbol
+                                     PushScope IdentifierList?
+                                     void:")":Symbol ParameterContext
+                                     javaThrows:JavaThrows
+                                     @FunctionDeclarator
+  / <FixedArray>    DirectDeclarator void:"[":Symbol
+                                     ArrayQualifierList ArraySizeExpression?
+                                     void:"]":Symbol
+                                     @ArrayDeclarator
+  / <VariableArray> DirectDeclarator void:"[":Symbol
+                                     ArrayQualifierList VariableLength
+                                     void:"]":Symbol
+                                     @ArrayDeclarator
+  / <FullBase>      void:"(":Symbol AttributedDeclarator void:")":Symbol
+  / <SimpleBase>    SimpleDeclarator;
+
+generic JavaThrows = (JavaInC ThrowsClause)?;
+
+// type name ---------------------------------------------------------
+private stateful generic TypeName := ...; //hide, otherwise it confuses JeannieJava
+
+Node TypeSpecifier += <JavaTyp> JavaType / <Typedef> ...;
+
+generic JavaType = JavaInC JavaType.TypeName;

@@ -1,0 +1,11 @@
+`.C{ }
+class Main {
+  public static void main(String[] args) {
+    String js = "abc";
+    `{
+      _with(jbyte* bs = `js) {
+        printf("%*s\n", (int)`js.length(), bs);
+      }
+    }
+  }
+}

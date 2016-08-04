@@ -1,0 +1,68 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2005-2008 Robert Grimm
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+/**
+ * Reservation of C keywords.
+ *
+ * @author Robert Grimm
+ * @version $Revision: 1.11 $
+ */
+module xtc.lang.CReserved;
+
+body {
+  static {
+    add(C_KEYWORDS, new String[] {
+      "auto",       "break",      "case",       "char",
+      "const",      "continue",   "default",    "do",
+      "double",     "else",       "enum",       "extern",
+      "float",      "for",        "goto",       "if",
+      "int",        "long",       "register",   "return",
+      "short",      "signed",     "sizeof",     "static",
+      "struct",     "switch",     "typedef",    "union",
+      "unsigned",   "void",       "volatile",   "while"
+    });
+
+    if (C99) add(C_KEYWORDS, new String[] {
+      "_Bool",      "_Complex",   "inline",
+      "restrict"
+    });
+
+    if (GCC) add(C_KEYWORDS, new String[] {
+      "__alignof",   "__alignof__",
+      "asm",         "__asm",         "__asm__",
+      "__attribute", "__attribute__",
+      "__builtin_offsetof",
+      "__builtin_types_compatible_p",
+      "__builtin_va_arg",             "__builtin_va_list",
+      "__complex__",
+      "__const",     "__const__",
+      "__extension__",
+      "__inline",    "__inline__",
+      "__label__",
+      "__restrict",  "__restrict__",
+      "__signed",    "__signed__",
+      "__thread",
+      "typeof",      "__typeof",      "__typeof__",
+      "__volatile",  "__volatile__"
+    });
+
+  }
+}
+
+option setOfString(C_KEYWORDS), flag(C99), flag(GCC);

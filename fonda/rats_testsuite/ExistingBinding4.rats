@@ -1,0 +1,13 @@
+// An existing binding in directly left-recursive productions must not
+// be renamed.
+
+module ExistingBinding4;
+
+public generic Top =
+    Top Something Something
+  / Nothing b:Something Nothing &{ b != null }
+  ;
+
+void Nothing     = "nothing" ;
+
+generic Something = "something" ;

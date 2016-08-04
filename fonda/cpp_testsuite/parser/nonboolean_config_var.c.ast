@@ -1,0 +1,54 @@
+#superc_args -printAST
+TranslationUnit(
+  ExternalDeclarationList(
+    Conditional(
+      1,
+      Declaration(
+        DeclaringList(
+          BasicDeclarationSpecifier(
+            BasicDeclarationSpecifier(
+              DeclarationQualifierList(
+                Conditional(
+                  1,
+                  xtc.lang.cpp.Syntax$Language(
+                    "extern"
+                  )
+                )
+              ),
+              xtc.lang.cpp.Syntax$Language(
+                "unsigned"
+              )
+            ),
+            xtc.lang.cpp.Syntax$Language(
+              "long"
+            )
+          ),
+          ArrayDeclarator(
+            SimpleDeclarator(
+              xtc.lang.cpp.Syntax$Text(
+                "__per_cpu_offset"
+              )
+            ),
+            ArrayAbstractDeclarator(
+              Conditional(
+                !(defined CONFIG_NR_CPUS),
+                xtc.lang.cpp.Syntax$Text(
+                  "1"
+                ),
+                (defined CONFIG_NR_CPUS),
+                PrimaryIdentifier(
+                  xtc.lang.cpp.Syntax$Text(
+                    "CONFIG_NR_CPUS"
+                  )
+                )
+              )
+            )
+          ),
+          AssemblyExpressionOpt(),
+          AttributeSpecifierListOpt(),
+          InitializerOpt()
+        )
+      )
+    )
+  )
+)

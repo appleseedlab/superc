@@ -1,0 +1,28 @@
+`.C {
+#include <stdio.h>
+}
+class Main {
+  public static void main(String[] args) {
+    int[] ja = { 1, 2, 3, 0 };
+    `.C {
+      FILE* out;
+      `try `{
+        out = fopen("tmp/046sugared/written_file.txt", "w");
+        with (`int* ca = `ja) {
+          for (`int i=0; i<4; i++) {
+            if (ca[i] == 0)
+              `throw new ArithmeticException("/ by 0");
+            ca[i] = 10 / ca[i];
+            fprintf(out, "ca[%d] == %d\n", (int)i, (int)ca[i]);
+          }
+        }
+      } catch (ArithmeticException e) `{
+        fprintf(out, "division by zero\n");
+      } finally `{
+        fclose(out);
+      }
+    }
+    for (int i=0; i<4; i++)
+      System.out.println("ja[" + i + "] == " + ja[i]);
+  }
+}

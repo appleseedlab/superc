@@ -1,0 +1,10 @@
+module UserDefinedType;
+
+public com.acme.useful.Pair<Pair<String>,Boolean> Top = One ;
+
+com.acme.useful.Pair<xtc.util.Pair<String>,Boolean> One =
+  p:Two Two { yyValue = null; } ;
+
+Pair<String> Two = Three Three ;
+
+String Three = "three" ;

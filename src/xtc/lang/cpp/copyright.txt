@@ -1,0 +1,73 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2009-2012 New York University
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+# xtc - The eXTensible Compiler
+# Copyright (C) 2009-2012 New York University
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# version 2 as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+# USA.
+
+"/*\n" +
+" * xtc - The eXTensible Compiler\n" +
+" * Copyright (C) 2009-2012 New York University\n" +
+" *\n" +
+" * This program is free software; you can redistribute it and/or\n" +
+" * modify it under the terms of the GNU General Public License\n" +
+" * version 2 as published by the Free Software Foundation.\n" +
+" *\n" +
+" * This program is distributed in the hope that it will be useful,\n" +
+" * but WITHOUT ANY WARRANTY; without even the implied warranty of\n" +
+" * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" +
+" * GNU General Public License for more details.\n" +
+" *\n" +
+" * You should have received a copy of the GNU General Public License\n" +
+" * along with this program; if not, write to the Free Software\n" +
+" * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,\n" +
+" * USA.\n" +
+" */\n" +
+
+  printf("/*\n");
+  printf(" * xtc - The eXTensible Compiler\n");
+  printf(" * Copyright (C) 2009-2012 New York University\n");
+  printf(" *\n");
+  printf(" * This program is free software; you can redistribute it and/or\n");
+  printf(" * modify it under the terms of the GNU General Public License\n");
+  printf(" * version 2 as published by the Free Software Foundation.\n");
+  printf(" *\n");
+  printf(" * This program is distributed in the hope that it will be useful,\n");
+  printf(" * but WITHOUT ANY WARRANTY; without even the implied warranty of\n");
+  printf(" * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n");
+  printf(" * GNU General Public License for more details.\n");
+  printf(" *\n");
+  printf(" * You should have received a copy of the GNU General Public License\n");
+  printf(" * along with this program; if not, write to the Free Software\n");
+  printf(" * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,\n");
+  printf(" * USA.\n");
+  printf(" */\n");

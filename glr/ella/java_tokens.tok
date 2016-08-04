@@ -1,0 +1,130 @@
+// java_tokens.tok  -*- c++ -*-
+// this is the master description of the token classes; from
+// this several other files are generated, and extensions can
+// add new tokens by appending to this file
+
+// flags:
+//   MS(m): token has multiple spellings
+//   NS(n): token is a nonseparator; nonseparators cannot be adjacent
+//   CP(p): token is a keyword only in C++; in C it's an identifier
+
+// enumeration name      description                  : MS NS CP
+// ----------------      ---------------------------  : -- -- --
+
+// end of file
+TOK_EOF,                 "<EOF>",                     :
+
+// variable name
+TOK_NAME,                "<name>",                    : m  n
+
+// literals
+TOK_INT_LITERAL,         "<int literal>",             : m  n
+TOK_FLOAT_LITERAL,       "<float literal>",           : m  n
+TOK_STRING_LITERAL,      "<string literal>",          : m  n
+TOK_CHAR_LITERAL,        "<char literal>",            : m  n
+
+// keywords
+TOK_ABSTRACT,            "abstract",                  :    n
+TOK_BOOLEAN,             "boolean",                   :    n
+TOK_BREAK,               "break",                     :    n
+TOK_BYTE,                "byte",                      :    n
+TOK_CASE,                "case",                      :    n
+TOK_CATCH,               "catch",                     :    n
+TOK_CHAR,                "char",                      :    n
+TOK_CLASS,               "class",                     :    n
+TOK_CONST,               "const",                     :    n
+TOK_CONTINUE,            "continue",                  :    n
+TOK_DEFAULT,             "default",                   :    n
+TOK_DO,                  "do",                        :    n
+TOK_DOUBLE,              "double",                    :    n
+TOK_ELSE,                "else",                      :    n
+TOK_EXTENDS,             "extends",                   :    n
+TOK_FALSE,               "false",                     :    n
+TOK_FINAL,               "final",                     :    n
+TOK_FINALLY,             "finally",                   :    n
+TOK_FLOAT,               "float",                     :    n
+TOK_FOR,                 "for",                       :    n
+TOK_GOTO,                "goto",                      :    n
+TOK_IF,                  "if",                        :    n
+TOK_IMPLEMENTS,          "implements",                :    n
+TOK_IMPORT,              "import",                    :    n
+TOK_INSTANCEOF,          "instanceof",                :    n
+TOK_INT,                 "int",                       :    n
+TOK_INTERFACE,           "interface",                 :    n
+TOK_LONG,                "long",                      :    n
+TOK_NATIVE,              "native",                    :    n
+TOK_NEW,                 "new",                       :    n
+TOK_NULL,                "null",                      :    n
+TOK_PACKAGE,             "package",                   :    n
+TOK_PRIVATE,             "private",                   :    n
+TOK_PROTECTED,           "protected",                 :    n
+TOK_PUBLIC,              "public",                    :    n
+TOK_RETURN,              "return",                    :    n
+TOK_SHORT,               "short",                     :    n
+TOK_STATIC,              "static",                    :    n
+TOK_STRICTFP,            "strictfp",                  :    n
+TOK_SUPER,               "super",                     :    n
+TOK_SWITCH,              "switch",                    :    n
+TOK_SYNCHRONIZED,        "synchronized",              :    n
+TOK_THIS,                "this",                      :    n
+TOK_THROW,               "throw",                     :    n
+TOK_THROWS,              "throws",                    :    n
+TOK_TRANSIENT,           "transient",                 :    n
+TOK_TRUE,                "true",                      :    n
+TOK_TRY,                 "try",                       :    n
+TOK_VOID,                "void",                      :    n
+TOK_VOLATILE,            "volatile",                  :    n
+TOK_WHILE,               "while",                     :    n
+
+// operators
+TOK_LPAREN,              "(",                         :
+TOK_RPAREN,              ")",                         :
+TOK_LBRACKET,            "[",                         :
+TOK_RBRACKET,            "]",                         :
+TOK_DOT,                 ".",                         :
+TOK_BANG,                "!",                         :
+TOK_TILDE,               "~",                         :
+TOK_PLUS,                "+",                         :
+TOK_MINUS,               "-",                         :
+TOK_PLUSPLUS,            "++",                        :
+TOK_MINUSMINUS,          "--",                        :
+TOK_AND,                 "&",                         :
+TOK_STAR,                "*",                         :
+TOK_SLASH,               "/",                         :
+TOK_PERCENT,             "%",                         :
+TOK_LEFTSHIFT,           "<<",                        :
+TOK_RIGHTSHIFT,          ">>",                        :
+TOK_URIGHTSHIFT,         ">>>",                       :
+TOK_LESSTHAN,            "<",                         :
+TOK_LESSEQ,              "<=",                        :
+TOK_GREATERTHAN,         ">",                         :
+TOK_GREATEREQ,           ">=",                        :
+TOK_EQUALEQUAL,          "==",                        :
+TOK_NOTEQUAL,            "!=",                        :
+TOK_XOR,                 "^",                         :
+TOK_OR,                  "|",                         :
+TOK_ANDAND,              "&&",                        :
+TOK_OROR,                "||",                        :
+TOK_QUESTION,            "?",                         :
+TOK_COLON,               ":",                         :
+TOK_EQUAL,               "=",                         :
+TOK_STAREQUAL,           "*=",                        :
+TOK_SLASHEQUAL,          "/=",                        :
+TOK_PERCENTEQUAL,        "%=",                        :
+TOK_PLUSEQUAL,           "+=",                        :
+TOK_MINUSEQUAL,          "-=",                        :
+TOK_ANDEQUAL,            "&=",                        :
+TOK_XOREQUAL,            "^=",                        :
+TOK_OREQUAL,             "|=",                        :
+TOK_LEFTSHIFTEQUAL,      "<<=",                       :
+TOK_RIGHTSHIFTEQUAL,     ">>=",                       :
+TOK_URIGHTSHIFTEQUAL,    ">>>=",                      :
+TOK_COMMA,               ",",                         :
+TOK_SEMICOLON,           ";",                         :
+TOK_LBRACE,              "{",                         :
+TOK_RBRACE,              "}",                         :
+
+// dummy terminals used for precedence games
+TOK_PREFER_REDUCE,       "<prefer reduce>",           :
+TOK_PREFER_SHIFT,        "<prefer shift>",            :
+

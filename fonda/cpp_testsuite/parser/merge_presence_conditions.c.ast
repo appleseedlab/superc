@@ -1,0 +1,459 @@
+#superc_args -printAST
+TranslationUnit(
+  ExternalDeclarationList(
+    Conditional(
+      1,
+      FunctionDefinition(
+        FunctionPrototype(
+          xtc.lang.cpp.Syntax$Language(
+            "int"
+          ),
+          FunctionDeclarator(
+            SimpleDeclarator(
+              xtc.lang.cpp.Syntax$Text(
+                "f"
+              )
+            ),
+            ParameterTypeListOpt()
+          )
+        ),
+        Conditional(
+          !(defined CONFIG_DEBUG_VM),
+          CompoundStatement(
+            LocalLabelDeclarationListOpt(),
+            DeclarationOrStatementList(
+              Conditional(
+                (defined CONFIG_DEBUG_VM),
+                ExpressionStatement(
+                  Conditional(
+                    (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                    StatementAsExpression(
+                      CompoundStatement(
+                        LocalLabelDeclarationListOpt(),
+                        DeclarationOrStatementList(
+                          Conditional(
+                            (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                            SelectionStatement(
+                              Conditional(
+                                (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                Conditional(
+                                  !(defined B) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                  xtc.lang.cpp.Syntax$Language(
+                                    "if"
+                                  ),
+                                  (defined B) && (defined C) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                  xtc.lang.cpp.Syntax$Language(
+                                    "if"
+                                  )
+                                ),
+                                !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                Conditional(
+                                  (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                  Conditional(
+                                    (defined B) && (defined C) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    xtc.lang.cpp.Syntax$Language(
+                                      "if"
+                                    ),
+                                    !(defined B) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    xtc.lang.cpp.Syntax$Language(
+                                      "if"
+                                    )
+                                  ),
+                                  !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                  Conditional(
+                                    (defined B) && (defined C) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    xtc.lang.cpp.Syntax$Language(
+                                      "if"
+                                    ),
+                                    !(defined B) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    xtc.lang.cpp.Syntax$Language(
+                                      "if"
+                                    )
+                                  )
+                                )
+                              ),
+                              Conditional(
+                                (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                Conditional(
+                                  !(defined B) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                  Conditional(
+                                    (defined B) && !(defined C) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    FunctionCall(
+                                      PrimaryIdentifier(
+                                        xtc.lang.cpp.Syntax$Text(
+                                          "a"
+                                        )
+                                      )
+                                    ),
+                                    !(defined B) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    FunctionCall(
+                                      PrimaryIdentifier(
+                                        xtc.lang.cpp.Syntax$Text(
+                                          "m3"
+                                        )
+                                      )
+                                    )
+                                  ),
+                                  (defined B) && (defined C) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                  xtc.lang.cpp.Syntax$Text(
+                                    "0"
+                                  )
+                                ),
+                                !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                Conditional(
+                                  (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                  Conditional(
+                                    (defined B) && (defined C) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    xtc.lang.cpp.Syntax$Text(
+                                      "0"
+                                    ),
+                                    !(defined B) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    Conditional(
+                                      (defined B) && !(defined C) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                      FunctionCall(
+                                        PrimaryIdentifier(
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "a"
+                                          )
+                                        )
+                                      ),
+                                      !(defined B) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                      FunctionCall(
+                                        PrimaryIdentifier(
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "m3"
+                                          )
+                                        )
+                                      )
+                                    )
+                                  ),
+                                  !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                  Conditional(
+                                    (defined B) && (defined C) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    xtc.lang.cpp.Syntax$Text(
+                                      "0"
+                                    ),
+                                    !(defined B) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    Conditional(
+                                      (defined B) && !(defined C) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                      FunctionCall(
+                                        PrimaryIdentifier(
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "a"
+                                          )
+                                        )
+                                      ),
+                                      !(defined B) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                      FunctionCall(
+                                        PrimaryIdentifier(
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "m3"
+                                          )
+                                        )
+                                      )
+                                    )
+                                  )
+                                )
+                              ),
+                              Conditional(
+                                (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                IterationStatement(
+                                  xtc.lang.cpp.Syntax$Language(
+                                    "do"
+                                  ),
+                                  CompoundStatement(
+                                    Conditional(
+                                      !(defined B) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                      LocalLabelDeclarationListOpt(),
+                                      (defined B) && (defined C) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                      LocalLabelDeclarationListOpt()
+                                    ),
+                                    DeclarationOrStatementList()
+                                  ),
+                                  xtc.lang.cpp.Syntax$Language(
+                                    "while"
+                                  ),
+                                  xtc.lang.cpp.Syntax$Text(
+                                    "0"
+                                  )
+                                ),
+                                !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                ExpressionStatement(
+                                  Conditional(
+                                    (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    FunctionCall(
+                                      Conditional(
+                                        (defined B) && (defined C) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                        PrimaryIdentifier(
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "b"
+                                          )
+                                        ),
+                                        !(defined B) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                        PrimaryIdentifier(
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "b"
+                                          )
+                                        )
+                                      )
+                                    ),
+                                    !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    FunctionCall(
+                                      Conditional(
+                                        (defined B) && (defined C) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                        PrimaryIdentifier(
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "m2"
+                                          )
+                                        ),
+                                        !(defined B) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                        PrimaryIdentifier(
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "m2"
+                                          )
+                                        )
+                                      )
+                                    )
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
+                    ),
+                    !(defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                    FunctionCall(
+                      PrimaryIdentifier(
+                        xtc.lang.cpp.Syntax$Text(
+                          "m1"
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          (defined CONFIG_DEBUG_VM),
+          CompoundStatement(
+            LocalLabelDeclarationListOpt(),
+            DeclarationOrStatementList(
+              Conditional(
+                (defined CONFIG_DEBUG_VM),
+                ExpressionStatement(
+                  Conditional(
+                    (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                    StatementAsExpression(
+                      CompoundStatement(
+                        LocalLabelDeclarationListOpt(),
+                        DeclarationOrStatementList(
+                          Conditional(
+                            (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                            SelectionStatement(
+                              Conditional(
+                                (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                Conditional(
+                                  !(defined B) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                  xtc.lang.cpp.Syntax$Language(
+                                    "if"
+                                  ),
+                                  (defined B) && (defined C) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                  xtc.lang.cpp.Syntax$Language(
+                                    "if"
+                                  )
+                                ),
+                                !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                Conditional(
+                                  (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                  Conditional(
+                                    (defined B) && (defined C) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    xtc.lang.cpp.Syntax$Language(
+                                      "if"
+                                    ),
+                                    !(defined B) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    xtc.lang.cpp.Syntax$Language(
+                                      "if"
+                                    )
+                                  ),
+                                  !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                  Conditional(
+                                    (defined B) && (defined C) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    xtc.lang.cpp.Syntax$Language(
+                                      "if"
+                                    ),
+                                    !(defined B) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    xtc.lang.cpp.Syntax$Language(
+                                      "if"
+                                    )
+                                  )
+                                )
+                              ),
+                              Conditional(
+                                (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                Conditional(
+                                  !(defined B) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                  Conditional(
+                                    (defined B) && !(defined C) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    FunctionCall(
+                                      PrimaryIdentifier(
+                                        xtc.lang.cpp.Syntax$Text(
+                                          "a"
+                                        )
+                                      )
+                                    ),
+                                    !(defined B) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    FunctionCall(
+                                      PrimaryIdentifier(
+                                        xtc.lang.cpp.Syntax$Text(
+                                          "m3"
+                                        )
+                                      )
+                                    )
+                                  ),
+                                  (defined B) && (defined C) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                  xtc.lang.cpp.Syntax$Text(
+                                    "0"
+                                  )
+                                ),
+                                !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                Conditional(
+                                  (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                  Conditional(
+                                    (defined B) && (defined C) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    xtc.lang.cpp.Syntax$Text(
+                                      "0"
+                                    ),
+                                    !(defined B) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    Conditional(
+                                      (defined B) && !(defined C) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                      FunctionCall(
+                                        PrimaryIdentifier(
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "a"
+                                          )
+                                        )
+                                      ),
+                                      !(defined B) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                      FunctionCall(
+                                        PrimaryIdentifier(
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "m3"
+                                          )
+                                        )
+                                      )
+                                    )
+                                  ),
+                                  !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                  Conditional(
+                                    (defined B) && (defined C) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    xtc.lang.cpp.Syntax$Text(
+                                      "0"
+                                    ),
+                                    !(defined B) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    Conditional(
+                                      (defined B) && !(defined C) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                      FunctionCall(
+                                        PrimaryIdentifier(
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "a"
+                                          )
+                                        )
+                                      ),
+                                      !(defined B) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                      FunctionCall(
+                                        PrimaryIdentifier(
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "m3"
+                                          )
+                                        )
+                                      )
+                                    )
+                                  )
+                                )
+                              ),
+                              Conditional(
+                                (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                IterationStatement(
+                                  xtc.lang.cpp.Syntax$Language(
+                                    "do"
+                                  ),
+                                  CompoundStatement(
+                                    Conditional(
+                                      !(defined B) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                      LocalLabelDeclarationListOpt(),
+                                      (defined B) && (defined C) && (defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                      LocalLabelDeclarationListOpt()
+                                    ),
+                                    DeclarationOrStatementList()
+                                  ),
+                                  xtc.lang.cpp.Syntax$Language(
+                                    "while"
+                                  ),
+                                  xtc.lang.cpp.Syntax$Text(
+                                    "0"
+                                  )
+                                ),
+                                !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                ExpressionStatement(
+                                  Conditional(
+                                    (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    FunctionCall(
+                                      Conditional(
+                                        (defined B) && (defined C) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                        PrimaryIdentifier(
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "b"
+                                          )
+                                        ),
+                                        !(defined B) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && (defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                        PrimaryIdentifier(
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "b"
+                                          )
+                                        )
+                                      )
+                                    ),
+                                    !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                    FunctionCall(
+                                      Conditional(
+                                        (defined B) && (defined C) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                        PrimaryIdentifier(
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "m2"
+                                          )
+                                        ),
+                                        !(defined B) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM) || (defined B) && !(defined C) && !(defined D) && !(defined E) && (defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                                        PrimaryIdentifier(
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "m2"
+                                          )
+                                        )
+                                      )
+                                    )
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
+                    ),
+                    !(defined CONFIG_BUG) && (defined CONFIG_DEBUG_VM),
+                    FunctionCall(
+                      PrimaryIdentifier(
+                        xtc.lang.cpp.Syntax$Text(
+                          "m1"
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)

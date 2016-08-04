@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<title>Annotation guide</title>
+<link rel="stylesheet" href="http://cs.nyu.edu/rgrimm/bedrock.css"
+  type="text/css">
+</head>
+
+<!-- ================================================================== -->
+
+<body>
+<h1 class="title">A guide to annotations</h1>
+
+<!-- ================================================================== -->
+
+<dl>
+This documentation provides some instructions to annotate C and Typical 
+programs, to make them testcases to test C parser, C analyzer, and Typical 
+analyzer in <i>xtc</i> framework. C testcases are in the directory 
+<i>xtc_testsuite</i> and they are taken from gcc testsuite. Typical testcases 
+are in the directory <i>typical_testuite</i>.
+</dl>
+
+<!-- ================================================================== -->
+
+<p class="head centered" />
+[ <a href="#format">Annotation format</a> |
+  <a href="#error-warning">Error and warning options</a> |
+  <a href="#tools">Indicating tools</a> |
+  <a href="#preprocess">Preprocessing testcases</a> ]
+
+<!-- ================================================================== -->
+
+<dl>
+<h2 class="title bar"><a name="format">Annotation format</a></h2>
+<i>xtc</i> and Typical testsuites are based on DejaGNU testing framework. The 
+annotations are very similar to those used in gcc testsuite. The format of an
+annotation is: <br/>
+<pre>
+    {{ <i>option-name arg<sub>1</sub> arg<sub>2</sub>...arg<sub>n</sub> </i> }}
+</pre>
+The annotation MUST be put in comments. There must be a space between every two 
+symbols in that format. Currently, there are 4 kinds of supported options. They 
+are: <i> dg-error</i>, <i>dg-warning</i>, <i>dg-checkwhat</i>, 
+and <i>dg-preprocess</i>. The rest of this documentation will explain how to 
+use those options with some illustrating examples. 
+</dl>
+
+<!-- ================================================================== -->
+
+<dl>
+<h2 class="title bar"><a name="error-warning">Error and warning options (
+dg-error and dg-warning)</a></h2>
+These options are used to indicate the expected error or warning messages and
+the positions (line numbers) of those messages. There are two forms of these
+options
+<pre>
+    {{ <i>dg-error/dg-warning message</i> }} and
+    {{ <i>dg-error/dg-warning message line-number</i> }}
+</pre>
+<i>message</i> is a regular expression, enclosed in double quotes, i.e.
+"invalid variable", to indicate the expected error or warning messages. 
+<i>line-number</i> provides positions of those messages. <br/>
+The first form is used when the annotation is placed on the same line that the
+error or warning message is reported at. The second form is used when the 
+annotation is not on the same line of the error or warning. <br/>
+<i>Example 1: </i> <br/>
+<pre>
+   int i = 7 / 0;  /* {{ dg-error "not constant" }} */
+   /* {{ dg-warning "division by zero" 1 }} */
+</pre> 
+The error annotation is written in the first form and the warning annotation is
+written in the second form. In this case, we expect to see an error message and 
+a warning message reported at the line 1. If there's no error message on that 
+line or the regular expression does not match the real error message, then the 
+error option will fail. Otherwise it passes that option. It works the same way 
+for the warning option. The combination between comments and annotations will be 
+presented in a section below.
+</dl>
+
+<!-- ================================================================== -->
+
+<dl>
+<h2 class="title bar"><a name="tools">Indicating tools</a></h2>
+Testcases are organized into some directories. A directory can be used to test
+only one tool (C parser only or C analyzer only) or to test more than one tool 
+(some testcases are used to test C parser and the others are used to test C 
+analyzer). In the later case, we need to indicate which tool to test in each 
+testcase. The option <i>dg-checkwhat</i> is used for this purpose. Currently, 
+it is only used in <i>xtc</i> testsuite to indicate which tool, the C parser or 
+the C analyzer, is being tested. The annotations are, respectively:
+<pre>
+    {{ dg-checkwhat "parser" }} and
+    {{ dg-checkwhat "analyzer" }}
+</pre>
+<i>Example 2:</i> <br/>
+<pre>
+    /* {{ dg-checkwhat "analyzer" }} */
+    struct foo bar[] = { {"baz"} };  /* {{ dg-error "array type has incomplete element type" }} */
+</pre>
+</dl>
+
+<!-- ================================================================== -->
+
+<dl>
+<h2 class="title bar"><a name="preprocess">Preprocessing testcases</a></h2>
+Some testcases need to be preprocessed before passing them to the C parser in 
+<i>xtc</i>. This option is used to indicate if a testcase needs to be 
+preprocessed. The format of this kind of annotation is:
+<pre>
+    {{ <i>dg-preprocess [comment] </i> }}
+</pre>
+The comment is optional and it is enclosed in double quotes, i.e. 
+{{ dg-preprocess "Need preprocessing" }}. <br/>
+<i>Example 3:</i> <br/>
+<pre>
+    {{ dg-checkwhat "parser" }}
+    {{ dg-preprocess "Need preprocessing" }}
+    extern void *memcpy (void *, const void *, __SIZE_TYPE__);
+    typedef int word_type;
+     
+    static void
+    copy_reg (unsigned int reg, frame_state *udata,	 {{ dg-error "expected" }}
+    	  frame_state *target_udata)	
+    {  
+      word_type *preg = get_reg_addr (reg, udata, 0);	
+      word_type *ptreg = get_reg_addr (reg, target_udata, 0); 
+       
+      memcpy (ptreg, preg, __builtin_dwarf_reg_size (reg));
+    }
+</pre>
+</dl>
+
+</body>
+</html>

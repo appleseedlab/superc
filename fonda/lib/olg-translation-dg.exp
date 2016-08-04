@@ -1,0 +1,143 @@
+# This file is based on dg.exp, a general test driver of DejaGNU
+# This file uses and modifies some procedures from dg.exp
+ 
+# Useful subroutines.
+
+#
+# Line number format.  This is how line numbers appear in program output.
+#
+set dg-linenum-format ":%d:"
+proc dg-format-linenum { linenum } {
+    global dg-linenum-format
+    return [format ${dg-linenum-format} $linenum]
+}
+
+# Set up our environment
+#
+# There currently isn't much to do, but always calling it allows us to add
+# enhancements without having to update our callers.
+# It must be run before calling `dg-runtest'.
+
+proc dg-init { } {
+}
+
+# dg-runtest -- simple main loop useful to most testsuites
+#
+# global runtests are the specific files (.exp) to run
+# runtests is defined in runtest.exp, which a list of two elements: the script name
+# and any arguments ("" if none). In this testsuite, runtests is just a list of script name
+# runtest_file_p is defined in util.exp of DejaGNU
+#
+
+proc dg-runtest { testcases } {
+  global runtests
+        
+  foreach testcase $testcases {
+    # If we're only testing specific files and this isn't one of them, skip it.
+    if ![runtest_file_p $runtests $testcase] {
+      continue
+    }
+	
+    #return
+    set check [dg-test $testcase]
+    if [string match $check "Error"] {
+      puts "Could not run tool"
+      return	
+    }
+  }
+}
+
+# dg-trim-dirname -- rip DIR_NAME out of FILE_NAME
+#
+# Syntax: dg-trim-dirname dir_name file_name
+# We need to go through this contorsion in order to properly support
+# directory-names which might have embedded regexp special characters.
+
+proc dg-trim-dirname { dir_name file_name } {
+    set special_character "\[\?\+\-\.\(\)\$\|\]"
+    regsub -all $special_character $dir_name "\\\\&" dir_name
+    regsub "^$dir_name/?" $file_name "" file_name
+    return $file_name
+}
+
+# dg-test -- runs a testcase
+#
+# Syntax: dg-test prog
+#
+# prog is the full path name of the file to pass to xtc (Overlog).
+
+proc dg-test { args } {
+    global dg-linenum-format
+    global errorCode errorInfo
+    global srcdir
+    
+    set i 0
+    # check arguments 	
+    if { [llength $args] > 1 } {
+	error "[lindex $args 0]: too many arguments"
+	return
+    }
+    
+    set prog [lindex $args 0] 
+    
+    set name [dg-trim-dirname $srcdir $prog]
+    
+    # If we couldn't rip $srcdir out of `prog' then just do the best we can.
+    # The point is to reduce the unnecessary noise in the logs.  Don't strip
+    # out too much because different testcases with the same name can confuse
+    # `test-tool'.
+    if [string match "/*" $name] {
+	set name "[file tail [file dirname $prog]]/[file tail $prog]"
+    }
+
+    # Run the tool and analyze the results.
+    verbose "Testing [file tail [file dirname $prog]]/[file tail $prog]"
+    set comp_output [olg-translation-dg-test $prog]
+    
+    if [string match $comp_output "Tool Error"] {
+	set result "Error"
+    	return $result
+    }
+
+    if [string match $comp_output "Timeout"] {
+	unresolved "$name: not responsed, timeout"
+    	return 
+    }
+   
+    # Analyze output for result	
+    set res [compare_output $comp_output $prog]
+    if [string match $res "Pass"] {
+      pass $prog	        
+    } else {
+      if [string match $res "Fail"] {
+        fail $prog          
+      } else {
+	puts "Unknown error"
+      }
+    }
+    return
+        
+}
+# Do any necessary cleanups
+#
+# This is called at the end to undo anything dg-init did (that needs undoing).
+#
+proc dg-finish { } {
+    # Reset this in case caller wonders whether s/he should.
+    global prms_id
+    set prms_id 0
+
+    # The framework doesn't like to see any error remnants, so remove them.
+    global errorInfo
+    if [info exists errorInfo] {
+	unset errorInfo
+    }
+
+    # If the tool has a "finish" routine, call it.
+    # There may be a bit of duplication (eg: resetting prms_id), leave it.
+    # Let's keep these procs robust.
+    global tool
+    if ![string match "" [info procs ${tool}_finish]] {
+	${tool}_finish
+    }
+}

@@ -1,0 +1,9 @@
+load_lib xtc-run.exp
+global check_what
+set check_what ""
+dg-init
+#
+# run test for every file .rats in this directory
+#
+rats-runtest [lsort [glob -nocomplain $srcdir/$subdir/*.rats]] 
+dg-finish

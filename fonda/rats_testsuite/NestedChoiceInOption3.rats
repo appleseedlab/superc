@@ -1,0 +1,5 @@
+// A nested choice in an option causes the entire sequence to be lifted.
+
+module NestedChoiceInOption3;
+
+public Object Top = (void:"foo" ("bar"/"car"))? ;

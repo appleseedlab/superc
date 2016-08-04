@@ -1,0 +1,32 @@
+module ParseTree;
+
+option withParseTree;
+
+public generic Top = One Two One Two Three ;
+
+generic One =
+    void:"(":Symbol PID ( void:",":Symbol PID )* void:")":Symbol
+  / void:"(":Symbol                              void:")":Symbol
+  ;
+
+generic Two =
+    void:"(":Symbol PID+ One Constant+ void:")":Symbol
+  / void:"(":Symbol PID+ Constant+ void:")":Symbol
+  ;
+
+void Three = PID Constant ;
+
+generic PID = Identifier ;
+
+generic Constant = Number ;
+
+String Identifier = WordCharacters Spacing ;
+transient String WordCharacters = [a-z]+ ;
+
+String Number = NumberCharacters Spacing ;
+transient String NumberCharacters = [0-9]+ ;
+
+String Symbol = SymbolCharacters Spacing ;
+transient String SymbolCharacters = "(" / ")" / "," ;
+
+transient void Spacing = [ \t\f]* ;

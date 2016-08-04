@@ -1,0 +1,32 @@
+`.C{ 
+#include <stdio.h>
+}
+class Main {
+  public static void main(String[] args)
+  { // C_main.<init>()
+    int j2 = 0;
+    `.C{ // j2c2()
+      int c2 = 0;
+      `.Java{ // c2j1()
+        int j1 = 0;
+        `.C{ // j2c1()
+          int c1 = 0;
+          `.Java{ // c2j0()
+            `.C{ // j2c0()
+              c2++;
+              c1++;
+            }
+            j2++;
+            j1++;
+          }
+          c2++;
+          printf("c1: expected 1, got %d\n", c1);
+        }
+        j2++;
+        System.out.println("j1: expected 1, got " + j1);
+      }
+      printf("c2: expected 2, got %d\n", c2);
+    }
+    System.out.println("j2: expected 2, got " + j2);
+  }
+}

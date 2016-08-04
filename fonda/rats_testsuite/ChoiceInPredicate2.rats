@@ -1,0 +1,7 @@
+// Choices inside predicates must be lifted into their own
+// productions, even if they appear in a generic production.
+// Furthermore, the lifted production should be void.
+
+module ChoiceInPredicate2;
+
+public generic Top = &( "foo" "foo"* / "bar" ) ;

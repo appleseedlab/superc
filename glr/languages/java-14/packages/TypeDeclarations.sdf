@@ -1,0 +1,18 @@
+%%%
+ %% Section 7.6: Top Level Type Declarations
+ %%
+ %% @author  Martin Bravenboer <martin@cs.uu.nl>
+ %%%
+module languages/java-14/packages/TypeDeclarations
+imports
+  languages/java-14/classes/ClassDeclarations
+  languages/java-14/interfaces/InterfaceDeclarations
+
+exports
+  sorts
+    TypeDec
+
+  context-free syntax
+    ClassDec      -> TypeDec
+    InterfaceDec  -> TypeDec
+    ";"           -> TypeDec {cons("Semicolon")}

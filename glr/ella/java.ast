@@ -1,0 +1,389 @@
+// java.ast            see license.txt for copyright and terms of use
+// Java abstract syntax
+
+// The main documentation is in java.ast.html.
+
+// note: wherever ASTList or FakeList is used, its elements are listed
+// in the order they appear lexically in the input file, i.e. left to
+// right and then top to bottom
+
+// How do I decide between ASTList and FakeList?  Creating ASTLists
+// can be done with left recursion, which saves stack space, whereas
+// FakeLists require right recursion.  But, ASTLists cannot safely
+// be yielded as semantic values if there's any chance they'll be
+// yielded more than once.
+//
+// So, I use FakeList everywhere I can accept the stack growth.  The
+// only places I cannot accept this growth are places where it is
+// relatively common for the list to have >100 elements.  Those
+// places are:
+//   - toplevel forms (including namespace members)
+//   - statement lists in compound statements
+//   - class/struct members
+//   - compound initializers
+//
+// In these places where I use ASTList, I encapsulate it in another
+// class if necessary to avoid yielding it as a semantic value.
+
+
+// emitted verbatim into generated header (java.ast.gen.h)
+verbatim {
+  #include "java_flags.h"
+}
+
+// use a new astgen feature: make a visitor!
+// option visitor ASTVisitor;
+// option dvisitor DelegatorASTVisitor;
+// dsw: these turn on incomplete experimental ast xml serialization
+// and de-serialization code
+// option xmlVisitor ToXmlASTVisitor;
+// option xmlParser astxml;
+
+// emit gdb() methods for debugging
+option gdb;
+
+// definitions
+
+// ----- Compilation unit
+
+class CompilationUnit (
+  PackageDeclaration package,
+  FakeList<ImportDeclaration>* imports,
+  FakeList<Declaration>* declarations
+);
+
+class PackageDeclaration (
+  SourceLoc loc,
+  QualifiedIdentifier name
+);
+
+class ImportDeclaration (
+  SourceLoc loc,
+  QualifiedIdentifier name,
+  bool isComplete
+) {
+  public ImportDeclaration* next = NULL;
+}
+
+// ----- Declarations
+
+class FormalParameter(
+  bool isFinal,
+  Type type,
+  Identifier id,
+  int dimensions
+) {
+  public FormalParameter* next = NULL;
+}
+
+class Declarator(
+  Identifier id,
+  int dimensions,
+  Expression initializer
+) {
+  public Declarator* next = NULL;
+}
+
+class Declaration (
+  SourceLoc loc,
+  Modifiers modifiers
+) {
+  public Declaration* next = NULL;
+
+  -> FieldDeclaration (
+    Type type,
+    FakeList<Declarator>* declarators
+  );
+
+  -> MethodDeclaration (
+    Type result,
+    Identifier id,
+    FakeList<FormalParameter>* parameters,
+    int dimensions,
+    FakeList<Expression>* exceptions,
+    Block block = NULL
+  );
+
+  -> ConstructorDeclaration (
+    Identifier id,
+    FakeList<FormalParameter>* parameters,
+    FakeList<Expression>* exceptions,
+    Block block
+  );
+
+  -> ClassDeclaration (
+    Identifier id,
+    FakeList<Type>* superclass,
+    FakeList<Type>* interfaces,
+    FakeList<Declaration>* body
+  );
+
+  -> InterfaceDeclaration (
+    Identifier id,
+    FakeList<Type>* interfaces,
+    FakeList<Declaration>* body
+  );
+
+  -> BlockDeclaration (
+    bool isStatic,
+    Block block
+  );
+}
+
+// ----- Statements
+
+class Statement (
+  SourceLoc loc
+) {
+  public Statement* next = NULL;
+
+  -> Block (
+    FakeList<Statement>* statements
+  );
+
+  -> DeclarationStatement (
+    Declaration declaration
+  );
+
+  -> IfStatement (
+    Expression test,
+    Statement consequence,
+    Statement alternative = NULL
+  );
+ 
+  -> ForStatement (
+    ForInit initializer,
+    Expression test,
+    FakeList<Expression>* updates,
+    Statement body
+  );
+
+  -> WhileStatement (
+    Expression condition,
+    Statement body
+  );
+
+  -> DoStatement (
+    Statement body,
+    Expression condition
+  );
+
+  -> TryStatement (
+    Block body,
+    FakeList<CatchClause>* catchClauses,
+    Block finallyClase = NULL
+  );
+
+  -> SwitchStatement (
+    Expression condition,
+    FakeList<Statement>* body
+  );
+
+  -> SynchronizedStatement (
+    Expression expr,
+    Block block
+  );
+
+  -> ReturnStatement (
+    Expression expr
+  );
+
+  -> ThrowStatement (
+    Expression expr
+  );
+
+  -> BreakStatement (
+    Identifier id
+  );
+
+  -> ContinueStatement (
+    Identifier id
+  );
+
+  -> LabeledStatement (
+    Identifier label,
+    Statement statement
+  );
+
+  -> CaseClause (
+    Expression condition,
+    FakeList<Statement>* statements
+  );
+
+  -> DefaultClause (
+    FakeList<Statement>* statements
+  );
+
+  -> ExpressionStatement (
+    Expression expr
+  );
+
+  -> EmptyStatement (
+  );
+
+}
+
+class ForInit {
+
+  -> ForInitDeclarators (
+    bool isFinal,
+    Type type,
+    FakeList<Declarator>* declarators
+  );
+
+  -> ForInitExpressions (
+    FakeList<Expression>* expressions = NULL
+  );
+
+}
+
+class CatchClause (
+  FormalParameter param,
+  Block block
+) {
+  public CatchClause* next = NULL;
+}
+
+class Expression (
+  SourceLoc loc
+) {
+  public Expression* next = NULL;
+
+  -> AssignmentExpression (
+    Expression left,
+    BinaryOperator op,
+    Expression right
+  );
+
+  -> ConditionalExpression (
+    Expression test,
+    Expression consequent,
+    Expression alternative
+  );
+
+  -> BinaryOperation (
+    Expression first,
+    BinaryOperator op,
+    Expression second
+  );
+
+  -> UnaryOperation (
+    UnaryOperator op,
+    Expression expr
+  );
+
+  -> CastExpression (
+    Type type,
+    Expression expr
+  );
+
+  -> SubscriptExpression (
+    Expression base,
+    Expression index
+  );
+
+  -> InvocationExpression (
+    Expression base,
+    FakeList<Expression>* arguments
+  );
+
+  -> SelectionExpression (
+    Expression base,
+    Expression selector
+  );
+
+  -> ClassSelectionExpression (
+    Expression base
+  );
+
+  -> DimensionExpression (
+    Expression size
+  );
+
+  -> ArrayInitializer(
+    FakeList<Expression>* entries
+  );
+
+  -> ThisExpression (
+  );
+
+  -> SuperExpression (
+  );
+
+  -> VoidClassExpression (
+  );
+
+  -> NewClassExpression (
+    QualifiedIdentifier name,
+    FakeList<Expression>* arguments,
+    FakeList<Declaration>* body
+  );
+
+  -> NewArrayExpression (
+    TypeName type,
+    FakeList<Expression>* dimExpr,
+    int dim,
+    ArrayInitializer init = NULL
+  );
+
+  // rgrimm: To make the compiler happy, the fake list has expressions
+  // as its members, though in real life they should be identifiers.
+  -> QualifiedIdentifier (
+    FakeList<Expression>* identifiers
+  );
+
+  -> Identifier (
+    StringRef name
+  );
+
+  -> IntLiteral (
+    StringRef text
+  );
+
+  -> FloatLiteral (
+    StringRef text
+  );
+
+  -> StringLiteral (
+    StringRef text
+  );
+
+  -> CharLiteral (
+    StringRef text
+  );
+
+  -> BooleanLiteral (
+    bool value
+  );
+
+  -> NullLiteral (
+  );
+
+}
+
+// ----- Types
+
+class Type (
+  TypeName name,
+  int dimensions = 0
+) {
+  public Type* next = NULL;
+}
+
+class TypeName {
+
+  -> BasicTypeName (
+    BasicType type
+  );
+
+  -> ReferenceTypeName (
+    QualifiedIdentifier name
+  );
+
+}
+
+// ----- Identifiers
+
+// For consistency, identifiers are expressions; see above.
+
+// EOF

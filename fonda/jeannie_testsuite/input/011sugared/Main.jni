@@ -1,0 +1,13 @@
+`.C{
+  /* implicit #include <jni.h> */
+}
+class Main {
+  static native void f() `{
+    `int a=0, b=0;
+    b = `(1 + `((`int)(a = 1)));
+    printf("%d, %d\n", (int)a, (int)b);
+  }
+  public static void main(String args[]) {
+    f();
+  }
+}

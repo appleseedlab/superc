@@ -1,0 +1,368 @@
+#superc_args -printAST
+TranslationUnit(
+  ExternalDeclarationList(
+    Conditional(
+      (defined C),
+      Declaration(
+        DeclaringList(
+          xtc.lang.cpp.Syntax$Language(
+            "int"
+          ),
+          SimpleDeclarator(
+            xtc.lang.cpp.Syntax$Text(
+              "x"
+            )
+          ),
+          AssemblyExpressionOpt(),
+          AttributeSpecifierListOpt(),
+          InitializerOpt()
+        )
+      )
+    ),
+    Conditional(
+      1,
+      Conditional(
+        (defined C),
+        Declaration(
+          DefaultDeclaringList(
+            DeclarationQualifierList(
+              Conditional(
+                (defined C),
+                xtc.lang.cpp.Syntax$Language(
+                  "extern"
+                )
+              ),
+              Conditional(
+                (defined A) && (defined C),
+                DeclarationQualifier(
+                  TypeQualifier(
+                    AttributeSpecifier(
+                      AttributeKeyword(
+                        xtc.lang.cpp.Syntax$Language(
+                          "__attribute__"
+                        )
+                      ),
+                      AttributeListOpt()
+                    )
+                  )
+                )
+              ),
+              Conditional(
+                (defined C),
+                DeclarationQualifier(
+                  TypeQualifier(
+                    AttributeSpecifier(
+                      Conditional(
+                        !(defined A) && (defined C) || (defined A) && (defined B) && (defined C),
+                        Conditional(
+                          !(defined A) && !(defined B) && (defined C) || (defined A) && (defined B) && (defined C),
+                          Conditional(
+                            (defined A) && (defined B) && (defined C),
+                            AttributeKeyword(
+                              xtc.lang.cpp.Syntax$Language(
+                                "__attribute__"
+                              )
+                            ),
+                            !(defined A) && !(defined B) && (defined C),
+                            AttributeKeyword(
+                              xtc.lang.cpp.Syntax$Language(
+                                "__attribute__"
+                              )
+                            )
+                          ),
+                          !(defined A) && (defined B) && (defined C),
+                          AttributeKeyword(
+                            xtc.lang.cpp.Syntax$Language(
+                              "__attribute__"
+                            )
+                          )
+                        ),
+                        (defined A) && !(defined B) && (defined C),
+                        AttributeKeyword(
+                          xtc.lang.cpp.Syntax$Language(
+                            "__attribute__"
+                          )
+                        )
+                      ),
+                      AttributeListOpt(
+                        AttributeList(
+                          Conditional(
+                            (defined C),
+                            Conditional(
+                              !(defined A) && (defined C) || (defined A) && (defined B) && (defined C),
+                              Conditional(
+                                !(defined A) && !(defined B) && (defined C) || (defined A) && (defined B) && (defined C),
+                                Conditional(
+                                  (defined A) && (defined B) && (defined C),
+                                  Word(
+                                    xtc.lang.cpp.Syntax$Text(
+                                      "section"
+                                    )
+                                  ),
+                                  !(defined A) && !(defined B) && (defined C),
+                                  Word(
+                                    xtc.lang.cpp.Syntax$Text(
+                                      "section"
+                                    )
+                                  )
+                                ),
+                                !(defined A) && (defined B) && (defined C),
+                                Word(
+                                  xtc.lang.cpp.Syntax$Text(
+                                    "section"
+                                  )
+                                )
+                              ),
+                              (defined A) && !(defined B) && (defined C),
+                              Word(
+                                xtc.lang.cpp.Syntax$Text(
+                                  "section"
+                                )
+                              )
+                            )
+                          ),
+                          Conditional(
+                            (defined C),
+                            AttributeExpressionOpt(
+                              ExpressionList(
+                                Conditional(
+                                  (defined C),
+                                  Conditional(
+                                    !(defined A) && (defined C) || (defined A) && (defined B) && (defined C),
+                                    Conditional(
+                                      !(defined A) && !(defined B) && (defined C) || (defined A) && (defined B) && (defined C),
+                                      Conditional(
+                                        (defined A) && (defined B) && (defined C),
+                                        StringLiteralList(
+                                          Conditional(
+                                            (defined A) && (defined B) && (defined C),
+                                            xtc.lang.cpp.Syntax$Text(
+                                              "\".data..percpu\""
+                                            )
+                                          )
+                                        ),
+                                        !(defined A) && !(defined B) && (defined C),
+                                        StringLiteralList(
+                                          Conditional(
+                                            !(defined A) && !(defined B) && (defined C),
+                                            xtc.lang.cpp.Syntax$Text(
+                                              "\".data\""
+                                            )
+                                          )
+                                        )
+                                      ),
+                                      !(defined A) && (defined B) && (defined C),
+                                      StringLiteralList(
+                                        Conditional(
+                                          !(defined A) && (defined B) && (defined C),
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "\".data..percpu\""
+                                          )
+                                        )
+                                      )
+                                    ),
+                                    (defined A) && !(defined B) && (defined C),
+                                    StringLiteralList(
+                                      Conditional(
+                                        (defined A) && !(defined B) && (defined C),
+                                        xtc.lang.cpp.Syntax$Text(
+                                          "\".data\""
+                                        )
+                                      )
+                                    )
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            ),
+            SimpleDeclarator(
+              xtc.lang.cpp.Syntax$Text(
+                "p"
+              )
+            ),
+            AssemblyExpressionOpt(),
+            AttributeSpecifierListOpt(),
+            InitializerOpt()
+          )
+        ),
+        !(defined C),
+        Declaration(
+          DefaultDeclaringList(
+            DeclarationQualifierList(
+              Conditional(
+                !(defined C),
+                xtc.lang.cpp.Syntax$Language(
+                  "extern"
+                )
+              ),
+              Conditional(
+                (defined A) && !(defined C),
+                DeclarationQualifier(
+                  TypeQualifier(
+                    AttributeSpecifier(
+                      AttributeKeyword(
+                        xtc.lang.cpp.Syntax$Language(
+                          "__attribute__"
+                        )
+                      ),
+                      AttributeListOpt()
+                    )
+                  )
+                )
+              ),
+              Conditional(
+                !(defined C),
+                DeclarationQualifier(
+                  TypeQualifier(
+                    AttributeSpecifier(
+                      Conditional(
+                        !(defined A) && !(defined C) || (defined A) && (defined B) && !(defined C),
+                        Conditional(
+                          !(defined A) && !(defined B) && !(defined C) || (defined A) && (defined B) && !(defined C),
+                          Conditional(
+                            (defined A) && (defined B) && !(defined C),
+                            AttributeKeyword(
+                              xtc.lang.cpp.Syntax$Language(
+                                "__attribute__"
+                              )
+                            ),
+                            !(defined A) && !(defined B) && !(defined C),
+                            AttributeKeyword(
+                              xtc.lang.cpp.Syntax$Language(
+                                "__attribute__"
+                              )
+                            )
+                          ),
+                          !(defined A) && (defined B) && !(defined C),
+                          AttributeKeyword(
+                            xtc.lang.cpp.Syntax$Language(
+                              "__attribute__"
+                            )
+                          )
+                        ),
+                        (defined A) && !(defined B) && !(defined C),
+                        AttributeKeyword(
+                          xtc.lang.cpp.Syntax$Language(
+                            "__attribute__"
+                          )
+                        )
+                      ),
+                      AttributeListOpt(
+                        AttributeList(
+                          Conditional(
+                            !(defined C),
+                            Conditional(
+                              !(defined A) && !(defined C) || (defined A) && (defined B) && !(defined C),
+                              Conditional(
+                                !(defined A) && !(defined B) && !(defined C) || (defined A) && (defined B) && !(defined C),
+                                Conditional(
+                                  (defined A) && (defined B) && !(defined C),
+                                  Word(
+                                    xtc.lang.cpp.Syntax$Text(
+                                      "section"
+                                    )
+                                  ),
+                                  !(defined A) && !(defined B) && !(defined C),
+                                  Word(
+                                    xtc.lang.cpp.Syntax$Text(
+                                      "section"
+                                    )
+                                  )
+                                ),
+                                !(defined A) && (defined B) && !(defined C),
+                                Word(
+                                  xtc.lang.cpp.Syntax$Text(
+                                    "section"
+                                  )
+                                )
+                              ),
+                              (defined A) && !(defined B) && !(defined C),
+                              Word(
+                                xtc.lang.cpp.Syntax$Text(
+                                  "section"
+                                )
+                              )
+                            )
+                          ),
+                          Conditional(
+                            !(defined C),
+                            AttributeExpressionOpt(
+                              ExpressionList(
+                                Conditional(
+                                  !(defined C),
+                                  Conditional(
+                                    !(defined A) && !(defined C) || (defined A) && (defined B) && !(defined C),
+                                    Conditional(
+                                      !(defined A) && !(defined B) && !(defined C) || (defined A) && (defined B) && !(defined C),
+                                      Conditional(
+                                        (defined A) && (defined B) && !(defined C),
+                                        StringLiteralList(
+                                          Conditional(
+                                            (defined A) && (defined B) && !(defined C),
+                                            xtc.lang.cpp.Syntax$Text(
+                                              "\".data..percpu\""
+                                            )
+                                          )
+                                        ),
+                                        !(defined A) && !(defined B) && !(defined C),
+                                        StringLiteralList(
+                                          Conditional(
+                                            !(defined A) && !(defined B) && !(defined C),
+                                            xtc.lang.cpp.Syntax$Text(
+                                              "\".data\""
+                                            )
+                                          )
+                                        )
+                                      ),
+                                      !(defined A) && (defined B) && !(defined C),
+                                      StringLiteralList(
+                                        Conditional(
+                                          !(defined A) && (defined B) && !(defined C),
+                                          xtc.lang.cpp.Syntax$Text(
+                                            "\".data..percpu\""
+                                          )
+                                        )
+                                      )
+                                    ),
+                                    (defined A) && !(defined B) && !(defined C),
+                                    StringLiteralList(
+                                      Conditional(
+                                        (defined A) && !(defined B) && !(defined C),
+                                        xtc.lang.cpp.Syntax$Text(
+                                          "\".data\""
+                                        )
+                                      )
+                                    )
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            ),
+            SimpleDeclarator(
+              xtc.lang.cpp.Syntax$Text(
+                "p"
+              )
+            ),
+            AssemblyExpressionOpt(),
+            AttributeSpecifierListOpt(),
+            InitializerOpt()
+          )
+        )
+      )
+    )
+  )
+)

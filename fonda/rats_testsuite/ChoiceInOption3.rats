@@ -1,0 +1,6 @@
+// Choices inside options must be lifted into their own
+// productions, unless the option is not bound.
+
+module ChoiceInOption3;
+
+public void Top = ( "foo" / "bar" )? ;

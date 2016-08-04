@@ -1,0 +1,526 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2004-2011 Robert Grimm, New York University
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+/**
+ * Definition of Java's hierarchical syntax.
+ *
+ * @author Robert Grimm
+ * @author Stacey Kuznetsov
+ * @version $Revision: 1.50 $
+ */
+module xtc.lang.JavaCore(Type, Constant, Identifier, Symbol, Spacing);
+
+import Type;
+import Constant;
+import Identifier;
+import Symbol;
+import Spacing;
+
+// ---------------------------------------------------------- Compilation Unit
+
+public transient generic CompilationUnit = 
+  Spacing
+  PackageDeclaration?
+  ImportDeclaration*
+  Declaration*
+  void:'\u001a'?
+  EndOfFile
+  ;
+
+transient generic PackageDeclaration = 
+  <Declaration> null void:"package":Word QualifiedIdentifier void:";":Symbol
+  ;
+
+transient generic ImportDeclaration =
+  <Declaration> void:"import":Word null QualifiedIdentifier
+                DotStarTail? void:";":Symbol
+  ;
+
+transient String DotStarTail = void:".":Symbol "*":Symbol ;
+
+// ---------------------------------------------------------- Declarations
+
+transient Object Name = <Name> Identifier ;
+
+generic    Modifiers    = ModifierList ;
+Pair<Node> ModifierList = Modifier*    ;
+
+variant generic Modifier =
+    <Public>       "public":Word
+  / <Protected>    "protected":Word
+  / <Private>      "private":Word
+  / <Static>       "static":Word
+  / <Abstract>     "abstract":Word
+  / <Final>        "final":Word
+  / <Native>       "native":Word
+  / <Synchronized> "synchronized":Word
+  / <Transient>    "transient":Word
+  / <Volatile>     "volatile":Word
+  / <Strictfp>     "strictfp":Word
+  ;
+
+transient generic FormalParameter =
+  <Parameter> VariableModifiers Type null Identifier Dimensions?
+  ;
+
+transient generic VariableModifiers =
+    <Final>    FinalModifier @Modifiers
+  / <Nonfinal> @Modifiers
+  ;
+
+generic FinalModifier = "final":Word @Modifier ;
+
+generic FormalParameters =
+    void:"(":Symbol
+      FormalParameter ( void:",":Symbol FormalParameter )*
+    void:")":Symbol
+  / void:"(":Symbol void:")":Symbol
+  ;
+
+transient generic Declarator =
+  <Declarator> Name Dimensions? ( void:"=":Symbol VariableInitializer )?
+  ;
+
+generic Declarators =
+  Declarator ( void:",":Symbol Declarator )*
+  ;
+
+transient generic ClassBody =
+  <Body> void:"{":Symbol Declaration* void:"}":Symbol
+  ;
+
+transient variant Node Declaration =
+    <Field>       FieldDeclaration
+  / <Method>      MethodDeclaration
+  / <Constructor> ConstructorDeclaration
+  / <Class>       ClassDeclaration
+  / <Interface>   InterfaceDeclaration
+  / <Block>       BlockDeclaration
+  / <Empty>       EmptyDeclaration
+  ;
+
+inline generic FieldDeclaration =
+  <Declaration> Modifiers Type Declarators void:";":Symbol
+  ;
+
+inline generic MethodDeclaration =
+  <Declaration> Modifiers null
+                ResultType Name FormalParameters Dimensions? ThrowsClause?
+                ( Block / null void:";":Symbol )
+  ; 
+
+inline generic ConstructorDeclaration =
+  <Declaration> Modifiers null Name FormalParameters ThrowsClause? Block
+  ;
+
+inline generic ClassDeclaration = 
+  <Declaration> Modifiers 
+                void:"class":Word Name null Extension? Implementation?
+                ClassBody
+  ;
+
+inline generic InterfaceDeclaration = 
+  <Declaration> Modifiers void:"interface":Word Name null Extension?
+                ClassBody
+  ;
+
+inline generic BlockDeclaration = 
+  ("static":Word)? Block
+  ;
+
+inline generic EmptyDeclaration = void:";":Symbol ;
+
+transient generic ThrowsClause =
+  void:"throws":Word QualifiedIdentifier (void:",":Symbol QualifiedIdentifier)*
+  ;
+
+transient generic Extension =
+  void:"extends":Word Type ( void:",":Symbol Type )*
+  ;
+
+generic Implementation = void:"implements":Word Type ( void:",":Symbol Type )*;
+
+// ---------------------------------------------------------- Statements
+
+generic Block =
+  <Block> void:"{":Symbol DeclarationOrStatement* void:"}":Symbol
+  ;
+
+transient Node DeclarationOrStatement =
+    <Declaration> InBlockDeclaration
+  / <Statement>   Statement
+  ;
+
+transient Node InBlockDeclaration =
+    <Variable>  VariableDeclaration
+  / <Class>     ClassDeclaration
+  / <Interface> InterfaceDeclaration
+  ;
+
+transient generic VariableDeclaration =
+  <Declaration> VariableModifiers Type Declarators void:";":Symbol
+                @FieldDeclaration
+  ;
+
+transient variant Node Statement =
+    <Block>        Block
+  / <Conditional>  ConditionalStatement
+  / <For>          ForStatement
+  / <While>        WhileStatement
+  / <DoWhile>      DoWhileStatement
+  / <Try>          TryCatchFinallyStatement
+  / <Switch>       SwitchStatement
+  / <Synchronized> SynchronizedStatement
+  / <Return>       ReturnStatement
+  / <Throw>        ThrowStatement
+  / <Break>        BreakStatement
+  / <Continue>     ContinueStatement
+  / <Labeled>      LabeledStatement
+  / <Expression>   ExpressionStatement
+  / <Assert>       AssertStatement
+  / <Empty>        EmptyStatement
+  ;
+
+inline generic ConditionalStatement =
+    <IfElse> void:"if":Word ParExpression Statement void:"else":Word Statement
+  / <If>     void:"if":Word ParExpression Statement null
+  ;
+		
+inline generic ForStatement=
+  void:"for":Word void:"(":Symbol ForControl void:")":Symbol Statement
+  ;
+
+transient variant Node ForControl =
+  <Basic> BasicForControl
+  ;
+
+inline generic BasicForControl =
+    <Declaration>    VariableModifiers Type Declarators void:";":Symbol
+                     Expression? void:";":Symbol ExpressionList?
+  / <Initialization> null null ExpressionList? void:";":Symbol
+                     Expression? void:";":Symbol ExpressionList?
+  ;
+
+inline generic WhileStatement = void:"while":Word ParExpression Statement;
+
+inline generic DoWhileStatement =
+  void:"do":Word Statement void:"while":Word ParExpression void:";":Symbol
+  ;
+
+Node ParExpression = void:"(":Symbol Expression void:")":Symbol ;
+
+inline generic TryCatchFinallyStatement =
+    <Finally>   void:"try":Word null Block CatchClause* void:"finally":Word Block
+  / <NoFinally> void:"try":Word null Block CatchClause+ null
+  ;
+
+generic CatchClause =
+  <Catch> void:"catch":Word void:"(":Symbol FormalParameter void:")":Symbol Block
+  ;
+
+inline generic SwitchStatement =
+  void:"switch":Word  ParExpression 
+  void:"{":Symbol SwitchClause* void:"}":Symbol
+  ;
+
+variant Node SwitchClause =
+    <Case>     CaseClause
+  / <Default>  DefaultClause
+  ;
+
+inline generic CaseClause =
+  void:"case":Word Expression void:":":Symbol DeclarationOrStatement*
+  ;
+
+inline generic DefaultClause = 
+  void:"default":Word void:":":Symbol DeclarationOrStatement*
+  ;
+
+inline generic SynchronizedStatement = 
+  void:"synchronized":Word ParExpression Block ;
+
+inline generic ReturnStatement =
+  void:"return":Word Expression? void:";":Symbol ;
+
+inline generic ThrowStatement = 
+  void:"throw":Word Expression void:";":Symbol ;
+
+inline generic BreakStatement = 
+  void:"break":Word Identifier? void:";":Symbol ;
+
+inline generic ContinueStatement = 
+  void:"continue":Word Identifier? void:";":Symbol ;
+
+inline generic LabeledStatement = 
+  Identifier void:":":Symbol Statement ;
+
+inline generic ExpressionStatement =
+  Expression void:";":Symbol;
+
+inline generic AssertStatement =
+  void:"assert":Word Expression (void:":":Symbol Expression)? void:";":Symbol
+  ;
+
+inline generic EmptyStatement = void:";":Symbol ;
+
+// ---------------------------------------------------------- Expressions
+
+transient generic ExpressionList =
+  Expression ( void:",":Symbol Expression )*
+  ;
+
+variant generic Expression =
+    <Assignment> ConditionalExpression AssignmentOperator Expression
+  / <Base>       yyValue: ConditionalExpression
+  ;
+
+String AssignmentOperator =
+    <Equal>              "=":Symbol
+  / <PlusEqual>          "+=":Symbol
+  / <MinusEqual>         "-=":Symbol
+  / <StarEqual>          "*=":Symbol
+  / <SlashEqual>         "/=":Symbol
+  / <AmpersandEqual>     "&=":Symbol
+  / <BarEqual>           "|=":Symbol
+  / <CaretEqual>         "^=":Symbol
+  / <PercentEqual>       "%=":Symbol
+  / <DoubleLessEqual>    "<<=":Symbol
+  / <DoubleGreaterEqual> ">>=":Symbol
+  / <TripleGreaterEqual> ">>>=":Symbol
+  ;
+
+generic ConditionalExpression =
+    <Conditional> LogicalOrExpression void:"?":Symbol Expression 
+                                      void:":":Symbol ConditionalExpression
+  / <Base> yyValue:LogicalOrExpression
+  ;
+
+generic LogicalOrExpression =
+    <Or>   LogicalOrExpression void:"||":Symbol LogicalAndExpression
+  / <Base> yyValue:LogicalAndExpression
+  ;
+
+transient generic LogicalAndExpression =
+    <And>  LogicalAndExpression void:"&&":Symbol BitwiseOrExpression
+  / <Base> yyValue:BitwiseOrExpression
+  ;
+
+transient generic BitwiseOrExpression =
+    <Or>   BitwiseOrExpression void:"|":Symbol BitwiseXorExpression
+  / <Base> yyValue:BitwiseXorExpression
+  ;
+
+transient generic BitwiseXorExpression =
+    <Xor>  BitwiseXorExpression void:"^":Symbol BitwiseAndExpression
+  / <Base> yyValue:BitwiseAndExpression
+  ;
+
+transient generic BitwiseAndExpression =
+    <And>  BitwiseAndExpression void:"&":Symbol EqualityExpression
+  / <Base> yyValue:EqualityExpression
+  ;
+
+transient generic EqualityExpression =
+    <Recursion>    EqualityExpression EqualityOperator InstanceOfExpression
+  / <Base>    	   yyValue:InstanceOfExpression
+  ;
+
+String EqualityOperator =
+    <Equal>    "==":Symbol
+  / <NotEqual> "!=":Symbol
+  ;
+
+transient generic InstanceOfExpression =
+    <Instanceof> RelationalExpression void:"instanceof":Word Type
+  / <Base>       yyValue:RelationalExpression
+  ;
+
+generic RelationalExpression =
+    <Recursion>  RelationalExpression RelationalOperator ShiftExpression
+  / <Base>       yyValue:ShiftExpression
+  ;
+
+String RelationalOperator =
+    <Less>    	   "<":Symbol
+  / <Greater>      ">":Symbol
+  / <LessEqual>    "<=":Symbol
+  / <GreaterEqual> ">=":Symbol
+  ;
+
+transient generic ShiftExpression =
+    <Recursion>    ShiftExpression ShiftOperator AdditiveExpression
+  / <Base>          yyValue:AdditiveExpression
+  ;
+
+String ShiftOperator =
+    <Left> 	    "<<":Symbol
+  / <Right> 	    ">>":Symbol
+  / <UnsignedRight> ">>>":Symbol
+ ;
+	
+transient generic AdditiveExpression =
+    <Recursion>  AdditiveExpression AdditiveOperator MultiplicativeExpression
+  / <Base>       yyValue:MultiplicativeExpression
+  ;
+
+String AdditiveOperator =
+    <Plus>  "+":Symbol
+  / <Minus> "-":Symbol
+  ;
+
+transient generic MultiplicativeExpression =
+    <Times>  MultiplicativeExpression MultiplicativeOperator UnaryExpression
+  / <Base>   yyValue:UnaryExpression
+  ;
+
+String MultiplicativeOperator =
+    <Times>  "*":Symbol
+  / <Over>   "/":Symbol
+  / <Modulo> "%":Symbol
+  ;
+
+transient generic UnaryExpression =
+    <Plus>      "+":Symbol UnaryExpression
+  / <Minus>     "-":Symbol UnaryExpression
+  / <Increment> "++":Symbol UnaryExpression
+  / <Decrement> "--":Symbol UnaryExpression
+  / <Base>      yyValue:UnaryExpressionNotPlusMinus
+  ;
+
+transient Node UnaryExpressionNotPlusMinus =
+    <BitwiseNot> BitwiseNegationExpression
+  / <LogicalNot> LogicalNegationExpression
+  / <BasicCast>  BasicCastExpression
+  / <Cast>       CastExpression
+  / <Base>       PostfixExpression
+  ;
+
+inline generic BitwiseNegationExpression =
+  void:"~":Symbol UnaryExpression 
+  ;
+
+inline generic LogicalNegationExpression = 
+  void:"!":Symbol UnaryExpression 
+  ;
+
+inline generic BasicCastExpression = 
+  void:"(":Symbol PrimitiveType Dimensions? void:")":Symbol UnaryExpression 
+  ;
+
+inline generic CastExpression =
+  void:"(":Symbol Type void:")":Symbol UnaryExpressionNotPlusMinus
+  ;
+
+generic PostfixExpression =
+    <Call>      PostfixExpression void:".":Symbol null Name Arguments
+                @CallExpression
+  / <SuperCall> PostfixExpression void:".":Symbol null "super":Word Arguments
+                @CallExpression
+  / <Super>     PostfixExpression void:".":Symbol void:"super":Word
+                @SuperExpression
+  / <Selection> PostfixExpression void:".":Symbol Name
+                @SelectionExpression
+  / <Subscript> PostfixExpression void:"[":Symbol Expression void:"]":Symbol
+                @SubscriptExpression
+  / <Increment> PostfixExpression "++":Symbol
+  / <Decrement> PostfixExpression "--":Symbol
+  / <NewClass>  PostfixExpression void:".":Symbol
+                void:"new":Word null TypeName Arguments ClassBody?
+                @NewClassExpression
+  / <Base>      PrimaryExpression
+  ;
+
+transient Node PrimaryExpression =
+    <Literal>                Literal 
+  / <Call>                   CallExpression
+  / <ClassLiteralExpression> ClassLiteralExpression
+  / <ThisCall>               ThisCallExpression
+  / <This>                   ThisExpression
+  / <SuperCall>              SuperCallExpression
+  / <Super>                  SuperExpression
+  / <PrimaryIdentifier>      PrimaryIdentifier
+  / <NewClass>               NewClassExpression
+  / <NewArray>               NewArrayExpression
+  / <Nested>                 void:"(":Symbol Expression void:")":Symbol
+  ;
+
+inline generic CallExpression =
+  <Expression> null null Name Arguments
+  ;
+
+inline generic ClassLiteralExpression =
+  <Expression> ResultType void:".":Symbol void:"class":Word
+  ;
+
+inline generic ThisCallExpression =
+  <Expression> null null "this":Word Arguments @CallExpression
+  ;
+
+inline generic ThisExpression =
+  <Expression> (QualifiedIdentifier void:".":Symbol)? void:"this":Word
+  ;
+
+// Vanilla version to postfix version above.
+inline generic SuperCallExpression =
+  <Expression> null null "super":Word Arguments @CallExpression
+  ;
+
+inline generic SuperExpression =
+  <Expression> null void:"super":Word
+  ;
+
+inline generic PrimaryIdentifier = Identifier ;
+
+// Vanilla version to postfix version above.
+inline generic NewClassExpression =
+  <Expression> null void:"new":Word null TypeName Arguments ClassBody?
+  ;
+
+inline generic NewArrayExpression =
+    <WithSize> void:"new":Word TypeName ConcreteDimensions Dimensions?
+               null
+  / <WithInit> void:"new":Word TypeName null               Dimensions?
+               ArrayInitializer
+  ;
+
+transient generic ConcreteDimensions = ConcreteDimension+ ;
+
+transient Node ConcreteDimension =
+  void:"[":Symbol Expression void:"]":Symbol
+  ;
+
+transient generic ArrayInitializer =
+    <Values> void:"{":Symbol
+               VariableInitializer (void:",":Symbol VariableInitializer)*
+               void:(",":Symbol)?
+             void:"}":Symbol
+  / <Empty>  void:"{":Symbol void:(",":Symbol)? void:"}":Symbol
+  ;
+
+Node VariableInitializer =
+    <Array>      ArrayInitializer
+  / <Expression> Expression
+  ;
+
+transient generic Arguments =
+    <Arguments>   void:"(":Symbol
+    		  Expression ( void:",":Symbol Expression )*
+                  void:")":Symbol
+  / <NoArguments> void:"(":Symbol void:")":Symbol
+  ;

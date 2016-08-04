@@ -1,0 +1,142 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{coding}[2009/02/18]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% coding.sty
+%
+% Liberally borrows from Andrew Myer's ttquot.sty.
+%
+% Options:
+%    small
+%       Makes text inside quotation marks come out \small, except in
+%       math mode.
+%    footnotesize
+%       Makes text inside quotation marks come out \footnotesize, except
+%       in math mode.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\DeclareOption{small}{\def\coding@size{\ifmmode\else\small\fi}}
+\DeclareOption{footnotesize}{\def\coding@size{\ifmmode\else\footnotesize\fi}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Prepare "
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\let\coding@mark="% Catch original definition
+\catcode`\"=\active% Girl power!
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Configure environment
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\coding@font{\tt}
+\def\coding@spaces{\frenchspacing\obeyspaces}
+\def\coding@under{\def\_{\char`_}}
+\def\coding@braces{\def\{{\char123}\def\}{\char125}}
+\def\coding@size{}
+
+\def\coding@setup{%
+  \coding@font%
+  \coding@spaces%
+  \coding@under%
+  \coding@braces%
+  \coding@size%
+}
+
+\def\coding@mflag{0}
+
+\newenvironment{coding@ttmode}{%
+  \ifmmode%
+    \def\coding@mflag{1}%
+    \mbox\bgroup%
+  \else\fi%
+  \coding@setup%
+  \def"{\end{coding@ttmode}}%
+}{%
+  \ifnum\coding@mflag=1%
+    \egroup%
+    \def\coding@mflag{0}%
+  \else\fi%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Verbatim
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\@verbatim{\trivlist \item\relax
+  \if@minipage\else\vskip\parskip\fi
+  \leftskip\@totalleftmargin\rightskip\z@skip
+  \parindent\z@\parfillskip\@flushglue\parskip\z@skip
+  \@@par
+  \@tempswafalse
+  \def\par{%
+    \if@tempswa
+      \leavevmode \null \@@par\penalty\interlinepenalty
+    \else
+      \@tempswatrue
+      \ifhmode\@@par\penalty\interlinepenalty\fi
+    \fi}%
+  \let\do\@makeother \dospecials
+  \obeylines \coding@font \@noligs
+  \hyphenchar\font\m@ne
+  \everypar \expandafter{\the\everypar \unpenalty}%
+  \coding@deactivate
+}
+
+\def\verb{\relax\ifmmode\hbox\else\leavevmode\null\fi
+  \bgroup
+    \verb@eol@error \let\do\@makeother \dospecials
+    \coding@font\@noligs\coding@deactivate
+    \@ifstar\@sverb\@verb}
+
+%\catcode`\_=13%
+%\def_{\_}
+%\catcode``=13%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Activation and deactivation.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\gdef\coding@activate{%
+  \catcode`\"=\active%
+  \def"{\begin{coding@ttmode}}%
+}
+
+\gdef\coding@deactivate{%
+  \def"{coding@mark}%
+  \catcode`\"=12%
+}
+
+\catcode`\"=12
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Various helpers
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\seq}[1]{\ensuremath{\overline{#1}}}
+
+\newcommand{\xlate}[1]{\ensuremath{[\![\,}{#1}\ensuremath{\,]\!]}}
+\newcommand{\step}[2]{{#1} \ensuremath{\longrightarrow} {#2}}
+\newcommand{\eval}[2]{{#1} \ensuremath{\Downarrow} {#2}}
+\newcommand{\judge}[3]{{#1} \ensuremath{\vdash} {#2} \ : \ {#3}}
+\newcommand{\judgeG}[2]{\judge{\ensuremath{\Gamma}}{#1}{#2}}
+\newcommand{\hidden}[1]{}
+
+\newenvironment{narrow}[1][\parindent]{%
+  \list{}{%
+    \setlength{\leftmargin}{#1}%
+    \setlength{\rightmargin}{#1}%
+  }%
+  \item\relax%
+}{%
+  \endlist%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ProcessOptions
+\AtBeginDocument{\coding@activate}

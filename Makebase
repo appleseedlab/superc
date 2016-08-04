@@ -1,0 +1,116 @@
+# Makebase
+#***************************************************************************
+#
+# Java Project Makefile base environment
+#
+# (C) 1999 Jacob Dreyer - Geotechnical Software Services
+# jacob.dreyer@geosoft.no - http://geosoft.no
+#
+# Modifications Copyright (C) 2001-2007 Robert Grimm 
+# rgrimm@alum.mit.edu
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#
+#***************************************************************************
+
+#***************************************************************************
+#
+# Build Environment.
+#
+# This section determines the operating system.  Since Ubuntu switched
+# from bash to dash for non-interactive shells quite a while ago, we
+# force the use of bash.  Note that several variable substitutions for
+# the Jeannie regression tests also rely on bash.
+#
+# ***************************************************************************
+
+SHELL = /bin/bash
+
+OSTYPE = $(shell echo $$OSTYPE)
+
+#***************************************************************************
+#
+# Directories.
+# 
+# This section describes the directory structure of the development area.
+# The convention is to use a common root directory for development which
+# includes sub directories for source, classes and documentation.
+#
+#***************************************************************************
+
+# Set the JAVA_HOME environment variable to point to the root of the
+# JDK installation.
+
+# Set the JAVA_DEV_ROOT environment variable to point to the root of the
+# Java development tree, that is, the directory that contains the src,
+# classes, and doc directories.
+
+# Set PATH_SEP to a semicolon for Windows and a colon for Unix.
+
+THE_ROOT     = $(subst \,/,$(JAVA_DEV_ROOT))
+
+SOURCE_DIR   = $(THE_ROOT)/src
+CLASS_DIR    = $(THE_ROOT)/classes
+DOC_DIR      = $(THE_ROOT)/doc
+BIN_DIR      = $(THE_ROOT)/bin
+TOOLS_DIR    = $(THE_ROOT)/tools
+GLR_DIR      = $(THE_ROOT)/glr
+DATA_DIR     = $(THE_ROOT)/data
+FONDA_DIR    = $(THE_ROOT)/fonda
+
+JAR_TMP      = $(THE_ROOT)/jar.tmp
+DIST_TMP     = $(THE_ROOT)/xtc
+
+#***************************************************************************
+#
+# Tools.
+#
+# This section list the tools required to build the java classes and 
+# packages.
+#
+#***************************************************************************
+
+# Xcode 4.3 changes cc to alias clang, which is not yet fully
+# supported by xtc due differences from gcc (including bugs).
+
+ifneq (,$(findstring darwin,$(OSTYPE)))
+  CC     = gcc
+endif
+
+CP       = cp
+RM       = rm -f
+MKDIR    = mkdir
+CPDIR    = cp -R
+RMDIR    = rm -rf
+FIND     = find
+JAR      = jar
+ZIP      = zip
+JAVA     = java -ea
+JAVAC    = javac
+JAVAH    = javah
+JAVANCSS = $(JAVA) -jar $(BIN_DIR)/javancss.jar
+JUNIT    = $(JAVA) org.junit.runner.JUnitCore
+RATS     = $(JAVA) xtc.parser.Rats -in $(SOURCE_DIR)
+TYPICAL  = $(JAVA) xtc.typical.Typical
+FACTORY  = $(JAVA) xtc.lang.FactoryFactory
+
+ifeq ($(JAVAC),jikes)
+JAVAC_OPTIONS     = -d $(CLASS_DIR) -sourcepath $(SOURCE_DIR) \
+		    -classpath $(CLASS_DIR)$(PATH_SEP)$(JAVA_RUNTIME)
+else
+JAVAC_OPTIONS     = -d $(CLASS_DIR) -sourcepath $(SOURCE_DIR)
+endif
+
+JAVAH_OPTIONS     = 

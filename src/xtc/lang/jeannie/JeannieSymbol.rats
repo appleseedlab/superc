@@ -1,0 +1,26 @@
+/* (C) Copyright IBM Corp 2007. */
+
+/** Definition of Jeannie symbols. */
+module xtc.lang.jeannie.JeannieSymbol(Symbol);
+
+modify Symbol;
+
+String SymbolCharacters +=
+    <TripleDot> "..."
+  / <GreaterGreater> ... ;
+
+String SymbolCharacters +=
+    <MinusGreater> "->"
+  / <Semicolon> ... ;
+
+String SymbolCharacters +=
+    <TripleGreaterEqual> ">>>="
+  / <GreaterGreaterEqual> ... ;
+
+String SymbolCharacters +=
+    <TripleGreater> ">>>"
+  / <GreaterGreater> ... ;
+
+String SymbolCharacters +=
+    <Backtick> "`"
+  / <Bang> ... ;

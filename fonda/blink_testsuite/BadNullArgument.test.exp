@@ -1,0 +1,8 @@
+#!/usr/bin/expect
+source blink.tcl
+
+blink_begin_opt "BadNullArgument" "-jniassert"
+blink_cmd "run" ".*\n"
+blink_cmd "list" ".*\n" 
+blink_cmd "where" ".*\n" 
+blink_end "exit"

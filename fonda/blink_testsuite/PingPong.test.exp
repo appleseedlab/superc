@@ -1,0 +1,140 @@
+#!/usr/bin/expect
+
+source blink.tcl
+
+#
+# testing script for Blink against the PingPong example.
+#
+
+proc trun { args } {
+    blink_begin "PingPong"
+    blink_end "run"
+    return "pass"
+}
+
+proc texit { args } {
+    blink_begin "PingPong"
+    blink_end "exit"
+}
+
+proc tbreak { args } {
+    blink_begin "PingPong"
+    blink_cmd "stop at PingPong:8" ".*\n"
+    blink_cmd "break PingPong.c:20" ".*\n"
+    blink_cmd "info break" ".*\n"
+    blink_cmd "run" ".*\n"
+    blink_cmd "continue"  "Breakpoint .+\n((.*\n)*)"
+    blink_cmd "continue"  "Breakpoint.+\n((.*\n)*)"
+    blink_cmd "continue"  "Breakpoint .+\n((.*\n)*)"
+    blink_end "continue"
+}
+
+proc tstep { args } {
+    blink_begin "PingPong"
+
+    blink_cmd "where"  "( +\[\[\]\[0-9\]+\[\]\].+\n)+"
+
+    blink_cmd "step" "Step completed: PingPong.java:7.+"
+    blink_cmd "next" "Step completed: PingPong.java:8.+"
+    blink_cmd "next" "Step completed: PingPong.java:9.+"
+    blink_cmd "step" "Step completed: PingPong.c:18.+"
+    blink_cmd "next" "Step completed: PingPong.c:19.+"
+    blink_cmd "next" "Step completed: PingPong.c:20.+"
+    blink_cmd "next" "Step completed: PingPong.c:21.+"
+    blink_cmd "next" "Step completed: PingPong.c:22.+"
+    blink_cmd "step" "Step completed: PingPong.java:7.+"
+    blink_cmd "next" "Step completed: PingPong.java:8.+"
+    blink_cmd "next" "Step completed: PingPong.java:9.+"
+    blink_cmd "step" "Step completed: PingPong.c:18.+"
+    blink_cmd "next" "Step completed: PingPong.c:19.+"
+    blink_cmd "next" "Step completed: PingPong.c:20.+"
+    blink_cmd "next" "Step completed: PingPong.c:24.+"
+    blink_cmd "next" "Step completed: PingPong.c:25.+"
+    blink_cmd "next" "Step completed: PingPong.java:10.+"
+    blink_cmd "next" "Step completed: PingPong.c:24.+"
+    blink_cmd "next" "Step completed: PingPong.c:25.+"
+    blink_cmd "next" "Step completed: PingPong.java:10.+"
+    blink_cmd "next" "Step completed: PingPong.java:4.+"
+    blink_cmd "next" "Step completed: PingPong.java:5.+"
+
+    blink_end "exit"
+}
+
+proc tstack { args } {
+    blink_begin "PingPong"
+
+    blink_cmd "break PingPong.c:20"  ".*\n"
+    blink_cmd "run"  "Breakpoint .+\n(.*\n)*"
+    blink_cmd "continue"  "Breakpoint .+\n(.*\n)*"
+    blink_cmd "where"  "( +\[\[\]\[0-9\]+\[\]\].+\n)+"
+    blink_cmd "locals"  "(.+=.+\n)*"
+    blink_cmd "up 1"  ""
+    blink_cmd "locals"  "(.+=.+\n)*"
+    blink_cmd "up 2"  ""
+    blink_cmd "locals"  "(.+=.+\n)*"
+    blink_cmd "down 3"  ""
+    blink_cmd "where"  "( +\[\[\]\[0-9\]+\[\]\].+\n)+"
+
+    blink_end "exit"
+}
+
+proc cisco_issue1 { args } {
+    blink_begin "PingPong"
+
+    blink_cmd "break PingPong.c:20"  ".*\n" 
+    blink_cmd "stop at PingPong:8"  ".*\n" 
+    blink_cmd "run"  ".*\n" 
+    blink_cmd "continue"  ".*\n" 
+    blink_cmd "continue"  ".*\n" 
+    blink_cmd "continue"  ".*\n" 
+    blink_cmd "where"  ".*\n" 
+    blink_cmd "locals"  ".*\n" 
+    blink_cmd "up 1"  ".*\n" 
+    blink_cmd "locals"  ".*\n" 
+    blink_cmd "list"  ".*\n" 
+    blink_cmd "up 1"  ".*\n" 
+    blink_cmd "locals"  ".*\n" 
+    blink_cmd "list"  ".*\n" 
+
+    blink_end "exit"
+}
+
+proc cisco_issue2 { args } {
+    blink_begin "PingPong"
+
+    blink_cmd "break PingPong.c:20"  ".*\n" 
+    blink_cmd "stop at PingPong:8"  ".*\n" 
+    blink_cmd "run"  ".*\n" 
+    blink_cmd "next" "Step completed: PingPong.java:9.+"
+    blink_cmd "list"  ".*\n" 
+    blink_cmd "next" "Breakpoint .+:.+"
+    blink_cmd "list"  ".*\n" 
+    blink_cmd "where"  ".*\n" 
+    blink_cmd "next" "Step completed: PingPong.c:21.+"
+
+    blink_end "exit"
+}
+
+proc cisco_issue3 { args } {
+    blink_begin "PingPong"
+
+    blink_cmd "break PingPong.c:20"  ".*\n" 
+    blink_cmd "break PingPong.c:21"  ".*\n" 
+    blink_cmd "break PingPong.c:22"  ".*\n" 
+    blink_cmd "run"  ".*\n" 
+    blink_cmd "continue"  ".*\n" 
+    blink_cmd "continue"  ".*\n" 
+    blink_cmd "next"  "Breakpoint .+:.+"
+
+    blink_end "exit"
+}
+
+trun
+texit
+tbreak
+tstack
+tstep
+
+cisco_issue1
+cisco_issue2
+cisco_issue3

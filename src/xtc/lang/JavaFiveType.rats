@@ -1,0 +1,81 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2007 Robert Grimm
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+/**
+ * Definition of types for Java 5.
+ *
+ * @author Robert Grimm
+ * @version $Revision: 1.4 $
+ */
+module xtc.lang.JavaFiveType(Type, Spacing);
+
+import Spacing;
+
+modify Type;
+
+generic TypeParameters =
+  <Parameters> void:"<" Spacing
+                 TypeParameter (void:",":Symbol TypeParameter)*
+               void:">" Spacing
+  ;
+
+generic TypeParameter =
+  <Parameter> Identifier (void:"extends":Word Bound)?
+  ;
+
+transient generic Bound =
+  <Bound> Type (void:"&":Symbol Type)*
+  ;
+
+generic TypeArguments =
+  <Arguments> void:"<" Spacing
+                TypeArgument (void:",":Symbol TypeArgument)*
+              void:">" Spacing
+  ;
+
+Node TypeArgument =
+    <Type>     Type
+  / <Wildcard> Wildcard
+  ;
+
+transient generic Wildcard =
+  <Wildcard> void:"?":Symbol WildcardBound?
+  ;
+
+transient generic WildcardBound =
+    <Extends> "extends":Word Type
+  / <Super>   "super":Word   Type
+  ;
+
+// We augment qualified identifiers instead of completely replacing
+// them, so that Java concrete syntax has the same AST for 1.4 code
+// even when using the 1.5 parser.
+
+Node ClassType :=
+    <Name>         QualifiedIdentifier !'<'
+  / <Instantiated> InstantiatedType
+  ;
+
+generic InstantiatedType =
+  <Reference> TypeInstantiation (void:".":Symbol TypeInstantiation)*
+  ;
+
+generic TypeInstantiation =
+  <Instantiation> Identifier TypeArguments?
+  ;

@@ -1,0 +1,10 @@
+/* Java array initializer in local variable declaration */
+`.C{
+#include <stdio.h>
+}
+class Main {
+  public static void main(String[] args) {
+    int[][] a = { { 1 }, {2, 3} };
+    `printf("%d\n", (int)`a[1][0]);
+  }
+}

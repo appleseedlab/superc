@@ -1,0 +1,5 @@
+// A nested choice in a predicate needs to be lifted.
+
+module NestedChoiceInPredicate1;
+
+public void Top = &("foo" ("bar" / "car") "bar") ;

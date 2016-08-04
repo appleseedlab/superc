@@ -1,0 +1,6 @@
+// Choices inside repetitions must be lifted into their own
+// productions, unless the repetition is not bound.
+
+module ChoiceInRepetition3;
+
+public void Top = ( "foo" / "bar" )* ;

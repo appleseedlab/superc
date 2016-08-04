@@ -1,0 +1,16 @@
+`.C {
+int decr(int x) {
+  int y;
+  x--;
+  if (x != 0)
+    y = x;
+  return y;
+}
+}
+class Main {
+  public static void main(String[] args) {
+    int z = 1;
+    z = `decr(`z);
+    System.err.println(z);
+  }
+}

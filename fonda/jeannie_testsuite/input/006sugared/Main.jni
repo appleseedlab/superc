@@ -1,0 +1,12 @@
+/* JNI with call to separate C file. */
+`.C{
+#   include "foo.h"
+}
+class Main {
+  static native void sayHi() `{
+    bar();
+  }
+  public static void main(String[] args) {
+    sayHi();
+  }
+}

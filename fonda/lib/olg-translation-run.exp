@@ -1,0 +1,184 @@
+load_lib olg-translation-dg.exp
+proc olg-translation-dg-test { args } {
+  set prog [lindex $args 0]
+  set src [pwd]
+  append src "/classes"
+  append src ":."
+    
+  # Create a temporary directory and generate files into that directory  
+  exec mkdir -p "overlogRuntime"  
+  set command "java -classpath $src xtc.lang.overlog.Overlog -optionTypeAnalyze -generateJava -o ./overlogRuntime $prog"
+  
+  set timeout 120
+  set output ""
+  eval spawn $command
+  # get all output from the tool
+  expect {
+    -i $spawn_id -timeout $timeout -re ".+" {
+      append output $expect_out(buffer)
+      if { [string length $output] < 512000 } {
+        exp_continue -continue_timer
+      }
+    }
+    timeout { 
+      set output "Timeout"
+      wait -i $spawn_id
+      return $output 
+    }
+  }
+  
+  # Check the output here (if necessary)
+
+  wait -i $spawn_id
+
+
+  # Compile the file  
+  set javafiles [ glob -directory ./overlogRuntime *.java ]
+  foreach javafile $javafiles {
+    set command "javac -classpath $src $javafile"
+    set timeout 120
+    set output ""
+    eval spawn $command
+    # get all output from the tool
+    expect {
+      -i $spawn_id -timeout $timeout -re ".+" {
+        append output $expect_out(buffer)
+        if { [string length $output] < 512000 } {
+          exp_continue -continue_timer
+        }
+      }
+      timeout { 
+        set output "Timeout"
+        wait -i $spawn_id
+        return $output 
+      }
+    }    
+    wait -i $spawn_id
+  }  
+  
+  
+  # Check the output here (if necessary)
+
+  # Execute the file and get the final output
+  set command "java -classpath $src overlogRuntime.RunOLG localhost 5000"
+  set timeout 120
+  set output ""
+  eval spawn $command
+  # get all output from the tool
+  expect {
+    -i $spawn_id -timeout $timeout -re ".+" {
+      append output $expect_out(buffer)
+      if { [string length $output] < 512000 } {
+        exp_continue -continue_timer
+      } else {
+        close -i $spawn_id
+        exec rm -f -r "overlogRuntime"
+        return $output 
+      }
+    }
+    timeout { 
+      set output "Timeout"
+      close -i $spawn_id
+      exec rm -f -r "overlogRuntime"
+      return $output 
+    }
+  }
+   
+  wait -i $spawn_id
+  exec rm -f -r "overlogRuntime"
+  return $output	 
+}
+
+proc compare_output { args } {
+  set output [lindex $args 0]
+  set filename [lindex $args 1]
+  set outfile $filename
+  set outfile [file rootname $filename]
+  append outfile ".output"
+  
+  set tempfile [file rootname $filename]
+  append tempfile ".out2"
+  
+  # write output to file
+  set tfile [open $tempfile "w"]
+  puts $tfile $output
+  close $tfile
+  
+  # compare the two files
+  set tfile [open $tempfile "r"]
+  set ofile [open $outfile "r"]
+  
+  # compare the rests of the two files
+  while 1 {
+    if {[gets $ofile oline] == -1} {
+      break
+    }
+    if {[gets $tfile tline] == -1} {
+      close $tfile
+      close $ofile
+      exec rm -f $tempfile
+      return "Fail"
+    }
+    set check [compare_watch $oline $tline]
+    if [string match $check "Yes"] {
+      continue
+    } else { 
+      if {[string compare $oline $tline] != 0} {
+        close $tfile
+        close $ofile
+        exec rm -f $tempfile
+        return "Fail"
+      }
+    }
+  }
+  if {[gets $tfile tline] != -1} {
+    set str [string trim $tline]
+    if ![string match $str ""] {
+      close $tfile
+      close $ofile
+      exec rm -f $tempfile
+      return "Fail"
+    }
+    while 1 {
+      if {[gets $tfile tline] == -1} {
+	break
+      }
+      if ![string match $tline ""] {
+        close $tfile
+        close $ofile
+        exec rm -f $tempfile
+        return "Fail"
+      }
+    }
+  }
+  close $tfile
+  close $ofile
+  exec rm -f $tempfile
+  return "Pass"  
+}
+
+proc compare_watch { args } {
+  set line0 [lindex $args 0]
+  set line1 [lindex $args 1]
+  if ![regsub "Watch" $line0 "Watch" line0] { 
+    return "No"
+  } 
+
+  if ![regsub "Watch" $line1 "Watch" line1] { 
+    return "No"
+  } 
+
+  regexp "Watch::(.*)::(.*)\[\(\](.*)(\n|$)" $line0 line0 tm args0
+    
+  regexp "Watch::(.*)::(.*)\[\(\](.*)(\n|$)" $line1 line1 tm args1
+  
+    
+  set str0 [lindex $args0 0]
+  set str1 [lindex $args1 0]
+
+  if ![string match $str0 $str1] {
+    return "No"
+  }
+
+  return "Yes"
+}

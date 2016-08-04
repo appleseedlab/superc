@@ -1,0 +1,19 @@
+module NullLiteral;
+
+public generic Top = null null null Left One ;
+
+generic Left =
+    Left "(" null Token Token ")"
+  / Left "(" null Token ")"
+  / null
+  ;
+
+Node One =
+    void:Two Two
+  / Token
+  / null
+  ;
+
+generic Two = Token ( void:Token null ) * ;
+
+generic Token = "token" ;

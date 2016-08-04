@@ -1,0 +1,54 @@
+<html>
+<body>
+
+xtc is a framework for building extensible source-to-source
+translators and compilers.
+
+<h4>License</h4>
+
+xtc is copyrighted in parts by Robert Grimm, New York University,
+Princeton University, and IBM; see each file's header for the relevant
+copyright notice.  xtc also is open source software and released in
+parts under the GNU General Public License (GPL) version 2 and the GNU
+Lesser General Public License (LGPL) version 2.1, again as documented
+in each file's header.
+
+<p />Generally, most code in xtc is released under the GPL.  However,
+most runtime classes for <em>Rats!</em>-generated parsers, including
+classes for representing AST nodes, are released under the LGPL.  In
+detail, the classes released under the LGPL are:<ul>
+
+<li>{@link xtc.parser.ParserBase}</li>
+<li>{@link xtc.parser.Column}</li>
+<li>{@link xtc.parser.Result}</li>
+<li>{@link xtc.parser.SemanticValue}</li>
+<li>{@link xtc.parser.ParseError}</li>
+<li>{@link xtc.parser.ParseException}</li>
+
+<li>{@link xtc.tree.Location}</li>
+<li>{@link xtc.tree.Locatable}</li>
+<li>{@link xtc.tree.Node}</li>
+<li>{@link xtc.tree.Token}</li>
+<li>{@link xtc.tree.Annotation}</li>
+<li>{@link xtc.tree.Formatting}</li>
+<li>{@link xtc.tree.GNode}</li>
+
+<li>{@link xtc.util.Action}</li>
+<li>{@link xtc.util.EmptyIterator}</li>
+<li>{@link xtc.util.Function}</li>
+<li>{@link xtc.util.Pair}</li>
+<li>{@link xtc.util.Runtime}</li>
+<li>{@link xtc.util.SingletonIterator}</li>
+<li>{@link xtc.util.State}</li>
+<li>{@link xtc.util.SymbolTable}</li>
+<li>{@link xtc.util.Tool}</li>
+<li>{@link xtc.util.Utilities}</li>
+
+</ul>
+
+To ensure that a <em>Rats!</em>-generated parser is compatible with
+the LGPL, invoke <em>Rats!</em> with the <code>-lgpl</code> command
+line argument.
+
+</body>
+</html>

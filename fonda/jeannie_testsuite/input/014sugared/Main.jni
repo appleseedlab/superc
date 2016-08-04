@@ -1,0 +1,26 @@
+`.C{
+#include <stdio.h>
+}
+class Main {
+  static native void f(int[] ja) throws Exception `{
+    with(jint* ca = `ja) {
+      for (int i=0; i<3; i++) {
+        if (ca[i] == 4)
+          `throw new Exception();
+        printf("p0 (%d %d)\n", i, (int)ca[i]); fflush(stdout);
+      }
+      printf("p1\n"); fflush(stdout);
+      commit ca;
+    }
+    printf("p2\n"); fflush(stdout);
+  }
+  public static void main(String[] args) {
+    int[] a = { 3, 1, 4 };
+    try {
+      f(a);
+      System.out.println("p3");
+    } catch (Exception e) {
+      System.out.println("p4");
+    }
+  }
+}

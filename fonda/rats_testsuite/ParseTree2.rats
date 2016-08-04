@@ -1,0 +1,12 @@
+module ParseTree2;
+
+option withParseTree;
+
+public generic Top = Start Expression void:End
+  / Start Expression void:Middle Expression void:End;
+
+String Start = "[";
+String Middle = "...";
+String End = "]";
+
+generic Expression = "expression" ;

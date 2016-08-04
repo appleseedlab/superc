@@ -1,0 +1,9 @@
+// When a sequence ends with a choice, it needs to be lifted as one.
+// Thanks to Thomas Moschny for identifying this issue.
+
+module FoldedNestedChoice;
+
+public String Top =
+  ( s:Text 'x' { yyValue = s; } / s:Text 'y' { yyValue = s; } ) void:'z' ;
+
+String Text = "Text" ;

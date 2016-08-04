@@ -1,0 +1,8 @@
+Makefile config.status config.summary tmp.txt testcout
+*.d
+java_tokens.cc java_tokens.h java_tokens.ids
+java.yy.cc
+tlexer javaparse
+java.ast.gen.h java.ast.gen.cc
+java.gr.gen.h java.gr.gen.cc java.gr.gen.out
+quicktest

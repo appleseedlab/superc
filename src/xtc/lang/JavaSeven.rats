@@ -1,0 +1,47 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2011 Robert Grimm
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+/**
+ * Java 7 grammar.
+ *
+ * @author Robert Grimm
+ * @version $Revision: 1.1 $
+ */
+module xtc.lang.JavaSeven;
+
+instantiate xtc.lang.JavaCore(xtc.lang.JavaFiveType,
+                              xtc.lang.JavaSevenConstant,
+                              xtc.lang.JavaFiveIdentifier,
+                              xtc.lang.JavaFiveSymbol, xtc.util.Spacing);
+instantiate xtc.lang.JavaFiveCore(xtc.lang.JavaCore);
+instantiate xtc.lang.JavaType(xtc.lang.JavaFiveIdentifier,
+                              xtc.lang.JavaFiveSymbol);
+instantiate xtc.lang.JavaFiveType(xtc.lang.JavaType, xtc.util.Spacing);
+instantiate xtc.lang.JavaConstant(xtc.lang.JavaFiveIdentifier, xtc.util.Spacing);
+instantiate xtc.lang.JavaSevenConstant(xtc.lang.JavaConstant);
+instantiate xtc.lang.JavaIdentifier(xtc.lang.JavaFiveSymbol, xtc.util.Spacing);
+instantiate xtc.lang.JavaFiveIdentifier(xtc.lang.JavaIdentifier);
+instantiate xtc.util.Symbol(xtc.util.Spacing);
+instantiate xtc.lang.JavaSymbol(xtc.util.Symbol);
+instantiate xtc.lang.JavaFiveSymbol(xtc.lang.JavaSymbol);
+instantiate xtc.util.Spacing;
+
+modify xtc.lang.JavaSevenCore(xtc.lang.JavaFiveCore);
+
+option withLocation, constant, flatten;

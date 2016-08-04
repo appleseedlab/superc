@@ -1,0 +1,18 @@
+TopLevelClassesOrInterfaces: JeannieMain
+
+LocalVariableMap:
+# file startLine startCol endLine endCol lang srcId tgtId
+  /var/local/bclee/w/xtc/fonda/blink_testsuite/JeannieMain.jni 8 3 17 3 C y _y
+  /var/local/bclee/w/xtc/fonda/blink_testsuite/JeannieMain.jni 11 6 17 5 Java z _z
+  /var/local/bclee/w/xtc/fonda/blink_testsuite/JeannieMain.jni 8 3 - - Java returnAbrupt _returnAbrupt
+  /var/local/bclee/w/xtc/fonda/blink_testsuite/JeannieMain.jni 8 3 14 3 Java x _x
+
+MethodMap:
+# srcMethod tgtFunctionOrMethod:
+  JeannieMain.f(I)V JeannieMain$JavaEnvFor_f.c2j
+  JeannieMain.f(I)V JeannieMain.f
+  JeannieMain.f(I)V JeannieMain$JavaEnvFor_f.c2j1
+  JeannieMain.f(I)V Java_JeannieMain_00024JavaEnvFor_1f_j2c
+  JeannieMain.f(I)V Java_JeannieMain_00024JavaEnvFor_1f_j2c1
+  JeannieMain.f(I)V JeannieMain$JavaEnvFor_f.<init>
+

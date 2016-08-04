@@ -1,0 +1,20 @@
+`.C { }
+class Main {
+  public static void main(String[] args) {
+    String input = "12.34E1";
+    boolean hasDecimalPoint = -1 != input.indexOf('.');
+    `.C {
+      `Number intOrFloat;
+      if (`hasDecimalPoint) {
+        `Float f = `Float.valueOf(input);
+        intOrFloat = f;
+      } else {
+        `Integer i = `Integer.valueOf(input);
+        intOrFloat = i;
+      }
+      `.Java {
+        System.out.println(`intOrFloat);
+      }
+    }
+  }
+}

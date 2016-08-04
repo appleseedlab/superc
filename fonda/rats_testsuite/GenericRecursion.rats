@@ -1,0 +1,7 @@
+// A direct left-recursion in a generic production.
+
+module GenericRecursion;
+
+public generic Top = Top Text / Text ;
+
+generic Text = 'a'+ ;

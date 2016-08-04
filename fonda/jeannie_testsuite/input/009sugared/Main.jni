@@ -1,0 +1,50 @@
+/* C array sort. */
+`.C{
+  void quickSort(int* a, int left, int right) {
+    if (left < right) {
+      int pivot;
+      { // partition
+        int x, i, j;
+        x = a[left];
+        i = left - 1;
+        j = right + 1;
+        while (1) {
+          do j--; while (a[j]>x);
+          do i++; while (a[i]<x);
+          if (i < j) { // swap
+            int tmp = a[i];
+            a[i] = a[j];
+            a[j] = tmp;
+          } else {
+            pivot = j;
+            break;
+          }
+        }
+      }
+      quickSort(a, left, pivot);
+      quickSort(a, pivot+1, right);
+    }
+  }
+  void sortArray(int* a, int length){
+    quickSort(a, 0, length-1);
+  }
+  void printArray(int* a, int length){
+    int i;
+    for(i=0; i<length; i++)
+      printf(" %d", a[i]);
+    printf("\n");
+  }
+}
+class Main{
+  static native void sayHi() `{
+#     define LENGTH 7
+    int a[LENGTH];
+    a[0] = 3; a[1] = 2; a[2] = 6; a[3] = 1; a[4] = 2; a[5] = 0; a[6] = 7;
+    printArray(a, LENGTH);
+    sortArray(a, LENGTH);
+    printArray(a, LENGTH);
+  }
+  public static void main(String[] args) {
+    sayHi();
+  }
+}

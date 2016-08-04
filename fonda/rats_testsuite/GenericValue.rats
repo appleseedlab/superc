@@ -1,0 +1,15 @@
+// Generic semantic values and attributes should work hand in hand.
+
+module GenericValue;
+
+public Container<Type> Top =
+  Nested Nested { yyValue = null; } ;
+
+private Container < Type , Type > Nested =
+  Nested2 Nested2 { yyValue = null; } ;
+
+Container < Type , Type , Type > Nested2 =
+  Nested3 Nested3 { yyValue = null; } ;
+
+Container < Container < Container < Type , Type > , Type > , Type > Nested3 =
+  "text" ;

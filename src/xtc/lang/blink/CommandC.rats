@@ -1,0 +1,4 @@
+module xtc.lang.blink.CommandC(Command, JeannieC);
+modify JeannieC;
+import Command;
+Node PrimaryExpression += <Meta> Command.MetaVariable / <Constant> ...;

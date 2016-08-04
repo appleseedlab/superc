@@ -1,0 +1,6 @@
+// Static text needs to be deducible even in the presence of prefix
+// folding.
+
+module FoldedStaticText;
+
+public String Top = "foo" "bar" / "foo" "baz" ;

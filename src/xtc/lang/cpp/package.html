@@ -1,0 +1,38 @@
+<html>
+<body>
+
+SuperC is a configuration-preserving preprocessor and parser for C.
+
+<h3>Quick Start</h3>
+
+First setup the environment variables:
+
+<pre>
+. xtc/src/xtc/lang/cpp/scripts/env.sh
+</pre>
+
+Then run SuperC:
+
+<pre>
+java xtc.lang.cpp.SuperC file.c
+</pre>
+
+Use <tt>-printAST</tt> to print the AST.  Use <tt>-E</tt> to just
+do configuration-preserving preprocessing.
+
+<h3><strong>SuperC</strong> Technical Manual</h3>
+
+Please read the <strong>SuperC</strong> technical manual packaged with
+the source code.
+
+<pre>
+cd java/src/xtc/lang/cpp
+
+# Requires on pdflatex.
+make manual.pdf
+</pre>
+
+The manual's source is a latex file called <tt>manual.tex</tt>.
+
+</body>
+</html>

@@ -1,0 +1,195 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2007 Robert Grimm
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+/**
+ * Hierarchical syntax for Java 5.
+ *
+ * @author Robert Grimm
+ * @version $Revision: 1.8 $
+ */
+module xtc.lang.JavaFiveCore(Core);
+
+modify Core;
+
+generic PackageDeclaration :=
+  <Declaration> Annotations?
+                void:"package":Word QualifiedIdentifier void:";":Symbol
+  ;
+
+generic ImportDeclaration :=
+  <Declaration> void:"import":Word ("static":Word)? QualifiedIdentifier
+                DotStarTail? void:";":Symbol
+  ;
+
+generic Modifier +=
+    <Annotation> yyValue:Annotation
+  / <Public>     ...
+  ;
+
+generic FormalParameter :=
+  <Parameter> VariableModifiers Type ("...":Symbol)? Identifier Dimensions?
+  ;
+
+generic VariableModifiers :=
+  <Modifiers> VariableModifier* @Modifiers
+  ;
+
+Node VariableModifier =
+    <Final>      FinalModifier
+  / <Annotation> Annotation
+  ;
+
+generic Annotations = Annotation+ ;
+
+transient generic Annotation = void:"@":Symbol TypeName AnnotationValue ;
+
+Node AnnotationValue =
+    <Pairs> void:"(":Symbol ElementValuePairs? void:")":Symbol
+  / <Value> void:"(":Symbol ElementValue       void:")":Symbol
+  / <Empty> null
+  ;
+
+generic ElementValuePairs =
+  ElementValuePair ( void:",":Symbol ElementValuePair )*
+  ;
+
+generic ElementValuePair = 
+  Name void:"=":Symbol ElementValue
+  ;
+
+Node ElementValue =
+    <Expression> Expression
+  / <Annotation> Annotation
+  / <Array>      ElementArrayInitializer
+  ;
+
+transient generic ElementArrayInitializer =
+    <Values> void:"{":Symbol
+               ElementValue (void:",":Symbol ElementValue)* void:(",":Symbol)?
+             void:"}":Symbol
+             @ArrayInitializer
+  / <Empty>  void:"{":Symbol void:(",":Symbol)? void:"}":Symbol
+             @ArrayInitializer
+  ;
+
+Node Declaration +=
+    <Interface>          ...
+  / <Annotation>         AnnotationDeclaration
+  / <Enum>               EnumDeclaration
+  ;
+
+generic ClassDeclaration :=
+  <Declaration> Modifiers 
+                void:"class":Word Name TypeParameters? Extension? Implementation?
+                ClassBody
+  ;
+
+generic InterfaceDeclaration := 
+  <Declaration> Modifiers void:"interface":Word Name TypeParameters? Extension?
+                ClassBody
+  ;
+
+generic MethodDeclaration :=
+  <Declaration> Modifiers TypeParameters?
+                ResultType Name FormalParameters Dimensions? ThrowsClause?
+                ( Block / null void:";":Symbol )
+  ;
+
+generic ConstructorDeclaration :=
+  <Declaration> Modifiers TypeParameters?
+                Name FormalParameters ThrowsClause? Block
+  ;
+
+generic ClassDeclaration :=
+  <Declaration> Modifiers void:"class":Word Name TypeParameters?
+                Extension? Implementation? ClassBody
+  ;
+
+generic InterfaceDeclaration :=
+  <Declaration> Modifiers void:"interface":Word Name TypeParameters?
+                Extension? ClassBody
+  ;
+
+inline generic AnnotationDeclaration =
+  <Declaration> Modifiers void:"@":Symbol void:"interface":Word Name
+                AnnotationBody
+  ;
+
+transient generic AnnotationBody =
+  <Body> void:"{":Symbol AnnotationElement* void:"}":Symbol @ClassBody
+  ;
+
+transient Node AnnotationElement =
+    <Method>     AnnotationMethod
+  / <Field>      FieldDeclaration
+  / <Class>      ClassDeclaration
+  / <Interface>  InterfaceDeclaration
+  / <Enum>       EnumDeclaration
+  / <Annotation> AnnotationDeclaration
+  ;
+
+inline generic AnnotationMethod = 
+  <Declaration> Modifiers Type Name void:"(":Symbol void:")":Symbol
+                DefaultValue? void:";":Symbol
+  ;
+
+transient generic DefaultValue =
+  <Default> void:"default":Word ElementValue
+  ;
+
+inline generic EnumDeclaration =
+  <Declaration> Modifiers void:"enum":Word Name Implementation?
+                void:"{":Symbol
+                EnumConstants? void:(",":Symbol)? EnumMembers?
+                void:"}":Symbol
+  ;
+
+transient generic EnumConstants =
+  <Constants> EnumConstant ( void:",":Symbol EnumConstant )*
+  ;
+
+transient generic EnumConstant = Annotations? Name Arguments? ClassBody? ;
+
+transient generic EnumMembers = void:";":Symbol Declaration* ;
+
+Node ForControl +=
+    <Enhanced> EnhancedForControl
+  / <Basic>    ...
+  ;
+
+inline generic EnhancedForControl =
+  <Enhanced> VariableModifiers Type Name void:":":Symbol Expression
+  ;
+
+generic PostfixExpression :=
+    ...
+  / <Call>     PostfixExpression void:".":Symbol TypeArguments? Name Arguments
+               @CallExpression
+  / <NewClass> PostfixExpression void:".":Symbol
+               void:"new":Word TypeArguments? TypeName Arguments ClassBody?
+               @NewClassExpression
+  ;
+
+generic CallExpression :=
+  <Expression> null TypeArguments? Name Arguments
+  ;
+
+generic NewClassExpression :=
+  <Expression> null void:"new":Word TypeArguments? TypeName Arguments ClassBody?
+  ;

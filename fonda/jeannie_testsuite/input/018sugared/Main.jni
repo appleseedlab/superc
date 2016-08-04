@@ -1,0 +1,151 @@
+import java.lang.reflect.Method;
+
+`.C{
+#define REPEAT 100 * 1000
+}
+
+class Main {
+  static void report(long start, String name) {
+    long end = System.currentTimeMillis();
+    System.err.println("sugared: time " + (end - start) + ", " + name);
+  }
+
+  public static void emptyCBlockInJava() {
+    long n = REPEAT;
+    long start = System.currentTimeMillis();
+    for (long i=0; i<n; i++)
+      `{ }
+    report(start, "emptyCBlockInJava");
+  }
+
+  public static void emptyJavaBlockInC() {
+    long start = System.currentTimeMillis();
+    `{
+      long long n = REPEAT;
+      for (long long i=0; i<n; i++)
+        `{ }
+    }
+    report(start, "emptyJavaBlockInC");
+  }
+
+  public static void constantCExpressionInJava() {
+    long n = REPEAT;
+    long start = System.currentTimeMillis();
+    long s = 0;
+    for (long i=0; i<n; i++)
+      s += `1;
+    if (n != s) System.out.println("error");
+    report(start, "constantCExpressionInJava");
+  }
+
+  public static void constantJavaExpressionInC() {
+    long start = System.currentTimeMillis();
+    `{
+      long long n = REPEAT;
+      long long s = 0;
+      for (long long i=0; i<n; i++)
+        s += `1;
+      if (n != s) printf("error\n");
+    }
+    report(start, "constantJavaExpressionInC");
+  }
+
+  public static void arrayReadSimple() {
+    int[] a = new int[1000];
+    for (int i=0; i<a.length; i++)
+      a[i] = 1;
+    long start = System.currentTimeMillis();
+    `{
+      long long n = REPEAT, s = 0;
+      for (long long i=0; i<n; i++)
+        s += `a[`((jint)(i % 1000))];
+      if (n != s) printf("error\n");
+    }
+    report(start, "arrayReadSimple");
+  }
+
+  public static void arrayReadAccess() {
+    int[] a = new int[1000];
+    for (int i=0; i<a.length; i++)
+      a[i] = 1;
+    long start = System.currentTimeMillis();
+    `{
+      long long n = REPEAT, s = 0;
+      jint* ca;
+      _with(ca = `a) {
+        for (long long i=0; i<n; i++)
+          s += ca[i % 1000];
+      }
+      if (n != s) printf("error\n");
+    }
+    report(start, "arrayReadAccess");
+  }
+
+  public static void arrayWriteSimple() {
+    int[] a = new int[1000];
+    long start = System.currentTimeMillis();
+    `{
+      long long n = REPEAT;
+      for (long long i=0; i<n; i++)
+        `(a[`((jint)(i % 1000))] = `1);
+    }
+    report(start, "arrayWriteSimple");
+    for (int i=0; i<a.length; i++)
+      if (1 != a[i]) System.out.println("error");
+  }
+
+  public static void arrayWriteAccess() {
+    int[] a = new int[1000];
+    long start = System.currentTimeMillis();
+    `{
+      long long n = REPEAT;
+      jint* ca;
+      _with(ca = `a) {
+        for (long long i=0; i<n; i++)
+          ca[i % 1000] = 1;
+      }
+    }
+    report(start, "arrayWriteAccess");
+    for (int i=0; i<a.length; i++)
+      if (1 != a[i]) System.out.println("error");
+  }
+
+  public static void exceptionJavaInCInJava() {
+    long n = REPEAT;
+    long start = System.currentTimeMillis();
+    for (int i=0; i<n; i++) {
+      try `{
+        `throw new Exception();
+        printf("should not be printed\n");
+      } catch (Exception e) {
+        /* empty handler */
+      }
+    }
+    report(start, "exceptionJavaInCInJava"); 
+  }    
+
+  public static void main(String[] args) throws Exception {
+    if (1 == args.length) {
+      final Method m = Main.class.getMethod(args[0], (Class[])null);
+      m.invoke(null, new Object[]{});
+      return;
+    }
+    emptyCBlockInJava();
+    System.gc();
+    emptyJavaBlockInC();
+    System.gc();
+    constantCExpressionInJava();
+    System.gc();
+    constantJavaExpressionInC();
+    System.gc();
+    arrayReadSimple();
+    System.gc();
+    arrayReadAccess();
+    System.gc();
+    arrayWriteSimple();
+    System.gc();
+    arrayWriteAccess();
+    System.gc();
+    exceptionJavaInCInJava();
+  }
+}

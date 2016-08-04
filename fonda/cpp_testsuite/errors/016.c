@@ -1,0 +1,2 @@
+#define m(a, ..., ...)
+after

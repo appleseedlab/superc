@@ -1,0 +1,22 @@
+%%%
+ %% Section 9.3: Field (Constant) Declarations
+ %%
+ %% @author Martin Bravenboer <martin@cs.uu.nl>
+ %%%
+module languages/java-14/interfaces/ConstantDeclarations
+imports
+  languages/java-14/lexical/Modifiers
+  languages/java-14/types/Main
+  languages/java-14/classes/MethodDeclarations
+
+exports
+  sorts
+    ConstantDec
+    ConstantMod
+
+  context-free syntax
+    ConstantMod* Type {VarDec ","}+ ";" -> ConstantDec {cons("ConstantDec")}
+
+    Public -> ConstantMod
+    Static -> ConstantMod
+    Final  -> ConstantMod

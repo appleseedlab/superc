@@ -1,0 +1,108 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2007-2008 Robert Grimm
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+/**
+ * C pattern grammar.
+ *
+ * @author Robert Grimm
+ * @version $Revision: 1.15 $
+ */
+module xtc.lang.CPattern(Core);
+
+modify Core;
+
+stateful Node Pattern =
+    <Declaration> Declaration
+  / <Function>    FunctionDefinition
+  / <Statement>   Statement
+  / <Expression>  yyValue:Expression &{ ! yyValue.hasName("NodeVariable") }
+  ;
+
+// Unmark public.
+generic TranslationUnit := ... ;
+resetting void Prelude := ... ;
+stateful Node ExternalDeclaration := ... ;
+stateful transient Node Annotations := ... ;
+
+Object StructureTag +=
+    <Pattern>    StringVariable
+  / <Identifier> ...
+  ;
+
+Object UnionTag +=
+    <Pattern>    StringVariable
+  / <Identifier> ...
+  ;
+
+generic StructureDeclaration +=
+    <Declaration> ...
+  / <ListPattern> yyValue:NodeListVariable
+  / <Pattern>     yyValue:NodeVariable
+  ;
+
+generic SimpleDeclarator +=
+    <PatternVariable> StringVariable
+  / <Declarator>      ...
+  ;
+
+Node DeclarationOrStatement +=
+    <Statement>   ...
+  / <ListPattern> v:NodeListVariable { yyValue = yyState.annotate(v); }
+  / <Pattern>     v:NodeVariable     { yyValue = yyState.annotate(v); }
+  ;
+
+generic NamedLabel +=
+    <Patterned> StringVariable void:":":Symbol AttributeSpecifierList?
+  / <Label>     ...
+  ;
+
+generic GotoStatement +=
+    <Patterned> void:"goto":Keyword null GotoLabel void:";":Symbol
+  / <Direct>    ...
+  ;
+
+generic GotoLabel = StringVariable @PrimaryIdentifier ;
+
+generic LabelAddressExpression +=
+    <Patterned>    &{ GCC } void:"&&":Symbol StringVariable
+  / <LabelAddress> ...
+  ;
+
+generic PostfixExpression +=
+    <PatternedCall>     PostfixExpression void:"(":Symbol ArgumentPattern
+                                          void:")":Symbol
+                                          @FunctionCall
+  / <PatternedDirect>   PostfixExpression void:".":Symbol StringVariable
+                                          @DirectComponentSelection
+  / <PatternedIndirect> PostfixExpression void:"->":Symbol StringVariable
+                                          @IndirectComponentSelection
+  / <FunctionCall>   ...
+  ;
+
+generic ArgumentPattern = NodeListVariable @ExpressionList ;
+
+Node PrimaryExpression +=
+    <PatternVariable> NodeVariable
+  / <Constant>        ...
+  ;
+
+generic NodeVariable   = void:'#' Word ;
+generic StringVariable = void:'#' Word ;
+
+generic NodeListVariable = void:'#' void:'[' WordCharacters void:']' Spacing ;

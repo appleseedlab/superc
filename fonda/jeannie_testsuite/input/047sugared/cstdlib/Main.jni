@@ -1,0 +1,36 @@
+package cstdlib;
+import java.io.IOException;
+`.C {
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include "../../../mangledcasts.h"
+}
+class StdIO {
+  public static native long stdOut() `{
+    return ptr2long(stdout);
+  }
+  public static native void
+  fputs(String s, long stream) throws IOException `{
+    `int len = stringUTFLength(`s);
+    `byte cs[1 + len];
+    int result;
+    copyFromJava(cs, 0, `s, 0, `s.length());
+    cs[len] = '\0';
+    result = fputs((char*)cs, (FILE*)long2ptr(`stream));
+    if (EOF == result)
+      `throw new IOException(`newJavaString(strerror(errno)));
+  }
+  public static native void
+  fflush(long stream) throws IOException `{
+    int result = fflush((FILE*)long2ptr(`stream));
+    if (EOF == result)
+      `throw new IOException(`newJavaString(strerror(errno)));
+  }
+}
+public class Main {
+  public static void main(String[] args) throws IOException {
+    StdIO.fputs("Sch\u00F6ne Gr\u00FC\u00DFe!", StdIO.stdOut());
+    StdIO.fflush(StdIO.stdOut());
+  }
+}

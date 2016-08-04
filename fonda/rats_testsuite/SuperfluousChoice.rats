@@ -1,0 +1,18 @@
+// A superfluous choice to be simplified away
+
+module SuperfluousChoice;
+
+public void Top =
+    One
+  / ( Two
+    / One )
+  / Two ;
+
+public void Top2 =
+  ( One / Two );
+
+public void Top3 =
+  ((( One / Two )));
+
+void One = "one";
+void Two = "two";

@@ -1,0 +1,19 @@
+/* call from a top-level C function with parameters to Java */
+package p.q;
+`.C{
+  void f(JNIEnv* env, char* s, int x) {
+    printf("f(\"%s\", %d) 1\n", s, x); fflush(stdout);
+    `p.q.Main.g(`((jint)x));
+    printf("f(\"%s\", %d) 2\n", s, x); fflush(stdout);
+  }
+}
+public class Main {
+  public static void g(int y) {
+    System.out.println("Main.g(" + y + ")"); System.out.flush();
+  }
+  public static void main(String[] args) {
+    System.out.println("Main.main() 1"); System.out.flush();
+    `f(env, "hello", 123);
+    System.out.println("Main.main() 2"); System.out.flush();
+  }
+}

@@ -1,0 +1,7 @@
+// A direct left-recursion in a text-only production.
+
+module TextOnlyRecursion;
+
+public String Top = Top Text / Text ;
+
+String Text = 'a'+ ;

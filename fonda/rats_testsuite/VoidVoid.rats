@@ -1,0 +1,6 @@
+// A doubly voided expression is just a voided expression (and not a
+// voided binding to void).
+
+module VoidVoid;
+
+public generic Top = void:void:"hello" ;

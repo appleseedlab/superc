@@ -1,0 +1,30 @@
+import java.io.PrintWriter;
+`.C {
+`PrintWriter badGlob;
+}
+class Main {
+  static PrintWriter goodGlob;
+  static native void setGlob(boolean beGood, PrintWriter init) `{
+    if (`beGood) `( Main.goodGlob = init );
+    else         badGlob = `init;
+  }
+  static native PrintWriter getGlob(boolean beGood) `{
+    if (`beGood) return `Main.goodGlob;
+    else         return badGlob;
+  }
+  static native void useGlob(boolean beGood, Object obj) `{
+    `.Java {
+      PrintWriter out = Main.getGlob(beGood);
+      out.println(obj);
+      out.flush();
+    }
+  }
+  public static void main(String[] args) {
+    boolean beGood = true;
+    setGlob(beGood, new PrintWriter(System.out));
+    for (int i=0; i<3; i++) {
+      useGlob(beGood, "o_" + i);
+      System.gc();
+    }
+  }
+}

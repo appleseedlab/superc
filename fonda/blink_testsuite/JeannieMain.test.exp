@@ -1,0 +1,39 @@
+#!/usr/bin/expect
+
+source blink.tcl
+
+proc test1 { args } {
+    blink_begin  "JeannieMain"
+    blink_cmd "stop at JeannieMain\$JavaEnvFor_f:14" ".*\n"
+    blink_cmd "run" "Breakpoint .*\n"
+    blink_cmd "where"  "( +\[\[\]\[0-9\]+\[\]\].+\n)+"
+    blink_cmd "list"  ".*\n" 
+    blink_cmd "print x" "=+> 1\r\n"
+    blink_cmd "print `y" "=+> 2\r\n" 
+    blink_cmd "print z" "=+> 3\r\n"
+    blink_cmd "print x + `y + z" "=+> 6\r\n"
+    blink_cmd "print x = `y + z" "=+> 5\r\n"
+    blink_end "exit"
+}
+
+
+proc cisco_issue4 { args } {
+    blink_begin  "JeannieMain"
+    blink_cmd "stop at JeannieMain\$JavaEnvFor_f:14" ".*\n"
+    blink_cmd "run" "Breakpoint .*\n"
+    blink_cmd "locals"  ".*\n" 
+    blink_end "exit"
+}
+
+proc cisco_issue5 { args } {
+    blink_begin  "JeannieMain"
+    blink_cmd "stop at JeannieMain\$JavaEnvFor_f:14" ".*\n"
+    blink_cmd "run" "Breakpoint .*\n"
+    blink_cmd "next" ".*\nStep completed: .*JeannieMain.jni:15.*\n"
+    blink_cmd "next" ".*\nStep completed: .*JeannieMain.jni:11.*\n"
+    blink_end "exit"
+}
+
+test1
+cisco_issue4
+cisco_issue5

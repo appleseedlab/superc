@@ -1,0 +1,116 @@
+********************************************************************************
+*****************************  Introduction  ***********************************
+********************************************************************************
+
+This directory contains C files that test SuperC's
+configuration-preserving preprocessor and parser and that are used for
+regression testing.  This README contains a brief description of these
+tests, how to run them, and how run tests with gcc's c_torture test
+suite and on Linux's allyesconfig.
+
+The preprocessor is tested against all configurations of the unit
+tests, i.e. the configuration variables are extracted and the SuperC's
+output is preprocessed with all combinations of configuration
+variables, the power set.  If there are more than four configuration
+variables, only one configuration is used, since the number of
+configurations grows exponentially.
+
+The parser is tested in two ways: (1) it's output ast is compared to a
+previously-generated ast held in a .ast file in the same directory as
+the .c file; (2) like the preprocessor, SuperC pretty-prints the tree
+and its output is compared to all configurations of the output to the
+preprocessed original file.
+
+The tests are separated into five directories.
+
+cpp/ tests single-configuration preprocessor behavior.
+
+preprocessor/ tests multiple-configuration preprocessing.
+
+grammar/ tests specific C grammar and the gnu89 peculiarities.
+
+parser/ tests multiple-configuration parsing.
+
+new_interactions/ test the new interactions, such as hoisting.
+
+
+********************************************************************************
+**************************  Running the Tests  *********************************
+********************************************************************************
+
+The tests are run with with the "make -C $JAVA_DEV_ROOT check-cpp"
+target in xtc's Makefile and as part of its complete regression tests
+with "make -C $JAVA_DEV_ROOT check".  Below are the commands to
+execute the regression tests for information purposes.
+
+# Put SuperC's script directory in the path.
+export PATH=$JAVA_DEV_ROOT/src/xtc/lang/cpp/scripts/:$PATH
+
+# Run preprocessor tests.
+regression.sh -a \
+  -S"-E -I cpp/include1 \
+        -I cpp/include2 \
+        -I cpp/sys" \
+  -G"   -I cpp/include1 \
+        -I cpp/include2 \
+        -I cpp/sys" \
+  cpp/*.c \
+  preprocessor/*.c \
+  new_interactions/*.c
+
+# Run parser AST tests.
+regression.sh -k .ast \
+  grammar/*.c \
+  parser/*.c
+
+# Run parser output tests.
+regression.sh -a -S-printSource \
+  grammar/*.c \
+  parser/*.c \
+  new_interactions/*.c
+
+
+********************************************************************************
+****************************  Grammar Tests  ***********************************
+********************************************************************************
+
+The grammar can also be tested on gcc's c_torture test suite included
+with xtc and by parsing the allyesconfig of the linux kernel.
+
+# C torture test.  Check that grammar parses them.
+c_torture.sh
+
+# Parse the allyesconfig version of the kernel.
+cat ../TypeChef-LinuxAnalysis/linux_files.lst | awk '{print $0".c"}' | sort | uniq > typechef_files.txt
+nohup java xtc.lang.cpp.FilenameService -server 7001 typechef_files.txt &
+nohup superc_linux.sh -P -h beaker-2 -p 7001 -s $CPPDATA/server_list.txt -L configurations/ -o linux_torture.txt
+
+# Collect the results.
+cat linux_torture.txt* | egrep "^grammar_succeeded" | wc -l
+cat linux_torture.txt* | egrep "^grammar_failed" | wc -l
+
+
+********************************************************************************
+*************************  Preprocessor Testing  *******************************
+********************************************************************************
+
+The preprocessor can be tested by preprocessing its output with the
+allyesconfig and comparing it with the allyesconfig of the linux
+kernel.
+
+# Test SuperC's preprocessor against allyesconfig.
+cat ../TypeChef-LinuxAnalysis/linux_files.lst | awk '{print $0".c"}' | sort | uniq > typechef_files.txt
+nohup java xtc.lang.cpp.FilenameService -server 7000 typechef_files.txt &
+nohup superc_linux.sh -c -S-E -h beaker-2 -p 7000 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -o preprocessor_test.txt
+
+# Collect the results.
+cat preprocessor_test.txt* | egrep "^comparison_succeeded" | wc -l
+cat preprocessor_test.txt* | egrep "^comparison_failed" | wc -l
+
+
+********************************************************************************
+*************************  TypeChef's Deficiencies  ****************************
+********************************************************************************
+
+# Checking typechef on new interactions.
+ls $(FONDA_DIR)/cpp_testsuite/new_interactions/*.c | xargs -L 1 typechef_run_file.sh -w -r -t TypeChef

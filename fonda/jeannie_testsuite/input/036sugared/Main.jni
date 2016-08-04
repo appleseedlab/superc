@@ -1,0 +1,16 @@
+/* _with non-primitive array. */
+`.C { }
+class Main {
+  public static void main(String[] args) {
+    final String[] ja = { "!\n", "world", "Hello, " };
+    `{
+      _with (jobject* ca = `ja) {
+        jobject t = ca[0];
+        ca[0] = ca[2];
+        ca[2] = t;
+      }
+    }
+    for (int i=0; i<ja.length; i++)
+      System.out.print(ja[i]);
+  }
+}

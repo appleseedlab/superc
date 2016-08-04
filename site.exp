@@ -1,0 +1,6 @@
+set srcdir [pwd]
+set bindir "bin"
+set srcdir "fonda"
+set env(DEJAGNU) "$srcdir/xtc_dejagnu.exp"
+set check_what ""
+set verbose 1

@@ -1,0 +1,62 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2011 Robert Grimm
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+/**
+ * Hierarchical syntax for Java 7.
+ *
+ * @author Robert Grimm
+ * @version $Revision: 1.2 $
+ */
+module xtc.lang.JavaSevenCore(Core);
+
+modify Core;
+
+generic TryCatchFinallyStatement :=
+    <Finally>   void:"try":Word ResourceSpecification? Block
+                CatchClause* void:"finally":Word Block
+  / <NoFinally> void:"try":Word ResourceSpecification? Block
+                CatchClause+ null
+  ;
+
+generic ResourceSpecification =
+  <Specification> void:"(":Symbol
+                    Resource ( void:";":Symbol Resource )* void:(";":Symbol)?
+                  void:")":Symbol
+  ;
+
+generic Resource =
+  <Resource> VariableModifiers Type ResourceDeclarators @FieldDeclaration
+  ;
+
+transient generic ResourceDeclarators =
+  <Declarators> ResourceDeclarator @Declarators
+  ;
+
+transient generic ResourceDeclarator =
+  <Declarator> Name null void:"=":Symbol Expression @Declarator
+  ;
+
+generic CatchClause :=
+  <Catch> void:"catch":Word void:"(":Symbol CatchParameter void:")":Symbol Block
+  ;
+
+transient generic CatchParameter =
+  VariableModifiers Type (void:"|":Symbol Type)* null Identifier null
+  @FormalParameter
+  ;

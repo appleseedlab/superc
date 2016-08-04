@@ -1,0 +1,3 @@
+static {
+  foo((Element)(bar));
+}

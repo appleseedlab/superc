@@ -1,0 +1,89 @@
+/* Test grammar for error detection. */
+/* {{ dg-checkwhat "error" }} */
+module xtc.parser.Malformed;
+
+option withLocation, blahBlahBlah, withLocation ; 
+
+public Object One   = "One" Two Three "" ;
+
+Object Two   = !( !( "Predicate within predicate" ) ) "Two" Undefined Three ;
+
+Object Three = "Three" [] [121] [\n2\n\n] [50-9] [0-95] [0-65-9] ;
+
+public Object Four = Five / ( / { yyValue = null; } Six ) ;
+Object Five = "Five" ;
+Object Six = !("Hello") &("World") &{true} Four;
+
+public Object Seven = (Eight)+ Nine;
+Object Eight = "Eight";
+Object Nine  = Seven;
+
+public Object Ten = (Eleven)* Twelve;
+Object Eleven = "Eleven" ;
+Object Twelve = (((((Ten)))));
+
+public Object Thirteen = Fourteen;
+Object Fourteen = Fifteen;
+Object Fifteen = Thirteen;
+
+public Object Sixteen = ("Sixteen")?  Sixteen;
+
+public Object Seventeen = Eighteen;
+Object Eighteen = Nineteen;
+Object Nineteen = Eighteen;
+
+public void Void = "Void" ;
+
+public Object Twenty = "Twenty" value1:Void value2:Whatever ;
+
+public Object TwentyOne = "Twenty" &{ } "One" ;
+
+public Object TwentyTwo = b1:{ ; } { ; }? { ; }* { ; }+ ;
+
+public Object TwentyThree = b1:({ ; }) ({ ; })? ({ ; })*({ ; })+ ;
+
+public Object TwentyFour = "This is one version" ;
+
+public Object TwentyFour = "This is another" ;
+
+int TwentyFive = "TwentyFour" ;
+
+transient inline void TwentySix = "TwentySix" ;
+memoized transient void TwentySeven = "TwentySeven" ;
+memoized inline void TwentyEight = "TwentyEight" ;
+
+/* {{ dg-error "unrecognized grammar-wide attribute 'blahBlahBlah'" 5 }} */
+/* {{ dg-error "duplicate attribute 'withLocation'" 5 }} */
+/* {{ dg-error "empty string literal" 7 }} */
+/* {{ dg-error "syntactic predicate within syntactic predicate" 9 }} */
+/* {{ dg-error "undefined nonterminal 'Undefined'" 9 }} */
+/* {{ dg-error "empty character class" 11 }} */
+/* {{ dg-error "duplicate character '1' in character class" 11 }} */
+/* {{ dg-error "duplicate character '.*n' in character class" 11 }} */
+/* {{ dg-error "duplicate character '.*n' in character class" 11 }} */
+/* {{ dg-error "character '5' already contained in range 0-9" 11 }} */
+/* {{ dg-error "character '5' already contained in range 0-9" 11 }} */
+/* {{ dg-error "ranges 0-6 and 5-9 overlap" 11 }} */
+/* {{ dg-error "binding for void nonterminal 'Void'" 37 }} */
+/* {{ dg-error "undefined nonterminal 'Whatever'" 37 }} */
+/* {{ dg-error "empty test for semantic predicate" 39 }} */
+/* {{ dg-error "binding for action" 41 }} */
+/* {{ dg-error "optional action" 41 }} */
+/* {{ dg-error "repeated action" 41 }} */
+/* {{ dg-error "repeated action" 41 }} */
+/* {{ dg-error "binding for action" 43 }} */
+/* {{ dg-error "optional action" 43 }} */
+/* {{ dg-error "repeated action" 43 }} */
+/* {{ dg-error "repeated action" 43 }} */
+/* {{ dg-error "duplicate definition for nonterminal 'TwentyFour'" 47 }} */
+/* {{ dg-error "inline attribute subsumes transient attribute" 51 }} */
+/* {{ dg-error "memozied attribute contradicts transient attribute" 52 }} */
+/* {{ dg-error "memoized attribute contradicts inline attribute" 53 }} */
+/* {{ dg-error "Java primitive type for production 'TwentyFive'" 49 }} */
+/* {{ dg-error "left-recursive definition for nonterminal 'Four'" 13 }} */
+/* {{ dg-error "left-recursive definition for nonterminal 'Ten'" 21 }} */
+/* {{ dg-error "left-recursive definition for nonterminal 'Thirteen'" 25 }} */
+/* {{ dg-error "left-recursive definition for nonterminal 'Sixteen'" 29 }} */
+/* {{ dg-error "left-recursive definition for nonterminal 'Eighteen'" 32 }} */
+/* {{ dg-error "unreachable alternative" 13 }} */
+

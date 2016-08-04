@@ -1,0 +1,20 @@
+`.C{
+#include <stdio.h>
+}
+class Main {
+  static native int f(int[] ja) `{
+    _with(jint *ca = `ja) {
+      for (jint i = 0, n = `ja.length; i < n; i++)
+        if (0 == ca[i])
+          return i;
+      printf("not found\n");
+      _cancel ca;
+    }
+    return (jint)-1;
+  }
+  public static void main(String[] args) {
+    int[] a = { 3, 1, 0, 4 };
+    int i = f(a);
+    System.out.println("result " + i);
+  }
+}

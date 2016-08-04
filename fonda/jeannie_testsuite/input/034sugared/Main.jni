@@ -1,0 +1,36 @@
+/* Unicode sub-string length. */
+import java.io.UnsupportedEncodingException;
+
+`.C { }
+
+class Main {
+  static native int substringUtf8LengthNative(
+    final String s, final int start, final int length
+  ) `{
+    return stringUTFLength(`s, `start, `length);
+  }
+
+  static int utf8LengthJava(final String s) {
+    try {
+      final byte[] utf8 = s.getBytes("UTF-8");
+      return utf8.length;
+    } catch (final UnsupportedEncodingException e) {
+      System.err.println(e);
+    }
+    throw new Error();
+  }
+
+  public static void main(String[] args) {
+    final String s = "Sch\u00F6ne Gr\u00FC\u00DFe!";
+    for (int start=0; start<s.length(); start++) {
+      for (int length=1; length<=s.length()-start; length++) {
+        final String sub = s.substring(start, start + length);
+        final int jl = utf8LengthJava(sub);
+        final int nl = substringUtf8LengthNative(s, start, length);
+        if (jl != nl)
+          System.out.print("mistake: ");
+        System.out.println("|" + sub + "| ==n " + nl + " ==j " + jl);
+      }
+    }
+  }
+}

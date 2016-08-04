@@ -1,0 +1,18 @@
+/* C compound initializer in local variable declaration */
+`.C {
+#include <stdio.h>
+
+struct s {
+  int a[3];
+  int b;
+};
+}
+
+class Main {
+  public static void main(String[] args) {
+    `.C {
+      struct s x = { .a = { 1, 2, 3}, .b = 4 };
+      printf("%d %d %d %d\n", x.a[0], x.a[1], x.a[2], x.b);
+    }
+  }
+}

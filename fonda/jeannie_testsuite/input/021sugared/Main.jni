@@ -1,0 +1,21 @@
+`.C{
+#include <stdlib.h>
+}
+class Main {
+  static native void foo(int[] ja) `{
+    `int* ca = (`int*)malloc(4 * sizeof(`int));
+    _copyFromJava(ca, 0, `ja, 2, 4);
+    for (int i=0; i<4; i++)
+      ca[i]++;
+    _copyToJava(`ja, 2, ca, 0, 4);
+    free(ca);
+  }
+  public static void main(String[] args) {
+    int[] a = { 3, 1, 4, 2, 4, 1, 7, 9 };
+    foo(a);
+    System.out.print("expected 5 3 4 2, got");
+    for (int i=0; i<a.length; i++)
+      System.out.print(" " + a[i]);
+    System.out.println();
+  }
+}

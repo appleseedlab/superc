@@ -1,0 +1,75 @@
+# Makerules
+#***************************************************************************
+#
+# Java Project Makefile common rules
+#
+# (C) 1999 Jacob Dreyer - Geotechnical Software Services
+# jacob.dreyer@geosoft.no - http://geosoft.no
+#
+# Modifications Copyright (C) 2001-2007 Robert Grimm 
+# rgrimm@alum.mit.edu
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#
+#***************************************************************************
+
+ifdef JAVA_DEV_ROOT
+include $(JAVA_DEV_ROOT)/Makebase
+endif
+
+#***************************************************************************
+#
+# Rules and dependencies.
+#
+#***************************************************************************
+
+PACKAGE_DIR     = $(CLASS_DIR)/$(PACKAGE_LOC)
+CLASS_FILES     = $(SOURCE:%.java=$(PACKAGE_DIR)/%.class)
+JNI_CLASS_FILES = $(JNI_SOURCE:%.java=$(PACKAGE_DIR)/%.class)
+JNI_HEADERS     = $(JNI_SOURCE:%.java=%.h)
+ALL_CLASS_FILES = $(CLASS_FILES)
+JARFILE         = $(PACKAGE_DIR).jar
+
+.PHONY : classes parsers analyzers factories jar jni clean all
+
+$(PACKAGE_DIR)/%.class : %.java
+	$(JAVAC) $(JAVAC_OPTIONS) $< 
+
+%.class : %.java
+	$(MAKE) $(PACKAGE_DIR)/$@
+
+$(SOURCE_DIR)/$(PACKAGE_LOC)/%.h : $(PACKAGE_DIR)/%.class
+	$(JAVAH) $(JAVAH_OPTIONS) $(PACKAGE).$*
+
+%.h : %.class
+	$(MAKE) $(SOURCE_DIR)/$(PACKAGE_LOC)/$@
+
+classes: $(CLASS_FILES)
+
+parsers:
+
+analyzers:
+
+factories:
+
+$(JARFILE) : $(ALL_CLASS_FILES)
+	$(JAR) cvf $(JARFILE) $(ALL_CLASS_FILES) $(JAR_EXTRAS)
+
+jni       : $(JNI_CLASS_FILES) $(JNI_HEADERS)
+
+clean     :
+	$(RM) $(ALL_CLASS_FILES) $(JARFILE) $(JNI_HEADERS)
+
+all       : classes jni rmi

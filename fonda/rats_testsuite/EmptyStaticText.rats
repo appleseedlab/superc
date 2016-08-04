@@ -1,0 +1,5 @@
+// Even an empty sequence needs a value.
+
+module EmptyStaticText;
+
+public String Top = "foo" / ;

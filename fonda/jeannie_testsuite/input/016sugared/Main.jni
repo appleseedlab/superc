@@ -1,0 +1,19 @@
+/* running example motivating environments, OOPSLA'07 paper, Figure 5, 11 */
+`.C{ 
+#include <stdio.h>
+}
+class Main {
+  static native void f(int x) `{
+    jint y = 0;
+    `{
+      int z = 0;
+      z = 1 + `((jint)(y = 1 + `(x = 1)));
+      System.out.println(x);
+      System.out.println(z);
+    }
+    printf("%d\n", (int)y);
+  }
+  public static void main(String[] args) {
+    f(0);
+  }
+}

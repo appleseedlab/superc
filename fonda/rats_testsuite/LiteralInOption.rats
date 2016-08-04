@@ -1,0 +1,6 @@
+// A literal (or any other similar element) in an option needs to be
+// wrapped in a sequence.
+
+module LiteralInOption;
+
+public void Top = "foo"? ;

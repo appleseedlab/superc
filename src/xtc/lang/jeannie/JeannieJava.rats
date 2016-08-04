@@ -1,0 +1,45 @@
+/* (C) Copyright IBM Corp 2005-2008. */
+
+/**
+ * Supports Jeannie.rats, embedding C into Java.
+ */
+module xtc.lang.jeannie.JeannieJava(JavaCore, JeannieC);
+
+modify JavaCore;
+import JeannieC;
+
+// backtick ----------------------------------------------------------
+void CInJava = QualifiedCInJava / void:"`":Symbol;
+void QualifiedCInJava = void:"`":Symbol void:".":Symbol void:"C" Spacing;
+
+// block -------------------------------------------------------------
+generic Block :=
+    <JavaBlock> yyValue:JavaInJavaBlock
+  / <CBlock>    yyValue:CInJavaBlock;
+
+generic JavaInJavaBlock =
+  void:"{":Symbol xtc.lang.jeannie.JeannieJava.DeclarationOrStatement*
+  void:"}":Symbol;
+
+private generic CInJavaBlock = CInJava JeannieC.CInCBlock;
+
+// expression --------------------------------------------------------
+Node UnaryExpressionNotPlusMinus +=
+  <CInJavaExpression> CInJavaExpression / <LogicalNot> ...;
+
+private generic CInJavaExpression = CInJava JeannieC.UnaryExpression;
+
+// file --------------------------------------------------------------
+generic CompilationUnit :=
+  JeannieC.Prelude PackageDeclaration? JavaImports CDeclarations
+  ClassOrInterfaceDeclaration* void:'\u001a'? EndOfFile;
+
+private generic JavaImports = ImportDeclaration*;
+
+private stateful generic ClassOrInterfaceDeclaration =
+    yyValue:xtc.lang.jeannie.JeannieJava.ClassDeclaration
+  / yyValue:xtc.lang.jeannie.JeannieJava.InterfaceDeclaration;
+
+generic CDeclarations =
+  CInJava void:"{":Symbol JeannieC.ExternalDeclaration* JeannieC.Annotations
+  void:"}":Symbol;

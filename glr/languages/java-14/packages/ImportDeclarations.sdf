@@ -1,0 +1,17 @@
+%%%
+ %% Section 7.5: Import Declarations
+ %%
+ %% @author  Martin Bravenboer <martin@cs.uu.nl>
+ %%%
+module languages/java-14/packages/ImportDeclarations
+imports
+  languages/java-14/lexical/Identifiers
+  languages/java-14/names/Main
+
+exports
+  sorts
+    ImportDec
+
+  context-free syntax
+    "import" TypeName                  ";"  -> ImportDec {cons("TypeImportDec")}
+    "import" PackageName       "." "*" ";"  -> ImportDec {cons("TypeImportOnDemandDec")}

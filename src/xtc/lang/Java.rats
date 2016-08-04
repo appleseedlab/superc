@@ -1,0 +1,40 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2004-2006 Robert Grimm, New York University
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+/**
+ * Java grammar with AST support.
+ *
+ * @author Robert Grimm
+ * @author Stacey Kuznetsov
+ * @version $Revision: 1.13 $
+ */
+module xtc.lang.Java;
+
+instantiate xtc.lang.JavaType(xtc.lang.JavaIdentifier, xtc.lang.JavaSymbol);
+instantiate xtc.lang.JavaConstant(xtc.lang.JavaIdentifier, xtc.util.Spacing);
+instantiate xtc.lang.JavaIdentifier(xtc.lang.JavaSymbol, xtc.util.Spacing);
+instantiate xtc.util.Symbol(xtc.util.Spacing);
+instantiate xtc.lang.JavaSymbol(xtc.util.Symbol);
+instantiate xtc.util.Spacing;
+
+modify xtc.lang.JavaCore(xtc.lang.JavaType, xtc.lang.JavaConstant,
+                         xtc.lang.JavaIdentifier, xtc.lang.JavaSymbol,
+                         xtc.util.Spacing);
+
+option withLocation, constant, flatten;

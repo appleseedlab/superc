@@ -1,0 +1,9 @@
+*.aux
+*.log
+*.out
+*.toc
+*.pdf
+c.y
+.c.y
+CContext.java
+.CContext.java

@@ -1,0 +1,9 @@
+%%%
+ %% Chapter 9: Interfaces
+ %%
+ %% @author Martin Bravenboer <martin@cs.uu.nl>
+ %%%
+module languages/java-14/interfaces/Main
+imports
+  languages/java-14/interfaces/InterfaceDeclarations
+  languages/java-14/interfaces/AbstractMethodDeclarations

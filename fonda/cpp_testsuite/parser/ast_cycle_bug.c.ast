@@ -1,0 +1,251 @@
+#superc_args -printAST
+TranslationUnit(
+  ExternalDeclarationList(
+    Conditional(
+      1,
+      FunctionDefinition(
+        FunctionPrototype(
+          xtc.lang.cpp.Syntax$Language(
+            "int"
+          ),
+          FunctionDeclarator(
+            SimpleDeclarator(
+              xtc.lang.cpp.Syntax$Text(
+                "f"
+              )
+            ),
+            ParameterTypeListOpt()
+          )
+        ),
+        Conditional(
+          !TOP,
+          CompoundStatement(
+            LocalLabelDeclarationListOpt(),
+            DeclarationOrStatementList(
+              Conditional(
+                TOP,
+                SelectionStatement(
+                  Conditional(
+                    TOP && !(defined D),
+                    Conditional(
+                      TOP && !(defined A) && !(defined D),
+                      xtc.lang.cpp.Syntax$Language(
+                        "if"
+                      ),
+                      TOP && (defined A) && !(defined D),
+                      xtc.lang.cpp.Syntax$Language(
+                        "if"
+                      )
+                    ),
+                    TOP && (defined D),
+                    Conditional(
+                      TOP && (defined A) && (defined D),
+                      xtc.lang.cpp.Syntax$Language(
+                        "if"
+                      ),
+                      TOP && !(defined A) && (defined D),
+                      xtc.lang.cpp.Syntax$Language(
+                        "if"
+                      )
+                    )
+                  ),
+                  Conditional(
+                    TOP && !(defined D),
+                    Conditional(
+                      TOP && !(defined A) && !(defined D),
+                      Conditional(
+                        TOP && !(defined A) && (defined B),
+                        PrimaryIdentifier(
+                          xtc.lang.cpp.Syntax$Text(
+                            "b"
+                          )
+                        ),
+                        TOP && !(defined A) && !(defined B),
+                        PrimaryIdentifier(
+                          xtc.lang.cpp.Syntax$Text(
+                            "c"
+                          )
+                        )
+                      ),
+                      TOP && (defined A) && !(defined D),
+                      PrimaryIdentifier(
+                        xtc.lang.cpp.Syntax$Text(
+                          "a"
+                        )
+                      )
+                    ),
+                    TOP && (defined D),
+                    Conditional(
+                      TOP && (defined A) && (defined D),
+                      PrimaryIdentifier(
+                        xtc.lang.cpp.Syntax$Text(
+                          "a"
+                        )
+                      ),
+                      TOP && !(defined A) && (defined D),
+                      Conditional(
+                        TOP && !(defined A) && (defined B),
+                        PrimaryIdentifier(
+                          xtc.lang.cpp.Syntax$Text(
+                            "b"
+                          )
+                        ),
+                        TOP && !(defined A) && !(defined B),
+                        PrimaryIdentifier(
+                          xtc.lang.cpp.Syntax$Text(
+                            "c"
+                          )
+                        )
+                      )
+                    )
+                  ),
+                  ExpressionStatement(
+                    Conditional(
+                      TOP && !(defined D),
+                      Conditional(
+                        TOP && !(defined A) && !(defined D),
+                        ExpressionOpt(),
+                        TOP && (defined A) && !(defined D),
+                        ExpressionOpt()
+                      ),
+                      TOP && (defined D),
+                      FunctionCall(
+                        Conditional(
+                          TOP && (defined A) && (defined D),
+                          PrimaryIdentifier(
+                            xtc.lang.cpp.Syntax$Text(
+                              "d"
+                            )
+                          ),
+                          TOP && !(defined A) && (defined D),
+                          PrimaryIdentifier(
+                            xtc.lang.cpp.Syntax$Text(
+                              "d"
+                            )
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          TOP,
+          CompoundStatement(
+            LocalLabelDeclarationListOpt(),
+            DeclarationOrStatementList(
+              Conditional(
+                TOP,
+                SelectionStatement(
+                  Conditional(
+                    TOP && !(defined D),
+                    Conditional(
+                      TOP && !(defined A) && !(defined D),
+                      xtc.lang.cpp.Syntax$Language(
+                        "if"
+                      ),
+                      TOP && (defined A) && !(defined D),
+                      xtc.lang.cpp.Syntax$Language(
+                        "if"
+                      )
+                    ),
+                    TOP && (defined D),
+                    Conditional(
+                      TOP && (defined A) && (defined D),
+                      xtc.lang.cpp.Syntax$Language(
+                        "if"
+                      ),
+                      TOP && !(defined A) && (defined D),
+                      xtc.lang.cpp.Syntax$Language(
+                        "if"
+                      )
+                    )
+                  ),
+                  Conditional(
+                    TOP && !(defined D),
+                    Conditional(
+                      TOP && !(defined A) && !(defined D),
+                      Conditional(
+                        TOP && !(defined A) && (defined B),
+                        PrimaryIdentifier(
+                          xtc.lang.cpp.Syntax$Text(
+                            "b"
+                          )
+                        ),
+                        TOP && !(defined A) && !(defined B),
+                        PrimaryIdentifier(
+                          xtc.lang.cpp.Syntax$Text(
+                            "c"
+                          )
+                        )
+                      ),
+                      TOP && (defined A) && !(defined D),
+                      PrimaryIdentifier(
+                        xtc.lang.cpp.Syntax$Text(
+                          "a"
+                        )
+                      )
+                    ),
+                    TOP && (defined D),
+                    Conditional(
+                      TOP && (defined A) && (defined D),
+                      PrimaryIdentifier(
+                        xtc.lang.cpp.Syntax$Text(
+                          "a"
+                        )
+                      ),
+                      TOP && !(defined A) && (defined D),
+                      Conditional(
+                        TOP && !(defined A) && (defined B),
+                        PrimaryIdentifier(
+                          xtc.lang.cpp.Syntax$Text(
+                            "b"
+                          )
+                        ),
+                        TOP && !(defined A) && !(defined B),
+                        PrimaryIdentifier(
+                          xtc.lang.cpp.Syntax$Text(
+                            "c"
+                          )
+                        )
+                      )
+                    )
+                  ),
+                  ExpressionStatement(
+                    Conditional(
+                      TOP && !(defined D),
+                      Conditional(
+                        TOP && !(defined A) && !(defined D),
+                        ExpressionOpt(),
+                        TOP && (defined A) && !(defined D),
+                        ExpressionOpt()
+                      ),
+                      TOP && (defined D),
+                      FunctionCall(
+                        Conditional(
+                          TOP && (defined A) && (defined D),
+                          PrimaryIdentifier(
+                            xtc.lang.cpp.Syntax$Text(
+                              "d"
+                            )
+                          ),
+                          TOP && !(defined A) && (defined D),
+                          PrimaryIdentifier(
+                            xtc.lang.cpp.Syntax$Text(
+                              "d"
+                            )
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)

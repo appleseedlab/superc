@@ -1,0 +1,75 @@
+
+import xtc.Constants;
+import xtc.Limits;
+
+import xtc.lang.cpp.CContext.SymbolTable.STField;
+
+import xtc.tree.Attribute;
+import xtc.tree.GNode;
+import xtc.tree.Location;
+import xtc.tree.Node;
+import xtc.tree.Visitor;
+
+import xtc.util.Pair;
+
+import xtc.lang.cpp.Syntax.Kind;
+import xtc.lang.cpp.Syntax.LanguageTag;
+import xtc.lang.cpp.Syntax.ConditionalTag;
+import xtc.lang.cpp.Syntax.DirectiveTag;
+import xtc.lang.cpp.Syntax.Layout;
+import xtc.lang.cpp.Syntax.Language;
+import xtc.lang.cpp.Syntax.Text;
+import xtc.lang.cpp.Syntax.Directive;
+import xtc.lang.cpp.Syntax.Conditional;
+import xtc.lang.cpp.Syntax.Error;
+
+import xtc.type.AliasT;
+import xtc.type.ArrayT;
+import xtc.type.BooleanT;
+import xtc.type.C;
+import xtc.type.CastReference;
+import xtc.type.Constant;
+import xtc.type.DynamicReference;
+import xtc.type.EnumT;
+import xtc.type.EnumeratorT;
+import xtc.type.ErrorT;
+import xtc.type.FieldReference;
+import xtc.type.FunctionT;
+import xtc.type.InternalT;
+import xtc.type.LabelT;
+import xtc.type.NullReference;
+import xtc.type.NumberT;
+import xtc.type.PointerT;
+import xtc.type.Reference;
+import xtc.type.StaticReference;
+import xtc.type.StringReference;
+import xtc.type.StructOrUnionT;
+import xtc.type.StructT;
+import xtc.type.Tagged;
+import xtc.type.Type;
+import xtc.type.Type.Tag;
+import xtc.type.UnionT;
+import xtc.type.VariableT;
+import xtc.type.VoidT;
+
+import xtc.util.SymbolTable;
+import xtc.util.SymbolTable.Scope;
+import xtc.util.SingletonIterator;
+import xtc.util.Utilities;
+
+import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
+
+import xtc.lang.cpp.ForkMergeParser.StackFrame;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.sat4j.core.VecInt;
+import org.sat4j.minisat.SolverFactory;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.IProblem;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.TimeoutException;
+import org.sat4j.tools.ModelIterator;
+

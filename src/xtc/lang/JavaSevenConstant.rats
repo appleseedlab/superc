@@ -1,0 +1,73 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2011 Robert Grimm
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+/**
+ * Definition of Java 7 constants.
+ *
+ * @author Robert Grimm
+ * @version $Revision: 1.3 $
+ */
+module xtc.lang.JavaSevenConstant(Constant);
+
+modify Constant;
+
+generic IntegerLiteral +=
+    <Hex>    ...
+  / <Binary> BinaryLiteral
+  ;
+
+String HexDigits :=
+    HexDigit (HexDigitUnderscore &HexDigitUnderscore)* HexDigit
+  / HexDigit
+  ;
+
+transient String HexDigitUnderscore = [0-9a-fA-F_] ;
+
+transient String BinaryLiteral = BinaryNumeral IntegerTypeSuffix? ;
+transient String BinaryNumeral = '0' [bB] BinaryDigits ;
+
+transient String BinaryDigits =
+    BinaryDigit (BinaryDigitUnderscore & BinaryDigitUnderscore)* BinaryDigit
+  / BinaryDigit
+  ;
+
+transient String BinaryDigit           = [01]  ;
+transient String BinaryDigitUnderscore = [01_] ;
+
+String OctalNumeral := '0' OctalDigits / '0' [_]+ OctalDigits ;
+
+String OctalDigits :=
+    OctalDigit (OctalDigitUnderscore &OctalDigitUnderscore)* OctalDigit
+  / OctalDigit
+  ;
+
+transient String OctalDigitUnderscore = [0-7_] ;
+
+String DecimalNumeral :=
+    '0'
+  / NonZeroDigit [_]+ Digits
+  / NonZeroDigit Digits?
+  ;
+
+String Digits :=
+    Digit (DigitUnderscore &DigitUnderscore)* Digit
+  / Digit
+  ;
+
+transient String DigitUnderscore = [0-9_] ;

@@ -1,0 +1,6 @@
+// Choices inside repetitions need not be lifted in text-only productions,
+// unless the repetition is bound.
+
+module ChoiceInRepetition6;
+
+public memoized String Top = ( "foo" / "bar" )* ;

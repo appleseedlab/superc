@@ -1,0 +1,135 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2005, 2008 Robert Grimm
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+/**
+ * Definition of C constants.
+ *
+ * @author Robert Grimm
+ * @version $Revision: 1.9 $
+ */
+module xtc.lang.CConstant(Spacing);
+
+import Spacing;
+
+Node Constant =
+    FloatingConstant      Spacing
+  / IntegerConstant       Spacing
+  / CharacterConstant
+  / StringConstant
+  ;
+
+// --------------------------------------------------------- Integer constants
+
+generic IntegerConstant =
+    <Hex>     HexConstant
+  / <Octal>   OctalConstant
+  / <Decimal> DecimalConstant
+  ;
+
+transient String DecimalConstant = NonZeroDigit Digit* IntegerSuffix? ;
+transient String NonZeroDigit    = [1-9] ;
+transient String Digit           = [0-9] ;
+
+transient String HexConstant     = HexPrefix HexDigit+ IntegerSuffix? ;
+transient String HexPrefix       = '0' [xX] ;
+transient String HexDigit        = [0-9a-fA-F] ;
+
+transient String OctalConstant   = '0' OctalDigit* IntegerSuffix? ;
+transient String OctalDigit      = [0-7] ;
+
+transient String IntegerSuffix =
+    LongLongSuffix UnsignedSuffix
+  / LongLongSuffix
+  / LongSuffix     UnsignedSuffix
+  / LongSuffix
+  / UnsignedSuffix LongLongSuffix
+  / UnsignedSuffix LongSuffix
+  / UnsignedSuffix
+  ;
+
+transient String LongSuffix     = [lL] ;
+transient String LongLongSuffix = "ll" / "LL" ;
+transient String UnsignedSuffix = [uU] ;
+
+// -------------------------------------------------------- Floating constants
+
+generic FloatingConstant =
+    <Decimal> DecimalFloatingConstant
+  / <Hex>     HexFloatingConstant
+  ;
+
+String DecimalFloatingConstant =
+    Digit+ '.' Digit* Exponent? FloatingSuffix?
+  /        '.' Digit+ Exponent? FloatingSuffix?
+  / Digit+            Exponent  FloatingSuffix?
+  ;
+
+String HexFloatingConstant =
+    HexPrefix HexDigit+ '.' HexDigit* BinaryExponent FloatingSuffix?
+  / HexPrefix           '.' HexDigit+ BinaryExponent FloatingSuffix?
+  / HexPrefix HexDigit+               BinaryExponent FloatingSuffix?
+  ;
+
+String Exponent                 = [eE] [+\-]? Digit+ ;
+String BinaryExponent           = [pP] [+\-]? Digit+ ;
+transient String FloatingSuffix = [fFlL] ;
+
+// -------------------------------------------- Character and string constants
+
+generic CharacterConstant =
+  WideCharacterLiteral Spacing / CharacterLiteral Spacing
+  ;
+
+String WideCharacterLiteral   = [L] CharacterLiteral ;
+String CharacterLiteral       = ['] CharacterContents ['] ;
+String CharacterContents      = ( EscapeCharacter / !['\\\n\r] _ )+ ;
+
+generic StringConstant =
+  (WideStringLiteral Spacing / StringLiteral Spacing)+
+  ;
+
+String WideStringLiteral = [L] StringLiteral ;
+String StringLiteral     = ["] StringContents ["] ;
+String StringContents    = ( EscapeCharacter / !["\\\n\r] _ )* ;
+
+transient String EscapeCharacter =
+  '\\' EscapeCode
+  / UniversalCharacterName
+  ;
+
+transient String EscapeCode =
+  CharacterEscapeCode / OctalEscapeCode / HexEscapeCode ;
+
+transient String CharacterEscapeCode = [ntbrfv\\'"a?] ;
+
+transient String OctalEscapeCode =
+  OctalDigit OctalDigit OctalDigit
+  / OctalDigit OctalDigit
+  / OctalDigit
+  ;
+
+transient String HexEscapeCode = 'x' HexDigit+ ;
+
+transient String HexQuad =
+  HexDigit HexDigit HexDigit HexDigit ;
+
+transient String UniversalCharacterName =
+  "\\u" HexQuad
+  / "\\U" HexQuad HexQuad
+  ;

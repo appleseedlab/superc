@@ -1,0 +1,17 @@
+module NodeMarker;
+
+public generic Foo =
+    Bar1
+  / @Bar Bar2 ( Bar1 Bar2
+              / Bar2 Bar1
+              / Bar3 @Taz)
+  ;
+
+generic Bar1 =
+    Bar1 Bar2 @One
+  / Bar1 Bar3 @Two
+  / Bar3
+  ;
+
+generic Bar2 = "bar" ;
+generic Bar3 = "bar" ;

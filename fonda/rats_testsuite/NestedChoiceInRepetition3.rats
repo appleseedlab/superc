@@ -1,0 +1,5 @@
+// A nested choice in a repetition causes the entire sequence to be lifted.
+
+module NestedChoiceInRepetition3;
+
+public Object Top = (void:"foo" ("bar"/"car"))+ ;

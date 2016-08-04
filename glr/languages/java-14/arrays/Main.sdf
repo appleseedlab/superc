@@ -1,0 +1,8 @@
+%%%
+ %% Chapter 10: Arrays
+ %%
+ %% @author Martin Bravenboer <martin@cs.uu.nl>
+ %%%
+module languages/java-14/arrays/Main
+imports
+  languages/java-14/arrays/ArrayInitializers

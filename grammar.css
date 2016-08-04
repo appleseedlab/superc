@@ -1,0 +1,37 @@
+.module-documentation {
+  padding: 0.4em;
+  background-color: #aaddff;
+}
+
+.production-documentation {
+  padding: 0.4em;
+  background-color: #aaddff;
+}
+
+.highlight {
+  background-color: #ffff66;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:link {
+  color: #0000ff;
+}
+
+a:visited {
+  color: #0000ff;
+}
+
+a:link.erroneous {
+  color: #ff0000;
+}
+
+a:visited.erroneous {
+  color: #ff0000;
+}
+
+a:hover {
+  text-decoration: underline;
+}

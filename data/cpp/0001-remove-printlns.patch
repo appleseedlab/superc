@@ -1,0 +1,80 @@
+From 10c6c326c765942455bd33894460f66f149d2b15 Mon Sep 17 00:00:00 2001
+From: Paul <gazzillo@cs.nyu.edu>
+Date: Tue, 28 Feb 2012 10:00:15 -0500
+Subject: [PATCH] remove printlns
+
+---
+ .../src/main/scala/de/fosd/typechef/Frontend.scala |    2 +-
+ .../typechef/FrontendOptionsWithConfigFiles.scala  |    6 +++---
+ .../fosd/typechef/lexer/PreprocessorListener.java  |   10 +++++-----
+ 3 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/Frontend/src/main/scala/de/fosd/typechef/Frontend.scala b/Frontend/src/main/scala/de/fosd/typechef/Frontend.scala
+index 4d2ed66..3beba19 100644
+--- a/Frontend/src/main/scala/de/fosd/typechef/Frontend.scala
++++ b/Frontend/src/main/scala/de/fosd/typechef/Frontend.scala
+@@ -61,7 +61,7 @@ object Frontend {
+         var t4 = t2;
+         var t5 = t2;
+         if (opt.parse) {
+-            println("parsing.")
++            // println("parsing.")
+             val in = CLexer.prepareTokens(tokens)
+             val parserMain = new ParserMain(new CParser(fm))
+             val ast = parserMain.parserMain(in, opt.parserStatistics)
+diff --git a/Frontend/src/main/scala/de/fosd/typechef/FrontendOptionsWithConfigFiles.scala b/Frontend/src/main/scala/de/fosd/typechef/FrontendOptionsWithConfigFiles.scala
+index a11eaca..6dba47a 100644
+--- a/Frontend/src/main/scala/de/fosd/typechef/FrontendOptionsWithConfigFiles.scala
++++ b/Frontend/src/main/scala/de/fosd/typechef/FrontendOptionsWithConfigFiles.scala
+@@ -40,10 +40,10 @@ class FrontendOptionsWithConfigFiles extends FrontendOptions {
+     def loadSettings(configPath: String) = {
+         settings.load(new FileInputStream(configPath))
+         preIncludeDirs = loadPropList("preIncludes") ++ preIncludeDirs
+-        println("preIncludes: " + preIncludeDirs)
+-        println("systemIncludes: " + systemIncludes)
++        // println("preIncludes: " + preIncludeDirs)
++        // println("systemIncludes: " + systemIncludes)
+         postIncludeDirs = postIncludeDirs ++ loadPropList("postIncludes")
+-        println("postIncludes: " + postIncludeDirs)
++        // println("postIncludes: " + postIncludeDirs)
+     }
+ 
+     override def parseOptions(args: Array[String]) = {
+diff --git a/PartialPreprocessor/src/main/scala/de/fosd/typechef/lexer/PreprocessorListener.java b/PartialPreprocessor/src/main/scala/de/fosd/typechef/lexer/PreprocessorListener.java
+index ea39689..95a1fd2 100644
+--- a/PartialPreprocessor/src/main/scala/de/fosd/typechef/lexer/PreprocessorListener.java
++++ b/PartialPreprocessor/src/main/scala/de/fosd/typechef/lexer/PreprocessorListener.java
+@@ -60,7 +60,7 @@ public class PreprocessorListener {
+ 
+     protected void print(String msg, Level level) {
+         Preprocessor.logger.log(level, msg);
+-        System.err.println(msg);
++        // System.err.println(msg);
+     }
+ 
+     /**
+@@ -72,8 +72,8 @@ public class PreprocessorListener {
+     public void handleWarning(Source source, int line, int column, String msg)
+             throws LexerException {
+         warnings++;
+-        print(source.getName() + ":" + line + ":" + column + ": warning: "
+-                + msg, Level.WARNING);
++        // print(source.getName() + ":" + line + ":" + column + ": warning: "
++        //         + msg, Level.WARNING);
+     }
+ 
+     /**
+@@ -87,8 +87,8 @@ public class PreprocessorListener {
+     public void handleError(Source source, int line, int column, String msg,
+                             FeatureExpr featureExpr) throws LexerException {
+         errors++;
+-        print(source.getName() + ":" + line + ":" + column + ": error: " + msg
+-                + "; condition: " + featureExpr, Level.SEVERE);
++        // print(source.getName() + ":" + line + ":" + column + ": error: " + msg
++        //         + "; condition: " + featureExpr, Level.SEVERE);
+         pp.debugPreprocessorDone();
+         throw new LexerException(msg);
+     }
+-- 
+1.7.1
+

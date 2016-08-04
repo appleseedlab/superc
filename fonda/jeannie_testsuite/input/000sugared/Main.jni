@@ -1,0 +1,10 @@
+/* JNI hello-world. */
+`.C{ }
+class Main {
+  static native void sayHi() `{
+    printf("Hello world!\n");
+  }
+  public static void main(String []args) {
+    sayHi();
+  }
+}

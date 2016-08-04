@@ -1,0 +1,4 @@
+module xtc.lang.blink.CommandJava(Command, JeannieJava);
+modify JeannieJava;
+import Command;
+Node PrimaryExpression += <Meta> Command.MetaVariable / <Literal> ...;

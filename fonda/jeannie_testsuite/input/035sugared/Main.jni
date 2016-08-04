@@ -1,0 +1,15 @@
+/* Return value of _copyFromJava. */
+`.C { }
+class Main {
+  public static void main(String[] args) {
+    final String s = "Sch\u00F6ne Gr\u00FC\u00DFe!";
+    `{
+      `byte b[100];
+      `char j[100];
+      int lb = copyFromJava(b, 0, `s, 3, 8);
+      b[lb] = '\0';
+      int lc = copyFromJava(j, 0, `s, 3, 8);
+      printf("|%s| == %d bytes == %d chars\n", b, lb, lc);
+    }
+  }
+}

@@ -1,0 +1,84 @@
+--- ForkMergeParser.java	2012-03-13 16:24:35.937637252 -0400
++++ ForkMergeParserPatched.java	2012-03-13 17:32:49.367622580 -0400
+@@ -739,6 +739,12 @@ public class ForkMergeParser {
+                 subparser.lookahead.clearAction();
+               }
+ 
++              if (subparser.lookahead.token.syntax.kind() == Kind.CONDITIONAL
++                  && subparser.lookahead.token.syntax.toConditional().tag()
++                  == ConditionalTag.START) {
++                subparser.stack.conditionalAfter = true;
++              }
++
+               // We no longer know what the next parsing action is.
+               // The next token could be either an ordinary token or a
+               // conditional.  The action can be used for subparser
+@@ -2578,12 +2584,24 @@ public class ForkMergeParser {
+       runtime.errConsole().pln("reducing " + nodeName).flush();
+     }
+ 
++    boolean conditionalAfter = false;
++    boolean conditionalInside = false;
++
++
+     // Get the semantic values from the stack.
+ 
+     StackFrame topState = subparser.stack;
+     Pair<Object> values = Pair.<Object>empty();
+   
+     for (int i = 0; i < yylen; i++) {
++      if (0 == i) {
++        conditionalAfter
++          = topState.conditionalAfter || topState.conditionalInside;
++      } else {
++        conditionalInside = conditionalInside
++          || topState.conditionalAfter || topState.conditionalInside;
++      }
++
+       // Don't bother adding null semantic values as children.
+       if (null != topState.value) {
+         values = new Pair<Object>(topState.value, values);
+@@ -2688,6 +2706,21 @@ public class ForkMergeParser {
+     // Push the new state onto the stack.
+     subparser.stack = new StackFrame(yystate, symbol, value, topState);
+ 
++    subparser.stack.conditionalAfter = conditionalAfter;
++    subparser.stack.conditionalInside = conditionalInside;
++
++    if (languageStatistics
++        && conditionalInside
++        && (nodeName.equals("Statement")
++            || nodeName.equals("Declaration")
++            || nodeName.equals("ExternalDeclaration"))) {
++      xtc.tree.Location location = CActions.getProductionLocation(value);
++
++      // Emit the marker.
++      runtime.errConsole().pln(String.format("conditional_inside %s %s",
++                                             nodeName, location)).flush();
++    }
++
+     // Dispatch the semantic action if there is one.
+     actions.dispatch(symbol, subparser);
+   }
+@@ -3210,6 +3243,12 @@ public class ForkMergeParser {
+     /** The height of the stack.  Maintained internally. */
+     private int height;
+ 
++    /** True when the semantic value has a conditional after it. */
++    private boolean conditionalAfter;
++
++    /** True when the semantic value has a conditional in it. */
++    private boolean conditionalInside;
++
+     /**
+      * Make a new state.
+      *
+@@ -3222,6 +3261,8 @@ public class ForkMergeParser {
+       this.value = value;
+       this.symbol = symbol;
+       this.next = next;
++      this.conditionalAfter = false;
++      this.conditionalInside = false;
+ 
+       if (null == next) {
+         height = 1;

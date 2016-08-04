@@ -1,0 +1,12 @@
+// An existing binding must not be renamed.  Typing should still work
+// in the presence of binding values.
+
+module ExistingBinding2;
+
+public Object Top =
+  Nothing ( Nothing ( u:Something Nothing
+                    / Nothing Something Nothing))* ;
+
+void Nothing     = "nothing" ;
+
+String Something = "something" ;

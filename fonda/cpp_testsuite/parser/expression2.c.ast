@@ -1,0 +1,104 @@
+#superc_args -printAST
+TranslationUnit(
+  ExternalDeclarationList(
+    Conditional(
+      1,
+      FunctionDefinition(
+        FunctionPrototype(
+          xtc.lang.cpp.Syntax$Language(
+            "int"
+          ),
+          FunctionDeclarator(
+            SimpleDeclarator(
+              xtc.lang.cpp.Syntax$Text(
+                "main"
+              )
+            ),
+            ParameterTypeListOpt()
+          )
+        ),
+        CompoundStatement(
+          LocalLabelDeclarationListOpt(),
+          DeclarationOrStatementList(
+            Conditional(
+              1,
+              Declaration(
+                DeclaringList(
+                  xtc.lang.cpp.Syntax$Language(
+                    "int"
+                  ),
+                  SimpleDeclarator(
+                    xtc.lang.cpp.Syntax$Text(
+                      "x"
+                    )
+                  ),
+                  AssemblyExpressionOpt(),
+                  AttributeSpecifierListOpt(),
+                  InitializerOpt(
+                    Initializer(
+                      Conditional(
+                        (defined A),
+                        xtc.lang.cpp.Syntax$Text(
+                          "1"
+                        ),
+                        !(defined A),
+                        AdditiveExpression(
+                          AdditiveExpression(
+                            Conditional(
+                              !(defined A) && (defined B),
+                              AdditiveExpression(
+                                xtc.lang.cpp.Syntax$Text(
+                                  "2"
+                                ),
+                                xtc.lang.cpp.Syntax$Language(
+                                  "+"
+                                ),
+                                xtc.lang.cpp.Syntax$Text(
+                                  "3"
+                                )
+                              ),
+                              !(defined A) && !(defined B),
+                              xtc.lang.cpp.Syntax$Text(
+                                "5"
+                              )
+                            ),
+                            Conditional(
+                              !(defined A) && (defined B),
+                              xtc.lang.cpp.Syntax$Language(
+                                "+"
+                              ),
+                              !(defined A) && !(defined B),
+                              xtc.lang.cpp.Syntax$Language(
+                                "+"
+                              )
+                            ),
+                            Conditional(
+                              !(defined A) && (defined B),
+                              xtc.lang.cpp.Syntax$Text(
+                                "4"
+                              ),
+                              !(defined A) && !(defined B),
+                              xtc.lang.cpp.Syntax$Text(
+                                "6"
+                              )
+                            )
+                          ),
+                          xtc.lang.cpp.Syntax$Language(
+                            "+"
+                          ),
+                          xtc.lang.cpp.Syntax$Text(
+                            "7"
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)

@@ -1,0 +1,39 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2004-2006 Robert Grimm
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+/**
+ * A complete C grammar.
+ *
+ * @author Robert Grimm
+ * @version $Revision: 1.20 $
+ */
+module xtc.lang.C;
+
+instantiate xtc.lang.CConstant(xtc.lang.CSpacing);
+instantiate xtc.lang.CIdentifier(xtc.lang.CReserved, xtc.lang.CSpacing);
+instantiate xtc.util.Symbol(xtc.lang.CSpacing);
+instantiate xtc.lang.CSymbol(xtc.util.Symbol);
+instantiate xtc.lang.CSpacing(xtc.lang.CState);
+instantiate xtc.lang.CContext(xtc.lang.CState);
+
+modify xtc.lang.CCore(xtc.lang.CContext, xtc.lang.CConstant,
+                      xtc.lang.CIdentifier, xtc.lang.CSymbol,
+		      xtc.lang.CSpacing);
+
+option withLocation, constant, flatten;

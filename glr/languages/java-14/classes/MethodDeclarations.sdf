@@ -1,0 +1,69 @@
+%%%
+ %% Section 8.4: Method Declarations
+ %%
+ %% @author  Martin Bravenboer <martin@cs.uu.nl>
+ %%%
+module languages/java-14/classes/MethodDeclarations
+imports
+  languages/java-14/lexical/Identifiers
+  languages/java-14/lexical/Modifiers
+  languages/java-14/types/Main
+  languages/java-14/classes/FieldDeclarations
+  languages/java-14/statements/Blocks
+
+exports
+  sorts
+    MethodDec
+    MethodDecHead
+    ResultType
+
+  context-free syntax
+    MethodDecHead MethodBody -> MethodDec {cons("MethodDec")}
+
+    MethodMod* ResultType Id "(" {FormalParam ","}* ")" Throws?      -> MethodDecHead {cons("MethodDecHead")}
+    MethodMod* ResultType Id "(" {FormalParam ","}* ")" Dim+ Throws? -> MethodDecHead {cons("DeprMethodDecHead")}
+
+    Type   -> ResultType
+    "void" -> ResultType {cons("Void")}
+
+  sorts FormalParam
+  context-free syntax
+    VarMod* Type       VarDecId -> FormalParam {cons("Param")}
+
+  sorts VarMod
+  context-free syntax
+    Final -> VarMod
+
+  sorts MethodMod
+  context-free syntax
+    Public         -> MethodMod
+    Protected      -> MethodMod
+    Private        -> MethodMod
+
+    Abstract       -> MethodMod
+    Static         -> MethodMod
+    Final          -> MethodMod
+    Synchronized   -> MethodMod
+    Native         -> MethodMod
+    StrictFP       -> MethodMod
+
+  %%%
+   %% Section 8.4.6: Method Throws
+   %%%
+  sorts
+    Throws
+    ExceptionType
+
+  context-free syntax
+    "throws" {ExceptionType ","}+ -> Throws {cons("ThrowsDec")}
+    ClassType -> ExceptionType
+    %% TypeVar -> ExceptionType
+
+  %%%
+   %% Section 8.4.7: Method Body
+   %%% 
+  sorts MethodBody
+  context-free syntax
+    Block -> MethodBody
+    ";"   -> MethodBody {cons("NoMethodBody")}
+

@@ -1,0 +1,16 @@
+/* C variable sized array in local variable declaration */
+`.C {
+#include <stdio.h>
+}
+
+class Main {
+  public static void main(String[] args) {
+    `.C {
+      int a=2, b[a], c[a-1];
+      b[0] = 11;
+      b[1] = 22;
+      c[0] = 33;
+      printf("%d %d %d %d\n", a, b[0], b[1], c[0]);
+    }
+  }
+}

@@ -1,0 +1,11 @@
+`.C { }
+class Main {
+  public static void main(String[] args) {
+    `.C {
+      `String s = `"hello";
+      `Object o = `"world";
+      o = s; //implicit widening is fine
+      s = `((String)`o); //explicit narrowing is fine too
+    }
+  }
+}

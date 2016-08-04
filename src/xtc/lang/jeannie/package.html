@@ -1,0 +1,122 @@
+<html>
+<body>
+
+A compiler contributed to xtc that integrates Java with C.  Both
+language and compiler are described in
+an <a
+href="http://cs.nyu.edu/rgrimm/papers/oopsla07.pdf">OOPSLA&nbsp;'07</a>
+paper by Martin Hirzel and Robert Grimm.
+
+<h3>Prerequisites</h3>
+
+You need Java 1.5, gcc, and the usual GNU tooling (in particular, gcc
+and make).  We have tested Jeannie under Mac OS X with HotSpot, and
+under Linux and Cygwin with IBM Java.
+
+<h3>Environment variables</h3>
+
+<table>
+  <tr><th>JAVA_DEV_ROOT</th>
+    <td>set this such that $JAVA_DEV_ROOT/xtc is the top-level xtc directory</td></tr>
+  <tr><th>PATH_SEP</th>
+    <td>':' for MacOS or Linux, or ';' for Cygwin</td></tr>
+  <tr><th>CLASSPATH</th>
+    <td>$JAVA_DEV_ROOT/classes$PATH_SEP$JAVA_DEV_ROOT/bin/junit.jar$PATH_SEP$JAVA_DEV_ROOT/bin/antlr.jar</td></tr>
+  <tr><th>JAVA_HOME</th>
+    <td>set this such that $JAVA_HOME/bin/java is the Java virtual machine</td></tr>
+  <tr><th>CPATH</th>
+    <td>should include the directory that contains jni.h, which is most likely $JAVA_HOME/include</td></tr>
+  <tr><th>PATH</th>
+    <td>should include $JAVA_HOME/bin</td>
+  <tr><th>OSTYPE</th>
+    <td>should be either cygwin, or have linux or darwin as a substring</td></tr>
+</table>
+
+<h3>Testing using the Makefile</h3>
+
+Try the following:
+
+<pre>make -C $JAVA_DEV_ROOT/fonda/jeannie_testsuite test_000</pre>
+
+If all goes well, that should produce the output:
+
+<pre>
+==== integration test_000 ====
+Processing tmp/000sugared/Main.jni ...
+diff tmp/000mangled/output.txt tmp/000sugared/output.txt
+</pre>
+
+What happened is that the Makefile compiled and ran the same test
+written in Jeannie (fonda/jeannie_testsuite/input/000sugared_Main.jni)
+and in JNI (fonda/jeannie_testsuite/input/000mangled_Main.{c,java}),
+and compared the output.
+
+<p/>
+You can also run all included integration tests in batch mode:
+
+<pre>make -C $JAVA_DEV_ROOT/fonda/jeannie_testsuite test</pre>
+
+To find out the individual compilation steps, uncomment the following
+line in the Makefile:
+
+<pre># export VERBOSE_MAKE=true</pre>
+
+<h3>Compiling your own programs</h3>
+
+The easiest way is to follow the existing examples and use the
+existing Makefiles. But if you prefer to compile by hand, the
+following example compiles and runs foo/Bar.jni
+
+<ul>
+  <li>Run Jeannie preprocessor to inject "#include &lt;jni.h&gt;" at the start of the file.
+<pre>
+java -ea xtc.lang.jeannie.PreJeannieParser foo/Main.jni > foo/Main.jni.pp
+</pre>
+
+  <li>Run C prepreocessor to resolve #includes, #ifdefs, and macros.
+<pre>
+# Mac OS:
+cc -DSPECIALIZE_RELPROD -DSPECIALIZE_AND -DSPECIALIZE_OR -DSMALL_NODES -U__BLOCKS__ -fomit-frame-pointer -fno-common -I/System/Library/Frameworks/JavaVM.framework/Headers -E -x c foo/Bar.jni.pp > foo/Bar.jni.i
+# Linux:
+gcc -E -x c foo/Bar.jni.pp > foo/Bar.jni.i
+# Cygwin:
+gcc -mno-cygwin -I$JAVA_HOME/include -E -x c foo/Bar.jni.pp > foo/Bar.jni.i
+</pre>
+
+  <li>Run Jeannie compiler.
+<pre>
+# Mac OS or Linux:
+java -ea -DJNICALL='' xtc.lang.jeannie.Jeannie -analyze -translate -in foo foo/Bar.jni.i
+# Cygwin:
+java -ea -DJNICALL='__attribute__((__stdcall__))' xtc.lang.jeannie.Jeannie -analyze -translate -in foo foo/Bar.jni.i
+</pre>
+
+  <li>Compile resulting C code into a shared object file (dynamically linked libary):
+<pre>
+# Mac OS:
+cc -DSPECIALIZE_RELPROD -DSPECIALIZE_AND -DSPECIALIZE_OR -DSMALL_NODES -U__BLOCKS__ -fomit-frame-pointer -fno-common -I/System/Library/Frameworks/JavaVM.framework/Headers -dynamiclib -framework JavaVM -o foo/libBar.jnilib foo/Bar.i
+# Linux:
+gcc -shared -o foo/libBar.so foo/Bar.i
+# Cygwin:
+gcc -mno-cygwin -I$JAVA_HOME/include -Wl,--add-stdcall-alias -shared -o foo/Bar.dll foo/Bar.i
+</pre>
+
+  <li>Compile resulting Java code into class files (bytecode):
+<pre>
+javac -sourcepath foo -d foo foo/Bar.java
+</pre>
+
+  <li>Tell the dynamic linker where to find the shared object file.
+<pre>
+export PATH=foo:"$PATH"
+export LD_LIBRARY_PATH=foo:"$LD_LIBRARY_PATH"
+</pre>
+
+  <li>Run the code with a Java virtual machine.
+<pre>
+java -cp foo -Djava.library.path=foo Bar
+</pre>
+</ul>
+
+</body>
+</html>

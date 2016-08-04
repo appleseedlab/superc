@@ -1,0 +1,327 @@
+/* -*-c-*-*- */
+/* (C) Copyright IBM Corp 2007. */
+alias jboolean, jbyte, jchar, jclass, jfieldID, jint, jlong, jmethodID,
+  JNIEnv, jobject, jobjectArray, jsize, jstring;
+
+factory xtc.lang.jeannie.JeannieCFactory {
+  abruptFlowCheck {
+    if ((*env)->ExceptionCheck(env) || ({
+      jclass cls = (*env)->GetObjectClass(env, jEnv);
+      jfieldID fid = (*env)->GetFieldID(env, cls, #fieldName, "Z");
+      jboolean tmp = (*env)->GetBooleanField(env, jEnv, fid);
+      (*env)->DeleteLocalRef(env, cls);
+      tmp;
+    })) {
+      #abruptFlowJump
+    }
+  }
+
+  abruptFlowCheckOpenArray {
+    {
+      if ((*env)->ExceptionCheck(env))
+        pcEnv->#releaseAbrupt = 2 /* CANCEL */;
+      if (pcEnv->#releaseAbrupt || ({
+        jclass cls = (*env)->GetObjectClass(env, jEnv);
+        jfieldID fid = (*env)->GetFieldID(env, cls, #fieldName, "Z");
+        jboolean tmp = (*env)->GetBooleanField(env, jEnv, fid);
+        (*env)->DeleteLocalRef(env, cls);
+        tmp;
+      })) {
+        #abruptFlowJump
+      }
+    }
+  }
+
+  abruptFlowJumpOpenArray { goto #label; }    
+
+  block { { #[statements] } }
+
+  cancel {
+    {
+      pcEnv->#releaseAbrupt = 2 /* CANCEL */;
+      #abruptFlowJump
+    }
+  }
+
+  checkedFunctionCallResult {
+    ({
+      #tmpDeclaration
+      tmp = #call;
+      #abruptFlowCheck
+      tmp;
+    })
+  }
+
+  checkedFunctionCallVoid {
+    {
+      #call;
+      #abruptFlowCheck
+    }
+  }
+
+  cInJavaExpressionWithCEnv {
+    {
+      struct #tag *pcEnv = (struct #tag*)cEnv;
+      return #expression;
+      pcEnv = 0; /* nulling out avoids gcc warning if unused */
+    }
+  }
+
+  cInJavaExpressionWithoutCEnv {
+    {
+      struct #tag cEnv;
+      struct #tag *pcEnv = &cEnv;
+      return #expression;
+      pcEnv = 0; /* nulling out avoids gcc warning if unused */
+    }
+  }
+
+  cInJavaStatementWithCEnv {
+    {
+      struct #tag *pcEnv = (struct #tag*)cEnv;
+      #statement
+      pcEnv = 0; /* nulling out avoids gcc warning if unused */
+    }
+  }
+
+  cInJavaStatementWithoutCEnv {
+    {
+      struct #tag cEnv;
+      struct #tag *pcEnv = &cEnv;
+      #statement
+      pcEnv = 0; /* nulling out avoids gcc warning if unused */
+    }
+  }
+
+  closureStatement {
+    {
+      struct #tag cEnv;
+      struct #tag *pcEnv = &cEnv;
+      #copyFormals
+      jobject jEnv = ({
+        jclass cls = (*env)->FindClass(env, #className);
+        jmethodID mid = (*env)->GetMethodID(env, cls, "<init>", "()V");
+        jobject tmp = (*env)->NewObject(env, cls, mid);
+        (*env)->DeleteLocalRef(env, cls);
+        tmp;
+      });
+      #statement
+      pcEnv = 0; /* nulling out avoids gcc warning if unused */
+    }
+  }
+
+  commit {
+    {
+      pcEnv->#releaseAbrupt = 1 /* COMMIT */;
+      #abruptFlowJump
+    }
+  }
+
+  copyBetweenJavaAndC {
+    ({
+      jint length;
+      (*env)->#apiFunction(env,
+        #javaArray, #javaArrayStart, length = #length,
+        (#cArray) + (#cArrayStart));
+      #abruptFlowCheck
+      length;
+    })
+  }
+
+  copyBetweenJavaAndCUTF {
+    ({
+      jstring javaArray = #javaArray;
+      jint start = #javaArrayStart, length = #length;
+      (*env)->#apiFunction(env,
+        javaArray, start, length, (char*)((#cArray) + (#cArrayStart)));
+      #abruptFlowCheck
+      _stringUTFLength(env, javaArray, start, length);
+    })
+  }
+
+  copyFromJavaReference {
+    ({
+      jobjectArray javaArray = #javaArray;
+      jint start = #javaArrayStart, length = #length;
+      jobject* cArray = (#cArray) + (#cArrayStart);
+      jint i;
+      for (i = 0; i < length; i++) {
+        cArray[i] = (*env)->GetObjectArrayElement(env, javaArray, start + i);
+        if ((*env)->ExceptionCheck(env))
+          break;
+      }
+      #abruptFlowCheck
+      length;      
+    })
+  }
+
+  copyToJavaReference {
+    ({
+      jobjectArray javaArray = #javaArray;
+      jint start = #javaArrayStart, length = #length;
+      jobject* cArray = (#cArray) + (#cArrayStart);
+      jint i;
+      for (i = 0; i < length; i++) {
+        (*env)->SetObjectArrayElement(env, javaArray, start + i, cArray[i]);
+        if ((*env)->ExceptionCheck(env))
+          break;
+      }
+      #abruptFlowCheck
+      length;      
+    })
+  }
+
+  declareStruct { struct #tag { #[members] }; }
+
+  getPCEnvField { pcEnv-> #name }
+
+  javaInCExpression32 {
+    ({
+      jclass cls = (*env)->GetObjectClass(env, jEnv);
+      jmethodID mid = (*env)->GetMethodID(env, cls, #name, #signature);
+      #tmpDeclaration
+      tmp = (*env)->#apiFunction(env, jEnv, cls, mid, (jint)pcEnv);
+      (*env)->DeleteLocalRef(env, cls);
+      #abruptFlowCheck
+      tmp;
+    })
+  }
+
+  javaInCExpression64 {
+    ({
+      jclass cls = (*env)->GetObjectClass(env, jEnv);
+      jmethodID mid = (*env)->GetMethodID(env, cls, #name, #signature);
+      #tmpDeclaration
+      tmp = (*env)->#apiFunction(env, jEnv, cls, mid, (jlong)pcEnv);
+      (*env)->DeleteLocalRef(env, cls);
+      #abruptFlowCheck
+      tmp;
+    })
+  }
+
+  javaInCStatement32 {
+    {
+      jclass cls = (*env)->GetObjectClass(env, jEnv);
+      jmethodID mid = (*env)->GetMethodID(env, cls, #name, #signature);
+      (*env)->#apiFunction(env, jEnv, cls, mid, (jint)pcEnv);
+      (*env)->DeleteLocalRef(env, cls);
+      #abruptFlowCheck
+    }
+  }
+
+  javaInCStatement64 {
+    {
+      jclass cls = (*env)->GetObjectClass(env, jEnv);
+      jmethodID mid = (*env)->GetMethodID(env, cls, #name, #signature);
+      (*env)->#apiFunction(env, jEnv, cls, mid, (jlong)pcEnv);
+      (*env)->DeleteLocalRef(env, cls);
+      #abruptFlowCheck
+    }
+  }
+
+  newJavaString {
+    ({
+      jstring tmp = (*env)->#apiFunction(env, #cString);
+      #abruptFlowCheck
+      tmp;
+    })
+  }
+
+  setPCEnvField { pcEnv->#name = #value; }
+
+  stringUTFLength1 { (*env)->GetStringUTFLength(env, #javaString) }
+
+  stringUTFLength3 { _stringUTFLength(env, #javaString, #start, #length) }
+
+  returnResult {
+    {
+      jclass cls = (*env)->GetObjectClass(env, jEnv);
+      jfieldID fidResult = (*env)->GetFieldID(env, cls, #result, #signature);
+      (*env)->#apiFunction(env, jEnv, fidResult, #value );
+      jfieldID fidAbrupt = (*env)->GetFieldID(env, cls, #abrupt, "Z");
+      (*env)->SetBooleanField(env, jEnv, fidAbrupt, 1);
+      #abruptFlowJump
+    }
+  }
+
+  returnVoid {
+    {
+      jclass cls = (*env)->GetObjectClass(env, jEnv);
+      jfieldID fidAbrupt = (*env)->GetFieldID(env, cls, #abrupt, "Z");
+      (*env)->SetBooleanField(env, jEnv, fidAbrupt, 1);
+      #abruptFlowJump
+    }
+  }
+
+  withPrimitiveArray {
+    {
+      pcEnv->#jaField = #init;
+      pcEnv->#releaseAbrupt = 0 /* NORMAL */;
+      {
+        jint length = (*env)->GetArrayLength(env, pcEnv->#jaField);
+        #caDecl
+        pcEnv->#caField = ca;
+        (*env)->#getRegion(env, pcEnv->#jaField, 0, length, pcEnv->#caField);
+        #body
+        goto #label; /* using label avoids gcc warning if otherwise unused */
+      #label:
+        if (2 /* CANCEL */ != pcEnv->#releaseAbrupt)
+          (*env)->#setRegion(env, pcEnv->#jaField, 0, length, pcEnv->#caField);
+      }
+      #abruptFlowCheck
+    }
+  }
+
+  withReferenceArray {
+    {
+      pcEnv->#jaField = #init;
+      pcEnv->#releaseAbrupt = 0 /* NORMAL */;
+      {
+        jsize i;
+        jint length = (*env)->GetArrayLength(env, pcEnv->#jaField);
+        jobject ca[length];
+        pcEnv->#caField = ca;
+        for (i=0; i<length; i++)
+          ca[i] = (*env)->GetObjectArrayElement(env, pcEnv->#jaField, i);
+        #body
+        goto #label; /* using label avoids gcc warning if otherwise unused */
+      #label:
+        if (2 /* CANCEL */ != pcEnv->#releaseAbrupt)
+          for (i=0; i<length; i++) {
+            (*env)->SetObjectArrayElement(env, pcEnv->#jaField, i, ca[i]);
+            if ((*env)->ExceptionCheck(env))
+              break;
+          }
+      }
+      #abruptFlowCheck
+    }
+  }
+
+  withString {
+    {
+      pcEnv->#jsField = #init;
+      pcEnv->#releaseAbrupt = 0 /* NORMAL */;
+      pcEnv->#csField = (jchar*)
+        (*env)->GetStringChars(env, pcEnv->#jsField, 0);
+      #body
+      goto #label; /* using label avoids gcc warning if otherwise unused */
+    #label:
+      (*env)->ReleaseStringChars(env, pcEnv->#jsField, pcEnv->#csField);
+      #abruptFlowCheck
+    }
+  }
+
+  withStringUTF {
+    {
+      pcEnv->#jsField = #init;
+      pcEnv->#releaseAbrupt = 0 /* NORMAL */;
+      pcEnv->#csField = (jbyte*)
+        (*env)->GetStringUTFChars(env, pcEnv->#jsField, 0);
+      #body
+    #label:
+      (*env)->ReleaseStringUTFChars(
+        env, pcEnv->#jsField, (char*)pcEnv->#csField);
+      #abruptFlowCheck
+    }
+  }
+}

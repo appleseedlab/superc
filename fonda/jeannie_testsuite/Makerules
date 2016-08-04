@@ -1,0 +1,65 @@
+# -*-makefile-*-*-
+# (C) Copyright IBM Corp 2005-2007.
+
+# Required environment variables:
+#   CLASSPATH -- must include xtc/classes
+#   CPATH -- must include the directory that contains jni.h for your JDK
+#   JAVA_DEV_ROOT -- path to your xtc installation
+#   JAVA_HOME -- path to your JDK installation
+#   PATH -- must include Java tools
+#   PATH_SEP -- ':' for MacOS and Linux, ';' for Windows
+
+CLASSPATH = .$(PATH_SEP)$(shell echo $$CLASSPATH)
+export CLASSPATH
+
+ifeq ($(OSTYPE),cygwin)
+  JNI_HDRDIR     = $(JAVA_HOME)/include
+  CC             = gcc -mno-cygwin -Wall -g $(CFLAGS) -I$(JNI_HDRDIR) -I$(JNI_HDRDIR)/win32 -I$(JAVA_DEV_ROOT)/fonda/jeannie_testsuite
+  DLL_CC         = $(CC) -Wl,--add-stdcall-alias -shared
+  DLL_PREFIX     =
+  DLL_SUFFIX     = .dll
+  JNI_DLL_SUFFIX = $(DLL_SUFFIX)
+else
+ifneq (,$(findstring linux,$(OSTYPE)))
+  JNI_HDRDIR     = $(JAVA_HOME)/include
+  CC             = gcc -Wall -g $(CFLAGS) -I$(JNI_HDRDIR) -I$(JAVA_DEV_ROOT)/fonda/jeannie_testsuite
+  DLL_CC         = $(CC) -shared -fPIC
+  DLL_PREFIX     = lib
+  DLL_SUFFIX     = .so
+  JNI_DLL_SUFFIX = $(DLL_SUFFIX)
+else
+ifneq (,$(findstring darwin,$(OSTYPE)))
+  JNI_HDRDIR     = /System/Library/Frameworks/JavaVM.framework/Headers
+  CC             = cc -Wall -g $(CFLAGS) -DSPECIALIZE_RELPROD -DSPECIALIZE_AND -DSPECIALIZE_OR -DSMALL_NODES -U__BLOCKS__ -fomit-frame-pointer -fno-common -I$(JNI_HDRDIR) -I$(JAVA_DEV_ROOT)/fonda/jeannie_testsuite
+  DLL_CC         = $(CC) -dynamiclib -framework JavaVM
+  DLL_PREFIX     = lib
+  DLL_SUFFIX     = .dylib
+  JNI_DLL_SUFFIX = .jnilib
+else
+  $(error "Unknown OSTYPE = '$(OSTYPE)'. You should either set the environment variable to match one of the recognized cases, or add your own new case in the Makerules file.")
+error; unknown OSTYPE
+endif
+endif
+endif
+
+PRE_CC = $(CC) -E -x c
+
+printenv :
+	@echo "---- environment start ----"
+	@echo "OSTYPE        = $(OSTYPE)"
+	@echo "CLASSPATH     = $(CLASSPATH)"
+	@echo "CPATH         = $(CPATH)"
+	@echo "DLL_CC        = $(DLL_CC)"
+	@echo "DLL_PREFIX    = $(DLL_PREFIX)"
+	@echo "DLL_SUFFIX    = $(DLL_SUFFIX)"
+	@echo "JAVA          = $(JAVA)"
+	@echo "which java    = `which java`"
+	@echo "JAVA_DEV_ROOT = $(JAVA_DEV_ROOT)"
+	@echo "JAVA_HOME     = $(JAVA_HOME)"
+	@echo "JAVAC         = $(JAVAC)"
+	@echo "which javac   = `which javac`"
+	@echo "JNI_DLL_SUFFIX= $(JNI_DLL_SUFFIX)"
+	@echo "PATH          = $(PATH)"
+	@echo "PATH_SEP      = $(PATH_SEP)"
+	@echo "PRE_CC        = $(PRE_CC)"
+	@echo "---- environment end ----"

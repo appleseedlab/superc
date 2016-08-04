@@ -1,0 +1,145 @@
+module xtc.lang.blink.Command;
+
+// module plumbing ===================================================
+// CSpacing ----------------------------------------------------------
+instantiate xtc.lang.CConstant(xtc.lang.CSpacing);
+import xtc.lang.CSpacing(xtc.lang.CState);
+
+// JeannieSymbol -----------------------------------------------------
+instantiate xtc.util.Symbol(xtc.lang.CSpacing);
+import xtc.lang.jeannie.JeannieSymbol(xtc.util.Symbol);
+
+// CCore -------------------------------------------------------------
+instantiate xtc.lang.CIdentifier(xtc.lang.CReserved, xtc.lang.CSpacing);
+instantiate xtc.lang.CContext(xtc.lang.CState);
+instantiate xtc.lang.CCore(
+  xtc.lang.CContext, xtc.lang.CConstant, xtc.lang.CIdentifier,
+  xtc.lang.jeannie.JeannieSymbol, xtc.lang.CSpacing);
+
+// JavaCore ----------------------------------------------------------
+import xtc.lang.JavaType(
+  xtc.lang.JavaIdentifier, xtc.lang.jeannie.JeannieSymbol);
+import xtc.lang.JavaConstant(xtc.lang.JavaIdentifier, xtc.lang.CSpacing);
+import xtc.lang.JavaIdentifier(
+  xtc.lang.jeannie.JeannieSymbol, xtc.lang.CSpacing);
+instantiate xtc.lang.JavaCore(
+  xtc.lang.JavaType, xtc.lang.JavaConstant, xtc.lang.JavaIdentifier,
+  xtc.lang.jeannie.JeannieSymbol, xtc.lang.CSpacing);
+
+// -------------------------------------------------------------------
+instantiate xtc.lang.jeannie.JeannieC(
+  xtc.lang.CCore, xtc.lang.jeannie.JeannieJava, xtc.lang.JavaType);
+import xtc.lang.blink.CommandC(
+  xtc.lang.blink.Command, xtc.lang.jeannie.JeannieC);
+
+instantiate xtc.lang.jeannie.JeannieJava(
+  xtc.lang.JavaCore, xtc.lang.jeannie.JeannieC);
+import xtc.lang.blink.CommandJava(
+  xtc.lang.blink.Command, xtc.lang.jeannie.JeannieJava);
+
+header {
+  import xtc.lang.CParserState;
+}
+
+option withLocation, constant, flatten,
+  parser(xtc.lang.blink.CommandParser);
+
+// new grammar rules =================================================
+generic MetaVariable = void:"$" Identifier;
+
+public Node CCommand = Spacing CCommandNoSpacing;
+
+Node CCommandNoSpacing =
+    <Unambiguous> UnambiguousCommand
+  / <Print>       PrintCExpressionCommand
+  / <Watch>       WatchCExpressionCommand;
+
+public Node JavaCommand = Spacing JavaCommandNoSpacing;
+
+Node JavaCommandNoSpacing =
+    <Unambiguous> UnambiguousCommand
+  / <Print>       PrintJavaExpressionCommand
+  / <Watch>       WatchJavaFieldCommand;
+
+Node UnambiguousCommand =
+    BreakClassCommand / BreakFileCommand / BreakFunctionCommand 
+  /C2jCommand / ContinueCommand
+  / DeleteCommand / DownCommand / ExitCommand / GdbCommand / HelpCommand
+  / InfoBreakCommand / InfoWatchCommand / InitJCommand / J2cCommand
+  / JdbCommand / JRetCommand / ListCommand / LocalsCommand / NextCommand
+  / RunCommand / StatCommand / StepCommand / UpCommand / WhereCommand
+  / BreakClassMethodCommand;
+
+generic BreakClassCommand =
+  void:"stop":Word void:"at":Word QualifiedIdentifier
+  void:":":Symbol LineNumber Spacing;
+
+generic BreakClassMethodCommand =
+  void:"stop":Word void:"in":Word QualifiedIdentifier
+  Spacing;
+
+generic BreakFileCommand =
+  void:"break":Word FileName Spacing void:":":Symbol LineNumber Spacing;
+
+generic BreakFunctionCommand =
+  void:"break":Word Identifier Spacing;
+
+String FileName = ([a-zA-Z0-9_/.$] / '-')+;
+
+generic C2jCommand = void:"c2j":Word;
+
+generic ContinueCommand = void:"continue":Word;
+
+generic DeleteCommand = void:"delete":Word IntegerLiteral;
+
+generic DownCommand = void:"down":Word IntegerLiteral;
+
+generic ExitCommand = void:"exit":Word;
+
+generic GdbCommand = void:"gdb":Word RestOfLine Spacing;
+
+String RestOfLine = ( ![\n\r] _ )*;
+
+generic HelpCommand = void:"help":Word;
+
+generic InfoBreakCommand = void:"info":Word void:"break":Word;
+
+generic InfoWatchCommand = void:"info":Word void:"watch":Word;
+
+generic InitJCommand = void:"initj":Word;
+
+generic J2cCommand = void:"j2c":Word;
+
+generic JdbCommand = void:"jdb":Word RestOfLine Spacing;
+
+generic JRetCommand = void:"jret":Word;
+
+generic ListCommand = void:"list":Word;
+
+generic LocalsCommand = void:"locals":Word;
+
+generic NextCommand = void:"next":Word;
+
+generic RunCommand = void:"run":Word;
+
+generic PrintCExpressionCommand =
+  Spacing void:"print":Word xtc.lang.blink.CommandC.Expression;
+
+generic PrintJavaExpressionCommand =
+  Spacing void:"print":Word xtc.lang.blink.CommandJava.Expression;
+
+generic StatCommand = void:"stat":Word;
+
+generic StepCommand = void:"step":Word;
+
+generic UpCommand = void:"up":Word IntegerLiteral;
+
+generic WatchCExpressionCommand =
+  Spacing void:"watch":Word xtc.lang.blink.CommandC.Expression;
+
+generic WatchJavaFieldCommand =
+  Spacing void:"watch":Word WatchKind? QualifiedIdentifier;
+
+String WatchKind = yyValue:("access" / "all") Spacing;
+
+generic WhereCommand = void:"where":Word;

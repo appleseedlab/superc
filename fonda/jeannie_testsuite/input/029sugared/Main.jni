@@ -1,0 +1,35 @@
+/* running example motivating _with, OOPSLA'07 paper, Figures 7, 13 */
+`.C{ }
+class Main {
+  public static native int
+  replace(char []chars, char oldC, char newC)
+  `{
+    jchar old = `oldC, new = `newC;
+    jint len = `chars.length;
+    _with (jchar* s = `chars) {
+      for (int i=0; i<len; i++) {
+        if (old == s[i]) {
+          s[i] = new;
+          return (jint)i;
+        }
+      }
+      _cancel s;
+    }
+    return (jint)-1;
+  }
+  static void printChars(char []chars) {
+    for (int i=0; i<chars.length; i++)
+      System.out.print(chars[i]);
+    System.out.println();
+  }
+  public static void main(String []args) {
+    char[] a = { 'a', 'b', 'c' };
+    int r;
+    r = replace(a, 'b', 'd');
+    System.out.print(r + "  ");
+    printChars(a);
+    r = replace(a, 'b', 'd');
+    System.out.print(r + "  ");
+    printChars(a);
+  }
+}

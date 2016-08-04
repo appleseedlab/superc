@@ -1,0 +1,785 @@
+// java.gr            see license.txt for copyright and terms of use
+// grammar for Java
+
+// Note about destructive actions: because semantic values can be
+// yielded to more than one reduction action (a phenomenon I call
+// "multi-yield"), actions which modify one of their subtree semantic
+// values are dangerous, because you can have actions from one
+// interpretation interfering with actions from another
+// interpretation.
+//
+// Therefore, to the extent reasonable, I avoid destructive actions.
+// 
+// However there are a few places where I want destructive actions
+// anyway, and there are two broad strategies employed for managing
+// them:                                                   
+//
+//   (1) Disable multi-yield for the modified subtrees.  If an action
+//       modifies subtree nonterminal 'A', then in the definition of
+//       'A' I say "dup(n) { return NULL; }" to ensure that once the
+//       value is yielded once, it can't be yielded again.  Thus, if
+//       in fact it *is* yielded a second time, I'll get a segfault
+//       which will alert me to the design flaw in my rules.
+//       (DeclSpecifier is a good example of this.)
+//
+//   (2) Design the actions to that multiple modifications are
+//       checked for bad interactions.  In this grammar that is what
+//       I do for FakeLists, where I either (a) prevent putting a
+//       node at the head of two lists, or else (b) make sure that
+//       the two lists are in fact the same list both times.  For
+//       potentially-ambiguous nodes with FakeList links (Expression
+//       and Declarator), additional measures are taken to ensure
+//       the consistency of interaction with the ambiguity links.
+//       (See Expression::addAmbiguity and Expression::setNext in
+//       cc_ast_aux.cc.)
+//
+// Every place there's a destructive modification which isn't handled
+// by FakeLists is marked by the phrase 'destructive action'.
+
+
+// this makes it so that, by default, dup() is the identity function,
+// and del() is a no-op
+option useGCDefaults;
+
+// if I don't specify a merge(), and we want to merge(),
+// then abort
+option defaultMergeAborts;
+
+// expected statistics
+option shift_reduce_conflicts 18;
+option reduce_reduce_conflicts 3;
+option unreachable_nonterminals 0;
+option unreachable_terminals 4;
+
+verbatim {
+
+#include "trace.h"          // trace
+#include "xassert.h"        // xassert
+#include "java_tokens.h"    // lexer's token ids for classify()
+#include "java_ast.h"       // Java abstract syntax
+#include "javaparse.h"      // ParseEnv, the parser context class
+
+#define D(msg) \
+    trace("java") << msg << endl;
+
+// Directly inline FakeList<T>::prepend() through a macro to get
+// more meaningful error messages.
+#define PREPEND_RETURN(head, list, type) \
+  xassert(head->next == NULL); \
+  head->next = list->first(); \
+  return FakeList<type>::makeList(head)
+
+// The loose version of the macro allows elements to be prepended to
+// a list they have been prepended before (i.e., when elements have been
+// yielded more than once).
+#define LOOSE_PREPEND_RETURN(head, list, type) \
+  xassert((head->next == NULL) || (head->next == list->first())); \
+  head->next = list->first(); \
+  return FakeList<type>::makeList(head)
+
+inline ostream& operator<< (ostream &os, SourceLoc sl)
+  { return os << toString(sl); }
+
+class JavaParseShareable : public UserActions, public ParseEnv {
+public:
+  JavaParseShareable(StringTable &table, JavaLang &lang)
+    : ParseEnv(table, lang) {}
+};
+
+} // verbatim
+
+context_class JavaParse : public JavaParseShareable {
+public:
+  JavaParse(StringTable &table, JavaLang &lang)
+    : JavaParseShareable(table, lang) {}
+};
+
+terminals {
+  // grab token list
+  include("java_tokens.ids")
+
+  // all literals are yielded as their syntax strings
+  token(StringRef) TOK_INT_LITERAL ;
+  token(StringRef) TOK_FLOAT_LITERAL ;
+  token(StringRef) TOK_CHAR_LITERAL ;
+  token(StringRef) TOK_STRING_LITERAL ;
+
+  // similar for identifiers
+  token(StringRef) TOK_NAME ;
+
+  precedence {
+    // high precedence
+    prec  200 TOK_PREFER_REDUCE;
+    //prec  190 "const" "volatile" "else" "[";
+
+    prec  190 "else";
+
+    left  110 "*" "/" "%";
+    left  100 "+" "-";
+    left   90 "<<" ">>" ">>>";
+    left   80 "<" ">" "<=" ">=" "instanceof";
+    left   70 "==" "!=";
+    left   60 "&";
+    left   50 "^";
+    left   40 "|";
+    left   30 "&&";
+    left   20 "||";
+
+    prec    1 TOK_PREFER_SHIFT;
+    // low precedence
+  }
+}
+
+// ----- Compilation unit
+
+nonterm(CompilationUnit*) File
+  -> c:CompilationUnit
+    { return c; }
+
+nonterm(CompilationUnit*) CompilationUnit {
+  -> p:PackageDeclaration ii:ImportDeclarationListOpt dd:DeclarationListOpt
+    { return new CompilationUnit(p, ii, dd); }
+}
+
+nonterm(PackageDeclaration*) PackageDeclaration {
+  -> empty
+    { return NULL; }
+  -> "package" id:QualifiedIdentifier ";"
+    { return new PackageDeclaration(loc, id); }
+}
+
+nonterm(FakeList<ImportDeclaration>*) ImportDeclarationListOpt {
+  -> empty
+    { return FakeList<ImportDeclaration>::emptyList(); }
+  -> ii:ImportDeclarationList
+    { return ii; }
+}
+
+nonterm(FakeList<ImportDeclaration>*) ImportDeclarationList {
+  -> i:ImportDeclaration
+    { return FakeList<ImportDeclaration>::makeList(i); }
+  -> i:ImportDeclaration ii:ImportDeclarationList
+    { PREPEND_RETURN(i, ii, ImportDeclaration); }
+}
+
+nonterm(ImportDeclaration*) ImportDeclaration {
+  -> "import" id:QualifiedIdentifier tail:DotStarTail ";"
+    { return new ImportDeclaration(loc, id, tail); }
+}
+
+nonterm(bool) DotStarTail {
+  -> empty   { return false; }
+  -> "." "*" { return true;  }
+}
+
+// ------ Declarations
+
+nonterm(Modifiers) Modifiers {
+  -> empty                   { return MOD_NONE;            }
+  -> m:Modifier mm:Modifiers { return combine(loc, mm, m); }
+}
+
+nonterm(Modifiers) Modifier {
+  -> "public"       { return MOD_PUBLIC;       }
+  -> "protected"    { return MOD_PROTECTED;    }
+  -> "private"      { return MOD_PRIVATE;      }
+  -> "static"       { return MOD_STATIC;       }
+  -> "abstract"     { return MOD_ABSTRACT;     }
+  -> "final"        { return MOD_FINAL;        }
+  -> "native"       { return MOD_NATIVE;       }
+  -> "synchronized" { return MOD_SYNCHRONIZED; }
+  -> "transient"    { return MOD_TRANSIENT;    }
+  -> "volatile"     { return MOD_VOLATILE;     }
+  -> "strictfp"     { return MOD_STRICTFP;     }
+}
+
+nonterm(FormalParameter*) FormalParameter {
+  -> f:FinalClause t:Type id:Identifier d:DimensionsOpt
+    { return new FormalParameter(f, t, id, d); }
+}
+
+nonterm(bool) FinalClause {
+  -> empty   { return false; }
+  -> "final" { return true;  }
+}
+
+nonterm(FakeList<FormalParameter>*) FormalParameters {
+  -> "(" ")"
+    { return FakeList<FormalParameter>::emptyList(); }
+  -> "(" fpl:FormalParameterList ")"
+    { return fpl; }
+}
+
+nonterm(FakeList<FormalParameter>*) FormalParameterList {
+  -> fp:FormalParameter
+    { return FakeList<FormalParameter>::makeList(fp); }
+  -> fp:FormalParameter "," fpl:FormalParameterList
+    { PREPEND_RETURN(fp, fpl, FormalParameter); }
+}
+
+nonterm(Declarator*) Declarator {
+  -> id:Identifier d:DimensionsOpt i:DeclaratorInitializerOpt
+    { return new Declarator(id, d, i); }
+}
+
+nonterm(Expression*) DeclaratorInitializerOpt {
+  -> empty
+    { return NULL; }
+  -> "=" i:VariableInitializer
+    { return i; }
+}
+
+nonterm(FakeList<Declarator>*) Declarators {
+  -> d:Declarator
+    { return FakeList<Declarator>::makeList(d); }
+  -> d:Declarator "," dd:Declarators
+    { PREPEND_RETURN(d, dd, Declarator); }
+}
+
+nonterm(FakeList<Declaration>*) ClassBodyOpt {
+  -> empty
+    { return FakeList<Declaration>::emptyList(); }
+  -> b:ClassBody
+    { return b; }
+}
+
+nonterm(FakeList<Declaration>*) ClassBody {
+  -> "{" dd:DeclarationListOpt "}"
+    { return dd; }
+}
+
+nonterm(FakeList<Declaration>*) DeclarationListOpt {
+  -> empty
+    { return FakeList<Declaration>::emptyList(); }
+  -> dd:DeclarationList
+    { return dd; }
+}
+
+nonterm(FakeList<Declaration>*) DeclarationList {
+  -> d:Declaration
+    { return FakeList<Declaration>::makeList(d); }
+  -> d:Declaration dd:DeclarationList
+    { PREPEND_RETURN(d, dd, Declaration); }
+}
+
+nonterm(Declaration*) Declaration {
+  -> m:Modifiers t:Type d:Declarators ";"
+    { return new FieldDeclaration(loc, m, t, d); }
+
+  -> m:Modifiers t:ResultType id:Identifier fp:FormalParameters d:DimensionsOpt
+     x:OptionalThrowsClause b:Block
+    { return new MethodDeclaration(loc, m, t, id, fp, d, x, b); }
+  -> m:Modifiers t:ResultType id:Identifier fp:FormalParameters d:DimensionsOpt
+     x:OptionalThrowsClause ";"
+    { return new MethodDeclaration(loc, m, t, id, fp, d, x); }
+
+  -> m:Modifiers id:Identifier fp:FormalParameters x:OptionalThrowsClause b:Block
+    { return new ConstructorDeclaration(loc, m, id, fp, x, b); }
+
+  -> m:Modifiers "class" id:Identifier e:Extension i:Implementation b:ClassBody
+    { return new ClassDeclaration(loc, m, id, e, i, b); }
+
+  -> m:Modifiers "interface" id:Identifier e:Extension b:ClassBody
+    { return new InterfaceDeclaration(loc, m, id, e, b); }
+
+  -> s:StaticClause b:Block
+    { return new BlockDeclaration(loc, MOD_NONE, s, b); }
+}
+
+nonterm(bool) StaticClause {
+  -> empty    { return false; }
+  -> "static" { return true;  }
+}
+
+nonterm(FakeList<Expression>*) OptionalThrowsClause {
+  -> empty
+    { return FakeList<Expression>::emptyList(); }
+  -> "throws" l:QualifiedIdentifierList
+    { return l; }
+}
+
+nonterm(FakeList<Type>*) Extension {
+  -> empty             
+    { return FakeList<Type>::emptyList(); }
+  -> "extends" l:TypeList
+    { return l; }
+}
+
+nonterm(FakeList<Type>*) Implementation {
+  -> empty
+    { return FakeList<Type>::emptyList(); }
+  -> "implements" l:TypeList
+    { return l; }
+}
+
+// ----- Statements
+
+nonterm(Block*) Block {
+  -> "{" l:DeclarationOrStatementListOpt "}"
+    { return new Block(loc, l); }
+}
+
+nonterm(FakeList<Statement>*) DeclarationOrStatementListOpt {
+  -> empty
+    { return FakeList<Statement>::emptyList(); }
+  -> ss:DeclarationOrStatementList
+    { return ss; }
+}
+
+nonterm(FakeList<Statement>*) DeclarationOrStatementList {
+  -> s:DeclarationOrStatement
+    { return FakeList<Statement>::makeList(s); }
+  -> s:DeclarationOrStatement ss:DeclarationOrStatementList
+    { PREPEND_RETURN(s, ss, Statement); }
+}
+
+nonterm(Statement*) DeclarationOrStatement {
+  -> d:Declaration  { return new DeclarationStatement(loc, d); }
+  -> s:Statement    { return s; }
+}
+
+nonterm(Statement*) Statement {
+  -> b:Block
+    { return b; }
+
+  -> "if" e:ParExpression con:Statement "else" alt:Statement
+    { return new IfStatement(loc, e, con, alt); }
+  -> "if" e:ParExpression con:Statement           precedence(TOK_PREFER_SHIFT)
+    { return new IfStatement(loc, e, con); }
+
+  -> "for" "(" e1:ForInit e2:ExpressionOpt ";" e3:ExpressionListOpt ")"
+     s:Statement
+    { return new ForStatement(loc, e1, e2, e3, s); }
+
+  -> "while" e:ParExpression s:Statement
+    { return new WhileStatement(loc, e, s); }
+
+  -> "do" s:Statement "while" e:ParExpression ";"
+    { return new DoStatement(loc, s, e); }
+
+  -> "try" b:Block c:CatchClausesOpt "finally" f:Block
+    { return new TryStatement(loc, b, c, f); }
+  -> "try" b:Block c:CatchClauses
+    { return new TryStatement(loc, b, c); }
+
+  -> "switch" e:ParExpression "{" g:SwitchBlock "}"
+    { return new SwitchStatement(loc, e, g); }
+
+  -> "synchronized" e:ParExpression b:Block
+    { return new SynchronizedStatement(loc, e, b); }
+
+  -> "return" e:ExpressionOpt ";"
+    { return new ReturnStatement(loc, e); }
+
+  -> "throw" e:Expression ";"
+    { return new ThrowStatement(loc, e); }
+
+  -> "break" id:IdentifierOpt ";"
+    { return new BreakStatement(loc, id); }
+
+  -> "continue" id:IdentifierOpt ";"
+    { return new ContinueStatement(loc, id); }
+
+  -> id:Identifier ":" s:Statement
+    { return new LabeledStatement(loc, id, s); }
+
+  -> e:Expression ";"
+    { return new ExpressionStatement(loc, e); }
+
+  -> ";"
+    { return new EmptyStatement(loc); }
+
+}
+
+nonterm(ForInit*) ForInit {
+  -> f:FinalClause t:Type d:Declarators ";"
+    { return new ForInitDeclarators(f, t, d); }
+  -> e:ExpressionList ";"
+    { return new ForInitExpressions(e); }
+  -> ";"
+    { return new ForInitExpressions(); }
+}
+
+nonterm(FakeList<CatchClause>*) CatchClausesOpt {
+  -> empty
+    { return FakeList<CatchClause>::emptyList(); }
+  -> c:CatchClauses
+    { return c; }
+}
+
+nonterm(FakeList<CatchClause>*) CatchClauses {
+  -> c:CatchClause
+    { return FakeList<CatchClause>::makeList(c); }
+  -> c:CatchClause cc:CatchClauses
+    { PREPEND_RETURN(c, cc, CatchClause); }
+}
+
+nonterm(CatchClause*) CatchClause {
+  -> "catch" "(" f:FormalParameter ")" b:Block
+    { return new CatchClause(f, b); }
+}
+
+nonterm(FakeList<Statement>*) SwitchBlock {
+  -> empty
+    { return FakeList<Statement>::emptyList(); }
+  -> ss:SwitchClauses
+    { return ss; }
+}
+
+nonterm(FakeList<Statement>*) SwitchClauses {
+  -> s:SwitchClause
+    { return FakeList<Statement>::makeList(s); }
+  -> s:SwitchClause ss:SwitchClauses
+    { PREPEND_RETURN(s, ss, Statement); }
+}
+
+nonterm(Statement*) SwitchClause {
+  -> "case" e:Expression ":" l:DeclarationOrStatementListOpt
+    { return new CaseClause(loc, e, l); }
+  -> "default" ":" l:DeclarationOrStatementListOpt
+    { return new DefaultClause(loc, l); }
+}
+
+// ----- Expressions
+
+nonterm(Expression*) ParExpression {
+  -> "(" e:Expression ")"   { return e; }
+}
+
+nonterm(Expression*) ExpressionOpt {
+  -> empty        { return NULL; }
+  -> e:Expression { return e;    }
+}
+
+nonterm(FakeList<Expression>*) ExpressionListOpt {
+  -> empty
+    { return FakeList<Expression>::emptyList(); }
+  -> l:ExpressionList
+    { return l; }
+}
+
+nonterm(FakeList<Expression>*) ExpressionList {
+  -> e:Expression
+    { return FakeList<Expression>::makeList(e); }
+  -> e:Expression "," l:ExpressionList
+    { PREPEND_RETURN(e, l, Expression); }
+}
+
+nonterm(Expression*) Expression {
+  -> left:ConditionalExpression op:AssignmentOperator right:Expression
+    { return new AssignmentExpression(loc, left, op, right); }
+  -> e:ConditionalExpression
+    { return e; }
+}
+
+nonterm(BinaryOperator) AssignmentOperator {
+  -> "*="    { return BIN_MULT;    }
+  -> "/="    { return BIN_DIV;     }
+  -> "%="    { return BIN_MOD;     }
+  -> "+="    { return BIN_PLUS;    }
+  -> "-="    { return BIN_MINUS;   }
+  -> "<<="   { return BIN_LSHIFT;  }
+  -> ">>="   { return BIN_RSHIFT;  }
+  -> ">>>="  { return BIN_URSHIFT; }
+  -> "&="    { return BIN_BITAND;  }
+  -> "^="    { return BIN_BITXOR;  }
+  -> "|="    { return BIN_BITOR;   }
+  -> "="     { return BIN_ASSIGN;  }
+}
+
+nonterm(Expression*) ConditionalExpression {
+  -> test:BinaryOperation "?" con:Expression ":" alt:ConditionalExpression
+    { return new ConditionalExpression(loc, test, con, alt); }
+  -> e:BinaryOperation
+    { return e; }
+}
+
+nonterm(Expression*) BinaryOperation {
+  -> first:BinaryOperation "*" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_MULT, second); }
+
+  -> first:BinaryOperation "/" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_DIV, second); }
+
+  -> first:BinaryOperation "%" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_MOD, second); }
+
+  -> first:BinaryOperation "+" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_PLUS, second); }
+
+  -> first:BinaryOperation "-" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_MINUS, second); }
+
+  -> first:BinaryOperation "<<" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_LSHIFT, second); }
+
+  -> first:BinaryOperation ">>" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_RSHIFT, second); }
+
+  -> first:BinaryOperation ">>>" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_URSHIFT, second); }
+
+  -> first:BinaryOperation "<" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_LT, second); }
+
+  -> first:BinaryOperation ">" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_GT, second); }
+
+  -> first:BinaryOperation "<=" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_LTEQ, second); }
+
+  -> first:BinaryOperation ">=" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_GTEQ, second); }
+
+  -> first:BinaryOperation "instanceof" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_INSTANCE, second); }
+
+  -> first:BinaryOperation "==" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_EQ, second); }
+
+  -> first:BinaryOperation "!=" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_NOTEQ, second); }
+
+  -> first:BinaryOperation "&" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_BITAND, second); }
+
+  -> first:BinaryOperation "^" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_BITXOR, second); }
+
+  -> first:BinaryOperation "|" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_BITOR, second); }
+
+  -> first:BinaryOperation "&&" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_AND, second); }
+
+  -> first:BinaryOperation "||" second:BinaryOperation
+    { return new BinaryOperation(loc, first, BIN_OR, second); }
+
+  -> e:UnaryOperation
+    { return e; }
+
+}
+
+nonterm(Expression*) UnaryOperation {
+  fun merge(u1, u2) { return mergeUnary(u1, u2); }
+
+  -> "+" e:UnaryOperation
+    { return new UnaryOperation(loc, UN_PLUS, e); }
+
+  -> "-" e:UnaryOperation
+    { return new UnaryOperation(loc, UN_MINUS, e); }
+
+  -> "++" e:UnaryOperation
+    { return new UnaryOperation(loc, UN_PREINC, e); }
+
+  -> "--" e:UnaryOperation
+    { return new UnaryOperation(loc, UN_PREDEC, e); }
+
+  -> "~" e:UnaryOperation
+    { return new UnaryOperation(loc, UN_BITNOT, e); }
+
+  -> "!" e:UnaryOperation
+    { return new UnaryOperation(loc, UN_NOT, e); }
+
+  -> "(" t:Type ")" e:UnaryOperation
+    { return new CastExpression(loc, t, e); }
+
+  -> e:PostFixExpression
+    { return e; }
+
+}
+
+nonterm(Expression*) PostFixExpression {
+  fun merge(p1, p2) { return mergePostfix(p1, p2); }
+
+  -> base:PostFixExpression "[" idx:ExpressionOpt "]"
+    { return new SubscriptExpression(loc, base, idx); }
+
+  -> base:PostFixExpression args:Arguments
+    { return new InvocationExpression(loc, base, args); }
+
+  -> base:PostFixExpression "." e:PrimaryExpression
+    { return new SelectionExpression(loc, base, e); }
+
+  -> base:PostFixExpression "." "class"
+    { return new ClassSelectionExpression(loc, base); }
+
+  -> base:PostFixExpression "++"
+    { return new UnaryOperation(loc, UN_POSTINC, base); }
+
+  -> base:PostFixExpression "--"
+    { return new UnaryOperation(loc, UN_POSTDEC, base); }
+
+  -> e:PrimaryExpression
+    { return e; }
+
+}
+
+nonterm(Expression*) PrimaryExpression {
+  -> l:Literal
+    { return l; }
+  -> id:Identifier
+    { return id; }
+  -> "(" e:Expression ")"
+    { return e; }
+  -> "this"
+    { return new ThisExpression(loc); }
+  -> "super"
+    { return new SuperExpression(loc); }
+  -> "void" "." "class"
+    { return new VoidClassExpression(loc); }
+
+  -> "new" id:QualifiedIdentifier args:Arguments b:ClassBodyOpt
+    { return new NewClassExpression(loc, id, args, b); }
+  -> "new" t:TypeName de:DimensionExpressions d:DimensionsOpt
+    { return new NewArrayExpression(loc, t, de, d); }
+  -> "new" t:TypeName d:Dimensions i:ArrayInitializer
+    { return new NewArrayExpression(loc, t, NULL, d, i); }
+
+}
+
+nonterm(FakeList<Expression>*) Arguments {
+  -> "(" args:ExpressionListOpt ")"   { return args; }
+}
+
+nonterm(FakeList<Expression>*) DimensionExpressions {
+  -> d:DimensionExpression
+    { return FakeList<Expression>::makeList(d); }
+  -> d:DimensionExpression dd:DimensionExpressions
+    { PREPEND_RETURN(d, dd, Expression); }
+}
+
+nonterm(Expression*) DimensionExpression {
+  -> "[" e:Expression "]"
+    { return new DimensionExpression(loc, e); }
+}
+
+nonterm(ArrayInitializer*) ArrayInitializer {
+  -> "{" "}"
+    { return new ArrayInitializer(loc, FakeList<Expression>::emptyList()); }
+  -> "{" l:VariableInitializerList CommaOpt "}"
+    // Reverse the left-recursive list.  See below.
+    { return new ArrayInitializer(loc, l->reverse()); }
+}
+
+nonterm(bool) CommaOpt {
+  -> empty   { return false; }
+  -> ","     { return true;  }
+}
+
+// We need to build the variable initializer list left-recursively,
+// b/c the corresponding right recursion is very inefficient for long
+// lists.  In other words, the cost of reversing the fake list in place
+// is much lower than the cost of recursing on the stack.  Try parsing
+// in/MARS.java with both versions.
+nonterm(FakeList<Expression>*) VariableInitializerList {
+  -> i:VariableInitializer
+    { return FakeList<Expression>::makeList(i); }
+  -> ii:VariableInitializerList "," i:VariableInitializer
+    { PREPEND_RETURN(i, ii, Expression); }
+}
+
+nonterm(Expression*) VariableInitializer {
+  -> e:ArrayInitializer   { return e; }
+  -> e:Expression         { return e; }
+}
+
+// ----- Types
+
+nonterm(Type*) ResultType {
+  -> t:VoidType
+    { return new Type(t); }
+  -> t:Type
+    { return t; }
+}
+
+nonterm(TypeName*) VoidType {
+  -> "void"
+    { return new BasicTypeName(TYPE_VOID); }
+}
+
+nonterm(FakeList<Type>*) TypeList {
+  -> t:Type
+    { return FakeList<Type>::makeList(t); }
+  -> t:Type "," tt:TypeList
+    { PREPEND_RETURN(t, tt, Type); }
+}
+
+nonterm(Type*) Type {
+  -> n:TypeName d:DimensionsOpt
+    { return new Type(n, d); }
+}
+
+nonterm(TypeName*) TypeName {
+  -> t:BasicType
+    { return new BasicTypeName(t); }
+  -> id:QualifiedIdentifier
+    { return new ReferenceTypeName(id); }
+}
+
+nonterm(BasicType) BasicType {
+  -> "byte"     { return TYPE_BYTE;    }
+  -> "short"    { return TYPE_SHORT;   }
+  -> "char"     { return TYPE_CHAR;    }
+  -> "int"      { return TYPE_INT;     }
+  -> "long"     { return TYPE_LONG;    }
+  -> "float"    { return TYPE_FLOAT;   }
+  -> "double"   { return TYPE_DOUBLE;  }
+  -> "boolean"  { return TYPE_BOOLEAN; }
+}
+
+nonterm(int) DimensionsOpt {
+  -> empty         { return 0; }
+  -> d:Dimensions  { return d; }
+}
+
+nonterm(int) Dimensions {
+  -> "[" "]"
+    { return 1; }
+  -> "[" "]" d:Dimensions
+    { return 1+d; }
+}
+
+// ----- Literals
+
+nonterm(Expression*) Literal {
+  -> l:TOK_INT_LITERAL      { return new IntLiteral(loc, l);         }
+  -> l:TOK_FLOAT_LITERAL    { return new FloatLiteral(loc, l);       }
+  -> l:TOK_STRING_LITERAL   { return new StringLiteral(loc, l);      }
+  -> l:TOK_CHAR_LITERAL     { return new CharLiteral(loc, l);        }
+  -> "true"                 { return new BooleanLiteral(loc, true);  }
+  -> "false"                { return new BooleanLiteral(loc, false); }
+  -> "null"                 { return new NullLiteral(loc);           }
+}
+
+// ----- Identifiers
+
+nonterm(FakeList<Expression>*) QualifiedIdentifierList {
+  -> id:QualifiedIdentifier
+    { return FakeList<Expression>::makeList(id); }
+  -> id:QualifiedIdentifier "," l:QualifiedIdentifierList
+    { PREPEND_RETURN(id, l, Expression); }
+}
+
+nonterm(QualifiedIdentifier*) QualifiedIdentifier {
+  -> l:IdentifierList  { return new QualifiedIdentifier(loc, l->reverse()); }
+}
+
+nonterm(FakeList<Expression>*) IdentifierList {
+  -> id:Identifier
+    { return FakeList<Expression>::makeList(id); }
+  -> l:IdentifierList "." id:Identifier
+    { PREPEND_RETURN(id, l, Expression); }
+}
+
+nonterm(Identifier*) IdentifierOpt {
+  -> empty           { return NULL; }
+  -> id:Identifier   { return id;   }
+}
+
+nonterm(Identifier*) Identifier {
+  -> n:TOK_NAME   { return new Identifier(loc, n); }
+}
+
+
+// EOF

@@ -1,0 +1,15 @@
+`.C{
+#include <stdio.h>
+#include <stdlib.h>
+}
+class Main {
+  public static void main(String[] args) {
+    `{
+      jbyte* bs = (jbyte*)malloc(4);
+      bs[3] = '\0';
+      _copyFromJava(bs, 0, `"abc", 0, 3);
+      printf("%s\n", bs);
+      free(bs);
+    }
+  }
+}

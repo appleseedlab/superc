@@ -1,0 +1,65 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2005, 2007 Robert Grimm
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+/**
+ * Definition of C spacing.
+ *
+ * @author Robert Grimm
+ * @version $Revision: 1.13 $
+ */
+module xtc.lang.CSpacing(State);
+
+import State;
+
+option flag(RELOCATE);
+
+transient void Spacing =
+  ( Space
+  / TraditionalComment
+  / EndOfLineComment
+  / [\r] [\n] Directive
+  / [\r] Directive
+  / [\n] Directive
+  )*
+  ;
+
+transient void Space              = ' ' / '\t' / '\f' ;
+transient void TraditionalComment = "/*" ( '*' !'/' / !'*' _ )* "*/" ;
+transient void EndOfLineComment   = "//" ( ![\n\r] _ )* &LineTerminator ;
+transient void LineTerminator     = '\r' '\n' / '\r' / '\n' ;
+transient void EndOfFile          = !_ ;
+
+transient noinline void Directive =
+    [#] [ ] line:LineNumber [ ] ["] file:FileName ["]
+      f1:" 1"? f2:" 2"? f3:" 3"? f4:" 4"? &LineTerminator
+      { 
+        final int lineNo = Integer.parseInt(line);
+	if (RELOCATE) setLocation(yyStart, file, lineNo-1, FIRST_COLUMN);
+        yyState.lineMarker(file, lineNo, f1, f2, f3, f4, location(yyStart));
+      }
+  / [#] Space* "pragma " pragma:Pragma &LineTerminator
+      { yyState.pragma(pragma, location(yyStart)); }
+  / [#] Space* "ident" Space+ ["] s:FileName ["] &LineTerminator
+      { yyState.ident(s, location(yyStart)); }
+  / /* Empty */
+  ;
+
+transient String LineNumber = [1-9] [0-9]* ;
+transient String FileName   = ( [\\] _ / !["\\] _ )* ;
+transient String Pragma     = ( ![\n\r] _ )* ;

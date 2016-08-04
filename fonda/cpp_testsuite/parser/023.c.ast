@@ -1,0 +1,81 @@
+#superc_args -printAST
+TranslationUnit(
+  ExternalDeclarationList(
+    Conditional(
+      1,
+      Declaration(
+        DeclaringList(
+          BasicDeclarationSpecifier(
+            DeclarationQualifierList(
+              Conditional(
+                1,
+                xtc.lang.cpp.Syntax$Language(
+                  "static"
+                )
+              )
+            ),
+            xtc.lang.cpp.Syntax$Language(
+              "int"
+            )
+          ),
+          ArrayDeclarator(
+            SimpleDeclarator(
+              xtc.lang.cpp.Syntax$Text(
+                "check_part"
+              )
+            ),
+            ArrayAbstractDeclarator()
+          ),
+          AssemblyExpressionOpt(),
+          AttributeSpecifierListOpt(),
+          InitializerOpt(
+            Initializer(
+              MatchedInitializerList(
+                Conditional(
+                  (defined CONFIG_ACORN_PARTITION_ICS),
+                  Initializer(
+                    xtc.lang.cpp.Syntax$Text(
+                      "1"
+                    )
+                  )
+                ),
+                Conditional(
+                  (defined CONFIG_ACORN_PARTITION_POWERTEC),
+                  Initializer(
+                    xtc.lang.cpp.Syntax$Text(
+                      "2"
+                    )
+                  )
+                ),
+                Conditional(
+                  (defined CONFIG_ACORN_PARTITION_EESOX),
+                  Initializer(
+                    xtc.lang.cpp.Syntax$Text(
+                      "3"
+                    )
+                  )
+                )
+              ),
+              Initializer(
+                Conditional(
+                  !(defined CONFIG_ACORN_PARTITION_EESOX),
+                  PrimaryIdentifier(
+                    xtc.lang.cpp.Syntax$Text(
+                      "NULL"
+                    )
+                  ),
+                  (defined CONFIG_ACORN_PARTITION_EESOX),
+                  PrimaryIdentifier(
+                    xtc.lang.cpp.Syntax$Text(
+                      "NULL"
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)

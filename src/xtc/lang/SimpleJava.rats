@@ -1,0 +1,446 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2004-2005 Robert Grimm
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+/**
+ * A Java grammar without AST.
+ *
+ * @author Robert Grimm
+ * @version $Revision: 1.3 $
+ */
+module xtc.lang.SimpleJava;
+
+import xtc.lang.JavaIdentifier(xtc.lang.JavaSymbol, xtc.util.Spacing);
+instantiate xtc.util.Symbol(xtc.util.Spacing);
+import xtc.lang.JavaSymbol(xtc.util.Symbol);
+import xtc.util.Spacing;
+
+option withLocation, constant, parser(xtc.lang.JavaRecognizer);
+
+// ---------------------------------------------------------- Compilation Unit
+
+public transient void CompilationUnit =
+  Spacing
+  ( "package":Word QualifiedIdentifier ";":Symbol )?
+  ImportDeclaration*
+  Declaration*
+  '\u001a'?
+  EndOfFile
+  ;
+
+transient void ImportDeclaration =
+  "import":Word QualifiedIdentifier
+  ( ".":Symbol "*":Symbol )?
+  ";":Symbol
+  ;
+
+// ---------------------------------------------------------- Declarations
+
+void Modifier =
+    "public":Word
+  / "protected":Word
+  / "private":Word
+  / "static":Word
+  / "abstract":Word
+  / "final":Word
+  / "native":Word
+  / "synchronized":Word
+  / "transient":Word
+  / "volatile":Word
+  / "strictfp":Word
+  ;
+
+transient void FormalParameter =
+  ("final":Word)? Type Identifier Dimensions
+  ;
+
+void FormalParameters =
+    "(":Symbol FormalParameter ( ",":Symbol FormalParameter )* ")":Symbol
+  / "(":Symbol ")":Symbol
+  ;
+
+transient void Declarator =
+  Identifier Dimensions ( "=":Symbol VariableInitializer )?
+  ;
+
+void Declarators =
+  Declarator ( ",":Symbol Declarator )*
+  ;
+
+transient void ClassBody =
+  "{":Symbol Declaration* "}":Symbol
+  ;
+
+transient void Declaration =
+
+    // Field declaration.
+
+    Modifier* Type Declarators ";":Symbol
+
+    // Method declaration.
+
+  / Modifier*
+    ResultType Identifier FormalParameters Dimensions OptionalThrowsClause
+    ( Block / ";":Symbol )
+
+    // Constructor declaration.
+
+  / Modifier* Identifier FormalParameters OptionalThrowsClause Block
+
+    // Class declaration.
+
+  / Modifier* "class":Word Identifier
+    ( "extends":Word Type )?
+    ( "implements":Word Type ( ",":Symbol Type )* )?
+    ClassBody
+
+    // Interface declaration.
+
+  / Modifier* "interface":Word Identifier
+    ( "extends":Word Type ( ",":Symbol Type )* )?
+    ClassBody
+
+    // Initialization block.
+
+  / ( "static":Word / /* Empty */ )
+    Block
+  ;
+
+void OptionalThrowsClause =
+  "throws":Word QualifiedIdentifier ( ",":Symbol QualifiedIdentifier )*
+  / /* Empty */
+  ;
+
+// ---------------------------------------------------------- Statements
+
+void Block =
+  "{":Symbol BlockStatement* "}":Symbol
+  ;
+
+transient void BlockStatement =
+    Declaration
+  / Statement
+  ;
+
+transient void Statement =
+    Block
+  / "if":Word ParExpression Statement ( "else":Word Statement )?
+  / "for":Word "(":Symbol
+      ForInit ";":Symbol
+      Expression? ";":Symbol
+      ExpressionList? ")":Symbol Statement
+  / "while":Word ParExpression Statement
+  / "do":Word Statement "while":Word ParExpression ";":Symbol
+  / "try":Word Block CatchClause* "finally":Word Block
+  / "try":Word Block CatchClause+
+  / "switch":Word ParExpression "{":Symbol SwitchGroup* "}":Symbol
+  / "synchronized":Word ParExpression Block
+  / "return":Word Expression? ";":Symbol
+  / "throw":Word Expression ";":Symbol
+  / "break":Word Identifier? ";":Symbol
+  / "continue":Word Identifier? ";":Symbol
+  / Identifier ":":Symbol Statement
+  / Expression ";":Symbol
+  / ";":Symbol
+  ;
+
+transient void ParExpression =
+  "(":Symbol Expression ")":Symbol
+  ;
+
+void ForInit =
+    ("final":Word)? Type Declarators
+  / ExpressionList
+  / /* Empty */
+  ;
+
+void CatchClause =
+  "catch":Word "(":Symbol FormalParameter ")":Symbol Block
+  ;
+
+void SwitchGroup =
+    "case":Word Expression ":":Symbol BlockStatement*
+  / "default":Word ":":Symbol BlockStatement*
+  ;
+
+// ---------------------------------------------------------- Expressions
+
+transient void ExpressionList =
+  Expression ( ",":Symbol Expression )*
+  ;
+
+void Expression =
+    <Assignment> ConditionalExpression AssignmentOperator Expression
+  / <Base>       ConditionalExpression
+  ;
+
+void AssignmentOperator =
+    "=":Symbol
+  / "+=":Symbol
+  / "-=":Symbol
+  / "*=":Symbol
+  / "/=":Symbol
+  / "&=":Symbol
+  / "|=":Symbol
+  / "^=":Symbol
+  / "%=":Symbol
+  / "<<=":Symbol
+  / ">>=":Symbol
+  / ">>>=":Symbol
+  ;
+
+void ConditionalExpression =
+    <Conditional> ConditionalOrExpression "?":Symbol Expression 
+                                          ":":Symbol ConditionalExpression
+  / <Base> ConditionalOrExpression
+  ;
+
+void ConditionalOrExpression =
+    <Or>   ConditionalOrExpression "||":Symbol ConditionalAndExpression
+  / <Base> ConditionalAndExpression
+  ;
+
+transient void ConditionalAndExpression =
+    <And>  ConditionalAndExpression "&&":Symbol InclusiveOrExpression
+  / <Base> InclusiveOrExpression
+  ;
+
+transient void InclusiveOrExpression =
+    <Or>   InclusiveOrExpression "|":Symbol ExclusiveOrExpression
+  / <Base> ExclusiveOrExpression
+  ;
+
+transient void ExclusiveOrExpression =
+    <Xor>  ExclusiveOrExpression "^":Symbol AndExpression
+  / <Base> AndExpression
+  ;
+
+transient void AndExpression =
+    <And>  AndExpression "&":Symbol EqualityExpression
+  / <Base> EqualityExpression
+  ;
+
+transient void EqualityExpression =
+    <Equal>    EqualityExpression "==":Symbol InstanceOfExpression
+  / <NotEqual> EqualityExpression "!=":Symbol InstanceOfExpression
+  / <Base>     InstanceOfExpression
+  ;
+
+transient void InstanceOfExpression =
+    RelationalExpression "instanceof":Word Type
+  / RelationalExpression
+  ;
+
+void RelationalExpression =
+    <Less>       RelationalExpression "<":Symbol ShiftExpression
+  / <Greater>    RelationalExpression ">":Symbol ShiftExpression
+  / <LessEqual>  RelationalExpression "<=":Symbol ShiftExpression
+  / <GreatEqual> RelationalExpression ">=":Symbol ShiftExpression
+  / <Base>       ShiftExpression
+  ;
+
+transient void ShiftExpression =
+    <SignedLeft>    ShiftExpression "<<":Symbol AdditiveExpression
+  / <SignedRigth>   ShiftExpression ">>":Symbol AdditiveExpression
+  / <UnsignedRight> ShiftExpression ">>>":Symbol AdditiveExpression
+  / <Base>          AdditiveExpression
+  ;
+
+transient void AdditiveExpression =
+    <Plus>  AdditiveExpression "+":Symbol MultiplicativeExpression
+  / <Minus> AdditiveExpression "-":Symbol MultiplicativeExpression
+  / <Base>  MultiplicativeExpression
+  ;
+
+transient void MultiplicativeExpression =
+    <Times>  MultiplicativeExpression "*":Symbol UnaryExpression
+  / <Over>   MultiplicativeExpression "/":Symbol UnaryExpression
+  / <Modulo> MultiplicativeExpression "%":Symbol UnaryExpression
+  / <Base>   UnaryExpression
+  ;
+
+transient void UnaryExpression =
+    <Plus>      "+":Symbol UnaryExpression
+  / <Minus>     "-":Symbol UnaryExpression
+  / <Increment> "++":Symbol UnaryExpression
+  / <Decrement> "--":Symbol UnaryExpression
+  / <Base>      UnaryExpressionNotPlusMinus
+  ;
+
+transient void UnaryExpressionNotPlusMinus =
+    <BitwiseNot> "~":Symbol UnaryExpression
+  / <LogicalNot> "!":Symbol UnaryExpression
+  / <BasicCast>  "(":Symbol BasicType Dimensions ")":Symbol UnaryExpression
+  / <Cast>       "(":Symbol Type ")":Symbol UnaryExpressionNotPlusMinus
+  / <Base>       PostfixExpression
+  ;
+
+void PostfixExpression =
+  PrimaryExpression PostfixExpressionTail*
+  ;
+
+void PostfixExpressionTail =
+    "[":Symbol Expression? "]":Symbol
+  / Arguments
+  / ".":Symbol PrimaryExpression
+  / ".":Symbol "class":Word
+  / "++":Symbol
+  / "--":Symbol
+  ;
+
+transient void PrimaryExpression =
+    Literal
+  / Identifier
+  / "(":Symbol Expression ")":Symbol
+  / "this":Word
+  / "super":Word
+  / "new":Word QualifiedIdentifier Arguments ClassBody?
+  / "new":Word TypeName DimensionExpression+ Dimensions
+  / "new":Word TypeName Dimensions ArrayInitializer
+  / "void":Word ".":Symbol "class":Word
+  ;
+
+transient void DimensionExpression =
+  "[":Symbol Expression "]":Symbol
+  ;
+
+transient void Arguments =
+    "(":Symbol ExpressionList ")":Symbol
+  / "(":Symbol ")":Symbol
+  ;
+
+transient void ArrayInitializer =
+    "{":Symbol
+      ( VariableInitializer ",":Symbol )*
+    "}":Symbol
+  / "{":Symbol
+      VariableInitializer
+      ( ",":Symbol VariableInitializer )*
+    "}":Symbol
+  ;
+
+void VariableInitializer =
+    ArrayInitializer
+  / Expression
+  ;
+
+// ---------------------------------------------------------- Types
+
+void ResultType =
+    "void":Word
+  / Type
+  ;
+
+void Type =
+  TypeName Dimensions
+  ;
+
+void TypeName =
+    BasicType
+  / QualifiedIdentifier
+  ;
+
+void BasicType =
+    "byte":Word
+  / "short":Word
+  / "char":Word
+  / "int":Word
+  / "long":Word
+  / "float":Word
+  / "double":Word
+  / "boolean":Word
+  ;
+
+void Dimensions =
+  ( "[":Symbol "]":Symbol )*
+  ;
+
+// ---------------------------------------------------------- Literals
+
+String Literal =
+    FloatingPointLiteral Spacing
+  / IntegerLiteral Spacing
+  / CharacterLiteral Spacing
+  / StringLiteral Spacing
+  / BooleanLiteral
+  / NullLiteral
+  ;
+
+// ----- Integer literals
+
+String IntegerLiteral =
+    HexNumeral     IntegerTypeSuffix? 
+  / OctalNumeral   IntegerTypeSuffix?
+  / DecimalNumeral IntegerTypeSuffix?
+  ;
+
+transient String DecimalNumeral    = '0' / NonZeroDigit Digit* ;
+transient String NonZeroDigit      = [1-9] ;
+transient String Digit             = [0-9] ;
+
+transient String HexNumeral        = '0' [xX] HexDigit+ ;
+transient String HexDigit          = [0-9a-fA-F] ;
+
+transient String OctalNumeral      = '0' OctalDigit+ ;
+transient String OctalDigit        = [0-7] ;
+
+transient String IntegerTypeSuffix = [lL] ;
+
+// ----- Floating point literals
+
+String FloatingPointLiteral =
+    Digit+ '.' Digit* Exponent? FloatTypeSuffix?
+  /        '.' Digit+ Exponent? FloatTypeSuffix?
+  / Digit+            Exponent  FloatTypeSuffix?
+  / Digit+            Exponent? FloatTypeSuffix
+  ;
+
+transient String Exponent        = [eE] [+\-]? Digit+ ;
+transient String FloatTypeSuffix = [fFdD] ;
+
+// ----- Character and string literals
+
+String CharacterLiteral = ['] ( EscapeSequence / !['\\] _ )  ['] ;
+String StringLiteral    = ["] ( EscapeSequence / !["\\] _ )* ["] ;
+
+transient String EscapeSequence =
+  '\\' [btnfr"'\\] / UnicodeEscape / OctalEscape ;
+
+transient String OctalEscape    =
+  '\\' [0-3] OctalDigit OctalDigit
+  / '\\' OctalDigit OctalDigit
+  / '\\' OctalDigit
+  ;
+
+transient String UnicodeEscape  =
+  '\\' 'u' HexDigit HexDigit HexDigit HexDigit ;
+
+// ----- Boolean literals
+
+String BooleanLiteral =
+    "true":Word
+  / "false":Word
+  ;
+
+// ----- Null literals
+
+String NullLiteral =
+  "null":Word
+  ;
+
+// ============================================================================

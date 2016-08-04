@@ -1,0 +1,865 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2005-2008 Robert Grimm
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+/**
+ * Definition of C's hierarchical syntax.
+ *
+ * @author Robert Grimm
+ * @version $Revision: 1.56 $
+ */
+module xtc.lang.CCore(Context, Constant, Identifier, Symbol, Spacing);
+
+import Context;
+import Constant;
+import Identifier;
+import Symbol;
+import Spacing;
+
+option flag(GCC);
+
+// ------------------------------------------------------ External definitions
+
+public generic TranslationUnit = 
+  <Unit> Prelude ExternalDeclaration* Annotations EndOfFile
+  ;
+
+public resetting void Prelude = Directive Spacing ;
+
+public stateful variant Node ExternalDeclaration =
+    <Declaration> { yyState.mark(); }
+                  d:Declaration         { yyValue = yyState.annotate(d);  }
+  / <Function>    fd:FunctionDefinition { yyValue = yyState.annotate(fd); }
+  / <Assembly>    a:AssemblyDefinition  { yyValue = yyState.annotate(a);  }
+  / <Empty>       e:EmptyDefinition     { yyValue = yyState.annotate(e);  }
+  ;
+
+generic FunctionDefinition =
+  <Definition>
+  ("__extension__":Keyword)?
+  DeclarationSpecifiers? Declarator FunctionDeclaratorContext
+  DeclarationList? CompoundStatement
+  ;
+
+generic DeclarationList = <List> DeclarationListEntry+ ;
+
+stateful Node DeclarationListEntry = <Entry> Declaration ;
+
+generic EmptyDefinition = void:";":Symbol ;
+
+public stateful transient Node Annotations = /* Empty */
+  { 
+    yyState.mark();
+    yyValue = yyState.annotate(null);
+  }
+  ;
+
+// -------------------------------------------------------------- Declarations
+
+transient generic Declaration =
+  ("__extension__":Keyword)?
+  DeclarationSpecifiers l:InitializedDeclaratorList? 
+  &{ yyState.isValid(l) }
+  void:";":Symbol
+  ;
+
+generic DeclarationSpecifiers = DeclarationSpecifierPlus ;
+
+transient Pair<Node> DeclarationSpecifierPlus = DeclarationSpecifier+ ;
+
+variant Node DeclarationSpecifier =
+    <StorageClass>  StorageClassSpecifier
+  / <TypeSpecifier> TypeSpecifier TypeSpecContext
+  / <TypeQualifier> TypeQualifier
+  / <Function>      FunctionSpecifier
+  / <Attribute>     AttributeSpecifier
+  ;
+
+generic InitializedDeclaratorList =
+  <List> InitializedDeclarator (void:",":Symbol InitializedDeclarator)*
+  ;
+
+transient generic InitializedDeclarator =
+  AttributeSpecifierList?
+  Declarator
+  SimpleAssemblyExpression? AttributeSpecifierList?
+  (void:"=":Symbol Initializer)?
+  ;
+
+Node StorageClassSpecifier =
+    <Auto>     AutoSpecifier
+  / <Extern>   ExternSpecifier
+  / <Register> RegisterSpecifier
+  / <Static>   StaticSpecifier
+  / <Thread>   ThreadSpecifier
+  / <Typedef>  TypedefSpecifier
+  ;
+
+inline generic AutoSpecifier     = void:"auto":Keyword ;
+inline generic ExternSpecifier   = void:"extern":Keyword ;
+inline generic RegisterSpecifier = void:"register":Keyword ;
+inline generic StaticSpecifier   = void:"static":Keyword ;
+inline generic ThreadSpecifier   = void:"__thread":Keyword ;
+inline generic TypedefSpecifier  = void:"typedef":Keyword TypedefContext ;
+
+transient Node TypeQualifier =
+    <Volatile> VolatileQualifier
+  / <Const>    ConstantQualifier
+  / <Restrict> RestrictQualifier
+  ;
+
+inline generic VolatileQualifier =
+  "volatile":Keyword / "__volatile":Keyword / "__volatile__":Keyword
+  ;
+
+inline generic ConstantQualifier =
+  "const":Keyword / "__const":Keyword / "__const__":Keyword
+  ;
+
+inline generic RestrictQualifier =
+  "restrict":Keyword / "__restrict":Keyword / "__restrict__":Keyword
+  ;
+
+inline generic FunctionSpecifier =
+  "inline":Keyword / "__inline":Keyword / "__inline__":Keyword  
+  ;
+
+transient Node TypeSpecifier =
+    <Enumeration> EnumerationTypeSpecifier
+  / <Structure>   StructureTypeSpecifier
+  / <Union>       UnionTypeSpecifier
+  / <Floating>    FloatingPointTypeSpecifier
+  / <Integer>     IntegerTypeSpecifier
+  / <Typedef>     TypedefName
+  / <Typeof>      TypeofSpecifier
+  / <Void>        VoidTypeSpecifier
+  / <VarArgList>  VarArgListSpecifier
+  ;
+
+Node EnumerationTypeSpecifier =
+    <Definition> EnumerationTypeDefinition
+  / <Reference>  EnumerationTypeReference
+  ;
+
+inline generic EnumerationTypeDefinition =
+  <Definition>
+  void:"enum":Keyword AttributeSpecifierList? EnumerationTag? 
+  void:"{":Symbol EnumeratorList void:(",":Symbol)? void:"}":Symbol
+  AttributeSpecifierList?
+  ;
+
+transient String EnumerationTag = Identifier ;
+
+generic EnumeratorList =
+  <List> Enumerator (void:",":Symbol Enumerator)*
+  ;
+
+transient generic Enumerator =
+  <Enumerator>
+  id:Identifier { yyState.bind(toText(id), false); } 
+  (void:"=":Symbol ConstantExpression)?
+  ;
+
+inline generic EnumerationTypeReference =
+  <Reference> void:"enum":Keyword AttributeSpecifierList? EnumerationTag
+  ;
+
+Node StructureTypeSpecifier =
+    <Definition> StructureTypeDefinition
+  / <Reference>  StructureTypeReference
+  ;
+
+inline generic StructureTypeDefinition =
+  <Definition>
+  void:"struct":Keyword AttributeSpecifierList? StructureTag?
+  void:"{":Symbol PushScope EnterStructure
+  StructureDeclarationList
+  void:"}":Symbol ExitStructure PopScope
+  AttributeSpecifierList?
+  ;
+
+inline generic StructureTypeReference =
+  <Reference> void:"struct":Keyword AttributeSpecifierList? StructureTag
+  ;
+
+transient Object StructureTag = <Identifier> Identifier ;
+
+Node UnionTypeSpecifier =
+    <Definition> UnionTypeDefinition
+  / <Reference>  UnionTypeReference
+  ;
+
+inline generic UnionTypeDefinition =
+  <Definition>
+  void:"union":Keyword AttributeSpecifierList? UnionTag?
+  void:"{":Symbol PushScope EnterStructure
+  StructureDeclarationList
+  void:"}":Symbol ExitStructure PopScope
+  AttributeSpecifierList?
+  ;
+
+inline generic UnionTypeReference =
+  <Reference> void:"union":Keyword AttributeSpecifierList? UnionTag
+  ;
+
+transient Object UnionTag = <Identifier> Identifier ;
+
+transient generic StructureDeclarationList =
+    <Regular> AnnotatedStructureDeclaration+ Annotations
+  / <Empty>   &{ GCC }  /* Empty */ Annotations
+  ;
+
+stateful Node AnnotatedStructureDeclaration =
+  { yyState.mark(); } d:StructureDeclaration { yyValue = yyState.annotate(d); }
+  ;
+
+generic StructureDeclaration =
+  <Declaration>
+  ("__extension__":Keyword)?
+  SpecifierQualifierList OptionalStructureDeclaratorList void:";":Symbol
+  void:( &{ GCC } void:(";":Symbol)+ )?
+  ;
+
+generic SpecifierQualifierList = SpecifierQualifierPlus ;
+
+transient Pair<Node> SpecifierQualifierPlus = SpecifierQualifier+ ;
+
+Node SpecifierQualifier =
+    <TypeSpecifier> TypeSpecifier TypeSpecContext
+  / <TypeQualifier> TypeQualifier
+  / <Attribute>     AttributeSpecifier
+  ;
+
+Node OptionalStructureDeclaratorList =
+    <List> StructureDeclaratorList
+  / <Null> &{ GCC} null
+  ;
+
+generic StructureDeclaratorList =
+  <List> StructureDeclarator (void:",":Symbol StructureDeclarator)*
+  ;
+
+transient Node StructureDeclarator =
+    <BitField> BitField
+  / <Simple>   AttributedDeclarator
+  ;
+
+inline generic BitField =
+  AttributeSpecifierList?  
+  Declarator? void:":":Symbol ConstantExpression
+  AttributeSpecifierList?
+  ;
+
+generic AttributedDeclarator =
+  AttributeSpecifierList? Declarator AttributeSpecifierList? ;
+
+variant Node Declarator =
+    <Pointer> PointerDeclarator
+  / <Direct>  DirectDeclarator
+  ;
+
+generic PointerDeclarator = Pointer DirectDeclarator ;
+
+generic Pointer = void:"*":Symbol TypeQualifierList Pointer? ;
+
+generic TypeQualifierList = ( TypeQualifier / AttributeSpecifier )* ;
+
+transient generic DirectDeclarator =
+    <NewFunction>   DirectDeclarator void:"(":Symbol 
+                                     PushScope ParameterTypeList
+                                     void:")":Symbol ParameterContext
+                                     @FunctionDeclarator
+  / <OldFunction>   DirectDeclarator void:"(":Symbol
+                                     PushScope IdentifierList?
+                                     void:")":Symbol ParameterContext
+                                     @FunctionDeclarator
+  / <FixedArray>    DirectDeclarator void:"[":Symbol
+                                     ArrayQualifierList ArraySizeExpression?
+                                     void:"]":Symbol
+                                     @ArrayDeclarator
+  / <VariableArray> DirectDeclarator void:"[":Symbol
+                                     ArrayQualifierList VariableLength
+                                     void:"]":Symbol
+                                     @ArrayDeclarator
+  / <FullBase>      void:"(":Symbol AttributedDeclarator void:")":Symbol
+  / <SimpleBase>    SimpleDeclarator
+  ;
+
+generic VariableLength = void:"*":Symbol ;
+
+generic SimpleDeclarator =
+  <Declarator> id:Identifier { yyState.bind(toText(id)); }
+  ;
+
+generic ParameterTypeList = ParameterList (void:",":Symbol "...":Symbol)? ;
+
+generic ParameterList =
+  ParameterDeclaration (void:",":Symbol ParameterDeclaration)* ;
+
+transient stateful generic ParameterDeclaration =
+    <Concrete> DeclarationSpecifiers Declarator AttributeSpecifierList?
+  / <Abstract> DeclarationSpecifiers AbstractDeclarator? AttributeSpecifierList?
+  ;
+
+generic AttributedAbstractDeclarator =
+  AttributeSpecifierList? AbstractDeclarator
+  ;
+
+generic AbstractDeclarator =
+  p:Pointer? d:DirectAbstractDeclarator &{ (null != p) || (null != d) } ;
+
+variant generic DirectAbstractDeclarator =
+    <FixedArray>    DirectAbstractDeclarator "[":Symbol
+      AssignmentExpression? void:"]":Symbol
+  / <VariableArray> DirectAbstractDeclarator "[":Symbol
+      VariableLength void:"]":Symbol
+  / <Function>      DirectAbstractDeclarator "(":Symbol
+      ParameterTypeList? void:")":Symbol
+  / <Parenthesized> void:"(":Symbol AttributedAbstractDeclarator void:")":Symbol
+  / <Empty>         null
+  ;
+
+generic IdentifierList =
+  id1:Identifier { yyState.bind(toText(id1)); }
+  (void:",":Symbol id2:Identifier { yyState.bind(toText(id2)); })*
+  ;
+
+generic ArrayQualifierList = ( ArrayQualifier / AttributeSpecifier )* ;
+
+inline Node ArrayQualifier =
+    <Static>   StaticSpecifier
+  / <Volatile> VolatileQualifier
+  / <Restrict> RestrictQualifier
+  / <Const>    ConstantQualifier
+  ;
+
+Node FloatingPointTypeSpecifier =
+    <Complex>   Complex
+  / <Double>    Double
+  / <Float>     Float
+  ;
+
+inline generic Complex =
+  "_Complex":Keyword / "__complex__":Keyword
+  ;
+
+inline generic Double = void:"double":Keyword ;
+inline generic Float  = void:"float":Keyword  ;
+
+Node IntegerTypeSpecifier =
+    <Long>     Long
+  / <Int>      Int
+  / <Short>    Short
+  / <Char>     Char
+  / <Bool>     Bool
+  / <Unsigned> Unsigned
+  / <Signed>   Signed
+  ;
+
+inline generic Long     = void:"long":Keyword     ;
+inline generic Int      = void:"int":Keyword      ;
+inline generic Short    = void:"short":Keyword    ;
+inline generic Char     = void:"char":Keyword     ;
+inline generic Bool     = void:"_Bool":Keyword    ;
+inline generic Unsigned = void:"unsigned":Keyword ;
+
+inline generic Signed =
+  "signed":Keyword / "__signed":Keyword / "__signed__":Keyword
+  ;
+
+inline generic TypedefName =
+  id:Identifier &{ yyState.isType(toText(id)) }
+  ;
+
+inline generic TypeofSpecifier =
+    <Type>       TypeofKeyword void:"(":Symbol TypeName   void:")":Symbol
+  / <Expression> TypeofKeyword void:"(":Symbol Expression void:")":Symbol
+  ;
+
+void TypeofKeyword =
+  "typeof":Keyword / "__typeof":Keyword / "__typeof__":Keyword
+  ;
+
+inline generic VoidTypeSpecifier = void:"void":Keyword ;
+
+inline generic VarArgListSpecifier = void:"__builtin_va_list":Keyword ;
+
+transient Node Initializer =
+    <Complex> void:"{":Symbol InitializerList
+      void:(",":Symbol)? void:"}":Symbol
+  / <Simple>  AssignmentExpression
+  ;
+
+transient generic InitializerList =
+    InitializerListEntry (void:",":Symbol InitializerListEntry)*
+  / &{ GCC } /* Empty */
+  ;
+
+transient generic InitializerListEntry = Designation? Initializer ;
+
+variant generic Designation =
+    <Standard>      Designator+ void:"=":Symbol
+  / <ObsoleteArray> &{ GCC } yyValue:ObsoleteArrayDesignation
+  / <ObsoleteField> &{ GCC } yyValue:ObsoleteFieldDesignation
+  ;
+
+generic Designator =
+    <Array>               "[":Symbol ConstantExpression void:"]":Symbol
+  / <ArrayRange> &{ GCC } "[":Symbol ConstantExpression void:"...":Symbol
+                                     ConstantExpression void:"]":Symbol
+  / <Structure>           ".":Symbol PrimaryIdentifier
+  ;
+
+generic ObsoleteArrayDesignation =
+    <Array>      "[":Symbol ConstantExpression void:"]":Symbol
+  / <ArrayRange> "[":Symbol ConstantExpression void:"...":Symbol
+                            ConstantExpression void:"]":Symbol
+  ;
+
+generic ObsoleteFieldDesignation = Identifier void:":":Symbol ;
+
+stateful generic TypeName = SpecifierQualifierList AbstractDeclarator? ;
+
+generic AttributeSpecifierList = AttributeSpecifierPlus ;
+
+transient Pair<Node> AttributeSpecifierPlus = AttributeSpecifier+ ;
+
+generic AttributeSpecifier =
+  AttributeKeyword void:"(":Symbol void:"(":Symbol AttributeList?
+    void:")":Symbol void:")":Symbol
+  ;
+
+void AttributeKeyword =
+  "__attribute":Keyword / "__attribute__":Keyword
+  ;
+
+generic AttributeList =
+  AttributeListEntry (void:",":Symbol AttributeListEntry)*
+  ;
+
+transient generic AttributeListEntry =
+  Word (void:"(":Symbol ExpressionList? void:")":Symbol)?
+  ;
+
+// ---------------------------------------------------------------- Statements
+
+variant Node Statement =
+    <Expression>  ExpressionStatement
+  / <Compound>    CompoundStatement
+  / <Conditional> ConditionalStatement
+  / <Iterative>   IterationStatement
+  / <Switch>      SwitchStatement
+  / <Labeled>     LabeledStatement
+  / <Break>       BreakStatement
+  / <Continue>    ContinueStatement
+  / <Return>      ReturnStatement
+  / <Goto>        GotoStatement
+  / <Assembly>    AssemblyStatement
+  / <Empty>       EmptyStatement
+  ;
+
+inline generic LabeledStatement = 
+    <Complete>            Label Statement
+  / <Incomplete> &{ GCC } Label null
+  ;
+
+transient variant Node Label =
+    <Named>   NamedLabel
+  / <Case>    CaseLabel
+  / <Default> DefaultLabel
+  ;
+
+inline generic NamedLabel =
+  <Label> Identifier void:":":Symbol AttributeSpecifierList? ;
+
+inline generic DefaultLabel = void:"default":Keyword void:":":Symbol ;
+
+inline generic CaseLabel =
+    <Range>  &{ GCC } void:"case":Keyword
+      ConstantExpression void:"...":Symbol ConstantExpression void:":":Symbol
+  / <Simple>          void:"case":Keyword  ConstantExpression void:":":Symbol
+  ;
+
+generic CompoundStatement =
+  <Compound>
+  void:"{":Symbol PushScope
+  LocalLabelDeclarationStar
+  DeclarationOrStatementStar
+  Annotations
+  void:"}":Symbol PopScope
+  ;
+
+transient Pair<Node> LocalLabelDeclarationStar = LocalLabelDeclaration* ;
+
+generic LocalLabelDeclaration =
+  void:"__label__":Keyword
+  Identifier (void:",":Symbol Identifier)*
+  void:";":Symbol  
+  ;
+
+transient Pair<Node> DeclarationOrStatementStar = DeclarationOrStatement* ;
+
+stateful Node DeclarationOrStatement =
+    <Declaration> { yyState.mark(); }
+                  d:Declaration { yyValue = yyState.annotate(d); }
+  / <Statement>   s:Statement   { yyValue = yyState.annotate(s); }
+  ;
+
+inline Node ConditionalStatement =
+    <IfElse> IfElseStatement
+  / <If>     IfStatement
+  ;
+
+inline generic IfElseStatement =
+  void:"if":Keyword void:"(":Symbol Expression void:")":Symbol
+    Statement void:"else":Keyword Statement
+  ;
+
+inline generic IfStatement =
+  void:"if":Keyword void:"(":Symbol Expression void:")":Symbol
+    Statement
+  ;
+
+inline Node IterationStatement =
+    <While> WhileStatement
+  / <Do>    DoStatement
+  / <For>   ForStatement
+  ;
+
+inline generic WhileStatement =
+  void:"while":Keyword void:"(":Symbol Expression void:")":Symbol
+    Statement
+  ;
+
+inline generic DoStatement =
+  void:"do":Keyword Statement void:"while":Keyword
+    void:"(":Symbol Expression void:")":Symbol void:";":Symbol
+  ;
+
+inline generic ForStatement =
+  void:"for":Keyword PushScope
+  void:"(":Symbol
+  InitialClause Expression? void:";":Symbol Expression?
+  void:")":Symbol
+  Statement PopScope
+  ;
+
+stateful Node InitialClause =
+    <Declaration> Declaration
+  / <Expression>  Expression? void:";":Symbol
+  ;
+
+inline generic SwitchStatement =
+  void:"switch":Keyword void:"(":Symbol Expression void:")":Symbol
+    Statement
+  ;
+
+inline generic BreakStatement =
+  void:"break":Keyword void:";":Symbol
+  ;
+
+inline generic ContinueStatement =
+  void:"continue":Keyword void:";":Symbol
+  ;
+
+inline generic ReturnStatement =
+  void:"return":Keyword Expression? void:";":Symbol
+  ;
+
+inline generic GotoStatement =
+    <Direct>            void:"goto":Keyword null       PrimaryIdentifier
+                        void:";":Symbol
+  / <Computed> &{ GCC } void:"goto":Keyword "*":Symbol Expression
+                        void:";":Symbol
+  ;
+
+inline generic ExpressionStatement =
+  Expression void:";":Symbol
+  ;
+
+inline generic EmptyStatement =
+  void:";":Symbol
+  ;
+
+// --------------------------------------------------------------- Expressions
+
+transient variant Node Expression = CommaExpression ;
+
+generic CommaExpression =
+    <Comma> CommaExpression void:",":Symbol AssignmentExpression
+  / <Base>  yyValue:AssignmentExpression
+  ;
+
+transient Node ArraySizeExpression = AssignmentExpression ;
+
+generic AssignmentExpression =
+    <Assignment> UnaryExpression AssignmentOperator AssignmentExpression
+  / <Base>       yyValue:ConditionalExpression
+  ;
+
+String AssignmentOperator =
+    <Equal>       "=":Symbol
+  / <PlusEqual>   "+=":Symbol
+  / <MinusEqual>  "-=":Symbol
+  / <TimesEqual>  "*=":Symbol
+  / <OverEqual>   "/=":Symbol
+  / <ModuloEqual> "%=":Symbol
+  / <LeftEqual>   "<<=":Symbol
+  / <RightEqual>  ">>=":Symbol
+  / <AndEqual>    "&=":Symbol
+  / <XorEqual>    "^=":Symbol
+  / <OrEqual>     "|=":Symbol
+  ;
+
+transient Node ConstantExpression = ConditionalExpression ;
+
+generic ConditionalExpression =
+    <Conditional>           LogicalOrExpression void:"?":Symbol
+      Expression  void:":":Symbol ConditionalExpression
+  / <IncompleteConditional> &{ GCC } LogicalOrExpression void:"?":Symbol
+      null        void:":":Symbol ConditionalExpression
+  / <Base>                  yyValue:LogicalOrExpression
+  ;
+
+generic LogicalOrExpression =
+    <Or>   LogicalOrExpression void:"||":Symbol LogicalAndExpression
+  / <Base> yyValue:LogicalAndExpression
+  ;
+
+transient generic LogicalAndExpression =
+    <And>  LogicalAndExpression void:"&&":Symbol BitwiseOrExpression
+  / <Base> yyValue:BitwiseOrExpression
+  ;
+
+transient generic BitwiseOrExpression =
+    <Or>   BitwiseOrExpression void:"|":Symbol BitwiseXorExpression
+  / <Base> yyValue:BitwiseXorExpression
+  ;
+
+transient generic BitwiseXorExpression =
+    <Xor>  BitwiseXorExpression void:"^":Symbol BitwiseAndExpression
+  / <Base> yyValue:BitwiseAndExpression
+  ;
+
+transient generic BitwiseAndExpression =
+    <And>  BitwiseAndExpression void:"&":Symbol EqualityExpression
+  / <Base> yyValue:EqualityExpression
+  ;
+
+transient generic EqualityExpression =
+    <Recursion> EqualityExpression EqualityOperator RelationalExpression
+  / <Base>      yyValue:RelationalExpression
+  ;
+
+String EqualityOperator =
+    <Equal>    "==":Symbol
+  / <NotEqual> "!=":Symbol
+  ;
+
+transient generic RelationalExpression =
+    <Recursion> RelationalExpression RelationalOperator ShiftExpression
+  / <Base>      yyValue:ShiftExpression
+  ;
+
+String RelationalOperator =
+    <LessEqual>    "<=":Symbol
+  / <Less>         "<":Symbol
+  / <GreaterEqual> ">=":Symbol
+  / <Greater>      ">":Symbol
+  ;
+
+transient generic ShiftExpression =
+    <Recursion>  ShiftExpression ShiftOperator AdditiveExpression
+  / <Base>       yyValue:AdditiveExpression
+  ;
+
+String ShiftOperator =
+    <Left>  "<<":Symbol
+  / <Right> ">>":Symbol
+  ;
+
+transient generic AdditiveExpression =
+    <Recursion> AdditiveExpression AdditiveOperator MultiplicativeExpression
+  / <Base>      yyValue:MultiplicativeExpression
+  ;
+
+String AdditiveOperator =
+    <Plus>  "+":Symbol
+  / <Minus> "-":Symbol
+  ;
+
+transient generic MultiplicativeExpression =
+    <Recursion> MultiplicativeExpression MultiplicativeOperator CastExpression
+  / <Base>      yyValue:CastExpression
+  ;
+
+String MultiplicativeOperator =
+    <Times>  "*":Symbol
+  / <Over>   "/":Symbol
+  / <Modulo> "%":Symbol
+  ;
+
+generic CastExpression =
+    <Cast> void:"(":Symbol TypeName void:")":Symbol CastExpression
+  / <Base> yyValue:UnaryExpression
+  ;
+
+Node UnaryExpression =
+    <Sizeof>            SizeofExpression
+  / <Alignof>           AlignofExpression
+  / <Offsetof>          OffsetofExpression
+  / <TypeCompatibility> TypeCompatibilityExpression
+  / <Minus>             UnaryMinusExpression
+  / <Plus>              UnaryPlusExpression
+  / <LogicalNot>        LogicalNegationExpression
+  / <BitwiseNot>        BitwiseNegationExpression
+  / <Address>           AddressExpression
+  / <LabelAddress>      LabelAddressExpression
+  / <Indirection>       IndirectionExpression
+  / <Increment>         PreincrementExpression
+  / <Decrement>         PredecrementExpression
+  / <Extension>         ExtensionExpression
+  / <Base>              PostfixExpression
+  ;
+
+inline generic SizeofExpression =
+    <Type>       void:"sizeof":Keyword void:"(":Symbol TypeName void:")":Symbol
+                 !("{":Symbol) // Do not consume compound literals
+  / <Expression> void:"sizeof":Keyword UnaryExpression
+  ;
+
+inline generic AlignofExpression =
+    <Type>       AlignofKeyword void:"(":Symbol TypeName void:")":Symbol
+                 !("{":Symbol) // Do not consume compound literals
+  / <Expression> AlignofKeyword UnaryExpression
+  ;
+
+void AlignofKeyword = "__alignof__":Keyword / "__alignof":Keyword ;
+
+inline generic OffsetofExpression =
+  void:"__builtin_offsetof":Keyword void:"(":Symbol
+    TypeName void:",":Symbol PostfixExpression
+  void:")":Symbol
+  ;
+
+inline generic TypeCompatibilityExpression =
+  void:"__builtin_types_compatible_p":Keyword
+  void:"(":Symbol TypeName void:",":Symbol TypeName void:")":Symbol
+  ;
+
+inline generic UnaryMinusExpression      = void:"-":Symbol  CastExpression  ;
+inline generic UnaryPlusExpression       = void:"+":Symbol  CastExpression  ;
+inline generic LogicalNegationExpression = void:"!":Symbol  CastExpression  ;
+inline generic BitwiseNegationExpression = void:"~":Symbol  CastExpression  ;
+inline generic AddressExpression         = void:"&":Symbol  CastExpression  ;
+inline generic IndirectionExpression     = void:"*":Symbol  CastExpression  ;
+inline generic PreincrementExpression    = void:"++":Symbol UnaryExpression ;
+inline generic PredecrementExpression    = void:"--":Symbol UnaryExpression ;
+
+inline generic LabelAddressExpression =
+  <LabelAddress> &{ GCC } void:"&&":Symbol Identifier
+  ;
+
+inline generic ExtensionExpression =
+  <Extension> &{ GCC } void:"__extension__":Keyword CastExpression
+  ;
+
+transient generic PostfixExpression =
+    <Subscript>         PostfixExpression void:"[":Symbol Expression
+                                          void:"]":Symbol
+                                          @SubscriptExpression
+  / <DirectSelection>   PostfixExpression void:".":Symbol Identifier
+                                          @DirectComponentSelection
+  / <IndirectSelection> PostfixExpression void:"->":Symbol Identifier
+                                          @IndirectComponentSelection
+  / <FunctionCall>      PostfixExpression void:"(":Symbol ExpressionList?
+                                          void:")":Symbol
+                                          @FunctionCall
+  / <Increment>         PostfixExpression void:"++":Symbol
+                                          @PostincrementExpression
+  / <Decrement>         PostfixExpression void:"--":Symbol
+                                          @PostdecrementExpression
+  / <Compound>          CompoundLiteral
+  / <Primary>           PrimaryExpression
+  ;
+
+generic ExpressionList =
+  <Expressions> AssignmentExpression (void:",":Symbol AssignmentExpression)*
+  ;
+
+generic CompoundLiteral =
+  void:"(":Symbol TypeName void:")":Symbol
+    void:"{":Symbol InitializerList void:(",":Symbol)? void:"}":Symbol
+  ;
+
+Node PrimaryExpression =
+    <Constant>                Constant
+  / <Identifier>              PrimaryIdentifier
+  / <StatementAsExpression>   StatementAsExpression
+  / <VariableArgumentAccess>  VariableArgumentAccess
+  / <ParenthesizedExpression> void:"(":Symbol Expression void:")":Symbol
+  ;
+
+inline generic PrimaryIdentifier = Identifier ;
+
+inline generic StatementAsExpression =
+  &{ GCC } void:"(":Symbol CompoundStatement void:")":Symbol
+  ;
+
+inline generic VariableArgumentAccess =
+  void:"__builtin_va_arg":Keyword void:"(":Symbol
+    AssignmentExpression void:",":Symbol TypeName
+  void:")":Symbol
+  ;
+
+// ------------------------------------------------------------------ Assembly
+
+generic AssemblyDefinition = SimpleAssemblyExpression void:";":Symbol ;
+
+generic SimpleAssemblyExpression =
+  AsmKeyword void:"(":Symbol StringConstant void:")":Symbol
+  ;
+
+inline generic AssemblyStatement =
+  AsmKeyword TypeQualifier?
+    void:"(":Symbol AssemblyArgument void:")":Symbol ";":Symbol 
+  ;
+
+generic AssemblyArgument =
+    StringConstant void:":":Symbol AssemblyOperands? void:":":Symbol
+      AssemblyOperands? void:":":Symbol AssemblyClobbers
+  / StringConstant void:":":Symbol AssemblyOperands? void:":":Symbol
+      AssemblyOperands?
+  / StringConstant void:":":Symbol AssemblyOperands?
+  / StringConstant
+  ;
+
+generic AssemblyOperands =
+  AssemblyOperand (void:",":Symbol AssemblyOperand)*
+  ;
+
+generic AssemblyOperand =
+  (void:"[":Symbol Word void:"]":Symbol)? StringConstant
+    void:"(":Symbol Expression void:")":Symbol
+  ;
+
+generic AssemblyClobbers =
+  StringConstant (void:",":Symbol StringConstant)*
+  ;
+
+void AsmKeyword = "asm":Keyword / "__asm":Keyword / "__asm__":Keyword ;

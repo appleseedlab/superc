@@ -1,0 +1,7 @@
+// Bindings in text-only productions result in lifted subexpressions.
+
+module TextOnlyBinding1;
+
+public String Top = yyValue:Text Text ;
+
+String Text = a:'b'* 'c' ;

@@ -1,0 +1,8 @@
+`.C{ /* implicit #include <jni.h> */ }
+class Main {
+  public static void main(String args[]) {
+    int a=0, b=0;
+    b = `((jint)(1 + `(a = 1)));
+    System.out.println(a + ", " + b);
+  }
+}

@@ -1,0 +1,113 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2004-2011 Robert Grimm, New York University
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+/**
+ * Definition of Java constants.
+ *
+ * @author Robert Grimm
+ * @author Stacey Kuznetsov
+ * @version $Revision: 1.8 $
+ */
+module xtc.lang.JavaConstant(Identifier, Spacing);
+
+import Identifier;
+import Spacing;
+
+Node Literal =
+    <FloatingPoint> FloatingPointLiteral Spacing
+  / <Integer>       IntegerLiteral Spacing
+  / <Character>     CharacterLiteral Spacing
+  / <String>        StringLiteral Spacing
+  / <Boolean>       BooleanLiteral
+  / <Null>          NullLiteral
+  ;
+
+// ----- Integer literals
+
+generic IntegerLiteral =
+    <Hex> 	HexLiteral    
+  / <Octal>   	OctalLiteral
+  / <Decimal> 	DecimalLiteral
+  ;
+
+transient String HexLiteral     = HexNumeral     IntegerTypeSuffix? ;
+transient String OctalLiteral   = OctalNumeral   IntegerTypeSuffix? ;
+transient String DecimalLiteral = DecimalNumeral IntegerTypeSuffix? ;
+
+transient String DecimalNumeral    = '0' / NonZeroDigit Digits? ;
+transient String NonZeroDigit      = [1-9] ;
+transient String Digits            = Digit+ ;
+transient String Digit             = [0-9] ;
+
+transient String HexNumeral        = '0' [xX] HexDigits ;
+transient String HexDigits         = HexDigit+ ;
+transient String HexDigit          = [0-9a-fA-F] ;
+
+transient String OctalNumeral      = '0' OctalDigits ;
+transient String OctalDigits       = OctalDigit+ ;
+transient String OctalDigit        = [0-7] ;
+
+transient String IntegerTypeSuffix = [lL] ;
+
+// ----- Floating point literals
+
+generic FloatingPointLiteral = FloatingPointString;
+
+String FloatingPointString =
+    Digits '.' Digits? Exponent? FloatTypeSuffix?
+  /        '.' Digits  Exponent? FloatTypeSuffix?
+  / Digits             Exponent  FloatTypeSuffix?
+  / Digits             Exponent? FloatTypeSuffix
+  ;
+
+transient String Exponent        = [eE] [+\-]? Digits ;
+transient String FloatTypeSuffix = [fFdD] ;
+
+// ----- Character and string constants
+
+generic CharacterLiteral = CharacterConstant ;
+generic StringLiteral    = StringConstant    ;
+
+String CharacterConstant = ['] ( EscapeSequence / !['\\] _ )  ['] ;
+String StringConstant    = ["] ( EscapeSequence / !["\\] _ )* ["] ;
+
+transient String EscapeSequence =
+  '\\' [btnfr"'\\] / UnicodeEscape / OctalEscape ;
+
+transient String OctalEscape    =
+  '\\' [0-3] OctalDigit OctalDigit
+  / '\\' OctalDigit OctalDigit
+  / '\\' OctalDigit
+  ;
+
+transient String UnicodeEscape  =
+  '\\' 'u' HexDigit HexDigit HexDigit HexDigit ;
+
+// ----- Boolean literals
+
+inline generic BooleanLiteral =
+    <True>  "true":Word
+  / <False> "false":Word
+  ;
+
+// ----- Null literals
+
+inline generic NullLiteral =
+  <Null> void:"null":Word
+  ;

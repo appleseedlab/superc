@@ -1,0 +1,13 @@
+%%%
+ %% Section 3.10: Literals
+ %%
+ %% @author Martin Bravenboer <martin@cs.uu.nl>
+ %%%
+module languages/java-14/lexical/literals/Main
+imports
+  languages/java-14/lexical/literals/IntegerLiterals
+  languages/java-14/lexical/literals/FloatingPointLiterals
+  languages/java-14/lexical/literals/BooleanLiterals  
+  languages/java-14/lexical/literals/CharacterLiterals  
+  languages/java-14/lexical/literals/StringLiterals
+  languages/java-14/lexical/literals/NullLiteral

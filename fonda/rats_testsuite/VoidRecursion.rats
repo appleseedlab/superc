@@ -1,0 +1,7 @@
+// A direct left-recursion in a void production.
+
+module VoidRecursion;
+
+public void Top = Top Text / Text ;
+
+String Text = 'a'+ ;

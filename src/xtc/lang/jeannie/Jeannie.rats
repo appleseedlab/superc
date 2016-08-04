@@ -1,0 +1,50 @@
+/* (C) Copyright IBM Corp 2005-2007. */
+
+/**
+ * A grammar for Jeannie (sugared JNI), embedding Java and C into each other.
+ */
+module xtc.lang.jeannie.Jeannie;
+
+// CSpacing ----------------------------------------------------------
+instantiate xtc.lang.CConstant(xtc.lang.CSpacing);
+import xtc.lang.CSpacing(xtc.lang.CState);
+
+// JeannieSymbol -----------------------------------------------------
+instantiate xtc.util.Symbol(xtc.lang.CSpacing);
+import xtc.lang.jeannie.JeannieSymbol(xtc.util.Symbol);
+
+// CCore -------------------------------------------------------------
+instantiate xtc.lang.CIdentifier(xtc.lang.CReserved, xtc.lang.CSpacing);
+instantiate xtc.lang.CContext(xtc.lang.CState);
+
+instantiate xtc.lang.CCore(
+  xtc.lang.CContext, xtc.lang.CConstant, xtc.lang.CIdentifier,
+  xtc.lang.jeannie.JeannieSymbol, xtc.lang.CSpacing);
+
+// JavaCore ----------------------------------------------------------
+import xtc.lang.JavaType(
+  xtc.lang.JavaIdentifier, xtc.lang.jeannie.JeannieSymbol);
+instantiate xtc.lang.JavaConstant(xtc.lang.JavaIdentifier, xtc.lang.CSpacing);
+instantiate xtc.lang.JavaIdentifier(
+  xtc.lang.jeannie.JeannieSymbol, xtc.lang.CSpacing);
+
+instantiate xtc.lang.JavaCore(
+  xtc.lang.JavaType, xtc.lang.JavaConstant, xtc.lang.JavaIdentifier,
+  xtc.lang.jeannie.JeannieSymbol, xtc.lang.CSpacing);
+
+// -------------------------------------------------------------------
+import xtc.lang.jeannie.JeannieC(
+  xtc.lang.CCore, xtc.lang.jeannie.JeannieJava, xtc.lang.JavaType);
+import xtc.lang.jeannie.JeannieJava(
+  xtc.lang.JavaCore, xtc.lang.jeannie.JeannieC);
+
+header {
+  import xtc.lang.CParserState;
+}
+
+option withLocation, constant, flatten, parser(xtc.lang.jeannie.JeannieParser),
+       main(File);
+
+public resetting generic File =
+    <JavaFile> yyValue:xtc.lang.jeannie.JeannieJava.CompilationUnit
+  / <CFile>    yyValue:xtc.lang.jeannie.JeannieC.TranslationUnit;

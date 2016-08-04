@@ -1,0 +1,22 @@
+module languages/java-14/interfaces/AbstractMethodDeclarations
+imports
+  languages/java-14/lexical/Modifiers
+  languages/java-14/names/Main
+  languages/java-14/types/Main
+  languages/java-14/classes/MethodDeclarations
+
+exports
+  sorts
+    AbstractMethodDec
+    AbstractMethodMod
+
+  context-free syntax
+    AbstractMethodMod* ResultType
+      Id "(" {FormalParam ","}* ")" Throws? ";" -> AbstractMethodDec {cons("AbstractMethodDec")}
+
+    AbstractMethodMod* ResultType
+      Id "(" {FormalParam ","}* ")" Dim+ Throws? ";" -> AbstractMethodDec {cons("DeprAbstractMethodDec")}
+
+    Public   -> AbstractMethodMod
+    Abstract -> AbstractMethodMod
+

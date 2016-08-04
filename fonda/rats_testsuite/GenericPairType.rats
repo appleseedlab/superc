@@ -1,0 +1,10 @@
+// A list of generic nodes has Pair<Node> as its type.
+
+module GenericPairType;
+
+public Pair<Node> Top = Bottom ( Element1+ / Element2* ) Bottom ;
+
+void Bottom = "bottom" ;
+
+generic Element1 = "element1" ;
+generic Element2 = "element2" ;

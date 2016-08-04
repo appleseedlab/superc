@@ -1,0 +1,32 @@
+<html>
+<body>
+
+A debugger contributed to xtc that integrates Java with C.
+
+<h3>Prerequisites</h3>
+
+You need Java 1.5, gdb, and the usual GNU tooling (in particular, gdb
+and make).  We have tested Blink under Linux 2.6 with HotSpot.
+
+<h3>Environment variables</h3>
+
+<table>
+  <tr><th>JAVA_DEV_ROOT</th>
+    <td>set this such that $JAVA_DEV_ROOT/xtc is the top-level xtc directory</td></tr>
+  <tr><th>PATH_SEP</th>
+    <td>':' for MacOS or Linux, or ';' for Cygwin</td></tr>
+  <tr><th>CLASSPATH</th>
+    <td>$JAVA_DEV_ROOT/classes$PATH_SEP$JAVA_DEV_ROOT/bin/junit.jar$PATH_SEP$JAVA_DEV_ROOT/bin/antlr.jar</td></tr>
+  <tr><th>JAVA_HOME</th>
+    <td>set this such that $JAVA_HOME/bin/java is the Java virtual machine</td></tr>
+  <tr><th>CPATH</th>
+    <td>should include the directory that contains jni.h, which is most likely $JAVA_HOME/include</td></tr>
+  <tr><th>PATH</th>
+    <td>should include $JAVA_HOME/bin</td>
+  <tr><th>OSTYPE</th>
+    <td>should be either cygwin, or have linux or darwin as a substring</td></tr>
+</table>
+
+
+</body>
+</html>

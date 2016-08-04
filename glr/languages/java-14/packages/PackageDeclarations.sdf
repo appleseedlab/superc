@@ -1,0 +1,15 @@
+%%%
+ %% Section 7.4: Package Declarations
+ %%
+ %% @author Martin Bravenboer <martin@cs.uu.nl>
+ %%%
+module languages/java-14/packages/PackageDeclarations
+imports
+  languages/java-14/names/Main
+
+exports
+  sorts
+    PackageDec
+
+  context-free syntax
+    "package" PackageName ";" -> PackageDec {cons("PackageDec")}

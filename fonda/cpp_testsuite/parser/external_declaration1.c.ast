@@ -1,0 +1,59 @@
+#superc_args -printAST
+TranslationUnit(
+  ExternalDeclarationList(
+    Conditional(
+      1,
+      Conditional(
+        (defined A),
+        Declaration(
+          DeclaringList(
+            BasicDeclarationSpecifier(
+              DeclarationQualifierList(
+                Conditional(
+                  (defined A),
+                  xtc.lang.cpp.Syntax$Language(
+                    "extern"
+                  )
+                )
+              ),
+              xtc.lang.cpp.Syntax$Language(
+                "int"
+              )
+            ),
+            FunctionDeclarator(
+              SimpleDeclarator(
+                xtc.lang.cpp.Syntax$Text(
+                  "main"
+                )
+              ),
+              ParameterTypeListOpt()
+            ),
+            AssemblyExpressionOpt(),
+            AttributeSpecifierListOpt(),
+            InitializerOpt()
+          )
+        ),
+        !(defined A),
+        FunctionDefinition(
+          FunctionPrototype(
+            xtc.lang.cpp.Syntax$Language(
+              "int"
+            ),
+            FunctionDeclarator(
+              SimpleDeclarator(
+                xtc.lang.cpp.Syntax$Text(
+                  "main"
+                )
+              ),
+              ParameterTypeListOpt()
+            )
+          ),
+          CompoundStatement(
+            LocalLabelDeclarationListOpt(),
+            DeclarationOrStatementList()
+          )
+        )
+      )
+    )
+  )
+)

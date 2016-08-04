@@ -1,0 +1,70 @@
+/* (C) Copyright IBM Corp 2005-2008. */
+
+/** Grammar and parser used by Jeannie preprocessor. */
+module xtc.lang.jeannie.PreJeannie;
+
+instantiate xtc.lang.CConstant(xtc.lang.CSpacing);
+import xtc.lang.CSpacing(xtc.lang.CState);
+instantiate xtc.util.Symbol(xtc.lang.CSpacing);
+import xtc.lang.jeannie.JeannieSymbol(xtc.util.Symbol);
+
+header { import xtc.lang.CParserState; }
+
+body {
+  Preprocessor _tool;
+
+  final String origString(final int start, final int end) throws IOException {
+    final StringBuilder b = new StringBuilder(20 + end - start);
+    b.append(_tool.lineMarker(column(start)));
+    for (int i=start; i<end; i++) {
+      final int c = character(i);
+      if (c == -1)
+        throw new Error();
+      b.append((char)c);
+    }
+    return b.toString();
+  }
+}
+
+option withLocation, constant, parser(xtc.lang.jeannie.PreJeannieParser);
+
+public generic File = p:CPrelude h:Head t:Tail
+  { yyValue = GNode.create("File", p + h + t); };
+
+private String CPrelude = Directive Spacing
+  { yyValue = origString(yyStart, yyResult.index); };
+
+private String Head = yyValue:(JavaHead / CHead);
+
+private String JavaHead =
+  void:PackageDeclaration? void:JavaImports
+  void:"`":Symbol void:".":Symbol void:"C" Spacing void:"{":Symbol
+  { yyValue = origString(yyStart, yyResult.index); };
+
+private generic PackageDeclaration = 
+  void:"package" Spacing QualifiedIdentifier void:";":Symbol;
+
+private generic QualifiedIdentifier =
+  Identifier ( void:".":Symbol Identifier )*;
+
+private String Identifier = WordCharacters Spacing ;
+
+private transient String WordCharacters =
+  start:_ &{ Character.isJavaIdentifierStart(start) }
+    ( part:_ &{ Character.isJavaIdentifierPart(part) } )*
+  ;
+
+private generic JavaImports = ImportDeclaration*;
+
+private generic ImportDeclaration =
+  void:"import" Spacing QualifiedIdentifier DotStarTail? void:";":Symbol;
+
+private generic DotStarTail = void:".":Symbol void:"*":Symbol;
+
+private String CHead =
+  void:"`":Symbol void:".":Symbol void:"Java" Spacing
+  void:"{":Symbol [^}]+ void:"}":Symbol
+  { yyValue = origString(yyStart, yyResult.index); };
+
+private String Tail = _+ EndOfFile
+  { yyValue = _tool.jeannieDefs() + origString(yyStart, yyResult.index); };

@@ -1,0 +1,18 @@
+%%%
+ %% Section 15.12: Method Invocation Expressions
+ %%
+ %% @author  Martin Bravenboer <martin@cs.uu.nl>
+ %%%
+module languages/java-14/expressions/MethodInvocation
+imports
+  languages/java-14/expressions/Main
+
+exports
+  sorts MethodId
+  context-free syntax
+    MethodId "(" {Expr ","}* ")" -> Expr {cons("Invoke")}
+
+                                MethodName -> MethodId {cons("Method"), prefer}
+                     Expr "."   Id         -> MethodId {cons("Method")}
+                  "super" "."   Id         -> MethodId {cons("SuperMethod")}
+    ClassName "." "super" "."   Id         -> MethodId {cons("QSuperMethod")}

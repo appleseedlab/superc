@@ -1,0 +1,10 @@
+%%%
+ %% Chapter 7: Packages
+ %%
+ %% @author Martin Bravenboer <martin@cs.uu.nl>
+ %%%
+module languages/java-14/packages/Main
+imports
+  languages/java-14/packages/CompilationUnits
+  languages/java-14/packages/ImportDeclarations
+  languages/java-14/packages/PackageDeclarations

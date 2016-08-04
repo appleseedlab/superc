@@ -1,0 +1,11 @@
+// Deduction of values in a choice.
+
+module SimpleChoice;
+
+public Object Top =
+    void:Text Text
+  / Text
+  /
+  ;
+
+String Text = 'a'+ ;

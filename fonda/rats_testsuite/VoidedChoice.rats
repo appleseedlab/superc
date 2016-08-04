@@ -1,0 +1,6 @@
+// A voided choice needs to be lifted, even if it is the last element
+// in a sequence.
+
+module VoidedChoice;
+
+public Object Top = "foo" void:( "bar" / "baz" ) { yyValue = "whatever"; } ;

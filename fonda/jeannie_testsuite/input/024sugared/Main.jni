@@ -1,0 +1,10 @@
+`.C{ }
+class Main {
+  public static void main(String[] args) {
+    `{
+      _with(jchar* cs = `"abc") {
+        printf("%c-%c-%c\n", cs[0], cs[1], cs[2]);
+      }
+    }
+  }
+}

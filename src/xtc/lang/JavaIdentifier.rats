@@ -1,0 +1,62 @@
+/*
+ * xtc - The eXTensible Compiler
+ * Copyright (C) 2005-2007 Robert Grimm
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ */
+
+/**
+ * Definition of Java identifiers.
+ *
+ * @author Robert Grimm
+ * @version $Revision: 1.10 $
+ */
+module xtc.lang.JavaIdentifier(Symbol, Spacing);
+
+import Symbol;
+import Spacing;
+
+body {
+  static {
+    add(JAVA_KEYWORDS, new String[] {
+      "abstract",  "continue",  "for",         "new",        "switch",
+      "assert",    "default",   "if",          "package",    "synchronized",
+      "boolean",   "do",        "goto",        "private",    "this",
+      "break",     "double",    "implements",  "protected",  "throw",
+      "byte",      "else",      "import",      "public",     "throws",
+      "case",                   "instanceof",  "return",     "transient",
+      "catch",     "extends",   "int",         "short",      "try",
+      "char",      "final",     "interface",   "static",     "void",
+      "class",     "finally",   "long",        "strictfp",   "volatile",
+      "const",     "float",     "native",      "super",      "while"
+    });
+  }
+}
+
+option setOfString(JAVA_KEYWORDS);
+
+generic QualifiedIdentifier =
+  Identifier ( void:".":Symbol Identifier )*
+  ;
+
+String Identifier =
+  yyValue:Word &{ ! contains(JAVA_KEYWORDS, toText(yyValue)) } ;
+
+String Word = WordCharacters Spacing ;
+
+transient String WordCharacters =
+  start:_ &{ Character.isJavaIdentifierStart(start) }
+    ( part:_ &{ Character.isJavaIdentifierPart(part) } )*
+  ;

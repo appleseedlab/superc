@@ -1,0 +1,7 @@
+// Deduction of values in a trailing choice.
+
+module TrailingChoice;
+
+public Object Top = void:Text ( void:Text Text / Text ) ;
+
+String Text = 'a'+ ;

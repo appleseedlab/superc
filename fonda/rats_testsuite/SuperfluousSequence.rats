@@ -1,0 +1,9 @@
+// A superfluous sequence to be eliminated.
+
+module SuperfluousSequence;
+
+public void Top = One (One One) One ;
+
+public void Top2 = One (((One One))) One ;
+
+void One = "one";

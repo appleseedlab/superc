@@ -1,0 +1,11 @@
+module languages/java-14/Main
+imports
+  languages/java-14/lexical/Main
+  languages/java-14/types/Main
+  languages/java-14/names/Main
+  languages/java-14/packages/Main
+  languages/java-14/classes/Main
+  languages/java-14/interfaces/Main
+  languages/java-14/arrays/Main
+  languages/java-14/statements/Main
+  languages/java-14/expressions/Main

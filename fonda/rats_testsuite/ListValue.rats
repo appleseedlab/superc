@@ -1,0 +1,27 @@
+module ListValue;
+
+public Pair<Node> Top =
+    void:One   List
+  / void:Two   Node Node List
+  / void:Three Node Node
+  / void:Four  Node
+  / void:Five
+  / void:Six   { yyValue = null; }
+  / void:Seven yyValue:List
+  / void:Eight Node Node Node*
+  / void:Nine  Node (void:Nine Node)+
+  ;
+
+transient Pair<Node> List = Node+ ;
+
+generic Node  = "node"  ;
+
+generic One   = "one"   ;
+generic Two   = "two"   ;
+generic Three = "three" ;
+generic Four  = "four"  ;
+generic Five  = "five"  ;
+generic Six   = "six"   ;
+generic Seven = "seven" ;
+generic Eight = "eight" ;
+generic Nine  = "nine"  ;

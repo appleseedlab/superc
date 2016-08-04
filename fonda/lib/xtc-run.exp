@@ -1,0 +1,190 @@
+load_lib xtc-dg.exp
+proc xtc-dg-test { args } {
+  global srcdir
+  global subdir
+  global bindir
+  global SUBTOOL
+  set prog [lindex $args 0]
+  
+  #check what to do, parsing or analyzing
+  switch ${SUBTOOL} {
+    "c-parser" { set command "java -ea xtc.lang.C $prog" }
+    "c-analyzer" { set command "java -Xmx256M -ea xtc.lang.C -analyze $prog" }
+    "c-typical-analyzer" { 
+      set command "java -Xmx256M -ea xtc.lang.C -analyze -typical $prog"
+    }
+    "c-ml-analyzer" {
+      set command "$bindir/MLCAnalyzer $prog"
+    }		
+    default { 
+      set output "Unknown tool"
+      return $output
+    }
+  }
+	
+  set timeout 120
+  set output ""
+  eval spawn $command
+  # get all output from the tool
+  expect {
+    -i $spawn_id -timeout $timeout -re ".+" {
+      append output $expect_out(buffer)
+      if { [string length $output] < 512000 } {
+        exp_continue -continue_timer
+      }
+    }
+    timeout { 
+      set output "Timeout"
+      wait -i $spawn_id
+      return $output 
+    }
+  }
+
+  # check if xtc (CDriver or typical Driver) could not run
+  if ![regsub "xtc" $output "xtc" output] {
+    set output "Wrong tool was invoked"
+    wait -i $spawn_id
+    return $output
+  }
+	
+  # check and delete the first two lines
+  regsub "\[^\r]*\r\n" $output "" output
+  regsub "\[^\r]*\r\n" $output "" output
+	
+  # delete extra (empty) lines
+  regsub -all "\n+" $output "\n" output
+  regsub "^\n+" $output "" output
+  wait -i $spawn_id
+  return $output	 
+}
+
+#
+#rats-dg-test: run test for each .rats source file
+#
+proc rats-dg-test { args } {
+  set prog [lindex $args 0]
+  set to_check [lindex $args 1]
+  set outfile [file rootname $prog]
+  append outfile ".proc2"
+  set procfile [file rootname $prog]
+  append procfile ".proc"
+  set command "java -ea xtc.parser.Rats -silent -processed $prog"
+  set timeout 120
+  set output ""
+  eval spawn $command
+  # get all output from the tool
+  expect {
+    -i $spawn_id -timeout $timeout -re ".+" {
+      append output $expect_out(buffer)
+      if { [string length $output] < 512000 } {
+	exp_continue -continue_timer
+      }
+    }
+    timeout { 
+      set output "Timeout"
+      wait -i $spawn_id
+      return $output 
+    }
+  }
+  # if check for error or warning, return the output
+  if ![string match $to_check "Unspecified"] {
+    return $output
+  }
+  # otherwise, compare the output here
+  # write output to file
+  set file [open $outfile "w"]
+  puts $file $output
+  close $file
+  # check if .proc file exists
+  if {[file exists $procfile] != 1} {
+    wait -i $spawn_id
+    return "File not found"	
+  }
+  # compare the two files
+  set file [open $outfile "r"]
+  set pfile [open $procfile "r"]
+  # read the first 3 lines
+  for {set index 0} {$index < 3} {incr index} {
+    if {[gets $pfile pline] == -1} {
+      wait -i $spawn_id
+      return "File error"
+    }
+    if {[gets $file line] == -1} {
+      wait -i $spawn_id
+      return "File error"
+    }
+  }
+  # compare the rests of the two files
+  while 1 {
+    if {[gets $pfile pline] == -1} {
+      break
+    }
+    if {[gets $file line] == -1} {
+      wait -i $spawn_id
+      return "Fail"
+    }
+    if {[string compare $pline $line] != 0} {
+      wait -i $spawn_id
+      return "Fail"
+    }
+  }
+  if {[gets $file line] != -1} {
+    set str [string trim $line]
+    if ![string match $str ""] {
+      wait -i $spawn_id
+      return "Fail"
+    }
+    while 1 {
+      if {[gets $file line] == -1} {
+	break
+      }
+      if ![string match $line ""] {
+        wait -i $spawn_id
+        return "Fail"
+      }
+    }
+  }
+  close $file
+  close $pfile
+  wait -i $spawn_id
+  return "Pass"	 
+}
+
+#
+# xtc-dg-preprocess: run gcc preprocessing on the source file
+#
+proc xtc-dg-preprocess { args } {
+  set prog [lindex $args 0]
+  set output_file [lindex $args 1]
+  set output ""
+	
+  set command "gcc -E -o $output_file $prog"
+  set timeout 120
+  eval spawn $command
+  # get all output
+  expect {
+    -i $spawn_id -timeout $timeout -re ".+" {
+      append output $expect_out(buffer)
+      if { [string length $output] < 512000 } {
+	exp_continue -continue_timer
+      }
+    }
+    timeout { 
+      set output "GCC Timeout"
+      wait -i $spawn_id
+      return $output 
+    }
+  }
+  if ![string match $output ""] {
+    set output "GCC Error"
+    wait -i $spawn_id
+    return $output			
+  }
+
+  wait -i $spawn_id
+  return $output
+}
+
+#proc xtc-dg-prune { args } {
+#  return $args
+#}

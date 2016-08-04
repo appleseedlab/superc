@@ -1,0 +1,58 @@
+/* -*-java-*-*- */
+/* (C) Copyright IBM Corp 2007. */
+factory xtc.lang.jeannie.JeannieJavaFactory {
+  block { { #[statements] } }
+
+  cInJavaExpressionWithCEnv { this.#nativeMethod(cEnv) }
+
+  cInJavaExpressionWithoutCEnv { this.#nativeMethod() }
+
+  cInJavaStatementWithCEnv {
+    { this.#nativeMethod(cEnv); if (this.#returnAbrupt) return; }
+  }
+
+  cInJavaStatementWithoutCEnv {
+    { this.#nativeMethod(); if (this.#returnAbrupt) return; }
+  }
+
+  cInJavaCodeWithCEnv {
+    private native #returnType #name(final #envType cEnv);
+  }
+
+  cInJavaCodeWithoutCEnv { private native #returnType #name(); }
+
+  closureExpression {
+    {
+      #clazz jEnv = new #clazz ( #[actuals] );
+      return jEnv.#result;
+    }
+  }
+
+  closureStatement { { #clazz jEnv = new #clazz ( #[actuals] ); } }
+
+  declareField { #type #name; }
+
+  getThisDotField { this.#name }
+
+  javaInCExpression {
+    private #returnType #name(final #envType cEnv) throws Exception {
+      return #expr;
+    }
+  }
+
+  javaInCExpressionVoid {
+    private void #name(final #envType cEnv) throws Exception { #expr; }
+  }
+
+  javaInCStatement {
+    private void #name(final #envType cEnv) throws Exception { #stmt }
+  }
+
+  loadLibrary { { System.loadLibrary(#name); } }
+
+  returnResult { { this.#result = #value; this.#abrupt = true; return; } }
+
+  returnVoid { { this.#abrupt = true; return; } }
+
+  setThisDotField { this.#name = #value }
+}

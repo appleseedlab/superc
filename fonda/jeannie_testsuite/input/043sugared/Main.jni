@@ -1,0 +1,20 @@
+`.C{ }
+class Main {
+  static native int replace(char[] chars, char oldC, char newC) `{
+    for (int i=0; i<`chars.length; i++) {
+      if (`oldC == `chars[`i]) {
+        `(chars[`i] = newC);
+        return (`int)i;
+      }
+    }
+    return (`int)-1;
+  }
+  public static void main(String []args) {
+    char[] a = { 'a', 'b', 'c' };
+    int r;
+    r = replace(a, 'b', 'd');
+    System.out.println(r + "  " + new String(a));
+    r = replace(a, 'b', 'd');
+    System.out.println(r + "  " + new String(a));
+  }
+}

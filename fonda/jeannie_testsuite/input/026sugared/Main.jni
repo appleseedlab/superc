@@ -1,0 +1,26 @@
+`.C{ }
+
+class Main {
+  static void report(long start, String name) {
+    long end = System.currentTimeMillis();
+    System.err.println("sugared: time " + (end - start) + ", " + name);
+  }
+
+  static void culprit() {
+    long start = System.currentTimeMillis();
+    `{ for (int i=0; i<100000; i++) `{ } }
+    report(start, "culprit");
+  }
+
+  static void victim() {
+    long start = System.currentTimeMillis();
+    for (int i=0; i<10000; i++) `{ `{ } }
+    report(start, "victim"); 
+  }    
+
+  public static void main(String[] args) {
+    victim();
+    culprit();
+    victim();
+  }
+}

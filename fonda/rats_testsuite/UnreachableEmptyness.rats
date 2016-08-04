@@ -1,0 +1,9 @@
+module UnreachableEmptyness;
+
+public void Foo = !_ / Bar ; // The second alternative IS reachable.
+
+void Bar = Zoo Boo? Zoo ; // The option IS necessary.
+
+void Zoo = "zoo" ;
+
+void Boo = !_ ;

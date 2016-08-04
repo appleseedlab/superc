@@ -1,0 +1,14 @@
+// An existing binding must not be renamed.  Existing bindings to
+// yyValue do not require an explicit binding value.
+
+module ExistingBinding3;
+
+public Object Top =
+  Nothing ( Nothing ( u:Something Nothing
+                    / Nothing yyValue:Something Nothing )
+          / Something Nothing Nothing )
+  ;
+
+void Nothing     = "nothing" ;
+
+Object Something = "something" ;

@@ -1,0 +1,23 @@
+%%%
+ %% Chapter 15: Expressions
+ %%
+ %% @author  Martin Bravenboer <martin@cs.uu.nl>
+ %%%
+module languages/java-14/expressions/Main
+imports
+  languages/java-14/expressions/Primary
+  languages/java-14/expressions/ClassInstanceCreation
+  languages/java-14/expressions/ArrayCreation
+  languages/java-14/expressions/FieldAccess
+  languages/java-14/expressions/ArrayAccess
+  languages/java-14/expressions/MethodInvocation
+  languages/java-14/expressions/Postfix
+  languages/java-14/expressions/UnaryOperators
+  languages/java-14/expressions/BinaryOperators
+  languages/java-14/expressions/AssignmentOperators
+  languages/java-14/expressions/Restrictions
+  languages/java-14/expressions/Priorities
+
+exports
+  sorts
+    Expr

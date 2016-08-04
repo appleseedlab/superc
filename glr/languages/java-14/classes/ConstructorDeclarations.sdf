@@ -1,0 +1,35 @@
+%%%
+ %% Section 8.8: Constructor Declarations
+ %%
+ %% @author  Martin Bravenboer <martin@cs.uu.nl>
+ %%%
+module languages/java-14/classes/ConstructorDeclarations
+imports
+  languages/java-14/lexical/Identifiers
+  languages/java-14/lexical/Modifiers
+  languages/java-14/statements/Main
+  languages/java-14/expressions/Main
+
+exports
+  sorts
+    ConstrDec
+    ConstrBody
+    ConstrHead
+    ConstrInv
+
+  context-free syntax
+    ConstrHead ConstrBody ->  ConstrDec {cons("ConstrDec")}
+    ConstrMod* Id "(" {FormalParam ","}* ")" Throws? -> ConstrHead {cons("ConstrDecHead")}
+
+
+    "{" ConstrInv? BlockStm* "}" -> ConstrBody {cons("ConstrBody")}
+
+             "this"  "(" {Expr ","}* ")" ";" -> ConstrInv {cons("AltConstrInv")}
+             "super" "(" {Expr ","}* ")" ";" -> ConstrInv {cons("SuperConstrInv")}
+    Expr "." "super" "(" {Expr ","}* ")" ";" -> ConstrInv {cons("QSuperConstrInv")}
+
+  sorts ConstrMod
+  context-free syntax  
+    Public    -> ConstrMod
+    Protected -> ConstrMod
+    Private   -> ConstrMod

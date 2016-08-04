@@ -1,0 +1,19 @@
+`.C{ }
+class Main {
+  static native int sum(int[] ja) `{
+    int i, n;
+    jint* ca, s;
+    n = `ja.length;
+    s = 0;
+    _with(ca = `ja) {
+      for (i=0; i<n; i++)
+        s += ca[i];
+      _cancel ca;
+    }
+    return s;
+  }
+  public static void main(String[] args) {
+    int[] a = { 3, 1, 4 };
+    System.out.println("expected 8, got " + sum(a));
+  }
+}

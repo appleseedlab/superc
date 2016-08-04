@@ -1,0 +1,9 @@
+These C files test SuperC error messages.
+
+These tests are run as part of xtc's "make check" test, which uses the
+SuperC regression test script, regression.sh, with the -e option.
+
+Each file in this directory corresponds to a numbered location in the
+SuperC source code.  These locations are marked with a comment
+containing the text "Error location ###"
+

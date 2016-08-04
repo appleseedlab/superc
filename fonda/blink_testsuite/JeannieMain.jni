@@ -1,0 +1,19 @@
+`.C {
+#include <stdio.h> 
+}
+public class JeannieMain {
+  public static void main(String[] args) {
+    f(1);
+  }
+  public static native void f(int x) 
+  `{
+    int y = 0;              
+    `{
+      int z;
+      z = 1 + `(y = 1 + `(x = 1));
+      System.out.println(x);
+      System.out.println(z);
+    }
+    printf("%d\n", y);
+  }
+}

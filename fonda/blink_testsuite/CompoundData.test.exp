@@ -1,0 +1,14 @@
+#!/usr/bin/expect
+
+source blink.tcl
+
+blink_begin "CompoundData"
+blink_cmd "break CompoundData.c:26" ".*\n"
+blink_cmd "run" ".*\n"
+blink_cmd "print size" "=+> 4\r\n"
+blink_cmd "print `((`strings).size())" "=+> 4\r\n"
+blink_cmd "print `((`strings).elementCount)" "=+> 4\r\n"
+blink_cmd "print bda_cstr(`((`strings).get(1)))" "=+> .+\r\n"
+blink_cmd "print `((`doubles).length)" "=+> 4\r\n"
+blink_cmd "print `((`doubles)\[0\])" "=+> 3.48\r\n"
+blink_end "continue"

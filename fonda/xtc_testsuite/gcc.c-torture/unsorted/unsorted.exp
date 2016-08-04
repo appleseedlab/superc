@@ -1,0 +1,10 @@
+load_lib xtc-run.exp
+global check_what
+set check_what "c-analyzer"
+dg-init
+#
+# run test for every file .c in this directory
+#
+dg-runtest [lsort [glob -nocomplain $srcdir/$subdir/*.c]] 
+dg-finish
+
