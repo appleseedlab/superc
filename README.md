@@ -18,11 +18,12 @@ The following environment variables are expected by xtc.
 
 ## Building SuperC
 
-Type `make` in the source root tree.  Then, to ensure that SuperC uses your machines builtin macro values, do the following:
+Starting from the root of the xtc source tree, run the following:
 
-    cd src/xtc/lang/cpp/
-    make configure
+    cd src/xtc/lang/cpp/  # go to the SuperC directory
+    make configure  # configure SuperC
     cd -  # go back to the source root
+    make  # build all of xtc
 
 ## Testing SuperC
 
