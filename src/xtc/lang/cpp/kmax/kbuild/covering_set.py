@@ -1299,6 +1299,7 @@ def main():
         for v, b in subdir_pcs:
             print v, b
     debug(len(compilation_units), "compilation unit(s)")
+    debug(len(library_units), "library unit(s)")
 
 if __name__ == '__main__':
     main()

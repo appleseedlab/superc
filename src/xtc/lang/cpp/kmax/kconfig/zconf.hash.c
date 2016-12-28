@@ -1,4 +1,4 @@
-/* ANSI-C code produced by gperf version 3.0.3 */
+/* ANSI-C code produced by gperf version 3.0.4 */
 /* Command-line: gperf -t --output-file zconf.hash.c -a -C -E -g -k '1,3,$' -p -t zconf.gperf  */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -163,7 +163,7 @@ static const struct kconf_id_strings_t kconf_id_strings_contents =
 #define kconf_id_strings ((const char *) &kconf_id_strings_contents)
 #ifdef __GNUC__
 __inline
-#ifdef __GNUC_STDC_INLINE__
+#if defined __GNUC_STDC_INLINE__ || defined __GNUC_GNU_INLINE__
 __attribute__ ((__gnu_inline__))
 #endif
 #endif

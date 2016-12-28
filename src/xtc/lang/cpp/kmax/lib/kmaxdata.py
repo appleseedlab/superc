@@ -43,6 +43,7 @@ assert os.path.isdir(kmax_scratch)
 
 versions_datafile = os.path.join(kmax_root, "analysis", "versions.txt")
 makefile_override = os.path.join(kmax_root, "kbuild", "makefile_override")
+busybox_makefile_override = os.path.join(kmax_root, "kbuild", "busybox_makefile_override")
 
 def kbuildminer_datafiles(version):
   return glob.glob(os.path.join(kmax_data, "kbuildminer_" + version + "*.txt"))
@@ -182,6 +183,8 @@ class BuildSystemData:
     self.alldirs = []
     self.kconfig_files = []
     self.config_vars = []
+    self.bool_vars = []
+    self.nonbool_vars = []
     self.compilation_units = defaultdict(list)
 
   def __str__(self):

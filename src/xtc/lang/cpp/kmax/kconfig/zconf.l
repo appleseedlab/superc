@@ -8,6 +8,7 @@
  * Released under the terms of the GNU GPL v2.0.
  */
 
+#include <glob.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,8 +28,8 @@ static char *text;
 static int text_size, text_asize;
 
 struct buffer {
-        struct buffer *parent;
-        YY_BUFFER_STATE state;
+	struct buffer *parent;
+	YY_BUFFER_STATE state;
 };
 
 struct buffer *current_buf;
@@ -68,7 +69,6 @@ static void alloc_string(const char *str, int size)
 }
 %}
 
-ws	[ \n\t]
 n	[A-Za-z0-9_]
 
 %%
@@ -335,6 +335,32 @@ void zconf_nextfile(const char *name)
 	file->lineno = 1;
 	file->parent = current_file;
 	current_file = file;
+}
+
+void zconf_nextfiles(const char *wildcard)
+{
+	glob_t g = {0};
+	char **w;
+	int i;
+
+	if (glob(wildcard, 0, NULL, &g) != 0) {
+		return;
+	}
+	if (g.gl_pathv == NULL) {
+		globfree(&g);
+		return;
+	}
+
+	/* working through files backwards, since
+	 * we're first pushing them on a stack
+	 * before actually handling them.
+	 */
+	for (i = g.gl_pathc; i > 0; i--) {
+		w = &g.gl_pathv[i - 1];
+		zconf_nextfile(*w);
+	}
+
+	globfree(&g);
 }
 
 static void zconf_endfile(void)
