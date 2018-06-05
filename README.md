@@ -4,9 +4,9 @@ A clone of the xtc project including SuperC and Kmax.  The main homepage for xtc
 
 ## Dependencies and environment variables
 
-Building SuperC requires `bison`.  For debian and ubuntu run
+Building SuperC requires `bison` and `sat4j`.  For debian and ubuntu run
 
-    apt-get install bison
+    apt-get install bison sat4j
 
 The following environment variables are expected by xtc.
 
@@ -41,4 +41,4 @@ Run `make manual` in src/xtc/lang/cpp.  Requires `pdflatex`.
 
 ## Kmax
 
-See Kmax's [README](src/xtc/lang/cpp/kmax/README) for build and use instructions.
+Kmax is now in its own repository: <https://github.com/paulgazz/kmax>
