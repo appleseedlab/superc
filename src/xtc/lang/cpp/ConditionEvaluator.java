@@ -209,10 +209,14 @@ public class ConditionEvaluator {
         // if (pullUndefinedFalse) {
         //   return "";
         // }
-        if (null != seenConfigs) {
-          seenConfigs.add(n.getString(0));
+        String identifierName = n.getString(0);
+        if (macroTable.getConfigurationVariables()) {
+          macroTable.configurationVariables.add(identifierName);
         }
-        return n.getString(0);
+        if (null != seenConfigs) {
+          seenConfigs.add(identifierName);
+        }
+        return identifierName;
       }
 
       /** Process a unary minus. */
