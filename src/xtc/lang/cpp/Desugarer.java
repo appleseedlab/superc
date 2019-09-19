@@ -54,8 +54,12 @@ class Desugarer {
   /** The instance of this class */
   private static Desugarer ref;
 
+  private static long varcount = 0;
+
   /** A reference to the presence condition manager */
-  private PresenceConditionManager presenceConditionManager;
+  PresenceConditionManager presenceConditionManager;
+
+  SymbolTable symtab;
 
   /** Get the instance of this class */
   public static Desugarer getInstance(PresenceConditionManager presenceConditionManager) {
@@ -67,6 +71,7 @@ class Desugarer {
 
   protected Desugarer(PresenceConditionManager presenceConditionManager) {
     this.presenceConditionManager = presenceConditionManager;
+    this.symtab = new SymbolTable();
   }
 
   /**
@@ -81,6 +86,7 @@ class Desugarer {
                                           PresenceCondition lastPresenceCondition,
                                           OutputStreamWriter writer)
     throws IOException {
+
     if (n.isToken()) {
       writer.write(n.getTokenText());
       writer.write(" ");
@@ -107,6 +113,10 @@ class Desugarer {
               writer.write("\n");
               desugarConditionalsDeclaration((Node) bo, newPresenceCondition, lastPresenceCondition, writer);
               writer.write("\n");
+            } else if (((Node) bo).getName().equals("CompoundStatement")) {
+              for (Object cs_child : (Node) bo) {
+                desugarConditionals((Node) cs_child, newPresenceCondition, lastPresenceCondition, writer);
+              }
             } else {
               desugarConditionalsStatement((Node) bo, newPresenceCondition, lastPresenceCondition, writer);
             }
@@ -154,14 +164,12 @@ class Desugarer {
     // statement with our own set of compound statements, each under a
     // different conditional.
 
-    
-
     if (protomv.size() == 1) {
       writer.write(protomv.get(0).getKey().toString());
       writer.write("{\n");
       writer.write("if (");
       protomv.get(0).getValue().print(writer);
-      writer.write(") {\n");
+      writer.write(") { /* from static conditional around function definition */\n");
       for (int i = 1; i < n.size(); i++) {
         desugarConditionals(n.getNode(i), presenceCondition, lastPresenceCondition, writer);
       }
@@ -173,11 +181,9 @@ class Desugarer {
     }
 
     protomv.destruct();
-    
-    // hoist the function prototype to have a complete one
 
+    // TODO: hoist the function prototype to have a complete one
     // can't put the function inside of a conditional, instead we need to rename and update the symbol table
-
     // then put the condition of the function inside of the compound statement
 
     // there are several options: either multiplex with a conditional
@@ -195,18 +201,47 @@ class Desugarer {
     // prototype and explode it.
   }
 
+  protected String mangleRenaming(String ident) {
+    return ident + "_R".concat(Long.toString(varcount++));
+  }
+
   public void desugarConditionalsDeclaration(Node n, PresenceCondition presenceCondition,
                                              PresenceCondition lastPresenceCondition,
                                              OutputStreamWriter writer)
     throws IOException {
 
-    Multiverse mv = new Multiverse("", presenceCondition);
-    Multiverse result = hoistNode(n, mv);
-    writer.write(result.toString());
-    mv.destruct();
+    // TODO: need to merge extern declarations.  perhaps we can just take the largest size extern and do truncation?
 
-    // process results by adding to symbol table, renaming, and
-    // printing
+    // hoist conditionals around declarations into mv and collect each
+    // configuration's identifier in ident
+    Multiverse mv = new Multiverse("", presenceCondition);
+    Multiverse ident = new Multiverse("", presenceCondition);
+    Pair<Multiverse, Multiverse> result = hoistDeclaration(n, mv, ident);
+    Multiverse result_decl = result.getKey();
+    Multiverse result_ident = result.getValue();
+
+    // (1) rename each variable by adding a increasing counter
+    // (varcount), then (2) print each declaration (replacing the var
+    // name) without its static conditional.  (3) store the mapping
+    // between original and renamed variable in a symbol table for
+    // this scope.
+    // TODO: use better name mangling by generating random string
+    Iterator<Pair<StringBuilder, PresenceCondition>> it_decl = result_decl.iterator();
+    Iterator<Pair<StringBuilder, PresenceCondition>> it_ident = result_ident.iterator();
+    while (it_decl.hasNext() && it_ident.hasNext()) {
+      Pair<StringBuilder, PresenceCondition> next_ident = it_ident.next();
+      String elem_ident = next_ident.getKey().toString();
+      PresenceCondition pc = next_ident.getValue();
+      String renamed_ident = mangleRenaming(elem_ident);
+      symtab.addRenaming(elem_ident, renamed_ident, pc);
+      String elem_decl = it_decl.next().getKey().toString();
+      // TODO: should probably have a nicer way to replace the name
+      writer.write(elem_decl.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ "));
+    }
+    mv.destruct();
+    ident.destruct();
+
+    System.err.println(symtab.originalToNew);
   }
 
   public void desugarConditionalsStatement(Node n, PresenceCondition presenceCondition,
@@ -215,12 +250,44 @@ class Desugarer {
     throws IOException {
 
     Multiverse mv = new Multiverse("", presenceCondition);
-    Multiverse result = hoistNode(n, mv);
-    writer.write(result.toString());
+    Multiverse result = hoistStatement(n, mv);
     mv.destruct();
+    for (Pair<StringBuilder, PresenceCondition> elem : result) {
+      String str = elem.getKey().toString();
+      PresenceCondition cond = elem.getValue();
+      // if (null != lastPresenceCondition) {
+      //   System.err.println("jklfds " + cond.toString());
+      //   System.err.println("jklfds " + lastPresenceCondition.toString());
+      // }
+      if (null != lastPresenceCondition && cond.equals(lastPresenceCondition)) {
+        cond.print(writer);
+        writer.write("\n");
+        lastPresenceCondition.delRef();
+        lastPresenceCondition = cond;
+        lastPresenceCondition.addRef();
+      } else {
+        if (str.length() > 0) {
+          writer.write("if (");
+          cond.print(writer);
+          writer.write(") { /* from static conditional around statement */\n");
+          writer.write(str);
+          writer.write("\n}\n");
+        } else {
+          writer.write("/* omitted empty node */\n");
+        }
+      }
+      if (null == lastPresenceCondition) {
+        lastPresenceCondition = cond;
+        lastPresenceCondition.addRef();
+      }
+    }
+    if (null != lastPresenceCondition) {
+      lastPresenceCondition.delRef();
+    }
+    result.destruct();
 
-    // process results by looking up in the symbol table and adjusting
-    // the surrounding conditionals, later do type checking
+    // TODO: type checking to make sure the resulting uses of symbols
+    // does not cause a type error
 
     // optimization: dedup statements and union presence conditions
   }
@@ -283,7 +350,158 @@ class Desugarer {
     }
   }
 
-  public class Multiverse {
+  /**
+   * Caller destructs the multiverse that it passes.
+   */
+  public Pair<Multiverse, Multiverse> hoistDeclaration(Node n, Multiverse mv, Multiverse ident)
+    throws IOException {
+
+    if (n instanceof GNode
+        && ((GNode) n).hasName("SimpleDeclarator")) {
+      String identstr = ((Syntax) n.get(0)).toLanguage().toString();
+      if (! ident.allEquals("")) {
+        // the grammar should make this error impossible
+        System.err.println("ERROR: there should only be one identifier per declaration");
+      }
+      ident.addToAll(identstr);
+    }
+
+    
+    if (n.isToken()) {
+      // when we have a single token, append it's string to all lifted
+      // strings
+      mv.addToAll(n.getTokenText());
+      mv.addToAll(" ");
+      return new Pair<Multiverse, Multiverse>(mv, ident);
+    } else if (n instanceof Node) {
+      // when we have a static conditional, recursively add strings to
+      // the entire multiverse by performing a cartesian product with
+      // the input multiverse
+      if (n instanceof GNode
+          && ((GNode) n).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
+        List<Multiverse> newmvs = new LinkedList<Multiverse>();
+        List<Multiverse> newidents = new LinkedList<Multiverse>();
+        PresenceCondition branchCondition = null;
+        for (Object bo : n) {
+          if (bo instanceof PresenceCondition) {
+            branchCondition = (PresenceCondition) bo;
+          } else if (bo instanceof Node) {            
+            Pair<Multiverse, Multiverse> retval
+              = hoistDeclaration((Node) bo, new Multiverse("", branchCondition), new Multiverse("", branchCondition));
+            Multiverse newmv = retval.getKey();
+            Multiverse newident = retval.getValue();
+            newmvs.add(new Multiverse(mv, newmv));
+            newmv.destruct();
+            newidents.add(new Multiverse(ident, newident));
+            newident.destruct();
+          }
+        }
+        Multiverse combinedmv = new Multiverse(newmvs);
+        for (Multiverse elem : newmvs) {
+          elem.destruct();
+        }
+        return new Pair<Multiverse, Multiverse>(combinedmv, ident);
+
+      } else {
+        // when we have a sequence of nodes, add each sequence to the
+        // multiverse, using the returned multiverse, since there may
+        // have been nested static conditionals.
+        Pair<Multiverse, Multiverse> result = new Pair<Multiverse, Multiverse>(new Multiverse(mv), ident);
+        for (Object o : n) {
+          Pair<Multiverse, Multiverse> newResult = hoistDeclaration((Node) o, result.getKey(), result.getValue());
+          if (newResult.getKey() != result.getKey()) {
+            // the token case does not create a new multiverse, just
+            // returning the one passed in, so only destroy if the
+            // passed in multiverse is not the same as the returned
+            // one
+            result.getKey().destruct();
+          }
+          result = newResult;
+        }
+        return result;
+      }
+    } else {
+      throw new UnsupportedOperationException("unexpected type");
+    }
+  }  
+
+  /**
+   * This hoists conditionals around complete statements, replacing
+   * any identifiers with all their renamings.  Caller destructs the
+   * multiverse that it passes.
+   */
+  public Multiverse hoistStatement(Node n, Multiverse mv)
+    throws IOException {
+
+    // replace identifiers with its renamings
+    if (n instanceof GNode
+        && ((GNode) n).hasName("PrimaryIdentifier")) {
+      
+      String identstr = ((Syntax) n.get(0)).toLanguage().toString();
+      if (! symtab.hasRenaming(identstr)) {
+        System.err.println("ERROR: there is a use of an undefined variable: " + identstr);
+        System.exit(1);
+      }
+      Multiverse renaming = symtab.getRenaming(identstr);
+      Multiverse newmv = new Multiverse(mv, renaming);
+      renaming.destruct();
+      newmv.addToAll(" ");
+      return newmv;
+    }
+
+    if (n.isToken()) {
+      // when we have a single token, append it's string to all lifted
+      // strings
+      mv.addToAll(n.getTokenText());
+      mv.addToAll(" ");
+      return mv;
+    } else if (n instanceof Node) {
+      // when we have a static conditional, recursively add strings to
+      // the entire multiverse by performing a cartesian product with
+      // the input multiverse
+      if (n instanceof GNode
+          && ((GNode) n).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
+        List<Multiverse> newmvs = new LinkedList<Multiverse>();
+        PresenceCondition branchCondition = null;
+        for (Object bo : n) {
+          if (bo instanceof PresenceCondition) {
+            branchCondition = (PresenceCondition) bo;
+          } else if (bo instanceof Node) {
+            Multiverse newmv = hoistStatement((Node) bo, new Multiverse("", branchCondition));
+            newmvs.add(new Multiverse(mv, newmv));
+            newmv.destruct();
+          }
+        }
+        Multiverse combinedmv = new Multiverse(newmvs);
+        for (Multiverse elem : newmvs) {
+          elem.destruct();
+        }
+        return combinedmv;
+
+      } else {
+        // when we have a sequence of nodes, add each sequence to the
+        // multiverse, using the returned multiverse, since there may
+        // have been nested static conditionals.
+        Multiverse result = new Multiverse(mv);
+        for (Object o : n) {
+          Multiverse newResult = hoistStatement((Node) o, result);
+          if (newResult != result) {
+            // the token case does not create a new multiverse, just
+            // returning the one passed in, so only destroy if the
+            // passed in multiverse is not the same as the returned
+            // one
+            result.destruct();
+          }
+          result = newResult;
+        }
+        return result;
+      }
+    } else {
+      throw new UnsupportedOperationException("unexpected type");
+    }
+  }
+
+  public class Multiverse implements Iterable<Pair<StringBuilder, PresenceCondition>> {
     List<Pair<StringBuilder, PresenceCondition>> contents;
 
     /**
@@ -367,6 +585,15 @@ class Desugarer {
         sb.append(str);
       }
     }
+    
+    public boolean allEquals(String str) {
+      boolean flag = true;
+      for (Pair<StringBuilder, PresenceCondition> elem : contents) {
+        StringBuilder sb = elem.getKey();
+        flag = flag && sb.toString().equals(str);
+      }
+      return flag;
+    }
 
     /**
      * Get an element of the list.  Warning, the backing storage is a
@@ -378,6 +605,10 @@ class Desugarer {
 
     public int size() {
       return contents.size();
+    }
+
+    public Iterator<Pair<StringBuilder, PresenceCondition>> iterator() {
+      return contents.iterator();
     }
 
     public String toString() {
@@ -392,7 +623,7 @@ class Desugarer {
     }
   }
 
-  public class Pair<T, U> {
+  protected class Pair<T, U> {
     final T key;
     final U value;
 
@@ -417,6 +648,73 @@ class Desugarer {
       sb.append(getValue().toString());
       
       return sb.toString();
+    }
+  }
+
+  protected class SymbolTable {
+    SymbolTable parent;
+    Map<String, Pair<String, PresenceCondition>> newToOriginal;
+    Map<String, Multiverse> originalToNew;
+    
+    public SymbolTable(SymbolTable parent) {
+      this.parent = null;
+      this.newToOriginal = new HashMap<String, Pair<String, PresenceCondition>>();
+      this.originalToNew = new HashMap<String, Multiverse>();
+    }
+
+    public SymbolTable() {
+      this(null);
+    }
+
+    public boolean isTop() {
+      return null == parent;
+    }
+
+    public boolean containsLocal(String localvar) {
+      if (originalToNew.containsKey(localvar)
+          && originalToNew.get(localvar).size() > 0) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    // TODO: contains, recurisvely search through parent scope
+
+    public void addRenaming(String var, String renamed, PresenceCondition cond) {
+      assert null == newToOriginal.put(renamed, new Pair<String, PresenceCondition>(var, cond));
+      cond.addRef();
+      Multiverse mv = new Multiverse(renamed, cond);
+      cond.addRef();
+      if (! originalToNew.containsKey(var)) {
+        originalToNew.put(var, mv);
+      } else {
+        Multiverse oldmv = originalToNew.get(var);
+        List<Multiverse> list = new LinkedList<Multiverse>();
+        list.add(oldmv);
+        list.add(mv);
+        Multiverse combinedmv = new Multiverse(list);
+        oldmv.destruct();
+        mv.destruct();
+        originalToNew.put(var, combinedmv);
+      }
+    }
+
+    public boolean hasRenaming(String var) {
+      return originalToNew.containsKey(var);
+    }
+
+    /**
+     * Get the renamings.  This will create a copy of the underlying
+     * multiverse that the caller is responsible for destructing.
+     * This will return null if no renaming is registered.
+     */
+    public Multiverse getRenaming(String var) {
+      if (! originalToNew.containsKey(var)) {
+        return null;
+      } else {
+        return new Multiverse(originalToNew.get(var));
+      }
     }
   }
 }
