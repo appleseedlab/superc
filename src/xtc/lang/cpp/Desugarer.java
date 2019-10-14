@@ -57,6 +57,14 @@ class Desugarer {
 
   private static long varcount = 0;
 
+
+  /**
+   * The path of the header file that will contain the extern
+   * declarations of the desugared macros.  Macros are equivalent to
+   * C variables that are global to all compilation units.
+   */
+  private String MACRO_HEADER = "desugared_macros.h";
+
   /** A reference to the presence condition manager */
   PresenceConditionManager presenceConditionManager;
 
@@ -83,9 +91,30 @@ class Desugarer {
    * @param writer The writer.
    * @throws IOException Because it writes to output. 
    */
-  public void desugarConditionals(Node n, PresenceCondition presenceCondition,
-                                          PresenceCondition lastPresenceCondition,
-                                          OutputStreamWriter writer)
+  public void desugarConditionals(Node n, OutputStreamWriter writer)
+    throws IOException {
+
+    // TODO: allow user to specify the macro header file name
+
+    writer.write(String.format("#include \"%s\" // configuration macros converted to C variables\n", MACRO_HEADER));
+    
+    desugarConditionalsNode(n,
+                            presenceConditionManager.new PresenceCondition(true),
+                            null,
+                            writer);
+  }
+
+  /**
+   * Print an AST (or a subtree of it) in C source form.
+   *
+   * @param n An AST or a subtree.
+   * @param presenceCondition The current nested presence condition.
+   * @param writer The writer.
+   * @throws IOException Because it writes to output. 
+   */
+  public void desugarConditionalsNode(Node n, PresenceCondition presenceCondition,
+                                      PresenceCondition lastPresenceCondition,
+                                      OutputStreamWriter writer)
     throws IOException {
 
     if (n.isToken()) {
@@ -105,7 +134,7 @@ class Desugarer {
             newPresenceCondition = presenceCondition.and(branchCondition);
           } else if (bo instanceof Node) {
             if (((Node) bo).getName().equals("Conditional")) {
-              desugarConditionals((Node) bo, newPresenceCondition, lastPresenceCondition, writer);
+              desugarConditionalsNode((Node) bo, newPresenceCondition, lastPresenceCondition, writer);
             } else if (((Node) bo).getName().equals("FunctionDefinition")) {
               writer.write("\n");
               desugarConditionalsFunctionDefinition((Node) bo, newPresenceCondition, lastPresenceCondition, writer);
@@ -116,7 +145,7 @@ class Desugarer {
               writer.write("\n");
             } else if (((Node) bo).getName().equals("CompoundStatement")) {
               for (Object cs_child : (Node) bo) {
-                desugarConditionals((Node) cs_child, newPresenceCondition, lastPresenceCondition, writer);
+                desugarConditionalsNode((Node) cs_child, newPresenceCondition, lastPresenceCondition, writer);
               }
             } else {
               desugarConditionalsStatement((Node) bo, newPresenceCondition, lastPresenceCondition, writer);
@@ -126,7 +155,7 @@ class Desugarer {
 
       } else {
         for (Object o : n) {
-          desugarConditionals((Node) o, presenceCondition, lastPresenceCondition, writer);
+          desugarConditionalsNode((Node) o, presenceCondition, lastPresenceCondition, writer);
         }
       }
 
@@ -170,6 +199,10 @@ class Desugarer {
     // statement with our own set of compound statements, each under a
     // different conditional.
 
+    // // TODO: create a function that dispatches the original function to the
+    // // hoisted functions.  we need to unify the types, however
+    // StringBuilder multiplexer = new StringBuilder();
+
     Iterator<Pair<StringBuilder, PresenceCondition>> it_proto = protomv.iterator();
     Iterator<Pair<StringBuilder, PresenceCondition>> it_ident = proto_ident.iterator();
     while (it_proto.hasNext() && it_ident.hasNext()) {
@@ -186,7 +219,7 @@ class Desugarer {
       writer.write(") { /* from static conditional around function definition */\n");
       writer.flush();
       for (int i = 1; i < n.size(); i++) {
-        desugarConditionals(n.getNode(i), presenceCondition, lastPresenceCondition, writer);
+        desugarConditionalsNode(n.getNode(i), presenceCondition, lastPresenceCondition, writer);
       }
       writer.write("\n}\n");
       writer.write("}\n");
@@ -202,7 +235,7 @@ class Desugarer {
     //   writer.write(") { /* from static conditional around function definition */\n");
     //   writer.flush();
     //   for (int i = 1; i < n.size(); i++) {
-    //     desugarConditionals(n.getNode(i), presenceCondition, lastPresenceCondition, writer);
+    //     desugarConditionalsNode(n.getNode(i), presenceCondition, lastPresenceCondition, writer);
     //   }
     //   writer.write("\n}\n");
     //   writer.write("}\n");

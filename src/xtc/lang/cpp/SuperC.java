@@ -1178,10 +1178,7 @@ public class SuperC extends Tool {
         LinkedList<PresenceCondition> parents
           = new LinkedList<PresenceCondition>();
 
-        desugarer.desugarConditionals((Node) translationUnit,
-                                      presenceConditionManager.new PresenceCondition(true),
-                                      null,
-                                      writer);
+        desugarer.desugarConditionals((Node) translationUnit, writer);
 
         assert(parents.size() == 0);
         
