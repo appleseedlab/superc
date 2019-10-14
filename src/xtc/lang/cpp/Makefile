@@ -91,6 +91,7 @@ SOURCE = \
 	GCCShunt.java \
 	cdiff.java \
 	FunctionChecker.java \
+	Desugarer.java \
 	SuperC.java
 
 
