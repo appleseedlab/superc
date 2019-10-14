@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Random;
 
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
@@ -146,7 +147,12 @@ class Desugarer {
     // prototype is the first node
 
     // hoist the function prototype first
-    Multiverse protomv = hoistNode(n.getNode(0), new Multiverse("", presenceCondition));
+    // Multiverse protomv = hoistNode(n.getNode(0), new Multiverse("", presenceCondition));
+    Multiverse mv = new Multiverse("", presenceCondition);
+    Multiverse ident = new Multiverse("", presenceCondition);
+    Pair<Multiverse, Multiverse> result = hoistDeclaration(n.getNode(0), mv, ident);
+    Multiverse protomv = result.getKey();
+    Multiverse proto_ident = result.getValue();
     
     // Multiverse mv = new Multiverse("", presenceCondition);
     // Multiverse result = hoistNode(n, mv);
@@ -164,23 +170,46 @@ class Desugarer {
     // statement with our own set of compound statements, each under a
     // different conditional.
 
-    if (protomv.size() == 1) {
-      writer.write(protomv.get(0).getKey().toString());
+    Iterator<Pair<StringBuilder, PresenceCondition>> it_proto = protomv.iterator();
+    Iterator<Pair<StringBuilder, PresenceCondition>> it_ident = proto_ident.iterator();
+    while (it_proto.hasNext() && it_ident.hasNext()) {
+      Pair<StringBuilder, PresenceCondition> next_ident = it_ident.next();
+      String elem_ident = next_ident.getKey().toString();
+      PresenceCondition pc = next_ident.getValue();
+      String renamed_ident = mangleRenaming(FUNCPREFIX, elem_ident);
+      symtab.addRenaming(elem_ident, renamed_ident, pc);  // TODO: keep track of types
+      String elem_proto = it_proto.next().getKey().toString();
+      writer.write(elem_proto.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ "));
       writer.write("{\n");
       writer.write("if (");
-      protomv.get(0).getValue().print(writer);
+      pc.print(writer);
       writer.write(") { /* from static conditional around function definition */\n");
+      writer.flush();
       for (int i = 1; i < n.size(); i++) {
         desugarConditionals(n.getNode(i), presenceCondition, lastPresenceCondition, writer);
       }
       writer.write("\n}\n");
       writer.write("}\n");
-    } else {
-      System.err.println("TODO support multiple function prototypes");
-      writer.write(protomv.toString());
     }
-
-    protomv.destruct();
+    mv.destruct();
+    ident.destruct();
+    
+    // if (protomv.size() == 1) {
+    //   writer.write(protomv.get(0).getKey().toString());
+    //   writer.write("{\n");
+    //   writer.write("if (");
+    //   protomv.get(0).getValue().print(writer);
+    //   writer.write(") { /* from static conditional around function definition */\n");
+    //   writer.flush();
+    //   for (int i = 1; i < n.size(); i++) {
+    //     desugarConditionals(n.getNode(i), presenceCondition, lastPresenceCondition, writer);
+    //   }
+    //   writer.write("\n}\n");
+    //   writer.write("}\n");
+    // } else {
+    //   System.err.println("TODO support multiple function prototypes");
+    //   writer.write(protomv.toString());
+    // }
 
     // TODO: hoist the function prototype to have a complete one
     // can't put the function inside of a conditional, instead we need to rename and update the symbol table
@@ -201,8 +230,19 @@ class Desugarer {
     // prototype and explode it.
   }
 
-  protected String mangleRenaming(String ident) {
-    return ident + "_R".concat(Long.toString(varcount++));
+  private final static char[] charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
+  private final static Random random = new Random();
+  private final static int RAND_SIZE = 5;
+  private final static String VARPREFIX = "V";  // prefix for renamed variable
+  private final static String FUNCPREFIX = "F";  // prefix for renamed function
+  private final static String CONFIGPREFIX = "C";  // prefix for config macro
+  private final static String DEFINEDPREFIX = "D";  // prefix for config macro's definedness variable
+  protected String mangleRenaming(String prefix, String ident) {
+    StringBuilder randomstring = new StringBuilder();
+    for (int i = 0; i < RAND_SIZE; i++) {
+      randomstring.append(charset[random.nextInt(charset.length)]);
+    }
+    return String.format("_%s%d%s_%s", prefix, varcount++, randomstring.toString(), ident);
   }
 
   public void desugarConditionalsDeclaration(Node n, PresenceCondition presenceCondition,
@@ -232,7 +272,7 @@ class Desugarer {
       Pair<StringBuilder, PresenceCondition> next_ident = it_ident.next();
       String elem_ident = next_ident.getKey().toString();
       PresenceCondition pc = next_ident.getValue();
-      String renamed_ident = mangleRenaming(elem_ident);
+      String renamed_ident = mangleRenaming(VARPREFIX, elem_ident);
       symtab.addRenaming(elem_ident, renamed_ident, pc);
       String elem_decl = it_decl.next().getKey().toString();
       // TODO: should probably have a nicer way to replace the name
@@ -512,6 +552,7 @@ class Desugarer {
       StringBuilder sb = new StringBuilder();
       sb.append(initstring);
       Pair<StringBuilder, PresenceCondition> elem = new Pair<StringBuilder, PresenceCondition>(sb, initcond);
+      initcond.addRef();
       contents.add(elem);
     }
 
