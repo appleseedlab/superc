@@ -102,6 +102,39 @@ class Desugarer {
                             presenceConditionManager.new PresenceCondition(true),
                             null,
                             writer);
+
+    // multiplex the main method, if it was defined
+    if (symtab.hasRenaming("main")) {
+      writer.write(multiplexSimple("main", symtab.getRenaming("main"), "int argc, char **argv", "(argc, argv)"));
+    }
+  }
+
+  /**
+   * Multiplex the renamed function definitions by creating a new
+   * function using the original that just calls renamed functions
+   * under their respective configurations.  This simple version
+   * assumes that all renamed functions share the same type (which
+   * does not necessarily hold in general).
+   */
+  public String multiplexSimple(String name, Multiverse renaming, String formals, String call) {
+    // TODO: check whether the renaming is actually a function
+    StringBuilder sb = new StringBuilder();
+    sb.append(String.format("%s(%s) { // multiplexed function\n", name, formals));
+    Iterator<Pair<StringBuilder, PresenceCondition>> it_renaming = renaming.iterator();
+    while (it_renaming.hasNext()) {
+      Pair<StringBuilder, PresenceCondition> next_renaming = it_renaming.next();
+      String ident = next_renaming.getKey().toString();
+      PresenceCondition pc = next_renaming.getValue();
+      sb.append("if (");
+      sb.append(pc.toString());
+      sb.append(") {\n");
+      sb.append(ident);
+      sb.append(call);
+      sb.append(";\n");
+      sb.append("}\n");
+    }
+    sb.append("}\n");
+    return sb.toString();
   }
 
   /**
