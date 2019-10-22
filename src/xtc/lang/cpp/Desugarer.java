@@ -109,6 +109,18 @@ class Desugarer {
     }
   }
 
+  // /**
+  //  * Take a presence condition and generate the "if (cond)" part of an
+  //  * if-statement.  If the condition is true, then don't emit it.
+  //  */
+  // public String generateIf(PresenceCondition cond) {
+  //   StringBuilder sb = new StringBuilder();
+  //   sb.append("if (");
+  //   sb.append(pc.toString());
+  //   sb.append(")");
+  //   return sb.toString();
+  // }
+
   /**
    * Multiplex the renamed function definitions by creating a new
    * function using the original that just calls renamed functions
@@ -233,7 +245,7 @@ class Desugarer {
     // different conditional.
 
     // // TODO: create a function that dispatches the original function to the
-    // // hoisted functions.  we need to unify the types, however
+    // // hoisted functions.  we need to join the types, however
     // StringBuilder multiplexer = new StringBuilder();
 
     Iterator<Pair<StringBuilder, PresenceCondition>> it_proto = protomv.iterator();
@@ -303,12 +315,16 @@ class Desugarer {
   private final static String FUNCPREFIX = "F";  // prefix for renamed function
   private final static String CONFIGPREFIX = "C";  // prefix for config macro
   private final static String DEFINEDPREFIX = "D";  // prefix for config macro's definedness variable
-  protected String mangleRenaming(String prefix, String ident) {
+  protected String randomString(int string_size) {
     StringBuilder randomstring = new StringBuilder();
-    for (int i = 0; i < RAND_SIZE; i++) {
+    for (int i = 0; i < string_size; i++) {
       randomstring.append(charset[random.nextInt(charset.length)]);
     }
-    return String.format("_%s%d%s_%s", prefix, varcount++, randomstring.toString(), ident);
+    return randomstring.toString();
+  }
+  
+  protected String mangleRenaming(String prefix, String ident) {
+    return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
   }
 
   public void desugarConditionalsDeclaration(Node n, PresenceCondition presenceCondition,
