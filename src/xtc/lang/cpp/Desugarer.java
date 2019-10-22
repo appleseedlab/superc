@@ -623,9 +623,55 @@ class Desugarer {
     }
   }
 
-  public class Multiverse implements Iterable<Pair<StringBuilder, PresenceCondition>> {
-    List<Pair<StringBuilder, PresenceCondition>> contents;
+  public abstract class GMultiverse<T> implements Iterable<Pair<T, PresenceCondition>> {
+    List<Pair<T, PresenceCondition>> contents;
 
+    /**
+     * Decrement the references of all presence conditions and remove
+     * the string builders.  Be sure to do this once you no longer
+     * need the multiverse, e.g., after constructing a new multiverse
+     * using this one.  The multiverse will no longer be useable after
+     * calling this function.
+     */
+    public void destruct() {
+      for (Pair<T, PresenceCondition> elem : contents) {
+        // T sb = elem.getKey();
+        PresenceCondition pc = elem.getValue();
+        pc.delRef();
+      }
+      contents.clear();
+      contents = null;
+    }
+    
+    public boolean allEquals(String str) {
+      boolean flag = true;
+      for (Pair<T, PresenceCondition> elem : contents) {
+        T sb = elem.getKey();
+        flag = flag && sb.toString().equals(str);
+      }
+      return flag;
+    }
+
+    /**
+     * Get an element of the list.  Warning, the backing storage is a
+     * linked list, so this may only be efficient for get(0).
+     */
+    public Pair<T, PresenceCondition> get(int index) {
+      return contents.get(0);
+    }
+
+    public int size() {
+      return contents.size();
+    }
+
+    public Iterator<Pair<T, PresenceCondition>> iterator() {
+      return contents.iterator();
+    }
+  }
+
+  // public class TypeMultiverse extends GMulti
+
+  public class Multiverse extends GMultiverse<StringBuilder> {
     /**
      * Construct a new multiverse
      */
@@ -685,53 +731,11 @@ class Desugarer {
       }      
     }
 
-    /**
-     * Decrement the references of all presence conditions and remove
-     * the string builders.  Be sure to do this once you no longer
-     * need the multiverse, e.g., after constructing a new multiverse
-     * using this one.  The multiverse will no longer be useable after
-     * calling this function.
-     */
-    public void destruct() {
-      for (Pair<StringBuilder, PresenceCondition> elem : contents) {
-        // StringBuilder sb = elem.getKey();
-        PresenceCondition pc = elem.getValue();
-        pc.delRef();
-      }
-      contents.clear();
-      contents = null;
-    }
-    
     public void addToAll(String str) {
       for (Pair<StringBuilder, PresenceCondition> elem : contents) {
         StringBuilder sb = elem.getKey();
         sb.append(str);
       }
-    }
-    
-    public boolean allEquals(String str) {
-      boolean flag = true;
-      for (Pair<StringBuilder, PresenceCondition> elem : contents) {
-        StringBuilder sb = elem.getKey();
-        flag = flag && sb.toString().equals(str);
-      }
-      return flag;
-    }
-
-    /**
-     * Get an element of the list.  Warning, the backing storage is a
-     * linked list, so this may only be efficient for get(0).
-     */
-    public Pair<StringBuilder, PresenceCondition> get(int index) {
-      return contents.get(0);
-    }
-
-    public int size() {
-      return contents.size();
-    }
-
-    public Iterator<Pair<StringBuilder, PresenceCondition>> iterator() {
-      return contents.iterator();
     }
 
     public String toString() {
