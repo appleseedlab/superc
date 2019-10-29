@@ -58,19 +58,6 @@ class Desugarer {
   private static long varcount = 0;
 
 
-
-// ------------------------------below the new code---------------------------
-
-
-
-
-
-// -------------------------above the new code-------------------------------------------------------
-
-
-
-
-
   /**
    * The path of the header file that will contain the extern
    * declarations of the desugared macros.  Macros are equivalent to
