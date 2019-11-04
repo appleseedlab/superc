@@ -138,7 +138,7 @@ class Desugarer {
       String ident = next_renaming.getKey().toString();
       PresenceCondition pc = next_renaming.getValue();
       sb.append("if (");
-      sb.append(pc.toString());
+      sb.append(PCtoString(pc));
       sb.append(") {\n");
       sb.append(ident);
       sb.append(call);
@@ -155,13 +155,21 @@ class Desugarer {
     List allsat = (List) cond.getBDD().allsat();
     ArrayList<String> currentExprs;
     String CBoolExpr;
+    boolean firstTerm = true;
+    boolean firstTermOuter = true;
 
     for (Object o : allsat) {
+      if (!firstTermOuter)
+        writer.write(" || ");
+      firstTermOuter = false;
       currentExprs = getBoolExprs((byte[]) o, cond);
       for (String CPPBoolExpr : currentExprs) {
+        if (!firstTerm)
+          writer.write(" && ");
+        firstTerm = false;
         if (BoolExprs.isEmpty() || !BoolExprs.containsKey(CPPBoolExpr)) {
-          // generates a new C boolean expression with hashstring appended, then adds it to hashmap and prints it
-          CBoolExpr = generateBoolExpr();
+          // generates a new C boolean expression with hashcode appended, then adds it to hashmap and prints it
+          CBoolExpr = generateBoolExpr(CPPBoolExpr);
           BoolExprs.put(CPPBoolExpr, CBoolExpr);
           writer.write(CBoolExpr);
         } else if (BoolExprs.containsKey(CPPBoolExpr)) {
@@ -171,7 +179,38 @@ class Desugarer {
         }
       }
     }
-    // TODO: need to generate the header file with the valid C boolean expression declarations
+  }
+
+  public String PCtoString(PresenceCondition cond) {
+    List allsat = (List) cond.getBDD().allsat();
+    ArrayList<String> currentExprs;
+    String CBoolExpr;
+    StringBuilder sb = new StringBuilder();
+    boolean firstTerm = true;
+    boolean firstTermOuter = true;
+
+    for (Object o : allsat) {
+      if (!firstTermOuter)
+        sb.append(" || ");
+      firstTermOuter = false;
+      currentExprs = getBoolExprs((byte[]) o, cond);
+      for (String CPPBoolExpr : currentExprs) {
+        if (!firstTerm)
+          sb.append(" && ");
+        firstTerm = false;
+        if (BoolExprs.isEmpty() || !BoolExprs.containsKey(CPPBoolExpr)) {
+          // generates a new C boolean expression with hashcode appended, then adds it to hashmap and returns it
+          CBoolExpr = generateBoolExpr(CPPBoolExpr);
+          BoolExprs.put(CPPBoolExpr, CBoolExpr);
+          sb.append(CBoolExpr);
+        } else /* if (BoolExprs.containsKey(CPPBoolExpr)) */ {
+          // returns the mapped C expression
+          CBoolExpr = BoolExprs.get(CPPBoolExpr);
+          sb.append(CBoolExpr);
+        }
+      }
+    }
+    return sb.toString();
   }
 
   // returns a list of every expression in the BDD
@@ -186,11 +225,11 @@ class Desugarer {
     return allExprs;
   }
 
-  // returns a new (valid C) boolean expression, with a 5-char hash string appended
-  public String generateBoolExpr() {
+  // returns a new (valid C) boolean expression, with hashcode appended
+  public String generateBoolExpr(String CPPBoolExpr) {
     StringBuilder sb = new StringBuilder();
-    sb.append("bool_expr_");
-    sb.append(randomString(RAND_SIZE));
+    sb.append("_C_");
+    sb.append(CPPBoolExpr.hashCode());
     return sb.toString();
   }
 
@@ -305,7 +344,7 @@ class Desugarer {
       writer.write(elem_proto.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ "));
       writer.write("{\n");
       writer.write("if (");
-      pc.print(writer);
+      printBDDC(pc, writer);
       writer.write(") { /* from static conditional around function definition */\n");
       writer.flush();
       for (int i = 1; i < n.size(); i++) {
@@ -427,7 +466,7 @@ class Desugarer {
       //   System.err.println("jklfds " + lastPresenceCondition.toString());
       // }
       if (null != lastPresenceCondition && cond.equals(lastPresenceCondition)) {
-        cond.print(writer);
+        printBDDC(cond, writer);
         writer.write("\n");
         lastPresenceCondition.delRef();
         lastPresenceCondition = cond;
@@ -435,7 +474,7 @@ class Desugarer {
       } else {
         if (str.length() > 0) {
           writer.write("if (");
-          cond.print(writer);
+          printBDDC(cond, writer);
           writer.write(") { /* from static conditional around statement */\n");
           writer.write(str);
           writer.write("\n}\n");
