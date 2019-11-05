@@ -107,6 +107,7 @@ class Desugarer {
 
     // multiplex the main method, if it was defined
     if (symtab.hasRenaming("main")) {
+      writer.write("int ");  // TODO the symbol table needs to store type information for renamed symbols
       writer.write(multiplexSimple("main", symtab.getRenaming("main"), "int argc, char **argv", "(argc, argv)"));
     }
   }
