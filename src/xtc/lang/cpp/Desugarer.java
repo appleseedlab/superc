@@ -252,6 +252,12 @@ class Desugarer {
     StringBuilder sb = new StringBuilder();
     sb.append("_C_");
     sb.append(CPPBoolExpr.hashCode());
+    
+    // the expression cannot have a '-' character in it (because it would evaluate as subtraction)
+    if (sb.charAt(3) == '-') {
+      sb.replace(3, 4, "n"); // replaces the '-' with 'n'
+    }
+    
     return sb.toString();
   }
 
