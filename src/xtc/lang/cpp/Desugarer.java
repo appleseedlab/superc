@@ -91,7 +91,7 @@ class Desugarer {
    * @param n An AST or a subtree.
    * @param presenceCondition The current nested presence condition.
    * @param writer The writer.
-   * @throws IOException Because it writes to output. 
+   * @throws IOException Because it writes to output.
    */
   public void desugarConditionals(Node n, OutputStreamWriter writer)
     throws IOException {
@@ -155,78 +155,97 @@ class Desugarer {
   private HashMap<String, String> BoolExprs = new HashMap<String, String>();
 
   public void printBDDC(PresenceCondition cond, OutputStreamWriter writer) throws IOException {
-    List allsat = (List) cond.getBDD().allsat();
-    ArrayList<String> currentExprs;
-    String CBoolExpr;
-    boolean firstTerm = true;
-    boolean firstTermOuter = true;
+   List allsat = (List) cond.getBDD().allsat();
+   ArrayList<String> currentExprs;
+   String CBoolExpr;
+   boolean firstTerm = true;
+   boolean firstTermOuter = true;
 
-    for (Object o : allsat) {
-      if (!firstTermOuter)
-        writer.write(" || ");
-      firstTermOuter = false;
-      currentExprs = getBoolExprs((byte[]) o, cond);
-      for (String CPPBoolExpr : currentExprs) {
-        if (!firstTerm)
-          writer.write(" && ");
-        firstTerm = false;
-        if (BoolExprs.isEmpty() || !BoolExprs.containsKey(CPPBoolExpr)) {
-          // generates a new C boolean expression with hashcode appended, then adds it to hashmap and prints it
-          CBoolExpr = generateBoolExpr(CPPBoolExpr);
-          BoolExprs.put(CPPBoolExpr, CBoolExpr);
-          writer.write(CBoolExpr);
-        } else if (BoolExprs.containsKey(CPPBoolExpr)) {
-          // prints the mapped C expression
-          CBoolExpr = BoolExprs.get(CPPBoolExpr);
-          writer.write(CBoolExpr);
-        }
-      }
-    }
-  }
+   if (cond.getBDD().isOne()) {
+     writer.write("1");
+     return;
+   } else if (cond.getBDD().isZero()) {
+     writer.write("0");
+     return;
+   }
 
-  public String PCtoString(PresenceCondition cond) {
-    List allsat = (List) cond.getBDD().allsat();
-    ArrayList<String> currentExprs;
-    String CBoolExpr;
-    StringBuilder sb = new StringBuilder();
-    boolean firstTerm = true;
-    boolean firstTermOuter = true;
+   for (Object o : allsat) {
+     if (!firstTermOuter)
+       writer.write(" || ");
+     firstTermOuter = false;
+     currentExprs = getBoolExprs((byte[]) o, cond);
+     firstTerm = true; // NEW not sure if necessary
+     for (String CPPBoolExpr : currentExprs) {
+       if (!firstTerm)
+         writer.write(" && ");
+       firstTerm = false;
+       if (BoolExprs.isEmpty() || !BoolExprs.containsKey(CPPBoolExpr)) {
+         // generates a new C boolean expression with hashcode appended, then adds it to hashmap and prints it
+         CBoolExpr = generateBoolExpr(CPPBoolExpr);
+         BoolExprs.put(CPPBoolExpr, CBoolExpr);
+         writer.write(CBoolExpr);
+       } else if (BoolExprs.containsKey(CPPBoolExpr)) {
+         // prints the mapped C expression
+         CBoolExpr = BoolExprs.get(CPPBoolExpr);
+         writer.write(CBoolExpr);
+       }
+     }
 
-    for (Object o : allsat) {
-      if (!firstTermOuter)
-        sb.append(" || ");
-      firstTermOuter = false;
-      currentExprs = getBoolExprs((byte[]) o, cond);
-      for (String CPPBoolExpr : currentExprs) {
-        if (!firstTerm)
-          sb.append(" && ");
-        firstTerm = false;
-        if (BoolExprs.isEmpty() || !BoolExprs.containsKey(CPPBoolExpr)) {
-          // generates a new C boolean expression with hashcode appended, then adds it to hashmap and returns it
-          CBoolExpr = generateBoolExpr(CPPBoolExpr);
-          BoolExprs.put(CPPBoolExpr, CBoolExpr);
-          sb.append(CBoolExpr);
-        } else /* if (BoolExprs.containsKey(CPPBoolExpr)) */ {
-          // returns the mapped C expression
-          CBoolExpr = BoolExprs.get(CPPBoolExpr);
-          sb.append(CBoolExpr);
-        }
-      }
-    }
-    return sb.toString();
-  }
+   }
+ }
 
-  // returns a list of every expression in the BDD
-  public ArrayList<String> getBoolExprs(byte[] sat, PresenceCondition cond) {
-    ArrayList<String> allExprs = new ArrayList<String>();
-    for (int i = 0; i < sat.length; i++) {
-      if (sat[i] == 1) {
-        // builds up a list of the (CPP) boolean expressions within the PresenceCondition
-        allExprs.add(cond.presenceConditionManager().getVariableManager().getName(i));
-      }
-    }
-    return allExprs;
-  }
+ public String PCtoString(PresenceCondition cond) {
+   List allsat = (List) cond.getBDD().allsat();
+   ArrayList<String> currentExprs;
+   String CBoolExpr;
+   StringBuilder sb = new StringBuilder();
+   boolean firstTerm = true;
+   boolean firstTermOuter = true;
+
+   if (cond.getBDD().isOne()) {
+     return "1";
+   } else if (cond.getBDD().isZero()) {
+     return "0";
+   }
+
+   for (Object o : allsat) {
+     if (!firstTermOuter)
+       sb.append(" || ");
+     firstTermOuter = false;
+     currentExprs = getBoolExprs((byte[]) o, cond);
+     firstTerm = true; // NEW Not sure if necessary
+     for (String CPPBoolExpr : currentExprs) {
+       if (!firstTerm)
+         sb.append(" && ");
+       firstTerm = false;
+       if (BoolExprs.isEmpty() || !BoolExprs.containsKey(CPPBoolExpr)) {
+         // generates a new C boolean expression with hashcode appended, then adds it to hashmap and returns it
+         CBoolExpr = generateBoolExpr(CPPBoolExpr);
+         BoolExprs.put(CPPBoolExpr, CBoolExpr);
+         sb.append(CBoolExpr);
+       } else /* if (BoolExprs.containsKey(CPPBoolExpr)) */ {
+         // returns the mapped C expression
+         CBoolExpr = BoolExprs.get(CPPBoolExpr);
+         sb.append(CBoolExpr);
+       }
+     }
+   }
+   return sb.toString();
+ }
+
+ // returns a list of every expression in the BDD
+ public ArrayList<String> getBoolExprs(byte[] sat, PresenceCondition cond) {
+   ArrayList<String> allExprs = new ArrayList<String>();
+   for (int i = 0; i < sat.length; i++) {
+     if (sat[i] == 1) {
+       // builds up a list of the (CPP) boolean expressions within the PresenceCondition
+       allExprs.add(cond.presenceConditionManager().getVariableManager().getName(i));
+     } else if (sat[i] == 0) {
+       allExprs.add("!" + cond.presenceConditionManager().getVariableManager().getName(i)); // NEW
+     }
+   }
+   return allExprs;
+ }
 
   // returns a new (valid C) boolean expression, with hashcode appended
   public String generateBoolExpr(String CPPBoolExpr) {
@@ -314,7 +333,7 @@ class Desugarer {
     Pair<StringMultiverse, StringMultiverse> result = hoistDeclaration(n.getNode(0), mv, ident);
     StringMultiverse protomv = result.getKey();
     StringMultiverse proto_ident = result.getValue();
-    
+
     // StringMultiverse mv = new StringMultiverse("", presenceCondition);
     // StringMultiverse result = hoistNode(n, mv);
     // writer.write(result.toString());
@@ -596,7 +615,7 @@ class Desugarer {
         for (Object bo : n) {
           if (bo instanceof PresenceCondition) {
             branchCondition = (PresenceCondition) bo;
-          } else if (bo instanceof Node) {            
+          } else if (bo instanceof Node) {
             Pair<StringMultiverse, StringMultiverse> retval
               = hoistDeclaration((Node) bo, new StringMultiverse("", branchCondition), new StringMultiverse("", branchCondition));
             StringMultiverse newmv = retval.getKey();
@@ -734,7 +753,7 @@ class Desugarer {
       contents.clear();
       contents = null;
     }
-    
+
     public boolean allEquals(String str) {
       boolean flag = true;
       for (Pair<T, PresenceCondition> elem : contents) {
@@ -822,7 +841,7 @@ class Desugarer {
         PresenceCondition pc = elem.getValue();
         elem.getValue().addRef();
         contents.add(new Pair<StringBuilder, PresenceCondition>(sb, pc));
-      }      
+      }
     }
 
     public void addToAll(String str) {
@@ -904,7 +923,7 @@ class Desugarer {
         PresenceCondition pc = elem.getValue();
         elem.getValue().addRef();
         contents.add(new Pair<List<String>, PresenceCondition>(sb, pc));
-      }      
+      }
     }
 
     public void addToAll(String str) {
@@ -958,7 +977,7 @@ class Desugarer {
     SymbolTable parent;
     Map<String, Pair<String, PresenceCondition>> newToOriginal;
     Map<String, StringMultiverse> originalToNew;
-    
+
     public SymbolTable(SymbolTable parent) {
       this.parent = null;
       this.newToOriginal = new HashMap<String, Pair<String, PresenceCondition>>();
