@@ -484,7 +484,9 @@ class Desugarer {
     // TODO: change mv to be a list of tokens instead of a string, StringListMultiverse
 
     if (n instanceof GNode
-        && ((GNode) n).hasName("SimpleDeclarator")) {
+        && (((GNode) n).hasName("SimpleDeclarator"))
+            // || ((GNode) n).hasName("IdentifierOrTypedefName"))
+        ) {
       String identstr = ((Syntax) n.get(0)).toLanguage().toString();
       if (! ident.allEquals("")) {
         // the grammar should make this error impossible
