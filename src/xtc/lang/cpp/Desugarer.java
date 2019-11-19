@@ -49,8 +49,6 @@ import xtc.tree.Node;
 import xtc.tree.GNode;
 import xtc.tree.Location;
 
-import xtc.type.Type;
-
 import xtc.Constants;
 
 class Desugarer {
@@ -100,6 +98,22 @@ class Desugarer {
 
     writer.write(String.format("#include \"%s\" // configuration macros converted to C variables\n", MACRO_HEADER));
 
+    cConditionTagger(n, presenceConditionManager.new PresenceCondition(true), null);
+
+
+    StringBuilder sb = new StringBuilder();
+
+    for (String originalExpr : allCBoolExprs.keySet()) {
+      sb.append(originalExpr);
+      sb.deleteCharAt(0);
+      sb.setLength(sb.length() - 1);
+      writer.write("extern bool " + allCBoolExprs.get(originalExpr) + "; " + "/* renamed from " + sb.toString() + " */" + "\n");
+      sb.setLength(0);
+    }
+
+    for (String cExpr : definedCBoolExprs)
+      writer.write("extern bool " + cExpr + ";\n");
+
     desugarConditionalsNode(n,
                             presenceConditionManager.new PresenceCondition(true),
                             null,
@@ -107,10 +121,60 @@ class Desugarer {
 
     // multiplex the main method, if it was defined
     if (symtab.hasRenaming("main")) {
-      writer.write("int ");  // TODO the symbol table needs to store type information for renamed symbols
       writer.write(multiplexSimple("main", symtab.getRenaming("main"), "int argc, char **argv", "(argc, argv)"));
     }
   }
+
+  HashMap<String, String> allCBoolExprs = new HashMap<String, String>();
+  ArrayList<String> definedCBoolExprs = new ArrayList<String>();
+
+  // recursively moves through the tree and tags each node with its presence condition in valid C
+  public void cConditionTagger(Node n, PresenceCondition presenceCondition, PresenceCondition lastPresenceCondition) throws IOException {
+    n.setProperty("C_PC", PCtoString(presenceCondition));
+
+    if (n.isToken()) {
+      return;
+    } else if (n instanceof Node) {
+        if (n instanceof GNode
+            && ((GNode) n).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
+
+          PresenceCondition newPresenceCondition = lastPresenceCondition;
+          for (Object bo : n) {
+            if (bo instanceof PresenceCondition) {
+              PresenceCondition branchCondition = (PresenceCondition) bo;
+              lastPresenceCondition = newPresenceCondition;
+              newPresenceCondition = presenceCondition.and(branchCondition);
+            } else if (bo instanceof Node) {
+              if (((Node) bo).getName().equals("Conditional")) {
+                cConditionTagger((Node) bo, newPresenceCondition, lastPresenceCondition);
+              } else if (((Node) bo).getName().equals("FunctionDefinition")) {
+                cConditionTagger((Node) bo, newPresenceCondition, lastPresenceCondition);
+              } else if (((Node) bo).getName().equals("Declaration")) {
+                cConditionTagger((Node) bo, newPresenceCondition, lastPresenceCondition);
+              } else if (((Node) bo).getName().equals("CompoundStatement")) {
+                for (Object cs_child : (Node) bo) {
+                  cConditionTagger((Node) cs_child, newPresenceCondition, lastPresenceCondition);
+                }
+              } else {
+                cConditionTagger((Node) bo, newPresenceCondition, lastPresenceCondition);
+              }
+            }
+          }
+
+        } else {
+          for (Object o : n) {
+            cConditionTagger((Node) o, presenceCondition, lastPresenceCondition);
+          }
+        }
+        return;
+    } else {
+      throw new UnsupportedOperationException("unexpected type");
+    }
+  }
+
+
+
+
 
   // /**
   //  * Take a presence condition and generate the "if (cond)" part of an
@@ -131,7 +195,7 @@ class Desugarer {
    * assumes that all renamed functions share the same type (which
    * does not necessarily hold in general).
    */
-  public String multiplexSimple(String name, StringMultiverse renaming, String formals, String call) {
+  public String multiplexSimple(String name, Multiverse renaming, String formals, String call) {
     // TODO: check whether the renaming is actually a function
     StringBuilder sb = new StringBuilder();
     sb.append(String.format("%s(%s) { // multiplexed function\n", name, formals));
@@ -194,6 +258,7 @@ class Desugarer {
    }
  }
 
+
  public String PCtoString(PresenceCondition cond) {
    List allsat = (List) cond.getBDD().allsat();
    ArrayList<String> currentExprs;
@@ -213,7 +278,7 @@ class Desugarer {
        sb.append(" || ");
      firstTermOuter = false;
      currentExprs = getBoolExprs((byte[]) o, cond);
-     firstTerm = true; // NEW Not sure if necessary
+     firstTerm = true;
      for (String CPPBoolExpr : currentExprs) {
        if (!firstTerm)
          sb.append(" && ");
@@ -241,7 +306,7 @@ class Desugarer {
        // builds up a list of the (CPP) boolean expressions within the PresenceCondition
        allExprs.add(cond.presenceConditionManager().getVariableManager().getName(i));
      } else if (sat[i] == 0) {
-       allExprs.add("!" + cond.presenceConditionManager().getVariableManager().getName(i)); // NEW
+       allExprs.add("!" + cond.presenceConditionManager().getVariableManager().getName(i));
      }
    }
    return allExprs;
@@ -250,14 +315,70 @@ class Desugarer {
   // returns a new (valid C) boolean expression, with hashcode appended
   public String generateBoolExpr(String CPPBoolExpr) {
     StringBuilder sb = new StringBuilder();
+    boolean falseExpr = false;
+    boolean definedExpr = false;
+
+    // need to remove the '!' character from the string, so that it doesn't change the hashcode (then append it later)
+    if (CPPBoolExpr.contains("!")) {
+      falseExpr = true;
+      sb.append(CPPBoolExpr);
+
+      // if there is a '!' character, it will be at the 0th position of sb
+      sb.deleteCharAt(0);
+      CPPBoolExpr = sb.toString();
+      sb.setLength(0);
+    }
+
+    // need to remove "defined" from the string, so that it doesn't affect the hashcode (then append it later)
+    if (CPPBoolExpr.contains("defined")) {
+      definedExpr = true;
+      sb.append(CPPBoolExpr);
+
+      // if the expression is a "defined" expression, it will be in the form (defined <>)
+      // note that there will not be a '!' character by this point.
+      for (int i = 0; i <= 7; i++)
+        sb.deleteCharAt(1);
+
+      CPPBoolExpr = sb.toString();
+      sb.setLength(0);
+    }
+
     sb.append("_C_");
     sb.append(CPPBoolExpr.hashCode());
-    
-    // the expression cannot have a '-' character in it (because it would evaluate as subtraction)
-    if (sb.charAt(3) == '-') {
+
+    if (sb.charAt(3) == '-')
       sb.replace(3, 4, "n"); // replaces the '-' with 'n'
+
+    if (!allCBoolExprs.containsKey(CPPBoolExpr)) {
+      allCBoolExprs.put(CPPBoolExpr, sb.toString());
+
+      sb.append("_DEFINED");
+      definedCBoolExprs.add(sb.toString());
     }
-    
+
+    sb.setLength(0);
+
+    if (falseExpr)
+      sb.append("!");
+
+    sb.append("_C_");
+    sb.append(CPPBoolExpr.hashCode());
+
+    if (definedExpr)
+      sb.append("_DEFINED");
+
+    // the expression cannot have a '-' character in it (because it would evaluate as subtraction)
+    if (falseExpr) {
+      // if the expression is false, then the '-' will come later in the string due to the additional '!' character
+      if (sb.charAt(4) == '-') {
+        sb.replace(4, 5, "n"); // replaces the '-' with 'n'
+      }
+    } else {
+      if (sb.charAt(3) == '-') {
+        sb.replace(3, 4, "n"); // replaces the '-' with 'n'
+      }
+    }
+
     return sb.toString();
   }
 
@@ -333,15 +454,15 @@ class Desugarer {
     // prototype is the first node
 
     // hoist the function prototype first
-    // StringMultiverse protomv = hoistNode(n.getNode(0), new StringMultiverse("", presenceCondition));
-    StringMultiverse mv = new StringMultiverse("", presenceCondition);
-    StringMultiverse ident = new StringMultiverse("", presenceCondition);
-    Pair<StringMultiverse, StringMultiverse> result = hoistDeclaration(n.getNode(0), mv, ident);
-    StringMultiverse protomv = result.getKey();
-    StringMultiverse proto_ident = result.getValue();
+    // Multiverse protomv = hoistNode(n.getNode(0), new Multiverse("", presenceCondition));
+    Multiverse mv = new Multiverse("", presenceCondition);
+    Multiverse ident = new Multiverse("", presenceCondition);
+    Pair<Multiverse, Multiverse> result = hoistDeclaration(n.getNode(0), mv, ident);
+    Multiverse protomv = result.getKey();
+    Multiverse proto_ident = result.getValue();
 
-    // StringMultiverse mv = new StringMultiverse("", presenceCondition);
-    // StringMultiverse result = hoistNode(n, mv);
+    // Multiverse mv = new Multiverse("", presenceCondition);
+    // Multiverse result = hoistNode(n, mv);
     // writer.write(result.toString());
     // mv.destruct();
 
@@ -448,11 +569,11 @@ class Desugarer {
 
     // hoist conditionals around declarations into mv and collect each
     // configuration's identifier in ident
-    StringMultiverse mv = new StringMultiverse("", presenceCondition);
-    StringMultiverse ident = new StringMultiverse("", presenceCondition);
-    Pair<StringMultiverse, StringMultiverse> result = hoistDeclaration(n, mv, ident);
-    StringMultiverse result_decl = result.getKey();
-    StringMultiverse result_ident = result.getValue();
+    Multiverse mv = new Multiverse("", presenceCondition);
+    Multiverse ident = new Multiverse("", presenceCondition);
+    Pair<Multiverse, Multiverse> result = hoistDeclaration(n, mv, ident);
+    Multiverse result_decl = result.getKey();
+    Multiverse result_ident = result.getValue();
 
     // (1) rename each variable by adding a increasing counter
     // (varcount), then (2) print each declaration (replacing the var
@@ -483,8 +604,8 @@ class Desugarer {
                                            OutputStreamWriter writer)
     throws IOException {
 
-    StringMultiverse mv = new StringMultiverse("", presenceCondition);
-    StringMultiverse result = hoistStatement(n, mv);
+    Multiverse mv = new Multiverse("", presenceCondition);
+    Multiverse result = hoistStatement(n, mv);
     mv.destruct();
     for (Pair<StringBuilder, PresenceCondition> elem : result) {
       String str = elem.getKey().toString();
@@ -529,7 +650,7 @@ class Desugarer {
   /**
    * Caller destructs the multiverse that it passes.
    */
-  public StringMultiverse hoistNode(Node n, StringMultiverse mv)
+  public Multiverse hoistNode(Node n, Multiverse mv)
     throws IOException {
 
     if (n.isToken()) {
@@ -544,19 +665,19 @@ class Desugarer {
       // the input multiverse
       if (n instanceof GNode
           && ((GNode) n).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
-        List<StringMultiverse> newmvs = new LinkedList<StringMultiverse>();
+        List<Multiverse> newmvs = new LinkedList<Multiverse>();
         PresenceCondition branchCondition = null;
         for (Object bo : n) {
           if (bo instanceof PresenceCondition) {
             branchCondition = (PresenceCondition) bo;
           } else if (bo instanceof Node) {
-            StringMultiverse newmv = hoistNode((Node) bo, new StringMultiverse("", branchCondition));
-            newmvs.add(new StringMultiverse(mv, newmv));
+            Multiverse newmv = hoistNode((Node) bo, new Multiverse("", branchCondition));
+            newmvs.add(new Multiverse(mv, newmv));
             newmv.destruct();
           }
         }
-        StringMultiverse combinedmv = new StringMultiverse(newmvs);
-        for (StringMultiverse elem : newmvs) {
+        Multiverse combinedmv = new Multiverse(newmvs);
+        for (Multiverse elem : newmvs) {
           elem.destruct();
         }
         return combinedmv;
@@ -565,9 +686,9 @@ class Desugarer {
         // when we have a sequence of nodes, add each sequence to the
         // multiverse, using the returned multiverse, since there may
         // have been nested static conditionals.
-        StringMultiverse result = new StringMultiverse(mv);
+        Multiverse result = new Multiverse(mv);
         for (Object o : n) {
-          StringMultiverse newResult = hoistNode((Node) o, result);
+          Multiverse newResult = hoistNode((Node) o, result);
           if (newResult != result) {
             // the token case does not create a new multiverse, just
             // returning the one passed in, so only destroy if the
@@ -587,10 +708,8 @@ class Desugarer {
   /**
    * Caller destructs the multiverse that it passes.
    */
-  public Pair<StringMultiverse, StringMultiverse> hoistDeclaration(Node n, StringMultiverse mv, StringMultiverse ident)
+  public Pair<Multiverse, Multiverse> hoistDeclaration(Node n, Multiverse mv, Multiverse ident)
     throws IOException {
-
-    // TODO: change mv to be a list of tokens instead of a string, StringListMultiverse
 
     if (n instanceof GNode
         && ((GNode) n).hasName("SimpleDeclarator")) {
@@ -608,43 +727,43 @@ class Desugarer {
       // strings
       mv.addToAll(n.getTokenText());
       mv.addToAll(" ");
-      return new Pair<StringMultiverse, StringMultiverse>(mv, ident);
+      return new Pair<Multiverse, Multiverse>(mv, ident);
     } else if (n instanceof Node) {
       // when we have a static conditional, recursively add strings to
       // the entire multiverse by performing a cartesian product with
       // the input multiverse
       if (n instanceof GNode
           && ((GNode) n).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
-        List<StringMultiverse> newmvs = new LinkedList<StringMultiverse>();
-        List<StringMultiverse> newidents = new LinkedList<StringMultiverse>();
+        List<Multiverse> newmvs = new LinkedList<Multiverse>();
+        List<Multiverse> newidents = new LinkedList<Multiverse>();
         PresenceCondition branchCondition = null;
         for (Object bo : n) {
           if (bo instanceof PresenceCondition) {
             branchCondition = (PresenceCondition) bo;
           } else if (bo instanceof Node) {
-            Pair<StringMultiverse, StringMultiverse> retval
-              = hoistDeclaration((Node) bo, new StringMultiverse("", branchCondition), new StringMultiverse("", branchCondition));
-            StringMultiverse newmv = retval.getKey();
-            StringMultiverse newident = retval.getValue();
-            newmvs.add(new StringMultiverse(mv, newmv));
+            Pair<Multiverse, Multiverse> retval
+              = hoistDeclaration((Node) bo, new Multiverse("", branchCondition), new Multiverse("", branchCondition));
+            Multiverse newmv = retval.getKey();
+            Multiverse newident = retval.getValue();
+            newmvs.add(new Multiverse(mv, newmv));
             newmv.destruct();
-            newidents.add(new StringMultiverse(ident, newident));
+            newidents.add(new Multiverse(ident, newident));
             newident.destruct();
           }
         }
-        StringMultiverse combinedmv = new StringMultiverse(newmvs);
-        for (StringMultiverse elem : newmvs) {
+        Multiverse combinedmv = new Multiverse(newmvs);
+        for (Multiverse elem : newmvs) {
           elem.destruct();
         }
-        return new Pair<StringMultiverse, StringMultiverse>(combinedmv, ident);
+        return new Pair<Multiverse, Multiverse>(combinedmv, ident);
 
       } else {
         // when we have a sequence of nodes, add each sequence to the
         // multiverse, using the returned multiverse, since there may
         // have been nested static conditionals.
-        Pair<StringMultiverse, StringMultiverse> result = new Pair<StringMultiverse, StringMultiverse>(new StringMultiverse(mv), ident);
+        Pair<Multiverse, Multiverse> result = new Pair<Multiverse, Multiverse>(new Multiverse(mv), ident);
         for (Object o : n) {
-          Pair<StringMultiverse, StringMultiverse> newResult = hoistDeclaration((Node) o, result.getKey(), result.getValue());
+          Pair<Multiverse, Multiverse> newResult = hoistDeclaration((Node) o, result.getKey(), result.getValue());
           if (newResult.getKey() != result.getKey()) {
             // the token case does not create a new multiverse, just
             // returning the one passed in, so only destroy if the
@@ -666,7 +785,7 @@ class Desugarer {
    * any identifiers with all their renamings.  Caller destructs the
    * multiverse that it passes.
    */
-  public StringMultiverse hoistStatement(Node n, StringMultiverse mv)
+  public Multiverse hoistStatement(Node n, Multiverse mv)
     throws IOException {
 
     // replace identifiers with its renamings
@@ -678,8 +797,8 @@ class Desugarer {
         System.err.println("ERROR: there is a use of an undefined variable: " + identstr);
         System.exit(1);
       }
-      StringMultiverse renaming = symtab.getRenaming(identstr);
-      StringMultiverse newmv = new StringMultiverse(mv, renaming);
+      Multiverse renaming = symtab.getRenaming(identstr);
+      Multiverse newmv = new Multiverse(mv, renaming);
       renaming.destruct();
       newmv.addToAll(" ");
       return newmv;
@@ -697,19 +816,19 @@ class Desugarer {
       // the input multiverse
       if (n instanceof GNode
           && ((GNode) n).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
-        List<StringMultiverse> newmvs = new LinkedList<StringMultiverse>();
+        List<Multiverse> newmvs = new LinkedList<Multiverse>();
         PresenceCondition branchCondition = null;
         for (Object bo : n) {
           if (bo instanceof PresenceCondition) {
             branchCondition = (PresenceCondition) bo;
           } else if (bo instanceof Node) {
-            StringMultiverse newmv = hoistStatement((Node) bo, new StringMultiverse("", branchCondition));
-            newmvs.add(new StringMultiverse(mv, newmv));
+            Multiverse newmv = hoistStatement((Node) bo, new Multiverse("", branchCondition));
+            newmvs.add(new Multiverse(mv, newmv));
             newmv.destruct();
           }
         }
-        StringMultiverse combinedmv = new StringMultiverse(newmvs);
-        for (StringMultiverse elem : newmvs) {
+        Multiverse combinedmv = new Multiverse(newmvs);
+        for (Multiverse elem : newmvs) {
           elem.destruct();
         }
         return combinedmv;
@@ -718,9 +837,9 @@ class Desugarer {
         // when we have a sequence of nodes, add each sequence to the
         // multiverse, using the returned multiverse, since there may
         // have been nested static conditionals.
-        StringMultiverse result = new StringMultiverse(mv);
+        Multiverse result = new Multiverse(mv);
         for (Object o : n) {
-          StringMultiverse newResult = hoistStatement((Node) o, result);
+          Multiverse newResult = hoistStatement((Node) o, result);
           if (newResult != result) {
             // the token case does not create a new multiverse, just
             // returning the one passed in, so only destroy if the
@@ -737,64 +856,13 @@ class Desugarer {
     }
   }
 
-  public abstract class Multiverse<T> implements Iterable<Pair<T, PresenceCondition>> {
-    List<Pair<T, PresenceCondition>> contents;
+  public class Multiverse implements Iterable<Pair<StringBuilder, PresenceCondition>> {
+    List<Pair<StringBuilder, PresenceCondition>> contents;
 
-    private Multiverse() {
-    }
-
-    /**
-     * Decrement the references of all presence conditions and remove
-     * the string builders.  Be sure to do this once you no longer
-     * need the multiverse, e.g., after constructing a new multiverse
-     * using this one.  The multiverse will no longer be useable after
-     * calling this function.
-     */
-    public void destruct() {
-      for (Pair<T, PresenceCondition> elem : contents) {
-        // T sb = elem.getKey();
-        PresenceCondition pc = elem.getValue();
-        pc.delRef();
-      }
-      contents.clear();
-      contents = null;
-    }
-
-    public boolean allEquals(String str) {
-      boolean flag = true;
-      for (Pair<T, PresenceCondition> elem : contents) {
-        T sb = elem.getKey();
-        flag = flag && sb.toString().equals(str);
-      }
-      return flag;
-    }
-
-    /**
-     * Get an element of the list.  Warning, the backing storage is a
-     * linked list, so this may only be efficient for get(0).
-     */
-    public Pair<T, PresenceCondition> get(int index) {
-      return contents.get(0);
-    }
-
-    public int size() {
-      return contents.size();
-    }
-
-    public Iterator<Pair<T, PresenceCondition>> iterator() {
-      return contents.iterator();
-    }
-  }
-
-  public class TypeMultiverse extends Multiverse<Type> {
-    // take list of tokens and pc and add new typemultiverse entry
-  }
-
-  public class StringMultiverse extends Multiverse<StringBuilder> {
     /**
      * Construct a new multiverse
      */
-    public StringMultiverse(String initstring, PresenceCondition initcond) {
+    public Multiverse(String initstring, PresenceCondition initcond) {
       contents = new LinkedList<Pair<StringBuilder, PresenceCondition>>();
       StringBuilder sb = new StringBuilder();
       sb.append(initstring);
@@ -807,7 +875,7 @@ class Desugarer {
      * Construct a new multiverse from two multiverses using the
      * cartesian product.
      */
-    public StringMultiverse(StringMultiverse a, StringMultiverse b) {
+    public Multiverse(Multiverse a, Multiverse b) {
       contents = new LinkedList<Pair<StringBuilder, PresenceCondition>>();
       for (Pair<StringBuilder, PresenceCondition> elem1 : a.contents) {
         for (Pair<StringBuilder, PresenceCondition> elem2 : b.contents) {
@@ -825,9 +893,9 @@ class Desugarer {
      * Construct a new multiverse by combining a list of multiverses.
      * It is up to the caller to destruct the multiverses in the list.
      */
-    public StringMultiverse(List<StringMultiverse> mvs) {
+    public Multiverse(List<Multiverse> mvs) {
       contents = new LinkedList<Pair<StringBuilder, PresenceCondition>>();
-      for (StringMultiverse mv : mvs) {
+      for (Multiverse mv : mvs) {
         for (Pair<StringBuilder, PresenceCondition> elem : mv.contents) {
           StringBuilder sb = new StringBuilder(elem.getKey());
           PresenceCondition pc = elem.getValue();
@@ -840,7 +908,7 @@ class Desugarer {
     /**
      * The copy constructor.
      */
-    public StringMultiverse(StringMultiverse mv) {
+    public Multiverse(Multiverse mv) {
       contents = new LinkedList<Pair<StringBuilder, PresenceCondition>>();
       for (Pair<StringBuilder, PresenceCondition> elem : mv.contents) {
         StringBuilder sb = new StringBuilder(elem.getKey());
@@ -850,6 +918,23 @@ class Desugarer {
       }
     }
 
+    /**
+     * Decrement the references of all presence conditions and remove
+     * the string builders.  Be sure to do this once you no longer
+     * need the multiverse, e.g., after constructing a new multiverse
+     * using this one.  The multiverse will no longer be useable after
+     * calling this function.
+     */
+    public void destruct() {
+      for (Pair<StringBuilder, PresenceCondition> elem : contents) {
+        // StringBuilder sb = elem.getKey();
+        PresenceCondition pc = elem.getValue();
+        pc.delRef();
+      }
+      contents.clear();
+      contents = null;
+    }
+
     public void addToAll(String str) {
       for (Pair<StringBuilder, PresenceCondition> elem : contents) {
         StringBuilder sb = elem.getKey();
@@ -857,92 +942,35 @@ class Desugarer {
       }
     }
 
+    public boolean allEquals(String str) {
+      boolean flag = true;
+      for (Pair<StringBuilder, PresenceCondition> elem : contents) {
+        StringBuilder sb = elem.getKey();
+        flag = flag && sb.toString().equals(str);
+      }
+      return flag;
+    }
+
+    /**
+     * Get an element of the list.  Warning, the backing storage is a
+     * linked list, so this may only be efficient for get(0).
+     */
+    public Pair<StringBuilder, PresenceCondition> get(int index) {
+      return contents.get(0);
+    }
+
+    public int size() {
+      return contents.size();
+    }
+
+    public Iterator<Pair<StringBuilder, PresenceCondition>> iterator() {
+      return contents.iterator();
+    }
+
     public String toString() {
       StringBuilder sb = new StringBuilder();
 
       for (Pair<StringBuilder, PresenceCondition> elem : contents) {
-        sb.append(elem.toString());
-        sb.append("\n");
-      }
-
-      return sb.toString();
-    }
-  }
-
-  public class StringListMultiverse extends Multiverse<List<String>> {
-    /**
-     * Construct a new multiverse
-     */
-    public StringListMultiverse(String initstring, PresenceCondition initcond) {
-      contents = new LinkedList<Pair<List<String>, PresenceCondition>>();
-      List<String> sb = new LinkedList<String>();
-      sb.add(initstring);
-      Pair<List<String>, PresenceCondition> elem = new Pair<List<String>, PresenceCondition>(sb, initcond);
-      initcond.addRef();
-      contents.add(elem);
-    }
-
-    /**
-     * Construct a new multiverse from two multiverses using the
-     * cartesian product.
-     */
-    public StringListMultiverse(StringListMultiverse a, StringListMultiverse b) {
-      contents = new LinkedList<Pair<List<String>, PresenceCondition>>();
-      for (Pair<List<String>, PresenceCondition> elem1 : a.contents) {
-        for (Pair<List<String>, PresenceCondition> elem2 : b.contents) {
-          List<String> sb = new LinkedList<String>();
-          sb.addAll(elem1.getKey());
-          sb.addAll(elem2.getKey());
-          PresenceCondition pc = elem1.getValue().and(elem2.getValue());
-          if (! pc.isFalse()) { // trim infeasible combinations
-            contents.add(new Pair<List<String>, PresenceCondition>(sb, pc));
-          }
-        }
-      }
-    }
-
-    /**
-     * Construct a new multiverse by combining a list of multiverses.
-     * It is up to the caller to destruct the multiverses in the list.
-     */
-    public StringListMultiverse(List<StringListMultiverse> mvs) {
-      contents = new LinkedList<Pair<List<String>, PresenceCondition>>();
-      for (StringListMultiverse mv : mvs) {
-        for (Pair<List<String>, PresenceCondition> elem : mv.contents) {
-          List<String> sb = new LinkedList<String>();
-          sb.addAll(elem.getKey());
-          PresenceCondition pc = elem.getValue();
-          elem.getValue().addRef();
-          contents.add(new Pair<List<String>, PresenceCondition>(sb, pc));
-        }
-      }
-    }
-
-    /**
-     * The copy constructor.
-     */
-    public StringListMultiverse(StringListMultiverse mv) {
-      contents = new LinkedList<Pair<List<String>, PresenceCondition>>();
-      for (Pair<List<String>, PresenceCondition> elem : mv.contents) {
-        List<String> sb = new LinkedList<String>();
-        sb.addAll(elem.getKey());
-        PresenceCondition pc = elem.getValue();
-        elem.getValue().addRef();
-        contents.add(new Pair<List<String>, PresenceCondition>(sb, pc));
-      }
-    }
-
-    public void addToAll(String str) {
-      for (Pair<List<String>, PresenceCondition> elem : contents) {
-        List<String> sb = elem.getKey();
-        sb.add(str);
-      }
-    }
-
-    public String toString() {
-      StringBuilder sb = new StringBuilder();
-
-      for (Pair<List<String>, PresenceCondition> elem : contents) {
         sb.append(elem.toString());
         sb.append("\n");
       }
@@ -982,12 +1010,12 @@ class Desugarer {
   protected class SymbolTable {
     SymbolTable parent;
     Map<String, Pair<String, PresenceCondition>> newToOriginal;
-    Map<String, StringMultiverse> originalToNew;
+    Map<String, Multiverse> originalToNew;
 
     public SymbolTable(SymbolTable parent) {
       this.parent = null;
       this.newToOriginal = new HashMap<String, Pair<String, PresenceCondition>>();
-      this.originalToNew = new HashMap<String, StringMultiverse>();
+      this.originalToNew = new HashMap<String, Multiverse>();
     }
 
     public SymbolTable() {
@@ -1012,16 +1040,16 @@ class Desugarer {
     public void addRenaming(String var, String renamed, PresenceCondition cond) {
       assert null == newToOriginal.put(renamed, new Pair<String, PresenceCondition>(var, cond));
       cond.addRef();
-      StringMultiverse mv = new StringMultiverse(renamed, cond);
+      Multiverse mv = new Multiverse(renamed, cond);
       cond.addRef();
       if (! originalToNew.containsKey(var)) {
         originalToNew.put(var, mv);
       } else {
-        StringMultiverse oldmv = originalToNew.get(var);
-        List<StringMultiverse> list = new LinkedList<StringMultiverse>();
+        Multiverse oldmv = originalToNew.get(var);
+        List<Multiverse> list = new LinkedList<Multiverse>();
         list.add(oldmv);
         list.add(mv);
-        StringMultiverse combinedmv = new StringMultiverse(list);
+        Multiverse combinedmv = new Multiverse(list);
         oldmv.destruct();
         mv.destruct();
         originalToNew.put(var, combinedmv);
@@ -1037,11 +1065,11 @@ class Desugarer {
      * multiverse that the caller is responsible for destructing.
      * This will return null if no renaming is registered.
      */
-    public StringMultiverse getRenaming(String var) {
+    public Multiverse getRenaming(String var) {
       if (! originalToNew.containsKey(var)) {
         return null;
       } else {
-        return new StringMultiverse(originalToNew.get(var));
+        return new Multiverse(originalToNew.get(var));
       }
     }
   }
