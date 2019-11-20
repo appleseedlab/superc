@@ -98,8 +98,22 @@ class Desugarer {
 
     // TODO: allow user to specify the macro header file name
 
+    writer.write(String.format("#include <stdbool.h>\n"));
     writer.write(String.format("#include \"%s\" // configuration macros converted to C variables\n", MACRO_HEADER));
 
+    cConditionTagger(n, presenceConditionManager.new PresenceCondition(true), null);
+
+    StringBuilder sb = new StringBuilder();
+
+    for (String originalExpr : allCBoolExprs.keySet()) {
+      sb.append(originalExpr);
+      sb.deleteCharAt(0);
+      sb.setLength(sb.length() - 1);
+      writer.write("extern bool " + allCBoolExprs.get(originalExpr) + "; " + "/* renamed from " + sb.toString() + " */" + "\n");
+      writer.write("extern bool " + allCBoolExprs.get(originalExpr) + "_DEFINED;" + "\n");
+      sb.setLength(0);
+    }
+    
     desugarConditionalsNode(n,
                             presenceConditionManager.new PresenceCondition(true),
                             null,
@@ -109,6 +123,52 @@ class Desugarer {
     if (symtab.hasRenaming("main")) {
       writer.write("int ");  // TODO the symbol table needs to store type information for renamed symbols
       writer.write(multiplexSimple("main", symtab.getRenaming("main"), "int argc, char **argv", "(argc, argv)"));
+    }
+  }
+  
+  HashMap<String, String> allCBoolExprs = new HashMap<String, String>();
+
+  // recursively moves through the tree and tags each node with its presence condition in valid C
+  public void cConditionTagger(Node n, PresenceCondition presenceCondition, PresenceCondition lastPresenceCondition) throws IOException {
+    n.setProperty("C_PC", PCtoString(presenceCondition));
+
+    if (n.isToken()) {
+      return;
+    } else if (n instanceof Node) {
+        if (n instanceof GNode
+            && ((GNode) n).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
+ 
+          PresenceCondition newPresenceCondition = lastPresenceCondition;
+          for (Object bo : n) {
+            if (bo instanceof PresenceCondition) {
+              PresenceCondition branchCondition = (PresenceCondition) bo;
+              lastPresenceCondition = newPresenceCondition;
+              newPresenceCondition = presenceCondition.and(branchCondition);
+            } else if (bo instanceof Node) {
+              if (((Node) bo).getName().equals("Conditional")) {
+                cConditionTagger((Node) bo, newPresenceCondition, lastPresenceCondition);
+              } else if (((Node) bo).getName().equals("FunctionDefinition")) {
+                cConditionTagger((Node) bo, newPresenceCondition, lastPresenceCondition);
+              } else if (((Node) bo).getName().equals("Declaration")) {
+                cConditionTagger((Node) bo, newPresenceCondition, lastPresenceCondition);
+              } else if (((Node) bo).getName().equals("CompoundStatement")) {
+                for (Object cs_child : (Node) bo) {
+                  cConditionTagger((Node) cs_child, newPresenceCondition, lastPresenceCondition);
+                }
+              } else {
+                cConditionTagger((Node) bo, newPresenceCondition, lastPresenceCondition);
+              }
+            }
+          }
+
+        } else {
+          for (Object o : n) {
+            cConditionTagger((Node) o, presenceCondition, lastPresenceCondition);
+          }
+        }
+        return;
+    } else {
+      throw new UnsupportedOperationException("unexpected type");
     }
   }
 
@@ -174,7 +234,7 @@ class Desugarer {
        writer.write(" || ");
      firstTermOuter = false;
      currentExprs = getBoolExprs((byte[]) o, cond);
-     firstTerm = true; // NEW not sure if necessary
+     firstTerm = true;
      for (String CPPBoolExpr : currentExprs) {
        if (!firstTerm)
          writer.write(" && ");
@@ -213,7 +273,7 @@ class Desugarer {
        sb.append(" || ");
      firstTermOuter = false;
      currentExprs = getBoolExprs((byte[]) o, cond);
-     firstTerm = true; // NEW Not sure if necessary
+     firstTerm = true;
      for (String CPPBoolExpr : currentExprs) {
        if (!firstTerm)
          sb.append(" && ");
@@ -241,25 +301,78 @@ class Desugarer {
        // builds up a list of the (CPP) boolean expressions within the PresenceCondition
        allExprs.add(cond.presenceConditionManager().getVariableManager().getName(i));
      } else if (sat[i] == 0) {
-       allExprs.add("!" + cond.presenceConditionManager().getVariableManager().getName(i)); // NEW
+       allExprs.add("!" + cond.presenceConditionManager().getVariableManager().getName(i));
      }
    }
    return allExprs;
  }
 
-  // returns a new (valid C) boolean expression, with hashcode appended
-  public String generateBoolExpr(String CPPBoolExpr) {
-    StringBuilder sb = new StringBuilder();
-    sb.append("_C_");
-    sb.append(CPPBoolExpr.hashCode());
-    
-    // the expression cannot have a '-' character in it (because it would evaluate as subtraction)
-    if (sb.charAt(3) == '-') {
-      sb.replace(3, 4, "n"); // replaces the '-' with 'n'
-    }
-    
-    return sb.toString();
-  }
+ // returns a new (valid C) boolean expression, with hashcode appended
+ public String generateBoolExpr(String CPPBoolExpr) {
+   StringBuilder sb = new StringBuilder();
+   boolean falseExpr = false;
+   boolean definedExpr = false;
+
+   // need to remove the '!' character from the string, so that it doesn't change the hashcode (then append it later)
+   if (CPPBoolExpr.contains("!")) {
+     falseExpr = true;
+     sb.append(CPPBoolExpr);
+
+     // if there is a '!' character, it will be at the 0th position of sb
+     sb.deleteCharAt(0);
+     CPPBoolExpr = sb.toString();
+     sb.setLength(0);
+   }
+
+   // need to remove "defined" from the string, so that it doesn't affect the hashcode (then append it later)
+   if (CPPBoolExpr.contains("defined")) {
+     definedExpr = true;
+     sb.append(CPPBoolExpr);
+
+     // if the expression is a "defined" expression, it will be in the form (defined <>)
+     // note that there will not be a '!' character by this point.
+     for (int i = 0; i <= 7; i++)
+       sb.deleteCharAt(1);
+
+     CPPBoolExpr = sb.toString();
+     sb.setLength(0);
+   }
+
+   sb.append("_C_");
+   sb.append(CPPBoolExpr.hashCode());
+
+   if (sb.charAt(3) == '-')
+     sb.replace(3, 4, "n"); // replaces the '-' with 'n'
+
+   if (!allCBoolExprs.containsKey(CPPBoolExpr)) {
+     allCBoolExprs.put(CPPBoolExpr, sb.toString());
+   }
+
+   sb.setLength(0);
+
+   if (falseExpr)
+     sb.append("!");
+
+   sb.append("_C_");
+   sb.append(CPPBoolExpr.hashCode());
+
+   if (definedExpr)
+     sb.append("_DEFINED");
+
+   // the expression cannot have a '-' character in it (because it would evaluate as subtraction)
+   if (falseExpr) {
+     // if the expression is false, then the '-' will come later in the string due to the additional '!' character
+     if (sb.charAt(4) == '-') {
+       sb.replace(4, 5, "n"); // replaces the '-' with 'n'
+     }
+   } else {
+     if (sb.charAt(3) == '-') {
+       sb.replace(3, 4, "n"); // replaces the '-' with 'n'
+     }
+   }
+
+   return sb.toString();
+ }
 
   /**
    * Print an AST (or a subtree of it) in C source form.
