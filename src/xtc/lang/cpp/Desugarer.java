@@ -91,14 +91,28 @@ class Desugarer {
    * @param n An AST or a subtree.
    * @param presenceCondition The current nested presence condition.
    * @param writer The writer.
-   * @throws IOException Because it writes to output. 
+   * @throws IOException Because it writes to output.
    */
   public void desugarConditionals(Node n, OutputStreamWriter writer)
     throws IOException {
 
     // TODO: allow user to specify the macro header file name
 
+    writer.write(String.format("#include <stdbool.h>\n"));
     writer.write(String.format("#include \"%s\" // configuration macros converted to C variables\n", MACRO_HEADER));
+
+    cConditionTagger(n, presenceConditionManager.new PresenceCondition(true), null);
+
+    StringBuilder sb = new StringBuilder();
+
+    for (String originalExpr : allCBoolExprs.keySet()) {
+      sb.append(originalExpr);
+      sb.deleteCharAt(0);
+      sb.setLength(sb.length() - 1);
+      writer.write("extern bool " + allCBoolExprs.get(originalExpr) + "; " + "/* renamed from " + sb.toString() + " */" + "\n");
+      writer.write("extern bool " + allCBoolExprs.get(originalExpr) + "_DEFINED;" + "\n");
+      sb.setLength(0);
+    }
     
     desugarConditionalsNode(n,
                             presenceConditionManager.new PresenceCondition(true),
@@ -109,6 +123,52 @@ class Desugarer {
     if (symtab.hasRenaming("main")) {
       writer.write("int ");  // TODO the symbol table needs to store type information for renamed symbols
       writer.write(multiplexSimple("main", symtab.getRenaming("main"), "int argc, char **argv", "(argc, argv)"));
+    }
+  }
+  
+  HashMap<String, String> allCBoolExprs = new HashMap<String, String>();
+
+  // recursively moves through the tree and tags each node with its presence condition in valid C
+  public void cConditionTagger(Node n, PresenceCondition presenceCondition, PresenceCondition lastPresenceCondition) throws IOException {
+    n.setProperty("C_PC", PCtoString(presenceCondition));
+
+    if (n.isToken()) {
+      return;
+    } else if (n instanceof Node) {
+        if (n instanceof GNode
+            && ((GNode) n).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
+ 
+          PresenceCondition newPresenceCondition = lastPresenceCondition;
+          for (Object bo : n) {
+            if (bo instanceof PresenceCondition) {
+              PresenceCondition branchCondition = (PresenceCondition) bo;
+              lastPresenceCondition = newPresenceCondition;
+              newPresenceCondition = presenceCondition.and(branchCondition);
+            } else if (bo instanceof Node) {
+              if (((Node) bo).getName().equals("Conditional")) {
+                cConditionTagger((Node) bo, newPresenceCondition, lastPresenceCondition);
+              } else if (((Node) bo).getName().equals("FunctionDefinition")) {
+                cConditionTagger((Node) bo, newPresenceCondition, lastPresenceCondition);
+              } else if (((Node) bo).getName().equals("Declaration")) {
+                cConditionTagger((Node) bo, newPresenceCondition, lastPresenceCondition);
+              } else if (((Node) bo).getName().equals("CompoundStatement")) {
+                for (Object cs_child : (Node) bo) {
+                  cConditionTagger((Node) cs_child, newPresenceCondition, lastPresenceCondition);
+                }
+              } else {
+                cConditionTagger((Node) bo, newPresenceCondition, lastPresenceCondition);
+              }
+            }
+          }
+
+        } else {
+          for (Object o : n) {
+            cConditionTagger((Node) o, presenceCondition, lastPresenceCondition);
+          }
+        }
+        return;
+    } else {
+      throw new UnsupportedOperationException("unexpected type");
     }
   }
 
@@ -141,7 +201,7 @@ class Desugarer {
       String ident = next_renaming.getKey().toString();
       PresenceCondition pc = next_renaming.getValue();
       sb.append("if (");
-      sb.append(pc.toString());
+      sb.append(PCtoString(pc));
       sb.append(") {\n");
       sb.append(ident);
       sb.append(call);
@@ -152,13 +212,175 @@ class Desugarer {
     return sb.toString();
   }
 
+  private HashMap<String, String> BoolExprs = new HashMap<String, String>();
+
+  public void printBDDC(PresenceCondition cond, OutputStreamWriter writer) throws IOException {
+   List allsat = (List) cond.getBDD().allsat();
+   ArrayList<String> currentExprs;
+   String CBoolExpr;
+   boolean firstTerm = true;
+   boolean firstTermOuter = true;
+
+   if (cond.getBDD().isOne()) {
+     writer.write("1");
+     return;
+   } else if (cond.getBDD().isZero()) {
+     writer.write("0");
+     return;
+   }
+
+   for (Object o : allsat) {
+     if (!firstTermOuter)
+       writer.write(" || ");
+     firstTermOuter = false;
+     currentExprs = getBoolExprs((byte[]) o, cond);
+     firstTerm = true;
+     for (String CPPBoolExpr : currentExprs) {
+       if (!firstTerm)
+         writer.write(" && ");
+       firstTerm = false;
+       if (BoolExprs.isEmpty() || !BoolExprs.containsKey(CPPBoolExpr)) {
+         // generates a new C boolean expression with hashcode appended, then adds it to hashmap and prints it
+         CBoolExpr = generateBoolExpr(CPPBoolExpr);
+         BoolExprs.put(CPPBoolExpr, CBoolExpr);
+         writer.write(CBoolExpr);
+       } else if (BoolExprs.containsKey(CPPBoolExpr)) {
+         // prints the mapped C expression
+         CBoolExpr = BoolExprs.get(CPPBoolExpr);
+         writer.write(CBoolExpr);
+       }
+     }
+
+   }
+ }
+
+ public String PCtoString(PresenceCondition cond) {
+   List allsat = (List) cond.getBDD().allsat();
+   ArrayList<String> currentExprs;
+   String CBoolExpr;
+   StringBuilder sb = new StringBuilder();
+   boolean firstTerm = true;
+   boolean firstTermOuter = true;
+
+   if (cond.getBDD().isOne()) {
+     return "1";
+   } else if (cond.getBDD().isZero()) {
+     return "0";
+   }
+
+   for (Object o : allsat) {
+     if (!firstTermOuter)
+       sb.append(" || ");
+     firstTermOuter = false;
+     currentExprs = getBoolExprs((byte[]) o, cond);
+     firstTerm = true;
+     for (String CPPBoolExpr : currentExprs) {
+       if (!firstTerm)
+         sb.append(" && ");
+       firstTerm = false;
+       if (BoolExprs.isEmpty() || !BoolExprs.containsKey(CPPBoolExpr)) {
+         // generates a new C boolean expression with hashcode appended, then adds it to hashmap and returns it
+         CBoolExpr = generateBoolExpr(CPPBoolExpr);
+         BoolExprs.put(CPPBoolExpr, CBoolExpr);
+         sb.append(CBoolExpr);
+       } else /* if (BoolExprs.containsKey(CPPBoolExpr)) */ {
+         // returns the mapped C expression
+         CBoolExpr = BoolExprs.get(CPPBoolExpr);
+         sb.append(CBoolExpr);
+       }
+     }
+   }
+   return sb.toString();
+ }
+
+ // returns a list of every expression in the BDD
+ public ArrayList<String> getBoolExprs(byte[] sat, PresenceCondition cond) {
+   ArrayList<String> allExprs = new ArrayList<String>();
+   for (int i = 0; i < sat.length; i++) {
+     if (sat[i] == 1) {
+       // builds up a list of the (CPP) boolean expressions within the PresenceCondition
+       allExprs.add(cond.presenceConditionManager().getVariableManager().getName(i));
+     } else if (sat[i] == 0) {
+       allExprs.add("!" + cond.presenceConditionManager().getVariableManager().getName(i));
+     }
+   }
+   return allExprs;
+ }
+
+ // returns a new (valid C) boolean expression, with hashcode appended
+ public String generateBoolExpr(String CPPBoolExpr) {
+   StringBuilder sb = new StringBuilder();
+   boolean falseExpr = false;
+   boolean definedExpr = false;
+
+   // need to remove the '!' character from the string, so that it doesn't change the hashcode (then append it later)
+   if (CPPBoolExpr.contains("!")) {
+     falseExpr = true;
+     sb.append(CPPBoolExpr);
+
+     // if there is a '!' character, it will be at the 0th position of sb
+     sb.deleteCharAt(0);
+     CPPBoolExpr = sb.toString();
+     sb.setLength(0);
+   }
+
+   // need to remove "defined" from the string, so that it doesn't affect the hashcode (then append it later)
+   if (CPPBoolExpr.contains("defined")) {
+     definedExpr = true;
+     sb.append(CPPBoolExpr);
+
+     // if the expression is a "defined" expression, it will be in the form (defined <>)
+     // note that there will not be a '!' character by this point.
+     for (int i = 0; i <= 7; i++)
+       sb.deleteCharAt(1);
+
+     CPPBoolExpr = sb.toString();
+     sb.setLength(0);
+   }
+
+   sb.append("_C_");
+   sb.append(CPPBoolExpr.hashCode());
+
+   if (sb.charAt(3) == '-')
+     sb.replace(3, 4, "n"); // replaces the '-' with 'n'
+
+   if (!allCBoolExprs.containsKey(CPPBoolExpr)) {
+     allCBoolExprs.put(CPPBoolExpr, sb.toString());
+   }
+
+   sb.setLength(0);
+
+   if (falseExpr)
+     sb.append("!");
+
+   sb.append("_C_");
+   sb.append(CPPBoolExpr.hashCode());
+
+   if (definedExpr)
+     sb.append("_DEFINED");
+
+   // the expression cannot have a '-' character in it (because it would evaluate as subtraction)
+   if (falseExpr) {
+     // if the expression is false, then the '-' will come later in the string due to the additional '!' character
+     if (sb.charAt(4) == '-') {
+       sb.replace(4, 5, "n"); // replaces the '-' with 'n'
+     }
+   } else {
+     if (sb.charAt(3) == '-') {
+       sb.replace(3, 4, "n"); // replaces the '-' with 'n'
+     }
+   }
+
+   return sb.toString();
+ }
+
   /**
    * Print an AST (or a subtree of it) in C source form.
    *
    * @param n An AST or a subtree.
    * @param presenceCondition The current nested presence condition.
    * @param writer The writer.
-   * @throws IOException Because it writes to output. 
+   * @throws IOException Because it writes to output.
    */
   public void desugarConditionalsNode(Node n, PresenceCondition presenceCondition,
                                       PresenceCondition lastPresenceCondition,
@@ -209,7 +431,7 @@ class Desugarer {
 
     } else {
       throw new UnsupportedOperationException("unexpected type");
-    } 
+    }
   }
 
   public void desugarConditionalsFunctionDefinition(Node n, PresenceCondition presenceCondition,
@@ -230,7 +452,7 @@ class Desugarer {
     Pair<StringMultiverse, StringMultiverse> result = hoistDeclaration(n.getNode(0), mv, ident);
     StringMultiverse protomv = result.getKey();
     StringMultiverse proto_ident = result.getValue();
-    
+
     // StringMultiverse mv = new StringMultiverse("", presenceCondition);
     // StringMultiverse result = hoistNode(n, mv);
     // writer.write(result.toString());
@@ -263,7 +485,7 @@ class Desugarer {
       writer.write(elem_proto.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ "));
       writer.write("{\n");
       writer.write("if (");
-      pc.print(writer);
+      printBDDC(pc, writer);
       writer.write(") { /* from static conditional around function definition */\n");
       writer.flush();
       for (int i = 1; i < n.size(); i++) {
@@ -274,7 +496,7 @@ class Desugarer {
     }
     mv.destruct();
     ident.destruct();
-    
+
     // if (protomv.size() == 1) {
     //   writer.write(protomv.get(0).getKey().toString());
     //   writer.write("{\n");
@@ -303,7 +525,7 @@ class Desugarer {
     // the function, because of any dynamic function calls via
     // pointers
 
-    
+
     // TODO: write the conditional inside of the compound statement.
     // probably use a different desugaring method specific to
     // functiondefinitions that holds the function's conditional.
@@ -325,7 +547,7 @@ class Desugarer {
     }
     return randomstring.toString();
   }
-  
+
   protected String mangleRenaming(String prefix, String ident) {
     return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
   }
@@ -385,7 +607,7 @@ class Desugarer {
       //   System.err.println("jklfds " + lastPresenceCondition.toString());
       // }
       if (null != lastPresenceCondition && cond.equals(lastPresenceCondition)) {
-        cond.print(writer);
+        printBDDC(cond, writer);
         writer.write("\n");
         lastPresenceCondition.delRef();
         lastPresenceCondition = cond;
@@ -393,7 +615,7 @@ class Desugarer {
       } else {
         if (str.length() > 0) {
           writer.write("if (");
-          cond.print(writer);
+          printBDDC(cond, writer);
           writer.write(") { /* from static conditional around statement */\n");
           writer.write(str);
           writer.write("\n}\n");
@@ -493,7 +715,7 @@ class Desugarer {
       ident.addToAll(identstr);
     }
 
-    
+
     if (n.isToken()) {
       // when we have a single token, append it's string to all lifted
       // strings
@@ -512,7 +734,7 @@ class Desugarer {
         for (Object bo : n) {
           if (bo instanceof PresenceCondition) {
             branchCondition = (PresenceCondition) bo;
-          } else if (bo instanceof Node) {            
+          } else if (bo instanceof Node) {
             Pair<StringMultiverse, StringMultiverse> retval
               = hoistDeclaration((Node) bo, new StringMultiverse("", branchCondition), new StringMultiverse("", branchCondition));
             StringMultiverse newmv = retval.getKey();
@@ -550,7 +772,7 @@ class Desugarer {
     } else {
       throw new UnsupportedOperationException("unexpected type");
     }
-  }  
+  }
 
   /**
    * This hoists conditionals around complete statements, replacing
@@ -563,7 +785,7 @@ class Desugarer {
     // replace identifiers with its renamings
     if (n instanceof GNode
         && ((GNode) n).hasName("PrimaryIdentifier")) {
-      
+
       String identstr = ((Syntax) n.get(0)).toLanguage().toString();
       if (! symtab.hasRenaming(identstr)) {
         System.err.println("ERROR: there is a use of an undefined variable: " + identstr);
@@ -650,7 +872,7 @@ class Desugarer {
       contents.clear();
       contents = null;
     }
-    
+
     public boolean allEquals(String str) {
       boolean flag = true;
       for (Pair<T, PresenceCondition> elem : contents) {
@@ -738,7 +960,7 @@ class Desugarer {
         PresenceCondition pc = elem.getValue();
         elem.getValue().addRef();
         contents.add(new Pair<StringBuilder, PresenceCondition>(sb, pc));
-      }      
+      }
     }
 
     public void addToAll(String str) {
@@ -820,7 +1042,7 @@ class Desugarer {
         PresenceCondition pc = elem.getValue();
         elem.getValue().addRef();
         contents.add(new Pair<List<String>, PresenceCondition>(sb, pc));
-      }      
+      }
     }
 
     public void addToAll(String str) {
@@ -865,7 +1087,7 @@ class Desugarer {
       sb.append(getKey().toString());
       sb.append(": ");
       sb.append(getValue().toString());
-      
+
       return sb.toString();
     }
   }
@@ -874,7 +1096,7 @@ class Desugarer {
     SymbolTable parent;
     Map<String, Pair<String, PresenceCondition>> newToOriginal;
     Map<String, StringMultiverse> originalToNew;
-    
+
     public SymbolTable(SymbolTable parent) {
       this.parent = null;
       this.newToOriginal = new HashMap<String, Pair<String, PresenceCondition>>();
