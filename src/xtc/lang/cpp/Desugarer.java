@@ -50,6 +50,8 @@ import xtc.tree.GNode;
 import xtc.tree.Location;
 
 import xtc.type.Type;
+import xtc.type.IntegerT;
+import xtc.type.NumberT;
 
 import xtc.Constants;
 
@@ -191,14 +193,15 @@ class Desugarer {
    * assumes that all renamed functions share the same type (which
    * does not necessarily hold in general).
    */
-  public String multiplexSimple(String name, StringMultiverse renaming, String formals, String call) {
+  public String multiplexSimple(String name, TypedStringMultiverse renaming, String formals, String call) {
     // TODO: check whether the renaming is actually a function
     StringBuilder sb = new StringBuilder();
     sb.append(String.format("%s(%s) { // multiplexed function\n", name, formals));
-    Iterator<Pair<StringBuilder, PresenceCondition>> it_renaming = renaming.iterator();
+    Iterator<Pair<Pair<StringBuilder, Type>, PresenceCondition>> it_renaming = renaming.iterator();
     while (it_renaming.hasNext()) {
-      Pair<StringBuilder, PresenceCondition> next_renaming = it_renaming.next();
-      String ident = next_renaming.getKey().toString();
+      Pair<Pair<StringBuilder, Type>, PresenceCondition> next_renaming = it_renaming.next();
+      Pair<StringBuilder, Type> inner_pair = next_renaming.getKey();
+      String ident = inner_pair.getKey().toString();
       PresenceCondition pc = next_renaming.getValue();
       sb.append("if (");
       sb.append(PCtoString(pc));
@@ -480,7 +483,8 @@ class Desugarer {
       String elem_ident = next_ident.getKey().toString();
       PresenceCondition pc = next_ident.getValue();
       String renamed_ident = mangleRenaming(FUNCPREFIX, elem_ident);
-      symtab.addRenaming(elem_ident, renamed_ident, pc);  // TODO: keep track of types
+      Type type = new IntegerT(NumberT.Kind.INT);  // TODO: keep track of types
+      symtab.addRenaming(elem_ident, renamed_ident, type, pc);
       String elem_proto = it_proto.next().getKey().toString();
       writer.write(elem_proto.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ "));
       writer.write("{\n");
@@ -580,7 +584,8 @@ class Desugarer {
       String elem_ident = next_ident.getKey().toString();
       PresenceCondition pc = next_ident.getValue();
       String renamed_ident = mangleRenaming(VARPREFIX, elem_ident);
-      symtab.addRenaming(elem_ident, renamed_ident, pc);
+      Type type = new IntegerT(NumberT.Kind.INT);  // TODO: keep track of types
+      symtab.addRenaming(elem_ident, renamed_ident, type, pc);
       String elem_decl = it_decl.next().getKey().toString();
       // TODO: should probably have a nicer way to replace the name
       writer.write(elem_decl.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ "));
@@ -706,7 +711,9 @@ class Desugarer {
     // TODO: change mv to be a list of tokens instead of a string, StringListMultiverse
 
     if (n instanceof GNode
-        && ((GNode) n).hasName("SimpleDeclarator")) {
+        && (((GNode) n).hasName("SimpleDeclarator"))
+            // || ((GNode) n).hasName("IdentifierOrTypedefName"))
+        ) {
       String identstr = ((Syntax) n.get(0)).toLanguage().toString();
       if (! ident.allEquals("")) {
         // the grammar should make this error impossible
@@ -788,10 +795,11 @@ class Desugarer {
 
       String identstr = ((Syntax) n.get(0)).toLanguage().toString();
       if (! symtab.hasRenaming(identstr)) {
+        System.err.println(symtab.originalToNew);
         System.err.println("ERROR: there is a use of an undefined variable: " + identstr);
         System.exit(1);
       }
-      StringMultiverse renaming = symtab.getRenaming(identstr);
+      StringMultiverse renaming = new StringMultiverse(symtab.getRenaming(identstr));
       StringMultiverse newmv = new StringMultiverse(mv, renaming);
       renaming.destruct();
       newmv.addToAll(" ");
@@ -899,10 +907,6 @@ class Desugarer {
     }
   }
 
-  public class TypeMultiverse extends Multiverse<Type> {
-    // take list of tokens and pc and add new typemultiverse entry
-  }
-
   public class StringMultiverse extends Multiverse<StringBuilder> {
     /**
      * Construct a new multiverse
@@ -963,6 +967,20 @@ class Desugarer {
       }
     }
 
+    /**
+     * The copy constructor.
+     */
+    public StringMultiverse(TypedStringMultiverse mv) {
+      contents = new LinkedList<Pair<StringBuilder, PresenceCondition>>();
+      for (Pair<Pair<StringBuilder, Type>, PresenceCondition> elem : mv.contents) {
+        Pair<StringBuilder, Type> inner_elem = elem.getKey();
+        StringBuilder sb = new StringBuilder(inner_elem.getKey());
+        PresenceCondition pc = elem.getValue();
+        elem.getValue().addRef();
+        contents.add(new Pair<StringBuilder, PresenceCondition>(sb, pc));
+      }
+    }
+
     public void addToAll(String str) {
       for (Pair<StringBuilder, PresenceCondition> elem : contents) {
         StringBuilder sb = elem.getKey();
@@ -974,6 +992,67 @@ class Desugarer {
       StringBuilder sb = new StringBuilder();
 
       for (Pair<StringBuilder, PresenceCondition> elem : contents) {
+        sb.append(elem.toString());
+        sb.append("\n");
+      }
+
+      return sb.toString();
+    }
+  }
+
+  public class TypedStringMultiverse extends Multiverse<Pair<StringBuilder, Type>> {
+    /**
+     * Construct a new multiverse
+     */
+    public TypedStringMultiverse(String initstring, Type type, PresenceCondition initcond) {
+      contents = new LinkedList<Pair<Pair<StringBuilder, Type>, PresenceCondition>>();
+      StringBuilder sb = new StringBuilder();
+      sb.append(initstring);
+      Pair<StringBuilder, Type> typedstring = new Pair<StringBuilder, Type>(sb, type);
+      Pair<Pair<StringBuilder, Type>, PresenceCondition> elem = new Pair<Pair<StringBuilder, Type>, PresenceCondition>(typedstring, initcond);
+      initcond.addRef();
+      contents.add(elem);
+    }
+
+    /**
+     * Construct a new multiverse by combining a list of multiverses.
+     * It is up to the caller to destruct the multiverses in the list.
+     */
+    public TypedStringMultiverse(List<TypedStringMultiverse> mvs) {
+      contents = new LinkedList<Pair<Pair<StringBuilder, Type>, PresenceCondition>>();
+      for (TypedStringMultiverse mv : mvs) {
+        for (Pair<Pair<StringBuilder, Type>, PresenceCondition> elem : mv.contents) {
+          Pair<StringBuilder, Type> subelem = elem.getKey();
+          StringBuilder sb = new StringBuilder(subelem.getKey());
+          Type type = subelem.getValue();
+          PresenceCondition pc = elem.getValue();
+          elem.getValue().addRef();
+          Pair<StringBuilder, Type> typedstring = new Pair<StringBuilder, Type>(sb, type);
+          contents.add(new Pair<Pair<StringBuilder, Type>, PresenceCondition>(typedstring, pc));
+        }
+      }
+    }
+
+    /**
+     * The copy constructor.
+     */
+    public TypedStringMultiverse(TypedStringMultiverse mv) {
+      contents = new LinkedList<Pair<Pair<StringBuilder, Type>, PresenceCondition>>();
+      for (Pair<Pair<StringBuilder, Type>, PresenceCondition> elem : mv.contents) {
+        Pair<StringBuilder, Type> subelem = elem.getKey();
+        StringBuilder sb = new StringBuilder(subelem.getKey());
+        Type type = subelem.getValue();
+        PresenceCondition pc = elem.getValue();
+        elem.getValue().addRef();
+        Pair<StringBuilder, Type> typedstring = new Pair<StringBuilder, Type>(sb, type);
+        contents.add(new Pair<Pair<StringBuilder, Type>, PresenceCondition>(typedstring, pc));
+      }
+    }
+
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+
+      for (Pair<Pair<StringBuilder, Type>, PresenceCondition> elem : contents) {
         sb.append(elem.toString());
         sb.append("\n");
       }
@@ -1095,12 +1174,12 @@ class Desugarer {
   protected class SymbolTable {
     SymbolTable parent;
     Map<String, Pair<String, PresenceCondition>> newToOriginal;
-    Map<String, StringMultiverse> originalToNew;
+    Map<String, TypedStringMultiverse> originalToNew;
 
     public SymbolTable(SymbolTable parent) {
       this.parent = null;
       this.newToOriginal = new HashMap<String, Pair<String, PresenceCondition>>();
-      this.originalToNew = new HashMap<String, StringMultiverse>();
+      this.originalToNew = new HashMap<String, TypedStringMultiverse>();
     }
 
     public SymbolTable() {
@@ -1122,19 +1201,19 @@ class Desugarer {
 
     // TODO: contains, recurisvely search through parent scope
 
-    public void addRenaming(String var, String renamed, PresenceCondition cond) {
+    public void addRenaming(String var, String renamed, Type type, PresenceCondition cond) {
       assert null == newToOriginal.put(renamed, new Pair<String, PresenceCondition>(var, cond));
       cond.addRef();
-      StringMultiverse mv = new StringMultiverse(renamed, cond);
+      TypedStringMultiverse mv = new TypedStringMultiverse(renamed, type, cond);
       cond.addRef();
       if (! originalToNew.containsKey(var)) {
         originalToNew.put(var, mv);
       } else {
-        StringMultiverse oldmv = originalToNew.get(var);
-        List<StringMultiverse> list = new LinkedList<StringMultiverse>();
+        TypedStringMultiverse oldmv = originalToNew.get(var);
+        List<TypedStringMultiverse> list = new LinkedList<TypedStringMultiverse>();
         list.add(oldmv);
         list.add(mv);
-        StringMultiverse combinedmv = new StringMultiverse(list);
+        TypedStringMultiverse combinedmv = new TypedStringMultiverse(list);
         oldmv.destruct();
         mv.destruct();
         originalToNew.put(var, combinedmv);
@@ -1150,11 +1229,11 @@ class Desugarer {
      * multiverse that the caller is responsible for destructing.
      * This will return null if no renaming is registered.
      */
-    public StringMultiverse getRenaming(String var) {
+    public TypedStringMultiverse getRenaming(String var) {
       if (! originalToNew.containsKey(var)) {
         return null;
       } else {
-        return new StringMultiverse(originalToNew.get(var));
+        return new TypedStringMultiverse(originalToNew.get(var));
       }
     }
   }
