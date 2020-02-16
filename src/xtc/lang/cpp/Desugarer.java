@@ -52,6 +52,8 @@ import xtc.tree.Location;
 import xtc.type.Type;
 import xtc.type.IntegerT;
 import xtc.type.NumberT;
+import xtc.type.StructT;
+import xtc.type.VariableT;
 
 import xtc.Constants;
 
@@ -115,7 +117,7 @@ class Desugarer {
       writer.write("extern bool " + allCBoolExprs.get(originalExpr) + "_DEFINED;" + "\n");
       sb.setLength(0);
     }
-    
+
     desugarConditionalsNode(n,
                             presenceConditionManager.new PresenceCondition(true),
                             null,
@@ -127,7 +129,7 @@ class Desugarer {
       writer.write(multiplexSimple("main", symtab.getRenaming("main"), "int argc, char **argv", "(argc, argv)"));
     }
   }
-  
+
   HashMap<String, String> allCBoolExprs = new HashMap<String, String>();
 
   // recursively moves through the tree and tags each node with its presence condition in valid C
@@ -139,7 +141,7 @@ class Desugarer {
     } else if (n instanceof Node) {
         if (n instanceof GNode
             && ((GNode) n).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
- 
+
           PresenceCondition newPresenceCondition = lastPresenceCondition;
           for (Object bo : n) {
             if (bo instanceof PresenceCondition) {
@@ -556,10 +558,228 @@ class Desugarer {
     return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
   }
 
+  // should only be called on a SimpleDeclarator node
+  public void desugarMemberVarDeclaration(Node n, PresenceCondition presenceCondition,
+                                             PresenceCondition lastPresenceCondition,
+                                             OutputStreamWriter writer, String SUEIdent)
+  throws IOException
+  {
+
+    // hoist conditionals around declarations into mv and collect each
+    // configuration's identifier in ident
+    StringMultiverse mv = new StringMultiverse("", presenceCondition); // create a new multiverse (condition-aware symbol table)
+    StringMultiverse ident = new StringMultiverse("", presenceCondition); // create a new multiverse
+    Pair<StringMultiverse, StringMultiverse> result = hoistDeclaration(n, mv, ident); // create a mapping (pair) of multiverses set equal to hoistDeclaration(the passed-in node, and the two multiverse)
+    StringMultiverse result_decl = result.getKey(); // result_decl is a multiverse set equal to the hoistDeclaration
+    StringMultiverse result_ident = result.getValue();
+
+    // (1) rename each variable by adding a increasing counter
+    // (varcount), then (2) print each declaration (replacing the var
+    // name) without its static conditional.  (3) store the mapping
+    // between original and renamed variable in a symbol table for
+    // this scope.
+    // TODO: use better name mangling by generating random string
+    Iterator<Pair<StringBuilder, PresenceCondition>> it_decl = result_decl.iterator();
+    Iterator<Pair<StringBuilder, PresenceCondition>> it_ident = result_ident.iterator();
+
+    while (it_decl.hasNext() && it_ident.hasNext()) {
+      Pair<StringBuilder, PresenceCondition> next_ident = it_ident.next();
+      String elem_ident = next_ident.getKey().toString();
+      PresenceCondition pc = next_ident.getValue();
+      String renamed_ident = mangleRenaming(VARPREFIX, elem_ident);
+      Type type = new IntegerT(NumberT.Kind.INT);  // TODO: keep track of types
+      symtab.addRenaming(elem_ident, renamed_ident, type, pc);
+      String elem_decl = it_decl.next().getKey().toString();
+      // TODO: should probably have a nicer way to replace the name
+      //writer.write(elem_decl.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ "));
+    }
+    mv.destruct();
+    ident.destruct();
+
+    System.err.println(symtab.originalToNew);
+  }
+
+
+  // fills an arraylist with basic type nodes
+  public void findSimpleMemberVars(Node n, ArrayList<Node> basicTypeNodes)
+  {
+    if (n == null)
+     return;
+
+    if (n.getName().toString().equals("SimpleDeclarator"))
+    {
+      basicTypeNodes.add(n);
+      return;
+    }
+
+    // TODO: check an example of a struct inside of a struct to see if this is a node that will be in there
+    if (n.getName().toString().equals("SUETypeSpecifier"))
+     return;
+
+   for (Object i : n)
+   {
+    if (i instanceof String)
+    {
+
+    }
+    else if (i instanceof PresenceCondition)
+    {
+    }
+    else
+       findSimpleMemberVars((Node)i, basicTypeNodes);
+   }
+  }
+
+ public void desugarSUEDeclaration(Node n, PresenceCondition presenceCondition, PresenceCondition lastPresenceCondition, OutputStreamWriter writer)
+ throws IOException
+ {
+   ArrayList<Node> basicTypeNodes = new ArrayList<Node>();
+
+   // TODO: be able to handle multiple SUE definitions at once
+   int SUE; // 0 for struct, 1 for Union, 2 for Enum
+   String SUEIdent = "";
+   Node SUENode = n;
+
+   for (int i = 0; i < n.size(); i++)
+   {
+     if (n.getNode(i).getName().toString().equals("StructSpecifier"))
+     {
+       SUENode = n.getNode(i);
+       SUE = 0;
+     }
+     else
+     {
+       // TODO - union and enum
+     }
+   }
+
+
+   for (int i = 0; i < SUENode.size(); i++)
+   {
+      // sets SUEIdent to the name of the struct
+      if (SUENode.getNode(i).getName().toString().equals("IdentifierOrTypedefName"))
+      {
+        SUEIdent = SUENode.getNode(i).getNode(0).toString();
+      }
+
+      if (SUENode.getNode(i).getName().toString().equals("StructDeclarationList"))
+      {
+        // member variables in here
+        // TODO: add these to symboltable
+
+        findSimpleMemberVars(SUENode.getNode(i), basicTypeNodes);
+
+        // we call this function on any nodes we find that are simpleDeclarators (temp is the node)
+        for (Node o : basicTypeNodes)
+           desugarMemberVarDeclaration(o, presenceCondition, lastPresenceCondition, writer, SUEIdent);
+        // we need to recursively call this function on any SUEs we find.
+        // we don't want to call the above function on any simpledeclarators that are inside of SUEs.
+      }
+   }
+
+   // hoist conditionals around declarations into mv and collect each
+   // configuration's identifier in ident
+   StringMultiverse mv = new StringMultiverse("", presenceCondition); // create a new multiverse (condition-aware symbol table)
+   StringMultiverse ident = new StringMultiverse("", presenceCondition); // create a new multiverse
+   Pair<StringMultiverse, StringMultiverse> result = hoistDeclaration(n, mv, ident); // create a mapping (pair) of multiverses set equal to hoistDeclaration(the passed-in node, and the two multiverse)
+   StringMultiverse result_decl = result.getKey(); // result_decl is a multiverse set equal to the hoistDeclaration
+   StringMultiverse result_ident = result.getValue();
+
+   // (1) rename each variable by adding a increasing counter
+   // (varcount), then (2) print each declaration (replacing the var
+   // name) without its static conditional.  (3) store the mapping
+   // between original and renamed variable in a symbol table for
+   // this scope.
+   // TODO: use better name mangling by generating random string
+   Iterator<Pair<StringBuilder, PresenceCondition>> it_decl = result_decl.iterator();
+   Iterator<Pair<StringBuilder, PresenceCondition>> it_ident = result_ident.iterator();
+
+   while (it_decl.hasNext() && it_ident.hasNext()) {
+     Pair<StringBuilder, PresenceCondition> next_ident = it_ident.next();
+     String elem_ident = next_ident.getKey().toString();
+
+     PresenceCondition pc = next_ident.getValue();
+     //String renamed_ident = mangleRenaming(VARPREFIX, elem_ident);
+     String renamed_ident = mangleRenaming(VARPREFIX, SUEIdent);
+
+     // NOTE: the tag is a string that follows the actual type in the symboltable
+     StructT type = new StructT("typename", (List)basicTypeNodes);
+
+     symtab.addRenaming(elem_ident, renamed_ident, type, pc);
+     String elem_decl = it_decl.next().getKey().toString();
+
+     // TODO: should probably have a nicer way to replace the name
+     writer.write(elem_decl.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ "));
+   }
+   mv.destruct();
+   ident.destruct();
+
+   System.err.println(symtab.originalToNew);
+ }
+
+  // returns the type of elem_ident from elem_decl as a string
+  public String lexType(String elem_decl, String elem_ident) {
+    StringBuilder sb = new StringBuilder();
+    sb.insert(0, " ");
+    sb.append(elem_decl);
+
+    // removes the semicolon from the stringbuilder
+    int semicolon_pos = 0;
+    semicolon_pos = sb.indexOf(";");
+    if (semicolon_pos != 0)
+      sb = sb.deleteCharAt(semicolon_pos);
+
+    int ident_index = sb.indexOf(elem_ident);
+    if (ident_index == -1)
+    {
+      System.err.println("ERROR: " + elem_ident + " is missing from declaration: " + elem_decl);
+      System.exit(1);
+    }
+
+    // deletes the character before ident_index (a space)
+    // and the rest of the string (the identifier)
+    sb = sb.delete(ident_index-1, sb.length());
+
+    //return sb.toString();
+
+    int index_of_type = sb.indexOf(" struct ");
+    // TODO: also check for struct pointers separately from this - remember that a struct pointer could false trigger this to be true (struct *myFirstStruct)
+    if (index_of_type != -1)
+    {
+      sb = sb.delete(index_of_type, index_of_type + 8);
+
+    }
+    //else
+      //TODO: delete the " " space character at the beginning of regular types
+
+    return sb.toString();
+
+
+    // TODO: return the proper type for all identifiers
+    //else
+
+  }
+
+  public boolean isCustomType(String typeName) {
+    if (typeName.equals("int") || typeName.equals("float") ) // do the rest
+      return false;
+    else return true;
+  }
+
+
   public void desugarConditionalsDeclaration(Node n, PresenceCondition presenceCondition,
                                              PresenceCondition lastPresenceCondition,
                                              OutputStreamWriter writer)
     throws IOException {
+
+
+    /// TODO: determine if getNode(0) is always the SUETypeSpecifier for SUEs (check strange config options)
+    for (int i = 0; i < n.size(); i++)
+      if (n.getNode(i).getName().equals("SUETypeSpecifier"))
+      {
+        desugarSUEDeclaration(n.getNode(i), presenceCondition, lastPresenceCondition, writer);
+        return;
+      }
 
     // TODO: need to merge extern declarations.  perhaps we can just take the largest size extern and do truncation?
 
@@ -584,11 +804,38 @@ class Desugarer {
       String elem_ident = next_ident.getKey().toString();
       PresenceCondition pc = next_ident.getValue();
       String renamed_ident = mangleRenaming(VARPREFIX, elem_ident);
-      Type type = new IntegerT(NumberT.Kind.INT);  // TODO: keep track of types
-      symtab.addRenaming(elem_ident, renamed_ident, type, pc);
+
       String elem_decl = it_decl.next().getKey().toString();
+
+      // Need a check to determine if the type is a custom typename (SUE or typedef)
+      String typename_original = lexType(elem_decl.toString(), elem_ident);
+      boolean CUSTOM_TYPE = false;
+      if (isCustomType(typename_original)) // TODO: add suport for other custom types
+        CUSTOM_TYPE = true;
+
+      String typename_renamed = "";
+
+      Type type;
+
+      if (CUSTOM_TYPE)
+      {
+        typename_renamed = symtab.getRenaming(typename_original).toString(); // TODO: get the renaming from symtab
+        type = new StructT(typename_renamed);
+
+      }
+      else
+      {
+        type = new IntegerT(NumberT.Kind.INT);
+      }
+
+      symtab.addRenaming(elem_ident, renamed_ident, type, pc);
       // TODO: should probably have a nicer way to replace the name
-      writer.write(elem_decl.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ "));
+
+      // TODO: also replace the struct name.
+      String decl_string = elem_decl.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ ");
+      if (CUSTOM_TYPE)
+        decl_string.replace(" " +  typename_original + " ", " " + typename_renamed + " /* renamed from " + typename_original + " */ ");
+      writer.write(elem_decl);
     }
     mv.destruct();
     ident.destruct();
@@ -702,26 +949,56 @@ class Desugarer {
     }
   }
 
+  // Calls StringMultiverse.toString(), then lexes the actual string out, and removes the PC
+  public String getIdent(StringMultiverse ident)
+  {
+    // TODO: write the actual method
+    System.err.println("WRITE getIdent() method");
+    return "PLACEHOLDER_STRUCT_NAME";
+
+  }
+
   /**
    * Caller destructs the multiverse that it passes.
    */
   public Pair<StringMultiverse, StringMultiverse> hoistDeclaration(Node n, StringMultiverse mv, StringMultiverse ident)
     throws IOException {
 
+    String renamedIdent = "";
     // TODO: change mv to be a list of tokens instead of a string, StringListMultiverse
 
     if (n instanceof GNode
-        && (((GNode) n).hasName("SimpleDeclarator"))
-            // || ((GNode) n).hasName("IdentifierOrTypedefName"))
-        ) {
+        && (((GNode) n).hasName("SimpleDeclarator"))) {
       String identstr = ((Syntax) n.get(0)).toLanguage().toString();
       if (! ident.allEquals("")) {
-        // the grammar should make this error impossible
-        System.err.println("ERROR: there should only be one identifier per declaration");
+        // this happens when using custom types (structs, etc)
+
+        // TODO: delete this - no longer necessary - I think
+        renamedIdent = symtab.getRenaming(getIdent(ident)).toString();
+
+        ident.addToAll(" " + identstr);
+
+        // need to get the presence condition from this StringMultiverse
+        for (Pair<StringBuilder, PresenceCondition> elem : ident.contents) {
+
+          ident = new StringMultiverse("", elem.getValue());
+        }
+
+        return hoistDeclaration(n, mv, ident);
       }
-      ident.addToAll(identstr);
+      else
+        ident.addToAll(identstr);
     }
 
+    // renames struct type identifiers
+    if (n instanceof GNode
+         && ((GNode) n).hasName("IdentifierOrTypedefName")) {
+       String identstr = ((Syntax) n.get(0)).toLanguage().toString();
+       if (! ident.allEquals("")) {
+         // TODO: determine if this is reachable (compound types...?) if so, may need to call recursively or something
+       }
+       ident.addToAll(identstr);
+     }
 
     if (n.isToken()) {
       // when we have a single token, append it's string to all lifted
@@ -791,9 +1068,10 @@ class Desugarer {
 
     // replace identifiers with its renamings
     if (n instanceof GNode
-        && ((GNode) n).hasName("PrimaryIdentifier")) {
+        && (((GNode) n).hasName("PrimaryIdentifier") || (((GNode)n).hasName("IdentifierOrTypedefName")))) {
 
       String identstr = ((Syntax) n.get(0)).toLanguage().toString();
+
       if (! symtab.hasRenaming(identstr)) {
         System.err.println(symtab.originalToNew);
         System.err.println("ERROR: there is a use of an undefined variable: " + identstr);
@@ -806,10 +1084,12 @@ class Desugarer {
       return newmv;
     }
 
+
     if (n.isToken()) {
       // when we have a single token, append it's string to all lifted
       // strings
       mv.addToAll(n.getTokenText());
+
       mv.addToAll(" ");
       return mv;
     } else if (n instanceof Node) {
