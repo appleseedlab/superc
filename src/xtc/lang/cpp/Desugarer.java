@@ -749,8 +749,8 @@ class Desugarer {
       sb = sb.delete(index_of_type, index_of_type + 8);
 
     }
-    //else
-      //TODO: delete the " " space character at the beginning of regular types
+    else
+      sb = sb.delete(0, 1);
 
     return sb.toString();
 
