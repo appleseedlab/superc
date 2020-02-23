@@ -819,13 +819,18 @@ class Desugarer {
 
       if (CUSTOM_TYPE)
       {
-        typename_renamed = symtab.getRenaming(typename_original).toString(); // TODO: get the renaming from symtab
+        TypedStringMultiverse renaming = symtab.getRenaming(typename_original);
+        Iterator<Pair<Pair<StringBuilder, Type>, PresenceCondition>> it_renaming = renaming.iterator();
+        while (it_renaming.hasNext()) {
+          Pair<Pair<StringBuilder, Type>, PresenceCondition> next_renaming = it_renaming.next();
+          Pair<StringBuilder, Type> inner_pair = next_renaming.getKey();
+          typename_renamed = inner_pair.getKey().toString();
+        }
         type = new StructT(typename_renamed);
-
       }
       else
       {
-        type = new IntegerT(NumberT.Kind.INT);
+        type = new IntegerT(NumberT.Kind.INT); // TODO: handle types better
       }
 
       symtab.addRenaming(elem_ident, renamed_ident, type, pc);
@@ -834,8 +839,12 @@ class Desugarer {
       // TODO: also replace the struct name.
       String decl_string = elem_decl.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ ");
       if (CUSTOM_TYPE)
-        decl_string.replace(" " +  typename_original + " ", " " + typename_renamed + " /* renamed from " + typename_original + " */ ");
-      writer.write(elem_decl);
+      {
+        String typed_decl_string = decl_string.replace(" " +  typename_original + " ", " " + typename_renamed + " /* renamed from " + typename_original + " */ ");
+        writer.write(typed_decl_string);
+      }
+      else
+        writer.write(decl_string);
     }
     mv.destruct();
     ident.destruct();
