@@ -599,15 +599,12 @@ class Desugarer {
     System.err.println(symtab.originalToNew);
   }
 
-
   // fills an arraylist with basic type nodes
-  public void findSimpleMemberVars(Node n, ArrayList<Node> basicTypeNodes)
-  {
+  public void findSimpleMemberVars(Node n, ArrayList<Node> basicTypeNodes) {
     if (n == null)
      return;
 
-    if (n.getName().toString().equals("SimpleDeclarator"))
-    {
+    if (n.getName().toString().equals("SimpleDeclarator")) {
       basicTypeNodes.add(n);
       return;
     }
@@ -616,14 +613,10 @@ class Desugarer {
     if (n.getName().toString().equals("SUETypeSpecifier"))
      return;
 
-   for (Object i : n)
-   {
-    if (i instanceof String)
-    {
-
+   for (Object i : n) {
+    if (i instanceof String) {
     }
-    else if (i instanceof PresenceCondition)
-    {
+    else if (i instanceof PresenceCondition) {
     }
     else
        findSimpleMemberVars((Node)i, basicTypeNodes);
@@ -631,8 +624,7 @@ class Desugarer {
   }
 
  public void desugarSUEDeclaration(Node n, PresenceCondition presenceCondition, PresenceCondition lastPresenceCondition, OutputStreamWriter writer)
- throws IOException
- {
+ throws IOException {
    ArrayList<Node> basicTypeNodes = new ArrayList<Node>();
 
    // TODO: be able to handle multiple SUE definitions at once
@@ -640,30 +632,24 @@ class Desugarer {
    String SUEIdent = "";
    Node SUENode = n;
 
-   for (int i = 0; i < n.size(); i++)
-   {
-     if (n.getNode(i).getName().toString().equals("StructSpecifier"))
-     {
+   for (int i = 0; i < n.size(); i++) {
+     if (n.getNode(i).getName().toString().equals("StructSpecifier")) {
        SUENode = n.getNode(i);
        SUE = 0;
      }
-     else
-     {
+     else {
        // TODO - union and enum
      }
    }
 
 
-   for (int i = 0; i < SUENode.size(); i++)
-   {
+   for (int i = 0; i < SUENode.size(); i++) {
       // sets SUEIdent to the name of the struct
-      if (SUENode.getNode(i).getName().toString().equals("IdentifierOrTypedefName"))
-      {
+      if (SUENode.getNode(i).getName().toString().equals("IdentifierOrTypedefName")) {
         SUEIdent = SUENode.getNode(i).getNode(0).toString();
       }
 
-      if (SUENode.getNode(i).getName().toString().equals("StructDeclarationList"))
-      {
+      if (SUENode.getNode(i).getName().toString().equals("StructDeclarationList")) {
         // member variables in here
         // TODO: add these to symboltable
 
@@ -717,7 +703,8 @@ class Desugarer {
    System.err.println(symtab.originalToNew);
  }
 
-  // returns the type of elem_ident from elem_decl as a string
+  // returns the type of elem_ident from elem_decl as a string.
+  // this is necessary for variables of a custom type.
   public String lexType(String elem_decl, String elem_ident) {
     StringBuilder sb = new StringBuilder();
     sb.insert(0, " ");
@@ -730,8 +717,7 @@ class Desugarer {
       sb = sb.deleteCharAt(semicolon_pos);
 
     int ident_index = sb.indexOf(elem_ident);
-    if (ident_index == -1)
-    {
+    if (ident_index == -1) {
       System.err.println("ERROR: " + elem_ident + " is missing from declaration: " + elem_decl);
       System.exit(1);
     }
@@ -740,43 +726,33 @@ class Desugarer {
     // and the rest of the string (the identifier)
     sb = sb.delete(ident_index-1, sb.length());
 
-    //return sb.toString();
-
     int index_of_type = sb.indexOf(" struct ");
-    // TODO: also check for struct pointers separately from this - remember that a struct pointer could false trigger this to be true (struct *myFirstStruct)
+    // TODO: (maybe) also check for struct pointers separately from this - remember that a struct pointer could false trigger this to be true (struct *myFirstStruct)
     if (index_of_type != -1)
-    {
       sb = sb.delete(index_of_type, index_of_type + 8);
-
-    }
     else
       sb = sb.delete(0, 1);
 
     return sb.toString();
 
-
     // TODO: return the proper type for all identifiers
-    //else
-
   }
 
+  // returns true if the type was defined by the user. false o/w
   public boolean isCustomType(String typeName) {
-    if (typeName.equals("int") || typeName.equals("float") ) // do the rest
+    if (typeName.equals("int") || typeName.equals("float") ) // TODO: add the rest of the basic types
       return false;
     else return true;
   }
-
 
   public void desugarConditionalsDeclaration(Node n, PresenceCondition presenceCondition,
                                              PresenceCondition lastPresenceCondition,
                                              OutputStreamWriter writer)
     throws IOException {
 
-
     /// TODO: determine if getNode(0) is always the SUETypeSpecifier for SUEs (check strange config options)
     for (int i = 0; i < n.size(); i++)
-      if (n.getNode(i).getName().equals("SUETypeSpecifier"))
-      {
+      if (n.getNode(i).getName().equals("SUETypeSpecifier")) {
         desugarSUEDeclaration(n.getNode(i), presenceCondition, lastPresenceCondition, writer);
         return;
       }
@@ -817,8 +793,7 @@ class Desugarer {
 
       Type type;
 
-      if (CUSTOM_TYPE)
-      {
+      if (CUSTOM_TYPE) {
         TypedStringMultiverse renaming = symtab.getRenaming(typename_original);
         Iterator<Pair<Pair<StringBuilder, Type>, PresenceCondition>> it_renaming = renaming.iterator();
         while (it_renaming.hasNext()) {
@@ -828,18 +803,17 @@ class Desugarer {
         }
         type = new StructT(typename_renamed);
       }
-      else
-      {
+      else {
         type = new IntegerT(NumberT.Kind.INT); // TODO: handle types better
       }
 
       symtab.addRenaming(elem_ident, renamed_ident, type, pc);
       // TODO: should probably have a nicer way to replace the name
 
-      // TODO: also replace the struct name.
+
       String decl_string = elem_decl.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ ");
-      if (CUSTOM_TYPE)
-      {
+      if (CUSTOM_TYPE) {
+        // replaces the struct name
         String typed_decl_string = decl_string.replace(" " +  typename_original + " ", " " + typename_renamed + " /* renamed from " + typename_original + " */ ");
         writer.write(typed_decl_string);
       }
