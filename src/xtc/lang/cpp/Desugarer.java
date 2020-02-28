@@ -587,7 +587,7 @@ class Desugarer {
       String elem_ident = next_ident.getKey().toString();
       PresenceCondition pc = next_ident.getValue();
       String renamed_ident = mangleRenaming(VARPREFIX, elem_ident);
-      Type type = new IntegerT(NumberT.Kind.INT);  // TODO: keep track of types
+      StructT type = new StructT(SUEIdent + " member"); // Tags struct member variables as type "struct <struct type identifier> member"
       symtab.addRenaming(elem_ident, renamed_ident, type, pc);
       String elem_decl = it_decl.next().getKey().toString();
       // TODO: should probably have a nicer way to replace the name
