@@ -92,7 +92,10 @@ SOURCE = \
 	cdiff.java \
 	FunctionChecker.java \
 	Desugarer.java \
-	SuperC.java
+	SuperC.java \
+	SuperCAdvancedUsageStats.java \
+	ASTPruner.java
+
 
 
 JNI_SOURCE =

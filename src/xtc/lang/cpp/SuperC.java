@@ -279,6 +279,10 @@ public class SuperC extends Tool {
            "Show configs for each static conditional.").
       bool("conditionGranularity", "conditionGranularity", false,
            "Show configs for each static conditional.").
+	bool("advancedUsageStats", "advancedUsageStats", false,
+	     "Displays usage statistics for preprocessor conditionals.").
+	bool("advancedUsageStatsCompare", "advancedUsageStatsCompare", false,
+	     "Displays comparisons between conditional branches").
 
       // Validation
       bool("checkExpressionParser", "checkExpressionParser", false,
@@ -317,7 +321,10 @@ public class SuperC extends Tool {
            "Show lookaheads on each parse loop (warning: very voluminous "
            + "output!)").
       bool("macroTable", "macroTable", false,
-           "Show the macro symbol table.")
+           "Show the macro symbol table.").
+      word("pruneAST", "pruneAST", false,
+           "removes all header files included from the AST prior to print" +
+	   "and advanced statistics")
       ;
   }
   
@@ -1145,9 +1152,28 @@ public class SuperC extends Tool {
         }
       }
 
+
+      String toPrune = runtime.getString("pruneAST");
+      if(toPrune != null)
+	  {
+	      ASTPruner pruner = new ASTPruner(toPrune);
+	      pruner.prune((Node) translationUnit);
+	  }
+
       if (runtime.test("printAST")) {
         runtime.console().format((Node) translationUnit).pln().flush();
       }
+
+      if (runtime.test("advancedUsageStats") || runtime.test("advancedUsageStatsCompare")){
+	  SuperCAdvancedUsageStats saus;
+	  if (runtime.test("advancedUsageStatsCompare"))
+	      saus = new SuperCAdvancedUsageStats(true);
+	  else
+	      saus = new SuperCAdvancedUsageStats(false);
+	  saus.find((Node) translationUnit);
+	  saus.print();
+      }
+
 
       if (runtime.test("printSource")) {
         OutputStreamWriter writer = new OutputStreamWriter(System.out);

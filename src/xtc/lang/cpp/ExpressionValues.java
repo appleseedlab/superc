@@ -139,6 +139,22 @@ public class ExpressionValues implements SemanticValues {
   }
   public boolean isComplete(int id) {
     switch(id) {
+    case 128: // ConstantExpression
+      // Fall through
+    case 129: // Constant
+      // Fall through
+    case 161: // ConditionalExpression
+      // Fall through
+    case 130: // IntegerConstant
+      // Fall through
+    case 132: // PrimaryExpression
+      // Fall through
+    case 133: // PrimaryIdentifier
+      // Fall through
+    case 134: // UnaryExpression
+      // Fall through
+    case 135: // UnaryMinusExpression
+      // Fall through
     case 137: // UnaryPlusExpression
       // Fall through
     case 139: // LogicalNegationExpression
@@ -146,30 +162,6 @@ public class ExpressionValues implements SemanticValues {
     case 141: // BitwiseNegationExpression
       // Fall through
     case 143: // DefinedExpression
-      // Fall through
-    case 129: // Constant
-      // Fall through
-    case 128: // ConstantExpression
-      // Fall through
-    case 161: // ConditionalExpression
-      // Fall through
-    case 130: // IntegerConstant
-      // Fall through
-    case 133: // PrimaryIdentifier
-      // Fall through
-    case 132: // PrimaryExpression
-      // Fall through
-    case 135: // UnaryMinusExpression
-      // Fall through
-    case 134: // UnaryExpression
-      // Fall through
-    case 153: // BitwiseXorExpression
-      // Fall through
-    case 155: // BitwiseOrExpression
-      // Fall through
-    case 157: // LogicalAndExpression
-      // Fall through
-    case 159: // LogicalOrExpression
       // Fall through
     case 145: // CheckDefined
       // Fall through
@@ -184,6 +176,14 @@ public class ExpressionValues implements SemanticValues {
     case 150: // EqualityExpression
       // Fall through
     case 151: // BitwiseAndExpression
+      // Fall through
+    case 153: // BitwiseXorExpression
+      // Fall through
+    case 155: // BitwiseOrExpression
+      // Fall through
+    case 157: // LogicalAndExpression
+      // Fall through
+    case 159: // LogicalOrExpression
       return true;
 
     default:

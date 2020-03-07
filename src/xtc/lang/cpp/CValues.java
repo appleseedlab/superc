@@ -323,101 +323,287 @@ public class CValues implements SemanticValues {
   }
   public boolean isComplete(int id) {
     switch(id) {
-    case 275: // PostfixingAbstractDeclarator
+    case 130: // TranslationUnit
       // Fall through
-    case 274: // AbstractDeclarator
+    case 131: // ExternalDeclarationList
       // Fall through
-    case 273: // $@46
+    case 132: // ExternalDeclaration
       // Fall through
-    case 272: // $@45
+    case 133: // EmptyDefinition
       // Fall through
-    case 279: // PostfixAbstractDeclarator
+    case 134: // FunctionDefinitionExtension
       // Fall through
-    case 278: // UnaryAbstractDeclarator
+    case 135: // FunctionDefinition
       // Fall through
-    case 277: // ArrayAbstractDeclarator
+    case 136: // $@1
       // Fall through
-    case 276: // ParameterTypeListOpt
+    case 137: // $@2
       // Fall through
-    case 283: // LocalLabelDeclarationListOpt
+    case 138: // $@3
       // Fall through
-    case 282: // CompoundStatement
+    case 139: // $@4
       // Fall through
-    case 281: // LabeledStatement
+    case 140: // FunctionCompoundStatement
       // Fall through
-    case 280: // Statement
+    case 141: // FunctionPrototype
       // Fall through
-    case 287: // DeclarationOrStatementList
+    case 142: // FunctionOldPrototype
       // Fall through
-    case 286: // LocalLabelList
+    case 143: // NestedFunctionDefinition
       // Fall through
-    case 285: // LocalLabelDeclaration
+    case 144: // $@5
       // Fall through
-    case 284: // LocalLabelDeclarationList
+    case 145: // $@6
       // Fall through
-    case 258: // IdentifierDeclarator
+    case 146: // $@7
       // Fall through
-    case 259: // IdentifierDeclaratorMain
+    case 147: // $@8
+      // Fall through
+    case 148: // NestedFunctionPrototype
+      // Fall through
+    case 149: // NestedFunctionOldPrototype
+      // Fall through
+    case 150: // DeclarationExtension
+      // Fall through
+    case 151: // Declaration
+      // Fall through
+    case 152: // $@9
+      // Fall through
+    case 153: // $@10
+      // Fall through
+    case 154: // $@11
+      // Fall through
+    case 155: // $@12
+      // Fall through
+    case 156: // DefaultDeclaringList
+      // Fall through
+    case 157: // $@13
+      // Fall through
+    case 158: // $@14
+      // Fall through
+    case 159: // $@15
+      // Fall through
+    case 160: // DeclaringList
+      // Fall through
+    case 161: // $@16
+      // Fall through
+    case 162: // $@17
+      // Fall through
+    case 163: // $@18
+      // Fall through
+    case 164: // DeclarationSpecifier
+      // Fall through
+    case 165: // TypeSpecifier
+      // Fall through
+    case 166: // DeclarationQualifierList
+      // Fall through
+    case 167: // TypeQualifierList
+      // Fall through
+    case 174: // BasicDeclarationSpecifier
+      // Fall through
+    case 175: // BasicTypeSpecifier
+      // Fall through
+    case 176: // SUEDeclarationSpecifier
+      // Fall through
+    case 177: // SUETypeSpecifier
+      // Fall through
+    case 178: // TypedefDeclarationSpecifier
+      // Fall through
+    case 179: // TypedefTypeSpecifier
+      // Fall through
+    case 180: // TypeofDeclarationSpecifier
+      // Fall through
+    case 181: // TypeofTypeSpecifier
+      // Fall through
+    case 182: // Typeofspecifier
+      // Fall through
+    case 183: // Typeofkeyword
+      // Fall through
+    case 191: // ElaboratedTypeName
+      // Fall through
+    case 192: // StructSpecifier
+      // Fall through
+    case 193: // $@19
+      // Fall through
+    case 194: // $@20
+      // Fall through
+    case 195: // $@21
+      // Fall through
+    case 196: // $@22
+      // Fall through
+    case 197: // $@23
+      // Fall through
+    case 198: // $@24
+      // Fall through
+    case 199: // $@25
+      // Fall through
+    case 200: // $@26
+      // Fall through
+    case 201: // UnionSpecifier
+      // Fall through
+    case 202: // $@27
+      // Fall through
+    case 203: // $@28
+      // Fall through
+    case 204: // $@29
+      // Fall through
+    case 205: // $@30
+      // Fall through
+    case 206: // $@31
+      // Fall through
+    case 207: // $@32
+      // Fall through
+    case 208: // $@33
+      // Fall through
+    case 209: // $@34
+      // Fall through
+    case 210: // StructDeclarationList
+      // Fall through
+    case 211: // StructDeclaration
+      // Fall through
+    case 212: // StructDefaultDeclaringList
+      // Fall through
+    case 213: // StructDeclaringList
+      // Fall through
+    case 214: // StructDeclarator
+      // Fall through
+    case 215: // StructIdentifierDeclarator
+      // Fall through
+    case 216: // BitFieldSizeOpt
+      // Fall through
+    case 217: // BitFieldSize
+      // Fall through
+    case 218: // EnumSpecifier
+      // Fall through
+    case 219: // EnumeratorList
+      // Fall through
+    case 220: // Enumerator
+      // Fall through
+    case 221: // $@35
+      // Fall through
+    case 222: // $@36
+      // Fall through
+    case 223: // EnumeratorValueOpt
+      // Fall through
+    case 224: // ParameterTypeList
+      // Fall through
+    case 225: // ParameterList
+      // Fall through
+    case 226: // ParameterDeclaration
+      // Fall through
+    case 229: // $@37
+      // Fall through
+    case 230: // $@38
+      // Fall through
+    case 231: // $@39
+      // Fall through
+    case 232: // $@40
+      // Fall through
+    case 233: // $@41
+      // Fall through
+    case 234: // $@42
+      // Fall through
+    case 235: // IdentifierList
+      // Fall through
+    case 236: // Identifier
+      // Fall through
+    case 237: // IdentifierOrTypedefName
+      // Fall through
+    case 238: // TypeName
+      // Fall through
+    case 239: // InitializerOpt
+      // Fall through
+    case 240: // DesignatedInitializer
+      // Fall through
+    case 241: // Initializer
+      // Fall through
+    case 242: // InitializerList
+      // Fall through
+    case 243: // MatchedInitializerList
+      // Fall through
+    case 245: // DesignatorList
+      // Fall through
+    case 247: // ObsoleteArrayDesignation
+      // Fall through
+    case 248: // ObsoleteFieldDesignation
+      // Fall through
+    case 249: // Declarator
+      // Fall through
+    case 250: // TypedefDeclarator
+      // Fall through
+    case 251: // TypedefDeclaratorMain
+      // Fall through
+    case 252: // ParameterTypedefDeclarator
+      // Fall through
+    case 253: // CleanTypedefDeclarator
+      // Fall through
+    case 254: // CleanPostfixTypedefDeclarator
+      // Fall through
+    case 255: // ParenTypedefDeclarator
       // Fall through
     case 256: // ParenPostfixTypedefDeclarator
       // Fall through
     case 257: // SimpleParenTypedefDeclarator
       // Fall through
-    case 262: // AttributedDeclarator
+    case 258: // IdentifierDeclarator
       // Fall through
-    case 263: // FunctionDeclarator
+    case 259: // IdentifierDeclaratorMain
       // Fall through
     case 260: // UnaryIdentifierDeclarator
       // Fall through
     case 261: // PostfixIdentifierDeclarator
       // Fall through
-    case 266: // $@44
+    case 262: // AttributedDeclarator
       // Fall through
-    case 267: // ArrayDeclarator
+    case 263: // FunctionDeclarator
       // Fall through
     case 264: // PostfixingFunctionDeclarator
       // Fall through
     case 265: // $@43
       // Fall through
-    case 270: // OldFunctionDeclarator
+    case 266: // $@44
       // Fall through
-    case 271: // PostfixOldFunctionDeclarator
+    case 267: // ArrayDeclarator
       // Fall through
     case 268: // ParenIdentifierDeclarator
       // Fall through
     case 269: // SimpleDeclarator
       // Fall through
-    case 305: // $@48
+    case 270: // OldFunctionDeclarator
       // Fall through
-    case 304: // $@47
+    case 271: // PostfixOldFunctionDeclarator
       // Fall through
-    case 307: // Subscript
+    case 272: // $@45
       // Fall through
-    case 306: // PostfixExpression
+    case 273: // $@46
       // Fall through
-    case 309: // DirectSelection
+    case 274: // AbstractDeclarator
       // Fall through
-    case 308: // FunctionCall
+    case 275: // PostfixingAbstractDeclarator
       // Fall through
-    case 311: // Increment
+    case 276: // ParameterTypeListOpt
       // Fall through
-    case 310: // IndirectSelection
+    case 277: // ArrayAbstractDeclarator
       // Fall through
-    case 313: // CompoundLiteral
+    case 278: // UnaryAbstractDeclarator
       // Fall through
-    case 312: // Decrement
+    case 279: // PostfixAbstractDeclarator
       // Fall through
-    case 315: // UnaryExpression
+    case 280: // Statement
       // Fall through
-    case 314: // ExpressionList
+    case 281: // LabeledStatement
       // Fall through
-    case 317: // OffsetofExpression
+    case 282: // CompoundStatement
       // Fall through
-    case 316: // TypeCompatibilityExpression
+    case 283: // LocalLabelDeclarationListOpt
       // Fall through
-    case 319: // AlignofExpression
+    case 284: // LocalLabelDeclarationList
       // Fall through
-    case 318: // ExtensionExpression
+    case 285: // LocalLabelDeclaration
+      // Fall through
+    case 286: // LocalLabelList
+      // Fall through
+    case 287: // DeclarationOrStatementList
       // Fall through
     case 288: // DeclarationOrStatement
       // Fall through
@@ -451,65 +637,89 @@ public class CValues implements SemanticValues {
       // Fall through
     case 303: // StatementAsExpression
       // Fall through
-    case 342: // AttributeSpecifier
+    case 304: // $@47
       // Fall through
-    case 341: // AttributeSpecifierList
+    case 305: // $@48
       // Fall through
-    case 340: // AttributeSpecifierListOpt
+    case 306: // PostfixExpression
       // Fall through
-    case 339: // ConstantExpression
+    case 307: // Subscript
       // Fall through
-    case 338: // Expression
+    case 308: // FunctionCall
       // Fall through
-    case 337: // ExpressionOpt
+    case 309: // DirectSelection
       // Fall through
-    case 336: // AssignmentOperator
+    case 310: // IndirectSelection
       // Fall through
-    case 351: // AssemblyStatement
+    case 311: // Increment
       // Fall through
-    case 350: // AssemblyExpressionOpt
+    case 312: // Decrement
       // Fall through
-    case 349: // AssemblyExpression
+    case 313: // CompoundLiteral
       // Fall through
-    case 348: // AssemblyDefinition
+    case 314: // ExpressionList
       // Fall through
-    case 345: // AttributeList
+    case 315: // UnaryExpression
       // Fall through
-    case 326: // ShiftExpression
+    case 316: // TypeCompatibilityExpression
       // Fall through
-    case 327: // RelationalExpression
+    case 317: // OffsetofExpression
+      // Fall through
+    case 318: // ExtensionExpression
+      // Fall through
+    case 319: // AlignofExpression
+      // Fall through
+    case 321: // LabelAddressExpression
+      // Fall through
+    case 323: // CastExpression
       // Fall through
     case 324: // MultiplicativeExpression
       // Fall through
     case 325: // AdditiveExpression
       // Fall through
-    case 323: // CastExpression
+    case 326: // ShiftExpression
       // Fall through
-    case 321: // LabelAddressExpression
-      // Fall through
-    case 334: // ConditionalExpression
-      // Fall through
-    case 335: // AssignmentExpression
-      // Fall through
-    case 332: // LogicalAndExpression
-      // Fall through
-    case 333: // LogicalORExpression
-      // Fall through
-    case 330: // ExclusiveOrExpression
-      // Fall through
-    case 331: // InclusiveOrExpression
+    case 327: // RelationalExpression
       // Fall through
     case 328: // EqualityExpression
       // Fall through
     case 329: // AndExpression
       // Fall through
-    case 356: // AssemblyclobbersOpt
+    case 330: // ExclusiveOrExpression
       // Fall through
-    case 357: // Assemblyclobbers
+    case 331: // InclusiveOrExpression
       // Fall through
-    case 358: // AssemblyGotoargument
+    case 332: // LogicalAndExpression
       // Fall through
-    case 359: // AssemblyJumpLabels
+    case 333: // LogicalORExpression
+      // Fall through
+    case 334: // ConditionalExpression
+      // Fall through
+    case 335: // AssignmentExpression
+      // Fall through
+    case 336: // AssignmentOperator
+      // Fall through
+    case 337: // ExpressionOpt
+      // Fall through
+    case 338: // Expression
+      // Fall through
+    case 339: // ConstantExpression
+      // Fall through
+    case 340: // AttributeSpecifierListOpt
+      // Fall through
+    case 341: // AttributeSpecifierList
+      // Fall through
+    case 342: // AttributeSpecifier
+      // Fall through
+    case 345: // AttributeList
+      // Fall through
+    case 348: // AssemblyDefinition
+      // Fall through
+    case 349: // AssemblyExpression
+      // Fall through
+    case 350: // AssemblyExpressionOpt
+      // Fall through
+    case 351: // AssemblyStatement
       // Fall through
     case 352: // Assemblyargument
       // Fall through
@@ -519,223 +729,13 @@ public class CValues implements SemanticValues {
       // Fall through
     case 355: // Assemblyoperand
       // Fall through
-    case 137: // $@2
+    case 356: // AssemblyclobbersOpt
       // Fall through
-    case 136: // $@1
+    case 357: // Assemblyclobbers
       // Fall through
-    case 139: // $@4
+    case 358: // AssemblyGotoargument
       // Fall through
-    case 138: // $@3
-      // Fall through
-    case 141: // FunctionPrototype
-      // Fall through
-    case 140: // FunctionCompoundStatement
-      // Fall through
-    case 143: // NestedFunctionDefinition
-      // Fall through
-    case 142: // FunctionOldPrototype
-      // Fall through
-    case 131: // ExternalDeclarationList
-      // Fall through
-    case 130: // TranslationUnit
-      // Fall through
-    case 133: // EmptyDefinition
-      // Fall through
-    case 132: // ExternalDeclaration
-      // Fall through
-    case 135: // FunctionDefinition
-      // Fall through
-    case 134: // FunctionDefinitionExtension
-      // Fall through
-    case 152: // $@9
-      // Fall through
-    case 153: // $@10
-      // Fall through
-    case 154: // $@11
-      // Fall through
-    case 155: // $@12
-      // Fall through
-    case 156: // DefaultDeclaringList
-      // Fall through
-    case 157: // $@13
-      // Fall through
-    case 158: // $@14
-      // Fall through
-    case 159: // $@15
-      // Fall through
-    case 144: // $@5
-      // Fall through
-    case 145: // $@6
-      // Fall through
-    case 146: // $@7
-      // Fall through
-    case 147: // $@8
-      // Fall through
-    case 148: // NestedFunctionPrototype
-      // Fall through
-    case 149: // NestedFunctionOldPrototype
-      // Fall through
-    case 150: // DeclarationExtension
-      // Fall through
-    case 151: // Declaration
-      // Fall through
-    case 175: // BasicTypeSpecifier
-      // Fall through
-    case 174: // BasicDeclarationSpecifier
-      // Fall through
-    case 163: // $@18
-      // Fall through
-    case 162: // $@17
-      // Fall through
-    case 161: // $@16
-      // Fall through
-    case 160: // DeclaringList
-      // Fall through
-    case 167: // TypeQualifierList
-      // Fall through
-    case 166: // DeclarationQualifierList
-      // Fall through
-    case 165: // TypeSpecifier
-      // Fall through
-    case 164: // DeclarationSpecifier
-      // Fall through
-    case 191: // ElaboratedTypeName
-      // Fall through
-    case 178: // TypedefDeclarationSpecifier
-      // Fall through
-    case 179: // TypedefTypeSpecifier
-      // Fall through
-    case 176: // SUEDeclarationSpecifier
-      // Fall through
-    case 177: // SUETypeSpecifier
-      // Fall through
-    case 182: // Typeofspecifier
-      // Fall through
-    case 183: // Typeofkeyword
-      // Fall through
-    case 180: // TypeofDeclarationSpecifier
-      // Fall through
-    case 181: // TypeofTypeSpecifier
-      // Fall through
-    case 205: // $@30
-      // Fall through
-    case 204: // $@29
-      // Fall through
-    case 207: // $@32
-      // Fall through
-    case 206: // $@31
-      // Fall through
-    case 201: // UnionSpecifier
-      // Fall through
-    case 200: // $@26
-      // Fall through
-    case 203: // $@28
-      // Fall through
-    case 202: // $@27
-      // Fall through
-    case 197: // $@23
-      // Fall through
-    case 196: // $@22
-      // Fall through
-    case 199: // $@25
-      // Fall through
-    case 198: // $@24
-      // Fall through
-    case 193: // $@19
-      // Fall through
-    case 192: // StructSpecifier
-      // Fall through
-    case 195: // $@21
-      // Fall through
-    case 194: // $@20
-      // Fall through
-    case 220: // Enumerator
-      // Fall through
-    case 221: // $@35
-      // Fall through
-    case 222: // $@36
-      // Fall through
-    case 223: // EnumeratorValueOpt
-      // Fall through
-    case 216: // BitFieldSizeOpt
-      // Fall through
-    case 217: // BitFieldSize
-      // Fall through
-    case 218: // EnumSpecifier
-      // Fall through
-    case 219: // EnumeratorList
-      // Fall through
-    case 212: // StructDefaultDeclaringList
-      // Fall through
-    case 213: // StructDeclaringList
-      // Fall through
-    case 214: // StructDeclarator
-      // Fall through
-    case 215: // StructIdentifierDeclarator
-      // Fall through
-    case 208: // $@33
-      // Fall through
-    case 209: // $@34
-      // Fall through
-    case 210: // StructDeclarationList
-      // Fall through
-    case 211: // StructDeclaration
-      // Fall through
-    case 239: // InitializerOpt
-      // Fall through
-    case 238: // TypeName
-      // Fall through
-    case 237: // IdentifierOrTypedefName
-      // Fall through
-    case 236: // Identifier
-      // Fall through
-    case 235: // IdentifierList
-      // Fall through
-    case 234: // $@42
-      // Fall through
-    case 233: // $@41
-      // Fall through
-    case 232: // $@40
-      // Fall through
-    case 231: // $@39
-      // Fall through
-    case 230: // $@38
-      // Fall through
-    case 229: // $@37
-      // Fall through
-    case 226: // ParameterDeclaration
-      // Fall through
-    case 225: // ParameterList
-      // Fall through
-    case 224: // ParameterTypeList
-      // Fall through
-    case 254: // CleanPostfixTypedefDeclarator
-      // Fall through
-    case 255: // ParenTypedefDeclarator
-      // Fall through
-    case 252: // ParameterTypedefDeclarator
-      // Fall through
-    case 253: // CleanTypedefDeclarator
-      // Fall through
-    case 250: // TypedefDeclarator
-      // Fall through
-    case 251: // TypedefDeclaratorMain
-      // Fall through
-    case 248: // ObsoleteFieldDesignation
-      // Fall through
-    case 249: // Declarator
-      // Fall through
-    case 247: // ObsoleteArrayDesignation
-      // Fall through
-    case 245: // DesignatorList
-      // Fall through
-    case 242: // InitializerList
-      // Fall through
-    case 243: // MatchedInitializerList
-      // Fall through
-    case 240: // DesignatedInitializer
-      // Fall through
-    case 241: // Initializer
+    case 359: // AssemblyJumpLabels
       return true;
 
     default:
