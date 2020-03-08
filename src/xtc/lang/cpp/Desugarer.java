@@ -555,6 +555,13 @@ class Desugarer {
   }
 
   protected String mangleRenaming(String prefix, String ident) {
+    // don't want to exceed c identifier length limit (31)
+    if (ident.length() > 22) {
+      // shorten ident to be at max, 22 chars
+      StringBuilder sb = new StringBuilder(ident);
+      sb = sb.delete(23, ident.length());
+      ident = sb.toString();
+    }
     return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
   }
 
