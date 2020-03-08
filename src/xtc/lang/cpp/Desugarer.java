@@ -1127,6 +1127,57 @@ class Desugarer {
       throw new UnsupportedOperationException("unexpected type");
     }
   }
+  
+  // returns the proper Type that corresponds to the passed-in String
+  public Type stringToType(String typeString) {
+    // TODO: create a wrapper function that calls this function
+    // wrapper function will get the type string from a node and concatenate in the case of "unsigned", "long", etc
+
+    // all numeric types in c
+    if (typeString.equals("int"))
+      return new IntegerT(NumberT.Kind.INT);
+    else if (typeString.equals("char"))
+      return new IntegerT(NumberT.Kind.CHAR);
+    else if (typeString.equals("byte"))
+      return new IntegerT(NumberT.Kind.BYTE);
+    else if (typeString.equals("signed char") || typeString.equals("char signed"))
+      return new IntegerT(NumberT.Kind.S_CHAR);
+    else if (typeString.equals("unsigned char") || typeString.equals("char unsigned"))
+      return new IntegerT(NumberT.Kind.U_CHAR);
+    else if (typeString.equals("short"))
+      return new IntegerT(NumberT.Kind.SHORT);
+    else if (typeString.equals("unsigned short") || typeString.equals("short unsigned"))
+      return new IntegerT(NumberT.Kind.U_SHORT);
+    else if (typeString.equals("int"))
+      return new IntegerT(NumberT.Kind.INT);
+    else if (typeString.equals("signed int") || typeString.equals("int signed"))
+      return new IntegerT(NumberT.Kind.S_INT);
+    else if (typeString.equals("unsigned int") || typeString.equals("int unsigned"))
+      return new IntegerT(NumberT.Kind.U_INT);
+    else if (typeString.equals("long"))
+      return new IntegerT(NumberT.Kind.LONG);
+    else if (typeString.equals("unsigned long") || typeString.equals("long unsigned"))
+      return new IntegerT(NumberT.Kind.U_LONG);
+    else if (typeString.equals("long long"))
+      return new IntegerT(NumberT.Kind.LONG_LONG);
+    else if (typeString.equals("unsigned long long") || typeString.equals("long long unsigned") || typeString.equals("long unsigned long"))
+      return new IntegerT(NumberT.Kind.U_LONG_LONG);
+    else if (typeString.equals("float"))
+      return new IntegerT(NumberT.Kind.FLOAT);
+    else if (typeString.equals("double"))
+      return new IntegerT(NumberT.Kind.DOUBLE);
+    else if (typeString.equals("long double") || typeString.equals("double long"))
+      return new IntegerT(NumberT.Kind.LONG_DOUBLE);
+    else if (typeString.equals("float complex") || typeString.equals("complex float"))
+      return new IntegerT(NumberT.Kind.FLOAT_COMPLEX);
+    else if (typeString.equals("double complex") || typeString.equals("complex double"))
+      return new IntegerT(NumberT.Kind.DOUBLE_COMPLEX);
+    else if (typeString.equals("long double complex") || typeString.equals("double long complex") || typeString.equals("complex long double") || typeString.equals("complex double long"))
+      return new IntegerT(NumberT.Kind.FLOAT_COMPLEX);
+
+    // TODO: add the rest of the types, and either replace this with an error, or a better placeholder
+    return new IntegerT(NumberT.Kind.INT);
+  }
 
   public abstract class Multiverse<T> implements Iterable<Pair<T, PresenceCondition>> {
     List<Pair<T, PresenceCondition>> contents;
