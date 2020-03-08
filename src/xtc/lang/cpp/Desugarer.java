@@ -1127,7 +1127,7 @@ class Desugarer {
       throw new UnsupportedOperationException("unexpected type");
     }
   }
-  
+
   // returns the proper Type that corresponds to the passed-in String
   public Type stringToType(String typeString) {
     // TODO: create a wrapper function that calls this function
@@ -1439,6 +1439,20 @@ class Desugarer {
       for (Pair<List<String>, PresenceCondition> elem : mv.contents) {
         List<String> sb = new LinkedList<String>();
         sb.addAll(elem.getKey());
+        PresenceCondition pc = elem.getValue();
+        elem.getValue().addRef();
+        contents.add(new Pair<List<String>, PresenceCondition>(sb, pc));
+      }
+    }
+
+     /**
+     * The copy constructor.
+     */
+    public StringListMultiverse(TypedStringMultiverse mv) {
+      contents = new LinkedList<Pair<List<String>, PresenceCondition>>();
+      for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : mv.contents) {
+        Pair<List<String>, Type> inner_elem = elem.getKey();
+        List<String> sb = new LinkedList<String>(inner_elem.getKey());
         PresenceCondition pc = elem.getValue();
         elem.getValue().addRef();
         contents.add(new Pair<List<String>, PresenceCondition>(sb, pc));
