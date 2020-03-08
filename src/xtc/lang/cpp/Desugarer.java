@@ -195,14 +195,14 @@ class Desugarer {
    * assumes that all renamed functions share the same type (which
    * does not necessarily hold in general).
    */
-  public String multiplexSimple(String name, TypedStringMultiverse renaming, String formals, String call) {
+  public String multiplexSimple(String name, TypedStringListMultiverse renaming, String formals, String call) {
     // TODO: check whether the renaming is actually a function
     StringBuilder sb = new StringBuilder();
     sb.append(String.format("%s(%s) { // multiplexed function\n", name, formals));
-    Iterator<Pair<Pair<StringBuilder, Type>, PresenceCondition>> it_renaming = renaming.iterator();
+    Iterator<Pair<Pair<List<String>, Type>, PresenceCondition>> it_renaming = renaming.iterator();
     while (it_renaming.hasNext()) {
-      Pair<Pair<StringBuilder, Type>, PresenceCondition> next_renaming = it_renaming.next();
-      Pair<StringBuilder, Type> inner_pair = next_renaming.getKey();
+      Pair<Pair<List<String>, Type>, PresenceCondition> next_renaming = it_renaming.next();
+      Pair<List<String>, Type> inner_pair = next_renaming.getKey();
       String ident = inner_pair.getKey().toString();
       PresenceCondition pc = next_renaming.getValue();
       sb.append("if (");
@@ -451,15 +451,15 @@ class Desugarer {
     // prototype is the first node
 
     // hoist the function prototype first
-    // StringMultiverse protomv = hoistNode(n.getNode(0), new StringMultiverse("", presenceCondition));
-    StringMultiverse mv = new StringMultiverse("", presenceCondition);
-    StringMultiverse ident = new StringMultiverse("", presenceCondition);
-    Pair<StringMultiverse, StringMultiverse> result = hoistDeclaration(n.getNode(0), mv, ident);
-    StringMultiverse protomv = result.getKey();
-    StringMultiverse proto_ident = result.getValue();
+    // StringListMultiverse protomv = hoistNode(n.getNode(0), new StringListMultiverse("", presenceCondition));
+    StringListMultiverse mv = new StringListMultiverse("", presenceCondition);
+    StringListMultiverse ident = new StringListMultiverse("", presenceCondition);
+    Pair<StringListMultiverse, StringListMultiverse> result = hoistDeclaration(n.getNode(0), mv, ident);
+    StringListMultiverse protomv = result.getKey();
+    StringListMultiverse proto_ident = result.getValue();
 
-    // StringMultiverse mv = new StringMultiverse("", presenceCondition);
-    // StringMultiverse result = hoistNode(n, mv);
+    // StringListMultiverse mv = new StringListMultiverse("", presenceCondition);
+    // StringListMultiverse result = hoistNode(n, mv);
     // writer.write(result.toString());
     // mv.destruct();
 
@@ -478,10 +478,10 @@ class Desugarer {
     // // hoisted functions.  we need to join the types, however
     // StringBuilder multiplexer = new StringBuilder();
 
-    Iterator<Pair<StringBuilder, PresenceCondition>> it_proto = protomv.iterator();
-    Iterator<Pair<StringBuilder, PresenceCondition>> it_ident = proto_ident.iterator();
+    Iterator<Pair<List<String>, PresenceCondition>> it_proto = protomv.iterator();
+    Iterator<Pair<List<String>, PresenceCondition>> it_ident = proto_ident.iterator();
     while (it_proto.hasNext() && it_ident.hasNext()) {
-      Pair<StringBuilder, PresenceCondition> next_ident = it_ident.next();
+      Pair<List<String>, PresenceCondition> next_ident = it_ident.next();
       String elem_ident = next_ident.getKey().toString();
       PresenceCondition pc = next_ident.getValue();
       String renamed_ident = mangleRenaming(FUNCPREFIX, elem_ident);
@@ -574,11 +574,11 @@ class Desugarer {
 
     // hoist conditionals around declarations into mv and collect each
     // configuration's identifier in ident
-    StringMultiverse mv = new StringMultiverse("", presenceCondition); // create a new multiverse (condition-aware symbol table)
-    StringMultiverse ident = new StringMultiverse("", presenceCondition); // create a new multiverse
-    Pair<StringMultiverse, StringMultiverse> result = hoistDeclaration(n, mv, ident); // create a mapping (pair) of multiverses set equal to hoistDeclaration(the passed-in node, and the two multiverse)
-    StringMultiverse result_decl = result.getKey(); // result_decl is a multiverse set equal to the hoistDeclaration
-    StringMultiverse result_ident = result.getValue();
+    StringListMultiverse mv = new StringListMultiverse("", presenceCondition); // create a new multiverse (condition-aware symbol table)
+    StringListMultiverse ident = new StringListMultiverse("", presenceCondition); // create a new multiverse
+    Pair<StringListMultiverse, StringListMultiverse> result = hoistDeclaration(n, mv, ident); // create a mapping (pair) of multiverses set equal to hoistDeclaration(the passed-in node, and the two multiverse)
+    StringListMultiverse result_decl = result.getKey(); // result_decl is a multiverse set equal to the hoistDeclaration
+    StringListMultiverse result_ident = result.getValue();
 
     // (1) rename each variable by adding a increasing counter
     // (varcount), then (2) print each declaration (replacing the var
@@ -586,11 +586,11 @@ class Desugarer {
     // between original and renamed variable in a symbol table for
     // this scope.
     // TODO: use better name mangling by generating random string
-    Iterator<Pair<StringBuilder, PresenceCondition>> it_decl = result_decl.iterator();
-    Iterator<Pair<StringBuilder, PresenceCondition>> it_ident = result_ident.iterator();
+    Iterator<Pair<List<String>, PresenceCondition>> it_decl = result_decl.iterator();
+    Iterator<Pair<List<String>, PresenceCondition>> it_ident = result_ident.iterator();
 
     while (it_decl.hasNext() && it_ident.hasNext()) {
-      Pair<StringBuilder, PresenceCondition> next_ident = it_ident.next();
+      Pair<List<String>, PresenceCondition> next_ident = it_ident.next();
       String elem_ident = next_ident.getKey().toString();
       PresenceCondition pc = next_ident.getValue();
       String renamed_ident = mangleRenaming(VARPREFIX, elem_ident);
@@ -672,11 +672,11 @@ class Desugarer {
 
    // hoist conditionals around declarations into mv and collect each
    // configuration's identifier in ident
-   StringMultiverse mv = new StringMultiverse("", presenceCondition); // create a new multiverse (condition-aware symbol table)
-   StringMultiverse ident = new StringMultiverse("", presenceCondition); // create a new multiverse
-   Pair<StringMultiverse, StringMultiverse> result = hoistDeclaration(n, mv, ident); // create a mapping (pair) of multiverses set equal to hoistDeclaration(the passed-in node, and the two multiverse)
-   StringMultiverse result_decl = result.getKey(); // result_decl is a multiverse set equal to the hoistDeclaration
-   StringMultiverse result_ident = result.getValue();
+   StringListMultiverse mv = new StringListMultiverse("", presenceCondition); // create a new multiverse (condition-aware symbol table)
+   StringListMultiverse ident = new StringListMultiverse("", presenceCondition); // create a new multiverse
+   Pair<StringListMultiverse, StringListMultiverse> result = hoistDeclaration(n, mv, ident); // create a mapping (pair) of multiverses set equal to hoistDeclaration(the passed-in node, and the two multiverse)
+   StringListMultiverse result_decl = result.getKey(); // result_decl is a multiverse set equal to the hoistDeclaration
+   StringListMultiverse result_ident = result.getValue();
 
    // (1) rename each variable by adding a increasing counter
    // (varcount), then (2) print each declaration (replacing the var
@@ -684,11 +684,11 @@ class Desugarer {
    // between original and renamed variable in a symbol table for
    // this scope.
    // TODO: use better name mangling by generating random string
-   Iterator<Pair<StringBuilder, PresenceCondition>> it_decl = result_decl.iterator();
-   Iterator<Pair<StringBuilder, PresenceCondition>> it_ident = result_ident.iterator();
+   Iterator<Pair<List<String>, PresenceCondition>> it_decl = result_decl.iterator();
+   Iterator<Pair<List<String>, PresenceCondition>> it_ident = result_ident.iterator();
 
    while (it_decl.hasNext() && it_ident.hasNext()) {
-     Pair<StringBuilder, PresenceCondition> next_ident = it_ident.next();
+     Pair<List<String>, PresenceCondition> next_ident = it_ident.next();
      String elem_ident = next_ident.getKey().toString();
 
      PresenceCondition pc = next_ident.getValue();
@@ -768,11 +768,11 @@ class Desugarer {
 
     // hoist conditionals around declarations into mv and collect each
     // configuration's identifier in ident
-    StringMultiverse mv = new StringMultiverse("", presenceCondition);
-    StringMultiverse ident = new StringMultiverse("", presenceCondition);
-    Pair<StringMultiverse, StringMultiverse> result = hoistDeclaration(n, mv, ident);
-    StringMultiverse result_decl = result.getKey();
-    StringMultiverse result_ident = result.getValue();
+    StringListMultiverse mv = new StringListMultiverse("", presenceCondition);
+    StringListMultiverse ident = new StringListMultiverse("", presenceCondition);
+    Pair<StringListMultiverse, StringListMultiverse> result = hoistDeclaration(n, mv, ident);
+    StringListMultiverse result_decl = result.getKey();
+    StringListMultiverse result_ident = result.getValue();
 
     // (1) rename each variable by adding a increasing counter
     // (varcount), then (2) print each declaration (replacing the var
@@ -780,10 +780,10 @@ class Desugarer {
     // between original and renamed variable in a symbol table for
     // this scope.
     // TODO: use better name mangling by generating random string
-    Iterator<Pair<StringBuilder, PresenceCondition>> it_decl = result_decl.iterator();
-    Iterator<Pair<StringBuilder, PresenceCondition>> it_ident = result_ident.iterator();
+    Iterator<Pair<List<String>, PresenceCondition>> it_decl = result_decl.iterator();
+    Iterator<Pair<List<String>, PresenceCondition>> it_ident = result_ident.iterator();
     while (it_decl.hasNext() && it_ident.hasNext()) {
-      Pair<StringBuilder, PresenceCondition> next_ident = it_ident.next();
+      Pair<List<String>, PresenceCondition> next_ident = it_ident.next();
       String elem_ident = next_ident.getKey().toString();
       PresenceCondition pc = next_ident.getValue();
       String renamed_ident = mangleRenaming(VARPREFIX, elem_ident);
@@ -801,11 +801,11 @@ class Desugarer {
       Type type;
 
       if (CUSTOM_TYPE) {
-        TypedStringMultiverse renaming = symtab.getRenaming(typename_original);
-        Iterator<Pair<Pair<StringBuilder, Type>, PresenceCondition>> it_renaming = renaming.iterator();
+        TypedStringListMultiverse renaming = symtab.getRenaming(typename_original);
+        Iterator<Pair<Pair<List<String>, Type>, PresenceCondition>> it_renaming = renaming.iterator();
         while (it_renaming.hasNext()) {
-          Pair<Pair<StringBuilder, Type>, PresenceCondition> next_renaming = it_renaming.next();
-          Pair<StringBuilder, Type> inner_pair = next_renaming.getKey();
+          Pair<Pair<List<String>, Type>, PresenceCondition> next_renaming = it_renaming.next();
+          Pair<List<String>, Type> inner_pair = next_renaming.getKey();
           typename_renamed = inner_pair.getKey().toString();
         }
         type = new StructT(typename_renamed);
@@ -838,10 +838,10 @@ class Desugarer {
                                            OutputStreamWriter writer)
     throws IOException {
 
-    StringMultiverse mv = new StringMultiverse("", presenceCondition);
-    StringMultiverse result = hoistStatement(n, mv);
+    StringListMultiverse mv = new StringListMultiverse("", presenceCondition);
+    StringListMultiverse result = hoistStatement(n, mv);
     mv.destruct();
-    for (Pair<StringBuilder, PresenceCondition> elem : result) {
+    for (Pair<List<String>, PresenceCondition> elem : result) {
       String str = elem.getKey().toString();
       PresenceCondition cond = elem.getValue();
       // if (null != lastPresenceCondition) {
@@ -884,7 +884,7 @@ class Desugarer {
   /**
    * Caller destructs the multiverse that it passes.
    */
-  public StringMultiverse hoistNode(Node n, StringMultiverse mv)
+  public StringListMultiverse hoistNode(Node n, StringListMultiverse mv)
     throws IOException {
 
     if (n.isToken()) {
@@ -899,19 +899,19 @@ class Desugarer {
       // the input multiverse
       if (n instanceof GNode
           && ((GNode) n).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
-        List<StringMultiverse> newmvs = new LinkedList<StringMultiverse>();
+        List<StringListMultiverse> newmvs = new LinkedList<StringListMultiverse>();
         PresenceCondition branchCondition = null;
         for (Object bo : n) {
           if (bo instanceof PresenceCondition) {
             branchCondition = (PresenceCondition) bo;
           } else if (bo instanceof Node) {
-            StringMultiverse newmv = hoistNode((Node) bo, new StringMultiverse("", branchCondition));
-            newmvs.add(new StringMultiverse(mv, newmv));
+            StringListMultiverse newmv = hoistNode((Node) bo, new StringListMultiverse("", branchCondition));
+            newmvs.add(new StringListMultiverse(mv, newmv));
             newmv.destruct();
           }
         }
-        StringMultiverse combinedmv = new StringMultiverse(newmvs);
-        for (StringMultiverse elem : newmvs) {
+        StringListMultiverse combinedmv = new StringListMultiverse(newmvs);
+        for (StringListMultiverse elem : newmvs) {
           elem.destruct();
         }
         return combinedmv;
@@ -920,9 +920,9 @@ class Desugarer {
         // when we have a sequence of nodes, add each sequence to the
         // multiverse, using the returned multiverse, since there may
         // have been nested static conditionals.
-        StringMultiverse result = new StringMultiverse(mv);
+        StringListMultiverse result = new StringListMultiverse(mv);
         for (Object o : n) {
-          StringMultiverse newResult = hoistNode((Node) o, result);
+          StringListMultiverse newResult = hoistNode((Node) o, result);
           if (newResult != result) {
             // the token case does not create a new multiverse, just
             // returning the one passed in, so only destroy if the
@@ -939,8 +939,8 @@ class Desugarer {
     }
   }
 
-  // Calls StringMultiverse.toString(), then lexes the actual string out, and removes the PC
-  public String getIdent(StringMultiverse ident)
+  // Calls StringListMultiverse.toString(), then lexes the actual string out, and removes the PC
+  public String getIdent(StringListMultiverse ident)
   {
     // TODO: write the actual method
     System.err.println("WRITE getIdent() method");
@@ -951,7 +951,7 @@ class Desugarer {
   /**
    * Caller destructs the multiverse that it passes.
    */
-  public Pair<StringMultiverse, StringMultiverse> hoistDeclaration(Node n, StringMultiverse mv, StringMultiverse ident)
+  public Pair<StringListMultiverse, StringListMultiverse> hoistDeclaration(Node n, StringListMultiverse mv, StringListMultiverse ident)
     throws IOException {
 
     String renamedIdent = "";
@@ -968,10 +968,10 @@ class Desugarer {
 
         ident.addToAll(" " + identstr);
 
-        // need to get the presence condition from this StringMultiverse
-        for (Pair<StringBuilder, PresenceCondition> elem : ident.contents) {
+        // need to get the presence condition from this StringListMultiverse
+        for (Pair<List<String>, PresenceCondition> elem : ident.contents) {
 
-          ident = new StringMultiverse("", elem.getValue());
+          ident = new StringListMultiverse("", elem.getValue());
         }
 
         return hoistDeclaration(n, mv, ident);
@@ -995,43 +995,43 @@ class Desugarer {
       // strings
       mv.addToAll(n.getTokenText());
       mv.addToAll(" ");
-      return new Pair<StringMultiverse, StringMultiverse>(mv, ident);
+      return new Pair<StringListMultiverse, StringListMultiverse>(mv, ident);
     } else if (n instanceof Node) {
       // when we have a static conditional, recursively add strings to
       // the entire multiverse by performing a cartesian product with
       // the input multiverse
       if (n instanceof GNode
           && ((GNode) n).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
-        List<StringMultiverse> newmvs = new LinkedList<StringMultiverse>();
-        List<StringMultiverse> newidents = new LinkedList<StringMultiverse>();
+        List<StringListMultiverse> newmvs = new LinkedList<StringListMultiverse>();
+        List<StringListMultiverse> newidents = new LinkedList<StringListMultiverse>();
         PresenceCondition branchCondition = null;
         for (Object bo : n) {
           if (bo instanceof PresenceCondition) {
             branchCondition = (PresenceCondition) bo;
           } else if (bo instanceof Node) {
-            Pair<StringMultiverse, StringMultiverse> retval
-              = hoistDeclaration((Node) bo, new StringMultiverse("", branchCondition), new StringMultiverse("", branchCondition));
-            StringMultiverse newmv = retval.getKey();
-            StringMultiverse newident = retval.getValue();
-            newmvs.add(new StringMultiverse(mv, newmv));
+            Pair<StringListMultiverse, StringListMultiverse> retval
+              = hoistDeclaration((Node) bo, new StringListMultiverse("", branchCondition), new StringListMultiverse("", branchCondition));
+            StringListMultiverse newmv = retval.getKey();
+            StringListMultiverse newident = retval.getValue();
+            newmvs.add(new StringListMultiverse(mv, newmv));
             newmv.destruct();
-            newidents.add(new StringMultiverse(ident, newident));
+            newidents.add(new StringListMultiverse(ident, newident));
             newident.destruct();
           }
         }
-        StringMultiverse combinedmv = new StringMultiverse(newmvs);
-        for (StringMultiverse elem : newmvs) {
+        StringListMultiverse combinedmv = new StringListMultiverse(newmvs);
+        for (StringListMultiverse elem : newmvs) {
           elem.destruct();
         }
-        return new Pair<StringMultiverse, StringMultiverse>(combinedmv, ident);
+        return new Pair<StringListMultiverse, StringListMultiverse>(combinedmv, ident);
 
       } else {
         // when we have a sequence of nodes, add each sequence to the
         // multiverse, using the returned multiverse, since there may
         // have been nested static conditionals.
-        Pair<StringMultiverse, StringMultiverse> result = new Pair<StringMultiverse, StringMultiverse>(new StringMultiverse(mv), ident);
+        Pair<StringListMultiverse, StringListMultiverse> result = new Pair<StringListMultiverse, StringListMultiverse>(new StringListMultiverse(mv), ident);
         for (Object o : n) {
-          Pair<StringMultiverse, StringMultiverse> newResult = hoistDeclaration((Node) o, result.getKey(), result.getValue());
+          Pair<StringListMultiverse, StringListMultiverse> newResult = hoistDeclaration((Node) o, result.getKey(), result.getValue());
           if (newResult.getKey() != result.getKey()) {
             // the token case does not create a new multiverse, just
             // returning the one passed in, so only destroy if the
@@ -1053,7 +1053,7 @@ class Desugarer {
    * any identifiers with all their renamings.  Caller destructs the
    * multiverse that it passes.
    */
-  public StringMultiverse hoistStatement(Node n, StringMultiverse mv)
+  public StringListMultiverse hoistStatement(Node n, StringListMultiverse mv)
     throws IOException {
 
     // replace identifiers with its renamings
@@ -1067,8 +1067,8 @@ class Desugarer {
         System.err.println("ERROR: there is a use of an undefined variable: " + identstr);
         System.exit(1);
       }
-      StringMultiverse renaming = new StringMultiverse(symtab.getRenaming(identstr));
-      StringMultiverse newmv = new StringMultiverse(mv, renaming);
+      StringListMultiverse renaming = new StringListMultiverse(symtab.getRenaming(identstr));
+      StringListMultiverse newmv = new StringListMultiverse(mv, renaming);
       renaming.destruct();
       newmv.addToAll(" ");
       return newmv;
@@ -1088,19 +1088,19 @@ class Desugarer {
       // the input multiverse
       if (n instanceof GNode
           && ((GNode) n).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
-        List<StringMultiverse> newmvs = new LinkedList<StringMultiverse>();
+        List<StringListMultiverse> newmvs = new LinkedList<StringListMultiverse>();
         PresenceCondition branchCondition = null;
         for (Object bo : n) {
           if (bo instanceof PresenceCondition) {
             branchCondition = (PresenceCondition) bo;
           } else if (bo instanceof Node) {
-            StringMultiverse newmv = hoistStatement((Node) bo, new StringMultiverse("", branchCondition));
-            newmvs.add(new StringMultiverse(mv, newmv));
+            StringListMultiverse newmv = hoistStatement((Node) bo, new StringListMultiverse("", branchCondition));
+            newmvs.add(new StringListMultiverse(mv, newmv));
             newmv.destruct();
           }
         }
-        StringMultiverse combinedmv = new StringMultiverse(newmvs);
-        for (StringMultiverse elem : newmvs) {
+        StringListMultiverse combinedmv = new StringListMultiverse(newmvs);
+        for (StringListMultiverse elem : newmvs) {
           elem.destruct();
         }
         return combinedmv;
@@ -1109,9 +1109,9 @@ class Desugarer {
         // when we have a sequence of nodes, add each sequence to the
         // multiverse, using the returned multiverse, since there may
         // have been nested static conditionals.
-        StringMultiverse result = new StringMultiverse(mv);
+        StringListMultiverse result = new StringListMultiverse(mv);
         for (Object o : n) {
-          StringMultiverse newResult = hoistStatement((Node) o, result);
+          StringListMultiverse newResult = hoistStatement((Node) o, result);
           if (newResult != result) {
             // the token case does not create a new multiverse, just
             // returning the one passed in, so only destroy if the
@@ -1228,109 +1228,16 @@ class Desugarer {
     }
   }
 
-  public class StringMultiverse extends Multiverse<StringBuilder> {
+  public class TypedStringListMultiverse extends Multiverse<Pair<List<String>, Type>> {
     /**
      * Construct a new multiverse
      */
-    public StringMultiverse(String initstring, PresenceCondition initcond) {
-      contents = new LinkedList<Pair<StringBuilder, PresenceCondition>>();
-      StringBuilder sb = new StringBuilder();
-      sb.append(initstring);
-      Pair<StringBuilder, PresenceCondition> elem = new Pair<StringBuilder, PresenceCondition>(sb, initcond);
-      initcond.addRef();
-      contents.add(elem);
-    }
-
-    /**
-     * Construct a new multiverse from two multiverses using the
-     * cartesian product.
-     */
-    public StringMultiverse(StringMultiverse a, StringMultiverse b) {
-      contents = new LinkedList<Pair<StringBuilder, PresenceCondition>>();
-      for (Pair<StringBuilder, PresenceCondition> elem1 : a.contents) {
-        for (Pair<StringBuilder, PresenceCondition> elem2 : b.contents) {
-          StringBuilder sb = new StringBuilder(elem1.getKey());
-          sb.append(elem2.getKey());
-          PresenceCondition pc = elem1.getValue().and(elem2.getValue());
-          if (! pc.isFalse()) { // trim infeasible combinations
-            contents.add(new Pair<StringBuilder, PresenceCondition>(sb, pc));
-          }
-        }
-      }
-    }
-
-    /**
-     * Construct a new multiverse by combining a list of multiverses.
-     * It is up to the caller to destruct the multiverses in the list.
-     */
-    public StringMultiverse(List<StringMultiverse> mvs) {
-      contents = new LinkedList<Pair<StringBuilder, PresenceCondition>>();
-      for (StringMultiverse mv : mvs) {
-        for (Pair<StringBuilder, PresenceCondition> elem : mv.contents) {
-          StringBuilder sb = new StringBuilder(elem.getKey());
-          PresenceCondition pc = elem.getValue();
-          elem.getValue().addRef();
-          contents.add(new Pair<StringBuilder, PresenceCondition>(sb, pc));
-        }
-      }
-    }
-
-    /**
-     * The copy constructor.
-     */
-    public StringMultiverse(StringMultiverse mv) {
-      contents = new LinkedList<Pair<StringBuilder, PresenceCondition>>();
-      for (Pair<StringBuilder, PresenceCondition> elem : mv.contents) {
-        StringBuilder sb = new StringBuilder(elem.getKey());
-        PresenceCondition pc = elem.getValue();
-        elem.getValue().addRef();
-        contents.add(new Pair<StringBuilder, PresenceCondition>(sb, pc));
-      }
-    }
-
-    /**
-     * The copy constructor.
-     */
-    public StringMultiverse(TypedStringMultiverse mv) {
-      contents = new LinkedList<Pair<StringBuilder, PresenceCondition>>();
-      for (Pair<Pair<StringBuilder, Type>, PresenceCondition> elem : mv.contents) {
-        Pair<StringBuilder, Type> inner_elem = elem.getKey();
-        StringBuilder sb = new StringBuilder(inner_elem.getKey());
-        PresenceCondition pc = elem.getValue();
-        elem.getValue().addRef();
-        contents.add(new Pair<StringBuilder, PresenceCondition>(sb, pc));
-      }
-    }
-
-    public void addToAll(String str) {
-      for (Pair<StringBuilder, PresenceCondition> elem : contents) {
-        StringBuilder sb = elem.getKey();
-        sb.append(str);
-      }
-    }
-
-    public String toString() {
-      StringBuilder sb = new StringBuilder();
-
-      for (Pair<StringBuilder, PresenceCondition> elem : contents) {
-        sb.append(elem.toString());
-        sb.append("\n");
-      }
-
-      return sb.toString();
-    }
-  }
-
-  public class TypedStringMultiverse extends Multiverse<Pair<StringBuilder, Type>> {
-    /**
-     * Construct a new multiverse
-     */
-    public TypedStringMultiverse(String initstring, Type type, PresenceCondition initcond) {
-      contents = new LinkedList<Pair<Pair<StringBuilder, Type>, PresenceCondition>>();
-      StringBuilder sb = new StringBuilder();
-      sb.append(initstring);
-      Pair<StringBuilder, Type> typedstring = new Pair<StringBuilder, Type>(sb, type);
-      Pair<Pair<StringBuilder, Type>, PresenceCondition> elem = new Pair<Pair<StringBuilder, Type>, PresenceCondition>(typedstring, initcond);
+    public TypedStringListMultiverse(String initstring, Type type, PresenceCondition initcond) {
+      contents = new LinkedList<Pair<Pair<List<String>, Type>, PresenceCondition>>();
+      List<String> sb = new LinkedList<String>();
+      sb.add(initstring);
+      Pair<List<String>, Type> typedstring = new Pair<List<String>, Type>(sb, type);
+      Pair<Pair<List<String>, Type>, PresenceCondition> elem = new Pair<Pair<List<String>, Type>, PresenceCondition>(typedstring, initcond);
       initcond.addRef();
       contents.add(elem);
     }
@@ -1339,17 +1246,17 @@ class Desugarer {
      * Construct a new multiverse by combining a list of multiverses.
      * It is up to the caller to destruct the multiverses in the list.
      */
-    public TypedStringMultiverse(List<TypedStringMultiverse> mvs) {
-      contents = new LinkedList<Pair<Pair<StringBuilder, Type>, PresenceCondition>>();
-      for (TypedStringMultiverse mv : mvs) {
-        for (Pair<Pair<StringBuilder, Type>, PresenceCondition> elem : mv.contents) {
-          Pair<StringBuilder, Type> subelem = elem.getKey();
-          StringBuilder sb = new StringBuilder(subelem.getKey());
+    public TypedStringListMultiverse(List<TypedStringListMultiverse> mvs) {
+      contents = new LinkedList<Pair<Pair<List<String>, Type>, PresenceCondition>>();
+      for (TypedStringListMultiverse mv : mvs) {
+        for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : mv.contents) {
+          Pair<List<String>, Type> subelem = elem.getKey();
+          List<String> sb = new LinkedList<String>();
           Type type = subelem.getValue();
           PresenceCondition pc = elem.getValue();
           elem.getValue().addRef();
-          Pair<StringBuilder, Type> typedstring = new Pair<StringBuilder, Type>(sb, type);
-          contents.add(new Pair<Pair<StringBuilder, Type>, PresenceCondition>(typedstring, pc));
+          Pair<List<String>, Type> typedstring = new Pair<List<String>, Type>(sb, type);
+          contents.add(new Pair<Pair<List<String>, Type>, PresenceCondition>(typedstring, pc));
         }
       }
     }
@@ -1357,23 +1264,23 @@ class Desugarer {
     /**
      * The copy constructor.
      */
-    public TypedStringMultiverse(TypedStringMultiverse mv) {
-      contents = new LinkedList<Pair<Pair<StringBuilder, Type>, PresenceCondition>>();
-      for (Pair<Pair<StringBuilder, Type>, PresenceCondition> elem : mv.contents) {
-        Pair<StringBuilder, Type> subelem = elem.getKey();
-        StringBuilder sb = new StringBuilder(subelem.getKey());
+    public TypedStringListMultiverse(TypedStringListMultiverse mv) {
+      contents = new LinkedList<Pair<Pair<List<String>, Type>, PresenceCondition>>();
+      for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : mv.contents) {
+        Pair<List<String>, Type> subelem = elem.getKey();
+        List<String> sb = new LinkedList<String>();
         Type type = subelem.getValue();
         PresenceCondition pc = elem.getValue();
         elem.getValue().addRef();
-        Pair<StringBuilder, Type> typedstring = new Pair<StringBuilder, Type>(sb, type);
-        contents.add(new Pair<Pair<StringBuilder, Type>, PresenceCondition>(typedstring, pc));
+        Pair<List<String>, Type> typedstring = new Pair<List<String>, Type>(sb, type);
+        contents.add(new Pair<Pair<List<String>, Type>, PresenceCondition>(typedstring, pc));
       }
     }
 
     public String toString() {
       StringBuilder sb = new StringBuilder();
 
-      for (Pair<Pair<StringBuilder, Type>, PresenceCondition> elem : contents) {
+      for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : contents) {
         sb.append(elem.toString());
         sb.append("\n");
       }
@@ -1448,7 +1355,7 @@ class Desugarer {
      /**
      * The copy constructor.
      */
-    public StringListMultiverse(TypedStringMultiverse mv) {
+    public StringListMultiverse(TypedStringListMultiverse mv) {
       contents = new LinkedList<Pair<List<String>, PresenceCondition>>();
       for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : mv.contents) {
         Pair<List<String>, Type> inner_elem = elem.getKey();
@@ -1509,12 +1416,12 @@ class Desugarer {
   protected class SymbolTable {
     SymbolTable parent;
     Map<String, Pair<String, PresenceCondition>> newToOriginal;
-    Map<String, TypedStringMultiverse> originalToNew;
+    Map<String, TypedStringListMultiverse> originalToNew;
 
     public SymbolTable(SymbolTable parent) {
       this.parent = null;
       this.newToOriginal = new HashMap<String, Pair<String, PresenceCondition>>();
-      this.originalToNew = new HashMap<String, TypedStringMultiverse>();
+      this.originalToNew = new HashMap<String, TypedStringListMultiverse>();
     }
 
     public SymbolTable() {
@@ -1539,16 +1446,16 @@ class Desugarer {
     public void addRenaming(String var, String renamed, Type type, PresenceCondition cond) {
       assert null == newToOriginal.put(renamed, new Pair<String, PresenceCondition>(var, cond));
       cond.addRef();
-      TypedStringMultiverse mv = new TypedStringMultiverse(renamed, type, cond);
+      TypedStringListMultiverse mv = new TypedStringListMultiverse(renamed, type, cond);
       cond.addRef();
       if (! originalToNew.containsKey(var)) {
         originalToNew.put(var, mv);
       } else {
-        TypedStringMultiverse oldmv = originalToNew.get(var);
-        List<TypedStringMultiverse> list = new LinkedList<TypedStringMultiverse>();
+        TypedStringListMultiverse oldmv = originalToNew.get(var);
+        List<TypedStringListMultiverse> list = new LinkedList<TypedStringListMultiverse>();
         list.add(oldmv);
         list.add(mv);
-        TypedStringMultiverse combinedmv = new TypedStringMultiverse(list);
+        TypedStringListMultiverse combinedmv = new TypedStringListMultiverse(list);
         oldmv.destruct();
         mv.destruct();
         originalToNew.put(var, combinedmv);
@@ -1564,11 +1471,11 @@ class Desugarer {
      * multiverse that the caller is responsible for destructing.
      * This will return null if no renaming is registered.
      */
-    public TypedStringMultiverse getRenaming(String var) {
+    public TypedStringListMultiverse getRenaming(String var) {
       if (! originalToNew.containsKey(var)) {
         return null;
       } else {
-        return new TypedStringMultiverse(originalToNew.get(var));
+        return new TypedStringListMultiverse(originalToNew.get(var));
       }
     }
   }
