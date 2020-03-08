@@ -291,6 +291,8 @@ public class SuperC extends Tool {
            "Print the parsed AST.").
       bool("printSource", "printSource", false,
            "Print the parsed AST in C source form.").
+      bool("desugarConditionals", "desugarConditionals", false,
+           "Convert preprocessor conditionals to C conditionals.").
       bool("configureAllYes", "configureAllYes", false,
            "Print all tokens of the all yes configuration of the AST.").
       bool("configureAllNo", "configureAllNo", false,
@@ -1038,6 +1040,7 @@ public class SuperC extends Tool {
                                    actions, initialParsingContext,
                                    preprocessor, presenceConditionManager);
       parser.saveLayoutTokens(runtime.test("printSource") 
+                              || runtime.test("desugarConditionals")
                               || runtime.test("configureAllYes")
                               || runtime.test("configureAllNo")
                               || runtime.getString("configFile") != null);
@@ -1151,10 +1154,34 @@ public class SuperC extends Tool {
 
         System.err.println("Print Source");
 
+        LinkedList<PresenceCondition> parents
+          = new LinkedList<PresenceCondition>();
+
+        parents.push(presenceConditionManager.new PresenceCondition(true));
+
         printSource((Node) translationUnit,
                     presenceConditionManager.new PresenceCondition(true),
-                    writer);
+                    parents, writer);
 
+        parents.pop();
+        assert(parents.size() == 0);
+        
+        writer.flush();
+      }
+
+      if (runtime.test("desugarConditionals")) {
+        OutputStreamWriter writer = new OutputStreamWriter(System.out);
+        Desugarer desugarer = Desugarer.getInstance(presenceConditionManager);
+
+        System.err.println("Desugar preprocessor conditionals");
+
+        LinkedList<PresenceCondition> parents
+          = new LinkedList<PresenceCondition>();
+
+        desugarer.desugarConditionals((Node) translationUnit, writer);
+
+        assert(parents.size() == 0);
+        
         writer.flush();
       }
 
@@ -1488,6 +1515,7 @@ public class SuperC extends Tool {
    * @throws IOException Because it writes to output. 
    */
   private static void printSource(Node n, PresenceCondition presenceCondition,
+                                  LinkedList<PresenceCondition> parents,
                                   OutputStreamWriter writer)
     throws IOException {
     if (n.isToken()) {
@@ -1504,27 +1532,36 @@ public class SuperC extends Tool {
 
         for (Object bo : n) {
           if (bo instanceof PresenceCondition) {
+            branchCondition = (PresenceCondition) bo;
+
             if (! seenIf) {
               writer.write("\n#if ");
               seenIf = true;
             } else {
-              writer.write("\n#elif ");
+              // writer.write("\n#elif ");
+              writer.write("\n#endif ");
+              writer.write("\n#if ");
+              parents.pop();
             }
 
-            branchCondition = (PresenceCondition) bo;
-
-            branchCondition.print(writer);
-
+            if (branchCondition.equals(parents.peek())) {
+              writer.write("1");
+            } else {
+              branchCondition.print(writer);
+            }
+            parents.push(branchCondition);
+            
             writer.write("\n");
           } else if (bo instanceof Node) {
-            printSource((Node) bo, branchCondition, writer);
+            printSource((Node) bo, branchCondition, parents, writer);
           }
         }
         writer.write("\n#endif\n");
+        parents.pop();
 
       } else {
         for (Object o : n) {
-          printSource((Node) o, presenceCondition, writer);
+          printSource((Node) o, presenceCondition, parents, writer);
         }
       }
 
