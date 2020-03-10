@@ -203,7 +203,7 @@ class Desugarer {
     while (it_renaming.hasNext()) {
       Pair<Pair<List<String>, Type>, PresenceCondition> next_renaming = it_renaming.next();
       Pair<List<String>, Type> inner_pair = next_renaming.getKey();
-      String ident = inner_pair.getKey().toString();
+      String ident = String.join("", inner_pair.getKey());
       PresenceCondition pc = next_renaming.getValue();
       sb.append("if (");
       sb.append(PCtoString(pc));
@@ -482,12 +482,12 @@ class Desugarer {
     Iterator<Pair<List<String>, PresenceCondition>> it_ident = proto_ident.iterator();
     while (it_proto.hasNext() && it_ident.hasNext()) {
       Pair<List<String>, PresenceCondition> next_ident = it_ident.next();
-      String elem_ident = next_ident.getKey().toString();
+      String elem_ident = String.join("", next_ident.getKey());
       PresenceCondition pc = next_ident.getValue();
       String renamed_ident = mangleRenaming(FUNCPREFIX, elem_ident);
       Type type = new IntegerT(NumberT.Kind.INT);  // TODO: keep track of types
       symtab.addRenaming(elem_ident, renamed_ident, type, pc);
-      String elem_proto = it_proto.next().getKey().toString();
+      String elem_proto = String.join("", it_proto.next().getKey());
       writer.write(elem_proto.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ "));
       writer.write("{\n");
       writer.write("if (");
@@ -591,12 +591,12 @@ class Desugarer {
 
     while (it_decl.hasNext() && it_ident.hasNext()) {
       Pair<List<String>, PresenceCondition> next_ident = it_ident.next();
-      String elem_ident = next_ident.getKey().toString();
+      String elem_ident = String.join("", next_ident.getKey());
       PresenceCondition pc = next_ident.getValue();
       String renamed_ident = mangleRenaming(VARPREFIX, elem_ident);
       StructT type = new StructT(SUEIdent + " member"); // Tags struct member variables as type "struct <struct type identifier> member"
       symtab.addRenaming(elem_ident, renamed_ident, type, pc);
-      String elem_decl = it_decl.next().getKey().toString();
+      String elem_decl = String.join("", it_decl.next().getKey());
       // TODO: should probably have a nicer way to replace the name
       //writer.write(elem_decl.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ "));
     }
@@ -689,7 +689,7 @@ class Desugarer {
 
    while (it_decl.hasNext() && it_ident.hasNext()) {
      Pair<List<String>, PresenceCondition> next_ident = it_ident.next();
-     String elem_ident = next_ident.getKey().toString();
+     String elem_ident = String.join("", next_ident.getKey());
 
      PresenceCondition pc = next_ident.getValue();
      //String renamed_ident = mangleRenaming(VARPREFIX, elem_ident);
@@ -699,7 +699,7 @@ class Desugarer {
      StructT type = new StructT("typename", (List)basicTypeNodes);
 
      symtab.addRenaming(elem_ident, renamed_ident, type, pc);
-     String elem_decl = it_decl.next().getKey().toString();
+     String elem_decl = String.join("", it_decl.next().getKey());
 
      // TODO: should probably have a nicer way to replace the name
      writer.write(elem_decl.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ "));
@@ -784,11 +784,11 @@ class Desugarer {
     Iterator<Pair<List<String>, PresenceCondition>> it_ident = result_ident.iterator();
     while (it_decl.hasNext() && it_ident.hasNext()) {
       Pair<List<String>, PresenceCondition> next_ident = it_ident.next();
-      String elem_ident = next_ident.getKey().toString();
+      String elem_ident = String.join("", next_ident.getKey());
       PresenceCondition pc = next_ident.getValue();
       String renamed_ident = mangleRenaming(VARPREFIX, elem_ident);
 
-      String elem_decl = it_decl.next().getKey().toString();
+      String elem_decl = String.join("", it_decl.next().getKey());
 
       // Need a check to determine if the type is a custom typename (SUE or typedef)
       String typename_original = lexType(elem_decl.toString(), elem_ident);
@@ -842,7 +842,7 @@ class Desugarer {
     StringListMultiverse result = hoistStatement(n, mv);
     mv.destruct();
     for (Pair<List<String>, PresenceCondition> elem : result) {
-      String str = elem.getKey().toString();
+      String str = String.join("", elem.getKey());
       PresenceCondition cond = elem.getValue();
       // if (null != lastPresenceCondition) {
       //   System.err.println("jklfds " + cond.toString());
@@ -1205,8 +1205,8 @@ class Desugarer {
     public boolean allEquals(String str) {
       boolean flag = true;
       for (Pair<T, PresenceCondition> elem : contents) {
-        T sb = elem.getKey();
-        flag = flag && sb.toString().equals(str);
+        String sb = String.join("", (List)elem.getKey());
+        flag = flag && sb.equals(str);
       }
       return flag;
     }
@@ -1405,10 +1405,22 @@ class Desugarer {
     public String toString() {
       StringBuilder sb = new StringBuilder();
 
-      sb.append(getKey().toString());
-      sb.append(": ");
-      sb.append(getValue().toString());
+      if (getKey() instanceof LinkedList) {
+        for (Object c : ((LinkedList)getKey())) {
+          sb.append((String)c);
+        }
+      } else if (getKey() instanceof Pair) {
+        for (Object c : ((LinkedList)(((Pair)getKey()).getKey()))) {
+          sb.append((String)c);
+        }
+        sb.append(": ");
+        sb.append(((Pair)getKey()).getValue().toString()); // the type
+      } else {
+        // TODO: print an error and exit
+      }
 
+      sb.append(": ");
+      sb.append(getValue().toString()); // the presence condition
       return sb.toString();
     }
   }
