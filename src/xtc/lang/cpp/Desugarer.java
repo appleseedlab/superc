@@ -791,40 +791,39 @@ class Desugarer {
       String elem_decl = String.join("", it_decl.next().getKey());
 
       // Need a check to determine if the type is a custom typename (SUE or typedef)
-      String typename_original = lexType(elem_decl.toString(), elem_ident);
-      boolean CUSTOM_TYPE = false;
-      if (isCustomType(typename_original)) // TODO: add suport for other custom types
-        CUSTOM_TYPE = true;
+      //String typename_original = lexType(elem_decl.toString(), elem_ident);
+      //boolean CUSTOM_TYPE = false;
+      //if (isCustomType(typename_original)) // TODO: add suport for other custom types
+      //  CUSTOM_TYPE = true;
 
-      String typename_renamed = "";
+      //String typename_renamed = "";
 
-      Type type;
+      //Type type;
 
-      if (CUSTOM_TYPE) {
-        TypedStringListMultiverse renaming = symtab.getRenaming(typename_original);
-        Iterator<Pair<Pair<List<String>, Type>, PresenceCondition>> it_renaming = renaming.iterator();
-        while (it_renaming.hasNext()) {
-          Pair<Pair<List<String>, Type>, PresenceCondition> next_renaming = it_renaming.next();
-          Pair<List<String>, Type> inner_pair = next_renaming.getKey();
-          typename_renamed = inner_pair.getKey().toString();
-        }
-        type = new StructT(typename_renamed);
-      }
-      else {
-        type = new IntegerT(NumberT.Kind.INT); // TODO: handle types better
-      }
-
+      //if (CUSTOM_TYPE) {
+      //  TypedStringListMultiverse renaming = symtab.getRenaming(typename_original);
+      //  Iterator<Pair<Pair<List<String>, Type>, PresenceCondition>> it_renaming = renaming.iterator();
+      //  while (it_renaming.hasNext()) {
+      //    Pair<Pair<List<String>, Type>, PresenceCondition> next_renaming = it_renaming.next();
+      //    Pair<List<String>, Type> inner_pair = next_renaming.getKey();
+      //    typename_renamed = inner_pair.getKey().toString();
+      //  }
+      //  type = new StructT(typename_renamed);
+      //}
+      //else {
+      //  type = new IntegerT(NumberT.Kind.INT); // TODO: handle types better
+      //}
+      Type type = new IntegerT(NumberT.Kind.INT); // TODO: handle types properly
       symtab.addRenaming(elem_ident, renamed_ident, type, pc);
       // TODO: should probably have a nicer way to replace the name
 
-
       String decl_string = elem_decl.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ ");
-      if (CUSTOM_TYPE) {
+      //if (CUSTOM_TYPE) {
         // replaces the struct name
-        String typed_decl_string = decl_string.replace(" " +  typename_original + " ", " " + typename_renamed + " /* renamed from " + typename_original + " */ ");
-        writer.write(typed_decl_string);
-      }
-      else
+      //  String typed_decl_string = decl_string.replace(" " +  typename_original + " ", " " + typename_renamed + " /* renamed from " + typename_original + " */ ");
+      //  writer.write(typed_decl_string);
+      //}
+      //else
         writer.write(decl_string);
     }
     mv.destruct();
