@@ -1254,6 +1254,10 @@ class Desugarer {
           Type type = subelem.getValue();
           PresenceCondition pc = elem.getValue();
           elem.getValue().addRef();
+          for (String s : subelem.getKey()) {
+            String elemString = new String(s);
+            sb.add(elemString);
+        }
           Pair<List<String>, Type> typedstring = new Pair<List<String>, Type>(sb, type);
           contents.add(new Pair<Pair<List<String>, Type>, PresenceCondition>(typedstring, pc));
         }
@@ -1271,6 +1275,10 @@ class Desugarer {
         Type type = subelem.getValue();
         PresenceCondition pc = elem.getValue();
         elem.getValue().addRef();
+        for (String s : subelem.getKey()) {
+          String elemString = new String(s);
+          sb.add(elemString);
+        }
         Pair<List<String>, Type> typedstring = new Pair<List<String>, Type>(sb, type);
         contents.add(new Pair<Pair<List<String>, Type>, PresenceCondition>(typedstring, pc));
       }
