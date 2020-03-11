@@ -1283,6 +1283,13 @@ class Desugarer {
         contents.add(new Pair<Pair<List<String>, Type>, PresenceCondition>(typedstring, pc));
       }
     }
+    
+    public void addToAll(String str) {
+      for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : contents) {
+        List<String> sb = elem.getKey().getKey();
+        sb.add(str);
+      }
+    }
 
     public String toString() {
       StringBuilder sb = new StringBuilder();
