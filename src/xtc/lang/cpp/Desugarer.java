@@ -1240,6 +1240,31 @@ class Desugarer {
       initcond.addRef();
       contents.add(elem);
     }
+    
+    /**
+     * Construct a new multiverse from two multiverses using the
+     * cartesian product.
+     */
+    public TypedStringListMultiverse(TypedStringListMultiverse a, TypedStringListMultiverse b) {
+      contents = new LinkedList<Pair<Pair<List<String>, Type>, PresenceCondition>>();
+      for (Pair<Pair<List<String>, Type>, PresenceCondition> elem1 : a.contents) {
+        for (Pair<Pair<List<String>, Type>, PresenceCondition> elem2 : b.contents) {
+          List<String> sb = new LinkedList<String>();
+          sb.addAll(elem1.getKey().getKey());
+          sb.addAll(elem2.getKey().getKey());
+          PresenceCondition pc = elem1.getValue().and(elem2.getValue());
+          if (! elem1.getKey().getValue().equals(elem2.getKey().getValue())) {
+            System.err.println("ERROR: the two types are different, and only one is being added to the symbol table");
+            System.exit(1);
+          }
+          Type type = elem1.getKey().getValue();
+          if (! pc.isFalse()) { // trim infeasible combinations
+            Pair<List<String>, Type> typedstring = new Pair<List<String>, Type>(sb, type);
+            contents.add(new Pair<Pair<List<String>, Type>, PresenceCondition>(typedstring, pc));
+          }
+        }
+      }
+    }
 
     /**
      * Construct a new multiverse by combining a list of multiverses.
