@@ -760,20 +760,18 @@ class Desugarer {
 
     /// TODO: determine if getNode(0) is always the SUETypeSpecifier for SUEs (check strange config options)
     for (int i = 0; i < n.size(); i++)
-      if (n.getNode(i).getName().equals("SUETypeSpecifier")) {
-        desugarSUEDeclaration(n.getNode(i), presenceCondition, lastPresenceCondition, writer);
-        return;
-      }
+     if (n.getNode(i).getName().equals("SUETypeSpecifier")) {
+       desugarSUEDeclaration(n.getNode(i), presenceCondition, lastPresenceCondition, writer);
+       return;
+     }
 
     // TODO: need to merge extern declarations.  perhaps we can just take the largest size extern and do truncation?
 
     // hoist conditionals around declarations into mv and collect each
     // configuration's identifier in ident
-    StringListMultiverse mv = new StringListMultiverse("", presenceCondition);
-    StringListMultiverse ident = new StringListMultiverse("", presenceCondition);
-    Pair<StringListMultiverse, StringListMultiverse> result = hoistDeclaration(n, mv, ident);
-    StringListMultiverse result_decl = result.getKey();
-    StringListMultiverse result_ident = result.getValue();
+    TypedStringListMultiverse mv = new TypedStringListMultiverse("", new UnitT(), presenceCondition);
+    TypedStringListMultiverse ident = new TypedStringListMultiverse("", new UnitT(), presenceCondition);
+    Pair<TypedStringListMultiverse, TypedStringListMultiverse> resultTyped = hoistDeclarationTyped(n, mv, ident);
 
     // (1) rename each variable by adding a increasing counter
     // (varcount), then (2) print each declaration (replacing the var
@@ -781,52 +779,21 @@ class Desugarer {
     // between original and renamed variable in a symbol table for
     // this scope.
     // TODO: use better name mangling by generating random string
-    Iterator<Pair<List<String>, PresenceCondition>> it_decl = result_decl.iterator();
-    Iterator<Pair<List<String>, PresenceCondition>> it_ident = result_ident.iterator();
-    while (it_decl.hasNext() && it_ident.hasNext()) {
-      Pair<List<String>, PresenceCondition> next_ident = it_ident.next();
-      String elem_ident = String.join("", next_ident.getKey());
-      PresenceCondition pc = next_ident.getValue();
+    Iterator<Pair<Pair<List<String>, Type>, PresenceCondition>> it_decl_typed = resultTyped.getKey().iterator();
+    Iterator<Pair<Pair<List<String>, Type>, PresenceCondition>> it_ident_typed = resultTyped.getValue().iterator();
+    while (it_decl_typed.hasNext() && it_ident_typed.hasNext()) {
+      Pair<Pair<List<String>, Type>, PresenceCondition> next_ident_typed = it_ident_typed.next();
+      String elem_ident = String.join("", next_ident_typed.getKey().getKey());
+      PresenceCondition pc = next_ident_typed.getValue();
+      Type type = next_ident_typed.getKey().getValue();
       String renamed_ident = mangleRenaming(VARPREFIX, elem_ident);
+      String elem_decl = String.join("", it_decl_typed.next().getKey().getKey());
 
-      String elem_decl = String.join("", it_decl.next().getKey());
-
-      // Need a check to determine if the type is a custom typename (SUE or typedef)
-      //String typename_original = lexType(elem_decl.toString(), elem_ident);
-      //boolean CUSTOM_TYPE = false;
-      //if (isCustomType(typename_original)) // TODO: add suport for other custom types
-      //  CUSTOM_TYPE = true;
-
-      //String typename_renamed = "";
-
-      //Type type;
-
-      //if (CUSTOM_TYPE) {
-      //  TypedStringListMultiverse renaming = symtab.getRenaming(typename_original);
-      //  Iterator<Pair<Pair<List<String>, Type>, PresenceCondition>> it_renaming = renaming.iterator();
-      //  while (it_renaming.hasNext()) {
-      //    Pair<Pair<List<String>, Type>, PresenceCondition> next_renaming = it_renaming.next();
-      //    Pair<List<String>, Type> inner_pair = next_renaming.getKey();
-      //    typename_renamed = inner_pair.getKey().toString();
-      //  }
-      //  type = new StructT(typename_renamed);
-      //}
-      //else {
-      //  type = new UnitT(); // TODO: handle types better
-      //}
-      Type type = new UnitT(); // TODO: handle types properly
       symtab.addRenaming(elem_ident, renamed_ident, type, pc);
-      // TODO: should probably have a nicer way to replace the name
-
       String decl_string = elem_decl.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ ");
-      //if (CUSTOM_TYPE) {
-        // replaces the struct name
-      //  String typed_decl_string = decl_string.replace(" " +  typename_original + " ", " " + typename_renamed + " /* renamed from " + typename_original + " */ ");
-      //  writer.write(typed_decl_string);
-      //}
-      //else
-        writer.write(decl_string);
+      writer.write(decl_string);
     }
+
     mv.destruct();
     ident.destruct();
 
