@@ -946,6 +946,109 @@ class Desugarer {
     return "PLACEHOLDER_STRUCT_NAME";
 
   }
+  
+  /**
+   * Caller destructs the multiverse that it passes.
+   */
+  public Pair<TypedStringListMultiverse, TypedStringListMultiverse> hoistDeclarationTyped(Node n, TypedStringListMultiverse mv, TypedStringListMultiverse ident)
+    throws IOException {
+
+    String renamedIdent = "";
+
+    // duplicate the multiverses, but insert the proper type
+    if (n instanceof GNode
+        && (((GNode) n).hasName("DeclaringList"))) {
+      mv = new TypedStringListMultiverse(mv, stringToType(n.getNode(0).toString()));
+      ident = new TypedStringListMultiverse(ident, stringToType(n.getNode(0).toString()));
+    }
+
+    if (n instanceof GNode
+        && (((GNode) n).hasName("SimpleDeclarator"))) {
+      String identstr = ((Syntax) n.get(0)).toLanguage().toString();
+      StringListMultiverse identUntyped = new StringListMultiverse(ident);
+      if (! identUntyped.allEquals("")) {
+        // this happens when using custom types (structs, etc)
+
+        ident.addToAll(" " + identstr);
+
+        // need to get the presence condition from this StringListMultiverse
+        for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : ident.contents) {
+          ident = new TypedStringListMultiverse("", elem.getKey().getValue(), elem.getValue());
+        }
+
+        return hoistDeclarationTyped(n, mv, ident);
+      }
+      else
+        ident.addToAll(identstr);
+    }
+
+    // renames struct type identifiers
+    if (n instanceof GNode
+         && ((GNode) n).hasName("IdentifierOrTypedefName")) {
+       String identstr = ((Syntax) n.get(0)).toLanguage().toString();
+       if (! ident.allEquals("")) {
+       }
+       ident.addToAll(identstr);
+     }
+
+    if (n.isToken()) {
+      // when we have a single token, append it's string to all lifted
+      // strings
+      mv.addToAll(n.getTokenText());
+      System.out.println("THE TOKEN TEXT IS " + n.getTokenText());
+      mv.addToAll(" ");
+      return new Pair<TypedStringListMultiverse, TypedStringListMultiverse>(mv, ident);
+    } else if (n instanceof Node) {
+      // when we have a static conditional, recursively add strings to
+      // the entire multiverse by performing a cartesian product with
+      // the input multiverse
+      if (n instanceof GNode
+          && ((GNode) n).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
+        List<TypedStringListMultiverse> newmvs = new LinkedList<TypedStringListMultiverse>();
+        List<TypedStringListMultiverse> newidents = new LinkedList<TypedStringListMultiverse>();
+        PresenceCondition branchCondition = null;
+        for (Object bo : n) {
+          if (bo instanceof PresenceCondition) {
+            branchCondition = (PresenceCondition) bo;
+          } else if (bo instanceof Node) {
+            Pair<TypedStringListMultiverse, TypedStringListMultiverse> retval
+              = hoistDeclarationTyped((Node) bo, new TypedStringListMultiverse("", new UnitT(), branchCondition), new TypedStringListMultiverse("", new UnitT(), branchCondition));
+            TypedStringListMultiverse newmv = retval.getKey();
+            TypedStringListMultiverse newident = retval.getValue();
+            newmvs.add(new TypedStringListMultiverse(mv, newmv));
+            newmv.destruct();
+            newidents.add(new TypedStringListMultiverse(ident, newident));
+            newident.destruct();
+          }
+        }
+        TypedStringListMultiverse combinedmv = new TypedStringListMultiverse(newmvs);
+        for (TypedStringListMultiverse elem : newmvs) {
+          elem.destruct();
+        }
+        return new Pair<TypedStringListMultiverse, TypedStringListMultiverse>(combinedmv, ident);
+
+      } else {
+        // when we have a sequence of nodes, add each sequence to the
+        // multiverse, using the returned multiverse, since there may
+        // have been nested static conditionals.
+        Pair<TypedStringListMultiverse, TypedStringListMultiverse> result = new Pair<TypedStringListMultiverse, TypedStringListMultiverse>(new TypedStringListMultiverse(mv), ident);
+        for (Object o : n) {
+          Pair<TypedStringListMultiverse, TypedStringListMultiverse> newResult = hoistDeclarationTyped((Node) o, result.getKey(), result.getValue());
+          if (newResult.getKey() != result.getKey()) {
+            // the token case does not create a new multiverse, just
+            // returning the one passed in, so only destroy if the
+            // passed in multiverse is not the same as the returned
+            // one
+            result.getKey().destruct();
+          }
+          result = newResult;
+        }
+        return result;
+      }
+    } else {
+      throw new UnsupportedOperationException("unexpected type");
+    }
+  }
 
   /**
    * Caller destructs the multiverse that it passes.
