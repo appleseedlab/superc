@@ -485,7 +485,7 @@ class Desugarer {
       String elem_ident = String.join("", next_ident.getKey());
       PresenceCondition pc = next_ident.getValue();
       String renamed_ident = mangleRenaming(FUNCPREFIX, elem_ident);
-      Type type = new IntegerT(NumberT.Kind.INT);  // TODO: keep track of types
+      Type type = new UnitT();  // TODO: keep track of types
       symtab.addRenaming(elem_ident, renamed_ident, type, pc);
       String elem_proto = String.join("", it_proto.next().getKey());
       writer.write(elem_proto.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ "));
@@ -811,9 +811,9 @@ class Desugarer {
       //  type = new StructT(typename_renamed);
       //}
       //else {
-      //  type = new IntegerT(NumberT.Kind.INT); // TODO: handle types better
+      //  type = new UnitT(); // TODO: handle types better
       //}
-      Type type = new IntegerT(NumberT.Kind.INT); // TODO: handle types properly
+      Type type = new UnitT(); // TODO: handle types properly
       symtab.addRenaming(elem_ident, renamed_ident, type, pc);
       // TODO: should probably have a nicer way to replace the name
 
