@@ -492,9 +492,11 @@ class Desugarer {
       String elem_proto = String.join("", it_proto.next().getKey());
       writer.write(elem_proto.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ "));
       writer.write("{\n");
-      writer.write("if (");
-      printBDDC(pc, writer);
-      writer.write(") { /* from static conditional around function definition */\n");
+      if (! pc.getBDD().isOne()) {
+        writer.write("if (");
+        printBDDC(pc, writer);
+        writer.write(") { /* from static conditional around function definition */\n");
+      }
       writer.flush();
       for (int i = 1; i < n.size(); i++) {
         desugarConditionalsNode(n.getNode(i), presenceCondition, lastPresenceCondition, writer);
@@ -824,9 +826,11 @@ class Desugarer {
         lastPresenceCondition.addRef();
       } else {
         if (str.length() > 0) {
-          writer.write("if (");
-          printBDDC(cond, writer);
-          writer.write(") { /* from static conditional around statement */\n");
+          if (! cond.getBDD().isOne()) {
+            writer.write("if (");
+            printBDDC(cond, writer);
+            writer.write(") { /* from static conditional around function definition */\n");
+          }
           writer.write(str);
           writer.write("\n}\n");
         } else {
