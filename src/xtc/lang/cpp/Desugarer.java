@@ -54,6 +54,7 @@ import xtc.type.IntegerT;
 import xtc.type.NumberT;
 import xtc.type.StructT;
 import xtc.type.VariableT;
+import xtc.type.UnitT;
 
 import xtc.Constants;
 
