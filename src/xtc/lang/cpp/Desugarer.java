@@ -55,6 +55,7 @@ import xtc.type.NumberT;
 import xtc.type.StructT;
 import xtc.type.VariableT;
 import xtc.type.UnitT;
+import xtc.type.FloatT;
 
 import xtc.Constants;
 
@@ -1233,20 +1234,20 @@ class Desugarer {
     else if (typeString.equals("unsigned long long") || typeString.equals("long long unsigned") || typeString.equals("long unsigned long"))
       return new IntegerT(NumberT.Kind.U_LONG_LONG);
     else if (typeString.equals("float"))
-      return new IntegerT(NumberT.Kind.FLOAT);
+      return new FloatT(NumberT.Kind.FLOAT);
     else if (typeString.equals("double"))
-      return new IntegerT(NumberT.Kind.DOUBLE);
+      return new FloatT(NumberT.Kind.DOUBLE);
     else if (typeString.equals("long double") || typeString.equals("double long"))
-      return new IntegerT(NumberT.Kind.LONG_DOUBLE);
+      return new FloatT(NumberT.Kind.LONG_DOUBLE);
     else if (typeString.equals("float complex") || typeString.equals("complex float"))
-      return new IntegerT(NumberT.Kind.FLOAT_COMPLEX);
+      return new FloatT(NumberT.Kind.FLOAT_COMPLEX);
     else if (typeString.equals("double complex") || typeString.equals("complex double"))
-      return new IntegerT(NumberT.Kind.DOUBLE_COMPLEX);
+      return new FloatT(NumberT.Kind.DOUBLE_COMPLEX);
     else if (typeString.equals("long double complex") || typeString.equals("double long complex") || typeString.equals("complex long double") || typeString.equals("complex double long"))
-      return new IntegerT(NumberT.Kind.FLOAT_COMPLEX);
+      return new FloatT(NumberT.Kind.LONG_DOUBLE_COMPLEX);
 
-    // TODO: add the rest of the types, and either replace this with an error, or a better placeholder
-    return new IntegerT(NumberT.Kind.INT);
+    // TODO: add the rest of the types, and possibly replace this with an error
+    return new UnitT();
   }
 
   public abstract class Multiverse<T> implements Iterable<Pair<T, PresenceCondition>> {
