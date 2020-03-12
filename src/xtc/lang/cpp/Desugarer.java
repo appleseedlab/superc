@@ -1418,6 +1418,16 @@ class Desugarer {
 
       return sb.toString();
     }
+    
+    @Override
+    public boolean allEquals(String str) {
+      boolean flag = false;
+      for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : contents) {
+        String sb = String.join("", (List)elem.getKey().getKey());
+        flag = flag && sb.equals(str);
+      }
+      return flag;
+    }
   }
 
   public class StringListMultiverse extends Multiverse<List<String>> {
