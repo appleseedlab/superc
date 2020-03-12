@@ -1263,6 +1263,26 @@ class Desugarer {
         }
       }
     }
+    
+    /**
+     * Copy constructor that replaces the type
+     */
+    public TypedStringListMultiverse(TypedStringListMultiverse mv, Type newType) {
+      contents = new LinkedList<Pair<Pair<List<String>, Type>, PresenceCondition>>();
+      for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : mv.contents) {
+        Pair<List<String>, Type> subelem = elem.getKey();
+        List<String> sb = new LinkedList<String>();
+        Type type = newType;
+        PresenceCondition pc = elem.getValue();
+        elem.getValue().addRef();
+        for (String s : subelem.getKey()) {
+          String elemString = new String(s);
+          sb.add(elemString);
+        }
+        Pair<List<String>, Type> typedstring = new Pair<List<String>, Type>(sb, type);
+        contents.add(new Pair<Pair<List<String>, Type>, PresenceCondition>(typedstring, pc));
+      }
+    }
 
     /**
      * The copy constructor.
