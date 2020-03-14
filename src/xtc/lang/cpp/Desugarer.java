@@ -910,15 +910,6 @@ class Desugarer {
       throw new UnsupportedOperationException("unexpected type");
     }
   }
-
-  // Calls StringListMultiverse.toString(), then lexes the actual string out, and removes the PC
-  public String getIdent(StringListMultiverse ident)
-  {
-    // TODO: write the actual method
-    System.err.println("WRITE getIdent() method");
-    return "PLACEHOLDER_STRUCT_NAME";
-
-  }
   
   /**
    * Caller destructs the multiverse that it passes.
@@ -1037,9 +1028,6 @@ class Desugarer {
       String identstr = ((Syntax) n.get(0)).toLanguage().toString();
       if (! ident.allEquals("")) {
         // this happens when using custom types (structs, etc)
-
-        // TODO: delete this - no longer necessary - I think
-        renamedIdent = symtab.getRenaming(getIdent(ident)).toString();
 
         ident.addToAll(" " + identstr);
 
