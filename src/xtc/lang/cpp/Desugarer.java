@@ -959,7 +959,6 @@ class Desugarer {
       // when we have a single token, append it's string to all lifted
       // strings
       mv.addToAll(n.getTokenText());
-      System.out.println("THE TOKEN TEXT IS " + n.getTokenText());
       mv.addToAll(" ");
       return new Pair<TypedStringListMultiverse, TypedStringListMultiverse>(mv, ident);
     } else if (n instanceof Node) {
