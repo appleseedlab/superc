@@ -1240,6 +1240,27 @@ class Desugarer {
     // TODO: add the rest of the types, and possibly replace this with an error
     return new UnitT();
   }
+  
+  public class TypeBuilder {
+    Type type;
+    boolean refIsDecl; 
+    GNode specifiers; // void, char, short, int, long, float, double, signed, unsigned, SUE, typedef
+    Attribute storage; // auto, extern, static, register
+    Attribute threadlocal; // __thread
+    Attribute function; // inline
+    List<Attribute> attributes; // < all other attributes go here >
+
+    // copy constructor
+    public TypeBuilder(TypeBuilder original) {
+      TypeBuilder typeBuilder = new TypeBuilder();
+      typeBuilder.type = original.type;
+      typeBuilder.refIsDecl = original.refIsDecl;
+      typeBuilder.specifiers = original.specifiers;
+      typeBuilder.storage = original.storage;
+      typeBuilder.function = original.function;
+      typeBuilder.attributes = new LinkedList(original.attributes);
+    }
+  }
 
   public abstract class Multiverse<T> implements Iterable<Pair<T, PresenceCondition>> {
     List<Pair<T, PresenceCondition>> contents;
