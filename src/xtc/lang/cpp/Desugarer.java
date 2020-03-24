@@ -201,10 +201,10 @@ class Desugarer {
     // TODO: check whether the renaming is actually a function
     StringBuilder sb = new StringBuilder();
     sb.append(String.format("%s(%s) { // multiplexed function\n", name, formals));
-    Iterator<Pair<Pair<List<String>, Type>, PresenceCondition>> it_renaming = renaming.iterator();
+    Iterator<Pair<Pair<List<String>, TypeBuilder>, PresenceCondition>> it_renaming = renaming.iterator();
     while (it_renaming.hasNext()) {
-      Pair<Pair<List<String>, Type>, PresenceCondition> next_renaming = it_renaming.next();
-      Pair<List<String>, Type> inner_pair = next_renaming.getKey();
+      Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> next_renaming = it_renaming.next();
+      Pair<List<String>, TypeBuilder> inner_pair = next_renaming.getKey();
       String ident = String.join("", inner_pair.getKey());
       PresenceCondition pc = next_renaming.getValue();
       sb.append("if (");
@@ -772,8 +772,8 @@ class Desugarer {
 
     // hoist conditionals around declarations into mv and collect each
     // configuration's identifier in ident
-    TypedStringListMultiverse mv = new TypedStringListMultiverse("", new UnitT(), presenceCondition);
-    TypedStringListMultiverse ident = new TypedStringListMultiverse("", new UnitT(), presenceCondition);
+    TypedStringListMultiverse mv = new TypedStringListMultiverse("", new TypeBuilder(new UnitT()), presenceCondition);
+    TypedStringListMultiverse ident = new TypedStringListMultiverse("", new TypeBuilder(new UnitT()), presenceCondition);
     Pair<TypedStringListMultiverse, TypedStringListMultiverse> resultTyped = hoistDeclarationTyped(n, mv, ident);
 
     // (1) rename each variable by adding a increasing counter
@@ -782,17 +782,16 @@ class Desugarer {
     // between original and renamed variable in a symbol table for
     // this scope.
     // TODO: use better name mangling by generating random string
-    Iterator<Pair<Pair<List<String>, Type>, PresenceCondition>> it_decl_typed = resultTyped.getKey().iterator();
-    Iterator<Pair<Pair<List<String>, Type>, PresenceCondition>> it_ident_typed = resultTyped.getValue().iterator();
+    Iterator<Pair<Pair<List<String>, TypeBuilder>, PresenceCondition>> it_decl_typed = resultTyped.getKey().iterator();
+    Iterator<Pair<Pair<List<String>, TypeBuilder>, PresenceCondition>> it_ident_typed = resultTyped.getValue().iterator();
     while (it_decl_typed.hasNext() && it_ident_typed.hasNext()) {
-      Pair<Pair<List<String>, Type>, PresenceCondition> next_ident_typed = it_ident_typed.next();
+      Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> next_ident_typed = it_ident_typed.next();
       String elem_ident = String.join("", next_ident_typed.getKey().getKey());
       PresenceCondition pc = next_ident_typed.getValue();
-      Type type = next_ident_typed.getKey().getValue();
+      TypeBuilder typeBuilder = next_ident_typed.getKey().getValue();
       String renamed_ident = mangleRenaming(VARPREFIX, elem_ident);
       String elem_decl = String.join("", it_decl_typed.next().getKey().getKey());
-
-      symtab.addRenaming(elem_ident, renamed_ident, type, pc);
+      symtab.addRenaming(elem_ident, renamed_ident, typeBuilder.toType(), pc);
       String decl_string = elem_decl.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ ");
       writer.write(decl_string);
     }
@@ -910,7 +909,7 @@ class Desugarer {
       throw new UnsupportedOperationException("unexpected type");
     }
   }
-  
+
   /**
    * Caller destructs the multiverse that it passes.
    */
@@ -922,8 +921,8 @@ class Desugarer {
     // duplicate the multiverses, but insert the proper type
     if (n instanceof GNode
         && (((GNode) n).hasName("DeclaringList"))) {
-      mv = new TypedStringListMultiverse(mv, stringToType(n.getNode(0).toString()));
-      ident = new TypedStringListMultiverse(ident, stringToType(n.getNode(0).toString()));
+      mv = new TypedStringListMultiverse(mv, new TypeBuilder(stringToType(n.getNode(0).toString())));
+      ident = new TypedStringListMultiverse(ident, new TypeBuilder(stringToType(n.getNode(0).toString())));
     }
 
     if (n instanceof GNode
@@ -936,7 +935,7 @@ class Desugarer {
         ident.addToAll(" " + identstr);
 
         // need to get the presence condition from this StringListMultiverse
-        for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : ident.contents) {
+        for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : ident.contents) {
           ident = new TypedStringListMultiverse("", elem.getKey().getValue(), elem.getValue());
         }
 
@@ -975,7 +974,7 @@ class Desugarer {
             branchCondition = (PresenceCondition) bo;
           } else if (bo instanceof Node) {
             Pair<TypedStringListMultiverse, TypedStringListMultiverse> retval
-              = hoistDeclarationTyped((Node) bo, new TypedStringListMultiverse("", new UnitT(), branchCondition), new TypedStringListMultiverse("", new UnitT(), branchCondition));
+              = hoistDeclarationTyped((Node) bo, new TypedStringListMultiverse("", new TypeBuilder(), branchCondition), new TypedStringListMultiverse("", new TypeBuilder(), branchCondition));
             TypedStringListMultiverse newmv = retval.getKey();
             TypedStringListMultiverse newident = retval.getValue();
             newmvs.add(new TypedStringListMultiverse(mv, newmv));
@@ -1202,63 +1201,154 @@ class Desugarer {
       return new IntegerT(NumberT.Kind.CHAR);
     else if (typeString.equals("byte"))
       return new IntegerT(NumberT.Kind.BYTE);
-    else if (typeString.equals("signed char") || typeString.equals("char signed"))
-      return new IntegerT(NumberT.Kind.S_CHAR);
-    else if (typeString.equals("unsigned char") || typeString.equals("char unsigned"))
-      return new IntegerT(NumberT.Kind.U_CHAR);
+    //else if (typeString.equals("signed char") || typeString.equals("char signed"))
+      //return new IntegerT(NumberT.Kind.S_CHAR);
+    //else if (typeString.equals("unsigned char") || typeString.equals("char unsigned"))
+      //return new IntegerT(NumberT.Kind.U_CHAR);
     else if (typeString.equals("short"))
       return new IntegerT(NumberT.Kind.SHORT);
-    else if (typeString.equals("unsigned short") || typeString.equals("short unsigned"))
-      return new IntegerT(NumberT.Kind.U_SHORT);
+    //else if (typeString.equals("unsigned short") || typeString.equals("short unsigned"))
+      //return new IntegerT(NumberT.Kind.U_SHORT);
     else if (typeString.equals("int"))
       return new IntegerT(NumberT.Kind.INT);
-    else if (typeString.equals("signed int") || typeString.equals("int signed"))
-      return new IntegerT(NumberT.Kind.S_INT);
-    else if (typeString.equals("unsigned int") || typeString.equals("int unsigned"))
-      return new IntegerT(NumberT.Kind.U_INT);
+    //else if (typeString.equals("signed int") || typeString.equals("int signed"))
+      //return new IntegerT(NumberT.Kind.S_INT);
+    //else if (typeString.equals("unsigned int") || typeString.equals("int unsigned"))
+      //return new IntegerT(NumberT.Kind.U_INT);
     else if (typeString.equals("long"))
       return new IntegerT(NumberT.Kind.LONG);
-    else if (typeString.equals("unsigned long") || typeString.equals("long unsigned"))
-      return new IntegerT(NumberT.Kind.U_LONG);
-    else if (typeString.equals("long long"))
-      return new IntegerT(NumberT.Kind.LONG_LONG);
-    else if (typeString.equals("unsigned long long") || typeString.equals("long long unsigned") || typeString.equals("long unsigned long"))
-      return new IntegerT(NumberT.Kind.U_LONG_LONG);
+    //else if (typeString.equals("unsigned long") || typeString.equals("long unsigned"))
+      //return new IntegerT(NumberT.Kind.U_LONG);
+    //else if (typeString.equals("long long"))
+      //return new IntegerT(NumberT.Kind.LONG_LONG);
+    //else if (typeString.equals("unsigned long long") || typeString.equals("long long unsigned") || typeString.equals("long unsigned long"))
+      //return new IntegerT(NumberT.Kind.U_LONG_LONG);
     else if (typeString.equals("float"))
       return new FloatT(NumberT.Kind.FLOAT);
     else if (typeString.equals("double"))
       return new FloatT(NumberT.Kind.DOUBLE);
-    else if (typeString.equals("long double") || typeString.equals("double long"))
-      return new FloatT(NumberT.Kind.LONG_DOUBLE);
-    else if (typeString.equals("float complex") || typeString.equals("complex float"))
-      return new FloatT(NumberT.Kind.FLOAT_COMPLEX);
-    else if (typeString.equals("double complex") || typeString.equals("complex double"))
-      return new FloatT(NumberT.Kind.DOUBLE_COMPLEX);
-    else if (typeString.equals("long double complex") || typeString.equals("double long complex") || typeString.equals("complex long double") || typeString.equals("complex double long"))
-      return new FloatT(NumberT.Kind.LONG_DOUBLE_COMPLEX);
+    //else if (typeString.equals("long double") || typeString.equals("double long"))
+      //return new FloatT(NumberT.Kind.LONG_DOUBLE);
+    //else if (typeString.equals("float complex") || typeString.equals("complex float"))
+      //return new FloatT(NumberT.Kind.FLOAT_COMPLEX);
+    //else if (typeString.equals("double complex") || typeString.equals("complex double"))
+      //return new FloatT(NumberT.Kind.DOUBLE_COMPLEX);
+    //else if (typeString.equals("long double complex") || typeString.equals("double long complex") || typeString.equals("complex long double") || typeString.equals("complex double long"))
+      //return new FloatT(NumberT.Kind.LONG_DOUBLE_COMPLEX);
 
     // TODO: add the rest of the types, and possibly replace this with an error
     return new UnitT();
   }
-  
+
   public class TypeBuilder {
-    Type type;
-    boolean refIsDecl; 
-    GNode specifiers; // void, char, short, int, long, float, double, signed, unsigned, SUE, typedef
-    Attribute storage; // auto, extern, static, register
-    Attribute threadlocal; // __thread
-    Attribute function; // inline
-    List<Attribute> attributes; // < all other attributes go here >
+    Type type; // void, char, short, int, long, float, double, SUE, typedef
+
+    // note: these can appear in any order (in the source file), and they will be initialized to false
+    boolean isAuto;
+    boolean isConst;
+    boolean isVolatile;
+    boolean isExtern;
+    boolean isStatic;
+    boolean isRegister;
+    boolean isThreadlocal;
+    boolean isInline;
+    boolean isSigned;
+    boolean isUnsigned;
+    boolean isComplex;
+
+    int longCount;
+
+    List<String> attributes;
+
+    public Type toType() {
+      return type; // placeholder
+       // TODO: create the type based on all of the fields, then return that.
+    }
+
+
+    public TypeBuilder(TypeBuilder old, String name) {
+      TypeBuilder next = new TypeBuilder(old);
+      if (name.equals("auto"))
+        next.isAuto = true;
+      else if (name.equals("const"))
+        next.isConst = true;
+      else if (name.equals("volatile"))
+        next.isVolatile = true;
+      else if (name.equals("extern"))
+        next.isExtern = true;
+      else if (name.equals("static"))
+        next.isStatic = true;
+      else if (name.equals("register"))
+        next.isRegister = true;
+      else if (name.equals("__thread"))
+        next.isThreadlocal = true;
+      else if (name.equals("inline"))
+        next.isInline = true;
+      else if (name.equals("signed"))
+        next.isSigned = true;
+      else if (name.equals("unsigned"))
+        next.isUnsigned = true;
+      else if (name.equals("complex"))
+        next.isComplex = true;
+      else if (name.equals("long"))
+        next.longCount += 1;
+      else {
+        next.attributes.add(name);
+      }
+    }
+
+    // sets all flags to false, and stores the type being passed in
+    public TypeBuilder(Type type) {
+      this.type = type;
+      isAuto = false;
+      isConst = false;
+      isVolatile = false;
+      isExtern = false;
+      isStatic = false;
+      isRegister = false;
+      isThreadlocal = false;
+      isInline = false;
+      isSigned = false;
+      isUnsigned = false;
+      isComplex = false;
+      longCount = 0;
+      attributes = new LinkedList<String>();
+    }
+
+    // sets all flags to false and type starts as unit
+    public TypeBuilder() {
+      type = new UnitT();
+      isAuto = false;
+      isConst = false;
+      isVolatile = false;
+      isExtern = false;
+      isStatic = false;
+      isRegister = false;
+      isThreadlocal = false;
+      isInline = false;
+      isSigned = false;
+      isUnsigned = false;
+      isComplex = false;
+      longCount = 0;
+      attributes = new LinkedList<String>();
+    }
 
     // copy constructor
     public TypeBuilder(TypeBuilder original) {
-      TypeBuilder typeBuilder = new TypeBuilder();
-      typeBuilder.type = original.type;
-      typeBuilder.refIsDecl = original.refIsDecl;
-      typeBuilder.specifiers = original.specifiers;
-      typeBuilder.storage = original.storage;
-      typeBuilder.function = original.function;
-      typeBuilder.attributes = new LinkedList(original.attributes);
+      type = original.type;
+      isAuto = original.isAuto;
+      isConst = original.isConst;
+      isVolatile = original.isVolatile;
+      isExtern = original.isExtern;
+      isStatic = original.isStatic;
+      isRegister = original.isRegister;
+      isThreadlocal = original.isRegister;
+      isInline = original.isInline;
+      isSigned = original.isSigned;
+      isUnsigned = original.isUnsigned;
+      isComplex = original.isComplex;
+      longCount = original.longCount;
+      attributes = new LinkedList<String>(original.attributes);
     }
   }
 
@@ -1311,40 +1401,40 @@ class Desugarer {
     }
   }
 
-  public class TypedStringListMultiverse extends Multiverse<Pair<List<String>, Type>> {
+  public class TypedStringListMultiverse extends Multiverse<Pair<List<String>, TypeBuilder>> {
     /**
      * Construct a new multiverse
      */
-    public TypedStringListMultiverse(String initstring, Type type, PresenceCondition initcond) {
-      contents = new LinkedList<Pair<Pair<List<String>, Type>, PresenceCondition>>();
+    public TypedStringListMultiverse(String initstring, TypeBuilder typeBuilder, PresenceCondition initcond) {
+      contents = new LinkedList<Pair<Pair<List<String>, TypeBuilder>, PresenceCondition>>();
       List<String> sb = new LinkedList<String>();
       sb.add(initstring);
-      Pair<List<String>, Type> typedstring = new Pair<List<String>, Type>(sb, type);
-      Pair<Pair<List<String>, Type>, PresenceCondition> elem = new Pair<Pair<List<String>, Type>, PresenceCondition>(typedstring, initcond);
+      Pair<List<String>, TypeBuilder> typedstring = new Pair<List<String>, TypeBuilder>(sb, typeBuilder);
+      Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem = new Pair<Pair<List<String>, TypeBuilder>, PresenceCondition>(typedstring, initcond);
       initcond.addRef();
       contents.add(elem);
     }
-    
+
     /**
      * Construct a new multiverse from two multiverses using the
      * cartesian product.
      */
     public TypedStringListMultiverse(TypedStringListMultiverse a, TypedStringListMultiverse b) {
-      contents = new LinkedList<Pair<Pair<List<String>, Type>, PresenceCondition>>();
-      for (Pair<Pair<List<String>, Type>, PresenceCondition> elem1 : a.contents) {
-        for (Pair<Pair<List<String>, Type>, PresenceCondition> elem2 : b.contents) {
+      contents = new LinkedList<Pair<Pair<List<String>, TypeBuilder>, PresenceCondition>>();
+      for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem1 : a.contents) {
+        for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem2 : b.contents) {
           List<String> sb = new LinkedList<String>();
           sb.addAll(elem1.getKey().getKey());
           sb.addAll(elem2.getKey().getKey());
           PresenceCondition pc = elem1.getValue().and(elem2.getValue());
-          if (! elem1.getKey().getValue().equals(elem2.getKey().getValue())) {
+          if (! elem1.getKey().getValue().toType().equals(elem2.getKey().getValue().toType())) {
             System.err.println("ERROR: the two types are different, and only one is being added to the symbol table");
             System.exit(1);
           }
-          Type type = elem1.getKey().getValue();
+          TypeBuilder typeBuilder = elem1.getKey().getValue();
           if (! pc.isFalse()) { // trim infeasible combinations
-            Pair<List<String>, Type> typedstring = new Pair<List<String>, Type>(sb, type);
-            contents.add(new Pair<Pair<List<String>, Type>, PresenceCondition>(typedstring, pc));
+            Pair<List<String>, TypeBuilder> typedstring = new Pair<List<String>, TypeBuilder>(sb, typeBuilder);
+            contents.add(new Pair<Pair<List<String>, TypeBuilder>, PresenceCondition>(typedstring, pc));
           }
         }
       }
@@ -1355,41 +1445,41 @@ class Desugarer {
      * It is up to the caller to destruct the multiverses in the list.
      */
     public TypedStringListMultiverse(List<TypedStringListMultiverse> mvs) {
-      contents = new LinkedList<Pair<Pair<List<String>, Type>, PresenceCondition>>();
+      contents = new LinkedList<Pair<Pair<List<String>, TypeBuilder>, PresenceCondition>>();
       for (TypedStringListMultiverse mv : mvs) {
-        for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : mv.contents) {
-          Pair<List<String>, Type> subelem = elem.getKey();
+        for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : mv.contents) {
+          Pair<List<String>, TypeBuilder> subelem = elem.getKey();
           List<String> sb = new LinkedList<String>();
-          Type type = subelem.getValue();
+          TypeBuilder typeBuilder = subelem.getValue();
           PresenceCondition pc = elem.getValue();
           elem.getValue().addRef();
           for (String s : subelem.getKey()) {
             String elemString = new String(s);
             sb.add(elemString);
         }
-          Pair<List<String>, Type> typedstring = new Pair<List<String>, Type>(sb, type);
-          contents.add(new Pair<Pair<List<String>, Type>, PresenceCondition>(typedstring, pc));
+          Pair<List<String>, TypeBuilder> typedstring = new Pair<List<String>, TypeBuilder>(sb, typeBuilder);
+          contents.add(new Pair<Pair<List<String>, TypeBuilder>, PresenceCondition>(typedstring, pc));
         }
       }
     }
-    
+
     /**
-     * Copy constructor that replaces the type
+     * Copy constructor that replaces the typeBuilder
      */
-    public TypedStringListMultiverse(TypedStringListMultiverse mv, Type newType) {
-      contents = new LinkedList<Pair<Pair<List<String>, Type>, PresenceCondition>>();
-      for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : mv.contents) {
-        Pair<List<String>, Type> subelem = elem.getKey();
+    public TypedStringListMultiverse(TypedStringListMultiverse mv, TypeBuilder newType) {
+      contents = new LinkedList<Pair<Pair<List<String>, TypeBuilder>, PresenceCondition>>();
+      for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : mv.contents) {
+        Pair<List<String>, TypeBuilder> subelem = elem.getKey();
         List<String> sb = new LinkedList<String>();
-        Type type = newType;
+        TypeBuilder typeBuilder = newType;
         PresenceCondition pc = elem.getValue();
         elem.getValue().addRef();
         for (String s : subelem.getKey()) {
           String elemString = new String(s);
           sb.add(elemString);
         }
-        Pair<List<String>, Type> typedstring = new Pair<List<String>, Type>(sb, type);
-        contents.add(new Pair<Pair<List<String>, Type>, PresenceCondition>(typedstring, pc));
+        Pair<List<String>, TypeBuilder> typedstring = new Pair<List<String>, TypeBuilder>(sb, typeBuilder);
+        contents.add(new Pair<Pair<List<String>, TypeBuilder>, PresenceCondition>(typedstring, pc));
       }
     }
 
@@ -1397,24 +1487,24 @@ class Desugarer {
      * The copy constructor.
      */
     public TypedStringListMultiverse(TypedStringListMultiverse mv) {
-      contents = new LinkedList<Pair<Pair<List<String>, Type>, PresenceCondition>>();
-      for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : mv.contents) {
-        Pair<List<String>, Type> subelem = elem.getKey();
+      contents = new LinkedList<Pair<Pair<List<String>, TypeBuilder>, PresenceCondition>>();
+      for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : mv.contents) {
+        Pair<List<String>, TypeBuilder> subelem = elem.getKey();
         List<String> sb = new LinkedList<String>();
-        Type type = subelem.getValue();
+        TypeBuilder typeBuilder = subelem.getValue();
         PresenceCondition pc = elem.getValue();
         elem.getValue().addRef();
         for (String s : subelem.getKey()) {
           String elemString = new String(s);
           sb.add(elemString);
         }
-        Pair<List<String>, Type> typedstring = new Pair<List<String>, Type>(sb, type);
-        contents.add(new Pair<Pair<List<String>, Type>, PresenceCondition>(typedstring, pc));
+        Pair<List<String>, TypeBuilder> typedstring = new Pair<List<String>, TypeBuilder>(sb, typeBuilder);
+        contents.add(new Pair<Pair<List<String>, TypeBuilder>, PresenceCondition>(typedstring, pc));
       }
     }
-    
+
     public void addToAll(String str) {
-      for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : contents) {
+      for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : contents) {
         List<String> sb = elem.getKey().getKey();
         sb.add(str);
       }
@@ -1423,18 +1513,18 @@ class Desugarer {
     public String toString() {
       StringBuilder sb = new StringBuilder();
 
-      for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : contents) {
+      for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : contents) {
         sb.append(elem.toString());
         sb.append("\n");
       }
 
       return sb.toString();
     }
-    
+
     @Override
     public boolean allEquals(String str) {
       boolean flag = false;
-      for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : contents) {
+      for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : contents) {
         String sb = String.join("", (List)elem.getKey().getKey());
         flag = flag && sb.equals(str);
       }
@@ -1510,8 +1600,8 @@ class Desugarer {
      */
     public StringListMultiverse(TypedStringListMultiverse mv) {
       contents = new LinkedList<Pair<List<String>, PresenceCondition>>();
-      for (Pair<Pair<List<String>, Type>, PresenceCondition> elem : mv.contents) {
-        Pair<List<String>, Type> inner_elem = elem.getKey();
+      for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : mv.contents) {
+        Pair<List<String>, TypeBuilder> inner_elem = elem.getKey();
         List<String> sb = new LinkedList<String>(inner_elem.getKey());
         PresenceCondition pc = elem.getValue();
         elem.getValue().addRef();
@@ -1567,10 +1657,16 @@ class Desugarer {
           sb.append((String)c);
         }
         sb.append(": ");
-        sb.append(((Pair)getKey()).getValue().toString()); // the type
+        if (((Pair)getKey()).getValue() instanceof TypeBuilder) {
+          sb.append(((TypeBuilder)((Pair)getKey()).getValue()).toType().toString());
+        }
+        //else
+          //sb.append(((Pair)getKey()).getValue().toString()); // the type
+
       } else {
         // TODO: print an error and exit
       }
+
 
       sb.append(": ");
       sb.append(getValue().toString()); // the presence condition
@@ -1611,7 +1707,7 @@ class Desugarer {
     public void addRenaming(String var, String renamed, Type type, PresenceCondition cond) {
       assert null == newToOriginal.put(renamed, new Pair<String, PresenceCondition>(var, cond));
       cond.addRef();
-      TypedStringListMultiverse mv = new TypedStringListMultiverse(renamed, type, cond);
+      TypedStringListMultiverse mv = new TypedStringListMultiverse(renamed, new TypeBuilder(type), cond);
       cond.addRef();
       if (! originalToNew.containsKey(var)) {
         originalToNew.put(var, mv);
