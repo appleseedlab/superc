@@ -118,17 +118,17 @@ public class SuperCAdvancedUsageStats
 		Object o =  node.get(i);
 		if (o instanceof Text)
 		    {
-			System.out.println(lineNum.toString() + indents + ((Text<?>)o).getTokenText());
+			System.err.println(lineNum.toString() + indents + ((Text<?>)o).getTokenText());
 		        lineNum++;
 		    }
 		if (o instanceof Language)
 		    {
-			System.out.println(lineNum.toString() + indents + ((Language<?>)(o)).tag);
+			System.err.println(lineNum.toString() + indents + ((Language<?>)(o)).tag);
 		        lineNum++;
 		    }
 		if (o instanceof Node)
 		    {
-			System.out.println(lineNum.toString() + indents + ((Node)o).getName());
+			System.err.println(lineNum.toString() + indents + ((Node)o).getName());
 			GNode x = GNode.create(lineNum.toString(), true);
 			lineNum++;
 			print((Node)o, curName, indents + "\t", x);
@@ -136,10 +136,10 @@ public class SuperCAdvancedUsageStats
 		    }
 		else
 		    {
-			//if (! (o instanceof PresenceCondition))
-			    System.out.println(lineNum.toString() + indents +  o);
-			    //else
-			    //System.out.println(lineNum.toString() + indents + "presenceCondition!");
+			if (! (o instanceof PresenceCondition))
+			    System.err.println(lineNum.toString() + indents +  o);
+			else
+			    System.err.println(lineNum.toString() + indents + "presenceCondition!");
 			GNode x = GNode.create(lineNum.toString(), false);
 			lineParent.add(x);
 			lineNum++;
