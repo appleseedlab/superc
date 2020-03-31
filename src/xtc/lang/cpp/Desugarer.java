@@ -1265,35 +1265,49 @@ class Desugarer {
        // TODO: create the type based on all of the fields, then return that.
     }
 
-
+    // constructor that returns a new typebuilder using the passed-in qualifier/attribute
     public TypeBuilder(TypeBuilder old, String name) {
-      TypeBuilder next = new TypeBuilder(old);
+      type = old.type;
+      isAuto = old.isAuto;
+      isConst = old.isConst;
+      isVolatile = old.isVolatile;
+      isExtern = old.isExtern;
+      isStatic = old.isStatic;
+      isRegister = old.isRegister;
+      isThreadlocal = old.isRegister;
+      isInline = old.isInline;
+      isSigned = old.isSigned;
+      isUnsigned = old.isUnsigned;
+      isComplex = old.isComplex;
+      longCount = old.longCount;
+      attributes = new LinkedList<String>(old.attributes);
+
       if (name.equals("auto"))
-        next.isAuto = true;
+        isAuto = true;
       else if (name.equals("const"))
-        next.isConst = true;
+        isConst = true;
       else if (name.equals("volatile"))
-        next.isVolatile = true;
+        isVolatile = true;
       else if (name.equals("extern"))
-        next.isExtern = true;
+        isExtern = true;
       else if (name.equals("static"))
-        next.isStatic = true;
+        isStatic = true;
       else if (name.equals("register"))
-        next.isRegister = true;
+        isRegister = true;
       else if (name.equals("__thread"))
-        next.isThreadlocal = true;
+        isThreadlocal = true;
       else if (name.equals("inline"))
-        next.isInline = true;
+        isInline = true;
       else if (name.equals("signed"))
-        next.isSigned = true;
+        isSigned = true;
       else if (name.equals("unsigned"))
-        next.isUnsigned = true;
+        isUnsigned = true;
       else if (name.equals("complex"))
-        next.isComplex = true;
+        isComplex = true;
       else if (name.equals("long"))
-        next.longCount += 1;
+        longCount += 1;
       else {
-        next.attributes.add(name);
+        attributes.add(name);
       }
     }
 
