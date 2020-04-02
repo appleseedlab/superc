@@ -921,8 +921,40 @@ class Desugarer {
     // duplicate the multiverses, but insert the proper type
     if (n instanceof GNode
         && (((GNode) n).hasName("DeclaringList"))) {
-      mv = new TypedStringListMultiverse(mv, new TypeBuilder(stringToType(n.getNode(0).toString())));
-      ident = new TypedStringListMultiverse(ident, new TypeBuilder(stringToType(n.getNode(0).toString())));
+      if (n.getNode(0) instanceof GNode
+          && (((GNode) n.getNode(0)).hasName("BasicDeclarationSpecifier"))) {
+        // this gets the type when there is a qualifier
+        //mv = new TypedStringListMultiverse(mv, new TypeBuilder(stringToType(n.getNode(0).getNode(1).toString())));
+        ident = new TypedStringListMultiverse(ident, new TypeBuilder(stringToType(n.getNode(0).getNode(1).toString())));
+      }
+      else {
+        // this gets the type when there are no qualifiers/attributes
+        //mv = new TypedStringListMultiverse(mv, new TypeBuilder(stringToType(n.getNode(0).toString())));
+        ident = new TypedStringListMultiverse(ident, new TypeBuilder(stringToType(n.getNode(0).toString())));
+      }
+    }
+
+    // adds qualifiers to typebuilders
+    if (n instanceof GNode
+        && (((GNode) n).hasName("DeclarationQualifierList"))) {
+      for (Object q : n) {
+        if (q instanceof GNode && ((GNode) q).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
+          // TODO: handle q.getNode(0), which is the presence condition
+          String qualifierstr = ((Syntax)((GNode) q).getNode(1)).toLanguage().toString();
+
+          // need to get the TypeBuilder from this StringListMultiverse
+          for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : ident.contents) {
+            TypeBuilder typeBuilder = elem.getKey().getValue();
+            typeBuilder = new TypeBuilder(typeBuilder, qualifierstr);
+            //System.err.println("Testing unconditional qualifiers. The identifier has qualifier: " + qualifierstr);
+            //ident = new TypedStringListMultiverse(ident, new TypeBuilder(elem.getKey().getValue(), qualifierstr));
+          }
+
+          //for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : mv.contents) {
+            //mv = new TypedStringListMultiverse(mv, new TypeBuilder(elem.getKey().getValue(), qualifierstr));
+          //}
+        }
+      }
     }
 
     if (n instanceof GNode
@@ -1260,12 +1292,15 @@ class Desugarer {
 
     List<String> attributes;
 
+    public String attributesToString() {
+      return String.join("", attributes);
+    }
+
     public Type toType() {
       return type; // placeholder
        // TODO: create the type based on all of the fields, then return that.
     }
 
-    // constructor that returns a new typebuilder using the passed-in qualifier/attribute
     public TypeBuilder(TypeBuilder old, String name) {
       type = old.type;
       isAuto = old.isAuto;
@@ -1441,10 +1476,10 @@ class Desugarer {
           sb.addAll(elem1.getKey().getKey());
           sb.addAll(elem2.getKey().getKey());
           PresenceCondition pc = elem1.getValue().and(elem2.getValue());
-          if (! elem1.getKey().getValue().toType().equals(elem2.getKey().getValue().toType())) {
-            System.err.println("ERROR: the two types are different, and only one is being added to the symbol table");
-            System.exit(1);
-          }
+          //if (! elem1.getKey().getValue().toType().equals(elem2.getKey().getValue().toType())) {
+            //System.err.println("ERROR: the two types are different, and only one is being added to the symbol table");
+            //System.exit(1);
+          //}
           TypeBuilder typeBuilder = elem1.getKey().getValue();
           if (! pc.isFalse()) { // trim infeasible combinations
             Pair<List<String>, TypeBuilder> typedstring = new Pair<List<String>, TypeBuilder>(sb, typeBuilder);
