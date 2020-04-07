@@ -918,7 +918,7 @@ class Desugarer {
 
     String renamedIdent = "";
 
-    // duplicate the multiverses, but insert the proper type
+    // duplicate the multiverses, but insert the proper type, with specifiers
     if (n instanceof GNode
         && (((GNode) n).hasName("DeclaringList"))) {
       if (n.getNode(0) instanceof GNode
@@ -926,8 +926,40 @@ class Desugarer {
         // this gets the type when there is a qualifier
         //mv = new TypedStringListMultiverse(mv, new TypeBuilder(stringToType(n.getNode(0).getNode(1).toString())));
         ident = new TypedStringListMultiverse(ident, new TypeBuilder(stringToType(n.getNode(0).getNode(1).toString())));
-      }
-      else {
+      } else if (n.getNode(0) instanceof GNode
+          && (((GNode) n.getNode(0)).hasName("BasicTypeSpecifier"))) {
+        // gets the type when there are type specifiers (e.g. long)
+        ident = new TypedStringListMultiverse(ident, new TypeBuilder(stringToType(n.getNode(0).getNode(1).toString())));
+        int long_count = 0;
+        // adds the type specifier
+        TypeBuilder typeBuilder = new TypeBuilder();
+        if (((Syntax)(n.getNode(0).getNode(0))).toLanguage().toString().equals("unsigned")) {
+          // need to get the TypeBuilder from this StringListMultiverse
+          for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : ident.contents) {
+            typeBuilder = new TypeBuilder(elem.getKey().getValue(), "unsigned");
+          }
+          ident = new TypedStringListMultiverse(ident, typeBuilder);
+        } else {
+          for (Object s : n.getNode(0).getNode(0)) {
+            if (((Syntax)(s)).toLanguage().toString().equals("long")) {
+              // need to get the TypeBuilder from this StringListMultiverse
+              for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : ident.contents) {
+                typeBuilder = new TypeBuilder(elem.getKey().getValue(), "long");
+              }
+              ident = new TypedStringListMultiverse(ident, typeBuilder);
+            } else if (((Syntax)(s)).toLanguage().toString().equals("signed")) {
+              // need to get the TypeBuilder from this StringListMultiverse
+              for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : ident.contents) {
+                typeBuilder = new TypeBuilder(elem.getKey().getValue(), "signed");
+              }
+              ident = new TypedStringListMultiverse(ident, typeBuilder);
+            } else {
+              System.err.println("ERROR: MULTIPLE INVALID TYPES IN DECLARATION");
+              System.exit(1);
+            }
+          }
+        }
+      } else {
         // this gets the type when there are no qualifiers/attributes
         //mv = new TypedStringListMultiverse(mv, new TypeBuilder(stringToType(n.getNode(0).toString())));
         ident = new TypedStringListMultiverse(ident, new TypeBuilder(stringToType(n.getNode(0).toString())));
@@ -941,18 +973,14 @@ class Desugarer {
         if (q instanceof GNode && ((GNode) q).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
           // TODO: handle q.getNode(0), which is the presence condition
           String qualifierstr = ((Syntax)((GNode) q).getNode(1)).toLanguage().toString();
-
+          TypeBuilder typeBuilder = new TypeBuilder(new UnitT());
           // need to get the TypeBuilder from this StringListMultiverse
           for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : ident.contents) {
-            TypeBuilder typeBuilder = elem.getKey().getValue();
+            typeBuilder = elem.getKey().getValue();
             typeBuilder = new TypeBuilder(typeBuilder, qualifierstr);
             //System.err.println("Testing unconditional qualifiers. The identifier has qualifier: " + qualifierstr);
-            //ident = new TypedStringListMultiverse(ident, new TypeBuilder(elem.getKey().getValue(), qualifierstr));
           }
-
-          //for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : mv.contents) {
-            //mv = new TypedStringListMultiverse(mv, new TypeBuilder(elem.getKey().getValue(), qualifierstr));
-          //}
+          ident = new TypedStringListMultiverse(ident, typeBuilder);
         }
       }
     }
