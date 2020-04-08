@@ -128,7 +128,8 @@ public class SuperCAdvancedUsageStats
 		    }
 		if (o instanceof Node)
 		    {
-			System.err.println(lineNum.toString() + indents + ((Node)o).getName());
+			System.err.println(lineNum.toString() + indents + ((Node)o).getName() +
+					   (((Node)o).hasLocation() ? ":" + ((Node)o).getLocation() : ""));
 			GNode x = GNode.create(lineNum.toString(), true);
 			lineNum++;
 			print((Node)o, curName, indents + "\t", x);
