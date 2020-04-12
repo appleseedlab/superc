@@ -772,8 +772,8 @@ class Desugarer {
 
     // hoist conditionals around declarations into mv and collect each
     // configuration's identifier in ident
-    TypedStringListMultiverse mv = new TypedStringListMultiverse("", new TypeBuilder(new UnitT()), presenceCondition);
-    TypedStringListMultiverse ident = new TypedStringListMultiverse("", new TypeBuilder(new UnitT()), presenceCondition);
+    TypedStringListMultiverse mv = new TypedStringListMultiverse("", new TypeBuilder(), presenceCondition);
+    TypedStringListMultiverse ident = new TypedStringListMultiverse("", new TypeBuilder(), presenceCondition);
     Pair<TypedStringListMultiverse, TypedStringListMultiverse> resultTyped = hoistDeclarationTyped(n, mv, ident);
 
     // (1) rename each variable by adding a increasing counter
@@ -925,11 +925,11 @@ class Desugarer {
           && (((GNode) n.getNode(0)).hasName("BasicDeclarationSpecifier"))) {
         // this gets the type when there is a qualifier
         //mv = new TypedStringListMultiverse(mv, new TypeBuilder(stringToType(n.getNode(0).getNode(1).toString())));
-        ident = new TypedStringListMultiverse(ident, new TypeBuilder(stringToType(n.getNode(0).getNode(1).toString())));
+        ident = new TypedStringListMultiverse(ident, new TypeBuilder(new TypeBuilder(), stringToType(n.getNode(0).getNode(1).toString())));
       } else if (n.getNode(0) instanceof GNode
           && (((GNode) n.getNode(0)).hasName("BasicTypeSpecifier"))) {
         // gets the type when there are type specifiers (e.g. long)
-        ident = new TypedStringListMultiverse(ident, new TypeBuilder(stringToType(n.getNode(0).getNode(1).toString())));
+        ident = new TypedStringListMultiverse(ident, new TypeBuilder(new TypeBuilder(), stringToType(n.getNode(0).getNode(1).toString())));
         int long_count = 0;
         // adds the type specifier
         TypeBuilder typeBuilder = new TypeBuilder();
@@ -969,7 +969,7 @@ class Desugarer {
       } else {
         // this gets the type when there are no qualifiers/attributes
         //mv = new TypedStringListMultiverse(mv, new TypeBuilder(stringToType(n.getNode(0).toString())));
-        ident = new TypedStringListMultiverse(ident, new TypeBuilder(stringToType(n.getNode(0).toString())));
+        ident = new TypedStringListMultiverse(ident, new TypeBuilder(new TypeBuilder(), stringToType(n.getNode(0).toString())));
       }
     }
 
@@ -980,7 +980,7 @@ class Desugarer {
         if (q instanceof GNode && ((GNode) q).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
           // TODO: handle q.getNode(0), which is the presence condition
           String qualifierstr = ((Syntax)((GNode) q).getNode(1)).toLanguage().toString();
-          TypeBuilder typeBuilder = new TypeBuilder(new UnitT());
+          TypeBuilder typeBuilder = new TypeBuilder();
           // need to get the TypeBuilder from this StringListMultiverse
           for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : ident.contents) {
             typeBuilder = elem.getKey().getValue();
@@ -1381,22 +1381,31 @@ class Desugarer {
       }
     }
 
-    // sets all flags to false, and stores the type being passed in
-    public TypeBuilder(Type type) {
-      this.type = type;
-      isAuto = false;
-      isConst = false;
-      isVolatile = false;
-      isExtern = false;
-      isStatic = false;
-      isRegister = false;
-      isThreadlocal = false;
-      isInline = false;
-      isSigned = false;
-      isUnsigned = false;
-      isComplex = false;
-      longCount = 0;
-      attributes = new LinkedList<String>();
+    // copy constructor that changes type (should be used whenever a type is found)
+    // the default constructor should be used before this ever gets called.
+    public TypeBuilder(TypeBuilder old, Type type) {
+
+      // copy constructor that changes the type
+      if (old.type instanceof UnitT) {
+        this.type = type;
+        isAuto = old.isAuto;
+        isConst = old.isConst;
+        isVolatile = old.isVolatile;
+        isExtern = old.isExtern;
+        isStatic = old.isStatic;
+        isRegister = old.isRegister;
+        isThreadlocal = old.isRegister;
+        isInline = old.isInline;
+        isSigned = old.isSigned;
+        isUnsigned = old.isUnsigned;
+        isComplex = old.isComplex;
+        longCount = old.longCount;
+        attributes = new LinkedList<String>(old.attributes);
+      }
+      else {
+        System.err.println("ERROR: identifier has multiple conflicting types.");
+        System.exit(1);
+      }
     }
 
     // sets all flags to false and type starts as unit
@@ -1791,7 +1800,7 @@ class Desugarer {
     public void addRenaming(String var, String renamed, Type type, PresenceCondition cond) {
       assert null == newToOriginal.put(renamed, new Pair<String, PresenceCondition>(var, cond));
       cond.addRef();
-      TypedStringListMultiverse mv = new TypedStringListMultiverse(renamed, new TypeBuilder(type), cond);
+      TypedStringListMultiverse mv = new TypedStringListMultiverse(renamed, new TypeBuilder(new TypeBuilder(), type), cond);
       cond.addRef();
       if (! originalToNew.containsKey(var)) {
         originalToNew.put(var, mv);
