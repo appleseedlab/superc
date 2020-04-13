@@ -960,9 +960,11 @@ class Desugarer {
               }
               ident = new TypedStringListMultiverse(ident, typeBuilder);
             } else {
-              // TODO: handle this error properly
-              //System.err.println("ERROR: MULTIPLE INVALID TYPES IN DECLARATION");
-              //System.exit(1);
+              // need to get the TypeBuilder from this StringListMultiverse
+              for (Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> elem : ident.contents) {
+                typeBuilder = new TypeBuilder(elem.getKey().getValue(), stringToType(((Syntax)(s)).toLanguage().toString()));
+              }
+              ident = new TypedStringListMultiverse(ident, typeBuilder);
             }
           }
         }
