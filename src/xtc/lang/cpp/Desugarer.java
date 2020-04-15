@@ -1330,7 +1330,50 @@ class Desugarer {
     List<String> attributes;
 
     public String attributesToString() {
-      return String.join("", attributes);
+      return String.join(" ", attributes);
+    }
+
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+
+      // TODO: check if the order of these matters
+
+      if (isAuto)
+        sb.append("auto ");
+      if (isConst)
+        sb.append("const ");
+      if (isVolatile)
+        sb.append("volatile ");
+      if (isExtern)
+        sb.append("extern ");
+      if (isStatic)
+        sb.append("static ");
+      if (isRegister)
+        sb.append("register ");
+      if (isThreadlocal)
+        sb.append("__thread ");
+      if (isInline)
+        sb.append("inline");
+      if (isSigned)
+        sb.append("signed");
+      if (isUnsigned)
+        sb.append("unsigned");
+      if (isComplex)
+        sb.append("complex");
+
+      for (int i = 0; i < longCount; i++)
+        sb.append("long ");
+
+      sb.append(attributesToString());
+
+      if (type instanceof UnitT) {
+        System.err.println("ERROR: identifier has no valid type.");
+        System.exit(1);
+      }
+      else
+        sb.append(type.toString());
+
+      return sb.toString();
     }
 
     public Type toType() {
