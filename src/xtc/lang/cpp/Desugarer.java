@@ -784,15 +784,27 @@ class Desugarer {
     // TODO: use better name mangling by generating random string
     Iterator<Pair<Pair<List<String>, TypeBuilder>, PresenceCondition>> it_decl_typed = resultTyped.getKey().iterator();
     Iterator<Pair<Pair<List<String>, TypeBuilder>, PresenceCondition>> it_ident_typed = resultTyped.getValue().iterator();
-    while (it_decl_typed.hasNext() && it_ident_typed.hasNext()) {
+    // while (it_decl_typed.hasNext() && it_ident_typed.hasNext()) {
+    //   Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> next_ident_typed = it_ident_typed.next();
+    //   String elem_ident = String.join("", next_ident_typed.getKey().getKey());
+    //   PresenceCondition pc = next_ident_typed.getValue();
+    //   TypeBuilder typeBuilder = next_ident_typed.getKey().getValue();
+    //   String renamed_ident = mangleRenaming(VARPREFIX, elem_ident);
+    //   String elem_decl = String.join("", it_decl_typed.next().getKey().getKey());
+    //   symtab.addRenaming(elem_ident, renamed_ident, typeBuilder.toType(), pc);
+    //   String decl_string = elem_decl.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ ");
+    //   writer.write(decl_string);
+    //}
+
+    // generates code for declarations for all renamed variables
+    while (it_ident_typed.hasNext()) {
       Pair<Pair<List<String>, TypeBuilder>, PresenceCondition> next_ident_typed = it_ident_typed.next();
       String elem_ident = String.join("", next_ident_typed.getKey().getKey());
       PresenceCondition pc = next_ident_typed.getValue();
       TypeBuilder typeBuilder = next_ident_typed.getKey().getValue();
-      String renamed_ident = mangleRenaming(VARPREFIX, elem_ident);
-      String elem_decl = String.join("", it_decl_typed.next().getKey().getKey());
-      symtab.addRenaming(elem_ident, renamed_ident, typeBuilder.toType(), pc);
-      String decl_string = elem_decl.toString().replace(" " +  elem_ident + " ", " " + renamed_ident + " /* renamed from " + elem_ident + " */ ");
+      String renamed_ident = mangleRenaming(VARPREFIX, elem_ident); // generates renaming
+      symtab.addRenaming(elem_ident, renamed_ident, typeBuilder.toType(), pc); // TODO: add the rest of the type (with qualifiers, attributes, etc. to symboltable)
+      String decl_string = typeBuilder.toString() + " " + renamed_ident + "; /* renamed from " + elem_ident + " */ ";
       writer.write(decl_string);
     }
 
