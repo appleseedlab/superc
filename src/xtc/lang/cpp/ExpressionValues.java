@@ -47,90 +47,92 @@ public class ExpressionValues implements SemanticValues {
     return value;
   }
   public ValueType getValueType(int id) {
-    if (0 <= id && id < 65) {
+    if (0 <= id && id < 43) {
       return ValueType.NODE;
     }
-    switch (id - 65) {
-      case 0: // LPAREN (65)
+    switch (id - 43) {
+      case 0: // ARROW (43)
         // Fall through
-      case 1: // RPAREN (66)
+      case 22: // LPAREN (65)
         // Fall through
-      case 2: // COMMA (67)
+      case 23: // RPAREN (66)
         // Fall through
-      case 5: // LBRACE (70)
+      case 24: // COMMA (67)
         // Fall through
-      case 6: // RBRACE (71)
+      case 27: // LBRACE (70)
         // Fall through
-      case 7: // LBRACK (72)
+      case 28: // RBRACE (71)
         // Fall through
-      case 8: // RBRACK (73)
+      case 29: // LBRACK (72)
         // Fall through
-      case 9: // DOT (74)
+      case 30: // RBRACK (73)
         // Fall through
-      case 22: // QUESTION (87)
+      case 31: // DOT (74)
         // Fall through
-      case 23: // COLON (88)
+      case 44: // QUESTION (87)
         // Fall through
-      case 24: // SEMICOLON (89)
+      case 45: // COLON (88)
         // Fall through
-      case 25: // ASSIGN (90)
+      case 46: // SEMICOLON (89)
+        // Fall through
+      case 47: // ASSIGN (90)
         return ValueType.LAYOUT;
 
-      case 80: // CheckDefined (145)
+      case 102: // CheckDefined (145)
         return ValueType.ACTION;
 
-      case 63: // ConstantExpression (128)
+      case 85: // ConstantExpression (128)
         // Fall through
-      case 64: // Constant (129)
+      case 86: // Constant (129)
         // Fall through
-      case 67: // PrimaryExpression (132)
+      case 89: // PrimaryExpression (132)
         // Fall through
-      case 69: // UnaryExpression (134)
+      case 91: // UnaryExpression (134)
         // Fall through
-      case 81: // MultiplicativeExpression (146)
+      case 103: // MultiplicativeExpression (146)
         // Fall through
-      case 82: // AdditiveExpression (147)
+      case 104: // AdditiveExpression (147)
         // Fall through
-      case 83: // ShiftExpression (148)
+      case 105: // ShiftExpression (148)
         // Fall through
-      case 84: // RelationalExpression (149)
+      case 106: // RelationalExpression (149)
         // Fall through
-      case 85: // EqualityExpression (150)
+      case 107: // EqualityExpression (150)
         // Fall through
-      case 86: // BitwiseAndExpression (151)
+      case 108: // BitwiseAndExpression (151)
         // Fall through
-      case 88: // BitwiseXorExpression (153)
+      case 110: // BitwiseXorExpression (153)
         // Fall through
-      case 90: // BitwiseOrExpression (155)
+      case 112: // BitwiseOrExpression (155)
         // Fall through
-      case 92: // LogicalAndExpression (157)
+      case 114: // LogicalAndExpression (157)
         // Fall through
-      case 94: // LogicalOrExpression (159)
+      case 116: // LogicalOrExpression (159)
         // Fall through
-      case 96: // ConditionalExpression (161)
+      case 118: // ConditionalExpression (161)
         // Fall through
-      case 97: // Word (162)
+      case 119: // Word (162)
         return ValueType.PASS_THROUGH;
 
-      case 71: // UnaryMinusOp (136)
+      case 93: // UnaryMinusOp (136)
         // Fall through
-      case 73: // UnaryPlusOp (138)
+      case 95: // UnaryPlusOp (138)
         // Fall through
-      case 75: // LogicalNegateOp (140)
+      case 97: // LogicalNegateOp (140)
         // Fall through
-      case 77: // BitwiseNegateOp (142)
+      case 99: // BitwiseNegateOp (142)
         // Fall through
-      case 79: // DefinedKeyword (144)
+      case 101: // DefinedKeyword (144)
         // Fall through
-      case 87: // BitwiseAndOp (152)
+      case 109: // BitwiseAndOp (152)
         // Fall through
-      case 89: // BitwiseXorOp (154)
+      case 111: // BitwiseXorOp (154)
         // Fall through
-      case 91: // BitwiseOrOp (156)
+      case 113: // BitwiseOrOp (156)
         // Fall through
-      case 93: // LogicalAndOp (158)
+      case 115: // LogicalAndOp (158)
         // Fall through
-      case 95: // LogicalOrOp (160)
+      case 117: // LogicalOrOp (160)
         return ValueType.VOID;
 
       default:

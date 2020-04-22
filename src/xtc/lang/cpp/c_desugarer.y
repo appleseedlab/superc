@@ -47,6 +47,9 @@
 
 %expect 1
 
+/* top-level annotations */
+/** prevent_merge_on_actions **/
+
 /* keywords */
 %token AUTO            DOUBLE          INT             STRUCT
 %token BREAK  /** layout **/
