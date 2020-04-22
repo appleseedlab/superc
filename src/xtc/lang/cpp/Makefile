@@ -210,6 +210,11 @@ select-typechecker:
 	ln -s $(PWD)/c_typechecker.y .c.y
 	ln -s $(PWD)/CContext_typechecker.java .CContext.java
 
+select-desugarer:
+	$(RM) -f .c.y c.y .CContext.java CContext.java
+	ln -s $(PWD)/c_desugarer.y .c.y
+	ln -s $(PWD)/CContext_desugarer.java .CContext.java
+
 which-grammar:
 	@readlink .c.y | xargs basename
 	@readlink .CContext.java | xargs basename
