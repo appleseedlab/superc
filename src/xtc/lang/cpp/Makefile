@@ -1,12 +1,12 @@
-# Makefile 2 
+# Makefile 2
 #***************************************************************************
-# 
+#
 # Java development root directory.
-# 
+#
 # (C) 1999 Jacob Dreyer - Geotechnical Software Services
 # jacob.dreyer@geosoft.no - http://geosoft.no
 #
-# Modifications Copyright (C) 2001, 2004 Robert Grimm 
+# Modifications Copyright (C) 2001, 2004 Robert Grimm
 # rgrimm@alum.mit.edu
 #
 # Modifications Copyright (C) 2007 New York University
@@ -34,10 +34,10 @@
 #
 # This section describes the current package.
 #
-# o PACKAGE     - The complete package name. 
+# o PACKAGE     - The complete package name.
 # o PACKAGE_LOC - Same as PACKAGE but with "/"s instead of "."s.
 # o SOURCE      - List of the source files. Remember extension.
-# o JNI_SOURCE  - Files from SOURCE that are to be built with the JAVAH 
+# o JNI_SOURCE  - Files from SOURCE that are to be built with the JAVAH
 #                 compiler.
 # o JAR_EXTRAS  - None-class files and directories that are to be bundled
 #                 into the jar archive.
@@ -92,6 +92,7 @@ SOURCE = \
 	cdiff.java \
 	FunctionChecker.java \
 	Desugarer.java \
+	TypeBuilder.java \
 	SuperC.java
 
 
