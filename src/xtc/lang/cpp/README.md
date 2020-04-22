@@ -1,6 +1,13 @@
 ## Troubleshooting
 
-### Parse tables conversion to Java
+### Grammar changes not being seen
+
+Try clobbering the parser intermediate files and rebuilding them
+
+    make clobber-parsers; make parsers; make
+
+
+#### Parse tables conversion to Java
 
 If the parser isn't working, diagnose it with
 
