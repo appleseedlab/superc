@@ -275,7 +275,7 @@ FunctionDefinition:  /** complete **/ // added scoping
 
 /* Functions have their own compound statement because of the need for
    reentering scope. */
-FunctionCompoundStatement:  /** notcomplete, name(CompoundStatement) **/
+FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
         LocalLabelDeclarationListOpt DeclarationOrStatementList
         ;
 
@@ -283,7 +283,7 @@ FunctionCompoundStatement:  /** notcomplete, name(CompoundStatement) **/
    complete AST.  So if something in the prototype is configurable,
    the conditional will only be hoisted around the prototype, not the
    entire function definition. */
-FunctionPrototype:  /** notcomplete **/
+FunctionPrototype:  /** nomerge **/
           IdentifierDeclarator { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
         | DeclarationSpecifier     IdentifierDeclarator
         {
@@ -329,7 +329,7 @@ FunctionPrototype:  /** notcomplete **/
         }
         ;
 
-FunctionOldPrototype:  /** notcomplete **/
+FunctionOldPrototype:  /** nomerge **/
           OldFunctionDeclarator { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
@@ -361,7 +361,7 @@ NestedFunctionDefinition:  /** complete **/ // added scoping
         | NestedFunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         ;
 
-NestedFunctionPrototype:  /** notcomplete **/
+NestedFunctionPrototype:  /** nomerge **/
           DeclarationSpecifier     IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -405,7 +405,7 @@ NestedFunctionPrototype:  /** notcomplete **/
         }
         ;
 
-NestedFunctionOldPrototype:  /** notcomplete **/
+NestedFunctionOldPrototype:  /** nomerge **/
         DeclarationSpecifier       OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -475,7 +475,7 @@ Declaration:  /** complete **/
 /* Note that if a typedef were  redeclared,  then  a  declaration 
    specifier must be supplied */
 
-DefaultDeclaringList:  /** notcomplete **/  /* Can't  redeclare typedef names */
+DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         DeclarationQualifierList IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -493,7 +493,7 @@ DefaultDeclaringList:  /** notcomplete **/  /* Can't  redeclare typedef names */
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         ;
 
-DeclaringList:  /** notcomplete **/
+DeclaringList:  /** nomerge **/
         DeclarationSpecifier Declarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -511,7 +511,7 @@ DeclaringList:  /** notcomplete **/
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         ;
 
-DeclarationSpecifier:  /** passthrough, notcomplete **/
+DeclarationSpecifier:  /** passthrough, nomerge **/
         BasicDeclarationSpecifier        /* Arithmetic or void */
         | SUEDeclarationSpecifier          /* struct/union/enum */
         | TypedefDeclarationSpecifier      /* typedef*/
@@ -519,7 +519,7 @@ DeclarationSpecifier:  /** passthrough, notcomplete **/
         | TypeofDeclarationSpecifier // ADDED
         ;
 
-TypeSpecifier:  /** passthrough, notcomplete **/
+TypeSpecifier:  /** passthrough, nomerge **/
         BasicTypeSpecifier                 /* Arithmetic or void */
         | SUETypeSpecifier                 /* Struct/Union/Enum */
         | TypedefTypeSpecifier             /* Typedef */
@@ -527,7 +527,7 @@ TypeSpecifier:  /** passthrough, notcomplete **/
         | TypeofTypeSpecifier // ADDED
         ;
 
-DeclarationQualifierList:  /** list, notcomplete **/  /* const/volatile, AND storage class */
+DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage class */
         StorageClass {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -547,7 +547,7 @@ DeclarationQualifierList:  /** list, notcomplete **/  /* const/volatile, AND sto
         }
         ;
 
-TypeQualifierList:  /** list, notcomplete **/
+TypeQualifierList:  /** list, nomerge **/
         TypeQualifier {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -628,7 +628,7 @@ FunctionSpecifier:  // ADDED
         | __INLINE__
         ;
 
-BasicDeclarationSpecifier: /** passthrough, notcomplete **/      /*StorageClass+Arithmetic or void*/
+BasicDeclarationSpecifier: /** passthrough, nomerge **/      /*StorageClass+Arithmetic or void*/
         BasicTypeSpecifier  StorageClass {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
@@ -655,7 +655,7 @@ BasicDeclarationSpecifier: /** passthrough, notcomplete **/      /*StorageClass+
         }
         ;
 
-BasicTypeSpecifier: /** passthrough, notcomplete **/
+BasicTypeSpecifier: /** passthrough, nomerge **/
         BasicTypeName {           /* Arithmetic or void */
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -681,51 +681,51 @@ BasicTypeSpecifier: /** passthrough, notcomplete **/
         }
         ;
 
-SUEDeclarationSpecifier: /** notcomplete **/          /* StorageClass + struct/union/enum */
+SUEDeclarationSpecifier: /** nomerge **/          /* StorageClass + struct/union/enum */
         SUETypeSpecifier StorageClass
         | DeclarationQualifierList ElaboratedTypeName
         | SUEDeclarationSpecifier DeclarationQualifier
         ;
 
-SUETypeSpecifier: /** notcomplete **/
+SUETypeSpecifier: /** nomerge **/
         ElaboratedTypeName              /* struct/union/enum */
         | TypeQualifierList ElaboratedTypeName
         | SUETypeSpecifier TypeQualifier
         ;
 
 
-TypedefDeclarationSpecifier: /** notcomplete **/       /*Storage Class + typedef types */
+TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef types */
         TypedefTypeSpecifier StorageClass
         | DeclarationQualifierList TYPEDEFname
         | TypedefDeclarationSpecifier DeclarationQualifier
         ;
 
-TypedefTypeSpecifier: /** notcomplete **/              /* typedef types */
+TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
         TYPEDEFname
         | TypeQualifierList TYPEDEFname
         | TypedefTypeSpecifier TypeQualifier
         ;
 
-TypeofDeclarationSpecifier: /** notcomplete **/      /*StorageClass+Arithmetic or void*/
+TypeofDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or void*/
         TypeofTypeSpecifier  StorageClass
         | DeclarationQualifierList Typeofspecifier
         | TypeofDeclarationSpecifier DeclarationQualifier
         | TypeofDeclarationSpecifier Typeofspecifier
         ;
 
-TypeofTypeSpecifier: /** notcomplete **/  // ADDED
+TypeofTypeSpecifier: /** nomerge **/  // ADDED
         Typeofspecifier
         | TypeQualifierList Typeofspecifier
         | TypeofTypeSpecifier TypeQualifier
         | TypeofTypeSpecifier Typeofspecifier
         ;
 
-Typeofspecifier: /** notcomplete **/  // ADDED
+Typeofspecifier: /** nomerge **/  // ADDED
         Typeofkeyword LPAREN TypeName RPAREN
         | Typeofkeyword LPAREN Expression RPAREN
         ;
 
-Typeofkeyword: /** notcomplete **/  // ADDED
+Typeofkeyword: /** nomerge **/  // ADDED
         TYPEOF
         | __TYPEOF
         | __TYPEOF__
@@ -822,13 +822,13 @@ ComplexKeyword:
         | __COMPLEX__
         ;
 
-ElaboratedTypeName: /** passthrough, notcomplete **/
+ElaboratedTypeName: /** passthrough, nomerge **/
         StructSpecifier
         | UnionSpecifier
         | EnumSpecifier
         ;
 
-StructSpecifier: /** notcomplete **/  // ADDED attributes
+StructSpecifier: /** nomerge **/  // ADDED attributes
         STRUCT { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
@@ -877,7 +877,7 @@ StructSpecifier: /** notcomplete **/  // ADDED attributes
         | STRUCT AttributeSpecifierList IdentifierOrTypedefName
         ;
 
-UnionSpecifier: /** notcomplete **/  // ADDED attributes
+UnionSpecifier: /** nomerge **/  // ADDED attributes
         UNION { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
@@ -898,7 +898,7 @@ UnionSpecifier: /** notcomplete **/  // ADDED attributes
         | UNION AttributeSpecifierList IdentifierOrTypedefName
         ;
 
-StructDeclarationList: /** list, notcomplete **/
+StructDeclarationList: /** list, nomerge **/
         /* StructDeclaration */ /* ADDED gcc empty struct */
         {
           ((Node) value).setProperty(SPECS, new Specifiers());
@@ -911,7 +911,7 @@ StructDeclarationList: /** list, notcomplete **/
         }
         ;
 
-StructDeclaration: /** notcomplete **/
+StructDeclaration: /** nomerge **/
         StructDeclaringList SEMICOLON
         | StructDefaultDeclaringList SEMICOLON
         | TypeQualifierList SEMICOLON  // ADDED Declarator is optional
@@ -919,37 +919,37 @@ StructDeclaration: /** notcomplete **/
         | SEMICOLON // ADDED gcc allows empty struct field in declaration
         ;
 
-StructDefaultDeclaringList: /** list, notcomplete **/        /* doesn't redeclare typedef*/
+StructDefaultDeclaringList: /** list, nomerge **/        /* doesn't redeclare typedef*/
         TypeQualifierList StructIdentifierDeclarator AttributeSpecifierListOpt
         | StructDefaultDeclaringList COMMA StructIdentifierDeclarator AttributeSpecifierListOpt
         ;
 
-StructDeclaringList: /** list, notcomplete **/        
+StructDeclaringList: /** list, nomerge **/
         TypeSpecifier StructDeclarator AttributeSpecifierListOpt
         | StructDeclaringList COMMA StructDeclarator AttributeSpecifierListOpt
         ;
 
 
-StructDeclarator: /** notcomplete **/
+StructDeclarator: /** nomerge **/
         Declarator BitFieldSizeOpt
         | BitFieldSize
         ;
 
-StructIdentifierDeclarator: /** notcomplete **/
+StructIdentifierDeclarator: /** nomerge **/
         IdentifierDeclarator BitFieldSizeOpt
         | BitFieldSize
         ;
 
-BitFieldSizeOpt: /** notcomplete **/
+BitFieldSizeOpt: /** nomerge **/
         /* nothing */
         | BitFieldSize
         ;
 
-BitFieldSize: /** notcomplete **/
+BitFieldSize: /** nomerge **/
         COLON ConstantExpression
         ;
 
-EnumSpecifier: /** notcomplete **/  /* ADDED attributes */
+EnumSpecifier: /** nomerge **/  /* ADDED attributes */
         ENUM LBRACE EnumeratorList RBRACE
         | ENUM IdentifierOrTypedefName LBRACE EnumeratorList RBRACE
         | ENUM IdentifierOrTypedefName
@@ -967,32 +967,32 @@ EnumSpecifier: /** notcomplete **/  /* ADDED attributes */
         | EnumeratorList COMMA IdentifierOrTypedefName EnumeratorValueOpt
         ;*/
 
-EnumeratorList:  /** list, notcomplete **/  // easier to bind
+EnumeratorList:  /** list, nomerge **/  // easier to bind
         Enumerator
         | EnumeratorList COMMA Enumerator
         ;
 
-Enumerator: /** notcomplete **/
+Enumerator: /** nomerge **/
         IDENTIFIER { BindEnum(subparser); } EnumeratorValueOpt
         | TYPEDEFname { BindEnum(subparser); } EnumeratorValueOpt
         ;
 
-EnumeratorValueOpt: /** notcomplete **/
+EnumeratorValueOpt: /** nomerge **/
         /* Nothing */
         | ASSIGN ConstantExpression
         ;
 
-ParameterTypeList:  /** notcomplete **/
+ParameterTypeList:  /** nomerge **/
         ParameterList
         | ParameterList COMMA ELLIPSIS
         ;
 
-ParameterList:  /** list, notcomplete **/
+ParameterList:  /** list, nomerge **/
         ParameterDeclaration
         | ParameterList COMMA ParameterDeclaration
         ;
 
-/* ParameterDeclaration:  /\** notcomplete **\/ */
+/* ParameterDeclaration:  /\** nomerge **\/ */
 /*         DeclarationSpecifier */
 /*         | DeclarationSpecifier AbstractDeclarator */
 /*         | DeclarationSpecifier IdentifierDeclarator */
@@ -1033,7 +1033,7 @@ ParameterList:  /** list, notcomplete **/
 /*         } AttributeSpecifierListOpt */
 /*         ; */
 
-ParameterDeclaration:  /** passthrough, notcomplete **/
+ParameterDeclaration:  /** passthrough, nomerge **/
         ParameterIdentifierDeclaration
         | ParameterAbstractDeclaration
         ;
@@ -1086,33 +1086,33 @@ ParameterIdentifierDeclaration:
     typedef name shall not be redeclared as a Parameter".  Hence  the 
     following is based only on IDENTIFIERs */
 
-IdentifierList:  /** list, notcomplete **/
+IdentifierList:  /** list, nomerge **/
         Identifier
         | IdentifierList COMMA Identifier
         ;
 
-Identifier:  /** notcomplete **/
+Identifier:  /** nomerge **/
        IDENTIFIER { BindVar(subparser); }
        ;
 
-IdentifierOrTypedefName: /** notcomplete **/
+IdentifierOrTypedefName: /** nomerge **/
         IDENTIFIER
         | TYPEDEFname
         ;
 
-TypeName: /** notcomplete **/
+TypeName: /** nomerge **/
         TypeSpecifier
         | TypeSpecifier AbstractDeclarator
         | TypeQualifierList 
         | TypeQualifierList AbstractDeclarator
         ;
 
-InitializerOpt: /** notcomplete **/
+InitializerOpt: /** nomerge **/
         /* nothing */
         | ASSIGN DesignatedInitializer
         ;
 
-DesignatedInitializer:/** notcomplete, passthrough **/ /* ADDED */
+DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         Initializer
         | Designation Initializer
         ;
@@ -1122,18 +1122,18 @@ DesignatedInitializer:/** notcomplete, passthrough **/ /* ADDED */
         | AssignmentExpression
         ;*/
 
-Initializer: /** notcomplete **/  // ADDED gcc can have empty Initializer lists
+Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists
         LBRACE MatchedInitializerList RBRACE
         | LBRACE MatchedInitializerList DesignatedInitializer RBRACE
         | AssignmentExpression
         ;
 
-InitializerList:  /** notcomplete **/ //modified so that COMMAS are on the right
+InitializerList:  /** nomerge **/ //modified so that COMMAS are on the right
         MatchedInitializerList
         | MatchedInitializerList DesignatedInitializer
         ;
 
-MatchedInitializerList:  /** list, notcomplete **/
+MatchedInitializerList:  /** list, nomerge **/
         | MatchedInitializerList DesignatedInitializer COMMA
         ;
 
@@ -1143,7 +1143,7 @@ Designation:   /* ADDED */
         | ObsoleteFieldDesignation
         ;
 
-DesignatorList:  /** list, notcomplete **/  /* ADDED */
+DesignatorList:  /** list, nomerge **/  /* ADDED */
         Designator
         | DesignatorList Designator
         ;
@@ -1155,30 +1155,30 @@ Designator:   /* ADDED */
         | DOT TYPEDEFname // ADDED hack to get around using typedef names as struct fields
         ;
 
-ObsoleteArrayDesignation: /** notcomplete **/  /* ADDED */
+ObsoleteArrayDesignation: /** nomerge **/  /* ADDED */
         LBRACK ConstantExpression RBRACK
         | LBRACK ConstantExpression ELLIPSIS ConstantExpression RBRACK
         ;
 
-ObsoleteFieldDesignation: /** notcomplete **/  /* ADDED */
+ObsoleteFieldDesignation: /** nomerge **/  /* ADDED */
         IDENTIFIER COLON
         ;
 
-Declarator:  /** notcomplete, passthrough **/
+Declarator:  /** nomerge, passthrough **/
         TypedefDeclarator
         | IdentifierDeclarator
         ;
 
-TypedefDeclarator:  /** passthrough, notcomplete **/  // ADDED
+TypedefDeclarator:  /** passthrough, nomerge **/  // ADDED
         TypedefDeclaratorMain //AssemblyExpressionOpt AttributeSpecifierListOpt
         ;
 
-TypedefDeclaratorMain:  /** passthrough, notcomplete **/
+TypedefDeclaratorMain:  /** passthrough, nomerge **/
         ParenTypedefDeclarator  /* would be ambiguous as Parameter*/
         | ParameterTypedefDeclarator   /* not ambiguous as param*/
         ;
 
-ParameterTypedefDeclarator: /** notcomplete **/
+ParameterTypedefDeclarator: /** nomerge **/
         TYPEDEFname 
         | TYPEDEFname PostfixingAbstractDeclarator
         | CleanTypedefDeclarator
@@ -1187,13 +1187,13 @@ ParameterTypedefDeclarator: /** notcomplete **/
     /*  The  following have at least one STAR. There is no (redundant) 
     LPAREN between the STAR and the TYPEDEFname. */
 
-CleanTypedefDeclarator: /** notcomplete **/
+CleanTypedefDeclarator: /** nomerge **/
         CleanPostfixTypedefDeclarator
         | STAR ParameterTypedefDeclarator
         | STAR TypeQualifierList ParameterTypedefDeclarator  
         ;
 
-CleanPostfixTypedefDeclarator: /** notcomplete **/
+CleanPostfixTypedefDeclarator: /** nomerge **/
         LPAREN CleanTypedefDeclarator RPAREN
         | LPAREN CleanTypedefDeclarator RPAREN PostfixingAbstractDeclarator
         ;
@@ -1201,7 +1201,7 @@ CleanPostfixTypedefDeclarator: /** notcomplete **/
     /* The following have a redundant LPAREN placed immediately  to  the 
     left of the TYPEDEFname */
 
-ParenTypedefDeclarator:  /** passthrough, notcomplete **/
+ParenTypedefDeclarator:  /** passthrough, nomerge **/
         ParenPostfixTypedefDeclarator
         | STAR LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
         | STAR TypeQualifierList  
@@ -1210,27 +1210,27 @@ ParenTypedefDeclarator:  /** passthrough, notcomplete **/
         | STAR TypeQualifierList ParenTypedefDeclarator
         ;
         
-ParenPostfixTypedefDeclarator: /** notcomplete **/ /* redundant paren to left of tname*/
+ParenPostfixTypedefDeclarator: /** nomerge **/ /* redundant paren to left of tname*/
         LPAREN ParenTypedefDeclarator RPAREN
         | LPAREN SimpleParenTypedefDeclarator PostfixingAbstractDeclarator RPAREN /* redundant paren */
         | LPAREN ParenTypedefDeclarator RPAREN PostfixingAbstractDeclarator
         ;
 
-SimpleParenTypedefDeclarator: /** notcomplete **/
+SimpleParenTypedefDeclarator: /** nomerge **/
         TYPEDEFname
         | LPAREN SimpleParenTypedefDeclarator RPAREN
         ;
 
-IdentifierDeclarator:  /** passthrough, notcomplete **/
+IdentifierDeclarator:  /** passthrough, nomerge **/
         IdentifierDeclaratorMain //AssemblyExpressionOpt AttributeSpecifierListOpt
         ;
 
-IdentifierDeclaratorMain:  /** passthrough, notcomplete **/
+IdentifierDeclaratorMain:  /** passthrough, nomerge **/
         UnaryIdentifierDeclarator
         | ParenIdentifierDeclarator
         ;
 
-UnaryIdentifierDeclarator: /** passthrough, notcomplete **/
+UnaryIdentifierDeclarator: /** passthrough, nomerge **/
         PostfixIdentifierDeclarator
         | STAR IdentifierDeclarator
         {
@@ -1247,38 +1247,38 @@ UnaryIdentifierDeclarator: /** passthrough, notcomplete **/
         }
         ;
         
-PostfixIdentifierDeclarator: /** passthrough, notcomplete **/
+PostfixIdentifierDeclarator: /** passthrough, nomerge **/
         FunctionDeclarator
         | ArrayDeclarator
         | AttributedDeclarator
         | LPAREN UnaryIdentifierDeclarator RPAREN PostfixingAbstractDeclarator
         ;
 
-AttributedDeclarator: /** notcomplete **/
+AttributedDeclarator: /** nomerge **/
         LPAREN UnaryIdentifierDeclarator RPAREN
         {
           /* copyDeclName(subparser, value, 2); */
         }
         ;
 
-FunctionDeclarator:  /** notcomplete **/
+FunctionDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator PostfixingFunctionDeclarator
         ;
 
-PostfixingFunctionDeclarator:  /** notcomplete **/
+PostfixingFunctionDeclarator:  /** nomerge **/
         LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN
         ;
 
-ArrayDeclarator:  /** notcomplete **/
+ArrayDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator ArrayAbstractDeclarator
         ;
 
-ParenIdentifierDeclarator:  /** passthrough, notcomplete **/
+ParenIdentifierDeclarator:  /** passthrough, nomerge **/
         SimpleDeclarator { /* copyDeclName(subparser, value, 1); */ }
         | LPAREN ParenIdentifierDeclarator RPAREN { /* copyDeclName(subparser, value, 2); */ }
         ;
 
-SimpleDeclarator: /** notcomplete **/
+SimpleDeclarator: /** nomerge **/
         IDENTIFIER  /* bind */
         {
           /* setDecl(value, lastSeenType(subparser)); */
@@ -1286,36 +1286,36 @@ SimpleDeclarator: /** notcomplete **/
         }
         ;
 
-OldFunctionDeclarator: /** notcomplete **/
+OldFunctionDeclarator: /** nomerge **/
         PostfixOldFunctionDeclarator
         | STAR OldFunctionDeclarator
         | STAR TypeQualifierList OldFunctionDeclarator
         ;
 
-PostfixOldFunctionDeclarator: /** notcomplete **/
+PostfixOldFunctionDeclarator: /** nomerge **/
         ParenIdentifierDeclarator LPAREN { EnterScope(subparser); } IdentifierList { ExitReentrantScope(subparser); } RPAREN
         | LPAREN OldFunctionDeclarator RPAREN
         | LPAREN OldFunctionDeclarator RPAREN PostfixingAbstractDeclarator
         ;
 
-AbstractDeclarator: /** notcomplete **/
+AbstractDeclarator: /** nomerge **/
         UnaryAbstractDeclarator
         | PostfixAbstractDeclarator
         | PostfixingAbstractDeclarator
         ;
 
-PostfixingAbstractDeclarator: /** passthrough, notcomplete **/
+PostfixingAbstractDeclarator: /** passthrough, nomerge **/
         ArrayAbstractDeclarator
         /* | LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN */
         | PostfixingFunctionDeclarator
         ;
 
-ParameterTypeListOpt: /** notcomplete **/
+ParameterTypeListOpt: /** nomerge **/
         /* empty */
         | ParameterTypeList
         ;
 
-ArrayAbstractDeclarator: /** notcomplete **/
+ArrayAbstractDeclarator: /** nomerge **/
         LBRACK RBRACK
         {
           /* setDecl(value, new ArrayT(getDecl(getNodeAt(subparser, 1)))); */
@@ -1329,14 +1329,14 @@ ArrayAbstractDeclarator: /** notcomplete **/
         | ArrayAbstractDeclarator LBRACK ConstantExpression RBRACK
         ;
 
-UnaryAbstractDeclarator: /** notcomplete **/
+UnaryAbstractDeclarator: /** nomerge **/
         STAR 
         | STAR TypeQualifierList 
         | STAR AbstractDeclarator
         | STAR TypeQualifierList AbstractDeclarator
         ;
 
-PostfixAbstractDeclarator: /** notcomplete **/
+PostfixAbstractDeclarator: /** nomerge **/
         LPAREN UnaryAbstractDeclarator RPAREN
         | LPAREN PostfixAbstractDeclarator RPAREN
         | LPAREN PostfixingAbstractDeclarator RPAREN
@@ -1456,7 +1456,7 @@ ReturnStatement:  /** complete **/
 // --------------------------------------------------------------- Expressions
 
 /* CONSTANTS */
-Constant: /** passthrough, notcomplete **/
+Constant: /** passthrough, nomerge **/
         FLOATINGconstant
         | INTEGERconstant
         /* We are not including ENUMERATIONConstant here  because  we 
@@ -1468,14 +1468,14 @@ Constant: /** passthrough, notcomplete **/
         ;
 
 /* STRING LITERALS */
-StringLiteralList:  /** list, notcomplete **/
+StringLiteralList:  /** list, nomerge **/
                 STRINGliteral
                 | StringLiteralList STRINGliteral
                 ;
 
 
 /* EXPRESSIONS */
-PrimaryExpression:  /** notcomplete, passthrough **/
+PrimaryExpression:  /** nomerge, passthrough **/
         PrimaryIdentifier
         | Constant
         | StringLiteralList
@@ -1484,19 +1484,19 @@ PrimaryExpression:  /** notcomplete, passthrough **/
         | VariableArgumentAccess  // ADDED
         ;
 
-PrimaryIdentifier: /** notcomplete **/
+PrimaryIdentifier: /** nomerge **/
         IDENTIFIER { useIdent(subparser, getNodeAt(subparser, 1)); }  /* We cannot use a typedef name as a variable */
         ;
 
-VariableArgumentAccess:  /** notcomplete **/  // ADDED
+VariableArgumentAccess:  /** nomerge **/  // ADDED
         __BUILTIN_VA_ARG LPAREN AssignmentExpression COMMA TypeName RPAREN
         ;
 
-StatementAsExpression:  /** notcomplete **/  //ADDED
+StatementAsExpression:  /** nomerge **/  //ADDED
         LPAREN { EnterScope(subparser); } CompoundStatement { ExitScope(subparser); } RPAREN
         ;
 
-PostfixExpression:  /** passthrough, notcomplete **/
+PostfixExpression:  /** passthrough, nomerge **/
         PrimaryExpression
         | Subscript
         | FunctionCall
@@ -1507,28 +1507,28 @@ PostfixExpression:  /** passthrough, notcomplete **/
         | CompoundLiteral  /* ADDED */
         ;
 
-Subscript:  /** notcomplete **/
+Subscript:  /** nomerge **/
         PostfixExpression LBRACK Expression RBRACK
         ;
 
-FunctionCall:  /** notcomplete **/
+FunctionCall:  /** nomerge **/
           PostfixExpression LPAREN RPAREN { callFunction(subparser, getNodeAt(subparser, 3), null); }
         | PostfixExpression LPAREN ExpressionList RPAREN  { callFunction(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 2)); }
         ;
 
-DirectSelection:  /** notcomplete **/
+DirectSelection:  /** nomerge **/
         PostfixExpression DOT IdentifierOrTypedefName
         ;
 
-IndirectSelection:  /** notcomplete **/
+IndirectSelection:  /** nomerge **/
         PostfixExpression ARROW IdentifierOrTypedefName
         ;
 
-Increment:  /** notcomplete **/
+Increment:  /** nomerge **/
         PostfixExpression ICR
         ;
 
-Decrement:  /** notcomplete **/
+Decrement:  /** nomerge **/
         PostfixExpression DECR
         ;
 
@@ -1536,16 +1536,16 @@ Decrement:  /** notcomplete **/
 
 
 
-CompoundLiteral:  /** notcomplete **/  /* ADDED */
+CompoundLiteral:  /** nomerge **/  /* ADDED */
         LPAREN TypeName RPAREN LBRACE InitializerList RBRACE
         ;
 
-ExpressionList:  /** list, notcomplete **/
+ExpressionList:  /** list, nomerge **/
         AssignmentExpression
         | ExpressionList COMMA AssignmentExpression
         ;
 
-UnaryExpression:  /** passthrough, notcomplete **/
+UnaryExpression:  /** passthrough, nomerge **/
         PostfixExpression
         | ICR UnaryExpression
         | DECR UnaryExpression
@@ -1559,19 +1559,19 @@ UnaryExpression:  /** passthrough, notcomplete **/
         | TypeCompatibilityExpression  // ADEED
         ;
 
-TypeCompatibilityExpression:  /** notcomplete **/
+TypeCompatibilityExpression:  /** nomerge **/
         __BUILTIN_TYPES_COMPATIBLE_P LPAREN TypeName COMMA TypeName RPAREN
         ;
 
-OffsetofExpression:  /** notcomplete **/
+OffsetofExpression:  /** nomerge **/
         __BUILTIN_OFFSETOF LPAREN TypeName COMMA PostfixExpression RPAREN
         ;
 
-ExtensionExpression:  /** notcomplete **/
+ExtensionExpression:  /** nomerge **/
         __EXTENSION__ CastExpression
         ;
 
-AlignofExpression:  /** notcomplete **/
+AlignofExpression:  /** nomerge **/
         Alignofkeyword LPAREN TypeName RPAREN
         | Alignofkeyword UnaryExpression
         ;
@@ -1581,7 +1581,7 @@ Alignofkeyword:
         | __ALIGNOF
         ;
 
-LabelAddressExpression:  /** notcomplete  **/  // ADDED
+LabelAddressExpression:  /** nomerge  **/  // ADDED
         ANDAND IDENTIFIER;
         ;
 
@@ -1594,31 +1594,31 @@ Unaryoperator:
         | NOT
         ;
 
-CastExpression:  /** passthrough, notcomplete **/
+CastExpression:  /** passthrough, nomerge **/
         UnaryExpression
         | LPAREN TypeName RPAREN CastExpression
         ;
 
-MultiplicativeExpression:  /** passthrough, notcomplete **/
+MultiplicativeExpression:  /** passthrough, nomerge **/
         CastExpression
         | MultiplicativeExpression STAR CastExpression
         | MultiplicativeExpression DIV CastExpression
         | MultiplicativeExpression MOD CastExpression
         ;
 
-AdditiveExpression:  /** passthrough, notcomplete **/
+AdditiveExpression:  /** passthrough, nomerge **/
         MultiplicativeExpression
         | AdditiveExpression PLUS MultiplicativeExpression
         | AdditiveExpression MINUS MultiplicativeExpression
         ;
 
-ShiftExpression:  /** passthrough, notcomplete **/
+ShiftExpression:  /** passthrough, nomerge **/
         AdditiveExpression
         | ShiftExpression LS AdditiveExpression
         | ShiftExpression RS AdditiveExpression
         ;
 
-RelationalExpression:  /** passthrough, notcomplete **/
+RelationalExpression:  /** passthrough, nomerge **/
         ShiftExpression
         | RelationalExpression LT ShiftExpression
         | RelationalExpression GT ShiftExpression
@@ -1626,51 +1626,51 @@ RelationalExpression:  /** passthrough, notcomplete **/
         | RelationalExpression GE ShiftExpression
         ;
 
-EqualityExpression:  /** passthrough, notcomplete **/
+EqualityExpression:  /** passthrough, nomerge **/
         RelationalExpression
         | EqualityExpression EQ RelationalExpression
         | EqualityExpression NE RelationalExpression
         ;
 
-AndExpression:  /** passthrough, notcomplete **/
+AndExpression:  /** passthrough, nomerge **/
         EqualityExpression
         | AndExpression AND EqualityExpression
         ;
 
-ExclusiveOrExpression:  /** passthrough, notcomplete **/
+ExclusiveOrExpression:  /** passthrough, nomerge **/
         AndExpression
         | ExclusiveOrExpression XOR AndExpression
         ;
 
-InclusiveOrExpression:  /** passthrough, notcomplete **/
+InclusiveOrExpression:  /** passthrough, nomerge **/
         ExclusiveOrExpression
         | InclusiveOrExpression PIPE ExclusiveOrExpression
         ;
 
-LogicalAndExpression:  /** passthrough, notcomplete **/
+LogicalAndExpression:  /** passthrough, nomerge **/
         InclusiveOrExpression
         | LogicalAndExpression ANDAND InclusiveOrExpression
         ;
 
-LogicalORExpression:  /** passthrough, notcomplete **/
+LogicalORExpression:  /** passthrough, nomerge **/
         LogicalAndExpression
         | LogicalORExpression OROR LogicalAndExpression
         ;
 
-ConditionalExpression:  /** passthrough, notcomplete **/
+ConditionalExpression:  /** passthrough, nomerge **/
         LogicalORExpression
         | LogicalORExpression QUESTION Expression COLON
                 ConditionalExpression
-        | LogicalORExpression QUESTION COLON  // ADDED gcc innotcomplete conditional
+        | LogicalORExpression QUESTION COLON  // ADDED gcc innomerge conditional
                 ConditionalExpression
         ;
 
-AssignmentExpression:  /** passthrough, notcomplete **/
+AssignmentExpression:  /** passthrough, nomerge **/
         ConditionalExpression
         | UnaryExpression AssignmentOperator AssignmentExpression
         ;
 
-AssignmentOperator: /** notcomplete **/
+AssignmentOperator: /** nomerge **/
         ASSIGN
         | MULTassign
         | DIVassign
@@ -1684,31 +1684,31 @@ AssignmentOperator: /** notcomplete **/
         | ORassign
         ;
 
-ExpressionOpt:  /** passthrough, notcomplete **/
+ExpressionOpt:  /** passthrough, nomerge **/
         /* Nothing */
         | Expression
         ;
 
-Expression:  /** passthrough, notcomplete **/
+Expression:  /** passthrough, nomerge **/
         AssignmentExpression
         | Expression COMMA AssignmentExpression
         ;
 
-ConstantExpression: /** passthrough, notcomplete **/
+ConstantExpression: /** passthrough, nomerge **/
         ConditionalExpression
         ;
 
-AttributeSpecifierListOpt: /** notcomplete **/  // ADDED
+AttributeSpecifierListOpt: /** nomerge **/  // ADDED
         /* empty */
         | AttributeSpecifierList
         ;
 
-AttributeSpecifierList:  /** list, notcomplete **/  // ADDED
+AttributeSpecifierList:  /** list, nomerge **/  // ADDED
         AttributeSpecifier
         | AttributeSpecifierList AttributeSpecifier
         ;
 
-AttributeSpecifier: /** notcomplete **/  // ADDED
+AttributeSpecifier: /** nomerge **/  // ADDED
         AttributeKeyword LPAREN LPAREN AttributeListOpt RPAREN RPAREN
         ;
 
@@ -1722,7 +1722,7 @@ AttributeListOpt:   // ADDED
         | AttributeList
         ;
 
-AttributeList:  /** list, notcomplete **/  // ADDED
+AttributeList:  /** list, nomerge **/  // ADDED
         Word AttributeExpressionOpt
         | AttributeList COMMA Word AttributeExpressionOpt
         ;
@@ -1804,63 +1804,63 @@ Word:  // ADDED
 
 // ------------------------------------------------------------------ Assembly
 
-AssemblyDefinition:  /** notcomplete **/
+AssemblyDefinition:  /** nomerge **/
         AssemblyExpression SEMICOLON
         ;
 
-AssemblyExpression:  /** notcomplete **/
+AssemblyExpression:  /** nomerge **/
         AsmKeyword LPAREN StringLiteralList RPAREN
         ;
 
-AssemblyExpressionOpt:  /** notcomplete **/
+AssemblyExpressionOpt:  /** nomerge **/
         /* empty */
         | AssemblyExpression
         ;
 
-AssemblyStatement:   /** notcomplete **/ // ADDED 
+AssemblyStatement:   /** nomerge **/ // ADDED 
         AsmKeyword LPAREN Assemblyargument RPAREN SEMICOLON
         /* gcc>=4.5 */
         | AsmKeyword GOTO LPAREN AssemblyGotoargument RPAREN SEMICOLON
         | AsmKeyword TypeQualifier LPAREN Assemblyargument RPAREN SEMICOLON
         ;
 
-Assemblyargument:  /** notcomplete **/  // ADDED
+Assemblyargument:  /** nomerge **/  // ADDED
         StringLiteralList COLON AssemblyoperandsOpt COLON AssemblyoperandsOpt COLON Assemblyclobbers
         | StringLiteralList COLON AssemblyoperandsOpt COLON AssemblyoperandsOpt
         | StringLiteralList COLON AssemblyoperandsOpt
         | StringLiteralList
         ;
 
-AssemblyoperandsOpt:  /** notcomplete **/  // ADDED
+AssemblyoperandsOpt:  /** nomerge **/  // ADDED
         /* empty */
         | Assemblyoperands
         ;
 
-Assemblyoperands:  /** list, notcomplete **/  // ADDED
+Assemblyoperands:  /** list, nomerge **/  // ADDED
         Assemblyoperand
         | Assemblyoperands COMMA Assemblyoperand
         ;
 
-Assemblyoperand:  /** notcomplete **/  // ADDED
+Assemblyoperand:  /** nomerge **/  // ADDED
                              StringLiteralList LPAREN Expression RPAREN
         | LBRACK Word RBRACK StringLiteralList LPAREN Expression RPAREN
         ;
 
-AssemblyclobbersOpt:  /** notcomplete **/ // ADDED
+AssemblyclobbersOpt:  /** nomerge **/ // ADDED
         /* empty */
         | Assemblyclobbers
         ;
 
-Assemblyclobbers:  /** notcomplete **/  // ADDED
+Assemblyclobbers:  /** nomerge **/  // ADDED
         StringLiteralList
         | Assemblyclobbers COMMA StringLiteralList
         ;
 
-AssemblyGotoargument:  /** notcomplete **/ // ADDED
+AssemblyGotoargument:  /** nomerge **/ // ADDED
         StringLiteralList COLON AssemblyoperandsOpt COLON AssemblyoperandsOpt COLON AssemblyclobbersOpt COLON AssemblyJumpLabels
         ;
 
-AssemblyJumpLabels:  /** notcomplete **/ // ADDED
+AssemblyJumpLabels:  /** nomerge **/ // ADDED
         Identifier
         | AssemblyJumpLabels COMMA Identifier
         ;
