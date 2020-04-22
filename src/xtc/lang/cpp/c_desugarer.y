@@ -361,7 +361,7 @@ NestedFunctionDefinition:  /** complete **/ // added scoping
         | NestedFunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         ;
 
-NestedFunctionPrototype:  /** complete **/
+NestedFunctionPrototype:  /** notcomplete **/
           DeclarationSpecifier     IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -405,7 +405,7 @@ NestedFunctionPrototype:  /** complete **/
         }
         ;
 
-NestedFunctionOldPrototype:  /** complete **/
+NestedFunctionOldPrototype:  /** notcomplete **/
         DeclarationSpecifier       OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
