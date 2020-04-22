@@ -124,13 +124,13 @@ int main() {
 
   printf("\n");
 
-  print_uint16("yytranslate", yytranslate, YYMAXUTOK);
+  print_uint8("yytranslate", yytranslate, YYMAXUTOK);
   /* print_uint16("yyprhs", yyprhs, YYNRULES); */
   /* print_int16("yyrhs", yyrhs, yyprhs[YYNRULES] + yyr2[YYNRULES]); */
   print_char("yytname", yytname, YYNTOKENS + YYNNTS - 1);
   print_uint16("yytoknum", yytoknum, YYNTOKENS - 1);
   print_uint16("yyr1", yyr1, YYNRULES);
-  print_uint16("yyr2", yyr2, YYNRULES);
+  print_int8("yyr2", yyr2, YYNRULES);
   print_uint16("yydefact", yydefact, YYNSTATES - 1);
   print_int16("yydefgoto", yydefgoto, YYNNTS - 1);
   print_int16("yypact", yypact, YYNSTATES - 1);
@@ -164,6 +164,10 @@ int print_ ## fname(char *name, ctype table[], int max) { \
 TABLEPRINTER(uint16, yytype_uint16, "%d", int, 10)
 
 TABLEPRINTER(int16, yytype_int16, "%d", int, 10)
+
+TABLEPRINTER(uint8, yytype_uint8, "%d", int, 10)
+
+TABLEPRINTER(int8, yytype_int8, "%d", int, 10)
 
 TABLEPRINTER(char, char *const, "\"%s\"", String, 1)
 
