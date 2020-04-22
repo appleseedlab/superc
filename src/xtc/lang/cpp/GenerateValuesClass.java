@@ -92,45 +92,55 @@ public class GenerateValuesClass {
       HashSet<Integer> complete = new HashSet<Integer>();
       HashSet<Integer> voidSymbol = new HashSet<Integer>();
       HashMap<Integer, String> symbolName = new HashMap<Integer, String>();
+      boolean prevent_merge_on_actions = false;
 
       String l;
       while ((l = inputStream.readLine()) != null) {
-        String[] a = l.split(" ");
-        String name = a[0];
-        String type = a[1];
-        String parm = a.length > 2 ? a[2] : null;
-        int sym = -1;
-        
-        for (int i = 0; i < parseTables.yytname.length; i++) {
-          if (parseTables.yytname[i].equals(name)) {
-            sym = i;
-            break;
+        if (l.startsWith("%")) {  // top-level annotations
+          if (l.substring(1).equals("prevent_merge_on_actions")) {
+            // this annotations stops the default behavior of treating
+            // semantics action symbols as complete, thereby
+            // preventing subparser merging after processing actions.
+            prevent_merge_on_actions = true;
           }
-        }
+        } else {  // per-symbol annotations
+          String[] a = l.split(" ");
+          String name = a[0];
+          String type = a[1];
+          String parm = a.length > 2 ? a[2] : null;
+          int sym = -1;
         
-        if (sym >= 0) {
-          if (type.equals("list")) {
-            list.add(sym);
-          } else if (type.equals("layout")) {
-            layout.add(sym);
-          } else if (type.equals("action")) {
-            action.put(sym, name);
-            complete.add(sym);
-          } else if (type.equals("passthrough")) {
-            passthrough.add(sym);
-          } else if (type.equals("complete")) {
-            complete.add(sym);
-          } else if (type.equals("void")) {
-            voidSymbol.add(sym);
-          } else if (type.equals("name")) {
-            symbolName.put(sym, parm);
+          for (int i = 0; i < parseTables.yytname.length; i++) {
+            if (parseTables.yytname[i].equals(name)) {
+              sym = i;
+              break;
+            }
+          }
+        
+          if (sym >= 0) {
+            if (type.equals("list")) {
+              list.add(sym);
+            } else if (type.equals("layout")) {
+              layout.add(sym);
+            } else if (type.equals("action")) {
+              action.put(sym, name);
+              complete.add(sym);
+            } else if (type.equals("passthrough")) {
+              passthrough.add(sym);
+            } else if (type.equals("complete")) {
+              complete.add(sym);
+            } else if (type.equals("void")) {
+              voidSymbol.add(sym);
+            } else if (type.equals("name")) {
+              symbolName.put(sym, parm);
+            } else {
+              System.err.println("error: node " + name + " has unknown " +
+                                 "type " + type);
+            }
           } else {
-            System.err.println("error: node " + name + " has unknown " +
-              "type " + type);
+            System.err.println("error: there is no node " + name + " in the " +
+                               "grammar");
           }
-        } else {
-          System.err.println("error: there is no node " + name + " in the " +
-            "grammar");
         }
       }
 
@@ -140,8 +150,10 @@ public class GenerateValuesClass {
         String name = parseTables.yytname[sym];
         if (name.startsWith("$@")) {
           action.put(sym, name);
-          complete.add(sym);  // all inline action nodes should be
-                              // complete lest they prevent merging!
+          if (! prevent_merge_on_actions) {
+            complete.add(sym);  // all inline action nodes should be
+                                // complete lest they prevent merging!
+          }
         }
       }
 

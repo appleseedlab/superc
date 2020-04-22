@@ -109,25 +109,29 @@ public class GenerateActionsClass {
       inputStream = new BufferedReader(new InputStreamReader(System.in));
 
       while ((l = inputStream.readLine()) != null) {
-        String[] a = l.split(" ");
-        String name = a[0];
-        String type = a[1];
-        int sym = -1;
+        if (l.startsWith("%")) {  // top-level annotations
+          // no top-level annotations affect action generation
+        } else {  // per-symbol annotations
+          String[] a = l.split(" ");
+          String name = a[0];
+          String type = a[1];
+          int sym = -1;
 
-        for (int i = 0; i < parseTables.yytname.length; i++) {
-          if (parseTables.yytname[i].equals(name)) {
-            sym = i;
-            break;
+          for (int i = 0; i < parseTables.yytname.length; i++) {
+            if (parseTables.yytname[i].equals(name)) {
+              sym = i;
+              break;
+            }
           }
-        }
 
-        if (sym >= 0) {
-          if (type.equals("action")) {
-            action.put(sym, name);
+          if (sym >= 0) {
+            if (type.equals("action")) {
+              action.put(sym, name);
+            }
+          } else {
+            System.err.println("error: there is no node " + name + " in the " +
+                               "grammar");
           }
-        } else {
-          System.err.println("error: there is no node " + name + " in the " +
-                             "grammar");
         }
       }
 

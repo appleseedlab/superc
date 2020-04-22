@@ -27,14 +27,22 @@
 
 
 my %valid_annotations
-    = map { $_ => 1 } ( "list", "layout", "action", "passthrough", "complete",
-                        "void");
+    = map { $_ => 1 } ( "list",
+                        "layout",
+                        "action",
+                        "passthrough",
+                        "complete",
+                        "void" );
+
+my %top_level_annotations
+    = map { $_ => 1 } ( "prevent_merge_on_actions" );
 my $name_annotation = "name";
 
 
 while(<STDIN>) {
     my($line) = $_;
     my($text) = $line;
+
     # Look for ^NAME ... /** ... **/
     if ($text =~ m/^(.*)\/\*\*([^\*]+)\*\*\//) {
         $symbol = $1;
@@ -42,16 +50,16 @@ while(<STDIN>) {
         
         if ($symbol =~ m/^([\w\d\._]+):/) {
             $symbol = $1;
-        } elsif ($symbol =~ m/^%token ([\w\d\._]+)/) {
+        } elsif ($symbol =~ m/^%token +([\w\d\._]+)/) {
             $symbol = $1;
         } else {
             $symbol = "";
         }
 
-        if (length($symbol) > 0) {
-            @a = split(/,/, $annotations);
-            for my $annotation (@a) {
-                $annotation =~ s/^\s*(.*?)\s*$/$1/;  # strip whitespace
+        @a = split(/,/, $annotations);
+        for my $annotation (@a) {
+            $annotation =~ s/^\s*(.*?)\s*$/$1/;  # strip whitespace
+            if (length($symbol) > 0) {
                 if ($annotation =~ m/^($name_annotation)\((.+)\)$/) {
                     # a name annotation
                     $annotation = $1;
@@ -63,6 +71,16 @@ while(<STDIN>) {
                 } else {
                     print STDERR
                         "warning: invalid annotation name $annotation\n";
+                }
+            } elsif (length($annotation) > 0) { # top-level annotations
+                if (exists($top_level_annotations{$annotation})) {
+                    # all other annotations
+                    print "%$annotation\n"
+                } else {
+                    print STDERR $annotations;
+                    print STDERR $line;
+                    print STDERR
+                        "warning: invalid top-level annotation name $annotation\n";
                 }
             }
         }
