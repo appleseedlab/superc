@@ -393,8 +393,14 @@
     break;
 
   case 112:
-                      {           /* Arithmetic or void */
-          updateSpecs(subparser,
+        {
+          // TUTORIAL: a semantic action that sets the semantic value
+          // to a new typebuilder by adding a property derived from
+          // the child semantic value(s)
+          TypeBuilder tb = getTypeBuilderAt(subparser, 1);
+          setTypeBuilder(value, tb);
+
+          updateSpecs(subparser,  // candidate for removal
                       getSpecsAt(subparser, 1),
                       value);
         }
@@ -419,8 +425,21 @@
     break;
 
   case 115:
-                                           {
-          updateSpecs(subparser,
+        {
+          // TUTORIAL: a semantic action that sets the semantic value
+          // to a new typebuilder by adding a property derived from
+          // the child semantic value(s)
+
+          // get the semantic values of each child
+          TypeBuilder basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
+          TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
+
+          // combine the partial type specs
+          TypeBuilder tb = basicTypeSpecifier.combine(basicTypeName);
+          
+          setTypeBuilder(value, tb);
+
+          updateSpecs(subparser,  // candidate for removal
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
@@ -535,7 +554,16 @@
     break;
 
   case 158:
-                          { getSpecsAt(subparser, 1).seenInt = true; }
+        {
+          // TUTORIAL: a semantic action that sets the semantic value
+          // to a new typebuilderby adding a property annotation.
+          
+          // See xtc.type.* for the class hiearchy for types
+          TypeBuilder tb = new TypeBuilder(NumberT.INT);
+          setTypeBuilder(value, tb);
+          
+          getSpecsAt(subparser, 1).seenInt = true;  // candidate for removal
+        }
     break;
 
   case 159:
@@ -543,7 +571,16 @@
     break;
 
   case 160:
-                          { getSpecsAt(subparser, 1).longCount++; }
+        {
+          // TUTORIAL: a semantic action that sets the semantic value
+          // to a new typebuilderby adding a property annotation.
+          
+          // See xtc.type.* for the class hiearchy for types
+          TypeBuilder tb = new TypeBuilder(NumberT.LONG);
+          setTypeBuilder(value, tb);
+          
+          getSpecsAt(subparser, 1).longCount++;  // candidate for removal
+        }
     break;
 
   case 161:

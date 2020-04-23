@@ -1,5 +1,32 @@
 
 
+// TUTORIAL: this section of the grammar gets copied into the
+// resulting parser, specifically the CActions.java class
+
+/**
+   This is just a constant string name for a property used to assign
+   semantic values that are type builders.
+ */
+private static final String TYPEBUILDER = "xtc.lang.cpp.TypeBuilder";
+
+// TUTORIAL: this function just annotates a semantic value with a typebuilder
+private void setTypeBuilder(Object value, TypeBuilder tb) {
+  // value should be not null and should be a Node type
+  setTypeBuilder((Node) value, tb);
+}
+
+// TUTORIAL: these functions retrieve a type builder from the semantic value
+private void setTypeBuilder(Node value, TypeBuilder tb) {
+  // value should be not null and should be a Node type
+  value.setProperty(TYPEBUILDER, tb);
+}
+
+private TypeBuilder getTypeBuilderAt(Subparser subparser, int component) {
+  // value should be not null and should be a Node type
+  return (TypeBuilder) getNodeAt(subparser, component).getProperty(TYPEBUILDER);
+}
+
+        
 /** True when statistics should be output. */
 private boolean languageStatistics = false;
 

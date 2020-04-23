@@ -64,6 +64,13 @@ import xtc.lang.cpp.ForkMergeParser.StackFrame;
 import java.util.ArrayList;
 import java.util.List;
 
+import xtc.type.Type;
+import xtc.type.NumberT;
+import xtc.type.StructT;
+import xtc.type.VariableT;
+import xtc.type.UnitT;
+/* TUTORIAL: add any additional type classes here */
+ 
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;

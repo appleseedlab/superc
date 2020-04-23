@@ -66,7 +66,7 @@
 
 
 /* First part of user prologue.  */
-#line 168 "c.y"
+#line 171 "c.y"
 
 import xtc.Constants;
 import xtc.Limits;
@@ -133,6 +133,13 @@ import xtc.lang.cpp.ForkMergeParser.StackFrame;
 import java.util.ArrayList;
 import java.util.List;
 
+import xtc.type.Type;
+import xtc.type.NumberT;
+import xtc.type.StructT;
+import xtc.type.VariableT;
+import xtc.type.UnitT;
+/* TUTORIAL: add any additional type classes here */
+ 
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
@@ -142,7 +149,7 @@ import org.sat4j.specs.ISolver;
 import org.sat4j.specs.TimeoutException;
 import org.sat4j.tools.ModelIterator;
 
-#line 146 "c.tab.c"
+#line 153 "c.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -703,69 +710,69 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   247,   247,   252,   254,   258,   259,   260,   261,   265,
-     269,   270,   274,   274,   274,   275,   275,   275,   281,   289,
-     290,   295,   300,   305,   311,   312,   317,   322,   327,   335,
-     336,   341,   346,   351,   362,   362,   362,   363,   363,   363,
-     367,   372,   377,   382,   388,   393,   398,   403,   411,   416,
-     421,   426,   466,   467,   471,   471,   472,   472,   473,   473,
-     474,   474,   482,   481,   487,   486,   492,   491,   500,   499,
-     505,   504,   510,   509,   517,   518,   519,   520,   521,   525,
-     526,   527,   528,   529,   533,   538,   544,   553,   558,   567,
-     568,   572,   579,   586,   593,   600,   610,   611,   612,   616,
-     617,   618,   622,   623,   624,   628,   629,   630,   634,   640,
-     646,   652,   661,   666,   672,   678,   687,   688,   689,   693,
-     694,   695,   700,   701,   702,   706,   707,   708,   712,   713,
-     714,   715,   719,   720,   721,   722,   726,   727,   731,   732,
-     733,   737,   743,   749,   755,   764,   769,   775,   781,   790,
-     794,   795,   796,   797,   798,   802,   803,   804,   805,   806,
-     807,   808,   809,   810,   811,   812,   813,   817,   818,   819,
-     823,   824,   828,   829,   830,   834,   835,   834,   845,   846,
-     845,   856,   857,   858,   857,   868,   869,   868,   879,   883,
-     884,   883,   886,   887,   886,   889,   890,   891,   890,   893,
-     894,   893,   900,   905,   908,   917,   918,   919,   920,   921,
-     925,   926,   930,   931,   936,   937,   941,   942,   945,   947,
-     951,   955,   956,   957,   958,   959,   960,   961,   962,   963,
-     964,   973,   974,   978,   978,   979,   979,   982,   984,   988,
-     989,   993,   994,  1039,  1040,  1044,  1045,  1046,  1047,  1048,
-    1049,  1050,  1051,  1056,  1055,  1061,  1060,  1066,  1065,  1071,
-    1070,  1076,  1075,  1081,  1080,  1092,  1093,  1097,  1101,  1102,
-    1106,  1107,  1108,  1109,  1112,  1114,  1118,  1119,  1128,  1129,
-    1130,  1134,  1135,  1138,  1139,  1143,  1144,  1145,  1149,  1150,
-    1154,  1155,  1156,  1157,  1161,  1162,  1166,  1170,  1171,  1175,
-    1179,  1180,  1184,  1185,  1186,  1193,  1194,  1195,  1199,  1200,
-    1207,  1208,  1209,  1211,  1212,  1216,  1217,  1218,  1222,  1223,
-    1227,  1231,  1232,  1236,  1237,  1242,  1253,  1254,  1255,  1256,
-    1260,  1267,  1271,  1271,  1271,  1275,  1279,  1280,  1284,  1292,
-    1293,  1294,  1298,  1298,  1298,  1299,  1300,  1304,  1305,  1306,
-    1310,  1312,  1315,  1317,  1321,  1326,  1331,  1335,  1336,  1337,
-    1338,  1342,  1343,  1344,  1345,  1351,  1352,  1353,  1354,  1355,
-    1356,  1357,  1361,  1362,  1363,  1364,  1375,  1378,  1380,  1384,
-    1385,  1389,  1393,  1394,  1397,  1398,  1402,  1403,  1404,  1408,
-    1409,  1418,  1422,  1423,  1424,  1428,  1429,  1430,  1435,  1436,
-    1437,  1438,  1442,  1443,  1447,  1451,  1455,  1462,  1463,  1467,
-    1468,  1469,  1474,  1475,  1481,  1482,  1483,  1484,  1485,  1486,
-    1490,  1494,  1498,  1498,  1498,  1502,  1503,  1504,  1505,  1506,
-    1507,  1508,  1509,  1513,  1517,  1518,  1522,  1526,  1530,  1534,
-    1542,  1546,  1547,  1551,  1552,  1553,  1554,  1555,  1556,  1557,
-    1558,  1559,  1560,  1561,  1565,  1569,  1573,  1577,  1578,  1582,
-    1583,  1587,  1591,  1592,  1593,  1594,  1595,  1596,  1600,  1601,
-    1605,  1606,  1607,  1608,  1612,  1613,  1614,  1618,  1619,  1620,
-    1624,  1625,  1626,  1627,  1628,  1632,  1633,  1634,  1638,  1639,
-    1643,  1644,  1648,  1649,  1653,  1654,  1658,  1659,  1663,  1664,
-    1666,  1671,  1672,  1676,  1677,  1678,  1679,  1680,  1681,  1682,
-    1683,  1684,  1685,  1686,  1689,  1691,  1695,  1696,  1700,  1703,
-    1705,  1709,  1710,  1714,  1718,  1719,  1722,  1724,  1728,  1729,
-    1732,  1734,  1735,  1739,  1740,  1741,  1742,  1743,  1744,  1745,
-    1746,  1747,  1748,  1749,  1750,  1751,  1752,  1753,  1754,  1755,
-    1756,  1757,  1758,  1759,  1760,  1761,  1762,  1763,  1764,  1765,
-    1766,  1767,  1768,  1769,  1770,  1771,  1772,  1773,  1774,  1775,
-    1776,  1777,  1778,  1779,  1780,  1781,  1782,  1783,  1784,  1785,
-    1786,  1787,  1788,  1789,  1790,  1791,  1792,  1793,  1794,  1795,
-    1796,  1797,  1798,  1799,  1800,  1801,  1802,  1803,  1804,  1810,
-    1814,  1817,  1819,  1823,  1825,  1826,  1830,  1831,  1832,  1833,
-    1836,  1838,  1842,  1843,  1847,  1848,  1851,  1853,  1857,  1858,
-    1862,  1866,  1867,  1871,  1872,  1873
+       0,   257,   257,   262,   264,   268,   269,   270,   271,   275,
+     279,   280,   284,   284,   284,   285,   285,   285,   291,   299,
+     300,   305,   310,   315,   321,   322,   327,   332,   337,   345,
+     346,   351,   356,   361,   372,   372,   372,   373,   373,   373,
+     377,   382,   387,   392,   398,   403,   408,   413,   421,   426,
+     431,   436,   476,   477,   481,   481,   482,   482,   483,   483,
+     484,   484,   492,   491,   497,   496,   502,   501,   510,   509,
+     515,   514,   520,   519,   527,   528,   529,   530,   531,   535,
+     536,   537,   538,   539,   543,   548,   554,   563,   568,   577,
+     578,   582,   589,   596,   603,   610,   620,   621,   622,   626,
+     627,   628,   632,   633,   634,   638,   639,   640,   644,   650,
+     656,   662,   671,   683,   689,   695,   718,   719,   720,   724,
+     725,   726,   731,   732,   733,   737,   738,   739,   743,   744,
+     745,   746,   750,   751,   752,   753,   757,   758,   762,   763,
+     764,   768,   774,   780,   786,   795,   800,   806,   812,   821,
+     825,   826,   827,   828,   829,   833,   834,   835,   836,   847,
+     848,   859,   860,   861,   862,   863,   864,   868,   869,   870,
+     874,   875,   879,   880,   881,   885,   886,   885,   896,   897,
+     896,   907,   908,   909,   908,   919,   920,   919,   930,   934,
+     935,   934,   937,   938,   937,   940,   941,   942,   941,   944,
+     945,   944,   951,   956,   959,   968,   969,   970,   971,   972,
+     976,   977,   981,   982,   987,   988,   992,   993,   996,   998,
+    1002,  1006,  1007,  1008,  1009,  1010,  1011,  1012,  1013,  1014,
+    1015,  1024,  1025,  1029,  1029,  1030,  1030,  1033,  1035,  1039,
+    1040,  1044,  1045,  1090,  1091,  1095,  1096,  1097,  1098,  1099,
+    1100,  1101,  1102,  1107,  1106,  1112,  1111,  1117,  1116,  1122,
+    1121,  1127,  1126,  1132,  1131,  1143,  1144,  1148,  1152,  1153,
+    1157,  1158,  1159,  1160,  1163,  1165,  1169,  1170,  1179,  1180,
+    1181,  1185,  1186,  1189,  1190,  1194,  1195,  1196,  1200,  1201,
+    1205,  1206,  1207,  1208,  1212,  1213,  1217,  1221,  1222,  1226,
+    1230,  1231,  1235,  1236,  1237,  1244,  1245,  1246,  1250,  1251,
+    1258,  1259,  1260,  1262,  1263,  1267,  1268,  1269,  1273,  1274,
+    1278,  1282,  1283,  1287,  1288,  1293,  1304,  1305,  1306,  1307,
+    1311,  1318,  1322,  1322,  1322,  1326,  1330,  1331,  1335,  1343,
+    1344,  1345,  1349,  1349,  1349,  1350,  1351,  1355,  1356,  1357,
+    1361,  1363,  1366,  1368,  1372,  1377,  1382,  1386,  1387,  1388,
+    1389,  1393,  1394,  1395,  1396,  1402,  1403,  1404,  1405,  1406,
+    1407,  1408,  1412,  1413,  1414,  1415,  1426,  1429,  1431,  1435,
+    1436,  1440,  1444,  1445,  1448,  1449,  1453,  1454,  1455,  1459,
+    1460,  1469,  1473,  1474,  1475,  1479,  1480,  1481,  1486,  1487,
+    1488,  1489,  1493,  1494,  1498,  1502,  1506,  1513,  1514,  1518,
+    1519,  1520,  1525,  1526,  1532,  1533,  1534,  1535,  1536,  1537,
+    1541,  1545,  1549,  1549,  1549,  1553,  1554,  1555,  1556,  1557,
+    1558,  1559,  1560,  1564,  1568,  1569,  1573,  1577,  1581,  1585,
+    1593,  1597,  1598,  1602,  1603,  1604,  1605,  1606,  1607,  1608,
+    1609,  1610,  1611,  1612,  1616,  1620,  1624,  1628,  1629,  1633,
+    1634,  1638,  1642,  1643,  1644,  1645,  1646,  1647,  1651,  1652,
+    1656,  1657,  1658,  1659,  1663,  1664,  1665,  1669,  1670,  1671,
+    1675,  1676,  1677,  1678,  1679,  1683,  1684,  1685,  1689,  1690,
+    1694,  1695,  1699,  1700,  1704,  1705,  1709,  1710,  1714,  1715,
+    1717,  1722,  1723,  1727,  1728,  1729,  1730,  1731,  1732,  1733,
+    1734,  1735,  1736,  1737,  1740,  1742,  1746,  1747,  1751,  1754,
+    1756,  1760,  1761,  1765,  1769,  1770,  1773,  1775,  1779,  1780,
+    1783,  1785,  1786,  1790,  1791,  1792,  1793,  1794,  1795,  1796,
+    1797,  1798,  1799,  1800,  1801,  1802,  1803,  1804,  1805,  1806,
+    1807,  1808,  1809,  1810,  1811,  1812,  1813,  1814,  1815,  1816,
+    1817,  1818,  1819,  1820,  1821,  1822,  1823,  1824,  1825,  1826,
+    1827,  1828,  1829,  1830,  1831,  1832,  1833,  1834,  1835,  1836,
+    1837,  1838,  1839,  1840,  1841,  1842,  1843,  1844,  1845,  1846,
+    1847,  1848,  1849,  1850,  1851,  1852,  1853,  1854,  1855,  1861,
+    1865,  1868,  1870,  1874,  1876,  1877,  1881,  1882,  1883,  1884,
+    1887,  1889,  1893,  1894,  1898,  1899,  1902,  1904,  1908,  1909,
+    1913,  1917,  1918,  1922,  1923,  1924
 };
 #endif
 
@@ -3081,769 +3088,806 @@ yyreduce:
   switch (yyn)
     {
   case 12:
-#line 274 "c.y"
+#line 284 "c.y"
                            { ReenterScope(subparser); }
-#line 3087 "c.tab.c"
+#line 3094 "c.tab.c"
     break;
 
   case 13:
-#line 274 "c.y"
+#line 284 "c.y"
                                                                                          { ExitScope(subparser); }
-#line 3093 "c.tab.c"
+#line 3100 "c.tab.c"
     break;
 
   case 15:
-#line 275 "c.y"
+#line 285 "c.y"
                                { ReenterScope(subparser); }
-#line 3099 "c.tab.c"
+#line 3106 "c.tab.c"
     break;
 
   case 16:
-#line 275 "c.y"
+#line 285 "c.y"
                                                                                                              { ExitScope(subparser); }
-#line 3105 "c.tab.c"
+#line 3112 "c.tab.c"
     break;
 
   case 19:
-#line 289 "c.y"
+#line 299 "c.y"
                                { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
-#line 3111 "c.tab.c"
+#line 3118 "c.tab.c"
     break;
 
   case 20:
-#line 291 "c.y"
-        {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        }
-#line 3120 "c.tab.c"
-    break;
-
-  case 21:
-#line 296 "c.y"
-        {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        }
-#line 3129 "c.tab.c"
-    break;
-
-  case 22:
 #line 301 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 3138 "c.tab.c"
+#line 3127 "c.tab.c"
     break;
 
-  case 23:
+  case 21:
 #line 306 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 3147 "c.tab.c"
+#line 3136 "c.tab.c"
+    break;
+
+  case 22:
+#line 311 "c.y"
+        {
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+        }
+#line 3145 "c.tab.c"
+    break;
+
+  case 23:
+#line 316 "c.y"
+        {
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+        }
+#line 3154 "c.tab.c"
     break;
 
   case 24:
-#line 311 "c.y"
+#line 321 "c.y"
                                                          { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
-#line 3153 "c.tab.c"
+#line 3160 "c.tab.c"
     break;
 
   case 25:
-#line 313 "c.y"
-        {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        }
-#line 3162 "c.tab.c"
-    break;
-
-  case 26:
-#line 318 "c.y"
-        {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        }
-#line 3171 "c.tab.c"
-    break;
-
-  case 27:
 #line 323 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 3180 "c.tab.c"
+#line 3169 "c.tab.c"
     break;
 
-  case 28:
+  case 26:
 #line 328 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 3189 "c.tab.c"
+#line 3178 "c.tab.c"
+    break;
+
+  case 27:
+#line 333 "c.y"
+        {
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+        }
+#line 3187 "c.tab.c"
+    break;
+
+  case 28:
+#line 338 "c.y"
+        {
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+        }
+#line 3196 "c.tab.c"
     break;
 
   case 29:
-#line 335 "c.y"
+#line 345 "c.y"
                                 { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
-#line 3195 "c.tab.c"
+#line 3202 "c.tab.c"
     break;
 
   case 30:
-#line 337 "c.y"
-        {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        }
-#line 3204 "c.tab.c"
-    break;
-
-  case 31:
-#line 342 "c.y"
-        {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        }
-#line 3213 "c.tab.c"
-    break;
-
-  case 32:
 #line 347 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 3222 "c.tab.c"
+#line 3211 "c.tab.c"
     break;
 
-  case 33:
+  case 31:
 #line 352 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 3231 "c.tab.c"
+#line 3220 "c.tab.c"
+    break;
+
+  case 32:
+#line 357 "c.y"
+        {
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+        }
+#line 3229 "c.tab.c"
+    break;
+
+  case 33:
+#line 362 "c.y"
+        {
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+        }
+#line 3238 "c.tab.c"
     break;
 
   case 34:
-#line 362 "c.y"
+#line 372 "c.y"
                                  { ReenterScope(subparser); }
-#line 3237 "c.tab.c"
+#line 3244 "c.tab.c"
     break;
 
   case 35:
-#line 362 "c.y"
+#line 372 "c.y"
                                                                                                                              { ExitScope(subparser); }
-#line 3243 "c.tab.c"
+#line 3250 "c.tab.c"
     break;
 
   case 37:
-#line 363 "c.y"
+#line 373 "c.y"
                                      { ReenterScope(subparser); }
-#line 3249 "c.tab.c"
+#line 3256 "c.tab.c"
     break;
 
   case 38:
-#line 363 "c.y"
+#line 373 "c.y"
                                                                                                                                                  { ExitScope(subparser); }
-#line 3255 "c.tab.c"
+#line 3262 "c.tab.c"
     break;
 
   case 40:
-#line 368 "c.y"
-        {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        }
-#line 3264 "c.tab.c"
-    break;
-
-  case 41:
-#line 373 "c.y"
-        {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        }
-#line 3273 "c.tab.c"
-    break;
-
-  case 42:
 #line 378 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 3282 "c.tab.c"
+#line 3271 "c.tab.c"
     break;
 
-  case 43:
+  case 41:
 #line 383 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 3291 "c.tab.c"
+#line 3280 "c.tab.c"
+    break;
+
+  case 42:
+#line 388 "c.y"
+        {
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+        }
+#line 3289 "c.tab.c"
+    break;
+
+  case 43:
+#line 393 "c.y"
+        {
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+        }
+#line 3298 "c.tab.c"
     break;
 
   case 44:
-#line 389 "c.y"
-        {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        }
-#line 3300 "c.tab.c"
-    break;
-
-  case 45:
-#line 394 "c.y"
-        {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        }
-#line 3309 "c.tab.c"
-    break;
-
-  case 46:
 #line 399 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 3318 "c.tab.c"
+#line 3307 "c.tab.c"
     break;
 
-  case 47:
+  case 45:
 #line 404 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 3327 "c.tab.c"
+#line 3316 "c.tab.c"
+    break;
+
+  case 46:
+#line 409 "c.y"
+        {
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+        }
+#line 3325 "c.tab.c"
+    break;
+
+  case 47:
+#line 414 "c.y"
+        {
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+        }
+#line 3334 "c.tab.c"
     break;
 
   case 48:
-#line 412 "c.y"
-        {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        }
-#line 3336 "c.tab.c"
-    break;
-
-  case 49:
-#line 417 "c.y"
-        {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        }
-#line 3345 "c.tab.c"
-    break;
-
-  case 50:
 #line 422 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 3354 "c.tab.c"
+#line 3343 "c.tab.c"
     break;
 
-  case 51:
+  case 49:
 #line 427 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 3363 "c.tab.c"
+#line 3352 "c.tab.c"
+    break;
+
+  case 50:
+#line 432 "c.y"
+        {
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+        }
+#line 3361 "c.tab.c"
+    break;
+
+  case 51:
+#line 437 "c.y"
+        {
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+        }
+#line 3370 "c.tab.c"
     break;
 
   case 54:
-#line 471 "c.y"
+#line 481 "c.y"
                                 { KillReentrantScope(subparser); }
-#line 3369 "c.tab.c"
+#line 3376 "c.tab.c"
     break;
 
   case 56:
-#line 472 "c.y"
+#line 482 "c.y"
                            { KillReentrantScope(subparser); }
-#line 3375 "c.tab.c"
+#line 3382 "c.tab.c"
     break;
 
   case 58:
-#line 473 "c.y"
+#line 483 "c.y"
                         { KillReentrantScope(subparser); }
-#line 3381 "c.tab.c"
+#line 3388 "c.tab.c"
     break;
 
   case 60:
-#line 474 "c.y"
+#line 484 "c.y"
                                { KillReentrantScope(subparser); }
-#line 3387 "c.tab.c"
+#line 3394 "c.tab.c"
     break;
 
   case 62:
-#line 482 "c.y"
+#line 492 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 3396 "c.tab.c"
+#line 3403 "c.tab.c"
     break;
 
   case 64:
-#line 487 "c.y"
+#line 497 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 3405 "c.tab.c"
+#line 3412 "c.tab.c"
     break;
 
   case 66:
-#line 492 "c.y"
+#line 502 "c.y"
         {
           // reuses saved base type
           bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         }
-#line 3414 "c.tab.c"
+#line 3421 "c.tab.c"
     break;
 
   case 68:
-#line 500 "c.y"
+#line 510 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 3423 "c.tab.c"
+#line 3430 "c.tab.c"
     break;
 
   case 70:
-#line 505 "c.y"
+#line 515 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 3432 "c.tab.c"
+#line 3439 "c.tab.c"
     break;
 
   case 72:
-#line 510 "c.y"
+#line 520 "c.y"
         {
           // reuses saved base type
           bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         }
-#line 3441 "c.tab.c"
+#line 3448 "c.tab.c"
     break;
 
   case 84:
-#line 533 "c.y"
+#line 543 "c.y"
                      {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3451 "c.tab.c"
+#line 3458 "c.tab.c"
     break;
 
   case 85:
-#line 538 "c.y"
+#line 548 "c.y"
                                          {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3462 "c.tab.c"
+#line 3469 "c.tab.c"
     break;
 
   case 86:
-#line 544 "c.y"
+#line 554 "c.y"
                                                         {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3473 "c.tab.c"
+#line 3480 "c.tab.c"
     break;
 
   case 87:
-#line 553 "c.y"
+#line 563 "c.y"
                       {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3483 "c.tab.c"
+#line 3490 "c.tab.c"
     break;
 
   case 88:
-#line 558 "c.y"
+#line 568 "c.y"
                                           {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3494 "c.tab.c"
+#line 3501 "c.tab.c"
     break;
 
   case 91:
-#line 573 "c.y"
+#line 583 "c.y"
         {
           getSpecsAt(subparser, 1).add(Constants.ATT_CONSTANT);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3505 "c.tab.c"
+#line 3512 "c.tab.c"
     break;
 
   case 92:
-#line 580 "c.y"
+#line 590 "c.y"
         {
           getSpecsAt(subparser, 1).add(Constants.ATT_VOLATILE);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3516 "c.tab.c"
+#line 3523 "c.tab.c"
     break;
 
   case 93:
-#line 587 "c.y"
+#line 597 "c.y"
         {
           getSpecsAt(subparser, 1).add(Constants.ATT_RESTRICT);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3527 "c.tab.c"
+#line 3534 "c.tab.c"
     break;
 
   case 94:
-#line 594 "c.y"
+#line 604 "c.y"
         {
           /* TODO AttributeSpecifier */
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3538 "c.tab.c"
+#line 3545 "c.tab.c"
     break;
 
   case 95:
-#line 601 "c.y"
+#line 611 "c.y"
         {
           getSpecsAt(subparser, 1).add(Constants.ATT_INLINE);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3549 "c.tab.c"
+#line 3556 "c.tab.c"
     break;
 
   case 108:
-#line 634 "c.y"
+#line 644 "c.y"
                                          {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3560 "c.tab.c"
+#line 3567 "c.tab.c"
     break;
 
   case 109:
-#line 640 "c.y"
+#line 650 "c.y"
                                                  {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3571 "c.tab.c"
+#line 3578 "c.tab.c"
     break;
 
   case 110:
-#line 646 "c.y"
+#line 656 "c.y"
                                                          {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3582 "c.tab.c"
+#line 3589 "c.tab.c"
     break;
 
   case 111:
-#line 652 "c.y"
+#line 662 "c.y"
                                                   {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3593 "c.tab.c"
+#line 3600 "c.tab.c"
     break;
 
   case 112:
-#line 661 "c.y"
-                      {           /* Arithmetic or void */
-          updateSpecs(subparser,
+#line 672 "c.y"
+        {
+          // TUTORIAL: a semantic action that sets the semantic value
+          // to a new typebuilder by adding a property derived from
+          // the child semantic value(s)
+          TypeBuilder tb = getTypeBuilderAt(subparser, 1);
+          setTypeBuilder(value, tb);
+
+          updateSpecs(subparser,  // candidate for removal
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3603 "c.tab.c"
+#line 3616 "c.tab.c"
     break;
 
   case 113:
-#line 666 "c.y"
+#line 683 "c.y"
                                           {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3614 "c.tab.c"
+#line 3627 "c.tab.c"
     break;
 
   case 114:
-#line 672 "c.y"
+#line 689 "c.y"
                                            {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3625 "c.tab.c"
+#line 3638 "c.tab.c"
     break;
 
   case 115:
-#line 678 "c.y"
-                                           {
-          updateSpecs(subparser,
+#line 696 "c.y"
+        {
+          // TUTORIAL: a semantic action that sets the semantic value
+          // to a new typebuilder by adding a property derived from
+          // the child semantic value(s)
+
+          // get the semantic values of each child
+          TypeBuilder basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
+          TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
+
+          // combine the partial type specs
+          TypeBuilder tb = basicTypeSpecifier.combine(basicTypeName);
+          
+          setTypeBuilder(value, tb);
+
+          updateSpecs(subparser,  // candidate for removal
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3636 "c.tab.c"
+#line 3662 "c.tab.c"
     break;
 
   case 141:
-#line 737 "c.y"
+#line 768 "c.y"
                                          {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3647 "c.tab.c"
+#line 3673 "c.tab.c"
     break;
 
   case 142:
-#line 743 "c.y"
+#line 774 "c.y"
                                                   {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3658 "c.tab.c"
+#line 3684 "c.tab.c"
     break;
 
   case 143:
-#line 749 "c.y"
+#line 780 "c.y"
                                                           {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3669 "c.tab.c"
+#line 3695 "c.tab.c"
     break;
 
   case 144:
-#line 755 "c.y"
+#line 786 "c.y"
                                                     {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3680 "c.tab.c"
+#line 3706 "c.tab.c"
     break;
 
   case 145:
-#line 764 "c.y"
+#line 795 "c.y"
                        {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3690 "c.tab.c"
+#line 3716 "c.tab.c"
     break;
 
   case 146:
-#line 769 "c.y"
+#line 800 "c.y"
                                            {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3701 "c.tab.c"
+#line 3727 "c.tab.c"
     break;
 
   case 147:
-#line 775 "c.y"
+#line 806 "c.y"
                                             {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3712 "c.tab.c"
+#line 3738 "c.tab.c"
     break;
 
   case 148:
-#line 781 "c.y"
+#line 812 "c.y"
                                              {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3723 "c.tab.c"
+#line 3749 "c.tab.c"
     break;
 
   case 149:
-#line 790 "c.y"
+#line 821 "c.y"
                           { getSpecsAt(subparser, 1).type = InternalT.VA_LIST; }
-#line 3729 "c.tab.c"
+#line 3755 "c.tab.c"
     break;
 
   case 150:
-#line 794 "c.y"
+#line 825 "c.y"
                     { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF; }
-#line 3735 "c.tab.c"
+#line 3761 "c.tab.c"
     break;
 
   case 151:
-#line 795 "c.y"
+#line 826 "c.y"
                     { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN; }
-#line 3741 "c.tab.c"
+#line 3767 "c.tab.c"
     break;
 
   case 152:
-#line 796 "c.y"
+#line 827 "c.y"
                     { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC; }
-#line 3747 "c.tab.c"
+#line 3773 "c.tab.c"
     break;
 
   case 153:
-#line 797 "c.y"
+#line 828 "c.y"
                     { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO; }
-#line 3753 "c.tab.c"
+#line 3779 "c.tab.c"
     break;
 
   case 154:
-#line 798 "c.y"
+#line 829 "c.y"
                     { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER; }
-#line 3759 "c.tab.c"
+#line 3785 "c.tab.c"
     break;
 
   case 155:
-#line 802 "c.y"
+#line 833 "c.y"
                           { getSpecsAt(subparser, 1).type = VoidT.TYPE; }
-#line 3765 "c.tab.c"
+#line 3791 "c.tab.c"
     break;
 
   case 156:
-#line 803 "c.y"
+#line 834 "c.y"
                           { getSpecsAt(subparser, 1).seenChar = true; }
-#line 3771 "c.tab.c"
+#line 3797 "c.tab.c"
     break;
 
   case 157:
-#line 804 "c.y"
+#line 835 "c.y"
                           { getSpecsAt(subparser, 1).seenShort = true; }
-#line 3777 "c.tab.c"
+#line 3803 "c.tab.c"
     break;
 
   case 158:
-#line 805 "c.y"
-                          { getSpecsAt(subparser, 1).seenInt = true; }
-#line 3783 "c.tab.c"
+#line 837 "c.y"
+        {
+          // TUTORIAL: a semantic action that sets the semantic value
+          // to a new typebuilderby adding a property annotation.
+          
+          // See xtc.type.* for the class hiearchy for types
+          TypeBuilder tb = new TypeBuilder(NumberT.INT);
+          setTypeBuilder(value, tb);
+          
+          getSpecsAt(subparser, 1).seenInt = true;  // candidate for removal
+        }
+#line 3818 "c.tab.c"
     break;
 
   case 159:
-#line 806 "c.y"
+#line 847 "c.y"
                           { getSpecsAt(subparser, 1).seenInt = true; }
-#line 3789 "c.tab.c"
+#line 3824 "c.tab.c"
     break;
 
   case 160:
-#line 807 "c.y"
-                          { getSpecsAt(subparser, 1).longCount++; }
-#line 3795 "c.tab.c"
+#line 849 "c.y"
+        {
+          // TUTORIAL: a semantic action that sets the semantic value
+          // to a new typebuilderby adding a property annotation.
+          
+          // See xtc.type.* for the class hiearchy for types
+          TypeBuilder tb = new TypeBuilder(NumberT.LONG);
+          setTypeBuilder(value, tb);
+          
+          getSpecsAt(subparser, 1).longCount++;  // candidate for removal
+        }
+#line 3839 "c.tab.c"
     break;
 
   case 161:
-#line 808 "c.y"
+#line 859 "c.y"
                           { getSpecsAt(subparser, 1).seenFloat = true; }
-#line 3801 "c.tab.c"
+#line 3845 "c.tab.c"
     break;
 
   case 162:
-#line 809 "c.y"
+#line 860 "c.y"
                           { getSpecsAt(subparser, 1).seenDouble = true; }
-#line 3807 "c.tab.c"
+#line 3851 "c.tab.c"
     break;
 
   case 163:
-#line 810 "c.y"
+#line 861 "c.y"
                           { getSpecsAt(subparser, 1).seenSigned = true; }
-#line 3813 "c.tab.c"
+#line 3857 "c.tab.c"
     break;
 
   case 164:
-#line 811 "c.y"
+#line 862 "c.y"
                           { getSpecsAt(subparser, 1).seenUnsigned = true; }
-#line 3819 "c.tab.c"
+#line 3863 "c.tab.c"
     break;
 
   case 165:
-#line 812 "c.y"
+#line 863 "c.y"
                           { getSpecsAt(subparser, 1).seenBool = true; }
-#line 3825 "c.tab.c"
+#line 3869 "c.tab.c"
     break;
 
   case 166:
-#line 813 "c.y"
+#line 864 "c.y"
                           { getSpecsAt(subparser, 1).seenComplex = true; }
-#line 3831 "c.tab.c"
+#line 3875 "c.tab.c"
     break;
 
   case 175:
-#line 834 "c.y"
+#line 885 "c.y"
                { EnterScope(subparser); }
-#line 3837 "c.tab.c"
+#line 3881 "c.tab.c"
     break;
 
   case 176:
-#line 835 "c.y"
+#line 886 "c.y"
                                 { ExitScope(subparser); }
-#line 3843 "c.tab.c"
+#line 3887 "c.tab.c"
     break;
 
   case 177:
-#line 837 "c.y"
+#line 888 "c.y"
         {
           Node tag     = null;
           Node members = getNodeAt(subparser, 3);
@@ -3852,23 +3896,23 @@ yyreduce:
                       makeStructSpec(subparser, tag, members, attrs),
                       value);
         }
-#line 3856 "c.tab.c"
+#line 3900 "c.tab.c"
     break;
 
   case 178:
-#line 845 "c.y"
+#line 896 "c.y"
                                          { EnterScope(subparser); }
-#line 3862 "c.tab.c"
+#line 3906 "c.tab.c"
     break;
 
   case 179:
-#line 846 "c.y"
+#line 897 "c.y"
                                 { ExitScope(subparser); }
-#line 3868 "c.tab.c"
+#line 3912 "c.tab.c"
     break;
 
   case 180:
-#line 848 "c.y"
+#line 899 "c.y"
         {
           Node tag     = getNodeAt(subparser, 6);
           Node members = getNodeAt(subparser, 3);
@@ -3877,23 +3921,23 @@ yyreduce:
                       makeStructSpec(subparser, tag, members, attrs),
                       value);
         }
-#line 3881 "c.tab.c"
+#line 3925 "c.tab.c"
     break;
 
   case 182:
-#line 857 "c.y"
+#line 908 "c.y"
                                         { EnterScope(subparser); }
-#line 3887 "c.tab.c"
+#line 3931 "c.tab.c"
     break;
 
   case 183:
-#line 858 "c.y"
+#line 909 "c.y"
                                 { ExitScope(subparser); }
-#line 3893 "c.tab.c"
+#line 3937 "c.tab.c"
     break;
 
   case 184:
-#line 860 "c.y"
+#line 911 "c.y"
         {
           Node tag     = null;
           Node members = getNodeAt(subparser, 3);
@@ -3902,23 +3946,23 @@ yyreduce:
                       makeStructSpec(subparser, tag, members, attrs),
                       value);
         }
-#line 3906 "c.tab.c"
+#line 3950 "c.tab.c"
     break;
 
   case 185:
-#line 868 "c.y"
+#line 919 "c.y"
                                                                 { EnterScope(subparser); }
-#line 3912 "c.tab.c"
+#line 3956 "c.tab.c"
     break;
 
   case 186:
-#line 869 "c.y"
+#line 920 "c.y"
                                 { ExitScope(subparser); }
-#line 3918 "c.tab.c"
+#line 3962 "c.tab.c"
     break;
 
   case 187:
-#line 871 "c.y"
+#line 922 "c.y"
         {
           Node tag     = getNodeAt(subparser, 6);
           Node members = getNodeAt(subparser, 3);
@@ -3927,159 +3971,159 @@ yyreduce:
                       makeStructSpec(subparser, tag, members, attrs),
                       value);
         }
-#line 3931 "c.tab.c"
+#line 3975 "c.tab.c"
     break;
 
   case 189:
-#line 883 "c.y"
+#line 934 "c.y"
               { EnterScope(subparser); }
-#line 3937 "c.tab.c"
+#line 3981 "c.tab.c"
     break;
 
   case 190:
-#line 884 "c.y"
+#line 935 "c.y"
                                 { ExitScope(subparser); }
-#line 3943 "c.tab.c"
-    break;
-
-  case 192:
-#line 886 "c.y"
-                                        { EnterScope(subparser); }
-#line 3949 "c.tab.c"
-    break;
-
-  case 193:
-#line 887 "c.y"
-                                { ExitScope(subparser); }
-#line 3955 "c.tab.c"
-    break;
-
-  case 196:
-#line 890 "c.y"
-                                       { EnterScope(subparser); }
-#line 3961 "c.tab.c"
-    break;
-
-  case 197:
-#line 891 "c.y"
-                                { ExitScope(subparser); }
-#line 3967 "c.tab.c"
-    break;
-
-  case 199:
-#line 893 "c.y"
-                                                               { EnterScope(subparser); }
-#line 3973 "c.tab.c"
-    break;
-
-  case 200:
-#line 894 "c.y"
-                                { ExitScope(subparser); }
-#line 3979 "c.tab.c"
-    break;
-
-  case 203:
-#line 905 "c.y"
-        {
-          ((Node) value).setProperty(SPECS, new Specifiers());
-        }
 #line 3987 "c.tab.c"
     break;
 
+  case 192:
+#line 937 "c.y"
+                                        { EnterScope(subparser); }
+#line 3993 "c.tab.c"
+    break;
+
+  case 193:
+#line 938 "c.y"
+                                { ExitScope(subparser); }
+#line 3999 "c.tab.c"
+    break;
+
+  case 196:
+#line 941 "c.y"
+                                       { EnterScope(subparser); }
+#line 4005 "c.tab.c"
+    break;
+
+  case 197:
+#line 942 "c.y"
+                                { ExitScope(subparser); }
+#line 4011 "c.tab.c"
+    break;
+
+  case 199:
+#line 944 "c.y"
+                                                               { EnterScope(subparser); }
+#line 4017 "c.tab.c"
+    break;
+
+  case 200:
+#line 945 "c.y"
+                                { ExitScope(subparser); }
+#line 4023 "c.tab.c"
+    break;
+
+  case 203:
+#line 956 "c.y"
+        {
+          ((Node) value).setProperty(SPECS, new Specifiers());
+        }
+#line 4031 "c.tab.c"
+    break;
+
   case 204:
-#line 908 "c.y"
+#line 959 "c.y"
                                                   {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
-#line 3998 "c.tab.c"
+#line 4042 "c.tab.c"
     break;
 
   case 233:
-#line 978 "c.y"
+#line 1029 "c.y"
                    { BindEnum(subparser); }
-#line 4004 "c.tab.c"
+#line 4048 "c.tab.c"
     break;
 
   case 235:
-#line 979 "c.y"
+#line 1030 "c.y"
                       { BindEnum(subparser); }
-#line 4010 "c.tab.c"
+#line 4054 "c.tab.c"
     break;
 
   case 253:
-#line 1056 "c.y"
+#line 1107 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 4019 "c.tab.c"
+#line 4063 "c.tab.c"
     break;
 
   case 255:
-#line 1061 "c.y"
+#line 1112 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 4028 "c.tab.c"
+#line 4072 "c.tab.c"
     break;
 
   case 257:
-#line 1066 "c.y"
+#line 1117 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 4037 "c.tab.c"
+#line 4081 "c.tab.c"
     break;
 
   case 259:
-#line 1071 "c.y"
+#line 1122 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 4046 "c.tab.c"
+#line 4090 "c.tab.c"
     break;
 
   case 261:
-#line 1076 "c.y"
+#line 1127 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 4055 "c.tab.c"
+#line 4099 "c.tab.c"
     break;
 
   case 263:
-#line 1081 "c.y"
+#line 1132 "c.y"
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
-#line 4064 "c.tab.c"
+#line 4108 "c.tab.c"
     break;
 
   case 267:
-#line 1097 "c.y"
+#line 1148 "c.y"
                   { BindVar(subparser); }
-#line 4070 "c.tab.c"
+#line 4114 "c.tab.c"
     break;
 
   case 324:
-#line 1238 "c.y"
+#line 1289 "c.y"
         {
           /* setDecl(value, new PointerT(getDecl(getNodeAt(subparser, 1)))); */
           /* copyName(subparser, value, 1); */
         }
-#line 4079 "c.tab.c"
+#line 4123 "c.tab.c"
     break;
 
   case 325:
-#line 1243 "c.y"
+#line 1294 "c.y"
         {
           /* Specifiers spec = getSpecsAt(subparser, 2); */
           /* Type baseType = getDecl(getNodeAt(subparser, 1));; */
@@ -4087,112 +4131,112 @@ yyreduce:
           /* setDecl(value, result); */
           /* copyName(subparser, value, 1); */
         }
-#line 4091 "c.tab.c"
+#line 4135 "c.tab.c"
     break;
 
   case 330:
-#line 1261 "c.y"
+#line 1312 "c.y"
         {
           /* copyDeclName(subparser, value, 2); */
         }
-#line 4099 "c.tab.c"
+#line 4143 "c.tab.c"
     break;
 
   case 332:
-#line 1271 "c.y"
+#line 1322 "c.y"
                { EnterScope(subparser); }
-#line 4105 "c.tab.c"
+#line 4149 "c.tab.c"
     break;
 
   case 333:
-#line 1271 "c.y"
+#line 1322 "c.y"
                                                                { ExitReentrantScope(subparser); }
-#line 4111 "c.tab.c"
+#line 4155 "c.tab.c"
     break;
 
   case 336:
-#line 1279 "c.y"
+#line 1330 "c.y"
                          { /* copyDeclName(subparser, value, 1); */ }
-#line 4117 "c.tab.c"
+#line 4161 "c.tab.c"
     break;
 
   case 337:
-#line 1280 "c.y"
+#line 1331 "c.y"
                                                   { /* copyDeclName(subparser, value, 2); */ }
-#line 4123 "c.tab.c"
+#line 4167 "c.tab.c"
     break;
 
   case 338:
-#line 1285 "c.y"
+#line 1336 "c.y"
         {
           /* setDecl(value, lastSeenType(subparser)); */
           /* setName(value, getStringAt(subparser, 1)); */
         }
-#line 4132 "c.tab.c"
+#line 4176 "c.tab.c"
     break;
 
   case 342:
-#line 1298 "c.y"
+#line 1349 "c.y"
                                          { EnterScope(subparser); }
-#line 4138 "c.tab.c"
+#line 4182 "c.tab.c"
     break;
 
   case 343:
-#line 1298 "c.y"
+#line 1349 "c.y"
                                                                                    { ExitReentrantScope(subparser); }
-#line 4144 "c.tab.c"
+#line 4188 "c.tab.c"
     break;
 
   case 354:
-#line 1322 "c.y"
+#line 1373 "c.y"
         {
           /* setDecl(value, new ArrayT(getDecl(getNodeAt(subparser, 1)))); */
           /* copyName(subparser, value, 1); */
         }
-#line 4153 "c.tab.c"
+#line 4197 "c.tab.c"
     break;
 
   case 355:
-#line 1327 "c.y"
+#line 1378 "c.y"
         {
           /* setDecl(value, new ArrayT(getDecl())); */
           /* copyName(subparser, value, 1); */
         }
-#line 4162 "c.tab.c"
+#line 4206 "c.tab.c"
     break;
 
   case 420:
-#line 1490 "c.y"
+#line 1541 "c.y"
                    { useIdent(subparser, getNodeAt(subparser, 1)); }
-#line 4168 "c.tab.c"
+#line 4212 "c.tab.c"
     break;
 
   case 422:
-#line 1498 "c.y"
+#line 1549 "c.y"
                { EnterScope(subparser); }
-#line 4174 "c.tab.c"
+#line 4218 "c.tab.c"
     break;
 
   case 423:
-#line 1498 "c.y"
+#line 1549 "c.y"
                                                             { ExitScope(subparser); }
-#line 4180 "c.tab.c"
+#line 4224 "c.tab.c"
     break;
 
   case 434:
-#line 1517 "c.y"
+#line 1568 "c.y"
                                           { callFunction(subparser, getNodeAt(subparser, 3), null); }
-#line 4186 "c.tab.c"
+#line 4230 "c.tab.c"
     break;
 
   case 435:
-#line 1518 "c.y"
+#line 1569 "c.y"
                                                           { callFunction(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 2)); }
-#line 4192 "c.tab.c"
+#line 4236 "c.tab.c"
     break;
 
 
-#line 4196 "c.tab.c"
+#line 4240 "c.tab.c"
 
       default: break;
     }
@@ -4424,9 +4468,36 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 1876 "c.y"
+#line 1927 "c.y"
 
 
+// TUTORIAL: this section of the grammar gets copied into the
+// resulting parser, specifically the CActions.java class
+
+/**
+   This is just a constant string name for a property used to assign
+   semantic values that are type builders.
+ */
+private static final String TYPEBUILDER = "xtc.lang.cpp.TypeBuilder";
+
+// TUTORIAL: this function just annotates a semantic value with a typebuilder
+private void setTypeBuilder(Object value, TypeBuilder tb) {
+  // value should be not null and should be a Node type
+  setTypeBuilder((Node) value, tb);
+}
+
+// TUTORIAL: these functions retrieve a type builder from the semantic value
+private void setTypeBuilder(Node value, TypeBuilder tb) {
+  // value should be not null and should be a Node type
+  value.setProperty(TYPEBUILDER, tb);
+}
+
+private TypeBuilder getTypeBuilderAt(Subparser subparser, int component) {
+  // value should be not null and should be a Node type
+  return (TypeBuilder) getNodeAt(subparser, component).getProperty(TYPEBUILDER);
+}
+
+        
 /** True when statistics should be output. */
 private boolean languageStatistics = false;
 
