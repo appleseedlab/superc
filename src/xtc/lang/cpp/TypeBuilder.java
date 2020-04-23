@@ -3,6 +3,7 @@ package xtc.lang.cpp;
 import java.util.LinkedList;
 import java.util.List;
 
+import xtc.type.NumberT;
 import xtc.type.Type;
 import xtc.type.UnitT;
 
@@ -211,5 +212,60 @@ public class TypeBuilder {
     attributes = new LinkedList<String>(original.attributes);
     isTypeError = original.isTypeError;
   }
+
+  public TypeBuilder combine(TypeBuilder with) {
+    // TUTORIAL: this is where all the logic for combining specifiers
+    // will go
+
+    // this copy might be able to be optimized away, if we know that
+    // the reference to the semantic value won't be used again, e.g.,
+    // by another subparser
+    TypeBuilder result = new TypeBuilder(this);
+
+    // see xtc.type.Type for other helper methods for determining the
+    // kind of type
+    if (result.type.isNumber() && with.type.isNumber()) {
+      switch(((NumberT) result.type).getKind()) {
+      case INT:
+        switch(((NumberT) with.type).getKind()) {
+        case INT:
+          System.err.println("[INFO] found a type error: int int");
+          break;
+        case LONG:
+          System.err.println("[INFO] found a type error: int long");
+          break;
+        default:
+          System.err.println("[ERROR] unsupported combination of number types");
+          System.exit(1);
+        }
+        break;
+      case LONG:
+        switch(((NumberT) with.type).getKind()) {
+        case INT:
+          System.err.println("[INFO] found a valid type: long int");
+          result.type = NumberT.LONG;
+          break;
+        case LONG:
+          System.err.println("[INFO] found a valid type: long long");
+          result.type = NumberT.LONG_LONG;
+          break;
+        default:
+          System.err.println("[ERROR] unsupported combination of number types");
+          System.exit(1);
+        }
+        break;
+      default:
+        System.err.println("[ERROR] unsupported combination of number types");
+        System.exit(1);
+      }
+    } else {
+      System.err.println("[ERROR] unsupported: type builders are not numbers");
+      System.exit(1);
+    }
+
+    // TODO: check all the other combinations of type specs to check
+    // for validity and construct the new (partial) type spec
+
+    return result;
   }
 }
