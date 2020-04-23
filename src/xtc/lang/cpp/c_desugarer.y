@@ -232,6 +232,13 @@ import xtc.lang.cpp.ForkMergeParser.StackFrame;
 import java.util.ArrayList;
 import java.util.List;
 
+import xtc.type.Type;
+import xtc.type.NumberT;
+import xtc.type.StructT;
+import xtc.type.VariableT;
+import xtc.type.UnitT;
+/* TUTORIAL: add any additional type classes here */
+ 
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
@@ -659,8 +666,15 @@ BasicDeclarationSpecifier: /** passthrough, nomerge **/      /*StorageClass+Arit
         ;
 
 BasicTypeSpecifier: /** passthrough, nomerge **/
-        BasicTypeName {           /* Arithmetic or void */
-          updateSpecs(subparser,
+        BasicTypeName           /* Arithmetic or void */
+        {
+          // TUTORIAL: a semantic action that sets the semantic value
+          // to a new typebuilder by adding a property derived from
+          // the child semantic value(s)
+          TypeBuilder tb = getTypeBuilderAt(subparser, 1);
+          setTypeBuilder(value, tb);
+
+          updateSpecs(subparser,  // candidate for removal
                       getSpecsAt(subparser, 1),
                       value);
         }
@@ -676,8 +690,22 @@ BasicTypeSpecifier: /** passthrough, nomerge **/
                       getSpecsAt(subparser, 1),
                       value);
         }
-        | BasicTypeSpecifier BasicTypeName {
-          updateSpecs(subparser,
+        | BasicTypeSpecifier BasicTypeName
+        {
+          // TUTORIAL: a semantic action that sets the semantic value
+          // to a new typebuilder by adding a property derived from
+          // the child semantic value(s)
+
+          // get the semantic values of each child
+          TypeBuilder basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
+          TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
+
+          // combine the partial type specs
+          TypeBuilder tb = basicTypeSpecifier.combine(basicTypeName);
+          
+          setTypeBuilder(value, tb);
+
+          updateSpecs(subparser,  // candidate for removal
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
@@ -803,9 +831,29 @@ BasicTypeName:  /** passthrough **/
         VOID              { getSpecsAt(subparser, 1).type = VoidT.TYPE; }
         | CHAR            { getSpecsAt(subparser, 1).seenChar = true; }
         | SHORT           { getSpecsAt(subparser, 1).seenShort = true; }
-        | INT             { getSpecsAt(subparser, 1).seenInt = true; }
+        | INT
+        {
+          // TUTORIAL: a semantic action that sets the semantic value
+          // to a new typebuilderby adding a property annotation.
+          
+          // See xtc.type.* for the class hiearchy for types
+          TypeBuilder tb = new TypeBuilder(NumberT.INT);
+          setTypeBuilder(value, tb);
+          
+          getSpecsAt(subparser, 1).seenInt = true;  // candidate for removal
+        }
         | __INT128        { getSpecsAt(subparser, 1).seenInt = true; }
-        | LONG            { getSpecsAt(subparser, 1).longCount++; }
+        | LONG
+        {
+          // TUTORIAL: a semantic action that sets the semantic value
+          // to a new typebuilderby adding a property annotation.
+          
+          // See xtc.type.* for the class hiearchy for types
+          TypeBuilder tb = new TypeBuilder(NumberT.LONG);
+          setTypeBuilder(value, tb);
+          
+          getSpecsAt(subparser, 1).longCount++;  // candidate for removal
+        }
         | FLOAT           { getSpecsAt(subparser, 1).seenFloat = true; }
         | DOUBLE          { getSpecsAt(subparser, 1).seenDouble = true; }
         | SignedKeyword   { getSpecsAt(subparser, 1).seenSigned = true; }
@@ -1876,6 +1924,33 @@ AsmKeyword:   // ADDED
 
 %%
 
+// TUTORIAL: this section of the grammar gets copied into the
+// resulting parser, specifically the CActions.java class
+
+/**
+   This is just a constant string name for a property used to assign
+   semantic values that are type builders.
+ */
+private static final String TYPEBUILDER = "xtc.lang.cpp.TypeBuilder";
+
+// TUTORIAL: this function just annotates a semantic value with a typebuilder
+private void setTypeBuilder(Object value, TypeBuilder tb) {
+  // value should be not null and should be a Node type
+  setTypeBuilder((Node) value, tb);
+}
+
+// TUTORIAL: these functions retrieve a type builder from the semantic value
+private void setTypeBuilder(Node value, TypeBuilder tb) {
+  // value should be not null and should be a Node type
+  value.setProperty(TYPEBUILDER, tb);
+}
+
+private TypeBuilder getTypeBuilderAt(Subparser subparser, int component) {
+  // value should be not null and should be a Node type
+  return (TypeBuilder) getNodeAt(subparser, component).getProperty(TYPEBUILDER);
+}
+
+        
 /** True when statistics should be output. */
 private boolean languageStatistics = false;
 
