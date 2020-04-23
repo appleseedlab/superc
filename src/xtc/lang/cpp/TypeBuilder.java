@@ -27,6 +27,8 @@ public class TypeBuilder {
 
   List<String> attributes;
 
+  boolean isTypeError;
+
   public String attributesToString() {
     return String.join(" ", attributes);
   }
@@ -94,6 +96,7 @@ public class TypeBuilder {
     isComplex = old.isComplex;
     longCount = old.longCount;
     attributes = new LinkedList<String>(old.attributes);
+    isTypeError = old.isTypeError;
 
     if (name.equals("auto"))
       isAuto = true;
@@ -140,6 +143,7 @@ public class TypeBuilder {
     isComplex = false;
     longCount = 0;
     attributes = new LinkedList<String>();
+    isTypeError = false;
   }
 
   // copy constructor that changes type (should be used whenever a type is found)
@@ -162,6 +166,7 @@ public class TypeBuilder {
       isComplex = old.isComplex;
       longCount = old.longCount;
       attributes = new LinkedList<String>(old.attributes);
+      isTypeError = old.isTypeError;
     }
     else {
       System.err.println("ERROR: identifier has multiple conflicting types.");
@@ -185,6 +190,7 @@ public class TypeBuilder {
     isComplex = false;
     longCount = 0;
     attributes = new LinkedList<String>();
+    isTypeError = false;
   }
 
   // copy constructor
@@ -203,5 +209,7 @@ public class TypeBuilder {
     isComplex = original.isComplex;
     longCount = original.longCount;
     attributes = new LinkedList<String>(original.attributes);
+    isTypeError = original.isTypeError;
+  }
   }
 }
