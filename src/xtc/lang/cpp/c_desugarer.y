@@ -506,11 +506,14 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
 DeclaringList:  /** nomerge **/
         DeclarationSpecifier Declarator
         {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
+	  saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         | TypeSpecifier Declarator
         {
+	  TypeBuilder type = getTypeBuilderAt(subparser, 2);
+	  System.out.println(type);
+	  
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
@@ -640,6 +643,14 @@ FunctionSpecifier:  // ADDED
 
 BasicDeclarationSpecifier: /** passthrough, nomerge **/      /*StorageClass+Arithmetic or void*/
         BasicTypeSpecifier  StorageClass {
+	  TypeBuilder basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
+          TypeBuilder storageClass = getTypeBuilderAt(subparser, 1);
+
+          // combine the partial type specs
+          TypeBuilder tb = basicTypeSpecifier.combine(storageClass);
+          
+          setTypeBuilder(value, tb);
+
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -658,6 +669,14 @@ BasicDeclarationSpecifier: /** passthrough, nomerge **/      /*StorageClass+Arit
                       value);
         }
         | BasicDeclarationSpecifier BasicTypeName {
+	  TypeBuilder basicDeclSpecifier = getTypeBuilderAt(subparser, 2);
+          TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
+
+          // combine the partial type specs
+          TypeBuilder tb = basicDeclSpecifier.combine(basicTypeName);
+
+	  setTypeBuilder(value, tb);
+	  
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
