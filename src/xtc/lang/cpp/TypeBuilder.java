@@ -23,7 +23,7 @@ public class TypeBuilder {
   boolean isSigned;
   boolean isUnsigned;
   boolean isComplex;
-
+  
   int longCount;
 
   List<String> attributes;
@@ -196,21 +196,21 @@ public class TypeBuilder {
 
   // copy constructor
   public TypeBuilder(TypeBuilder original) {
-    type = original.type;
-    isAuto = original.isAuto;
-    isConst = original.isConst;
-    isVolatile = original.isVolatile;
-    isExtern = original.isExtern;
-    isStatic = original.isStatic;
-    isRegister = original.isRegister;
-    isThreadlocal = original.isRegister;
-    isInline = original.isInline;
-    isSigned = original.isSigned;
-    isUnsigned = original.isUnsigned;
-    isComplex = original.isComplex;
-    longCount = original.longCount;
-    attributes = new LinkedList<String>(original.attributes);
-    isTypeError = original.isTypeError;
+      type = original.type;
+      isAuto = original.isAuto;
+      isConst = original.isConst;
+      isVolatile = original.isVolatile;
+      isExtern = original.isExtern;
+      isStatic = original.isStatic;
+      isRegister = original.isRegister;
+      isThreadlocal = original.isRegister;
+      isInline = original.isInline;
+      isSigned = original.isSigned;
+      isUnsigned = original.isUnsigned;
+      isComplex = original.isComplex;
+      longCount = original.longCount;
+      attributes = new LinkedList<String>(original.attributes);
+      isTypeError = original.isTypeError;
   }
 
   public TypeBuilder combine(TypeBuilder with) {
@@ -232,7 +232,9 @@ public class TypeBuilder {
           System.err.println("[INFO] found a type error: int int");
           break;
         case LONG:
-          System.err.println("[INFO] found a type error: int long");
+	    //needs to handle the existance of int to make sure it doesn't appear twice
+          System.err.println("[INFO] found a type: int long");
+	  result.type = NumberT.LONG;
           break;
         default:
           System.err.println("[ERROR] unsupported combination of number types");

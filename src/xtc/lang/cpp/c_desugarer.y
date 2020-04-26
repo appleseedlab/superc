@@ -504,18 +504,15 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         ;
 
 DeclaringList:  /** nomerge **/
-        DeclarationSpecifier Declarator
-        {
-	  saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
+        DeclarationSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
+	{
+	  
+	}
         | TypeSpecifier Declarator
         {
 	  TypeBuilder type = getTypeBuilderAt(subparser, 2);
+	  //todo: add mapping
 	  System.out.println(type);
-	  
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
@@ -651,16 +648,16 @@ BasicDeclarationSpecifier: /** passthrough, nomerge **/      /*StorageClass+Arit
           
           setTypeBuilder(value, tb);
 
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
-                      getSpecsAt(subparser, 1),
-                      value);
         }
         | DeclarationQualifierList BasicTypeName {
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
-                      getSpecsAt(subparser, 1),
-                      value);
+	  TypeBuilder qualList = getTypeBuilderAt(subparser, 2);
+          TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
+
+          // combine the partial type specs
+          TypeBuilder tb = qualList.combine(basicTypeName);
+
+	  setTypeBuilder(value, tb);
+	  
         }
         | BasicDeclarationSpecifier DeclarationQualifier {
           updateSpecs(subparser,
@@ -676,12 +673,7 @@ BasicDeclarationSpecifier: /** passthrough, nomerge **/      /*StorageClass+Arit
           TypeBuilder tb = basicDeclSpecifier.combine(basicTypeName);
 
 	  setTypeBuilder(value, tb);
-	  
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
-                      getSpecsAt(subparser, 1),
-                      value);
-        }
+	}
         ;
 
 BasicTypeSpecifier: /** passthrough, nomerge **/
@@ -692,10 +684,6 @@ BasicTypeSpecifier: /** passthrough, nomerge **/
           // the child semantic value(s)
           TypeBuilder tb = getTypeBuilderAt(subparser, 1);
           setTypeBuilder(value, tb);
-
-          updateSpecs(subparser,  // candidate for removal
-                      getSpecsAt(subparser, 1),
-                      value);
         }
         | TypeQualifierList BasicTypeName {
           updateSpecs(subparser,
@@ -723,11 +711,6 @@ BasicTypeSpecifier: /** passthrough, nomerge **/
           TypeBuilder tb = basicTypeSpecifier.combine(basicTypeName);
           
           setTypeBuilder(value, tb);
-
-          updateSpecs(subparser,  // candidate for removal
-                      getSpecsAt(subparser, 2),
-                      getSpecsAt(subparser, 1),
-                      value);
         }
         ;
 
@@ -859,7 +842,6 @@ BasicTypeName:  /** passthrough **/
           TypeBuilder tb = new TypeBuilder(NumberT.INT);
           setTypeBuilder(value, tb);
           
-          getSpecsAt(subparser, 1).seenInt = true;  // candidate for removal
         }
         | __INT128        { getSpecsAt(subparser, 1).seenInt = true; }
         | LONG
@@ -871,7 +853,6 @@ BasicTypeName:  /** passthrough **/
           TypeBuilder tb = new TypeBuilder(NumberT.LONG);
           setTypeBuilder(value, tb);
           
-          getSpecsAt(subparser, 1).longCount++;  // candidate for removal
         }
         | FLOAT           { getSpecsAt(subparser, 1).seenFloat = true; }
         | DOUBLE          { getSpecsAt(subparser, 1).seenDouble = true; }
