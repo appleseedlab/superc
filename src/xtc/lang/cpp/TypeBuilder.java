@@ -128,6 +128,53 @@ public class TypeBuilder {
     }
   }
 
+  // creates a new typebuilder using a string (which is NOT a type)
+  public TypeBuilder(String name) {
+    type = new UnitT();
+    isAuto = false;
+    isConst = false;
+    isVolatile = false;
+    isExtern = false;
+    isStatic = false;
+    isRegister = false;
+    isThreadlocal = false;
+    isInline = false;
+    isSigned = false;
+    isUnsigned = false;
+    isComplex = false;
+    longCount = 0;
+    attributes = new LinkedList<String>();
+    isTypeError = false;
+    
+    if (name.equals("auto"))
+      isAuto = true;
+    else if (name.equals("const"))
+      isConst = true;
+    else if (name.equals("volatile"))
+      isVolatile = true;
+    else if (name.equals("extern"))
+      isExtern = true;
+    else if (name.equals("static"))
+      isStatic = true;
+    else if (name.equals("register"))
+      isRegister = true;
+    else if (name.equals("__thread"))
+      isThreadlocal = true;
+    else if (name.equals("inline"))
+      isInline = true;
+    else if (name.equals("signed"))
+      isSigned = true;
+    else if (name.equals("unsigned"))
+      isUnsigned = true;
+    else if (name.equals("complex"))
+      isComplex = true;
+    else if (name.equals("long"))
+      longCount += 1;
+    else {
+      attributes.add(name);
+    }
+  }
+
   // creates a new typebuilder using only a type
   public TypeBuilder(Type type) {
     this.type = type;
