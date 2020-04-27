@@ -886,10 +886,17 @@ BasicTypeName:  /** passthrough **/
           TypeBuilder tb = new TypeBuilder("unsigned");
           setTypeBuilder(value, tb);
         }
-        | _BOOL           { getSpecsAt(subparser, 1).seenBool = true; }  // ADDED
-        | ComplexKeyword  { getSpecsAt(subparser, 1).seenComplex = true; }  // ADDED
+        | _BOOL
+        {
+          TypeBuilder tb = new TypeBuilder(BooleanT.TYPE);
+          setTypeBuilder(value, tb);
+        }
+        | ComplexKeyword
+        {
+        TypeBuilder tb = new TypeBuilder("complex");
+        setTypeBuilder(value, tb);
+        }
         ;
-
 
 SignedKeyword:
         SIGNED
