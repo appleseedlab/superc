@@ -256,6 +256,17 @@ public class TypeBuilder {
           System.exit(1);
         }
         break;
+      case LONG_LONG:
+        switch(((NumberT) with.type).getKind()) {
+        case INT:
+          System.err.println("[INFO] found a valid type: long long");
+          result.type = NumberT.LONG_LONG;
+          break;
+        default:
+          System.err.println("[ERROR] unsupported combination of number types");
+          System.exit(1);
+        }
+        break;
       default:
         System.err.println("[ERROR] unsupported combination of number types");
         System.exit(1);
