@@ -876,11 +876,20 @@ BasicTypeName:  /** passthrough **/
           TypeBuilder tb = new TypeBuilder(NumberT.DOUBLE);
           setTypeBuilder(value, tb);
         }
-        | SignedKeyword   { getSpecsAt(subparser, 1).seenSigned = true; }
-        | UNSIGNED        { getSpecsAt(subparser, 1).seenUnsigned = true; }
+        | SignedKeyword
+        {
+          TypeBuilder tb = new TypeBuilder("signed");
+          setTypeBuilder(value, tb);
+        }
+        | UNSIGNED
+        {
+          TypeBuilder tb = new TypeBuilder("unsigned");
+          setTypeBuilder(value, tb);
+        }
         | _BOOL           { getSpecsAt(subparser, 1).seenBool = true; }  // ADDED
         | ComplexKeyword  { getSpecsAt(subparser, 1).seenComplex = true; }  // ADDED
         ;
+
 
 SignedKeyword:
         SIGNED
