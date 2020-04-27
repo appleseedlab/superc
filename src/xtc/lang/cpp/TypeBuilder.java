@@ -288,6 +288,10 @@ public class TypeBuilder {
       isTypeError = true;
     else if ((result.isThreadlocal || with.isThreadlocal) && (result.isRegister || with.isRegister))
       isTypeError = true;
+  
+    // checks for variables with inline specifier
+    if ((result.type.isVariable() || with.type.isVariable()) && (result.isInline || with.isInline))
+      isTypeError = true;
 
     // see xtc.type.Type for other helper methods for determining the
     // kind of type
