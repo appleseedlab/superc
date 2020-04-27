@@ -269,6 +269,26 @@ public class TypeBuilder {
     // by another subparser
     TypeBuilder result = new TypeBuilder(this);
 
+    // checks for mutually-exclusive qualifiers
+    if ((result.isStatic || with.isStatic) && (result.isExtern || with.isExtern))
+      isTypeError = true;
+    else if ((result.isStatic || with.isStatic) && (result.isAuto || with.isAuto))
+      isTypeError = true;
+    else if ((result.isExtern || with.isExtern) && (result.isAuto || with.isAuto))
+      isTypeError = true;
+    else if ((result.isRegister || with.isRegister) && (result.isStatic || with.isStatic))
+      isTypeError = true;
+    else if ((result.isRegister || with.isRegister) && (result.isAuto || with.isAuto))
+      isTypeError = true;
+    else if ((result.isRegister || with.isRegister) && (result.isStatic || with.isStatic))
+      isTypeError = true;
+    else if ((result.isRegister || with.isRegister) && (result.isExtern || with.isExtern))
+      isTypeError = true;
+    else if ((result.isThreadlocal || with.isThreadlocal) && (result.isAuto || with.isAuto))
+      isTypeError = true;
+    else if ((result.isThreadlocal || with.isThreadlocal) && (result.isRegister || with.isRegister))
+      isTypeError = true;
+
     // see xtc.type.Type for other helper methods for determining the
     // kind of type
     if (result.type.isNumber() && with.type.isNumber()) {
