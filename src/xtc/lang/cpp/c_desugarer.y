@@ -830,32 +830,52 @@ StorageClass:  /** passthrough **/
         ;
 
 BasicTypeName:  /** passthrough **/
-        VOID              { getSpecsAt(subparser, 1).type = VoidT.TYPE; }
-        | CHAR            { getSpecsAt(subparser, 1).seenChar = true; }
-        | SHORT           { getSpecsAt(subparser, 1).seenShort = true; }
+        VOID
+        {
+          TypeBuilder tb = new TypeBuilder(VoidT.TYPE);
+          setTypeBuilder(value, tb);
+        }
+        | CHAR
+        {
+          TypeBuilder tb = new TypeBuilder(NumberT.CHAR);
+          setTypeBuilder(value, tb);
+        }
+        | SHORT
+        {
+          TypeBuilder tb = new TypeBuilder(NumberT.SHORT);
+          setTypeBuilder(value, tb);
+        }
         | INT
         {
           // TUTORIAL: a semantic action that sets the semantic value
           // to a new typebuilderby adding a property annotation.
-          
+
           // See xtc.type.* for the class hiearchy for types
           TypeBuilder tb = new TypeBuilder(NumberT.INT);
           setTypeBuilder(value, tb);
-          
+
         }
-        | __INT128        { getSpecsAt(subparser, 1).seenInt = true; }
+        | __INT128        { getSpecsAt(subparser, 1).seenInt = true; } // TODO
         | LONG
         {
           // TUTORIAL: a semantic action that sets the semantic value
           // to a new typebuilderby adding a property annotation.
-          
+
           // See xtc.type.* for the class hiearchy for types
           TypeBuilder tb = new TypeBuilder(NumberT.LONG);
           setTypeBuilder(value, tb);
-          
+
         }
-        | FLOAT           { getSpecsAt(subparser, 1).seenFloat = true; }
-        | DOUBLE          { getSpecsAt(subparser, 1).seenDouble = true; }
+        | FLOAT
+        {
+          TypeBuilder tb = new TypeBuilder(NumberT.FLOAT);
+          setTypeBuilder(value, tb);
+        }
+        | DOUBLE
+        {
+          TypeBuilder tb = new TypeBuilder(NumberT.DOUBLE);
+          setTypeBuilder(value, tb);
+        }
         | SignedKeyword   { getSpecsAt(subparser, 1).seenSigned = true; }
         | UNSIGNED        { getSpecsAt(subparser, 1).seenUnsigned = true; }
         | _BOOL           { getSpecsAt(subparser, 1).seenBool = true; }  // ADDED
