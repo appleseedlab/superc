@@ -855,7 +855,11 @@ BasicTypeName:  /** passthrough **/
           setTypeBuilder(value, tb);
 
         }
-        | __INT128        { getSpecsAt(subparser, 1).seenInt = true; } // TODO
+        | __INT128
+	{
+          TypeBuilder tb = new TypeBuilder(NumberT.__INT128);
+          setTypeBuilder(value, tb);
+        }
         | LONG
         {
           // TUTORIAL: a semantic action that sets the semantic value
@@ -893,8 +897,8 @@ BasicTypeName:  /** passthrough **/
         }
         | ComplexKeyword
         {
-        TypeBuilder tb = new TypeBuilder("complex");
-        setTypeBuilder(value, tb);
+	  TypeBuilder tb = new TypeBuilder("complex");
+          setTypeBuilder(value, tb);
         }
         ;
 
