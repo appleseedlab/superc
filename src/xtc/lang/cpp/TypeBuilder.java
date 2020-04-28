@@ -1,28 +1,25 @@
 package xtc.lang.cpp;
-
 import java.util.LinkedList;
 import java.util.List;
-
 import xtc.type.NumberT;
 import xtc.type.Type;
 import xtc.type.UnitT;
 
-
 public class TypeBuilder {
-  Type type; // void, char, short, int, long, float, double, SUE, typedef
+  Type type; // void, char, short, int, long, float, double, SUE, typedef                        
+    enum QUAL {isAuto, isConst, isVolatile, isExtern, isStatic, isRegister, isThreadlocal,
+               isInline, isSigned, isUnsigned, isComplex}
+    final int NUM_QUALS = 11;
+    enum FOUND_TYPE {seenInt, seenLong, seenLongLong, seenChar, seenShort, seenFloat, seenDouble,
+                     seenComplex}
+    final int NUM_TYPES = 8;
+  // note: these can appear in any order (in the source file), and they will be initialized to false                                                                        /*boolean isAuto;                                                                                           
+  boolean isConst;                                                                                                                                                                                                 
 
-  // note: these can appear in any order (in the source file), and they will be initialized to false
-  boolean isAuto;
-  boolean isConst;
-  boolean isVolatile;
-  boolean isExtern;
-  boolean isStatic;
-  boolean isRegister;
-  boolean isThreadlocal;
-  boolean isInline;
-  boolean isSigned;
-  boolean isUnsigned;
-  boolean isComplex;
+
+    boolean qualifiers[] = new boolean[NUM_QUALS];
+    boolean foundTypes[] = new boolean[NUM_TYPES];
+ // boolean seenInt;     
   
   int longCount;
 
@@ -39,27 +36,27 @@ public class TypeBuilder {
 
     // TODO: check if the order of these matters
 
-    if (isAuto)
+    if (qualifiers[QUAL.isAuto.ordinal()])
       sb.append("auto ");
-    if (isConst)
+    if (qualifiers[QUAL.isConst.ordinal()])
       sb.append("const ");
-    if (isVolatile)
+    if (qualifiers[QUAL.isVolatile.ordinal()])
       sb.append("volatile ");
-    if (isExtern)
+    if (qualifiers[QUAL.isExtern.ordinal()])
       sb.append("extern ");
-    if (isStatic)
+    if (qualifiers[QUAL.isStatic.ordinal()])
       sb.append("static ");
-    if (isRegister)
+    if (qualifiers[QUAL.isRegister.ordinal()])
       sb.append("register ");
-    if (isThreadlocal)
+    if (qualifiers[QUAL.isThreadlocal.ordinal()])
       sb.append("__thread ");
-    if (isInline)
+    if (qualifiers[QUAL.isInline.ordinal()])
       sb.append("inline");
-    if (isSigned)
+    if (qualifiers[QUAL.isSigned.ordinal()])
       sb.append("signed");
-    if (isUnsigned)
+    if (qualifiers[QUAL.isUnsigned.ordinal()])
       sb.append("unsigned");
-    if (isComplex)
+    if (qualifiers[QUAL.isComplex.ordinal()])
       sb.append("complex");
 
     for (int i = 0; i < longCount; i++)
@@ -78,49 +75,42 @@ public class TypeBuilder {
   }
 
   public Type toType() {
-    return type; // placeholder
+		return type; // placeholder
      // TODO: create the type based on all of the fields, then return that.
   }
 
   public TypeBuilder(TypeBuilder old, String name) {
     type = old.type;
-    isAuto = old.isAuto;
-    isConst = old.isConst;
-    isVolatile = old.isVolatile;
-    isExtern = old.isExtern;
-    isStatic = old.isStatic;
-    isRegister = old.isRegister;
-    isThreadlocal = old.isRegister;
-    isInline = old.isInline;
-    isSigned = old.isSigned;
-    isUnsigned = old.isUnsigned;
-    isComplex = old.isComplex;
-    longCount = old.longCount;
-    attributes = new LinkedList<String>(old.attributes);
-    isTypeError = old.isTypeError;
+		
+		for (int i = 0; i < NUM_QUALS; ++i)
+		qualifiers[i] = old.qualifiers[i];
+		
+		attributes = new LinkedList<String>(old.attributes);
+    
+		isTypeError = old.isTypeError;
 
     if (name.equals("auto"))
-      isAuto = true;
+      qualifiers[QUAL.isAuto.ordinal()] = true;
     else if (name.equals("const"))
-      isConst = true;
+      qualifiers[QUAL.isConst.ordinal()] = true;
     else if (name.equals("volatile"))
-      isVolatile = true;
+      qualifiers[QUAL.isVolatile.ordinal()] = true;
     else if (name.equals("extern"))
-      isExtern = true;
+      qualifiers[QUAL.isExtern.ordinal()] = true;
     else if (name.equals("static"))
-      isStatic = true;
+      qualifiers[QUAL.isStatic.ordinal()] = true;
     else if (name.equals("register"))
-      isRegister = true;
+      qualifiers[QUAL.isRegister.ordinal()] = true;
     else if (name.equals("__thread"))
-      isThreadlocal = true;
+      qualifiers[QUAL.isThreadlocal.ordinal()] = true;
     else if (name.equals("inline"))
-      isInline = true;
+      qualifiers[QUAL.isInline.ordinal()] = true;
     else if (name.equals("signed"))
-      isSigned = true;
+      qualifiers[QUAL.isSigned.ordinal()] = true;
     else if (name.equals("unsigned"))
-      isUnsigned = true;
+      qualifiers[QUAL.isUnsigned.ordinal()] = true;
     else if (name.equals("complex"))
-      isComplex = true;
+      qualifiers[QUAL.isComplex.ordinal()] = true;
     else if (name.equals("long"))
       longCount += 1;
     else {
@@ -131,43 +121,34 @@ public class TypeBuilder {
   // creates a new typebuilder using a string (which is NOT a type)
   public TypeBuilder(String name) {
     type = new UnitT();
-    isAuto = false;
-    isConst = false;
-    isVolatile = false;
-    isExtern = false;
-    isStatic = false;
-    isRegister = false;
-    isThreadlocal = false;
-    isInline = false;
-    isSigned = false;
-    isUnsigned = false;
-    isComplex = false;
+    for (int i = 0; i < NUM_QUALS; ++i)
+		  qualifiers[i] = false;
     longCount = 0;
     attributes = new LinkedList<String>();
     isTypeError = false;
     
     if (name.equals("auto"))
-      isAuto = true;
+      qualifiers[QUAL.isAuto.ordinal()] = true;
     else if (name.equals("const"))
-      isConst = true;
+      qualifiers[QUAL.isConst.ordinal()] = true;
     else if (name.equals("volatile"))
-      isVolatile = true;
+      qualifiers[QUAL.isVolatile.ordinal()] = true;
     else if (name.equals("extern"))
-      isExtern = true;
+      qualifiers[QUAL.isExtern.ordinal()] = true;
     else if (name.equals("static"))
-      isStatic = true;
+      qualifiers[QUAL.isStatic.ordinal()] = true;
     else if (name.equals("register"))
-      isRegister = true;
+      qualifiers[QUAL.isRegister.ordinal()] = true;
     else if (name.equals("__thread"))
-      isThreadlocal = true;
+      qualifiers[QUAL.isThreadlocal.ordinal()] = true;
     else if (name.equals("inline"))
-      isInline = true;
+      qualifiers[QUAL.isInline.ordinal()] = true;
     else if (name.equals("signed"))
-      isSigned = true;
+      qualifiers[QUAL.isSigned.ordinal()] = true;
     else if (name.equals("unsigned"))
-      isUnsigned = true;
+      qualifiers[QUAL.isUnsigned.ordinal()] = true;
     else if (name.equals("complex"))
-      isComplex = true;
+      qualifiers[QUAL.isComplex.ordinal()] = true;
     else if (name.equals("long"))
       longCount += 1;
     else {
@@ -178,20 +159,12 @@ public class TypeBuilder {
   // creates a new typebuilder using only a type
   public TypeBuilder(Type type) {
     this.type = type;
-    isAuto = false;
-    isConst = false;
-    isVolatile = false;
-    isExtern = false;
-    isStatic = false;
-    isRegister = false;
-    isThreadlocal = false;
-    isInline = false;
-    isSigned = false;
-    isUnsigned = false;
-    isComplex = false;
+    for (int i = 0; i < NUM_QUALS; ++i)
+		  qualifiers[i] = false;
     longCount = 0;
     attributes = new LinkedList<String>();
     isTypeError = false;
+    //foundTypes[FOUND_TYPE.seenInt.ordinal()] = type.hasKind(NumberT.Kind.INT);
   }
 
   // copy constructor that changes type (should be used whenever a type is found)
@@ -201,17 +174,8 @@ public class TypeBuilder {
     // copy constructor that changes the type
     if (old.type instanceof UnitT) {
       this.type = type;
-      isAuto = old.isAuto;
-      isConst = old.isConst;
-      isVolatile = old.isVolatile;
-      isExtern = old.isExtern;
-      isStatic = old.isStatic;
-      isRegister = old.isRegister;
-      isThreadlocal = old.isRegister;
-      isInline = old.isInline;
-      isSigned = old.isSigned;
-      isUnsigned = old.isUnsigned;
-      isComplex = old.isComplex;
+				for (int i = 0; i < NUM_QUALS; ++i)
+					qualifiers[i] = old.qualifiers[i];
       longCount = old.longCount;
       attributes = new LinkedList<String>(old.attributes);
       isTypeError = old.isTypeError;
@@ -225,40 +189,57 @@ public class TypeBuilder {
   // sets all flags to false and type starts as unit
   public TypeBuilder() {
     type = new UnitT();
-    isAuto = false;
-    isConst = false;
-    isVolatile = false;
-    isExtern = false;
-    isStatic = false;
-    isRegister = false;
-    isThreadlocal = false;
-    isInline = false;
-    isSigned = false;
-    isUnsigned = false;
-    isComplex = false;
+    for (int i = 0; i < NUM_QUALS; ++i)
+		  qualifiers[i] = false;
     longCount = 0;
     attributes = new LinkedList<String>();
     isTypeError = false;
+   	foundTypes[FOUND_TYPE.seenInt.ordinal()] = false;
   }
 
   // copy constructor
-  public TypeBuilder(TypeBuilder original) {
-      type = original.type;
-      isAuto = original.isAuto;
-      isConst = original.isConst;
-      isVolatile = original.isVolatile;
-      isExtern = original.isExtern;
-      isStatic = original.isStatic;
-      isRegister = original.isRegister;
-      isThreadlocal = original.isRegister;
-      isInline = original.isInline;
-      isSigned = original.isSigned;
-      isUnsigned = original.isUnsigned;
-      isComplex = original.isComplex;
-      longCount = original.longCount;
-      attributes = new LinkedList<String>(original.attributes);
-      isTypeError = original.isTypeError;
+  public TypeBuilder(TypeBuilder old) {
+      type = old.type;
+			for (int i = 0; i < NUM_QUALS; ++i)
+				qualifiers[i] = old.qualifiers[i];
+      longCount = old.longCount;
+      attributes = new LinkedList<String>(old.attributes);
+      isTypeError = old.isTypeError;
   }
+
+
+	private boolean qualComboExists(TypeBuilder t1, TypeBuilder t2, QUAL opt1, QUAL opt2)
+	{
+		return ((t1.qualifiers[opt1.ordinal()] || t2.qualifiers[opt1.ordinal()]) && (t1.qualifiers[opt2.ordinal()] || t2.qualifiers[opt2.ordinal()]));
+	} 
+
+	private boolean typeComboExists(TypeBuilder t1, TypeBuilder t2, FOUND_TYPE opt1, FOUND_TYPE opt2)
+	{
+		return ((t1.foundTypes[opt1.ordinal()] ^ t2.foundTypes[opt1.ordinal()]) && (t1.foundTypes[opt2.ordinal()] ^ t2.foundTypes[opt2.ordinal()]));
+	} 
+
+
+private boolean isValidTypes(TypeBuilder t1, TypeBuilder t2)
+{
+	for (int i = 0; i < NUM_TYPES; ++i)
+		for (int j = 0; j < NUM_TYPES; ++j)
+			if (t1.foundTypes[i] && t2.foundTypes[j])
+	            //long int	
+				if (! (typeComboExists(t1,t2,FOUND_TYPE.seenLong,FOUND_TYPE.seenInt) || 
+            //longlong int
+            typeComboExists(t1,t2,FOUND_TYPE.seenLongLong,FOUND_TYPE.seenInt) ||
+            //long double
+            typeComboExists(t1,t2,FOUND_TYPE.seenLong,FOUND_TYPE.seenDouble) ||
+            //float complex
+            typeComboExists(t1,t2,FOUND_TYPE.seenFloat,FOUND_TYPE.seenComplex) ||
+            //double complex
+            typeComboExists(t1,t2,FOUND_TYPE.seenDouble,FOUND_TYPE.seenComplex) ||
+            //long double complex
+            (typeComboExists(t1,t2,FOUND_TYPE.seenDouble,FOUND_TYPE.seenComplex) && 
+						(t1.foundTypes[FOUND_TYPE.seenLong.ordinal()] ^ t2.foundTypes[FOUND_TYPE.seenLong.ordinal()]) )))
+					return false;
+	return true;
+}
 
   public TypeBuilder combine(TypeBuilder with) {
     // TUTORIAL: this is where all the logic for combining specifiers
@@ -268,29 +249,21 @@ public class TypeBuilder {
     // the reference to the semantic value won't be used again, e.g.,
     // by another subparser
     TypeBuilder result = new TypeBuilder(this);
-
+    
     // checks for mutually-exclusive qualifiers
-    if ((result.isStatic || with.isStatic) && (result.isExtern || with.isExtern))
-      isTypeError = true;
-    else if ((result.isStatic || with.isStatic) && (result.isAuto || with.isAuto))
-      isTypeError = true;
-    else if ((result.isExtern || with.isExtern) && (result.isAuto || with.isAuto))
-      isTypeError = true;
-    else if ((result.isRegister || with.isRegister) && (result.isStatic || with.isStatic))
-      isTypeError = true;
-    else if ((result.isRegister || with.isRegister) && (result.isAuto || with.isAuto))
-      isTypeError = true;
-    else if ((result.isRegister || with.isRegister) && (result.isStatic || with.isStatic))
-      isTypeError = true;
-    else if ((result.isRegister || with.isRegister) && (result.isExtern || with.isExtern))
-      isTypeError = true;
-    else if ((result.isThreadlocal || with.isThreadlocal) && (result.isAuto || with.isAuto))
-      isTypeError = true;
-    else if ((result.isThreadlocal || with.isThreadlocal) && (result.isRegister || with.isRegister))
+ if (qualComboExists(result, with, QUAL.isStatic, QUAL.isExtern) ||
+        qualComboExists(result, with, QUAL.isStatic, QUAL.isAuto) ||
+        qualComboExists(result, with, QUAL.isAuto, QUAL.isExtern) ||
+        qualComboExists(result, with, QUAL.isAuto, QUAL.isRegister) ||
+				qualComboExists(result, with, QUAL.isStatic, QUAL.isRegister) ||
+        qualComboExists(result, with, QUAL.isRegister, QUAL.isExtern) ||
+        qualComboExists(result, with, QUAL.isThreadlocal, QUAL.isAuto) ||
+        qualComboExists(result, with, QUAL.isThreadlocal, QUAL.isRegister))
+
       isTypeError = true;
   
     // checks for variables with inline specifier
-    if ((result.type.isVariable() || with.type.isVariable()) && (result.isInline || with.isInline))
+    if ((result.type.isVariable() || with.type.isVariable()) && (result.qualifiers[QUAL.isInline.ordinal()] || with.qualifiers[QUAL.isInline.ordinal()]))
       isTypeError = true;
 
     // see xtc.type.Type for other helper methods for determining the
@@ -330,8 +303,13 @@ public class TypeBuilder {
       case LONG_LONG:
         switch(((NumberT) with.type).getKind()) {
         case INT:
-          System.err.println("[INFO] found a valid type: long long");
-          result.type = NumberT.LONG_LONG;
+          // ensures that we don't allow long long int int
+          if (result.foundTypes[FOUND_TYPE.seenInt.ordinal()])
+            result.isTypeError = true;
+          else {
+            System.err.println("[INFO] found a valid type: long long");
+            result.type = NumberT.LONG_LONG;
+          }
           break;
         default:
           System.err.println("[ERROR] unsupported combination of number types");
