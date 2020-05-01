@@ -158,6 +158,42 @@ public class TypeBuilder {
 
   // creates a new typebuilder using only a type
   public TypeBuilder(Type type) {
+    // set the proper foundTypes flag
+    if (type.isNumber()) {
+      switch (((NumberT) type).getKind()) {
+        case INT:
+          foundTypes[FOUND_TYPE.seenInt.ordinal()] = true;
+          break;
+        case LONG:
+          foundTypes[FOUND_TYPE.seenLong.ordinal()] = true;
+          break;
+        case LONG_LONG:
+          foundTypes[FOUND_TYPE.seenLongLong.ordinal()] = true;
+          break;
+        case CHAR:
+          foundTypes[FOUND_TYPE.seenChar.ordinal()] = true;
+          break;
+        case SHORT:
+          foundTypes[FOUND_TYPE.seenShort.ordinal()] = true;
+          break;
+        case FLOAT:
+          foundTypes[FOUND_TYPE.seenFloat.ordinal()] = true;
+          break;
+        case DOUBLE:
+          foundTypes[FOUND_TYPE.seenDouble.ordinal()] = true;
+          break;
+        /*
+        NOTE: complex is not a complete type, so this is not possible:
+        case COMPLEX:
+          foundTypes[FOUND_TYPE.seenComplex.ordinal()] = true;
+          break;
+        */
+        default:
+          System.err.println("ERROR: unknown type passed to TypeBuilder(Type type)");
+          System.exit(1);
+      }
+    }
+
     this.type = type;
     for (int i = 0; i < NUM_QUALS; ++i)
 		  qualifiers[i] = false;
