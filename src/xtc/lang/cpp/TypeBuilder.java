@@ -7,7 +7,7 @@ import xtc.type.UnitT;
 
 public class TypeBuilder {
   Type type; // void, char, short, int, long, float, double, SUE, typedef                        
-    enum QUAL {isAuto, isConst, isVolatile, isExtern, isStatic, isRegister, isThreadlocal,
+    enum QUAL {isAuto, isConst, isVolatile, isExtern, isStatic, isRegister, isThreadLocal,
                isInline, isSigned, isUnsigned}
     final int NUM_QUALS = 11;
     enum FOUND_TYPE {seenInt, seenLong, seenLongLong, seenChar, seenShort, seenFloat, seenDouble,
@@ -42,7 +42,7 @@ public class TypeBuilder {
       sb.append("static ");
     if (qualifiers[QUAL.isRegister.ordinal()])
       sb.append("register ");
-    if (qualifiers[QUAL.isThreadlocal.ordinal()])
+    if (qualifiers[QUAL.isThreadLocal.ordinal()])
       sb.append("__thread ");
     if (qualifiers[QUAL.isInline.ordinal()])
       sb.append("inline");
@@ -51,21 +51,21 @@ public class TypeBuilder {
     if (qualifiers[QUAL.isUnsigned.ordinal()])
       sb.append("unsigned");
 
-    if (foundTypes[FOUND_TYPE.seenLong.orginal()])
+    if (foundTypes[FOUND_TYPE.seenLong.ordinal()])
 	sb.append("long ");
-    if (foundTypes[FOUND_TYPE.seenLongLong.orginal()])
+    if (foundTypes[FOUND_TYPE.seenLongLong.ordinal()])
 	sb.append("long long ");
-    if (foundTypes[FOUND_TYPE.seenChar.orginal()])
+    if (foundTypes[FOUND_TYPE.seenChar.ordinal()])
 	sb.append("char ");
-    if (foundTypes[FOUND_TYPE.seenShort.orginal()])
+    if (foundTypes[FOUND_TYPE.seenShort.ordinal()])
 	sb.append("short ");
-    if (foundTypes[FOUND_TYPE.seenInt.orginal()])
+    if (foundTypes[FOUND_TYPE.seenInt.ordinal()])
 	sb.append("int ");
-    if (foundTypes[FOUND_TYPE.seenFloat.orginal()])
+    if (foundTypes[FOUND_TYPE.seenFloat.ordinal()])
 	sb.append("float ");
-    if (foundTypes[FOUND_TYPE.seenDouble.orginal()])
+    if (foundTypes[FOUND_TYPE.seenDouble.ordinal()])
 	sb.append("double ");
-    if (foundTypes[FOUND_TYPE.seenComplex.orginal()])
+    if (foundTypes[FOUND_TYPE.seenComplex.ordinal()])
 	sb.append("_Complex ");
     
     sb.append(attributesToString());
@@ -86,20 +86,20 @@ public class TypeBuilder {
   }
 
 
-    private addQual(QUAL q){
+    private void addQual(QUAL q){
 	if(qualifiers[q.ordinal()])
 	    isTypeError = true;
         else
 	    qualifiers[q.ordinal()] = true;
     }
-    private addType(FOUND_TYPE f){
+    private void addType(FOUND_TYPE f){
 	if(foundTypes[f.ordinal()])
 	    isTypeError = true;
         else
 	    foundTypes[f.ordinal()] = true;
     }
     
-    private add(String x) {
+    private void add(String x) {
 	if (x.equals("auto"))
 	    addQual(QUAL.isAuto);
 	else if (x.equals("const"))
@@ -312,8 +312,8 @@ public class TypeBuilder {
         qualComboExists(result, with, QUAL.isAuto, QUAL.isRegister) ||
 	qualComboExists(result, with, QUAL.isStatic, QUAL.isRegister) ||
         qualComboExists(result, with, QUAL.isRegister, QUAL.isExtern) ||
-        qualComboExists(result, with, QUAL.isThreadlocal, QUAL.isAuto) ||
-        qualComboExists(result, with, QUAL.isThreadlocal, QUAL.isRegister))
+        qualComboExists(result, with, QUAL.isThreadLocal, QUAL.isAuto) ||
+        qualComboExists(result, with, QUAL.isThreadLocal, QUAL.isRegister))
 	isTypeError = true;
   
     // checks for variables with inline specifier
