@@ -22,13 +22,19 @@ public class TypeBuilder {
     boolean isTypeError;
     
     public String attributesToString() {
+	if (attributes == null)
+	    return "";
 	return String.join(" ", attributes);
     }
 
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-
-    // TODO: check if the order of these matters
+      if (isTypeError) {
+	  System.err.println("ERROR: identifier has no valid type.");
+	  return "";
+      }
+      StringBuilder sb = new StringBuilder();
+      
+      // TODO: check if the order of these matters
 
     if (qualifiers[QUAL.isAuto.ordinal()])
       sb.append("auto ");
@@ -66,16 +72,9 @@ public class TypeBuilder {
     if (foundTypes[FOUND_TYPE.seenDouble.ordinal()])
 	sb.append("double ");
     if (foundTypes[FOUND_TYPE.seenComplex.ordinal()])
-	sb.append("_Complex ");
+	sb.append("complex ");
     
     sb.append(attributesToString());
-
-    if (type instanceof UnitT) {
-      System.err.println("ERROR: identifier has no valid type.");
-      System.exit(1);
-    }
-    else
-      sb.append(type.toString());
 
     return sb.toString();
   }
@@ -159,9 +158,9 @@ public class TypeBuilder {
   // creates a new typebuilder using a string (which is NOT a type)
   public TypeBuilder(String name) {
     type = new UnitT();
-
+    attributes = new LinkedList<String>();
     for (int i = 0; i < NUM_QUALS; ++i)
-		  qualifiers[i] = false;
+	qualifiers[i] = false;
     for (int i = 0; i < NUM_TYPES; ++i)
 	foundTypes[i] = false;
     isTypeError = false;
@@ -170,9 +169,14 @@ public class TypeBuilder {
 
   // creates a new typebuilder using only a type
   public TypeBuilder(Type type) {
-      /* -----------------------------------------I don't believe this should be used anymore. But I'll leave it just in case.
-    // set the proper foundTypes flag
-    if (type.isNumber()) {
+      // set the proper foundTypes flag
+
+      for (int i = 0; i < NUM_QUALS; ++i)
+		  qualifiers[i] = false;
+      for (int i = 0; i < NUM_TYPES; ++i)
+		  foundTypes[i] = false;
+
+      if (type.isNumber()) {
       switch (((NumberT) type).getKind()) {
         case INT:
           foundTypes[FOUND_TYPE.seenInt.ordinal()] = true;
@@ -195,11 +199,10 @@ public class TypeBuilder {
         case DOUBLE:
           foundTypes[FOUND_TYPE.seenDouble.ordinal()] = true;
           break;
-        
-        NOTE: complex is not a complete type, so this is not possible:
-        case COMPLEX:
+	  // NOTE: complex is not a complete type, so this is not possible:
+	  /*case COMPLEX:
           foundTypes[FOUND_TYPE.seenComplex.ordinal()] = true;
-          break;
+          break;*/
         
         default:
           System.err.println("ERROR: unknown type passed to TypeBuilder(Type type)");
@@ -209,33 +212,22 @@ public class TypeBuilder {
     }
 
     this.type = type;
-    for (int i = 0; i < NUM_QUALS; ++i)
-		  qualifiers[i] = false;
-    longCount = 0;
     attributes = new LinkedList<String>();
     isTypeError = false;
-    //foundTypes[FOUND_TYPE.seenInt.ordinal()] = type.hasKind(NumberT.Kind.INT);
-    */
   }
 
   // copy constructor that changes type (should be used whenever a type is found)
   // the default constructor should be used before this ever gets called.
   public TypeBuilder(TypeBuilder old, Type type) {
-      /* ---------------------------------------------Also shouldn't be used
     // copy constructor that changes the type
     if (old.type instanceof UnitT) {
       this.type = type;
-				for (int i = 0; i < NUM_QUALS; ++i)
-					qualifiers[i] = old.qualifiers[i];
-      longCount = old.longCount;
+      for (int i = 0; i < NUM_QUALS; ++i)
+	  qualifiers[i] = old.qualifiers[i];
       attributes = new LinkedList<String>(old.attributes);
       isTypeError = old.isTypeError;
     }
-    else {
-      System.err.println("ERROR: identifier has multiple conflicting types.");
-      System.exit(1);
-    }
-      */
+    
   }
 
   // sets all flags to false and type starts as unit
@@ -291,7 +283,9 @@ public class TypeBuilder {
 			   //double complex
 			   typeComboExists(t1,t2,FOUND_TYPE.seenDouble,FOUND_TYPE.seenComplex) ||
 			   //long complex
-			   (typeComboExists(t1,t2,FOUND_TYPE.seenLong,FOUND_TYPE.seenComplex)) ))
+			   (typeComboExists(t1,t2,FOUND_TYPE.seenLong,FOUND_TYPE.seenComplex)) ||
+			   //long long
+			   (typeComboExists(t1,t2,FOUND_TYPE.seenLong, FOUND_TYPE.seenLong)) ))
 			return false;
 	return true;
 }
@@ -320,68 +314,22 @@ public class TypeBuilder {
     if ((result.type.isVariable() || with.type.isVariable()) && (result.qualifiers[QUAL.isInline.ordinal()] || with.qualifiers[QUAL.isInline.ordinal()]))
       isTypeError = true;
 
-    // see xtc.type.Type for other helper methods for determining the
-    // kind of type
-    if (result.type.isNumber() && with.type.isNumber()) {
-      switch(((NumberT) result.type).getKind()) {
-      case INT:
-        switch(((NumberT) with.type).getKind()) {
-        case INT:
-          System.err.println("[INFO] found a type error: int int");
-          break;
-        case LONG:
-	    //needs to handle the existance of int to make sure it doesn't appear twice
-          System.err.println("[INFO] found a type: int long");
-	  result.type = NumberT.LONG;
-          break;
-        default:
-          System.err.println("[ERROR] unsupported combination of number types");
-          System.exit(1);
-        }
-        break;
-      case LONG:
-        switch(((NumberT) with.type).getKind()) {
-        case INT:
-          System.err.println("[INFO] found a valid type: long int");
-          result.type = NumberT.LONG;
-          break;
-        case LONG:
-          System.err.println("[INFO] found a valid type: long long");
-          result.type = NumberT.LONG_LONG;
-          break;
-        default:
-          System.err.println("[ERROR] unsupported combination of number types");
-          System.exit(1);
-        }
-        break;
-      case LONG_LONG:
-        switch(((NumberT) with.type).getKind()) {
-        case INT:
-          // ensures that we don't allow long long int int
-          if (result.foundTypes[FOUND_TYPE.seenInt.ordinal()])
-            result.isTypeError = true;
-          else {
-            System.err.println("[INFO] found a valid type: long long");
-            result.type = NumberT.LONG_LONG;
-          }
-          break;
-        default:
-          System.err.println("[ERROR] unsupported combination of number types");
-          System.exit(1);
-        }
-        break;
-      default:
-        System.err.println("[ERROR] unsupported combination of number types");
-        System.exit(1);
-      }
-    } else {
-      System.err.println("[ERROR] unsupported: type builders are not numbers");
-      System.exit(1);
-    }
+    if (!isValidTypes(result, with))
+	isTypeError = true;
 
-    // TODO: check all the other combinations of type specs to check
-    // for validity and construct the new (partial) type spec
-
-    return result;
+	for (int i = 0; i < NUM_QUALS; ++i)
+	    if (with.qualifiers[i])
+		result.addQual(QUAL.values()[i]);
+	for (int i = 0; i < NUM_TYPES; ++i)
+	    if (with.foundTypes[i] && i != FOUND_TYPE.seenLong.ordinal())
+		result.addType(FOUND_TYPE.values()[i]);
+	    else if (with.foundTypes[i] && i == FOUND_TYPE.seenLong.ordinal())
+		{
+		    result.foundTypes[FOUND_TYPE.seenLong.ordinal()] = false;
+		    result.foundTypes[FOUND_TYPE.seenLongLong.ordinal()] = true;
+		}
+		
+	
+	return result;
   }
 }

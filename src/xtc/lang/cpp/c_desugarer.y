@@ -510,9 +510,10 @@ DeclaringList:  /** nomerge **/
 	}
         | TypeSpecifier Declarator
         {
+	  Node decl = getNodeAt(subparser, 1);
 	  TypeBuilder type = getTypeBuilderAt(subparser, 2);
 	  //todo: add mapping
-	  System.out.println(type);
+	  System.out.println(type + decl.getName());
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
@@ -867,7 +868,7 @@ BasicTypeName:  /** passthrough **/
 
           // See xtc.type.* for the class hiearchy for types
           TypeBuilder tb = new TypeBuilder(NumberT.LONG);
-          setTypeBuilder(value, tb);
+	  setTypeBuilder(value, tb);
 
         }
         | FLOAT
