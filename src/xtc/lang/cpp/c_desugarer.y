@@ -506,8 +506,11 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
 DeclaringList:  /** nomerge **/
         DeclarationSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
 	{
-	  
-	}
+	  Node decl = getNodeAt(subparser, 4);
+	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
+	  //todo: add mapping
+	  System.out.println(type + decl.getName());
+        }
         | TypeSpecifier Declarator
         {
 	  Node decl = getNodeAt(subparser, 1);
@@ -524,6 +527,10 @@ DeclaringList:  /** nomerge **/
 
 DeclarationSpecifier:  /** passthrough, nomerge **/
         BasicDeclarationSpecifier        /* Arithmetic or void */
+	{
+	  TypeBuilder decl = getTypeBuilderAt(subparser, 1);
+	  setTypeBuilder(value, decl);
+	}
         | SUEDeclarationSpecifier          /* struct/union/enum */
         | TypedefDeclarationSpecifier      /* typedef*/
         | VarArgDeclarationSpecifier  // ADDED
@@ -539,81 +546,82 @@ TypeSpecifier:  /** passthrough, nomerge **/
         ;
 
 DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage class */
-        StorageClass {
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 1),
-                      value);
-        }
-        | TypeQualifierList StorageClass {
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
-                      getSpecsAt(subparser, 1),
-                      value);
-        }
-        | DeclarationQualifierList DeclarationQualifier {
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
-                      getSpecsAt(subparser, 1),
-                      value);
-        }
+        StorageClass
+	{
+	  TypeBuilder storage = getTypeBuilderAt(subparser,1);
+	  setTypeBuilder(value, storage);
+	}
+	| TypeQualifierList StorageClass
+	{
+	  TypeBuilder qualList = getTypeBuilderAt(subparser, 2);
+	  TypeBuilder storage = getTypeBuilderAt(subparser, 1);
+	  TypeBuilder tb = qualList.combine(storage);
+	  setTypeBuilder(value, tb);
+	}
+        | DeclarationQualifierList DeclarationQualifier
+	{
+	  TypeBuilder qualList = getTypeBuilderAt(subparser, 2);
+	  TypeBuilder qual = getTypeBuilderAt(subparser, 1);
+	  TypeBuilder tb = qualList.combine(qual);
+	  setTypeBuilder(value, tb);
+	}
         ;
 
 TypeQualifierList:  /** list, nomerge **/
-        TypeQualifier {
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 1),
-                      value);
-        }
-        | TypeQualifierList TypeQualifier {
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
-                      getSpecsAt(subparser, 1),
-                      value);
-        }
-        ;
+        TypeQualifier
+	{
+	  TypeBuilder qual = getTypeBuilderAt(subparser, 1);
+	  setTypeBuilder(value, qual);
+	}
+        | TypeQualifierList TypeQualifier
+	{
+	  TypeBuilder qualList = getTypeBuilderAt(subparser, 2);
+	    TypeBuilder qual = getTypeBuilderAt(subparser, 1);
+	    TypeBuilder tb = qualList.combine(qual);
+	    setTypeBuilder(value, tb);
+	  }
+	  ;
 
 DeclarationQualifier:  /** passthrough **/
-        TypeQualifier                  /* const or volatile */
-        | StorageClass
-        ;
+TypeQualifier                  /* const or volatile */
+{
+  TypeBuilder qual = new TypeBuilder("const");
+  setTypeBuilder(value, qual);
+
+}
+| StorageClass
+{
+  TypeBuilder storage = new TypeBuilder("const");
+  setTypeBuilder(value, storage);
+
+}
+  ;
 
 TypeQualifier:    // const, volatile, and restrict can have underscores
         ConstQualifier
-        {
-          getSpecsAt(subparser, 1).add(Constants.ATT_CONSTANT);
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 1),
-                      value);
-        }
-        | VolatileQualifier
-        {
-          getSpecsAt(subparser, 1).add(Constants.ATT_VOLATILE);
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 1),
-                      value);
-        }
-        | RestrictQualifier
-        {
-          getSpecsAt(subparser, 1).add(Constants.ATT_RESTRICT);
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 1),
-                      value);
-        }
-        | AttributeSpecifier // ADDED
-        {
-          /* TODO AttributeSpecifier */
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 1),
-                      value);
-        }
-        | FunctionSpecifier  // ADDED
-        {
-          getSpecsAt(subparser, 1).add(Constants.ATT_INLINE);
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 1),
-                      value);
-        }
-        ;
+	  {
+	    TypeBuilder qual = new TypeBuilder("const");
+	    setTypeBuilder(value, qual);
+	  }
+	| VolatileQualifier
+	      {
+		TypeBuilder qual = new TypeBuilder("volatile");
+		setTypeBuilder(value, qual);
+	      }
+	| RestrictQualifier
+	{
+	  TypeBuilder qual = new TypeBuilder("restrict");
+	  setTypeBuilder(value, qual);
+	}
+	| AttributeSpecifier // ADDED
+	{
+	}
+	| FunctionSpecifier  // ADDED
+	{
+	  TypeBuilder qual = new TypeBuilder("inline");
+	  setTypeBuilder(value, qual);
+	}
+;
 
 ConstQualifier:    // ADDED
         CONST
@@ -660,12 +668,17 @@ BasicDeclarationSpecifier: /** passthrough, nomerge **/      /*StorageClass+Arit
 	  setTypeBuilder(value, tb);
 	  
         }
-        | BasicDeclarationSpecifier DeclarationQualifier {
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
-                      getSpecsAt(subparser, 1),
-                      value);
-        }
+        | BasicDeclarationSpecifier DeclarationQualifier
+	{
+ 	  TypeBuilder decl = getTypeBuilderAt(subparser, 2);
+          TypeBuilder qual = getTypeBuilderAt(subparser, 1);
+
+          // combine the partial type specs
+          TypeBuilder tb = decl.combine(qual);
+
+	  setTypeBuilder(value, tb);
+	 
+	}
         | BasicDeclarationSpecifier BasicTypeName {
 	  TypeBuilder basicDeclSpecifier = getTypeBuilderAt(subparser, 2);
           TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
@@ -686,17 +699,23 @@ BasicTypeSpecifier: /** passthrough, nomerge **/
           TypeBuilder tb = getTypeBuilderAt(subparser, 1);
           setTypeBuilder(value, tb);
         }
-        | TypeQualifierList BasicTypeName {
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
-                      getSpecsAt(subparser, 1),
-                      value);
+        | TypeQualifierList BasicTypeName
+	{
+          TypeBuilder qualList = getTypeBuilderAt(subparser, 2);
+          TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
+
+          TypeBuilder tb = qualList.combine(basicTypeName);
+          
+          setTypeBuilder(value, tb);
         }
-        | BasicTypeSpecifier TypeQualifier {
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
-                      getSpecsAt(subparser, 1),
-                      value);
+        | BasicTypeSpecifier TypeQualifier
+	{
+          TypeBuilder basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
+          TypeBuilder qual = getTypeBuilderAt(subparser, 1);
+
+          TypeBuilder tb = basicTypeSpecifier.combine(qual);
+          
+          setTypeBuilder(value, tb);
         }
         | BasicTypeSpecifier BasicTypeName
         {
@@ -823,11 +842,30 @@ VarArgTypeName:  // ADDED
         ;
 
 StorageClass:  /** passthrough **/
-        TYPEDEF     { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF; }
-        | EXTERN    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN; }
-        | STATIC    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC; }
-        | AUTO      { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO; }
-        | REGISTER  { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER; }
+        TYPEDEF
+	  {
+	    //todo
+	  }
+        | EXTERN
+	    {
+	      TypeBuilder storage = new TypeBuilder("extern");
+	      setTypeBuilder(value, storage);
+	    }
+        | STATIC
+	    {
+	      TypeBuilder storage = new TypeBuilder("static");
+	      setTypeBuilder(value, storage);
+	    }
+        | AUTO
+	    {
+	      TypeBuilder storage = new TypeBuilder("auto");
+	      setTypeBuilder(value, storage);
+	    }
+        | REGISTER
+	    {
+	      TypeBuilder storage = new TypeBuilder("register");
+	      setTypeBuilder(value, storage);
+	    }
         ;
 
 BasicTypeName:  /** passthrough **/

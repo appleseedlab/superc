@@ -29,8 +29,7 @@ public class TypeBuilder {
 
   public String toString() {
       if (isTypeError) {
-	  System.err.println("ERROR: identifier has no valid type.");
-	  return "";
+	  return "ERROR:";
       }
       StringBuilder sb = new StringBuilder();
       
@@ -260,7 +259,7 @@ public class TypeBuilder {
     
     private boolean typeComboExists(TypeBuilder t1, TypeBuilder t2, FOUND_TYPE opt1, FOUND_TYPE opt2)
     {
-	return ((t1.foundTypes[opt1.ordinal()] ^ t2.foundTypes[opt1.ordinal()]) && (t1.foundTypes[opt2.ordinal()] ^ t2.foundTypes[opt2.ordinal()]));
+        return ((t1.foundTypes[opt1.ordinal()] ^ t2.foundTypes[opt1.ordinal()]) && (t1.foundTypes[opt2.ordinal()] ^ t2.foundTypes[opt2.ordinal()]));
     } 
 
 
@@ -285,7 +284,7 @@ public class TypeBuilder {
 			   //long complex
 			   (typeComboExists(t1,t2,FOUND_TYPE.seenLong,FOUND_TYPE.seenComplex)) ||
 			   //long long
-			   (typeComboExists(t1,t2,FOUND_TYPE.seenLong, FOUND_TYPE.seenLong)) ))
+			   (i == j && i == FOUND_TYPE.seenLong.ordinal()) ))
 			return false;
 	return true;
 }
@@ -308,15 +307,15 @@ public class TypeBuilder {
         qualComboExists(result, with, QUAL.isRegister, QUAL.isExtern) ||
         qualComboExists(result, with, QUAL.isThreadLocal, QUAL.isAuto) ||
         qualComboExists(result, with, QUAL.isThreadLocal, QUAL.isRegister))
-	isTypeError = true;
+	result.isTypeError = true;
   
     // checks for variables with inline specifier
     if ((result.type.isVariable() || with.type.isVariable()) && (result.qualifiers[QUAL.isInline.ordinal()] || with.qualifiers[QUAL.isInline.ordinal()]))
-      isTypeError = true;
+      result.isTypeError = true;
 
     if (!isValidTypes(result, with))
-	isTypeError = true;
-
+	result.isTypeError = true;
+    
 	for (int i = 0; i < NUM_QUALS; ++i)
 	    if (with.qualifiers[i])
 		result.addQual(QUAL.values()[i]);
@@ -329,7 +328,6 @@ public class TypeBuilder {
 		    result.foundTypes[FOUND_TYPE.seenLongLong.ordinal()] = true;
 		}
 		
-	
 	return result;
   }
 }

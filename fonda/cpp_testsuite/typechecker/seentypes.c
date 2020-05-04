@@ -7,11 +7,13 @@ int main() {
   short e;
   float f;
   double g;
-  _COMPLEX h;
+  float short q;
+  double _Complex h;
   long int i;
   long long int j;
   long double k;
-  long double _COMPLEX l;
-  float _COMPLEX m;[
+  long double _Complex l;
+  float _Complex m;
+  int float x;
   return 0;
 }
