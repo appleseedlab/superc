@@ -12,6 +12,6 @@ int main() {
   long long int j;
   long double k;
   long double _COMPLEX l;
-  float _COMPLEX m;[
+  float _COMPLEX m;
   return 0;
 }
