@@ -1,9 +1,11 @@
-_Thread_local register int x;
 int main(void) {
 	inline int a;
 	inline long b;
 	static extern int c;
-	_Thread_local auto int d;
-	_Thread_local int e;
+	static auto int d;
+	auto extern int e;
+	auto register int f;
+	static register int g;
+	register extern int h;
 	return 0;
 }

@@ -18,7 +18,8 @@ public class TypeBuilder {
     boolean foundTypes[] = new boolean[NUM_TYPES];
     
     List<String> attributes;
-    
+
+    boolean isFunction;
     boolean isTypeError;
     
     public String attributesToString() {
@@ -50,11 +51,11 @@ public class TypeBuilder {
     if (qualifiers[QUAL.isThreadLocal.ordinal()])
       sb.append("__thread ");
     if (qualifiers[QUAL.isInline.ordinal()])
-      sb.append("inline");
+      sb.append("inline ");
     if (qualifiers[QUAL.isSigned.ordinal()])
-      sb.append("signed");
+      sb.append("signed ");
     if (qualifiers[QUAL.isUnsigned.ordinal()])
-      sb.append("unsigned");
+      sb.append("unsigned ");
 
     if (foundTypes[FOUND_TYPE.seenLong.ordinal()])
 	sb.append("long ");
@@ -125,7 +126,7 @@ public class TypeBuilder {
 		{
 		    foundTypes[FOUND_TYPE.seenLong.ordinal()] = false;
 		    addType(FOUND_TYPE.seenLongLong);
-		}
+	        }
 	    else
 		addType(FOUND_TYPE.seenLong);
 	else if (x.equals("char"))
@@ -148,7 +149,8 @@ public class TypeBuilder {
     type = old.type;
     for (int i = 0; i < NUM_QUALS; ++i)
 	qualifiers[i] = old.qualifiers[i];
-    attributes = new LinkedList<String>(old.attributes);    
+    attributes = new LinkedList<String>(old.attributes);
+    isFunction = old.isFunction;
     isTypeError = old.isTypeError;
 
     add(name);
@@ -162,6 +164,7 @@ public class TypeBuilder {
 	qualifiers[i] = false;
     for (int i = 0; i < NUM_TYPES; ++i)
 	foundTypes[i] = false;
+    isFunction = false;
     isTypeError = false;
     add(name);
   }
@@ -185,7 +188,7 @@ public class TypeBuilder {
           break;
         case LONG_LONG:
           foundTypes[FOUND_TYPE.seenLongLong.ordinal()] = true;
-          break;
+	 break;
         case CHAR:
           foundTypes[FOUND_TYPE.seenChar.ordinal()] = true;
           break;
@@ -212,6 +215,7 @@ public class TypeBuilder {
 
     this.type = type;
     attributes = new LinkedList<String>();
+    isFunction = false;
     isTypeError = false;
   }
 
@@ -224,6 +228,7 @@ public class TypeBuilder {
       for (int i = 0; i < NUM_QUALS; ++i)
 	  qualifiers[i] = old.qualifiers[i];
       attributes = new LinkedList<String>(old.attributes);
+      isFunction = false;
       isTypeError = old.isTypeError;
     }
     
@@ -237,6 +242,7 @@ public class TypeBuilder {
     for (int i = 0; i < NUM_TYPES; ++i)
 		  foundTypes[i] = false;
     attributes = new LinkedList<String>();
+    isFunction = false;
     isTypeError = false;
   }
 
@@ -248,6 +254,7 @@ public class TypeBuilder {
       for (int i = 0; i < NUM_TYPES; ++i)
 	  foundTypes[i] = old.foundTypes[i];
       attributes = new LinkedList<String>(old.attributes);
+      isFunction = old.isFunction;
       isTypeError = old.isTypeError;
   }
 
@@ -306,13 +313,21 @@ public class TypeBuilder {
 	qualComboExists(result, with, QUAL.isStatic, QUAL.isRegister) ||
         qualComboExists(result, with, QUAL.isRegister, QUAL.isExtern) ||
         qualComboExists(result, with, QUAL.isThreadLocal, QUAL.isAuto) ||
-        qualComboExists(result, with, QUAL.isThreadLocal, QUAL.isRegister))
+        qualComboExists(result, with, QUAL.isThreadLocal, QUAL.isRegister) ||
+	qualComboExists(result, with, QUAL.isUnsigned, QUAL.isSigned))
 	result.isTypeError = true;
   
     // checks for variables with inline specifier
-    if ((result.type.isVariable() || with.type.isVariable()) && (result.qualifiers[QUAL.isInline.ordinal()] || with.qualifiers[QUAL.isInline.ordinal()]))
+    if ((!result.isFunction && !with.isFunction) && (result.qualifiers[QUAL.isInline.ordinal()] || with.qualifiers[QUAL.isInline.ordinal()]))
       result.isTypeError = true;
 
+    //invalid if signed/unsigned with float/double
+    if ((result.qualifiers[QUAL.isSigned.ordinal()] || with.qualifiers[QUAL.isSigned.ordinal()] ||
+	 result.qualifiers[QUAL.isUnsigned.ordinal()] || with.qualifiers[QUAL.isUnsigned.ordinal()]) &&
+	(result.foundTypes[FOUND_TYPE.seenFloat.ordinal()] || with.foundTypes[FOUND_TYPE.seenFloat.ordinal()] ||
+	 result.foundTypes[FOUND_TYPE.seenDouble.ordinal()] || with.foundTypes[FOUND_TYPE.seenDouble.ordinal()]))
+	result.isTypeError = true;
+    
     if (!isValidTypes(result, with))
 	result.isTypeError = true;
     
@@ -324,10 +339,16 @@ public class TypeBuilder {
 		result.addType(FOUND_TYPE.values()[i]);
 	    else if (with.foundTypes[i] && i == FOUND_TYPE.seenLong.ordinal())
 		{
-		    result.foundTypes[FOUND_TYPE.seenLong.ordinal()] = false;
-		    result.foundTypes[FOUND_TYPE.seenLongLong.ordinal()] = true;
+		    if (result.foundTypes[i])
+			{
+			    result.foundTypes[FOUND_TYPE.seenLong.ordinal()] = false;
+			    result.foundTypes[FOUND_TYPE.seenLongLong.ordinal()] = true;
+			}
+		    else
+			result.foundTypes[FOUND_TYPE.seenLong.ordinal()] = true;
 		}
-		
+	result.isTypeError = result.isTypeError || with.isTypeError;
+	result.isFunction = result.isFunction || with.isFunction;
 	return result;
   }
 }

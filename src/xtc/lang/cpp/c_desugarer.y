@@ -585,42 +585,42 @@ TypeQualifierList:  /** list, nomerge **/
 DeclarationQualifier:  /** passthrough **/
 TypeQualifier                  /* const or volatile */
 {
-  TypeBuilder qual = new TypeBuilder("const");
+  TypeBuilder qual = getTypeBuilderAt(subparser, 1);
   setTypeBuilder(value, qual);
 
 }
 | StorageClass
 {
-  TypeBuilder storage = new TypeBuilder("const");
+  TypeBuilder storage = getTypeBuilderAt(subparser, 1);
   setTypeBuilder(value, storage);
 
 }
   ;
 
 TypeQualifier:    // const, volatile, and restrict can have underscores
-        ConstQualifier
-	  {
-	    TypeBuilder qual = new TypeBuilder("const");
-	    setTypeBuilder(value, qual);
-	  }
-	| VolatileQualifier
-	      {
-		TypeBuilder qual = new TypeBuilder("volatile");
-		setTypeBuilder(value, qual);
-	      }
-	| RestrictQualifier
-	{
-	  TypeBuilder qual = new TypeBuilder("restrict");
+ConstQualifier
+{
+  TypeBuilder qual = new TypeBuilder("const");
+  setTypeBuilder(value, qual);
+}
+| VolatileQualifier
+{
+  TypeBuilder qual = new TypeBuilder("volatile");
+  setTypeBuilder(value, qual);
+}
+| RestrictQualifier
+{
+  TypeBuilder qual = new TypeBuilder("restrict");
 	  setTypeBuilder(value, qual);
-	}
-	| AttributeSpecifier // ADDED
-	{
-	}
-	| FunctionSpecifier  // ADDED
-	{
-	  TypeBuilder qual = new TypeBuilder("inline");
-	  setTypeBuilder(value, qual);
-	}
+}
+| AttributeSpecifier // ADDED
+{
+}
+| FunctionSpecifier  // ADDED
+{
+  TypeBuilder qual = new TypeBuilder("inline");
+  setTypeBuilder(value, qual);
+}
 ;
 
 ConstQualifier:    // ADDED
@@ -1854,6 +1854,9 @@ AttributeListOpt:   // ADDED
 
 AttributeList:  /** list, nomerge **/  // ADDED
         Word AttributeExpressionOpt
+	{
+	  System.out.println("attributeList");
+	}
         | AttributeList COMMA Word AttributeExpressionOpt
         ;
 
