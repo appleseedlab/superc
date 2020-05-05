@@ -1,5 +1,3 @@
-_Thread_local int x;
-
 int main(void) {
 	static const int a;
 	extern const char b;
@@ -10,6 +8,5 @@ int main(void) {
 	extern volatile long double g;
 	register const float h;
 	register volatile int i;
-	_Thread_local static int j;
 	return 0;
 }
