@@ -1,4 +1,3 @@
-
 int main(void) {
   	static const int a;
   	extern const char b;
@@ -9,5 +8,4 @@ int main(void) {
 	extern volatile long double g;
 	register const float h;
 	register volatile int i;
-        return 0;
 }
