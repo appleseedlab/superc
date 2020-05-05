@@ -1,4 +1,4 @@
-_Thread_local static int x;
+_Thread_local int x;
 
 int main(void) {
 	static const int a;
