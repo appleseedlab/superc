@@ -102,9 +102,9 @@ public class TypeBuilder {
 	if (x.equals("auto"))
 	    addQual(QUAL.isAuto);
 	else if (x.equals("const"))
-	    addQual(QUAL.isConst);
+	    qualifiers[QUAL.isConst.ordinal()] = true;
 	else if (x.equals("volatile"))
-	    addQual(QUAL.isVolatile);
+	    qualifiers[QUAL.isVolatile.ordinal()] = true;
 	else if (x.equals("extern"))
 	    addQual(QUAL.isExtern);
 	else if (x.equals("static"))
@@ -333,7 +333,10 @@ public class TypeBuilder {
     
 	for (int i = 0; i < NUM_QUALS; ++i)
 	    if (with.qualifiers[i])
-		result.addQual(QUAL.values()[i]);
+		if (i == QUAL.isConst.ordinal() || i == QUAL.isVolatile.ordinal())
+		    result.qualifiers[i] = true;
+		else
+		    result.addQual(QUAL.values()[i]);
 	for (int i = 0; i < NUM_TYPES; ++i)
 	    if (with.foundTypes[i] && i != FOUND_TYPE.seenLong.ordinal())
 		result.addType(FOUND_TYPE.values()[i]);

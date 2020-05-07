@@ -1404,7 +1404,10 @@ ArrayDeclarator:  /** nomerge **/
         ;
 
 ParenIdentifierDeclarator:  /** passthrough, nomerge **/
-        SimpleDeclarator { /* copyDeclName(subparser, value, 1); */ }
+        SimpleDeclarator
+	{
+	  setName(value, getStringAt(subparser, 1));
+	}
         | LPAREN ParenIdentifierDeclarator RPAREN { /* copyDeclName(subparser, value, 2); */ }
         ;
 
@@ -1412,7 +1415,7 @@ SimpleDeclarator: /** nomerge **/
         IDENTIFIER  /* bind */
         {
           /* setDecl(value, lastSeenType(subparser)); */
-          /* setName(value, getStringAt(subparser, 1)); */
+          setName(value, getStringAt(subparser, 1));
         }
         ;
 
@@ -3456,13 +3459,13 @@ private void checkNotParameter(Node node, String kind) {
 /*   return ((Type) ((Node) n).getProperty(DECL)); */
 /* } */
 
-/* private static void setName(Object n, String name) { */
-/*   ((Node) n).setProperty(NAME, name); */
-/* } */
+ private static void setName(Object n, String name) { */
+   ((Node) n).setProperty(NAME, name); */
+ } */
 
-/* private static String getName(Object n) { */
-/*   return ((String) ((Node) n).getProperty(NAME)); */
-/* } */
+ private static String getName(Object n) { */
+   return ((String) ((Node) n).getProperty(NAME)); */
+ } 
 
 /* private static void setDecl(Object n, Type type, String name) { */
 /*   setDecl(n, type); */

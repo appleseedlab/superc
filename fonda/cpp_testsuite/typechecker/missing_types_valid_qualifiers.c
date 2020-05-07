@@ -1,4 +1,3 @@
-_Thread_local static x;
 
 int main(void) {
 	static const a;
