@@ -92,6 +92,7 @@ SOURCE = \
 	cdiff.java \
 	FunctionChecker.java \
 	TypeBuilder.java \
+	DeclBuilder.java \
 	Desugarer.java \
 	SuperC.java
 

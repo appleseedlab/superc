@@ -506,22 +506,22 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
 DeclaringList:  /** nomerge **/
         DeclarationSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
 	{
-	  Node decl = getNodeAt(subparser, 4);
 	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
+	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
 	  //todo: add mapping
-	  System.out.println(type + decl.getName());
+	  System.out.println(type + decl.toString());
         }
         | TypeSpecifier Declarator
         {
-	  Node decl = getNodeAt(subparser, 1);
+	  DeclBuilder decl = getDeclBuilderAt(subparser, 1);
 	  TypeBuilder type = getTypeBuilderAt(subparser, 2);
 	  //todo: add mapping
-	  System.out.println(type + decl.getName());
+	  System.out.println(type + decl.toString());
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
           // reuses saved base type
-          bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
+	  bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         ;
 
@@ -1297,7 +1297,11 @@ ObsoleteFieldDesignation: /** nomerge **/  /* ADDED */
 Declarator:  /** nomerge, passthrough **/
         TypedefDeclarator
         | IdentifierDeclarator
-        ;
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
+;
 
 TypedefDeclarator:  /** passthrough, nomerge **/  // ADDED
         TypedefDeclaratorMain //AssemblyExpressionOpt AttributeSpecifierListOpt
@@ -1353,20 +1357,38 @@ SimpleParenTypedefDeclarator: /** nomerge **/
 
 IdentifierDeclarator:  /** passthrough, nomerge **/
         IdentifierDeclaratorMain //AssemblyExpressionOpt AttributeSpecifierListOpt
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
+
         ;
 
 IdentifierDeclaratorMain:  /** passthrough, nomerge **/
         UnaryIdentifierDeclarator
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
         | ParenIdentifierDeclarator
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
         ;
 
 UnaryIdentifierDeclarator: /** passthrough, nomerge **/
         PostfixIdentifierDeclarator
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
         | STAR IdentifierDeclarator
         {
-          /* setDecl(value, new PointerT(getDecl(getNodeAt(subparser, 1)))); */
-          /* copyName(subparser, value, 1); */
-        }
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  db.addPointer();
+	  setDeclBuilder(value, db);
+	}
         | STAR TypeQualifierList IdentifierDeclarator
         {
           /* Specifiers spec = getSpecsAt(subparser, 2); */
@@ -1380,15 +1402,32 @@ UnaryIdentifierDeclarator: /** passthrough, nomerge **/
 PostfixIdentifierDeclarator: /** passthrough, nomerge **/
         FunctionDeclarator
         | ArrayDeclarator
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
         | AttributedDeclarator
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
         | LPAREN UnaryIdentifierDeclarator RPAREN PostfixingAbstractDeclarator
+	{
+	  DeclBuilder base = new DeclBuilder();
+	  base.addDeclBuilder(getDeclBuilderAt(subparser,3));
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  base.merge(db);
+	  setDeclBuilder(value,base);
+	}
         ;
 
 AttributedDeclarator: /** nomerge **/
         LPAREN UnaryIdentifierDeclarator RPAREN
         {
-          /* copyDeclName(subparser, value, 2); */
-        }
+	  DeclBuilder db = new DeclBuilder();
+	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
+	  setDeclBuilder(value, db);
+	}
         ;
 
 FunctionDeclarator:  /** nomerge **/
@@ -1401,21 +1440,33 @@ PostfixingFunctionDeclarator:  /** nomerge **/
 
 ArrayDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator ArrayAbstractDeclarator
+	{
+	  DeclBuilder base = getDeclBuilderAt(subparser,2);
+	  DeclBuilder array = getDeclBuilderAt(subparser,1);
+	  base.merge(array);
+	  setDeclBuilder(value,base);
+	}
         ;
 
 ParenIdentifierDeclarator:  /** passthrough, nomerge **/
         SimpleDeclarator
 	{
-	  setName(value, getStringAt(subparser, 1));
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
 	}
-        | LPAREN ParenIdentifierDeclarator RPAREN { /* copyDeclName(subparser, value, 2); */ }
+        | LPAREN ParenIdentifierDeclarator RPAREN
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,2);
+	  DeclBuilder superDecl = new DeclBuilder();
+	  superDecl.addDeclBuilder(db);
+	  setDeclBuilder(value,superDecl);
+	}
         ;
 
 SimpleDeclarator: /** nomerge **/
         IDENTIFIER  /* bind */
         {
-          /* setDecl(value, lastSeenType(subparser)); */
-          setName(value, getStringAt(subparser, 1));
+          setDeclBuilder(value, new DeclBuilder(getStringAt(subparser, 1)));
         }
         ;
 
@@ -1439,6 +1490,10 @@ AbstractDeclarator: /** nomerge **/
 
 PostfixingAbstractDeclarator: /** passthrough, nomerge **/
         ArrayAbstractDeclarator
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value,db);
+	}
         /* | LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN */
         | PostfixingFunctionDeclarator
         ;
@@ -1451,15 +1506,22 @@ ParameterTypeListOpt: /** nomerge **/
 ArrayAbstractDeclarator: /** nomerge **/
         LBRACK RBRACK
         {
-          /* setDecl(value, new ArrayT(getDecl(getNodeAt(subparser, 1)))); */
-          /* copyName(subparser, value, 1); */
+	  DeclBuilder db = new DeclBuilder();
+	  db.addArray("",false);
+          setDeclBuilder(value, db);
         }
         | LBRACK ConstantExpression RBRACK
         {
-          /* setDecl(value, new ArrayT(getDecl())); */
-          /* copyName(subparser, value, 1); */
-        }
+	  DeclBuilder db = new DeclBuilder();
+	  db.addArray("const Expr");
+          setDeclBuilder(value, db);
+	}
         | ArrayAbstractDeclarator LBRACK ConstantExpression RBRACK
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,4);
+	  db.addArray("const Expr");
+          setDeclBuilder(value, db);
+	}
         ;
 
 UnaryAbstractDeclarator: /** nomerge **/
@@ -1829,7 +1891,7 @@ Expression:  /** passthrough, nomerge **/
 
 ConstantExpression: /** passthrough, nomerge **/
         ConditionalExpression
-        ;
+	;
 
 AttributeSpecifierListOpt: /** nomerge **/  // ADDED
         /* empty */
@@ -2035,7 +2097,26 @@ private TypeBuilder getTypeBuilderAt(Subparser subparser, int component) {
   return (TypeBuilder) getNodeAt(subparser, component).getProperty(TYPEBUILDER);
 }
 
-        
+private static final String DECLBUILDER = "xtc.lang.cpp.DeclBuilder";
+private static final String STRING = "xtc.String";
+
+// TUTORIAL: this function just annotates a semantic value with a typebuilder
+private void setDeclBuilder(Object value, DeclBuilder db) {
+  // value should be not null and should be a Node type
+  setDeclBuilder((Node) value, db);
+}
+
+// TUTORIAL: these functions retrieve a type builder from the semantic value
+private void setDeclBuilder(Node value, DeclBuilder db) {
+  // value should be not null and should be a Node type
+  value.setProperty(DECLBUILDER, db);
+}
+
+private DeclBuilder getDeclBuilderAt(Subparser subparser, int component) {
+  // value should be not null and should be a Node type
+  return (DeclBuilder) getNodeAt(subparser, component).getProperty(DECLBUILDER);
+}
+
 /** True when statistics should be output. */
 private boolean languageStatistics = false;
 
@@ -2193,6 +2274,15 @@ private static Node getNodeAt(Subparser subparser, int component) {
 
 private static String getStringAt(Subparser subparser, int component) {
   return ((Syntax) getNodeAt(subparser, component)).toLanguage().getTokenText();
+}
+
+private static void setString(Object value, String s) {
+  ((Node) value).setProperty(STRING, s);
+}
+
+private String getStringAtNode(Subparser subparser, int component) {
+  // value should be not null and should be a Node type
+  return (String) getNodeAt(subparser, component).getProperty(STRING);
 }
 
 /**
@@ -3459,13 +3549,13 @@ private void checkNotParameter(Node node, String kind) {
 /*   return ((Type) ((Node) n).getProperty(DECL)); */
 /* } */
 
- private static void setName(Object n, String name) { */
-   ((Node) n).setProperty(NAME, name); */
- } */
+/*private static void setName(Object n, String name) { */
+/*   ((Node) n).setProperty(NAME, name); */
+/* } */
 
- private static String getName(Object n) { */
-   return ((String) ((Node) n).getProperty(NAME)); */
- } 
+/* private static String getName(Object n) { */
+/*   return ((String) ((Node) n).getProperty(NAME)); */
+/* }*/ 
 
 /* private static void setDecl(Object n, Type type, String name) { */
 /*   setDecl(n, type); */
