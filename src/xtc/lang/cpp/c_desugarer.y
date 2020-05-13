@@ -579,8 +579,8 @@ TypeQualifierList:  /** list, nomerge **/
 	    TypeBuilder qual = getTypeBuilderAt(subparser, 1);
 	    TypeBuilder tb = qualList.combine(qual);
 	    setTypeBuilder(value, tb);
-	  }
-	  ;
+	}
+;
 
 DeclarationQualifier:  /** passthrough **/
 TypeQualifier                  /* const or volatile */
@@ -844,7 +844,8 @@ VarArgTypeName:  // ADDED
 StorageClass:  /** passthrough **/
         TYPEDEF
 	  {
-	    //todo
+	    TypeBuilder storage = new TypeBuilder("typedef");
+	    setTypeBuilder(value, storage);
 	  }
         | EXTERN
 	    {
@@ -1296,6 +1297,10 @@ ObsoleteFieldDesignation: /** nomerge **/  /* ADDED */
 
 Declarator:  /** nomerge, passthrough **/
         TypedefDeclarator
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
         | IdentifierDeclarator
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
@@ -1305,17 +1310,42 @@ Declarator:  /** nomerge, passthrough **/
 
 TypedefDeclarator:  /** passthrough, nomerge **/  // ADDED
         TypedefDeclaratorMain //AssemblyExpressionOpt AttributeSpecifierListOpt
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
         ;
 
 TypedefDeclaratorMain:  /** passthrough, nomerge **/
         ParenTypedefDeclarator  /* would be ambiguous as Parameter*/
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
         | ParameterTypedefDeclarator   /* not ambiguous as param*/
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
         ;
 
 ParameterTypedefDeclarator: /** nomerge **/
-        TYPEDEFname 
+        TYPEDEFname
+	{
+          setDeclBuilder(value, new DeclBuilder(getStringAt(subparser, 1)));
+        }
         | TYPEDEFname PostfixingAbstractDeclarator
+	{
+	  DeclBuilder name = new DeclBuilder(getStringAt(subparser, 2));
+	  DeclBuilder post = getDeclBuilderAt(subparser,1);
+	  name.merge(post);
+          setDeclBuilder(value, name);
+        }
         | CleanTypedefDeclarator
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
         ;
 
     /*  The  following have at least one STAR. There is no (redundant) 
@@ -1323,36 +1353,100 @@ ParameterTypedefDeclarator: /** nomerge **/
 
 CleanTypedefDeclarator: /** nomerge **/
         CleanPostfixTypedefDeclarator
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
         | STAR ParameterTypedefDeclarator
-        | STAR TypeQualifierList ParameterTypedefDeclarator  
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  db.addPointer();
+	  setDeclBuilder(value, db);
+	}
+        | STAR TypeQualifierList ParameterTypedefDeclarator
+	
         ;
 
 CleanPostfixTypedefDeclarator: /** nomerge **/
         LPAREN CleanTypedefDeclarator RPAREN
+	{
+	  DeclBuilder db = new DeclBuilder();
+	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
+	  setDeclBuilder(value, db);
+	}
         | LPAREN CleanTypedefDeclarator RPAREN PostfixingAbstractDeclarator
-        ;
+        {
+	  DeclBuilder db = new DeclBuilder();
+	  db.addDeclBuilder(getDeclBuilderAt(subparser,3));
+	  db.merge(getDeclBuilderAt(subparser,1));
+	  setDeclBuilder(value, db);
+	}
+;
 
     /* The following have a redundant LPAREN placed immediately  to  the 
     left of the TYPEDEFname */
 
 ParenTypedefDeclarator:  /** passthrough, nomerge **/
         ParenPostfixTypedefDeclarator
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
         | STAR LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
-        | STAR TypeQualifierList  
+	{
+	  DeclBuilder db = new DeclBuilder();
+	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
+	  db.addPointer();
+	  setDeclBuilder(value, db);
+	}
+	| STAR TypeQualifierList  
                 LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
         | STAR ParenTypedefDeclarator
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  db.addPointer();
+	  setDeclBuilder(value, db);
+	}
         | STAR TypeQualifierList ParenTypedefDeclarator
         ;
         
 ParenPostfixTypedefDeclarator: /** nomerge **/ /* redundant paren to left of tname*/
         LPAREN ParenTypedefDeclarator RPAREN
+	{
+	  DeclBuilder db = new DeclBuilder();
+	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
+	  setDeclBuilder(value, db);
+	}
         | LPAREN SimpleParenTypedefDeclarator PostfixingAbstractDeclarator RPAREN /* redundant paren */
+	{
+	  DeclBuilder db = new DeclBuilder();
+	  DeclBuilder base = getDeclBuilderAt(subparser,3);
+	  base.merge(getDeclBuilderAt(subparser,2));
+	  db.addDeclBuilder(base);
+	  setDeclBuilder(value, db);
+	}
         | LPAREN ParenTypedefDeclarator RPAREN PostfixingAbstractDeclarator
+	{
+	  DeclBuilder db = new DeclBuilder();
+	  DeclBuilder base = getDeclBuilderAt(subparser,3);
+	  db.addDeclBuilder(base);
+	  db.merge(getDeclBuilderAt(subparser,1));
+	  setDeclBuilder(value, db);
+	}
         ;
 
 SimpleParenTypedefDeclarator: /** nomerge **/
         TYPEDEFname
+	{
+	  setDeclBuilder(value, new DeclBuilder(getStringAt(subparser, 1)));
+	}
         | LPAREN SimpleParenTypedefDeclarator RPAREN
+	{
+	  DeclBuilder db = new DeclBuilder();
+	  DeclBuilder base = getDeclBuilderAt(subparser,2);
+	  db.addDeclBuilder(base);
+	  setDeclBuilder(value, db);
+	}
         ;
 
 IdentifierDeclarator:  /** passthrough, nomerge **/
@@ -1361,7 +1455,6 @@ IdentifierDeclarator:  /** passthrough, nomerge **/
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
 	}
-
         ;
 
 IdentifierDeclaratorMain:  /** passthrough, nomerge **/

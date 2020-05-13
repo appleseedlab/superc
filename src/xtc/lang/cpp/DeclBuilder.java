@@ -10,7 +10,7 @@ public class DeclBuilder
     List<String> arrays;
     DeclBuilder inner;
     boolean isValid;
-    
+
     public DeclBuilder()
     {
 	identifier = "";

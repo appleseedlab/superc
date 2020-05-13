@@ -8,8 +8,8 @@ import xtc.type.UnitT;
 public class TypeBuilder {
   Type type; // void, char, short, int, long, float, double, SUE, typedef                        
     enum QUAL {isAuto, isConst, isVolatile, isExtern, isStatic, isRegister, isThreadLocal,
-               isInline, isSigned, isUnsigned}
-    final int NUM_QUALS = 11;
+               isInline, isSigned, isUnsigned, isTypedef}
+    final int NUM_QUALS = 12;
     enum FOUND_TYPE {seenInt, seenLong, seenLongLong, seenChar, seenShort, seenFloat, seenDouble,
                      seenComplex}
     final int NUM_TYPES = 8;
@@ -35,7 +35,9 @@ public class TypeBuilder {
       StringBuilder sb = new StringBuilder();
       
       // TODO: check if the order of these matters
-
+      
+    if (qualifiers[QUAL.isTypedef.ordinal()])
+	sb.append("typedef ");
     if (qualifiers[QUAL.isAuto.ordinal()])
       sb.append("auto ");
     if (qualifiers[QUAL.isConst.ordinal()])
@@ -56,7 +58,7 @@ public class TypeBuilder {
       sb.append("signed ");
     if (qualifiers[QUAL.isUnsigned.ordinal()])
       sb.append("unsigned ");
-
+    
     if (foundTypes[FOUND_TYPE.seenLong.ordinal()])
 	sb.append("long ");
     if (foundTypes[FOUND_TYPE.seenLongLong.ordinal()])
@@ -119,6 +121,8 @@ public class TypeBuilder {
 	    addQual(QUAL.isSigned);
 	else if (x.equals("unsigned"))
 	    addQual(QUAL.isUnsigned);
+	else if (x.equals("typedef"))
+	    addQual(QUAL.isTypedef);
         else if (x.equals("int"))
 	    addType(FOUND_TYPE.seenInt);
 	else if (x.equals("long"))
