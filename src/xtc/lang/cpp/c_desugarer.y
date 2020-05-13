@@ -1,4 +1,4 @@
- /* Copyright (C) 1989,1990 James A. Roskind, All rights reserved.
+/* Copyright (C) 1989,1990 James A. Roskind, All rights reserved.
      This grammar was developed  and  written  by  James  A.  Roskind.
      Copying  of  this  grammar  description, as a whole, is permitted
      providing this notice is intact and applicable  in  all  complete
@@ -34,7 +34,6 @@
      Indialantic FL, 32903
      (407)729-4348
      jar@ileaf.com
-
      Modifications for GCC Extensions Copyright (C) 2009-2012 New York
      University
  */
@@ -447,27 +446,20 @@ NestedFunctionOldPrototype:  /** nomerge **/
     and  to  better  reflect the parsing of declarations (Declarators 
     must be combined with DeclarationSpecifiers ASAP  so  that  they 
     are visible in scope).
-
     Example  of  typedef  use  as either a DeclarationSpecifier or a 
     Declarator:
-
       typedef int T;
       struct S { T T;}; /* redefinition of T as member name * /
-
     Example of legal and illegal Statements detected by this grammar:
-
       int; /* syntax error: vacuous declaration * /
       struct S;  /* no error: tag is defined or elaborated * /
-
     Example of result of proper declaration binding:
         
         int a=sizeof(a); /* note that "a" is declared with a type  in 
             the name space BEFORE parsing the Initializer * /
-
         int b, c[sizeof(b)]; /* Note that the first Declarator "b" is 
              declared  with  a  type  BEFORE the second Declarator is 
              parsed * /
-
     */
 
 DeclarationExtension:  /** passthrough, complete **/  // ADDED
@@ -509,6 +501,7 @@ DeclaringList:  /** nomerge **/
 	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
 	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
 	  //todo: add mapping
+		bindIdent(subparser, type, decl);
 	  System.out.println(type + decl.toString());
         }
         | TypeSpecifier Declarator
@@ -516,12 +509,13 @@ DeclaringList:  /** nomerge **/
 	  DeclBuilder decl = getDeclBuilderAt(subparser, 1);
 	  TypeBuilder type = getTypeBuilderAt(subparser, 2);
 	  //todo: add mapping
+		bindIdent(subparser, type, decl);
 	  System.out.println(type + decl.toString());
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
           // reuses saved base type
-	  bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
+	  			bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         ;
 
@@ -533,6 +527,10 @@ DeclarationSpecifier:  /** passthrough, nomerge **/
 	}
         | SUEDeclarationSpecifier          /* struct/union/enum */
         | TypedefDeclarationSpecifier      /* typedef*/
+				{
+	 				TypeBuilder decl = getTypeBuilderAt(subparser, 1);
+	  			setTypeBuilder(value, decl);
+				}
         | VarArgDeclarationSpecifier  // ADDED
         | TypeofDeclarationSpecifier // ADDED
         ;
@@ -749,8 +747,25 @@ SUETypeSpecifier: /** nomerge **/
 
 TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef types */
         TypedefTypeSpecifier StorageClass
+				{
+					TypeBuilder tb = getTypeBuilderAt(subparser, 2);
+          TypeBuilder tb1 = getTypeBuilderAt(subparser, 1);
+          setTypeBuilder(value, tb.combine(tb1));
+				}
         | DeclarationQualifierList TYPEDEFname
+        {
+					TypeBuilder tb = getTypeBuilderAt(subparser, 2);
+          TypeBuilder tb1 = new TypeBuilder();
+					tb1.setTypedef(getStringAt(subparser, 1));
+          setTypeBuilder(value, tb.combine(tb1));
+				}
         | TypedefDeclarationSpecifier DeclarationQualifier
+				{
+					TypeBuilder tb1 = getTypeBuilderAt(subparser, 2);
+					TypeBuilder dq = getTypeBuilderAt(subparser,1);
+					TypeBuilder tb = tb1.combine(dq);
+          setTypeBuilder(value, tb);
+				}
         ;
 
 TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
@@ -2580,6 +2595,40 @@ public void bindIdent(Subparser subparser, Node typespec, Node declarator, STFie
   /*   scope.getSymbolTable().setbool(ident.getTokenText(), STField.IDENT, true, presenceCondition); */
   /* } */
   /* scope.bind(ident.getTokenText(), typedef, presenceCondition); */
+}
+
+public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder declarator) 
+{
+	bindIdent(subparser, typespec, declarator, null);
+}
+
+public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder declarator, STField alsoSet) {
+  StackFrame stack = subparser.stack;
+  PresenceConditionManager.PresenceCondition presenceCondition = subparser.getPresenceCondition();
+  CContext scope = (CContext) subparser.scope;
+
+  String ident = declarator.getID();
+
+  boolean typedef = typespec.isTypeDef();
+
+  if (languageStatistics) {
+    if (typedef) {
+      Location location = subparser.lookahead.token.syntax.getLocation();
+      System.err.println(String.format("typedef %s %s", ident, location));
+    }
+  }
+
+  if (showErrors) {
+    System.err.println("bind: " + ident + " " + typedef);
+  }
+  if (debug) {
+    System.err.println("def: " + ident + " " + alsoSet);
+  }
+  STField field = typedef ? STField.TYPEDEF : STField.IDENT;
+  scope.getSymbolTable().setbool(ident, field, true, presenceCondition);
+  if (null != alsoSet) {
+    scope.getSymbolTable().setbool(ident, alsoSet, true, presenceCondition);
+  }
 }
 
 private static Binding grokdeclarator(Node declarator, Type type) {

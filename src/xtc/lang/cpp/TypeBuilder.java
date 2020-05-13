@@ -11,8 +11,8 @@ public class TypeBuilder {
                isInline, isSigned, isUnsigned, isTypedef}
     final int NUM_QUALS = 12;
     enum FOUND_TYPE {seenInt, seenLong, seenLongLong, seenChar, seenShort, seenFloat, seenDouble,
-                     seenComplex}
-    final int NUM_TYPES = 8;
+                     seenComplex, seenTypedef}
+    final int NUM_TYPES = 9;
     // note: these can appear in any order (in the source file), and they will be initialized to false                                                                        /*boolean isAuto;                                                                                           
     boolean qualifiers[] = new boolean[NUM_QUALS];
     boolean foundTypes[] = new boolean[NUM_TYPES];
@@ -21,6 +21,7 @@ public class TypeBuilder {
 
     boolean isFunction;
     boolean isTypeError;
+    String typedefName;
     
     public String attributesToString() {
 	if (attributes == null)
@@ -75,7 +76,8 @@ public class TypeBuilder {
 	sb.append("double ");
     if (foundTypes[FOUND_TYPE.seenComplex.ordinal()])
 	sb.append("complex ");
-    
+    if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
+	sb.append(typedefName + " ");
     sb.append(attributesToString());
 
     return sb.toString();
@@ -156,7 +158,7 @@ public class TypeBuilder {
     attributes = new LinkedList<String>(old.attributes);
     isFunction = old.isFunction;
     isTypeError = old.isTypeError;
-
+    typedefName = old.typedefName;
     add(name);
   }
 
@@ -170,6 +172,7 @@ public class TypeBuilder {
 	foundTypes[i] = false;
     isFunction = false;
     isTypeError = false;
+    typedefName = "";
     add(name);
   }
 
@@ -221,6 +224,7 @@ public class TypeBuilder {
     attributes = new LinkedList<String>();
     isFunction = false;
     isTypeError = false;
+    typedefName = "";
   }
 
   // copy constructor that changes type (should be used whenever a type is found)
@@ -234,6 +238,7 @@ public class TypeBuilder {
       attributes = new LinkedList<String>(old.attributes);
       isFunction = false;
       isTypeError = old.isTypeError;
+      typedefName = old.typedefName;
     }
     
   }
@@ -248,6 +253,7 @@ public class TypeBuilder {
     attributes = new LinkedList<String>();
     isFunction = false;
     isTypeError = false;
+    typedefName = "";
   }
 
   // copy constructor creates a deep copy
@@ -260,6 +266,7 @@ public class TypeBuilder {
       attributes = new LinkedList<String>(old.attributes);
       isFunction = old.isFunction;
       isTypeError = old.isTypeError;
+      typedefName = old.typedefName;
   }
 
 
@@ -356,6 +363,17 @@ public class TypeBuilder {
 		}
 	result.isTypeError = result.isTypeError || with.isTypeError;
 	result.isFunction = result.isFunction || with.isFunction;
+	result.typedefName = (result.foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefName : with.typedefName);
 	return result;
   }
+
+    boolean isTypeDef()
+    {
+	return qualifiers[QUAL.isTypedef.ordinal()];
+    }
+
+    void setTypedef(String name)
+    {
+	typedefName = name;
+    }
 }
