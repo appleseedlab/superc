@@ -1,9 +1,12 @@
 package xtc.lang.cpp;
 import java.util.LinkedList;
 import java.util.List;
-import xtc.type.NumberT;
 import xtc.type.Type;
+import xtc.type.NumberT;
+import xtc.type.IntegerT;
+import xtc.type.FloatT;
 import xtc.type.UnitT;
+import xtc.Constants;
 
 public class TypeBuilder {
   Type type; // void, char, short, int, long, float, double, SUE, typedef                        
@@ -83,11 +86,82 @@ public class TypeBuilder {
     return sb.toString();
   }
 
+// collects all information in the typebuilder and generates the corresponding type
   public Type toType() {
-      return type; // placeholder
-      // TODO: create the type based on all of the fields, then return that.
-  }
+    // NOTE: .combine() already checked for invalid combinations while merging typebuilders
+    if (foundTypes[FOUND_TYPE.seenLongLong.ordinal()]) {
+      if (qualifiers[QUAL.isUnsigned.ordinal()])
+        type = new IntegerT(NumberT.Kind.U_LONG_LONG); // unsigned long long
+      else
+        type = new IntegerT(NumberT.Kind.LONG_LONG); // long long
+    } else if (foundTypes[FOUND_TYPE.seenLong.ordinal()]) {
+      if (foundTypes[FOUND_TYPE.seenInt.ordinal()])
+      if (qualifiers[QUAL.isUnsigned.ordinal()])
+        type = new IntegerT(NumberT.Kind.U_CHAR); // unsigned long
+      else
+        type = new IntegerT(NumberT.Kind.LONG); // long
+      else if (foundTypes[FOUND_TYPE.seenDouble.ordinal()]) {
+        if (foundTypes[FOUND_TYPE.seenComplex.ordinal()])
+          type = new FloatT(NumberT.Kind.LONG_DOUBLE_COMPLEX); // long double complex
+        else
+          type = new FloatT(NumberT.Kind.LONG_DOUBLE); // long double
+      }
+    } else if (foundTypes[FOUND_TYPE.seenComplex.ordinal()]) {
+      if (foundTypes[FOUND_TYPE.seenDouble.ordinal()])
+        type = new FloatT(NumberT.Kind.DOUBLE_COMPLEX); // double complex
+      else
+        type = new FloatT(NumberT.Kind.FLOAT_COMPLEX); // float complex
+    } else if (foundTypes[FOUND_TYPE.seenFloat.ordinal()]) {
+      type = new FloatT(NumberT.Kind.FLOAT); // float
+    } else if (foundTypes[FOUND_TYPE.seenDouble.ordinal()]) {
+      type = new FloatT(NumberT.Kind.DOUBLE); // double
+    } else if (foundTypes[FOUND_TYPE.seenInt.ordinal()]) {
+      if (qualifiers[QUAL.isUnsigned.ordinal()])
+        type = new IntegerT(NumberT.Kind.U_INT); // unsigned int
+      else if (qualifiers[QUAL.isSigned.ordinal()])
+        type = new IntegerT(NumberT.Kind.U_CHAR); // signed int
+      else
+        type = new IntegerT(NumberT.Kind.INT); // int
+    } else if (foundTypes[FOUND_TYPE.seenChar.ordinal()]) {
+      if (qualifiers[QUAL.isSigned.ordinal()])
+        type = new IntegerT(NumberT.Kind.S_CHAR); // signed char
+      else if (qualifiers[QUAL.isUnsigned.ordinal()])
+        type = new IntegerT(NumberT.Kind.U_CHAR); // unsigned char
+      else
+        type = new IntegerT(NumberT.Kind.CHAR); // char
+    } else if (foundTypes[FOUND_TYPE.seenShort.ordinal()]) {
+      if (qualifiers[QUAL.isUnsigned.ordinal()])
+        type = new IntegerT(NumberT.Kind.U_SHORT); // unsigned short
+      else
+        type = new FloatT(NumberT.Kind.SHORT); // short
+    } else {
+      System.err.println("ERROR: unsupported type found - probably a typedef");
+      System.exit(1);
+    }
+    // TODO: handle the seenTypedef flag
 
+    // adds the qualifiers to the type
+    if (qualifiers[QUAL.isAuto.ordinal()])
+      type.addAttribute(Constants.ATT_STORAGE_AUTO);
+    if (qualifiers[QUAL.isConst.ordinal()])
+      type.addAttribute(Constants.ATT_CONSTANT);
+    if (qualifiers[QUAL.isVolatile.ordinal()])
+      type.addAttribute(Constants.ATT_VOLATILE);
+    if (qualifiers[QUAL.isExtern.ordinal()])
+      type.addAttribute(Constants.ATT_STORAGE_EXTERN);
+    if (qualifiers[QUAL.isStatic.ordinal()])
+      type.addAttribute(Constants.ATT_STORAGE_STATIC);
+    if (qualifiers[QUAL.isRegister.ordinal()])
+      type.addAttribute(Constants.ATT_STORAGE_REGISTER);
+    if (qualifiers[QUAL.isThreadLocal.ordinal()])
+      type.addAttribute(Constants.ATT_THREAD_LOCAL);
+    if (qualifiers[QUAL.isInline.ordinal()])
+      type.addAttribute(Constants.ATT_INLINE);
+    if (qualifiers[QUAL.isTypedef.ordinal()])
+      type.addAttribute(Constants.ATT_STORAGE_TYPEDEF);
+
+    return type;
+  }
 
     private void addQual(QUAL q){
 	if(qualifiers[q.ordinal()])
