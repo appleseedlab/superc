@@ -682,7 +682,9 @@ public class CContext implements ParsingContext {
     
     /** The symbol table data structure. */
     public HashMap<String, EnumMap<STField, ConditionedBool>> bools;
-    
+
+      public Multiverse multiverse; 
+      
     /** The reference count for cleaning up the table BDDs */
     public int refs;
     
@@ -691,6 +693,7 @@ public class CContext implements ParsingContext {
       // this.map = new HashMap<String, TypedefVarEntry>();
       this.bools = new HashMap<String, EnumMap<STField, ConditionedBool>>();
       this.refs = 1;
+      multiverse = new Multiverse();
     }
     
     public SymbolTable addRef() {
@@ -719,6 +722,7 @@ public class CContext implements ParsingContext {
         //   }
         // }
       }
+      multiverse.delRefs();
     }
 
     /**

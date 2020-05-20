@@ -501,46 +501,78 @@ DeclaringList:  /** nomerge **/
 	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
 	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
 	  //todo: add mapping
-		bindIdent(subparser, type, decl);
 	  System.out.println(type + decl.toString());
+	  saveBaseType(subparser, getNodeAt(subparser, 5));
+          bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));
         }
         | TypeSpecifier Declarator
         {
 	  DeclBuilder decl = getDeclBuilderAt(subparser, 1);
 	  TypeBuilder type = getTypeBuilderAt(subparser, 2);
 	  //todo: add mapping
-		bindIdent(subparser, type, decl);
 	  System.out.println(type + decl.toString());
+	  saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
           // reuses saved base type
-	  			bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
+	  bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         ;
 
 DeclarationSpecifier:  /** passthrough, nomerge **/
         BasicDeclarationSpecifier        /* Arithmetic or void */
-	{
-	  TypeBuilder decl = getTypeBuilderAt(subparser, 1);
-	  setTypeBuilder(value, decl);
-	}
+				{
+	  			TypeBuilder decl = getTypeBuilderAt(subparser, 1);
+	  			setTypeBuilder(value, decl);
+				}
         | SUEDeclarationSpecifier          /* struct/union/enum */
+				{
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
         | TypedefDeclarationSpecifier      /* typedef*/
 				{
 	 				TypeBuilder decl = getTypeBuilderAt(subparser, 1);
 	  			setTypeBuilder(value, decl);
 				}
         | VarArgDeclarationSpecifier  // ADDED
+        {
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
         | TypeofDeclarationSpecifier // ADDED
+        {
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
         ;
 
 TypeSpecifier:  /** passthrough, nomerge **/
         BasicTypeSpecifier                 /* Arithmetic or void */
+				{
+					setTypeBuilder(value,getTypeBuilderAt(subparser,1));
+				}
         | SUETypeSpecifier                 /* Struct/Union/Enum */
-        | TypedefTypeSpecifier             /* Typedef */
+				{
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
+				| TypedefTypeSpecifier             /* Typedef */
+				{
+					setTypeBuilder(value,getTypeBuilderAt(subparser,1));
+				}
         | VarArgTypeSpecifier  // ADDED
+				{
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
         | TypeofTypeSpecifier // ADDED
+				{
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
         ;
 
 DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage class */
@@ -548,6 +580,9 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
 	{
 	  TypeBuilder storage = getTypeBuilderAt(subparser,1);
 	  setTypeBuilder(value, storage);
+	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 1),
+                      value);
 	}
 	| TypeQualifierList StorageClass
 	{
@@ -555,6 +590,10 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
 	  TypeBuilder storage = getTypeBuilderAt(subparser, 1);
 	  TypeBuilder tb = qualList.combine(storage);
 	  setTypeBuilder(value, tb);
+	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
 	}
         | DeclarationQualifierList DeclarationQualifier
 	{
@@ -562,6 +601,10 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
 	  TypeBuilder qual = getTypeBuilderAt(subparser, 1);
 	  TypeBuilder tb = qualList.combine(qual);
 	  setTypeBuilder(value, tb);
+	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
 	}
         ;
 
@@ -570,6 +613,9 @@ TypeQualifierList:  /** list, nomerge **/
 	{
 	  TypeBuilder qual = getTypeBuilderAt(subparser, 1);
 	  setTypeBuilder(value, qual);
+	   updateSpecs(subparser,
+                      getSpecsAt(subparser, 1),
+                      value);
 	}
         | TypeQualifierList TypeQualifier
 	{
@@ -577,6 +623,10 @@ TypeQualifierList:  /** list, nomerge **/
 	    TypeBuilder qual = getTypeBuilderAt(subparser, 1);
 	    TypeBuilder tb = qualList.combine(qual);
 	    setTypeBuilder(value, tb);
+	    updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
 	}
 ;
 
@@ -600,24 +650,41 @@ ConstQualifier
 {
   TypeBuilder qual = new TypeBuilder("const");
   setTypeBuilder(value, qual);
+  updateSpecs(subparser,
+                      getSpecsAt(subparser, 1),
+                      value);
 }
 | VolatileQualifier
 {
   TypeBuilder qual = new TypeBuilder("volatile");
   setTypeBuilder(value, qual);
+  updateSpecs(subparser,
+                      getSpecsAt(subparser, 1),
+                      value);
 }
 | RestrictQualifier
 {
   TypeBuilder qual = new TypeBuilder("restrict");
 	  setTypeBuilder(value, qual);
+updateSpecs(subparser,
+                      getSpecsAt(subparser, 1),
+                      value);
 }
 | AttributeSpecifier // ADDED
 {
+  System.err.println("Unsupported grammar"); // TODO
+  System.exit(1);
+  updateSpecs(subparser,
+                      getSpecsAt(subparser, 1),
+                      value);
 }
 | FunctionSpecifier  // ADDED
 {
   TypeBuilder qual = new TypeBuilder("inline");
   setTypeBuilder(value, qual);
+  updateSpecs(subparser,
+                      getSpecsAt(subparser, 1),
+                      value);
 }
 ;
 
@@ -654,7 +721,10 @@ BasicDeclarationSpecifier: /** passthrough, nomerge **/      /*StorageClass+Arit
           TypeBuilder tb = basicTypeSpecifier.combine(storageClass);
           
           setTypeBuilder(value, tb);
-
+	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
         }
         | DeclarationQualifierList BasicTypeName {
 	  TypeBuilder qualList = getTypeBuilderAt(subparser, 2);
@@ -664,7 +734,10 @@ BasicDeclarationSpecifier: /** passthrough, nomerge **/      /*StorageClass+Arit
           TypeBuilder tb = qualList.combine(basicTypeName);
 
 	  setTypeBuilder(value, tb);
-	  
+	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
         }
         | BasicDeclarationSpecifier DeclarationQualifier
 	{
@@ -675,7 +748,10 @@ BasicDeclarationSpecifier: /** passthrough, nomerge **/      /*StorageClass+Arit
           TypeBuilder tb = decl.combine(qual);
 
 	  setTypeBuilder(value, tb);
-	 
+	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
 	}
         | BasicDeclarationSpecifier BasicTypeName {
 	  TypeBuilder basicDeclSpecifier = getTypeBuilderAt(subparser, 2);
@@ -685,6 +761,10 @@ BasicDeclarationSpecifier: /** passthrough, nomerge **/      /*StorageClass+Arit
           TypeBuilder tb = basicDeclSpecifier.combine(basicTypeName);
 
 	  setTypeBuilder(value, tb);
+	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
 	}
         ;
 
@@ -696,6 +776,9 @@ BasicTypeSpecifier: /** passthrough, nomerge **/
           // the child semantic value(s)
           TypeBuilder tb = getTypeBuilderAt(subparser, 1);
           setTypeBuilder(value, tb);
+	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 1),
+                      value);
         }
         | TypeQualifierList BasicTypeName
 	{
@@ -705,6 +788,10 @@ BasicTypeSpecifier: /** passthrough, nomerge **/
           TypeBuilder tb = qualList.combine(basicTypeName);
           
           setTypeBuilder(value, tb);
+	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
         }
         | BasicTypeSpecifier TypeQualifier
 	{
@@ -714,13 +801,13 @@ BasicTypeSpecifier: /** passthrough, nomerge **/
           TypeBuilder tb = basicTypeSpecifier.combine(qual);
           
           setTypeBuilder(value, tb);
+	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
         }
         | BasicTypeSpecifier BasicTypeName
         {
-          // TUTORIAL: a semantic action that sets the semantic value
-          // to a new typebuilder by adding a property derived from
-          // the child semantic value(s)
-
           // get the semantic values of each child
           TypeBuilder basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
           TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
@@ -729,6 +816,10 @@ BasicTypeSpecifier: /** passthrough, nomerge **/
           TypeBuilder tb = basicTypeSpecifier.combine(basicTypeName);
           
           setTypeBuilder(value, tb);
+	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
         }
         ;
 
@@ -770,8 +861,24 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
 
 TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
         TYPEDEFname
+				{
+					TypeBuilder tb1 = new TypeBuilder();
+					tb1.setTypedef(getStringAt(subparser, 1));
+          setTypeBuilder(value, tb1);
+				}
         | TypeQualifierList TYPEDEFname
+				{
+					TypeBuilder tb = getTypeBuilderAt(subparser, 2);
+          TypeBuilder tb1 = new TypeBuilder();
+					tb1.setTypedef(getStringAt(subparser, 1));
+          setTypeBuilder(value, tb.combine(tb1));
+				}
         | TypedefTypeSpecifier TypeQualifier
+				{
+					TypeBuilder tb = getTypeBuilderAt(subparser, 2);
+          TypeBuilder tb1 = getTypeBuilderAt(subparser, 1);
+          setTypeBuilder(value, tb.combine(tb1));
+				}
         ;
 
 TypeofDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or void*/
@@ -861,26 +968,31 @@ StorageClass:  /** passthrough **/
 	  {
 	    TypeBuilder storage = new TypeBuilder("typedef");
 	    setTypeBuilder(value, storage);
+	    getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF;
 	  }
         | EXTERN
 	    {
 	      TypeBuilder storage = new TypeBuilder("extern");
 	      setTypeBuilder(value, storage);
+	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN;
 	    }
         | STATIC
 	    {
 	      TypeBuilder storage = new TypeBuilder("static");
 	      setTypeBuilder(value, storage);
+	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC;
 	    }
         | AUTO
 	    {
 	      TypeBuilder storage = new TypeBuilder("auto");
 	      setTypeBuilder(value, storage);
+	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO;
 	    }
         | REGISTER
 	    {
 	      TypeBuilder storage = new TypeBuilder("register");
 	      setTypeBuilder(value, storage);
+	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER;
 	    }
         ;
 
@@ -889,71 +1001,76 @@ BasicTypeName:  /** passthrough **/
         {
           TypeBuilder tb = new TypeBuilder(VoidT.TYPE);
           setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).type = VoidT.TYPE;
         }
         | CHAR
         {
           TypeBuilder tb = new TypeBuilder(NumberT.CHAR);
           setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenChar = true;
         }
         | SHORT
         {
           TypeBuilder tb = new TypeBuilder(NumberT.SHORT);
           setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenShort = true;
         }
         | INT
         {
-          // TUTORIAL: a semantic action that sets the semantic value
-          // to a new typebuilderby adding a property annotation.
 
           // See xtc.type.* for the class hiearchy for types
           TypeBuilder tb = new TypeBuilder(NumberT.INT);
           setTypeBuilder(value, tb);
-
+	  getSpecsAt(subparser, 1).seenInt = true;
         }
         | __INT128
 	{
           TypeBuilder tb = new TypeBuilder(NumberT.__INT128);
           setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenInt = true;
         }
         | LONG
         {
-          // TUTORIAL: a semantic action that sets the semantic value
-          // to a new typebuilderby adding a property annotation.
-
           // See xtc.type.* for the class hiearchy for types
           TypeBuilder tb = new TypeBuilder(NumberT.LONG);
 	  setTypeBuilder(value, tb);
-
+	  getSpecsAt(subparser, 1).longCount++;
         }
         | FLOAT
         {
           TypeBuilder tb = new TypeBuilder(NumberT.FLOAT);
           setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenFloat = true;
         }
         | DOUBLE
         {
           TypeBuilder tb = new TypeBuilder(NumberT.DOUBLE);
           setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenDouble = true;
         }
         | SignedKeyword
         {
           TypeBuilder tb = new TypeBuilder("signed");
           setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenSigned = true;
         }
         | UNSIGNED
         {
           TypeBuilder tb = new TypeBuilder("unsigned");
           setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenUnsigned = true;
         }
         | _BOOL
         {
           TypeBuilder tb = new TypeBuilder(BooleanT.TYPE);
           setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenBool = true;
         }
         | ComplexKeyword
         {
 	  TypeBuilder tb = new TypeBuilder("complex");
           setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenComplex = true;
         }
         ;
 
@@ -1379,7 +1496,10 @@ CleanTypedefDeclarator: /** nomerge **/
 	  setDeclBuilder(value, db);
 	}
         | STAR TypeQualifierList ParameterTypedefDeclarator
-	
+	{
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
         ;
 
 CleanPostfixTypedefDeclarator: /** nomerge **/
@@ -1423,6 +1543,10 @@ ParenTypedefDeclarator:  /** passthrough, nomerge **/
 	  setDeclBuilder(value, db);
 	}
         | STAR TypeQualifierList ParenTypedefDeclarator
+				{
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
         ;
         
 ParenPostfixTypedefDeclarator: /** nomerge **/ /* redundant paren to left of tname*/
@@ -1498,17 +1622,18 @@ UnaryIdentifierDeclarator: /** passthrough, nomerge **/
 	  setDeclBuilder(value, db);
 	}
         | STAR TypeQualifierList IdentifierDeclarator
-        {
-          /* Specifiers spec = getSpecsAt(subparser, 2); */
-          /* Type baseType = getDecl(getNodeAt(subparser, 1));; */
-          /* Type result = spec.annotateBase(new PointerT(baseType).annotate()); */
-          /* setDecl(value, result); */
-          /* copyName(subparser, value, 1); */
-        }
+       {
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
         ;
         
 PostfixIdentifierDeclarator: /** passthrough, nomerge **/
         FunctionDeclarator
+				{
+					System.err.println("Unsupported grammar"); // TODO
+					//					System.exit(1);
+				}
         | ArrayDeclarator
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);

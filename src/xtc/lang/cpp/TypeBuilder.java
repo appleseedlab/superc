@@ -363,7 +363,7 @@ public class TypeBuilder {
 		}
 	result.isTypeError = result.isTypeError || with.isTypeError;
 	result.isFunction = result.isFunction || with.isFunction;
-	result.typedefName = (result.foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefName : with.typedefName);
+	result.typedefName = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefName : with.typedefName);
 	return result;
   }
 
@@ -374,6 +374,7 @@ public class TypeBuilder {
 
     void setTypedef(String name)
     {
+	foundTypes[FOUND_TYPE.seenTypedef.ordinal()] = true;
 	typedefName = name;
     }
 }

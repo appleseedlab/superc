@@ -93,6 +93,7 @@ SOURCE = \
 	FunctionChecker.java \
 	TypeBuilder.java \
 	DeclBuilder.java \
+	Multiverse.java \
 	Desugarer.java \
 	SuperC.java
 
