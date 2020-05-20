@@ -500,8 +500,8 @@ DeclaringList:  /** nomerge **/
 	{
 	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
 	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
-	  //todo: add mapping
 	  System.out.println(type + decl.toString());
+	  addMapping(subparser, type, decl);
 	  saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));
         }
@@ -509,8 +509,8 @@ DeclaringList:  /** nomerge **/
         {
 	  DeclBuilder decl = getDeclBuilderAt(subparser, 1);
 	  TypeBuilder type = getTypeBuilderAt(subparser, 2);
-	  //todo: add mapping
 	  System.out.println(type + decl.toString());
+	  addMapping(subparser, type, decl);
 	  saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
@@ -3777,6 +3777,22 @@ private static Specifiers makeStructSpec(Subparser subparser,
   specs.type = type;
 
   return specs;
+}
+
+private Type getType(TypeBuilder t, DeclBuilder d)
+{
+  d.addType(t.toType());
+  return d.toType();
+}
+
+private void addMapping(Subparser subparser, TypeBuilder t, DeclBuilder d)
+{
+  if (t == null || d == null || !t.getIsValid() || !d.getIsValid())
+    return;
+  Type type = getType(t,d);
+  PresenceConditionManager.PresenceCondition presenceCondition = subparser.getPresenceCondition();
+  CContext scope = (CContext) subparser.scope;
+  scope.getSymbolTable().addMapping(d.getID(), type, presenceCondition);
 }
 
 /**

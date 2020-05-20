@@ -677,6 +677,7 @@ public class CContext implements ParsingContext {
       TYPEDEF, IDENT, INIT, USED, VAR, GLOBAL_FUNDEF, STATIC_FUNDEF, FUNCALL,
     }
 
+      private static int count = 0;
     // /** The symbol table data structure. */
     // public HashMap<String, TypedefVarEntry> map;
     
@@ -701,7 +702,17 @@ public class CContext implements ParsingContext {
       
       return this;
     }
-  
+      
+      public void addMapping(String ident, Type type, PresenceCondition p)
+      {
+	  if (!multiverse.addMapping(ident, ident + Integer.toString(count++), type, p))
+	      {
+		  System.out.println("Redefinition of identifier: " + ident);
+		  System.exit(1);
+	      }
+	  System.out.println(multiverse.toString());
+      }
+      
     public void delRef() {
       refs--;
       if (0 == refs) {  //clean up symbol table

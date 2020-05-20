@@ -155,4 +155,9 @@ public class DeclBuilder
 	    }
 	    return output;
     }
+
+    public boolean getIsValid()
+    {
+	return isValid;
+    }
 }

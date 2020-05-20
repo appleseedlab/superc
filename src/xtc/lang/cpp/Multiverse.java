@@ -1,6 +1,7 @@
 package xtc.lang.cpp;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.HashMap;
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 import xtc.type.Type;
@@ -33,6 +34,11 @@ public class Multiverse
 	public String rename;
 	public Type type;
 	public PresenceCondition pc;
+	
+	public String toString()
+	{
+	    return rename + " " + type.toString() + " " + pc.toString();
+	}
     }
     
     HashMap<String, List<Universe>> mapping;
@@ -64,10 +70,23 @@ public class Multiverse
 	    }
 	return true;
     }
+    
     public void delRefs()
     {
 	for (List<Universe> x : mapping.values())
 	    for (Universe u : x)
 		u.delRef();
+    }
+
+    public String toString()
+    {
+	String output = "";
+	for (Map.Entry<String,List<Universe>> x : mapping.entrySet())
+	    {
+		output += x.getKey() + "\n";
+		for (Universe u : x.getValue())
+		    output += "\t" + u.toString() + "\n";
+	    }
+	return output;
     }
 }

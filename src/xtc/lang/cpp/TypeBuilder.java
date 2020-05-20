@@ -451,4 +451,9 @@ public class TypeBuilder {
 	foundTypes[FOUND_TYPE.seenTypedef.ordinal()] = true;
 	typedefName = name;
     }
+
+    public boolean getIsValid()
+    {
+	return !isTypeError;
+    }
 }
