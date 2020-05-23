@@ -298,8 +298,26 @@ ExternalDeclarationList: /** list, complete **/
 ExternalDeclaration:  /** passthrough, complete **/
         FunctionDefinitionExtension
         | DeclarationExtension
+        {
+          StringBuilder sb = new StringBuilder();
+          for (int i = 1; i <= 2; i++)
+            sb.append(getStringBuilderAt(subparser, i));
+          setStringBuilder(value, sb);
+        }
         | AssemblyDefinition
+        {
+          StringBuilder sb = new StringBuilder();
+          for (int i = 1; i <= 2; i++)
+            sb.append(getStringBuilderAt(subparser, i));
+          setStringBuilder(value, sb);
+        }
         | EmptyDefinition
+        {
+          StringBuilder sb = new StringBuilder();
+          for (int i = 1; i <= 2; i++)
+            sb.append(getStringBuilderAt(subparser, i));
+          setStringBuilder(value, sb);
+        }
         ;
 
 EmptyDefinition:  /** complete **/
@@ -309,11 +327,27 @@ EmptyDefinition:  /** complete **/
 FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
         FunctionDefinition
         | __EXTENSION__ FunctionDefinition
+        {
+          StringBuilder sb = new StringBuilder();
+          for (int i = 1; i <= 2; i++)
+            sb.append(getStringBuilderAt(subparser, i));
+          setStringBuilder(value, sb);
+        }
         ;
 
 FunctionDefinition:  /** complete **/ // added scoping
          FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
-        | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
+        | FunctionOldPrototype
+        {
+          ReenterScope(subparser);
+          {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 1; i <= 2; i++)
+              sb.append(getStringBuilderAt(subparser, i));
+            setStringBuilder(value, sb);
+          }
+        }
+        DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         ;
 
 /* Functions have their own compound statement because of the need for
@@ -531,27 +565,32 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
 
 DeclaringList:  /** nomerge **/
         DeclarationSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
-	{
-	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
-	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
-	  System.out.println(type + decl.toString());
-	  addMapping(subparser, type, decl);
-	  saveBaseType(subparser, getNodeAt(subparser, 5));
+	      {
+      	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
+      	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
+      	  addMapping(subparser, type, decl);
+      	  saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));
         }
         | TypeSpecifier Declarator
         {
-	  DeclBuilder decl = getDeclBuilderAt(subparser, 1);
-	  TypeBuilder type = getTypeBuilderAt(subparser, 2);
-	  System.out.println(type + decl.toString());
-	  addMapping(subparser, type, decl);
-	  saveBaseType(subparser, getNodeAt(subparser, 2));
+      	  DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+      	  TypeBuilder type = getTypeBuilderAt(subparser, 2);
+      	  addMapping(subparser, type, decl);
+
+          // stores the written variable renaming declarations
+          System.out.println(genRenamingDecls(subparser, decl, type.toType()));
+          // TODO: store this written code here
+          //setStringBuilder(value, genRenamingDecls(subparser, decl, type.toType()));
+
+
+      	  saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
           // reuses saved base type
-	  bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
+	        bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         ;
 
@@ -3845,6 +3884,20 @@ private void addMapping(Subparser subparser, TypeBuilder t, DeclBuilder d)
   PresenceConditionManager.PresenceCondition presenceCondition = subparser.getPresenceCondition();
   CContext scope = (CContext) subparser.scope;
   scope.getSymbolTable().addMapping(d.getID(), type, presenceCondition);
+}
+
+private StringBuilder genRenamingDecls(Subparser subparser, DeclBuilder db, Type type) {
+  // gets the symboltable after the identifier has been added, and gets the list of all renamings
+  xtc.lang.cpp.CContext.SymbolTable symtab = ((CContext) subparser.scope).getSymbolTable();
+  List<String> renamings = symtab.multiverse.getAllRenamings(db.identifier);
+  StringBuilder declarations = new StringBuilder();
+  // writes the declaration for every renaming
+  for (String renaming : renamings) {
+    declarations.append(type + " " + renaming);
+    declarations.append(";\n");
+  }
+
+  return declarations;
 }
 
 /**

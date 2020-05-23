@@ -34,14 +34,25 @@ public class Multiverse
 	public String rename;
 	public Type type;
 	public PresenceCondition pc;
-	
+
+  public String getRenaming() {
+    return rename;
+  }
+
 	public String toString()
 	{
 	    return rename + " " + type.toString() + " " + pc.toString();
 	}
     }
-    
+
     HashMap<String, List<Universe>> mapping;
+
+    List<String> getAllRenamings(String key) {
+      LinkedList<String> allRenamings = new LinkedList<String>();
+      for (Universe u : mapping.get(key))
+        allRenamings.add(u.getRenaming());
+      return allRenamings;
+    }
 
     public Multiverse()
     {
@@ -50,27 +61,27 @@ public class Multiverse
 
     public boolean addMapping(String name, String rename, Type t, PresenceCondition p)
     {
-	List<Universe> value = mapping.get(name);
-	if (value == null)
-	    {
-		List<Universe> newEntry = new LinkedList<Universe>();
-		newEntry.add(new Universe(rename, t, p));
-		mapping.put(name, newEntry);
-	    }
-	else
-	    {
-		boolean noCollision = true;
+	     List<Universe> value = mapping.get(name);
+	      if (value == null)
+	       {
+		      List<Universe> newEntry = new LinkedList<Universe>();
+		        newEntry.add(new Universe(rename, t, p));
+		          mapping.put(name, newEntry);
+         }
+        else
+       {
+		       boolean noCollision = true;
 	        for (Universe u : value)
-		    {
-			noCollision = noCollision && u.exclusiveFromPC(p);
-		    }
+	        {
+			         noCollision = noCollision && u.exclusiveFromPC(p);
+          }
 		if (!noCollision)
 		    return false;
 		value.add(new Universe(rename, t, p));
 	    }
 	return true;
     }
-    
+
     public void delRefs()
     {
 	for (List<Universe> x : mapping.values())
