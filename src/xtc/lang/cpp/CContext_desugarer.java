@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.Random;
 
 import xtc.tree.Location;
 
@@ -95,7 +96,7 @@ public class CContext implements ParsingContext {
   public CContext() {
     this(new SymbolTable(), null);
   }
-  
+
   /**
    * Create a new C parsing context.
    *
@@ -135,7 +136,7 @@ public class CContext implements ParsingContext {
 
     this.reentrant = scope.reentrant;
   }
-  
+
   public ParsingContext fork() {
     return new CContext(this);
   }
@@ -157,14 +158,14 @@ public class CContext implements ParsingContext {
     // Check whether any tokens need reclassification, i.e. they are
     // an identifier and have an entry in the symbol.
     for (Lookahead n : set) {
-      if (isIdentifier(n.token.syntax)) { 
+      if (isIdentifier(n.token.syntax)) {
         String ident = n.token.syntax.getTokenText();
 
         // Check the stack of symbol tables for a typedef entry.
         CContext scope = this;
         while (true) {
           while (scope.reentrant) scope = scope.parent;
-        
+
           // if ( scope.symtab.map.containsKey(ident)
           //      && scope.symtab.map.get(ident).typedefCond != null
           //      ) {
@@ -179,11 +180,11 @@ public class CContext implements ParsingContext {
 
             return true;
           }
-        
+
           if (null == scope.parent) {
             break;
           }
-        
+
           scope = scope.parent;
         }
       }
@@ -219,7 +220,7 @@ public class CContext implements ParsingContext {
 
         // Add a new token for the variable entry.
         PresenceCondition varPresenceCondition = typedefPresenceCondition.not();
-        Lookahead identifier = new Lookahead(n.token, varPresenceCondition); 
+        Lookahead identifier = new Lookahead(n.token, varPresenceCondition);
         if (null == newTokens) {
           newTokens = new LinkedList<Lookahead>();
         }
@@ -260,12 +261,12 @@ public class CContext implements ParsingContext {
   public trit isType(String ident, PresenceCondition presenceCondition,
                      Location location) {
     CContext scope;
-    
+
     scope = this;
-      
+
     while (true) {
       while (scope.reentrant) scope = scope.parent;
-        
+
       // if ( scope.symtab.map.containsKey(ident)
       //      && scope.symtab.map.get(ident).typedefCond != null
       //      ) {
@@ -274,18 +275,18 @@ public class CContext implements ParsingContext {
           && ! scope.symtab.bools.get(ident).get(SymbolTable.STField.TYPEDEF).trueCond.isFalse()) {
   break;
       }
-        
+
       if (null == scope.parent) {
         return trit.FALSE;
       }
-        
+
       scope = scope.parent;
     }
-    
+
     scope = this;
-    
+
     do {  //find the symbol in local scope or parent scope
-      
+
       while (scope.reentrant) scope = scope.parent;
 
       if (scope.symtab.bools.containsKey(ident) &&
@@ -341,7 +342,7 @@ public class CContext implements ParsingContext {
       //     }
       //     and.delRef();
       //   }
-        
+
       //   if (null != e.varCond) {
       //     PresenceCondition and;
 
@@ -373,20 +374,20 @@ public class CContext implements ParsingContext {
       //     return trit.FALSE;
       //   }
       // }
-      
+
       if (null == scope.parent) {
         break;
       }
-      
+
       scope = scope.parent;
     } while (true);
-    
+
     if (DEBUG) System.err.println("isType: " + ident
                                   + " false in " /*+ presenceCondition*/);
-    
+
     return trit.FALSE;
   }
-  
+
   public boolean mayMerge(ParsingContext other) {
     if (! (other instanceof CContext)) return false;
 
@@ -412,7 +413,7 @@ public class CContext implements ParsingContext {
       return mergeable(s.parent, t.parent);
     }
   }
-  
+
   public ParsingContext merge(ParsingContext other) {
     CContext scope = (CContext) other;
 
@@ -462,14 +463,14 @@ public class CContext implements ParsingContext {
   //  */
   // public void bind(String ident, boolean typedef, PresenceCondition presenceCondition) {
   //   CContext scope;
-    
+
   //   if (DEBUG) {
   //     System.err.println("bind: " + ident + " " + typedef);
   //   }
 
   //   scope = this;
   //   while (scope.reentrant) scope = scope.parent;
-    
+
   //   scope.symtab.add(ident, typedef, presenceCondition);
   // }
 
@@ -482,9 +483,9 @@ public class CContext implements ParsingContext {
    */
   public PresenceCondition typedefPresenceCondition(String ident, PresenceCondition presenceCondition) {
     CContext scope;
-    
+
     scope = this;
-    
+
     do {  //find the symbol in local scope or parent scope
 
       while (scope.reentrant) scope = scope.parent;
@@ -505,23 +506,23 @@ public class CContext implements ParsingContext {
       //   boolean typedef;
       //   boolean var;
       //   PresenceCondition and;
-        
+
       //   e = scope.symtab.map.get(ident);
 
       //   and = e.typedefCond.and(presenceCondition);
-        
+
       //   if (! and.isFalse()) {
       //     return and;
       //   }
       //   and.delRef();
       // }
-      
+
       if (null == scope.parent) {
         break;
       }
       scope = scope.parent;
     } while (true);
-    
+
     return null;
   }
 
@@ -534,9 +535,9 @@ public class CContext implements ParsingContext {
    */
   public PresenceCondition symbolPresenceCond(String ident, SymbolTable.STField field) {
     CContext scope;
-    
+
     scope = this;
-    
+
     do {  //find the symbol in local scope or parent scope
 
       while (scope.reentrant) scope = scope.parent;
@@ -551,7 +552,7 @@ public class CContext implements ParsingContext {
       }
       scope = scope.parent;
     } while (true);
-    
+
     return null;
   }
 
@@ -563,7 +564,7 @@ public class CContext implements ParsingContext {
    */
   public CContext enterScope(PresenceCondition presenceCondition) {
     CContext scope;
-    
+
     if (DEBUG) System.err.println("enter scope");
 
     scope = this;
@@ -572,12 +573,12 @@ public class CContext implements ParsingContext {
       scope.symtab = null;
       scope = scope.parent;
     }
-    
+
     scope = new CContext(new SymbolTable(), new CContext(scope));
-    
+
     return scope;
   }
-  
+
   /**
    * Exit the scope.
    *
@@ -586,7 +587,7 @@ public class CContext implements ParsingContext {
    */
   public CContext exitScope(PresenceCondition presenceCondition) {
     CContext scope;
-    
+
     if (DEBUG) System.err.println("exit scope");
 
     scope = this;
@@ -595,14 +596,14 @@ public class CContext implements ParsingContext {
       scope.symtab = null;
       scope = scope.parent;
     }
-    
+
     scope.symtab.delRef();
     scope.symtab = null;
     scope = scope.parent;
 
     return scope;
   }
-  
+
   /**
    * Exit a reentrant scope.
    *
@@ -611,9 +612,9 @@ public class CContext implements ParsingContext {
    */
   public CContext exitReentrantScope(PresenceCondition presenceCondition) {
     CContext scope;
-    
+
     if (DEBUG) System.err.println("exit reentrant scope");
-    
+
     scope = this;
     while (scope.reentrant) {
       scope.symtab.delRef();
@@ -625,7 +626,7 @@ public class CContext implements ParsingContext {
 
     return scope;
   }
-  
+
   /**
    * Reenter a reentrant scope.
    *
@@ -634,7 +635,7 @@ public class CContext implements ParsingContext {
    */
   public CContext reenterScope(PresenceCondition presenceCondition) {
     if (DEBUG) System.err.println("reenter scope");
-    
+
     if (! reentrant) {
       // This may happen for functions without a postfix declarator.
       // See cpp_testsuite/grammar/scope.c.  The parameter list
@@ -649,7 +650,7 @@ public class CContext implements ParsingContext {
       return this;
     }
   }
-  
+
   /**
    * Kill a reentrant scope.
    *
@@ -658,9 +659,9 @@ public class CContext implements ParsingContext {
    */
   public CContext killReentrantScope(PresenceCondition presenceCondition) {
     CContext scope;
-    
+
     if (DEBUG) System.err.println("kill reentrant scope");
-    
+
     scope = this;
     while (scope.reentrant) {
       scope.symtab.delRef();
@@ -670,7 +671,7 @@ public class CContext implements ParsingContext {
 
     return scope;
   }
-  
+
   /** The symbol table that stores a scope's symbol bindings. */
   public static class SymbolTable {
     public enum STField {
@@ -680,15 +681,15 @@ public class CContext implements ParsingContext {
       private static int count = 0;
     // /** The symbol table data structure. */
     // public HashMap<String, TypedefVarEntry> map;
-    
+
     /** The symbol table data structure. */
     public HashMap<String, EnumMap<STField, ConditionedBool>> bools;
 
-      public Multiverse multiverse; 
-      
+      public Multiverse multiverse;
+
     /** The reference count for cleaning up the table BDDs */
     public int refs;
-    
+
     /** New table */
     public SymbolTable() {
       // this.map = new HashMap<String, TypedefVarEntry>();
@@ -696,23 +697,22 @@ public class CContext implements ParsingContext {
       this.refs = 1;
       multiverse = new Multiverse();
     }
-    
+
     public SymbolTable addRef() {
       refs++;
-      
+
       return this;
     }
-      //Desugaring.java ln 565
       public void addMapping(String ident, Type type, PresenceCondition p)
       {
-	  if (!multiverse.addMapping(ident, ident + Integer.toString(count++), type, p))
+	  if (!multiverse.addMapping(ident, mangleRenaming("", ident), type, p))
 	      {
 		  System.out.println("Redefinition of identifier: " + ident);
 		  System.exit(1);
 	      }
 	  System.out.println(multiverse.toString());
       }
-      
+
     public void delRef() {
       refs--;
       if (0 == refs) {  //clean up symbol table
@@ -724,7 +724,7 @@ public class CContext implements ParsingContext {
         }
         // for (String str : this.map.keySet()) {
         //   TypedefVarEntry e = this.map.get(str);
-  
+
         //   if (null != e.typedefCond) {
         //     e.typedefCond.delRef();
         //   }
@@ -815,7 +815,7 @@ public class CContext implements ParsingContext {
       return null;
     }
 
-    
+
     // public void add(String ident, boolean typedef, PresenceCondition presenceCondition) {
     //   if (! map.containsKey(ident)) {
     //     map.put(ident,
@@ -824,9 +824,9 @@ public class CContext implements ParsingContext {
     //   }
     //   else {
     //     TypedefVarEntry e;
-        
+
     //     e = map.get(ident);
-        
+
     //     if (typedef) {
     //       if (null == e.typedefCond) {
     //         e.typedefCond = presenceCondition;
@@ -834,7 +834,7 @@ public class CContext implements ParsingContext {
     //       }
     //       else {
     //         PresenceCondition or;
-            
+
     //         or = e.typedefCond.or(presenceCondition);
     //         e.typedefCond.delRef();
     //         e.typedefCond = or;
@@ -847,7 +847,7 @@ public class CContext implements ParsingContext {
     //       }
     //       else {
     //         PresenceCondition or;
-            
+
     //         or = e.varCond.or(presenceCondition);
     //         e.varCond.delRef();
     //         e.varCond = or;
@@ -868,13 +868,13 @@ public class CContext implements ParsingContext {
   //     for (String str : symtab.map.keySet()) {
   //       if (! map.containsKey(str)) {
   //         TypedefVarEntry e = symtab.map.get(str);
-          
+
   //         map.put(str, new TypedefVarEntry(e.typedefCond, e.varCond));
-          
+
   //         if (null != e.typedefCond) {
   //           e.typedefCond.addRef();
   //         }
-          
+
   //         if (null != e.varCond) {
   //           e.varCond.addRef();
   //         }
@@ -882,7 +882,7 @@ public class CContext implements ParsingContext {
   //       else {
   //         TypedefVarEntry d = map.get(str);
   //         TypedefVarEntry e = symtab.map.get(str);
-          
+
   //         if (null != e.typedefCond) {
   //           if (null == d.typedefCond) {
   //             d.typedefCond = e.typedefCond;
@@ -890,13 +890,13 @@ public class CContext implements ParsingContext {
   //           }
   //           else {
   //             PresenceCondition or;
-              
+
   //             or = d.typedefCond.or(e.typedefCond);
   //             d.typedefCond.delRef();
   //             d.typedefCond = or;
   //           }
   //         }
-          
+
   //         if (null != e.varCond) {
   //           if (null == d.varCond) {
   //             d.varCond = e.varCond;
@@ -904,7 +904,7 @@ public class CContext implements ParsingContext {
   //           }
   //           else {
   //             PresenceCondition or;
-              
+
   //             or = d.varCond.or(e.varCond);
   //             d.varCond.delRef();
   //             d.varCond = or;
@@ -922,7 +922,7 @@ public class CContext implements ParsingContext {
 
   //   /** The presence condition when the symbol is a var name. */
   //   PresenceCondition varCond;
-    
+
   //   /** Create a new entry.
   //    *
   //    * @param t The typedef name presence condition.
@@ -932,6 +932,31 @@ public class CContext implements ParsingContext {
   //     this.typedefCond = typedefCond;
   //     this.varCond = varCond;
   //   }
+
+    private static long varcount = 0;
+    private final static char[] charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
+    private final static Random random = new Random();
+    private final static int RAND_SIZE = 5;
+
+    protected String randomString(int string_size) {
+    StringBuilder randomstring = new StringBuilder();
+    for (int i = 0; i < string_size; i++) {
+      randomstring.append(charset[random.nextInt(charset.length)]);
+    }
+    return randomstring.toString();
+    }
+
+    protected String mangleRenaming(String prefix, String ident) {
+    // don't want to exceed c identifier length limit (31)
+    if (ident.length() > 22) {
+      // shorten ident to be at max, 22 chars
+      StringBuilder sb = new StringBuilder(ident);
+      sb = sb.delete(23, ident.length());
+      ident = sb.toString();
+    }
+    return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
+    }
+
   }
 
   /**
@@ -951,4 +976,3 @@ public class CContext implements ParsingContext {
     }
   }
 }
-

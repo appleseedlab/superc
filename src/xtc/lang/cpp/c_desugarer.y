@@ -27,7 +27,7 @@
      IMPLIED  WARRANTIES,  INCLUDING,  WITHOUT LIMITATION, THE IMPLIED
      WARRANTIES  OF  MERCHANTABILITY  AND  FITNESS  FOR  A  PARTICULAR
      PURPOSE.
- 
+
      James A. Roskind
      Independent Consultant
      516 Latania Palm Drive
@@ -72,8 +72,8 @@
 
 /* New Lexical element, whereas ANSI suggested non-terminal */
 
-%token TYPEDEFname /* Lexer will tell the difference between this and 
-    an  Identifier!   An  Identifier  that is CURRENTLY in scope as a 
+%token TYPEDEFname /* Lexer will tell the difference between this and
+    an  Identifier!   An  Identifier  that is CURRENTLY in scope as a
     typedef name is provided to the parser as a TYPEDEFname.*/
 
 /* Multi-Character operators */
@@ -228,8 +228,18 @@ import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
 import xtc.lang.cpp.ForkMergeParser.StackFrame;
 
+import java.lang.StringBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import java.io.File;
+import java.io.Reader;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.StringReader;
+import java.io.OutputStreamWriter;
+import java.io.IOException;
 
 import xtc.type.Type;
 import xtc.type.NumberT;
@@ -237,7 +247,7 @@ import xtc.type.StructT;
 import xtc.type.VariableT;
 import xtc.type.UnitT;
 /* TUTORIAL: add any additional type classes here */
- 
+
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
@@ -246,12 +256,30 @@ import org.sat4j.specs.IProblem;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.TimeoutException;
 import org.sat4j.tools.ModelIterator;
+
 %}
 
 %%
 
 TranslationUnit:  /** complete, passthrough **/
         ExternalDeclarationList
+        {
+          try {
+            OutputStreamWriter writer = new OutputStreamWriter(System.out);
+
+            // writing initial transformation code
+            writer.write("#include <stdbool.h>\n");
+            writer.write("#include \"desugared_macros.h\" // configuration macros converted to C variables\n");
+
+            // writing file-dependent transformation code
+            writer.write(getStringBuilderAt(subparser, 1).toString());
+            writer.flush();
+          }
+          catch(Exception IOException) {
+            System.err.println("ERROR: unable to write output");
+            System.exit(1);
+          }
+        }
         ;
 
 // ------------------------------------------------------ External definitions
@@ -259,13 +287,37 @@ TranslationUnit:  /** complete, passthrough **/
 ExternalDeclarationList: /** list, complete **/
         /* empty */  // ADDED gcc allows empty program
         | ExternalDeclarationList ExternalDeclaration
+        {
+          StringBuilder sb = new StringBuilder();
+          for (int i = 1; i <= 2; i++)
+            sb.append(getStringBuilderAt(subparser, i));
+          setStringBuilder(value, sb);
+        }
         ;
 
 ExternalDeclaration:  /** passthrough, complete **/
         FunctionDefinitionExtension
         | DeclarationExtension
+        {
+          StringBuilder sb = new StringBuilder();
+          for (int i = 1; i <= 2; i++)
+            sb.append(getStringBuilderAt(subparser, i));
+          setStringBuilder(value, sb);
+        }
         | AssemblyDefinition
+        {
+          StringBuilder sb = new StringBuilder();
+          for (int i = 1; i <= 2; i++)
+            sb.append(getStringBuilderAt(subparser, i));
+          setStringBuilder(value, sb);
+        }
         | EmptyDefinition
+        {
+          StringBuilder sb = new StringBuilder();
+          for (int i = 1; i <= 2; i++)
+            sb.append(getStringBuilderAt(subparser, i));
+          setStringBuilder(value, sb);
+        }
         ;
 
 EmptyDefinition:  /** complete **/
@@ -275,11 +327,27 @@ EmptyDefinition:  /** complete **/
 FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
         FunctionDefinition
         | __EXTENSION__ FunctionDefinition
+        {
+          StringBuilder sb = new StringBuilder();
+          for (int i = 1; i <= 2; i++)
+            sb.append(getStringBuilderAt(subparser, i));
+          setStringBuilder(value, sb);
+        }
         ;
 
 FunctionDefinition:  /** complete **/ // added scoping
          FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
-        | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
+        | FunctionOldPrototype
+        {
+          ReenterScope(subparser);
+          {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 1; i <= 2; i++)
+              sb.append(getStringBuilderAt(subparser, i));
+            setStringBuilder(value, sb);
+          }
+        }
+        DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         ;
 
 /* Functions have their own compound statement because of the need for
@@ -303,17 +371,17 @@ FunctionPrototype:  /** nomerge **/
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        } 
+        }
         | DeclarationQualifierList IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        } 
+        }
         | TypeQualifierList        IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        } 
+        }
 
         |                          OldFunctionDeclarator { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
         | DeclarationSpecifier     OldFunctionDeclarator
@@ -439,14 +507,14 @@ NestedFunctionOldPrototype:  /** nomerge **/
 
 // -------------------------------------------------------------- Declarations
 
-    /* The following is different from the ANSI C specified  grammar.  
-    The  changes  were  made  to  disambiguate  typedef's presence in 
-    DeclarationSpecifiers (vs.  in the Declarator for redefinition); 
-    to allow struct/union/enum tag declarations without  Declarators, 
-    and  to  better  reflect the parsing of declarations (Declarators 
-    must be combined with DeclarationSpecifiers ASAP  so  that  they 
+    /* The following is different from the ANSI C specified  grammar.
+    The  changes  were  made  to  disambiguate  typedef's presence in
+    DeclarationSpecifiers (vs.  in the Declarator for redefinition);
+    to allow struct/union/enum tag declarations without  Declarators,
+    and  to  better  reflect the parsing of declarations (Declarators
+    must be combined with DeclarationSpecifiers ASAP  so  that  they
     are visible in scope).
-    Example  of  typedef  use  as either a DeclarationSpecifier or a 
+    Example  of  typedef  use  as either a DeclarationSpecifier or a
     Declarator:
       typedef int T;
       struct S { T T;}; /* redefinition of T as member name * /
@@ -454,11 +522,11 @@ NestedFunctionOldPrototype:  /** nomerge **/
       int; /* syntax error: vacuous declaration * /
       struct S;  /* no error: tag is defined or elaborated * /
     Example of result of proper declaration binding:
-        
-        int a=sizeof(a); /* note that "a" is declared with a type  in 
+
+        int a=sizeof(a); /* note that "a" is declared with a type  in
             the name space BEFORE parsing the Initializer * /
-        int b, c[sizeof(b)]; /* Note that the first Declarator "b" is 
-             declared  with  a  type  BEFORE the second Declarator is 
+        int b, c[sizeof(b)]; /* Note that the first Declarator "b" is
+             declared  with  a  type  BEFORE the second Declarator is
              parsed * /
     */
 
@@ -474,7 +542,7 @@ Declaration:  /** complete **/
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         ;
 
-/* Note that if a typedef were  redeclared,  then  a  declaration 
+/* Note that if a typedef were  redeclared,  then  a  declaration
    specifier must be supplied */
 
 DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
@@ -497,27 +565,32 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
 
 DeclaringList:  /** nomerge **/
         DeclarationSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
-	{
-	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
-	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
-	  System.out.println(type + decl.toString());
-	  addMapping(subparser, type, decl);
-	  saveBaseType(subparser, getNodeAt(subparser, 5));
+	      {
+      	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
+      	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
+      	  addMapping(subparser, type, decl);
+      	  saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));
         }
         | TypeSpecifier Declarator
         {
-	  DeclBuilder decl = getDeclBuilderAt(subparser, 1);
-	  TypeBuilder type = getTypeBuilderAt(subparser, 2);
-	  System.out.println(type + decl.toString());
-	  addMapping(subparser, type, decl);
-	  saveBaseType(subparser, getNodeAt(subparser, 2));
+      	  DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+      	  TypeBuilder type = getTypeBuilderAt(subparser, 2);
+      	  addMapping(subparser, type, decl);
+
+          // stores the written variable renaming declarations
+          System.out.println(genRenamingDecls(subparser, decl, type.toType()));
+          // TODO: store this written code here
+          //setStringBuilder(value, genRenamingDecls(subparser, decl, type.toType()));
+
+
+      	  saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
           // reuses saved base type
-	  bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
+	        bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         ;
 
@@ -719,7 +792,7 @@ BasicDeclarationSpecifier: /** passthrough, nomerge **/      /*StorageClass+Arit
 
           // combine the partial type specs
           TypeBuilder tb = basicTypeSpecifier.combine(storageClass);
-          
+
           setTypeBuilder(value, tb);
 	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
@@ -786,7 +859,7 @@ BasicTypeSpecifier: /** passthrough, nomerge **/
           TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
 
           TypeBuilder tb = qualList.combine(basicTypeName);
-          
+
           setTypeBuilder(value, tb);
 	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
@@ -799,7 +872,7 @@ BasicTypeSpecifier: /** passthrough, nomerge **/
           TypeBuilder qual = getTypeBuilderAt(subparser, 1);
 
           TypeBuilder tb = basicTypeSpecifier.combine(qual);
-          
+
           setTypeBuilder(value, tb);
 	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
@@ -814,7 +887,7 @@ BasicTypeSpecifier: /** passthrough, nomerge **/
 
           // combine the partial type specs
           TypeBuilder tb = basicTypeSpecifier.combine(basicTypeName);
-          
+
           setTypeBuilder(value, tb);
 	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
@@ -1216,12 +1289,12 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */
         ENUM LBRACE EnumeratorList RBRACE
         | ENUM IdentifierOrTypedefName LBRACE EnumeratorList RBRACE
         | ENUM IdentifierOrTypedefName
-        | ENUM LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */ 
+        | ENUM LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
         | ENUM IdentifierOrTypedefName LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
         | ENUM AttributeSpecifierList LBRACE EnumeratorList RBRACE
         | ENUM AttributeSpecifierList IdentifierOrTypedefName LBRACE EnumeratorList RBRACE
         | ENUM AttributeSpecifierList IdentifierOrTypedefName
-        | ENUM AttributeSpecifierList LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */ 
+        | ENUM AttributeSpecifierList LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
         | ENUM AttributeSpecifierList IdentifierOrTypedefName LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
         ;
 
@@ -1304,11 +1377,11 @@ ParameterDeclaration:  /** passthrough, nomerge **/
 ParameterAbstractDeclaration:
         DeclarationSpecifier
         | DeclarationSpecifier AbstractDeclarator
-        | DeclarationQualifierList 
+        | DeclarationQualifierList
         | DeclarationQualifierList AbstractDeclarator
         | TypeSpecifier
         | TypeSpecifier AbstractDeclarator
-        | TypeQualifierList 
+        | TypeQualifierList
         | TypeQualifierList AbstractDeclarator
         ;
 
@@ -1345,8 +1418,8 @@ ParameterIdentifierDeclaration:
         } AttributeSpecifierListOpt
         ;
 
-    /*  ANSI  C  section  3.7.1  states  "An Identifier declared as a 
-    typedef name shall not be redeclared as a Parameter".  Hence  the 
+    /*  ANSI  C  section  3.7.1  states  "An Identifier declared as a
+    typedef name shall not be redeclared as a Parameter".  Hence  the
     following is based only on IDENTIFIERs */
 
 IdentifierList:  /** list, nomerge **/
@@ -1366,7 +1439,7 @@ IdentifierOrTypedefName: /** nomerge **/
 TypeName: /** nomerge **/
         TypeSpecifier
         | TypeSpecifier AbstractDeclarator
-        | TypeQualifierList 
+        | TypeQualifierList
         | TypeQualifierList AbstractDeclarator
         ;
 
@@ -1480,7 +1553,7 @@ ParameterTypedefDeclarator: /** nomerge **/
 	}
         ;
 
-    /*  The  following have at least one STAR. There is no (redundant) 
+    /*  The  following have at least one STAR. There is no (redundant)
     LPAREN between the STAR and the TYPEDEFname. */
 
 CleanTypedefDeclarator: /** nomerge **/
@@ -1518,7 +1591,7 @@ CleanPostfixTypedefDeclarator: /** nomerge **/
 	}
 ;
 
-    /* The following have a redundant LPAREN placed immediately  to  the 
+    /* The following have a redundant LPAREN placed immediately  to  the
     left of the TYPEDEFname */
 
 ParenTypedefDeclarator:  /** passthrough, nomerge **/
@@ -1534,7 +1607,7 @@ ParenTypedefDeclarator:  /** passthrough, nomerge **/
 	  db.addPointer();
 	  setDeclBuilder(value, db);
 	}
-	| STAR TypeQualifierList  
+	| STAR TypeQualifierList
                 LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
         | STAR ParenTypedefDeclarator
 	{
@@ -1548,7 +1621,7 @@ ParenTypedefDeclarator:  /** passthrough, nomerge **/
 					System.exit(1);
 				}
         ;
-        
+
 ParenPostfixTypedefDeclarator: /** nomerge **/ /* redundant paren to left of tname*/
         LPAREN ParenTypedefDeclarator RPAREN
 	{
@@ -1627,7 +1700,7 @@ UnaryIdentifierDeclarator: /** passthrough, nomerge **/
 					System.exit(1);
 				}
         ;
-        
+
 PostfixIdentifierDeclarator: /** passthrough, nomerge **/
         FunctionDeclarator
 				{
@@ -1758,8 +1831,8 @@ ArrayAbstractDeclarator: /** nomerge **/
         ;
 
 UnaryAbstractDeclarator: /** nomerge **/
-        STAR 
-        | STAR TypeQualifierList 
+        STAR
+        | STAR TypeQualifierList
         | STAR AbstractDeclarator
         | STAR TypeQualifierList AbstractDeclarator
         ;
@@ -1887,8 +1960,8 @@ ReturnStatement:  /** complete **/
 Constant: /** passthrough, nomerge **/
         FLOATINGconstant
         | INTEGERconstant
-        /* We are not including ENUMERATIONConstant here  because  we 
-        are  treating  it like a variable with a type of "enumeration 
+        /* We are not including ENUMERATIONConstant here  because  we
+        are  treating  it like a variable with a type of "enumeration
         Constant".  */
         | OCTALconstant
         | HEXconstant
@@ -2004,7 +2077,7 @@ AlignofExpression:  /** nomerge **/
         | Alignofkeyword UnaryExpression
         ;
 
-Alignofkeyword: 
+Alignofkeyword:
         __ALIGNOF__
         | __ALIGNOF
         ;
@@ -2013,7 +2086,7 @@ LabelAddressExpression:  /** nomerge  **/  // ADDED
         ANDAND IDENTIFIER;
         ;
 
-Unaryoperator: 
+Unaryoperator:
         AND
         | STAR
         | PLUS
@@ -2248,7 +2321,7 @@ AssemblyExpressionOpt:  /** nomerge **/
         | AssemblyExpression
         ;
 
-AssemblyStatement:   /** nomerge **/ // ADDED 
+AssemblyStatement:   /** nomerge **/ // ADDED
         AsmKeyword LPAREN Assemblyargument RPAREN SEMICOLON
         /* gcc>=4.5 */
         | AsmKeyword GOTO LPAREN AssemblyGotoargument RPAREN SEMICOLON
@@ -2332,6 +2405,8 @@ private TypeBuilder getTypeBuilderAt(Subparser subparser, int component) {
 
 private static final String DECLBUILDER = "xtc.lang.cpp.DeclBuilder";
 private static final String STRING = "xtc.String";
+private static final String STRINGBUILDER = "xtc.StringBuilder";
+
 
 // TUTORIAL: this function just annotates a semantic value with a typebuilder
 private void setDeclBuilder(Object value, DeclBuilder db) {
@@ -2349,6 +2424,22 @@ private DeclBuilder getDeclBuilderAt(Subparser subparser, int component) {
   // value should be not null and should be a Node type
   return (DeclBuilder) getNodeAt(subparser, component).getProperty(DECLBUILDER);
 }
+
+private void setStringBuilder(Object value, StringBuilder sb) {
+  // value should be not null and should be a Node type
+  setStringBuilder((Node) value, sb);
+}
+
+private void setStringBuilder(Node value, StringBuilder sb) {
+  // value should be not null and should be a Node type
+  value.setProperty(STRINGBUILDER, sb);
+}
+
+private StringBuilder getStringBuilderAt(Subparser subparser, int component) {
+  return (StringBuilder) getNodeAt(subparser, component).getProperty(STRINGBUILDER);
+}
+
+
 
 /** True when statistics should be output. */
 private boolean languageStatistics = false;
@@ -2722,7 +2813,7 @@ public void bindIdent(Subparser subparser, Node typespec, Node declarator, STFie
   /* scope.bind(ident.getTokenText(), typedef, presenceCondition); */
 }
 
-public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder declarator) 
+public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder declarator)
 {
 	bindIdent(subparser, typespec, declarator, null);
 }
@@ -2758,12 +2849,12 @@ public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder dec
 
 private static Binding grokdeclarator(Node declarator, Type type) {
   Language ident = null;
-  
+
   while (null != declarator) {
     if (declarator.getName().equals("SimpleDeclarator")) {
       ident = ((Syntax) declarator.get(0)).toLanguage();
       declarator = null;
-      
+
     } else if (declarator.getName().equals("ParenIdentifierDeclarator")) {
       Node parenIdentDecl = null;
 
@@ -2776,7 +2867,7 @@ private static Binding grokdeclarator(Node declarator, Type type) {
         break;
       }
       declarator = parenIdentDecl;
-      
+
     } else if (declarator.getName().equals("UnaryIdentifierDeclarator")) {
       Node typeQual;
       Node identDecl;
@@ -2795,7 +2886,7 @@ private static Binding grokdeclarator(Node declarator, Type type) {
         error("unexpected grammar structure for " + declarator.getName());
         break;
       }
-      
+
       if (null != typeQual) {
         Specifiers specs = (Specifiers) typeQual.getProperty(SPECS);
         type = specs.annotateBase(new PointerT(type).annotate());
@@ -2804,14 +2895,14 @@ private static Binding grokdeclarator(Node declarator, Type type) {
       }
 
       declarator = identDecl;
-      
+
     } else if (declarator.getName().equals("ArrayDeclarator")) {
       Node parenIdentDecl = (Node) declarator.get(0);
       Node arrayAbsDecl = (Node) declarator.get(1);
 
       type = grokabsdeclarator(arrayAbsDecl, type);
       declarator = parenIdentDecl;
-      
+
     } else if (declarator.getName().equals("PostfixIdentifierDeclarator")) {
       Node unaryIdentDecl = (Node) declarator.get(0);
       Node postfixAbsDecl = (Node) declarator.get(1);
@@ -2859,7 +2950,7 @@ private static Type grokabsdeclarator(Node absdeclarator, Type type) {
       }
       type = new ArrayT(type);
     }
-      
+
   } else if (absdeclarator.getName().equals("PostfixingFunctionDeclarator")) {
     Node parms = null;
     switch (absdeclarator.size()) {
@@ -2881,7 +2972,7 @@ private static Type grokabsdeclarator(Node absdeclarator, Type type) {
       System.err.println("TODO support absdeclarator " + absdeclarator.getName());
     }
   }
-  
+
   return type;
 }
 
@@ -3014,8 +3105,8 @@ public void useIdent(Subparser subparser, Node ident) {
           List allsat = (List) notandnot.getBDD().allsat();
           ArrayList<ArrayList<Integer>> bugClauses =
             new ArrayList<ArrayList<Integer>>();
-      
-          for (Object o : allsat) {        
+
+          for (Object o : allsat) {
             byte[] sat = (byte[]) o;
             ArrayList<Integer> clause = new ArrayList<Integer>();
             for (int i = 0; i < sat.length; i++) {
@@ -3023,7 +3114,7 @@ public void useIdent(Subparser subparser, Node ident) {
               // look up i in variable manager
               // if varname exists in clauses, then add to clause
               int sign = 1;
-              
+
               switch (sat[i]) {
               case 1:
                 // negate again
@@ -3095,7 +3186,7 @@ public void useIdent(Subparser subparser, Node ident) {
 
             IProblem simpleProblem = new ModelIterator(bugSolver);
             boolean satWithoutKconfig = simpleProblem.isSatisfiable();
-            
+
             /* IProblem problem = featureSolver; */
             IProblem problem = new ModelIterator(featureSolver);
             if (problem.isSatisfiable(modelAssumptions)) {
@@ -3190,7 +3281,7 @@ public void callFunction(Subparser subparser, Node fun, Node parms) {
   if (true) {
     return;
   }
-  
+
   String name = ((Syntax) fun.get(0)).getTokenText();
   CContext scope = (CContext) subparser.scope;
 
@@ -3745,7 +3836,7 @@ private static Specifiers makeStructSpec(Subparser subparser,
   /* } else { */
     // TODO checkNotParameter
     /* checkNotParameter(n, "struct"); */
- 
+
     // Declare the struct so that members can reference it.
     type = new StructT(tag);
     /* table.current().define(name, type); */
@@ -3795,6 +3886,20 @@ private void addMapping(Subparser subparser, TypeBuilder t, DeclBuilder d)
   scope.getSymbolTable().addMapping(d.getID(), type, presenceCondition);
 }
 
+private StringBuilder genRenamingDecls(Subparser subparser, DeclBuilder db, Type type) {
+  // gets the symboltable after the identifier has been added, and gets the list of all renamings
+  xtc.lang.cpp.CContext.SymbolTable symtab = ((CContext) subparser.scope).getSymbolTable();
+  List<String> renamings = symtab.multiverse.getAllRenamings(db.identifier);
+  StringBuilder declarations = new StringBuilder();
+  // writes the declaration for every renaming
+  for (String renaming : renamings) {
+    declarations.append(type + " " + renaming);
+    declarations.append(";\n");
+  }
+
+  return declarations;
+}
+
 /**
  * Check that the tag declaration is not located within a
  * parameter list.  If the declaration is located within a
@@ -3838,7 +3943,7 @@ private void checkNotParameter(Node node, String kind) {
 
 /* private static String getName(Object n) { */
 /*   return ((String) ((Node) n).getProperty(NAME)); */
-/* }*/ 
+/* }*/
 
 /* private static void setDecl(Object n, Type type, String name) { */
 /*   setDecl(n, type); */

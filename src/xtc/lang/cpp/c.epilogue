@@ -26,7 +26,44 @@ private TypeBuilder getTypeBuilderAt(Subparser subparser, int component) {
   return (TypeBuilder) getNodeAt(subparser, component).getProperty(TYPEBUILDER);
 }
 
-        
+private static final String DECLBUILDER = "xtc.lang.cpp.DeclBuilder";
+private static final String STRING = "xtc.String";
+private static final String STRINGBUILDER = "xtc.StringBuilder";
+
+
+// TUTORIAL: this function just annotates a semantic value with a typebuilder
+private void setDeclBuilder(Object value, DeclBuilder db) {
+  // value should be not null and should be a Node type
+  setDeclBuilder((Node) value, db);
+}
+
+// TUTORIAL: these functions retrieve a type builder from the semantic value
+private void setDeclBuilder(Node value, DeclBuilder db) {
+  // value should be not null and should be a Node type
+  value.setProperty(DECLBUILDER, db);
+}
+
+private DeclBuilder getDeclBuilderAt(Subparser subparser, int component) {
+  // value should be not null and should be a Node type
+  return (DeclBuilder) getNodeAt(subparser, component).getProperty(DECLBUILDER);
+}
+
+private void setStringBuilder(Object value, StringBuilder sb) {
+  // value should be not null and should be a Node type
+  setStringBuilder((Node) value, sb);
+}
+
+private void setStringBuilder(Node value, StringBuilder sb) {
+  // value should be not null and should be a Node type
+  value.setProperty(STRINGBUILDER, sb);
+}
+
+private StringBuilder getStringBuilderAt(Subparser subparser, int component) {
+  return (StringBuilder) getNodeAt(subparser, component).getProperty(STRINGBUILDER);
+}
+
+
+
 /** True when statistics should be output. */
 private boolean languageStatistics = false;
 
@@ -184,6 +221,15 @@ private static Node getNodeAt(Subparser subparser, int component) {
 
 private static String getStringAt(Subparser subparser, int component) {
   return ((Syntax) getNodeAt(subparser, component)).toLanguage().getTokenText();
+}
+
+private static void setString(Object value, String s) {
+  ((Node) value).setProperty(STRING, s);
+}
+
+private String getStringAtNode(Subparser subparser, int component) {
+  // value should be not null and should be a Node type
+  return (String) getNodeAt(subparser, component).getProperty(STRING);
 }
 
 /**
@@ -390,14 +436,48 @@ public void bindIdent(Subparser subparser, Node typespec, Node declarator, STFie
   /* scope.bind(ident.getTokenText(), typedef, presenceCondition); */
 }
 
+public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder declarator)
+{
+	bindIdent(subparser, typespec, declarator, null);
+}
+
+public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder declarator, STField alsoSet) {
+  StackFrame stack = subparser.stack;
+  PresenceConditionManager.PresenceCondition presenceCondition = subparser.getPresenceCondition();
+  CContext scope = (CContext) subparser.scope;
+
+  String ident = declarator.getID();
+
+  boolean typedef = typespec.isTypeDef();
+
+  if (languageStatistics) {
+    if (typedef) {
+      Location location = subparser.lookahead.token.syntax.getLocation();
+      System.err.println(String.format("typedef %s %s", ident, location));
+    }
+  }
+
+  if (showErrors) {
+    System.err.println("bind: " + ident + " " + typedef);
+  }
+  if (debug) {
+    System.err.println("def: " + ident + " " + alsoSet);
+  }
+  STField field = typedef ? STField.TYPEDEF : STField.IDENT;
+  scope.getSymbolTable().setbool(ident, field, true, presenceCondition);
+  if (null != alsoSet) {
+    scope.getSymbolTable().setbool(ident, alsoSet, true, presenceCondition);
+  }
+}
+
 private static Binding grokdeclarator(Node declarator, Type type) {
   Language ident = null;
-  
+
   while (null != declarator) {
     if (declarator.getName().equals("SimpleDeclarator")) {
       ident = ((Syntax) declarator.get(0)).toLanguage();
       declarator = null;
-      
+
     } else if (declarator.getName().equals("ParenIdentifierDeclarator")) {
       Node parenIdentDecl = null;
 
@@ -410,7 +490,7 @@ private static Binding grokdeclarator(Node declarator, Type type) {
         break;
       }
       declarator = parenIdentDecl;
-      
+
     } else if (declarator.getName().equals("UnaryIdentifierDeclarator")) {
       Node typeQual;
       Node identDecl;
@@ -429,7 +509,7 @@ private static Binding grokdeclarator(Node declarator, Type type) {
         error("unexpected grammar structure for " + declarator.getName());
         break;
       }
-      
+
       if (null != typeQual) {
         Specifiers specs = (Specifiers) typeQual.getProperty(SPECS);
         type = specs.annotateBase(new PointerT(type).annotate());
@@ -438,14 +518,14 @@ private static Binding grokdeclarator(Node declarator, Type type) {
       }
 
       declarator = identDecl;
-      
+
     } else if (declarator.getName().equals("ArrayDeclarator")) {
       Node parenIdentDecl = (Node) declarator.get(0);
       Node arrayAbsDecl = (Node) declarator.get(1);
 
       type = grokabsdeclarator(arrayAbsDecl, type);
       declarator = parenIdentDecl;
-      
+
     } else if (declarator.getName().equals("PostfixIdentifierDeclarator")) {
       Node unaryIdentDecl = (Node) declarator.get(0);
       Node postfixAbsDecl = (Node) declarator.get(1);
@@ -493,7 +573,7 @@ private static Type grokabsdeclarator(Node absdeclarator, Type type) {
       }
       type = new ArrayT(type);
     }
-      
+
   } else if (absdeclarator.getName().equals("PostfixingFunctionDeclarator")) {
     Node parms = null;
     switch (absdeclarator.size()) {
@@ -515,7 +595,7 @@ private static Type grokabsdeclarator(Node absdeclarator, Type type) {
       System.err.println("TODO support absdeclarator " + absdeclarator.getName());
     }
   }
-  
+
   return type;
 }
 
@@ -648,8 +728,8 @@ public void useIdent(Subparser subparser, Node ident) {
           List allsat = (List) notandnot.getBDD().allsat();
           ArrayList<ArrayList<Integer>> bugClauses =
             new ArrayList<ArrayList<Integer>>();
-      
-          for (Object o : allsat) {        
+
+          for (Object o : allsat) {
             byte[] sat = (byte[]) o;
             ArrayList<Integer> clause = new ArrayList<Integer>();
             for (int i = 0; i < sat.length; i++) {
@@ -657,7 +737,7 @@ public void useIdent(Subparser subparser, Node ident) {
               // look up i in variable manager
               // if varname exists in clauses, then add to clause
               int sign = 1;
-              
+
               switch (sat[i]) {
               case 1:
                 // negate again
@@ -729,7 +809,7 @@ public void useIdent(Subparser subparser, Node ident) {
 
             IProblem simpleProblem = new ModelIterator(bugSolver);
             boolean satWithoutKconfig = simpleProblem.isSatisfiable();
-            
+
             /* IProblem problem = featureSolver; */
             IProblem problem = new ModelIterator(featureSolver);
             if (problem.isSatisfiable(modelAssumptions)) {
@@ -824,7 +904,7 @@ public void callFunction(Subparser subparser, Node fun, Node parms) {
   if (true) {
     return;
   }
-  
+
   String name = ((Syntax) fun.get(0)).getTokenText();
   CContext scope = (CContext) subparser.scope;
 
@@ -1379,7 +1459,7 @@ private static Specifiers makeStructSpec(Subparser subparser,
   /* } else { */
     // TODO checkNotParameter
     /* checkNotParameter(n, "struct"); */
- 
+
     // Declare the struct so that members can reference it.
     type = new StructT(tag);
     /* table.current().define(name, type); */
@@ -1411,6 +1491,36 @@ private static Specifiers makeStructSpec(Subparser subparser,
   specs.type = type;
 
   return specs;
+}
+
+private Type getType(TypeBuilder t, DeclBuilder d)
+{
+  d.addType(t.toType());
+  return d.toType();
+}
+
+private void addMapping(Subparser subparser, TypeBuilder t, DeclBuilder d)
+{
+  if (t == null || d == null || !t.getIsValid() || !d.getIsValid())
+    return;
+  Type type = getType(t,d);
+  PresenceConditionManager.PresenceCondition presenceCondition = subparser.getPresenceCondition();
+  CContext scope = (CContext) subparser.scope;
+  scope.getSymbolTable().addMapping(d.getID(), type, presenceCondition);
+}
+
+private StringBuilder genRenamingDecls(Subparser subparser, DeclBuilder db, Type type) {
+  // gets the symboltable after the identifier has been added, and gets the list of all renamings
+  xtc.lang.cpp.CContext.SymbolTable symtab = ((CContext) subparser.scope).getSymbolTable();
+  List<String> renamings = symtab.multiverse.getAllRenamings(db.identifier);
+  StringBuilder declarations = new StringBuilder();
+  // writes the declaration for every renaming
+  for (String renaming : renamings) {
+    declarations.append(type + " " + renaming);
+    declarations.append(";\n");
+  }
+
+  return declarations;
 }
 
 /**
@@ -1450,13 +1560,13 @@ private void checkNotParameter(Node node, String kind) {
 /*   return ((Type) ((Node) n).getProperty(DECL)); */
 /* } */
 
-/* private static void setName(Object n, String name) { */
+/*private static void setName(Object n, String name) { */
 /*   ((Node) n).setProperty(NAME, name); */
 /* } */
 
 /* private static String getName(Object n) { */
 /*   return ((String) ((Node) n).getProperty(NAME)); */
-/* } */
+/* }*/
 
 /* private static void setDecl(Object n, Type type, String name) { */
 /*   setDecl(n, type); */

@@ -84,8 +84,18 @@ import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
 import xtc.lang.cpp.ForkMergeParser.StackFrame;
 
+import java.lang.StringBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import java.io.File;
+import java.io.Reader;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.StringReader;
+import java.io.OutputStreamWriter;
+import java.io.IOException;
 
 import xtc.type.Type;
 import xtc.type.NumberT;
@@ -93,7 +103,7 @@ import xtc.type.StructT;
 import xtc.type.VariableT;
 import xtc.type.UnitT;
 /* TUTORIAL: add any additional type classes here */
- 
+
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
@@ -102,6 +112,7 @@ import org.sat4j.specs.IProblem;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.TimeoutException;
 import org.sat4j.tools.ModelIterator;
+
 
 
 /**
@@ -123,7 +134,72 @@ public class CActions implements SemanticActions {
 
   public Object action(int production, Subparser subparser, Object value) {
     switch (production) {
-        case 12:
+        case 2:
+    {
+          try {
+            OutputStreamWriter writer = new OutputStreamWriter(System.out);
+
+            // writing initial transformation code
+            writer.write("#include <stdbool.h>\n");
+            writer.write("#include \"desugared_macros.h\" // configuration macros converted to C variables\n");
+
+            // writing file-dependent transformation code
+            writer.write(getStringBuilderAt(subparser, 1).toString());
+            writer.flush();
+          }
+          catch(Exception IOException) {
+            System.err.println("ERROR: unable to write output");
+            System.exit(1);
+          }
+        }
+    break;
+
+  case 4:
+    {
+          StringBuilder sb = new StringBuilder();
+          for (int i = 1; i <= 2; i++)
+            sb.append(getStringBuilderAt(subparser, i));
+          setStringBuilder(value, sb);
+        }
+    break;
+
+  case 6:
+    {
+          StringBuilder sb = new StringBuilder();
+          for (int i = 1; i <= 2; i++)
+            sb.append(getStringBuilderAt(subparser, i));
+          setStringBuilder(value, sb);
+        }
+    break;
+
+  case 7:
+    {
+          StringBuilder sb = new StringBuilder();
+          for (int i = 1; i <= 2; i++)
+            sb.append(getStringBuilderAt(subparser, i));
+          setStringBuilder(value, sb);
+        }
+    break;
+
+  case 8:
+    {
+          StringBuilder sb = new StringBuilder();
+          for (int i = 1; i <= 2; i++)
+            sb.append(getStringBuilderAt(subparser, i));
+          setStringBuilder(value, sb);
+        }
+    break;
+
+  case 11:
+    {
+          StringBuilder sb = new StringBuilder();
+          for (int i = 1; i <= 2; i++)
+            sb.append(getStringBuilderAt(subparser, i));
+          setStringBuilder(value, sb);
+        }
+    break;
+
+  case 12:
     { ReenterScope(subparser); }
     break;
 
@@ -132,7 +208,15 @@ public class CActions implements SemanticActions {
     break;
 
   case 15:
-    { ReenterScope(subparser); }
+    {
+          ReenterScope(subparser);
+          {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 1; i <= 2; i++)
+              sb.append(getStringBuilderAt(subparser, i));
+            setStringBuilder(value, sb);
+          }
+        }
     break;
 
   case 16:
@@ -374,111 +458,242 @@ public class CActions implements SemanticActions {
 
   case 68:
     {
-	  saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+      	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
+      	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
+      	  addMapping(subparser, type, decl);
+      	  saveBaseType(subparser, getNodeAt(subparser, 5));
+          bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));
         }
     break;
 
-  case 70:
+  case 69:
     {
-	  TypeBuilder type = getTypeBuilderAt(subparser, 2);
-	  System.out.println(type);
-	  
-          saveBaseType(subparser, getNodeAt(subparser, 2));
+      	  DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+      	  TypeBuilder type = getTypeBuilderAt(subparser, 2);
+      	  addMapping(subparser, type, decl);
+
+          // stores the written variable renaming declarations
+          System.out.println(genRenamingDecls(subparser, decl, type.toType()));
+          // TODO: store this written code here
+          //setStringBuilder(value, genRenamingDecls(subparser, decl, type.toType()));
+
+
+      	  saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
-  case 72:
+  case 71:
     {
           // reuses saved base type
-          bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
+	        bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         }
+    break;
+
+  case 73:
+    {
+	  			TypeBuilder decl = getTypeBuilderAt(subparser, 1);
+	  			setTypeBuilder(value, decl);
+				}
+    break;
+
+  case 74:
+    {
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
+    break;
+
+  case 75:
+    {
+	 				TypeBuilder decl = getTypeBuilderAt(subparser, 1);
+	  			setTypeBuilder(value, decl);
+				}
+    break;
+
+  case 76:
+    {
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
+    break;
+
+  case 77:
+    {
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
+    break;
+
+  case 78:
+    {
+					setTypeBuilder(value,getTypeBuilderAt(subparser,1));
+				}
+    break;
+
+  case 79:
+    {
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
+    break;
+
+  case 80:
+    {
+					setTypeBuilder(value,getTypeBuilderAt(subparser,1));
+				}
+    break;
+
+  case 81:
+    {
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
+    break;
+
+  case 82:
+    {
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
+    break;
+
+  case 83:
+    {
+	  TypeBuilder storage = getTypeBuilderAt(subparser,1);
+	  setTypeBuilder(value, storage);
+	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 1),
+                      value);
+	}
     break;
 
   case 84:
     {
-          updateSpecs(subparser,
+	  TypeBuilder qualList = getTypeBuilderAt(subparser, 2);
+	  TypeBuilder storage = getTypeBuilderAt(subparser, 1);
+	  TypeBuilder tb = qualList.combine(storage);
+	  setTypeBuilder(value, tb);
+	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
-        }
+	}
     break;
 
   case 85:
     {
-          updateSpecs(subparser,
+	  TypeBuilder qualList = getTypeBuilderAt(subparser, 2);
+	  TypeBuilder qual = getTypeBuilderAt(subparser, 1);
+	  TypeBuilder tb = qualList.combine(qual);
+	  setTypeBuilder(value, tb);
+	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
-        }
+	}
     break;
 
   case 86:
     {
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
+	  TypeBuilder qual = getTypeBuilderAt(subparser, 1);
+	  setTypeBuilder(value, qual);
+	   updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
-        }
+	}
     break;
 
   case 87:
     {
-          updateSpecs(subparser,
+	  TypeBuilder qualList = getTypeBuilderAt(subparser, 2);
+	    TypeBuilder qual = getTypeBuilderAt(subparser, 1);
+	    TypeBuilder tb = qualList.combine(qual);
+	    setTypeBuilder(value, tb);
+	    updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
-        }
+	}
     break;
 
   case 88:
     {
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
+  TypeBuilder qual = getTypeBuilderAt(subparser, 1);
+  setTypeBuilder(value, qual);
+
+}
+    break;
+
+  case 89:
+    {
+  TypeBuilder storage = getTypeBuilderAt(subparser, 1);
+  setTypeBuilder(value, storage);
+
+}
+    break;
+
+  case 90:
+    {
+  TypeBuilder qual = new TypeBuilder("const");
+  setTypeBuilder(value, qual);
+  updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
-        }
+}
     break;
 
   case 91:
     {
-          getSpecsAt(subparser, 1).add(Constants.ATT_CONSTANT);
-          updateSpecs(subparser,
+  TypeBuilder qual = new TypeBuilder("volatile");
+  setTypeBuilder(value, qual);
+  updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
-        }
+}
     break;
 
   case 92:
     {
-          getSpecsAt(subparser, 1).add(Constants.ATT_VOLATILE);
-          updateSpecs(subparser,
+  TypeBuilder qual = new TypeBuilder("restrict");
+	  setTypeBuilder(value, qual);
+updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
-        }
+}
     break;
 
   case 93:
     {
-          getSpecsAt(subparser, 1).add(Constants.ATT_RESTRICT);
-          updateSpecs(subparser,
+  System.err.println("Unsupported grammar"); // TODO
+  System.exit(1);
+  updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
-        }
+}
     break;
 
   case 94:
     {
-          /* TODO AttributeSpecifier */
-          updateSpecs(subparser,
+  TypeBuilder qual = new TypeBuilder("inline");
+  setTypeBuilder(value, qual);
+  updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
-        }
+}
     break;
 
-  case 95:
+  case 107:
     {
-          getSpecsAt(subparser, 1).add(Constants.ATT_INLINE);
-          updateSpecs(subparser,
+	  TypeBuilder basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
+          TypeBuilder storageClass = getTypeBuilderAt(subparser, 1);
+
+          // combine the partial type specs
+          TypeBuilder tb = basicTypeSpecifier.combine(storageClass);
+
+          setTypeBuilder(value, tb);
+	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
@@ -486,15 +701,14 @@ public class CActions implements SemanticActions {
 
   case 108:
     {
-	  TypeBuilder basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
-          TypeBuilder storageClass = getTypeBuilderAt(subparser, 1);
+	  TypeBuilder qualList = getTypeBuilderAt(subparser, 2);
+          TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
 
           // combine the partial type specs
-          TypeBuilder tb = basicTypeSpecifier.combine(storageClass);
-          
-          setTypeBuilder(value, tb);
+          TypeBuilder tb = qualList.combine(basicTypeName);
 
-          updateSpecs(subparser,
+	  setTypeBuilder(value, tb);
+	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
@@ -503,23 +717,21 @@ public class CActions implements SemanticActions {
 
   case 109:
     {
-          updateSpecs(subparser,
+ 	  TypeBuilder decl = getTypeBuilderAt(subparser, 2);
+          TypeBuilder qual = getTypeBuilderAt(subparser, 1);
+
+          // combine the partial type specs
+          TypeBuilder tb = decl.combine(qual);
+
+	  setTypeBuilder(value, tb);
+	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
-        }
+	}
     break;
 
   case 110:
-    {
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
-                      getSpecsAt(subparser, 1),
-                      value);
-        }
-    break;
-
-  case 111:
     {
 	  TypeBuilder basicDeclSpecifier = getTypeBuilderAt(subparser, 2);
           TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
@@ -528,9 +740,21 @@ public class CActions implements SemanticActions {
           TypeBuilder tb = basicDeclSpecifier.combine(basicTypeName);
 
 	  setTypeBuilder(value, tb);
-	  
-          updateSpecs(subparser,
+	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
+	}
+    break;
+
+  case 111:
+    {
+          // TUTORIAL: a semantic action that sets the semantic value
+          // to a new typebuilder by adding a property derived from
+          // the child semantic value(s)
+          TypeBuilder tb = getTypeBuilderAt(subparser, 1);
+          setTypeBuilder(value, tb);
+	  updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
         }
@@ -538,13 +762,14 @@ public class CActions implements SemanticActions {
 
   case 112:
     {
-          // TUTORIAL: a semantic action that sets the semantic value
-          // to a new typebuilder by adding a property derived from
-          // the child semantic value(s)
-          TypeBuilder tb = getTypeBuilderAt(subparser, 1);
-          setTypeBuilder(value, tb);
+          TypeBuilder qualList = getTypeBuilderAt(subparser, 2);
+          TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
 
-          updateSpecs(subparser,  // candidate for removal
+          TypeBuilder tb = qualList.combine(basicTypeName);
+
+          setTypeBuilder(value, tb);
+	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
@@ -552,7 +777,13 @@ public class CActions implements SemanticActions {
 
   case 113:
     {
-          updateSpecs(subparser,
+          TypeBuilder basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
+          TypeBuilder qual = getTypeBuilderAt(subparser, 1);
+
+          TypeBuilder tb = basicTypeSpecifier.combine(qual);
+
+          setTypeBuilder(value, tb);
+	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
@@ -561,29 +792,75 @@ public class CActions implements SemanticActions {
 
   case 114:
     {
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
-                      getSpecsAt(subparser, 1),
-                      value);
-        }
-    break;
-
-  case 115:
-    {
-          // TUTORIAL: a semantic action that sets the semantic value
-          // to a new typebuilder by adding a property derived from
-          // the child semantic value(s)
-
           // get the semantic values of each child
           TypeBuilder basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
           TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
 
           // combine the partial type specs
           TypeBuilder tb = basicTypeSpecifier.combine(basicTypeName);
-          
-          setTypeBuilder(value, tb);
 
-          updateSpecs(subparser,  // candidate for removal
+          setTypeBuilder(value, tb);
+	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
+        }
+    break;
+
+  case 121:
+    {
+					TypeBuilder tb = getTypeBuilderAt(subparser, 2);
+          TypeBuilder tb1 = getTypeBuilderAt(subparser, 1);
+          setTypeBuilder(value, tb.combine(tb1));
+				}
+    break;
+
+  case 122:
+    {
+					TypeBuilder tb = getTypeBuilderAt(subparser, 2);
+          TypeBuilder tb1 = new TypeBuilder();
+					tb1.setTypedef(getStringAt(subparser, 1));
+          setTypeBuilder(value, tb.combine(tb1));
+				}
+    break;
+
+  case 123:
+    {
+					TypeBuilder tb1 = getTypeBuilderAt(subparser, 2);
+					TypeBuilder dq = getTypeBuilderAt(subparser,1);
+					TypeBuilder tb = tb1.combine(dq);
+          setTypeBuilder(value, tb);
+				}
+    break;
+
+  case 124:
+    {
+					TypeBuilder tb1 = new TypeBuilder();
+					tb1.setTypedef(getStringAt(subparser, 1));
+          setTypeBuilder(value, tb1);
+				}
+    break;
+
+  case 125:
+    {
+					TypeBuilder tb = getTypeBuilderAt(subparser, 2);
+          TypeBuilder tb1 = new TypeBuilder();
+					tb1.setTypedef(getStringAt(subparser, 1));
+          setTypeBuilder(value, tb.combine(tb1));
+				}
+    break;
+
+  case 126:
+    {
+					TypeBuilder tb = getTypeBuilderAt(subparser, 2);
+          TypeBuilder tb1 = getTypeBuilderAt(subparser, 1);
+          setTypeBuilder(value, tb.combine(tb1));
+				}
+    break;
+
+  case 140:
+    {
+          updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
@@ -620,7 +897,6 @@ public class CActions implements SemanticActions {
   case 144:
     {
           updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
@@ -629,6 +905,7 @@ public class CActions implements SemanticActions {
   case 145:
     {
           updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
@@ -653,113 +930,157 @@ public class CActions implements SemanticActions {
     break;
 
   case 148:
-    {
-          updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
-                      getSpecsAt(subparser, 1),
-                      value);
-        }
-    break;
-
-  case 149:
     { getSpecsAt(subparser, 1).type = InternalT.VA_LIST; }
     break;
 
+  case 149:
+    {
+	    TypeBuilder storage = new TypeBuilder("typedef");
+	    setTypeBuilder(value, storage);
+	    getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF;
+	  }
+    break;
+
   case 150:
-    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF; }
+    {
+	      TypeBuilder storage = new TypeBuilder("extern");
+	      setTypeBuilder(value, storage);
+	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN;
+	    }
     break;
 
   case 151:
-    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN; }
+    {
+	      TypeBuilder storage = new TypeBuilder("static");
+	      setTypeBuilder(value, storage);
+	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC;
+	    }
     break;
 
   case 152:
-    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC; }
+    {
+	      TypeBuilder storage = new TypeBuilder("auto");
+	      setTypeBuilder(value, storage);
+	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO;
+	    }
     break;
 
   case 153:
-    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO; }
+    {
+	      TypeBuilder storage = new TypeBuilder("register");
+	      setTypeBuilder(value, storage);
+	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER;
+	    }
     break;
 
   case 154:
-    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER; }
+    {
+          TypeBuilder tb = new TypeBuilder(VoidT.TYPE);
+          setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).type = VoidT.TYPE;
+        }
     break;
 
   case 155:
-    { getSpecsAt(subparser, 1).type = VoidT.TYPE; }
+    {
+          TypeBuilder tb = new TypeBuilder(NumberT.CHAR);
+          setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenChar = true;
+        }
     break;
 
   case 156:
-    { getSpecsAt(subparser, 1).seenChar = true; }
+    {
+          TypeBuilder tb = new TypeBuilder(NumberT.SHORT);
+          setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenShort = true;
+        }
     break;
 
   case 157:
-    { getSpecsAt(subparser, 1).seenShort = true; }
+    {
+
+          // See xtc.type.* for the class hiearchy for types
+          TypeBuilder tb = new TypeBuilder(NumberT.INT);
+          setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenInt = true;
+        }
     break;
 
   case 158:
     {
-          // TUTORIAL: a semantic action that sets the semantic value
-          // to a new typebuilderby adding a property annotation.
-          
-          // See xtc.type.* for the class hiearchy for types
-          TypeBuilder tb = new TypeBuilder(NumberT.INT);
+          TypeBuilder tb = new TypeBuilder(NumberT.__INT128);
           setTypeBuilder(value, tb);
-          
-          getSpecsAt(subparser, 1).seenInt = true;  // candidate for removal
+	  getSpecsAt(subparser, 1).seenInt = true;
         }
     break;
 
   case 159:
-    { getSpecsAt(subparser, 1).seenInt = true; }
+    {
+          // See xtc.type.* for the class hiearchy for types
+          TypeBuilder tb = new TypeBuilder(NumberT.LONG);
+	  setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).longCount++;
+        }
     break;
 
   case 160:
     {
-          // TUTORIAL: a semantic action that sets the semantic value
-          // to a new typebuilderby adding a property annotation.
-          
-          // See xtc.type.* for the class hiearchy for types
-          TypeBuilder tb = new TypeBuilder(NumberT.LONG);
+          TypeBuilder tb = new TypeBuilder(NumberT.FLOAT);
           setTypeBuilder(value, tb);
-          
-          getSpecsAt(subparser, 1).longCount++;  // candidate for removal
+	  getSpecsAt(subparser, 1).seenFloat = true;
         }
     break;
 
   case 161:
-    { getSpecsAt(subparser, 1).seenFloat = true; }
+    {
+          TypeBuilder tb = new TypeBuilder(NumberT.DOUBLE);
+          setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenDouble = true;
+        }
     break;
 
   case 162:
-    { getSpecsAt(subparser, 1).seenDouble = true; }
+    {
+          TypeBuilder tb = new TypeBuilder("signed");
+          setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenSigned = true;
+        }
     break;
 
   case 163:
-    { getSpecsAt(subparser, 1).seenSigned = true; }
+    {
+          TypeBuilder tb = new TypeBuilder("unsigned");
+          setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenUnsigned = true;
+        }
     break;
 
   case 164:
-    { getSpecsAt(subparser, 1).seenUnsigned = true; }
+    {
+          TypeBuilder tb = new TypeBuilder(BooleanT.TYPE);
+          setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenBool = true;
+        }
     break;
 
   case 165:
-    { getSpecsAt(subparser, 1).seenBool = true; }
+    {
+	  TypeBuilder tb = new TypeBuilder("complex");
+          setTypeBuilder(value, tb);
+	  getSpecsAt(subparser, 1).seenComplex = true;
+        }
     break;
 
-  case 166:
-    { getSpecsAt(subparser, 1).seenComplex = true; }
-    break;
-
-  case 175:
+  case 174:
     { EnterScope(subparser); }
     break;
 
-  case 176:
+  case 175:
     { ExitScope(subparser); }
     break;
 
-  case 177:
+  case 176:
     {
           Node tag     = null;
           Node members = getNodeAt(subparser, 3);
@@ -770,15 +1091,15 @@ public class CActions implements SemanticActions {
         }
     break;
 
-  case 178:
+  case 177:
     { EnterScope(subparser); }
     break;
 
-  case 179:
+  case 178:
     { ExitScope(subparser); }
     break;
 
-  case 180:
+  case 179:
     {
           Node tag     = getNodeAt(subparser, 6);
           Node members = getNodeAt(subparser, 3);
@@ -789,15 +1110,15 @@ public class CActions implements SemanticActions {
         }
     break;
 
-  case 182:
+  case 181:
     { EnterScope(subparser); }
     break;
 
-  case 183:
+  case 182:
     { ExitScope(subparser); }
     break;
 
-  case 184:
+  case 183:
     {
           Node tag     = null;
           Node members = getNodeAt(subparser, 3);
@@ -808,15 +1129,15 @@ public class CActions implements SemanticActions {
         }
     break;
 
-  case 185:
+  case 184:
     { EnterScope(subparser); }
     break;
 
-  case 186:
+  case 185:
     { ExitScope(subparser); }
     break;
 
-  case 187:
+  case 186:
     {
           Node tag     = getNodeAt(subparser, 6);
           Node members = getNodeAt(subparser, 3);
@@ -827,45 +1148,45 @@ public class CActions implements SemanticActions {
         }
     break;
 
-  case 189:
+  case 188:
     { EnterScope(subparser); }
     break;
 
-  case 190:
+  case 189:
     { ExitScope(subparser); }
+    break;
+
+  case 191:
+    { EnterScope(subparser); }
     break;
 
   case 192:
-    { EnterScope(subparser); }
+    { ExitScope(subparser); }
     break;
 
-  case 193:
-    { ExitScope(subparser); }
+  case 195:
+    { EnterScope(subparser); }
     break;
 
   case 196:
-    { EnterScope(subparser); }
+    { ExitScope(subparser); }
     break;
 
-  case 197:
-    { ExitScope(subparser); }
+  case 198:
+    { EnterScope(subparser); }
     break;
 
   case 199:
-    { EnterScope(subparser); }
-    break;
-
-  case 200:
     { ExitScope(subparser); }
     break;
 
-  case 203:
+  case 202:
     {
           ((Node) value).setProperty(SPECS, new Specifiers());
         }
     break;
 
-  case 204:
+  case 203:
     {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
@@ -874,146 +1195,414 @@ public class CActions implements SemanticActions {
         }
     break;
 
-  case 233:
+  case 232:
     { BindEnum(subparser); }
     break;
 
-  case 235:
+  case 234:
     { BindEnum(subparser); }
     break;
 
-  case 253:
+  case 252:
     {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
-  case 255:
+  case 254:
     {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
-  case 257:
+  case 256:
     {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
-  case 259:
+  case 258:
     {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
-  case 261:
+  case 260:
     {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
-  case 263:
+  case 262:
     {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
-  case 267:
+  case 266:
     { BindVar(subparser); }
+    break;
+
+  case 296:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 297:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 298:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 299:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 300:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 301:
+    {
+          setDeclBuilder(value, new DeclBuilder(getStringAt(subparser, 1)));
+        }
+    break;
+
+  case 302:
+    {
+	  DeclBuilder name = new DeclBuilder(getStringAt(subparser, 2));
+	  DeclBuilder post = getDeclBuilderAt(subparser,1);
+	  name.merge(post);
+          setDeclBuilder(value, name);
+        }
+    break;
+
+  case 303:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 304:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 305:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  db.addPointer();
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 306:
+    {
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
+    break;
+
+  case 307:
+    {
+	  DeclBuilder db = new DeclBuilder();
+	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 308:
+    {
+	  DeclBuilder db = new DeclBuilder();
+	  db.addDeclBuilder(getDeclBuilderAt(subparser,3));
+	  db.merge(getDeclBuilderAt(subparser,1));
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 309:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 310:
+    {
+	  DeclBuilder db = new DeclBuilder();
+	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
+	  db.addPointer();
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 312:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  db.addPointer();
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 313:
+    {
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
+    break;
+
+  case 314:
+    {
+	  DeclBuilder db = new DeclBuilder();
+	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 315:
+    {
+	  DeclBuilder db = new DeclBuilder();
+	  DeclBuilder base = getDeclBuilderAt(subparser,3);
+	  base.merge(getDeclBuilderAt(subparser,2));
+	  db.addDeclBuilder(base);
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 316:
+    {
+	  DeclBuilder db = new DeclBuilder();
+	  DeclBuilder base = getDeclBuilderAt(subparser,3);
+	  db.addDeclBuilder(base);
+	  db.merge(getDeclBuilderAt(subparser,1));
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 317:
+    {
+	  setDeclBuilder(value, new DeclBuilder(getStringAt(subparser, 1)));
+	}
+    break;
+
+  case 318:
+    {
+	  DeclBuilder db = new DeclBuilder();
+	  DeclBuilder base = getDeclBuilderAt(subparser,2);
+	  db.addDeclBuilder(base);
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 319:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 320:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 321:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 322:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 323:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  db.addPointer();
+	  setDeclBuilder(value, db);
+	}
     break;
 
   case 324:
     {
-          /* setDecl(value, new PointerT(getDecl(getNodeAt(subparser, 1)))); */
-          /* copyName(subparser, value, 1); */
-        }
+					System.err.println("Unsupported grammar"); // TODO
+					System.exit(1);
+				}
     break;
 
   case 325:
     {
-          /* Specifiers spec = getSpecsAt(subparser, 2); */
-          /* Type baseType = getDecl(getNodeAt(subparser, 1));; */
-          /* Type result = spec.annotateBase(new PointerT(baseType).annotate()); */
-          /* setDecl(value, result); */
-          /* copyName(subparser, value, 1); */
-        }
+					System.err.println("Unsupported grammar"); // TODO
+					//					System.exit(1);
+				}
     break;
 
-  case 330:
+  case 326:
     {
-          /* copyDeclName(subparser, value, 2); */
-        }
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 327:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 328:
+    {
+	  DeclBuilder base = new DeclBuilder();
+	  base.addDeclBuilder(getDeclBuilderAt(subparser,3));
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  base.merge(db);
+	  setDeclBuilder(value,base);
+	}
+    break;
+
+  case 329:
+    {
+	  DeclBuilder db = new DeclBuilder();
+	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
+	  setDeclBuilder(value, db);
+	}
+    break;
+
+  case 331:
+    { EnterScope(subparser); }
     break;
 
   case 332:
-    { EnterScope(subparser); }
+    { ExitReentrantScope(subparser); }
     break;
 
-  case 333:
-    { ExitReentrantScope(subparser); }
+  case 334:
+    {
+	  DeclBuilder base = getDeclBuilderAt(subparser,2);
+	  DeclBuilder array = getDeclBuilderAt(subparser,1);
+	  base.merge(array);
+	  setDeclBuilder(value,base);
+	}
+    break;
+
+  case 335:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value, db);
+	}
     break;
 
   case 336:
-    { /* copyDeclName(subparser, value, 1); */ }
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,2);
+	  DeclBuilder superDecl = new DeclBuilder();
+	  superDecl.addDeclBuilder(db);
+	  setDeclBuilder(value,superDecl);
+	}
     break;
 
   case 337:
-    { /* copyDeclName(subparser, value, 2); */ }
-    break;
-
-  case 338:
     {
-          /* setDecl(value, lastSeenType(subparser)); */
-          /* setName(value, getStringAt(subparser, 1)); */
+          setDeclBuilder(value, new DeclBuilder(getStringAt(subparser, 1)));
         }
     break;
 
-  case 342:
+  case 341:
     { EnterScope(subparser); }
     break;
 
-  case 343:
+  case 342:
     { ExitReentrantScope(subparser); }
+    break;
+
+  case 349:
+    {
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  setDeclBuilder(value,db);
+	}
+    break;
+
+  case 353:
+    {
+	  DeclBuilder db = new DeclBuilder();
+	  db.addArray("",false);
+          setDeclBuilder(value, db);
+        }
     break;
 
   case 354:
     {
-          /* setDecl(value, new ArrayT(getDecl(getNodeAt(subparser, 1)))); */
-          /* copyName(subparser, value, 1); */
-        }
+	  DeclBuilder db = new DeclBuilder();
+	  db.addArray("const Expr");
+          setDeclBuilder(value, db);
+	}
     break;
 
   case 355:
     {
-          /* setDecl(value, new ArrayT(getDecl())); */
-          /* copyName(subparser, value, 1); */
-        }
+	  DeclBuilder db = getDeclBuilderAt(subparser,4);
+	  db.addArray("const Expr");
+          setDeclBuilder(value, db);
+	}
     break;
 
-  case 420:
+  case 419:
     { useIdent(subparser, getNodeAt(subparser, 1)); }
     break;
 
-  case 422:
+  case 421:
     { EnterScope(subparser); }
     break;
 
-  case 423:
+  case 422:
     { ExitScope(subparser); }
     break;
 
-  case 434:
+  case 433:
     { callFunction(subparser, getNodeAt(subparser, 3), null); }
     break;
 
-  case 435:
+  case 434:
     { callFunction(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 2)); }
+    break;
+
+  case 527:
+    {
+	  System.out.println("attributeList");
+	}
     break;
 
     }
@@ -1051,7 +1640,44 @@ private TypeBuilder getTypeBuilderAt(Subparser subparser, int component) {
   return (TypeBuilder) getNodeAt(subparser, component).getProperty(TYPEBUILDER);
 }
 
-        
+private static final String DECLBUILDER = "xtc.lang.cpp.DeclBuilder";
+private static final String STRING = "xtc.String";
+private static final String STRINGBUILDER = "xtc.StringBuilder";
+
+
+// TUTORIAL: this function just annotates a semantic value with a typebuilder
+private void setDeclBuilder(Object value, DeclBuilder db) {
+  // value should be not null and should be a Node type
+  setDeclBuilder((Node) value, db);
+}
+
+// TUTORIAL: these functions retrieve a type builder from the semantic value
+private void setDeclBuilder(Node value, DeclBuilder db) {
+  // value should be not null and should be a Node type
+  value.setProperty(DECLBUILDER, db);
+}
+
+private DeclBuilder getDeclBuilderAt(Subparser subparser, int component) {
+  // value should be not null and should be a Node type
+  return (DeclBuilder) getNodeAt(subparser, component).getProperty(DECLBUILDER);
+}
+
+private void setStringBuilder(Object value, StringBuilder sb) {
+  // value should be not null and should be a Node type
+  setStringBuilder((Node) value, sb);
+}
+
+private void setStringBuilder(Node value, StringBuilder sb) {
+  // value should be not null and should be a Node type
+  value.setProperty(STRINGBUILDER, sb);
+}
+
+private StringBuilder getStringBuilderAt(Subparser subparser, int component) {
+  return (StringBuilder) getNodeAt(subparser, component).getProperty(STRINGBUILDER);
+}
+
+
+
 /** True when statistics should be output. */
 private boolean languageStatistics = false;
 
@@ -1209,6 +1835,15 @@ private static Node getNodeAt(Subparser subparser, int component) {
 
 private static String getStringAt(Subparser subparser, int component) {
   return ((Syntax) getNodeAt(subparser, component)).toLanguage().getTokenText();
+}
+
+private static void setString(Object value, String s) {
+  ((Node) value).setProperty(STRING, s);
+}
+
+private String getStringAtNode(Subparser subparser, int component) {
+  // value should be not null and should be a Node type
+  return (String) getNodeAt(subparser, component).getProperty(STRING);
 }
 
 /**
@@ -1415,14 +2050,48 @@ public void bindIdent(Subparser subparser, Node typespec, Node declarator, STFie
   /* scope.bind(ident.getTokenText(), typedef, presenceCondition); */
 }
 
+public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder declarator)
+{
+	bindIdent(subparser, typespec, declarator, null);
+}
+
+public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder declarator, STField alsoSet) {
+  StackFrame stack = subparser.stack;
+  PresenceConditionManager.PresenceCondition presenceCondition = subparser.getPresenceCondition();
+  CContext scope = (CContext) subparser.scope;
+
+  String ident = declarator.getID();
+
+  boolean typedef = typespec.isTypeDef();
+
+  if (languageStatistics) {
+    if (typedef) {
+      Location location = subparser.lookahead.token.syntax.getLocation();
+      System.err.println(String.format("typedef %s %s", ident, location));
+    }
+  }
+
+  if (showErrors) {
+    System.err.println("bind: " + ident + " " + typedef);
+  }
+  if (debug) {
+    System.err.println("def: " + ident + " " + alsoSet);
+  }
+  STField field = typedef ? STField.TYPEDEF : STField.IDENT;
+  scope.getSymbolTable().setbool(ident, field, true, presenceCondition);
+  if (null != alsoSet) {
+    scope.getSymbolTable().setbool(ident, alsoSet, true, presenceCondition);
+  }
+}
+
 private static Binding grokdeclarator(Node declarator, Type type) {
   Language ident = null;
-  
+
   while (null != declarator) {
     if (declarator.getName().equals("SimpleDeclarator")) {
       ident = ((Syntax) declarator.get(0)).toLanguage();
       declarator = null;
-      
+
     } else if (declarator.getName().equals("ParenIdentifierDeclarator")) {
       Node parenIdentDecl = null;
 
@@ -1435,7 +2104,7 @@ private static Binding grokdeclarator(Node declarator, Type type) {
         break;
       }
       declarator = parenIdentDecl;
-      
+
     } else if (declarator.getName().equals("UnaryIdentifierDeclarator")) {
       Node typeQual;
       Node identDecl;
@@ -1454,7 +2123,7 @@ private static Binding grokdeclarator(Node declarator, Type type) {
         error("unexpected grammar structure for " + declarator.getName());
         break;
       }
-      
+
       if (null != typeQual) {
         Specifiers specs = (Specifiers) typeQual.getProperty(SPECS);
         type = specs.annotateBase(new PointerT(type).annotate());
@@ -1463,14 +2132,14 @@ private static Binding grokdeclarator(Node declarator, Type type) {
       }
 
       declarator = identDecl;
-      
+
     } else if (declarator.getName().equals("ArrayDeclarator")) {
       Node parenIdentDecl = (Node) declarator.get(0);
       Node arrayAbsDecl = (Node) declarator.get(1);
 
       type = grokabsdeclarator(arrayAbsDecl, type);
       declarator = parenIdentDecl;
-      
+
     } else if (declarator.getName().equals("PostfixIdentifierDeclarator")) {
       Node unaryIdentDecl = (Node) declarator.get(0);
       Node postfixAbsDecl = (Node) declarator.get(1);
@@ -1518,7 +2187,7 @@ private static Type grokabsdeclarator(Node absdeclarator, Type type) {
       }
       type = new ArrayT(type);
     }
-      
+
   } else if (absdeclarator.getName().equals("PostfixingFunctionDeclarator")) {
     Node parms = null;
     switch (absdeclarator.size()) {
@@ -1540,7 +2209,7 @@ private static Type grokabsdeclarator(Node absdeclarator, Type type) {
       System.err.println("TODO support absdeclarator " + absdeclarator.getName());
     }
   }
-  
+
   return type;
 }
 
@@ -1673,8 +2342,8 @@ public void useIdent(Subparser subparser, Node ident) {
           List allsat = (List) notandnot.getBDD().allsat();
           ArrayList<ArrayList<Integer>> bugClauses =
             new ArrayList<ArrayList<Integer>>();
-      
-          for (Object o : allsat) {        
+
+          for (Object o : allsat) {
             byte[] sat = (byte[]) o;
             ArrayList<Integer> clause = new ArrayList<Integer>();
             for (int i = 0; i < sat.length; i++) {
@@ -1682,7 +2351,7 @@ public void useIdent(Subparser subparser, Node ident) {
               // look up i in variable manager
               // if varname exists in clauses, then add to clause
               int sign = 1;
-              
+
               switch (sat[i]) {
               case 1:
                 // negate again
@@ -1754,7 +2423,7 @@ public void useIdent(Subparser subparser, Node ident) {
 
             IProblem simpleProblem = new ModelIterator(bugSolver);
             boolean satWithoutKconfig = simpleProblem.isSatisfiable();
-            
+
             /* IProblem problem = featureSolver; */
             IProblem problem = new ModelIterator(featureSolver);
             if (problem.isSatisfiable(modelAssumptions)) {
@@ -1849,7 +2518,7 @@ public void callFunction(Subparser subparser, Node fun, Node parms) {
   if (true) {
     return;
   }
-  
+
   String name = ((Syntax) fun.get(0)).getTokenText();
   CContext scope = (CContext) subparser.scope;
 
@@ -2404,7 +3073,7 @@ private static Specifiers makeStructSpec(Subparser subparser,
   /* } else { */
     // TODO checkNotParameter
     /* checkNotParameter(n, "struct"); */
- 
+
     // Declare the struct so that members can reference it.
     type = new StructT(tag);
     /* table.current().define(name, type); */
@@ -2436,6 +3105,36 @@ private static Specifiers makeStructSpec(Subparser subparser,
   specs.type = type;
 
   return specs;
+}
+
+private Type getType(TypeBuilder t, DeclBuilder d)
+{
+  d.addType(t.toType());
+  return d.toType();
+}
+
+private void addMapping(Subparser subparser, TypeBuilder t, DeclBuilder d)
+{
+  if (t == null || d == null || !t.getIsValid() || !d.getIsValid())
+    return;
+  Type type = getType(t,d);
+  PresenceConditionManager.PresenceCondition presenceCondition = subparser.getPresenceCondition();
+  CContext scope = (CContext) subparser.scope;
+  scope.getSymbolTable().addMapping(d.getID(), type, presenceCondition);
+}
+
+private StringBuilder genRenamingDecls(Subparser subparser, DeclBuilder db, Type type) {
+  // gets the symboltable after the identifier has been added, and gets the list of all renamings
+  xtc.lang.cpp.CContext.SymbolTable symtab = ((CContext) subparser.scope).getSymbolTable();
+  List<String> renamings = symtab.multiverse.getAllRenamings(db.identifier);
+  StringBuilder declarations = new StringBuilder();
+  // writes the declaration for every renaming
+  for (String renaming : renamings) {
+    declarations.append(type + " " + renaming);
+    declarations.append(";\n");
+  }
+
+  return declarations;
 }
 
 /**
@@ -2475,13 +3174,13 @@ private void checkNotParameter(Node node, String kind) {
 /*   return ((Type) ((Node) n).getProperty(DECL)); */
 /* } */
 
-/* private static void setName(Object n, String name) { */
+/*private static void setName(Object n, String name) { */
 /*   ((Node) n).setProperty(NAME, name); */
 /* } */
 
 /* private static String getName(Object n) { */
 /*   return ((String) ((Node) n).getProperty(NAME)); */
-/* } */
+/* }*/
 
 /* private static void setDecl(Object n, Type type, String name) { */
 /*   setDecl(n, type); */

@@ -97,7 +97,9 @@ public class TypeBuilder {
     } else if (foundTypes[FOUND_TYPE.seenLong.ordinal()]) {
       if (foundTypes[FOUND_TYPE.seenInt.ordinal()])
       if (qualifiers[QUAL.isUnsigned.ordinal()])
-        type = new IntegerT(NumberT.Kind.U_CHAR); // unsigned long
+        type = new IntegerT(NumberT.Kind.LONG); // unsigned long
+      else if (qualifiers[QUAL.isSigned.ordinal()])
+	type = new IntegerT(NumberT.Kind.LONG); // signed long
       else
         type = new IntegerT(NumberT.Kind.LONG); // long
       else if (foundTypes[FOUND_TYPE.seenDouble.ordinal()]) {
