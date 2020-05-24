@@ -702,7 +702,7 @@ public class CContext implements ParsingContext {
       
       return this;
     }
-      
+      //Desugaring.java ln 565
       public void addMapping(String ident, Type type, PresenceCondition p)
       {
 	  if (!multiverse.addMapping(ident, ident + Integer.toString(count++), type, p))

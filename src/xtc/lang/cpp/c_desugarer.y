@@ -1798,7 +1798,7 @@ LabeledStatement:  /** complete **/  // ADDED attributes
         ;*/
 
 CompoundStatement:  /** complete **/  /* ADDED */
-        LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList RBRACE
+LBRACE { EnterScope(subparser); }LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         ;
 
 LocalLabelDeclarationListOpt: /** complete **/

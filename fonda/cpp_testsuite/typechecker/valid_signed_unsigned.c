@@ -1,14 +1,18 @@
+signed char a;
+
 int main(void) {
-    signed char a;
-    unsigned char b;
+  unsigned char b;
+  
+  {
     signed long c;
     unsigned long d;
     signed long long e;
     unsigned long long f;
-    signed long long int g;
-    unsigned long long int h;
-    signed int i;
-    unsigned int j;
+  }
+  signed long long int g;
+  unsigned long long int h;
+  signed int i;
+  unsigned int j;
 
-    return 0;
+  return 0;
 }
