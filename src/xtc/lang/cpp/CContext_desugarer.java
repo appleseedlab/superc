@@ -137,6 +137,20 @@ public class CContext implements ParsingContext {
     this.reentrant = scope.reentrant;
   }
 
+    public Type getTypeOfTypedef(String ident, PresenceCondition presenceCondition) {
+	CContext scope;
+	
+	scope = this;
+	while (scope != null)
+	    {
+		Type foundType = scope.getSymbolTable().getTypedefFromMultiverse(ident);
+		if (foundType != null)
+		    return foundType;
+		scope = scope.parent;
+	    }
+	return null;
+    } 
+    
   public ParsingContext fork() {
     return new CContext(this);
   }
@@ -526,6 +540,8 @@ public class CContext implements ParsingContext {
     return null;
   }
 
+
+    
   /**
    * Return the presence condition under which an identifier is a
    * typedef name.
@@ -686,7 +702,7 @@ public class CContext implements ParsingContext {
     public HashMap<String, EnumMap<STField, ConditionedBool>> bools;
 
       public Multiverse multiverse;
-
+      
     /** The reference count for cleaning up the table BDDs */
     public int refs;
 
@@ -713,6 +729,11 @@ public class CContext implements ParsingContext {
 	  System.out.println(multiverse.toString());
       }
 
+      public Type getTypedefFromMultiverse(String ident)
+      {
+	  return multiverse.getTypedefOf(ident);
+      }
+      
     public void delRef() {
       refs--;
       if (0 == refs) {  //clean up symbol table

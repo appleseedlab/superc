@@ -918,9 +918,10 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
 				}
         | DeclarationQualifierList TYPEDEFname
         {
-					TypeBuilder tb = getTypeBuilderAt(subparser, 2);
+	  TypeBuilder tb = getTypeBuilderAt(subparser, 2);
           TypeBuilder tb1 = new TypeBuilder();
-					tb1.setTypedef(getStringAt(subparser, 1));
+	  String typeName = getStringAt(subparser, 1);
+	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
           setTypeBuilder(value, tb.combine(tb1));
 				}
         | TypedefDeclarationSpecifier DeclarationQualifier
@@ -934,25 +935,27 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
 
 TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
         TYPEDEFname
-				{
-					TypeBuilder tb1 = new TypeBuilder();
-					tb1.setTypedef(getStringAt(subparser, 1));
+	{
+	  TypeBuilder tb1 = new TypeBuilder();
+	  String typeName = getStringAt(subparser, 1);
+	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
           setTypeBuilder(value, tb1);
 				}
         | TypeQualifierList TYPEDEFname
-				{
-					TypeBuilder tb = getTypeBuilderAt(subparser, 2);
+	{
+	  TypeBuilder tb = getTypeBuilderAt(subparser, 2);
           TypeBuilder tb1 = new TypeBuilder();
-					tb1.setTypedef(getStringAt(subparser, 1));
+	  String typeName = getStringAt(subparser, 1);
+	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
           setTypeBuilder(value, tb.combine(tb1));
-				}
-        | TypedefTypeSpecifier TypeQualifier
-				{
-					TypeBuilder tb = getTypeBuilderAt(subparser, 2);
-          TypeBuilder tb1 = getTypeBuilderAt(subparser, 1);
-          setTypeBuilder(value, tb.combine(tb1));
-				}
-        ;
+	}
+| TypedefTypeSpecifier TypeQualifier
+{
+  TypeBuilder tb = getTypeBuilderAt(subparser, 2);
+  TypeBuilder tb1 = getTypeBuilderAt(subparser, 1);
+  setTypeBuilder(value, tb.combine(tb1));
+}
+;
 
 TypeofDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or void*/
         TypeofTypeSpecifier  StorageClass
@@ -3886,16 +3889,24 @@ private void addMapping(Subparser subparser, TypeBuilder t, DeclBuilder d)
   scope.getSymbolTable().addMapping(d.getID(), type, presenceCondition);
 }
 
+private Type getTypeOfTypedef(Subparser subparser, String typeName)
+{
+  Type foundType = ((CContext)subparser.scope).getTypeOfTypedef(typeName, subparser.getPresenceCondition());
+  //TODO: add checking for typedefs of typedefs 
+  return foundType;
+}
+
 private StringBuilder genRenamingDecls(Subparser subparser, DeclBuilder db, Type type) {
   // gets the symboltable after the identifier has been added, and gets the list of all renamings
   xtc.lang.cpp.CContext.SymbolTable symtab = ((CContext) subparser.scope).getSymbolTable();
   List<String> renamings = symtab.multiverse.getAllRenamings(db.identifier);
   StringBuilder declarations = new StringBuilder();
   // writes the declaration for every renaming
-  for (String renaming : renamings) {
-    declarations.append(type + " " + renaming);
-    declarations.append(";\n");
-  }
+  if (renamings != null)
+    for (String renaming : renamings) {
+      declarations.append(type + " " + renaming);
+      declarations.append(";\n");
+    }
 
   return declarations;
 }

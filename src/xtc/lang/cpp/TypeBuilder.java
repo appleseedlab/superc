@@ -6,6 +6,7 @@ import xtc.type.NumberT;
 import xtc.type.IntegerT;
 import xtc.type.FloatT;
 import xtc.type.UnitT;
+import xtc.type.TypedefT;
 import xtc.Constants;
 
 public class TypeBuilder {
@@ -25,6 +26,7 @@ public class TypeBuilder {
     boolean isFunction;
     boolean isTypeError;
     String typedefName;
+    Type typedefType;
     
     public String attributesToString() {
 	if (attributes == null)
@@ -80,7 +82,7 @@ public class TypeBuilder {
     if (foundTypes[FOUND_TYPE.seenComplex.ordinal()])
 	sb.append("complex ");
     if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
-	sb.append(typedefName + " ");
+	sb.append(typedefName + " " + typedefType);
     sb.append(attributesToString());
 
     return sb.toString();
@@ -95,19 +97,19 @@ public class TypeBuilder {
       else
         type = new IntegerT(NumberT.Kind.LONG_LONG); // long long
     } else if (foundTypes[FOUND_TYPE.seenLong.ordinal()]) {
-      if (foundTypes[FOUND_TYPE.seenInt.ordinal()])
-      if (qualifiers[QUAL.isUnsigned.ordinal()])
-        type = new IntegerT(NumberT.Kind.LONG); // unsigned long
-      else if (qualifiers[QUAL.isSigned.ordinal()])
-	type = new IntegerT(NumberT.Kind.LONG); // signed long
-      else
-        type = new IntegerT(NumberT.Kind.LONG); // long
-      else if (foundTypes[FOUND_TYPE.seenDouble.ordinal()]) {
-        if (foundTypes[FOUND_TYPE.seenComplex.ordinal()])
-          type = new FloatT(NumberT.Kind.LONG_DOUBLE_COMPLEX); // long double complex
-        else
-          type = new FloatT(NumberT.Kind.LONG_DOUBLE); // long double
-      }
+	if (foundTypes[FOUND_TYPE.seenInt.ordinal()])
+	    if (qualifiers[QUAL.isUnsigned.ordinal()])
+		type = new IntegerT(NumberT.Kind.LONG); // unsigned long
+	    else if (qualifiers[QUAL.isSigned.ordinal()])
+		type = new IntegerT(NumberT.Kind.LONG); // signed long
+	    else
+		type = new IntegerT(NumberT.Kind.LONG); // long
+	else if (foundTypes[FOUND_TYPE.seenDouble.ordinal()]) {
+	    if (foundTypes[FOUND_TYPE.seenComplex.ordinal()])
+		type = new FloatT(NumberT.Kind.LONG_DOUBLE_COMPLEX); // long double complex
+	    else
+		type = new FloatT(NumberT.Kind.LONG_DOUBLE); // long double
+	}
     } else if (foundTypes[FOUND_TYPE.seenComplex.ordinal()]) {
       if (foundTypes[FOUND_TYPE.seenDouble.ordinal()])
         type = new FloatT(NumberT.Kind.DOUBLE_COMPLEX); // double complex
@@ -125,22 +127,25 @@ public class TypeBuilder {
       else
         type = new IntegerT(NumberT.Kind.INT); // int
     } else if (foundTypes[FOUND_TYPE.seenChar.ordinal()]) {
-      if (qualifiers[QUAL.isSigned.ordinal()])
-        type = new IntegerT(NumberT.Kind.S_CHAR); // signed char
-      else if (qualifiers[QUAL.isUnsigned.ordinal()])
-        type = new IntegerT(NumberT.Kind.U_CHAR); // unsigned char
-      else
-        type = new IntegerT(NumberT.Kind.CHAR); // char
+	if (qualifiers[QUAL.isSigned.ordinal()])
+	    type = new IntegerT(NumberT.Kind.S_CHAR); // signed char
+	else if (qualifiers[QUAL.isUnsigned.ordinal()])
+	    type = new IntegerT(NumberT.Kind.U_CHAR); // unsigned char
+	else
+	    type = new IntegerT(NumberT.Kind.CHAR); // char
     } else if (foundTypes[FOUND_TYPE.seenShort.ordinal()]) {
-      if (qualifiers[QUAL.isUnsigned.ordinal()])
-        type = new IntegerT(NumberT.Kind.U_SHORT); // unsigned short
-      else
-        type = new FloatT(NumberT.Kind.SHORT); // short
-    } else {
-      System.err.println("ERROR: unsupported type found - probably a typedef");
-      System.exit(1);
+	if (qualifiers[QUAL.isUnsigned.ordinal()])
+	    type = new IntegerT(NumberT.Kind.U_SHORT); // unsigned short
+	else
+	    type = new FloatT(NumberT.Kind.SHORT); // short
+    } else if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
+	{
+	    type = new TypedefT(typedefName, typedefType);
+	}
+    else{
+	System.err.println("ERROR: unsupported type found");
+	System.exit(1);
     }
-    // TODO: handle the seenTypedef flag
 
     // adds the qualifiers to the type
     if (qualifiers[QUAL.isAuto.ordinal()])
@@ -235,6 +240,7 @@ public class TypeBuilder {
     isFunction = old.isFunction;
     isTypeError = old.isTypeError;
     typedefName = old.typedefName;
+    typedefType = old.typedefType;
     add(name);
   }
 
@@ -249,6 +255,7 @@ public class TypeBuilder {
     isFunction = false;
     isTypeError = false;
     typedefName = "";
+    typedefType = null;
     add(name);
   }
 
@@ -301,6 +308,7 @@ public class TypeBuilder {
     isFunction = false;
     isTypeError = false;
     typedefName = "";
+    typedefType = null;
   }
 
   // copy constructor that changes type (should be used whenever a type is found)
@@ -315,6 +323,7 @@ public class TypeBuilder {
       isFunction = false;
       isTypeError = old.isTypeError;
       typedefName = old.typedefName;
+      typedefType = old.typedefType;
     }
     
   }
@@ -330,6 +339,7 @@ public class TypeBuilder {
     isFunction = false;
     isTypeError = false;
     typedefName = "";
+    typedefType = null;
   }
 
   // copy constructor creates a deep copy
@@ -343,6 +353,7 @@ public class TypeBuilder {
       isFunction = old.isFunction;
       isTypeError = old.isTypeError;
       typedefName = old.typedefName;
+      typedefType = old.typedefType;
   }
 
 
@@ -401,7 +412,11 @@ public class TypeBuilder {
         qualComboExists(result, with, QUAL.isRegister, QUAL.isExtern) ||
         qualComboExists(result, with, QUAL.isThreadLocal, QUAL.isAuto) ||
         qualComboExists(result, with, QUAL.isThreadLocal, QUAL.isRegister) ||
-	qualComboExists(result, with, QUAL.isUnsigned, QUAL.isSigned))
+	qualComboExists(result, with, QUAL.isUnsigned, QUAL.isSigned) ||
+	qualComboExists(result, with, QUAL.isTypedef, QUAL.isStatic) ||
+	qualComboExists(result, with, QUAL.isTypedef, QUAL.isAuto) ||
+	qualComboExists(result, with, QUAL.isTypedef, QUAL.isExtern) ||
+	qualComboExists(result, with, QUAL.isTypedef, QUAL.isRegister))
 	result.isTypeError = true;
   
     // checks for variables with inline specifier
@@ -440,6 +455,7 @@ public class TypeBuilder {
 	result.isTypeError = result.isTypeError || with.isTypeError;
 	result.isFunction = result.isFunction || with.isFunction;
 	result.typedefName = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefName : with.typedefName);
+	result.typedefType = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefType : with.typedefType);
 	return result;
   }
 
@@ -448,10 +464,11 @@ public class TypeBuilder {
 	return qualifiers[QUAL.isTypedef.ordinal()];
     }
 
-    void setTypedef(String name)
+    void setTypedef(String name, Type type)
     {
 	foundTypes[FOUND_TYPE.seenTypedef.ordinal()] = true;
 	typedefName = name;
+	typedefType = type;
     }
 
     public boolean getIsValid()

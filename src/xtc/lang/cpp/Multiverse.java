@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.HashMap;
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 import xtc.type.Type;
+import xtc.Constants;
 
 public class Multiverse
 {
@@ -49,7 +50,10 @@ public class Multiverse
 
     List<String> getAllRenamings(String key) {
       LinkedList<String> allRenamings = new LinkedList<String>();
-      for (Universe u : mapping.get(key))
+      List<Universe> value = mapping.get(key);
+      if (value == null)
+	  return null;
+      for (Universe u : value)
         allRenamings.add(u.getRenaming());
       return allRenamings;
     }
@@ -99,5 +103,16 @@ public class Multiverse
 		    output += "\t" + u.toString() + "\n";
 	    }
 	return output;
+    }
+    public Type getTypedefOf(String ident)
+    {
+	List<Universe> value = mapping.get(ident);
+	if (value != null)
+	    for (Universe u : value)
+		{
+		    if (u.type.hasAttribute(Constants.ATT_STORAGE_TYPEDEF))
+			return u.type;
+		}
+	return null;
     }
 }
