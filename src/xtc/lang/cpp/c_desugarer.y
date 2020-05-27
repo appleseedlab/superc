@@ -568,7 +568,7 @@ DeclaringList:  /** nomerge **/
 	      {
       	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
       	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
-      	  addMapping(subparser, type, decl);
+      	  System.out.println("testing renaming declaration: " + type.toType() + " " + addMapping(subparser, type, decl) + ";");
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));
         }
@@ -576,12 +576,11 @@ DeclaringList:  /** nomerge **/
         {
       	  DeclBuilder decl = getDeclBuilderAt(subparser, 1);
       	  TypeBuilder type = getTypeBuilderAt(subparser, 2);
-      	  addMapping(subparser, type, decl);
+      	  System.out.println("testing renaming declaration: " + type.toType() + " " + addMapping(subparser, type, decl) + ";");
 
           // stores the written variable renaming declarations
-          System.out.println(genRenamingDecls(subparser, decl, type.toType()));
           // TODO: store this written code here
-          //setStringBuilder(value, genRenamingDecls(subparser, decl, type.toType()));
+          //setStringBuilder(value, type.toType() + " " + addMapping(subparser, type, decl) + ";");
 
 
       	  saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -921,7 +920,7 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
 	  TypeBuilder tb = getTypeBuilderAt(subparser, 2);
           TypeBuilder tb1 = new TypeBuilder();
 	  String typeName = getStringAt(subparser, 1);
-	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
+	  //tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
           setTypeBuilder(value, tb.combine(tb1));
 				}
         | TypedefDeclarationSpecifier DeclarationQualifier
@@ -938,7 +937,7 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
 	{
 	  TypeBuilder tb1 = new TypeBuilder();
 	  String typeName = getStringAt(subparser, 1);
-	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
+	  //tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
           setTypeBuilder(value, tb1);
 				}
         | TypeQualifierList TYPEDEFname
@@ -946,7 +945,7 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
 	  TypeBuilder tb = getTypeBuilderAt(subparser, 2);
           TypeBuilder tb1 = new TypeBuilder();
 	  String typeName = getStringAt(subparser, 1);
-	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
+	  //tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
           setTypeBuilder(value, tb.combine(tb1));
 	}
 | TypedefTypeSpecifier TypeQualifier
@@ -3879,36 +3878,25 @@ private Type getType(TypeBuilder t, DeclBuilder d)
   return d.toType();
 }
 
-private void addMapping(Subparser subparser, TypeBuilder t, DeclBuilder d)
+private StringBuilder addMapping(Subparser subparser, TypeBuilder t, DeclBuilder d)
 {
+  StringBuilder sb = new StringBuilder();
   if (t == null || d == null || !t.getIsValid() || !d.getIsValid())
-    return;
+    return sb;
   Type type = getType(t,d);
   PresenceConditionManager.PresenceCondition presenceCondition = subparser.getPresenceCondition();
   CContext scope = (CContext) subparser.scope;
-  scope.getSymbolTable().addMapping(d.getID(), type, presenceCondition);
+  sb = scope.getSymbolTable().addMapping(d.getID(), type, presenceCondition);
+  // TODO: turn sb into a full declaration before returning it
+  return sb;
 }
 
 private Type getTypeOfTypedef(Subparser subparser, String typeName)
 {
-  Type foundType = ((CContext)subparser.scope).getTypeOfTypedef(typeName, subparser.getPresenceCondition());
-  //TODO: add checking for typedefs of typedefs 
+  //Type foundType = ((CContext)subparser.scope).getTypeOfTypedef(typeName, subparser.getPresenceCondition());
+  //TODO: add checking for typedefs of typedefs
+  Type foundType = new UnitT(); // TODO: remove this and uncomment the above code
   return foundType;
-}
-
-private StringBuilder genRenamingDecls(Subparser subparser, DeclBuilder db, Type type) {
-  // gets the symboltable after the identifier has been added, and gets the list of all renamings
-  xtc.lang.cpp.CContext.SymbolTable symtab = ((CContext) subparser.scope).getSymbolTable();
-  List<String> renamings = symtab.multiverse.getAllRenamings(db.identifier);
-  StringBuilder declarations = new StringBuilder();
-  // writes the declaration for every renaming
-  if (renamings != null)
-    for (String renaming : renamings) {
-      declarations.append(type + " " + renaming);
-      declarations.append(";\n");
-    }
-
-  return declarations;
 }
 
 /**

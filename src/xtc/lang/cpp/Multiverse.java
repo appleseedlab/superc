@@ -63,14 +63,16 @@ public class Multiverse
 	mapping = new HashMap<String,List<Universe>>();
     }
 
-    public boolean addMapping(String name, String rename, Type t, PresenceCondition p)
+    public StringBuilder addMapping(String name, String rename, Type t, PresenceCondition p)
     {
+      // stores the renaming
+      StringBuilder sb = new StringBuilder();
 	     List<Universe> value = mapping.get(name);
 	      if (value == null)
 	       {
 		      List<Universe> newEntry = new LinkedList<Universe>();
-		        newEntry.add(new Universe(rename, t, p));
-		          mapping.put(name, newEntry);
+	        newEntry.add(new Universe(rename, t, p));
+          mapping.put(name, newEntry);
          }
         else
        {
@@ -80,10 +82,11 @@ public class Multiverse
 			         noCollision = noCollision && u.exclusiveFromPC(p);
           }
 		if (!noCollision)
-		    return false;
+		    return sb;
 		value.add(new Universe(rename, t, p));
 	    }
-	return true;
+      sb.append(rename);
+      return sb;
     }
 
     public void delRefs()
