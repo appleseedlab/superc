@@ -322,22 +322,22 @@ EmptyDefinition:  /** complete **/
 FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
         FunctionDefinition
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBCondAt(1, subparser, value);
         }
         | __EXTENSION__ FunctionDefinition
         {
-          getAndSetSB(2, subparser, value);
+          getAndSetSBCond(2, subparser, value);
         }
         ;
 
 FunctionDefinition:  /** complete **/ // added scoping
         FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
-          getAndSetSBAt(3, subparser, value);
+          getAndSetSBCondAt(3, subparser, value);
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
-          getAndSetSB(9, subparser, value);
+          getAndSetSBCond(9, subparser, value);
         }
         ;
 
@@ -546,7 +546,7 @@ Declaration:  /** complete **/
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
-          getAndSetSBAt(3, subparser, value);
+          getAndSetSBCondAt(3, subparser, value);
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
@@ -586,9 +586,10 @@ DeclaringList:  /** nomerge **/
           bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));
           TypeBuilder type = getTypeBuilderAt(subparser, 5);
           DeclBuilder decl = getDeclBuilderAt(subparser, 4);
+          String oldIdent = decl.identifier;
           decl.identifier = addMapping(subparser, type, decl).toString();
           StringBuilder sb = new StringBuilder();
-          sb.append("\n" + type.toType() + " " + decl + ";");
+          sb.append("\n" + type.toType() + " " + decl + ";" + " // renamed from " + oldIdent);
           setStringBuilder(value, sb);
         }
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
