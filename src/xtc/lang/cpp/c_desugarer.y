@@ -190,6 +190,8 @@ import xtc.lang.cpp.Syntax.Directive;
 import xtc.lang.cpp.Syntax.Conditional;
 import xtc.lang.cpp.Syntax.Error;
 
+import xtc.lang.cpp.AbstractMultiverse;
+
 import xtc.type.AliasT;
 import xtc.type.ArrayT;
 import xtc.type.BooleanT;
@@ -232,6 +234,7 @@ import java.lang.StringBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Iterator;
 
 import java.io.File;
 import java.io.Reader;
@@ -272,7 +275,7 @@ TranslationUnit:  /** complete, passthrough **/
             writer.write("#include \"desugared_macros.h\" // configuration macros converted to C variables\n");
 
             // writing file-dependent transformation code
-            writer.write(getStringBuilderAt(subparser, 1).toString());
+            writer.write(getStringBuilderAt(subparser, 1).toString() + "\n");
             writer.flush();
           }
           catch(Exception IOException) {
@@ -288,35 +291,27 @@ ExternalDeclarationList: /** list, complete **/
         /* empty */  // ADDED gcc allows empty program
         | ExternalDeclarationList ExternalDeclaration
         {
-          StringBuilder sb = new StringBuilder();
-          for (int i = 1; i <= 2; i++)
-            sb.append(getStringBuilderAt(subparser, i));
-          setStringBuilder(value, sb);
+          getAndSetSBAt(1, subparser, value);
         }
         ;
 
 ExternalDeclaration:  /** passthrough, complete **/
         FunctionDefinitionExtension
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | DeclarationExtension
         {
-          StringBuilder sb = new StringBuilder();
-          for (int i = 1; i <= 2; i++)
-            sb.append(getStringBuilderAt(subparser, i));
-          setStringBuilder(value, sb);
+          getAndSetSB(2, subparser, value);
+          // TODO
         }
         | AssemblyDefinition
         {
-          StringBuilder sb = new StringBuilder();
-          for (int i = 1; i <= 2; i++)
-            sb.append(getStringBuilderAt(subparser, i));
-          setStringBuilder(value, sb);
+          // TODO
         }
         | EmptyDefinition
         {
-          StringBuilder sb = new StringBuilder();
-          for (int i = 1; i <= 2; i++)
-            sb.append(getStringBuilderAt(subparser, i));
-          setStringBuilder(value, sb);
+          // TODO
         }
         ;
 
@@ -326,34 +321,33 @@ EmptyDefinition:  /** complete **/
 
 FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
         FunctionDefinition
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | __EXTENSION__ FunctionDefinition
         {
-          StringBuilder sb = new StringBuilder();
-          for (int i = 1; i <= 2; i++)
-            sb.append(getStringBuilderAt(subparser, i));
-          setStringBuilder(value, sb);
+          getAndSetSB(2, subparser, value);
         }
         ;
 
 FunctionDefinition:  /** complete **/ // added scoping
-         FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
-        | FunctionOldPrototype
+        FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
-          ReenterScope(subparser);
-          {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 1; i <= 2; i++)
-              sb.append(getStringBuilderAt(subparser, i));
-            setStringBuilder(value, sb);
-          }
+          getAndSetSBAt(3, subparser, value);
         }
-        DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
+        | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
+        {
+          getAndSetSB(9, subparser, value);
+        }
         ;
 
 /* Functions have their own compound statement because of the need for
    reentering scope. */
 FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
         LocalLabelDeclarationListOpt DeclarationOrStatementList
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         ;
 
 /* Having a function prototype node in the AST allows this to be a
@@ -532,14 +526,32 @@ NestedFunctionOldPrototype:  /** nomerge **/
 
 DeclarationExtension:  /** passthrough, complete **/  // ADDED
         Declaration
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         | __EXTENSION__ Declaration
+        {
+          // TODO
+        }
         ;
 
 Declaration:  /** complete **/
         SUEDeclarationSpecifier { KillReentrantScope(subparser); } SEMICOLON
+        {
+          // TODO
+        }
         | SUETypeSpecifier { KillReentrantScope(subparser); } SEMICOLON
+        {
+          // TODO
+        }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
+        {
+          getAndSetSBAt(3, subparser, value);
+        }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
+        {
+          // TODO
+        }
         ;
 
 /* Note that if a typedef were  redeclared,  then  a  declaration
@@ -565,32 +577,28 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
 
 DeclaringList:  /** nomerge **/
         DeclarationSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
-	      {
-      	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
-      	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
-      	  System.out.println("testing renaming declaration: " + type.toType() + " " + addMapping(subparser, type, decl) + ";");
-      	  saveBaseType(subparser, getNodeAt(subparser, 5));
-          bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));
-        }
-        | TypeSpecifier Declarator
         {
-      	  DeclBuilder decl = getDeclBuilderAt(subparser, 1);
-      	  TypeBuilder type = getTypeBuilderAt(subparser, 2);
-      	  System.out.println("testing renaming declaration: " + type.toType() + " " + addMapping(subparser, type, decl) + ";");
-
-          // stores the written variable renaming declarations
-          // TODO: store this written code here
-          //setStringBuilder(value, type.toType() + " " + addMapping(subparser, type, decl) + ";");
-
-
-      	  saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
+          // TODO
+        }
+        | TypeSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
+        {
+          saveBaseType(subparser, getNodeAt(subparser, 5));
+          bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));
+          TypeBuilder type = getTypeBuilderAt(subparser, 5);
+          DeclBuilder decl = getDeclBuilderAt(subparser, 4);
+          decl.identifier = addMapping(subparser, type, decl).toString();
+          StringBuilder sb = new StringBuilder();
+          sb.append("\n" + type.toType() + " " + decl + ";");
+          setStringBuilder(value, sb);
+        }
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
           // reuses saved base type
 	        bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
+        {
+          // TODO
+        }
         ;
 
 DeclarationSpecifier:  /** passthrough, nomerge **/
@@ -1873,17 +1881,37 @@ LabeledStatement:  /** complete **/  // ADDED attributes
         ;*/
 
 CompoundStatement:  /** complete **/  /* ADDED */
-LBRACE { EnterScope(subparser); }LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
+        LBRACE
+        {
+          EnterScope(subparser);
+        }
+        LocalLabelDeclarationListOpt DeclarationOrStatementList
+        {
+          ExitScope(subparser);
+        }
+        RBRACE
+        {
+          getAndSetSB(4, subparser, value);
+        }
         ;
 
 LocalLabelDeclarationListOpt: /** complete **/
         /* empty */
         | LocalLabelDeclarationList
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         ;
 
 LocalLabelDeclarationList:  /** list, complete **/
         LocalLabelDeclaration
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | LocalLabelDeclarationList LocalLabelDeclaration
+        {
+          getAndSetSB(3, subparser, value);
+        }
         ;
 
 LocalLabelDeclaration: /** complete **/  /* ADDED */
@@ -1897,17 +1925,35 @@ LocalLabelList:  /** list, complete **/  // ADDED
 
 DeclarationOrStatementList:  /** list, complete **/  /* ADDED */
         | DeclarationOrStatementList DeclarationOrStatement
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         ;
 
 DeclarationOrStatement: /** passthrough, complete **/  /* ADDED */
         DeclarationExtension
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         | Statement
+        {
+          getAndSetSBCondAt(2, subparser, value);
+        }
         | NestedFunctionDefinition
+        {
+          getAndSetSBCond(2, subparser, value);
+        }
         ;
 
 DeclarationList:  /** list, complete **/
         DeclarationExtension
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | DeclarationList DeclarationExtension
+        {
+          getAndSetSB(3, subparser, value);
+        }
         ;
 
 /*StatementList:
@@ -2227,9 +2273,6 @@ AttributeListOpt:   // ADDED
 
 AttributeList:  /** list, nomerge **/  // ADDED
         Word AttributeExpressionOpt
-	{
-	  System.out.println("attributeList");
-	}
         | AttributeList COMMA Word AttributeExpressionOpt
         ;
 
@@ -2441,6 +2484,73 @@ private StringBuilder getStringBuilderAt(Subparser subparser, int component) {
   return (StringBuilder) getNodeAt(subparser, component).getProperty(STRINGBUILDER);
 }
 
+private StringBuilder getStringBuilder(Node n) {
+  return (StringBuilder) n.getProperty(STRINGBUILDER);
+}
+
+private void getAndSetSB(int numChildren, Subparser subparser, Object value)
+{
+  StringBuilder sb = new StringBuilder();
+  StringBuilder temp;
+  for (int i = 1; i <= numChildren; i++) {
+    temp = getStringBuilderAt(subparser, i);
+    if (!sb.toString().equals("null"))
+      sb.append(temp);
+  }
+  setStringBuilder(value, sb);
+}
+
+private void getAndSetSBAt(int child, Subparser subparser, Object value)
+{
+  StringBuilder sb = new StringBuilder();
+  StringBuilder temp;
+  temp = getStringBuilderAt(subparser, child);
+  if (!sb.toString().equals("null"))
+      sb.append(temp);
+  setStringBuilder(value, sb);
+}
+
+private void getAndSetSBCond(int numChildren, Subparser subparser, Object value)
+{
+  NodeMultiverse condChildren;
+  StringBuilder temp;
+  StringBuilder sb = new StringBuilder();
+  for (int i = 1; i <= numChildren; i++)
+  {
+    condChildren = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
+    //System.err.println(condChildren);
+
+    // iterates through every pair of (Node, PresenceCondition)
+    // and appends all declarations stored in the nodes to this stringbuilder
+    Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
+    while (children.hasNext()) {
+      AbstractMultiverse.Element<Node> next_node = children.next();
+      temp = getStringBuilder(next_node.data);
+      if (!temp.toString().equals("null"))
+        sb.append(temp);
+    }
+    setStringBuilder(value, sb);
+  }
+}
+
+private void getAndSetSBCondAt(int child, Subparser subparser, Object value)
+{
+  StringBuilder temp;
+  NodeMultiverse condChildren = getNodeMultiverse(getNodeAt(subparser, child), subparser.getPresenceCondition().presenceConditionManager());
+  //System.err.println(condChildren);
+
+  StringBuilder sb = new StringBuilder();
+  // iterates through every pair of (Node, PresenceCondition)
+  // and appends all declarations stored in the nodes to this stringbuilder
+  Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
+  while (children.hasNext()) {
+    AbstractMultiverse.Element<Node> next_node = children.next();
+    temp = getStringBuilder(next_node.data);
+    if (!temp.toString().equals("null"))
+      sb.append(temp);
+  }
+  setStringBuilder(value, sb);
+}
 
 
 /** True when statistics should be output. */
@@ -3924,7 +4034,7 @@ private void checkNotParameter(Node node, String kind) {
 
 private NodeMultiverse getNodeMultiverse(Node node, PresenceConditionManager presenceConditionManager) {
   NodeMultiverse mv = new NodeMultiverse();
-  
+
   if (node instanceof GNode
       && ((GNode) node).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
     PresenceCondition childCondition = null;
@@ -3942,7 +4052,7 @@ private NodeMultiverse getNodeMultiverse(Node node, PresenceConditionManager pre
   } else {
     mv.add(node, presenceConditionManager.new PresenceCondition(true));
   }
-  
+
   return mv;
 }
 
