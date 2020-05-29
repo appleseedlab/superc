@@ -3922,6 +3922,30 @@ private void checkNotParameter(Node node, String kind) {
   /* } */
 }
 
+private NodeMultiverse getNodeMultiverse(Node node, PresenceConditionManager presenceConditionManager) {
+  NodeMultiverse mv = new NodeMultiverse();
+  
+  if (node instanceof GNode
+      && ((GNode) node).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
+    PresenceCondition childCondition = null;
+    for (Object bo : node) {
+      if (bo instanceof PresenceCondition) {
+        childCondition = (PresenceCondition) bo;
+      } else if (bo instanceof Node) {
+        Node childNode = (Node) bo;
+        mv.add(childNode, childCondition);
+      } else {
+        System.err.println("unsupported AST child type in getNodeMultiverse");
+        System.exit(1);
+      }
+    }
+  } else {
+    mv.add(node, presenceConditionManager.new PresenceCondition(true));
+  }
+  
+  return mv;
+}
+
 // ---------- Declarators
 
 /* private static String DECL = "xtc.lang.cpp.Declarator"; */
