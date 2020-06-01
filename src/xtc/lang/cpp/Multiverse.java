@@ -9,43 +9,6 @@ import xtc.Constants;
 
 public class Multiverse
 {
-    public class Universe
-    {
-	public Universe()
-	{
-	    rename = "";
-	    type = null;
-	    pc = null;
-	}
-	public Universe(String rename, Type type, PresenceCondition pc)
-	{
-	    this.rename = rename;
-	    this.type = type;
-	    this.pc = pc;
-	    pc.addRef();
-	}
-	public boolean exclusiveFromPC(PresenceCondition pc)
-	{
-	    return this.pc.isMutuallyExclusive(pc);
-	}
-	public void delRef()
-	{
-	    pc.delRef();
-	}
-	public String rename;
-	public Type type;
-	public PresenceCondition pc;
-
-  public String getRenaming() {
-    return rename;
-  }
-
-	public String toString()
-	{
-	    return rename + " " + type.toString() + " " + pc.toString();
-	}
-    }
-
     HashMap<String, List<Universe>> mapping;
 
     List<String> getAllRenamings(String key) {
@@ -63,30 +26,34 @@ public class Multiverse
 	mapping = new HashMap<String,List<Universe>>();
     }
 
-    public StringBuilder addMapping(String name, String rename, Type t, PresenceCondition p)
+    public void addMapping(String name, List<Universe> unis)
     {
       // stores the renaming
-      StringBuilder sb = new StringBuilder();
-	     List<Universe> value = mapping.get(name);
-	      if (value == null)
-	       {
-		      List<Universe> newEntry = new LinkedList<Universe>();
-	        newEntry.add(new Universe(rename, t, p));
-          mapping.put(name, newEntry);
-         }
-        else
-       {
-		       boolean noCollision = true;
-	        for (Universe u : value)
-	        {
-			         noCollision = noCollision && u.exclusiveFromPC(p);
-          }
-		if (!noCollision)
-		    return sb;
-		value.add(new Universe(rename, t, p));
-	    }
-      sb.append(rename);
-      return sb;
+      List<Universe> value = mapping.get(name);
+      if (value == null)
+	  {
+	      List<Universe> newEntry = new LinkedList<Universe>();
+	      for (Universe x : unis)
+		  newEntry.add(x);
+	      mapping.put(name, newEntry);
+	  }
+      else
+	  {
+	      for (Universe x : unis)
+		  {
+		      boolean noCollision = true;
+		      for (Universe u : value)
+			  {
+			      noCollision = noCollision && u.exclusiveFromPC(x.pc);
+			  }
+		      if (!noCollision)
+			  {
+			      System.out.println("MultipleDef");
+			      System.exit(1);
+			  }
+		      value.add(x);
+		  }
+	  }
     }
 
     public void delRefs()
@@ -107,15 +74,16 @@ public class Multiverse
 	    }
 	return output;
     }
-    public Type getTypedefOf(String ident)
+    public List<Universe> getTypedefsOf(String ident)
     {
+	List<Universe> ret = new LinkedList<Universe>();
 	List<Universe> value = mapping.get(ident);
 	if (value != null)
 	    for (Universe u : value)
 		{
 		    if (u.type.hasAttribute(Constants.ATT_STORAGE_TYPEDEF))
-			return u.type;
+			ret.add(u);
 		}
-	return null;
+	return ret;
     }
 }

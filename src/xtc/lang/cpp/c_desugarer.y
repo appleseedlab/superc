@@ -178,6 +178,7 @@ import xtc.tree.Node;
 import xtc.tree.Visitor;
 
 import xtc.util.Pair;
+import java.util.Random;
 
 import xtc.lang.cpp.Syntax.Kind;
 import xtc.lang.cpp.Syntax.LanguageTag;
@@ -230,8 +231,9 @@ import xtc.lang.cpp.ForkMergeParser.StackFrame;
 
 import java.lang.StringBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
+ import java.util.ArrayList;
+ import java.util.List;
+ import java.util.LinkedList;
 
 import java.io.File;
 import java.io.Reader;
@@ -601,7 +603,7 @@ DeclarationSpecifier:  /** passthrough, nomerge **/
 				}
         | SUEDeclarationSpecifier          /* struct/union/enum */
 				{
-					System.err.println("Unsupported grammar"); // TODO
+					System.err.println("Unsupported grammar DeclarationSpecifier-SUE"); // TODO
 					System.exit(1);
 				}
         | TypedefDeclarationSpecifier      /* typedef*/
@@ -611,12 +613,12 @@ DeclarationSpecifier:  /** passthrough, nomerge **/
 				}
         | VarArgDeclarationSpecifier  // ADDED
         {
-					System.err.println("Unsupported grammar"); // TODO
+					System.err.println("Unsupported grammar DeclarationSpecifier-VarArg"); // TODO
 					System.exit(1);
 				}
         | TypeofDeclarationSpecifier // ADDED
         {
-					System.err.println("Unsupported grammar"); // TODO
+					System.err.println("Unsupported grammar DeclarationSpecifier-TypeofDeclSpec"); // TODO
 					System.exit(1);
 				}
         ;
@@ -628,7 +630,7 @@ TypeSpecifier:  /** passthrough, nomerge **/
 				}
         | SUETypeSpecifier                 /* Struct/Union/Enum */
 				{
-					System.err.println("Unsupported grammar"); // TODO
+					System.err.println("Unsupported grammar TypeSpecifier-SUE"); // TODO
 					System.exit(1);
 				}
 				| TypedefTypeSpecifier             /* Typedef */
@@ -637,12 +639,12 @@ TypeSpecifier:  /** passthrough, nomerge **/
 				}
         | VarArgTypeSpecifier  // ADDED
 				{
-					System.err.println("Unsupported grammar"); // TODO
+					System.err.println("Unsupported grammar TypeSpecifier-VarArg"); // TODO
 					System.exit(1);
 				}
         | TypeofTypeSpecifier // ADDED
 				{
-					System.err.println("Unsupported grammar"); // TODO
+					System.err.println("Unsupported grammar TypeSpecifier-Typeof"); // TODO
 					System.exit(1);
 				}
         ;
@@ -720,7 +722,7 @@ TypeQualifier                  /* const or volatile */
 TypeQualifier:    // const, volatile, and restrict can have underscores
 ConstQualifier
 {
-  TypeBuilder qual = new TypeBuilder("const");
+  TypeBuilder qual = new TypeBuilder("const", subparser.getPresenceCondition());
   setTypeBuilder(value, qual);
   updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -728,7 +730,7 @@ ConstQualifier
 }
 | VolatileQualifier
 {
-  TypeBuilder qual = new TypeBuilder("volatile");
+  TypeBuilder qual = new TypeBuilder("volatile", subparser.getPresenceCondition());
   setTypeBuilder(value, qual);
   updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -736,7 +738,7 @@ ConstQualifier
 }
 | RestrictQualifier
 {
-  TypeBuilder qual = new TypeBuilder("restrict");
+  TypeBuilder qual = new TypeBuilder("restrict", subparser.getPresenceCondition());
 	  setTypeBuilder(value, qual);
 updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -744,7 +746,7 @@ updateSpecs(subparser,
 }
 | AttributeSpecifier // ADDED
 {
-  System.err.println("Unsupported grammar"); // TODO
+  System.err.println("Unsupported grammar TypeQualifier-Attribute"); // TODO
   System.exit(1);
   updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -752,7 +754,7 @@ updateSpecs(subparser,
 }
 | FunctionSpecifier  // ADDED
 {
-  TypeBuilder qual = new TypeBuilder("inline");
+  TypeBuilder qual = new TypeBuilder("inline", subparser.getPresenceCondition());
   setTypeBuilder(value, qual);
   updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -910,26 +912,26 @@ SUETypeSpecifier: /** nomerge **/
 
 TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef types */
         TypedefTypeSpecifier StorageClass
-				{
-					TypeBuilder tb = getTypeBuilderAt(subparser, 2);
+	{
+	  TypeBuilder tb = getTypeBuilderAt(subparser, 2);
           TypeBuilder tb1 = getTypeBuilderAt(subparser, 1);
           setTypeBuilder(value, tb.combine(tb1));
-				}
+	}
         | DeclarationQualifierList TYPEDEFname
         {
 	  TypeBuilder tb = getTypeBuilderAt(subparser, 2);
           TypeBuilder tb1 = new TypeBuilder();
 	  String typeName = getStringAt(subparser, 1);
-	  //tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
+	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
           setTypeBuilder(value, tb.combine(tb1));
-				}
+	}
         | TypedefDeclarationSpecifier DeclarationQualifier
-				{
-					TypeBuilder tb1 = getTypeBuilderAt(subparser, 2);
-					TypeBuilder dq = getTypeBuilderAt(subparser,1);
-					TypeBuilder tb = tb1.combine(dq);
+	{
+	  TypeBuilder tb1 = getTypeBuilderAt(subparser, 2);
+	  TypeBuilder dq = getTypeBuilderAt(subparser,1);
+	  TypeBuilder tb = tb1.combine(dq);
           setTypeBuilder(value, tb);
-				}
+	}
         ;
 
 TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
@@ -937,15 +939,15 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
 	{
 	  TypeBuilder tb1 = new TypeBuilder();
 	  String typeName = getStringAt(subparser, 1);
-	  //tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
+	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
           setTypeBuilder(value, tb1);
-				}
+	}
         | TypeQualifierList TYPEDEFname
 	{
 	  TypeBuilder tb = getTypeBuilderAt(subparser, 2);
           TypeBuilder tb1 = new TypeBuilder();
 	  String typeName = getStringAt(subparser, 1);
-	  //tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
+	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
           setTypeBuilder(value, tb.combine(tb1));
 	}
 | TypedefTypeSpecifier TypeQualifier
@@ -1041,31 +1043,31 @@ VarArgTypeName:  // ADDED
 StorageClass:  /** passthrough **/
         TYPEDEF
 	  {
-	    TypeBuilder storage = new TypeBuilder("typedef");
+	    TypeBuilder storage = new TypeBuilder("typedef", subparser.getPresenceCondition());
 	    setTypeBuilder(value, storage);
 	    getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF;
 	  }
         | EXTERN
 	    {
-	      TypeBuilder storage = new TypeBuilder("extern");
+	      TypeBuilder storage = new TypeBuilder("extern", subparser.getPresenceCondition());
 	      setTypeBuilder(value, storage);
 	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN;
 	    }
         | STATIC
 	    {
-	      TypeBuilder storage = new TypeBuilder("static");
+	      TypeBuilder storage = new TypeBuilder("static", subparser.getPresenceCondition());
 	      setTypeBuilder(value, storage);
 	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC;
 	    }
         | AUTO
 	    {
-	      TypeBuilder storage = new TypeBuilder("auto");
+	      TypeBuilder storage = new TypeBuilder("auto", subparser.getPresenceCondition());
 	      setTypeBuilder(value, storage);
 	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO;
 	    }
         | REGISTER
 	    {
-	      TypeBuilder storage = new TypeBuilder("register");
+	      TypeBuilder storage = new TypeBuilder("register", subparser.getPresenceCondition());
 	      setTypeBuilder(value, storage);
 	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER;
 	    }
@@ -1074,19 +1076,19 @@ StorageClass:  /** passthrough **/
 BasicTypeName:  /** passthrough **/
         VOID
         {
-          TypeBuilder tb = new TypeBuilder(VoidT.TYPE);
+          TypeBuilder tb = new TypeBuilder(VoidT.TYPE, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).type = VoidT.TYPE;
         }
         | CHAR
         {
-          TypeBuilder tb = new TypeBuilder(NumberT.CHAR);
+          TypeBuilder tb = new TypeBuilder(NumberT.CHAR, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenChar = true;
         }
         | SHORT
         {
-          TypeBuilder tb = new TypeBuilder(NumberT.SHORT);
+          TypeBuilder tb = new TypeBuilder(NumberT.SHORT, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenShort = true;
         }
@@ -1094,56 +1096,56 @@ BasicTypeName:  /** passthrough **/
         {
 
           // See xtc.type.* for the class hiearchy for types
-          TypeBuilder tb = new TypeBuilder(NumberT.INT);
+          TypeBuilder tb = new TypeBuilder(NumberT.INT, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenInt = true;
         }
         | __INT128
 	{
-          TypeBuilder tb = new TypeBuilder(NumberT.__INT128);
+          TypeBuilder tb = new TypeBuilder(NumberT.__INT128, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenInt = true;
         }
         | LONG
         {
           // See xtc.type.* for the class hiearchy for types
-          TypeBuilder tb = new TypeBuilder(NumberT.LONG);
+          TypeBuilder tb = new TypeBuilder(NumberT.LONG, subparser.getPresenceCondition());
 	  setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).longCount++;
         }
         | FLOAT
         {
-          TypeBuilder tb = new TypeBuilder(NumberT.FLOAT);
+          TypeBuilder tb = new TypeBuilder(NumberT.FLOAT, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenFloat = true;
         }
         | DOUBLE
         {
-          TypeBuilder tb = new TypeBuilder(NumberT.DOUBLE);
+          TypeBuilder tb = new TypeBuilder(NumberT.DOUBLE, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenDouble = true;
         }
         | SignedKeyword
         {
-          TypeBuilder tb = new TypeBuilder("signed");
+          TypeBuilder tb = new TypeBuilder("signed", subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenSigned = true;
         }
         | UNSIGNED
         {
-          TypeBuilder tb = new TypeBuilder("unsigned");
+          TypeBuilder tb = new TypeBuilder("unsigned", subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenUnsigned = true;
         }
         | _BOOL
         {
-          TypeBuilder tb = new TypeBuilder(BooleanT.TYPE);
+          TypeBuilder tb = new TypeBuilder(BooleanT.TYPE, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenBool = true;
         }
         | ComplexKeyword
         {
-	  TypeBuilder tb = new TypeBuilder("complex");
+	  TypeBuilder tb = new TypeBuilder("complex", subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenComplex = true;
         }
@@ -1572,9 +1574,12 @@ CleanTypedefDeclarator: /** nomerge **/
 	}
         | STAR TypeQualifierList ParameterTypedefDeclarator
 	{
-					System.err.println("Unsupported grammar"); // TODO
-					System.exit(1);
-				}
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  DeclBuilder outter = new DeclBuilder();
+	  outter.addPointer();
+	  outter.addQuals(getTypeBuilderAt(subparser,2),db);
+	  setDeclBuilder(value,outter);
+	}
         ;
 
 CleanPostfixTypedefDeclarator: /** nomerge **/
@@ -1610,7 +1615,16 @@ ParenTypedefDeclarator:  /** passthrough, nomerge **/
 	  setDeclBuilder(value, db);
 	}
 	| STAR TypeQualifierList
-                LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
+	LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,2);
+	  DeclBuilder paren = new DeclBuilder();
+	  DeclBuilder outter = new DeclBuilder();
+	  outter.addPointer();
+	  paren.addDeclBuilder(db);
+	  outter.addQuals(getTypeBuilderAt(subparser,4),paren);
+	  setDeclBuilder(value,outter);
+	}
         | STAR ParenTypedefDeclarator
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
@@ -1618,10 +1632,13 @@ ParenTypedefDeclarator:  /** passthrough, nomerge **/
 	  setDeclBuilder(value, db);
 	}
         | STAR TypeQualifierList ParenTypedefDeclarator
-				{
-					System.err.println("Unsupported grammar"); // TODO
-					System.exit(1);
-				}
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  DeclBuilder outter = new DeclBuilder();
+	  outter.addPointer();
+	  outter.addQuals(getTypeBuilderAt(subparser,2),db);
+	  setDeclBuilder(value,outter);
+	}
         ;
 
 ParenPostfixTypedefDeclarator: /** nomerge **/ /* redundant paren to left of tname*/
@@ -1697,19 +1714,22 @@ UnaryIdentifierDeclarator: /** passthrough, nomerge **/
 	  setDeclBuilder(value, db);
 	}
         | STAR TypeQualifierList IdentifierDeclarator
-       {
-					System.err.println("Unsupported grammar"); // TODO
-					System.exit(1);
-				}
+	{
+	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+	  DeclBuilder outter = new DeclBuilder();
+	  outter.addPointer();
+	  outter.addQuals(getTypeBuilderAt(subparser,2),db);
+	  setDeclBuilder(value,outter);
+	}
         ;
 
 PostfixIdentifierDeclarator: /** passthrough, nomerge **/
-        FunctionDeclarator
-				{
-					System.err.println("Unsupported grammar"); // TODO
-					//					System.exit(1);
-				}
-        | ArrayDeclarator
+FunctionDeclarator
+{
+  System.err.println("Unsupported grammar PostfixIdentifierDeclarator-FunctionDecl"); // TODO
+  //					System.exit(1);
+}
+| ArrayDeclarator
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
@@ -2821,16 +2841,22 @@ public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder dec
 }
 
 public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder declarator, STField alsoSet) {
+  /*
+    for this to properly work, we will need to pull the specific presenceCondition for 
+    each individual TypeBuilderUnit. More or less the actions that were previously taken should take place
+    multiple times now.
+   */
   StackFrame stack = subparser.stack;
   PresenceConditionManager.PresenceCondition presenceCondition = subparser.getPresenceCondition();
   CContext scope = (CContext) subparser.scope;
 
   String ident = declarator.getID();
 
-  boolean typedef = typespec.isTypeDef();
+  List<Boolean> typedef = typespec.isTypeDef();
 
   if (languageStatistics) {
-    if (typedef) {
+    for (Boolean b : typedef)
+    if (b) {
       Location location = subparser.lookahead.token.syntax.getLocation();
       System.err.println(String.format("typedef %s %s", ident, location));
     }
@@ -2842,11 +2868,14 @@ public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder dec
   if (debug) {
     System.err.println("def: " + ident + " " + alsoSet);
   }
-  STField field = typedef ? STField.TYPEDEF : STField.IDENT;
-  scope.getSymbolTable().setbool(ident, field, true, presenceCondition);
-  if (null != alsoSet) {
-    scope.getSymbolTable().setbool(ident, alsoSet, true, presenceCondition);
-  }
+  for (Boolean b : typedef)
+    {
+      STField field = b ? STField.TYPEDEF : STField.IDENT;
+      scope.getSymbolTable().setbool(ident, field, true, presenceCondition);
+      if (null != alsoSet) {
+	scope.getSymbolTable().setbool(ident, alsoSet, true, presenceCondition);
+      }
+    }
 }
 
 private static Binding grokdeclarator(Node declarator, Type type) {
@@ -3872,10 +3901,18 @@ private static Specifiers makeStructSpec(Subparser subparser,
   return specs;
 }
 
-private Type getType(TypeBuilder t, DeclBuilder d)
+private List<Universe> getType(TypeBuilder t, DeclBuilder d)
 {
-  d.addType(t.toType());
-  return d.toType();
+  List<Universe> ret = new LinkedList<Universe>();
+  List<PresenceCondition> cond = t.getConditions();
+  List<Type> types = t.toType();
+  for (int i = 0; i < cond.size(); ++i)
+    {
+      DeclBuilder temp = new DeclBuilder(d);
+      temp.addType(types.get(i));
+      ret.add(new Universe(mangleRenaming("",d.getID()), temp.toType(), cond.get(i)));
+    }
+  return ret;
 }
 
 private StringBuilder addMapping(Subparser subparser, TypeBuilder t, DeclBuilder d)
@@ -3883,19 +3920,40 @@ private StringBuilder addMapping(Subparser subparser, TypeBuilder t, DeclBuilder
   StringBuilder sb = new StringBuilder();
   if (t == null || d == null || !t.getIsValid() || !d.getIsValid())
     return sb;
-  Type type = getType(t,d);
-  PresenceConditionManager.PresenceCondition presenceCondition = subparser.getPresenceCondition();
+  List<Universe> unis = getType(t,d);
   CContext scope = (CContext) subparser.scope;
-  sb = scope.getSymbolTable().addMapping(d.getID(), type, presenceCondition);
+  sb.append(scope.getSymbolTable().addMapping(d.getID(), unis));
   // TODO: turn sb into a full declaration before returning it
   return sb;
 }
 
-private Type getTypeOfTypedef(Subparser subparser, String typeName)
+private static long varcount = 0;
+private final static char[] charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
+private final static Random random = new Random();
+private final static int RAND_SIZE = 5;
+
+private String randomString(int string_size) {
+  StringBuilder randomstring = new StringBuilder();
+  for (int i = 0; i < string_size; i++) {
+    randomstring.append(charset[random.nextInt(charset.length)]);
+  }
+  return randomstring.toString();
+}
+
+private String mangleRenaming(String prefix, String ident) {
+    // don't want to exceed c identifier length limit (31)
+    if (ident.length() > 22) {
+      // shorten ident to be at max, 22 chars
+      StringBuilder sb = new StringBuilder(ident);
+      sb = sb.delete(23, ident.length());
+      ident = sb.toString();
+    }
+    return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
+    }
+
+private List<Universe> getTypeOfTypedef(Subparser subparser, String typeName)
 {
-  //Type foundType = ((CContext)subparser.scope).getTypeOfTypedef(typeName, subparser.getPresenceCondition());
-  //TODO: add checking for typedefs of typedefs
-  Type foundType = new UnitT(); // TODO: remove this and uncomment the above code
+  List<Universe> foundType = ((CContext)subparser.scope).getTypesOfTypedef(typeName, subparser.getPresenceCondition());
   return foundType;
 }
 

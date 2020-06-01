@@ -91,9 +91,11 @@ SOURCE = \
 	GCCShunt.java \
 	cdiff.java \
 	FunctionChecker.java \
-	TypeBuilder.java \
 	DeclBuilder.java \
+	TypeBuilder.java \
+	TypeBuilderUnit.java \
 	Multiverse.java \
+	Universe.java \
 	Desugarer.java \
 	SuperC.java
 

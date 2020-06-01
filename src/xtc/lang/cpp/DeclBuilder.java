@@ -15,6 +15,7 @@ public class DeclBuilder
     List<String> arrays;
     DeclBuilder inner;
     boolean isValid;
+    TypeBuilderUnit quals;
     Type basicType;
 
     // converts the declbuilder to a type object
@@ -62,6 +63,21 @@ public class DeclBuilder
     	inner = null;
     	isValid = true;
       basicType = new UnitT();
+    }
+
+    public DeclBuilder(DeclBuilder d)
+    {
+    	identifier = d.identifier;
+    	numPointers = d.numPointers;
+    	arrays = new LinkedList<String>();
+	for (String x : d.arrays)
+	    arrays.add(x);
+	if (d.inner != null)
+	    inner = new DeclBuilder(d.inner);
+	else
+	    inner = null;
+    	isValid = d.isValid;
+	basicType = d.basicType.copy();
     }
 
     public DeclBuilder(String name)
@@ -147,13 +163,24 @@ public class DeclBuilder
       if (!identifier.equals(""))
 	      output += identifier;
 	    if (inner != null)
-	      output += "(" + inner.toString() + ")";
+		{
+		    if (quals == null)
+			output += "(" + inner.toString() + ")";
+		    else
+			output += quals.qualString() + " " + inner.toString(); 
+		}
 	    for (int i = 0; i < arrays.size(); ++i) {
 		    output += "[";
 		    output += arrays.get(i);
 		    output += "]";
 	    }
 	    return output;
+    }
+
+    public void addQuals(TypeBuilder t, DeclBuilder d)
+    {
+	quals = t.getQualTU();
+	inner = d;
     }
 
     public boolean getIsValid()
