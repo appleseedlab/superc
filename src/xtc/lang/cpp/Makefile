@@ -94,6 +94,8 @@ SOURCE = \
 	DeclBuilder.java \
 	TypeBuilder.java \
 	TypeBuilderUnit.java \
+	AbstractMultiverse.java \
+	NodeMultiverse.java \
 	Multiverse.java \
 	Universe.java \
 	Desugarer.java \

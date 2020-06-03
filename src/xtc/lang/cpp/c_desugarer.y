@@ -191,6 +191,8 @@ import xtc.lang.cpp.Syntax.Directive;
 import xtc.lang.cpp.Syntax.Conditional;
 import xtc.lang.cpp.Syntax.Error;
 
+import xtc.lang.cpp.AbstractMultiverse;
+
 import xtc.type.AliasT;
 import xtc.type.ArrayT;
 import xtc.type.BooleanT;
@@ -231,9 +233,10 @@ import xtc.lang.cpp.ForkMergeParser.StackFrame;
 
 import java.lang.StringBuilder;
 
- import java.util.ArrayList;
- import java.util.List;
- import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.LinkedList;
+import java.util.Iterator;
 
 import java.io.File;
 import java.io.Reader;
@@ -273,8 +276,15 @@ TranslationUnit:  /** complete, passthrough **/
             writer.write("#include <stdbool.h>\n");
             writer.write("#include \"desugared_macros.h\" // configuration macros converted to C variables\n");
 
+            // TODO: handle functions properly and remove this main function placeholder
+            writer.write("int main(void) {\n");
+
             // writing file-dependent transformation code
-            writer.write(getStringBuilderAt(subparser, 1).toString());
+            writer.write(getStringBuilderAt(subparser, 1).toString() + "\n");
+
+            // TODO: handle functions properly and remove this main function placeholder
+            writer.write("return 0;\n}\n");
+
             writer.flush();
           }
           catch(Exception IOException) {
@@ -290,35 +300,27 @@ ExternalDeclarationList: /** list, complete **/
         /* empty */  // ADDED gcc allows empty program
         | ExternalDeclarationList ExternalDeclaration
         {
-          StringBuilder sb = new StringBuilder();
-          for (int i = 1; i <= 2; i++)
-            sb.append(getStringBuilderAt(subparser, i));
-          setStringBuilder(value, sb);
+          getAndSetSBAt(1, subparser, value);
         }
         ;
 
 ExternalDeclaration:  /** passthrough, complete **/
         FunctionDefinitionExtension
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | DeclarationExtension
         {
-          StringBuilder sb = new StringBuilder();
-          for (int i = 1; i <= 2; i++)
-            sb.append(getStringBuilderAt(subparser, i));
-          setStringBuilder(value, sb);
+          getAndSetSB(2, subparser, value);
+          // TODO
         }
         | AssemblyDefinition
         {
-          StringBuilder sb = new StringBuilder();
-          for (int i = 1; i <= 2; i++)
-            sb.append(getStringBuilderAt(subparser, i));
-          setStringBuilder(value, sb);
+          // TODO
         }
         | EmptyDefinition
         {
-          StringBuilder sb = new StringBuilder();
-          for (int i = 1; i <= 2; i++)
-            sb.append(getStringBuilderAt(subparser, i));
-          setStringBuilder(value, sb);
+          // TODO
         }
         ;
 
@@ -328,34 +330,33 @@ EmptyDefinition:  /** complete **/
 
 FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
         FunctionDefinition
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         | __EXTENSION__ FunctionDefinition
         {
-          StringBuilder sb = new StringBuilder();
-          for (int i = 1; i <= 2; i++)
-            sb.append(getStringBuilderAt(subparser, i));
-          setStringBuilder(value, sb);
+          getAndSetSBCond(2, subparser, value);
         }
         ;
 
 FunctionDefinition:  /** complete **/ // added scoping
-         FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
-        | FunctionOldPrototype
+        FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
-          ReenterScope(subparser);
-          {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 1; i <= 2; i++)
-              sb.append(getStringBuilderAt(subparser, i));
-            setStringBuilder(value, sb);
-          }
+          getAndSetSBCondAt(3, subparser, value);
         }
-        DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
+        | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
+        {
+          getAndSetSBCond(9, subparser, value);
+        }
         ;
 
 /* Functions have their own compound statement because of the need for
    reentering scope. */
 FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
         LocalLabelDeclarationListOpt DeclarationOrStatementList
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         ;
 
 /* Having a function prototype node in the AST allows this to be a
@@ -534,14 +535,32 @@ NestedFunctionOldPrototype:  /** nomerge **/
 
 DeclarationExtension:  /** passthrough, complete **/  // ADDED
         Declaration
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         | __EXTENSION__ Declaration
+        {
+          // TODO
+        }
         ;
 
 Declaration:  /** complete **/
         SUEDeclarationSpecifier { KillReentrantScope(subparser); } SEMICOLON
+        {
+          // TODO
+        }
         | SUETypeSpecifier { KillReentrantScope(subparser); } SEMICOLON
+        {
+          // TODO
+        }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
+        {
+          getAndSetSBCondAt(3, subparser, value);
+        }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
+        {
+          // TODO
+        }
         ;
 
 /* Note that if a typedef were  redeclared,  then  a  declaration
@@ -567,32 +586,35 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
 
 DeclaringList:  /** nomerge **/
         DeclarationSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
-	      {
+	{
       	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
       	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
       	  System.out.println("testing renaming declaration: " + type.toType() + " " + addMapping(subparser, type, decl) + ";");
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getTypeBuilderAt(subparser, 5), getDeclBuilderAt(subparser, 4));
         }
-        | TypeSpecifier Declarator
+        | TypeSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-      	  DeclBuilder decl = getDeclBuilderAt(subparser, 1);
-      	  TypeBuilder type = getTypeBuilderAt(subparser, 2);
-      	  System.out.println("testing renaming declaration: " + type.toType() + " " + addMapping(subparser, type, decl) + ";");
-
-          // stores the written variable renaming declarations
-          // TODO: store this written code here
-          //setStringBuilder(value, type.toType() + " " + addMapping(subparser, type, decl) + ";");
-
+      	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
+      	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
 
       	  saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindIdent(subparser, getTypeBuilderAt(subparser, 2), getDeclBuilderAt(subparser, 1));
-        } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
+          bindIdent(subparser, type, decl);
+	  
+          String oldIdent = decl.identifier;
+          decl.identifier = addMapping(subparser, type, decl).toString();
+          StringBuilder sb = new StringBuilder();
+          sb.append("\n" + type.toType() + " " + decl + ";" + " // renamed from " + oldIdent);
+          setStringBuilder(value, sb);
+        }
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
           // reuses saved base type
 	        bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
+        {
+          // TODO
+        }
         ;
 
 DeclarationSpecifier:  /** passthrough, nomerge **/
@@ -1451,10 +1473,16 @@ TypeName: /** nomerge **/
 InitializerOpt: /** nomerge **/
         /* nothing */
         | ASSIGN DesignatedInitializer
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         ;
 
 DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         Initializer
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | Designation Initializer
         ;
 
@@ -1465,8 +1493,17 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
 
 Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists
         LBRACE MatchedInitializerList RBRACE
+        {
+          // TODO
+        }
         | LBRACE MatchedInitializerList DesignatedInitializer RBRACE
+        {
+          // TODO
+        }
         | AssignmentExpression
+        {
+          getAndSetSBAt(4, subparser, value);
+        }
         ;
 
 InitializerList:  /** nomerge **/ //modified so that COMMAS are on the right
@@ -1871,12 +1908,35 @@ PostfixAbstractDeclarator: /** nomerge **/
 
 Statement:  /** passthrough, complete **/
         LabeledStatement
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         | CompoundStatement
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         | ExpressionStatement
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         | SelectionStatement
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         | IterationStatement
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         | JumpStatement
+        {
+          // TODO
+          //getAndSetSBCondAt(1, subparser, value);
+          setStringBuilder(value, new StringBuilder());
+        }
         | AssemblyStatement  // ADDED
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         ;
 
 LabeledStatement:  /** complete **/  // ADDED attributes
@@ -1894,17 +1954,37 @@ LabeledStatement:  /** complete **/  // ADDED attributes
         ;*/
 
 CompoundStatement:  /** complete **/  /* ADDED */
-LBRACE { EnterScope(subparser); }LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
+        LBRACE
+        {
+          EnterScope(subparser);
+        }
+        LocalLabelDeclarationListOpt DeclarationOrStatementList
+        {
+          ExitScope(subparser);
+        }
+        RBRACE
+        {
+          getAndSetSBCond(4, subparser, value);
+        }
         ;
 
 LocalLabelDeclarationListOpt: /** complete **/
         /* empty */
         | LocalLabelDeclarationList
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         ;
 
 LocalLabelDeclarationList:  /** list, complete **/
         LocalLabelDeclaration
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | LocalLabelDeclarationList LocalLabelDeclaration
+        {
+          getAndSetSB(3, subparser, value);
+        }
         ;
 
 LocalLabelDeclaration: /** complete **/  /* ADDED */
@@ -1918,17 +1998,35 @@ LocalLabelList:  /** list, complete **/  // ADDED
 
 DeclarationOrStatementList:  /** list, complete **/  /* ADDED */
         | DeclarationOrStatementList DeclarationOrStatement
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         ;
 
 DeclarationOrStatement: /** passthrough, complete **/  /* ADDED */
         DeclarationExtension
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         | Statement
+        {
+          getAndSetSBCond(2, subparser, value);
+        }
         | NestedFunctionDefinition
+        {
+          getAndSetSBCond(2, subparser, value);
+        }
         ;
 
 DeclarationList:  /** list, complete **/
         DeclarationExtension
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | DeclarationList DeclarationExtension
+        {
+          getAndSetSB(3, subparser, value);
+        }
         ;
 
 /*StatementList:
@@ -1938,6 +2036,59 @@ DeclarationList:  /** list, complete **/
 
 ExpressionStatement:  /** complete **/
         ExpressionOpt SEMICOLON
+        {
+          NodeMultiverse condChildren = getNodeMultiverse(getNodeAt(subparser, 2), subparser.getPresenceCondition().presenceConditionManager());
+          System.err.println(condChildren);
+
+          StringBuilder sb = new StringBuilder();
+          // iterates through every pair of (Node, PresenceCondition)
+          // and appends all statements stored in the nodes to this stringbuilder
+          Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
+          String next_ident;
+          List<Universe> renamings;
+
+          // iterates through every version of the statement
+          while (children.hasNext()) {
+            AbstractMultiverse.Element<Node> next_node = children.next();
+            // NOTE: the 0th element of this list is not a valid statement
+            LinkedList<StringBuilder> allStatements = new LinkedList<StringBuilder>();
+            allStatements.add(new StringBuilder());
+
+            // iterates through all pieces of the statement
+            for (Object child : next_node.data) {
+              if (((Node)child).hasName("PrimaryIdentifier")) {
+                // get the renamings and generate their conditionals
+                next_ident = getStringBuilder((Node)child).toString();
+                CContext scope = (CContext) subparser.scope;
+                renamings = scope.getSymbolTable().getRenamings(next_ident);
+                // iterates through the list of pairs of (renaming, PC) stored in renamings
+                // continually AND's the statement PC with the renaming PC
+                // then write the "if (AND'd PC) { statement with renamed variable }"
+                for (Universe renaming : renamings) {
+                  StringBuilder temp = new StringBuilder("\nif (" + next_node.cond.and(renaming.pc) + ") {\n");
+                  if (! allStatements.get(0).toString().equals("null"))
+                    temp.append(allStatements.get(0).toString());
+                  temp.append(renaming.rename);
+                  allStatements.add(temp);
+                }
+              } else {
+                // appends this piece of the statement to all versions of the statement
+                for (StringBuilder curStatement : allStatements) {
+                  curStatement.append(getStringBuilder((Node)child));
+                }
+              }
+            }
+            // removes the first stringbuilder in the list
+            // (this one is only used as a base for the others)
+            allStatements.remove();
+            // finishes the statement and adds it to the SB that will be set at this node
+            for (StringBuilder statement : allStatements) {
+              statement.append(";\n}\n");
+              sb.append(statement);
+            }
+          }
+          setStringBuilder(value, sb);
+        }
         ;
 
 SelectionStatement:  /** complete **/
@@ -1982,13 +2133,39 @@ ReturnStatement:  /** complete **/
 /* CONSTANTS */
 Constant: /** passthrough, nomerge **/
         FLOATINGconstant
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(((Node)value).getTokenText());
+          setStringBuilder(value, sb);
+        }
         | INTEGERconstant
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(((Node)value).getTokenText());
+          setStringBuilder(value, sb);
+        }
         /* We are not including ENUMERATIONConstant here  because  we
         are  treating  it like a variable with a type of "enumeration
         Constant".  */
         | OCTALconstant
+        {
+          // TODO: get the actual value
+          StringBuilder sb = new StringBuilder();
+          sb.append(((Node)value).getTokenText());
+          setStringBuilder(value, sb);
+        }
         | HEXconstant
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(((Node)value).getTokenText());
+          setStringBuilder(value, sb);
+        }
         | CHARACTERconstant
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(((Node)value).getTokenText());
+          setStringBuilder(value, sb);
+        }
         ;
 
 /* STRING LITERALS */
@@ -2001,7 +2178,15 @@ StringLiteralList:  /** list, nomerge **/
 /* EXPRESSIONS */
 PrimaryExpression:  /** nomerge, passthrough **/
         PrimaryIdentifier
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | Constant
+        {
+
+          getAndSetSBAt(1, subparser, value);
+
+        }
         | StringLiteralList
         | LPAREN Expression RPAREN
         | StatementAsExpression  // ADDED
@@ -2009,7 +2194,13 @@ PrimaryExpression:  /** nomerge, passthrough **/
         ;
 
 PrimaryIdentifier: /** nomerge **/
-        IDENTIFIER { useIdent(subparser, getNodeAt(subparser, 1)); }  /* We cannot use a typedef name as a variable */
+        IDENTIFIER
+        {
+          useIdent(subparser, getNodeAt(subparser, 1));
+          StringBuilder sb = new StringBuilder();
+          sb.append(((Node)getNodeAt(subparser, 1)).getTokenText());
+          setStringBuilder(value, sb);
+        }  /* We cannot use a typedef name as a variable */
         ;
 
 VariableArgumentAccess:  /** nomerge **/  // ADDED
@@ -2022,6 +2213,9 @@ StatementAsExpression:  /** nomerge **/  //ADDED
 
 PostfixExpression:  /** passthrough, nomerge **/
         PrimaryExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | Subscript
         | FunctionCall
         | DirectSelection
@@ -2071,6 +2265,9 @@ ExpressionList:  /** list, nomerge **/
 
 UnaryExpression:  /** passthrough, nomerge **/
         PostfixExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | ICR UnaryExpression
         | DECR UnaryExpression
         | Unaryoperator CastExpression
@@ -2120,11 +2317,17 @@ Unaryoperator:
 
 CastExpression:  /** passthrough, nomerge **/
         UnaryExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | LPAREN TypeName RPAREN CastExpression
         ;
 
 MultiplicativeExpression:  /** passthrough, nomerge **/
         CastExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | MultiplicativeExpression STAR CastExpression
         | MultiplicativeExpression DIV CastExpression
         | MultiplicativeExpression MOD CastExpression
@@ -2132,89 +2335,219 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
 
 AdditiveExpression:  /** passthrough, nomerge **/
         MultiplicativeExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | AdditiveExpression PLUS MultiplicativeExpression
         | AdditiveExpression MINUS MultiplicativeExpression
         ;
 
 ShiftExpression:  /** passthrough, nomerge **/
         AdditiveExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | ShiftExpression LS AdditiveExpression
         | ShiftExpression RS AdditiveExpression
         ;
 
 RelationalExpression:  /** passthrough, nomerge **/
         ShiftExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | RelationalExpression LT ShiftExpression
+        {
+          // TODO
+        }
         | RelationalExpression GT ShiftExpression
+        {
+          // TODO
+        }
         | RelationalExpression LE ShiftExpression
+        {
+          // TODO
+        }
         | RelationalExpression GE ShiftExpression
+        {
+          // TODO
+        }
         ;
 
 EqualityExpression:  /** passthrough, nomerge **/
         RelationalExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | EqualityExpression EQ RelationalExpression
+        {
+          // TODO
+        }
         | EqualityExpression NE RelationalExpression
+        {
+          // TODO
+        }
         ;
 
 AndExpression:  /** passthrough, nomerge **/
         EqualityExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | AndExpression AND EqualityExpression
+        {
+          // TODO
+        }
         ;
 
 ExclusiveOrExpression:  /** passthrough, nomerge **/
         AndExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | ExclusiveOrExpression XOR AndExpression
+        {
+          // TODO
+        }
         ;
 
 InclusiveOrExpression:  /** passthrough, nomerge **/
         ExclusiveOrExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | InclusiveOrExpression PIPE ExclusiveOrExpression
+        {
+          //TODO
+        }
         ;
 
 LogicalAndExpression:  /** passthrough, nomerge **/
         InclusiveOrExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | LogicalAndExpression ANDAND InclusiveOrExpression
+        {
+          // TODO
+        }
         ;
 
 LogicalORExpression:  /** passthrough, nomerge **/
         LogicalAndExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | LogicalORExpression OROR LogicalAndExpression
+        {
+          // TODO
+        }
         ;
 
 ConditionalExpression:  /** passthrough, nomerge **/
         LogicalORExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | LogicalORExpression QUESTION Expression COLON
                 ConditionalExpression
+        {
+          // TODO
+        }
         | LogicalORExpression QUESTION COLON  // ADDED gcc innomerge conditional
                 ConditionalExpression
+        {
+          // TODO
+        }
         ;
 
 AssignmentExpression:  /** passthrough, nomerge **/
         ConditionalExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | UnaryExpression AssignmentOperator AssignmentExpression
+        {
+          getAndSetSB(3, subparser, value);
+        }
         ;
 
 AssignmentOperator: /** nomerge **/
         ASSIGN
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(" = ");
+          setStringBuilder(value, sb);
+        }
         | MULTassign
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(" *= ");
+          setStringBuilder(value, sb);
+        }
         | DIVassign
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(" /= ");
+          setStringBuilder(value, sb);
+        }
         | MODassign
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(" %= ");
+          setStringBuilder(value, sb);
+        }
         | PLUSassign
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(" += ");
+          setStringBuilder(value, sb);
+        }
         | MINUSassign
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(" -= ");
+          setStringBuilder(value, sb);
+        }
         | LSassign
+        {
+          // TODO
+        }
         | RSassign
+        {
+          // TODO
+        }
         | ANDassign
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(" &= ");
+          setStringBuilder(value, sb);
+        }
         | ERassign
+        {
+          // TODO
+        }
         | ORassign
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(" |= ");
+          setStringBuilder(value, sb);
+        }
         ;
 
 ExpressionOpt:  /** passthrough, nomerge **/
         /* Nothing */
         | Expression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         ;
 
 Expression:  /** passthrough, nomerge **/
         AssignmentExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | Expression COMMA AssignmentExpression
         ;
 
@@ -2248,9 +2581,6 @@ AttributeListOpt:   // ADDED
 
 AttributeList:  /** list, nomerge **/  // ADDED
         Word AttributeExpressionOpt
-	{
-	  System.out.println("attributeList");
-	}
         | AttributeList COMMA Word AttributeExpressionOpt
         ;
 
@@ -2462,7 +2792,72 @@ private StringBuilder getStringBuilderAt(Subparser subparser, int component) {
   return (StringBuilder) getNodeAt(subparser, component).getProperty(STRINGBUILDER);
 }
 
+private StringBuilder getStringBuilder(Node n) {
+  return (StringBuilder) n.getProperty(STRINGBUILDER);
+}
 
+// gets the stringbuilders from a non-'complete' node's children
+private void getAndSetSB(int numChildren, Subparser subparser, Object value)
+{
+  StringBuilder sb = new StringBuilder();
+  StringBuilder temp;
+  for (int i = numChildren; i >= 1; i--) {
+    temp = getStringBuilderAt(subparser, i);
+    if (!sb.toString().equals("null"))
+      sb.append(temp);
+  }
+  setStringBuilder(value, sb);
+}
+
+// gets the stringbuilders from a non-'complete' node's child
+private void getAndSetSBAt(int child, Subparser subparser, Object value)
+{
+  StringBuilder sb = new StringBuilder();
+  StringBuilder temp;
+  temp = getStringBuilderAt(subparser, child);
+  if (!sb.toString().equals("null"))
+      sb.append(temp);
+  setStringBuilder(value, sb);
+}
+
+// gets the stringbuilders from a 'complete' node's children
+private void getAndSetSBCond(int numChildren, Subparser subparser, Object value)
+{
+  NodeMultiverse condChildren;
+  StringBuilder sb = new StringBuilder();
+  for (int i = numChildren; i >= 1; i--)
+  {
+    condChildren = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
+
+    // iterates through every pair of (Node, PresenceCondition)
+    // and appends all declarations stored in the nodes to this stringbuilder
+    Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
+    while (children.hasNext()) {
+      AbstractMultiverse.Element<Node> next_node = children.next();
+      StringBuilder temp = getStringBuilder(next_node.data);
+      if (!temp.toString().equals("null"))
+        sb.append(temp);
+    }
+  }
+  setStringBuilder(value, sb);
+}
+
+// gets the stringbuilders from a 'complete' node's child
+private void getAndSetSBCondAt(int child, Subparser subparser, Object value)
+{
+  NodeMultiverse condChildren = getNodeMultiverse(getNodeAt(subparser, child), subparser.getPresenceCondition().presenceConditionManager());
+  StringBuilder sb = new StringBuilder();
+  // iterates through every pair of (Node, PresenceCondition)
+  // and appends all declarations stored in the nodes to this stringbuilder
+  Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
+  while (children.hasNext()) {
+    AbstractMultiverse.Element<Node> next_node = children.next();
+    StringBuilder temp = getStringBuilder(next_node.data);
+    if (!temp.toString().equals("null"))
+      sb.append(temp);
+  }
+  setStringBuilder(value, sb);
+}
 
 /** True when statistics should be output. */
 private boolean languageStatistics = false;
@@ -3924,8 +4319,7 @@ private StringBuilder addMapping(Subparser subparser, TypeBuilder t, DeclBuilder
     return sb;
   List<Universe> unis = getType(t,d);
   CContext scope = (CContext) subparser.scope;
-  sb.append(scope.getSymbolTable().addMapping(d.getID(), unis));
-  // TODO: turn sb into a full declaration before returning it
+  sb = scope.getSymbolTable().addMapping(d.getID(), unis);
   return sb;
 }
 
@@ -3980,6 +4374,30 @@ private void checkNotParameter(Node node, String kind) {
 
   /*   runtime.warning(msg, node); */
   /* } */
+}
+
+private NodeMultiverse getNodeMultiverse(Node node, PresenceConditionManager presenceConditionManager) {
+  NodeMultiverse mv = new NodeMultiverse();
+
+  if (node instanceof GNode
+      && ((GNode) node).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
+    PresenceCondition childCondition = null;
+    for (Object bo : node) {
+      if (bo instanceof PresenceCondition) {
+        childCondition = (PresenceCondition) bo;
+      } else if (bo instanceof Node) {
+        Node childNode = (Node) bo;
+        mv.add(childNode, childCondition);
+      } else {
+        System.err.println("unsupported AST child type in getNodeMultiverse");
+        System.exit(1);
+      }
+    }
+  } else {
+    mv.add(node, presenceConditionManager.new PresenceCondition(true));
+  }
+
+  return mv;
 }
 
 // ---------- Declarators

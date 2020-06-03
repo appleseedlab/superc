@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
 import java.util.Random;
 
 import xtc.tree.Location;
@@ -721,7 +722,7 @@ public class CContext implements ParsingContext {
 
       return this;
     }
-      public String addMapping(String ident, List<Universe> unis)
+      public StringBuilder addMapping(String ident, List<Universe> unis)
       {
 	  multiverse.addMapping(ident, unis);
 	  /*if (renaming.toString().equals(""))
@@ -730,8 +731,13 @@ public class CContext implements ParsingContext {
 		  System.exit(1);
 	      }
 	      System.out.println(multiverse.toString());*/
-	  return "";//renaming;
+	  StringBuilder s = new StringBuilder("");
+	  return s;//renaming;
       }
+    public List<Universe> getRenamings(String ident)
+    {
+      return multiverse.mapping.get(ident);
+    }
 
       public List<Universe> getTypedefsFromMultiverse(String ident)
       {
