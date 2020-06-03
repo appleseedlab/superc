@@ -7,6 +7,7 @@ import xtc.type.Type;
 import xtc.type.UnitT;
 import xtc.type.PointerT;
 import xtc.type.ArrayT;
+import xtc.type.TypedefT;
 
 public class DeclBuilder
 {
@@ -29,27 +30,30 @@ public class DeclBuilder
 
       // recursively gets the inner declbuilder information
       if (inner == null)
-        type = basicType;
+	  type = basicType;
       else
-        type = inner.toType();
-
+	  type = inner.toType();
+      
       for (String arr : arrays) {
         if (arr.equals("")) { // array length has no expression
           // NOTE: array length is internally being set to -1.
-          type = new ArrayT(type, false);
+	    type = new ArrayT(type, false);
         }
         else if (arr.equals("const Expr")) { // array length is a constant expression
           long length = -1; // TODO: possibly evaluate the constant expression, and set length to that
-          type = new ArrayT(type, length);
+	  type = new ArrayT(type, length);
         } else { // array length is a variable expression
           // NOTE: array length is internally being set to -1.
-          type = new ArrayT(type, true);
+		type = new ArrayT(type, true);
         }
       }
 
       // continually create new pointerT objects where each one points to the previous one
       for (int i = 0; i < numPointers; i++) {
-        type = new PointerT(type);
+        if(type instanceof TypedefT)
+	    ((TypedefT)type).makePointer();
+	else
+	    type = new PointerT(type);
       }
 
       return type;

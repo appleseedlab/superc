@@ -24,6 +24,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Random;
@@ -137,18 +138,19 @@ public class CContext implements ParsingContext {
     this.reentrant = scope.reentrant;
   }
 
-    public Type getTypeOfTypedef(String ident, PresenceCondition presenceCondition) {
+    public List<Universe> getTypesOfTypedef(String ident, PresenceCondition presenceCondition) {
 	CContext scope;
 
 	scope = this;
+	List<Universe> unis = new LinkedList<Universe>();
 	while (scope != null)
 	    {
-		Type foundType = scope.getSymbolTable().getTypedefFromMultiverse(ident);
-		if (foundType != null)
-		    return foundType;
+		List<Universe> foundTypes = scope.getSymbolTable().getTypedefsFromMultiverse(ident);
+		for (Universe u : foundTypes)
+		    unis.add(u);
 		scope = scope.parent;
 	    }
-	return null;
+	return unis;
     }
 
   public ParsingContext fork() {
@@ -719,21 +721,21 @@ public class CContext implements ParsingContext {
 
       return this;
     }
-      public StringBuilder addMapping(String ident, Type type, PresenceCondition p)
+      public String addMapping(String ident, List<Universe> unis)
       {
-        StringBuilder renaming = multiverse.addMapping(ident, mangleRenaming("", ident), type, p);
-	  if (renaming.toString().equals(""))
+	  multiverse.addMapping(ident, unis);
+	  /*if (renaming.toString().equals(""))
 	      {
 		  System.out.println("Redefinition of identifier: " + ident);
 		  System.exit(1);
 	      }
-	  System.out.println(multiverse.toString());
-        return renaming;
+	      System.out.println(multiverse.toString());*/
+	  return "";//renaming;
       }
 
-      public Type getTypedefFromMultiverse(String ident)
+      public List<Universe> getTypedefsFromMultiverse(String ident)
       {
-	  return multiverse.getTypedefOf(ident);
+	  return multiverse.getTypedefsOf(ident);
       }
 
     public void delRef() {

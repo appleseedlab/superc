@@ -572,7 +572,7 @@ DeclaringList:  /** nomerge **/
       	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
       	  System.out.println("testing renaming declaration: " + type.toType() + " " + addMapping(subparser, type, decl) + ";");
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
-          bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));
+          bindIdent(subparser, getTypeBuilderAt(subparser, 5), getDeclBuilderAt(subparser, 4));
         }
         | TypeSpecifier Declarator
         {
@@ -586,7 +586,7 @@ DeclaringList:  /** nomerge **/
 
 
       	  saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          bindIdent(subparser, getTypeBuilderAt(subparser, 2), getDeclBuilderAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
@@ -922,7 +922,7 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
 	  TypeBuilder tb = getTypeBuilderAt(subparser, 2);
           TypeBuilder tb1 = new TypeBuilder();
 	  String typeName = getStringAt(subparser, 1);
-	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
+	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition());
           setTypeBuilder(value, tb.combine(tb1));
 	}
         | TypedefDeclarationSpecifier DeclarationQualifier
@@ -939,7 +939,7 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
 	{
 	  TypeBuilder tb1 = new TypeBuilder();
 	  String typeName = getStringAt(subparser, 1);
-	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
+	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition());
           setTypeBuilder(value, tb1);
 	}
         | TypeQualifierList TYPEDEFname
@@ -947,8 +947,9 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
 	  TypeBuilder tb = getTypeBuilderAt(subparser, 2);
           TypeBuilder tb1 = new TypeBuilder();
 	  String typeName = getStringAt(subparser, 1);
-	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName));
+	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition());
           setTypeBuilder(value, tb.combine(tb1));
+	  
 	}
 | TypedefTypeSpecifier TypeQualifier
 {
@@ -2754,6 +2755,7 @@ public void bindIdent(Subparser subparser, Node typespec, Node declarator) {
  * might be null.
  */
 public void bindIdent(Subparser subparser, Node typespec, Node declarator, STField alsoSet) {
+  System.out.println(typespec.toString() + declarator.toString());
   StackFrame stack = subparser.stack;
   PresenceConditionManager.PresenceCondition presenceCondition = subparser.getPresenceCondition();
   CContext scope = (CContext) subparser.scope;
@@ -2853,28 +2855,28 @@ public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder dec
   String ident = declarator.getID();
 
   List<Boolean> typedef = typespec.isTypeDef();
-
-  if (languageStatistics) {
-    for (Boolean b : typedef)
-    if (b) {
-      Location location = subparser.lookahead.token.syntax.getLocation();
-      System.err.println(String.format("typedef %s %s", ident, location));
-    }
-  }
-
-  if (showErrors) {
-    System.err.println("bind: " + ident + " " + typedef);
-  }
-  if (debug) {
-    System.err.println("def: " + ident + " " + alsoSet);
-  }
-  for (Boolean b : typedef)
+  List<PresenceCondition> conds = typespec.getConditions();
+  for (int i = 0; i < typedef.size(); ++i)
     {
-      STField field = b ? STField.TYPEDEF : STField.IDENT;
-      scope.getSymbolTable().setbool(ident, field, true, presenceCondition);
-      if (null != alsoSet) {
-	scope.getSymbolTable().setbool(ident, alsoSet, true, presenceCondition);
+      if (languageStatistics) {
+	if (typedef.get(i)) {
+	  Location location = subparser.lookahead.token.syntax.getLocation();
+	  System.err.println(String.format("typedef %s %s", ident, location));
+	}
       }
+      
+      if (showErrors) {
+	System.err.println("bind: " + ident + " " + typedef.get(i));
+      }
+      if (debug) {
+	System.err.println("def: " + ident + " " + alsoSet);
+      }
+      STField field = typedef.get(i) ? STField.TYPEDEF : STField.IDENT;
+      scope.getSymbolTable().setbool(ident, field, true, conds.get(i));
+      if (null != alsoSet) {
+	scope.getSymbolTable().setbool(ident, alsoSet, true,conds.get(i));
+      }
+      
     }
 }
 

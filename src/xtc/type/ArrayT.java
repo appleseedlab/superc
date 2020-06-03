@@ -19,6 +19,7 @@
 package xtc.type;
 
 import java.io.IOException;
+import xtc.tree.Attribute;
 
 /**
  * An array type.  An array can either be of fixed or variable length,
@@ -59,6 +60,8 @@ public class ArrayT extends DerivedT {
     this.type      = type;
     this.varlength = varlength;
     this.length    = -1;
+    for (Attribute a : type.attributes())
+	addAttribute(a);
   }
 
   /**
@@ -71,6 +74,8 @@ public class ArrayT extends DerivedT {
     this.type      = type;
     this.varlength = false;
     this.length    = length;
+    for (Attribute a : type.attributes())
+	addAttribute(a);
   }
 
   /**

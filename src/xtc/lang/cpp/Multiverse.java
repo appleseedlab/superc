@@ -54,6 +54,7 @@ public class Multiverse
 		      value.add(x);
 		  }
 	  }
+      System.out.println(toString());
     }
 
     public void delRefs()
@@ -79,11 +80,18 @@ public class Multiverse
 	List<Universe> ret = new LinkedList<Universe>();
 	List<Universe> value = mapping.get(ident);
 	if (value != null)
-	    for (Universe u : value)
-		{
-		    if (u.type.hasAttribute(Constants.ATT_STORAGE_TYPEDEF))
-			ret.add(u);
-		}
+	    {
+		for (Universe u : value)
+		    {
+			if (u.type.hasAttribute(Constants.ATT_STORAGE_TYPEDEF))
+			    ret.add(u);
+		    }
+		if (ret.size() == 0)
+		    {
+			System.out.println("no typedef found for id " + ident);
+			System.exit(1);
+		    }
+	    }
 	return ret;
     }
 }

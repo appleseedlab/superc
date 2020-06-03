@@ -34,4 +34,19 @@ public class TypedefT extends Type {
     {
 	return new TypedefT(typeName, typedefType.copy());
     }
+
+    public void makeArray(boolean internal)
+    {
+	typedefType = new ArrayT(typedefType, internal);
+    }
+
+    public void makeArray(long len)
+    {
+	typedefType = new ArrayT(typedefType, len);
+    }
+
+    public void makePointer()
+    {
+	typedefType = new PointerT(typedefType);
+    }
 }

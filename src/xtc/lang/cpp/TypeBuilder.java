@@ -124,15 +124,21 @@ public class TypeBuilder
 	return vals;
     }
 
-    public void setTypedef(String name, List<Universe> unis)
+    public void setTypedef(String name, List<Universe> unis, PresenceCondition p)
     {
+	System.out.println("typeBuilders: " + toString());
+	System.out.println("universe: " + unis);
 	//At this point, you can't actually have more than one
 	//typedef and typedef is the only source of
 	//explosion in a decl. builders.size SHOULD always be 1,
 	//but we will create a cross product regardless
 	List<TypeBuilderUnit> newBuilders = new LinkedList<TypeBuilderUnit>();
 	List<PresenceCondition> newConditions = new LinkedList<PresenceCondition>();
-
+	if (builders.size() == 0)
+	    {
+		builders.add(new TypeBuilderUnit());
+		conditions.add(p);
+	    }
 	for (Universe u : unis)
 	    for (int i = 0; i < builders.size(); ++i)
 		{
@@ -146,6 +152,7 @@ public class TypeBuilder
 		}
 	builders = newBuilders;
 	conditions = newConditions;
+	System.out.println("typeBuilders2: " + toString());
     }
 
     public boolean getIsValid()
