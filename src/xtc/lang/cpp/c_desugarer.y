@@ -234,6 +234,7 @@ import java.lang.StringBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Iterator;
 
 import java.io.File;
@@ -274,8 +275,15 @@ TranslationUnit:  /** complete, passthrough **/
             writer.write("#include <stdbool.h>\n");
             writer.write("#include \"desugared_macros.h\" // configuration macros converted to C variables\n");
 
+            // TODO: handle functions properly and remove this main function placeholder
+            writer.write("int main(void) {\n");
+
             // writing file-dependent transformation code
             writer.write(getStringBuilderAt(subparser, 1).toString() + "\n");
+
+            // TODO: handle functions properly and remove this main function placeholder
+            writer.write("return 0;\n}\n");
+
             writer.flush();
           }
           catch(Exception IOException) {
@@ -1457,10 +1465,16 @@ TypeName: /** nomerge **/
 InitializerOpt: /** nomerge **/
         /* nothing */
         | ASSIGN DesignatedInitializer
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         ;
 
 DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         Initializer
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | Designation Initializer
         ;
 
@@ -1471,8 +1485,17 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
 
 Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists
         LBRACE MatchedInitializerList RBRACE
+        {
+          // TODO
+        }
         | LBRACE MatchedInitializerList DesignatedInitializer RBRACE
+        {
+          // TODO
+        }
         | AssignmentExpression
+        {
+          getAndSetSBAt(4, subparser, value);
+        }
         ;
 
 InitializerList:  /** nomerge **/ //modified so that COMMAS are on the right
@@ -1859,12 +1882,35 @@ PostfixAbstractDeclarator: /** nomerge **/
 
 Statement:  /** passthrough, complete **/
         LabeledStatement
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         | CompoundStatement
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         | ExpressionStatement
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         | SelectionStatement
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         | IterationStatement
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         | JumpStatement
+        {
+          // TODO
+          //getAndSetSBCondAt(1, subparser, value);
+          setStringBuilder(value, new StringBuilder());
+        }
         | AssemblyStatement  // ADDED
+        {
+          getAndSetSBCondAt(1, subparser, value);
+        }
         ;
 
 LabeledStatement:  /** complete **/  // ADDED attributes
@@ -1892,7 +1938,7 @@ CompoundStatement:  /** complete **/  /* ADDED */
         }
         RBRACE
         {
-          getAndSetSB(4, subparser, value);
+          getAndSetSBCond(4, subparser, value);
         }
         ;
 
@@ -1938,7 +1984,7 @@ DeclarationOrStatement: /** passthrough, complete **/  /* ADDED */
         }
         | Statement
         {
-          getAndSetSBCondAt(2, subparser, value);
+          getAndSetSBCond(2, subparser, value);
         }
         | NestedFunctionDefinition
         {
@@ -1964,6 +2010,59 @@ DeclarationList:  /** list, complete **/
 
 ExpressionStatement:  /** complete **/
         ExpressionOpt SEMICOLON
+        {
+          NodeMultiverse condChildren = getNodeMultiverse(getNodeAt(subparser, 2), subparser.getPresenceCondition().presenceConditionManager());
+          System.err.println(condChildren);
+
+          StringBuilder sb = new StringBuilder();
+          // iterates through every pair of (Node, PresenceCondition)
+          // and appends all statements stored in the nodes to this stringbuilder
+          Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
+          String next_ident;
+          List<Multiverse.Universe> renamings;
+
+          // iterates through every version of the statement
+          while (children.hasNext()) {
+            AbstractMultiverse.Element<Node> next_node = children.next();
+            // NOTE: the 0th element of this list is not a valid statement
+            LinkedList<StringBuilder> allStatements = new LinkedList<StringBuilder>();
+            allStatements.add(new StringBuilder());
+
+            // iterates through all pieces of the statement
+            for (Object child : next_node.data) {
+              if (((Node)child).hasName("PrimaryIdentifier")) {
+                // get the renamings and generate their conditionals
+                next_ident = getStringBuilder((Node)child).toString();
+                CContext scope = (CContext) subparser.scope;
+                renamings = scope.getSymbolTable().getRenamings(next_ident);
+                // iterates through the list of pairs of (renaming, PC) stored in renamings
+                // continually AND's the statement PC with the renaming PC
+                // then write the "if (AND'd PC) { statement with renamed variable }"
+                for (Multiverse.Universe renaming : renamings) {
+                  StringBuilder temp = new StringBuilder("\nif (" + next_node.cond.and(renaming.pc) + ") {\n");
+                  if (! allStatements.get(0).toString().equals("null"))
+                    temp.append(allStatements.get(0).toString());
+                  temp.append(renaming.rename);
+                  allStatements.add(temp);
+                }
+              } else {
+                // appends this piece of the statement to all versions of the statement
+                for (StringBuilder curStatement : allStatements) {
+                  curStatement.append(getStringBuilder((Node)child));
+                }
+              }
+            }
+            // removes the first stringbuilder in the list
+            // (this one is only used as a base for the others)
+            allStatements.remove();
+            // finishes the statement and adds it to the SB that will be set at this node
+            for (StringBuilder statement : allStatements) {
+              statement.append(";\n}\n");
+              sb.append(statement);
+            }
+          }
+          setStringBuilder(value, sb);
+        }
         ;
 
 SelectionStatement:  /** complete **/
@@ -2008,13 +2107,39 @@ ReturnStatement:  /** complete **/
 /* CONSTANTS */
 Constant: /** passthrough, nomerge **/
         FLOATINGconstant
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(((Node)value).getTokenText());
+          setStringBuilder(value, sb);
+        }
         | INTEGERconstant
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(((Node)value).getTokenText());
+          setStringBuilder(value, sb);
+        }
         /* We are not including ENUMERATIONConstant here  because  we
         are  treating  it like a variable with a type of "enumeration
         Constant".  */
         | OCTALconstant
+        {
+          // TODO: get the actual value
+          StringBuilder sb = new StringBuilder();
+          sb.append(((Node)value).getTokenText());
+          setStringBuilder(value, sb);
+        }
         | HEXconstant
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(((Node)value).getTokenText());
+          setStringBuilder(value, sb);
+        }
         | CHARACTERconstant
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(((Node)value).getTokenText());
+          setStringBuilder(value, sb);
+        }
         ;
 
 /* STRING LITERALS */
@@ -2027,7 +2152,15 @@ StringLiteralList:  /** list, nomerge **/
 /* EXPRESSIONS */
 PrimaryExpression:  /** nomerge, passthrough **/
         PrimaryIdentifier
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | Constant
+        {
+
+          getAndSetSBAt(1, subparser, value);
+
+        }
         | StringLiteralList
         | LPAREN Expression RPAREN
         | StatementAsExpression  // ADDED
@@ -2035,7 +2168,13 @@ PrimaryExpression:  /** nomerge, passthrough **/
         ;
 
 PrimaryIdentifier: /** nomerge **/
-        IDENTIFIER { useIdent(subparser, getNodeAt(subparser, 1)); }  /* We cannot use a typedef name as a variable */
+        IDENTIFIER
+        {
+          useIdent(subparser, getNodeAt(subparser, 1));
+          StringBuilder sb = new StringBuilder();
+          sb.append(((Node)getNodeAt(subparser, 1)).getTokenText());
+          setStringBuilder(value, sb);
+        }  /* We cannot use a typedef name as a variable */
         ;
 
 VariableArgumentAccess:  /** nomerge **/  // ADDED
@@ -2048,6 +2187,9 @@ StatementAsExpression:  /** nomerge **/  //ADDED
 
 PostfixExpression:  /** passthrough, nomerge **/
         PrimaryExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | Subscript
         | FunctionCall
         | DirectSelection
@@ -2097,6 +2239,9 @@ ExpressionList:  /** list, nomerge **/
 
 UnaryExpression:  /** passthrough, nomerge **/
         PostfixExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | ICR UnaryExpression
         | DECR UnaryExpression
         | Unaryoperator CastExpression
@@ -2146,11 +2291,17 @@ Unaryoperator:
 
 CastExpression:  /** passthrough, nomerge **/
         UnaryExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | LPAREN TypeName RPAREN CastExpression
         ;
 
 MultiplicativeExpression:  /** passthrough, nomerge **/
         CastExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | MultiplicativeExpression STAR CastExpression
         | MultiplicativeExpression DIV CastExpression
         | MultiplicativeExpression MOD CastExpression
@@ -2158,89 +2309,219 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
 
 AdditiveExpression:  /** passthrough, nomerge **/
         MultiplicativeExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | AdditiveExpression PLUS MultiplicativeExpression
         | AdditiveExpression MINUS MultiplicativeExpression
         ;
 
 ShiftExpression:  /** passthrough, nomerge **/
         AdditiveExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | ShiftExpression LS AdditiveExpression
         | ShiftExpression RS AdditiveExpression
         ;
 
 RelationalExpression:  /** passthrough, nomerge **/
         ShiftExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | RelationalExpression LT ShiftExpression
+        {
+          // TODO
+        }
         | RelationalExpression GT ShiftExpression
+        {
+          // TODO
+        }
         | RelationalExpression LE ShiftExpression
+        {
+          // TODO
+        }
         | RelationalExpression GE ShiftExpression
+        {
+          // TODO
+        }
         ;
 
 EqualityExpression:  /** passthrough, nomerge **/
         RelationalExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | EqualityExpression EQ RelationalExpression
+        {
+          // TODO
+        }
         | EqualityExpression NE RelationalExpression
+        {
+          // TODO
+        }
         ;
 
 AndExpression:  /** passthrough, nomerge **/
         EqualityExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | AndExpression AND EqualityExpression
+        {
+          // TODO
+        }
         ;
 
 ExclusiveOrExpression:  /** passthrough, nomerge **/
         AndExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | ExclusiveOrExpression XOR AndExpression
+        {
+          // TODO
+        }
         ;
 
 InclusiveOrExpression:  /** passthrough, nomerge **/
         ExclusiveOrExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | InclusiveOrExpression PIPE ExclusiveOrExpression
+        {
+          //TODO
+        }
         ;
 
 LogicalAndExpression:  /** passthrough, nomerge **/
         InclusiveOrExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | LogicalAndExpression ANDAND InclusiveOrExpression
+        {
+          // TODO
+        }
         ;
 
 LogicalORExpression:  /** passthrough, nomerge **/
         LogicalAndExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | LogicalORExpression OROR LogicalAndExpression
+        {
+          // TODO
+        }
         ;
 
 ConditionalExpression:  /** passthrough, nomerge **/
         LogicalORExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | LogicalORExpression QUESTION Expression COLON
                 ConditionalExpression
+        {
+          // TODO
+        }
         | LogicalORExpression QUESTION COLON  // ADDED gcc innomerge conditional
                 ConditionalExpression
+        {
+          // TODO
+        }
         ;
 
 AssignmentExpression:  /** passthrough, nomerge **/
         ConditionalExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | UnaryExpression AssignmentOperator AssignmentExpression
+        {
+          getAndSetSB(3, subparser, value);
+        }
         ;
 
 AssignmentOperator: /** nomerge **/
         ASSIGN
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(" = ");
+          setStringBuilder(value, sb);
+        }
         | MULTassign
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(" *= ");
+          setStringBuilder(value, sb);
+        }
         | DIVassign
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(" /= ");
+          setStringBuilder(value, sb);
+        }
         | MODassign
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(" %= ");
+          setStringBuilder(value, sb);
+        }
         | PLUSassign
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(" += ");
+          setStringBuilder(value, sb);
+        }
         | MINUSassign
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(" -= ");
+          setStringBuilder(value, sb);
+        }
         | LSassign
+        {
+          // TODO
+        }
         | RSassign
+        {
+          // TODO
+        }
         | ANDassign
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(" &= ");
+          setStringBuilder(value, sb);
+        }
         | ERassign
+        {
+          // TODO
+        }
         | ORassign
+        {
+          StringBuilder sb = new StringBuilder();
+          sb.append(" |= ");
+          setStringBuilder(value, sb);
+        }
         ;
 
 ExpressionOpt:  /** passthrough, nomerge **/
         /* Nothing */
         | Expression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         ;
 
 Expression:  /** passthrough, nomerge **/
         AssignmentExpression
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | Expression COMMA AssignmentExpression
         ;
 
@@ -2489,11 +2770,12 @@ private StringBuilder getStringBuilder(Node n) {
   return (StringBuilder) n.getProperty(STRINGBUILDER);
 }
 
+// gets the stringbuilders from a non-'complete' node's children
 private void getAndSetSB(int numChildren, Subparser subparser, Object value)
 {
   StringBuilder sb = new StringBuilder();
   StringBuilder temp;
-  for (int i = 1; i <= numChildren; i++) {
+  for (int i = numChildren; i >= 1; i--) {
     temp = getStringBuilderAt(subparser, i);
     if (!sb.toString().equals("null"))
       sb.append(temp);
@@ -2501,6 +2783,7 @@ private void getAndSetSB(int numChildren, Subparser subparser, Object value)
   setStringBuilder(value, sb);
 }
 
+// gets the stringbuilders from a non-'complete' node's child
 private void getAndSetSBAt(int child, Subparser subparser, Object value)
 {
   StringBuilder sb = new StringBuilder();
@@ -2511,48 +2794,44 @@ private void getAndSetSBAt(int child, Subparser subparser, Object value)
   setStringBuilder(value, sb);
 }
 
+// gets the stringbuilders from a 'complete' node's children
 private void getAndSetSBCond(int numChildren, Subparser subparser, Object value)
 {
   NodeMultiverse condChildren;
-  StringBuilder temp;
   StringBuilder sb = new StringBuilder();
-  for (int i = 1; i <= numChildren; i++)
+  for (int i = numChildren; i >= 1; i--)
   {
     condChildren = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
-    //System.err.println(condChildren);
 
     // iterates through every pair of (Node, PresenceCondition)
     // and appends all declarations stored in the nodes to this stringbuilder
     Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
     while (children.hasNext()) {
       AbstractMultiverse.Element<Node> next_node = children.next();
-      temp = getStringBuilder(next_node.data);
+      StringBuilder temp = getStringBuilder(next_node.data);
       if (!temp.toString().equals("null"))
         sb.append(temp);
     }
-    setStringBuilder(value, sb);
   }
+  setStringBuilder(value, sb);
 }
 
+// gets the stringbuilders from a 'complete' node's child
 private void getAndSetSBCondAt(int child, Subparser subparser, Object value)
 {
-  StringBuilder temp;
   NodeMultiverse condChildren = getNodeMultiverse(getNodeAt(subparser, child), subparser.getPresenceCondition().presenceConditionManager());
-  //System.err.println(condChildren);
-
   StringBuilder sb = new StringBuilder();
   // iterates through every pair of (Node, PresenceCondition)
   // and appends all declarations stored in the nodes to this stringbuilder
   Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
   while (children.hasNext()) {
     AbstractMultiverse.Element<Node> next_node = children.next();
-    temp = getStringBuilder(next_node.data);
+    StringBuilder temp = getStringBuilder(next_node.data);
     if (!temp.toString().equals("null"))
       sb.append(temp);
   }
   setStringBuilder(value, sb);
 }
-
 
 /** True when statistics should be output. */
 private boolean languageStatistics = false;
@@ -3998,7 +4277,6 @@ private StringBuilder addMapping(Subparser subparser, TypeBuilder t, DeclBuilder
   PresenceConditionManager.PresenceCondition presenceCondition = subparser.getPresenceCondition();
   CContext scope = (CContext) subparser.scope;
   sb = scope.getSymbolTable().addMapping(d.getID(), type, presenceCondition);
-  // TODO: turn sb into a full declaration before returning it
   return sb;
 }
 

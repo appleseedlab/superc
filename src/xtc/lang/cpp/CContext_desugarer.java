@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
 import java.util.Random;
 
 import xtc.tree.Location;
@@ -730,6 +731,10 @@ public class CContext implements ParsingContext {
 	  System.out.println(multiverse.toString());
         return renaming;
       }
+    public List<Multiverse.Universe> getRenamings(String ident)
+    {
+      return multiverse.mapping.get(ident);
+    }
 
       public Type getTypedefFromMultiverse(String ident)
       {
