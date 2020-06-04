@@ -807,7 +807,7 @@ class Desugarer {
       PresenceCondition pc = next_ident_typed.getValue();
       TypeBuilder typeBuilder = next_ident_typed.getKey().getValue();
       String renamed_ident = mangleRenaming(VARPREFIX, elem_ident); // generates renaming
-      symtab.addRenaming(elem_ident, renamed_ident, typeBuilder.toType(), pc); // TODO: add the rest of the type (with qualifiers, attributes, etc. to symboltable)
+      symtab.addRenaming(elem_ident, renamed_ident, new UnitT()/* NOTE: removed due to typebuilder structural change: typeBuilder.toType()*/, pc); // TODO: add the rest of the type (with qualifiers, attributes, etc. to symboltable)
       String decl_string = typeBuilder.toString() + " " + renamed_ident + "; /* renamed from " + elem_ident + " */ ";
       writer.write(decl_string);
     }

@@ -600,7 +600,7 @@ DeclaringList:  /** nomerge **/
 
       	  saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, type, decl);
-	  
+
           String oldIdent = decl.identifier;
           decl.identifier = addMapping(subparser, type, decl).toString();
           StringBuilder sb = new StringBuilder();
@@ -971,7 +971,7 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
 	  String typeName = getStringAt(subparser, 1);
 	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition());
           setTypeBuilder(value, tb.combine(tb1));
-	  
+
 	}
 | TypedefTypeSpecifier TypeQualifier
 {
@@ -3239,7 +3239,7 @@ public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder dec
 
 public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder declarator, STField alsoSet) {
   /*
-    for this to properly work, we will need to pull the specific presenceCondition for 
+    for this to properly work, we will need to pull the specific presenceCondition for
     each individual TypeBuilderUnit. More or less the actions that were previously taken should take place
     multiple times now.
    */
@@ -3259,7 +3259,7 @@ public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder dec
 	  System.err.println(String.format("typedef %s %s", ident, location));
 	}
       }
-      
+
       if (showErrors) {
 	System.err.println("bind: " + ident + " " + typedef.get(i));
       }
@@ -3271,7 +3271,7 @@ public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder dec
       if (null != alsoSet) {
 	scope.getSymbolTable().setbool(ident, alsoSet, true,conds.get(i));
       }
-      
+
     }
 }
 
@@ -4305,6 +4305,7 @@ private List<Universe> getType(TypeBuilder t, DeclBuilder d)
   List<Type> types = t.toType();
   for (int i = 0; i < cond.size(); ++i)
     {
+      cond.get(i).addRef();
       DeclBuilder temp = new DeclBuilder(d);
       temp.addType(types.get(i));
       ret.add(new Universe(mangleRenaming("",d.getID()), temp.toType(), cond.get(i)));
