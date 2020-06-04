@@ -602,11 +602,16 @@ DeclaringList:  /** nomerge **/
           bindIdent(subparser, type, decl);
 
           String oldIdent = decl.identifier;
-          decl.identifier = addMapping(subparser, type, decl).toString();
-          StringBuilder sb = new StringBuilder();
-          sb.append("\n" + type.toType() + " " + decl + ";" + " // renamed from " + oldIdent);
-          setStringBuilder(value, sb);
-        }
+          List<StringBuilder> stringBuilders= addMapping(subparser, type, decl);
+	  StringBuilder sb = new StringBuilder();
+
+	  for (StringBuilder s : stringBuilders)
+	    {
+	      decl.identifier = s.toString();
+	      sb.append("\n" + type.toType() + " " + decl + ";" + " // renamed from " + oldIdent);
+	    }
+	  setStringBuilder(value, sb);
+	}
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
           // reuses saved base type
@@ -4313,14 +4318,21 @@ private List<Universe> getType(TypeBuilder t, DeclBuilder d)
   return ret;
 }
 
-private StringBuilder addMapping(Subparser subparser, TypeBuilder t, DeclBuilder d)
+private List<StringBuilder> addMapping(Subparser subparser, TypeBuilder t, DeclBuilder d)
 {
-  StringBuilder sb = new StringBuilder();
+  List<StringBuilder> sb = new LinkedList<StringBuilder>();
   if (t == null || d == null || !t.getIsValid() || !d.getIsValid())
-    return sb;
+    {
+      System.err.println("Invalid declaration");
+      System.exit(1);
+    }
   List<Universe> unis = getType(t,d);
   CContext scope = (CContext) subparser.scope;
-  sb = scope.getSymbolTable().addMapping(d.getID(), unis);
+  scope.getSymbolTable().addMapping(d.getID(), unis);
+  for (Universe u : unis)
+    {
+      sb.add(new StringBuilder(u.rename));
+    }
   return sb;
 }
 

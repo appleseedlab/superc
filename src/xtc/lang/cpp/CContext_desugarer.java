@@ -722,18 +722,11 @@ public class CContext implements ParsingContext {
 
       return this;
     }
-      public StringBuilder addMapping(String ident, List<Universe> unis)
+      public void addMapping(String ident, List<Universe> unis)
       {
 	  multiverse.addMapping(ident, unis);
-	  /*if (renaming.toString().equals(""))
-	      {
-		  System.out.println("Redefinition of identifier: " + ident);
-		  System.exit(1);
-	      }
-	      System.out.println(multiverse.toString());*/
-	  StringBuilder s = new StringBuilder("");
-	  return s;//renaming;
       }
+      
     public List<Universe> getRenamings(String ident)
     {
       return multiverse.mapping.get(ident);

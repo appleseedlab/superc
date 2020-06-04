@@ -54,7 +54,6 @@ public class Multiverse
 		      value.add(x);
 		  }
 	  }
-      System.out.println(toString());
     }
 
     public void delRefs()
