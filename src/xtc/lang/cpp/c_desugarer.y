@@ -608,7 +608,13 @@ DeclaringList:  /** nomerge **/
 	  for (StringBuilder s : stringBuilders)
 	    {
 	      decl.identifier = s.toString();
-	      sb.append("\n" + type.toType() + " " + decl + ";" + " // renamed from " + oldIdent);
+	      List<Type> typeList = type.toType();
+	      if (typeList.size() == 1)
+		sb.append("\n" + typeList.get(0) + " " + decl + ";" + " // renamed from " + oldIdent);
+	      else {
+		System.err.println("ERROR: Configurable typedefs not yet supported.");
+		// System.exit(1);
+	      }
 	    }
 	  setStringBuilder(value, sb);
 	}
