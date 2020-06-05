@@ -311,7 +311,7 @@ ExternalDeclaration:  /** passthrough, complete **/
         }
         | DeclarationExtension
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSB(2, subparser, value);
           // TODO
         }
         | AssemblyDefinition
@@ -346,7 +346,7 @@ FunctionDefinition:  /** complete **/ // added scoping
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
-          getAndSetSBCond(5, subparser, value);
+          getAndSetSBCond(9, subparser, value);
         }
         ;
 
@@ -1988,7 +1988,7 @@ LocalLabelDeclarationList:  /** list, complete **/
         }
         | LocalLabelDeclarationList LocalLabelDeclaration
         {
-          getAndSetSB(2, subparser, value);
+          getAndSetSB(3, subparser, value);
         }
         ;
 
@@ -2015,11 +2015,11 @@ DeclarationOrStatement: /** passthrough, complete **/  /* ADDED */
         }
         | Statement
         {
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBCond(2, subparser, value);
         }
         | NestedFunctionDefinition
         {
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBCond(2, subparser, value);
         }
         ;
 
@@ -2030,7 +2030,7 @@ DeclarationList:  /** list, complete **/
         }
         | DeclarationList DeclarationExtension
         {
-          getAndSetSB(2, subparser, value);
+          getAndSetSB(3, subparser, value);
         }
         ;
 
