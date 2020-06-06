@@ -16,7 +16,7 @@ import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
  * @version $Revision: 1.272 $
  */
 public abstract class AbstractMultiverse<T> implements Iterable<AbstractMultiverse.Element<T>> {
-  List<Element<T>> contents = new LinkedList<Element<T>>();
+  protected List<Element<T>> contents = new LinkedList<Element<T>>();
 
   /**
    * This is one element of a multiple, i.e., a pair containing the
@@ -30,12 +30,47 @@ public abstract class AbstractMultiverse<T> implements Iterable<AbstractMultiver
     public Element(T data, PresenceCondition cond) {
       this.data = data;
       this.cond = cond;
+      this.cond.addRef();
     }
 
+      public Element(T data) {
+      this.data = data;
+      cond = null;
+    }
+      public Element(PresenceCondition cond) {
+	  this.data = null;
+	  this.cond = cond;
+	  this.cond.addRef();
+      }
+
+      public Element()
+      {
+	  data = null;
+	  cond = null;
+      }
     public void destruct() {
       this.cond.delRef();
     }
 
+      public void setData(T t)
+      {
+	  this.data = t;
+      }
+      public void setCondition(PresenceCondition p)
+      {
+	  if (cond != null)
+	      {
+		  cond.delRef();
+	      }
+	  this.cond = p;
+	  this.cond.addRef();
+      }
+
+      public boolean exclusiveFrom(PresenceCondition p)
+      {
+	  return cond.isMutuallyExclusive(p);
+      }
+      
     public String toString() {
       StringBuilder sb = new StringBuilder();
 
@@ -47,6 +82,16 @@ public abstract class AbstractMultiverse<T> implements Iterable<AbstractMultiver
       
       return sb.toString();
     }
+
+      public T getData()
+      {
+	  return data;
+      }
+
+      public PresenceCondition getCondition()
+      {
+	  return cond;
+      }
   }
 
   /**

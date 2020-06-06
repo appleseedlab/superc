@@ -29,7 +29,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.List;
 import java.util.Random;
-
+import java.util.Iterator;
+    
 import xtc.tree.Location;
 
 import xtc.lang.cpp.Syntax.Kind;
@@ -45,6 +46,7 @@ import xtc.lang.cpp.Syntax.Conditional;
 import xtc.type.Type;
 
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
+import xtc.lang.cpp.AbstractMultiverse.Element;
 
 import xtc.lang.cpp.ForkMergeParser.OrderedSyntax;
 import xtc.lang.cpp.ForkMergeParser.Lookahead;
@@ -139,25 +141,11 @@ public class CContext implements ParsingContext {
     this.reentrant = scope.reentrant;
   }
 
-    public List<Universe> getTypesOfTypedef(String ident, PresenceCondition presenceCondition) {
-	CContext scope;
 
-	scope = this;
-	List<Universe> unis = new LinkedList<Universe>();
-	while (scope != null)
-	    {
-		List<Universe> foundTypes = scope.getSymbolTable().getTypedefsFromMultiverse(ident);
-		for (Universe u : foundTypes)
-		    unis.add(u);
-		scope = scope.parent;
-	    }
-	return unis;
+    public ParsingContext fork()
+    {
+	return new CContext(this);
     }
-
-  public ParsingContext fork() {
-    return new CContext(this);
-  }
-
   /**
    * Check whether a syntax token is an identifier.
    *
@@ -691,20 +679,51 @@ public class CContext implements ParsingContext {
     return scope;
   }
 
+          
+    public List<Element<Universe>> getMappings(String ident)
+    {
+	List<Element<Universe>> l = new LinkedList<Element<Universe>>();
+	CContext scope = this;
+	while (scope != null)
+	    {
+		Mapping lt = scope.getSymbolTable().map.get(ident);
+		for (Iterator<Element<Universe>> e = lt.iterator(); e.hasNext();)
+		    l.add(e.next());
+		scope = scope.parent;
+	    }
+      return l;
+    }
+
+      public List<Element<Universe>> getMappings(String ident, PresenceCondition p)
+      {
+	  List<Element<Universe>> l = new LinkedList<Element<Universe>>();
+	  CContext scope = this;
+	  while (scope != null)
+	      {
+		  Mapping y = scope.getSymbolTable().map.get(ident);
+		  for (Iterator<Element<Universe>> e = y.iterator(); e.hasNext();)
+		      {
+			  Element<Universe> eu = e.next();
+			  if (!eu.exclusiveFrom(p))
+			      l.add(eu);
+		      }
+		  scope = scope.parent;
+	      }
+	  return l;
+      }
+    
   /** The symbol table that stores a scope's symbol bindings. */
   public static class SymbolTable {
     public enum STField {
       TYPEDEF, IDENT, INIT, USED, VAR, GLOBAL_FUNDEF, STATIC_FUNDEF, FUNCALL,
     }
 
-      private static int count = 0;
     // /** The symbol table data structure. */
-    // public HashMap<String, TypedefVarEntry> map;
+    public HashMap<String, Mapping> map;
 
     /** The symbol table data structure. */
     public HashMap<String, EnumMap<STField, ConditionedBool>> bools;
 
-      public Multiverse multiverse;
 
     /** The reference count for cleaning up the table BDDs */
     public int refs;
@@ -714,7 +733,7 @@ public class CContext implements ParsingContext {
       // this.map = new HashMap<String, TypedefVarEntry>();
       this.bools = new HashMap<String, EnumMap<STField, ConditionedBool>>();
       this.refs = 1;
-      multiverse = new Multiverse();
+      map = new HashMap<String, Mapping>();
     }
 
     public SymbolTable addRef() {
@@ -722,20 +741,36 @@ public class CContext implements ParsingContext {
 
       return this;
     }
-      public void addMapping(String ident, List<Universe> unis)
+      public void addMapping(String ident, List<Element<Universe>> unis)
       {
-	  multiverse.addMapping(ident, unis);
+	  Mapping value = map.get(ident);
+	  if (value == null)
+	      {
+		  Mapping newEntry = new Mapping();
+		  for (Element<Universe> x : unis)
+		      newEntry.add(x);
+		  map.put(ident, newEntry);
+	      }
+	  else
+	      {
+		  for (Element<Universe> x : unis)
+		      {
+			  boolean noCollision = true;
+			  for (Element<Universe> u : value)
+			      {
+				  noCollision = noCollision && u.exclusiveFrom(x.getCondition());
+			      }
+			  if (!noCollision)
+			      {
+				  System.out.println("MultipleDef");
+				  System.exit(1);
+			      }
+			  value.add(x);
+		      }
+	      }
+	  
       }
-      
-    public List<Universe> getRenamings(String ident)
-    {
-      return multiverse.mapping.get(ident);
-    }
 
-      public List<Universe> getTypedefsFromMultiverse(String ident)
-      {
-	  return multiverse.getTypedefsOf(ident);
-      }
 
     public void delRef() {
       refs--;
@@ -757,7 +792,8 @@ public class CContext implements ParsingContext {
         //   }
         // }
       }
-      multiverse.delRefs();
+      for (Mapping m : map.values())
+	  m.destruct();
     }
 
     /**

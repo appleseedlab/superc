@@ -226,7 +226,8 @@ import xtc.util.SymbolTable;
 import xtc.util.SymbolTable.Scope;
 import xtc.util.SingletonIterator;
 import xtc.util.Utilities;
-
+ 
+ import xtc.lang.cpp.AbstractMultiverse.Element;
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
 import xtc.lang.cpp.ForkMergeParser.StackFrame;
@@ -2050,7 +2051,7 @@ ExpressionStatement:  /** complete **/
           // and appends all statements stored in the nodes to this stringbuilder
           Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
           String next_ident;
-          List<Universe> renamings;
+          List<Element<Universe>> renamings;
 
           // iterates through every version of the statement
           while (children.hasNext()) {
@@ -2065,15 +2066,15 @@ ExpressionStatement:  /** complete **/
                 // get the renamings and generate their conditionals
                 next_ident = getStringBuilder((Node)child).toString();
                 CContext scope = (CContext) subparser.scope;
-                renamings = scope.getSymbolTable().getRenamings(next_ident);
+                renamings = scope.getMappings(next_ident);
                 // iterates through the list of pairs of (renaming, PC) stored in renamings
                 // continually AND's the statement PC with the renaming PC
                 // then write the "if (AND'd PC) { statement with renamed variable }"
-                for (Universe renaming : renamings) {
-                  StringBuilder temp = new StringBuilder("\nif (" + next_node.cond.and(renaming.pc) + ") {\n");
+                for (Element<Universe> renaming : renamings) {
+                  StringBuilder temp = new StringBuilder("\nif (" + next_node.cond.and(renaming.getCondition()) + ") {\n");
                   if (! allStatements.get(0).toString().equals("null"))
                     temp.append(allStatements.get(0).toString());
-                  temp.append(renaming.rename);
+                  temp.append(renaming.getData().getRenaming());
                   allStatements.add(temp);
                 }
               } else {
@@ -4303,9 +4304,9 @@ private static Specifiers makeStructSpec(Subparser subparser,
   return specs;
 }
 
-private List<Universe> getType(TypeBuilder t, DeclBuilder d)
+private List<Element<Universe>> getType(TypeBuilder t, DeclBuilder d)
 {
-  List<Universe> ret = new LinkedList<Universe>();
+  List<Element<Universe>> ret = new LinkedList<Element<Universe>>();
   List<PresenceCondition> cond = t.getConditions();
   List<Type> types = t.toType();
   for (int i = 0; i < cond.size(); ++i)
@@ -4313,7 +4314,7 @@ private List<Universe> getType(TypeBuilder t, DeclBuilder d)
       cond.get(i).addRef();
       DeclBuilder temp = new DeclBuilder(d);
       temp.addType(types.get(i));
-      ret.add(new Universe(mangleRenaming("",d.getID()), temp.toType(), cond.get(i)));
+      ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), temp.toType()), cond.get(i)));
     }
   return ret;
 }
@@ -4326,12 +4327,12 @@ private List<StringBuilder> addMapping(Subparser subparser, TypeBuilder t, DeclB
       System.err.println("Invalid declaration");
       System.exit(1);
     }
-  List<Universe> unis = getType(t,d);
+  List<Element<Universe>> unis = getType(t,d);
   CContext scope = (CContext) subparser.scope;
   scope.getSymbolTable().addMapping(d.getID(), unis);
-  for (Universe u : unis)
+  for (Element<Universe> u : unis)
     {
-      sb.add(new StringBuilder(u.rename));
+      sb.add(new StringBuilder(u.getData().getRenaming()));
     }
   return sb;
 }
@@ -4360,9 +4361,9 @@ private String mangleRenaming(String prefix, String ident) {
     return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
     }
 
-private List<Universe> getTypeOfTypedef(Subparser subparser, String typeName)
+private List<Element<Universe>> getTypeOfTypedef(Subparser subparser, String typeName)
 {
-  List<Universe> foundType = ((CContext)subparser.scope).getTypesOfTypedef(typeName, subparser.getPresenceCondition());
+  List<Element<Universe>> foundType = ((CContext)subparser.scope).getMappings(typeName, subparser.getPresenceCondition());
   return foundType;
 }
 
