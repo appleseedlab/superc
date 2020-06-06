@@ -609,7 +609,13 @@ DeclaringList:  /** nomerge **/
 	  for (StringBuilder s : stringBuilders)
 	    {
 	      decl.identifier = s.toString();
-	      sb.append("\n" + type.toType() + " " + decl + ";" + " // renamed from " + oldIdent);
+	      List<Type> typeList = type.toType();
+	      if (typeList.size() == 1)
+		sb.append("\n" + typeList.get(0) + " " + decl + ";" + " // renamed from " + oldIdent);
+	      else {
+		System.err.println("ERROR: Configurable typedefs not yet supported.");
+		// System.exit(1);
+	      }
 	    }
 	  setStringBuilder(value, sb);
 	}
@@ -2809,7 +2815,7 @@ private void getAndSetSB(int numChildren, Subparser subparser, Object value)
   StringBuilder temp;
   for (int i = numChildren; i >= 1; i--) {
     temp = getStringBuilderAt(subparser, i);
-    if (!sb.toString().equals("null"))
+    if (temp != null && !temp.toString().equals("null"))
       sb.append(temp);
   }
   setStringBuilder(value, sb);
@@ -2821,7 +2827,7 @@ private void getAndSetSBAt(int child, Subparser subparser, Object value)
   StringBuilder sb = new StringBuilder();
   StringBuilder temp;
   temp = getStringBuilderAt(subparser, child);
-  if (!sb.toString().equals("null"))
+  if (temp != null && !temp.toString().equals("null"))
       sb.append(temp);
   setStringBuilder(value, sb);
 }
@@ -2841,7 +2847,7 @@ private void getAndSetSBCond(int numChildren, Subparser subparser, Object value)
     while (children.hasNext()) {
       AbstractMultiverse.Element<Node> next_node = children.next();
       StringBuilder temp = getStringBuilder(next_node.data);
-      if (!temp.toString().equals("null"))
+      if (temp != null && !temp.toString().equals("null"))
         sb.append(temp);
     }
   }
@@ -2859,7 +2865,7 @@ private void getAndSetSBCondAt(int child, Subparser subparser, Object value)
   while (children.hasNext()) {
     AbstractMultiverse.Element<Node> next_node = children.next();
     StringBuilder temp = getStringBuilder(next_node.data);
-    if (!temp.toString().equals("null"))
+    if (temp != null && !temp.toString().equals("null"))
       sb.append(temp);
   }
   setStringBuilder(value, sb);
