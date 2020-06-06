@@ -226,7 +226,7 @@ import xtc.util.SymbolTable;
 import xtc.util.SymbolTable.Scope;
 import xtc.util.SingletonIterator;
 import xtc.util.Utilities;
- 
+
  import xtc.lang.cpp.AbstractMultiverse.Element;
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
@@ -238,6 +238,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.HashMap;
 
 import java.io.File;
 import java.io.Reader;
@@ -4418,6 +4419,169 @@ private NodeMultiverse getNodeMultiverse(Node node, PresenceConditionManager pre
   }
 
   return mv;
+}
+
+public HashMap<String, String> boolVarRenamings = new HashMap<String, String>();
+private HashMap<String, String> BoolExprs = new HashMap<String, String>();
+
+public String printBDDC(PresenceCondition cond) {
+ List allsat = (List) cond.getBDD().allsat();
+ ArrayList<String> currentExprs;
+ String CBoolExpr;
+ boolean firstTerm = true;
+ boolean firstTermOuter = true;
+ StringBuilder sb = new StringBuilder();
+
+ if (cond.getBDD().isOne()) {
+   sb.append("1");
+   return sb.toString();
+ } else if (cond.getBDD().isZero()) {
+   sb.append("0");
+   return sb.toString();
+ }
+
+ for (Object o : allsat) {
+   if (!firstTermOuter)
+     sb.append(" || ");
+   firstTermOuter = false;
+   currentExprs = getBoolExprs((byte[]) o, cond);
+   firstTerm = true;
+   for (String CPPBoolExpr : currentExprs) {
+     if (!firstTerm)
+       sb.append(" && ");
+     firstTerm = false;
+     if (BoolExprs.isEmpty() || !BoolExprs.containsKey(CPPBoolExpr)) {
+       // generates a new C boolean expression with hashcode appended, then adds it to hashmap and prints it
+       CBoolExpr = generateBoolExpr(CPPBoolExpr);
+       BoolExprs.put(CPPBoolExpr, CBoolExpr);
+       sb.append(CBoolExpr);
+     } else if (BoolExprs.containsKey(CPPBoolExpr)) {
+       // prints the mapped C expression
+       CBoolExpr = BoolExprs.get(CPPBoolExpr);
+       sb.append(CBoolExpr);
+     }
+   }
+ }
+ return sb.toString();
+}
+
+public String PCtoString(PresenceCondition cond) {
+ List allsat = (List) cond.getBDD().allsat();
+ ArrayList<String> currentExprs;
+ String CBoolExpr;
+ StringBuilder sb = new StringBuilder();
+ boolean firstTerm = true;
+ boolean firstTermOuter = true;
+
+ if (cond.getBDD().isOne()) {
+   return "1";
+ } else if (cond.getBDD().isZero()) {
+   return "0";
+ }
+
+ for (Object o : allsat) {
+   if (!firstTermOuter)
+     sb.append(" || ");
+   firstTermOuter = false;
+   currentExprs = getBoolExprs((byte[]) o, cond);
+   firstTerm = true;
+   for (String CPPBoolExpr : currentExprs) {
+     if (!firstTerm)
+       sb.append(" && ");
+     firstTerm = false;
+     if (BoolExprs.isEmpty() || !BoolExprs.containsKey(CPPBoolExpr)) {
+       // generates a new C boolean expression with hashcode appended, then adds it to hashmap and returns it
+       CBoolExpr = generateBoolExpr(CPPBoolExpr);
+       BoolExprs.put(CPPBoolExpr, CBoolExpr);
+       sb.append(CBoolExpr);
+     } else /* if (BoolExprs.containsKey(CPPBoolExpr)) */ {
+       // returns the mapped C expression
+       CBoolExpr = BoolExprs.get(CPPBoolExpr);
+       sb.append(CBoolExpr);
+     }
+   }
+ }
+ return sb.toString();
+}
+
+// returns a list of every expression in the BDD
+public ArrayList<String> getBoolExprs(byte[] sat, PresenceCondition cond) {
+ ArrayList<String> allExprs = new ArrayList<String>();
+ for (int i = 0; i < sat.length; i++) {
+   if (sat[i] == 1) {
+     // builds up a list of the (CPP) boolean expressions within the PresenceCondition
+     allExprs.add(cond.presenceConditionManager().getVariableManager().getName(i));
+   } else if (sat[i] == 0) {
+     allExprs.add("!" + cond.presenceConditionManager().getVariableManager().getName(i));
+   }
+ }
+ return allExprs;
+}
+
+// returns a new (valid C) boolean expression, with hashcode appended
+public String generateBoolExpr(String CPPBoolExpr) {
+ StringBuilder sb = new StringBuilder();
+ boolean falseExpr = false;
+ boolean definedExpr = false;
+
+ // need to remove the '!' character from the string, so that it doesn't change the hashcode (then append it later)
+ if (CPPBoolExpr.contains("!")) {
+   falseExpr = true;
+   sb.append(CPPBoolExpr);
+
+   // if there is a '!' character, it will be at the 0th position of sb
+   sb.deleteCharAt(0);
+   CPPBoolExpr = sb.toString();
+   sb.setLength(0);
+ }
+
+ // need to remove "defined" from the string, so that it doesn't affect the hashcode (then append it later)
+ if (CPPBoolExpr.contains("defined")) {
+   definedExpr = true;
+   sb.append(CPPBoolExpr);
+
+   // if the expression is a "defined" expression, it will be in the form (defined <>)
+   // note that there will not be a '!' character by this point.
+   for (int i = 0; i <= 7; i++)
+     sb.deleteCharAt(1);
+
+   CPPBoolExpr = sb.toString();
+   sb.setLength(0);
+ }
+
+ sb.append("_C_");
+ sb.append(CPPBoolExpr.hashCode());
+
+ if (sb.charAt(3) == '-')
+   sb.replace(3, 4, "n"); // replaces the '-' with 'n'
+
+ if (!boolVarRenamings.containsKey(CPPBoolExpr)) {
+   boolVarRenamings.put(CPPBoolExpr, sb.toString());
+}
+ sb.setLength(0);
+
+ if (falseExpr)
+   sb.append("!");
+
+ sb.append("_C_");
+ sb.append(CPPBoolExpr.hashCode());
+
+ if (definedExpr)
+   sb.append("_DEFINED");
+
+ // the expression cannot have a '-' character in it (because it would evaluate as subtraction)
+ if (falseExpr) {
+   // if the expression is false, then the '-' will come later in the string due to the additional '!' character
+   if (sb.charAt(4) == '-') {
+     sb.replace(4, 5, "n"); // replaces the '-' with 'n'
+   }
+ } else {
+   if (sb.charAt(3) == '-') {
+     sb.replace(3, 4, "n"); // replaces the '-' with 'n'
+   }
+ }
+
+ return sb.toString();
 }
 
 // ---------- Declarators

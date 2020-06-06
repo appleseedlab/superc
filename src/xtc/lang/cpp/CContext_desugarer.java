@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.List;
 import java.util.Random;
 import java.util.Iterator;
-    
+
 import xtc.tree.Location;
 
 import xtc.lang.cpp.Syntax.Kind;
@@ -679,7 +679,7 @@ public class CContext implements ParsingContext {
     return scope;
   }
 
-          
+
     public List<Element<Universe>> getMappings(String ident)
     {
 	List<Element<Universe>> l = new LinkedList<Element<Universe>>();
@@ -711,7 +711,7 @@ public class CContext implements ParsingContext {
 	      }
 	  return l;
       }
-    
+
   /** The symbol table that stores a scope's symbol bindings. */
   public static class SymbolTable {
     public enum STField {
@@ -768,7 +768,7 @@ public class CContext implements ParsingContext {
 			  value.add(x);
 		      }
 	      }
-	  
+
       }
 
 
@@ -792,8 +792,8 @@ public class CContext implements ParsingContext {
         //   }
         // }
       }
-      for (Mapping m : map.values())
-	  m.destruct();
+      //for (Mapping m : map.values())
+	  //m.destruct();
     }
 
     /**
