@@ -278,6 +278,19 @@ TranslationUnit:  /** complete, passthrough **/
             writer.write("#include <stdbool.h>\n");
             writer.write("#include \"desugared_macros.h\" // configuration macros converted to C variables\n");
 
+            // writes the declarations for the renamed preprocessor BDDs
+            StringBuilder temp = new StringBuilder();
+            for (String originalExpr : boolVarRenamings.keySet()) {
+              temp.append(originalExpr);
+              // NOTE: uncomment these two lines to remove the parentheses from the written code
+              //temp.deleteCharAt(0);
+              //temp.setLength(temp.length() - 1);
+              writer.write("extern bool " + boolVarRenamings.get(originalExpr) + "; " + "/* renamed from " + temp.toString() + " */" + "\n");
+              writer.write("extern bool " + boolVarRenamings.get(originalExpr) + "_DEFINED;" + "\n");
+
+              temp.setLength(0);
+            }
+
             // TODO: handle functions properly and remove this main function placeholder
             writer.write("int main(void) {\n");
 
@@ -302,18 +315,18 @@ ExternalDeclarationList: /** list, complete **/
         /* empty */  // ADDED gcc allows empty program
         | ExternalDeclarationList ExternalDeclaration
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         ;
 
 ExternalDeclaration:  /** passthrough, complete **/
         FunctionDefinitionExtension
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | DeclarationExtension
         {
-          getAndSetSB(2, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSB(2, subparser, value);
           // TODO
         }
         | AssemblyDefinition
@@ -333,22 +346,22 @@ EmptyDefinition:  /** complete **/
 FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
         FunctionDefinition
         {
-          getAndSetSBCondAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCondAt(1, subparser, value);
         }
         | __EXTENSION__ FunctionDefinition
         {
-          getAndSetSBCond(2, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCond(2, subparser, value);
         }
         ;
 
 FunctionDefinition:  /** complete **/ // added scoping
         FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
-          getAndSetSBCondAt(3, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCondAt(3, subparser, value);
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
-          getAndSetSBCond(9, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCond(9, subparser, value);
         }
         ;
 
@@ -357,7 +370,7 @@ FunctionDefinition:  /** complete **/ // added scoping
 FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
         LocalLabelDeclarationListOpt DeclarationOrStatementList
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         ;
 
@@ -538,7 +551,7 @@ NestedFunctionOldPrototype:  /** nomerge **/
 DeclarationExtension:  /** passthrough, complete **/  // ADDED
         Declaration
         {
-          getAndSetSBCondAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCondAt(1, subparser, value);
         }
         | __EXTENSION__ Declaration
         {
@@ -557,7 +570,7 @@ Declaration:  /** complete **/
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
-          getAndSetSBCondAt(3, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCondAt(3, subparser, value);
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
@@ -1487,14 +1500,14 @@ InitializerOpt: /** nomerge **/
         /* nothing */
         | ASSIGN DesignatedInitializer
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         ;
 
 DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         Initializer
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | Designation Initializer
         ;
@@ -1515,7 +1528,7 @@ Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists
         }
         | AssignmentExpression
         {
-          getAndSetSBAt(4, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(4, subparser, value);
         }
         ;
 
@@ -1922,33 +1935,33 @@ PostfixAbstractDeclarator: /** nomerge **/
 Statement:  /** passthrough, complete **/
         LabeledStatement
         {
-          getAndSetSBCondAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCondAt(1, subparser, value);
         }
         | CompoundStatement
         {
-          getAndSetSBCondAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCondAt(1, subparser, value);
         }
         | ExpressionStatement
         {
-          getAndSetSBCondAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCondAt(1, subparser, value);
         }
         | SelectionStatement
         {
-          getAndSetSBCondAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCondAt(1, subparser, value);
         }
         | IterationStatement
         {
-          getAndSetSBCondAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCondAt(1, subparser, value);
         }
         | JumpStatement
         {
           // TODO
-          //getAndSetSBCondAt(1, subparser, value);
+          //setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCondAt(1, subparser, value);
           setStringBuilder(value, new StringBuilder());
         }
         | AssemblyStatement  // ADDED
         {
-          getAndSetSBCondAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCondAt(1, subparser, value);
         }
         ;
 
@@ -1977,7 +1990,7 @@ CompoundStatement:  /** complete **/  /* ADDED */
         }
         RBRACE
         {
-          getAndSetSBCond(4, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCond(4, subparser, value);
         }
         ;
 
@@ -1985,18 +1998,18 @@ LocalLabelDeclarationListOpt: /** complete **/
         /* empty */
         | LocalLabelDeclarationList
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         ;
 
 LocalLabelDeclarationList:  /** list, complete **/
         LocalLabelDeclaration
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | LocalLabelDeclarationList LocalLabelDeclaration
         {
-          getAndSetSB(3, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSB(3, subparser, value);
         }
         ;
 
@@ -2012,33 +2025,33 @@ LocalLabelList:  /** list, complete **/  // ADDED
 DeclarationOrStatementList:  /** list, complete **/  /* ADDED */
         | DeclarationOrStatementList DeclarationOrStatement
         {
-          getAndSetSBCondAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCondAt(1, subparser, value);
         }
         ;
 
 DeclarationOrStatement: /** passthrough, complete **/  /* ADDED */
         DeclarationExtension
         {
-          getAndSetSBCondAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCondAt(1, subparser, value);
         }
         | Statement
         {
-          getAndSetSBCond(2, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCond(2, subparser, value);
         }
         | NestedFunctionDefinition
         {
-          getAndSetSBCond(2, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCond(2, subparser, value);
         }
         ;
 
 DeclarationList:  /** list, complete **/
         DeclarationExtension
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | DeclarationList DeclarationExtension
         {
-          getAndSetSB(3, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSB(3, subparser, value);
         }
         ;
 
@@ -2192,12 +2205,12 @@ StringLiteralList:  /** list, nomerge **/
 PrimaryExpression:  /** nomerge, passthrough **/
         PrimaryIdentifier
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | Constant
         {
 
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
 
         }
         | StringLiteralList
@@ -2227,7 +2240,7 @@ StatementAsExpression:  /** nomerge **/  //ADDED
 PostfixExpression:  /** passthrough, nomerge **/
         PrimaryExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | Subscript
         | FunctionCall
@@ -2279,7 +2292,7 @@ ExpressionList:  /** list, nomerge **/
 UnaryExpression:  /** passthrough, nomerge **/
         PostfixExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | ICR UnaryExpression
         | DECR UnaryExpression
@@ -2331,7 +2344,7 @@ Unaryoperator:
 CastExpression:  /** passthrough, nomerge **/
         UnaryExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | LPAREN TypeName RPAREN CastExpression
         ;
@@ -2339,7 +2352,7 @@ CastExpression:  /** passthrough, nomerge **/
 MultiplicativeExpression:  /** passthrough, nomerge **/
         CastExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | MultiplicativeExpression STAR CastExpression
         | MultiplicativeExpression DIV CastExpression
@@ -2349,7 +2362,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
 AdditiveExpression:  /** passthrough, nomerge **/
         MultiplicativeExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | AdditiveExpression PLUS MultiplicativeExpression
         | AdditiveExpression MINUS MultiplicativeExpression
@@ -2358,7 +2371,7 @@ AdditiveExpression:  /** passthrough, nomerge **/
 ShiftExpression:  /** passthrough, nomerge **/
         AdditiveExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | ShiftExpression LS AdditiveExpression
         | ShiftExpression RS AdditiveExpression
@@ -2367,7 +2380,7 @@ ShiftExpression:  /** passthrough, nomerge **/
 RelationalExpression:  /** passthrough, nomerge **/
         ShiftExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | RelationalExpression LT ShiftExpression
         {
@@ -2390,7 +2403,7 @@ RelationalExpression:  /** passthrough, nomerge **/
 EqualityExpression:  /** passthrough, nomerge **/
         RelationalExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | EqualityExpression EQ RelationalExpression
         {
@@ -2405,7 +2418,7 @@ EqualityExpression:  /** passthrough, nomerge **/
 AndExpression:  /** passthrough, nomerge **/
         EqualityExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | AndExpression AND EqualityExpression
         {
@@ -2416,7 +2429,7 @@ AndExpression:  /** passthrough, nomerge **/
 ExclusiveOrExpression:  /** passthrough, nomerge **/
         AndExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | ExclusiveOrExpression XOR AndExpression
         {
@@ -2427,7 +2440,7 @@ ExclusiveOrExpression:  /** passthrough, nomerge **/
 InclusiveOrExpression:  /** passthrough, nomerge **/
         ExclusiveOrExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | InclusiveOrExpression PIPE ExclusiveOrExpression
         {
@@ -2438,7 +2451,7 @@ InclusiveOrExpression:  /** passthrough, nomerge **/
 LogicalAndExpression:  /** passthrough, nomerge **/
         InclusiveOrExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | LogicalAndExpression ANDAND InclusiveOrExpression
         {
@@ -2449,7 +2462,7 @@ LogicalAndExpression:  /** passthrough, nomerge **/
 LogicalORExpression:  /** passthrough, nomerge **/
         LogicalAndExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | LogicalORExpression OROR LogicalAndExpression
         {
@@ -2460,7 +2473,7 @@ LogicalORExpression:  /** passthrough, nomerge **/
 ConditionalExpression:  /** passthrough, nomerge **/
         LogicalORExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | LogicalORExpression QUESTION Expression COLON
                 ConditionalExpression
@@ -2477,11 +2490,11 @@ ConditionalExpression:  /** passthrough, nomerge **/
 AssignmentExpression:  /** passthrough, nomerge **/
         ConditionalExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | UnaryExpression AssignmentOperator AssignmentExpression
         {
-          getAndSetSB(3, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSB(3, subparser, value);
         }
         ;
 
@@ -2552,14 +2565,14 @@ ExpressionOpt:  /** passthrough, nomerge **/
         /* Nothing */
         | Expression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         ;
 
 Expression:  /** passthrough, nomerge **/
         AssignmentExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBAt(1, subparser, value);
         }
         | Expression COMMA AssignmentExpression
         ;
@@ -2789,6 +2802,24 @@ private void setDeclBuilder(Node value, DeclBuilder db) {
 private DeclBuilder getDeclBuilderAt(Subparser subparser, int component) {
   // value should be not null and should be a Node type
   return (DeclBuilder) getNodeAt(subparser, component).getProperty(DECLBUILDER);
+}
+
+private void setCPC(Object value, String CPC) {
+  // value should be not null and should be a Node type
+  setCPC((Node) value, CPC);
+}
+
+private void setCPC(Node value, String CPC) {
+  // value should be not null and should be a Node type
+  value.setProperty("C_PC", CPC);
+}
+
+private String getCPC(Subparser subparser, int component) {
+  return (String) getNodeAt(subparser, component).getProperty("C_PC");
+}
+
+private String getCPC(Node n) {
+  return (String) n.getProperty("C_PC");
 }
 
 private void setStringBuilder(Object value, StringBuilder sb) {
