@@ -604,6 +604,7 @@ DeclaringList:  /** nomerge **/
 	{
       	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
       	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
+	  System.out.println(decl.toString() + " " + type.toString());
       	  System.out.println("testing renaming declaration: " + type.toType() + " " + addMapping(subparser, type, decl) + ";");
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getTypeBuilderAt(subparser, 5), getDeclBuilderAt(subparser, 4));
@@ -615,8 +616,10 @@ DeclaringList:  /** nomerge **/
       	  saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, type, decl);
 
+	  System.out.println(decl.toString() + " " + type.toString());
+	  
           String oldIdent = decl.identifier;
-          List<StringBuilder> stringBuilders= addMapping(subparser, type, decl);
+          List<StringBuilder> stringBuilders = addMapping(subparser, type, decl);
 	  StringBuilder sb = new StringBuilder();
 
 	  for (StringBuilder s : stringBuilders)
@@ -4367,7 +4370,8 @@ private List<StringBuilder> addMapping(Subparser subparser, TypeBuilder t, DeclB
   if (t == null || d == null || !t.getIsValid() || !d.getIsValid())
     {
       System.err.println("Invalid declaration");
-      System.exit(1);
+      //System.exit(1);
+      return new LinkedList<StringBuilder>();
     }
   List<Element<Universe>> unis = getType(t,d);
   CContext scope = (CContext) subparser.scope;

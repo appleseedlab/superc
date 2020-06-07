@@ -792,8 +792,8 @@ public class CContext implements ParsingContext {
         //   }
         // }
       }
-      //for (Mapping m : map.values())
-	  //m.destruct();
+      for (Mapping m : map.values())
+	  m.destruct();
     }
 
     /**

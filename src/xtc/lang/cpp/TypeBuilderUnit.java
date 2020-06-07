@@ -138,7 +138,7 @@ public class TypeBuilderUnit {
 	    if (qualifiers[QUAL.isUnsigned.ordinal()])
 		type = new IntegerT(NumberT.Kind.U_SHORT); // unsigned short
 	    else
-		type = new FloatT(NumberT.Kind.SHORT); // short
+		type = new IntegerT(NumberT.Kind.SHORT); // short
 	} else if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
 	    {
 		type = new TypedefT(typedefName, typedefType);
