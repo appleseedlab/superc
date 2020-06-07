@@ -98,7 +98,6 @@ SOURCE = \
 	NodeMultiverse.java \
 	Mapping.java \
 	Universe.java \
-	Desugarer.java \
 	SuperC.java
 
 
