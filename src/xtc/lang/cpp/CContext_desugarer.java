@@ -687,10 +687,15 @@ public class CContext implements ParsingContext {
 	while (scope != null)
 	    {
 		Mapping lt = scope.getSymbolTable().map.get(ident);
-		for (Iterator<Element<Universe>> e = lt.iterator(); e.hasNext();)
-		    l.add(e.next());
-		scope = scope.parent;
-	    }
+    if (lt != null) {
+      for (Iterator<Element<Universe>> e = lt.iterator(); e.hasNext();)
+          l.add(e.next());
+
+        }
+        scope = scope.parent;
+    }
+
+
       return l;
     }
 
@@ -791,9 +796,9 @@ public class CContext implements ParsingContext {
         //     e.varCond.delRef();
         //   }
         // }
+        for (Mapping m : map.values())
+          m.destruct();
       }
-      for (Mapping m : map.values())
-	  m.destruct();
     }
 
     /**
