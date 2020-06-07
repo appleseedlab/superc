@@ -598,7 +598,6 @@ DeclaringList:  /** nomerge **/
         {
       	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
       	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
-
       	  saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, type, decl);
 

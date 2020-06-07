@@ -79,9 +79,9 @@ public class TypeBuilder extends AbstractMultiverse<TypeBuilderUnit>
     {
 	TypeBuilder t = new TypeBuilder();
 	for (Element<TypeBuilderUnit> e : contents)
-	    for (Element<TypeBuilderUnit> f : contents)
+	    for (Element<TypeBuilderUnit> f : with.contents)
 		if (!e.exclusiveFrom(f.getCondition()))
-		    t.contents.add(new Element<TypeBuilderUnit>(e.getData().combine(f.getData()),
+        	    t.contents.add(new Element<TypeBuilderUnit>(e.getData().combine(f.getData()),
 								e.getCondition().and(f.getCondition())));
 	return t;
     }
