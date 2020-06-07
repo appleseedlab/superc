@@ -2063,57 +2063,7 @@ DeclarationList:  /** list, complete **/
 ExpressionStatement:  /** complete **/
         ExpressionOpt SEMICOLON
         {
-          NodeMultiverse condChildren = getNodeMultiverse(getNodeAt(subparser, 2), subparser.getPresenceCondition().presenceConditionManager());
-          System.err.println(condChildren);
-
-          StringBuilder sb = new StringBuilder();
-          // iterates through every pair of (Node, PresenceCondition)
-          // and appends all statements stored in the nodes to this stringbuilder
-          Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
-          String next_ident;
-          List<Element<Universe>> renamings;
-
-          // iterates through every version of the statement
-          while (children.hasNext()) {
-            AbstractMultiverse.Element<Node> next_node = children.next();
-            // NOTE: the 0th element of this list is not a valid statement
-            LinkedList<StringBuilder> allStatements = new LinkedList<StringBuilder>();
-            allStatements.add(new StringBuilder());
-
-            // iterates through all pieces of the statement
-            for (Object child : next_node.data) {
-              if (((Node)child).hasName("PrimaryIdentifier")) {
-                // get the renamings and generate their conditionals
-                next_ident = getStringBuilder((Node)child).toString();
-                CContext scope = (CContext) subparser.scope;
-                renamings = scope.getMappings(next_ident);
-                // iterates through the list of pairs of (renaming, PC) stored in renamings
-                // continually AND's the statement PC with the renaming PC
-                // then write the "if (AND'd PC) { statement with renamed variable }"
-                for (Element<Universe> renaming : renamings) {
-                  StringBuilder temp = new StringBuilder("\nif (" + next_node.cond.and(renaming.getCondition()) + ") {\n");
-                  if (! allStatements.get(0).toString().equals("null"))
-                    temp.append(allStatements.get(0).toString());
-                  temp.append(renaming.getData().getRenaming());
-                  allStatements.add(temp);
-                }
-              } else {
-                // appends this piece of the statement to all versions of the statement
-                for (StringBuilder curStatement : allStatements) {
-                  curStatement.append(getStringBuilder((Node)child));
-                }
-              }
-            }
-            // removes the first stringbuilder in the list
-            // (this one is only used as a base for the others)
-            allStatements.remove();
-            // finishes the statement and adds it to the SB that will be set at this node
-            for (StringBuilder statement : allStatements) {
-              statement.append(";\n}\n");
-              sb.append(statement);
-            }
-          }
-          setStringBuilder(value, sb);
+          hoistStatement(subparser, value);
         }
         ;
 
@@ -2899,6 +2849,61 @@ private void getAndSetSBCondAt(int child, Subparser subparser, Object value)
     StringBuilder temp = getStringBuilder(next_node.data);
     if (temp != null && !temp.toString().equals("null"))
       sb.append(temp);
+  }
+  setStringBuilder(value, sb);
+}
+
+// acts as a getAndSet() method for statements
+void hoistStatement() {
+  NodeMultiverse condChildren = getNodeMultiverse(getNodeAt(subparser, 2), subparser.getPresenceCondition().presenceConditionManager());
+  System.err.println(condChildren);
+
+  StringBuilder sb = new StringBuilder();
+  // iterates through every pair of (Node, PresenceCondition)
+  // and appends all statements stored in the nodes to this stringbuilder
+  Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
+  String next_ident;
+  List<Element<Universe>> renamings;
+
+  // iterates through every version of the statement
+  while (children.hasNext()) {
+    AbstractMultiverse.Element<Node> next_node = children.next();
+    // NOTE: the 0th element of this list is not a valid statement
+    LinkedList<StringBuilder> allStatements = new LinkedList<StringBuilder>();
+    allStatements.add(new StringBuilder());
+
+    // iterates through all pieces of the statement
+    for (Object child : next_node.data) {
+      if (((Node)child).hasName("PrimaryIdentifier")) {
+	// get the renamings and generate their conditionals
+	next_ident = getStringBuilder((Node)child).toString();
+	CContext scope = (CContext) subparser.scope;
+	renamings = scope.getMappings(next_ident);
+	// iterates through the list of pairs of (renaming, PC) stored in renamings
+	// continually AND's the statement PC with the renaming PC
+	// then write the "if (AND'd PC) { statement with renamed variable }"
+	for (Element<Universe> renaming : renamings) {
+	  StringBuilder temp = new StringBuilder("\nif (" + next_node.cond.and(renaming.getCondition()) + ") {\n");
+	  if (! allStatements.get(0).toString().equals("null"))
+	    temp.append(allStatements.get(0).toString());
+	  temp.append(renaming.getData().getRenaming());
+	  allStatements.add(temp);
+	}
+      } else {
+	// appends this piece of the statement to all versions of the statement
+	for (StringBuilder curStatement : allStatements) {
+	  curStatement.append(getStringBuilder((Node)child));
+	}
+      }
+    }
+    // removes the first stringbuilder in the list
+    // (this one is only used as a base for the others)
+    allStatements.remove();
+    // finishes the statement and adds it to the SB that will be set at this node
+    for (StringBuilder statement : allStatements) {
+      statement.append(";\n}\n");
+      sb.append(statement);
+    }
   }
   setStringBuilder(value, sb);
 }
