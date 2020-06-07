@@ -2885,7 +2885,7 @@ void hoistStatement(Subparser subparser, Object value) {
 	// continually AND's the statement PC with the renaming PC
 	// then write the "if (AND'd PC) { statement with renamed variable }"
 	for (Element<Universe> renaming : renamings) {
-	  StringBuilder temp = new StringBuilder("\nif (" + next_node.cond.and(renaming.getCondition()) + ") {\n");
+	  StringBuilder temp = new StringBuilder("\nif (" + printBDDC(renaming.getCondition().and(subparser.getPresenceCondition())) /*next_node.cond.and(renaming.getCondition())*/ + ") {\n");
 	  if (! allStatements.get(0).toString().equals("null"))
 	    temp.append(allStatements.get(0).toString());
 	  temp.append(renaming.getData().getRenaming());
