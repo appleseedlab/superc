@@ -102,11 +102,14 @@ public abstract class AbstractMultiverse<T> implements Iterable<AbstractMultiver
    * calling this function.
    */
   public void destruct() {
-    for (Element<T> elem : contents) {
-      elem.destruct();
-    }
-    contents.clear();
-    contents = null;
+      if (contents != null)
+	  {
+	      for (Element<T> elem : contents) {
+		  elem.destruct();
+	      }
+	      contents.clear();
+	  }
+      contents = null;
   }
 
   /**
