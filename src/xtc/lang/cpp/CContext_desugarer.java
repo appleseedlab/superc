@@ -706,12 +706,13 @@ public class CContext implements ParsingContext {
 	  while (scope != null)
 	      {
 		  Mapping y = scope.getSymbolTable().map.get(ident);
-		  for (Iterator<Element<Universe>> e = y.iterator(); e.hasNext();)
-		      {
-			  Element<Universe> eu = e.next();
-			  if (!eu.exclusiveFrom(p))
-			      l.add(eu);
-		      }
+      if (y != null)
+        for (Iterator<Element<Universe>> e = y.iterator(); e.hasNext();)
+          {
+            Element<Universe> eu = e.next();
+            if (!eu.exclusiveFrom(p))
+              l.add(eu);
+          }
 		  scope = scope.parent;
 	      }
 	  return l;

@@ -2785,7 +2785,10 @@ private void setStringBuilder(Node value, StringBuilder sb) {
 }
 
 private StringBuilder getStringBuilderAt(Subparser subparser, int component) {
-  return (StringBuilder) getNodeAt(subparser, component).getProperty(STRINGBUILDER);
+  Node n = getNodeAt(subparser, component);
+  if (n == null)
+    return null;
+  return (StringBuilder) n.getProperty(STRINGBUILDER);
 }
 
 private StringBuilder getStringBuilder(Node n) {
