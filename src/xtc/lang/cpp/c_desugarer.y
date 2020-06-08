@@ -617,7 +617,7 @@ DeclaringList:  /** nomerge **/
           bindIdent(subparser, type, decl);
 
 	  System.out.println(decl.toString() + " " + type.toString());
-	  
+
           String oldIdent = decl.identifier;
           List<StringBuilder> stringBuilders = addMapping(subparser, type, decl);
 	  StringBuilder sb = new StringBuilder();
@@ -2027,7 +2027,7 @@ LocalLabelList:  /** list, complete **/  // ADDED
 DeclarationOrStatementList:  /** list, complete **/  /* ADDED */
         | DeclarationOrStatementList DeclarationOrStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCondAt(1, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCond(2, subparser, value);
         }
         ;
 
@@ -2038,7 +2038,7 @@ DeclarationOrStatement: /** passthrough, complete **/  /* ADDED */
         }
         | Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCond(2, subparser, value);
+          setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCondAt(1, subparser, value);
         }
         | NestedFunctionDefinition
         {
@@ -2824,13 +2824,14 @@ private void getAndSetSBCond(int numChildren, Subparser subparser, Object value)
   for (int i = numChildren; i >= 1; i--)
   {
     condChildren = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
-
     // iterates through every pair of (Node, PresenceCondition)
     // and appends all declarations stored in the nodes to this stringbuilder
     Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
+    StringBuilder temp = new StringBuilder();
     while (children.hasNext()) {
       AbstractMultiverse.Element<Node> next_node = children.next();
-      StringBuilder temp = getStringBuilder(next_node.data);
+      if (next_node.data != null)
+        temp = getStringBuilder(next_node.data);
       if (temp != null && !temp.toString().equals("null"))
         sb.append(temp);
     }
@@ -2846,9 +2847,11 @@ private void getAndSetSBCondAt(int child, Subparser subparser, Object value)
   // iterates through every pair of (Node, PresenceCondition)
   // and appends all declarations stored in the nodes to this stringbuilder
   Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
+  StringBuilder temp = new StringBuilder();
   while (children.hasNext()) {
     AbstractMultiverse.Element<Node> next_node = children.next();
-    StringBuilder temp = getStringBuilder(next_node.data);
+    if (next_node.data != null)
+      temp = getStringBuilder(next_node.data);
     if (temp != null && !temp.toString().equals("null"))
       sb.append(temp);
   }
@@ -2885,7 +2888,7 @@ void hoistStatement(Subparser subparser, Object value) {
 	// continually AND's the statement PC with the renaming PC
 	// then write the "if (AND'd PC) { statement with renamed variable }"
 	for (Element<Universe> renaming : renamings) {
-	  StringBuilder temp = new StringBuilder("\nif (" + next_node.cond.and(renaming.getCondition()) + ") {\n");
+	  StringBuilder temp = new StringBuilder("\nif (" + printBDDC(renaming.getCondition().and(subparser.getPresenceCondition())) /*next_node.cond.and(renaming.getCondition())*/ + ") {\n");
 	  if (! allStatements.get(0).toString().equals("null"))
 	    temp.append(allStatements.get(0).toString());
 	  temp.append(renaming.getData().getRenaming());
@@ -4583,6 +4586,10 @@ public String generateBoolExpr(String CPPBoolExpr) {
    // note that there will not be a '!' character by this point.
    for (int i = 0; i <= 7; i++)
      sb.deleteCharAt(1);
+
+   // removes parentheses
+   sb.deleteCharAt(0);
+   sb.deleteCharAt(sb.length() - 1);
 
    CPPBoolExpr = sb.toString();
    sb.setLength(0);
