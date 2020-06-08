@@ -4587,6 +4587,10 @@ public String generateBoolExpr(String CPPBoolExpr) {
    for (int i = 0; i <= 7; i++)
      sb.deleteCharAt(1);
 
+   // removes parentheses
+   sb.deleteCharAt(0);
+   sb.deleteCharAt(sb.length() - 1);
+
    CPPBoolExpr = sb.toString();
    sb.setLength(0);
  }
