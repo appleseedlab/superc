@@ -617,7 +617,7 @@ DeclaringList:  /** nomerge **/
           bindIdent(subparser, type, decl);
 
 	  System.out.println(decl.toString() + " " + type.toString());
-	  
+
           String oldIdent = decl.identifier;
           List<StringBuilder> stringBuilders = addMapping(subparser, type, decl);
 	  StringBuilder sb = new StringBuilder();
@@ -2824,13 +2824,14 @@ private void getAndSetSBCond(int numChildren, Subparser subparser, Object value)
   for (int i = numChildren; i >= 1; i--)
   {
     condChildren = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
-
     // iterates through every pair of (Node, PresenceCondition)
     // and appends all declarations stored in the nodes to this stringbuilder
     Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
+    StringBuilder temp = new StringBuilder();
     while (children.hasNext()) {
       AbstractMultiverse.Element<Node> next_node = children.next();
-      StringBuilder temp = getStringBuilder(next_node.data);
+      if (next_node.data != null)
+        temp = getStringBuilder(next_node.data);
       if (temp != null && !temp.toString().equals("null"))
         sb.append(temp);
     }
@@ -2846,9 +2847,11 @@ private void getAndSetSBCondAt(int child, Subparser subparser, Object value)
   // iterates through every pair of (Node, PresenceCondition)
   // and appends all declarations stored in the nodes to this stringbuilder
   Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
+  StringBuilder temp = new StringBuilder();
   while (children.hasNext()) {
     AbstractMultiverse.Element<Node> next_node = children.next();
-    StringBuilder temp = getStringBuilder(next_node.data);
+    if (next_node.data != null)
+      temp = getStringBuilder(next_node.data);
     if (temp != null && !temp.toString().equals("null"))
       sb.append(temp);
   }
