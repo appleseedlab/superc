@@ -5,22 +5,23 @@ import xtc.type.Type;
 import xtc.type.NumberT;
 import xtc.type.IntegerT;
 import xtc.type.FloatT;
+import xtc.type.VoidT;
 import xtc.type.UnitT;
 import xtc.type.TypedefT;
 import xtc.Constants;
 
 public class TypeBuilderUnit {
-    Type type; // void, char, short, int, long, float, double, SUE, typedef                        
+    Type type; // void, char, short, int, long, float, double, SUE, typedef
     enum QUAL {isAuto, isConst, isVolatile, isExtern, isStatic, isRegister, isThreadLocal,
 	       isInline, isSigned, isUnsigned, isTypedef}
     final int NUM_QUALS = 12;
-    enum FOUND_TYPE {seenInt, seenLong, seenLongLong, seenChar, seenShort, seenFloat, seenDouble,
+    enum FOUND_TYPE {seenVoid, seenInt, seenLong, seenLongLong, seenChar, seenShort, seenFloat, seenDouble,
 		     seenComplex, seenTypedef}
-    final int NUM_TYPES = 9;
-    // note: these can appear in any order (in the source file), and they will be initialized to false                                                                        /*boolean isAuto;                                                                                           
+    final int NUM_TYPES = 10;
+    // note: these can appear in any order (in the source file), and they will be initialized to false                                                                        /*boolean isAuto;
     boolean qualifiers[] = new boolean[NUM_QUALS];
     boolean foundTypes[] = new boolean[NUM_TYPES];
-	
+
     List<String> attributes;
 
     boolean isFunction;
@@ -28,7 +29,7 @@ public class TypeBuilderUnit {
     String typedefName;
     String typedefRename;
     Type typedefType;
-    
+
     public String attributesToString() {
 	if (attributes == null)
 	    return "";
@@ -40,9 +41,9 @@ public class TypeBuilderUnit {
 	    return "ERROR:";
 	}
 	StringBuilder sb = new StringBuilder();
-      
+
 	// TODO: check if the order of these matters
-      
+
 	if (qualifiers[QUAL.isTypedef.ordinal()])
 	    sb.append("typedef ");
 	if (qualifiers[QUAL.isAuto.ordinal()])
@@ -65,7 +66,7 @@ public class TypeBuilderUnit {
 	    sb.append("signed ");
 	if (qualifiers[QUAL.isUnsigned.ordinal()])
 	    sb.append("unsigned ");
-    
+
 	if (foundTypes[FOUND_TYPE.seenLong.ordinal()])
 	    sb.append("long ");
 	if (foundTypes[FOUND_TYPE.seenLongLong.ordinal()])
@@ -142,7 +143,10 @@ public class TypeBuilderUnit {
 	} else if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
 	    {
 		type = new TypedefT(typedefName, typedefType);
-	    }
+  } else if (foundTypes[FOUND_TYPE.seenVoid.ordinal()]) {
+    type = new VoidT();
+  }
+
 	else{
 	    System.err.println("ERROR: unsupported type found");
 	    System.exit(1);
@@ -183,7 +187,7 @@ public class TypeBuilderUnit {
 	else
 	    foundTypes[f.ordinal()] = true;
     }
-    
+
     private void add(String x) {
 	if (x.equals("auto"))
 	    addQual(QUAL.isAuto);
@@ -227,12 +231,14 @@ public class TypeBuilderUnit {
 	    addType(FOUND_TYPE.seenDouble);
 	else if (x.equals("complex"))
 	    addType(FOUND_TYPE.seenComplex);
+  else if (x.equals("void"))
+	    addType(FOUND_TYPE.seenVoid);
 	else {
 	    attributes.add(x);
 	}
     }
-     
-    
+
+
     public TypeBuilderUnit(TypeBuilderUnit old, String name) {
 	type = old.type;
 	for (int i = 0; i < NUM_QUALS; ++i)
@@ -296,13 +302,16 @@ public class TypeBuilderUnit {
 		/*case COMPLEX:
 		  foundTypes[FOUND_TYPE.seenComplex.ordinal()] = true;
 		  break;*/
-        
+
 	    default:
 		System.err.println("ERROR: unknown type passed to TypeBuilderUnit(Type type)");
 		System.exit(1);
 	    }
-    
-	}
+  } else if (type instanceof VoidT) {
+      foundTypes[FOUND_TYPE.seenVoid.ordinal()] = true;
+  }
+
+
 
 	this.type = type;
 	attributes = new LinkedList<String>();
@@ -310,7 +319,7 @@ public class TypeBuilderUnit {
 	isTypeError = false;
 	typedefName = "";
 	typedefType = null;
-    }
+  }
 
     // copy constructor that changes type (should be used whenever a type is found)
     // the default constructor should be used before this ever gets called.
@@ -326,7 +335,7 @@ public class TypeBuilderUnit {
 	    typedefName = old.typedefName;
 	    typedefType = old.typedefType;
 	}
-    
+
     }
 
     // sets all flags to false and type starts as unit
@@ -361,12 +370,12 @@ public class TypeBuilderUnit {
     private boolean qualComboExists(TypeBuilderUnit t1, TypeBuilderUnit t2, QUAL opt1, QUAL opt2)
     {
 	return ((t1.qualifiers[opt1.ordinal()] || t2.qualifiers[opt1.ordinal()]) && (t1.qualifiers[opt2.ordinal()] || t2.qualifiers[opt2.ordinal()]));
-    } 
-    
+    }
+
     private boolean typeComboExists(TypeBuilderUnit t1, TypeBuilderUnit t2, FOUND_TYPE opt1, FOUND_TYPE opt2)
     {
 	return ((t1.foundTypes[opt1.ordinal()] ^ t2.foundTypes[opt1.ordinal()]) && (t1.foundTypes[opt2.ordinal()] ^ t2.foundTypes[opt2.ordinal()]));
-    } 
+    }
 
 
     private boolean isValidTypes(TypeBuilderUnit t1, TypeBuilderUnit t2)
@@ -377,8 +386,8 @@ public class TypeBuilderUnit {
 	for (int i = 0; i < NUM_TYPES; ++i)
 	    for (int j = 0; j < NUM_TYPES; ++j)
 		if (t1.foundTypes[i] && t2.foundTypes[j])
-		    //long int	
-		    if (! (typeComboExists(t1,t2,FOUND_TYPE.seenLong,FOUND_TYPE.seenInt) || 
+		    //long int
+		    if (! (typeComboExists(t1,t2,FOUND_TYPE.seenLong,FOUND_TYPE.seenInt) ||
 			   //longlong int
 			   typeComboExists(t1,t2,FOUND_TYPE.seenLongLong,FOUND_TYPE.seenInt) ||
 			   //long double
@@ -403,7 +412,7 @@ public class TypeBuilderUnit {
 	// the reference to the semantic value won't be used again, e.g.,
 	// by another subparser
 	TypeBuilderUnit result = new TypeBuilderUnit(this);
-    
+
 	// checks for mutually-exclusive qualifiers
 	if (qualComboExists(result, with, QUAL.isStatic, QUAL.isExtern) ||
 	    qualComboExists(result, with, QUAL.isStatic, QUAL.isAuto) ||
@@ -419,7 +428,7 @@ public class TypeBuilderUnit {
 	    qualComboExists(result, with, QUAL.isTypedef, QUAL.isExtern) ||
 	    qualComboExists(result, with, QUAL.isTypedef, QUAL.isRegister))
 	    result.isTypeError = true;
-  
+
 	// checks for variables with inline specifier
 	if ((!result.isFunction && !with.isFunction) && (result.qualifiers[QUAL.isInline.ordinal()] || with.qualifiers[QUAL.isInline.ordinal()]))
 	    result.isTypeError = true;
@@ -430,10 +439,10 @@ public class TypeBuilderUnit {
 	    (result.foundTypes[FOUND_TYPE.seenFloat.ordinal()] || with.foundTypes[FOUND_TYPE.seenFloat.ordinal()] ||
 	     result.foundTypes[FOUND_TYPE.seenDouble.ordinal()] || with.foundTypes[FOUND_TYPE.seenDouble.ordinal()]))
 	    result.isTypeError = true;
-    
+
 	if (!isValidTypes(result, with))
 	    result.isTypeError = true;
-    
+
 	for (int i = 0; i < NUM_QUALS; ++i)
 	    if (with.qualifiers[i])
 		if (i == QUAL.isConst.ordinal() || i == QUAL.isVolatile.ordinal())
