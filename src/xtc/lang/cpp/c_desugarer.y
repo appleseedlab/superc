@@ -390,7 +390,10 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
    the conditional will only be hoisted around the prototype, not the
    entire function definition. */
 FunctionPrototype:  /** nomerge **/
-          IdentifierDeclarator { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
+        IdentifierDeclarator { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | DeclarationSpecifier     IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -415,7 +418,6 @@ FunctionPrototype:  /** nomerge **/
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           getAndSetSB(2, subparser, value);
         }
-
         |                          OldFunctionDeclarator
         {
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
@@ -448,11 +450,11 @@ FunctionPrototype:  /** nomerge **/
         ;
 
 FunctionOldPrototype:  /** nomerge **/
-          OldFunctionDeclarator
-          {
-            bindFunDef(subparser, null, getNodeAt(subparser, 1));
-            getAndSetSBAt(1, subparser, value);
-          }
+        OldFunctionDeclarator
+        {
+          bindFunDef(subparser, null, getNodeAt(subparser, 1));
+          getAndSetSBAt(1, subparser, value);
+        }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -486,7 +488,7 @@ NestedFunctionDefinition:  /** complete **/ // added scoping
         NestedFunctionPrototype { ReenterScope(subparser); } LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCond(4, subparser, value);
+          getAndSetSBCond(5, subparser, value);
         }
         | NestedFunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
@@ -630,7 +632,7 @@ Declaration:  /** complete **/
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          // TODO
+          getAndSetSBCond(2, subparser, value);
         }
         ;
 
@@ -1569,7 +1571,7 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         }
         | Designation Initializer
         {
-          getAndSetSB(1, subparser, value);
+          getAndSetSB(2, subparser, value);
         }
         ;
 
@@ -2022,7 +2024,7 @@ Statement:  /** passthrough, complete **/
         | JumpStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          setStringBuilder(value, new StringBuilder()); // TODO: change to getandset
+          getAndSetSBCondAt(1, subparser, value);
         }
         | AssemblyStatement  // ADDED
         {
@@ -2086,12 +2088,12 @@ LocalLabelDeclarationList:  /** list, complete **/
         LocalLabelDeclaration
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBCondAt(1, subparser, value);
         }
         | LocalLabelDeclarationList LocalLabelDeclaration
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBCond(2, subparser, value);
         }
         ;
 
@@ -2135,7 +2137,7 @@ DeclarationOrStatement: /** passthrough, complete **/  /* ADDED */
         | NestedFunctionDefinition
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCond(2, subparser, value);
+          getAndSetSBCondAt(1, subparser, value);
         }
         ;
 
