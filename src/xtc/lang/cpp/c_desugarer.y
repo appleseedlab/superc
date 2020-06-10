@@ -273,17 +273,14 @@ TranslationUnit:  /** complete, passthrough **/
           try {
             OutputStreamWriter writer = new OutputStreamWriter(System.out);
             setCPC(value, PCtoString(subparser.getPresenceCondition()));
-            // writing initial transformation code
+            /** writes transformation code */
             writer.write("#include <stdbool.h>\n");
-            writer.write("#include \"desugared_macros.h\" // configuration macros converted to C variables\n");
+            writer.write("#include \"desugared_macros.h\" /* configuration macros converted to C variables */\n");
 
-            // writes the declarations for the renamed preprocessor BDDs
+            /** writes the extern declarations for the renamed preprocessor BDDs */
             StringBuilder temp = new StringBuilder();
             for (String originalExpr : boolVarRenamings.keySet()) {
               temp.append(originalExpr);
-              // NOTE: uncomment these two lines to remove the parentheses from the written code
-              //temp.deleteCharAt(0);
-              //temp.setLength(temp.length() - 1);
               writer.write("extern bool " + boolVarRenamings.get(originalExpr) + "; " + "/* renamed from " + temp.toString() + " */" + "\n");
               writer.write("extern bool " + boolVarRenamings.get(originalExpr) + "_DEFINED;" + "\n");
 
@@ -293,7 +290,9 @@ TranslationUnit:  /** complete, passthrough **/
             // TODO: handle functions properly and remove this main function placeholder
             writer.write("int main(void) {\n");
 
-            // writing file-dependent transformation code
+            /** writes all file-dependent transformation code that isn't
+             *  a renamed config macro declaration
+             */
             writer.write(getStringBuilderAt(subparser, 1).toString() + "\n");
 
             // TODO: handle functions properly and remove this main function placeholder
@@ -346,6 +345,10 @@ EmptyDefinition:  /** complete **/
         SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          if (((Node)value).isToken())
+            System.out.println("TOKEN TEXT AT emptydef: " + ((Node)value).getTokenText());
+          else
+            System.out.println("emptydef is not a token");
           // TODO
         }
         ;
@@ -404,7 +407,19 @@ FunctionPrototype:  /** nomerge **/
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          StringBuilder sb = new StringBuilder();
+          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+
+  	      List<Type> typeList = type.toType();
+  	      if (typeList.size() == 1)
+  		      sb.append(typeList.get(0) + " ");
+  	      else {
+	          System.err.println("ERROR: Configurable typedefs not yet supported.");
+		        // System.exit(1);
+  	      }
+          sb.append(getStringBuilderAt(subparser, 1));
+          //System.err.println("main function signature is " + sb.toString());
+      	  setStringBuilder(value, sb);
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
@@ -685,7 +700,7 @@ DeclaringList:  /** nomerge **/
 	      decl.identifier = s.toString();
 	      List<Type> typeList = type.toType();
 	      if (typeList.size() == 1)
-		sb.append("\n" + typeList.get(0) + " " + decl + ";" + " // renamed from " + oldIdent);
+		sb.append("\n" + typeList.get(0) + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
 	      else {
 		System.err.println("ERROR: Configurable typedefs not yet supported.");
 		// System.exit(1);
@@ -735,6 +750,7 @@ TypeSpecifier:  /** passthrough, nomerge **/
         BasicTypeSpecifier                 /* Arithmetic or void */
 				{
 					setTypeBuilder(value,getTypeBuilderAt(subparser,1));
+
 				}
         | SUETypeSpecifier                 /* Struct/Union/Enum */
 				{
@@ -961,6 +977,7 @@ BasicTypeSpecifier: /** passthrough, nomerge **/
 	  updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
+
         }
         | TypeQualifierList BasicTypeName
 	{
@@ -1188,6 +1205,7 @@ BasicTypeName:  /** passthrough **/
           TypeBuilder tb = new TypeBuilder(VoidT.TYPE, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).type = VoidT.TYPE;
+
         }
         | CHAR
         {
@@ -1433,12 +1451,24 @@ EnumeratorValueOpt: /** nomerge **/
 
 ParameterTypeList:  /** nomerge **/
         ParameterList
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | ParameterList COMMA ELLIPSIS
+        {
+          // TODO
+        }
         ;
 
 ParameterList:  /** list, nomerge **/
         ParameterDeclaration
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | ParameterList COMMA ParameterDeclaration
+        {
+          // TODO
+        }
         ;
 
 /* ParameterDeclaration:  /\** nomerge **\/ */
@@ -1484,18 +1514,56 @@ ParameterList:  /** list, nomerge **/
 
 ParameterDeclaration:  /** passthrough, nomerge **/
         ParameterIdentifierDeclaration
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         | ParameterAbstractDeclaration
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         ;
 
 ParameterAbstractDeclaration:
         DeclarationSpecifier
+        {
+          // TODO
+        }
         | DeclarationSpecifier AbstractDeclarator
+        {
+          // TODO
+        }
         | DeclarationQualifierList
+        {
+          // TODO
+        }
         | DeclarationQualifierList AbstractDeclarator
+        {
+          // TODO
+        }
         | TypeSpecifier
+        {
+          StringBuilder sb = new StringBuilder();
+          List<Type> typeList = getTypeBuilderAt(subparser, 1).toType();
+  	      if (typeList.size() == 1)
+        		sb.append(typeList.get(0));
+  	      else {
+        		System.err.println("ERROR: Configurable typedefs not yet supported."); // TODO
+        		// System.exit(1);
+  	      }
+          setStringBuilder(value, sb);
+        }
         | TypeSpecifier AbstractDeclarator
+        {
+          // TODO
+        }
         | TypeQualifierList
+        {
+          // TODO
+        }
         | TypeQualifierList AbstractDeclarator
+        {
+          // TODO
+        }
         ;
 
 ParameterIdentifierDeclaration:
@@ -1812,6 +1880,7 @@ IdentifierDeclarator:  /** passthrough, nomerge **/
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
+    getAndSetSBAt(1, subparser, value);
 	}
         ;
 
@@ -1820,11 +1889,13 @@ IdentifierDeclaratorMain:  /** passthrough, nomerge **/
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
+    getAndSetSB(1, subparser, value);
 	}
         | ParenIdentifierDeclarator
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
+    getAndSetSBAt(1, subparser, value);
 	}
         ;
 
@@ -1833,12 +1904,14 @@ UnaryIdentifierDeclarator: /** passthrough, nomerge **/
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
+    getAndSetSBAt(1, subparser, value);
 	}
         | STAR IdentifierDeclarator
         {
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  db.addPointer();
 	  setDeclBuilder(value, db);
+    getAndSetSB(3, subparser, value);
 	}
         | STAR TypeQualifierList IdentifierDeclarator
 	{
@@ -1847,6 +1920,7 @@ UnaryIdentifierDeclarator: /** passthrough, nomerge **/
 	  outter.addPointer();
 	  outter.addQuals(getTypeBuilderAt(subparser,2),db);
 	  setDeclBuilder(value,outter);
+    getAndSetSB(3, subparser, value);
 	}
         ;
 
@@ -1855,6 +1929,7 @@ FunctionDeclarator
 {
   //System.err.println("Unsupported grammar PostfixIdentifierDeclarator-FunctionDecl"); // TODO
   //					System.exit(1);
+  getAndSetSBAt(1, subparser, value);
 }
 | ArrayDeclarator
 	{
@@ -1887,10 +1962,27 @@ AttributedDeclarator: /** nomerge **/
 
 FunctionDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator PostfixingFunctionDeclarator
+        {
+          // TODO: construct the declaration of main here using the declbuilder stored at ParenIdentifierDeclarator and PostfixingFunctionDeclarator
+          DeclBuilder ident = getDeclBuilderAt(subparser, 2);
+          StringBuilder sb = new StringBuilder();
+          sb.append(ident);
+
+          sb.append(getStringBuilderAt(subparser, 1));
+          setStringBuilder(value, sb);
+        }
         ;
 
 PostfixingFunctionDeclarator:  /** nomerge **/
         LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN
+        {
+          StringBuilder sb = new StringBuilder("(");
+          for (int i = 1; i <= 3; i++)
+            if (getStringBuilderAt(subparser, i) != null && !getStringBuilderAt(subparser, i).equals("null"))
+              sb.append(getStringBuilderAt(subparser, i));
+          sb.append(")");
+          setStringBuilder(value, sb);
+        }
         ;
 
 ArrayDeclarator:  /** nomerge **/
@@ -1905,17 +1997,19 @@ ArrayDeclarator:  /** nomerge **/
 
 ParenIdentifierDeclarator:  /** passthrough, nomerge **/
         SimpleDeclarator
-	{
-	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-	  setDeclBuilder(value, db);
-	}
+      	{
+      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+      	  setDeclBuilder(value, db);
+          getAndSetSBAt(1, subparser, value);
+      	}
         | LPAREN ParenIdentifierDeclarator RPAREN
-	{
-	  DeclBuilder db = getDeclBuilderAt(subparser,2);
-	  DeclBuilder superDecl = new DeclBuilder();
-	  superDecl.addDeclBuilder(db);
-	  setDeclBuilder(value,superDecl);
-	}
+      	{
+      	  DeclBuilder db = getDeclBuilderAt(subparser,2);
+      	  DeclBuilder superDecl = new DeclBuilder();
+      	  superDecl.addDeclBuilder(db);
+      	  setDeclBuilder(value,superDecl);
+          getAndSetSB(3, subparser, value);
+      	}
         ;
 
 SimpleDeclarator: /** nomerge **/
@@ -1956,6 +2050,9 @@ PostfixingAbstractDeclarator: /** passthrough, nomerge **/
 ParameterTypeListOpt: /** nomerge **/
         /* empty */
         | ParameterTypeList
+        {
+          getAndSetSBAt(1, subparser, value);
+        }
         ;
 
 ArrayAbstractDeclarator: /** nomerge **/
@@ -2545,6 +2642,7 @@ LogicalAndExpression:  /** passthrough, nomerge **/
         InclusiveOrExpression
         {
           getAndSetSBAt(1, subparser, value);
+          //System.out.println("TOKEN TEXT AT LogicalAndExpression: " + ((Node)value).getTokenText());
         }
         | LogicalAndExpression ANDAND InclusiveOrExpression
         {
@@ -2556,6 +2654,7 @@ LogicalORExpression:  /** passthrough, nomerge **/
         LogicalAndExpression
         {
           getAndSetSBAt(1, subparser, value);
+          //System.out.println("TOKEN TEXT AT LogicalORExpression: " + ((Node)value).getTokenText());
         }
         | LogicalORExpression OROR LogicalAndExpression
         {
@@ -2936,7 +3035,7 @@ private StringBuilder getStringBuilder(Node n) {
   return (StringBuilder) n.getProperty(STRINGBUILDER);
 }
 
-// gets the stringbuilders from a non-'complete' node's children
+/** gets the stringbuilders from a non-'complete' node's children */
 private void getAndSetSB(int numChildren, Subparser subparser, Object value)
 {
   StringBuilder sb = new StringBuilder();
@@ -2949,7 +3048,7 @@ private void getAndSetSB(int numChildren, Subparser subparser, Object value)
   setStringBuilder(value, sb);
 }
 
-// gets the stringbuilders from a non-'complete' node's child
+/** gets the stringbuilders from a non-'complete' node's child */
 private void getAndSetSBAt(int child, Subparser subparser, Object value)
 {
   StringBuilder sb = new StringBuilder();
@@ -2960,7 +3059,7 @@ private void getAndSetSBAt(int child, Subparser subparser, Object value)
   setStringBuilder(value, sb);
 }
 
-// gets the stringbuilders from a 'complete' node's children
+/** gets the stringbuilders from a 'complete' node's children */
 private void getAndSetSBCond(int numChildren, Subparser subparser, Object value)
 {
   NodeMultiverse condChildren;
@@ -2968,8 +3067,9 @@ private void getAndSetSBCond(int numChildren, Subparser subparser, Object value)
   for (int i = numChildren; i >= 1; i--)
   {
     condChildren = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
-    // iterates through every pair of (Node, PresenceCondition)
-    // and appends all declarations stored in the nodes to this stringbuilder
+    /** iterates through every pair of (Node, PresenceCondition)
+     *  and appends all declarations stored in the nodes to this stringbuilder
+     */
     Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
     StringBuilder temp = new StringBuilder();
     while (children.hasNext()) {
@@ -2983,13 +3083,14 @@ private void getAndSetSBCond(int numChildren, Subparser subparser, Object value)
   setStringBuilder(value, sb);
 }
 
-// gets the stringbuilders from a 'complete' node's child
+/** gets the stringbuilders from a 'complete' node's child */
 private void getAndSetSBCondAt(int child, Subparser subparser, Object value)
 {
   NodeMultiverse condChildren = getNodeMultiverse(getNodeAt(subparser, child), subparser.getPresenceCondition().presenceConditionManager());
   StringBuilder sb = new StringBuilder();
-  // iterates through every pair of (Node, PresenceCondition)
-  // and appends all declarations stored in the nodes to this stringbuilder
+  /** iterates through every pair of (Node, PresenceCondition)
+   *  and appends all declarations stored in the nodes to this stringbuilder
+   */
   Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
   StringBuilder temp = new StringBuilder();
   while (children.hasNext()) {
@@ -3002,7 +3103,7 @@ private void getAndSetSBCondAt(int child, Subparser subparser, Object value)
   setStringBuilder(value, sb);
 }
 
-// acts as a getAndSet() method for statements
+/** acts as a getAndSet() method for statements */
 void hoistStatement(Subparser subparser, Object value) {
   NodeMultiverse condChildren = getNodeMultiverse(getNodeAt(subparser, 2), subparser.getPresenceCondition().presenceConditionManager());
   //System.err.println(condChildren);
@@ -3017,38 +3118,40 @@ void hoistStatement(Subparser subparser, Object value) {
   // iterates through every version of the statement
   while (children.hasNext()) {
     AbstractMultiverse.Element<Node> next_node = children.next();
-    // NOTE: the 0th element of this list is not a valid statement
+    /** NOTE: the 0th element of this list is not a valid statement */
     LinkedList<StringBuilder> allStatements = new LinkedList<StringBuilder>();
     allStatements.add(new StringBuilder());
 
-    // iterates through all pieces of the statement
+    /** iterates through all pieces of the statement */
     for (Object child : next_node.data) {
       if (((Node)child).hasName("PrimaryIdentifier")) {
-	// get the renamings and generate their conditionals
+	/** get the renamings and generate their conditionals */
 	next_ident = getStringBuilder((Node)child).toString();
 	CContext scope = (CContext) subparser.scope;
 	renamings = scope.getMappings(next_ident);
-	// iterates through the list of pairs of (renaming, PC) stored in renamings
-	// continually AND's the statement PC with the renaming PC
-	// then write the "if (AND'd PC) { statement with renamed variable }"
+	/** iterates through the list of pairs of (renaming, PC) stored in renamings
+	 *  continually AND's the statement PC with the renaming PC
+	 *  then write the "if (AND'd PC) { statement with renamed variable }" '
+   */
 	for (Element<Universe> renaming : renamings) {
-	  StringBuilder temp = new StringBuilder("\nif (" + printBDDC(renaming.getCondition().and(subparser.getPresenceCondition())) /*next_node.cond.and(renaming.getCondition())*/ + ") {\n");
+	  StringBuilder temp = new StringBuilder("\nif (" + PCtoString(renaming.getCondition().and(subparser.getPresenceCondition())) /*next_node.cond.and(renaming.getCondition())*/ + ") {\n");
 	  if (! allStatements.get(0).toString().equals("null"))
 	    temp.append(allStatements.get(0).toString());
 	  temp.append(renaming.getData().getRenaming());
 	  allStatements.add(temp);
 	}
       } else {
-	// appends this piece of the statement to all versions of the statement
+	/** appends this piece of the statement to all versions of the statement */
 	for (StringBuilder curStatement : allStatements) {
 	  curStatement.append(getStringBuilder((Node)child));
 	}
       }
     }
-    // removes the first stringbuilder in the list
-    // (this one is only used as a base for the others)
+    /** removes the first stringbuilder in the list
+     *  (this one is only used as a base for the others)
+     */
     allStatements.remove();
-    // finishes the statement and adds it to the SB that will be set at this node
+    /** finishes the statement and adds it to the SB that will be set at this node */
     for (StringBuilder statement : allStatements) {
       statement.append(";\n}\n");
       sb.append(statement);
@@ -4535,6 +4638,7 @@ private final static char[] charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmno
 private final static Random random = new Random();
 private final static int RAND_SIZE = 5;
 
+/** Generates a ranom string of proper length for identifier renamings */
 private String randomString(int string_size) {
   StringBuilder randomstring = new StringBuilder();
   for (int i = 0; i < string_size; i++) {
@@ -4543,6 +4647,7 @@ private String randomString(int string_size) {
   return randomstring.toString();
 }
 
+/** Renames identifiers in valid C */
 private String mangleRenaming(String prefix, String ident) {
     // don't want to exceed c identifier length limit (31)
     if (ident.length() > 22) {
@@ -4610,47 +4715,7 @@ private NodeMultiverse getNodeMultiverse(Node node, PresenceConditionManager pre
 public HashMap<String, String> boolVarRenamings = new HashMap<String, String>();
 private HashMap<String, String> BoolExprs = new HashMap<String, String>();
 
-public String printBDDC(PresenceCondition cond) {
- List allsat = (List) cond.getBDD().allsat();
- ArrayList<String> currentExprs;
- String CBoolExpr;
- boolean firstTerm = true;
- boolean firstTermOuter = true;
- StringBuilder sb = new StringBuilder();
-
- if (cond.getBDD().isOne()) {
-   sb.append("1");
-   return sb.toString();
- } else if (cond.getBDD().isZero()) {
-   sb.append("0");
-   return sb.toString();
- }
-
- for (Object o : allsat) {
-   if (!firstTermOuter)
-     sb.append(" || ");
-   firstTermOuter = false;
-   currentExprs = getBoolExprs((byte[]) o, cond);
-   firstTerm = true;
-   for (String CPPBoolExpr : currentExprs) {
-     if (!firstTerm)
-       sb.append(" && ");
-     firstTerm = false;
-     if (BoolExprs.isEmpty() || !BoolExprs.containsKey(CPPBoolExpr)) {
-       // generates a new C boolean expression with hashcode appended, then adds it to hashmap and prints it
-       CBoolExpr = generateBoolExpr(CPPBoolExpr);
-       BoolExprs.put(CPPBoolExpr, CBoolExpr);
-       sb.append(CBoolExpr);
-     } else if (BoolExprs.containsKey(CPPBoolExpr)) {
-       // prints the mapped C expression
-       CBoolExpr = BoolExprs.get(CPPBoolExpr);
-       sb.append(CBoolExpr);
-     }
-   }
- }
- return sb.toString();
-}
-
+/** Takes a presence condition and generates a valid C string for conditionals */
 public String PCtoString(PresenceCondition cond) {
  List allsat = (List) cond.getBDD().allsat();
  ArrayList<String> currentExprs;
@@ -4676,12 +4741,11 @@ public String PCtoString(PresenceCondition cond) {
        sb.append(" && ");
      firstTerm = false;
      if (BoolExprs.isEmpty() || !BoolExprs.containsKey(CPPBoolExpr)) {
-       // generates a new C boolean expression with hashcode appended, then adds it to hashmap and returns it
+       /** generates a new C boolean expression with hashcode appended, then adds it to hashmap, then returns it */
        CBoolExpr = generateBoolExpr(CPPBoolExpr);
        BoolExprs.put(CPPBoolExpr, CBoolExpr);
        sb.append(CBoolExpr);
      } else /* if (BoolExprs.containsKey(CPPBoolExpr)) */ {
-       // returns the mapped C expression
        CBoolExpr = BoolExprs.get(CPPBoolExpr);
        sb.append(CBoolExpr);
      }
@@ -4690,12 +4754,12 @@ public String PCtoString(PresenceCondition cond) {
  return sb.toString();
 }
 
-// returns a list of every expression in the BDD
+/** returns a list of every expression in the BDD */
 public ArrayList<String> getBoolExprs(byte[] sat, PresenceCondition cond) {
  ArrayList<String> allExprs = new ArrayList<String>();
  for (int i = 0; i < sat.length; i++) {
    if (sat[i] == 1) {
-     // builds up a list of the (CPP) boolean expressions within the PresenceCondition
+     /** builds up a list of the (CPP) boolean expressions within the PresenceCondition */
      allExprs.add(cond.presenceConditionManager().getVariableManager().getName(i));
    } else if (sat[i] == 0) {
      allExprs.add("!" + cond.presenceConditionManager().getVariableManager().getName(i));
@@ -4704,34 +4768,35 @@ public ArrayList<String> getBoolExprs(byte[] sat, PresenceCondition cond) {
  return allExprs;
 }
 
-// returns a new (valid C) boolean expression, with hashcode appended
+/** Returns a new (valid C) boolean expression, with hashcode appended */
 public String generateBoolExpr(String CPPBoolExpr) {
  StringBuilder sb = new StringBuilder();
  boolean falseExpr = false;
  boolean definedExpr = false;
 
- // need to remove the '!' character from the string, so that it doesn't change the hashcode (then append it later)
+ /** need to remove the '!' character from the string, so that it doesn't change the hashcode (then append it later) */
  if (CPPBoolExpr.contains("!")) {
    falseExpr = true;
    sb.append(CPPBoolExpr);
 
-   // if there is a '!' character, it will be at the 0th position of sb
+   /** if there is a '!' character, it will be at the 0th position of sb */
    sb.deleteCharAt(0);
    CPPBoolExpr = sb.toString();
    sb.setLength(0);
  }
 
- // need to remove "defined" from the string, so that it doesn't affect the hashcode (then append it later)
+ /** need to remove "defined" from the string, so that it doesn't affect the hashcode (then append it later) */
  if (CPPBoolExpr.contains("defined")) {
    definedExpr = true;
    sb.append(CPPBoolExpr);
 
-   // if the expression is a "defined" expression, it will be in the form (defined <>)
-   // note that there will not be a '!' character by this point.
+   /** if the expression is a "defined" expression, it will be in the form (defined <>)
+    *  note that there will not be a '!' character by this point.
+    */
    for (int i = 0; i <= 7; i++)
      sb.deleteCharAt(1);
 
-   // removes parentheses
+   /** removes parentheses */
    sb.deleteCharAt(0);
    sb.deleteCharAt(sb.length() - 1);
 
@@ -4743,7 +4808,7 @@ public String generateBoolExpr(String CPPBoolExpr) {
  sb.append(CPPBoolExpr.hashCode());
 
  if (sb.charAt(3) == '-')
-   sb.replace(3, 4, "n"); // replaces the '-' with 'n'
+   sb.replace(3, 4, "n"); /** replaces the '-' with 'n' */
 
  if (!boolVarRenamings.containsKey(CPPBoolExpr)) {
    boolVarRenamings.put(CPPBoolExpr, sb.toString());
@@ -4759,15 +4824,15 @@ public String generateBoolExpr(String CPPBoolExpr) {
  if (definedExpr)
    sb.append("_DEFINED");
 
- // the expression cannot have a '-' character in it (because it would evaluate as subtraction)
+ /** the expression cannot have a '-' character in it (because it would evaluate as subtraction) */
  if (falseExpr) {
-   // if the expression is false, then the '-' will come later in the string due to the additional '!' character
+   /** if the expression is false, then the '-' will come later in the string due to the additional '!' character */
    if (sb.charAt(4) == '-') {
-     sb.replace(4, 5, "n"); // replaces the '-' with 'n'
+     sb.replace(4, 5, "n"); /** replaces the '-' with 'n' */
    }
  } else {
    if (sb.charAt(3) == '-') {
-     sb.replace(3, 4, "n"); // replaces the '-' with 'n'
+     sb.replace(3, 4, "n"); /** replaces the '-' with 'n' */
    }
  }
 
