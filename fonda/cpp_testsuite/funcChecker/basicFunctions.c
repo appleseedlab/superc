@@ -14,6 +14,11 @@ char z(int z1, int z2)
   return 'a';
 }
 
+short w(int x, ...)
+{
+  return 0;
+}
+
 int main()
 {
   x();

@@ -412,7 +412,6 @@ FunctionPrototype:  /** nomerge **/
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           StringBuilder sb = new StringBuilder();
-          TypeBuilder type = getTypeBuilderAt(subparser, 2);
 
   	      List<Type> typeList = type.toType();
   	      if (typeList.size() == 1)
@@ -682,7 +681,7 @@ DeclaringList:  /** nomerge **/
       	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
       	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
 	  System.out.println(decl.toString() + " " + type.toString());
-      	  System.out.println("testing renaming declaration: " + type.toType() + " " + addMapping(subparser, type, decl) + ";");
+    System.out.println("testing renaming declaration: " + type.toType() + " " + getRenamings(addMapping(subparser, type, decl)) + ";");
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getTypeBuilderAt(subparser, 5), getDeclBuilderAt(subparser, 4));
         }
@@ -694,7 +693,7 @@ DeclaringList:  /** nomerge **/
           bindIdent(subparser, type, decl);
 
           String oldIdent = decl.identifier;
-          List<StringBuilder> stringBuilders = addMapping(subparser, type, decl);
+          List<StringBuilder> stringBuilders = getRenamings(addMapping(subparser, type, decl));
 	  StringBuilder sb = new StringBuilder();
 
 	  for (StringBuilder s : stringBuilders)
@@ -1225,7 +1224,6 @@ BasicTypeName:  /** passthrough **/
         {
 
           // See xtc.type.* for the class hiearchy for types
-          System.out.println(subparser.presenceCondition);
           TypeBuilder tb = new TypeBuilder(NumberT.INT, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenInt = true;
@@ -1456,24 +1454,29 @@ ParameterTypeList:  /** nomerge **/
         ParameterList
         {
           getAndSetSBAt(1, subparser, value);
-          //Return!
+          setParameter(value, getParameterAt(subparser,1));
         }
         | ParameterList COMMA ELLIPSIS
         {
-          System.err.println("Unsupported grammar ParameterTypeList-ELLIPSIS");
-          System.exit(1);
+          List<Parameter> ps = getParameterAt(subparser,3);
+          Parameter p = new Parameter();
+          p.setEllipsis();
+          ps.add(p);
+          setParameter(value,ps);
         }
         ;
 
 ParameterList:  /** list, nomerge **/
         ParameterDeclaration
         {
-          //return
           getAndSetSBAt(1, subparser, value);
+          setParameter(value, getParameterAt(subparser,1));
         }
         | ParameterList COMMA ParameterDeclaration
         {
-          // TODO
+          List<Parameter> p = getParameterAt(subparser,3);
+          p.addAll(getParameterAt(subparser,1));
+          setParameter(value,p);
         }
         ;
 
@@ -1522,6 +1525,7 @@ ParameterDeclaration:  /** passthrough, nomerge **/
         ParameterIdentifierDeclaration
         {
           getAndSetSBAt(1, subparser, value);
+          setParameter(value, getParameterAt(subparser,1));
         }
         | ParameterAbstractDeclaration
         {
@@ -1592,8 +1596,16 @@ ParameterIdentifierDeclaration:
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          
         } AttributeSpecifierListOpt
+        {
+          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
+          TypeBuilder type = getTypeBuilderAt(subparser, 4);
+      	
+          Parameter p = new Parameter();
+          p.setMultiverse(addMapping(subparser, type, decl));
+          setParameter(value, p);
+        
+        }
         | TypeSpecifier ParameterTypedefDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -1976,7 +1988,7 @@ FunctionDeclarator:  /** nomerge **/
 
           sb.append(getStringBuilderAt(subparser, 1));
           setStringBuilder(value, sb);
-          ident.setParams();
+          ident.setParams(getParameterAt(subparser,1));
           setDeclBuilder(value,ident);
         }
         ;
@@ -1991,6 +2003,7 @@ PostfixingFunctionDeclarator:  /** nomerge **/
               sb.append(getStringBuilderAt(subparser, i));
           sb.append(")");
           setStringBuilder(value, sb);
+          setParameter(value,getParameterAt(subparser, 3));
         }
         ;
 
@@ -2061,6 +2074,7 @@ ParameterTypeListOpt: /** nomerge **/
         | ParameterTypeList
         {
           getAndSetSBAt(1, subparser, value);
+          setParameter(value,getParameterAt(subparser,1));
         }
         ;
 
@@ -2960,11 +2974,6 @@ AsmKeyword:   // ADDED
 // TUTORIAL: this section of the grammar gets copied into the
 // resulting parser, specifically the CActions.java class
 
-/**
-   This is just a constant string name for a property used to assign
-   semantic values that are type builders.
- */
-private static final String TYPEBUILDER = "xtc.lang.cpp.TypeBuilder";
 
 // TUTORIAL: this function just annotates a semantic value with a typebuilder
 private void setTypeBuilder(Object value, TypeBuilder tb) {
@@ -2983,6 +2992,12 @@ private TypeBuilder getTypeBuilderAt(Subparser subparser, int component) {
   return (TypeBuilder) getNodeAt(subparser, component).getProperty(TYPEBUILDER);
 }
 
+/**
+   This is just a constant string name for a property used to assign
+   semantic values that are type builders.
+ */
+private static final String TYPEBUILDER = "xtc.lang.cpp.TypeBuilder";
+private static final String PARAMETER = "xtc.lang.cpp.Parameter";
 private static final String DECLBUILDER = "xtc.lang.cpp.DeclBuilder";
 private static final String STRING = "xtc.String";
 private static final String STRINGBUILDER = "xtc.StringBuilder";
@@ -3004,6 +3019,30 @@ private DeclBuilder getDeclBuilderAt(Subparser subparser, int component) {
   // value should be not null and should be a Node type
   return (DeclBuilder) getNodeAt(subparser, component).getProperty(DECLBUILDER);
 }
+
+private void setParameter(Object value, Parameter p) {
+  // value should be not null and should be a Node type
+  List<Parameter> ps = new LinkedList<Parameter>();
+  ps.add(p);
+  setParameter((Node) value, ps);
+}
+
+private void setParameter(Object value, List<Parameter> p) {
+  // value should be not null and should be a Node type
+  setParameter((Node) value, p);
+}
+
+// TUTORIAL: these functions retrieve a type builder from the semantic value
+private void setParameter(Node value, List<Parameter> p) {
+  // value should be not null and should be a Node type
+  value.setProperty(PARAMETER, p);
+}
+
+private List<Parameter> getParameterAt(Subparser subparser, int component) {
+  // value should be not null and should be a Node type
+  return (List<Parameter>) getNodeAt(subparser, component).getProperty(PARAMETER);
+}
+
 
 private void setCPC(Object value, String CPC) {
   // value should be not null and should be a Node type
@@ -4620,18 +4659,23 @@ private Multiverse<Universe> getType(TypeBuilder t, DeclBuilder d, PresenceCondi
   return ret;
 }
 
-private List<StringBuilder> addMapping(Subparser subparser, TypeBuilder t, DeclBuilder d)
+private Multiverse<Universe> addMapping(Subparser subparser, TypeBuilder t, DeclBuilder d)
 {
-  List<StringBuilder> sb = new LinkedList<StringBuilder>();
   if (t == null || d == null || !t.getIsValid() || !d.getIsValid())
     {
       System.err.println("Invalid declaration");
       //System.exit(1);
-      return new LinkedList<StringBuilder>();
+      return new Multiverse<Universe>();
     }
   Multiverse<Universe> unis = getType(t,d,subparser.getPresenceCondition());
   CContext scope = (CContext) subparser.scope;
   scope.getSymbolTable().addMapping(d.getID(), unis);
+  return unis;
+}
+
+private List<StringBuilder> getRenamings(Multiverse<Universe> unis)
+{
+  List<StringBuilder> sb = new LinkedList<StringBuilder>();
   for (Element<Universe> u : unis)
     {
       sb.add(new StringBuilder(u.getData().getRenaming()));

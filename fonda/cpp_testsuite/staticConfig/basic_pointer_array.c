@@ -20,5 +20,9 @@ int main() {
 	#endif
 #endif
 
+  #ifdef D
+  char arr;
+  #endif
+
 	return 0;
 }

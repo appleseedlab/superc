@@ -95,6 +95,7 @@ SOURCE = \
 	TypeBuilder.java \
 	TypeBuilderUnit.java \
 	Multiverse.java \
+	Parameter.java \
 	Universe.java \
 	SuperC.java
 
