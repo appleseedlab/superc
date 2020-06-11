@@ -191,4 +191,9 @@ public class DeclBuilder
     {
 	return isValid;
     }
+
+  public void setParams()
+  {
+    
+  }
 }

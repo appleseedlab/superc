@@ -191,7 +191,7 @@ import xtc.lang.cpp.Syntax.Directive;
 import xtc.lang.cpp.Syntax.Conditional;
 import xtc.lang.cpp.Syntax.Error;
 
-import xtc.lang.cpp.AbstractMultiverse;
+import xtc.lang.cpp.Multiverse;
 
 import xtc.type.AliasT;
 import xtc.type.ArrayT;
@@ -227,7 +227,7 @@ import xtc.util.SymbolTable.Scope;
 import xtc.util.SingletonIterator;
 import xtc.util.Utilities;
 
- import xtc.lang.cpp.AbstractMultiverse.Element;
+ import xtc.lang.cpp.Multiverse.Element;
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
 import xtc.lang.cpp.ForkMergeParser.StackFrame;
@@ -357,6 +357,8 @@ FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
 FunctionDefinition:  /** complete **/ // added scoping
         FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
+          //Get FunctionPrototype
+          //Get FunctionCompoundStatement
           setCPC(value, PCtoString(subparser.getPresenceCondition())); getAndSetSBCondAt(3, subparser, value);
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
@@ -387,6 +389,8 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeSpecifier            IdentifierDeclarator
         {
+          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -616,7 +620,7 @@ DeclaringList:  /** nomerge **/
       	  saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, type, decl);
 
-	  System.out.println(decl.toString() + " " + type.toString());
+          System.out.println(decl.toString() + " " + type.toString() + " " + subparser.presenceCondition.toString());
 
           String oldIdent = decl.identifier;
           List<StringBuilder> stringBuilders = addMapping(subparser, type, decl);
@@ -1147,6 +1151,7 @@ BasicTypeName:  /** passthrough **/
         {
 
           // See xtc.type.* for the class hiearchy for types
+          System.out.println(subparser.presenceCondition);
           TypeBuilder tb = new TypeBuilder(NumberT.INT, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenInt = true;
@@ -1375,12 +1380,25 @@ EnumeratorValueOpt: /** nomerge **/
 
 ParameterTypeList:  /** nomerge **/
         ParameterList
+        {
+          //Return!
+        }
         | ParameterList COMMA ELLIPSIS
+        {
+          System.err.println("Unsupported grammar ParameterTypeList-ELLIPSIS");
+          System.exit(1);
+        }
         ;
 
 ParameterList:  /** list, nomerge **/
         ParameterDeclaration
+        {
+          //return!!!
+        }
         | ParameterList COMMA ParameterDeclaration
+        {
+          //TODO
+        }
         ;
 
 /* ParameterDeclaration:  /\** nomerge **\/ */
@@ -1426,7 +1444,13 @@ ParameterList:  /** list, nomerge **/
 
 ParameterDeclaration:  /** passthrough, nomerge **/
         ParameterIdentifierDeclaration
+        {
+          //you guessed it, return
+        }
         | ParameterAbstractDeclaration
+        {
+          //TODO
+        }
         ;
 
 ParameterAbstractDeclaration:
@@ -1460,6 +1484,7 @@ ParameterIdentifierDeclaration:
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          
         } AttributeSpecifierListOpt
         | TypeSpecifier ParameterTypedefDeclarator
         {
@@ -1792,8 +1817,7 @@ UnaryIdentifierDeclarator: /** passthrough, nomerge **/
 PostfixIdentifierDeclarator: /** passthrough, nomerge **/
 FunctionDeclarator
 {
-  System.err.println("Unsupported grammar PostfixIdentifierDeclarator-FunctionDecl"); // TODO
-  //					System.exit(1);
+  setDeclBuilder(value, getDeclBuilderAt(subparser,1));
 }
 | ArrayDeclarator
 	{
@@ -1826,10 +1850,18 @@ AttributedDeclarator: /** nomerge **/
 
 FunctionDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator PostfixingFunctionDeclarator
+        {
+          DeclBuilder ident = getDeclBuilderAt(subparser,2);
+          ident.setParams();
+          setDeclBuilder(value,ident);
+        }
         ;
 
 PostfixingFunctionDeclarator:  /** nomerge **/
         LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN
+        {
+          //return whatever is in Parameter TypeListOpt
+        }
         ;
 
 ArrayDeclarator:  /** nomerge **/
@@ -1895,6 +1927,9 @@ PostfixingAbstractDeclarator: /** passthrough, nomerge **/
 ParameterTypeListOpt: /** nomerge **/
         /* empty */
         | ParameterTypeList
+{
+  //set whatever is in ParameterTypeList
+}
         ;
 
 ArrayAbstractDeclarator: /** nomerge **/
@@ -2822,17 +2857,17 @@ private void getAndSetSBAt(int child, Subparser subparser, Object value)
 // gets the stringbuilders from a 'complete' node's children
 private void getAndSetSBCond(int numChildren, Subparser subparser, Object value)
 {
-  NodeMultiverse condChildren;
+  Multiverse<Node> condChildren;
   StringBuilder sb = new StringBuilder();
   for (int i = numChildren; i >= 1; i--)
   {
     condChildren = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
     // iterates through every pair of (Node, PresenceCondition)
     // and appends all declarations stored in the nodes to this stringbuilder
-    Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
+    Iterator<Multiverse.Element<Node>> children = condChildren.iterator();
     StringBuilder temp = new StringBuilder();
     while (children.hasNext()) {
-      AbstractMultiverse.Element<Node> next_node = children.next();
+      Multiverse.Element<Node> next_node = children.next();
       if (next_node.data != null)
         temp = getStringBuilder(next_node.data);
       if (temp != null && !temp.toString().equals("null"))
@@ -2845,14 +2880,14 @@ private void getAndSetSBCond(int numChildren, Subparser subparser, Object value)
 // gets the stringbuilders from a 'complete' node's child
 private void getAndSetSBCondAt(int child, Subparser subparser, Object value)
 {
-  NodeMultiverse condChildren = getNodeMultiverse(getNodeAt(subparser, child), subparser.getPresenceCondition().presenceConditionManager());
+  Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, child), subparser.getPresenceCondition().presenceConditionManager());
   StringBuilder sb = new StringBuilder();
   // iterates through every pair of (Node, PresenceCondition)
   // and appends all declarations stored in the nodes to this stringbuilder
-  Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
+  Iterator<Multiverse.Element<Node>> children = condChildren.iterator();
   StringBuilder temp = new StringBuilder();
   while (children.hasNext()) {
-    AbstractMultiverse.Element<Node> next_node = children.next();
+    Multiverse.Element<Node> next_node = children.next();
     if (next_node.data != null)
       temp = getStringBuilder(next_node.data);
     if (temp != null && !temp.toString().equals("null"))
@@ -2863,19 +2898,19 @@ private void getAndSetSBCondAt(int child, Subparser subparser, Object value)
 
 // acts as a getAndSet() method for statements
 void hoistStatement(Subparser subparser, Object value) {
-  NodeMultiverse condChildren = getNodeMultiverse(getNodeAt(subparser, 2), subparser.getPresenceCondition().presenceConditionManager());
+  Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, 2), subparser.getPresenceCondition().presenceConditionManager());
   System.err.println(condChildren);
 
   StringBuilder sb = new StringBuilder();
   // iterates through every pair of (Node, PresenceCondition)
   // and appends all statements stored in the nodes to this stringbuilder
-  Iterator<AbstractMultiverse.Element<Node>> children = condChildren.iterator();
+  Iterator<Multiverse.Element<Node>> children = condChildren.iterator();
   String next_ident;
-  List<Element<Universe>> renamings;
+  Multiverse<Universe> renamings;
 
   // iterates through every version of the statement
   while (children.hasNext()) {
-    AbstractMultiverse.Element<Node> next_node = children.next();
+    Multiverse.Element<Node> next_node = children.next();
     // NOTE: the 0th element of this list is not a valid statement
     LinkedList<StringBuilder> allStatements = new LinkedList<StringBuilder>();
     allStatements.add(new StringBuilder());
@@ -4355,9 +4390,9 @@ private static Specifiers makeStructSpec(Subparser subparser,
   return specs;
 }
 
-private List<Element<Universe>> getType(TypeBuilder t, DeclBuilder d)
+private Multiverse<Universe> getType(TypeBuilder t, DeclBuilder d, PresenceCondition currentPC)
 {
-  List<Element<Universe>> ret = new LinkedList<Element<Universe>>();
+  Multiverse<Universe> ret = new Multiverse<Universe>();
   List<PresenceCondition> cond = t.getConditions();
   List<Type> types = t.toType();
   for (int i = 0; i < cond.size(); ++i)
@@ -4365,7 +4400,7 @@ private List<Element<Universe>> getType(TypeBuilder t, DeclBuilder d)
       cond.get(i).addRef();
       DeclBuilder temp = new DeclBuilder(d);
       temp.addType(types.get(i));
-      ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), temp.toType()), cond.get(i)));
+      ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), temp.toType()), cond.get(i).and(currentPC)));
     }
   return ret;
 }
@@ -4379,7 +4414,7 @@ private List<StringBuilder> addMapping(Subparser subparser, TypeBuilder t, DeclB
       //System.exit(1);
       return new LinkedList<StringBuilder>();
     }
-  List<Element<Universe>> unis = getType(t,d);
+  Multiverse<Universe> unis = getType(t,d,subparser.getPresenceCondition());
   CContext scope = (CContext) subparser.scope;
   scope.getSymbolTable().addMapping(d.getID(), unis);
   for (Element<Universe> u : unis)
@@ -4413,9 +4448,9 @@ private String mangleRenaming(String prefix, String ident) {
     return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
     }
 
-private List<Element<Universe>> getTypeOfTypedef(Subparser subparser, String typeName)
+private Multiverse<Universe> getTypeOfTypedef(Subparser subparser, String typeName)
 {
-  List<Element<Universe>> foundType = ((CContext)subparser.scope).getMappings(typeName, subparser.getPresenceCondition());
+  Multiverse<Universe> foundType = ((CContext)subparser.scope).getMappings(typeName, subparser.getPresenceCondition());
   return foundType;
 }
 
@@ -4442,8 +4477,8 @@ private void checkNotParameter(Node node, String kind) {
   /* } */
 }
 
-private NodeMultiverse getNodeMultiverse(Node node, PresenceConditionManager presenceConditionManager) {
-  NodeMultiverse mv = new NodeMultiverse();
+private Multiverse<Node> getNodeMultiverse(Node node, PresenceConditionManager presenceConditionManager) {
+  Multiverse<Node> mv = new Multiverse<Node>();
 
   if (node instanceof GNode
       && ((GNode) node).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {

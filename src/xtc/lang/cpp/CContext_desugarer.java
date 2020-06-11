@@ -46,7 +46,7 @@ import xtc.lang.cpp.Syntax.Conditional;
 import xtc.type.Type;
 
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
-import xtc.lang.cpp.AbstractMultiverse.Element;
+import xtc.lang.cpp.Multiverse.Element;
 
 import xtc.lang.cpp.ForkMergeParser.OrderedSyntax;
 import xtc.lang.cpp.ForkMergeParser.Lookahead;
@@ -142,10 +142,10 @@ public class CContext implements ParsingContext {
   }
 
 
-    public ParsingContext fork()
-    {
-	return new CContext(this);
-    }
+  public ParsingContext fork()
+  {
+    return new CContext(this);
+  }
   /**
    * Check whether a syntax token is an identifier.
    *
@@ -278,7 +278,7 @@ public class CContext implements ParsingContext {
       if (scope.symtab.bools.containsKey(ident)
           && scope.symtab.bools.get(ident).containsKey(SymbolTable.STField.TYPEDEF)
           && ! scope.symtab.bools.get(ident).get(SymbolTable.STField.TYPEDEF).trueCond.isFalse()) {
-  break;
+        break;
       }
 
       if (null == scope.parent) {
@@ -680,43 +680,42 @@ public class CContext implements ParsingContext {
   }
 
 
-    public List<Element<Universe>> getMappings(String ident)
-    {
-	List<Element<Universe>> l = new LinkedList<Element<Universe>>();
-	CContext scope = this;
-	while (scope != null)
+  public Multiverse<Universe> getMappings(String ident)
+  {
+    Multiverse<Universe> l = new Multiverse<Universe>();
+    CContext scope = this;
+    while (scope != null)
 	    {
-		Mapping lt = scope.getSymbolTable().map.get(ident);
-    if (lt != null) {
-      for (Iterator<Element<Universe>> e = lt.iterator(); e.hasNext();)
-          l.add(e.next());
+        Multiverse<Universe> lt = scope.getSymbolTable().map.get(ident);
+        if (lt != null) {
+          for (Iterator<Element<Universe>> e = lt.iterator(); e.hasNext();)
+            l.add(e.next());
 
         }
         scope = scope.parent;
-    }
+      }
 
 
-      return l;
-    }
+    return l;
+  }
 
-      public List<Element<Universe>> getMappings(String ident, PresenceCondition p)
-      {
-	  List<Element<Universe>> l = new LinkedList<Element<Universe>>();
+  public Multiverse<Universe> getMappings(String ident, PresenceCondition p)
+  {
+	  Multiverse<Universe> l = new Multiverse<Universe>();
 	  CContext scope = this;
 	  while (scope != null)
-	      {
-		  Mapping y = scope.getSymbolTable().map.get(ident);
-      if (y != null)
-        for (Iterator<Element<Universe>> e = y.iterator(); e.hasNext();)
-          {
-            Element<Universe> eu = e.next();
-            if (!eu.exclusiveFrom(p))
-              l.add(eu);
-          }
-		  scope = scope.parent;
-	      }
-	  return l;
+      {
+        Multiverse<Universe> y = scope.getSymbolTable().map.get(ident);
+        if (y != null)
+          for (Element<Universe> e : y)
+            {
+              if (!e.exclusiveFrom(p))
+                l.add(e);
+            }
+        scope = scope.parent;
       }
+	  return l;
+  }
 
   /** The symbol table that stores a scope's symbol bindings. */
   public static class SymbolTable {
@@ -725,7 +724,7 @@ public class CContext implements ParsingContext {
     }
 
     // /** The symbol table data structure. */
-    public HashMap<String, Mapping> map;
+    public HashMap<String, Multiverse<Universe>> map;
 
     /** The symbol table data structure. */
     public HashMap<String, EnumMap<STField, ConditionedBool>> bools;
@@ -739,7 +738,7 @@ public class CContext implements ParsingContext {
       // this.map = new HashMap<String, TypedefVarEntry>();
       this.bools = new HashMap<String, EnumMap<STField, ConditionedBool>>();
       this.refs = 1;
-      map = new HashMap<String, Mapping>();
+      map = new HashMap<String, Multiverse<Universe>>();
     }
 
     public SymbolTable addRef() {
@@ -747,35 +746,35 @@ public class CContext implements ParsingContext {
 
       return this;
     }
-      public void addMapping(String ident, List<Element<Universe>> unis)
-      {
-	  Mapping value = map.get(ident);
-	  if (value == null)
+    public void addMapping(String ident, Multiverse<Universe> unis)
+    {
+      Multiverse<Universe> value = map.get(ident);
+      if (value == null)
 	      {
-		  Mapping newEntry = new Mapping();
-		  for (Element<Universe> x : unis)
-		      newEntry.add(x);
-		  map.put(ident, newEntry);
+          Multiverse<Universe> newEntry = new Multiverse<Universe>();
+          for (Element<Universe> x : unis)
+            newEntry.add(x);
+          map.put(ident, newEntry);
 	      }
-	  else
+      else
 	      {
-		  for (Element<Universe> x : unis)
-		      {
-			  boolean noCollision = true;
-			  for (Element<Universe> u : value)
-			      {
-				  noCollision = noCollision && u.exclusiveFrom(x.getCondition());
-			      }
-			  if (!noCollision)
-			      {
-				  System.out.println("MultipleDef");
-				  System.exit(1);
-			      }
-			  value.add(x);
-		      }
+          for (Element<Universe> x : unis)
+            {
+              boolean noCollision = true;
+              for (Element<Universe> u : value)
+                {
+                  noCollision = noCollision && u.exclusiveFrom(x.getCondition());
+                }
+              if (!noCollision)
+                {
+                  System.out.println("MultipleDef");
+                  //System.exit(1);
+                }
+              value.add(x);
+            }
 	      }
-	  System.out.println(map.toString());
-      }
+      System.err.println(map.toString());
+    }
 
 
     public void delRef() {
@@ -797,7 +796,7 @@ public class CContext implements ParsingContext {
         //     e.varCond.delRef();
         //   }
         // }
-        for (Mapping m : map.values())
+        for (Multiverse<Universe> m : map.values())
           m.destruct();
       }
     }
@@ -930,74 +929,74 @@ public class CContext implements ParsingContext {
       }
     }
 
-  //   public void addAll(SymbolTable symtab) {
-  //     for (String str : symtab.map.keySet()) {
-  //       if (! map.containsKey(str)) {
-  //         TypedefVarEntry e = symtab.map.get(str);
+    //   public void addAll(SymbolTable symtab) {
+    //     for (String str : symtab.map.keySet()) {
+    //       if (! map.containsKey(str)) {
+    //         TypedefVarEntry e = symtab.map.get(str);
 
-  //         map.put(str, new TypedefVarEntry(e.typedefCond, e.varCond));
+    //         map.put(str, new TypedefVarEntry(e.typedefCond, e.varCond));
 
-  //         if (null != e.typedefCond) {
-  //           e.typedefCond.addRef();
-  //         }
+    //         if (null != e.typedefCond) {
+    //           e.typedefCond.addRef();
+    //         }
 
-  //         if (null != e.varCond) {
-  //           e.varCond.addRef();
-  //         }
-  //       }
-  //       else {
-  //         TypedefVarEntry d = map.get(str);
-  //         TypedefVarEntry e = symtab.map.get(str);
+    //         if (null != e.varCond) {
+    //           e.varCond.addRef();
+    //         }
+    //       }
+    //       else {
+    //         TypedefVarEntry d = map.get(str);
+    //         TypedefVarEntry e = symtab.map.get(str);
 
-  //         if (null != e.typedefCond) {
-  //           if (null == d.typedefCond) {
-  //             d.typedefCond = e.typedefCond;
-  //             e.typedefCond.addRef();
-  //           }
-  //           else {
-  //             PresenceCondition or;
+    //         if (null != e.typedefCond) {
+    //           if (null == d.typedefCond) {
+    //             d.typedefCond = e.typedefCond;
+    //             e.typedefCond.addRef();
+    //           }
+    //           else {
+    //             PresenceCondition or;
 
-  //             or = d.typedefCond.or(e.typedefCond);
-  //             d.typedefCond.delRef();
-  //             d.typedefCond = or;
-  //           }
-  //         }
+    //             or = d.typedefCond.or(e.typedefCond);
+    //             d.typedefCond.delRef();
+    //             d.typedefCond = or;
+    //           }
+    //         }
 
-  //         if (null != e.varCond) {
-  //           if (null == d.varCond) {
-  //             d.varCond = e.varCond;
-  //             e.varCond.addRef();
-  //           }
-  //           else {
-  //             PresenceCondition or;
+    //         if (null != e.varCond) {
+    //           if (null == d.varCond) {
+    //             d.varCond = e.varCond;
+    //             e.varCond.addRef();
+    //           }
+    //           else {
+    //             PresenceCondition or;
 
-  //             or = d.varCond.or(e.varCond);
-  //             d.varCond.delRef();
-  //             d.varCond = or;
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+    //             or = d.varCond.or(e.varCond);
+    //             d.varCond.delRef();
+    //             d.varCond = or;
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
 
-  // /** An entry in the symbol table. */
-  // private static class TypedefVarEntry {
-  //   /** The presence condition when the symbol is a typedef name. */
-  //   PresenceCondition typedefCond;
+    // /** An entry in the symbol table. */
+    // private static class TypedefVarEntry {
+    //   /** The presence condition when the symbol is a typedef name. */
+    //   PresenceCondition typedefCond;
 
-  //   /** The presence condition when the symbol is a var name. */
-  //   PresenceCondition varCond;
+    //   /** The presence condition when the symbol is a var name. */
+    //   PresenceCondition varCond;
 
-  //   /** Create a new entry.
-  //    *
-  //    * @param t The typedef name presence condition.
-  //    * @param f The var name presence condition.
-  //    */
-  //   public TypedefVarEntry(PresenceCondition typedefCond, PresenceCondition varCond) {
-  //     this.typedefCond = typedefCond;
-  //     this.varCond = varCond;
-  //   }
+    //   /** Create a new entry.
+    //    *
+    //    * @param t The typedef name presence condition.
+    //    * @param f The var name presence condition.
+    //    */
+    //   public TypedefVarEntry(PresenceCondition typedefCond, PresenceCondition varCond) {
+    //     this.typedefCond = typedefCond;
+    //     this.varCond = varCond;
+    //   }
 
     private static long varcount = 0;
     private final static char[] charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
@@ -1005,22 +1004,22 @@ public class CContext implements ParsingContext {
     private final static int RAND_SIZE = 5;
 
     protected String randomString(int string_size) {
-    StringBuilder randomstring = new StringBuilder();
-    for (int i = 0; i < string_size; i++) {
-      randomstring.append(charset[random.nextInt(charset.length)]);
-    }
-    return randomstring.toString();
+      StringBuilder randomstring = new StringBuilder();
+      for (int i = 0; i < string_size; i++) {
+        randomstring.append(charset[random.nextInt(charset.length)]);
+      }
+      return randomstring.toString();
     }
 
     protected String mangleRenaming(String prefix, String ident) {
-    // don't want to exceed c identifier length limit (31)
-    if (ident.length() > 22) {
-      // shorten ident to be at max, 22 chars
-      StringBuilder sb = new StringBuilder(ident);
-      sb = sb.delete(23, ident.length());
-      ident = sb.toString();
-    }
-    return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
+      // don't want to exceed c identifier length limit (31)
+      if (ident.length() > 22) {
+        // shorten ident to be at max, 22 chars
+        StringBuilder sb = new StringBuilder(ident);
+        sb = sb.delete(23, ident.length());
+        ident = sb.toString();
+      }
+      return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
     }
 
   }

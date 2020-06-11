@@ -1,96 +1,156 @@
 package xtc.lang.cpp;
+
+import java.lang.StringBuilder;
+import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.HashMap;
+
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
-import xtc.type.Type;
-import xtc.Constants;
 
-public class Multiverse
-{
-    HashMap<String, List<Universe>> mapping;
+/**
+ * This is an abstract multiverse, which stores a set of data tagged
+ * by presence conditions.  It can be subclassed to create a
+ * multiverse of any type.
+ *
+ * @author Paul Gazzillo
+ * @version $Revision: 1.272 $
+ */
+public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
+  protected List<Element<T>> contents;
+  
+  public Multiverse()
+  {
+    contents = new LinkedList<Element<T>>();
+  }
 
-    List<String> getAllRenamings(String key) {
-      LinkedList<String> allRenamings = new LinkedList<String>();
-      List<Universe> value = mapping.get(key);
-      if (value == null)
-	  return null;
-      for (Universe u : value)
-        allRenamings.add(u.getRenaming());
-      return allRenamings;
+  /**
+   * This is one element of a multiple, i.e., a pair containing the
+   * data and the presence condition representing the configuration
+   * under which that version of the data appears.
+   */
+  public static class Element<T> {
+    T data;
+    PresenceCondition cond;
+
+    public Element(T data, PresenceCondition cond) {
+      this.data = data;
+      this.cond = cond;
+      this.cond.addRef();
     }
 
-    public Multiverse()
+    public Element(T data) {
+      this.data = data;
+      cond = null;
+    }
+    public Element(PresenceCondition cond) {
+      this.data = null;
+      this.cond = cond;
+      this.cond.addRef();
+    }
+
+    public Element()
     {
-	mapping = new HashMap<String,List<Universe>>();
+      data = null;
+      cond = null;
+    }
+    public void destruct() {
+      this.cond.delRef();
     }
 
-    public void addMapping(String name, List<Universe> unis)
+    public void setData(T t)
     {
-      // stores the renaming
-      List<Universe> value = mapping.get(name);
-      if (value == null)
-	  {
-	      List<Universe> newEntry = new LinkedList<Universe>();
-	      for (Universe x : unis)
-		  newEntry.add(x);
-	      mapping.put(name, newEntry);
-	  }
-      else
-	  {
-	      for (Universe x : unis)
-		  {
-		      boolean noCollision = true;
-		      for (Universe u : value)
-			  {
-			      noCollision = noCollision && u.exclusiveFromPC(x.pc);
-			  }
-		      if (!noCollision)
-			  {
-			      System.out.println("MultipleDef");
-			      System.exit(1);
-			  }
-		      value.add(x);
-		  }
-	  }
+      this.data = t;
+    }
+    public void setCondition(PresenceCondition p)
+    {
+      if (cond != null)
+	      {
+          cond.delRef();
+	      }
+      this.cond = p;
+      this.cond.addRef();
     }
 
-    public void delRefs()
+    public boolean exclusiveFrom(PresenceCondition p)
     {
-	for (List<Universe> x : mapping.values())
-	    for (Universe u : x)
-		u.delRef();
+      return cond.isMutuallyExclusive(p);
+    }
+      
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+
+      sb.append("(");
+      sb.append(this.data);
+      sb.append(", ");
+      sb.append(this.cond);
+      sb.append(")");
+      
+      return sb.toString();
     }
 
-    public String toString()
+    public T getData()
     {
-	String output = "";
-	for (Map.Entry<String,List<Universe>> x : mapping.entrySet())
-	    {
-		output += x.getKey() + "\n";
-		for (Universe u : x.getValue())
-		    output += "\t" + u.toString() + "\n";
-	    }
-	return output;
+      return data;
     }
-    public List<Universe> getTypedefsOf(String ident)
+
+    public PresenceCondition getCondition()
     {
-	List<Universe> ret = new LinkedList<Universe>();
-	List<Universe> value = mapping.get(ident);
-	if (value != null)
-	    {
-		for (Universe u : value)
-		    {
-			if (u.type.hasAttribute(Constants.ATT_STORAGE_TYPEDEF))
-			    ret.add(u);
-		    }
-		if (ret.size() == 0)
-		    {
-			System.out.println("no typedef found for id " + ident);
-			System.exit(1);
-		    }
-	    }
-	return ret;
+      return cond;
     }
+  }
+
+  /**
+   * Decrement the references of all presence conditions and remove
+   * the string builders.  Be sure to do this once you no longer
+   * need the multiverse, e.g., after constructing a new multiverse
+   * using this one.  The multiverse will no longer be useable after
+   * calling this function.
+   */
+  public void destruct() {
+    if (contents != null)
+      {
+	      for (Element<T> elem : contents) {
+          elem.destruct();
+	      }
+	      contents.clear();
+      }
+    contents = null;
+  }
+
+  /**
+   * Add a new element to the multiverse.
+   */
+  public void add(Element<T> elem) {
+    contents.add(elem);
+  }
+
+  /**
+   * Add a new element to the multiverse.
+   */
+  public void add(T data, PresenceCondition cond) {
+    contents.add(new Element<T>(data, cond));
+  }
+
+  /**
+   * Get an element of the list.  Warning, the backing storage is a
+   * linked list, so this may only be efficient for get(0).
+   */
+  public Element<T> get(int index) {
+    return contents.get(0);
+  }
+
+  public int size() {
+    return contents.size();
+  }
+
+  public Iterator<Element<T>> iterator() {
+    return contents.iterator();
+  }
+
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    
+    sb.append(this.contents);
+    return sb.toString();
+  }
 }
