@@ -288,7 +288,7 @@ TranslationUnit:  /** complete, passthrough **/
             }
 
             // TODO: handle functions properly and remove this main function placeholder
-            writer.write("int main(void) {\n");
+            writer.write("\nint main(void) {\n");
 
             /** writes all file-dependent transformation code that isn't
              *  a renamed config macro declaration
@@ -345,10 +345,6 @@ EmptyDefinition:  /** complete **/
         SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          if (((Node)value).isToken())
-            System.out.println("TOKEN TEXT AT emptydef: " + ((Node)value).getTokenText());
-          else
-            System.out.println("emptydef is not a token");
           // TODO
         }
         ;
@@ -680,8 +676,7 @@ DeclaringList:  /** nomerge **/
 	{
       	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
       	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
-	  System.out.println(decl.toString() + " " + type.toString());
-    System.out.println("testing renaming declaration: " + type.toType() + " " + getRenamings(addMapping(subparser, type, decl)) + ";");
+	        // TODO
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getTypeBuilderAt(subparser, 5), getDeclBuilderAt(subparser, 4));
         }
@@ -693,22 +688,36 @@ DeclaringList:  /** nomerge **/
           bindIdent(subparser, type, decl);
 
           String oldIdent = decl.identifier;
-          List<StringBuilder> stringBuilders = getRenamings(addMapping(subparser, type, decl));
-	  StringBuilder sb = new StringBuilder();
+          Multiverse<Universe> unis = addMapping(subparser, type, decl);
+          List<StringBuilder> renamings = getRenamings(unis);
+      	  StringBuilder sb = new StringBuilder();
 
-	  for (StringBuilder s : stringBuilders)
-	    {
-	      decl.identifier = s.toString();
-	      List<Type> typeList = type.toType();
-	      if (typeList.size() == 1)
-		sb.append("\n" + typeList.get(0) + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
-	      else {
-		System.err.println("ERROR: Configurable typedefs not yet supported.");
-		// System.exit(1);
-	      }
-	    }
-	  setStringBuilder(value, sb);
-	}
+          /** writes declarations of renamed variables */
+      	  for (StringBuilder renaming : renamings)
+    	    {
+    	      decl.identifier = renaming.toString();
+    	      List<Type> typeList = type.toType();
+    	      if (typeList.size() == 1)
+    		      sb.append("\n" + typeList.get(0) + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
+    	      else {
+          		System.err.println("ERROR: Configurable typedefs not yet supported.");
+          		// System.exit(1);
+            }
+	        }
+
+          // TODO: handle AttributeSpecifierListOpt
+
+          /** hoists and writes initializing statements using the renamed variables */
+          if (getStringBuilderAt(subparser, 1) != null && !(getStringBuilderAt(subparser, 1)).toString().equals("null"))
+            for (Element<Universe> u : unis)
+              sb.append("\nif (" + PCtoString(u.getCondition()) + ") {\n" +
+                        (new StringBuilder(u.getData().getRenaming())).toString() +
+                        " /* renamed from " + oldIdent + " */ " +
+                        getStringBuilderAt(subparser, 1) + ";" +
+                        "\n}\n");
+
+          setStringBuilder(value, sb);
+        }
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
           // reuses saved base type
@@ -1600,11 +1609,11 @@ ParameterIdentifierDeclaration:
         {
           DeclBuilder decl = getDeclBuilderAt(subparser, 3);
           TypeBuilder type = getTypeBuilderAt(subparser, 4);
-      	
+
           Parameter p = new Parameter();
           p.setMultiverse(addMapping(subparser, type, decl));
           setParameter(value, p);
-        
+
         }
         | TypeSpecifier ParameterTypedefDeclarator
         {
@@ -1647,7 +1656,13 @@ InitializerOpt: /** nomerge **/
         /* nothing */
         | ASSIGN DesignatedInitializer
         {
-          getAndSetSB(2, subparser, value);
+          StringBuilder sb = new StringBuilder();
+          StringBuilder temp = getStringBuilderAt(subparser, 1);
+          if (temp != null && !temp.toString().equals("null")) {
+            sb.append(" = ");
+            sb.append(temp);
+          }
+          setStringBuilder(value, sb);
         }
         ;
 
@@ -2665,7 +2680,6 @@ LogicalAndExpression:  /** passthrough, nomerge **/
         InclusiveOrExpression
         {
           getAndSetSBAt(1, subparser, value);
-          //System.out.println("TOKEN TEXT AT LogicalAndExpression: " + ((Node)value).getTokenText());
         }
         | LogicalAndExpression ANDAND InclusiveOrExpression
         {
@@ -2677,7 +2691,6 @@ LogicalORExpression:  /** passthrough, nomerge **/
         LogicalAndExpression
         {
           getAndSetSBAt(1, subparser, value);
-          //System.out.println("TOKEN TEXT AT LogicalORExpression: " + ((Node)value).getTokenText());
         }
         | LogicalORExpression OROR LogicalAndExpression
         {
@@ -3154,16 +3167,16 @@ void hoistStatement(Subparser subparser, Object value) {
   Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, 2), subparser.getPresenceCondition().presenceConditionManager());
 
   StringBuilder sb = new StringBuilder();
-  // iterates through every pair of (Node, PresenceCondition)
-  // and appends all statements stored in the nodes to this stringbuilder
+  /** iterates through every pair of (Node, PresenceCondition)
+   * and appends all statements stored in the nodes to this stringbuilder */
   Iterator<Multiverse.Element<Node>> children = condChildren.iterator();
   String next_ident;
   Multiverse<Universe> renamings;
 
-  // iterates through every version of the statement
+  /** iterates through every version of the statement */
   while (children.hasNext()) {
     Multiverse.Element<Node> next_node = children.next();
-    // NOTE: the 0th element of this list is not a valid statement
+    /** NOTE: the 0th element of this list is not a valid statement */
     LinkedList<StringBuilder> allStatements = new LinkedList<StringBuilder>();
     allStatements.add(new StringBuilder());
 
