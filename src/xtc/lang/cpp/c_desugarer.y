@@ -3164,58 +3164,55 @@ private void getAndSetSBCondAt(int child, Subparser subparser, Object value)
 
 /** acts as a getAndSet() method for statements */
 void hoistStatement(Subparser subparser, Object value) {
-  Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, 2), subparser.getPresenceCondition().presenceConditionManager());
-
-  StringBuilder sb = new StringBuilder();
   /** iterates through every pair of (Node, PresenceCondition)
-   * and appends all statements stored in the nodes to this stringbuilder */
-  Iterator<Multiverse.Element<Node>> children = condChildren.iterator();
-  String next_ident;
+      and appends all statements stored in the nodes to this stringbuilder */
+  StringBuilder sb = new StringBuilder();
+  Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, 2), subparser.getPresenceCondition().presenceConditionManager());
   Multiverse<Universe> renamings;
-
+  Iterator<Multiverse.Element<Node>> children = condChildren.iterator();
+  String next_ident = "";
   /** iterates through every version of the statement */
   while (children.hasNext()) {
     Multiverse.Element<Node> next_node = children.next();
-    /** NOTE: the 0th element of this list is not a valid statement */
-    LinkedList<StringBuilder> allStatements = new LinkedList<StringBuilder>();
-    allStatements.add(new StringBuilder());
-
+    Multiverse<Universe> statements = new Multiverse<Universe>();
+    statements.add(new Universe("", null), subparser.getPresenceCondition());
     /** iterates through all pieces of the statement */
     for (Object child : next_node.data) {
       if (((Node)child).hasName("PrimaryIdentifier")) {
-	/** get the renamings and generate their conditionals */
-	next_ident = getStringBuilder((Node)child).toString();
-	CContext scope = (CContext) subparser.scope;
-	renamings = scope.getMappings(next_ident);
-	/** iterates through the list of pairs of (renaming, PC) stored in renamings
-	 *  continually AND's the statement PC with the renaming PC
-	 *  then write the "if (AND'd PC) { statement with renamed variable }" '
-   */
-	for (Element<Universe> renaming : renamings) {
-	  StringBuilder temp = new StringBuilder("\nif (" + PCtoString(renaming.getCondition().and(subparser.getPresenceCondition())) /*next_node.cond.and(renaming.getCondition())*/ + ") {\n");
-	  if (! allStatements.get(0).toString().equals("null"))
-	    temp.append(allStatements.get(0).toString());
-	  temp.append(renaming.getData().getRenaming());
-	  allStatements.add(temp);
-	}
+      	/** gets the renamings and generates their conditionals */
+      	next_ident = getStringBuilder((Node)child).toString();
+      	CContext scope = (CContext) subparser.scope;
+      	renamings = scope.getMappings(next_ident);
+        statements = cartesianProduct(statements, renamings);
       } else {
-	/** appends this piece of the statement to all versions of the statement */
-	for (StringBuilder curStatement : allStatements) {
-	  curStatement.append(getStringBuilder((Node)child));
-	}
+        /** appends this piece of the statement to all versions of the statement */
+        Iterator<Multiverse.Element<Universe>> statementIterator = statements.iterator();
+        while (statementIterator.hasNext()) {
+          Multiverse.Element<Universe> next_statement = statementIterator.next();
+          if (getStringBuilder((Node)child) != null && !getStringBuilder((Node)child).toString().equals("null"))
+            next_statement.data.rename = next_statement.getData().rename + getStringBuilder((Node)child).toString();
+        }
       }
     }
-    /** removes the first stringbuilder in the list
-     *  (this one is only used as a base for the others)
-     */
-    allStatements.remove();
-    /** finishes the statement and adds it to the SB that will be set at this node */
-    for (StringBuilder statement : allStatements) {
-      statement.append(";\n}\n");
-      sb.append(statement);
+    /** Hoists the "if (PC) { }" around each statement */
+    Iterator<Multiverse.Element<Universe>> statementIterator = statements.iterator();
+    while (statementIterator.hasNext()) {
+      Multiverse.Element<Universe> next_statement = statementIterator.next();
+      sb.append("\nif (" + PCtoString(next_statement.getCondition()) + ") {\n" + next_statement.getData().rename + ";\n}\n");
     }
   }
   setStringBuilder(value, sb);
+}
+
+/** Takes two stringbuilder multiverses, and generates all of their combinations */
+private Multiverse<Universe> cartesianProduct(Multiverse<Universe> statements, Multiverse<Universe> renamings) {
+  Multiverse<Universe> allCombinations = new Multiverse<Universe>();
+  for (Element<Universe> statement : statements) {
+    for (Element<Universe> renaming : renamings) {
+      allCombinations.add(new Element<Universe>(new Universe(statement.getData().rename + renaming.getData().rename, null), statement.getCondition().and(renaming.getCondition())));
+    }
+  }
+  return allCombinations;
 }
 
 /** True when statistics should be output. */
