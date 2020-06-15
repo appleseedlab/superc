@@ -712,7 +712,6 @@ DeclaringList:  /** nomerge **/
             for (Element<Universe> u : unis)
               sb.append("\nif (" + PCtoString(u.getCondition()) + ") {\n" +
                         (new StringBuilder(u.getData().getRenaming())).toString() +
-                        " /* renamed from " + oldIdent + " */ " +
                         getStringBuilderAt(subparser, 1) + ";" +
                         "\n}\n");
 
@@ -3014,6 +3013,7 @@ private static final String PARAMETER = "xtc.lang.cpp.Parameter";
 private static final String DECLBUILDER = "xtc.lang.cpp.DeclBuilder";
 private static final String STRING = "xtc.String";
 private static final String STRINGBUILDER = "xtc.StringBuilder";
+private static final String SBMV = "xtc.lang.cpp.Multiverse<StringBuilder>";
 
 
 // TUTORIAL: this function just annotates a semantic value with a typebuilder
@@ -3085,6 +3085,16 @@ private void setStringBuilder(Node value, StringBuilder sb) {
   value.setProperty(STRINGBUILDER, sb);
 }
 
+private void setSBMV(Object value, Multiverse<StringBuilder> sbmv) {
+  // value should be not null and should be a Node type
+  setSBMV((Node) value, sbmv);
+}
+
+private void setSBMV(Node value, Multiverse<StringBuilder> sbmv) {
+  // value should be not null and should be a Node type
+  value.setProperty(SBMV, sbmv);
+}
+
 private StringBuilder getStringBuilderAt(Subparser subparser, int component) {
   Node n = getNodeAt(subparser, component);
   if (n == null)
@@ -3094,6 +3104,17 @@ private StringBuilder getStringBuilderAt(Subparser subparser, int component) {
 
 private StringBuilder getStringBuilder(Node n) {
   return (StringBuilder) n.getProperty(STRINGBUILDER);
+}
+
+private Multiverse<StringBuilder> getSBMVAt(Subparser subparser, int component) {
+  Node n = getNodeAt(subparser, component);
+  if (n == null)
+    return null;
+  return (Multiverse<StringBuilder>) n.getProperty(SBMV);
+}
+
+private Multiverse<StringBuilder> getSBMV(Node n) {
+  return (Multiverse<StringBuilder>) n.getProperty(SBMV);
 }
 
 /** gets the stringbuilders from a non-'complete' node's children */
