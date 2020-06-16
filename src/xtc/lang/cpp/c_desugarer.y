@@ -412,7 +412,7 @@ FunctionPrototype:  /** nomerge **/
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           StringBuilder sb = new StringBuilder();
-
+          addMapping(subparser,type,decl);
   	      List<Type> typeList = type.toType();
   	      if (typeList.size() == 1)
   		      sb.append(typeList.get(0) + " ");
@@ -4647,14 +4647,32 @@ private static Specifiers makeStructSpec(Subparser subparser,
 private Multiverse<Universe> getType(TypeBuilder t, DeclBuilder d, PresenceCondition currentPC)
 {
   Multiverse<Universe> ret = new Multiverse<Universe>();
-  List<PresenceCondition> cond = t.getConditions();
   List<Type> types = t.toType();
+  List<PresenceCondition> cond = t.getConditions();
+  boolean func = d.isFunction();
+  Multiverse<List<Parameter>> m = new Multiverse<List<Parameter>>();
+  if (func)
+    m = d.getParams(currentPC);
   for (int i = 0; i < cond.size(); ++i)
     {
       cond.get(i).addRef();
       DeclBuilder temp = new DeclBuilder(d);
       temp.addType(types.get(i));
-      ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), temp.toType()), cond.get(i).and(currentPC)));
+      if (func)
+        {
+          for(Element<List<Parameter>> e : m)
+            if (e.getData().size() > 0)
+              {
+                List<Type> l = new LinkedList<Type>();
+                for (Parameter p : e.getData())
+                  if(!p.isEllipsis())
+                    l.add(p.getType());
+                Type f = new FunctionT(temp.toType(), l, e.getData().get(e.getData().size() - 1).isEllipsis());
+                ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
+              }
+        }
+      else
+        ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), temp.toType()), cond.get(i).and(currentPC)));
     }
   return ret;
 }

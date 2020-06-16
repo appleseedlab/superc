@@ -1,4 +1,7 @@
 package xtc.lang.cpp;
+import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
+import xtc.lang.cpp.Multiverse.Element;
+import xtc.type.Type;
 
 public class Parameter
 {
@@ -31,5 +34,22 @@ public class Parameter
   public boolean isEllipsis()
   {
     return ellipsis;
+  }
+
+  public PresenceCondition getGap(PresenceCondition pc)
+  {
+    PresenceCondition p = pc;
+    for (Element<Universe> e : multiverse)
+      {
+        p = p.andNot(e.getCondition());
+      }
+    return p;
+  }
+
+  public Type getType()
+  {
+    if (ellipsis || multiverse.size() != 1)
+      return null;
+    return multiverse.get(0).getData().getType();
   }
 }
