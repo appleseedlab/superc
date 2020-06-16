@@ -288,7 +288,7 @@ TranslationUnit:  /** complete, passthrough **/
             }
 
             // TODO: handle functions properly and remove this main function placeholder
-            writer.write("int main(void) {\n");
+            writer.write("\nint main(void) {\n");
 
             /** writes all file-dependent transformation code that isn't
              *  a renamed config macro declaration
@@ -345,10 +345,6 @@ EmptyDefinition:  /** complete **/
         SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          if (((Node)value).isToken())
-            System.out.println("TOKEN TEXT AT emptydef: " + ((Node)value).getTokenText());
-          else
-            System.out.println("emptydef is not a token");
           // TODO
         }
         ;
@@ -680,8 +676,7 @@ DeclaringList:  /** nomerge **/
 	{
       	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
       	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
-	  System.out.println(decl.toString() + " " + type.toString());
-    System.out.println("testing renaming declaration: " + type.toType() + " " + getRenamings(addMapping(subparser, type, decl)) + ";");
+	        // TODO
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getTypeBuilderAt(subparser, 5), getDeclBuilderAt(subparser, 4));
         }
@@ -693,22 +688,35 @@ DeclaringList:  /** nomerge **/
           bindIdent(subparser, type, decl);
 
           String oldIdent = decl.identifier;
-          List<StringBuilder> stringBuilders = getRenamings(addMapping(subparser, type, decl));
-	  StringBuilder sb = new StringBuilder();
+          Multiverse<Universe> unis = addMapping(subparser, type, decl);
+          List<StringBuilder> renamings = getRenamings(unis);
+      	  StringBuilder sb = new StringBuilder();
 
-	  for (StringBuilder s : stringBuilders)
-	    {
-	      decl.identifier = s.toString();
-	      List<Type> typeList = type.toType();
-	      if (typeList.size() == 1)
-		sb.append("\n" + typeList.get(0) + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
-	      else {
-		System.err.println("ERROR: Configurable typedefs not yet supported.");
-		// System.exit(1);
-	      }
-	    }
-	  setStringBuilder(value, sb);
-	}
+          /** writes declarations of renamed variables */
+      	  for (StringBuilder renaming : renamings)
+    	    {
+    	      decl.identifier = renaming.toString();
+    	      List<Type> typeList = type.toType();
+    	      if (typeList.size() == 1)
+    		      sb.append("\n" + typeList.get(0) + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
+    	      else {
+          		System.err.println("ERROR: Configurable typedefs not yet supported.");
+          		// System.exit(1);
+            }
+	        }
+
+          // TODO: handle AttributeSpecifierListOpt
+
+          /** hoists and writes initializing statements using the renamed variables */
+          if (getStringBuilderAt(subparser, 1) != null && !(getStringBuilderAt(subparser, 1)).toString().equals("null"))
+            for (Element<Universe> u : unis)
+              sb.append("\nif (" + PCtoString(u.getCondition()) + ") {\n" +
+                        (new StringBuilder(u.getData().getRenaming())).toString() +
+                        getStringBuilderAt(subparser, 1) + ";" +
+                        "\n}\n");
+
+          setStringBuilder(value, sb);
+        }
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
           // reuses saved base type
@@ -1600,11 +1608,11 @@ ParameterIdentifierDeclaration:
         {
           DeclBuilder decl = getDeclBuilderAt(subparser, 3);
           TypeBuilder type = getTypeBuilderAt(subparser, 4);
-      	
+
           Parameter p = new Parameter();
           p.setMultiverse(addMapping(subparser, type, decl));
           setParameter(value, p);
-        
+
         }
         | TypeSpecifier ParameterTypedefDeclarator
         {
@@ -1647,7 +1655,13 @@ InitializerOpt: /** nomerge **/
         /* nothing */
         | ASSIGN DesignatedInitializer
         {
-          getAndSetSB(2, subparser, value);
+          StringBuilder sb = new StringBuilder();
+          StringBuilder temp = getStringBuilderAt(subparser, 1);
+          if (temp != null && !temp.toString().equals("null")) {
+            sb.append(" = ");
+            sb.append(temp);
+          }
+          setStringBuilder(value, sb);
         }
         ;
 
@@ -2665,7 +2679,6 @@ LogicalAndExpression:  /** passthrough, nomerge **/
         InclusiveOrExpression
         {
           getAndSetSBAt(1, subparser, value);
-          //System.out.println("TOKEN TEXT AT LogicalAndExpression: " + ((Node)value).getTokenText());
         }
         | LogicalAndExpression ANDAND InclusiveOrExpression
         {
@@ -2677,7 +2690,6 @@ LogicalORExpression:  /** passthrough, nomerge **/
         LogicalAndExpression
         {
           getAndSetSBAt(1, subparser, value);
-          //System.out.println("TOKEN TEXT AT LogicalORExpression: " + ((Node)value).getTokenText());
         }
         | LogicalORExpression OROR LogicalAndExpression
         {
@@ -3001,6 +3013,7 @@ private static final String PARAMETER = "xtc.lang.cpp.Parameter";
 private static final String DECLBUILDER = "xtc.lang.cpp.DeclBuilder";
 private static final String STRING = "xtc.String";
 private static final String STRINGBUILDER = "xtc.StringBuilder";
+private static final String SBMV = "xtc.lang.cpp.Multiverse<StringBuilder>";
 
 
 // TUTORIAL: this function just annotates a semantic value with a typebuilder
@@ -3072,6 +3085,16 @@ private void setStringBuilder(Node value, StringBuilder sb) {
   value.setProperty(STRINGBUILDER, sb);
 }
 
+private void setSBMV(Object value, Multiverse<StringBuilder> sbmv) {
+  // value should be not null and should be a Node type
+  setSBMV((Node) value, sbmv);
+}
+
+private void setSBMV(Node value, Multiverse<StringBuilder> sbmv) {
+  // value should be not null and should be a Node type
+  value.setProperty(SBMV, sbmv);
+}
+
 private StringBuilder getStringBuilderAt(Subparser subparser, int component) {
   Node n = getNodeAt(subparser, component);
   if (n == null)
@@ -3081,6 +3104,17 @@ private StringBuilder getStringBuilderAt(Subparser subparser, int component) {
 
 private StringBuilder getStringBuilder(Node n) {
   return (StringBuilder) n.getProperty(STRINGBUILDER);
+}
+
+private Multiverse<StringBuilder> getSBMVAt(Subparser subparser, int component) {
+  Node n = getNodeAt(subparser, component);
+  if (n == null)
+    return null;
+  return (Multiverse<StringBuilder>) n.getProperty(SBMV);
+}
+
+private Multiverse<StringBuilder> getSBMV(Node n) {
+  return (Multiverse<StringBuilder>) n.getProperty(SBMV);
 }
 
 /** gets the stringbuilders from a non-'complete' node's children */
@@ -3151,58 +3185,55 @@ private void getAndSetSBCondAt(int child, Subparser subparser, Object value)
 
 /** acts as a getAndSet() method for statements */
 void hoistStatement(Subparser subparser, Object value) {
-  Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, 2), subparser.getPresenceCondition().presenceConditionManager());
-
+  /** iterates through every pair of (Node, PresenceCondition)
+      and appends all statements stored in the nodes to this stringbuilder */
   StringBuilder sb = new StringBuilder();
-  // iterates through every pair of (Node, PresenceCondition)
-  // and appends all statements stored in the nodes to this stringbuilder
-  Iterator<Multiverse.Element<Node>> children = condChildren.iterator();
-  String next_ident;
+  Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, 2), subparser.getPresenceCondition().presenceConditionManager());
   Multiverse<Universe> renamings;
-
-  // iterates through every version of the statement
+  Iterator<Multiverse.Element<Node>> children = condChildren.iterator();
+  String next_ident = "";
+  /** iterates through every version of the statement */
   while (children.hasNext()) {
     Multiverse.Element<Node> next_node = children.next();
-    // NOTE: the 0th element of this list is not a valid statement
-    LinkedList<StringBuilder> allStatements = new LinkedList<StringBuilder>();
-    allStatements.add(new StringBuilder());
-
+    Multiverse<Universe> statements = new Multiverse<Universe>();
+    statements.add(new Universe("", null), subparser.getPresenceCondition());
     /** iterates through all pieces of the statement */
     for (Object child : next_node.data) {
       if (((Node)child).hasName("PrimaryIdentifier")) {
-	/** get the renamings and generate their conditionals */
-	next_ident = getStringBuilder((Node)child).toString();
-	CContext scope = (CContext) subparser.scope;
-	renamings = scope.getMappings(next_ident);
-	/** iterates through the list of pairs of (renaming, PC) stored in renamings
-	 *  continually AND's the statement PC with the renaming PC
-	 *  then write the "if (AND'd PC) { statement with renamed variable }" '
-   */
-	for (Element<Universe> renaming : renamings) {
-	  StringBuilder temp = new StringBuilder("\nif (" + PCtoString(renaming.getCondition().and(subparser.getPresenceCondition())) /*next_node.cond.and(renaming.getCondition())*/ + ") {\n");
-	  if (! allStatements.get(0).toString().equals("null"))
-	    temp.append(allStatements.get(0).toString());
-	  temp.append(renaming.getData().getRenaming());
-	  allStatements.add(temp);
-	}
+      	/** gets the renamings and generates their conditionals */
+      	next_ident = getStringBuilder((Node)child).toString();
+      	CContext scope = (CContext) subparser.scope;
+      	renamings = scope.getMappings(next_ident);
+        statements = cartesianProduct(statements, renamings);
       } else {
-	/** appends this piece of the statement to all versions of the statement */
-	for (StringBuilder curStatement : allStatements) {
-	  curStatement.append(getStringBuilder((Node)child));
-	}
+        /** appends this piece of the statement to all versions of the statement */
+        Iterator<Multiverse.Element<Universe>> statementIterator = statements.iterator();
+        while (statementIterator.hasNext()) {
+          Multiverse.Element<Universe> next_statement = statementIterator.next();
+          if (getStringBuilder((Node)child) != null && !getStringBuilder((Node)child).toString().equals("null"))
+            next_statement.data.rename = next_statement.getData().rename + getStringBuilder((Node)child).toString();
+        }
       }
     }
-    /** removes the first stringbuilder in the list
-     *  (this one is only used as a base for the others)
-     */
-    allStatements.remove();
-    /** finishes the statement and adds it to the SB that will be set at this node */
-    for (StringBuilder statement : allStatements) {
-      statement.append(";\n}\n");
-      sb.append(statement);
+    /** Hoists the "if (PC) { }" around each statement */
+    Iterator<Multiverse.Element<Universe>> statementIterator = statements.iterator();
+    while (statementIterator.hasNext()) {
+      Multiverse.Element<Universe> next_statement = statementIterator.next();
+      sb.append("\nif (" + PCtoString(next_statement.getCondition()) + ") {\n" + next_statement.getData().rename + ";\n}\n");
     }
   }
   setStringBuilder(value, sb);
+}
+
+/** Takes two stringbuilder multiverses, and generates all of their combinations */
+private Multiverse<Universe> cartesianProduct(Multiverse<Universe> statements, Multiverse<Universe> renamings) {
+  Multiverse<Universe> allCombinations = new Multiverse<Universe>();
+  for (Element<Universe> statement : statements) {
+    for (Element<Universe> renaming : renamings) {
+      allCombinations.add(new Element<Universe>(new Universe(statement.getData().rename + renaming.getData().rename, null), statement.getCondition().and(renaming.getCondition())));
+    }
+  }
+  return allCombinations;
 }
 
 /** True when statistics should be output. */
