@@ -275,7 +275,7 @@ TranslationUnit:  /** complete, passthrough **/
             setCPC(value, PCtoString(subparser.getPresenceCondition()));
             /** writes transformation code */
             writer.write("#include <stdbool.h>\n");
-            writer.write("#include \"desugared_macros.h\" /* configuration macros converted to C variables */\n");
+            //writer.write("#include \"desugared_macros.h\" /* configuration macros converted to C variables */\n");
 
             /** writes the extern declarations for the renamed preprocessor BDDs */
             StringBuilder temp = new StringBuilder();
@@ -293,10 +293,24 @@ TranslationUnit:  /** complete, passthrough **/
             /** writes all file-dependent transformation code that isn't
              *  a renamed config macro declaration
              */
-            writer.write(getStringBuilderAt(subparser, 1).toString() + "\n");
+            Multiverse<StringBuilder> sbmv = getSBMVAt(subparser, 1);
+            for (Element<StringBuilder> elemSB : sbmv) {
+              /** Writes generated code that exists in all presence conditions,
+               *  without hoisting "if (1)", because variables declared here need
+               *  to be accessible from all other presence conditions
+               */
+              if (elemSB.getCondition().getBDD().isOne())
+              {
+                writer.write(elemSB.getData().toString());
+              }
+              else {
+                writer.write("\nif (" + elemSB.getCondition() + ") {");
+                writer.write("\n" + elemSB.getData().toString() + "\n}\n");
+              }
+            }
 
             // TODO: handle functions properly and remove this main function placeholder
-            writer.write("return 0;\n}\n");
+            writer.write("\nreturn 0;\n}\n");
 
             writer.flush();
           }
@@ -314,7 +328,7 @@ ExternalDeclarationList: /** list, complete **/
         | ExternalDeclarationList ExternalDeclaration
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCond(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         ;
 
@@ -322,22 +336,22 @@ ExternalDeclaration:  /** passthrough, complete **/
         FunctionDefinitionExtension
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         | DeclarationExtension
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         | AssemblyDefinition
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         | EmptyDefinition
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         ;
 
@@ -353,12 +367,12 @@ FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
         FunctionDefinition
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         | __EXTENSION__ FunctionDefinition
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCond(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         ;
 
@@ -368,12 +382,12 @@ FunctionDefinition:  /** complete **/ // added scoping
           //Get FunctionPrototype
           //Get FunctionCompoundStatement
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCond(4, subparser, value);
+          getAndSetSBMVCond(4, subparser, value);
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCond(5, subparser, value);
+          getAndSetSBMVCond(5, subparser, value);
         }
         ;
 
@@ -382,7 +396,7 @@ FunctionDefinition:  /** complete **/ // added scoping
 FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
         LocalLabelDeclarationListOpt DeclarationOrStatementList
         {
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         ;
 
@@ -393,13 +407,13 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
 FunctionPrototype:  /** nomerge **/
         IdentifierDeclarator { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | DeclarationSpecifier     IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | TypeSpecifier            IdentifierDeclarator
         {
@@ -408,6 +422,7 @@ FunctionPrototype:  /** nomerge **/
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           StringBuilder sb = new StringBuilder();
+
           addMapping(subparser,type,decl);
   	      List<Type> typeList = type.toType();
   	      if (typeList.size() == 1)
@@ -416,50 +431,52 @@ FunctionPrototype:  /** nomerge **/
 	          System.err.println("ERROR: Configurable typedefs not yet supported.");
 		        // System.exit(1);
   	      }
-          sb.append(getStringBuilderAt(subparser, 1));
+          // TODO
+          /*sb.append(getStringBuilderAt(subparser, 1));
           //System.err.println("main function signature is " + sb.toString());
       	  setStringBuilder(value, sb);
+          */
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | TypeQualifierList        IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         |                          OldFunctionDeclarator
         {
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         ;
 
@@ -467,31 +484,31 @@ FunctionOldPrototype:  /** nomerge **/
         OldFunctionDeclarator
         {
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         ;
 
@@ -502,12 +519,12 @@ NestedFunctionDefinition:  /** complete **/ // added scoping
         NestedFunctionPrototype { ReenterScope(subparser); } LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCond(5, subparser, value);
+          getAndSetSBMVCond(5, subparser, value);
         }
         | NestedFunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCond(6, subparser, value);
+          getAndSetSBMVCond(6, subparser, value);
         }
         ;
 
@@ -516,50 +533,50 @@ NestedFunctionPrototype:  /** nomerge **/
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | TypeSpecifier            IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | TypeQualifierList        IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
 
         | DeclarationSpecifier     OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         ;
 
@@ -568,25 +585,25 @@ NestedFunctionOldPrototype:  /** nomerge **/
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         ;
 
@@ -618,12 +635,12 @@ DeclarationExtension:  /** passthrough, complete **/  // ADDED
         Declaration
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         | __EXTENSION__ Declaration
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCond(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         ;
 
@@ -631,22 +648,22 @@ Declaration:  /** complete **/
         SUEDeclarationSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCond(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | SUETypeSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCond(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(3, subparser, value);
+          getAndSetSBMVCondAt(3, subparser, value);
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCond(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         ;
 
@@ -690,7 +707,8 @@ DeclaringList:  /** nomerge **/
           String oldIdent = decl.identifier;
           Multiverse<Universe> unis = addMapping(subparser, type, decl);
           List<StringBuilder> renamings = getRenamings(unis);
-      	  StringBuilder sb = new StringBuilder();
+      	  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          StringBuilder sb = new StringBuilder();
 
           /** writes declarations of renamed variables */
       	  for (StringBuilder renaming : renamings)
@@ -708,14 +726,17 @@ DeclaringList:  /** nomerge **/
           // TODO: handle AttributeSpecifierListOpt
 
           /** hoists and writes initializing statements using the renamed variables */
-          if (getStringBuilderAt(subparser, 1) != null && !(getStringBuilderAt(subparser, 1)).toString().equals("null"))
+          Multiverse<StringBuilder> childSBMV = getSBMVAt(subparser, 1);
+          if (childSBMV != null)
             for (Element<Universe> u : unis)
-              sb.append("\nif (" + PCtoString(u.getCondition()) + ") {\n" +
-                        (new StringBuilder(u.getData().getRenaming())).toString() +
-                        getStringBuilderAt(subparser, 1) + ";" +
-                        "\n}\n");
+              for (Element<StringBuilder> sbelem : childSBMV)
+                sb.append("\nif (" + PCtoString(u.getCondition().and(sbelem.getCondition())) + ") {\n" +
+                         (new StringBuilder(u.getData().getRenaming())).toString() +
+                         sbelem.getData() + ";" +
+                         "\n}\n");
 
-          setStringBuilder(value, sb);
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
         }
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
@@ -1461,7 +1482,7 @@ EnumeratorValueOpt: /** nomerge **/
 ParameterTypeList:  /** nomerge **/
         ParameterList
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
           setParameter(value, getParameterAt(subparser,1));
         }
         | ParameterList COMMA ELLIPSIS
@@ -1477,7 +1498,7 @@ ParameterTypeList:  /** nomerge **/
 ParameterList:  /** list, nomerge **/
         ParameterDeclaration
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
           setParameter(value, getParameterAt(subparser,1));
         }
         | ParameterList COMMA ParameterDeclaration
@@ -1532,12 +1553,12 @@ ParameterList:  /** list, nomerge **/
 ParameterDeclaration:  /** passthrough, nomerge **/
         ParameterIdentifierDeclaration
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
           setParameter(value, getParameterAt(subparser,1));
         }
         | ParameterAbstractDeclaration
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         ;
 
@@ -1568,7 +1589,9 @@ ParameterAbstractDeclaration:
         		System.err.println("ERROR: Configurable typedefs not yet supported."); // TODO
         		// System.exit(1);
   	      }
-          setStringBuilder(value, sb);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
         }
         | TypeSpecifier AbstractDeclarator
         {
@@ -1655,24 +1678,36 @@ InitializerOpt: /** nomerge **/
         /* nothing */
         | ASSIGN DesignatedInitializer
         {
-          StringBuilder sb = new StringBuilder();
-          StringBuilder temp = getStringBuilderAt(subparser, 1);
-          if (temp != null && !temp.toString().equals("null")) {
-            sb.append(" = ");
-            sb.append(temp);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<StringBuilder> allAssignVals = getSBMVAt(subparser, 1);
+          if (allAssignVals != null) {
+            CContext scope = (CContext) subparser.scope;
+            // gets all renamings of the variable, and adds them to the sbmv
+            for (Multiverse.Element<StringBuilder> sbelem : allAssignVals) {
+              Multiverse<Universe> renamings = scope.getSymbolTable().map.get(sbelem.getData().toString());
+              if (renamings != null) {
+                /** writes part of the assignment using the variables' renamings */
+                for (Multiverse.Element<Universe> renaming : renamings) {
+                  sbmv.add(new Element<StringBuilder>(new StringBuilder(" = " + renaming.getData().rename), sbelem.getCondition().and(renaming.getCondition())/*subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)*/));
+                }
+              } else {
+                /** if there is no renaming, then we are assigning something other than a variable (such as a constant) */
+                sbmv.add(new Element<StringBuilder>(new StringBuilder(" = " + sbelem.getData().toString()), sbelem.getCondition()));
+              }
+            }
           }
-          setStringBuilder(value, sb);
+          setSBMV(value, sbmv);
         }
         ;
 
 DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         Initializer
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | Designation Initializer
         {
-          getAndSetSB(2, subparser, value);
+          getAndSetSBMV(2, subparser, value);
         }
         ;
 
@@ -1684,15 +1719,15 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
 Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists
         LBRACE MatchedInitializerList RBRACE
         {
-          getAndSetSB(3, subparser, value);
+          getAndSetSBMV(3, subparser, value);
         }
         | LBRACE MatchedInitializerList DesignatedInitializer RBRACE
         {
-          getAndSetSB(4, subparser, value);
+          getAndSetSBMV(4, subparser, value);
         }
         | AssignmentExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         ;
 
@@ -1913,7 +1948,7 @@ IdentifierDeclarator:  /** passthrough, nomerge **/
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
-    getAndSetSBAt(1, subparser, value);
+    getAndSetSBMVAt(1, subparser, value);
 	}
         ;
 
@@ -1922,13 +1957,13 @@ IdentifierDeclaratorMain:  /** passthrough, nomerge **/
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
-    getAndSetSB(1, subparser, value);
+    getAndSetSBMV(1, subparser, value);
 	}
         | ParenIdentifierDeclarator
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
-    getAndSetSBAt(1, subparser, value);
+    getAndSetSBMVAt(1, subparser, value);
 	}
         ;
 
@@ -1937,14 +1972,14 @@ UnaryIdentifierDeclarator: /** passthrough, nomerge **/
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
-    getAndSetSBAt(1, subparser, value);
+    getAndSetSBMVAt(1, subparser, value);
 	}
         | STAR IdentifierDeclarator
         {
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  db.addPointer();
 	  setDeclBuilder(value, db);
-    getAndSetSB(3, subparser, value);
+    getAndSetSBMV(3, subparser, value);
 	}
         | STAR TypeQualifierList IdentifierDeclarator
 	{
@@ -1953,7 +1988,7 @@ UnaryIdentifierDeclarator: /** passthrough, nomerge **/
 	  outter.addPointer();
 	  outter.addQuals(getTypeBuilderAt(subparser,2),db);
 	  setDeclBuilder(value,outter);
-    getAndSetSB(3, subparser, value);
+    getAndSetSBMV(3, subparser, value);
 	}
         ;
 
@@ -1961,7 +1996,7 @@ PostfixIdentifierDeclarator: /** passthrough, nomerge **/
 FunctionDeclarator
 {
   setDeclBuilder(value, getDeclBuilderAt(subparser,1));
-  getAndSetSBAt(1, subparser, value);
+  getAndSetSBMVAt(1, subparser, value);
 }
 | ArrayDeclarator
 	{
@@ -1996,14 +2031,14 @@ FunctionDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator PostfixingFunctionDeclarator
         {
           // TODO: construct the declaration of main here using the declbuilder stored at ParenIdentifierDeclarator and PostfixingFunctionDeclarator
-          DeclBuilder ident = getDeclBuilderAt(subparser, 2);
+          /*DeclBuilder ident = getDeclBuilderAt(subparser, 2);
           StringBuilder sb = new StringBuilder();
           sb.append(ident);
 
           sb.append(getStringBuilderAt(subparser, 1));
           setStringBuilder(value, sb);
           ident.setParams(getParameterAt(subparser,1));
-          setDeclBuilder(value,ident);
+          setDeclBuilder(value,ident);*/
         }
         ;
 
@@ -2011,13 +2046,14 @@ PostfixingFunctionDeclarator:  /** nomerge **/
         LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN
         {
           //return whatever is in Parameter TypeListOpt
-          StringBuilder sb = new StringBuilder("(");
+          // TODO
+          /*StringBuilder sb = new StringBuilder("(");
           for (int i = 1; i <= 3; i++)
             if (getStringBuilderAt(subparser, i) != null && !getStringBuilderAt(subparser, i).equals("null"))
               sb.append(getStringBuilderAt(subparser, i));
           sb.append(")");
           setStringBuilder(value, sb);
-          setParameter(value,getParameterAt(subparser, 3));
+          setParameter(value,getParameterAt(subparser, 3));*/
         }
         ;
 
@@ -2036,7 +2072,7 @@ ParenIdentifierDeclarator:  /** passthrough, nomerge **/
       	{
       	  DeclBuilder db = getDeclBuilderAt(subparser,1);
       	  setDeclBuilder(value, db);
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
       	}
         | LPAREN ParenIdentifierDeclarator RPAREN
       	{
@@ -2044,7 +2080,7 @@ ParenIdentifierDeclarator:  /** passthrough, nomerge **/
       	  DeclBuilder superDecl = new DeclBuilder();
       	  superDecl.addDeclBuilder(db);
       	  setDeclBuilder(value,superDecl);
-          getAndSetSB(3, subparser, value);
+          getAndSetSBMV(3, subparser, value);
       	}
         ;
 
@@ -2087,7 +2123,7 @@ ParameterTypeListOpt: /** nomerge **/
         /* empty */
         | ParameterTypeList
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
           setParameter(value,getParameterAt(subparser,1));
         }
         ;
@@ -2133,37 +2169,37 @@ Statement:  /** passthrough, complete **/
         LabeledStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         | CompoundStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         | ExpressionStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         | SelectionStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         | IterationStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         | JumpStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         | AssemblyStatement  // ADDED
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         ;
 
@@ -2205,7 +2241,7 @@ CompoundStatement:  /** complete **/  /* ADDED */
         RBRACE
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCond(4, subparser, value);
+          getAndSetSBMVCond(4, subparser, value);
         }
         ;
 
@@ -2214,7 +2250,7 @@ LocalLabelDeclarationListOpt: /** complete **/
         | LocalLabelDeclarationList
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         ;
 
@@ -2222,12 +2258,12 @@ LocalLabelDeclarationList:  /** list, complete **/
         LocalLabelDeclaration
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         | LocalLabelDeclarationList LocalLabelDeclaration
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCond(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         ;
 
@@ -2253,7 +2289,7 @@ DeclarationOrStatementList:  /** list, complete **/  /* ADDED */
         | DeclarationOrStatementList DeclarationOrStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCond(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         ;
 
@@ -2261,17 +2297,17 @@ DeclarationOrStatement: /** passthrough, complete **/  /* ADDED */
         DeclarationExtension
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         | Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         | NestedFunctionDefinition
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         ;
 
@@ -2279,12 +2315,12 @@ DeclarationList:  /** list, complete **/
         DeclarationExtension
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCondAt(1, subparser, value);
+          getAndSetSBMVCondAt(1, subparser, value);
         }
         | DeclarationList DeclarationExtension
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBCond(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         ;
 
@@ -2391,13 +2427,17 @@ Constant: /** passthrough, nomerge **/
         {
           StringBuilder sb = new StringBuilder();
           sb.append(((Node)value).getTokenText());
-          setStringBuilder(value, sb);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
         }
         | INTEGERconstant
         {
           StringBuilder sb = new StringBuilder();
           sb.append(((Node)value).getTokenText());
-          setStringBuilder(value, sb);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
         }
         /* We are not including ENUMERATIONConstant here  because  we
         are  treating  it like a variable with a type of "enumeration
@@ -2407,19 +2447,25 @@ Constant: /** passthrough, nomerge **/
           // TODO: get the actual value
           StringBuilder sb = new StringBuilder();
           sb.append(((Node)value).getTokenText());
-          setStringBuilder(value, sb);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
         }
         | HEXconstant
         {
           StringBuilder sb = new StringBuilder();
           sb.append(((Node)value).getTokenText());
-          setStringBuilder(value, sb);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
         }
         | CHARACTERconstant
         {
           StringBuilder sb = new StringBuilder();
           sb.append(((Node)value).getTokenText());
-          setStringBuilder(value, sb);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
         }
         ;
 
@@ -2434,11 +2480,11 @@ StringLiteralList:  /** list, nomerge **/
 PrimaryExpression:  /** nomerge, passthrough **/
         PrimaryIdentifier
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | Constant
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | StringLiteralList
         | LPAREN Expression RPAREN
@@ -2452,7 +2498,9 @@ PrimaryIdentifier: /** nomerge **/
           useIdent(subparser, getNodeAt(subparser, 1));
           StringBuilder sb = new StringBuilder();
           sb.append(((Node)getNodeAt(subparser, 1)).getTokenText());
-          setStringBuilder(value, sb);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
         }  /* We cannot use a typedef name as a variable */
         ;
 
@@ -2467,7 +2515,7 @@ StatementAsExpression:  /** nomerge **/  //ADDED
 PostfixExpression:  /** passthrough, nomerge **/
         PrimaryExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | Subscript
         | FunctionCall
@@ -2519,7 +2567,7 @@ ExpressionList:  /** list, nomerge **/
 UnaryExpression:  /** passthrough, nomerge **/
         PostfixExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | ICR UnaryExpression
         | DECR UnaryExpression
@@ -2571,7 +2619,7 @@ Unaryoperator:
 CastExpression:  /** passthrough, nomerge **/
         UnaryExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | LPAREN TypeName RPAREN CastExpression
         ;
@@ -2579,7 +2627,7 @@ CastExpression:  /** passthrough, nomerge **/
 MultiplicativeExpression:  /** passthrough, nomerge **/
         CastExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | MultiplicativeExpression STAR CastExpression
         | MultiplicativeExpression DIV CastExpression
@@ -2589,7 +2637,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
 AdditiveExpression:  /** passthrough, nomerge **/
         MultiplicativeExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | AdditiveExpression PLUS MultiplicativeExpression
         | AdditiveExpression MINUS MultiplicativeExpression
@@ -2598,7 +2646,7 @@ AdditiveExpression:  /** passthrough, nomerge **/
 ShiftExpression:  /** passthrough, nomerge **/
         AdditiveExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | ShiftExpression LS AdditiveExpression
         | ShiftExpression RS AdditiveExpression
@@ -2607,7 +2655,7 @@ ShiftExpression:  /** passthrough, nomerge **/
 RelationalExpression:  /** passthrough, nomerge **/
         ShiftExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | RelationalExpression LT ShiftExpression
         {
@@ -2630,7 +2678,7 @@ RelationalExpression:  /** passthrough, nomerge **/
 EqualityExpression:  /** passthrough, nomerge **/
         RelationalExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | EqualityExpression EQ RelationalExpression
         {
@@ -2645,7 +2693,7 @@ EqualityExpression:  /** passthrough, nomerge **/
 AndExpression:  /** passthrough, nomerge **/
         EqualityExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | AndExpression AND EqualityExpression
         {
@@ -2656,7 +2704,7 @@ AndExpression:  /** passthrough, nomerge **/
 ExclusiveOrExpression:  /** passthrough, nomerge **/
         AndExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | ExclusiveOrExpression XOR AndExpression
         {
@@ -2667,7 +2715,7 @@ ExclusiveOrExpression:  /** passthrough, nomerge **/
 InclusiveOrExpression:  /** passthrough, nomerge **/
         ExclusiveOrExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | InclusiveOrExpression PIPE ExclusiveOrExpression
         {
@@ -2678,7 +2726,7 @@ InclusiveOrExpression:  /** passthrough, nomerge **/
 LogicalAndExpression:  /** passthrough, nomerge **/
         InclusiveOrExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | LogicalAndExpression ANDAND InclusiveOrExpression
         {
@@ -2689,7 +2737,7 @@ LogicalAndExpression:  /** passthrough, nomerge **/
 LogicalORExpression:  /** passthrough, nomerge **/
         LogicalAndExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | LogicalORExpression OROR LogicalAndExpression
         {
@@ -2700,7 +2748,7 @@ LogicalORExpression:  /** passthrough, nomerge **/
 ConditionalExpression:  /** passthrough, nomerge **/
         LogicalORExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | LogicalORExpression QUESTION Expression COLON
                 ConditionalExpression
@@ -2717,11 +2765,11 @@ ConditionalExpression:  /** passthrough, nomerge **/
 AssignmentExpression:  /** passthrough, nomerge **/
         ConditionalExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | UnaryExpression AssignmentOperator AssignmentExpression
         {
-          getAndSetSB(3, subparser, value);
+          getAndSetSBMV(3, subparser, value);
         }
         ;
 
@@ -2730,37 +2778,49 @@ AssignmentOperator: /** nomerge **/
         {
           StringBuilder sb = new StringBuilder();
           sb.append(" = ");
-          setStringBuilder(value, sb);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
         }
         | MULTassign
         {
           StringBuilder sb = new StringBuilder();
           sb.append(" *= ");
-          setStringBuilder(value, sb);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
         }
         | DIVassign
         {
           StringBuilder sb = new StringBuilder();
           sb.append(" /= ");
-          setStringBuilder(value, sb);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
         }
         | MODassign
         {
           StringBuilder sb = new StringBuilder();
           sb.append(" %= ");
-          setStringBuilder(value, sb);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
         }
         | PLUSassign
         {
           StringBuilder sb = new StringBuilder();
           sb.append(" += ");
-          setStringBuilder(value, sb);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
         }
         | MINUSassign
         {
           StringBuilder sb = new StringBuilder();
           sb.append(" -= ");
-          setStringBuilder(value, sb);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
         }
         | LSassign
         {
@@ -2774,7 +2834,9 @@ AssignmentOperator: /** nomerge **/
         {
           StringBuilder sb = new StringBuilder();
           sb.append(" &= ");
-          setStringBuilder(value, sb);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
         }
         | ERassign
         {
@@ -2784,7 +2846,9 @@ AssignmentOperator: /** nomerge **/
         {
           StringBuilder sb = new StringBuilder();
           sb.append(" |= ");
-          setStringBuilder(value, sb);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
         }
         ;
 
@@ -2792,14 +2856,14 @@ ExpressionOpt:  /** passthrough, nomerge **/
         /* Nothing */
         | Expression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         ;
 
 Expression:  /** passthrough, nomerge **/
         AssignmentExpression
         {
-          getAndSetSBAt(1, subparser, value);
+          getAndSetSBMVAt(1, subparser, value);
         }
         | Expression COMMA AssignmentExpression
         ;
@@ -3012,7 +3076,6 @@ private static final String TYPEBUILDER = "xtc.lang.cpp.TypeBuilder";
 private static final String PARAMETER = "xtc.lang.cpp.Parameter";
 private static final String DECLBUILDER = "xtc.lang.cpp.DeclBuilder";
 private static final String STRING = "xtc.String";
-private static final String STRINGBUILDER = "xtc.StringBuilder";
 private static final String SBMV = "xtc.lang.cpp.Multiverse<StringBuilder>";
 
 
@@ -3056,7 +3119,6 @@ private List<Parameter> getParameterAt(Subparser subparser, int component) {
   return (List<Parameter>) getNodeAt(subparser, component).getProperty(PARAMETER);
 }
 
-
 private void setCPC(Object value, String CPC) {
   // value should be not null and should be a Node type
   setCPC((Node) value, CPC);
@@ -3075,16 +3137,6 @@ private String getCPC(Node n) {
   return (String) n.getProperty("C_PC");
 }
 
-private void setStringBuilder(Object value, StringBuilder sb) {
-  // value should be not null and should be a Node type
-  setStringBuilder((Node) value, sb);
-}
-
-private void setStringBuilder(Node value, StringBuilder sb) {
-  // value should be not null and should be a Node type
-  value.setProperty(STRINGBUILDER, sb);
-}
-
 private void setSBMV(Object value, Multiverse<StringBuilder> sbmv) {
   // value should be not null and should be a Node type
   setSBMV((Node) value, sbmv);
@@ -3093,17 +3145,6 @@ private void setSBMV(Object value, Multiverse<StringBuilder> sbmv) {
 private void setSBMV(Node value, Multiverse<StringBuilder> sbmv) {
   // value should be not null and should be a Node type
   value.setProperty(SBMV, sbmv);
-}
-
-private StringBuilder getStringBuilderAt(Subparser subparser, int component) {
-  Node n = getNodeAt(subparser, component);
-  if (n == null)
-    return null;
-  return (StringBuilder) n.getProperty(STRINGBUILDER);
-}
-
-private StringBuilder getStringBuilder(Node n) {
-  return (StringBuilder) n.getProperty(STRINGBUILDER);
 }
 
 private Multiverse<StringBuilder> getSBMVAt(Subparser subparser, int component) {
@@ -3117,123 +3158,161 @@ private Multiverse<StringBuilder> getSBMV(Node n) {
   return (Multiverse<StringBuilder>) n.getProperty(SBMV);
 }
 
-/** gets the stringbuilders from a non-'complete' node's children */
-private void getAndSetSB(int numChildren, Subparser subparser, Object value)
+/** gets the sbmvs from a non-'complete' node's children */
+private void getAndSetSBMV(int numChildren, Subparser subparser, Object value)
 {
-  StringBuilder sb = new StringBuilder();
-  StringBuilder temp;
+  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+  Multiverse<StringBuilder> temp;
+
+  /** generates all combinations of the children's stringbuilders */
   for (int i = numChildren; i >= 1; i--) {
-    temp = getStringBuilderAt(subparser, i);
-    if (temp != null && !temp.toString().equals("null"))
-      sb.append(temp);
+    temp = getSBMVAt(subparser, i);
+    if (temp != null)
+      sbmv = cartesianProduct(sbmv, temp);
   }
-  setStringBuilder(value, sb);
+  setSBMV(value, sbmv);
 }
 
 /** gets the stringbuilders from a non-'complete' node's child */
-private void getAndSetSBAt(int child, Subparser subparser, Object value)
+private void getAndSetSBMVAt(int child, Subparser subparser, Object value)
 {
-  StringBuilder sb = new StringBuilder();
-  StringBuilder temp;
-  temp = getStringBuilderAt(subparser, child);
-  if (temp != null && !temp.toString().equals("null"))
-      sb.append(temp);
-  setStringBuilder(value, sb);
+  Multiverse<StringBuilder> sbmv;
+  Multiverse<StringBuilder> temp = getSBMVAt(subparser, child);
+  /** assigns a copy of the child's SBMV if it exists */
+  if (temp != null)
+    sbmv = new Multiverse<StringBuilder>(temp);
+  else /** otherwise creates a new one and assigns that */
+    sbmv = new Multiverse<StringBuilder>();
+  setSBMV(value, sbmv);
 }
 
 /** gets the stringbuilders from a 'complete' node's children */
-private void getAndSetSBCond(int numChildren, Subparser subparser, Object value)
+private void getAndSetSBMVCond(int numChildren, Subparser subparser, Object value)
 {
   Multiverse<Node> condChildren;
-  StringBuilder sb = new StringBuilder();
+  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
   for (int i = numChildren; i >= 1; i--)
   {
     condChildren = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
-    // iterates through every pair of (Node, PresenceCondition)
-    // and appends all declarations stored in the nodes to this stringbuilder
+    /** iterates through every pair of (Node, PresenceCondition)
+       and generates all combinations of childrens' stringbuilders */
     Iterator<Multiverse.Element<Node>> children = condChildren.iterator();
-    StringBuilder temp = new StringBuilder();
+    Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
     while (children.hasNext()) {
       Multiverse.Element<Node> next_node = children.next();
       if (next_node.data != null)
-        temp = getStringBuilder(next_node.data);
-      if (temp != null && !temp.toString().equals("null"))
-        sb.append(temp);
+        temp = getSBMV(next_node.data);
+      if (temp != null)
+        sbmv = cartesianProduct(sbmv, temp);
     }
   }
-  setStringBuilder(value, sb);
+  setSBMV(value, sbmv);
 }
 
 /** gets the stringbuilders from a 'complete' node's child */
-private void getAndSetSBCondAt(int child, Subparser subparser, Object value)
+private void getAndSetSBMVCondAt(int child, Subparser subparser, Object value)
 {
   Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, child), subparser.getPresenceCondition().presenceConditionManager());
-  StringBuilder sb = new StringBuilder();
-  // iterates through every pair of (Node, PresenceCondition)
-  // and appends all declarations stored in the nodes to this stringbuilder
+  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+  /** iterates through every pair of (Node, PresenceCondition)
+     and generates all combinations of child's stringbuilders */
   Iterator<Multiverse.Element<Node>> children = condChildren.iterator();
-  StringBuilder temp = new StringBuilder();
+  Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
   while (children.hasNext()) {
     Multiverse.Element<Node> next_node = children.next();
     if (next_node.data != null)
-      temp = getStringBuilder(next_node.data);
-    if (temp != null && !temp.toString().equals("null"))
-      sb.append(temp);
+      temp = getSBMV(next_node.data);
+    if (temp != null)
+      sbmv = cartesianProduct(sbmv, temp);
   }
-  setStringBuilder(value, sb);
+  setSBMV(value, sbmv);
 }
 
 /** acts as a getAndSet() method for statements */
 void hoistStatement(Subparser subparser, Object value) {
   /** iterates through every pair of (Node, PresenceCondition)
       and appends all statements stored in the nodes to this stringbuilder */
-  StringBuilder sb = new StringBuilder();
+  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
   Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, 2), subparser.getPresenceCondition().presenceConditionManager());
-  Multiverse<Universe> renamings;
+  Multiverse<StringBuilder> renamings;
   Iterator<Multiverse.Element<Node>> children = condChildren.iterator();
   String next_ident = "";
   /** iterates through every version of the statement */
   while (children.hasNext()) {
     Multiverse.Element<Node> next_node = children.next();
-    Multiverse<Universe> statements = new Multiverse<Universe>();
-    statements.add(new Universe("", null), subparser.getPresenceCondition());
+    Multiverse<StringBuilder> statements = new Multiverse<StringBuilder>();
+    statements.add(new StringBuilder(), subparser.getPresenceCondition());
+    //statements.add(new StringBuilder(), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
     /** iterates through all pieces of the statement */
     for (Object child : next_node.data) {
       if (((Node)child).hasName("PrimaryIdentifier")) {
       	/** gets the renamings and generates their conditionals */
-      	next_ident = getStringBuilder((Node)child).toString();
+        /** NOTE: PrimaryIdentifier cannot have a static choice node in its subtree.
+         *        This means we can safely assume that the multiverse stored only
+         *        has one element in it (where PC = 1)
+         */
+      	next_ident = getSBMV((Node)child).get(0).getData().toString();
       	CContext scope = (CContext) subparser.scope;
-      	renamings = scope.getMappings(next_ident);
+      	renamings = universeToSB(scope.getMappings(next_ident));
         statements = cartesianProduct(statements, renamings);
       } else {
         /** appends this piece of the statement to all versions of the statement */
-        Iterator<Multiverse.Element<Universe>> statementIterator = statements.iterator();
+        Iterator<Multiverse.Element<StringBuilder>> statementIterator = statements.iterator();
         while (statementIterator.hasNext()) {
-          Multiverse.Element<Universe> next_statement = statementIterator.next();
-          if (getStringBuilder((Node)child) != null && !getStringBuilder((Node)child).toString().equals("null"))
-            next_statement.data.rename = next_statement.getData().rename + getStringBuilder((Node)child).toString();
+          Multiverse.Element<StringBuilder> next_statement = statementIterator.next();
+          statements = cartesianProduct(statements, getSBMV((Node)child));
         }
       }
     }
     /** Hoists the "if (PC) { }" around each statement */
-    Iterator<Multiverse.Element<Universe>> statementIterator = statements.iterator();
+    Iterator<Multiverse.Element<StringBuilder>> statementIterator = statements.iterator();
     while (statementIterator.hasNext()) {
-      Multiverse.Element<Universe> next_statement = statementIterator.next();
-      sb.append("\nif (" + PCtoString(next_statement.getCondition()) + ") {\n" + next_statement.getData().rename + ";\n}\n");
+      Multiverse.Element<StringBuilder> next_statement = statementIterator.next();
+      sbmv.add(new StringBuilder("\nif (" + PCtoString(next_statement.getCondition()) + ") {\n" + next_statement.getData().toString() + ";\n}\n"),
+               subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)/*next_statement.getCondition()*/);
     }
   }
-  setStringBuilder(value, sb);
+  setSBMV(value, sbmv);
 }
 
 /** Takes two stringbuilder multiverses, and generates all of their combinations */
-private Multiverse<Universe> cartesianProduct(Multiverse<Universe> statements, Multiverse<Universe> renamings) {
-  Multiverse<Universe> allCombinations = new Multiverse<Universe>();
-  for (Element<Universe> statement : statements) {
-    for (Element<Universe> renaming : renamings) {
-      allCombinations.add(new Element<Universe>(new Universe(statement.getData().rename + renaming.getData().rename, null), statement.getCondition().and(renaming.getCondition())));
+private Multiverse<StringBuilder> cartesianProduct(Multiverse<StringBuilder> statements, Multiverse<StringBuilder> renamings) {
+  Multiverse<StringBuilder> allCombinations;
+  if (statements.size() < 1 && renamings.size() < 1) {
+    allCombinations = new Multiverse<StringBuilder>();
+  } else if (statements.size() < 1) {
+    allCombinations = new Multiverse<StringBuilder>(renamings);
+  } else if (renamings.size() < 1) {
+    allCombinations = new Multiverse<StringBuilder>(statements);
+  } else {
+    allCombinations = new Multiverse<StringBuilder>();
+    for (Element<StringBuilder> statement : statements) {
+      for (Element<StringBuilder> renaming : renamings) {
+        StringBuilder sb = new StringBuilder(statement.getData().toString() + renaming.getData().toString());
+        PresenceCondition pc = statement.getCondition().and(renaming.getCondition());
+        if (pc.getBDD().isZero()) {
+          // generated code with unsatisfiable presence conditions is discarded
+
+          // for debugging:
+          //allCombinations.add(new Element<StringBuilder>(sb, pc));
+        } else {
+          allCombinations.add(new Element<StringBuilder>(sb, pc));
+        }
+      }
     }
   }
   return allCombinations;
+}
+
+/** Converts a Multiverse<Universe> to a Multiverse<StringBuilder>
+ *  so cartesianProduct() can be called on them.
+ */
+private Multiverse<StringBuilder> universeToSB(Multiverse<Universe> mv) {
+  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+  for (Element<Universe> u : mv) {
+    sbmv.add(new Element<StringBuilder>(new StringBuilder(u.getData().rename), u.getCondition()));
+  }
+  return sbmv;
 }
 
 /** True when statistics should be output. */
@@ -4684,27 +4763,23 @@ private Multiverse<Universe> getType(TypeBuilder t, DeclBuilder d, PresenceCondi
   Multiverse<List<Parameter>> m = new Multiverse<List<Parameter>>();
   if (func)
     m = d.getParams(currentPC);
-  for (int i = 0; i < cond.size(); ++i)
-    {
-      cond.get(i).addRef();
-      DeclBuilder temp = new DeclBuilder(d);
-      temp.addType(types.get(i));
-      if (func)
-        {
-          for(Element<List<Parameter>> e : m)
-            if (e.getData().size() > 0)
-              {
-                List<Type> l = new LinkedList<Type>();
-                for (Parameter p : e.getData())
-                  if(!p.isEllipsis())
-                    l.add(p.getType());
-                Type f = new FunctionT(temp.toType(), l, e.getData().get(e.getData().size() - 1).isEllipsis());
-                ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
-              }
+  for (int i = 0; i < cond.size(); ++i) {
+    cond.get(i).addRef();
+    DeclBuilder temp = new DeclBuilder(d);
+    temp.addType(types.get(i));
+    if (func) {
+      for(Element<List<Parameter>> e : m)
+        if (e.getData().size() > 0) {
+            List<Type> l = new LinkedList<Type>();
+            for (Parameter p : e.getData())
+              if(!p.isEllipsis())
+                l.add(p.getType());
+            Type f = new FunctionT(temp.toType(), l, e.getData().get(e.getData().size() - 1).isEllipsis());
+            ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
         }
-      else
+    } else
         ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), temp.toType()), cond.get(i).and(currentPC)));
-    }
+  }
   return ret;
 }
 
