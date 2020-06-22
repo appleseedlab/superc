@@ -3278,7 +3278,9 @@ void hoistStatement(Subparser subparser, Object value) {
 /** Takes two stringbuilder multiverses, and generates all of their combinations */
 private Multiverse<StringBuilder> cartesianProduct(Multiverse<StringBuilder> statements, Multiverse<StringBuilder> renamings) {
   Multiverse<StringBuilder> allCombinations;
-  if (statements.size() < 1 && renamings.size() < 1) {
+  if (renamings == null || statements == null) {
+    allCombinations = new Multiverse<StringBuilder>();
+  } else if (statements.size() < 1 && renamings.size() < 1) {
     allCombinations = new Multiverse<StringBuilder>();
   } else if (statements.size() < 1) {
     allCombinations = new Multiverse<StringBuilder>(renamings);
