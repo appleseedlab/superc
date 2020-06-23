@@ -24,6 +24,12 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
     contents = new LinkedList<Element<T>>();
     //doesntExist = p.new PresenceCondition(true);
   }
+	
+  /** copy constructor */
+  public Multiverse(Multiverse<T> mv)
+  {
+    contents = new LinkedList<Element<T>>(mv.contents);
+  }
 
   /**
    * This is one element of a multiple, i.e., a pair containing the
