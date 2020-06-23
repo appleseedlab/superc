@@ -1,11 +1,11 @@
-typedef
+/*typedef
 #ifdef T
 int
 #else
 float
 #endif
 type;
-
+*/
 int foo(
 #ifdef A
 #ifdef B
@@ -18,7 +18,7 @@ int foo(
         #endif
         #endif
         #ifdef A
-        type z,
+        int z,
         #endif
         int w)
 {
@@ -31,11 +31,9 @@ int main()
 }
 
 /*
-foo(w)
-foo(x,int z,w)
-foo(y,int z,w)
-foo(x,y,int z,w)
-foo(x,float z,w)
-foo(y,float z,w)
-foo(x,y,float z,w)
+  foo(w)                  -!A && (!B || B) && (!C || C)
+  foo(x,z,w)              -A && B && !C
+  foo(y,z,w)              -A && !B && C
+  foo(x,y,z,w)            -A && B && C
+  foo(z,w)                -A && !B && !C
  */

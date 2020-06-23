@@ -13,7 +13,8 @@ import xtc.lang.cpp.Multiverse.Element;
 
 public class TypeBuilder extends Multiverse<TypeBuilderUnit>
 {
-    
+  static int count = 0;
+  Integer personalCount;;
   public List<Type> toType() {
     List<Type> types = new LinkedList<Type>();
     for (Element<TypeBuilderUnit> t : contents)
@@ -49,6 +50,8 @@ public class TypeBuilder extends Multiverse<TypeBuilderUnit>
   public TypeBuilder(Type type, PresenceCondition p)
   {
     super();
+    personalCount = new Integer(count);
+    count++;
     contents.add(new Element<TypeBuilderUnit>(new TypeBuilderUnit(type), p));
   }
     
@@ -56,6 +59,7 @@ public class TypeBuilder extends Multiverse<TypeBuilderUnit>
   // the default constructor should be used before this ever gets called.
   public void addType(Type t)
   {
+    
     for (Element<TypeBuilderUnit> e : contents)
 	    {
         e.setData(new TypeBuilderUnit(e.getData(), t));
@@ -148,5 +152,12 @@ public class TypeBuilder extends Multiverse<TypeBuilderUnit>
   public TypeBuilderUnit getQualTU()
   {
     return contents.get(0).getData();
+  }
+
+  public String toString()
+  {
+    if (personalCount != null)
+      return super.toString() + " " + personalCount.toString();
+    return super.toString();
   }
 }

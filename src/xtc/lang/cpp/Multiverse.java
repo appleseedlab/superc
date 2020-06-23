@@ -17,10 +17,12 @@ import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
  */
 public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   protected List<Element<T>> contents;
+  //protected PresenceCondition doesntExist;
   
   public Multiverse()
   {
     contents = new LinkedList<Element<T>>();
+    //doesntExist = p.new PresenceCondition(true);
   }
 
   /**
@@ -122,6 +124,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    */
   public void add(Element<T> elem) {
     contents.add(elem);
+    //    doesntExist = doesntExist.andNot(elem.getCondition());
   }
 
   /**
@@ -129,6 +132,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    */
   public void add(T data, PresenceCondition cond) {
     contents.add(new Element<T>(data, cond));
+    //doesntExist = doesntExist.andNot(cond);
   }
 
   /**
@@ -153,4 +157,9 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
     sb.append(this.contents);
     return sb.toString();
   }
+
+  /*  public PresenceCondition getUndefined()
+  {
+    return doesntExist;
+    }*/
 }

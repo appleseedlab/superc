@@ -6,5 +6,14 @@ int main() {
 	int b;
 #endif
 
+int
+  #ifdef A
+  *
+  #else
+  **
+  #endif
+    c;
+   
+  
 	return 0;
 }

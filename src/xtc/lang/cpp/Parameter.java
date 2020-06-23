@@ -52,4 +52,12 @@ public class Parameter
       return null;
     return multiverse.get(0).getData().getType();
   }
+
+  public String toString()
+  {
+    if (ellipsis)
+      return "...";
+    else
+      return multiverse.toString();
+  }
 }

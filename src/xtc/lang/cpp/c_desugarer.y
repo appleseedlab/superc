@@ -394,14 +394,18 @@ FunctionPrototype:  /** nomerge **/
         IdentifierDeclarator { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
         {
           getAndSetSBAt(1, subparser, value);
+          System.err.println("FunctionPrototype - IdentifierDeclarator not supported");
         }
         | DeclarationSpecifier     IdentifierDeclarator
         {
+          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           getAndSetSB(2, subparser, value);
         }
-        | TypeSpecifier            IdentifierDeclarator
+| TypeSpecifier            IdentifierDeclarator
         {
           TypeBuilder type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
@@ -422,12 +426,18 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
+          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           getAndSetSB(2, subparser, value);
         }
         | TypeQualifierList        IdentifierDeclarator
         {
+          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           getAndSetSB(2, subparser, value);
@@ -439,24 +449,36 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
+          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           getAndSetSB(2, subparser, value);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
+          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           getAndSetSB(2, subparser, value);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
+          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           getAndSetSB(2, subparser, value);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
+          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           getAndSetSB(2, subparser, value);
@@ -676,7 +698,9 @@ DeclaringList:  /** nomerge **/
 	{
       	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
       	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
-	        // TODO
+	        
+          System.err.println(decl.toString() + " " + type.toString());
+          addMapping(subparser, type, decl);
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getTypeBuilderAt(subparser, 5), getDeclBuilderAt(subparser, 4));
         }
@@ -688,6 +712,7 @@ DeclaringList:  /** nomerge **/
           bindIdent(subparser, type, decl);
 
           String oldIdent = decl.identifier;
+          System.err.println(decl.toString() + " " + type.toString());
           Multiverse<Universe> unis = addMapping(subparser, type, decl);
           List<StringBuilder> renamings = getRenamings(unis);
       	  StringBuilder sb = new StringBuilder();
@@ -723,11 +748,11 @@ DeclaringList:  /** nomerge **/
 	        bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          // TODO
+          
         }
         ;
 
-DeclarationSpecifier:  /** passthrough, nomerge **/
+DeclarationSpecifier:  /**  nomerge **/
         BasicDeclarationSpecifier        /* Arithmetic or void */
 				{
 	  			TypeBuilder decl = getTypeBuilderAt(subparser, 1);
@@ -755,11 +780,12 @@ DeclarationSpecifier:  /** passthrough, nomerge **/
 				}
         ;
 
-TypeSpecifier:  /** passthrough, nomerge **/
+TypeSpecifier:  /** nomerge **/
         BasicTypeSpecifier                 /* Arithmetic or void */
 				{
-					setTypeBuilder(value,getTypeBuilderAt(subparser,1));
-
+          TypeBuilder t = getTypeBuilderAt(subparser,1);
+        	setTypeBuilder(value,t);
+          
 				}
         | SUETypeSpecifier                 /* Struct/Union/Enum */
 				{
@@ -837,7 +863,7 @@ TypeQualifierList:  /** list, nomerge **/
 	}
 ;
 
-DeclarationQualifier:  /** passthrough **/
+DeclarationQualifier: 
 TypeQualifier                  /* const or volatile */
 {
   TypeBuilder qual = getTypeBuilderAt(subparser, 1);
@@ -919,7 +945,7 @@ FunctionSpecifier:  // ADDED
         | __INLINE__
         ;
 
-BasicDeclarationSpecifier: /** passthrough, nomerge **/      /*StorageClass+Arithmetic or void*/
+BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or void*/
         BasicTypeSpecifier  StorageClass {
 	  TypeBuilder basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
           TypeBuilder storageClass = getTypeBuilderAt(subparser, 1);
@@ -975,7 +1001,7 @@ BasicDeclarationSpecifier: /** passthrough, nomerge **/      /*StorageClass+Arit
 	}
         ;
 
-BasicTypeSpecifier: /** passthrough, nomerge **/
+BasicTypeSpecifier: /**  nomerge **/
         BasicTypeName           /* Arithmetic or void */
         {
           // TUTORIAL: a semantic action that sets the semantic value
@@ -983,7 +1009,7 @@ BasicTypeSpecifier: /** passthrough, nomerge **/
           // the child semantic value(s)
           TypeBuilder tb = getTypeBuilderAt(subparser, 1);
           setTypeBuilder(value, tb);
-	  updateSpecs(subparser,
+          updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
 
@@ -1175,7 +1201,7 @@ VarArgTypeName:  // ADDED
         __BUILTIN_VA_LIST { getSpecsAt(subparser, 1).type = InternalT.VA_LIST; }
         ;
 
-StorageClass:  /** passthrough **/
+StorageClass:  
         TYPEDEF
 	  {
 	    TypeBuilder storage = new TypeBuilder("typedef", subparser.getPresenceCondition());
@@ -1208,7 +1234,7 @@ StorageClass:  /** passthrough **/
 	    }
         ;
 
-BasicTypeName:  /** passthrough **/
+BasicTypeName:
         VOID
         {
           TypeBuilder tb = new TypeBuilder(VoidT.TYPE, subparser.getPresenceCondition());
@@ -1230,11 +1256,11 @@ BasicTypeName:  /** passthrough **/
         }
         | INT
         {
-
           // See xtc.type.* for the class hiearchy for types
           TypeBuilder tb = new TypeBuilder(NumberT.INT, subparser.getPresenceCondition());
+          System.err.println(tb.toString());
           setTypeBuilder(value, tb);
-	  getSpecsAt(subparser, 1).seenInt = true;
+          getSpecsAt(subparser, 1).seenInt = true;
         }
         | __INT128
 	{
@@ -1483,6 +1509,7 @@ ParameterList:  /** list, nomerge **/
         | ParameterList COMMA ParameterDeclaration
         {
           List<Parameter> p = getParameterAt(subparser,3);
+          
           p.addAll(getParameterAt(subparser,1));
           setParameter(value,p);
         }
@@ -1529,7 +1556,7 @@ ParameterList:  /** list, nomerge **/
 /*         } AttributeSpecifierListOpt */
 /*         ; */
 
-ParameterDeclaration:  /** passthrough, nomerge **/
+ParameterDeclaration:  /** nomerge **/
         ParameterIdentifierDeclaration
         {
           getAndSetSBAt(1, subparser, value);
@@ -1538,6 +1565,7 @@ ParameterDeclaration:  /** passthrough, nomerge **/
         | ParameterAbstractDeclaration
         {
           getAndSetSBAt(1, subparser, value);
+          System.err.println("ParameterDeclaration-Abstract not supported");
         }
         ;
 
@@ -1590,17 +1618,16 @@ ParameterIdentifierDeclaration:
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
+        {
+          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
+          TypeBuilder type = getTypeBuilderAt(subparser, 4);
+
+          Parameter p = new Parameter();
+          p.setMultiverse(addMapping(subparser, type, decl));
+          setParameter(value, p);
+
+        }
         | DeclarationSpecifier ParameterTypedefDeclarator
-        {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        } AttributeSpecifierListOpt
-        | DeclarationQualifierList IdentifierDeclarator
-        {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        } AttributeSpecifierListOpt
-        | TypeSpecifier IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
@@ -1614,16 +1641,61 @@ ParameterIdentifierDeclaration:
           setParameter(value, p);
 
         }
+        | DeclarationQualifierList IdentifierDeclarator
+        {
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+        } AttributeSpecifierListOpt
+        {
+          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
+          TypeBuilder type = getTypeBuilderAt(subparser, 4);
+
+          Parameter p = new Parameter();
+          p.setMultiverse(addMapping(subparser, type, decl));
+          setParameter(value, p);
+
+        }
+        | TypeSpecifier IdentifierDeclarator
+        {
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+        } AttributeSpecifierListOpt
+        {
+          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
+          TypeBuilder type = getTypeBuilderAt(subparser, 4);
+          System.err.println("ParamIdent:" + type.toString());
+          Parameter p = new Parameter();
+          p.setMultiverse(addMapping(subparser, type, decl));
+          setParameter(value, p);
+
+        }
         | TypeSpecifier ParameterTypedefDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
+        {
+          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
+          TypeBuilder type = getTypeBuilderAt(subparser, 4);
+          
+          Parameter p = new Parameter();
+          p.setMultiverse(addMapping(subparser, type, decl));
+          setParameter(value, p);
+
+        }
         | TypeQualifierList IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
+        {
+          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
+          TypeBuilder type = getTypeBuilderAt(subparser, 4);
+
+          Parameter p = new Parameter();
+          p.setMultiverse(addMapping(subparser, type, decl));
+          setParameter(value, p);
+        }
         ;
 
     /*  ANSI  C  section  3.7.1  states  "An Identifier declared as a
@@ -1732,7 +1804,7 @@ ObsoleteFieldDesignation: /** nomerge **/  /* ADDED */
         IDENTIFIER COLON
         ;
 
-Declarator:  /** nomerge, passthrough **/
+Declarator:  /** nomerge**/
         TypedefDeclarator
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
@@ -1745,7 +1817,7 @@ Declarator:  /** nomerge, passthrough **/
 	}
 ;
 
-TypedefDeclarator:  /** passthrough, nomerge **/  // ADDED
+TypedefDeclarator:  /**  nomerge **/  // ADDED
         TypedefDeclaratorMain //AssemblyExpressionOpt AttributeSpecifierListOpt
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
@@ -1753,7 +1825,7 @@ TypedefDeclarator:  /** passthrough, nomerge **/  // ADDED
 	}
         ;
 
-TypedefDeclaratorMain:  /** passthrough, nomerge **/
+TypedefDeclaratorMain:  /**  nomerge **/
         ParenTypedefDeclarator  /* would be ambiguous as Parameter*/
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
@@ -1829,7 +1901,7 @@ CleanPostfixTypedefDeclarator: /** nomerge **/
     /* The following have a redundant LPAREN placed immediately  to  the
     left of the TYPEDEFname */
 
-ParenTypedefDeclarator:  /** passthrough, nomerge **/
+ParenTypedefDeclarator:  /** nomerge **/
         ParenPostfixTypedefDeclarator
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
@@ -1908,7 +1980,7 @@ SimpleParenTypedefDeclarator: /** nomerge **/
 	}
         ;
 
-IdentifierDeclarator:  /** passthrough, nomerge **/
+IdentifierDeclarator:  /**  nomerge **/
         IdentifierDeclaratorMain //AssemblyExpressionOpt AttributeSpecifierListOpt
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
@@ -1917,14 +1989,14 @@ IdentifierDeclarator:  /** passthrough, nomerge **/
 	}
         ;
 
-IdentifierDeclaratorMain:  /** passthrough, nomerge **/
+IdentifierDeclaratorMain:  /** nomerge **/
         UnaryIdentifierDeclarator
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
     getAndSetSB(1, subparser, value);
 	}
-        | ParenIdentifierDeclarator
+| ParenIdentifierDeclarator
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
@@ -1932,21 +2004,22 @@ IdentifierDeclaratorMain:  /** passthrough, nomerge **/
 	}
         ;
 
-UnaryIdentifierDeclarator: /** passthrough, nomerge **/
+UnaryIdentifierDeclarator: /** nomerge **/
         PostfixIdentifierDeclarator
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-	  setDeclBuilder(value, db);
+    System.err.println(getDeclBuilderAt(subparser,1) + ":PC::" + subparser.getPresenceCondition());
+    setDeclBuilder(value, db);
     getAndSetSBAt(1, subparser, value);
 	}
-        | STAR IdentifierDeclarator
-        {
-	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-	  db.addPointer();
-	  setDeclBuilder(value, db);
-    getAndSetSB(3, subparser, value);
-	}
-        | STAR TypeQualifierList IdentifierDeclarator
+| STAR IdentifierDeclarator
+{
+  DeclBuilder db = getDeclBuilderAt(subparser,1);
+  db.addPointer();
+  setDeclBuilder(value, db);
+  getAndSetSB(3, subparser, value);
+}
+| STAR TypeQualifierList IdentifierDeclarator
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  DeclBuilder outter = new DeclBuilder();
@@ -1957,9 +2030,10 @@ UnaryIdentifierDeclarator: /** passthrough, nomerge **/
 	}
         ;
 
-PostfixIdentifierDeclarator: /** passthrough, nomerge **/
+PostfixIdentifierDeclarator: /** nomerge **/
 FunctionDeclarator
 {
+  System.err.println(getDeclBuilderAt(subparser,1) + ":PC::" + subparser.getPresenceCondition());
   setDeclBuilder(value, getDeclBuilderAt(subparser,1));
   getAndSetSBAt(1, subparser, value);
 }
@@ -1996,13 +2070,16 @@ FunctionDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator PostfixingFunctionDeclarator
         {
           // TODO: construct the declaration of main here using the declbuilder stored at ParenIdentifierDeclarator and PostfixingFunctionDeclarator
-          DeclBuilder ident = getDeclBuilderAt(subparser, 2);
+          DeclBuilder ident = new DeclBuilder(getDeclBuilderAt(subparser, 2));
           StringBuilder sb = new StringBuilder();
           sb.append(ident);
 
           sb.append(getStringBuilderAt(subparser, 1));
+          System.err.println("Node: " + value.hashCode());
           setStringBuilder(value, sb);
+          System.err.println(ident + ":PC::" + subparser.getPresenceCondition());
           ident.setParams(getParameterAt(subparser,1));
+          System.err.println(ident + ":PC::" + subparser.getPresenceCondition());
           setDeclBuilder(value,ident);
         }
         ;
@@ -2023,19 +2100,20 @@ PostfixingFunctionDeclarator:  /** nomerge **/
 
 ArrayDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator ArrayAbstractDeclarator
-	{
-	  DeclBuilder base = getDeclBuilderAt(subparser,2);
-	  DeclBuilder array = getDeclBuilderAt(subparser,1);
-	  base.merge(array);
-	  setDeclBuilder(value,base);
-	}
+        {
+          DeclBuilder base = getDeclBuilderAt(subparser,2);
+          DeclBuilder array = getDeclBuilderAt(subparser,1);
+          base.merge(array);
+          setDeclBuilder(value,base);
+        }
         ;
 
-ParenIdentifierDeclarator:  /** passthrough, nomerge **/
+ParenIdentifierDeclarator:  /** nomerge **/
         SimpleDeclarator
       	{
       	  DeclBuilder db = getDeclBuilderAt(subparser,1);
       	  setDeclBuilder(value, db);
+          System.err.println(db + ":PC::" + subparser.getPresenceCondition());
           getAndSetSBAt(1, subparser, value);
       	}
         | LPAREN ParenIdentifierDeclarator RPAREN
@@ -2051,14 +2129,25 @@ ParenIdentifierDeclarator:  /** passthrough, nomerge **/
 SimpleDeclarator: /** nomerge **/
         IDENTIFIER  /* bind */
         {
-          setDeclBuilder(value, new DeclBuilder(getStringAt(subparser, 1)));
+          DeclBuilder db = new DeclBuilder(getStringAt(subparser, 1));
+          System.err.println(db + ":PC::" + subparser.getPresenceCondition());
+          setDeclBuilder(value, db);
         }
         ;
 
 OldFunctionDeclarator: /** nomerge **/
         PostfixOldFunctionDeclarator
+        {
+          System.err.println("OldFunctionDecl not supported");
+        }
         | STAR OldFunctionDeclarator
+        {
+          System.err.println("OldFunctionDecl not supported");
+        }
         | STAR TypeQualifierList OldFunctionDeclarator
+        {
+          System.err.println("OldFunctionDecl not supported");
+        }
         ;
 
 PostfixOldFunctionDeclarator: /** nomerge **/
@@ -2073,7 +2162,7 @@ AbstractDeclarator: /** nomerge **/
         | PostfixingAbstractDeclarator
         ;
 
-PostfixingAbstractDeclarator: /** passthrough, nomerge **/
+PostfixingAbstractDeclarator: /**  nomerge **/
         ArrayAbstractDeclarator
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
@@ -2081,6 +2170,10 @@ PostfixingAbstractDeclarator: /** passthrough, nomerge **/
 	}
         /* | LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN */
         | PostfixingFunctionDeclarator
+        {
+          DeclBuilder db = getDeclBuilderAt(subparser,1);
+          setDeclBuilder(value,db);
+        }
         ;
 
 ParameterTypeListOpt: /** nomerge **/
@@ -4689,6 +4782,7 @@ private Multiverse<Universe> getType(TypeBuilder t, DeclBuilder d, PresenceCondi
       cond.get(i).addRef();
       DeclBuilder temp = new DeclBuilder(d);
       temp.addType(types.get(i));
+      System.err.println("cond:" + cond.get(i).toString() + " current:" + currentPC.toString());
       if (func)
         {
           for(Element<List<Parameter>> e : m)
@@ -4699,6 +4793,11 @@ private Multiverse<Universe> getType(TypeBuilder t, DeclBuilder d, PresenceCondi
                   if(!p.isEllipsis())
                     l.add(p.getType());
                 Type f = new FunctionT(temp.toType(), l, e.getData().get(e.getData().size() - 1).isEllipsis());
+                ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
+              }
+            else
+              {
+                Type f = new FunctionT(temp.toType());
                 ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
               }
         }

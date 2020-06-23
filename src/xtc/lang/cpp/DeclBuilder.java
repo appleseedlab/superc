@@ -13,6 +13,9 @@ import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
 public class DeclBuilder
 {
+    static int count = 0;
+  Integer personalCount;;
+
   String identifier;
   int numPointers;
   List<String> arrays;
@@ -71,6 +74,7 @@ public class DeclBuilder
     Multiverse<List<Parameter>> m = new Multiverse<List<Parameter>>();
     List<Parameter> l = new LinkedList<Parameter>();
     m.add(l, current);
+    System.err.println("***\nCond:" + current.toString() + "\n" + parameters.toString() + "\n**");
     for (Parameter p : parameters)
       {
          Multiverse<List<Parameter>> newM = new Multiverse<List<Parameter>>();
@@ -113,6 +117,9 @@ public class DeclBuilder
 
   public DeclBuilder()
   {
+        personalCount = new Integer(count);
+    count++;
+
     identifier = "";
     numPointers = 0;
     arrays = new LinkedList<String>();
@@ -124,6 +131,9 @@ public class DeclBuilder
 
   public DeclBuilder(DeclBuilder d)
   {
+        personalCount = new Integer(count);
+    count++;
+
     identifier = d.identifier;
     numPointers = d.numPointers;
     arrays = new LinkedList<String>();
@@ -140,6 +150,9 @@ public class DeclBuilder
 
   public DeclBuilder(String name)
   {
+        personalCount = new Integer(count);
+    count++;
+
     identifier = name;
     numPointers = 0;
     arrays = new LinkedList<String>();
@@ -233,6 +246,9 @@ public class DeclBuilder
       output += arrays.get(i);
       output += "]";
     }
+    if (isFunction())
+      output += parameters.toString();
+    output += "ID:" + personalCount.toString();
     return output;
   }
 
