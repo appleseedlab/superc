@@ -2425,7 +2425,7 @@ ExpressionStatement:  /** complete **/
         ExpressionOpt SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          hoistStatement(2, subparser, value);
+          addStatementIf(2, subparser, value);
         }
         ;
 
@@ -3328,7 +3328,7 @@ private void getAndSetSBMVCondAt(int child, Subparser subparser, Object value)
   * and gets its SBMV (which stores all versions of the statement).
   * We then add "if (PC) { }" around it, and store this SBMV at this node.
   */
-void hoistStatement(int statPos, Subparser subparser, Object value) {
+void addStatementIf(int statPos, Subparser subparser, Object value) {
   Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
   Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, statPos), subparser.getPresenceCondition().presenceConditionManager());
 
