@@ -715,7 +715,7 @@ DeclaringList:  /** nomerge **/
 	{
       	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
       	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
-	        
+
           System.err.println(decl.toString() + " " + type.toString());
           addMapping(subparser, type, decl);
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
@@ -769,7 +769,7 @@ DeclaringList:  /** nomerge **/
 	        bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          
+
         }
         ;
 
@@ -806,7 +806,7 @@ TypeSpecifier:  /** nomerge **/
 				{
           TypeBuilder t = getTypeBuilderAt(subparser,1);
         	setTypeBuilder(value,t);
-          
+
 				}
         | SUETypeSpecifier                 /* Struct/Union/Enum */
 				{
@@ -884,7 +884,7 @@ TypeQualifierList:  /** list, nomerge **/
 	}
 ;
 
-DeclarationQualifier: 
+DeclarationQualifier:
 TypeQualifier                  /* const or volatile */
 {
   TypeBuilder qual = getTypeBuilderAt(subparser, 1);
@@ -1222,7 +1222,7 @@ VarArgTypeName:  // ADDED
         __BUILTIN_VA_LIST { getSpecsAt(subparser, 1).type = InternalT.VA_LIST; }
         ;
 
-StorageClass:  
+StorageClass:
         TYPEDEF
 	  {
 	    TypeBuilder storage = new TypeBuilder("typedef", subparser.getPresenceCondition());
@@ -1530,7 +1530,7 @@ ParameterList:  /** list, nomerge **/
         | ParameterList COMMA ParameterDeclaration
         {
           List<Parameter> p = getParameterAt(subparser,3);
-          
+
           p.addAll(getParameterAt(subparser,1));
           setParameter(value,p);
         }
@@ -1700,7 +1700,7 @@ ParameterIdentifierDeclaration:
         {
           DeclBuilder decl = getDeclBuilderAt(subparser, 3);
           TypeBuilder type = getTypeBuilderAt(subparser, 4);
-          
+
           Parameter p = new Parameter();
           p.setMultiverse(addMapping(subparser, type, decl));
           setParameter(value, p);
@@ -1754,16 +1754,19 @@ InitializerOpt: /** nomerge **/
           Multiverse<StringBuilder> allAssignVals = getSBMVAt(subparser, 1);
           if (allAssignVals != null) {
             CContext scope = (CContext) subparser.scope;
-            // gets all renamings of the variable, and adds them to the sbmv
+            /** Gets all renamings of the variable, and adds them to the sbmv */
             for (Multiverse.Element<StringBuilder> sbelem : allAssignVals) {
               Multiverse<Universe> renamings = scope.getSymbolTable().map.get(sbelem.getData().toString());
+              /** Checks for renamings in the symbol table */
               if (renamings != null) {
-                /** writes part of the assignment using the variables' renamings */
+                /** Writes part of the assignment using the variables' renamings */
                 for (Multiverse.Element<Universe> renaming : renamings) {
                   sbmv.add(new Element<StringBuilder>(new StringBuilder(" = " + renaming.getData().rename), sbelem.getCondition().and(renaming.getCondition())/*subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)*/));
                 }
               } else {
-                /** if there is no renaming, then we are assigning something other than a variable (such as a constant) */
+                /** If there is no renaming, then we are assigning something other than a variable (such as a constant).
+                  * So, we do not get the renaming of what we are assigning, and instead just add that to the stringbuilder.
+                  */
                 sbmv.add(new Element<StringBuilder>(new StringBuilder(" = " + sbelem.getData().toString()), sbelem.getCondition()));
               }
             }
@@ -2422,7 +2425,7 @@ ExpressionStatement:  /** complete **/
         ExpressionOpt SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          hoistStatement(subparser, value);
+          hoistStatement(2, subparser, value);
         }
         ;
 
@@ -2587,8 +2590,12 @@ PrimaryIdentifier: /** nomerge **/
           useIdent(subparser, getNodeAt(subparser, 1));
           StringBuilder sb = new StringBuilder();
           sb.append(((Node)getNodeAt(subparser, 1)).getTokenText());
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          //Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          //sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+
+
+          CContext scope = (CContext) subparser.scope;
+          Multiverse<StringBuilder> sbmv = universeToSB(scope.getMappings(sb.toString()));
           setSBMV(value, sbmv);
         }  /* We cannot use a typedef name as a variable */
         ;
@@ -3317,48 +3324,33 @@ private void getAndSetSBMVCondAt(int child, Subparser subparser, Object value)
   setSBMV(value, sbmv);
 }
 
-/** acts as a getAndSet() method for statements */
-void hoistStatement(Subparser subparser, Object value) {
-  /** iterates through every pair of (Node, PresenceCondition)
-      and appends all statements stored in the nodes to this stringbuilder */
+/** Iterates through each configuration of the child node,
+  * and gets its SBMV (which stores all versions of the statement).
+  * We then add "if (PC) { }" around it, and store this SBMV at this node.
+  */
+void hoistStatement(int statPos, Subparser subparser, Object value) {
   Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-  Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, 2), subparser.getPresenceCondition().presenceConditionManager());
-  Multiverse<StringBuilder> renamings;
-  Iterator<Multiverse.Element<Node>> children = condChildren.iterator();
-  String next_ident = "";
-  /** iterates through every version of the statement */
-  while (children.hasNext()) {
-    Multiverse.Element<Node> next_node = children.next();
-    Multiverse<StringBuilder> statements = new Multiverse<StringBuilder>();
-    statements.add(new StringBuilder(), subparser.getPresenceCondition());
-    //statements.add(new StringBuilder(), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
-    /** iterates through all pieces of the statement */
-    for (Object child : next_node.data) {
-      if (((Node)child).hasName("PrimaryIdentifier")) {
-      	/** gets the renamings and generates their conditionals */
-        /** NOTE: PrimaryIdentifier cannot have a static choice node in its subtree.
-         *        This means we can safely assume that the multiverse stored only
-         *        has one element in it (where PC = 1)
-         */
-      	next_ident = getSBMV((Node)child).get(0).getData().toString();
-      	CContext scope = (CContext) subparser.scope;
-      	renamings = universeToSB(scope.getMappings(next_ident));
-        statements = cartesianProduct(statements, renamings);
-      } else {
-        /** appends this piece of the statement to all versions of the statement */
-        Iterator<Multiverse.Element<StringBuilder>> statementIterator = statements.iterator();
-        while (statementIterator.hasNext()) {
-          Multiverse.Element<StringBuilder> next_statement = statementIterator.next();
-          statements = cartesianProduct(statements, getSBMV((Node)child));
-        }
-      }
-    }
-    /** Hoists the "if (PC) { }" around each statement */
-    Iterator<Multiverse.Element<StringBuilder>> statementIterator = statements.iterator();
-    while (statementIterator.hasNext()) {
-      Multiverse.Element<StringBuilder> next_statement = statementIterator.next();
-      sbmv.add(new StringBuilder("\nif (" + PCtoString(next_statement.getCondition()) + ") {\n" + next_statement.getData().toString() + ";\n}\n"),
-               subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)/*next_statement.getCondition()*/);
+  Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, statPos), subparser.getPresenceCondition().presenceConditionManager());
+
+  /** Iterates through all configurations of the child node */
+  for (Multiverse.Element<Node> configNode : condChildren) {
+    Multiverse<StringBuilder> statements = getSBMV(configNode.getData());
+
+    /** Iterates through all configurations of the stringbuilder stored in the child node */
+    for (Multiverse.Element<StringBuilder> statement : statements) {
+      sbmv.add(new Element<StringBuilder>(new StringBuilder(
+                                          "\nif (" +
+                                          PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
+
+                                          ") {\n" + statement.getData().toString() + ";\n}\n"),
+                                          subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+      /** NOTE: When writing the "if (PC)",
+        * we AND the child node's PC with each stored stringbuilder PC, and
+        * add that to the resultant SBMV.
+        */
+      /** NOTE: The code we are storing in this SB should always be printed
+        * (because it is a complete, finished statement), so its presence condition is "true".
+        */
     }
   }
   setSBMV(value, sbmv);
@@ -3382,7 +3374,7 @@ private Multiverse<StringBuilder> cartesianProduct(Multiverse<StringBuilder> sta
         StringBuilder sb = new StringBuilder(statement.getData().toString() + renaming.getData().toString());
         PresenceCondition pc = statement.getCondition().and(renaming.getCondition());
         if (pc.getBDD().isZero()) {
-          // generated code with unsatisfiable presence conditions is discarded
+          /** generated code with unsatisfiable presence conditions is discarded */
 
           // for debugging:
           //allCombinations.add(new Element<StringBuilder>(sb, pc));
