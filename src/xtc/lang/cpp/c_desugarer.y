@@ -2222,22 +2222,36 @@ ParameterTypeListOpt: /** nomerge **/
 ArrayAbstractDeclarator: /** nomerge **/
         LBRACK RBRACK
         {
-	  DeclBuilder db = new DeclBuilder();
-	  db.addArray("",false);
+      	  DeclBuilder db = new DeclBuilder();
+      	  db.addArray("",false);
           setDeclBuilder(value, db);
         }
         | LBRACK ConstantExpression RBRACK
         {
-	  DeclBuilder db = new DeclBuilder();
-	  db.addArray("const Expr");
+      	  DeclBuilder db = new DeclBuilder();
+          // TODO: support configurable array bound expressions
+          Multiverse<StringBuilder> arrayBounds = getSBMVAt(subparser, 2);
+          if (arrayBounds.size() > 1) {
+            System.err.println("ERROR: configurable array bounds not yet supported.");
+            System.exit(1);
+          } else {
+            db.addArray(arrayBounds.get(0).getData().toString());
+          }
           setDeclBuilder(value, db);
-	}
+	      }
         | ArrayAbstractDeclarator LBRACK ConstantExpression RBRACK
-	{
-	  DeclBuilder db = getDeclBuilderAt(subparser,4);
-	  db.addArray("const Expr");
+	      {
+      	  DeclBuilder db = getDeclBuilderAt(subparser,4);
+          // TODO: support configurable array bound expressions
+          Multiverse<StringBuilder> arrayBounds = getSBMVAt(subparser, 2);
+          if (arrayBounds.size() > 1) {
+            System.err.println("ERROR: configurable array bounds not yet supported.");
+            System.exit(1);
+          } else {
+            db.addArray(arrayBounds.get(0).getData().toString());
+          }
           setDeclBuilder(value, db);
-	}
+	      }
         ;
 
 UnaryAbstractDeclarator: /** nomerge **/
@@ -3015,7 +3029,10 @@ Expression:  /** passthrough, nomerge **/
 
 ConstantExpression: /** passthrough, nomerge **/
         ConditionalExpression
-	;
+        {
+          getAndSetSBMV(1, subparser, value);
+        }
+	      ;
 
 AttributeSpecifierListOpt: /** nomerge **/  // ADDED
         /* empty */
