@@ -2627,11 +2627,29 @@ PostfixExpression:  /** passthrough, nomerge **/
           getAndSetSBMV(1, subparser, value);
         }
         | Subscript
+        {
+          // TODO
+        }
         | FunctionCall
+        {
+          // TODO
+        }
         | DirectSelection
+        {
+          // TODO
+        }
         | IndirectSelection
+        {
+          // TODO
+        }
         | Increment
+        {
+          getAndSetSBMV(1, subparser, value);
+        }
         | Decrement
+        {
+          getAndSetSBMV(1, subparser, value);
+        }
         | CompoundLiteral  /* ADDED */
         ;
 
@@ -2654,10 +2672,22 @@ IndirectSelection:  /** nomerge **/
 
 Increment:  /** nomerge **/
         PostfixExpression ICR
+        {
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Multiverse.Element<StringBuilder>(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
+          setSBMV(value, sbmv);
+        }
         ;
 
 Decrement:  /** nomerge **/
         PostfixExpression DECR
+        {
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Multiverse.Element<StringBuilder>(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
+          setSBMV(value, sbmv);
+        }
         ;
 
 
@@ -2679,15 +2709,57 @@ UnaryExpression:  /** passthrough, nomerge **/
           getAndSetSBMV(1, subparser, value);
         }
         | ICR UnaryExpression
+        {
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
+          // TODO: write an addToAll() method for this
+          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
+            sbelem.data = new StringBuilder(sbelem.getData().toString() + " ++ ");
+          }
+          setSBMV(value, sbmv);
+        }
         | DECR UnaryExpression
+        {
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
+          // TODO: write an addToAll() method for this
+          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
+            sbelem.data = new StringBuilder(sbelem.getData().toString() + " -- ");
+          }
+          setSBMV(value, sbmv);
+        }
         | Unaryoperator CastExpression
+        {
+          getAndSetSBMV(2, subparser, value);
+        }
         | SIZEOF UnaryExpression
+        {
+          // TODO
+        }
         | SIZEOF LPAREN TypeName RPAREN
+        {
+          // TODO
+        }
         | LabelAddressExpression  // ADDED
+        {
+          // TODO
+        }
         | AlignofExpression // ADDED
+        {
+          // TODO
+        }
         | ExtensionExpression // ADDED
+        {
+          // TODO
+        }
         | OffsetofExpression // ADDED
+        {
+          // TODO
+        }
         | TypeCompatibilityExpression  // ADEED
+        {
+          // TODO
+        }
         ;
 
 TypeCompatibilityExpression:  /** nomerge **/
@@ -2718,6 +2790,11 @@ LabelAddressExpression:  /** nomerge  **/  // ADDED
 
 Unaryoperator:
         AND
+        {
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Multiverse.Element<StringBuilder>(new StringBuilder(" & "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setSBMV(value, sbmv);
+        }
         | STAR
         | PLUS
         | MINUS
