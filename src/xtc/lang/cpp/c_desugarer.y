@@ -2725,8 +2725,38 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
           getAndSetSBMV(1, subparser, value);
         }
         | MultiplicativeExpression STAR CastExpression
+        {
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
+          // TODO: write an addToAll() method for this
+          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
+            sbelem.data = new StringBuilder(sbelem.getData().toString() + " * ");
+          }
+          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
+          setSBMV(value, sbmv);
+        }
         | MultiplicativeExpression DIV CastExpression
+        {
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
+          // TODO: write an addToAll() method for this
+          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
+            sbelem.data = new StringBuilder(sbelem.getData().toString() + " / ");
+          }
+          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
+          setSBMV(value, sbmv);
+        }
         | MultiplicativeExpression MOD CastExpression
+        {
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
+          // TODO: write an addToAll() method for this
+          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
+            sbelem.data = new StringBuilder(sbelem.getData().toString() + " % ");
+          }
+          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
+          setSBMV(value, sbmv);
+        }
         ;
 
 AdditiveExpression:  /** passthrough, nomerge **/
@@ -2735,7 +2765,27 @@ AdditiveExpression:  /** passthrough, nomerge **/
           getAndSetSBMV(1, subparser, value);
         }
         | AdditiveExpression PLUS MultiplicativeExpression
+        {
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
+          // TODO: write an addToAll() method for this
+          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
+            sbelem.data = new StringBuilder(sbelem.getData().toString() + " + ");
+          }
+          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
+          setSBMV(value, sbmv);
+        }
         | AdditiveExpression MINUS MultiplicativeExpression
+        {
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
+                    // TODO: write an addToAll() method for this
+          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
+            sbelem.data = new StringBuilder(sbelem.getData().toString() + " - ");
+          }
+          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
+          setSBMV(value, sbmv);
+        }
         ;
 
 ShiftExpression:  /** passthrough, nomerge **/
