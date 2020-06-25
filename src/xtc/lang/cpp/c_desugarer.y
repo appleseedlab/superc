@@ -3434,19 +3434,16 @@ private void getAndSetSBMV(int numChildren, Subparser subparser, Object value)
 /** gets the stringbuilders from a 'complete' node's children */
 private void getAndSetSBMVCond(int numChildren, Subparser subparser, Object value)
 {
-  Multiverse<Node> condChildren;
   Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
   for (int i = numChildren; i >= 1; i--)
   {
-    condChildren = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
+    Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
     /** iterates through every pair of (Node, PresenceCondition)
        and generates all combinations of childrens' stringbuilders */
-    Iterator<Multiverse.Element<Node>> children = condChildren.iterator();
     Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
-    while (children.hasNext()) {
-      Multiverse.Element<Node> next_node = children.next();
-      if (next_node.data != null)
-        temp = getSBMV(next_node.data);
+    for (Multiverse.Element<Node> child : children) {
+      if (child.data != null)
+        temp = getSBMV(child.data);
       if (temp != null)
         sbmv = cartesianProduct(sbmv, temp);
     }
