@@ -336,22 +336,22 @@ ExternalDeclaration:  /** passthrough, complete **/
         FunctionDefinitionExtension
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | DeclarationExtension
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | AssemblyDefinition
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | EmptyDefinition
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         ;
 
@@ -367,7 +367,7 @@ FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
         FunctionDefinition
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | __EXTENSION__ FunctionDefinition
         {
@@ -382,12 +382,12 @@ FunctionDefinition:  /** complete **/ // added scoping
           //Get FunctionPrototype
           //Get FunctionCompoundStatement
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(4, subparser, value);
+          getAndSetSBMVCond(6, subparser, value);
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(5, subparser, value);
+          getAndSetSBMVCond(7, subparser, value);
         }
         ;
 
@@ -407,7 +407,7 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
 FunctionPrototype:  /** nomerge **/
         IdentifierDeclarator { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
           System.err.println("FunctionPrototype - IdentifierDeclarator not supported");
         }
         | DeclarationSpecifier     IdentifierDeclarator
@@ -462,7 +462,7 @@ FunctionPrototype:  /** nomerge **/
         |                          OldFunctionDeclarator
         {
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
@@ -506,7 +506,7 @@ FunctionOldPrototype:  /** nomerge **/
         OldFunctionDeclarator
         {
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
@@ -541,12 +541,12 @@ NestedFunctionDefinition:  /** complete **/ // added scoping
         NestedFunctionPrototype { ReenterScope(subparser); } LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(5, subparser, value);
+          getAndSetSBMVCond(7, subparser, value);
         }
         | NestedFunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(6, subparser, value);
+          getAndSetSBMVCond(8, subparser, value);
         }
         ;
 
@@ -657,7 +657,7 @@ DeclarationExtension:  /** passthrough, complete **/  // ADDED
         Declaration
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | __EXTENSION__ Declaration
         {
@@ -670,22 +670,22 @@ Declaration:  /** complete **/
         SUEDeclarationSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(2, subparser, value);
+          getAndSetSBMVCond(3, subparser, value);
         }
         | SUETypeSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(2, subparser, value);
+          getAndSetSBMVCond(3, subparser, value);
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(3, subparser, value);
+          getAndSetSBMVCond(3, subparser, value);
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(2, subparser, value);
+          getAndSetSBMVCond(3, subparser, value);
         }
         ;
 
@@ -1508,7 +1508,7 @@ EnumeratorValueOpt: /** nomerge **/
 ParameterTypeList:  /** nomerge **/
         ParameterList
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
           setParameter(value, getParameterAt(subparser,1));
         }
         | ParameterList COMMA ELLIPSIS
@@ -1524,7 +1524,7 @@ ParameterTypeList:  /** nomerge **/
 ParameterList:  /** list, nomerge **/
         ParameterDeclaration
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
           setParameter(value, getParameterAt(subparser,1));
         }
         | ParameterList COMMA ParameterDeclaration
@@ -1580,12 +1580,12 @@ ParameterList:  /** list, nomerge **/
 ParameterDeclaration:  /** nomerge **/
         ParameterIdentifierDeclaration
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
           setParameter(value, getParameterAt(subparser,1));
         }
         | ParameterAbstractDeclaration
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
           System.err.println("ParameterDeclaration-Abstract not supported");
         }
         ;
@@ -1778,7 +1778,7 @@ InitializerOpt: /** nomerge **/
 DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         Initializer
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | Designation Initializer
         {
@@ -1802,7 +1802,7 @@ Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists
         }
         | AssignmentExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         ;
 
@@ -2023,7 +2023,7 @@ IdentifierDeclarator:  /**  nomerge **/
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
-    getAndSetSBMVAt(1, subparser, value);
+    getAndSetSBMV(1, subparser, value);
 	}
         ;
 
@@ -2038,7 +2038,7 @@ IdentifierDeclaratorMain:  /** nomerge **/
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
-    getAndSetSBMVAt(1, subparser, value);
+    getAndSetSBMV(1, subparser, value);
 	}
         ;
 
@@ -2047,14 +2047,14 @@ UnaryIdentifierDeclarator: /** nomerge **/
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
-    getAndSetSBMVAt(1, subparser, value);
+    getAndSetSBMV(1, subparser, value);
 	}
-        | STAR IdentifierDeclarator
-        {
+  | STAR IdentifierDeclarator
+  {
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  db.addPointer();
 	  setDeclBuilder(value, db);
-    getAndSetSBMV(3, subparser, value);
+    getAndSetSBMV(2, subparser, value);
 	}
 | STAR TypeQualifierList IdentifierDeclarator
 	{
@@ -2072,7 +2072,7 @@ FunctionDeclarator
 {
   System.err.println(getDeclBuilderAt(subparser,1) + ":PC::" + subparser.getPresenceCondition());
   setDeclBuilder(value, getDeclBuilderAt(subparser,1));
-  getAndSetSBMVAt(1, subparser, value);
+  getAndSetSBMV(1, subparser, value);
 }
 | ArrayDeclarator
 	{
@@ -2110,7 +2110,6 @@ FunctionDeclarator:  /** nomerge **/
           DeclBuilder ident = new DeclBuilder(getDeclBuilderAt(subparser, 2));
           /*StringBuilder sb = new StringBuilder();
           sb.append(ident);
-
           sb.append(getStringBuilderAt(subparser, 1));
           System.err.println("Node: " + value.hashCode());
           setStringBuilder(value, sb);*/
@@ -2149,7 +2148,7 @@ ParenIdentifierDeclarator:  /** nomerge **/
       	{
       	  DeclBuilder db = getDeclBuilderAt(subparser,1);
       	  setDeclBuilder(value, db);
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
       	}
         | LPAREN ParenIdentifierDeclarator RPAREN
       	{
@@ -2215,7 +2214,7 @@ ParameterTypeListOpt: /** nomerge **/
         /* empty */
         | ParameterTypeList
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
           setParameter(value,getParameterAt(subparser,1));
         }
         ;
@@ -2261,37 +2260,37 @@ Statement:  /** passthrough, complete **/
         LabeledStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | CompoundStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | ExpressionStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | SelectionStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | IterationStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | JumpStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | AssemblyStatement  // ADDED
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         ;
 
@@ -2333,7 +2332,7 @@ CompoundStatement:  /** complete **/  /* ADDED */
         RBRACE
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(4, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         ;
 
@@ -2342,7 +2341,7 @@ LocalLabelDeclarationListOpt: /** complete **/
         | LocalLabelDeclarationList
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         ;
 
@@ -2350,7 +2349,7 @@ LocalLabelDeclarationList:  /** list, complete **/
         LocalLabelDeclaration
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | LocalLabelDeclarationList LocalLabelDeclaration
         {
@@ -2389,17 +2388,17 @@ DeclarationOrStatement: /** passthrough, complete **/  /* ADDED */
         DeclarationExtension
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | NestedFunctionDefinition
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         ;
 
@@ -2407,7 +2406,7 @@ DeclarationList:  /** list, complete **/
         DeclarationExtension
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCondAt(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | DeclarationList DeclarationExtension
         {
@@ -2572,11 +2571,11 @@ StringLiteralList:  /** list, nomerge **/
 PrimaryExpression:  /** nomerge, passthrough **/
         PrimaryIdentifier
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | Constant
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | StringLiteralList
         | LPAREN Expression RPAREN
@@ -2611,7 +2610,7 @@ StatementAsExpression:  /** nomerge **/  //ADDED
 PostfixExpression:  /** passthrough, nomerge **/
         PrimaryExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | Subscript
         | FunctionCall
@@ -2663,7 +2662,7 @@ ExpressionList:  /** list, nomerge **/
 UnaryExpression:  /** passthrough, nomerge **/
         PostfixExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | ICR UnaryExpression
         | DECR UnaryExpression
@@ -2715,7 +2714,7 @@ Unaryoperator:
 CastExpression:  /** passthrough, nomerge **/
         UnaryExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | LPAREN TypeName RPAREN CastExpression
         ;
@@ -2723,7 +2722,7 @@ CastExpression:  /** passthrough, nomerge **/
 MultiplicativeExpression:  /** passthrough, nomerge **/
         CastExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | MultiplicativeExpression STAR CastExpression
         | MultiplicativeExpression DIV CastExpression
@@ -2733,7 +2732,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
 AdditiveExpression:  /** passthrough, nomerge **/
         MultiplicativeExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | AdditiveExpression PLUS MultiplicativeExpression
         | AdditiveExpression MINUS MultiplicativeExpression
@@ -2742,7 +2741,7 @@ AdditiveExpression:  /** passthrough, nomerge **/
 ShiftExpression:  /** passthrough, nomerge **/
         AdditiveExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | ShiftExpression LS AdditiveExpression
         | ShiftExpression RS AdditiveExpression
@@ -2751,7 +2750,7 @@ ShiftExpression:  /** passthrough, nomerge **/
 RelationalExpression:  /** passthrough, nomerge **/
         ShiftExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | RelationalExpression LT ShiftExpression
         {
@@ -2774,7 +2773,7 @@ RelationalExpression:  /** passthrough, nomerge **/
 EqualityExpression:  /** passthrough, nomerge **/
         RelationalExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | EqualityExpression EQ RelationalExpression
         {
@@ -2789,7 +2788,7 @@ EqualityExpression:  /** passthrough, nomerge **/
 AndExpression:  /** passthrough, nomerge **/
         EqualityExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | AndExpression AND EqualityExpression
         {
@@ -2800,7 +2799,7 @@ AndExpression:  /** passthrough, nomerge **/
 ExclusiveOrExpression:  /** passthrough, nomerge **/
         AndExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | ExclusiveOrExpression XOR AndExpression
         {
@@ -2811,7 +2810,7 @@ ExclusiveOrExpression:  /** passthrough, nomerge **/
 InclusiveOrExpression:  /** passthrough, nomerge **/
         ExclusiveOrExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | InclusiveOrExpression PIPE ExclusiveOrExpression
         {
@@ -2822,7 +2821,7 @@ InclusiveOrExpression:  /** passthrough, nomerge **/
 LogicalAndExpression:  /** passthrough, nomerge **/
         InclusiveOrExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | LogicalAndExpression ANDAND InclusiveOrExpression
         {
@@ -2833,7 +2832,7 @@ LogicalAndExpression:  /** passthrough, nomerge **/
 LogicalORExpression:  /** passthrough, nomerge **/
         LogicalAndExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | LogicalORExpression OROR LogicalAndExpression
         {
@@ -2844,7 +2843,7 @@ LogicalORExpression:  /** passthrough, nomerge **/
 ConditionalExpression:  /** passthrough, nomerge **/
         LogicalORExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | LogicalORExpression QUESTION Expression COLON
                 ConditionalExpression
@@ -2861,7 +2860,7 @@ ConditionalExpression:  /** passthrough, nomerge **/
 AssignmentExpression:  /** passthrough, nomerge **/
         ConditionalExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | UnaryExpression AssignmentOperator AssignmentExpression
         {
@@ -2952,14 +2951,14 @@ ExpressionOpt:  /** passthrough, nomerge **/
         /* Nothing */
         | Expression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         ;
 
 Expression:  /** passthrough, nomerge **/
         AssignmentExpression
         {
-          getAndSetSBMVAt(1, subparser, value);
+          getAndSetSBMV(1, subparser, value);
         }
         | Expression COMMA AssignmentExpression
         ;
@@ -3269,19 +3268,6 @@ private void getAndSetSBMV(int numChildren, Subparser subparser, Object value)
   setSBMV(value, sbmv);
 }
 
-/** gets the stringbuilders from a non-'complete' node's child */
-private void getAndSetSBMVAt(int child, Subparser subparser, Object value)
-{
-  Multiverse<StringBuilder> sbmv;
-  Multiverse<StringBuilder> temp = getSBMVAt(subparser, child);
-  /** assigns a copy of the child's SBMV if it exists */
-  if (temp != null)
-    sbmv = new Multiverse<StringBuilder>(temp);
-  else /** otherwise creates a new one and assigns that */
-    sbmv = new Multiverse<StringBuilder>();
-  setSBMV(value, sbmv);
-}
-
 /** gets the stringbuilders from a 'complete' node's children */
 private void getAndSetSBMVCond(int numChildren, Subparser subparser, Object value)
 {
@@ -3301,25 +3287,6 @@ private void getAndSetSBMVCond(int numChildren, Subparser subparser, Object valu
       if (temp != null)
         sbmv = cartesianProduct(sbmv, temp);
     }
-  }
-  setSBMV(value, sbmv);
-}
-
-/** gets the stringbuilders from a 'complete' node's child */
-private void getAndSetSBMVCondAt(int child, Subparser subparser, Object value)
-{
-  Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, child), subparser.getPresenceCondition().presenceConditionManager());
-  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-  /** iterates through every pair of (Node, PresenceCondition)
-     and generates all combinations of child's stringbuilders */
-  Iterator<Multiverse.Element<Node>> children = condChildren.iterator();
-  Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
-  while (children.hasNext()) {
-    Multiverse.Element<Node> next_node = children.next();
-    if (next_node.data != null)
-      temp = getSBMV(next_node.data);
-    if (temp != null)
-      sbmv = cartesianProduct(sbmv, temp);
   }
   setSBMV(value, sbmv);
 }
