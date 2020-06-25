@@ -2628,7 +2628,7 @@ PostfixExpression:  /** passthrough, nomerge **/
         }
         | Subscript
         {
-          // TODO
+          getAndSetSBMV(1, subparser, value);
         }
         | FunctionCall
         {
@@ -2655,6 +2655,22 @@ PostfixExpression:  /** passthrough, nomerge **/
 
 Subscript:  /** nomerge **/
         PostfixExpression LBRACK Expression RBRACK
+        {
+          {
+            Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+            sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 4));
+            // TODO: write an addToAll() method for this
+            for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
+              sbelem.data = new StringBuilder(sbelem.getData().toString() + " [ ");
+            }
+            sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
+            // TODO: write an addToAll() method for this
+            for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
+              sbelem.data = new StringBuilder(sbelem.getData().toString() + " ] ");
+            }
+            setSBMV(value, sbmv);
+          }
+        }
         ;
 
 FunctionCall:  /** nomerge **/
@@ -3102,6 +3118,9 @@ Expression:  /** passthrough, nomerge **/
           getAndSetSBMV(1, subparser, value);
         }
         | Expression COMMA AssignmentExpression
+        {
+          // TODO
+        }
         ;
 
 ConstantExpression: /** passthrough, nomerge **/
