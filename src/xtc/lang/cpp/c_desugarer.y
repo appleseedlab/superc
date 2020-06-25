@@ -3335,23 +3335,22 @@ void addStatementIf(int statPos, Subparser subparser, Object value) {
   /** Iterates through all configurations of the child node */
   for (Multiverse.Element<Node> configNode : condChildren) {
     Multiverse<StringBuilder> statements = getSBMV(configNode.getData());
+    StringBuilder sb = new StringBuilder();
 
     /** Iterates through all configurations of the stringbuilder stored in the child node */
     for (Multiverse.Element<StringBuilder> statement : statements) {
-      sbmv.add(new Element<StringBuilder>(new StringBuilder(
-                                          "\nif (" +
-                                          PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
-
-                                          ") {\n" + statement.getData().toString() + ";\n}\n"),
-                                          subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+      sb.append("\nif (" +
+                PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
+                ") {\n" + statement.getData().toString() + ";\n}\n");
       /** NOTE: When writing the "if (PC)",
         * we AND the child node's PC with each stored stringbuilder PC, and
         * add that to the resultant SBMV.
         */
-      /** NOTE: The code we are storing in this SB should always be printed
-        * (because it is a complete, finished statement), so its presence condition is "true".
-        */
     }
+    sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+    /** NOTE: The code we are storing in this SB should always be printed
+      * (because it is a complete statement with a wrapped if()), so its presence condition is "true".
+      */
   }
   setSBMV(value, sbmv);
 }
