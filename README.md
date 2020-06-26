@@ -16,9 +16,23 @@ The following environment variables are expected by xtc.
     JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/  # Location of java jdk
     export JAVA_DEV_ROOT CLASSPATH JAVA_ARGS JAVA_HOME
 
-## Building SuperC
+## Building Desugarer
 
 Starting from the root of the xtc source tree, run the following:
+
+    cd src/xtc/lang/cpp/
+    make select-desugarer
+    make
+    
+Note: any errors from the (deprecated) Desugarer.java file can safely be ignored.
+
+## Running Desugarer
+
+    java xtc.lang.cpp.SuperC -silent <file_to_transform>.c
+
+## Building SuperC
+
+From the root of the xtc source tree, run the following:
 
     cd src/xtc/lang/cpp/  # go to the SuperC directory
     make configure  # configure SuperC
