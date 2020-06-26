@@ -28,7 +28,7 @@ Note: any errors from the (deprecated) Desugarer.java file can safely be ignored
 
 ## Running Desugarer
 
-    java xtc.lang.cpp.SuperC -silent <file_to_transform>.c
+    java xtc.lang.cpp.SuperC -silent <file_to_transform>.c > <output_destination>.c
 
 ## Building SuperC
 
