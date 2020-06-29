@@ -1,0 +1,1034 @@
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_invalid_typedefs.c ...
+
+---file:
+
+typedef extern int a;
+typedef register int b;
+static typedef int c;
+typedef int z;
+unsigned z d;
+signed z e;
+long z f;
+
+
+int main()
+{
+  return 0;
+}
+declChecker : PASS_invalid_typedefs.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_paren.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+int _0ADe2E_aID:0; /* renamed from a */
+
+int _1NPEp3_b(bID:2)ID:3; /* renamed from  */
+
+return 0;
+}
+
+---file:
+
+int a;
+int (b);
+
+int main() {
+  return 0;
+}
+declChecker : PASS_paren.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_valid_array_implicit_length.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+int _15LrBo_x[]ID:3; /* renamed from x */
+
+if (1) {
+_15LrBo_x = 5;
+}
+
+return 0;
+}
+
+---file:
+
+int main(void) {
+  int x[] = {-2, 4, 5};
+  return 0;
+}
+declChecker : PASS_valid_array_implicit_length.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_valid_array_with_init.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+int _11QbLw_x[const Expr]ID:3; /* renamed from x */
+
+if (1) {
+_11QbLw_x = 5;
+}
+
+return 0;
+}
+
+---file:
+
+int main(void) {
+  int x[5] = {1, 2, 3, 4, 5};
+  return 0;
+}
+declChecker : PASS_valid_array_with_init.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_valid_typedef.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+xtc.type.TypedefT@515f550a _74eBet_aID:16; /* renamed from a */
+
+xtc.type.TypedefT@5e91993f _8zdUs6_bID:18; /* renamed from b */
+
+xtc.type.TypedefT@379619aa _9NjJmS_cID:20; /* renamed from c */
+
+xtc.type.TypedefT@5e265ba4 _10FNk87_dID:22; /* renamed from d */
+
+xtc.type.TypedefT@123a439b _11nvCjZ_eID:24; /* renamed from e */
+
+xtc.type.TypedefT@1175e2db _12SIfB6_fID:26; /* renamed from f */
+
+return 0;
+}
+
+---file:
+
+typedef unsigned int i;
+typedef long long x;
+typedef const x z;
+typedef int *q;
+typedef q w[2];
+volatile typedef i j;
+int main()
+{
+  i a;
+  x b;
+  z c;
+  q d;
+  w e;
+  j f;
+  return 0;
+}
+declChecker : PASS_valid_typedef.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_valid_typedef_ident.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+xtc.type.TypedefT@7dc5e7b4 _2H3qkG_aID:5; /* renamed from a */
+
+return 0;
+}
+
+---file:
+
+typedef int a;
+
+int main()
+{
+  a a;
+  return 0;
+}
+declChecker : PASS_valid_typedef_ident.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_basicFunctions.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+float *_3lvhKI_y2ID:8; /* renamed from y2 */
+
+if (1) {
+_0bjuru_x;
+}
+
+return 0;
+}
+
+---file:
+
+int x()
+{
+  return 0;
+}
+
+float *y(int y1)
+{
+  float* y2;
+  return y2; 
+}
+
+char z(int z1, int z2)
+{
+  return 'a';
+}
+
+short w(int x, ...)
+{
+  return 0;
+}
+
+int main()
+{
+  x();
+  y(2);
+  z(1,2);
+  return 0;
+}
+funcChecker : PASS_basicFunctions.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_conditionalParams.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+return 0;
+}
+
+---file:
+
+int foo(int x,
+#ifdef A
+        int y,
+        #endif
+        char z)
+{
+  return 0;
+}
+
+int main()
+{
+  return 0;
+}
+funcChecker : PASS_conditionalParams.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_configParam.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+return 0;
+}
+
+---file:
+
+int foo(
+#ifdef A
+        int x,
+#endif
+        int y)
+{
+  return 0;
+}
+
+int main()
+{
+  return 1;
+}
+funcChecker : PASS_configParam.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_multipleConfigs.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+return 0;
+}
+
+---file:
+
+/*typedef
+#ifdef T
+int
+#else
+float
+#endif
+type;
+*/
+int foo(
+#ifdef A
+#ifdef B
+        int x,
+        #endif
+        #endif
+        #ifdef A
+        #ifdef C
+        int y,
+        #endif
+        #endif
+        #ifdef A
+        int z,
+        #endif
+        int w)
+{
+  return 0;
+}
+
+int main()
+{
+  return 0;
+}
+
+/*
+  foo(w)                  -!A && (!B || B) && (!C || C)
+  foo(x,z,w)              -A && B && !C
+  foo(y,z,w)              -A && !B && C
+  foo(x,y,z,w)            -A && B && C
+  foo(z,w)                -A && !B && !C
+ */
+funcChecker : PASS_multipleConfigs.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_typedefParams.c ...
+#include <stdbool.h>
+extern bool _C_65; /* renamed from A */
+extern bool _C_65_DEFINED;
+
+int main(void) {
+
+return 0;
+}
+
+---file:
+
+#ifdef A
+typedef int x;
+#else
+typedef float x;
+#endif
+
+int foo(x a)
+{
+  return 0;
+}
+
+int main()
+{
+  return 0;
+}
+funcChecker : PASS_typedefParams.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_basic_decl.c ...
+#include <stdbool.h>
+extern bool _C_65; /* renamed from A */
+extern bool _C_65_DEFINED;
+
+int main(void) {
+
+int _1ITrOl_aID:3; /* renamed from a */
+
+int _2w5kIQ_bID:5; /* renamed from b */
+
+int *_3HjxUO_cID:7; /* renamed from c */
+
+int **_4XVKrx_cID:8; /* renamed from c */
+
+return 0;
+}
+
+---file:
+
+int main() {
+
+#if A
+	int a;
+#else
+	int b;
+#endif
+
+int
+  #ifdef A
+  *
+  #else
+  **
+  #endif
+    c;
+   
+  
+	return 0;
+}
+staticConfig : PASS_basic_decl.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_basic_init.c ...
+#include <stdbool.h>
+extern bool _C_65; /* renamed from A */
+extern bool _C_65_DEFINED;
+
+int main(void) {
+
+int _1fUDec_aID:3; /* renamed from a */
+
+if (_C_65) {
+_1fUDec_a = 0;
+}
+
+int _2Rmcv4_bID:5; /* renamed from b */
+
+if (!_C_65) {
+_2Rmcv4_b = 1;
+}
+
+return 0;
+}
+
+---file:
+
+int main() {
+
+#if A
+ 	int a = 0;
+#else
+	int b = 1;
+#endif
+
+	return 0;
+}
+staticConfig : PASS_basic_init.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_basic_pointer_array.c ...
+MultipleDef
+#include <stdbool.h>
+extern bool _C_65; /* renamed from A */
+extern bool _C_65_DEFINED;
+extern bool _C_66; /* renamed from B */
+extern bool _C_66_DEFINED;
+extern bool _C_67; /* renamed from C */
+extern bool _C_67_DEFINED;
+extern bool _C_68; /* renamed from D */
+extern bool _C_68_DEFINED;
+
+int main(void) {
+
+int _1rFSmP_arrID:3; /* renamed from arr */
+
+char _4OWVvC_arr[]ID:9; /* renamed from arr */
+
+int *_9Qw78D_arrID:20; /* renamed from arr */
+
+char _10KJ9Nu_arrID:24; /* renamed from arr */
+
+return 0;
+}
+
+---file:
+
+int main() {
+
+#if A
+	int
+#else
+	#if B
+	char
+	#else
+	float
+	#endif
+#endif
+
+#ifdef C
+	arr;
+#else
+	#ifdef D
+	arr[];
+	#else
+	*arr;
+	#endif
+#endif
+
+  #ifdef D
+  char arr;
+  #endif
+
+	return 0;
+}
+staticConfig : PASS_basic_pointer_array.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_basic_pointers.c ...
+#include <stdbool.h>
+extern bool _C_65; /* renamed from A */
+extern bool _C_65_DEFINED;
+
+int main(void) {
+
+int *_1XaMRu_aID:4; /* renamed from a */
+
+int **_2TvNpI_aID:3; /* renamed from a */
+
+return 0;
+}
+
+---file:
+
+int main() {
+
+#if A
+	int *
+#else
+	int
+#endif
+	*a;
+
+
+	return 0;
+}
+staticConfig : PASS_basic_pointers.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_basic_statement.c ...
+#include <stdbool.h>
+extern bool _C_65; /* renamed from A */
+extern bool _C_65_DEFINED;
+
+int main(void) {
+
+int _1TUD1x_aID:3; /* renamed from a */
+
+if (_C_65) {
+_1TUD1x_a = 0;
+}
+
+if (!_C_65) {
+_1TUD1x_a = 1;
+}
+
+return 0;
+}
+
+---file:
+
+int main() {
+	int a;
+
+#if A
+	a = 0;
+#else
+	a = 1;
+#endif
+
+	return 0;
+}
+staticConfig : PASS_basic_statement.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_basic_type.c ...
+#include <stdbool.h>
+extern bool _C_65; /* renamed from A */
+extern bool _C_65_DEFINED;
+
+int main(void) {
+
+int _1aOndq_aID:3; /* renamed from a */
+
+if (_C_65) {
+_1aOndq_a = 0;
+}
+
+char _24zOAn_aID:4; /* renamed from a */
+
+if (!_C_65) {
+_24zOAn_a = 0;
+}
+
+return 0;
+}
+
+---file:
+
+int main() {
+
+#if A
+	int
+#else
+	char
+#endif
+	a = 0;
+
+	return 0;
+}
+staticConfig : PASS_basic_type.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_basic_typedef.c ...
+#include <stdbool.h>
+extern bool _C_65; /* renamed from A */
+extern bool _C_65_DEFINED;
+
+int main(void) {
+
+return 0;
+}
+
+---file:
+
+typedef
+#ifdef A
+int
+#else
+float
+#endif
+a;
+a x;
+int main()
+{
+  return 0;
+}
+staticConfig : PASS_basic_typedef.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_impossibleTypedef.c ...
+#include <stdbool.h>
+extern bool _C_65; /* renamed from A */
+extern bool _C_65_DEFINED;
+
+int main(void) {
+
+return 0;
+}
+
+---file:
+
+#ifdef A
+typedef int a;
+#endif
+int main()
+{
+  #ifndef A
+  a x;
+  #endif
+  return 0;
+}
+staticConfig : PASS_impossibleTypedef.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_mutuallyExclusiveTypedefs.c ...
+#include <stdbool.h>
+extern bool _C_65; /* renamed from A */
+extern bool _C_65_DEFINED;
+extern bool _C_66; /* renamed from B */
+extern bool _C_66_DEFINED;
+
+int main(void) {
+
+xtc.type.TypedefT@5aaa6d82 _5vrUrS_yID:10; /* renamed from y */
+
+int _69Bqaj_yID:11; /* renamed from y */
+
+xtc.type.TypedefT@6f75e721 _7nYFM4_zID:14; /* renamed from z */
+
+char _10hUMsz_wID:17; /* renamed from w */
+
+return 0;
+}
+
+---file:
+
+typedef
+#ifdef A
+int
+#else
+float
+#endif
+a;
+int main()
+{
+  a x;
+  #ifdef A
+  a
+    #else
+    int
+    #endif
+    y;
+  #ifndef A
+  a z;
+  #endif
+  #ifdef B
+  a
+    #else
+    char
+    #endif
+    w;
+  return 0;
+  
+}
+staticConfig : PASS_mutuallyExclusiveTypedefs.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_invalid_duplicate_qualifiers.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+return 0;
+}
+
+---file:
+
+int main(void) {
+	signed signed int a;
+	unsigned unsigned unsigned int b;
+	static const static int c;
+	auto auto float d;
+	extern extern int e;
+	register register int f;
+	return 0;
+}
+typechecker : PASS_invalid_duplicate_qualifiers.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_invalid_long.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+return 0;
+}
+
+---file:
+
+int main(void) {
+	long long double a;
+	long float b;
+	long long long c;
+	return 0;
+}
+typechecker : PASS_invalid_long.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_invalid_qualifiers.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+return 0;
+}
+
+---file:
+
+int main(void) {
+	inline int a;
+	inline long b;
+	static extern int c;
+ 	static auto int d;
+	auto extern int e;
+	auto register int f;
+	static register int g;
+	register extern int h;
+	return 0;
+}
+typechecker : PASS_invalid_qualifiers.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_invalid_signed_unsigned.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+return 0;
+}
+
+---file:
+
+int main(void) {
+	signed unsigned int a;
+	signed float b;
+	unsigned float c;
+	signed double d;
+	unsigned double e;
+
+	return 0;
+}
+typechecker : PASS_invalid_signed_unsigned.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_missing_types_valid_qualifiers.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+return 0;
+}
+
+---file:
+
+
+int main(void) {
+	static const a;
+	extern const b;
+	auto const c;
+	auto volatile d;
+	const volatile e;
+	static volatile f;
+	extern volatile g;
+	register const h;
+	register volatile i;
+	return 0;
+}
+typechecker : PASS_missing_types_valid_qualifiers.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_seentypes.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+int _1vxr1v_aID:3; /* renamed from a */
+
+long _2uNlAP_bID:5; /* renamed from b */
+
+long long _3BTFgH_cID:7; /* renamed from c */
+
+char _45qy6k_dID:9; /* renamed from d */
+
+short _5tBAlf_eID:11; /* renamed from e */
+
+float _6EcS3a_fID:13; /* renamed from f */
+
+double _7u0Lyv_gID:15; /* renamed from g */
+
+double _Complex _8J5Sim_hID:18; /* renamed from h */
+
+long _9i69jQ_iID:20; /* renamed from i */
+
+long long _10KYYS8_jID:22; /* renamed from j */
+
+long double _11uflgO_kID:24; /* renamed from k */
+
+long double _Complex _12zvSBL_lID:26; /* renamed from l */
+
+float _Complex _13LYQXe_mID:28; /* renamed from m */
+
+return 0;
+}
+
+---file:
+
+int main() {
+ // tests foundTypes
+  int a;
+  long b;
+  long long c;
+  char d;
+  short e;
+  float f;
+  double g;
+  float short q;
+  double _Complex h;
+  long int i;
+  long long int j;
+  long double k;
+  long double _Complex l;
+  float _Complex m;
+  int float x;
+  return 0;
+}
+typechecker : PASS_seentypes.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_staticint.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+return 0;
+}
+
+---file:
+
+int main() {
+  static int x;
+  return 0;
+}
+typechecker : PASS_staticint.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_valid_complex.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+float _Complex _1atenp_aID:3; /* renamed from a */
+
+double _Complex _21ZZxA_cID:6; /* renamed from c */
+
+float _Complex _34PWfb_dID:8; /* renamed from d */
+
+double _Complex _40uEkK_eID:10; /* renamed from e */
+
+long double _Complex _5kWNSw_fID:12; /* renamed from f */
+
+return 0;
+}
+
+---file:
+
+int main(void) {
+	_Complex a;
+	_Complex int b;
+	_Complex double c;
+	_Complex float d;
+	_Complex double e;
+	_Complex long double f;
+	return 0;
+}
+typechecker : PASS_valid_complex.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_valid_duplicate_qualifiers.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+float _1u1QwH_gID:3; /* renamed from g */
+
+float _2Nr94z_iID:5; /* renamed from i */
+
+int _3tjE0Y_hID:7; /* renamed from h */
+
+return 0;
+}
+
+---file:
+
+int main(void) {
+	const const float g;
+	const const const const const float i;
+	volatile volatile volatile volatile int h;
+	return 0;
+}
+typechecker : PASS_valid_duplicate_qualifiers.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_valid_long.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+long _1GX7f9_aID:3; /* renamed from a */
+
+long long _2v6bY0_bID:5; /* renamed from b */
+
+long _3trPPy_cID:7; /* renamed from c */
+
+long long _4yJbiG_dID:9; /* renamed from d */
+
+long double _5quxu5_eID:11; /* renamed from e */
+
+return 0;
+}
+
+---file:
+
+int main(void) {
+	long a;
+	long long b;
+	long int c;
+	long long int d;
+	long double e;
+
+	return 0;
+}
+typechecker : PASS_valid_long.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_valid_qualifiers.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+unit _5BTdud_eID:11; /* renamed from e */
+
+return 0;
+}
+
+---file:
+
+int main(void) {
+  	static const int a;
+  	extern const char b;
+  	auto const float c;
+  	auto volatile double d;
+  	const volatile long e;
+  	static volatile long long f;
+	extern volatile long double g;
+	register const float h;
+	register volatile int i;
+}
+typechecker : PASS_valid_qualifiers.c
+SuperC, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing PASS_valid_signed_unsigned.c ...
+#include <stdbool.h>
+
+int main(void) {
+
+signed char _0uTXJg_aID:0; /* renamed from a */
+
+unsigned char _2gskyT_bID:5; /* renamed from b */
+
+unit _3EqYxq_cID:7; /* renamed from c */
+
+unit _4LjnRl_dID:9; /* renamed from d */
+
+long long _55Tlqd_eID:11; /* renamed from e */
+
+unsigned long long _6umr5l_fID:13; /* renamed from f */
+
+long long _7F1Spf_gID:15; /* renamed from g */
+
+unsigned long long _8yxWym_hID:17; /* renamed from h */
+
+unsigned char _94FmUP_iID:19; /* renamed from i */
+
+unsigned int _10g3UAQ_jID:21; /* renamed from j */
+
+return 0;
+}
+
+---file:
+
+signed char a;
+
+int main(void) {
+  unsigned char b;
+  
+  {
+    signed long c;
+    unsigned long d;
+    signed long long e;
+    unsigned long long f;
+  }
+  signed long long int g;
+  unsigned long long int h;
+  signed int i;
+  unsigned int j;
+
+  return 0;
+}
+typechecker : PASS_valid_signed_unsigned.c
