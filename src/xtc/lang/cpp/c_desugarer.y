@@ -226,7 +226,7 @@ import xtc.type.VoidT;
 import xtc.util.SingletonIterator;
 import xtc.util.Utilities;
 
- import xtc.lang.cpp.Multiverse.Element;
+import xtc.lang.cpp.Multiverse.Element;
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
 import xtc.lang.cpp.ForkMergeParser.StackFrame;
@@ -5033,8 +5033,13 @@ private Multiverse<SymbolTable.Entry> addMapping(Subparser subparser, TypeBuilde
     }
   Multiverse<SymbolTable.Entry> unis = getType(t,d,subparser.getPresenceCondition());
   CContext scope = (CContext) subparser.scope;
-  scope.getSymbolTable().addMapping(d.getID(), unis);
-  return unis;
+  /* scope.getSymbolTable().addMapping(d.getID(), unis); */
+  for (Element<SymbolTable.Entry> elem : unis) {
+    scope.getSymbolTable().put(d.getID(), elem.getData().getType(), elem.getCondition());
+  }
+  unis.destruct();
+  
+  return scope.getSymbolTable().get(d.getID(), subparser.getPresenceCondition());
 }
 
 private List<StringBuilder> getRenamings(Multiverse<SymbolTable.Entry> unis)
