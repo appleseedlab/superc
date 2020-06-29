@@ -96,15 +96,8 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
     // }
 
     public String toString() {
-      StringBuilder sb = new StringBuilder();
-
-      sb.append("(");
-      sb.append(this.data);
-      sb.append(", ");
-      sb.append(this.cond);
-      sb.append(")");
-      
-      return sb.toString();
+      // return String.format("%s:%s", getData(), getCondition());
+      return String.format("(%s, %s)", getData(), getCondition());
     }
   }
 

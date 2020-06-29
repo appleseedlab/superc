@@ -44,6 +44,7 @@ import xtc.lang.cpp.Syntax.Directive;
 import xtc.lang.cpp.Syntax.Conditional;
 
 import xtc.type.Type;
+import xtc.type.UnitT;
 
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 import xtc.lang.cpp.Multiverse.Element;
@@ -56,9 +57,9 @@ import xtc.lang.cpp.ForkMergeParser.Lookahead;
 */
 public class SymbolTable {
 
-  public static final Entry UNDECLARED = new Entry(null, null) {
+  public static final Entry UNDECLARED = new Entry("static_type_error(\"undeclared\")", UnitT.TYPE) {
       public String toString() {
-        return "UNDECLARED_ENTRY";
+        return "<UNDECLARED>";
       }
     };
 
@@ -103,7 +104,8 @@ public class SymbolTable {
     }
 
     public String toString() {
-      return renaming + " " + type.toString();
+      // return String.format("(%s, \"%s\")", getType().toString(), getRenaming());
+      return String.format("%s %s", getRenaming(), getType().toString());
     }
   }
 
