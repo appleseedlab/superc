@@ -92,7 +92,7 @@ SOURCE = \
 	cdiff.java \
 	FunctionChecker.java \
 	DeclBuilder.java \
-	TypeBuilder.java \
+	TypeBuilderMultiverse.java \
 	TypeBuilderUnit.java \
 	Multiverse.java \
 	Parameter.java \

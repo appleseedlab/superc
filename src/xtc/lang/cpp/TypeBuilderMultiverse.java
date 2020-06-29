@@ -16,7 +16,7 @@ import xtc.lang.cpp.Multiverse.Element;
 
 import xtc.lang.cpp.CContext.SymbolTable.SymbolTableEntry;
 
-public class TypeBuilder extends Multiverse<TypeBuilderUnit>
+public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
 {
   static int count = 0;
   Integer personalCount;;
@@ -45,14 +45,14 @@ public class TypeBuilder extends Multiverse<TypeBuilderUnit>
   }
 
   // creates a new typebuilder using a string (which is NOT a type)
-  public TypeBuilder(String name, PresenceCondition p)
+  public TypeBuilderMultiverse(String name, PresenceCondition p)
   {
     super();
     contents.add(new Element<TypeBuilderUnit>(new TypeBuilderUnit(name), p));
   }
 
   // creates a new typebuilder using only a type
-  public TypeBuilder(Type type, PresenceCondition p)
+  public TypeBuilderMultiverse(Type type, PresenceCondition p)
   {
     super();
     personalCount = new Integer(count);
@@ -72,13 +72,13 @@ public class TypeBuilder extends Multiverse<TypeBuilderUnit>
   }
     
   // sets all flags to false and type starts as unit
-  public TypeBuilder()
+  public TypeBuilderMultiverse()
   {
     super();
   }
 
   // copy constructor creates a deep copy
-  public TypeBuilder(TypeBuilder old)
+  public TypeBuilderMultiverse(TypeBuilderMultiverse old)
   {
     super();
     for (Element<TypeBuilderUnit> e : old.contents)
@@ -88,9 +88,9 @@ public class TypeBuilder extends Multiverse<TypeBuilderUnit>
   }
 
 
-  public TypeBuilder combine(TypeBuilder with)
+  public TypeBuilderMultiverse combine(TypeBuilderMultiverse with)
   {
-    TypeBuilder t = new TypeBuilder();
+    TypeBuilderMultiverse t = new TypeBuilderMultiverse();
     for (Element<TypeBuilderUnit> e : contents)
       for (Element<TypeBuilderUnit> f : with.contents)
         if (!e.exclusiveFrom(f.getCondition()))

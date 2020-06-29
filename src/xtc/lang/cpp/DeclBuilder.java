@@ -254,7 +254,7 @@ public class DeclBuilder
     return output;
   }
 
-  public void addQuals(TypeBuilder t, DeclBuilder d)
+  public void addQuals(TypeBuilderMultiverse t, DeclBuilder d)
   {
     quals = t.getQualTU();
     inner = d;
