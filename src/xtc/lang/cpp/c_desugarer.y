@@ -2608,7 +2608,16 @@ PrimaryIdentifier: /** nomerge **/
 
 
           CContext scope = (CContext) subparser.scope;
-          Multiverse<StringBuilder> sbmv = universeToSB(scope.getMappings(sb.toString()));
+          /* Multiverse<StringBuilder> sbmv = universeToSB(scope.getMappings(sb.toString())); */
+
+          // get the renamings from the symtab
+          PresenceCondition cond = subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true);
+          Multiverse<SymbolTable.Entry> entries = scope.get(sb.toString(), cond);
+          cond.delRef();
+
+          // convert the renamings to stringbuilders
+          Multiverse<StringBuilder> sbmv = universeToSB(entries);
+          
           setSBMV(value, sbmv);
         }  /* We cannot use a typedef name as a variable */
         ;
@@ -5053,7 +5062,8 @@ private String mangleRenaming(String prefix, String ident) {
 
 private Multiverse<SymbolTable.Entry> getTypeOfTypedef(Subparser subparser, String typeName)
 {
-  Multiverse<SymbolTable.Entry> foundType = ((CContext)subparser.scope).getMappings(typeName, subparser.getPresenceCondition());
+  /* Multiverse<SymbolTable.Entry> foundType = ((CContext)subparser.scope).getMappings(typeName, subparser.getPresenceCondition()); */
+  Multiverse<SymbolTable.Entry> foundType = ((CContext)subparser.scope).get(typeName, subparser.getPresenceCondition());
   return foundType;
 }
 
