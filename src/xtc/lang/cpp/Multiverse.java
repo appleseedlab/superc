@@ -28,9 +28,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   /** The copy constructor. */
   public Multiverse(Multiverse<T> mv) {
     this();
-    for (Element<T> elem : mv.contents) {
-      this.add(elem.getData(), elem.getCondition());
-    }
+    addAll(mv);
   }
 
   /**
@@ -142,6 +140,19 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    */
   public void add(T data, PresenceCondition cond) {
     contents.add(new Element<T>(data, cond));
+    cond.addRef();
+  }
+
+  /**
+   * Add all elements from the given Multiverse to this.  It does a
+   * shallow copy.
+   *
+   * @param mv The Multiverse to add elements from.
+   */
+  public void addAll(Multiverse<T> mv) {
+    for (Element<T> elem : mv.contents) {
+      this.add(elem.getData(), elem.getCondition());
+    }
   }
 
   /**
@@ -223,7 +234,9 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
           if (! condition.isFalse()) {
             T data = op.product(elem1.getData(), elem2.getData());
             newmv.add(data, condition);
+            condition.addRef();
           }
+          condition.delRef();
         }
       }
       
