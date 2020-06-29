@@ -679,7 +679,68 @@ public class CContext implements ParsingContext {
     return scope;
   }
 
+  /**
+   * Get the symbol table entries for the given identifier under the
+   * given presence conditions, following the chain of nested scopes.
+   * This accounts for symbols only obscured in some configurations.
+   * This filters the Multiverse by trimming entries infeasible under
+   * the given condition.
+   *
+   * @param ident The identifier to look up.
+   * @param cond The presence condition.
+   * @returns A new Multiverse instance containing the entries under
+   * the given condition or null if the symbol is not defined.
+   */
+  public Multiverse<SymbolTable.Entry> get(String ident, PresenceCondition cond) {
+    Multiverse<SymbolTable.Entry> result = new Multiverse<SymbolTable.Entry>();
 
+    if (! cond.isFalse()) {
+      get(result, this, ident, cond);
+    }
+
+    return result;
+  }
+
+  /**
+   * One step of the recursive walk of the nested symbol tables.  The
+   * base cases are when we have already reached the global scope or
+   * there are no more configurations with an undeclared entry.
+   *
+   * @param result The current list of resulting entries.
+   * @param scope The current scope to look up.
+   * @param ident The identifier to look up.
+   * @param cond The current presence condition.
+   */
+  private void get(Multiverse<SymbolTable.Entry> result, CContext scope, String ident, PresenceCondition cond) {
+    if (null == scope) {
+      // already reached the global scope
+      return;
+    }
+    
+    Multiverse<SymbolTable.Entry> local = scope.getSymbolTable().get(ident, cond);
+    PresenceCondition undefinedCondition = null;
+
+    // if undefinedCondition remains null, it means there was no
+    // presence condition under which the identifier is undeclared.
+    for (Element<SymbolTable.Entry> entry : local) {
+      if (entry.getData() == SymbolTable.UNDECLARED) {
+        undefinedCondition = entry.getCondition();
+        entry.getCondition().addRef();
+      }
+    }
+
+    local.destruct();
+
+    // use the UNDECLARED presence condition to continue looking in
+    // the parent for definitions.
+    if (null != undefinedCondition) {
+      get(result, scope.parent, ident, undefinedCondition);
+    }
+    undefinedCondition.delRef();
+  }
+
+  // TODO: deprecate getMappings and use get() instead
+  
   public Multiverse<SymbolTable.Entry> getMappings(String ident)
   {
     Multiverse<SymbolTable.Entry> l = new Multiverse<SymbolTable.Entry>();
