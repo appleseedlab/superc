@@ -531,8 +531,6 @@ public class CContext implements ParsingContext {
     return null;
   }
 
-
-
   /**
    * Return the presence condition under which an identifier is a
    * typedef name.
@@ -679,365 +677,79 @@ public class CContext implements ParsingContext {
     return scope;
   }
 
+  /**
+   * Get the symbol table entries for the given identifier under the
+   * given presence conditions, following the chain of nested scopes.
+   * This accounts for symbols only obscured in some configurations.
+   * This filters the Multiverse by trimming entries infeasible under
+   * the given condition.
+   *
+   * @param ident The identifier to look up.
+   * @param cond The presence condition.
+   * @returns A new Multiverse instance containing the entries under
+   * the given condition or null if the symbol is not defined.
+   */
+  public Multiverse<SymbolTable.Entry> get(String ident, PresenceCondition cond) {
+    Multiverse<SymbolTable.Entry> result = new Multiverse<SymbolTable.Entry>();
 
-  public Multiverse<Universe> getMappings(String ident)
-  {
-    Multiverse<Universe> l = new Multiverse<Universe>();
-    CContext scope = this;
-    while (scope != null)
-	    {
-        Multiverse<Universe> lt = scope.getSymbolTable().map.get(ident);
-        if (lt != null) {
-          for (Iterator<Element<Universe>> e = lt.iterator(); e.hasNext();)
-            l.add(e.next());
-
-        }
-        scope = scope.parent;
-      }
-
-
-    return l;
-  }
-
-  public Multiverse<Universe> getMappings(String ident, PresenceCondition p)
-  {
-	  Multiverse<Universe> l = new Multiverse<Universe>();
-	  CContext scope = this;
-	  while (scope != null)
-      {
-        Multiverse<Universe> y = scope.getSymbolTable().map.get(ident);
-        if (y != null)
-          for (Element<Universe> e : y)
-            {
-              if (!e.exclusiveFrom(p))
-                l.add(e);
-            }
-        scope = scope.parent;
-      }
-	  return l;
-  }
-
-  /** The symbol table that stores a scope's symbol bindings. */
-  public static class SymbolTable {
-    public enum STField {
-      TYPEDEF, IDENT, INIT, USED, VAR, GLOBAL_FUNDEF, STATIC_FUNDEF, FUNCALL,
+    if (! cond.isFalse()) {
+      get(result, this, ident, cond);
     }
 
-    // /** The symbol table data structure. */
-    public HashMap<String, Multiverse<Universe>> map;
-
-    /** The symbol table data structure. */
-    public HashMap<String, EnumMap<STField, ConditionedBool>> bools;
-
-
-    /** The reference count for cleaning up the table BDDs */
-    public int refs;
-
-    /** New table */
-    public SymbolTable() {
-      // this.map = new HashMap<String, TypedefVarEntry>();
-      this.bools = new HashMap<String, EnumMap<STField, ConditionedBool>>();
-      this.refs = 1;
-      map = new HashMap<String, Multiverse<Universe>>();
-    }
-
-    public SymbolTable addRef() {
-      refs++;
-
-      return this;
-    }
-    public void addMapping(String ident, Multiverse<Universe> unis)
-    {
-      Multiverse<Universe> value = map.get(ident);
-      if (value == null)
-	      {
-          Multiverse<Universe> newEntry = new Multiverse<Universe>();
-          for (Element<Universe> x : unis)
-            newEntry.add(x);
-          map.put(ident, newEntry);
-	      }
-      else
-	      {
-          for (Element<Universe> x : unis)
-            {
-              boolean noCollision = true;
-              for (Element<Universe> u : value)
-                {
-                  noCollision = noCollision && u.exclusiveFrom(x.getCondition());
-                }
-              if (!noCollision)
-                {
-                  System.out.println("MultipleDef");
-                  //System.exit(1);
-                }
-              value.add(x);
-            }
-	      }
-      System.err.println(map.toString());
-    }
-
-
-    public void delRef() {
-      refs--;
-      if (0 == refs) {  //clean up symbol table
-        for (String name : this.bools.keySet()) {
-          for (STField field : this.bools.get(name).keySet()) {
-            ConditionedBool cb = this.bools.get(name).get(field);
-            cb.trueCond.delRef();
-          }
-        }
-        // for (String str : this.map.keySet()) {
-        //   TypedefVarEntry e = this.map.get(str);
-
-        //   if (null != e.typedefCond) {
-        //     e.typedefCond.delRef();
-        //   }
-        //   if (null != e.varCond) {
-        //     e.varCond.delRef();
-        //   }
-        // }
-        for (Multiverse<Universe> m : map.values())
-          m.destruct();
-      }
-    }
-
-    /**
-     * Set the presence condition of the boolean value of the given
-     * field.
-     *
-     * @param name The name of the symbol.
-     * @param field The field of the symbol table entry to update.
-     * @param value The boolean value to set.
-     * @param condition The condition of the boolean value.
-     */
-    public void setbool(String name,
-                        STField field,
-                        boolean value,
-                        PresenceCondition condition) {
-      if (! bools.containsKey(name)) {
-        // create a new symbol table entry
-        bools.put(name, new EnumMap<STField, ConditionedBool>(STField.class));
-      }
-
-      if (! bools.get(name).containsKey(field)) {
-        // create a new field for the symbol table entry
-        PresenceCondition trueCond;
-        if (value) {
-          trueCond = condition.addRef();
-        } else {
-          trueCond = condition.not();
-        }
-        bools.get(name).put(field, new ConditionedBool(trueCond));
-      } else {
-        // update the existing field's presence conditions
-        ConditionedBool cb = bools.get(name).get(field);
-        if (value) {
-          PresenceCondition union = cb.trueCond.or(condition);
-          cb.trueCond.delRef();
-          cb.trueCond = union;
-        } else {
-          PresenceCondition not = condition.not();
-          PresenceCondition union = cb.trueCond.and(not);
-          cb.trueCond.delRef();
-          cb.trueCond = union;
-          not.delRef();
-        }
-      }
-    }
-
-    /**
-     * Get all names given a field.
-     *
-     * @param field The given field.
-     * @return A list of names.
-     */
-    public Set<String> getNames(STField field) {
-      Set<String> a = new HashSet<String>();
-
-      for (String s : bools.keySet()) {
-        if (bools.get(s).containsKey(field)) {
-          a.add(s);
-        }
-      }
-
-      return a;
-    }
-
-    /**
-     * Get the presence condition of a given name and field
-     * combination.
-     *
-     * @param name The symbol name.
-     * @param field The symbol field.
-     * @return The presence condition.
-     */
-    public PresenceCondition getPresenceCond(String name,
-                                             STField field) {
-      if (bools.containsKey(name) &&
-          bools.get(name).containsKey(field)) {
-        return bools.get(name).get(field).trueCond;
-      }
-      return null;
-    }
-
-
-    // public void add(String ident, boolean typedef, PresenceCondition presenceCondition) {
-    //   if (! map.containsKey(ident)) {
-    //     map.put(ident,
-    //             new TypedefVarEntry(typedef ? presenceCondition : null, typedef ? null : presenceCondition));
-    //     presenceCondition.addRef();
-    //   }
-    //   else {
-    //     TypedefVarEntry e;
-
-    //     e = map.get(ident);
-
-    //     if (typedef) {
-    //       if (null == e.typedefCond) {
-    //         e.typedefCond = presenceCondition;
-    //         presenceCondition.addRef();
-    //       }
-    //       else {
-    //         PresenceCondition or;
-
-    //         or = e.typedefCond.or(presenceCondition);
-    //         e.typedefCond.delRef();
-    //         e.typedefCond = or;
-    //       }
-    //     }
-    //     else {
-    //       if (null == e.varCond) {
-    //         e.varCond = presenceCondition;
-    //         presenceCondition.addRef();
-    //       }
-    //       else {
-    //         PresenceCondition or;
-
-    //         or = e.varCond.or(presenceCondition);
-    //         e.varCond.delRef();
-    //         e.varCond = or;
-    //       }
-    //     }
-    //   }
-    // }
-
-    public void copyBools(SymbolTable symtab) {
-      for (String name : symtab.bools.keySet()) {
-        for (STField field : symtab.bools.get(name).keySet()) {
-          this.setbool(name, field, true, symtab.bools.get(name).get(field).trueCond);
-        }
-      }
-    }
-
-    //   public void addAll(SymbolTable symtab) {
-    //     for (String str : symtab.map.keySet()) {
-    //       if (! map.containsKey(str)) {
-    //         TypedefVarEntry e = symtab.map.get(str);
-
-    //         map.put(str, new TypedefVarEntry(e.typedefCond, e.varCond));
-
-    //         if (null != e.typedefCond) {
-    //           e.typedefCond.addRef();
-    //         }
-
-    //         if (null != e.varCond) {
-    //           e.varCond.addRef();
-    //         }
-    //       }
-    //       else {
-    //         TypedefVarEntry d = map.get(str);
-    //         TypedefVarEntry e = symtab.map.get(str);
-
-    //         if (null != e.typedefCond) {
-    //           if (null == d.typedefCond) {
-    //             d.typedefCond = e.typedefCond;
-    //             e.typedefCond.addRef();
-    //           }
-    //           else {
-    //             PresenceCondition or;
-
-    //             or = d.typedefCond.or(e.typedefCond);
-    //             d.typedefCond.delRef();
-    //             d.typedefCond = or;
-    //           }
-    //         }
-
-    //         if (null != e.varCond) {
-    //           if (null == d.varCond) {
-    //             d.varCond = e.varCond;
-    //             e.varCond.addRef();
-    //           }
-    //           else {
-    //             PresenceCondition or;
-
-    //             or = d.varCond.or(e.varCond);
-    //             d.varCond.delRef();
-    //             d.varCond = or;
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
-
-    // /** An entry in the symbol table. */
-    // private static class TypedefVarEntry {
-    //   /** The presence condition when the symbol is a typedef name. */
-    //   PresenceCondition typedefCond;
-
-    //   /** The presence condition when the symbol is a var name. */
-    //   PresenceCondition varCond;
-
-    //   /** Create a new entry.
-    //    *
-    //    * @param t The typedef name presence condition.
-    //    * @param f The var name presence condition.
-    //    */
-    //   public TypedefVarEntry(PresenceCondition typedefCond, PresenceCondition varCond) {
-    //     this.typedefCond = typedefCond;
-    //     this.varCond = varCond;
-    //   }
-
-    private static long varcount = 0;
-    private final static char[] charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
-    private final static Random random = new Random();
-    private final static int RAND_SIZE = 5;
-
-    protected String randomString(int string_size) {
-      StringBuilder randomstring = new StringBuilder();
-      for (int i = 0; i < string_size; i++) {
-        randomstring.append(charset[random.nextInt(charset.length)]);
-      }
-      return randomstring.toString();
-    }
-
-    protected String mangleRenaming(String prefix, String ident) {
-      // don't want to exceed c identifier length limit (31)
-      if (ident.length() > 22) {
-        // shorten ident to be at max, 22 chars
-        StringBuilder sb = new StringBuilder(ident);
-        sb = sb.delete(23, ident.length());
-        ident = sb.toString();
-      }
-      return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
-    }
-
+    return result;
   }
 
   /**
-   * A boolean that maintain a boolean expression for when the
-   * variable can be true.
+   * One step of the recursive walk of the nested symbol tables.  The
+   * base cases are when we have already reached the global scope or
+   * there are no more configurations with an undeclared entry.
+   *
+   * @param result The current list of resulting entries.
+   * @param scope The current scope to look up.
+   * @param ident The identifier to look up.
+   * @param cond The current presence condition.
    */
-  private static class ConditionedBool {
-    /** The presence condition when true. */
-    PresenceCondition trueCond;
-
-    /** Create a new entry.
-     *
-     * @param trueCond Condition when true.
-     */
-    public ConditionedBool(PresenceCondition trueCond) {
-      this.trueCond = trueCond;
+  private void get(Multiverse<SymbolTable.Entry> result, CContext scope, String ident, PresenceCondition cond) {
+    if (null == scope) {
+      // already reached the global scope
+      return;
     }
+    
+    Multiverse<SymbolTable.Entry> local = scope.getSymbolTable().get(ident, cond);
+    if (null == local) {
+      // this scope has no declarations of ident, so the entire cond is undeclared
+      get(result, scope.parent, ident, cond);
+    } else {
+      // add any declarations to the result, and continue looking in
+      // the parent if this scope has any undeclared presence
+      // condition.
+      PresenceCondition undefinedCondition = null;
+
+      // if undefinedCondition remains null, it means there was no
+      // presence condition under which the identifier is undeclared.
+      for (Element<SymbolTable.Entry> entry : local) {
+        if (entry.getData() == SymbolTable.UNDECLARED) {
+          if (null != undefinedCondition) {
+            System.err.println("FATAL: there should only one entry for UNDECLARED");
+            System.exit(1);
+          }
+          undefinedCondition = entry.getCondition();
+          entry.getCondition().addRef();
+        } else {
+          result.add(entry.getData(), entry.getCondition());
+          entry.getCondition().addRef();
+        }
+      }
+
+      local.destruct();
+
+      // use the UNDECLARED presence condition to continue looking in
+      // the parent for definitions.
+      if (null != undefinedCondition) {
+        get(result, scope.parent, ident, undefinedCondition);
+        undefinedCondition.delRef();
+      }
+    }
+    if (DEBUG) System.err.println(String.format("context.get: %s -> %s", ident, result));
   }
 }

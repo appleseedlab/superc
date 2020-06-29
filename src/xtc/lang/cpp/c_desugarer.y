@@ -168,7 +168,7 @@
 import xtc.Constants;
 import xtc.Limits;
 
-import xtc.lang.cpp.CContext.SymbolTable.STField;
+import xtc.lang.cpp.SymbolTable.STField;
 
 import xtc.tree.Attribute;
 import xtc.tree.GNode;
@@ -221,12 +221,12 @@ import xtc.type.UnionT;
 import xtc.type.VariableT;
 import xtc.type.VoidT;
 
-import xtc.util.SymbolTable;
-import xtc.util.SymbolTable.Scope;
+/* import xtc.util.SymbolTable; */
+/* import xtc.util.SymbolTable.Scope; */
 import xtc.util.SingletonIterator;
 import xtc.util.Utilities;
 
- import xtc.lang.cpp.Multiverse.Element;
+import xtc.lang.cpp.Multiverse.Element;
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
 import xtc.lang.cpp.ForkMergeParser.StackFrame;
@@ -412,7 +412,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationSpecifier     IdentifierDeclarator
         {
-          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -421,7 +421,7 @@ FunctionPrototype:  /** nomerge **/
         }
 | TypeSpecifier            IdentifierDeclarator
         {
-          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
@@ -443,7 +443,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
-          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -452,7 +452,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeQualifierList        IdentifierDeclarator
         {
-          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -466,7 +466,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
-          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -475,7 +475,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
-          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -484,7 +484,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
-          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -493,7 +493,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
-          TypeBuilder type = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -713,7 +713,7 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
 DeclaringList:  /** nomerge **/
         DeclarationSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
 	{
-      	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
+      	  TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 5);
       	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
 
           System.err.println(decl.toString() + " " + type.toString());
@@ -724,13 +724,13 @@ DeclaringList:  /** nomerge **/
         | TypeSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
       	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
-      	  TypeBuilder type = getTypeBuilderAt(subparser, 5);
+      	  TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 5);
       	  saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, type, decl);
 
           String oldIdent = decl.identifier;
           System.err.println(decl.toString() + " " + type.toString());
-          Multiverse<Universe> unis = addMapping(subparser, type, decl);
+          Multiverse<SymbolTable.Entry> unis = addMapping(subparser, type, decl);
           List<StringBuilder> renamings = getRenamings(unis);
       	  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           StringBuilder sb = new StringBuilder();
@@ -753,7 +753,7 @@ DeclaringList:  /** nomerge **/
           /** hoists and writes initializing statements using the renamed variables */
           Multiverse<StringBuilder> childSBMV = getSBMVAt(subparser, 1);
           if (childSBMV != null)
-            for (Element<Universe> u : unis)
+            for (Element<SymbolTable.Entry> u : unis)
               for (Element<StringBuilder> sbelem : childSBMV)
                 sb.append("\nif (" + PCtoString(u.getCondition().and(sbelem.getCondition())) + ") {\n" +
                          (new StringBuilder(u.getData().getRenaming())).toString() +
@@ -776,7 +776,7 @@ DeclaringList:  /** nomerge **/
 DeclarationSpecifier:  /**  nomerge **/
         BasicDeclarationSpecifier        /* Arithmetic or void */
 				{
-	  			TypeBuilder decl = getTypeBuilderAt(subparser, 1);
+	  			TypeBuilderMultiverse decl = getTypeBuilderAt(subparser, 1);
 	  			setTypeBuilder(value, decl);
 				}
         | SUEDeclarationSpecifier          /* struct/union/enum */
@@ -786,7 +786,7 @@ DeclarationSpecifier:  /**  nomerge **/
 				}
         | TypedefDeclarationSpecifier      /* typedef*/
 				{
-	 				TypeBuilder decl = getTypeBuilderAt(subparser, 1);
+	 				TypeBuilderMultiverse decl = getTypeBuilderAt(subparser, 1);
 	  			setTypeBuilder(value, decl);
 				}
         | VarArgDeclarationSpecifier  // ADDED
@@ -804,7 +804,7 @@ DeclarationSpecifier:  /**  nomerge **/
 TypeSpecifier:  /** nomerge **/
         BasicTypeSpecifier                 /* Arithmetic or void */
 				{
-          TypeBuilder t = getTypeBuilderAt(subparser,1);
+          TypeBuilderMultiverse t = getTypeBuilderAt(subparser,1);
         	setTypeBuilder(value,t);
 
 				}
@@ -832,7 +832,7 @@ TypeSpecifier:  /** nomerge **/
 DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage class */
         StorageClass
 	{
-	  TypeBuilder storage = getTypeBuilderAt(subparser,1);
+	  TypeBuilderMultiverse storage = getTypeBuilderAt(subparser,1);
 	  setTypeBuilder(value, storage);
 	  updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -840,9 +840,9 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
 	}
 	| TypeQualifierList StorageClass
 	{
-	  TypeBuilder qualList = getTypeBuilderAt(subparser, 2);
-	  TypeBuilder storage = getTypeBuilderAt(subparser, 1);
-	  TypeBuilder tb = qualList.combine(storage);
+	  TypeBuilderMultiverse qualList = getTypeBuilderAt(subparser, 2);
+	  TypeBuilderMultiverse storage = getTypeBuilderAt(subparser, 1);
+	  TypeBuilderMultiverse tb = qualList.combine(storage);
 	  setTypeBuilder(value, tb);
 	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
@@ -851,9 +851,9 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
 	}
         | DeclarationQualifierList DeclarationQualifier
 	{
-	  TypeBuilder qualList = getTypeBuilderAt(subparser, 2);
-	  TypeBuilder qual = getTypeBuilderAt(subparser, 1);
-	  TypeBuilder tb = qualList.combine(qual);
+	  TypeBuilderMultiverse qualList = getTypeBuilderAt(subparser, 2);
+	  TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
+	  TypeBuilderMultiverse tb = qualList.combine(qual);
 	  setTypeBuilder(value, tb);
 	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
@@ -865,7 +865,7 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
 TypeQualifierList:  /** list, nomerge **/
         TypeQualifier
 	{
-	  TypeBuilder qual = getTypeBuilderAt(subparser, 1);
+	  TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
 	  setTypeBuilder(value, qual);
 	   updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -873,9 +873,9 @@ TypeQualifierList:  /** list, nomerge **/
 	}
         | TypeQualifierList TypeQualifier
 	{
-	  TypeBuilder qualList = getTypeBuilderAt(subparser, 2);
-	    TypeBuilder qual = getTypeBuilderAt(subparser, 1);
-	    TypeBuilder tb = qualList.combine(qual);
+	  TypeBuilderMultiverse qualList = getTypeBuilderAt(subparser, 2);
+	    TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
+	    TypeBuilderMultiverse tb = qualList.combine(qual);
 	    setTypeBuilder(value, tb);
 	    updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
@@ -887,13 +887,13 @@ TypeQualifierList:  /** list, nomerge **/
 DeclarationQualifier:
 TypeQualifier                  /* const or volatile */
 {
-  TypeBuilder qual = getTypeBuilderAt(subparser, 1);
+  TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
   setTypeBuilder(value, qual);
 
 }
 | StorageClass
 {
-  TypeBuilder storage = getTypeBuilderAt(subparser, 1);
+  TypeBuilderMultiverse storage = getTypeBuilderAt(subparser, 1);
   setTypeBuilder(value, storage);
 
 }
@@ -902,7 +902,7 @@ TypeQualifier                  /* const or volatile */
 TypeQualifier:    // const, volatile, and restrict can have underscores
 ConstQualifier
 {
-  TypeBuilder qual = new TypeBuilder("const", subparser.getPresenceCondition());
+  TypeBuilderMultiverse qual = new TypeBuilderMultiverse("const", subparser.getPresenceCondition());
   setTypeBuilder(value, qual);
   updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -910,7 +910,7 @@ ConstQualifier
 }
 | VolatileQualifier
 {
-  TypeBuilder qual = new TypeBuilder("volatile", subparser.getPresenceCondition());
+  TypeBuilderMultiverse qual = new TypeBuilderMultiverse("volatile", subparser.getPresenceCondition());
   setTypeBuilder(value, qual);
   updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -918,7 +918,7 @@ ConstQualifier
 }
 | RestrictQualifier
 {
-  TypeBuilder qual = new TypeBuilder("restrict", subparser.getPresenceCondition());
+  TypeBuilderMultiverse qual = new TypeBuilderMultiverse("restrict", subparser.getPresenceCondition());
 	  setTypeBuilder(value, qual);
 updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -934,7 +934,7 @@ updateSpecs(subparser,
 }
 | FunctionSpecifier  // ADDED
 {
-  TypeBuilder qual = new TypeBuilder("inline", subparser.getPresenceCondition());
+  TypeBuilderMultiverse qual = new TypeBuilderMultiverse("inline", subparser.getPresenceCondition());
   setTypeBuilder(value, qual);
   updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -968,11 +968,11 @@ FunctionSpecifier:  // ADDED
 
 BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or void*/
         BasicTypeSpecifier  StorageClass {
-	  TypeBuilder basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
-          TypeBuilder storageClass = getTypeBuilderAt(subparser, 1);
+	  TypeBuilderMultiverse basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse storageClass = getTypeBuilderAt(subparser, 1);
 
           // combine the partial type specs
-          TypeBuilder tb = basicTypeSpecifier.combine(storageClass);
+          TypeBuilderMultiverse tb = basicTypeSpecifier.combine(storageClass);
 
           setTypeBuilder(value, tb);
 	  updateSpecs(subparser,
@@ -981,11 +981,11 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
                       value);
         }
         | DeclarationQualifierList BasicTypeName {
-	  TypeBuilder qualList = getTypeBuilderAt(subparser, 2);
-          TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
+	  TypeBuilderMultiverse qualList = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse basicTypeName = getTypeBuilderAt(subparser, 1);
 
           // combine the partial type specs
-          TypeBuilder tb = qualList.combine(basicTypeName);
+          TypeBuilderMultiverse tb = qualList.combine(basicTypeName);
 
 	  setTypeBuilder(value, tb);
 	  updateSpecs(subparser,
@@ -995,11 +995,11 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
         }
         | BasicDeclarationSpecifier DeclarationQualifier
 	{
- 	  TypeBuilder decl = getTypeBuilderAt(subparser, 2);
-          TypeBuilder qual = getTypeBuilderAt(subparser, 1);
+ 	  TypeBuilderMultiverse decl = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
 
           // combine the partial type specs
-          TypeBuilder tb = decl.combine(qual);
+          TypeBuilderMultiverse tb = decl.combine(qual);
 
 	  setTypeBuilder(value, tb);
 	  updateSpecs(subparser,
@@ -1008,11 +1008,11 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
                       value);
 	}
         | BasicDeclarationSpecifier BasicTypeName {
-	  TypeBuilder basicDeclSpecifier = getTypeBuilderAt(subparser, 2);
-          TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
+	  TypeBuilderMultiverse basicDeclSpecifier = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse basicTypeName = getTypeBuilderAt(subparser, 1);
 
           // combine the partial type specs
-          TypeBuilder tb = basicDeclSpecifier.combine(basicTypeName);
+          TypeBuilderMultiverse tb = basicDeclSpecifier.combine(basicTypeName);
 
 	  setTypeBuilder(value, tb);
 	  updateSpecs(subparser,
@@ -1028,7 +1028,7 @@ BasicTypeSpecifier: /**  nomerge **/
           // TUTORIAL: a semantic action that sets the semantic value
           // to a new typebuilder by adding a property derived from
           // the child semantic value(s)
-          TypeBuilder tb = getTypeBuilderAt(subparser, 1);
+          TypeBuilderMultiverse tb = getTypeBuilderAt(subparser, 1);
           setTypeBuilder(value, tb);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -1037,10 +1037,10 @@ BasicTypeSpecifier: /**  nomerge **/
         }
         | TypeQualifierList BasicTypeName
 	{
-          TypeBuilder qualList = getTypeBuilderAt(subparser, 2);
-          TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
+          TypeBuilderMultiverse qualList = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse basicTypeName = getTypeBuilderAt(subparser, 1);
 
-          TypeBuilder tb = qualList.combine(basicTypeName);
+          TypeBuilderMultiverse tb = qualList.combine(basicTypeName);
 
           setTypeBuilder(value, tb);
 	  updateSpecs(subparser,
@@ -1050,10 +1050,10 @@ BasicTypeSpecifier: /**  nomerge **/
         }
         | BasicTypeSpecifier TypeQualifier
 	{
-          TypeBuilder basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
-          TypeBuilder qual = getTypeBuilderAt(subparser, 1);
+          TypeBuilderMultiverse basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
 
-          TypeBuilder tb = basicTypeSpecifier.combine(qual);
+          TypeBuilderMultiverse tb = basicTypeSpecifier.combine(qual);
 
           setTypeBuilder(value, tb);
 	  updateSpecs(subparser,
@@ -1064,11 +1064,11 @@ BasicTypeSpecifier: /**  nomerge **/
         | BasicTypeSpecifier BasicTypeName
         {
           // get the semantic values of each child
-          TypeBuilder basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
-          TypeBuilder basicTypeName = getTypeBuilderAt(subparser, 1);
+          TypeBuilderMultiverse basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse basicTypeName = getTypeBuilderAt(subparser, 1);
 
           // combine the partial type specs
-          TypeBuilder tb = basicTypeSpecifier.combine(basicTypeName);
+          TypeBuilderMultiverse tb = basicTypeSpecifier.combine(basicTypeName);
 
           setTypeBuilder(value, tb);
 	  updateSpecs(subparser,
@@ -1094,23 +1094,23 @@ SUETypeSpecifier: /** nomerge **/
 TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef types */
         TypedefTypeSpecifier StorageClass
 	{
-	  TypeBuilder tb = getTypeBuilderAt(subparser, 2);
-          TypeBuilder tb1 = getTypeBuilderAt(subparser, 1);
+	  TypeBuilderMultiverse tb = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse tb1 = getTypeBuilderAt(subparser, 1);
           setTypeBuilder(value, tb.combine(tb1));
 	}
         | DeclarationQualifierList TYPEDEFname
         {
-	  TypeBuilder tb = getTypeBuilderAt(subparser, 2);
-          TypeBuilder tb1 = new TypeBuilder();
+	  TypeBuilderMultiverse tb = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse tb1 = new TypeBuilderMultiverse();
 	  String typeName = getStringAt(subparser, 1);
 	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition());
           setTypeBuilder(value, tb.combine(tb1));
 	}
         | TypedefDeclarationSpecifier DeclarationQualifier
 	{
-	  TypeBuilder tb1 = getTypeBuilderAt(subparser, 2);
-	  TypeBuilder dq = getTypeBuilderAt(subparser,1);
-	  TypeBuilder tb = tb1.combine(dq);
+	  TypeBuilderMultiverse tb1 = getTypeBuilderAt(subparser, 2);
+	  TypeBuilderMultiverse dq = getTypeBuilderAt(subparser,1);
+	  TypeBuilderMultiverse tb = tb1.combine(dq);
           setTypeBuilder(value, tb);
 	}
         ;
@@ -1118,15 +1118,15 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
 TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
         TYPEDEFname
 	{
-	  TypeBuilder tb1 = new TypeBuilder();
+	  TypeBuilderMultiverse tb1 = new TypeBuilderMultiverse();
 	  String typeName = getStringAt(subparser, 1);
 	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition());
           setTypeBuilder(value, tb1);
 	}
         | TypeQualifierList TYPEDEFname
 	{
-	  TypeBuilder tb = getTypeBuilderAt(subparser, 2);
-          TypeBuilder tb1 = new TypeBuilder();
+	  TypeBuilderMultiverse tb = getTypeBuilderAt(subparser, 2);
+          TypeBuilderMultiverse tb1 = new TypeBuilderMultiverse();
 	  String typeName = getStringAt(subparser, 1);
 	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition());
           setTypeBuilder(value, tb.combine(tb1));
@@ -1134,8 +1134,8 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
 	}
 | TypedefTypeSpecifier TypeQualifier
 {
-  TypeBuilder tb = getTypeBuilderAt(subparser, 2);
-  TypeBuilder tb1 = getTypeBuilderAt(subparser, 1);
+  TypeBuilderMultiverse tb = getTypeBuilderAt(subparser, 2);
+  TypeBuilderMultiverse tb1 = getTypeBuilderAt(subparser, 1);
   setTypeBuilder(value, tb.combine(tb1));
 }
 ;
@@ -1225,31 +1225,31 @@ VarArgTypeName:  // ADDED
 StorageClass:
         TYPEDEF
 	  {
-	    TypeBuilder storage = new TypeBuilder("typedef", subparser.getPresenceCondition());
+	    TypeBuilderMultiverse storage = new TypeBuilderMultiverse("typedef", subparser.getPresenceCondition());
 	    setTypeBuilder(value, storage);
 	    getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF;
 	  }
         | EXTERN
 	    {
-	      TypeBuilder storage = new TypeBuilder("extern", subparser.getPresenceCondition());
+	      TypeBuilderMultiverse storage = new TypeBuilderMultiverse("extern", subparser.getPresenceCondition());
 	      setTypeBuilder(value, storage);
 	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN;
 	    }
         | STATIC
 	    {
-	      TypeBuilder storage = new TypeBuilder("static", subparser.getPresenceCondition());
+	      TypeBuilderMultiverse storage = new TypeBuilderMultiverse("static", subparser.getPresenceCondition());
 	      setTypeBuilder(value, storage);
 	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC;
 	    }
         | AUTO
 	    {
-	      TypeBuilder storage = new TypeBuilder("auto", subparser.getPresenceCondition());
+	      TypeBuilderMultiverse storage = new TypeBuilderMultiverse("auto", subparser.getPresenceCondition());
 	      setTypeBuilder(value, storage);
 	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO;
 	    }
         | REGISTER
 	    {
-	      TypeBuilder storage = new TypeBuilder("register", subparser.getPresenceCondition());
+	      TypeBuilderMultiverse storage = new TypeBuilderMultiverse("register", subparser.getPresenceCondition());
 	      setTypeBuilder(value, storage);
 	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER;
 	    }
@@ -1258,77 +1258,77 @@ StorageClass:
 BasicTypeName:
         VOID
         {
-          TypeBuilder tb = new TypeBuilder(VoidT.TYPE, subparser.getPresenceCondition());
+          TypeBuilderMultiverse tb = new TypeBuilderMultiverse(VoidT.TYPE, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).type = VoidT.TYPE;
 
         }
         | CHAR
         {
-          TypeBuilder tb = new TypeBuilder(NumberT.CHAR, subparser.getPresenceCondition());
+          TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.CHAR, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenChar = true;
         }
         | SHORT
         {
-          TypeBuilder tb = new TypeBuilder(NumberT.SHORT, subparser.getPresenceCondition());
+          TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.SHORT, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenShort = true;
         }
         | INT
         {
           // See xtc.type.* for the class hiearchy for types
-          TypeBuilder tb = new TypeBuilder(NumberT.INT, subparser.getPresenceCondition());
+          TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.INT, subparser.getPresenceCondition());
           System.err.println(tb.toString());
           setTypeBuilder(value, tb);
           getSpecsAt(subparser, 1).seenInt = true;
         }
         | __INT128
 	{
-          TypeBuilder tb = new TypeBuilder(NumberT.__INT128, subparser.getPresenceCondition());
+          TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.__INT128, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenInt = true;
         }
         | LONG
         {
           // See xtc.type.* for the class hiearchy for types
-          TypeBuilder tb = new TypeBuilder(NumberT.LONG, subparser.getPresenceCondition());
+          TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.LONG, subparser.getPresenceCondition());
 	  setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).longCount++;
         }
         | FLOAT
         {
-          TypeBuilder tb = new TypeBuilder(NumberT.FLOAT, subparser.getPresenceCondition());
+          TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.FLOAT, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenFloat = true;
         }
         | DOUBLE
         {
-          TypeBuilder tb = new TypeBuilder(NumberT.DOUBLE, subparser.getPresenceCondition());
+          TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.DOUBLE, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenDouble = true;
         }
         | SignedKeyword
         {
-          TypeBuilder tb = new TypeBuilder("signed", subparser.getPresenceCondition());
+          TypeBuilderMultiverse tb = new TypeBuilderMultiverse("signed", subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenSigned = true;
         }
         | UNSIGNED
         {
-          TypeBuilder tb = new TypeBuilder("unsigned", subparser.getPresenceCondition());
+          TypeBuilderMultiverse tb = new TypeBuilderMultiverse("unsigned", subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenUnsigned = true;
         }
         | _BOOL
         {
-          TypeBuilder tb = new TypeBuilder(BooleanT.TYPE, subparser.getPresenceCondition());
+          TypeBuilderMultiverse tb = new TypeBuilderMultiverse(BooleanT.TYPE, subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenBool = true;
         }
         | ComplexKeyword
         {
-	  TypeBuilder tb = new TypeBuilder("complex", subparser.getPresenceCondition());
+	  TypeBuilderMultiverse tb = new TypeBuilderMultiverse("complex", subparser.getPresenceCondition());
           setTypeBuilder(value, tb);
 	  getSpecsAt(subparser, 1).seenComplex = true;
         }
@@ -1643,7 +1643,7 @@ ParameterIdentifierDeclaration:
         } AttributeSpecifierListOpt
         {
           DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilder type = getTypeBuilderAt(subparser, 4);
+          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
 
           Parameter p = new Parameter();
           p.setMultiverse(addMapping(subparser, type, decl));
@@ -1657,7 +1657,7 @@ ParameterIdentifierDeclaration:
         } AttributeSpecifierListOpt
         {
           DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilder type = getTypeBuilderAt(subparser, 4);
+          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
 
           Parameter p = new Parameter();
           p.setMultiverse(addMapping(subparser, type, decl));
@@ -1671,7 +1671,7 @@ ParameterIdentifierDeclaration:
         } AttributeSpecifierListOpt
         {
           DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilder type = getTypeBuilderAt(subparser, 4);
+          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
 
           Parameter p = new Parameter();
           p.setMultiverse(addMapping(subparser, type, decl));
@@ -1685,7 +1685,7 @@ ParameterIdentifierDeclaration:
         } AttributeSpecifierListOpt
         {
           DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilder type = getTypeBuilderAt(subparser, 4);
+          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
           System.err.println("ParamIdent:" + type.toString());
           Parameter p = new Parameter();
           p.setMultiverse(addMapping(subparser, type, decl));
@@ -1699,7 +1699,7 @@ ParameterIdentifierDeclaration:
         } AttributeSpecifierListOpt
         {
           DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilder type = getTypeBuilderAt(subparser, 4);
+          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
 
           Parameter p = new Parameter();
           p.setMultiverse(addMapping(subparser, type, decl));
@@ -1713,7 +1713,7 @@ ParameterIdentifierDeclaration:
         } AttributeSpecifierListOpt
         {
           DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilder type = getTypeBuilderAt(subparser, 4);
+          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
 
           Parameter p = new Parameter();
           p.setMultiverse(addMapping(subparser, type, decl));
@@ -1756,12 +1756,12 @@ InitializerOpt: /** nomerge **/
             CContext scope = (CContext) subparser.scope;
             /** Gets all renamings of the variable, and adds them to the sbmv */
             for (Multiverse.Element<StringBuilder> sbelem : allAssignVals) {
-              Multiverse<Universe> renamings = scope.getSymbolTable().map.get(sbelem.getData().toString());
+              Multiverse<SymbolTable.Entry> renamings = scope.getSymbolTable().map.get(sbelem.getData().toString());
               /** Checks for renamings in the symbol table */
               if (renamings != null) {
                 /** Writes part of the assignment using the variables' renamings */
-                for (Multiverse.Element<Universe> renaming : renamings) {
-                  sbmv.add(new Element<StringBuilder>(new StringBuilder(" = " + renaming.getData().rename), sbelem.getCondition().and(renaming.getCondition())/*subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)*/));
+                for (Multiverse.Element<SymbolTable.Entry> renaming : renamings) {
+                  sbmv.add(new Element<StringBuilder>(new StringBuilder(" = " + renaming.getData().getRenaming()), sbelem.getCondition().and(renaming.getCondition())/*subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)*/));
                 }
               } else {
                 /** If there is no renaming, then we are assigning something other than a variable (such as a constant).
@@ -2608,7 +2608,16 @@ PrimaryIdentifier: /** nomerge **/
 
 
           CContext scope = (CContext) subparser.scope;
-          Multiverse<StringBuilder> sbmv = universeToSB(scope.getMappings(sb.toString()));
+          /* Multiverse<StringBuilder> sbmv = universeToSB(scope.getMappings(sb.toString())); */
+
+          // get the renamings from the symtab
+          PresenceCondition cond = subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true);
+          Multiverse<SymbolTable.Entry> entries = scope.get(sb.toString(), cond);
+          cond.delRef();
+
+          // convert the renamings to stringbuilders
+          Multiverse<StringBuilder> sbmv = universeToSB(entries);
+          
           setSBMV(value, sbmv);
         }  /* We cannot use a typedef name as a variable */
         ;
@@ -2659,15 +2668,9 @@ Subscript:  /** nomerge **/
           {
             Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
             sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 4));
-            // TODO: write an addToAll() method for this
-            for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-              sbelem.data = new StringBuilder(sbelem.getData().toString() + " [ ");
-            }
+            sbmv = sbmv.product(new StringBuilder(" [ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
             sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
-            // TODO: write an addToAll() method for this
-            for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-              sbelem.data = new StringBuilder(sbelem.getData().toString() + " ] ");
-            }
+            sbmv = sbmv.product(new StringBuilder(" ] "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
             setSBMV(value, sbmv);
           }
         }
@@ -2728,20 +2731,14 @@ UnaryExpression:  /** passthrough, nomerge **/
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          // TODO: write an addToAll() method for this
-          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-            sbelem.data = new StringBuilder(sbelem.getData().toString() + " ++ ");
-          }
+          sbmv = sbmv.product(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           setSBMV(value, sbmv);
         }
         | DECR UnaryExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          // TODO: write an addToAll() method for this
-          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-            sbelem.data = new StringBuilder(sbelem.getData().toString() + " -- ");
-          }
+          sbmv = sbmv.product(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           setSBMV(value, sbmv);
         }
         | Unaryoperator CastExpression
@@ -2835,10 +2832,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          // TODO: write an addToAll() method for this
-          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-            sbelem.data = new StringBuilder(sbelem.getData().toString() + " * ");
-          }
+          sbmv = sbmv.product(new StringBuilder(" * "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
           setSBMV(value, sbmv);
         }
@@ -2846,10 +2840,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          // TODO: write an addToAll() method for this
-          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-            sbelem.data = new StringBuilder(sbelem.getData().toString() + " / ");
-          }
+          sbmv = sbmv.product(new StringBuilder(" / "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
           setSBMV(value, sbmv);
         }
@@ -2857,10 +2848,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          // TODO: write an addToAll() method for this
-          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-            sbelem.data = new StringBuilder(sbelem.getData().toString() + " % ");
-          }
+          sbmv = sbmv.product(new StringBuilder(" % "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
           setSBMV(value, sbmv);
         }
@@ -2875,10 +2863,7 @@ AdditiveExpression:  /** passthrough, nomerge **/
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          // TODO: write an addToAll() method for this
-          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-            sbelem.data = new StringBuilder(sbelem.getData().toString() + " + ");
-          }
+          sbmv = sbmv.product(new StringBuilder(" + "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
           setSBMV(value, sbmv);
         }
@@ -2886,10 +2871,7 @@ AdditiveExpression:  /** passthrough, nomerge **/
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-                    // TODO: write an addToAll() method for this
-          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-            sbelem.data = new StringBuilder(sbelem.getData().toString() + " - ");
-          }
+          sbmv = sbmv.product(new StringBuilder(" - "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
           setSBMV(value, sbmv);
         }
@@ -3310,27 +3292,27 @@ AsmKeyword:   // ADDED
 
 
 // TUTORIAL: this function just annotates a semantic value with a typebuilder
-private void setTypeBuilder(Object value, TypeBuilder tb) {
+private void setTypeBuilder(Object value, TypeBuilderMultiverse tb) {
   // value should be not null and should be a Node type
   setTypeBuilder((Node) value, tb);
 }
 
 // TUTORIAL: these functions retrieve a type builder from the semantic value
-private void setTypeBuilder(Node value, TypeBuilder tb) {
+private void setTypeBuilder(Node value, TypeBuilderMultiverse tb) {
   // value should be not null and should be a Node type
   value.setProperty(TYPEBUILDER, tb);
 }
 
-private TypeBuilder getTypeBuilderAt(Subparser subparser, int component) {
+private TypeBuilderMultiverse getTypeBuilderAt(Subparser subparser, int component) {
   // value should be not null and should be a Node type
-  return (TypeBuilder) getNodeAt(subparser, component).getProperty(TYPEBUILDER);
+  return (TypeBuilderMultiverse) getNodeAt(subparser, component).getProperty(TYPEBUILDER);
 }
 
 /**
    This is just a constant string name for a property used to assign
    semantic values that are type builders.
  */
-private static final String TYPEBUILDER = "xtc.lang.cpp.TypeBuilder";
+private static final String TYPEBUILDER = "xtc.lang.cpp.TypeBuilderMultiverse";
 private static final String PARAMETER = "xtc.lang.cpp.Parameter";
 private static final String DECLBUILDER = "xtc.lang.cpp.DeclBuilder";
 private static final String STRING = "xtc.String";
@@ -3442,8 +3424,8 @@ private void getAndSetSBMVCond(int numChildren, Subparser subparser, Object valu
        and generates all combinations of childrens' stringbuilders */
     Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
     for (Multiverse.Element<Node> child : children) {
-      if (child.data != null)
-        temp = getSBMV(child.data);
+      if (child.getData() != null)
+        temp = getSBMV(child.getData());
       if (temp != null)
         sbmv = cartesianProduct(sbmv, temp);
     }
@@ -3482,44 +3464,65 @@ void addStatementIf(int statPos, Subparser subparser, Object value) {
   setSBMV(value, sbmv);
 }
 
+final static Multiverse.Operator<StringBuilder> SBCONCAT = (sb1, sb2) -> {
+  StringBuilder newsb = new StringBuilder();
+  newsb.append(sb1);
+  newsb.append(sb2);
+  return newsb;
+};
+
 /** Takes two stringbuilder multiverses, and generates all of their combinations */
 private Multiverse<StringBuilder> cartesianProduct(Multiverse<StringBuilder> statements, Multiverse<StringBuilder> renamings) {
-  Multiverse<StringBuilder> allCombinations;
+  /* System.err.println("statements: " + statements); */
+  /* System.err.println("renamings: " + renamings); */
+  /* System.err.println("result: " + statements.product(renamings, */
+  /*                                                    (sb1, sb2) -> { */
+  /*                                                      StringBuilder newsb = new StringBuilder(); */
+  /*                                                      newsb.append(sb1); */
+  /*                                                      newsb.append(sb2); */
+  /*                                                      return newsb; */
+  /*                                                    })); */
   if (renamings == null || statements == null) {
-    allCombinations = new Multiverse<StringBuilder>();
-  } else if (statements.size() < 1 && renamings.size() < 1) {
-    allCombinations = new Multiverse<StringBuilder>();
-  } else if (statements.size() < 1) {
-    allCombinations = new Multiverse<StringBuilder>(renamings);
-  } else if (renamings.size() < 1) {
-    allCombinations = new Multiverse<StringBuilder>(statements);
+    return new Multiverse<StringBuilder>();
   } else {
-    allCombinations = new Multiverse<StringBuilder>();
-    for (Element<StringBuilder> statement : statements) {
-      for (Element<StringBuilder> renaming : renamings) {
-        StringBuilder sb = new StringBuilder(statement.getData().toString() + renaming.getData().toString());
-        PresenceCondition pc = statement.getCondition().and(renaming.getCondition());
-        if (pc.getBDD().isZero()) {
-          /** generated code with unsatisfiable presence conditions is discarded */
-
-          // for debugging:
-          //allCombinations.add(new Element<StringBuilder>(sb, pc));
-        } else {
-          allCombinations.add(new Element<StringBuilder>(sb, pc));
-        }
-      }
-    }
+    return statements.product(renamings, SBCONCAT);
   }
-  return allCombinations;
+  /* Multiverse<StringBuilder> allCombinations; */
+  /* if (renamings == null || statements == null) { */
+  /*   allCombinations = new Multiverse<StringBuilder>(); */
+  /* } else if (statements.size() < 1 && renamings.size() < 1) { */
+  /*   allCombinations = new Multiverse<StringBuilder>(); */
+  /* } else if (statements.size() < 1) { */
+  /*   allCombinations = new Multiverse<StringBuilder>(renamings); */
+  /* } else if (renamings.size() < 1) { */
+  /*   allCombinations = new Multiverse<StringBuilder>(statements); */
+  /* } else { */
+  /*   allCombinations = new Multiverse<StringBuilder>(); */
+  /*   for (Element<StringBuilder> statement : statements) { */
+  /*     for (Element<StringBuilder> renaming : renamings) { */
+  /*       StringBuilder sb = new StringBuilder(statement.getData().toString() + renaming.getData().toString()); */
+  /*       PresenceCondition pc = statement.getCondition().and(renaming.getCondition()); */
+  /*       if (pc.getBDD().isZero()) { */
+  /*         /\** generated code with unsatisfiable presence conditions is discarded *\/ */
+
+  /*         // for debugging: */
+  /*         //allCombinations.add(new Element<StringBuilder>(sb, pc)); */
+  /*       } else { */
+  /*         allCombinations.add(new Element<StringBuilder>(sb, pc)); */
+  /*       } */
+  /*     } */
+  /*   } */
+  /* } */
+  /* return allCombinations; */
 }
 
-/** Converts a Multiverse<Universe> to a Multiverse<StringBuilder>
+/** Converts a Multiverse<SymbolTable.Entry> to a Multiverse<StringBuilder>
  *  so cartesianProduct() can be called on them.
  */
-private Multiverse<StringBuilder> universeToSB(Multiverse<Universe> mv) {
+private Multiverse<StringBuilder> universeToSB(Multiverse<SymbolTable.Entry> mv) {
   Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-  for (Element<Universe> u : mv) {
-    sbmv.add(new Element<StringBuilder>(new StringBuilder(u.getData().rename), u.getCondition()));
+  for (Element<SymbolTable.Entry> u : mv) {
+    sbmv.add(new Element<StringBuilder>(new StringBuilder(u.getData().getRenaming()), u.getCondition()));
   }
   return sbmv;
 }
@@ -3543,7 +3546,7 @@ private static List<String> extraConstraints = null;
 private static boolean enableFunctionAnalysis = false;
 
 /** A symbol table for analysis. */
-private CContext.SymbolTable functionTable;
+private SymbolTable functionTable;
 
 /** Turn on kconfig feature model clauses. */
 private boolean hasClauses = false;
@@ -3613,7 +3616,7 @@ public void enableCheckers(boolean b, List<String> extraConstraints) {
  */
 public void enableFunctionAnalysis() {
   this.enableFunctionAnalysis = true;
-  this.functionTable = new CContext.SymbolTable();
+  this.functionTable = new SymbolTable();
 }
 
 /**
@@ -3659,7 +3662,7 @@ public void addClauses(Clauses clauses, int[] assumptions) {
  *
  * @return The checker symbol table.
  */
-public CContext.SymbolTable getFunctionTable() {
+public SymbolTable getFunctionTable() {
   return this.functionTable;
 }
 
@@ -3897,12 +3900,12 @@ public void bindIdent(Subparser subparser, Node typespec, Node declarator, STFie
   /* scope.bind(ident.getTokenText(), typedef, presenceCondition); */
 }
 
-public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder declarator)
+public void bindIdent(Subparser subparser, TypeBuilderMultiverse typespec, DeclBuilder declarator)
 {
 	bindIdent(subparser, typespec, declarator, null);
 }
 
-public void bindIdent(Subparser subparser, TypeBuilder typespec, DeclBuilder declarator, STField alsoSet) {
+public void bindIdent(Subparser subparser, TypeBuilderMultiverse typespec, DeclBuilder declarator, STField alsoSet) {
   /*
     for this to properly work, we will need to pull the specific presenceCondition for
     each individual TypeBuilderUnit. More or less the actions that were previously taken should take place
@@ -4963,9 +4966,9 @@ private static Specifiers makeStructSpec(Subparser subparser,
   return specs;
 }
 
-private Multiverse<Universe> getType(TypeBuilder t, DeclBuilder d, PresenceCondition currentPC)
+private Multiverse<SymbolTable.Entry> getType(TypeBuilderMultiverse t, DeclBuilder d, PresenceCondition currentPC)
 {
-  Multiverse<Universe> ret = new Multiverse<Universe>();
+  Multiverse<SymbolTable.Entry> ret = new Multiverse<SymbolTable.Entry>();
   List<Type> types = t.toType();
   List<PresenceCondition> cond = t.getConditions();
   boolean func = d.isFunction();
@@ -4988,38 +4991,43 @@ private Multiverse<Universe> getType(TypeBuilder t, DeclBuilder d, PresenceCondi
                   if(!p.isEllipsis())
                     l.add(p.getType());
                 Type f = new FunctionT(temp.toType(), l, e.getData().get(e.getData().size() - 1).isEllipsis());
-                ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
+                ret.add(new Element<SymbolTable.Entry>(new SymbolTable.Entry(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
               }
             else
               {
                 Type f = new FunctionT(temp.toType());
-                ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
+                ret.add(new Element<SymbolTable.Entry>(new SymbolTable.Entry(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
               }
         }
       else
-        ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), temp.toType()), cond.get(i).and(currentPC)));
+        ret.add(new Element<SymbolTable.Entry>(new SymbolTable.Entry(mangleRenaming("",d.getID()), temp.toType()), cond.get(i).and(currentPC)));
     }
   return ret;
 }
 
-private Multiverse<Universe> addMapping(Subparser subparser, TypeBuilder t, DeclBuilder d)
+private Multiverse<SymbolTable.Entry> addMapping(Subparser subparser, TypeBuilderMultiverse t, DeclBuilder d)
 {
   if (t == null || d == null || !t.getIsValid() || !d.getIsValid())
     {
       System.err.println("Invalid declaration");
       //System.exit(1);
-      return new Multiverse<Universe>();
+      return new Multiverse<SymbolTable.Entry>();
     }
-  Multiverse<Universe> unis = getType(t,d,subparser.getPresenceCondition());
+  Multiverse<SymbolTable.Entry> unis = getType(t,d,subparser.getPresenceCondition());
   CContext scope = (CContext) subparser.scope;
-  scope.getSymbolTable().addMapping(d.getID(), unis);
-  return unis;
+  /* scope.getSymbolTable().addMapping(d.getID(), unis); */
+  for (Element<SymbolTable.Entry> elem : unis) {
+    scope.getSymbolTable().put(d.getID(), elem.getData().getType(), elem.getCondition());
+  }
+  unis.destruct();
+  
+  return scope.getSymbolTable().get(d.getID(), subparser.getPresenceCondition());
 }
 
-private List<StringBuilder> getRenamings(Multiverse<Universe> unis)
+private List<StringBuilder> getRenamings(Multiverse<SymbolTable.Entry> unis)
 {
   List<StringBuilder> sb = new LinkedList<StringBuilder>();
-  for (Element<Universe> u : unis)
+  for (Element<SymbolTable.Entry> u : unis)
     {
       sb.add(new StringBuilder(u.getData().getRenaming()));
     }
@@ -5052,9 +5060,10 @@ private String mangleRenaming(String prefix, String ident) {
     return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
     }
 
-private Multiverse<Universe> getTypeOfTypedef(Subparser subparser, String typeName)
+private Multiverse<SymbolTable.Entry> getTypeOfTypedef(Subparser subparser, String typeName)
 {
-  Multiverse<Universe> foundType = ((CContext)subparser.scope).getMappings(typeName, subparser.getPresenceCondition());
+  /* Multiverse<SymbolTable.Entry> foundType = ((CContext)subparser.scope).getMappings(typeName, subparser.getPresenceCondition()); */
+  Multiverse<SymbolTable.Entry> foundType = ((CContext)subparser.scope).get(typeName, subparser.getPresenceCondition());
   return foundType;
 }
 
