@@ -41,26 +41,11 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
     T data;
     PresenceCondition cond;
 
+
     public Element(T data, PresenceCondition cond) {
       this.data = data;
       this.cond = cond;
       this.cond.addRef();
-    }
-
-    public Element(T data) {
-      this.data = data;
-      this.cond = null;
-    }
-    
-    public Element(PresenceCondition cond) {
-      this.data = null;
-      this.cond = cond;
-      this.cond.addRef();
-    }
-
-    public Element() {
-      this.data = null;
-      this.cond = null;
     }
     
     public void destruct() {
@@ -72,9 +57,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
     }
     
     public void setCondition(PresenceCondition p) {
-      if (cond != null) {
-        this.cond.delRef();
-      }
+      this.cond.delRef();
       this.cond = p;
       this.cond.addRef();
     }
