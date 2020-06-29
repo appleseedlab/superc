@@ -284,6 +284,8 @@ public class SymbolTable {
   public String toString() {
     StringBuilder sb  = new StringBuilder();
 
+    sb.append(String.format("SymbolTable: %d entries", this.map.size()));
+    sb.append("\n");
     for (String ident : this.map.keySet()) {
       sb.append(String.format("%s -> %s", ident, this.map.get(ident)));
       sb.append("\n");
