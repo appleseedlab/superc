@@ -229,7 +229,25 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
       
       return newmv;
     }
-  }  
+  }
+
+  /**
+   * This is a special case of the cartesian product where the other
+   * multiverse contains only a single element.
+   *
+   * @param data The other Multiverse's data.
+   * @param cond The other Multiverse's condition.
+   * @param op The operator to use to combine individual elements of
+   * the Multiverse
+   * @returns A new instance of Multiverse holding the cartesian
+   * product of the two Multiverses.
+   */
+  public Multiverse<T> product(T data, PresenceCondition cond, Operator<T> op) {
+    Multiverse<T> other = new Multiverse<T>();
+    other.add(data, cond);
+    return product(other, op);
+  }
+
   public String toString() {
     StringBuilder sb = new StringBuilder();
     
