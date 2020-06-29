@@ -109,10 +109,6 @@ public class SymbolTable {
     }
   }
 
-  public enum STField {
-    TYPEDEF, IDENT, INIT, USED, VAR, GLOBAL_FUNDEF, STATIC_FUNDEF, FUNCALL,
-  }
-
   /**
    * The symbol table's core data structure that maps symbols to a
    * multiverse of types and renamings.
@@ -257,6 +253,11 @@ public class SymbolTable {
   private final static Random random = new Random();
   private final static int RAND_SIZE = 5;
 
+  /**
+   * Produce a random string of a given size.
+   *
+   * @returns The random string.
+   */
   protected String randomString(int string_size) {
     StringBuilder randomstring = new StringBuilder();
     for (int i = 0; i < string_size; i++) {
@@ -265,6 +266,10 @@ public class SymbolTable {
     return randomstring.toString();
   }
 
+  /**
+   * Mangle the given identifier to avoid naming clashes when symbols
+   * are multiply-declared.
+   */
   protected String mangleRenaming(String prefix, String ident) {
     // don't want to exceed c identifier length limit (31)
     if (ident.length() > 22) {
@@ -282,6 +287,10 @@ public class SymbolTable {
    only tracks the kind of symbol in order to support C's
    context-sensitive parsing.
    *******************************************************************/
+
+  public enum STField {
+    TYPEDEF, IDENT, INIT, USED, VAR, GLOBAL_FUNDEF, STATIC_FUNDEF, FUNCALL,
+  }
 
   /**
    * Simple symbol table tracking kind of symbol.
@@ -367,47 +376,6 @@ public class SymbolTable {
     return null;
   }
 
-
-  // public void add(String ident, boolean typedef, PresenceCondition presenceCondition) {
-  //   if (! map.containsKey(ident)) {
-  //     map.put(ident,
-  //             new TypedefVarEntry(typedef ? presenceCondition : null, typedef ? null : presenceCondition));
-  //     presenceCondition.addRef();
-  //   }
-  //   else {
-  //     TypedefVarEntry e;
-
-  //     e = map.get(ident);
-
-  //     if (typedef) {
-  //       if (null == e.typedefCond) {
-  //         e.typedefCond = presenceCondition;
-  //         presenceCondition.addRef();
-  //       }
-  //       else {
-  //         PresenceCondition or;
-
-  //         or = e.typedefCond.or(presenceCondition);
-  //         e.typedefCond.delRef();
-  //         e.typedefCond = or;
-  //       }
-  //     }
-  //     else {
-  //       if (null == e.varCond) {
-  //         e.varCond = presenceCondition;
-  //         presenceCondition.addRef();
-  //       }
-  //       else {
-  //         PresenceCondition or;
-
-  //         or = e.varCond.or(presenceCondition);
-  //         e.varCond.delRef();
-  //         e.varCond = or;
-  //       }
-  //     }
-  //   }
-  // }
-
   public void copyBools(SymbolTable symtab) {
     for (String name : symtab.bools.keySet()) {
       for (STField field : symtab.bools.get(name).keySet()) {
@@ -415,75 +383,6 @@ public class SymbolTable {
       }
     }
   }
-
-  //   public void addAll(SymbolTable symtab) {
-  //     for (String str : symtab.map.keySet()) {
-  //       if (! map.containsKey(str)) {
-  //         TypedefVarEntry e = symtab.map.get(str);
-
-  //         map.put(str, new TypedefVarEntry(e.typedefCond, e.varCond));
-
-  //         if (null != e.typedefCond) {
-  //           e.typedefCond.addRef();
-  //         }
-
-  //         if (null != e.varCond) {
-  //           e.varCond.addRef();
-  //         }
-  //       }
-  //       else {
-  //         TypedefVarEntry d = map.get(str);
-  //         TypedefVarEntry e = symtab.map.get(str);
-
-  //         if (null != e.typedefCond) {
-  //           if (null == d.typedefCond) {
-  //             d.typedefCond = e.typedefCond;
-  //             e.typedefCond.addRef();
-  //           }
-  //           else {
-  //             PresenceCondition or;
-
-  //             or = d.typedefCond.or(e.typedefCond);
-  //             d.typedefCond.delRef();
-  //             d.typedefCond = or;
-  //           }
-  //         }
-
-  //         if (null != e.varCond) {
-  //           if (null == d.varCond) {
-  //             d.varCond = e.varCond;
-  //             e.varCond.addRef();
-  //           }
-  //           else {
-  //             PresenceCondition or;
-
-  //             or = d.varCond.or(e.varCond);
-  //             d.varCond.delRef();
-  //             d.varCond = or;
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
-
-  // /** An entry in the symbol table. */
-  // private static class TypedefVarEntry {
-  //   /** The presence condition when the symbol is a typedef name. */
-  //   PresenceCondition typedefCond;
-
-  //   /** The presence condition when the symbol is a var name. */
-  //   PresenceCondition varCond;
-
-  //   /** Create a new entry.
-  //    *
-  //    * @param t The typedef name presence condition.
-  //    * @param f The var name presence condition.
-  //    */
-  //   public TypedefVarEntry(PresenceCondition typedefCond, PresenceCondition varCond) {
-  //     this.typedefCond = typedefCond;
-  //     this.varCond = varCond;
-  //   }
 
   /**
    * A boolean that maintain a boolean expression for when the

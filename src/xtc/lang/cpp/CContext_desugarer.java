@@ -531,8 +531,6 @@ public class CContext implements ParsingContext {
     return null;
   }
 
-
-
   /**
    * Return the presence condition under which an identifier is a
    * typedef name.
