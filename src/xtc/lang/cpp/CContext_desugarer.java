@@ -718,25 +718,41 @@ public class CContext implements ParsingContext {
     }
     
     Multiverse<SymbolTable.Entry> local = scope.getSymbolTable().get(ident, cond);
-    PresenceCondition undefinedCondition = null;
+    if (null == local) {
+      // this scope has no declarations of ident, so the entire cond is undeclared
+      get(result, scope.parent, ident, cond);
+    } else {
+      // add any declarations to the result, and continue looking in
+      // the parent if this scope has any undeclared presence
+      // condition.
+      PresenceCondition undefinedCondition = null;
 
-    // if undefinedCondition remains null, it means there was no
-    // presence condition under which the identifier is undeclared.
-    for (Element<SymbolTable.Entry> entry : local) {
-      if (entry.getData() == SymbolTable.UNDECLARED) {
-        undefinedCondition = entry.getCondition();
-        entry.getCondition().addRef();
+      // if undefinedCondition remains null, it means there was no
+      // presence condition under which the identifier is undeclared.
+      for (Element<SymbolTable.Entry> entry : local) {
+        if (entry.getData() == SymbolTable.UNDECLARED) {
+          if (null != undefinedCondition) {
+            System.err.println("FATAL: there should only one entry for UNDECLARED");
+            System.exit(1);
+          }
+          undefinedCondition = entry.getCondition();
+          entry.getCondition().addRef();
+        } else {
+          result.add(entry.getData(), entry.getCondition());
+          entry.getCondition().addRef();
+        }
+      }
+
+      local.destruct();
+
+      // use the UNDECLARED presence condition to continue looking in
+      // the parent for definitions.
+      if (null != undefinedCondition) {
+        get(result, scope.parent, ident, undefinedCondition);
+        undefinedCondition.delRef();
       }
     }
-
-    local.destruct();
-
-    // use the UNDECLARED presence condition to continue looking in
-    // the parent for definitions.
-    if (null != undefinedCondition) {
-      get(result, scope.parent, ident, undefinedCondition);
-    }
-    undefinedCondition.delRef();
+    System.err.println(String.format("context.get: %s -> %s", ident, result));
   }
 
   // TODO: deprecate getMappings and use get() instead
