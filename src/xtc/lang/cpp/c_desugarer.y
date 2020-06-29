@@ -2659,15 +2659,9 @@ Subscript:  /** nomerge **/
           {
             Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
             sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 4));
-            // TODO: write an addToAll() method for this
-            for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-              sbelem.setData(new StringBuilder(sbelem.getData().toString() + " [ "));
-            }
+            sbmv = sbmv.product(new StringBuilder(" [ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
             sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
-            // TODO: write an addToAll() method for this
-            for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-              sbelem.setData(new StringBuilder(sbelem.getData().toString() + " ] "));
-            }
+            sbmv = sbmv.product(new StringBuilder(" ] "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
             setSBMV(value, sbmv);
           }
         }
@@ -2728,20 +2722,14 @@ UnaryExpression:  /** passthrough, nomerge **/
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          // TODO: write an addToAll() method for this
-          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-            sbelem.setData(new StringBuilder(sbelem.getData().toString() + " ++ "));
-          }
+          sbmv = sbmv.product(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           setSBMV(value, sbmv);
         }
         | DECR UnaryExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          // TODO: write an addToAll() method for this
-          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-            sbelem.setData(new StringBuilder(sbelem.getData().toString() + " -- "));
-          }
+          sbmv = sbmv.product(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           setSBMV(value, sbmv);
         }
         | Unaryoperator CastExpression
@@ -2835,10 +2823,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          // TODO: write an addToAll() method for this
-          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-            sbelem.setData(new StringBuilder(sbelem.getData().toString() + " * "));
-          }
+          sbmv = sbmv.product(new StringBuilder(" * "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
           setSBMV(value, sbmv);
         }
@@ -2846,10 +2831,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          // TODO: write an addToAll() method for this
-          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-            sbelem.setData(new StringBuilder(sbelem.getData().toString() + " / "));
-          }
+          sbmv = sbmv.product(new StringBuilder(" / "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
           setSBMV(value, sbmv);
         }
@@ -2857,10 +2839,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          // TODO: write an addToAll() method for this
-          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-            sbelem.setData(new StringBuilder(sbelem.getData().toString() + " % "));
-          }
+          sbmv = sbmv.product(new StringBuilder(" % "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
           setSBMV(value, sbmv);
         }
@@ -2875,10 +2854,7 @@ AdditiveExpression:  /** passthrough, nomerge **/
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          // TODO: write an addToAll() method for this
-          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-            sbelem.setData(new StringBuilder(sbelem.getData().toString() + " + "));
-          }
+          sbmv = sbmv.product(new StringBuilder(" + "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
           setSBMV(value, sbmv);
         }
@@ -2886,10 +2862,7 @@ AdditiveExpression:  /** passthrough, nomerge **/
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-                    // TODO: write an addToAll() method for this
-          for (Multiverse.Element<StringBuilder> sbelem : sbmv) {
-            sbelem.setData(new StringBuilder(sbelem.getData().toString() + " - "));
-          }
+          sbmv = sbmv.product(new StringBuilder(" - "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
           setSBMV(value, sbmv);
         }
