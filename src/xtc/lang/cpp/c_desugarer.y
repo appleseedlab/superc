@@ -2617,6 +2617,7 @@ PrimaryIdentifier: /** nomerge **/
 
           // convert the renamings to stringbuilders
           Multiverse<StringBuilder> sbmv = universeToSB(entries);
+          entries.destruct();
           
           setSBMV(value, sbmv);
         }  /* We cannot use a typedef name as a variable */
@@ -3516,15 +3517,22 @@ private Multiverse<StringBuilder> cartesianProduct(Multiverse<StringBuilder> sta
   /* return allCombinations; */
 }
 
+final Multiverse.Transformer<SymbolTable.Entry, StringBuilder> entryToStringBuilder = new Multiverse.Transformer<SymbolTable.Entry, StringBuilder>() {
+  StringBuilder transform(SymbolTable.Entry from) {
+    return new StringBuilder(from.getRenaming());
+  }
+};
+                                     
 /** Converts a Multiverse<SymbolTable.Entry> to a Multiverse<StringBuilder>
  *  so cartesianProduct() can be called on them.
  */
 private Multiverse<StringBuilder> universeToSB(Multiverse<SymbolTable.Entry> mv) {
-  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-  for (Element<SymbolTable.Entry> u : mv) {
-    sbmv.add(new Element<StringBuilder>(new StringBuilder(u.getData().getRenaming()), u.getCondition()));
-  }
-  return sbmv;
+  return entryToStringBuilder.transform(mv);
+  /* Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>(); */
+  /* for (Element<SymbolTable.Entry> u : mv) { */
+  /*   sbmv.add(new Element<StringBuilder>(new StringBuilder(u.getData().getRenaming()), u.getCondition())); */
+  /* } */
+  /* return sbmv; */
 }
 
 /** True when statistics should be output. */
