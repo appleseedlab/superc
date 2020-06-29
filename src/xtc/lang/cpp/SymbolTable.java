@@ -56,9 +56,9 @@ import xtc.lang.cpp.ForkMergeParser.Lookahead;
 */
 public class SymbolTable {
 
-  public static final Entry UNDEFINED = new Entry(null, null) {
+  public static final Entry UNDECLARED = new Entry(null, null) {
       public String toString() {
-        return "UNDEFINED_ENTRY";
+        return "UNDECLARED_ENTRY";
       }
     };
 
