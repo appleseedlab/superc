@@ -276,6 +276,33 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
     return newmv;
   }
 
+  /**
+   * The function signature for combining two individual elements of a
+   * Multiverse.
+   */
+  static abstract class Transformer<T, U> {
+    /**
+     * A function that combines two elements of the Multiverse's data.
+     * This is used to abstract away the cartesian product.
+     *
+     * @param left The left operand.
+     * @param right The right operand.
+     */
+    abstract U transform(T from);
+    
+    public Multiverse<U> transform(Multiverse<T> from) {
+      Multiverse<U> newmv = new Multiverse<U>();
+      for (Element<T> elem : from) {
+        U data = transform(elem.getData());
+        PresenceCondition condition = elem.getCondition();
+        elem.getCondition().addRef();
+      
+        newmv.add(data, condition);
+      }
+      return newmv;
+    }
+  }
+
   public String toString() {
     StringBuilder sb = new StringBuilder();
     
