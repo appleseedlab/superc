@@ -88,7 +88,7 @@ public class DeclBuilder
               {
                 for (Element<List<Parameter>> lp : m)
                   {
-                    if (!lp.exclusiveFrom(u.getCondition()))
+                    if (!lp.getCondition().isMutuallyExclusive(u.getCondition()))
                       {
                         List<Parameter> lp2 = new LinkedList<Parameter>();
                         lp2.addAll(lp.getData());
@@ -102,7 +102,7 @@ public class DeclBuilder
                   }
               }
             for (Element<List<Parameter>> lp : m)
-              if (!lp.exclusiveFrom(gap))
+              if (!lp.getCondition().isMutuallyExclusive(gap))
                 newM.add(new Element<List<Parameter>>(lp.getData(), lp.getCondition().and(gap)));
           }
         else

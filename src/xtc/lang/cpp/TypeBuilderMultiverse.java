@@ -93,7 +93,7 @@ public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
     TypeBuilderMultiverse t = new TypeBuilderMultiverse();
     for (Element<TypeBuilderUnit> e : contents)
       for (Element<TypeBuilderUnit> f : with.contents)
-        if (!e.exclusiveFrom(f.getCondition()))
+        if (!e.getCondition().isMutuallyExclusive(f.getCondition()))
           t.contents.add(new Element<TypeBuilderUnit>(e.getData().combine(f.getData()),
                                                       e.getCondition().and(f.getCondition())));
     return t;
@@ -121,7 +121,7 @@ public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
     for (Element<SymbolTableEntry> u : unis)
 	    for (Element<TypeBuilderUnit> e : contents)
         {
-          if (!u.exclusiveFrom(e.getCondition()))
+          if (!u.getCondition().isMutuallyExclusive(e.getCondition()))
             {
               TypeBuilderUnit t = new TypeBuilderUnit(e.getData());
               t.setTypedef(name, u.getData().getRenaming(), u.getData().getType());

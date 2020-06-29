@@ -709,7 +709,7 @@ public class CContext implements ParsingContext {
         if (y != null)
           for (Element<SymbolTable.SymbolTableEntry> e : y)
             {
-              if (!e.exclusiveFrom(p))
+              if (!e.getCondition().isMutuallyExclusive(p))
                 l.add(e);
             }
         scope = scope.parent;
@@ -790,7 +790,7 @@ public class CContext implements ParsingContext {
               boolean noCollision = true;
               for (Element<SymbolTableEntry> u : value)
                 {
-                  noCollision = noCollision && u.exclusiveFrom(x.getCondition());
+                  noCollision = noCollision && u.getCondition().isMutuallyExclusive(x.getCondition());
                 }
               if (!noCollision)
                 {

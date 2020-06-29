@@ -63,9 +63,6 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
       this.cond.addRef();
     }
 
-    public boolean exclusiveFrom(PresenceCondition p) {
-      return cond.isMutuallyExclusive(p);
-    }
       
     public String toString() {
       StringBuilder sb = new StringBuilder();
