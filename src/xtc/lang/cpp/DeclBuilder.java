@@ -97,20 +97,20 @@ public class DeclBuilder
                         Parameter tempP = new Parameter();
                         tempP.setMultiverse(tempM);
                         lp2.add(tempP);
-                        newM.add(new Element(lp2, lp.getCondition().and(u.getCondition())));
+                        newM.add(new Element<List<Parameter>>(lp2, lp.getCondition().and(u.getCondition())));
                       }
                   }
               }
             for (Element<List<Parameter>> lp : m)
               if (!lp.exclusiveFrom(gap))
-                newM.add(new Element(lp.getData(), lp.getCondition().and(gap)));
+                newM.add(new Element<List<Parameter>>(lp.getData(), lp.getCondition().and(gap)));
           }
         else
           for (Element<List<Parameter>> lp : m)
             {
               List<Parameter> lp2 = lp.getData();
               lp2.add(p);
-              newM.add(new Element(lp2, lp.getCondition()));
+              newM.add(new Element<List<Parameter>>(lp2, lp.getCondition()));
             }
         m = newM;
       }
