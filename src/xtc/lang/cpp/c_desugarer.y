@@ -3483,35 +3483,56 @@ void addStatementIf(int statPos, Subparser subparser, Object value) {
   setSBMV(value, sbmv);
 }
 
+final static Multiverse.Operator SBCONCAT = (sb1, sb2) -> {
+  StringBuilder newsb = new StringBuilder();
+  newsb.append(sb1);
+  newsb.append(sb2);
+  return newsb;
+};
+
 /** Takes two stringbuilder multiverses, and generates all of their combinations */
 private Multiverse<StringBuilder> cartesianProduct(Multiverse<StringBuilder> statements, Multiverse<StringBuilder> renamings) {
-  Multiverse<StringBuilder> allCombinations;
+  /* System.err.println("statements: " + statements); */
+  /* System.err.println("renamings: " + renamings); */
+  /* System.err.println("result: " + statements.product(renamings, */
+  /*                                                    (sb1, sb2) -> { */
+  /*                                                      StringBuilder newsb = new StringBuilder(); */
+  /*                                                      newsb.append(sb1); */
+  /*                                                      newsb.append(sb2); */
+  /*                                                      return newsb; */
+  /*                                                    })); */
   if (renamings == null || statements == null) {
-    allCombinations = new Multiverse<StringBuilder>();
-  } else if (statements.size() < 1 && renamings.size() < 1) {
-    allCombinations = new Multiverse<StringBuilder>();
-  } else if (statements.size() < 1) {
-    allCombinations = new Multiverse<StringBuilder>(renamings);
-  } else if (renamings.size() < 1) {
-    allCombinations = new Multiverse<StringBuilder>(statements);
+    return new Multiverse<StringBuilder>();
   } else {
-    allCombinations = new Multiverse<StringBuilder>();
-    for (Element<StringBuilder> statement : statements) {
-      for (Element<StringBuilder> renaming : renamings) {
-        StringBuilder sb = new StringBuilder(statement.getData().toString() + renaming.getData().toString());
-        PresenceCondition pc = statement.getCondition().and(renaming.getCondition());
-        if (pc.getBDD().isZero()) {
-          /** generated code with unsatisfiable presence conditions is discarded */
-
-          // for debugging:
-          //allCombinations.add(new Element<StringBuilder>(sb, pc));
-        } else {
-          allCombinations.add(new Element<StringBuilder>(sb, pc));
-        }
-      }
-    }
+    return statements.product(renamings, SBCONCAT);
   }
-  return allCombinations;
+  /* Multiverse<StringBuilder> allCombinations; */
+  /* if (renamings == null || statements == null) { */
+  /*   allCombinations = new Multiverse<StringBuilder>(); */
+  /* } else if (statements.size() < 1 && renamings.size() < 1) { */
+  /*   allCombinations = new Multiverse<StringBuilder>(); */
+  /* } else if (statements.size() < 1) { */
+  /*   allCombinations = new Multiverse<StringBuilder>(renamings); */
+  /* } else if (renamings.size() < 1) { */
+  /*   allCombinations = new Multiverse<StringBuilder>(statements); */
+  /* } else { */
+  /*   allCombinations = new Multiverse<StringBuilder>(); */
+  /*   for (Element<StringBuilder> statement : statements) { */
+  /*     for (Element<StringBuilder> renaming : renamings) { */
+  /*       StringBuilder sb = new StringBuilder(statement.getData().toString() + renaming.getData().toString()); */
+  /*       PresenceCondition pc = statement.getCondition().and(renaming.getCondition()); */
+  /*       if (pc.getBDD().isZero()) { */
+  /*         /\** generated code with unsatisfiable presence conditions is discarded *\/ */
+
+  /*         // for debugging: */
+  /*         //allCombinations.add(new Element<StringBuilder>(sb, pc)); */
+  /*       } else { */
+  /*         allCombinations.add(new Element<StringBuilder>(sb, pc)); */
+  /*       } */
+  /*     } */
+  /*   } */
+  /* } */
+  /* return allCombinations; */
 }
 
 /** Converts a Multiverse<SymbolTableEntry> to a Multiverse<StringBuilder>
