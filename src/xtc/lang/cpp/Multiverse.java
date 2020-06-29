@@ -261,6 +261,28 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
     return product(other, op);
   }
 
+  /**
+   * Return a new Multiverse that conjoins the given condition with
+   * each element of the Multiverse, trimming any infeasible elements.
+   * Since this is a new instance, the caller should call destruct
+   * when done.
+   *
+   * @param cond The condition.
+   * @returns The new Multiverse.
+   */
+  public Multiverse<T> filter(PresenceCondition cond) {
+    Multiverse<T> newmv = new Multiverse<T>();
+    for (Element<T> elem : this) {
+      PresenceCondition condition = elem.getCondition().and(cond);
+      if (! condition.isFalse()) {
+        newmv.add(elem.getData(), condition);
+        condition.addRef();
+      }
+      condition.delRef();
+    }
+    return newmv;
+  }
+
   public String toString() {
     StringBuilder sb = new StringBuilder();
     
