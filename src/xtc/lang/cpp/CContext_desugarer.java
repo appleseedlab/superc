@@ -722,11 +722,7 @@ public class CContext implements ParsingContext {
     public static class SymbolTableEntry {
       protected final String renaming;
       protected final Type type;
-    
-      public SymbolTableEntry() {
-        renaming = "";
-        type = null;
-      }
+
       public SymbolTableEntry(String renaming, Type type) {
         this.renaming = renaming;
         this.type = type;
