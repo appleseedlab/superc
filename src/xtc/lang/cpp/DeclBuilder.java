@@ -11,8 +11,6 @@ import xtc.type.TypedefT;
 import xtc.lang.cpp.Multiverse.Element;
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
-import xtc.lang.cpp.CContext.SymbolTable.SymbolTableEntry;
-
 public class DeclBuilder
 {
   static int count = 0;
@@ -82,9 +80,9 @@ public class DeclBuilder
         Multiverse<List<Parameter>> newM = new Multiverse<List<Parameter>>();
         if (!p.isEllipsis())
           {
-            Multiverse<SymbolTableEntry> mult = p.getMultiverse();
+            Multiverse<SymbolTable.Entry> mult = p.getMultiverse();
             PresenceCondition gap = p.getGap(current);
-            for (Element<SymbolTableEntry> u : mult)
+            for (Element<SymbolTable.Entry> u : mult)
               {
                 for (Element<List<Parameter>> lp : m)
                   {
@@ -92,7 +90,7 @@ public class DeclBuilder
                       {
                         List<Parameter> lp2 = new LinkedList<Parameter>();
                         lp2.addAll(lp.getData());
-                        Multiverse<SymbolTableEntry> tempM = new Multiverse<SymbolTableEntry>();
+                        Multiverse<SymbolTable.Entry> tempM = new Multiverse<SymbolTable.Entry>();
                         tempM.add(u);
                         Parameter tempP = new Parameter();
                         tempP.setMultiverse(tempM);

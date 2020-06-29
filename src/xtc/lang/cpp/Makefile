@@ -66,6 +66,7 @@ SOURCE = \
 	ParseTables.java \
 	SemanticValues.java \
 	SemanticActions.java \
+	SymbolTable.java \
 	CContext.java \
 	$(c_parse_tables) \
 	$(c_lexer) \

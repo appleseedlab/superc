@@ -168,8 +168,7 @@
 import xtc.Constants;
 import xtc.Limits;
 
-import xtc.lang.cpp.CContext.SymbolTable.STField;
-import xtc.lang.cpp.CContext.SymbolTable.SymbolTableEntry;
+import xtc.lang.cpp.SymbolTable.STField;
 
 import xtc.tree.Attribute;
 import xtc.tree.GNode;
@@ -222,8 +221,8 @@ import xtc.type.UnionT;
 import xtc.type.VariableT;
 import xtc.type.VoidT;
 
-import xtc.util.SymbolTable;
-import xtc.util.SymbolTable.Scope;
+/* import xtc.util.SymbolTable; */
+/* import xtc.util.SymbolTable.Scope; */
 import xtc.util.SingletonIterator;
 import xtc.util.Utilities;
 
@@ -731,7 +730,7 @@ DeclaringList:  /** nomerge **/
 
           String oldIdent = decl.identifier;
           System.err.println(decl.toString() + " " + type.toString());
-          Multiverse<SymbolTableEntry> unis = addMapping(subparser, type, decl);
+          Multiverse<SymbolTable.Entry> unis = addMapping(subparser, type, decl);
           List<StringBuilder> renamings = getRenamings(unis);
       	  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           StringBuilder sb = new StringBuilder();
@@ -754,7 +753,7 @@ DeclaringList:  /** nomerge **/
           /** hoists and writes initializing statements using the renamed variables */
           Multiverse<StringBuilder> childSBMV = getSBMVAt(subparser, 1);
           if (childSBMV != null)
-            for (Element<SymbolTableEntry> u : unis)
+            for (Element<SymbolTable.Entry> u : unis)
               for (Element<StringBuilder> sbelem : childSBMV)
                 sb.append("\nif (" + PCtoString(u.getCondition().and(sbelem.getCondition())) + ") {\n" +
                          (new StringBuilder(u.getData().getRenaming())).toString() +
@@ -1757,11 +1756,11 @@ InitializerOpt: /** nomerge **/
             CContext scope = (CContext) subparser.scope;
             /** Gets all renamings of the variable, and adds them to the sbmv */
             for (Multiverse.Element<StringBuilder> sbelem : allAssignVals) {
-              Multiverse<SymbolTableEntry> renamings = scope.getSymbolTable().map.get(sbelem.getData().toString());
+              Multiverse<SymbolTable.Entry> renamings = scope.getSymbolTable().map.get(sbelem.getData().toString());
               /** Checks for renamings in the symbol table */
               if (renamings != null) {
                 /** Writes part of the assignment using the variables' renamings */
-                for (Multiverse.Element<SymbolTableEntry> renaming : renamings) {
+                for (Multiverse.Element<SymbolTable.Entry> renaming : renamings) {
                   sbmv.add(new Element<StringBuilder>(new StringBuilder(" = " + renaming.getData().getRenaming()), sbelem.getCondition().and(renaming.getCondition())/*subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)*/));
                 }
               } else {
@@ -3535,12 +3534,12 @@ private Multiverse<StringBuilder> cartesianProduct(Multiverse<StringBuilder> sta
   /* return allCombinations; */
 }
 
-/** Converts a Multiverse<SymbolTableEntry> to a Multiverse<StringBuilder>
+/** Converts a Multiverse<SymbolTable.Entry> to a Multiverse<StringBuilder>
  *  so cartesianProduct() can be called on them.
  */
-private Multiverse<StringBuilder> universeToSB(Multiverse<SymbolTableEntry> mv) {
+private Multiverse<StringBuilder> universeToSB(Multiverse<SymbolTable.Entry> mv) {
   Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-  for (Element<SymbolTableEntry> u : mv) {
+  for (Element<SymbolTable.Entry> u : mv) {
     sbmv.add(new Element<StringBuilder>(new StringBuilder(u.getData().getRenaming()), u.getCondition()));
   }
   return sbmv;
@@ -3565,7 +3564,7 @@ private static List<String> extraConstraints = null;
 private static boolean enableFunctionAnalysis = false;
 
 /** A symbol table for analysis. */
-private CContext.SymbolTable functionTable;
+private SymbolTable functionTable;
 
 /** Turn on kconfig feature model clauses. */
 private boolean hasClauses = false;
@@ -3635,7 +3634,7 @@ public void enableCheckers(boolean b, List<String> extraConstraints) {
  */
 public void enableFunctionAnalysis() {
   this.enableFunctionAnalysis = true;
-  this.functionTable = new CContext.SymbolTable();
+  this.functionTable = new SymbolTable();
 }
 
 /**
@@ -3681,7 +3680,7 @@ public void addClauses(Clauses clauses, int[] assumptions) {
  *
  * @return The checker symbol table.
  */
-public CContext.SymbolTable getFunctionTable() {
+public SymbolTable getFunctionTable() {
   return this.functionTable;
 }
 
@@ -4985,9 +4984,9 @@ private static Specifiers makeStructSpec(Subparser subparser,
   return specs;
 }
 
-private Multiverse<SymbolTableEntry> getType(TypeBuilderMultiverse t, DeclBuilder d, PresenceCondition currentPC)
+private Multiverse<SymbolTable.Entry> getType(TypeBuilderMultiverse t, DeclBuilder d, PresenceCondition currentPC)
 {
-  Multiverse<SymbolTableEntry> ret = new Multiverse<SymbolTableEntry>();
+  Multiverse<SymbolTable.Entry> ret = new Multiverse<SymbolTable.Entry>();
   List<Type> types = t.toType();
   List<PresenceCondition> cond = t.getConditions();
   boolean func = d.isFunction();
@@ -5010,38 +5009,38 @@ private Multiverse<SymbolTableEntry> getType(TypeBuilderMultiverse t, DeclBuilde
                   if(!p.isEllipsis())
                     l.add(p.getType());
                 Type f = new FunctionT(temp.toType(), l, e.getData().get(e.getData().size() - 1).isEllipsis());
-                ret.add(new Element<SymbolTableEntry>(new SymbolTableEntry(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
+                ret.add(new Element<SymbolTable.Entry>(new SymbolTable.Entry(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
               }
             else
               {
                 Type f = new FunctionT(temp.toType());
-                ret.add(new Element<SymbolTableEntry>(new SymbolTableEntry(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
+                ret.add(new Element<SymbolTable.Entry>(new SymbolTable.Entry(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
               }
         }
       else
-        ret.add(new Element<SymbolTableEntry>(new SymbolTableEntry(mangleRenaming("",d.getID()), temp.toType()), cond.get(i).and(currentPC)));
+        ret.add(new Element<SymbolTable.Entry>(new SymbolTable.Entry(mangleRenaming("",d.getID()), temp.toType()), cond.get(i).and(currentPC)));
     }
   return ret;
 }
 
-private Multiverse<SymbolTableEntry> addMapping(Subparser subparser, TypeBuilderMultiverse t, DeclBuilder d)
+private Multiverse<SymbolTable.Entry> addMapping(Subparser subparser, TypeBuilderMultiverse t, DeclBuilder d)
 {
   if (t == null || d == null || !t.getIsValid() || !d.getIsValid())
     {
       System.err.println("Invalid declaration");
       //System.exit(1);
-      return new Multiverse<SymbolTableEntry>();
+      return new Multiverse<SymbolTable.Entry>();
     }
-  Multiverse<SymbolTableEntry> unis = getType(t,d,subparser.getPresenceCondition());
+  Multiverse<SymbolTable.Entry> unis = getType(t,d,subparser.getPresenceCondition());
   CContext scope = (CContext) subparser.scope;
   scope.getSymbolTable().addMapping(d.getID(), unis);
   return unis;
 }
 
-private List<StringBuilder> getRenamings(Multiverse<SymbolTableEntry> unis)
+private List<StringBuilder> getRenamings(Multiverse<SymbolTable.Entry> unis)
 {
   List<StringBuilder> sb = new LinkedList<StringBuilder>();
-  for (Element<SymbolTableEntry> u : unis)
+  for (Element<SymbolTable.Entry> u : unis)
     {
       sb.add(new StringBuilder(u.getData().getRenaming()));
     }
@@ -5074,9 +5073,9 @@ private String mangleRenaming(String prefix, String ident) {
     return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
     }
 
-private Multiverse<SymbolTableEntry> getTypeOfTypedef(Subparser subparser, String typeName)
+private Multiverse<SymbolTable.Entry> getTypeOfTypedef(Subparser subparser, String typeName)
 {
-  Multiverse<SymbolTableEntry> foundType = ((CContext)subparser.scope).getMappings(typeName, subparser.getPresenceCondition());
+  Multiverse<SymbolTable.Entry> foundType = ((CContext)subparser.scope).getMappings(typeName, subparser.getPresenceCondition());
   return foundType;
 }
 

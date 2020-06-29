@@ -54,7 +54,7 @@ import xtc.lang.cpp.Syntax.ErrorType;
 
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
-import xtc.lang.cpp.CContext.SymbolTable.STField;
+import xtc.lang.cpp.SymbolTable.STField;
 
 import xtc.tree.Node;
 import xtc.tree.GNode;

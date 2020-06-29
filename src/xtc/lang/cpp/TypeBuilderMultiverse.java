@@ -14,8 +14,6 @@ import xtc.Constants;
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 import xtc.lang.cpp.Multiverse.Element;
 
-import xtc.lang.cpp.CContext.SymbolTable.SymbolTableEntry;
-
 public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
 {
   static int count = 0;
@@ -107,7 +105,7 @@ public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
     return vals;
   }
 
-  public void setTypedef(String name, Multiverse<SymbolTableEntry> unis, PresenceCondition p)
+  public void setTypedef(String name, Multiverse<SymbolTable.Entry> unis, PresenceCondition p)
   {
     //At this point, you can't actually have more than one
     //typedef and typedef is the only source of
@@ -118,7 +116,7 @@ public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
 	    {
         contents.add(new Element<TypeBuilderUnit>(new TypeBuilderUnit(), p));
 	    }
-    for (Element<SymbolTableEntry> u : unis)
+    for (Element<SymbolTable.Entry> u : unis)
 	    for (Element<TypeBuilderUnit> e : contents)
         {
           if (!u.getCondition().isMutuallyExclusive(e.getCondition()))
