@@ -8,9 +8,9 @@ import java.util.LinkedList;
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
 /**
- * This is an abstract multiverse, which stores a set of data tagged
- * by presence conditions.  It can be subclassed to create a
- * multiverse of any type.
+ * This is a multiverse, which stores a set of data tagged by presence
+ * conditions.  It takes a type parameter to indicate the type of data
+ * it contains.
  *
  * @author Paul Gazzillo
  * @version $Revision: 1.272 $
@@ -19,22 +19,23 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   protected List<Element<T>> contents;
   //protected PresenceCondition doesntExist;
   
-  public Multiverse()
-  {
+  public Multiverse() {
     contents = new LinkedList<Element<T>>();
     //doesntExist = p.new PresenceCondition(true);
   }
 	
   /** copy constructor */
-  public Multiverse(Multiverse<T> mv)
-  {
-    contents = new LinkedList<Element<T>>(mv.contents);
+  public Multiverse(Multiverse<T> mv) {
+    this();
+    for (Element<T> elem : mv.contents) {
+      this.add(elem.getData(), elem.getCondition());
+    }
   }
 
   /**
-   * This is one element of a multiple, i.e., a pair containing the
-   * data and the presence condition representing the configuration
-   * under which that version of the data appears.
+   * This is one element of the multiverse, i.e., a pair containing
+   * the data and the presence condition representing the
+   * configuration under which that version of the data appears.
    */
   public static class Element<T> {
     T data;
@@ -48,39 +49,37 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
 
     public Element(T data) {
       this.data = data;
-      cond = null;
+      this.cond = null;
     }
+    
     public Element(PresenceCondition cond) {
       this.data = null;
       this.cond = cond;
       this.cond.addRef();
     }
 
-    public Element()
-    {
-      data = null;
-      cond = null;
+    public Element() {
+      this.data = null;
+      this.cond = null;
     }
+    
     public void destruct() {
       this.cond.delRef();
     }
 
-    public void setData(T t)
-    {
+    public void setData(T t) {
       this.data = t;
     }
-    public void setCondition(PresenceCondition p)
-    {
-      if (cond != null)
-	      {
-          cond.delRef();
-	      }
+    
+    public void setCondition(PresenceCondition p) {
+      if (cond != null) {
+        this.cond.delRef();
+      }
       this.cond = p;
       this.cond.addRef();
     }
 
-    public boolean exclusiveFrom(PresenceCondition p)
-    {
+    public boolean exclusiveFrom(PresenceCondition p) {
       return cond.isMutuallyExclusive(p);
     }
       
@@ -96,13 +95,11 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
       return sb.toString();
     }
 
-    public T getData()
-    {
+    public T getData() {
       return data;
     }
 
-    public PresenceCondition getCondition()
-    {
+    public PresenceCondition getCondition() {
       return cond;
     }
   }
@@ -115,13 +112,10 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * calling this function.
    */
   public void destruct() {
-    if (contents != null)
-      {
-	      for (Element<T> elem : contents) {
-          elem.destruct();
-	      }
-	      contents.clear();
-      }
+    for (Element<T> elem : contents) {
+      elem.destruct();
+    }
+    contents.clear();
     contents = null;
   }
 
@@ -129,8 +123,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * Add a new element to the multiverse.
    */
   public void add(Element<T> elem) {
-    contents.add(elem);
-    //    doesntExist = doesntExist.andNot(elem.getCondition());
+    this.add(elem.getData(), elem.getCondition());
   }
 
   /**
@@ -153,6 +146,10 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
     return contents.size();
   }
 
+  public boolean isEmpty() {
+    return size() == 0;
+  }
+
   public Iterator<Element<T>> iterator() {
     return contents.iterator();
   }
@@ -165,7 +162,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   }
 
   /*  public PresenceCondition getUndefined()
-  {
-    return doesntExist;
-    }*/
+      {
+      return doesntExist;
+      }*/
 }
