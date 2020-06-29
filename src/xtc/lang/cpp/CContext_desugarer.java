@@ -754,43 +754,4 @@ public class CContext implements ParsingContext {
     }
     if (DEBUG) System.err.println(String.format("context.get: %s -> %s", ident, result));
   }
-
-  // TODO: deprecate getMappings and use get() instead
-  
-  public Multiverse<SymbolTable.Entry> getMappings(String ident)
-  {
-    Multiverse<SymbolTable.Entry> l = new Multiverse<SymbolTable.Entry>();
-    CContext scope = this;
-    while (scope != null)
-	    {
-        Multiverse<SymbolTable.Entry> lt = scope.getSymbolTable().map.get(ident);
-        if (lt != null) {
-          for (Iterator<Element<SymbolTable.Entry>> e = lt.iterator(); e.hasNext();)
-            l.add(e.next());
-
-        }
-        scope = scope.parent;
-      }
-
-
-    return l;
-  }
-
-  public Multiverse<SymbolTable.Entry> getMappings(String ident, PresenceCondition p)
-  {
-	  Multiverse<SymbolTable.Entry> l = new Multiverse<SymbolTable.Entry>();
-	  CContext scope = this;
-	  while (scope != null)
-      {
-        Multiverse<SymbolTable.Entry> y = scope.getSymbolTable().map.get(ident);
-        if (y != null)
-          for (Element<SymbolTable.Entry> e : y)
-            {
-              if (!e.getCondition().isMutuallyExclusive(p))
-                l.add(e);
-            }
-        scope = scope.parent;
-      }
-	  return l;
-  }
 }

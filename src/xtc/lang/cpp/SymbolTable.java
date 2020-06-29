@@ -252,40 +252,6 @@ public class SymbolTable {
     // System.err.println(String.format("after put: %s -> %s", ident, map.get(ident)));
   }
 
-  /**
-   * This is deprecated pending refactoring of the type-checker to
-   * use the new API.
-   */
-  public void addMapping(String ident, Multiverse<Entry> unis)
-  {
-    Multiverse<Entry> value = map.get(ident);
-    if (value == null)
-      {
-        Multiverse<Entry> newEntry = new Multiverse<Entry>();
-        for (Element<Entry> x : unis)
-          newEntry.add(x);
-        map.put(ident, newEntry);
-      }
-    else
-      {
-        for (Element<Entry> x : unis)
-          {
-            boolean noCollision = true;
-            for (Element<Entry> u : value)
-              {
-                noCollision = noCollision && u.getCondition().isMutuallyExclusive(x.getCondition());
-              }
-            if (!noCollision)
-              {
-                System.out.println("MultipleDef");
-                //System.exit(1);
-              }
-            value.add(x);
-          }
-      }
-    System.err.println(map.toString());
-  }
-
   private static long varcount = 0;
   private final static char[] charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
   private final static Random random = new Random();
