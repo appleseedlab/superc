@@ -54,7 +54,7 @@ import xtc.lang.cpp.ForkMergeParser.Lookahead;
 
 /**
  * The symbol table that stores a scope's symbol bindings.
-*/
+ */
 public class SymbolTable {
 
   public static final Entry UNDECLARED = new Entry("static_type_error(\"undeclared\")", UnitT.TYPE) {
@@ -173,7 +173,10 @@ public class SymbolTable {
    */
   public Multiverse<Entry> get(String ident, PresenceCondition cond) {
     if (this.map.containsKey(ident)) {
-      return this.map.get(ident).filter(cond);
+      System.err.println(String.format("before get: %s -> %s", ident, map.get(ident)));
+      Multiverse<Entry> newmv = this.map.get(ident).filter(cond);
+      System.err.println(String.format("after get: %s -> %s", ident, newmv));
+      return newmv;
     } else {
       return null;
     }
@@ -191,59 +194,62 @@ public class SymbolTable {
    * the given condition or null if the symbol is not defined.
    */
   public void put(String ident, Type type, PresenceCondition cond) {
-    if (cond.isFalse()) {
-      // nothing to add
-      return;
-    }
-
-    String renaming = mangleRenaming("", ident);
-    Entry newentry = new Entry(renaming, type);
+    if (! cond.isFalse()) {
+      String renaming = mangleRenaming("", ident);
+      Entry newentry = new Entry(renaming, type);
     
-    if (this.map.containsKey(ident)) {
-      // TODO: include way to check for invalid type redeclaration and
-      // convert it to a type error
+      if (this.map.containsKey(ident)) {
+        // TODO: include way to check for invalid type redeclaration and
+        // convert it to a type error
 
-      Multiverse<Entry> oldmv = this.map.get(ident);
-      Multiverse<Entry> newmv = new Multiverse<Entry>();
+        Multiverse<Entry> oldmv = this.map.get(ident);
+        Multiverse<Entry> newmv = new Multiverse<Entry>();
 
-      // Maintain mutual exclusion by ANDing the old entries with the
-      // negation of the new condition.
-      PresenceCondition negation = cond.not();
-      for (Element<Entry> entry : oldmv) {
-        PresenceCondition newcond = entry.getCondition().and(negation);
+        // Maintain mutual exclusion by ANDing the old entries with the
+        // negation of the new condition.
+        PresenceCondition negation = cond.not();
+        for (Element<Entry> entry : oldmv) {
+          PresenceCondition newcond = entry.getCondition().and(negation);
 
-        if (! newcond.isFalse()) {
-          System.err.println("TODO: if there is a redeclaration, then convert to a type error");
-          newmv.add(entry.getData(), newcond);
-          newcond.addRef();
-        }
+          if (! newcond.isFalse()) {
+            System.err.println("TODO: if there is a redeclaration, then convert to a type error");
+            newmv.add(entry.getData(), newcond);
+            newcond.addRef();
+          }        this.map.put(ident, newmv);
+
         
-        newcond.delRef();
-      }
-      negation.delRef();
+          newcond.delRef();
+        }
+        negation.delRef();
 
-      newmv.add(newentry, cond);
-      cond.addRef();
+        newmv.add(newentry, cond);
+        cond.addRef();
 
-      this.map.put(ident, newmv);
-      oldmv.destruct();
+        this.map.put(ident, newmv);
+        oldmv.destruct();
       
-    } else {  // ! this.map.containsKey(ident)
-      // Create a new multiverse, adding the UNDECLARED entry if only
-      // partially declared.
-      Multiverse<Entry> newmv = new Multiverse<Entry>();
+      } else {  // ! this.map.containsKey(ident)
+        // Create a new multiverse, adding the UNDECLARED entry if only
+        // partially declared.
+        Multiverse<Entry> newmv = new Multiverse<Entry>();
 
-      newmv.add(newentry, cond);
-      cond.addRef();
+        newmv.add(newentry, cond);
+        cond.addRef();
 
-      // add the undefined entry if partially-defined
-      PresenceCondition negation = cond.not();
-      if (! negation.isFalse()) {
-        newmv.add(UNDECLARED, negation);
-        negation.addRef();
+        // add the undefined entry if partially-defined
+        PresenceCondition negation = cond.not();
+        if (! negation.isFalse()) {
+          newmv.add(UNDECLARED, negation);
+          negation.addRef();
+        }
+        negation.delRef();
+        
+        this.map.put(ident, newmv);
       }
-      negation.delRef();
+    } else {
+      // nothing to add
     }
+    System.err.println(String.format("after put: %s -> %s", ident, map.get(ident)));
   }
 
   /**
