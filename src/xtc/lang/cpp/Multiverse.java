@@ -38,10 +38,11 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * configuration under which that version of the data appears.
    */
   public static class Element<T> {
-    T data;
-    PresenceCondition cond;
+    /** The data field. */
+    protected T data;
 
-
+    /** The presence condition field. */
+    protected PresenceCondition cond;
     public Element(T data, PresenceCondition cond) {
       this.data = data;
       this.cond = cond;
