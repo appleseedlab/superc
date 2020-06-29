@@ -719,8 +719,10 @@ public class CContext implements ParsingContext {
 
   /** The symbol table that stores a scope's symbol bindings. */
   public static class SymbolTable {
-    public static class SymbolTableEntry
-    {
+    public static class SymbolTableEntry {
+      protected final String renaming;
+      protected final Type type;
+    
       public SymbolTableEntry() {
         renaming = "";
         type = null;
@@ -729,9 +731,6 @@ public class CContext implements ParsingContext {
         this.renaming = renaming;
         this.type = type;
       }
-    
-      public String renaming;
-      public Type type;
     
       public String getRenaming() {
         return renaming;
