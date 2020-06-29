@@ -104,7 +104,7 @@ public class SymbolTable {
     }
 
     public String toString() {
-      return String.format("(%s, \"%s\")", getType().toString(), getRenaming());
+      return String.format("(TYPE=%s, RENAMING=\"%s\")", getType().toString(), getRenaming());
       // return String.format("%s %s", getRenaming(), getType().toString());
     }
   }
@@ -281,6 +281,16 @@ public class SymbolTable {
     return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
   }
 
+  public String toString() {
+    StringBuilder sb  = new StringBuilder();
+
+    for (String ident : this.map.keySet()) {
+      sb.append(String.format("%s -> %s", ident, this.map.get(ident)));
+      sb.append("\n");
+    }
+    
+    return sb.toString();
+  }
   
   /*******************************************************************
    The fields below are the original symbol table implementation that

@@ -60,7 +60,7 @@ import xtc.lang.cpp.ForkMergeParser.Lookahead;
 public class CContext implements ParsingContext {
 
   /** Output bindings and scope changes. */
-  protected static boolean DEBUG = false;
+  protected static boolean DEBUG = true;
 
   /** The symbol table for this parsing context. */
   protected SymbolTable symtab;
@@ -593,7 +593,10 @@ public class CContext implements ParsingContext {
   public CContext exitScope(PresenceCondition presenceCondition) {
     CContext scope;
 
-    if (DEBUG) System.err.println("exit scope");
+    if (DEBUG) {
+      System.err.println("exit scope");
+      System.err.println(this.symtab);
+    }
 
     scope = this;
     while (scope.reentrant) {
