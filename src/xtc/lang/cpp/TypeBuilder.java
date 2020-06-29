@@ -1,6 +1,8 @@
 package xtc.lang.cpp;
+
 import java.util.LinkedList;
 import java.util.List;
+
 import xtc.type.Type;
 import xtc.type.NumberT;
 import xtc.type.IntegerT;
@@ -8,8 +10,11 @@ import xtc.type.FloatT;
 import xtc.type.UnitT;
 import xtc.type.TypedefT;
 import xtc.Constants;
+
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 import xtc.lang.cpp.Multiverse.Element;
+
+import xtc.lang.cpp.CContext.SymbolTable.SymbolTableEntry;
 
 public class TypeBuilder extends Multiverse<TypeBuilderUnit>
 {
@@ -102,7 +107,7 @@ public class TypeBuilder extends Multiverse<TypeBuilderUnit>
     return vals;
   }
 
-  public void setTypedef(String name, Multiverse<Universe> unis, PresenceCondition p)
+  public void setTypedef(String name, Multiverse<SymbolTableEntry> unis, PresenceCondition p)
   {
     //At this point, you can't actually have more than one
     //typedef and typedef is the only source of
@@ -113,7 +118,7 @@ public class TypeBuilder extends Multiverse<TypeBuilderUnit>
 	    {
         contents.add(new Element<TypeBuilderUnit>(new TypeBuilderUnit(), p));
 	    }
-    for (Element<Universe> u : unis)
+    for (Element<SymbolTableEntry> u : unis)
 	    for (Element<TypeBuilderUnit> e : contents)
         {
           if (!u.exclusiveFrom(e.getCondition()))

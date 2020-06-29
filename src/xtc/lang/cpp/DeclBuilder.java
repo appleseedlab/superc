@@ -11,9 +11,11 @@ import xtc.type.TypedefT;
 import xtc.lang.cpp.Multiverse.Element;
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
+import xtc.lang.cpp.CContext.SymbolTable.SymbolTableEntry;
+
 public class DeclBuilder
 {
-    static int count = 0;
+  static int count = 0;
   Integer personalCount;;
 
   String identifier;
@@ -29,7 +31,7 @@ public class DeclBuilder
 
   /**
      If the type is a function, this only returns the return type. The types of the parameters is in the getParams function.
-   */
+  */
   // converts the declbuilder to a type object
   public Type toType() {
     if (!isValid) {
@@ -77,12 +79,12 @@ public class DeclBuilder
     System.err.println("***\nCond:" + current.toString() + "\n" + parameters.toString() + "\n**");
     for (Parameter p : parameters)
       {
-         Multiverse<List<Parameter>> newM = new Multiverse<List<Parameter>>();
-         if (!p.isEllipsis())
+        Multiverse<List<Parameter>> newM = new Multiverse<List<Parameter>>();
+        if (!p.isEllipsis())
           {
-            Multiverse<Universe> mult = p.getMultiverse();
+            Multiverse<SymbolTableEntry> mult = p.getMultiverse();
             PresenceCondition gap = p.getGap(current);
-            for (Element<Universe> u : mult)
+            for (Element<SymbolTableEntry> u : mult)
               {
                 for (Element<List<Parameter>> lp : m)
                   {
@@ -90,7 +92,7 @@ public class DeclBuilder
                       {
                         List<Parameter> lp2 = new LinkedList<Parameter>();
                         lp2.addAll(lp.getData());
-                        Multiverse<Universe> tempM = new Multiverse<Universe>();
+                        Multiverse<SymbolTableEntry> tempM = new Multiverse<SymbolTableEntry>();
                         tempM.add(u);
                         Parameter tempP = new Parameter();
                         tempP.setMultiverse(tempM);
@@ -103,21 +105,21 @@ public class DeclBuilder
               if (!lp.exclusiveFrom(gap))
                 newM.add(new Element(lp.getData(), lp.getCondition().and(gap)));
           }
-         else
-           for (Element<List<Parameter>> lp : m)
-             {
-               List<Parameter> lp2 = lp.getData();
-               lp2.add(p);
-               newM.add(new Element(lp2, lp.getCondition()));
-             }
-         m = newM;
+        else
+          for (Element<List<Parameter>> lp : m)
+            {
+              List<Parameter> lp2 = lp.getData();
+              lp2.add(p);
+              newM.add(new Element(lp2, lp.getCondition()));
+            }
+        m = newM;
       }
     return m;
   }
 
   public DeclBuilder()
   {
-        personalCount = new Integer(count);
+    personalCount = new Integer(count);
     count++;
 
     identifier = "";
@@ -131,7 +133,7 @@ public class DeclBuilder
 
   public DeclBuilder(DeclBuilder d)
   {
-        personalCount = new Integer(count);
+    personalCount = new Integer(count);
     count++;
 
     identifier = d.identifier;
@@ -150,7 +152,7 @@ public class DeclBuilder
 
   public DeclBuilder(String name)
   {
-        personalCount = new Integer(count);
+    personalCount = new Integer(count);
     count++;
 
     identifier = name;

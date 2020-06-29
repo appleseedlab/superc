@@ -680,15 +680,15 @@ public class CContext implements ParsingContext {
   }
 
 
-  public Multiverse<Universe> getMappings(String ident)
+  public Multiverse<SymbolTable.SymbolTableEntry> getMappings(String ident)
   {
-    Multiverse<Universe> l = new Multiverse<Universe>();
+    Multiverse<SymbolTable.SymbolTableEntry> l = new Multiverse<SymbolTable.SymbolTableEntry>();
     CContext scope = this;
     while (scope != null)
 	    {
-        Multiverse<Universe> lt = scope.getSymbolTable().map.get(ident);
+        Multiverse<SymbolTable.SymbolTableEntry> lt = scope.getSymbolTable().map.get(ident);
         if (lt != null) {
-          for (Iterator<Element<Universe>> e = lt.iterator(); e.hasNext();)
+          for (Iterator<Element<SymbolTable.SymbolTableEntry>> e = lt.iterator(); e.hasNext();)
             l.add(e.next());
 
         }
@@ -699,15 +699,15 @@ public class CContext implements ParsingContext {
     return l;
   }
 
-  public Multiverse<Universe> getMappings(String ident, PresenceCondition p)
+  public Multiverse<SymbolTable.SymbolTableEntry> getMappings(String ident, PresenceCondition p)
   {
-	  Multiverse<Universe> l = new Multiverse<Universe>();
+	  Multiverse<SymbolTable.SymbolTableEntry> l = new Multiverse<SymbolTable.SymbolTableEntry>();
 	  CContext scope = this;
 	  while (scope != null)
       {
-        Multiverse<Universe> y = scope.getSymbolTable().map.get(ident);
+        Multiverse<SymbolTable.SymbolTableEntry> y = scope.getSymbolTable().map.get(ident);
         if (y != null)
-          for (Element<Universe> e : y)
+          for (Element<SymbolTable.SymbolTableEntry> e : y)
             {
               if (!e.exclusiveFrom(p))
                 l.add(e);
@@ -719,12 +719,40 @@ public class CContext implements ParsingContext {
 
   /** The symbol table that stores a scope's symbol bindings. */
   public static class SymbolTable {
+    public static class SymbolTableEntry
+    {
+      public SymbolTableEntry() {
+        renaming = "";
+        type = null;
+      }
+      public SymbolTableEntry(String renaming, Type type) {
+        this.renaming = renaming;
+        this.type = type;
+      }
+    
+      public String renaming;
+      public Type type;
+    
+      public String getRenaming() {
+        return renaming;
+      }
+
+      public Type getType() {
+        return type;
+      }
+
+      public String toString() {
+        return renaming + " " + type.toString();
+      }
+    }
+
+    
     public enum STField {
       TYPEDEF, IDENT, INIT, USED, VAR, GLOBAL_FUNDEF, STATIC_FUNDEF, FUNCALL,
     }
 
     // /** The symbol table data structure. */
-    public HashMap<String, Multiverse<Universe>> map;
+    public HashMap<String, Multiverse<SymbolTableEntry>> map;
 
     /** The symbol table data structure. */
     public HashMap<String, EnumMap<STField, ConditionedBool>> bools;
@@ -738,7 +766,7 @@ public class CContext implements ParsingContext {
       // this.map = new HashMap<String, TypedefVarEntry>();
       this.bools = new HashMap<String, EnumMap<STField, ConditionedBool>>();
       this.refs = 1;
-      map = new HashMap<String, Multiverse<Universe>>();
+      map = new HashMap<String, Multiverse<SymbolTableEntry>>();
     }
 
     public SymbolTable addRef() {
@@ -746,22 +774,22 @@ public class CContext implements ParsingContext {
 
       return this;
     }
-    public void addMapping(String ident, Multiverse<Universe> unis)
+    public void addMapping(String ident, Multiverse<SymbolTableEntry> unis)
     {
-      Multiverse<Universe> value = map.get(ident);
+      Multiverse<SymbolTableEntry> value = map.get(ident);
       if (value == null)
 	      {
-          Multiverse<Universe> newEntry = new Multiverse<Universe>();
-          for (Element<Universe> x : unis)
+          Multiverse<SymbolTableEntry> newEntry = new Multiverse<SymbolTableEntry>();
+          for (Element<SymbolTableEntry> x : unis)
             newEntry.add(x);
           map.put(ident, newEntry);
 	      }
       else
 	      {
-          for (Element<Universe> x : unis)
+          for (Element<SymbolTableEntry> x : unis)
             {
               boolean noCollision = true;
-              for (Element<Universe> u : value)
+              for (Element<SymbolTableEntry> u : value)
                 {
                   noCollision = noCollision && u.exclusiveFrom(x.getCondition());
                 }
@@ -796,7 +824,7 @@ public class CContext implements ParsingContext {
         //     e.varCond.delRef();
         //   }
         // }
-        for (Multiverse<Universe> m : map.values())
+        for (Multiverse<SymbolTableEntry> m : map.values())
           m.destruct();
       }
     }

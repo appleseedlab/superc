@@ -1,11 +1,14 @@
 package xtc.lang.cpp;
-import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
-import xtc.lang.cpp.Multiverse.Element;
+
 import xtc.type.Type;
+
+import xtc.lang.cpp.Multiverse.Element;
+import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
+import xtc.lang.cpp.CContext.SymbolTable.SymbolTableEntry;
 
 public class Parameter
 {
-  Multiverse<Universe> multiverse;
+  Multiverse<SymbolTableEntry> multiverse;
   boolean ellipsis;
 
   public Parameter()
@@ -14,7 +17,7 @@ public class Parameter
     ellipsis = false;
   }
 
-  public void setMultiverse(Multiverse<Universe> m)
+  public void setMultiverse(Multiverse<SymbolTableEntry> m)
   {
     multiverse = m;
     ellipsis = false;
@@ -26,7 +29,7 @@ public class Parameter
     multiverse = null;
   }
 
-  public Multiverse<Universe> getMultiverse()
+  public Multiverse<SymbolTableEntry> getMultiverse()
   {
     return multiverse;
   }
@@ -39,7 +42,7 @@ public class Parameter
   public PresenceCondition getGap(PresenceCondition pc)
   {
     PresenceCondition p = pc;
-    for (Element<Universe> e : multiverse)
+    for (Element<SymbolTableEntry> e : multiverse)
       {
         p = p.andNot(e.getCondition());
       }

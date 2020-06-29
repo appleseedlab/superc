@@ -169,6 +169,7 @@ import xtc.Constants;
 import xtc.Limits;
 
 import xtc.lang.cpp.CContext.SymbolTable.STField;
+import xtc.lang.cpp.CContext.SymbolTable.SymbolTableEntry;
 
 import xtc.tree.Attribute;
 import xtc.tree.GNode;
@@ -730,7 +731,7 @@ DeclaringList:  /** nomerge **/
 
           String oldIdent = decl.identifier;
           System.err.println(decl.toString() + " " + type.toString());
-          Multiverse<Universe> unis = addMapping(subparser, type, decl);
+          Multiverse<SymbolTableEntry> unis = addMapping(subparser, type, decl);
           List<StringBuilder> renamings = getRenamings(unis);
       	  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           StringBuilder sb = new StringBuilder();
@@ -753,7 +754,7 @@ DeclaringList:  /** nomerge **/
           /** hoists and writes initializing statements using the renamed variables */
           Multiverse<StringBuilder> childSBMV = getSBMVAt(subparser, 1);
           if (childSBMV != null)
-            for (Element<Universe> u : unis)
+            for (Element<SymbolTableEntry> u : unis)
               for (Element<StringBuilder> sbelem : childSBMV)
                 sb.append("\nif (" + PCtoString(u.getCondition().and(sbelem.getCondition())) + ") {\n" +
                          (new StringBuilder(u.getData().getRenaming())).toString() +
@@ -1756,12 +1757,12 @@ InitializerOpt: /** nomerge **/
             CContext scope = (CContext) subparser.scope;
             /** Gets all renamings of the variable, and adds them to the sbmv */
             for (Multiverse.Element<StringBuilder> sbelem : allAssignVals) {
-              Multiverse<Universe> renamings = scope.getSymbolTable().map.get(sbelem.getData().toString());
+              Multiverse<SymbolTableEntry> renamings = scope.getSymbolTable().map.get(sbelem.getData().toString());
               /** Checks for renamings in the symbol table */
               if (renamings != null) {
                 /** Writes part of the assignment using the variables' renamings */
-                for (Multiverse.Element<Universe> renaming : renamings) {
-                  sbmv.add(new Element<StringBuilder>(new StringBuilder(" = " + renaming.getData().rename), sbelem.getCondition().and(renaming.getCondition())/*subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)*/));
+                for (Multiverse.Element<SymbolTableEntry> renaming : renamings) {
+                  sbmv.add(new Element<StringBuilder>(new StringBuilder(" = " + renaming.getData().getRenaming()), sbelem.getCondition().and(renaming.getCondition())/*subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)*/));
                 }
               } else {
                 /** If there is no renaming, then we are assigning something other than a variable (such as a constant).
@@ -3513,13 +3514,13 @@ private Multiverse<StringBuilder> cartesianProduct(Multiverse<StringBuilder> sta
   return allCombinations;
 }
 
-/** Converts a Multiverse<Universe> to a Multiverse<StringBuilder>
+/** Converts a Multiverse<SymbolTableEntry> to a Multiverse<StringBuilder>
  *  so cartesianProduct() can be called on them.
  */
-private Multiverse<StringBuilder> universeToSB(Multiverse<Universe> mv) {
+private Multiverse<StringBuilder> universeToSB(Multiverse<SymbolTableEntry> mv) {
   Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-  for (Element<Universe> u : mv) {
-    sbmv.add(new Element<StringBuilder>(new StringBuilder(u.getData().rename), u.getCondition()));
+  for (Element<SymbolTableEntry> u : mv) {
+    sbmv.add(new Element<StringBuilder>(new StringBuilder(u.getData().getRenaming()), u.getCondition()));
   }
   return sbmv;
 }
@@ -4963,9 +4964,9 @@ private static Specifiers makeStructSpec(Subparser subparser,
   return specs;
 }
 
-private Multiverse<Universe> getType(TypeBuilder t, DeclBuilder d, PresenceCondition currentPC)
+private Multiverse<SymbolTableEntry> getType(TypeBuilder t, DeclBuilder d, PresenceCondition currentPC)
 {
-  Multiverse<Universe> ret = new Multiverse<Universe>();
+  Multiverse<SymbolTableEntry> ret = new Multiverse<SymbolTableEntry>();
   List<Type> types = t.toType();
   List<PresenceCondition> cond = t.getConditions();
   boolean func = d.isFunction();
@@ -4988,38 +4989,38 @@ private Multiverse<Universe> getType(TypeBuilder t, DeclBuilder d, PresenceCondi
                   if(!p.isEllipsis())
                     l.add(p.getType());
                 Type f = new FunctionT(temp.toType(), l, e.getData().get(e.getData().size() - 1).isEllipsis());
-                ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
+                ret.add(new Element<SymbolTableEntry>(new SymbolTableEntry(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
               }
             else
               {
                 Type f = new FunctionT(temp.toType());
-                ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
+                ret.add(new Element<SymbolTableEntry>(new SymbolTableEntry(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
               }
         }
       else
-        ret.add(new Element<Universe>(new Universe(mangleRenaming("",d.getID()), temp.toType()), cond.get(i).and(currentPC)));
+        ret.add(new Element<SymbolTableEntry>(new SymbolTableEntry(mangleRenaming("",d.getID()), temp.toType()), cond.get(i).and(currentPC)));
     }
   return ret;
 }
 
-private Multiverse<Universe> addMapping(Subparser subparser, TypeBuilder t, DeclBuilder d)
+private Multiverse<SymbolTableEntry> addMapping(Subparser subparser, TypeBuilder t, DeclBuilder d)
 {
   if (t == null || d == null || !t.getIsValid() || !d.getIsValid())
     {
       System.err.println("Invalid declaration");
       //System.exit(1);
-      return new Multiverse<Universe>();
+      return new Multiverse<SymbolTableEntry>();
     }
-  Multiverse<Universe> unis = getType(t,d,subparser.getPresenceCondition());
+  Multiverse<SymbolTableEntry> unis = getType(t,d,subparser.getPresenceCondition());
   CContext scope = (CContext) subparser.scope;
   scope.getSymbolTable().addMapping(d.getID(), unis);
   return unis;
 }
 
-private List<StringBuilder> getRenamings(Multiverse<Universe> unis)
+private List<StringBuilder> getRenamings(Multiverse<SymbolTableEntry> unis)
 {
   List<StringBuilder> sb = new LinkedList<StringBuilder>();
-  for (Element<Universe> u : unis)
+  for (Element<SymbolTableEntry> u : unis)
     {
       sb.add(new StringBuilder(u.getData().getRenaming()));
     }
@@ -5052,9 +5053,9 @@ private String mangleRenaming(String prefix, String ident) {
     return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
     }
 
-private Multiverse<Universe> getTypeOfTypedef(Subparser subparser, String typeName)
+private Multiverse<SymbolTableEntry> getTypeOfTypedef(Subparser subparser, String typeName)
 {
-  Multiverse<Universe> foundType = ((CContext)subparser.scope).getMappings(typeName, subparser.getPresenceCondition());
+  Multiverse<SymbolTableEntry> foundType = ((CContext)subparser.scope).getMappings(typeName, subparser.getPresenceCondition());
   return foundType;
 }
 
