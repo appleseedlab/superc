@@ -165,4 +165,40 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
       {
       return doesntExist;
       }*/
+
+  /**
+   * The function signature for combining two individual elements of a
+   * Multiverse.
+   */
+  @FunctionalInterface
+  interface Operator<U> {
+    U product(U data1, U data2);
+  }
+
+  /**
+   * This function takes the cartesian product of this Multiverse with
+   * another, give an operator to combine individuals elements.
+   */
+  public Multiverse<T> product(Multiverse<T> other, Operator<T> op) {
+    if (this.isEmpty()) {
+      return new Multiverse<T>(other);
+    } else if (other.isEmpty()) {
+      return new Multiverse<T>(this);
+    } else {
+      Multiverse<T> newmv = new Multiverse<T>();
+      /* newmv = { ( data1 x data2, cond1 and cond2 )
+         for (data1, cond1) in this and (data2, cond2) in other } */
+      for (Element<T> elem1 : this) {
+        for (Element<T> elem2 : other) {
+          PresenceCondition condition = elem1.getCondition().and(elem2.getCondition());
+          if (! condition.isFalse()) {
+            T data = op.product(elem1.getData(), elem2.getData());
+            newmv.add(data, condition);
+          }
+        }
+      }
+      
+      return newmv;
+    }
+  }  
 }
