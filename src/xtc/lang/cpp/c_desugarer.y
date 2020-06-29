@@ -3482,7 +3482,7 @@ void addStatementIf(int statPos, Subparser subparser, Object value) {
   setSBMV(value, sbmv);
 }
 
-final static Multiverse.Operator SBCONCAT = (sb1, sb2) -> {
+final static Multiverse.Operator<StringBuilder> SBCONCAT = (sb1, sb2) -> {
   StringBuilder newsb = new StringBuilder();
   newsb.append(sb1);
   newsb.append(sb2);
