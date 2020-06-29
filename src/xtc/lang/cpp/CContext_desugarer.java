@@ -752,7 +752,7 @@ public class CContext implements ParsingContext {
         undefinedCondition.delRef();
       }
     }
-    System.err.println(String.format("context.get: %s -> %s", ident, result));
+    if (DEBUG) System.err.println(String.format("context.get: %s -> %s", ident, result));
   }
 
   // TODO: deprecate getMappings and use get() instead

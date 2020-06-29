@@ -96,8 +96,8 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
     // }
 
     public String toString() {
-      // return String.format("%s:%s", getData(), getCondition());
-      return String.format("(%s, %s)", getData(), getCondition());
+      return String.format("%s:%s", getData(), getCondition());
+      // return String.format("(%s, %s)", getData(), getCondition());
     }
   }
 

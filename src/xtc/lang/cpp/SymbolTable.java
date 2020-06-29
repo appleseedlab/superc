@@ -104,8 +104,8 @@ public class SymbolTable {
     }
 
     public String toString() {
-      // return String.format("(%s, \"%s\")", getType().toString(), getRenaming());
-      return String.format("%s %s", getRenaming(), getType().toString());
+      return String.format("(%s, \"%s\")", getType().toString(), getRenaming());
+      // return String.format("%s %s", getRenaming(), getType().toString());
     }
   }
 
@@ -173,9 +173,9 @@ public class SymbolTable {
    */
   public Multiverse<Entry> get(String ident, PresenceCondition cond) {
     if (this.map.containsKey(ident)) {
-      System.err.println(String.format("before get: %s -> %s", ident, map.get(ident)));
+      // System.err.println(String.format("before get: %s -> %s", ident, map.get(ident)));
       Multiverse<Entry> newmv = this.map.get(ident).filter(cond);
-      System.err.println(String.format("after get: %s -> %s", ident, newmv));
+      // System.err.println(String.format("after get: %s -> %s", ident, newmv));
       return newmv;
     } else {
       return null;
@@ -212,7 +212,7 @@ public class SymbolTable {
           PresenceCondition newcond = entry.getCondition().and(negation);
 
           if (! newcond.isFalse()) {
-            System.err.println("TODO: if there is a redeclaration, then convert to a type error");
+            // System.err.println("TODO: if there is a redeclaration, then convert to a type error");
             newmv.add(entry.getData(), newcond);
             newcond.addRef();
           }        this.map.put(ident, newmv);
@@ -247,9 +247,9 @@ public class SymbolTable {
         this.map.put(ident, newmv);
       }
     } else {
-      // nothing to add
+      // nothing to add, since the given presence condition is False
     }
-    System.err.println(String.format("after put: %s -> %s", ident, map.get(ident)));
+    // System.err.println(String.format("after put: %s -> %s", ident, map.get(ident)));
   }
 
   /**
