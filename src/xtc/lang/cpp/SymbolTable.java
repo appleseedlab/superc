@@ -215,8 +215,8 @@ public class SymbolTable {
             // System.err.println("TODO: if there is a redeclaration, then convert to a type error");
             newmv.add(entry.getData(), newcond);
             newcond.addRef();
-          }        this.map.put(ident, newmv);
-
+          }
+          this.map.put(ident, newmv);
         
           newcond.delRef();
         }
