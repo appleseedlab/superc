@@ -737,16 +737,18 @@ DeclaringList:  /** nomerge **/
 
           /** writes declarations of renamed variables */
       	  for (StringBuilder renaming : renamings)
-    	    {
-    	      decl.identifier = renaming.toString();
-    	      List<Type> typeList = type.toType();
-    	      if (typeList.size() == 1)
-    		      sb.append("\n" + typeList.get(0) + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
-    	      else {
-          		System.err.println("ERROR: Configurable typedefs not yet supported.");
-          		// System.exit(1);
-            }
-	        }
+	  {
+	    decl.identifier = renaming.toString();
+	    List<Type> typeList = type.toType();
+	    if (typeList.size() == 1) {
+	      if (typeList.get(0).getClass().getName().equals("xtc.type.TypedefT"))
+	        System.err.println("WARNING: typedef transformations not yet supported.");
+	      sb.append("\n" + typeList.get(0) + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
+	    } else {
+	      System.err.println("ERROR: Configurable typedefs not yet supported.");
+	      // System.exit(1);
+	  }
+  	}
 
           // TODO: handle AttributeSpecifierListOpt
 

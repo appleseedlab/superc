@@ -104,7 +104,7 @@ public class SymbolTable {
     }
 
     public String toString() {
-      return String.format("(%s, \"%s\")", getType().toString(), getRenaming());
+      return String.format("(TYPE=%s, RENAMING=\"%s\")", getType().toString(), getRenaming());
       // return String.format("%s %s", getRenaming(), getType().toString());
     }
   }
@@ -208,7 +208,13 @@ public class SymbolTable {
           PresenceCondition newcond = entry.getCondition().and(negation);
 
           if (! newcond.isFalse()) {
-            // System.err.println("TODO: if there is a redeclaration, then convert to a type error");
+            // check for a redeclaration, which happens when the entry
+            // is not the UNDECLARED entry and when the presence
+            // condition of the new and old entries overlap, i.e., are
+            // not mutually-exclusive
+            if (UNDECLARED != entry.getData() && !entry.getCondition().isMutuallyExclusive(cond)) {
+              System.err.println(String.format("TODO: %s", String.format("handle type error. redeclaration of %s from %s under %s to %s under %s", ident, entry.getData().getType(), entry.getCondition(), type, cond)));
+            }
             newmv.add(entry.getData(), newcond);
             newcond.addRef();
           }
@@ -282,6 +288,18 @@ public class SymbolTable {
     return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
   }
 
+  public String toString() {
+    StringBuilder sb  = new StringBuilder();
+
+    sb.append(String.format("SymbolTable: %d entries", this.map.size()));
+    sb.append("\n");
+    for (String ident : this.map.keySet()) {
+      sb.append(String.format("%s -> %s", ident, this.map.get(ident)));
+      sb.append("\n");
+    }
+    
+    return sb.toString();
+  }
   
   /*******************************************************************
    The fields below are the original symbol table implementation that

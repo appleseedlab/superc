@@ -305,8 +305,16 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
 
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    
-    sb.append(this.contents);
+
+    sb.append("Multiverse(");
+    sb.append("\n");
+    for (Element<T> elem : this.contents) {
+      sb.append("  ");
+      sb.append(elem);
+      sb.append("\n");
+    }
+    sb.append(")");
+    sb.append("\n");
     return sb.toString();
   }
 }
