@@ -54,7 +54,7 @@ import xtc.lang.cpp.Syntax.ErrorType;
 
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
-import xtc.lang.cpp.CContext.SymbolTable.STField;
+import xtc.lang.cpp.SymbolTable.STField;
 
 import xtc.tree.Node;
 import xtc.tree.GNode;
@@ -1169,21 +1169,21 @@ public class SuperC extends Tool {
         writer.flush();
       }
 
-      if (runtime.test("desugarConditionals")) {
-        OutputStreamWriter writer = new OutputStreamWriter(System.out);
-        Desugarer desugarer = Desugarer.getInstance(presenceConditionManager);
+      // if (runtime.test("desugarConditionals")) {
+      //   OutputStreamWriter writer = new OutputStreamWriter(System.out);
+      //   Desugarer desugarer = Desugarer.getInstance(presenceConditionManager);
 
-        System.err.println("Desugar preprocessor conditionals");
+      //   System.err.println("Desugar preprocessor conditionals");
 
-        LinkedList<PresenceCondition> parents
-          = new LinkedList<PresenceCondition>();
+      //   LinkedList<PresenceCondition> parents
+      //     = new LinkedList<PresenceCondition>();
 
-        desugarer.desugarConditionals((Node) translationUnit, writer);
+      //   desugarer.desugarConditionals((Node) translationUnit, writer);
 
-        assert(parents.size() == 0);
+      //   assert(parents.size() == 0);
         
-        writer.flush();
-      }
+      //   writer.flush();
+      // }
 
       if (runtime.test("configureAllYes") || runtime.test("configureAllNo")) {
         OutputStreamWriter writer = new OutputStreamWriter(System.out);

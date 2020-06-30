@@ -66,6 +66,8 @@ SOURCE = \
 	ParseTables.java \
 	SemanticValues.java \
 	SemanticActions.java \
+	Multiverse.java \
+	SymbolTable.java \
 	CContext.java \
 	$(c_parse_tables) \
 	$(c_lexer) \
@@ -92,11 +94,9 @@ SOURCE = \
 	cdiff.java \
 	FunctionChecker.java \
 	DeclBuilder.java \
-	TypeBuilder.java \
+	TypeBuilderMultiverse.java \
 	TypeBuilderUnit.java \
-	Multiverse.java \
 	Parameter.java \
-	Universe.java \
 	SuperC.java
 
 

@@ -13,7 +13,7 @@ import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
 public class DeclBuilder
 {
-    static int count = 0;
+  static int count = 0;
   Integer personalCount;;
 
   String identifier;
@@ -29,7 +29,7 @@ public class DeclBuilder
 
   /**
      If the type is a function, this only returns the return type. The types of the parameters is in the getParams function.
-   */
+  */
   // converts the declbuilder to a type object
   public Type toType() {
     if (!isValid) {
@@ -77,47 +77,47 @@ public class DeclBuilder
     System.err.println("***\nCond:" + current.toString() + "\n" + parameters.toString() + "\n**");
     for (Parameter p : parameters)
       {
-         Multiverse<List<Parameter>> newM = new Multiverse<List<Parameter>>();
-         if (!p.isEllipsis())
+        Multiverse<List<Parameter>> newM = new Multiverse<List<Parameter>>();
+        if (!p.isEllipsis())
           {
-            Multiverse<Universe> mult = p.getMultiverse();
+            Multiverse<SymbolTable.Entry> mult = p.getMultiverse();
             PresenceCondition gap = p.getGap(current);
-            for (Element<Universe> u : mult)
+            for (Element<SymbolTable.Entry> u : mult)
               {
                 for (Element<List<Parameter>> lp : m)
                   {
-                    if (!lp.exclusiveFrom(u.getCondition()))
+                    if (!lp.getCondition().isMutuallyExclusive(u.getCondition()))
                       {
                         List<Parameter> lp2 = new LinkedList<Parameter>();
                         lp2.addAll(lp.getData());
-                        Multiverse<Universe> tempM = new Multiverse<Universe>();
+                        Multiverse<SymbolTable.Entry> tempM = new Multiverse<SymbolTable.Entry>();
                         tempM.add(u);
                         Parameter tempP = new Parameter();
                         tempP.setMultiverse(tempM);
                         lp2.add(tempP);
-                        newM.add(new Element(lp2, lp.getCondition().and(u.getCondition())));
+                        newM.add(new Element<List<Parameter>>(lp2, lp.getCondition().and(u.getCondition())));
                       }
                   }
               }
             for (Element<List<Parameter>> lp : m)
-              if (!lp.exclusiveFrom(gap))
-                newM.add(new Element(lp.getData(), lp.getCondition().and(gap)));
+              if (!lp.getCondition().isMutuallyExclusive(gap))
+                newM.add(new Element<List<Parameter>>(lp.getData(), lp.getCondition().and(gap)));
           }
-         else
-           for (Element<List<Parameter>> lp : m)
-             {
-               List<Parameter> lp2 = lp.getData();
-               lp2.add(p);
-               newM.add(new Element(lp2, lp.getCondition()));
-             }
-         m = newM;
+        else
+          for (Element<List<Parameter>> lp : m)
+            {
+              List<Parameter> lp2 = lp.getData();
+              lp2.add(p);
+              newM.add(new Element<List<Parameter>>(lp2, lp.getCondition()));
+            }
+        m = newM;
       }
     return m;
   }
 
   public DeclBuilder()
   {
-        personalCount = new Integer(count);
+    personalCount = new Integer(count);
     count++;
 
     identifier = "";
@@ -131,7 +131,7 @@ public class DeclBuilder
 
   public DeclBuilder(DeclBuilder d)
   {
-        personalCount = new Integer(count);
+    personalCount = new Integer(count);
     count++;
 
     identifier = d.identifier;
@@ -150,7 +150,7 @@ public class DeclBuilder
 
   public DeclBuilder(String name)
   {
-        personalCount = new Integer(count);
+    personalCount = new Integer(count);
     count++;
 
     identifier = name;
@@ -189,7 +189,9 @@ public class DeclBuilder
   }
 
   public void addType(Type type) {
-    if (basicType instanceof UnitT)
+    if (inner != null)
+      inner.addType(type); 
+    else if (basicType instanceof UnitT)
       basicType = type;
     else // invalid: multiple types being added to the same declaration
       isValid = false;
@@ -252,7 +254,7 @@ public class DeclBuilder
     return output;
   }
 
-  public void addQuals(TypeBuilder t, DeclBuilder d)
+  public void addQuals(TypeBuilderMultiverse t, DeclBuilder d)
   {
     quals = t.getQualTU();
     inner = d;

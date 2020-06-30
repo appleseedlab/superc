@@ -1,6 +1,8 @@
 package xtc.lang.cpp;
+
 import java.util.LinkedList;
 import java.util.List;
+
 import xtc.type.Type;
 import xtc.type.NumberT;
 import xtc.type.IntegerT;
@@ -8,10 +10,11 @@ import xtc.type.FloatT;
 import xtc.type.UnitT;
 import xtc.type.TypedefT;
 import xtc.Constants;
+
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 import xtc.lang.cpp.Multiverse.Element;
 
-public class TypeBuilder extends Multiverse<TypeBuilderUnit>
+public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
 {
   static int count = 0;
   Integer personalCount;;
@@ -40,14 +43,14 @@ public class TypeBuilder extends Multiverse<TypeBuilderUnit>
   }
 
   // creates a new typebuilder using a string (which is NOT a type)
-  public TypeBuilder(String name, PresenceCondition p)
+  public TypeBuilderMultiverse(String name, PresenceCondition p)
   {
     super();
     contents.add(new Element<TypeBuilderUnit>(new TypeBuilderUnit(name), p));
   }
 
   // creates a new typebuilder using only a type
-  public TypeBuilder(Type type, PresenceCondition p)
+  public TypeBuilderMultiverse(Type type, PresenceCondition p)
   {
     super();
     personalCount = new Integer(count);
@@ -67,13 +70,13 @@ public class TypeBuilder extends Multiverse<TypeBuilderUnit>
   }
     
   // sets all flags to false and type starts as unit
-  public TypeBuilder()
+  public TypeBuilderMultiverse()
   {
     super();
   }
 
   // copy constructor creates a deep copy
-  public TypeBuilder(TypeBuilder old)
+  public TypeBuilderMultiverse(TypeBuilderMultiverse old)
   {
     super();
     for (Element<TypeBuilderUnit> e : old.contents)
@@ -83,12 +86,12 @@ public class TypeBuilder extends Multiverse<TypeBuilderUnit>
   }
 
 
-  public TypeBuilder combine(TypeBuilder with)
+  public TypeBuilderMultiverse combine(TypeBuilderMultiverse with)
   {
-    TypeBuilder t = new TypeBuilder();
+    TypeBuilderMultiverse t = new TypeBuilderMultiverse();
     for (Element<TypeBuilderUnit> e : contents)
       for (Element<TypeBuilderUnit> f : with.contents)
-        if (!e.exclusiveFrom(f.getCondition()))
+        if (!e.getCondition().isMutuallyExclusive(f.getCondition()))
           t.contents.add(new Element<TypeBuilderUnit>(e.getData().combine(f.getData()),
                                                       e.getCondition().and(f.getCondition())));
     return t;
@@ -102,7 +105,7 @@ public class TypeBuilder extends Multiverse<TypeBuilderUnit>
     return vals;
   }
 
-  public void setTypedef(String name, Multiverse<Universe> unis, PresenceCondition p)
+  public void setTypedef(String name, Multiverse<SymbolTable.Entry> unis, PresenceCondition p)
   {
     //At this point, you can't actually have more than one
     //typedef and typedef is the only source of
@@ -113,10 +116,10 @@ public class TypeBuilder extends Multiverse<TypeBuilderUnit>
 	    {
         contents.add(new Element<TypeBuilderUnit>(new TypeBuilderUnit(), p));
 	    }
-    for (Element<Universe> u : unis)
+    for (Element<SymbolTable.Entry> u : unis)
 	    for (Element<TypeBuilderUnit> e : contents)
         {
-          if (!u.exclusiveFrom(e.getCondition()))
+          if (!u.getCondition().isMutuallyExclusive(e.getCondition()))
             {
               TypeBuilderUnit t = new TypeBuilderUnit(e.getData());
               t.setTypedef(name, u.getData().getRenaming(), u.getData().getType());
