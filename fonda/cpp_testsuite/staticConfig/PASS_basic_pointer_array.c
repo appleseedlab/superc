@@ -31,9 +31,3 @@ int main() {
 
 	return 0;
 }
-
-
-
-(C | !D) & (C | D)
-
-C
