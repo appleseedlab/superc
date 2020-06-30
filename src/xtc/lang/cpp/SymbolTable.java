@@ -419,12 +419,5 @@ public class SymbolTable {
       this.trueCond = trueCond;
     }
   }
-  
-  public String toString()
-  {
-    String out = "";
-    out += map.toString();
-    return out;    
-  }
 }
 
