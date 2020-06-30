@@ -246,6 +246,7 @@ public class SymbolTable {
       // nothing to add, since the given presence condition is False
     }
     // System.err.println(String.format("after put: %s -> %s", ident, map.get(ident)));
+    System.err.println(toString());
   }
 
   private static long varcount = 0;
@@ -399,6 +400,13 @@ public class SymbolTable {
     public ConditionedBool(PresenceCondition trueCond) {
       this.trueCond = trueCond;
     }
+  }
+  
+  public String toString()
+  {
+    String out = "";
+    out += map.toString();
+    return out;    
   }
 }
 

@@ -189,7 +189,9 @@ public class DeclBuilder
   }
 
   public void addType(Type type) {
-    if (basicType instanceof UnitT)
+    if (inner != null)
+      inner.addType(type); 
+    else if (basicType instanceof UnitT)
       basicType = type;
     else // invalid: multiple types being added to the same declaration
       isValid = false;
