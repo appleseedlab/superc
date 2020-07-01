@@ -288,6 +288,7 @@ TranslationUnit:  /** complete, passthrough **/
             }
 
             // TODO: handle functions properly and remove this main function placeholder
+            System.err.println("TODO: generated main() is a placeholder.");
             writer.write("\nint main(void) {\n");
 
             /** writes all file-dependent transformation code that isn't
@@ -310,6 +311,7 @@ TranslationUnit:  /** complete, passthrough **/
             }
 
             // TODO: handle functions properly and remove this main function placeholder
+            System.err.println("TODO: generated 'return 0;' is a placeholder.");
             writer.write("\nreturn 0;\n}\n");
 
             writer.flush();
@@ -359,7 +361,7 @@ EmptyDefinition:  /** complete **/
         SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         ;
 
@@ -396,7 +398,7 @@ FunctionDefinition:  /** complete **/ // added scoping
 FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
         LocalLabelDeclarationListOpt DeclarationOrStatementList
         {
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         ;
 
@@ -407,19 +409,20 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
 FunctionPrototype:  /** nomerge **/
         IdentifierDeclarator { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
           System.err.println("FunctionPrototype - IdentifierDeclarator not supported");
         }
         | DeclarationSpecifier     IdentifierDeclarator
         {
           TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
-| TypeSpecifier            IdentifierDeclarator
+        | TypeSpecifier            IdentifierDeclarator
         {
           TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
@@ -448,7 +451,7 @@ FunctionPrototype:  /** nomerge **/
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeQualifierList        IdentifierDeclarator
         {
@@ -457,12 +460,12 @@ FunctionPrototype:  /** nomerge **/
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         |                          OldFunctionDeclarator
         {
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
@@ -471,7 +474,7 @@ FunctionPrototype:  /** nomerge **/
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
@@ -480,7 +483,7 @@ FunctionPrototype:  /** nomerge **/
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
@@ -489,7 +492,7 @@ FunctionPrototype:  /** nomerge **/
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
@@ -498,7 +501,7 @@ FunctionPrototype:  /** nomerge **/
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         ;
 
@@ -506,31 +509,31 @@ FunctionOldPrototype:  /** nomerge **/
         OldFunctionDeclarator
         {
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         ;
 
@@ -555,50 +558,50 @@ NestedFunctionPrototype:  /** nomerge **/
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeSpecifier            IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeQualifierList        IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
 
         | DeclarationSpecifier     OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         ;
 
@@ -607,25 +610,25 @@ NestedFunctionOldPrototype:  /** nomerge **/
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         ;
 
@@ -712,10 +715,10 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
 
 DeclaringList:  /** nomerge **/
         DeclarationSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
-	{
+        {
       	  TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 5);
       	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
-
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
           System.err.println(decl.toString() + " " + type.toString());
           addMapping(subparser, type, decl);
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
@@ -737,18 +740,18 @@ DeclaringList:  /** nomerge **/
 
           /** writes declarations of renamed variables */
       	  for (StringBuilder renaming : renamings)
-	  {
-	    decl.identifier = renaming.toString();
-	    List<Type> typeList = type.toType();
-	    if (typeList.size() == 1) {
-	      if (typeList.get(0).getClass().getName().equals("xtc.type.TypedefT"))
-	        System.err.println("WARNING: typedef transformations not yet supported.");
-	      sb.append("\n" + typeList.get(0) + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
-	    } else {
-	      System.err.println("ERROR: Configurable typedefs not yet supported.");
-	      // System.exit(1);
-	  }
-  	}
+      	  {
+      	    decl.identifier = renaming.toString();
+      	    List<Type> typeList = type.toType();
+      	    if (typeList.size() == 1) {
+      	      if (typeList.get(0).getClass().getName().equals("xtc.type.TypedefT"))
+      	        System.err.println("WARNING: typedef transformations not yet supported.");
+      	      sb.append("\n" + typeList.get(0) + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
+      	    } else {
+      	      System.err.println("ERROR: Configurable typedefs not yet supported.");
+      	      // System.exit(1);
+    	      }
+        	}
 
           // TODO: handle AttributeSpecifierListOpt
 
@@ -771,7 +774,7 @@ DeclaringList:  /** nomerge **/
 	        bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         ;
 
@@ -1510,7 +1513,7 @@ EnumeratorValueOpt: /** nomerge **/
 ParameterTypeList:  /** nomerge **/
         ParameterList
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
           setParameter(value, getParameterAt(subparser,1));
         }
         | ParameterList COMMA ELLIPSIS
@@ -1520,13 +1523,14 @@ ParameterTypeList:  /** nomerge **/
           p.setEllipsis();
           ps.add(p);
           setParameter(value,ps);
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         ;
 
 ParameterList:  /** list, nomerge **/
         ParameterDeclaration
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
           setParameter(value, getParameterAt(subparser,1));
         }
         | ParameterList COMMA ParameterDeclaration
@@ -1535,6 +1539,7 @@ ParameterList:  /** list, nomerge **/
 
           p.addAll(getParameterAt(subparser,1));
           setParameter(value,p);
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         ;
 
@@ -1582,12 +1587,12 @@ ParameterList:  /** list, nomerge **/
 ParameterDeclaration:  /** nomerge **/
         ParameterIdentifierDeclaration
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
           setParameter(value, getParameterAt(subparser,1));
         }
         | ParameterAbstractDeclaration
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
           System.err.println("ParameterDeclaration-Abstract not supported");
         }
         ;
@@ -1595,19 +1600,19 @@ ParameterDeclaration:  /** nomerge **/
 ParameterAbstractDeclaration:
         DeclarationSpecifier
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | DeclarationSpecifier AbstractDeclarator
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | DeclarationQualifierList
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | DeclarationQualifierList AbstractDeclarator
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | TypeSpecifier
         {
@@ -1625,15 +1630,15 @@ ParameterAbstractDeclaration:
         }
         | TypeSpecifier AbstractDeclarator
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | TypeQualifierList
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | TypeQualifierList AbstractDeclarator
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         ;
 
@@ -1780,11 +1785,11 @@ InitializerOpt: /** nomerge **/
 DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         Initializer
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | Designation Initializer
         {
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         ;
 
@@ -1796,15 +1801,15 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
 Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists
         LBRACE MatchedInitializerList RBRACE
         {
-          getAndSetSBMV(3, subparser, value);
+          getAndSetSBMVCond(3, subparser, value);
         }
         | LBRACE MatchedInitializerList DesignatedInitializer RBRACE
         {
-          getAndSetSBMV(4, subparser, value);
+          getAndSetSBMVCond(4, subparser, value);
         }
         | AssignmentExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         ;
 
@@ -2025,7 +2030,7 @@ IdentifierDeclarator:  /**  nomerge **/
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
-    getAndSetSBMV(1, subparser, value);
+    getAndSetSBMVCond(1, subparser, value);
 	}
         ;
 
@@ -2034,13 +2039,13 @@ IdentifierDeclaratorMain:  /** nomerge **/
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
-    getAndSetSBMV(1, subparser, value);
+    getAndSetSBMVCond(1, subparser, value);
 	}
 | ParenIdentifierDeclarator
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
-    getAndSetSBMV(1, subparser, value);
+    getAndSetSBMVCond(1, subparser, value);
 	}
         ;
 
@@ -2049,14 +2054,14 @@ UnaryIdentifierDeclarator: /** nomerge **/
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
-    getAndSetSBMV(1, subparser, value);
+    getAndSetSBMVCond(1, subparser, value);
 	}
   | STAR IdentifierDeclarator
   {
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  db.addPointer();
 	  setDeclBuilder(value, db);
-    getAndSetSBMV(2, subparser, value);
+    getAndSetSBMVCond(2, subparser, value);
 	}
 | STAR TypeQualifierList IdentifierDeclarator
 	{
@@ -2065,7 +2070,7 @@ UnaryIdentifierDeclarator: /** nomerge **/
 	  outter.addPointer();
 	  outter.addQuals(getTypeBuilderAt(subparser,2),db);
 	  setDeclBuilder(value,outter);
-    getAndSetSBMV(3, subparser, value);
+    getAndSetSBMVCond(3, subparser, value);
 	}
         ;
 
@@ -2074,17 +2079,19 @@ FunctionDeclarator
 {
   System.err.println(getDeclBuilderAt(subparser,1) + ":PC::" + subparser.getPresenceCondition());
   setDeclBuilder(value, getDeclBuilderAt(subparser,1));
-  getAndSetSBMV(1, subparser, value);
+  getAndSetSBMVCond(1, subparser, value);
 }
 | ArrayDeclarator
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
+    System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
 	}
         | AttributedDeclarator
 	{
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  setDeclBuilder(value, db);
+    System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
 	}
         | LPAREN UnaryIdentifierDeclarator RPAREN PostfixingAbstractDeclarator
 	{
@@ -2093,6 +2100,7 @@ FunctionDeclarator
 	  DeclBuilder db = getDeclBuilderAt(subparser,1);
 	  base.merge(db);
 	  setDeclBuilder(value,base);
+    System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
 	}
         ;
 
@@ -2102,6 +2110,7 @@ AttributedDeclarator: /** nomerge **/
 	  DeclBuilder db = new DeclBuilder();
 	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
 	  setDeclBuilder(value, db);
+    System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
 	}
         ;
 
@@ -2124,7 +2133,7 @@ PostfixingFunctionDeclarator:  /** nomerge **/
         LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN
         {
           //return whatever is in Parameter TypeListOpt
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
           /*StringBuilder sb = new StringBuilder("(");
           for (int i = 1; i <= 3; i++)
             if (getStringBuilderAt(subparser, i) != null && !getStringBuilderAt(subparser, i).equals("null"))
@@ -2150,7 +2159,7 @@ ParenIdentifierDeclarator:  /** nomerge **/
       	{
       	  DeclBuilder db = getDeclBuilderAt(subparser,1);
       	  setDeclBuilder(value, db);
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
       	}
         | LPAREN ParenIdentifierDeclarator RPAREN
       	{
@@ -2158,7 +2167,7 @@ ParenIdentifierDeclarator:  /** nomerge **/
       	  DeclBuilder superDecl = new DeclBuilder();
       	  superDecl.addDeclBuilder(db);
       	  setDeclBuilder(value,superDecl);
-          getAndSetSBMV(3, subparser, value);
+          getAndSetSBMVCond(3, subparser, value);
       	}
         ;
 
@@ -2216,7 +2225,7 @@ ParameterTypeListOpt: /** nomerge **/
         /* empty */
         | ParameterTypeList
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
           setParameter(value,getParameterAt(subparser,1));
         }
         ;
@@ -2340,10 +2349,12 @@ CompoundStatement:  /** complete **/  /* ADDED */
         LBRACE
         {
           EnterScope(subparser);
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         LocalLabelDeclarationListOpt DeclarationOrStatementList
         {
           ExitScope(subparser);
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         RBRACE
         {
@@ -2357,7 +2368,7 @@ LocalLabelDeclarationListOpt: /** complete **/
         | LocalLabelDeclarationList
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         ;
 
@@ -2551,7 +2562,6 @@ Constant: /** passthrough, nomerge **/
         Constant".  */
         | OCTALconstant
         {
-          // TODO: get the actual value
           StringBuilder sb = new StringBuilder();
           sb.append(((Node)value).getTokenText());
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
@@ -2587,16 +2597,28 @@ StringLiteralList:  /** list, nomerge **/
 PrimaryExpression:  /** nomerge, passthrough **/
         PrimaryIdentifier
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | Constant
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | StringLiteralList
+        {
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
+        }
         | LPAREN Expression RPAREN
+        {
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
+        }
         | StatementAsExpression  // ADDED
+        {
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
+        }
         | VariableArgumentAccess  // ADDED
+        {
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
+        }
         ;
 
 PrimaryIdentifier: /** nomerge **/
@@ -2620,7 +2642,7 @@ PrimaryIdentifier: /** nomerge **/
           // convert the renamings to stringbuilders
           Multiverse<StringBuilder> sbmv = universeToSB(entries);
           entries.destruct();
-          
+
           setSBMV(value, sbmv);
         }  /* We cannot use a typedef name as a variable */
         ;
@@ -2636,33 +2658,36 @@ StatementAsExpression:  /** nomerge **/  //ADDED
 PostfixExpression:  /** passthrough, nomerge **/
         PrimaryExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | Subscript
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | FunctionCall
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | DirectSelection
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | IndirectSelection
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | Increment
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | Decrement
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | CompoundLiteral  /* ADDED */
+        {
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
+        }
         ;
 
 Subscript:  /** nomerge **/
@@ -2728,7 +2753,7 @@ ExpressionList:  /** list, nomerge **/
 UnaryExpression:  /** passthrough, nomerge **/
         PostfixExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | ICR UnaryExpression
         {
@@ -2746,35 +2771,35 @@ UnaryExpression:  /** passthrough, nomerge **/
         }
         | Unaryoperator CastExpression
         {
-          getAndSetSBMV(2, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
         }
         | SIZEOF UnaryExpression
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | SIZEOF LPAREN TypeName RPAREN
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | LabelAddressExpression  // ADDED
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | AlignofExpression // ADDED
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | ExtensionExpression // ADDED
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | OffsetofExpression // ADDED
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | TypeCompatibilityExpression  // ADEED
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         ;
 
@@ -2821,15 +2846,18 @@ Unaryoperator:
 CastExpression:  /** passthrough, nomerge **/
         UnaryExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | LPAREN TypeName RPAREN CastExpression
+        {
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
+        }
         ;
 
 MultiplicativeExpression:  /** passthrough, nomerge **/
         CastExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | MultiplicativeExpression STAR CastExpression
         {
@@ -2860,7 +2888,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
 AdditiveExpression:  /** passthrough, nomerge **/
         MultiplicativeExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | AdditiveExpression PLUS MultiplicativeExpression
         {
@@ -2883,130 +2911,136 @@ AdditiveExpression:  /** passthrough, nomerge **/
 ShiftExpression:  /** passthrough, nomerge **/
         AdditiveExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | ShiftExpression LS AdditiveExpression
+        {
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
+        }
         | ShiftExpression RS AdditiveExpression
+        {
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
+        }
         ;
 
 RelationalExpression:  /** passthrough, nomerge **/
         ShiftExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | RelationalExpression LT ShiftExpression
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | RelationalExpression GT ShiftExpression
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | RelationalExpression LE ShiftExpression
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | RelationalExpression GE ShiftExpression
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         ;
 
 EqualityExpression:  /** passthrough, nomerge **/
         RelationalExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | EqualityExpression EQ RelationalExpression
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | EqualityExpression NE RelationalExpression
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         ;
 
 AndExpression:  /** passthrough, nomerge **/
         EqualityExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | AndExpression AND EqualityExpression
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         ;
 
 ExclusiveOrExpression:  /** passthrough, nomerge **/
         AndExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | ExclusiveOrExpression XOR AndExpression
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         ;
 
 InclusiveOrExpression:  /** passthrough, nomerge **/
         ExclusiveOrExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | InclusiveOrExpression PIPE ExclusiveOrExpression
         {
-          //TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         ;
 
 LogicalAndExpression:  /** passthrough, nomerge **/
         InclusiveOrExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | LogicalAndExpression ANDAND InclusiveOrExpression
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         ;
 
 LogicalORExpression:  /** passthrough, nomerge **/
         LogicalAndExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | LogicalORExpression OROR LogicalAndExpression
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         ;
 
 ConditionalExpression:  /** passthrough, nomerge **/
         LogicalORExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | LogicalORExpression QUESTION Expression COLON
                 ConditionalExpression
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | LogicalORExpression QUESTION COLON  // ADDED gcc innomerge conditional
                 ConditionalExpression
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         ;
 
 AssignmentExpression:  /** passthrough, nomerge **/
         ConditionalExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | UnaryExpression AssignmentOperator AssignmentExpression
         {
-          getAndSetSBMV(3, subparser, value);
+          getAndSetSBMVCond(3, subparser, value);
         }
         ;
 
@@ -3061,11 +3095,11 @@ AssignmentOperator: /** nomerge **/
         }
         | LSassign
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | RSassign
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | ANDassign
         {
@@ -3077,7 +3111,7 @@ AssignmentOperator: /** nomerge **/
         }
         | ERassign
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         | ORassign
         {
@@ -3093,25 +3127,25 @@ ExpressionOpt:  /** passthrough, nomerge **/
         /* Nothing */
         | Expression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         ;
 
 Expression:  /** passthrough, nomerge **/
         AssignmentExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
         | Expression COMMA AssignmentExpression
         {
-          // TODO
+          System.err.println("WARNING: unfinished semantic action: " + ((Node) value).getName());
         }
         ;
 
 ConstantExpression: /** passthrough, nomerge **/
         ConditionalExpression
         {
-          getAndSetSBMV(1, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
         }
 	      ;
 
@@ -3401,30 +3435,25 @@ private Multiverse<StringBuilder> getSBMV(Node n) {
   return (Multiverse<StringBuilder>) n.getProperty(SBMV);
 }
 
-/** gets the sbmvs from a non-'complete' node's children */
-private void getAndSetSBMV(int numChildren, Subparser subparser, Object value)
-{
-  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-  Multiverse<StringBuilder> temp;
-
-  /** generates all combinations of the children's stringbuilders */
-  for (int i = numChildren; i >= 1; i--) {
-    temp = getSBMVAt(subparser, i);
-    if (temp != null)
-      sbmv = cartesianProduct(sbmv, temp);
-  }
-  setSBMV(value, sbmv);
-}
-
-/** gets the stringbuilders from a 'complete' node's children */
+/**
+ * Gets the SBMVs from a node's (direct) children if there are no static conditionals between them.
+ * Otherwise, the static choice nodes are traversed, until the children are reached.
+ * The cartesian product is taken of all SBMVs of the children, and that is set at this node.
+ *
+ * @param numChildren The number of children of the node.
+ * @param subparser The subparser.
+ * @param value The current node.
+ */
 private void getAndSetSBMVCond(int numChildren, Subparser subparser, Object value)
 {
   Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
   for (int i = numChildren; i >= 1; i--)
   {
     Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
-    /** iterates through every pair of (Node, PresenceCondition)
-       and generates all combinations of childrens' stringbuilders */
+    /**
+     * iterates through every pair of (Node, PresenceCondition)
+     * and generates all combinations of the childrens' SBMVs
+     */
     Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
     for (Multiverse.Element<Node> child : children) {
       if (child.getData() != null)
@@ -3436,12 +3465,21 @@ private void getAndSetSBMVCond(int numChildren, Subparser subparser, Object valu
   setSBMV(value, sbmv);
 }
 
-/** Iterates through each configuration of the child node,
-  * and gets its SBMV (which stores all versions of the statement).
-  * We then add "if (PC) { }" around it, and store this SBMV at this node.
-  */
+/**
+ * All configurations of "if (PC) { <child SBMV> }" are generated,
+ * where the child SBMV stores a configurable statement.
+ * This new SBMV is set at the current node, with presence condition TRUE.
+ * The TRUE presence condition is used because the generated code should always
+ * be written.
+ *
+ * @param statPos The position of the statement (as a child) of the current node.
+ * @param subparser The subparser.
+ * @param value The current node.
+ */
 void addStatementIf(int statPos, Subparser subparser, Object value) {
   Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+
+  // NOTE: this assumes that there is at most one static choice node between the current node and its children.
   Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, statPos), subparser.getPresenceCondition().presenceConditionManager());
 
   /** Iterates through all configurations of the child node */
@@ -3454,15 +3492,13 @@ void addStatementIf(int statPos, Subparser subparser, Object value) {
       sb.append("\nif (" +
                 PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
                 ") {\n" + statement.getData().toString() + ";\n}\n");
-      /** NOTE: When writing the "if (PC)",
-        * we AND the child node's PC with each stored stringbuilder PC, and
-        * add that to the resultant SBMV.
-        */
+      /**
+       * NOTE: When writing the "if (PC)",
+       * we AND the child node's PC with each stored stringbuilder PC, and
+       * add that to the resultant SBMV.
+       */
     }
     sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-    /** NOTE: The code we are storing in this SB should always be printed
-      * (because it is a complete statement with a wrapped if()), so its presence condition is "true".
-      */
   }
   setSBMV(value, sbmv);
 }
@@ -3524,7 +3560,7 @@ final Multiverse.Transformer<SymbolTable.Entry, StringBuilder> entryToStringBuil
     return new StringBuilder(from.getRenaming());
   }
 };
-                                     
+
 /** Converts a Multiverse<SymbolTable.Entry> to a Multiverse<StringBuilder>
  *  so cartesianProduct() can be called on them.
  */
@@ -5030,7 +5066,7 @@ private Multiverse<SymbolTable.Entry> addMapping(Subparser subparser, TypeBuilde
     scope.getSymbolTable().put(d.getID(), elem.getData().getType(), elem.getCondition());
   }
   unis.destruct();
-  
+
   return scope.getSymbolTable().get(d.getID(), subparser.getPresenceCondition());
 }
 
