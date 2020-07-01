@@ -57,17 +57,25 @@ import xtc.lang.cpp.ForkMergeParser.Lookahead;
  */
 public class SymbolTable {
 
-  public static final Entry UNDECLARED = new Entry("static_type_error(\"undeclared\")", UnitT.TYPE) {
+  public static final Entry UNMAPPED = new Entry("<UNMAPPED>", UnitT.TYPE) {
       public String toString() {
-        return "<UNDECLARED>";
+        return "<UNMAPPED>";
       }
     };
-
+    
+  public static final Entry REMAPPED = new Entry("<REMAPPED>", UnitT.TYPE) {
+      public String toString() {
+        return "<REMAPPED>";
+      }
+    };
+    
   /**
    * A symbol table entry that holds a multiverse of types and
    * renamings.
    */
   public static class Entry {
+    // TODO: make this abstract and only have renaming and type for VALID entries, have an error message for other kinds
+
     /**
      * The renaming of the variable for a given set of
      * configurations.
@@ -181,75 +189,130 @@ public class SymbolTable {
   /**
    * Add a new symbol table entry for the given identifier.  This
    * maintains two invariants: (1) all entries are mutually-exclusive
-   * and (2) all entries together union to True.
+   * and (2) all entries together union to True.  This ensures that
+   * the UNMAPPED entry is always present in the Multiverse, even if
+   * its presence condition is False.  This method will error out if a
+   * symbol is redeclared in some presence condition.  To ensure this
+   * does not happen, use get() under the putCond first and see if
+   * there are any mapped symbols.  For type-checking, emit errors for
+   * these redeclarations and revise the presence condition.
    *
    * @param ident The identifier to enter.
    * @param type The type.
-   * @param cond The presence condition.
+   * @param putCond The presence condition.
    * @returns A new Multiverse instance containing the entries under
    * the given condition or null if the symbol is not defined.
    */
-  public void put(String ident, Type type, PresenceCondition cond) {
-    if (! cond.isFalse()) {
-      String renaming = mangleRenaming("", ident);
-      Entry newentry = new Entry(renaming, type);
-    
-      if (this.map.containsKey(ident)) {
-        // TODO: include way to check for invalid type redeclaration and
-        // convert it to a type error
-
-        Multiverse<Entry> oldmv = this.map.get(ident);
+  public void put(String ident, Type type, PresenceCondition putCond) {
+    if (putCond.isFalse()) {
+      // nothing to add, since the given presence condition is False
+    } else {
+      if (! this.map.containsKey(ident)) {
+        // Create a new multiverse for the symbol that has only the
+        // UNMAPPED entry under the True condition
         Multiverse<Entry> newmv = new Multiverse<Entry>();
 
-        // Maintain mutual exclusion by ANDing the old entries with the
-        // negation of the new condition.
-        PresenceCondition negation = cond.not();
-        for (Element<Entry> entry : oldmv) {
-          PresenceCondition newcond = entry.getCondition().and(negation);
+        PresenceCondition trueCond = putCond.presenceConditionManager().new PresenceCondition(true);
+        newmv.add(UNMAPPED, trueCond);
+        trueCond.delRef();
 
-          if (! newcond.isFalse()) {
-            // check for a redeclaration, which happens when the entry
-            // is not the UNDECLARED entry and when the presence
-            // condition of the new and old entries overlap, i.e., are
-            // not mutually-exclusive
-            if (UNDECLARED != entry.getData() && !entry.getCondition().isMutuallyExclusive(cond)) {
-              System.err.println(String.format("TODO: %s", String.format("handle type error. redeclaration of %s from %s under %s to %s under %s", ident, entry.getData().getType(), entry.getCondition(), type, cond)));
-            }
-            newmv.add(entry.getData(), newcond);
-            newcond.addRef();
-          }
-          this.map.put(ident, newmv);
-        
-          newcond.delRef();
-        }
-        negation.delRef();
+        PresenceCondition falseCond = putCond.presenceConditionManager().new PresenceCondition(false);
+        newmv.add(REMAPPED, falseCond);
+        falseCond.delRef();
 
-        newmv.add(newentry, cond);
-        cond.addRef();
-
-        this.map.put(ident, newmv);
-        oldmv.destruct();
-      
-      } else {  // ! this.map.containsKey(ident)
-        // Create a new multiverse, adding the UNDECLARED entry if only
-        // partially declared.
-        Multiverse<Entry> newmv = new Multiverse<Entry>();
-
-        newmv.add(newentry, cond);
-        cond.addRef();
-
-        // add the undefined entry if partially-defined
-        PresenceCondition negation = cond.not();
-        if (! negation.isFalse()) {
-          newmv.add(UNDECLARED, negation);
-          negation.addRef();
-        }
-        negation.delRef();
-        
         this.map.put(ident, newmv);
       }
-    } else {
-      // nothing to add, since the given presence condition is False
+
+      // TODO: include way to check for invalid type redeclaration and
+      // convert it to a type error
+
+      Multiverse<Entry> oldmv = this.map.get(ident);
+      Multiverse<Entry> newmv = new Multiverse<Entry>();
+
+      /* lifetime for presence conditions */ {
+        PresenceCondition unmappedCond = null;
+        PresenceCondition remappedCond = null;
+        PresenceCondition notNewCond = putCond.not();
+        PresenceCondition collectRemappings = putCond.presenceConditionManager().new PresenceCondition(false);
+
+        for (Element<Entry> entry : oldmv) {
+          if (UNMAPPED == entry.getData()) {
+            if (null != unmappedCond) {
+              System.err.println("FATAL: there should only be one UNMAPPED entry");
+              System.exit(1);
+            }
+            unmappedCond = entry.getCondition();
+            unmappedCond.addRef();
+          } else if (REMAPPED == entry.getData()) {
+            if (null != remappedCond) {
+              System.err.println("FATAL: there should only be one REMAPPED entry");
+              System.exit(1);
+            }
+            remappedCond = entry.getCondition();
+            remappedCond.addRef();
+          } else { // lifetime for andNotNewCond and andNewCond
+            // update old declarations' conditions and check for redeclarations
+            PresenceCondition andNotNewCond = entry.getCondition().and(notNewCond);
+            PresenceCondition andNewCond = entry.getCondition().and(putCond);
+              
+            if (! andNewCond.isFalse()) {
+              // redeclarations cause the symbol to be unmapped
+              PresenceCondition updateCollectRemappings = collectRemappings.or(andNewCond);
+              collectRemappings.delRef();
+              collectRemappings = updateCollectRemappings;
+              System.err.println("TODO: be sure to handle redeclarations appropriately.  use xtc.type.C.equal to check for legal redeclaration to same type.");
+            }
+                
+            if (! andNotNewCond.isFalse()) {
+              // update the presence conditions of prior declarations
+              newmv.add(entry.getData(), andNotNewCond);
+            }
+              
+            andNotNewCond.delRef();
+            andNewCond.delRef();
+          } // end lifetime (and for loop)
+        }
+
+        if (null == unmappedCond) {
+          System.err.println("FATAL: unmapped entry should always be present");
+          System.exit(1);
+        }
+
+        if (null == remappedCond) {
+          System.err.println("FATAL: remapped entry should always be present");
+          System.exit(1);
+        }
+
+        // add updated UNMAPPED entry
+        PresenceCondition newUnmapped = unmappedCond.and(notNewCond);
+        newmv.add(UNMAPPED, newUnmapped);
+        newUnmapped.delRef();
+
+        // add updated REMAPPED entry
+        PresenceCondition newRemapped = collectRemappings.or(remappedCond);
+        newmv.add(REMAPPED, newRemapped);
+        newRemapped.delRef();
+          
+        // add new declaration
+        String renaming = mangleRenaming("", ident);
+        Entry newentry = new Entry(renaming, type);
+        PresenceCondition newCond = unmappedCond.and(putCond);
+        // putCond's lifetime managed by caller
+        if (! newCond.isFalse()) {
+          newmv.add(newentry, newCond);  // cond's lifetime managed by caller
+        } else {
+          System.err.println("WARNING: entry was infeasible due to redeclarations");
+        }
+        newCond.delRef();  // add calls addRef()
+
+        collectRemappings.delRef();
+        notNewCond.delRef();
+        unmappedCond.delRef();
+        remappedCond.delRef();
+      } // end lifetime for presence conditions
+
+      this.map.put(ident, newmv);
+      oldmv.destruct();
     }
     // System.err.println(String.format("after put: %s -> %s", ident, map.get(ident)));
     System.err.println(toString());
