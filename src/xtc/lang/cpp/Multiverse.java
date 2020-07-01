@@ -251,7 +251,9 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   public Multiverse<T> product(T data, PresenceCondition cond, Operator<T> op) {
     Multiverse<T> other = new Multiverse<T>();
     other.add(data, cond);
-    return product(other, op);
+    Multiverse<T> result = product(other, op);
+    other.destruct();
+    return result;
   }
 
   /**
@@ -294,10 +296,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
       Multiverse<U> newmv = new Multiverse<U>();
       for (Element<T> elem : from) {
         U data = transform(elem.getData());
-        PresenceCondition condition = elem.getCondition();
-        elem.getCondition().addRef();
-      
-        newmv.add(data, condition);
+        newmv.add(data, elem.getCondition());
       }
       return newmv;
     }
