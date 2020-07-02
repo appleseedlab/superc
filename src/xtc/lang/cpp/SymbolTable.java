@@ -57,15 +57,15 @@ import xtc.lang.cpp.ForkMergeParser.Lookahead;
  */
 public class SymbolTable {
 
-  public static final Entry UNMAPPED = new Entry("<UNMAPPED>", UnitT.TYPE) {
+  public static final Entry UNDECLARED = new Entry("<UNDECLARED>", UnitT.TYPE) {
       public String toString() {
-        return "<UNMAPPED>";
+        return "<UNDECLARED>";
       }
     };
     
-  public static final Entry REMAPPED = new Entry("<REMAPPED>", UnitT.TYPE) {
+  public static final Entry ERROR = new Entry("<ERROR>", UnitT.TYPE) {
       public String toString() {
-        return "<REMAPPED>";
+        return "<ERROR>";
       }
     };
     
@@ -187,37 +187,34 @@ public class SymbolTable {
   }
 
   /**
-   * Add a new symbol table entry for the given identifier.  This
-   * maintains two invariants: (1) all entries are mutually-exclusive
-   * and (2) all entries together union to True.  This ensures that
-   * the UNMAPPED entry is always present in the Multiverse, even if
-   * its presence condition is False.  This method will error out if a
-   * symbol is redeclared in some presence condition.  To ensure this
-   * does not happen, use get() under the putCond first and see if
-   * there are any mapped symbols.  For type-checking, emit errors for
-   * these redeclarations and revise the presence condition.
+   * Add a new entry to the symbol table.  This maintains two
+   * invariants: (1) all entries are mutually-exclusive and (2) all
+   * entries together union to True.  This ensures that the UNDECLARED
+   * entry is always present in the Multiverse, even if its presence
+   * condition is False.  This method will error out if a symbol is
+   * redeclared in some presence condition.  To ensure this does not
+   * happen, use get() under the putCond first and see if there are
+   * any mapped symbols.  For type-checking, emit errors for these
+   * redeclarations and revise the presence condition.
    *
-   * @param ident The identifier to enter.
-   * @param type The type.
-   * @param putCond The presence condition.
-   * @returns A new Multiverse instance containing the entries under
-   * the given condition or null if the symbol is not defined.
+   * @param putEntry The entry to add, either a regular entry or the
+   * canonical UNDECLARED or ERROR entries
+   * @param putCond The presence condition under which to update the
+   * table.
    */
-  public void put(String ident, Type type, PresenceCondition putCond) {
-    if (putCond.isFalse()) {
-      // nothing to add, since the given presence condition is False
-    } else {
+  protected void put(String ident, SymbolTable.Entry putEntry, PresenceCondition putCond) {
+    if (! putCond.isFalse()) {
       if (! this.map.containsKey(ident)) {
         // Create a new multiverse for the symbol that has only the
-        // UNMAPPED entry under the True condition
+        // UNDECLARED entry under the True condition
         Multiverse<Entry> newmv = new Multiverse<Entry>();
 
         PresenceCondition trueCond = putCond.presenceConditionManager().new PresenceCondition(true);
-        newmv.add(UNMAPPED, trueCond);
+        newmv.add(UNDECLARED, trueCond);
         trueCond.delRef();
 
         PresenceCondition falseCond = putCond.presenceConditionManager().new PresenceCondition(false);
-        newmv.add(REMAPPED, falseCond);
+        newmv.add(ERROR, falseCond);
         falseCond.delRef();
 
         this.map.put(ident, newmv);
@@ -230,37 +227,37 @@ public class SymbolTable {
       Multiverse<Entry> newmv = new Multiverse<Entry>();
 
       /* lifetime for presence conditions */ {
-        PresenceCondition unmappedCond = null;
-        PresenceCondition remappedCond = null;
-        PresenceCondition notNewCond = putCond.not();
-        PresenceCondition collectRemappings = putCond.presenceConditionManager().new PresenceCondition(false);
+        PresenceCondition undeclaredCond = null;
+        PresenceCondition errorCond = null;
+        PresenceCondition notPutCond = putCond.not();
+        PresenceCondition collectErrors = putCond.presenceConditionManager().new PresenceCondition(false);
 
         for (Element<Entry> entry : oldmv) {
-          if (UNMAPPED == entry.getData()) {
-            if (null != unmappedCond) {
-              System.err.println("FATAL: there should only be one UNMAPPED entry");
+          if (UNDECLARED == entry.getData()) {
+            if (null != undeclaredCond) {
+              System.err.println("FATAL: there should only be one UNDECLARED entry");
               System.exit(1);
             }
-            unmappedCond = entry.getCondition();
-            unmappedCond.addRef();
-          } else if (REMAPPED == entry.getData()) {
-            if (null != remappedCond) {
-              System.err.println("FATAL: there should only be one REMAPPED entry");
+            undeclaredCond = entry.getCondition();
+            undeclaredCond.addRef();
+          } else if (ERROR == entry.getData()) {
+            if (null != errorCond) {
+              System.err.println("FATAL: there should only be one ERROR entry");
               System.exit(1);
             }
-            remappedCond = entry.getCondition();
-            remappedCond.addRef();
+            errorCond = entry.getCondition();
+            errorCond.addRef();
           } else { // lifetime for andNotNewCond and andNewCond
             // update old declarations' conditions and check for redeclarations
-            PresenceCondition andNotNewCond = entry.getCondition().and(notNewCond);
+            PresenceCondition andNotNewCond = entry.getCondition().and(notPutCond);
             PresenceCondition andNewCond = entry.getCondition().and(putCond);
               
             if (! andNewCond.isFalse()) {
-              // redeclarations cause the symbol to be unmapped
-              PresenceCondition updateCollectRemappings = collectRemappings.or(andNewCond);
-              collectRemappings.delRef();
-              collectRemappings = updateCollectRemappings;
-              System.err.println("TODO: be sure to handle redeclarations appropriately.  use xtc.type.C.equal to check for legal redeclaration to same type.");
+              // redeclarations cause the symbol to be undeclared
+              PresenceCondition updateCollectErrors = collectErrors.or(andNewCond);
+              collectErrors.delRef();
+              collectErrors = updateCollectErrors;
+              System.err.println(String.format("WARNING: redeclaration of %s turned into an error entry.  use xtc.type.C.equal to check for legal redeclaration to same type.", ident));
             }
                 
             if (! andNotNewCond.isFalse()) {
@@ -273,49 +270,113 @@ public class SymbolTable {
           } // end lifetime (and for loop)
         }
 
-        if (null == unmappedCond) {
-          System.err.println("FATAL: unmapped entry should always be present");
+        if (null == undeclaredCond) {
+          System.err.println("FATAL: undeclared entry should always be present");
           System.exit(1);
         }
 
-        if (null == remappedCond) {
-          System.err.println("FATAL: remapped entry should always be present");
+        if (null == errorCond) {
+          System.err.println("FATAL: error entry should always be present");
           System.exit(1);
         }
 
-        // add updated UNMAPPED entry
-        PresenceCondition newUnmapped = unmappedCond.and(notNewCond);
-        newmv.add(UNMAPPED, newUnmapped);
-        newUnmapped.delRef();
+        // add a new declaration
+        if (UNDECLARED != putEntry && ERROR != putEntry) {
+          PresenceCondition newCond = undeclaredCond.and(putCond);
+          // putCond's lifetime managed by caller
+          if (! newCond.isFalse()) {
+            newmv.add(putEntry, newCond);  // cond's lifetime managed by caller
+          } else {
+            System.err.println("WARNING: entry was infeasible due to redeclarations");
+          }
+          newCond.delRef();  // add calls addRef()
+        }
 
-        // add updated REMAPPED entry
-        PresenceCondition newRemapped = collectRemappings.or(remappedCond);
-        newmv.add(REMAPPED, newRemapped);
-        newRemapped.delRef();
-          
-        // add new declaration
-        String renaming = mangleRenaming("", ident);
-        Entry newentry = new Entry(renaming, type);
-        PresenceCondition newCond = unmappedCond.and(putCond);
-        // putCond's lifetime managed by caller
-        if (! newCond.isFalse()) {
-          newmv.add(newentry, newCond);  // cond's lifetime managed by caller
+        // update the errors to include the remapping errors
+        PresenceCondition newError = collectErrors.or(errorCond);
+        if (ERROR == putEntry) {
+          PresenceCondition updatedError = newError.or(putCond);
+          newError.delRef();
+          newError = updatedError;
+        }
+        newmv.add(ERROR, newError);
+        
+        // update the undeclared conditions to include the new entry
+        // if it's an undeclared entry or to exclude the new entry
+        // otherwise
+        PresenceCondition newUndeclared;
+        if (UNDECLARED == putEntry) {
+          newUndeclared = undeclaredCond.or(putCond);
         } else {
-          System.err.println("WARNING: entry was infeasible due to redeclarations");
+          newUndeclared = undeclaredCond.and(notPutCond);
         }
-        newCond.delRef();  // add calls addRef()
+        newmv.add(UNDECLARED, newUndeclared);
 
-        collectRemappings.delRef();
-        notNewCond.delRef();
-        unmappedCond.delRef();
-        remappedCond.delRef();
+        newUndeclared.delRef();
+        newError.delRef();
+
+        collectErrors.delRef();
+        notPutCond.delRef();
+        undeclaredCond.delRef();
+        errorCond.delRef();
       } // end lifetime for presence conditions
 
+      // check invariants
+      {
+        PresenceCondition union = putCond.presenceConditionManager().new PresenceCondition(false);
+
+        // has redundant checks
+        for (Element<Entry> entry_i : newmv) {
+          PresenceCondition newUnion = union.or(entry_i.getCondition());
+          union.delRef();
+          union = newUnion;
+          
+          for (Element<Entry> entry_j : newmv) {
+            if (entry_i != entry_j) {
+              if (! entry_i.getCondition().isMutuallyExclusive(entry_j.getCondition())) {
+                System.err.println("FATAL: symbol table full converage invariant check failed");
+                System.err.println(toString());
+                System.exit(1);
+              }
+            }
+          }
+        }
+
+        PresenceCondition notUnion = union.not();
+        if (! notUnion.isFalse()) {
+          System.err.println("FATAL: symbol table mutual exclusion invariant check failed");
+          System.err.println(toString());
+          System.exit(1);
+        }
+        notUnion.delRef();
+        
+        union.delRef();
+      }
+    
+      
       this.map.put(ident, newmv);
       oldmv.destruct();
+    } else {
+      // nothing to add, since the given presence condition is False
     }
+
     // System.err.println(String.format("after put: %s -> %s", ident, map.get(ident)));
     System.err.println(toString());
+  }
+
+  /**
+   * Add a new symbol table entry for the given identifier.
+   *
+   * @param ident The identifier to enter.
+   * @param type The type.
+   * @param putCond The presence condition.
+   * @returns A new Multiverse instance containing the entries under
+   * the given condition or null if the symbol is not defined.
+   */
+  public void put(String ident, Type type, PresenceCondition putCond) {
+    String renaming = mangleRenaming("", ident);
+    Entry entry = new Entry(renaming, type);
+    put(ident, entry, putCond);
   }
 
   private static long varcount = 0;
