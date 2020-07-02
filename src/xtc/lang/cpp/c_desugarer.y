@@ -749,16 +749,14 @@ DeclaringList:  /** nomerge **/
           String oldIdent = decl.identifier;
           System.err.println(decl.toString() + " " + type.toString());
           addDeclsToSymTab(subparser, type, decl);
-          Multiverse<SymbolTable.Entry> unis
+          Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           // TODO: destruct multiverse when done
-          List<StringBuilder> renamings = getRenamings(unis);
       	  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           StringBuilder sb = new StringBuilder();
 
-          /** writes declarations of renamed variables */
-      	  for (StringBuilder renaming : renamings) {
-      	    decl.identifier = renaming.toString();
+          for (Element<SymbolTable.Entry> elem : entries) {
+      	    decl.identifier = elem.getData().getRenaming();
       	    List<Type> typeList = type.toType();
       	    if (typeList.size() == 1) {
       	      if (typeList.get(0).getClass().getName().equals("xtc.type.TypedefT")) {
@@ -769,14 +767,14 @@ DeclaringList:  /** nomerge **/
       	      System.err.println("ERROR: Configurable typedefs not yet supported.");
       	      // System.exit(1);
     	      }
-        	}
+          }
 
           // TODO: handle AttributeSpecifierListOpt
 
           /** hoists and writes initializing statements using the renamed variables */
           Multiverse<StringBuilder> childSBMV = getSBMVAt(subparser, 1);
           if (childSBMV != null)
-            for (Element<SymbolTable.Entry> u : unis)
+            for (Element<SymbolTable.Entry> u : entries)
               for (Element<StringBuilder> sbelem : childSBMV)
                 sb.append("\nif (" + PCtoString(u.getCondition().and(sbelem.getCondition())) + ") {\n" +
                          (new StringBuilder(u.getData().getRenaming())).toString() +
@@ -5899,15 +5897,6 @@ private static Specifiers makeStructSpec(Subparser subparser,
   specs.type = type;
 
   return specs;
-}
-
-private List<StringBuilder> getRenamings(Multiverse<SymbolTable.Entry> unis) {
-  // todo, use a transformer for this
-  List<StringBuilder> sb = new LinkedList<StringBuilder>();
-  for (Element<SymbolTable.Entry> u : unis) {
-    sb.add(new StringBuilder(u.getData().getRenaming()));
-  }
-  return sb;
 }
 
 /**
