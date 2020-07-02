@@ -17,7 +17,8 @@ import xtc.lang.cpp.Multiverse.Element;
 public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
 {
   static int count = 0;
-  Integer personalCount;;
+  Integer personalCount;
+
   public List<Type> toType() {
     List<Type> types = new LinkedList<Type>();
     for (Element<TypeBuilderUnit> t : contents)
