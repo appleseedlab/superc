@@ -416,12 +416,8 @@ FunctionPrototype:  /** nomerge **/
         {
           TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
-<<<<<<< HEAD
-          addDeclsToSymTab(subparser,type,decl);
-=======
           System.err.println("WARNING: unsupported semantic action: " + ((Node) value).getName());
-          addMapping(subparser,type,decl);
->>>>>>> desugaring
+          addDeclsToSymTab(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           getAndSetSBMVCond(2, subparser, value);
@@ -702,7 +698,7 @@ Declaration:  /** complete **/
 DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         DeclarationQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + ((Node) value).getName());
+          /* System.err.println("WARNING: unsupported semantic action: " + ((Node) value).getName()); */
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -712,7 +708,8 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         }
         | TypeQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + ((Node) value).getName());
+          /* System.err.println("WARNING: unsupported semantic action: " + ((Node) value).getName()); */
+          System.err.println("BOB2");
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -761,35 +758,19 @@ DeclaringList:  /** nomerge **/
           StringBuilder sb = new StringBuilder();
 
           /** writes declarations of renamed variables */
-<<<<<<< HEAD
       	  for (StringBuilder renaming : renamings) {
-            decl.identifier = renaming.toString();
-            List<Type> typeList = type.toType();
-            if (typeList.size() == 1) {
-              if (typeList.get(0).getClass().getName().equals("xtc.type.TypedefT")) {
-                System.err.println("WARNING: typedef transformations not yet supported.");
-              }
-              sb.append("\n" + typeList.get(0) + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
-            } else {
-              System.err.println("ERROR: Configurable typedefs not yet supported.");
-              // System.exit(1);
-            }
-          }
-=======
-      	  for (StringBuilder renaming : renamings)
-      	  {
       	    decl.identifier = renaming.toString();
       	    List<Type> typeList = type.toType();
       	    if (typeList.size() == 1) {
-      	      if (typeList.get(0).getClass().getName().equals("xtc.type.TypedefT"))
+      	      if (typeList.get(0).getClass().getName().equals("xtc.type.TypedefT")) {
       	        System.err.println("WARNING: typedef transformations not yet supported.");
+              }
       	      sb.append("\n" + typeList.get(0) + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
       	    } else {
       	      System.err.println("ERROR: Configurable typedefs not yet supported.");
       	      // System.exit(1);
     	      }
         	}
->>>>>>> desugaring
 
           // TODO: handle AttributeSpecifierListOpt
 
@@ -5945,15 +5926,7 @@ private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebui
     //System.exit(1);
     return;
   }
-<<<<<<< HEAD
-  
   CContext scope = (CContext) subparser.scope;
-=======
-  unis.destruct();
-
-  return scope.getSymbolTable().get(d.getID(), subparser.getPresenceCondition());
-}
->>>>>>> desugaring
 
   // get the list of parameters if it's a function declarator
   Multiverse<List<Parameter>> parms = null;
