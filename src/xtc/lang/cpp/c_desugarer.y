@@ -384,7 +384,30 @@ FunctionDefinition:  /** complete **/ // added scoping
           //Get FunctionPrototype
           //Get FunctionCompoundStatement
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(6, subparser, value);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          for (int i = 6; i >= 1; i--)
+          {
+            // only want to get the transformation code at children 3 and 6
+            if (i % 3 != 0) {
+              System.err.println("WARNING: skipping over transformation code at some nodes in FunctionDefinition.");
+              continue;
+            }
+
+            Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
+            /**
+             * iterates through every pair of (Node, PresenceCondition)
+             * and generates all combinations of the childrens' SBMVs
+             */
+            for (Multiverse.Element<Node> child : children) {
+              Multiverse<StringBuilder> temp = (Multiverse<StringBuilder>)(child.getData().getProperty(TRANSFORMATION));
+              Multiverse<StringBuilder> product = cartesianProduct(sbmv, temp);
+              sbmv.destruct();
+              //temp.destruct();
+              System.err.println("WARNING: a multiverse is not being destructed in FunctionDefinition.");
+              sbmv = product;
+            }
+          }
+          ((Node)value).setProperty(TRANSFORMATION, sbmv);
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
@@ -414,18 +437,17 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationSpecifier     IdentifierDeclarator
         {
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
-          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder decl = getDBAt(subparser, 1);
           System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeSpecifier            IdentifierDeclarator
         {
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
-          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder decl = getDBAt(subparser, 1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           StringBuilder sb = new StringBuilder();
@@ -446,62 +468,55 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
-          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeQualifierList        IdentifierDeclarator
         {
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
-          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
         }
         |                          OldFunctionDeclarator
         {
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
-          getAndSetSBMVCond(1, subparser, value);
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
-          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
-          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
-          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
-          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
         }
         ;
 
@@ -673,22 +688,86 @@ Declaration:  /** complete **/
         SUEDeclarationSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(3, subparser, value);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+
+          Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, 3), subparser.getPresenceCondition().presenceConditionManager());
+          /**
+           * iterates through every pair of (Node, PresenceCondition)
+           * and generates all combinations of the childrens' SBMVs
+           */
+          for (Multiverse.Element<Node> child : children) {
+            Multiverse<StringBuilder> temp = (Multiverse<StringBuilder>)(child.getData().getProperty(TRANSFORMATION));
+            Multiverse<StringBuilder> product = cartesianProduct(sbmv, temp);
+            sbmv.destruct();
+            //temp.destruct();
+            System.err.println("WARNING: a multiverse is not being destructed in Declaration.");
+            sbmv = product;
+          }
+          System.err.println("WARNING: skipping over transformation code at some nodes in Declaration.");
+          ((Node)value).setProperty(TRANSFORMATION, sbmv);
         }
         | SUETypeSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(3, subparser, value);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+
+          Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, 3), subparser.getPresenceCondition().presenceConditionManager());
+          /**
+           * iterates through every pair of (Node, PresenceCondition)
+           * and generates all combinations of the childrens' SBMVs
+           */
+          for (Multiverse.Element<Node> child : children) {
+            Multiverse<StringBuilder> temp = (Multiverse<StringBuilder>)(child.getData().getProperty(TRANSFORMATION));
+            Multiverse<StringBuilder> product = cartesianProduct(sbmv, temp);
+            sbmv.destruct();
+            //temp.destruct();
+            System.err.println("WARNING: a multiverse is not being destructed in Declaration.");
+            sbmv = product;
+          }
+          System.err.println("WARNING: skipping over transformation code at some nodes in Declaration.");
+          ((Node)value).setProperty(TRANSFORMATION, sbmv);
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(3, subparser, value);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+
+          Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, 3), subparser.getPresenceCondition().presenceConditionManager());
+          /**
+           * iterates through every pair of (Node, PresenceCondition)
+           * and generates all combinations of the childrens' SBMVs
+           */
+          for (Multiverse.Element<Node> child : children) {
+            Multiverse<StringBuilder> temp = (Multiverse<StringBuilder>)(child.getData().getProperty(TRANSFORMATION));
+            Multiverse<StringBuilder> product = cartesianProduct(sbmv, temp);
+            sbmv.destruct();
+            //temp.destruct();
+            System.err.println("WARNING: a multiverse is not being destructed.");
+            sbmv = product;
+          }
+          System.err.println("WARNING: skipping over transformation code at some nodes in Declaration.");
+          ((Node)value).setProperty(TRANSFORMATION, sbmv);
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(3, subparser, value);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+
+          Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, 3), subparser.getPresenceCondition().presenceConditionManager());
+          /**
+           * iterates through every pair of (Node, PresenceCondition)
+           * and generates all combinations of the childrens' SBMVs
+           */
+          for (Multiverse.Element<Node> child : children) {
+            Multiverse<StringBuilder> temp = (Multiverse<StringBuilder>)(child.getData().getProperty(TRANSFORMATION));
+            Multiverse<StringBuilder> product = cartesianProduct(sbmv, temp);
+            sbmv.destruct();
+            //temp.destruct();
+            System.err.println("WARNING: a multiverse is not being destructed.");
+            sbmv = product;
+          }
+          System.err.println("WARNING: skipping over transformation code at some nodes in Declaration.");
+          ((Node)value).setProperty(TRANSFORMATION, sbmv);
         }
         ;
 
@@ -731,18 +810,17 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
 DeclaringList:  /** nomerge **/
         DeclarationSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-      	  TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 5);
-      	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-          System.err.println(decl.toString() + " " + type.toString());
+      	  TypeBuilderMultiverse type = getTBAt(subparser, 5);
+      	  DeclBuilder decl = getDBAt(subparser, 4);
+                    System.err.println(decl.toString() + " " + type.toString());
           addMapping(subparser, type, decl);
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
-          bindIdent(subparser, getTypeBuilderAt(subparser, 5), getDeclBuilderAt(subparser, 4));
+          bindIdent(subparser, getTBAt(subparser, 5), getDBAt(subparser, 4));
         }
         | TypeSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-      	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
-      	  TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 5);
+      	  DeclBuilder decl = getDBAt(subparser, 4);
+      	  TypeBuilderMultiverse type = getTBAt(subparser, 5);
       	  saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, type, decl);
 
@@ -781,7 +859,7 @@ DeclaringList:  /** nomerge **/
                          "\n}\n");
 
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
@@ -797,98 +875,85 @@ DeclaringList:  /** nomerge **/
 DeclarationSpecifier:  /**  nomerge **/
         BasicDeclarationSpecifier        /* Arithmetic or void */
 				{
-	  			TypeBuilderMultiverse decl = getTypeBuilderAt(subparser, 1);
-	  			setTypeBuilder(value, decl);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-				}
+	  			TypeBuilderMultiverse decl = getTBAt(subparser, 1);
+	  			setTFValue(value, decl);
+          				}
         | SUEDeclarationSpecifier          /* struct/union/enum */
 				{
 					System.err.println("Unsupported grammar DeclarationSpecifier-SUE"); // TODO
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-					System.exit(1);
+          					System.exit(1);
 				}
         | TypedefDeclarationSpecifier      /* typedef*/
 				{
-	 				TypeBuilderMultiverse decl = getTypeBuilderAt(subparser, 1);
-	  			setTypeBuilder(value, decl);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-				}
+	 				TypeBuilderMultiverse decl = getTBAt(subparser, 1);
+	  			setTFValue(value, decl);
+          				}
         | VarArgDeclarationSpecifier  // ADDED
         {
 					System.err.println("Unsupported grammar DeclarationSpecifier-VarArg"); // TODO
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-					System.exit(1);
+          					System.exit(1);
 				}
         | TypeofDeclarationSpecifier // ADDED
         {
 					System.err.println("Unsupported grammar DeclarationSpecifier-TypeofDeclSpec"); // TODO
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-					System.exit(1);
+          					System.exit(1);
 				}
         ;
 
 TypeSpecifier:  /** nomerge **/
         BasicTypeSpecifier                 /* Arithmetic or void */
 				{
-          TypeBuilderMultiverse t = getTypeBuilderAt(subparser,1);
-        	setTypeBuilder(value,t);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-				}
+          TypeBuilderMultiverse t = getTBAt(subparser,1);
+        	setTFValue(value,t);
+          				}
         | SUETypeSpecifier                 /* Struct/Union/Enum */
 				{
 					System.err.println("Unsupported grammar TypeSpecifier-SUE"); // TODO
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-					System.exit(1);
+          					System.exit(1);
 				}
 				| TypedefTypeSpecifier             /* Typedef */
 				{
-					setTypeBuilder(value,getTypeBuilderAt(subparser,1));
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-				}
+					setTFValue(value,getTBAt(subparser,1));
+          				}
         | VarArgTypeSpecifier  // ADDED
 				{
 					System.err.println("Unsupported grammar TypeSpecifier-VarArg"); // TODO
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-					System.exit(1);
+          					System.exit(1);
 				}
         | TypeofTypeSpecifier // ADDED
 				{
 					System.err.println("Unsupported grammar TypeSpecifier-Typeof"); // TODO
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-					System.exit(1);
+          					System.exit(1);
 				}
         ;
 
 DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage class */
         StorageClass
       	{
-      	  TypeBuilderMultiverse storage = getTypeBuilderAt(subparser,1);
-      	  setTypeBuilder(value, storage);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	  updateSpecs(subparser,
+      	  TypeBuilderMultiverse storage = getTBAt(subparser,1);
+      	  setTFValue(value, storage);
+                	  updateSpecs(subparser,
                             getSpecsAt(subparser, 1),
                             value);
       	}
       	| TypeQualifierList StorageClass
       	{
-      	  TypeBuilderMultiverse qualList = getTypeBuilderAt(subparser, 2);
-      	  TypeBuilderMultiverse storage = getTypeBuilderAt(subparser, 1);
+      	  TypeBuilderMultiverse qualList = getTBAt(subparser, 2);
+      	  TypeBuilderMultiverse storage = getTBAt(subparser, 1);
       	  TypeBuilderMultiverse tb = qualList.combine(storage);
-      	  setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	  updateSpecs(subparser,
+      	  setTFValue(value, tb);
+                	  updateSpecs(subparser,
                             getSpecsAt(subparser, 2),
                             getSpecsAt(subparser, 1),
                             value);
       	}
         | DeclarationQualifierList DeclarationQualifier
       	{
-      	  TypeBuilderMultiverse qualList = getTypeBuilderAt(subparser, 2);
-      	  TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
+      	  TypeBuilderMultiverse qualList = getTBAt(subparser, 2);
+      	  TypeBuilderMultiverse qual = getTBAt(subparser, 1);
       	  TypeBuilderMultiverse tb = qualList.combine(qual);
-      	  setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	  updateSpecs(subparser,
+      	  setTFValue(value, tb);
+                	  updateSpecs(subparser,
                             getSpecsAt(subparser, 2),
                             getSpecsAt(subparser, 1),
                             value);
@@ -898,21 +963,19 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
 TypeQualifierList:  /** list, nomerge **/
         TypeQualifier
       	{
-      	  TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
-      	  setTypeBuilder(value, qual);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	   updateSpecs(subparser,
+      	  TypeBuilderMultiverse qual = getTBAt(subparser, 1);
+      	  setTFValue(value, qual);
+                	   updateSpecs(subparser,
                             getSpecsAt(subparser, 1),
                             value);
       	}
         | TypeQualifierList TypeQualifier
       	{
-      	  TypeBuilderMultiverse qualList = getTypeBuilderAt(subparser, 2);
-      	    TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
+      	  TypeBuilderMultiverse qualList = getTBAt(subparser, 2);
+      	    TypeBuilderMultiverse qual = getTBAt(subparser, 1);
       	    TypeBuilderMultiverse tb = qualList.combine(qual);
-      	    setTypeBuilder(value, tb);
-            System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	    updateSpecs(subparser,
+      	    setTFValue(value, tb);
+                  	    updateSpecs(subparser,
                             getSpecsAt(subparser, 2),
                             getSpecsAt(subparser, 1),
                             value);
@@ -922,51 +985,45 @@ TypeQualifierList:  /** list, nomerge **/
 DeclarationQualifier:
         TypeQualifier                  /* const or volatile */
         {
-          TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
-          setTypeBuilder(value, qual);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-        }
+          TypeBuilderMultiverse qual = getTBAt(subparser, 1);
+          setTFValue(value, qual);
+                  }
         | StorageClass
         {
-          TypeBuilderMultiverse storage = getTypeBuilderAt(subparser, 1);
-          setTypeBuilder(value, storage);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-        }
+          TypeBuilderMultiverse storage = getTBAt(subparser, 1);
+          setTFValue(value, storage);
+                  }
         ;
 
 TypeQualifier:    // const, volatile, and restrict can have underscores
 ConstQualifier
 {
   TypeBuilderMultiverse qual = new TypeBuilderMultiverse("const", subparser.getPresenceCondition());
-  setTypeBuilder(value, qual);
-  System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  updateSpecs(subparser,
+  setTFValue(value, qual);
+    updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
 }
 | VolatileQualifier
 {
   TypeBuilderMultiverse qual = new TypeBuilderMultiverse("volatile", subparser.getPresenceCondition());
-  setTypeBuilder(value, qual);
-  System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  updateSpecs(subparser,
+  setTFValue(value, qual);
+    updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
 }
 | RestrictQualifier
 {
   TypeBuilderMultiverse qual = new TypeBuilderMultiverse("restrict", subparser.getPresenceCondition());
-  setTypeBuilder(value, qual);
-  System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  updateSpecs(subparser,
+  setTFValue(value, qual);
+    updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
 }
 | AttributeSpecifier // ADDED
 {
   System.err.println("Unsupported grammar TypeQualifier-Attribute"); // TODO
-  System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  System.exit(1);
+    System.exit(1);
   updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
@@ -974,9 +1031,8 @@ ConstQualifier
 | FunctionSpecifier  // ADDED
 {
   TypeBuilderMultiverse qual = new TypeBuilderMultiverse("inline", subparser.getPresenceCondition());
-  setTypeBuilder(value, qual);
-  System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  updateSpecs(subparser,
+  setTFValue(value, qual);
+    updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
 }
@@ -1045,59 +1101,55 @@ FunctionSpecifier:  // ADDED
 BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or void*/
         BasicTypeSpecifier  StorageClass
         {
-        TypeBuilderMultiverse basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
-        TypeBuilderMultiverse storageClass = getTypeBuilderAt(subparser, 1);
+        TypeBuilderMultiverse basicTypeSpecifier = getTBAt(subparser, 2);
+        TypeBuilderMultiverse storageClass = getTBAt(subparser, 1);
 
         // combine the partial type specs
         TypeBuilderMultiverse tb = basicTypeSpecifier.combine(storageClass);
 
-        setTypeBuilder(value, tb);
-        System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	      updateSpecs(subparser,
+        setTFValue(value, tb);
+        	      updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
         | DeclarationQualifierList BasicTypeName {
-	        TypeBuilderMultiverse qualList = getTypeBuilderAt(subparser, 2);
-          TypeBuilderMultiverse basicTypeName = getTypeBuilderAt(subparser, 1);
+	        TypeBuilderMultiverse qualList = getTBAt(subparser, 2);
+          TypeBuilderMultiverse basicTypeName = getTBAt(subparser, 1);
 
           // combine the partial type specs
           TypeBuilderMultiverse tb = qualList.combine(basicTypeName);
 
-	        setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	        updateSpecs(subparser,
+	        setTFValue(value, tb);
+          	        updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
         | BasicDeclarationSpecifier DeclarationQualifier
         {
- 	        TypeBuilderMultiverse decl = getTypeBuilderAt(subparser, 2);
-          TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
+ 	        TypeBuilderMultiverse decl = getTBAt(subparser, 2);
+          TypeBuilderMultiverse qual = getTBAt(subparser, 1);
 
           // combine the partial type specs
           TypeBuilderMultiverse tb = decl.combine(qual);
 
-      	  setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	  updateSpecs(subparser,
+      	  setTFValue(value, tb);
+                	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
         | BasicDeclarationSpecifier BasicTypeName
         {
-	        TypeBuilderMultiverse basicDeclSpecifier = getTypeBuilderAt(subparser, 2);
-          TypeBuilderMultiverse basicTypeName = getTypeBuilderAt(subparser, 1);
+	        TypeBuilderMultiverse basicDeclSpecifier = getTBAt(subparser, 2);
+          TypeBuilderMultiverse basicTypeName = getTBAt(subparser, 1);
 
           // combine the partial type specs
           TypeBuilderMultiverse tb = basicDeclSpecifier.combine(basicTypeName);
 
-      	  setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	  updateSpecs(subparser,
+      	  setTFValue(value, tb);
+                	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
@@ -1110,38 +1162,35 @@ BasicTypeSpecifier: /**  nomerge **/
           // TUTORIAL: a semantic action that sets the semantic value
           // to a new typebuilder by adding a property derived from
           // the child semantic value(s)
-          TypeBuilderMultiverse tb = getTypeBuilderAt(subparser, 1);
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-          updateSpecs(subparser,
+          TypeBuilderMultiverse tb = getTBAt(subparser, 1);
+          setTFValue(value, tb);
+                    updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
 
         }
         | TypeQualifierList BasicTypeName
 	      {
-          TypeBuilderMultiverse qualList = getTypeBuilderAt(subparser, 2);
-          TypeBuilderMultiverse basicTypeName = getTypeBuilderAt(subparser, 1);
+          TypeBuilderMultiverse qualList = getTBAt(subparser, 2);
+          TypeBuilderMultiverse basicTypeName = getTBAt(subparser, 1);
 
           TypeBuilderMultiverse tb = qualList.combine(basicTypeName);
 
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	        updateSpecs(subparser,
+          setTFValue(value, tb);
+          	        updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
         | BasicTypeSpecifier TypeQualifier
 	      {
-          TypeBuilderMultiverse basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
-          TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
+          TypeBuilderMultiverse basicTypeSpecifier = getTBAt(subparser, 2);
+          TypeBuilderMultiverse qual = getTBAt(subparser, 1);
 
           TypeBuilderMultiverse tb = basicTypeSpecifier.combine(qual);
 
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	        updateSpecs(subparser,
+          setTFValue(value, tb);
+          	        updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
@@ -1149,15 +1198,14 @@ BasicTypeSpecifier: /**  nomerge **/
         | BasicTypeSpecifier BasicTypeName
         {
           // get the semantic values of each child
-          TypeBuilderMultiverse basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
-          TypeBuilderMultiverse basicTypeName = getTypeBuilderAt(subparser, 1);
+          TypeBuilderMultiverse basicTypeSpecifier = getTBAt(subparser, 2);
+          TypeBuilderMultiverse basicTypeName = getTBAt(subparser, 1);
 
           // combine the partial type specs
           TypeBuilderMultiverse tb = basicTypeSpecifier.combine(basicTypeName);
 
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	        updateSpecs(subparser,
+          setTFValue(value, tb);
+          	        updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
@@ -1198,28 +1246,25 @@ SUETypeSpecifier: /** nomerge **/
 TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef types */
         TypedefTypeSpecifier StorageClass
       	{
-      	  TypeBuilderMultiverse tb = getTypeBuilderAt(subparser, 2);
-          TypeBuilderMultiverse tb1 = getTypeBuilderAt(subparser, 1);
-          setTypeBuilder(value, tb.combine(tb1));
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  TypeBuilderMultiverse tb = getTBAt(subparser, 2);
+          TypeBuilderMultiverse tb1 = getTBAt(subparser, 1);
+          setTFValue(value, tb.combine(tb1));
+                	}
         | DeclarationQualifierList TYPEDEFname
         {
-      	  TypeBuilderMultiverse tb = getTypeBuilderAt(subparser, 2);
+      	  TypeBuilderMultiverse tb = getTBAt(subparser, 2);
           TypeBuilderMultiverse tb1 = new TypeBuilderMultiverse();
       	  String typeName = getStringAt(subparser, 1);
       	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition());
-          setTypeBuilder(value, tb.combine(tb1));
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+          setTFValue(value, tb.combine(tb1));
+                	}
         | TypedefDeclarationSpecifier DeclarationQualifier
       	{
-      	  TypeBuilderMultiverse tb1 = getTypeBuilderAt(subparser, 2);
-      	  TypeBuilderMultiverse dq = getTypeBuilderAt(subparser,1);
+      	  TypeBuilderMultiverse tb1 = getTBAt(subparser, 2);
+      	  TypeBuilderMultiverse dq = getTBAt(subparser,1);
       	  TypeBuilderMultiverse tb = tb1.combine(dq);
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+          setTFValue(value, tb);
+                	}
         ;
 
 TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
@@ -1228,26 +1273,23 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
       	  TypeBuilderMultiverse tb1 = new TypeBuilderMultiverse();
       	  String typeName = getStringAt(subparser, 1);
       	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition());
-          setTypeBuilder(value, tb1);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+          setTFValue(value, tb1);
+                	}
         | TypeQualifierList TYPEDEFname
       	{
-      	  TypeBuilderMultiverse tb = getTypeBuilderAt(subparser, 2);
+      	  TypeBuilderMultiverse tb = getTBAt(subparser, 2);
           TypeBuilderMultiverse tb1 = new TypeBuilderMultiverse();
       	  String typeName = getStringAt(subparser, 1);
       	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition());
-          setTypeBuilder(value, tb.combine(tb1));
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+          setTFValue(value, tb.combine(tb1));
 
       	}
         | TypedefTypeSpecifier TypeQualifier
         {
-          TypeBuilderMultiverse tb = getTypeBuilderAt(subparser, 2);
-          TypeBuilderMultiverse tb1 = getTypeBuilderAt(subparser, 1);
-          setTypeBuilder(value, tb.combine(tb1));
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-        }
+          TypeBuilderMultiverse tb = getTBAt(subparser, 2);
+          TypeBuilderMultiverse tb1 = getTBAt(subparser, 1);
+          setTFValue(value, tb.combine(tb1));
+                  }
 ;
 
 TypeofDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or void*/
@@ -1395,37 +1437,32 @@ StorageClass:
         TYPEDEF
     	  {
     	    TypeBuilderMultiverse storage = new TypeBuilderMultiverse("typedef", subparser.getPresenceCondition());
-    	    setTypeBuilder(value, storage);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-    	    getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF;
+    	    setTFValue(value, storage);
+              	    getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF;
     	  }
         | EXTERN
   	    {
   	      TypeBuilderMultiverse storage = new TypeBuilderMultiverse("extern", subparser.getPresenceCondition());
-  	      setTypeBuilder(value, storage);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN;
+  	      setTFValue(value, storage);
+            	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN;
   	    }
         | STATIC
   	    {
   	      TypeBuilderMultiverse storage = new TypeBuilderMultiverse("static", subparser.getPresenceCondition());
-  	      setTypeBuilder(value, storage);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC;
+  	      setTFValue(value, storage);
+            	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC;
   	    }
         | AUTO
   	    {
   	      TypeBuilderMultiverse storage = new TypeBuilderMultiverse("auto", subparser.getPresenceCondition());
-  	      setTypeBuilder(value, storage);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO;
+  	      setTFValue(value, storage);
+            	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO;
   	    }
         | REGISTER
   	    {
   	      TypeBuilderMultiverse storage = new TypeBuilderMultiverse("register", subparser.getPresenceCondition());
-  	      setTypeBuilder(value, storage);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER;
+  	      setTFValue(value, storage);
+            	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER;
   	    }
         ;
 
@@ -1433,90 +1470,78 @@ BasicTypeName:
         VOID
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(VoidT.TYPE, subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	  getSpecsAt(subparser, 1).type = VoidT.TYPE;
+          setTFValue(value, tb);
+          	  getSpecsAt(subparser, 1).type = VoidT.TYPE;
 
         }
         | CHAR
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.CHAR, subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	  getSpecsAt(subparser, 1).seenChar = true;
+          setTFValue(value, tb);
+          	  getSpecsAt(subparser, 1).seenChar = true;
         }
         | SHORT
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.SHORT, subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	  getSpecsAt(subparser, 1).seenShort = true;
+          setTFValue(value, tb);
+          	  getSpecsAt(subparser, 1).seenShort = true;
         }
         | INT
         {
           // See xtc.type.* for the class hiearchy for types
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.INT, subparser.getPresenceCondition());
           System.err.println(tb.toString());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-          getSpecsAt(subparser, 1).seenInt = true;
+          setTFValue(value, tb);
+                    getSpecsAt(subparser, 1).seenInt = true;
         }
         | __INT128
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.__INT128, subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	  getSpecsAt(subparser, 1).seenInt = true;
+          setTFValue(value, tb);
+                	  getSpecsAt(subparser, 1).seenInt = true;
         }
         | LONG
         {
           // See xtc.type.* for the class hiearchy for types
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.LONG, subparser.getPresenceCondition());
-      	  setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	  getSpecsAt(subparser, 1).longCount++;
+      	  setTFValue(value, tb);
+                	  getSpecsAt(subparser, 1).longCount++;
         }
         | FLOAT
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.FLOAT, subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-          getSpecsAt(subparser, 1).seenFloat = true;
+          setTFValue(value, tb);
+                    getSpecsAt(subparser, 1).seenFloat = true;
         }
         | DOUBLE
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.DOUBLE, subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	  getSpecsAt(subparser, 1).seenDouble = true;
+          setTFValue(value, tb);
+          	  getSpecsAt(subparser, 1).seenDouble = true;
         }
         | SignedKeyword
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse("signed", subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	  getSpecsAt(subparser, 1).seenSigned = true;
+          setTFValue(value, tb);
+          	  getSpecsAt(subparser, 1).seenSigned = true;
         }
         | UNSIGNED
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse("unsigned", subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	  getSpecsAt(subparser, 1).seenUnsigned = true;
+          setTFValue(value, tb);
+          	  getSpecsAt(subparser, 1).seenUnsigned = true;
         }
         | _BOOL
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(BooleanT.TYPE, subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	  getSpecsAt(subparser, 1).seenBool = true;
+          setTFValue(value, tb);
+          	  getSpecsAt(subparser, 1).seenBool = true;
         }
         | ComplexKeyword
         {
 	  TypeBuilderMultiverse tb = new TypeBuilderMultiverse("complex", subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	  getSpecsAt(subparser, 1).seenComplex = true;
+          setTFValue(value, tb);
+          	  getSpecsAt(subparser, 1).seenComplex = true;
         }
         ;
 
@@ -1838,33 +1863,29 @@ EnumeratorValueOpt: /** nomerge **/
 ParameterTypeList:  /** nomerge **/
         ParameterList
         {
-          getAndSetSBMVCond(1, subparser, value);
-          setParameter(value, getParameterAt(subparser,1));
+          setTFValue(value, getParamAt(subparser,1));
         }
         | ParameterList COMMA ELLIPSIS
         {
-          List<Parameter> ps = getParameterAt(subparser,3);
+          List<Parameter> ps = getParamAt(subparser,3);
           Parameter p = new Parameter();
           p.setEllipsis();
           ps.add(p);
-          setParameter(value,ps);
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          setTFValue(value,ps);
         }
         ;
 
 ParameterList:  /** list, nomerge **/
         ParameterDeclaration
         {
-          getAndSetSBMVCond(1, subparser, value);
-          setParameter(value, getParameterAt(subparser,1));
+          setTFValue(value, getParamAt(subparser,1));
         }
         | ParameterList COMMA ParameterDeclaration
         {
-          List<Parameter> p = getParameterAt(subparser,3);
+          List<Parameter> p = getParamAt(subparser,3);
 
-          p.addAll(getParameterAt(subparser,1));
-          setParameter(value,p);
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          p.addAll(getParamAt(subparser,1));
+          setTFValue(value,p);
         }
         ;
 
@@ -1912,12 +1933,10 @@ ParameterList:  /** list, nomerge **/
 ParameterDeclaration:  /** nomerge **/
         ParameterIdentifierDeclaration
         {
-          getAndSetSBMVCond(1, subparser, value);
-          setParameter(value, getParameterAt(subparser,1));
+          setTFValue(value, getParamAt(subparser,1));
         }
         | ParameterAbstractDeclaration
         {
-          getAndSetSBMVCond(1, subparser, value);
           System.err.println("ParameterDeclaration-Abstract not supported");
         }
         ;
@@ -1942,7 +1961,7 @@ ParameterAbstractDeclaration:
         | TypeSpecifier
         {
           StringBuilder sb = new StringBuilder();
-          List<Type> typeList = getTypeBuilderAt(subparser, 1).toType();
+          List<Type> typeList = getTBAt(subparser, 1).toType();
   	      if (typeList.size() == 1)
         		sb.append(typeList.get(0));
   	      else {
@@ -1951,7 +1970,7 @@ ParameterAbstractDeclaration:
   	      }
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | TypeSpecifier AbstractDeclarator
         {
@@ -1975,12 +1994,12 @@ ParameterIdentifierDeclaration:
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
+          DeclBuilder decl = getDBAt(subparser, 3);
+          TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
           p.setMultiverse(addMapping(subparser, type, decl));
-          setParameter(value, p);
+          setTFValue(value, p);
         }
         | DeclarationSpecifier ParameterTypedefDeclarator
         {
@@ -1989,12 +2008,12 @@ ParameterIdentifierDeclaration:
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
+          DeclBuilder decl = getDBAt(subparser, 3);
+          TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
           p.setMultiverse(addMapping(subparser, type, decl));
-          setParameter(value, p);
+          setTFValue(value, p);
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
@@ -2003,12 +2022,12 @@ ParameterIdentifierDeclaration:
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
+          DeclBuilder decl = getDBAt(subparser, 3);
+          TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
           p.setMultiverse(addMapping(subparser, type, decl));
-          setParameter(value, p);
+          setTFValue(value, p);
         }
         | TypeSpecifier IdentifierDeclarator
         {
@@ -2017,12 +2036,12 @@ ParameterIdentifierDeclaration:
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
+          DeclBuilder decl = getDBAt(subparser, 3);
+          TypeBuilderMultiverse type = getTBAt(subparser, 4);
           System.err.println("ParamIdent:" + type.toString());
           Parameter p = new Parameter();
           p.setMultiverse(addMapping(subparser, type, decl));
-          setParameter(value, p);
+          setTFValue(value, p);
         }
         | TypeSpecifier ParameterTypedefDeclarator
         {
@@ -2031,12 +2050,12 @@ ParameterIdentifierDeclaration:
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
+          DeclBuilder decl = getDBAt(subparser, 3);
+          TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
           p.setMultiverse(addMapping(subparser, type, decl));
-          setParameter(value, p);
+          setTFValue(value, p);
         }
         | TypeQualifierList IdentifierDeclarator
         {
@@ -2045,12 +2064,12 @@ ParameterIdentifierDeclaration:
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
+          DeclBuilder decl = getDBAt(subparser, 3);
+          TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
           p.setMultiverse(addMapping(subparser, type, decl));
-          setParameter(value, p);
+          setTFValue(value, p);
         }
         ;
 
@@ -2132,7 +2151,7 @@ InitializerOpt: /** nomerge **/
               }
             }
           }
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         ;
 
@@ -2251,62 +2270,55 @@ ObsoleteFieldDesignation: /** nomerge **/  /* ADDED */
 Declarator:  /** nomerge**/
         TypedefDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         | IdentifierDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         ;
 
 TypedefDeclarator:  /**  nomerge **/  // ADDED
         TypedefDeclaratorMain //AssemblyExpressionOpt AttributeSpecifierListOpt
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+
       	}
         ;
 
 TypedefDeclaratorMain:  /**  nomerge **/
         ParenTypedefDeclarator  /* would be ambiguous as Parameter*/
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         | ParameterTypedefDeclarator   /* not ambiguous as param*/
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         ;
 
 ParameterTypedefDeclarator: /** nomerge **/
         TYPEDEFname
         {
-          setDeclBuilder(value, new DeclBuilder(getStringAt(subparser, 1)));
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-        }
+          setTFValue(value, new DeclBuilder(getStringAt(subparser, 1)));
+                  }
         | TYPEDEFname PostfixingAbstractDeclarator
       	{
       	  DeclBuilder name = new DeclBuilder(getStringAt(subparser, 2));
-      	  DeclBuilder post = getDeclBuilderAt(subparser,1);
+      	  DeclBuilder post = getDBAt(subparser,1);
       	  name.merge(post);
-          setDeclBuilder(value, name);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-        }
+          setTFValue(value, name);
+                  }
         | CleanTypedefDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         ;
 
     /*  The  following have at least one STAR. There is no (redundant)
@@ -2315,44 +2327,39 @@ ParameterTypedefDeclarator: /** nomerge **/
 CleanTypedefDeclarator: /** nomerge **/
         CleanPostfixTypedefDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         | STAR ParameterTypedefDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+      	  DeclBuilder db = getDBAt(subparser,1);
       	  db.addPointer();
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  setTFValue(value, db);
+                	}
         | STAR TypeQualifierList ParameterTypedefDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+      	  DeclBuilder db = getDBAt(subparser,1);
       	  DeclBuilder outter = new DeclBuilder();
       	  outter.addPointer();
-      	  outter.addQuals(getTypeBuilderAt(subparser,2),db);
-      	  setDeclBuilder(value,outter);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  outter.addQuals(getTBAt(subparser,2),db);
+      	  setTFValue(value,outter);
+                	}
         ;
 
 CleanPostfixTypedefDeclarator: /** nomerge **/
         LPAREN CleanTypedefDeclarator RPAREN
       	{
       	  DeclBuilder db = new DeclBuilder();
-      	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  db.addDeclBuilder(getDBAt(subparser,2));
+      	  setTFValue(value, db);
+                	}
         | LPAREN CleanTypedefDeclarator RPAREN PostfixingAbstractDeclarator
         {
       	  DeclBuilder db = new DeclBuilder();
-      	  db.addDeclBuilder(getDeclBuilderAt(subparser,3));
-      	  db.merge(getDeclBuilderAt(subparser,1));
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  db.addDeclBuilder(getDBAt(subparser,3));
+      	  db.merge(getDBAt(subparser,1));
+      	  setTFValue(value, db);
+                	}
         ;
 
     /* The following have a redundant LPAREN placed immediately  to  the
@@ -2361,196 +2368,173 @@ CleanPostfixTypedefDeclarator: /** nomerge **/
 ParenTypedefDeclarator:  /** nomerge **/
         ParenPostfixTypedefDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         | STAR LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
       	{
       	  DeclBuilder db = new DeclBuilder();
-      	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
+      	  db.addDeclBuilder(getDBAt(subparser,2));
       	  db.addPointer();
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  setTFValue(value, db);
+                	}
       	| STAR TypeQualifierList
       	LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,2);
+      	  DeclBuilder db = getDBAt(subparser,2);
       	  DeclBuilder paren = new DeclBuilder();
       	  DeclBuilder outter = new DeclBuilder();
       	  outter.addPointer();
       	  paren.addDeclBuilder(db);
-      	  outter.addQuals(getTypeBuilderAt(subparser,4),paren);
-      	  setDeclBuilder(value,outter);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  outter.addQuals(getTBAt(subparser,4),paren);
+      	  setTFValue(value,outter);
+                	}
         | STAR ParenTypedefDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+      	  DeclBuilder db = getDBAt(subparser,1);
       	  db.addPointer();
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  setTFValue(value, db);
+                	}
         | STAR TypeQualifierList ParenTypedefDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+      	  DeclBuilder db = getDBAt(subparser,1);
       	  DeclBuilder outter = new DeclBuilder();
       	  outter.addPointer();
-      	  outter.addQuals(getTypeBuilderAt(subparser,2),db);
-      	  setDeclBuilder(value,outter);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  outter.addQuals(getTBAt(subparser,2),db);
+      	  setTFValue(value,outter);
+                	}
         ;
 
 ParenPostfixTypedefDeclarator: /** nomerge **/ /* redundant paren to left of tname*/
         LPAREN ParenTypedefDeclarator RPAREN
       	{
       	  DeclBuilder db = new DeclBuilder();
-      	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  db.addDeclBuilder(getDBAt(subparser,2));
+      	  setTFValue(value, db);
+                	}
         | LPAREN SimpleParenTypedefDeclarator PostfixingAbstractDeclarator RPAREN /* redundant paren */
       	{
       	  DeclBuilder db = new DeclBuilder();
-      	  DeclBuilder base = getDeclBuilderAt(subparser,3);
-      	  base.merge(getDeclBuilderAt(subparser,2));
+      	  DeclBuilder base = getDBAt(subparser,3);
+      	  base.merge(getDBAt(subparser,2));
       	  db.addDeclBuilder(base);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  setTFValue(value, db);
+                	}
         | LPAREN ParenTypedefDeclarator RPAREN PostfixingAbstractDeclarator
       	{
       	  DeclBuilder db = new DeclBuilder();
-      	  DeclBuilder base = getDeclBuilderAt(subparser,3);
+      	  DeclBuilder base = getDBAt(subparser,3);
       	  db.addDeclBuilder(base);
-      	  db.merge(getDeclBuilderAt(subparser,1));
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  db.merge(getDBAt(subparser,1));
+      	  setTFValue(value, db);
+                	}
         ;
 
 SimpleParenTypedefDeclarator: /** nomerge **/
         TYPEDEFname
       	{
-      	  setDeclBuilder(value, new DeclBuilder(getStringAt(subparser, 1)));
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  setTFValue(value, new DeclBuilder(getStringAt(subparser, 1)));
+                	}
         | LPAREN SimpleParenTypedefDeclarator RPAREN
       	{
       	  DeclBuilder db = new DeclBuilder();
-      	  DeclBuilder base = getDeclBuilderAt(subparser,2);
+      	  DeclBuilder base = getDBAt(subparser,2);
       	  db.addDeclBuilder(base);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  setTFValue(value, db);
+                	}
         ;
 
 IdentifierDeclarator:  /**  nomerge **/
         IdentifierDeclaratorMain //AssemblyExpressionOpt AttributeSpecifierListOpt
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-          getAndSetSBMVCond(1, subparser, value);
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         ;
 
 IdentifierDeclaratorMain:  /** nomerge **/
         UnaryIdentifierDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          getAndSetSBMVCond(1, subparser, value);
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
       	}
         | ParenIdentifierDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          getAndSetSBMVCond(1, subparser, value);
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
       	}
         ;
 
 UnaryIdentifierDeclarator: /** nomerge **/
         PostfixIdentifierDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          getAndSetSBMVCond(1, subparser, value);
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
       	}
         | STAR IdentifierDeclarator
         {
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+      	  DeclBuilder db = getDBAt(subparser,1);
       	  db.addPointer();
-      	  setDeclBuilder(value, db);
-          getAndSetSBMVCond(2, subparser, value);
+      	  setTFValue(value, db);
       	}
         | STAR TypeQualifierList IdentifierDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+      	  DeclBuilder db = getDBAt(subparser,1);
       	  DeclBuilder outter = new DeclBuilder();
       	  outter.addPointer();
-      	  outter.addQuals(getTypeBuilderAt(subparser,2),db);
-      	  setDeclBuilder(value,outter);
-          getAndSetSBMVCond(3, subparser, value);
+      	  outter.addQuals(getTBAt(subparser,2),db);
+      	  setTFValue(value,outter);
       	}
         ;
 
 PostfixIdentifierDeclarator: /** nomerge **/
         FunctionDeclarator
         {
-          System.err.println(getDeclBuilderAt(subparser,1) + ":PC::" + subparser.getPresenceCondition());
-          setDeclBuilder(value, getDeclBuilderAt(subparser,1));
-          getAndSetSBMVCond(1, subparser, value);
+          System.err.println(getDBAt(subparser,1) + ":PC::" + subparser.getPresenceCondition());
+          setTFValue(value, getDBAt(subparser,1));
         }
         | ArrayDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         | AttributedDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         | LPAREN UnaryIdentifierDeclarator RPAREN PostfixingAbstractDeclarator
       	{
       	  DeclBuilder base = new DeclBuilder();
-      	  base.addDeclBuilder(getDeclBuilderAt(subparser,3));
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+      	  base.addDeclBuilder(getDBAt(subparser,3));
+      	  DeclBuilder db = getDBAt(subparser,1);
       	  base.merge(db);
-      	  setDeclBuilder(value,base);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  setTFValue(value,base);
+                	}
         ;
 
 AttributedDeclarator: /** nomerge **/
         LPAREN UnaryIdentifierDeclarator RPAREN
         {
       	  DeclBuilder db = new DeclBuilder();
-      	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  db.addDeclBuilder(getDBAt(subparser,2));
+      	  setTFValue(value, db);
+                	}
         ;
 
 FunctionDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator PostfixingFunctionDeclarator
         {
           // TODO: construct the declaration of main here using the declbuilder stored at ParenIdentifierDeclarator and PostfixingFunctionDeclarator
-          DeclBuilder ident = new DeclBuilder(getDeclBuilderAt(subparser, 2));
+          DeclBuilder ident = new DeclBuilder(getDBAt(subparser, 2));
           /*StringBuilder sb = new StringBuilder();
           sb.append(ident);
           sb.append(getStringBuilderAt(subparser, 1));
           System.err.println("Node: " + value.hashCode());
           setStringBuilder(value, sb);*/
-          ident.setParams(getParameterAt(subparser,1));
-          setDeclBuilder(value,ident);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-        }
+          ident.setParams(getParamAt(subparser,1));
+          setTFValue(value,ident);
+                  }
         ;
 
 PostfixingFunctionDeclarator:  /** nomerge **/
@@ -2564,35 +2548,32 @@ PostfixingFunctionDeclarator:  /** nomerge **/
               sb.append(getStringBuilderAt(subparser, i));
           sb.append(")");
           setStringBuilder(value, sb);*/
-          setParameter(value,getParameterAt(subparser, 3));
+          setTFValue(value,getParamAt(subparser, 3));
         }
         ;
 
 ArrayDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator ArrayAbstractDeclarator
         {
-          DeclBuilder base = getDeclBuilderAt(subparser,2);
-          DeclBuilder array = getDeclBuilderAt(subparser,1);
+          DeclBuilder base = getDBAt(subparser,2);
+          DeclBuilder array = getDBAt(subparser,1);
           base.merge(array);
-          setDeclBuilder(value,base);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-        }
+          setTFValue(value,base);
+                  }
         ;
 
 ParenIdentifierDeclarator:  /** nomerge **/
         SimpleDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          getAndSetSBMVCond(1, subparser, value);
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
       	}
         | LPAREN ParenIdentifierDeclarator RPAREN
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,2);
+      	  DeclBuilder db = getDBAt(subparser,2);
       	  DeclBuilder superDecl = new DeclBuilder();
       	  superDecl.addDeclBuilder(db);
-      	  setDeclBuilder(value,superDecl);
-          getAndSetSBMVCond(3, subparser, value);
+      	  setTFValue(value,superDecl);
       	}
         ;
 
@@ -2601,9 +2582,8 @@ SimpleDeclarator: /** nomerge **/
         {
           DeclBuilder db = new DeclBuilder(getStringAt(subparser, 1));
           System.err.println(db + ":PC::" + subparser.getPresenceCondition());
-          setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-        }
+          setTFValue(value, db);
+                  }
         ;
 
 OldFunctionDeclarator: /** nomerge **/
@@ -2654,25 +2634,22 @@ AbstractDeclarator: /** nomerge **/
 PostfixingAbstractDeclarator: /**  nomerge **/
         ArrayAbstractDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value,db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value,db);
+                	}
         /* | LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN */
         | PostfixingFunctionDeclarator
         {
-          DeclBuilder db = getDeclBuilderAt(subparser,1);
-          setDeclBuilder(value,db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-        }
+          DeclBuilder db = getDBAt(subparser,1);
+          setTFValue(value,db);
+                  }
         ;
 
 ParameterTypeListOpt: /** nomerge **/
         /* empty */
         | ParameterTypeList
         {
-          getAndSetSBMVCond(1, subparser, value);
-          setParameter(value,getParameterAt(subparser,1));
+          setTFValue(value,getParamAt(subparser,1));
         }
         ;
 
@@ -2681,9 +2658,8 @@ ArrayAbstractDeclarator: /** nomerge **/
         {
       	  DeclBuilder db = new DeclBuilder();
       	  db.addArray("",false);
-          setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-        }
+          setTFValue(value, db);
+                  }
         | LBRACK ConstantExpression RBRACK
         {
       	  DeclBuilder db = new DeclBuilder();
@@ -2695,12 +2671,11 @@ ArrayAbstractDeclarator: /** nomerge **/
           } else {
             db.addArray(arrayBounds.get(0).getData().toString());
           }
-          setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	      }
+          setTFValue(value, db);
+          	      }
         | ArrayAbstractDeclarator LBRACK ConstantExpression RBRACK
 	      {
-      	  DeclBuilder db = getDeclBuilderAt(subparser,4);
+      	  DeclBuilder db = getDBAt(subparser,4);
           // TODO: support configurable array bound expressions
           Multiverse<StringBuilder> arrayBounds = getSBMVAt(subparser, 2);
           if (arrayBounds.size() > 1) {
@@ -2709,9 +2684,8 @@ ArrayAbstractDeclarator: /** nomerge **/
           } else {
             db.addArray(arrayBounds.get(0).getData().toString());
           }
-          setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	      }
+          setTFValue(value, db);
+          	      }
         ;
 
 UnaryAbstractDeclarator: /** nomerge **/
@@ -3042,7 +3016,7 @@ Constant: /** passthrough, nomerge **/
           sb.append(((Node)value).getTokenText());
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | INTEGERconstant
         {
@@ -3050,7 +3024,7 @@ Constant: /** passthrough, nomerge **/
           sb.append(((Node)value).getTokenText());
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         /* We are not including ENUMERATIONConstant here  because  we
         are  treating  it like a variable with a type of "enumeration
@@ -3061,7 +3035,7 @@ Constant: /** passthrough, nomerge **/
           sb.append(((Node)value).getTokenText());
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | HEXconstant
         {
@@ -3069,7 +3043,7 @@ Constant: /** passthrough, nomerge **/
           sb.append(((Node)value).getTokenText());
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | CHARACTERconstant
         {
@@ -3077,7 +3051,7 @@ Constant: /** passthrough, nomerge **/
           sb.append(((Node)value).getTokenText());
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         ;
 
@@ -3144,7 +3118,7 @@ PrimaryIdentifier: /** nomerge **/
           Multiverse<StringBuilder> sbmv = universeToSB(entries);
           entries.destruct();
 
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }  /* We cannot use a typedef name as a variable */
         ;
 
@@ -3206,7 +3180,7 @@ Subscript:  /** nomerge **/
             sbmv = sbmv.product(new StringBuilder(" [ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
             sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
             sbmv = sbmv.product(new StringBuilder(" ] "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-            setSBMV(value, sbmv);
+            setTFValue(value, sbmv);
           }
         }
         ;
@@ -3244,7 +3218,7 @@ Increment:  /** nomerge **/
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Multiverse.Element<StringBuilder>(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         ;
 
@@ -3254,7 +3228,7 @@ Decrement:  /** nomerge **/
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Multiverse.Element<StringBuilder>(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         ;
 
@@ -3286,14 +3260,14 @@ UnaryExpression:  /** passthrough, nomerge **/
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
           sbmv = sbmv.product(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | DECR UnaryExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
           sbmv = sbmv.product(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | Unaryoperator CastExpression
         {
@@ -3384,7 +3358,7 @@ Unaryoperator:
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Multiverse.Element<StringBuilder>(new StringBuilder(" & "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | STAR
         {
@@ -3430,7 +3404,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
           sbmv = sbmv.product(new StringBuilder(" * "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | MultiplicativeExpression DIV CastExpression
         {
@@ -3438,7 +3412,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
           sbmv = sbmv.product(new StringBuilder(" / "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | MultiplicativeExpression MOD CastExpression
         {
@@ -3446,7 +3420,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
           sbmv = sbmv.product(new StringBuilder(" % "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         ;
 
@@ -3461,7 +3435,7 @@ AdditiveExpression:  /** passthrough, nomerge **/
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
           sbmv = sbmv.product(new StringBuilder(" + "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | AdditiveExpression MINUS MultiplicativeExpression
         {
@@ -3469,7 +3443,7 @@ AdditiveExpression:  /** passthrough, nomerge **/
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
           sbmv = sbmv.product(new StringBuilder(" - "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         ;
 
@@ -3616,7 +3590,7 @@ AssignmentOperator: /** nomerge **/
           sb.append(" = ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | MULTassign
         {
@@ -3624,7 +3598,7 @@ AssignmentOperator: /** nomerge **/
           sb.append(" *= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | DIVassign
         {
@@ -3632,7 +3606,7 @@ AssignmentOperator: /** nomerge **/
           sb.append(" /= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | MODassign
         {
@@ -3640,7 +3614,7 @@ AssignmentOperator: /** nomerge **/
           sb.append(" %= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | PLUSassign
         {
@@ -3648,7 +3622,7 @@ AssignmentOperator: /** nomerge **/
           sb.append(" += ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | MINUSassign
         {
@@ -3656,7 +3630,7 @@ AssignmentOperator: /** nomerge **/
           sb.append(" -= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | LSassign
         {
@@ -3672,7 +3646,7 @@ AssignmentOperator: /** nomerge **/
           sb.append(" &= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | ERassign
         {
@@ -3684,7 +3658,7 @@ AssignmentOperator: /** nomerge **/
           sb.append(" |= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         ;
 
@@ -4196,72 +4170,51 @@ AsmKeyword:   // ADDED
 // resulting parser, specifically the CActions.java class
 
 
-// TUTORIAL: this function just annotates a semantic value with a typebuilder
-private void setTypeBuilder(Object value, TypeBuilderMultiverse tb) {
-  // value should be not null and should be a Node type
-  setTypeBuilder((Node) value, tb);
-}
-
-// TUTORIAL: these functions retrieve a type builder from the semantic value
-private void setTypeBuilder(Node value, TypeBuilderMultiverse tb) {
-  // value should be not null and should be a Node type
-  value.setProperty(TYPEBUILDER, tb);
-}
-
-private TypeBuilderMultiverse getTypeBuilderAt(Subparser subparser, int component) {
-  // value should be not null and should be a Node type
-  return (TypeBuilderMultiverse) getNodeAt(subparser, component).getProperty(TYPEBUILDER);
-}
-
 /**
    This is just a constant string name for a property used to assign
    semantic values that are type builders.
  */
-private static final String TYPEBUILDER = "xtc.lang.cpp.TypeBuilderMultiverse";
-private static final String PARAMETER = "xtc.lang.cpp.Parameter";
-private static final String DECLBUILDER = "xtc.lang.cpp.DeclBuilder";
 private static final String STRING = "xtc.String";
-private static final String SBMV = "xtc.lang.cpp.Multiverse<StringBuilder>";
+private static final String TRANSFORMATION = "transformation";
 
-
-// TUTORIAL: this function just annotates a semantic value with a typebuilder
-private void setDeclBuilder(Object value, DeclBuilder db) {
-  // value should be not null and should be a Node type
-  setDeclBuilder((Node) value, db);
+private void setTFValue(Object node, Object value) {
+  ((Node)node).setProperty(TRANSFORMATION, value);
 }
 
-// TUTORIAL: these functions retrieve a type builder from the semantic value
-private void setDeclBuilder(Node value, DeclBuilder db) {
-  // value should be not null and should be a Node type
-  value.setProperty(DECLBUILDER, db);
+private Multiverse<StringBuilder> getSBMV(Object node) {
+  return (Multiverse<StringBuilder>)((Node)node).getProperty(TRANSFORMATION);
 }
 
-private DeclBuilder getDeclBuilderAt(Subparser subparser, int component) {
+private Multiverse<StringBuilder> getSBMVAt(Subparser subparser, int component) {
   // value should be not null and should be a Node type
-  return (DeclBuilder) getNodeAt(subparser, component).getProperty(DECLBUILDER);
+  return (Multiverse<StringBuilder>) getNodeAt(subparser, component).getProperty(TRANSFORMATION);
 }
 
-private void setParameter(Object value, Parameter p) {
-  // value should be not null and should be a Node type
-  List<Parameter> ps = new LinkedList<Parameter>();
-  ps.add(p);
-  setParameter((Node) value, ps);
+private TypeBuilderMultiverse getTB(Object node) {
+  return (TypeBuilderMultiverse)((Node)node).getProperty(TRANSFORMATION);
 }
 
-private void setParameter(Object value, List<Parameter> p) {
+private TypeBuilderMultiverse getTBAt(Subparser subparser, int component) {
   // value should be not null and should be a Node type
-  setParameter((Node) value, p);
+  return (TypeBuilderMultiverse) getNodeAt(subparser, component).getProperty(TRANSFORMATION);
 }
 
-// TUTORIAL: these functions retrieve a type builder from the semantic value
-private void setParameter(Node value, List<Parameter> p) {
-  // value should be not null and should be a Node type
-  value.setProperty(PARAMETER, p);
+private DeclBuilder getDB(Object node) {
+  return (DeclBuilder)((Node)node).getProperty(TRANSFORMATION);
 }
 
-private List<Parameter> getParameterAt(Subparser subparser, int component) {
+private DeclBuilder getDBAt(Subparser subparser, int component) {
   // value should be not null and should be a Node type
-  return (List<Parameter>) getNodeAt(subparser, component).getProperty(PARAMETER);
+  return (DeclBuilder) getNodeAt(subparser, component).getProperty(TRANSFORMATION);
+}
+
+private List<Parameter> getParam(Object node) {
+  return (List<Parameter>)((Node)node).getProperty(TRANSFORMATION);
+}
+
+private List<Parameter> getParamAt(Subparser subparser, int component) {
+  // value should be not null and should be a Node type
+  return (List<Parameter>) getNodeAt(subparser, component).getProperty(TRANSFORMATION);
 }
 
 private void setCPC(Object value, String CPC) {
@@ -4280,27 +4233,6 @@ private String getCPC(Subparser subparser, int component) {
 
 private String getCPC(Node n) {
   return (String) n.getProperty("C_PC");
-}
-
-private void setSBMV(Object value, Multiverse<StringBuilder> sbmv) {
-  // value should be not null and should be a Node type
-  setSBMV((Node) value, sbmv);
-}
-
-private void setSBMV(Node value, Multiverse<StringBuilder> sbmv) {
-  // value should be not null and should be a Node type
-  value.setProperty(SBMV, sbmv);
-}
-
-private Multiverse<StringBuilder> getSBMVAt(Subparser subparser, int component) {
-  Node n = getNodeAt(subparser, component);
-  if (n == null)
-    return null;
-  return (Multiverse<StringBuilder>) n.getProperty(SBMV);
-}
-
-private Multiverse<StringBuilder> getSBMV(Node n) {
-  return (Multiverse<StringBuilder>) n.getProperty(SBMV);
 }
 
 /**
@@ -4322,16 +4254,18 @@ private void getAndSetSBMVCond(int numChildren, Subparser subparser, Object valu
      * iterates through every pair of (Node, PresenceCondition)
      * and generates all combinations of the childrens' SBMVs
      */
-    Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
     for (Multiverse.Element<Node> child : children) {
-      if (child.getData() != null)
-        temp = getSBMV(child.getData());
-      if (temp != null)
-        sbmv = cartesianProduct(sbmv, temp);
+      Multiverse<StringBuilder> temp = (Multiverse<StringBuilder>)(child.getData().getProperty(TRANSFORMATION));
+      Multiverse<StringBuilder> product = cartesianProduct(sbmv, temp);
+      sbmv.destruct();
+      // temp.destruct();
+      System.err.println("WARNING: a multiverse is not being destructed.");
+      sbmv = product;
     }
   }
-  setSBMV(value, sbmv);
+  ((Node)value).setProperty(TRANSFORMATION, sbmv);
 }
+
 
 /**
  * All configurations of "if (PC) { <child SBMV> }" are generated,
@@ -4368,7 +4302,7 @@ void addStatementIf(int statPos, Subparser subparser, Object value) {
     }
     sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
   }
-  setSBMV(value, sbmv);
+  setTFValue(value, sbmv);
 }
 
 final static Multiverse.Operator<StringBuilder> SBCONCAT = (sb1, sb2) -> {
@@ -4972,7 +4906,7 @@ private static Type grokabsdeclarator(Node absdeclarator, Type type) {
       break;
     }
 
-    FunctionT function = getParameterTypes(parms);
+    FunctionT function = getParamTypes(parms);
 
     function.setResult(type);
     type = function;
@@ -4986,7 +4920,7 @@ private static Type grokabsdeclarator(Node absdeclarator, Type type) {
   return type;
 }
 
-private static FunctionT getParameterTypes(Node parms) {
+private static FunctionT getParamTypes(Node parms) {
   // TODO flesh this out and do type checking
   boolean varArgs = false;
   ArrayList<Type> types = new ArrayList<Type>();
