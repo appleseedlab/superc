@@ -379,6 +379,16 @@ public class SymbolTable {
     put(ident, entry, putCond);
   }
 
+  /**
+   * Add an entry representing a type error.
+   *
+   * @param ident The identifier to enter.
+   * @param putCond The presence condition.
+   */
+  public void putError(String ident, PresenceCondition putCond) {
+    put(ident, ERROR, putCond);
+  }
+
   private static long varcount = 0;
   private final static char[] charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
   private final static Random random = new Random();
@@ -543,5 +553,19 @@ public class SymbolTable {
       this.trueCond = trueCond;
     }
   }
-}
 
+  public static void main(String args[]) {
+    PresenceConditionManager presenceConditionManager = new PresenceConditionManager();
+    PresenceCondition A = presenceConditionManager.new PresenceCondition(presenceConditionManager.getVariableManager().getVariable("A"));
+    PresenceCondition B = presenceConditionManager.new PresenceCondition(presenceConditionManager.getVariableManager().getVariable("B"));
+    PresenceCondition C = presenceConditionManager.new PresenceCondition(presenceConditionManager.getVariableManager().getVariable("C"));
+    PresenceCondition and = A.and(B);
+    PresenceCondition or = and.or(C);
+    SymbolTable symtab = new SymbolTable();
+    System.err.println(symtab);
+    symtab.put("x", UnitT.TYPE, or);
+    System.err.println(symtab);
+    symtab.putError("x", and.not());
+    System.err.println(symtab);
+  }
+}
