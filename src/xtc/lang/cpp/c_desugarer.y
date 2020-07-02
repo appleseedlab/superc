@@ -417,7 +417,7 @@ FunctionPrototype:  /** nomerge **/
           TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
           System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
-          addMapping(subparser,type,decl);
+          addDeclsToSymTab(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           getAndSetSBMVCond(2, subparser, value);
@@ -430,7 +430,7 @@ FunctionPrototype:  /** nomerge **/
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           StringBuilder sb = new StringBuilder();
 
-          addMapping(subparser,type,decl);
+          addDeclsToSymTab(subparser,type,decl);
   	      List<Type> typeList = type.toType();
   	      if (typeList.size() == 1)
   		      sb.append(typeList.get(0) + " ");
@@ -448,7 +448,7 @@ FunctionPrototype:  /** nomerge **/
         {
           TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
-          addMapping(subparser,type,decl);
+          addDeclsToSymTab(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           getAndSetSBMVCond(2, subparser, value);
@@ -457,7 +457,7 @@ FunctionPrototype:  /** nomerge **/
         {
           TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
-          addMapping(subparser,type,decl);
+          addDeclsToSymTab(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           getAndSetSBMVCond(2, subparser, value);
@@ -471,7 +471,7 @@ FunctionPrototype:  /** nomerge **/
         {
           TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
-          addMapping(subparser,type,decl);
+          addDeclsToSymTab(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           getAndSetSBMVCond(2, subparser, value);
@@ -480,7 +480,7 @@ FunctionPrototype:  /** nomerge **/
         {
           TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
-          addMapping(subparser,type,decl);
+          addDeclsToSymTab(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           getAndSetSBMVCond(2, subparser, value);
@@ -489,7 +489,7 @@ FunctionPrototype:  /** nomerge **/
         {
           TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
-          addMapping(subparser,type,decl);
+          addDeclsToSymTab(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           getAndSetSBMVCond(2, subparser, value);
@@ -498,7 +498,7 @@ FunctionPrototype:  /** nomerge **/
         {
           TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
           DeclBuilder decl = getDeclBuilderAt(subparser, 1);
-          addMapping(subparser,type,decl);
+          addDeclsToSymTab(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           getAndSetSBMVCond(2, subparser, value);
@@ -735,7 +735,7 @@ DeclaringList:  /** nomerge **/
       	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
           System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
           System.err.println(decl.toString() + " " + type.toString());
-          addMapping(subparser, type, decl);
+          addDeclsToSymTab(subparser, type, decl);
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getTypeBuilderAt(subparser, 5), getDeclBuilderAt(subparser, 4));
         }
@@ -748,32 +748,33 @@ DeclaringList:  /** nomerge **/
 
           String oldIdent = decl.identifier;
           System.err.println(decl.toString() + " " + type.toString());
-          Multiverse<SymbolTable.Entry> unis = addMapping(subparser, type, decl);
-          List<StringBuilder> renamings = getRenamings(unis);
+          addDeclsToSymTab(subparser, type, decl);
+          Multiverse<SymbolTable.Entry> entries
+            = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
+          // TODO: destruct multiverse when done
       	  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           StringBuilder sb = new StringBuilder();
 
-          /** writes declarations of renamed variables */
-      	  for (StringBuilder renaming : renamings)
-      	  {
-      	    decl.identifier = renaming.toString();
+          for (Element<SymbolTable.Entry> elem : entries) {
+      	    decl.identifier = elem.getData().getRenaming();
       	    List<Type> typeList = type.toType();
       	    if (typeList.size() == 1) {
-      	      if (typeList.get(0).getClass().getName().equals("xtc.type.TypedefT"))
+      	      if (typeList.get(0).getClass().getName().equals("xtc.type.TypedefT")) {
       	        System.err.println("WARNING: typedef transformations not yet supported.");
+              }
       	      sb.append("\n" + typeList.get(0) + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
       	    } else {
       	      System.err.println("ERROR: Configurable typedefs not yet supported.");
       	      // System.exit(1);
     	      }
-        	}
+          }
 
           // TODO: handle AttributeSpecifierListOpt
 
           /** hoists and writes initializing statements using the renamed variables */
           Multiverse<StringBuilder> childSBMV = getSBMVAt(subparser, 1);
           if (childSBMV != null)
-            for (Element<SymbolTable.Entry> u : unis)
+            for (Element<SymbolTable.Entry> u : entries)
               for (Element<StringBuilder> sbelem : childSBMV)
                 sb.append("\nif (" + PCtoString(u.getCondition().and(sbelem.getCondition())) + ") {\n" +
                          (new StringBuilder(u.getData().getRenaming())).toString() +
@@ -1979,7 +1980,10 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
 
           Parameter p = new Parameter();
-          p.setMultiverse(addMapping(subparser, type, decl));
+          addDeclsToSymTab(subparser, type, decl);
+          Multiverse<SymbolTable.Entry> entries
+            = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
+          p.setMultiverse(entries);
           setParameter(value, p);
         }
         | DeclarationSpecifier ParameterTypedefDeclarator
@@ -1993,7 +1997,10 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
 
           Parameter p = new Parameter();
-          p.setMultiverse(addMapping(subparser, type, decl));
+          addDeclsToSymTab(subparser, type, decl);
+          Multiverse<SymbolTable.Entry> entries
+            = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
+          p.setMultiverse(entries);
           setParameter(value, p);
         }
         | DeclarationQualifierList IdentifierDeclarator
@@ -2007,7 +2014,10 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
 
           Parameter p = new Parameter();
-          p.setMultiverse(addMapping(subparser, type, decl));
+          addDeclsToSymTab(subparser, type, decl);
+          Multiverse<SymbolTable.Entry> entries
+            = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
+          p.setMultiverse(entries);
           setParameter(value, p);
         }
         | TypeSpecifier IdentifierDeclarator
@@ -2021,7 +2031,10 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
           System.err.println("ParamIdent:" + type.toString());
           Parameter p = new Parameter();
-          p.setMultiverse(addMapping(subparser, type, decl));
+          addDeclsToSymTab(subparser, type, decl);
+          Multiverse<SymbolTable.Entry> entries
+            = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
+          p.setMultiverse(entries);
           setParameter(value, p);
         }
         | TypeSpecifier ParameterTypedefDeclarator
@@ -2035,7 +2048,10 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
 
           Parameter p = new Parameter();
-          p.setMultiverse(addMapping(subparser, type, decl));
+          addDeclsToSymTab(subparser, type, decl);
+          Multiverse<SymbolTable.Entry> entries
+            = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
+          p.setMultiverse(entries);
           setParameter(value, p);
         }
         | TypeQualifierList IdentifierDeclarator
@@ -2049,7 +2065,10 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
 
           Parameter p = new Parameter();
-          p.setMultiverse(addMapping(subparser, type, decl));
+          addDeclsToSymTab(subparser, type, decl);
+          Multiverse<SymbolTable.Entry> entries
+            = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
+          p.setMultiverse(entries);
           setParameter(value, p);
         }
         ;
@@ -5880,99 +5899,75 @@ private static Specifiers makeStructSpec(Subparser subparser,
   return specs;
 }
 
-private Multiverse<SymbolTable.Entry> getType(TypeBuilderMultiverse t, DeclBuilder d, PresenceCondition currentPC)
-{
-  Multiverse<SymbolTable.Entry> ret = new Multiverse<SymbolTable.Entry>();
-  List<Type> types = t.toType();
-  List<PresenceCondition> cond = t.getConditions();
-  boolean func = d.isFunction();
-  Multiverse<List<Parameter>> m = new Multiverse<List<Parameter>>();
-  if (func)
-    m = d.getParams(currentPC);
-  for (int i = 0; i < cond.size(); ++i)
-    {
-      cond.get(i).addRef();
-      DeclBuilder temp = new DeclBuilder(d);
-      temp.addType(types.get(i));
-      System.err.println("cond:" + cond.get(i).toString() + " current:" + currentPC.toString());
-      if (func)
-        {
-          for(Element<List<Parameter>> e : m)
-            if (e.getData().size() > 0)
-              {
-                List<Type> l = new LinkedList<Type>();
-                for (Parameter p : e.getData())
-                  if(!p.isEllipsis())
-                    l.add(p.getType());
-                Type f = new FunctionT(temp.toType(), l, e.getData().get(e.getData().size() - 1).isEllipsis());
-                ret.add(new Element<SymbolTable.Entry>(new SymbolTable.Entry(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
-              }
-            else
-              {
-                Type f = new FunctionT(temp.toType());
-                ret.add(new Element<SymbolTable.Entry>(new SymbolTable.Entry(mangleRenaming("",d.getID()), f), cond.get(i).and(e.getCondition())));
-              }
-        }
-      else
-        ret.add(new Element<SymbolTable.Entry>(new SymbolTable.Entry(mangleRenaming("",d.getID()), temp.toType()), cond.get(i).and(currentPC)));
-    }
-  return ret;
-}
-
-private Multiverse<SymbolTable.Entry> addMapping(Subparser subparser, TypeBuilderMultiverse t, DeclBuilder d)
-{
-  if (t == null || d == null || !t.getIsValid() || !d.getIsValid())
-    {
-      System.err.println("Invalid declaration");
-      //System.exit(1);
-      return new Multiverse<SymbolTable.Entry>();
-    }
-  Multiverse<SymbolTable.Entry> unis = getType(t,d,subparser.getPresenceCondition());
+/**
+ * This method adds all given declarations to the symbol table.  It
+ * goes through each element of the TypeBuilderMultiverse, completing
+ * the type with the given DeclBuilder.
+ *
+ * @param subparser The current subparser.
+ * @param typebuilder A Multiverse of type specifier objects.
+ * @param declbuidler An object representing the declarator.
+ */
+private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebuilder, DeclBuilder declbuilder) {
+  if (typebuilder == null || declbuilder == null || !typebuilder.getIsValid() || !declbuilder.getIsValid()) {
+    System.err.println("ERROR: invalid declaration");
+    //System.exit(1);
+    return;
+  }
   CContext scope = (CContext) subparser.scope;
-  /* scope.getSymbolTable().addMapping(d.getID(), unis); */
-  for (Element<SymbolTable.Entry> elem : unis) {
-    scope.getSymbolTable().put(d.getID(), elem.getData().getType(), elem.getCondition());
+
+  // get the list of parameters if it's a function declarator
+  Multiverse<List<Parameter>> parms = null;
+  if (declbuilder.isFunction()) {
+    parms = declbuilder.getParams(subparser.getPresenceCondition());
   }
-  unis.destruct();
 
-  return scope.getSymbolTable().get(d.getID(), subparser.getPresenceCondition());
-}
+  // loop through each configuration of the type specifier, adding the
+  // declaration to the symtab
+  for (Element<TypeBuilderUnit> elem : typebuilder) {
+    System.err.println("cond:" + elem.getCondition().toString() + " current:" + subparser.getPresenceCondition().toString());
 
-private List<StringBuilder> getRenamings(Multiverse<SymbolTable.Entry> unis)
-{
-  List<StringBuilder> sb = new LinkedList<StringBuilder>();
-  for (Element<SymbolTable.Entry> u : unis)
-    {
-      sb.add(new StringBuilder(u.getData().getRenaming()));
+    // combine the type spec and declarator into a complete type
+    DeclBuilder completedecl = new DeclBuilder(declbuilder);
+    completedecl.addType(elem.getData().toType());
+    
+    if (! declbuilder.isFunction()) {
+      // bind the symbol name to the type under the current presence condition
+      PresenceCondition condition = subparser.getPresenceCondition().and(elem.getCondition());
+      scope.getSymbolTable().put(declbuilder.getID(), completedecl.toType(), condition);
+      condition.delRef();
+      
+    } else {  // function types
+      // go through each combination of parameters, adding each
+      // variation of the function declarator to the symtab
+      for(Element<List<Parameter>> parmelem : parms) {
+        PresenceCondition condition = parmelem.getCondition().and(elem.getCondition());
+        
+        if (parmelem.getData().size() == 0) {  // function has no parameters
+          Type functype = new FunctionT(completedecl.toType());
+          scope.getSymbolTable().put(declbuilder.getID(), functype, condition);
+          
+        } else {  // function has parameters
+          List<Type> parmlist = new LinkedList<Type>();
+
+          // get list of parameter types
+          for (Parameter p : parmelem.getData()) {
+            if(! p.isEllipsis()) {
+              parmlist.add(p.getType());
+            }
+          }
+          
+          Type functype = new FunctionT(completedecl.toType(),
+                                        parmlist,
+                                        parmelem.getData().get(parmelem.getData().size() - 1).isEllipsis());
+          scope.getSymbolTable().put(declbuilder.getID(), functype, condition);
+        }
+        
+        condition.delRef();
+      }
     }
-  return sb;
-}
-
-private static long varcount = 0;
-private final static char[] charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
-private final static Random random = new Random();
-private final static int RAND_SIZE = 5;
-
-/** Generates a ranom string of proper length for identifier renamings */
-private String randomString(int string_size) {
-  StringBuilder randomstring = new StringBuilder();
-  for (int i = 0; i < string_size; i++) {
-    randomstring.append(charset[random.nextInt(charset.length)]);
   }
-  return randomstring.toString();
 }
-
-/** Renames identifiers in valid C */
-private String mangleRenaming(String prefix, String ident) {
-    // don't want to exceed c identifier length limit (31)
-    if (ident.length() > 22) {
-      // shorten ident to be at max, 22 chars
-      StringBuilder sb = new StringBuilder(ident);
-      sb = sb.delete(23, ident.length());
-      ident = sb.toString();
-    }
-    return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
-    }
 
 private Multiverse<SymbolTable.Entry> getTypeOfTypedef(Subparser subparser, String typeName)
 {

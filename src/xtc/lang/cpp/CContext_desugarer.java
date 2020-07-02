@@ -730,7 +730,7 @@ public class CContext implements ParsingContext {
       // if undefinedCondition remains null, it means there was no
       // presence condition under which the identifier is undeclared.
       for (Element<SymbolTable.Entry> entry : local) {
-        if (entry.getData() == SymbolTable.UNDECLARED) {
+        if (SymbolTable.UNDECLARED == entry.getData()) {
           if (null != undefinedCondition) {
             System.err.println("FATAL: there should only one entry for UNDECLARED");
             System.exit(1);

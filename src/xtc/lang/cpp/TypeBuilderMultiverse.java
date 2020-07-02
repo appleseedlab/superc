@@ -17,7 +17,9 @@ import xtc.lang.cpp.Multiverse.Element;
 public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
 {
   static int count = 0;
-  Integer personalCount;;
+  Integer personalCount;
+
+  // TODO: replace usage with just iterating over the TypeBuilderMultiverse
   public List<Type> toType() {
     List<Type> types = new LinkedList<Type>();
     for (Element<TypeBuilderUnit> t : contents)
@@ -25,6 +27,7 @@ public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
     return types;	
   }
     
+  // TODO: replace usage with just iterating over the TypeBuilderMultiverse
   public List<PresenceCondition> getConditions()
   {	
     List<PresenceCondition> conds = new LinkedList<PresenceCondition>();
@@ -34,6 +37,7 @@ public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
   }
 
     
+  // TODO: dead code?
   public void addSpec(String name)
   {
     for (Element<TypeBuilderUnit> e : contents)
@@ -86,6 +90,7 @@ public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
   }
 
 
+  // TODO: replace with call to Multiverse.product
   public TypeBuilderMultiverse combine(TypeBuilderMultiverse with)
   {
     TypeBuilderMultiverse t = new TypeBuilderMultiverse();
@@ -105,6 +110,7 @@ public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
     return vals;
   }
 
+  // TODO: can this be replaced with a call to product?
   public void setTypedef(String name, Multiverse<SymbolTable.Entry> unis, PresenceCondition p)
   {
     //At this point, you can't actually have more than one
@@ -141,6 +147,7 @@ public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
     return vals;
   }
 
+  // TODO: dead code?
   public List<Boolean> validDeclQuals()
   {
     List<Boolean> vals = new LinkedList<Boolean>();

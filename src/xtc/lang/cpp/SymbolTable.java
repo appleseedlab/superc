@@ -57,17 +57,25 @@ import xtc.lang.cpp.ForkMergeParser.Lookahead;
  */
 public class SymbolTable {
 
-  public static final Entry UNDECLARED = new Entry("static_type_error(\"undeclared\")", UnitT.TYPE) {
+  public static final Entry UNDECLARED = new Entry("<UNDECLARED>", UnitT.TYPE) {
       public String toString() {
         return "<UNDECLARED>";
       }
     };
-
+    
+  public static final Entry ERROR = new Entry("<ERROR>", UnitT.TYPE) {
+      public String toString() {
+        return "<ERROR>";
+      }
+    };
+    
   /**
    * A symbol table entry that holds a multiverse of types and
    * renamings.
    */
   public static class Entry {
+    // TODO: make this abstract and only have renaming and type for VALID entries, have an error message for other kinds
+
     /**
      * The renaming of the variable for a given set of
      * configurations.
@@ -179,80 +187,206 @@ public class SymbolTable {
   }
 
   /**
-   * Add a new symbol table entry for the given identifier.  This
-   * maintains two invariants: (1) all entries are mutually-exclusive
-   * and (2) all entries together union to True.
+   * Add a new entry to the symbol table.  This maintains two
+   * invariants: (1) all entries are mutually-exclusive and (2) all
+   * entries together union to True.  This ensures that the UNDECLARED
+   * entry is always present in the Multiverse, even if its presence
+   * condition is False.  This method will error out if a symbol is
+   * redeclared in some presence condition.  To ensure this does not
+   * happen, use get() under the putCond first and see if there are
+   * any mapped symbols.  For type-checking, emit errors for these
+   * redeclarations and revise the presence condition.
    *
-   * @param ident The identifier to enter.
-   * @param type The type.
-   * @param cond The presence condition.
-   * @returns A new Multiverse instance containing the entries under
-   * the given condition or null if the symbol is not defined.
+   * @param putEntry The entry to add, either a regular entry or the
+   * canonical UNDECLARED or ERROR entries
+   * @param putCond The presence condition under which to update the
+   * table.
    */
-  public void put(String ident, Type type, PresenceCondition cond) {
-    if (! cond.isFalse()) {
-      String renaming = mangleRenaming("", ident);
-      Entry newentry = new Entry(renaming, type);
-    
-      if (this.map.containsKey(ident)) {
-        // TODO: include way to check for invalid type redeclaration and
-        // convert it to a type error
-
-        Multiverse<Entry> oldmv = this.map.get(ident);
+  protected void put(String ident, SymbolTable.Entry putEntry, PresenceCondition putCond) {
+    if (! putCond.isFalse()) {
+      if (! this.map.containsKey(ident)) {
+        // Create a new multiverse for the symbol that has only the
+        // UNDECLARED entry under the True condition
         Multiverse<Entry> newmv = new Multiverse<Entry>();
 
-        // Maintain mutual exclusion by ANDing the old entries with the
-        // negation of the new condition.
-        PresenceCondition negation = cond.not();
-        for (Element<Entry> entry : oldmv) {
-          PresenceCondition newcond = entry.getCondition().and(negation);
+        PresenceCondition trueCond = putCond.presenceConditionManager().new PresenceCondition(true);
+        newmv.add(UNDECLARED, trueCond);
+        trueCond.delRef();
 
-          if (! newcond.isFalse()) {
-            // check for a redeclaration, which happens when the entry
-            // is not the UNDECLARED entry and when the presence
-            // condition of the new and old entries overlap, i.e., are
-            // not mutually-exclusive
-            if (UNDECLARED != entry.getData() && !entry.getCondition().isMutuallyExclusive(cond)) {
-              System.err.println(String.format("TODO: %s", String.format("handle type error. redeclaration of %s from %s under %s to %s under %s", ident, entry.getData().getType(), entry.getCondition(), type, cond)));
-            }
-            newmv.add(entry.getData(), newcond);
-            newcond.addRef();
-          }
-          this.map.put(ident, newmv);
-        
-          newcond.delRef();
-        }
-        negation.delRef();
+        PresenceCondition falseCond = putCond.presenceConditionManager().new PresenceCondition(false);
+        newmv.add(ERROR, falseCond);
+        falseCond.delRef();
 
-        newmv.add(newentry, cond);
-        cond.addRef();
-
-        this.map.put(ident, newmv);
-        oldmv.destruct();
-      
-      } else {  // ! this.map.containsKey(ident)
-        // Create a new multiverse, adding the UNDECLARED entry if only
-        // partially declared.
-        Multiverse<Entry> newmv = new Multiverse<Entry>();
-
-        newmv.add(newentry, cond);
-        cond.addRef();
-
-        // add the undefined entry if partially-defined
-        PresenceCondition negation = cond.not();
-        if (! negation.isFalse()) {
-          newmv.add(UNDECLARED, negation);
-          negation.addRef();
-        }
-        negation.delRef();
-        
         this.map.put(ident, newmv);
       }
+
+      // TODO: include way to check for invalid type redeclaration and
+      // convert it to a type error
+
+      Multiverse<Entry> oldmv = this.map.get(ident);
+      Multiverse<Entry> newmv = new Multiverse<Entry>();
+
+      /* lifetime for presence conditions */ {
+        PresenceCondition undeclaredCond = null;
+        PresenceCondition errorCond = null;
+        PresenceCondition notPutCond = putCond.not();
+        PresenceCondition collectErrors = putCond.presenceConditionManager().new PresenceCondition(false);
+
+        for (Element<Entry> entry : oldmv) {
+          if (UNDECLARED == entry.getData()) {
+            if (null != undeclaredCond) {
+              System.err.println("FATAL: there should only be one UNDECLARED entry");
+              System.exit(1);
+            }
+            undeclaredCond = entry.getCondition();
+            undeclaredCond.addRef();
+          } else if (ERROR == entry.getData()) {
+            if (null != errorCond) {
+              System.err.println("FATAL: there should only be one ERROR entry");
+              System.exit(1);
+            }
+            errorCond = entry.getCondition();
+            errorCond.addRef();
+          } else { // lifetime for andNotNewCond and andNewCond
+            // update old declarations' conditions and check for redeclarations
+            PresenceCondition andNotNewCond = entry.getCondition().and(notPutCond);
+            PresenceCondition andNewCond = entry.getCondition().and(putCond);
+              
+            if (! andNewCond.isFalse()) {
+              // redeclarations cause the symbol to be undeclared
+              PresenceCondition updateCollectErrors = collectErrors.or(andNewCond);
+              collectErrors.delRef();
+              collectErrors = updateCollectErrors;
+              System.err.println(String.format("WARNING: redeclaration of %s turned into an error entry.  use xtc.type.C.equal to check for legal redeclaration to same type.", ident));
+            }
+                
+            if (! andNotNewCond.isFalse()) {
+              // update the presence conditions of prior declarations
+              newmv.add(entry.getData(), andNotNewCond);
+            }
+              
+            andNotNewCond.delRef();
+            andNewCond.delRef();
+          } // end lifetime (and for loop)
+        }
+
+        if (null == undeclaredCond) {
+          System.err.println("FATAL: undeclared entry should always be present");
+          System.exit(1);
+        }
+
+        if (null == errorCond) {
+          System.err.println("FATAL: error entry should always be present");
+          System.exit(1);
+        }
+
+        // add a new declaration
+        if (UNDECLARED != putEntry && ERROR != putEntry) {
+          PresenceCondition newCond = undeclaredCond.and(putCond);
+          // putCond's lifetime managed by caller
+          if (! newCond.isFalse()) {
+            newmv.add(putEntry, newCond);  // cond's lifetime managed by caller
+          } else {
+            System.err.println("WARNING: entry was infeasible due to redeclarations");
+          }
+          newCond.delRef();  // add calls addRef()
+        }
+
+        // update the errors to include the remapping errors
+        PresenceCondition newError = collectErrors.or(errorCond);
+        if (ERROR == putEntry) {
+          PresenceCondition updatedError = newError.or(putCond);
+          newError.delRef();
+          newError = updatedError;
+        }
+        newmv.add(ERROR, newError);
+        
+        // update the undeclared conditions to include the new entry
+        // if it's an undeclared entry or to exclude the new entry
+        // otherwise
+        PresenceCondition newUndeclared;
+        if (UNDECLARED == putEntry) {
+          newUndeclared = undeclaredCond.or(putCond);
+        } else {
+          newUndeclared = undeclaredCond.and(notPutCond);
+        }
+        newmv.add(UNDECLARED, newUndeclared);
+
+        newUndeclared.delRef();
+        newError.delRef();
+
+        collectErrors.delRef();
+        notPutCond.delRef();
+        undeclaredCond.delRef();
+        errorCond.delRef();
+      } // end lifetime for presence conditions
+
+      // check invariants
+      {
+        PresenceCondition union = putCond.presenceConditionManager().new PresenceCondition(false);
+
+        // has redundant checks
+        for (Element<Entry> entry_i : newmv) {
+          PresenceCondition newUnion = union.or(entry_i.getCondition());
+          union.delRef();
+          union = newUnion;
+          
+          for (Element<Entry> entry_j : newmv) {
+            if (entry_i != entry_j) {
+              if (! entry_i.getCondition().isMutuallyExclusive(entry_j.getCondition())) {
+                System.err.println("FATAL: symbol table full converage invariant check failed");
+                System.err.println(toString());
+                System.exit(1);
+              }
+            }
+          }
+        }
+
+        PresenceCondition notUnion = union.not();
+        if (! notUnion.isFalse()) {
+          System.err.println("FATAL: symbol table mutual exclusion invariant check failed");
+          System.err.println(toString());
+          System.exit(1);
+        }
+        notUnion.delRef();
+        
+        union.delRef();
+      }
+    
+      
+      this.map.put(ident, newmv);
+      oldmv.destruct();
     } else {
       // nothing to add, since the given presence condition is False
     }
+
     // System.err.println(String.format("after put: %s -> %s", ident, map.get(ident)));
     System.err.println(toString());
+  }
+
+  /**
+   * Add a new symbol table entry for the given identifier.
+   *
+   * @param ident The identifier to enter.
+   * @param type The type.
+   * @param putCond The presence condition.
+   * @returns A new Multiverse instance containing the entries under
+   * the given condition or null if the symbol is not defined.
+   */
+  public void put(String ident, Type type, PresenceCondition putCond) {
+    String renaming = mangleRenaming("", ident);
+    Entry entry = new Entry(renaming, type);
+    put(ident, entry, putCond);
+  }
+
+  /**
+   * Add an entry representing a type error.
+   *
+   * @param ident The identifier to enter.
+   * @param putCond The presence condition.
+   */
+  public void putError(String ident, PresenceCondition putCond) {
+    put(ident, ERROR, putCond);
   }
 
   private static long varcount = 0;
@@ -419,5 +553,19 @@ public class SymbolTable {
       this.trueCond = trueCond;
     }
   }
-}
 
+  public static void main(String args[]) {
+    PresenceConditionManager presenceConditionManager = new PresenceConditionManager();
+    PresenceCondition A = presenceConditionManager.new PresenceCondition(presenceConditionManager.getVariableManager().getVariable("A"));
+    PresenceCondition B = presenceConditionManager.new PresenceCondition(presenceConditionManager.getVariableManager().getVariable("B"));
+    PresenceCondition C = presenceConditionManager.new PresenceCondition(presenceConditionManager.getVariableManager().getVariable("C"));
+    PresenceCondition and = A.and(B);
+    PresenceCondition or = and.or(C);
+    SymbolTable symtab = new SymbolTable();
+    System.err.println(symtab);
+    symtab.put("x", UnitT.TYPE, or);
+    System.err.println(symtab);
+    symtab.putError("x", and.not());
+    System.err.println(symtab);
+  }
+}

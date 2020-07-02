@@ -50,6 +50,33 @@ int l() {}
 // Include the Bison parse tables
 #include str(BISON_PARSER_FILE)
 
+#define TABLEPRINTER(fname, ctype, pftype, jtype, limit) \
+int print_ ## fname(char *name, ctype table[], int max) { \
+  int i; \
+   \
+  /*printf("  public static final " #jtype "[] %s = {", name);*/ \
+  printf("  public static class %s_wrapper {\n", name); \
+  printf("    public static final " #jtype "[] %s = {", name); \
+  for (i = 0; i <= max; i++) { \
+    if (i > 0) printf(","); \
+    if ((i % limit) == 0) printf("\n    "); \
+    else printf(" "); \
+    printf(pftype, table[i]); \
+  } \
+  printf("\n    };\n"); \
+  printf("  }\n\n"); \
+}
+
+TABLEPRINTER(uint16, const yytype_uint16, "%d", int, 10)
+
+TABLEPRINTER(int16, const yytype_int16, "%d", int, 10)
+
+TABLEPRINTER(uint8, const yytype_uint8, "%d", int, 10)
+
+TABLEPRINTER(int8, const yytype_int8, "%d", int, 10)
+
+TABLEPRINTER(char, const char *const, "\"%s\"", String, 1)
+
 int main() {
   int i;
   
@@ -143,31 +170,3 @@ int main() {
 
   return 0;
 }
-
-#define TABLEPRINTER(fname, ctype, pftype, jtype, limit) \
-int print_ ## fname(char *name, ctype table[], int max) { \
-  int i; \
-   \
-  /*printf("  public static final " #jtype "[] %s = {", name);*/ \
-  printf("  public static class %s_wrapper {\n", name); \
-  printf("    public static final " #jtype "[] %s = {", name); \
-  for (i = 0; i <= max; i++) { \
-    if (i > 0) printf(","); \
-    if ((i % limit) == 0) printf("\n    "); \
-    else printf(" "); \
-    printf(pftype, table[i]); \
-  } \
-  printf("\n    };\n"); \
-  printf("  }\n\n"); \
-}
-
-TABLEPRINTER(uint16, yytype_uint16, "%d", int, 10)
-
-TABLEPRINTER(int16, yytype_int16, "%d", int, 10)
-
-TABLEPRINTER(uint8, yytype_uint8, "%d", int, 10)
-
-TABLEPRINTER(int8, yytype_int8, "%d", int, 10)
-
-TABLEPRINTER(char, char *const, "\"%s\"", String, 1)
-

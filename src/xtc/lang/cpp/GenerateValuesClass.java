@@ -129,6 +129,8 @@ public class GenerateValuesClass {
               passthrough.add(sym);
             } else if (type.equals("complete")) {
               complete.add(sym);
+            } else if (type.equals("nomerge")) {
+              // do nothing, since not merging is the default behavior
             } else if (type.equals("void")) {
               voidSymbol.add(sym);
             } else if (type.equals("name")) {
