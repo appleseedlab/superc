@@ -5928,13 +5928,13 @@ private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebui
     System.err.println("cond:" + elem.getCondition().toString() + " current:" + subparser.getPresenceCondition().toString());
 
     // combine the type spec and declarator into a complete type
-    DeclBuilder temp = new DeclBuilder(declbuilder);
-    temp.addType(elem.getData().toType());
+    DeclBuilder completedecl = new DeclBuilder(declbuilder);
+    completedecl.addType(elem.getData().toType());
     
     if (! declbuilder.isFunction()) {
       // bind the symbol name to the type under the current presence condition
       PresenceCondition condition = subparser.getPresenceCondition().and(elem.getCondition());
-      scope.getSymbolTable().put(declbuilder.getID(), temp.toType(), condition);
+      scope.getSymbolTable().put(declbuilder.getID(), completedecl.toType(), condition);
       condition.delRef();
       
     } else {  // function types
@@ -5944,7 +5944,7 @@ private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebui
         PresenceCondition condition = parmelem.getCondition().and(elem.getCondition());
         
         if (parmelem.getData().size() == 0) {  // function has no parameters
-          Type functype = new FunctionT(temp.toType());
+          Type functype = new FunctionT(completedecl.toType());
           scope.getSymbolTable().put(declbuilder.getID(), functype, condition);
           
         } else {  // function has parameters
@@ -5954,12 +5954,12 @@ private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebui
           for (Parameter p : parmelem.getData()) {
             if(! p.isEllipsis()) {
               parmlist.add(p.getType());
-            } else {
-              System.err.println("TODO: need to support ellipsis in parameters");
             }
           }
           
-          Type functype = new FunctionT(temp.toType(), parmlist, parmelem.getData().get(parmelem.getData().size() - 1).isEllipsis());
+          Type functype = new FunctionT(completedecl.toType(),
+                                        parmlist,
+                                        parmelem.getData().get(parmelem.getData().size() - 1).isEllipsis());
           scope.getSymbolTable().put(declbuilder.getID(), functype, condition);
         }
         
