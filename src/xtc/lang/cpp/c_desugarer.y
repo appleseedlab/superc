@@ -385,29 +385,17 @@ FunctionDefinition:  /** complete **/ // added scoping
           //Get FunctionCompoundStatement
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          for (int i = 6; i >= 1; i--)
-          {
-            // only want to get the transformation code at children 3 and 6
-            if (i % 3 != 0) {
-              System.err.println("WARNING: skipping over transformation code at some nodes in FunctionDefinition.");
-              continue;
-            }
-
-            Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
-            /**
-             * iterates through every pair of (Node, PresenceCondition)
-             * and generates all combinations of the childrens' SBMVs
-             */
-            for (Multiverse.Element<Node> child : children) {
-              Multiverse<StringBuilder> temp = (Multiverse<StringBuilder>)(child.getData().getProperty(TRANSFORMATION));
-              Multiverse<StringBuilder> product = cartesianProduct(sbmv, temp);
-              sbmv.destruct();
-              //temp.destruct();
-              System.err.println("WARNING: a multiverse is not being destructed in FunctionDefinition.");
-              sbmv = product;
-            }
-          }
-          ((Node)value).setProperty(TRANSFORMATION, sbmv);
+          Multiverse<StringBuilder> temp;
+          Node child;
+          System.err.println("WARNING: skipping over transformation code at some nodes in Declaration.");
+          // TODO: uncomment these lines once FunctionPrototype sets an SBMV.
+          //child = getNodeAt(subparser, 6);
+          //temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
+          //sbmv.destruct();
+          child = getNodeAt(subparser, 3);
+          temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
+          sbmv.destruct();
+          setTFValue(value, temp);
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
@@ -432,6 +420,7 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
 FunctionPrototype:  /** nomerge **/
         IdentifierDeclarator { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
         {
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           getAndSetSBMVCond(1, subparser, value);
           System.err.println("FunctionPrototype - IdentifierDeclarator not supported");
         }
@@ -446,6 +435,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeSpecifier            IdentifierDeclarator
         {
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -468,6 +458,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -476,6 +467,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeQualifierList        IdentifierDeclarator
         {
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -484,10 +476,12 @@ FunctionPrototype:  /** nomerge **/
         }
         |                          OldFunctionDeclarator
         {
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -496,6 +490,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -504,6 +499,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -512,6 +508,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -4266,6 +4263,64 @@ private void getAndSetSBMVCond(int numChildren, Subparser subparser, Object valu
   ((Node)value).setProperty(TRANSFORMATION, sbmv);
 }
 
+/**
+ * All configurations of this node are then returned in a multiverse.
+ * Traverses all nested static choice nodes until non-static choice nodes are reached.
+ * @param node The node to get the configurations of.
+ * @param presenceCondition The presence condition associated with node.
+ * @return A multiverse containing all configurations of the passed-in node.
+ */
+Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition presenceCondition) {
+  Multiverse<Node> allConfigs = new Multiverse<Node>();
+
+  if (node instanceof GNode && ((GNode) node).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
+    PresenceCondition pc = null;
+    for (Object child : node) {
+
+      if (child instanceof PresenceCondition) {
+        pc = (PresenceCondition)child;
+      } else if (child instanceof Node) {
+        // assumes that all static choice nodes are mutually exclusive
+        Multiverse<Node> someChildren = getAllNodeConfigs((Node)child, pc);
+        allConfigs.addAll(someChildren);
+        someChildren.destruct();
+      } else {
+        System.err.println("unsupported AST child type in getNodeMultiverse");
+        System.exit(1);
+      }
+    }
+
+  } else {
+    // assumes that if it isn't a static choice node, then it must be a "normal" node
+    allConfigs.add(node, presenceCondition);
+  }
+  // TODO: manage memory
+  return allConfigs;
+}
+
+/**
+ * Takes the cartesian product of the current node's SBMV with one of its children SBMVs.
+ * @param sbmv A multiverse that possibly contains the configurations of child's siblings.
+ * @param child The child of the current node.
+ * @param presenceCondition The presence condition associated with the current node.
+ * @return A multiverse containing all configurations of the passed-in node.
+ */
+Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringBuilder> sbmv, Node child, PresenceCondition presenceCondition) {
+  sbmv = new Multiverse<StringBuilder>(sbmv); // copies the passed-in sbmv because the caller destructs it.
+
+  // getAllNodeConfigs traverses all nested static choice nodes until they reach a regular node
+  // and then gets all configurations of that node
+  Multiverse<Node> allConfigs = getAllNodeConfigs(child, presenceCondition);
+  for (Multiverse.Element<Node> childNode : allConfigs) {
+    Multiverse<StringBuilder> childSBMV = getSBMV(childNode.getData());
+    Multiverse<StringBuilder> temp = sbmv.product(childSBMV, SBCONCAT);
+    sbmv.destruct();
+    sbmv = temp;
+  }
+
+  return sbmv;
+}
+
 
 /**
  * All configurations of "if (PC) { <child SBMV> }" are generated,
@@ -4312,6 +4367,7 @@ final static Multiverse.Operator<StringBuilder> SBCONCAT = (sb1, sb2) -> {
   return newsb;
 };
 
+// TODO: delete this later
 /** Takes two stringbuilder multiverses, and generates all of their combinations */
 private Multiverse<StringBuilder> cartesianProduct(Multiverse<StringBuilder> statements, Multiverse<StringBuilder> renamings) {
   /* System.err.println("statements: " + statements); */
