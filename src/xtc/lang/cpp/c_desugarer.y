@@ -3261,8 +3261,8 @@ Increment:  /** nomerge **/
         PostfixExpression ICR
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Multiverse.Element<StringBuilder>(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
+          sbmv = sbmv.product(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           setSBMV(value, sbmv);
         }
         ;
@@ -3271,8 +3271,8 @@ Decrement:  /** nomerge **/
         PostfixExpression DECR
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Multiverse.Element<StringBuilder>(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
+          sbmv = sbmv.product(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           setSBMV(value, sbmv);
         }
         ;
@@ -3303,15 +3303,15 @@ UnaryExpression:  /** passthrough, nomerge **/
         | ICR UnaryExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          sbmv = sbmv.product(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           setSBMV(value, sbmv);
         }
         | DECR UnaryExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          sbmv = sbmv.product(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           setSBMV(value, sbmv);
         }
         | Unaryoperator CastExpression
