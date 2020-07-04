@@ -400,7 +400,9 @@ FunctionDefinition:  /** complete **/ // added scoping
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(7, subparser, value);
+          // TODO
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+
         }
         ;
 
@@ -421,7 +423,7 @@ FunctionPrototype:  /** nomerge **/
         IdentifierDeclarator { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
         {
           System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
-          getAndSetSBMVCond(1, subparser, value);
+          getAndSetSBMVCond(2, subparser, value);
           System.err.println("FunctionPrototype - IdentifierDeclarator not supported");
         }
         | DeclarationSpecifier     IdentifierDeclarator
@@ -686,8 +688,9 @@ Declaration:  /** complete **/
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-
-          Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, 3), subparser.getPresenceCondition().presenceConditionManager());
+          // Deprecated below:
+          //Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, 3), subparser.getPresenceCondition().presenceConditionManager());
+          Multiverse<Node> children = getAllNodeConfigs(getNodeAt(subparser, 3), subparser.getPresenceCondition());
           /**
            * iterates through every pair of (Node, PresenceCondition)
            * and generates all combinations of the childrens' SBMVs
@@ -707,8 +710,9 @@ Declaration:  /** complete **/
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-
-          Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, 3), subparser.getPresenceCondition().presenceConditionManager());
+          // Depreacted below:
+          //Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, 3), subparser.getPresenceCondition().presenceConditionManager());
+          Multiverse<Node> children = getAllNodeConfigs(getNodeAt(subparser, 3), subparser.getPresenceCondition());
           /**
            * iterates through every pair of (Node, PresenceCondition)
            * and generates all combinations of the childrens' SBMVs
@@ -728,8 +732,9 @@ Declaration:  /** complete **/
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-
-          Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, 3), subparser.getPresenceCondition().presenceConditionManager());
+          // Deprecated below:
+          //Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, 3), subparser.getPresenceCondition().presenceConditionManager());
+          Multiverse<Node> children = getAllNodeConfigs(getNodeAt(subparser, 3), subparser.getPresenceCondition());
           /**
            * iterates through every pair of (Node, PresenceCondition)
            * and generates all combinations of the childrens' SBMVs
@@ -749,8 +754,9 @@ Declaration:  /** complete **/
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-
-          Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, 3), subparser.getPresenceCondition().presenceConditionManager());
+          // Deprecated below:
+          //Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, 3), subparser.getPresenceCondition().presenceConditionManager());
+          Multiverse<Node> children = getAllNodeConfigs(getNodeAt(subparser, 3), subparser.getPresenceCondition());
           /**
            * iterates through every pair of (Node, PresenceCondition)
            * and generates all combinations of the childrens' SBMVs
@@ -2807,7 +2813,7 @@ CompoundStatement:  /** complete **/  /* ADDED */
         RBRACE
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          getAndSetSBMVCond(4, subparser, value);
         }
         ;
 
@@ -3213,8 +3219,8 @@ Increment:  /** nomerge **/
         PostfixExpression ICR
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Multiverse.Element<StringBuilder>(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
+          sbmv = sbmv.product(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           setTFValue(value, sbmv);
         }
         ;
@@ -3223,8 +3229,8 @@ Decrement:  /** nomerge **/
         PostfixExpression DECR
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Multiverse.Element<StringBuilder>(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
+          sbmv = sbmv.product(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           setTFValue(value, sbmv);
         }
         ;
@@ -3255,15 +3261,15 @@ UnaryExpression:  /** passthrough, nomerge **/
         | ICR UnaryExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          sbmv = sbmv.product(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           setTFValue(value, sbmv);
         }
         | DECR UnaryExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
           sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          sbmv = sbmv.product(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
           setTFValue(value, sbmv);
         }
         | Unaryoperator CastExpression
@@ -4246,7 +4252,9 @@ private void getAndSetSBMVCond(int numChildren, Subparser subparser, Object valu
   Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
   for (int i = numChildren; i >= 1; i--)
   {
-    Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
+    // Deprecated below:
+    // Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
+    Multiverse<Node> children = getAllNodeConfigs(getNodeAt(subparser, i), subparser.getPresenceCondition());
     /**
      * iterates through every pair of (Node, PresenceCondition)
      * and generates all combinations of the childrens' SBMVs
@@ -4261,6 +4269,7 @@ private void getAndSetSBMVCond(int numChildren, Subparser subparser, Object valu
     }
   }
   ((Node)value).setProperty(TRANSFORMATION, sbmv);
+  //System.err.println("Node " + (value != null ? ((Node) value).getName() : "null" ) + " is setting sbmv: " + sbmv);
 }
 
 /**
@@ -4336,8 +4345,10 @@ Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringBuilder> sb
 void addStatementIf(int statPos, Subparser subparser, Object value) {
   Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
 
+  // Deprecated code below:
   // NOTE: this assumes that there is at most one static choice node between the current node and its children.
-  Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, statPos), subparser.getPresenceCondition().presenceConditionManager());
+  //Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, statPos), subparser.getPresenceCondition().presenceConditionManager());
+  Multiverse<Node> condChildren = getAllNodeConfigs(getNodeAt(subparser, statPos), subparser.getPresenceCondition());
 
   /** Iterates through all configurations of the child node */
   for (Multiverse.Element<Node> configNode : condChildren) {
