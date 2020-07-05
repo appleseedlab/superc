@@ -2909,11 +2909,7 @@ ExpressionStatement:  /** complete **/
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-
-	  // Deprecated code below:
-	  // NOTE: this assumes that there is at most one static choice node between the current node and its children.
-	  //Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, statPos), subparser.getPresenceCondition().presenceConditionManager());
-	  Multiverse<Node> condChildren = getAllNodeConfigs(getNodeAt(subparser, statPos), subparser.getPresenceCondition());
+	  Multiverse<Node> condChildren = getAllNodeConfigs(getNodeAt(subparser, 2), subparser.getPresenceCondition());
 
 	  /** Iterates through all configurations of the child node */
 	  for (Multiverse.Element<Node> configNode : condChildren) {
