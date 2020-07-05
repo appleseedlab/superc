@@ -422,7 +422,7 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
 FunctionPrototype:  /** nomerge **/
         IdentifierDeclarator { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           getAndSetSBMVCond(2, subparser, value);
           System.err.println("FunctionPrototype - IdentifierDeclarator not supported");
         }
@@ -430,14 +430,14 @@ FunctionPrototype:  /** nomerge **/
         {
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
         | TypeSpecifier            IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -460,7 +460,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -469,7 +469,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeQualifierList        IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -478,12 +478,12 @@ FunctionPrototype:  /** nomerge **/
         }
         |                          OldFunctionDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -492,7 +492,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -501,7 +501,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -510,7 +510,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -2544,7 +2544,7 @@ PostfixingFunctionDeclarator:  /** nomerge **/
         LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN
         {
           //return whatever is in Parameter TypeListOpt
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
           /*StringBuilder sb = new StringBuilder("(");
           for (int i = 1; i <= 3; i++)
             if (getStringBuilderAt(subparser, i) != null && !getStringBuilderAt(subparser, i).equals("null"))
@@ -2988,7 +2988,7 @@ JumpStatement:  /** passthrough, complete **/
         | ReturnStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
         }
         ;
 
@@ -3025,7 +3025,7 @@ ReturnStatement:  /** complete **/
         RETURN ExpressionOpt SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); 
         }
         ;
 
