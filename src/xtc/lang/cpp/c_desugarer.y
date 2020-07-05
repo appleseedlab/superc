@@ -2908,7 +2908,32 @@ ExpressionStatement:  /** complete **/
         ExpressionOpt SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          addStatementIf(2, subparser, value);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+
+	  // Deprecated code below:
+	  // NOTE: this assumes that there is at most one static choice node between the current node and its children.
+	  //Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, statPos), subparser.getPresenceCondition().presenceConditionManager());
+	  Multiverse<Node> condChildren = getAllNodeConfigs(getNodeAt(subparser, statPos), subparser.getPresenceCondition());
+
+	  /** Iterates through all configurations of the child node */
+	  for (Multiverse.Element<Node> configNode : condChildren) {
+	    Multiverse<StringBuilder> statements = getSBMV(configNode.getData());
+	    StringBuilder sb = new StringBuilder();
+
+	    /** Iterates through all configurations of the stringbuilder stored in the child node */
+	    for (Multiverse.Element<StringBuilder> statement : statements) {
+	      sb.append("\nif (" +
+			PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
+			") {\n" + statement.getData().toString() + ";\n}\n");
+	      /**
+	       * NOTE: When writing the "if (PC)",
+	       * we AND the child node's PC with each stored stringbuilder PC, and
+	       * add that to the resultant SBMV.
+	       */
+	    }
+	    sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+	  }
+	  setTFValue(value, sbmv);
         }
         ;
 
@@ -4328,47 +4353,6 @@ Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringBuilder> sb
   }
 
   return sbmv;
-}
-
-
-/**
- * All configurations of "if (PC) { <child SBMV> }" are generated,
- * where the child SBMV stores a configurable statement.
- * This new SBMV is set at the current node, with presence condition TRUE.
- * The TRUE presence condition is used because the generated code should always
- * be written.
- *
- * @param statPos The position of the statement (as a child) of the current node.
- * @param subparser The subparser.
- * @param value The current node.
- */
-void addStatementIf(int statPos, Subparser subparser, Object value) {
-  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-
-  // Deprecated code below:
-  // NOTE: this assumes that there is at most one static choice node between the current node and its children.
-  //Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, statPos), subparser.getPresenceCondition().presenceConditionManager());
-  Multiverse<Node> condChildren = getAllNodeConfigs(getNodeAt(subparser, statPos), subparser.getPresenceCondition());
-
-  /** Iterates through all configurations of the child node */
-  for (Multiverse.Element<Node> configNode : condChildren) {
-    Multiverse<StringBuilder> statements = getSBMV(configNode.getData());
-    StringBuilder sb = new StringBuilder();
-
-    /** Iterates through all configurations of the stringbuilder stored in the child node */
-    for (Multiverse.Element<StringBuilder> statement : statements) {
-      sb.append("\nif (" +
-                PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
-                ") {\n" + statement.getData().toString() + ";\n}\n");
-      /**
-       * NOTE: When writing the "if (PC)",
-       * we AND the child node's PC with each stored stringbuilder PC, and
-       * add that to the resultant SBMV.
-       */
-    }
-    sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-  }
-  setTFValue(value, sbmv);
 }
 
 final static Multiverse.Operator<StringBuilder> SBCONCAT = (sb1, sb2) -> {
