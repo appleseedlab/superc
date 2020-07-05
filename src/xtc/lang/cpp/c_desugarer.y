@@ -688,89 +688,49 @@ Declaration:  /** complete **/
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          // Deprecated below:
-          //Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, 3), subparser.getPresenceCondition().presenceConditionManager());
-          Multiverse<Node> children = getAllNodeConfigs(getNodeAt(subparser, 3), subparser.getPresenceCondition());
-          /**
-           * iterates through every pair of (Node, PresenceCondition)
-           * and generates all combinations of the childrens' SBMVs
-           */
-          for (Multiverse.Element<Node> child : children) {
-            Multiverse<StringBuilder> temp = (Multiverse<StringBuilder>)(child.getData().getProperty(TRANSFORMATION));
-            Multiverse<StringBuilder> product = cartesianProduct(sbmv, temp);
-            sbmv.destruct();
-            //temp.destruct();
-            System.err.println("WARNING: a multiverse is not being destructed in Declaration.");
-            sbmv = product;
-          }
+          Multiverse<StringBuilder> temp;
+          Node child;
           System.err.println("WARNING: skipping over transformation code at some nodes in Declaration.");
-          ((Node)value).setProperty(TRANSFORMATION, sbmv);
+          child = getNodeAt(subparser, 3);
+          temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
+          sbmv.destruct();
+          setTFValue(value, temp);
         }
         | SUETypeSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          // Depreacted below:
-          //Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, 3), subparser.getPresenceCondition().presenceConditionManager());
-          Multiverse<Node> children = getAllNodeConfigs(getNodeAt(subparser, 3), subparser.getPresenceCondition());
-          /**
-           * iterates through every pair of (Node, PresenceCondition)
-           * and generates all combinations of the childrens' SBMVs
-           */
-          for (Multiverse.Element<Node> child : children) {
-            Multiverse<StringBuilder> temp = (Multiverse<StringBuilder>)(child.getData().getProperty(TRANSFORMATION));
-            Multiverse<StringBuilder> product = cartesianProduct(sbmv, temp);
-            sbmv.destruct();
-            //temp.destruct();
-            System.err.println("WARNING: a multiverse is not being destructed in Declaration.");
-            sbmv = product;
-          }
+          Multiverse<StringBuilder> temp;
+          Node child;
           System.err.println("WARNING: skipping over transformation code at some nodes in Declaration.");
-          ((Node)value).setProperty(TRANSFORMATION, sbmv);
+          child = getNodeAt(subparser, 3);
+          temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
+          sbmv.destruct();
+          setTFValue(value, temp);
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          // Deprecated below:
-          //Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, 3), subparser.getPresenceCondition().presenceConditionManager());
-          Multiverse<Node> children = getAllNodeConfigs(getNodeAt(subparser, 3), subparser.getPresenceCondition());
-          /**
-           * iterates through every pair of (Node, PresenceCondition)
-           * and generates all combinations of the childrens' SBMVs
-           */
-          for (Multiverse.Element<Node> child : children) {
-            Multiverse<StringBuilder> temp = (Multiverse<StringBuilder>)(child.getData().getProperty(TRANSFORMATION));
-            Multiverse<StringBuilder> product = cartesianProduct(sbmv, temp);
-            sbmv.destruct();
-            //temp.destruct();
-            System.err.println("WARNING: a multiverse is not being destructed.");
-            sbmv = product;
-          }
+          Multiverse<StringBuilder> temp;
+          Node child;
           System.err.println("WARNING: skipping over transformation code at some nodes in Declaration.");
-          ((Node)value).setProperty(TRANSFORMATION, sbmv);
+          child = getNodeAt(subparser, 3);
+          temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
+          sbmv.destruct();
+          setTFValue(value, temp);
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          // Deprecated below:
-          //Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, 3), subparser.getPresenceCondition().presenceConditionManager());
-          Multiverse<Node> children = getAllNodeConfigs(getNodeAt(subparser, 3), subparser.getPresenceCondition());
-          /**
-           * iterates through every pair of (Node, PresenceCondition)
-           * and generates all combinations of the childrens' SBMVs
-           */
-          for (Multiverse.Element<Node> child : children) {
-            Multiverse<StringBuilder> temp = (Multiverse<StringBuilder>)(child.getData().getProperty(TRANSFORMATION));
-            Multiverse<StringBuilder> product = cartesianProduct(sbmv, temp);
-            sbmv.destruct();
-            //temp.destruct();
-            System.err.println("WARNING: a multiverse is not being destructed.");
-            sbmv = product;
-          }
+          Multiverse<StringBuilder> temp;
+          Node child;
           System.err.println("WARNING: skipping over transformation code at some nodes in Declaration.");
-          ((Node)value).setProperty(TRANSFORMATION, sbmv);
+          child = getNodeAt(subparser, 3);
+          temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
+          sbmv.destruct();
+          setTFValue(value, temp);
         }
         ;
 
