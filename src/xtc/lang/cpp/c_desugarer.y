@@ -318,7 +318,7 @@ TranslationUnit:  /** complete, passthrough **/
           }
           catch(Exception IOException) {
             System.err.println("ERROR: unable to write output");
-            System.exit(1);
+  System.exit(1);;
           }
         }
         ;
@@ -361,7 +361,8 @@ EmptyDefinition:  /** complete **/
         SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: EmptyDefinition");
+          System.exit(1);;
         }
         ;
 
@@ -401,7 +402,8 @@ FunctionDefinition:  /** complete **/ // added scoping
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
           // TODO
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: FunctionDefinition");
+          System.exit(1);
 
         }
         ;
@@ -422,7 +424,7 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
 FunctionPrototype:  /** nomerge **/
         IdentifierDeclarator { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ");
           getAndSetSBMVCond(2, subparser, value);
           System.err.println("FunctionPrototype - IdentifierDeclarator not supported");
         }
@@ -430,14 +432,14 @@ FunctionPrototype:  /** nomerge **/
         {
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ");
           addMapping(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
         | TypeSpecifier            IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -460,7 +462,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -469,7 +471,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeQualifierList        IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -478,12 +480,12 @@ FunctionPrototype:  /** nomerge **/
         }
         |                          OldFunctionDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ");
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -492,7 +494,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -501,7 +503,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -510,7 +512,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           addMapping(subparser,type,decl);
@@ -740,33 +742,38 @@ Declaration:  /** complete **/
 DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         DeclarationQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);
         }
         | TypeQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | DefaultDeclaringList COMMA AttributeSpecifierListOpt IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           // reuses saved base type
           bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -826,12 +833,14 @@ DeclaringList:  /** nomerge **/
         }
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           // reuses saved base type
 	        bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -844,7 +853,7 @@ DeclarationSpecifier:  /**  nomerge **/
         | SUEDeclarationSpecifier          /* struct/union/enum */
 				{
 					System.err.println("Unsupported grammar DeclarationSpecifier-SUE"); // TODO
-          					System.exit(1);
+          System.exit(1);
 				}
         | TypedefDeclarationSpecifier      /* typedef*/
 				{
@@ -854,12 +863,12 @@ DeclarationSpecifier:  /**  nomerge **/
         | VarArgDeclarationSpecifier  // ADDED
         {
 					System.err.println("Unsupported grammar DeclarationSpecifier-VarArg"); // TODO
-          					System.exit(1);
+          System.exit(1);
 				}
         | TypeofDeclarationSpecifier // ADDED
         {
 					System.err.println("Unsupported grammar DeclarationSpecifier-TypeofDeclSpec"); // TODO
-          					System.exit(1);
+          System.exit(1);
 				}
         ;
 
@@ -872,7 +881,7 @@ TypeSpecifier:  /** nomerge **/
         | SUETypeSpecifier                 /* Struct/Union/Enum */
 				{
 					System.err.println("Unsupported grammar TypeSpecifier-SUE"); // TODO
-          					System.exit(1);
+          System.exit(1);
 				}
 				| TypedefTypeSpecifier             /* Typedef */
 				{
@@ -881,7 +890,7 @@ TypeSpecifier:  /** nomerge **/
         | VarArgTypeSpecifier  // ADDED
 				{
 					System.err.println("Unsupported grammar TypeSpecifier-VarArg"); // TODO
-          					System.exit(1);
+          System.exit(1);
 				}
         | TypeofTypeSpecifier // ADDED
 				{
@@ -1004,60 +1013,72 @@ ConstQualifier
 ConstQualifier:    // ADDED
         CONST
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __CONST
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __CONST__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 VolatileQualifier:   // ADDED
         VOLATILE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __VOLATILE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __VOLATILE__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 RestrictQualifier:   // ADDED
         RESTRICT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __RESTRICT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __RESTRICT__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 FunctionSpecifier:  // ADDED
         INLINE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __INLINE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __INLINE__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -1178,30 +1199,36 @@ BasicTypeSpecifier: /**  nomerge **/
 SUEDeclarationSpecifier: /** nomerge **/          /* StorageClass + struct/union/enum */
         SUETypeSpecifier StorageClass
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | DeclarationQualifierList ElaboratedTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | SUEDeclarationSpecifier DeclarationQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 SUETypeSpecifier: /** nomerge **/
         ElaboratedTypeName              /* struct/union/enum */
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TypeQualifierList ElaboratedTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | SUETypeSpecifier TypeQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -1258,71 +1285,85 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
 TypeofDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or void*/
         TypeofTypeSpecifier  StorageClass
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | DeclarationQualifierList Typeofspecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TypeofDeclarationSpecifier DeclarationQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TypeofDeclarationSpecifier Typeofspecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 TypeofTypeSpecifier: /** nomerge **/  // ADDED
         Typeofspecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TypeQualifierList Typeofspecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TypeofTypeSpecifier TypeQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TypeofTypeSpecifier Typeofspecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 Typeofspecifier: /** nomerge **/  // ADDED
         Typeofkeyword LPAREN TypeName RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | Typeofkeyword LPAREN Expression RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 Typeofkeyword: /** nomerge **/  // ADDED
         TYPEOF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __TYPEOF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __TYPEOF__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 VarArgDeclarationSpecifier:      /*StorageClass+Arithmetic or void*/
         VarArgTypeSpecifier StorageClass
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1330,7 +1371,8 @@ VarArgDeclarationSpecifier:      /*StorageClass+Arithmetic or void*/
         }
         | DeclarationQualifierList VarArgTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1338,7 +1380,8 @@ VarArgDeclarationSpecifier:      /*StorageClass+Arithmetic or void*/
         }
         | VarArgDeclarationSpecifier DeclarationQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1346,7 +1389,8 @@ VarArgDeclarationSpecifier:      /*StorageClass+Arithmetic or void*/
         }
         | VarArgDeclarationSpecifier VarArgTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1357,14 +1401,16 @@ VarArgDeclarationSpecifier:      /*StorageClass+Arithmetic or void*/
 VarArgTypeSpecifier:
         VarArgTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
         }
         | TypeQualifierList VarArgTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1372,7 +1418,8 @@ VarArgTypeSpecifier:
         }
         | VarArgTypeSpecifier TypeQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1380,7 +1427,8 @@ VarArgTypeSpecifier:
         }
         | VarArgTypeSpecifier VarArgTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1391,7 +1439,8 @@ VarArgTypeSpecifier:
 VarArgTypeName:  // ADDED
         __BUILTIN_VA_LIST
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           getSpecsAt(subparser, 1).type = InternalT.VA_LIST;
         }
         ;
@@ -1511,41 +1560,49 @@ BasicTypeName:
 SignedKeyword:
         SIGNED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __SIGNED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __SIGNED__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 ComplexKeyword:
         _COMPLEX
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __COMPLEX__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 ElaboratedTypeName: /** passthrough, nomerge **/
         StructSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | UnionSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | EnumSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -1554,7 +1611,8 @@ StructSpecifier: /** nomerge **/  // ADDED attributes
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           Node tag     = null;
           Node members = getNodeAt(subparser, 3);
           Node attrs   = null;
@@ -1566,7 +1624,8 @@ StructSpecifier: /** nomerge **/  // ADDED attributes
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           Node tag     = getNodeAt(subparser, 6);
           Node members = getNodeAt(subparser, 3);
           Node attrs   = null;
@@ -1576,13 +1635,15 @@ StructSpecifier: /** nomerge **/  // ADDED attributes
         }
         | STRUCT IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | STRUCT AttributeSpecifierList { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           Node tag     = null;
           Node members = getNodeAt(subparser, 3);
           Node attrs   = getNodeAt(subparser, 6);
@@ -1594,7 +1655,8 @@ StructSpecifier: /** nomerge **/  // ADDED attributes
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           Node tag     = getNodeAt(subparser, 6);
           Node members = getNodeAt(subparser, 3);
           Node attrs   = getNodeAt(subparser, 7);
@@ -1604,7 +1666,8 @@ StructSpecifier: /** nomerge **/  // ADDED attributes
         }
         | STRUCT AttributeSpecifierList IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -1613,29 +1676,34 @@ UnionSpecifier: /** nomerge **/  // ADDED attributes
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | UNION IdentifierOrTypedefName { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | UNION IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | UNION AttributeSpecifierList { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | UNION AttributeSpecifierList IdentifierOrTypedefName { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         /* { */
         /*    updateSpecs(subparser,
@@ -1643,7 +1711,8 @@ UnionSpecifier: /** nomerge **/  // ADDED attributes
         /* } */
         | UNION AttributeSpecifierList IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -1651,59 +1720,70 @@ StructDeclarationList: /** list, nomerge **/
         /* StructDeclaration */ /* ADDED gcc empty struct */
         {
           ((Node) value).setProperty(SPECS, new Specifiers());
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | StructDeclarationList StructDeclaration {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 StructDeclaration: /** nomerge **/
         StructDeclaringList SEMICOLON
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | StructDefaultDeclaringList SEMICOLON
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TypeQualifierList SEMICOLON  // ADDED Declarator is optional
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TypeSpecifier SEMICOLON  // ADDED Declarator is optional
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | SEMICOLON // ADDED gcc allows empty struct field in declaration
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 StructDefaultDeclaringList: /** list, nomerge **/        /* doesn't redeclare typedef*/
         TypeQualifierList StructIdentifierDeclarator AttributeSpecifierListOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | StructDefaultDeclaringList COMMA StructIdentifierDeclarator AttributeSpecifierListOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 StructDeclaringList: /** list, nomerge **/
         TypeSpecifier StructDeclarator AttributeSpecifierListOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | StructDeclaringList COMMA StructDeclarator AttributeSpecifierListOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -1711,22 +1791,26 @@ StructDeclaringList: /** list, nomerge **/
 StructDeclarator: /** nomerge **/
         Declarator BitFieldSizeOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | BitFieldSize
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 StructIdentifierDeclarator: /** nomerge **/
         IdentifierDeclarator BitFieldSizeOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | BitFieldSize
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -1734,57 +1818,69 @@ BitFieldSizeOpt: /** nomerge **/
         /* nothing */
         | BitFieldSize
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 BitFieldSize: /** nomerge **/
         COLON ConstantExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 EnumSpecifier: /** nomerge **/  /* ADDED attributes */
         ENUM LBRACE EnumeratorList RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ENUM IdentifierOrTypedefName LBRACE EnumeratorList RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ENUM IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ENUM LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ENUM IdentifierOrTypedefName LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ENUM AttributeSpecifierList LBRACE EnumeratorList RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ENUM AttributeSpecifierList IdentifierOrTypedefName LBRACE EnumeratorList RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ENUM AttributeSpecifierList IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ENUM AttributeSpecifierList LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ENUM AttributeSpecifierList IdentifierOrTypedefName LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -1796,22 +1892,26 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */
 EnumeratorList:  /** list, nomerge **/  // easier to bind
         Enumerator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | EnumeratorList COMMA Enumerator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 Enumerator: /** nomerge **/
         IDENTIFIER { BindEnum(subparser); } EnumeratorValueOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TYPEDEFname { BindEnum(subparser); } EnumeratorValueOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -1819,7 +1919,8 @@ EnumeratorValueOpt: /** nomerge **/
         /* Nothing */
         | ASSIGN ConstantExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -1907,19 +2008,23 @@ ParameterDeclaration:  /** nomerge **/
 ParameterAbstractDeclaration:
         DeclarationSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | DeclarationSpecifier AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | DeclarationQualifierList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | DeclarationQualifierList AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TypeSpecifier
         {
@@ -1929,7 +2034,7 @@ ParameterAbstractDeclaration:
         		sb.append(typeList.get(0));
   	      else {
         		System.err.println("ERROR: Configurable typedefs not yet supported."); // TODO
-        		// System.exit(1);
+        		// System.exit(1);;
   	      }
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
@@ -1937,22 +2042,26 @@ ParameterAbstractDeclaration:
         }
         | TypeSpecifier AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TypeQualifierList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TypeQualifierList AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 ParameterIdentifierDeclaration:
         DeclarationSpecifier IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -1966,7 +2075,8 @@ ParameterIdentifierDeclaration:
         }
         | DeclarationSpecifier ParameterTypedefDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -1980,7 +2090,8 @@ ParameterIdentifierDeclaration:
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -1994,7 +2105,8 @@ ParameterIdentifierDeclaration:
         }
         | TypeSpecifier IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -2008,7 +2120,8 @@ ParameterIdentifierDeclaration:
         }
         | TypeSpecifier ParameterTypedefDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -2022,7 +2135,8 @@ ParameterIdentifierDeclaration:
         }
         | TypeQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -2043,18 +2157,21 @@ ParameterIdentifierDeclaration:
 IdentifierList:  /** list, nomerge **/
         Identifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | IdentifierList COMMA Identifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 Identifier:  /** nomerge **/
        IDENTIFIER
        {
-         System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+         System.err.println("WARNING: unsupported semantic action: ");
+         System.exit(1);;
          BindVar(subparser);
        }
        ;
@@ -2062,30 +2179,36 @@ Identifier:  /** nomerge **/
 IdentifierOrTypedefName: /** nomerge **/
         IDENTIFIER
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TYPEDEFname
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 TypeName: /** nomerge **/
         TypeSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TypeSpecifier AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TypeQualifierList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TypeQualifierList AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -2152,81 +2275,96 @@ Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists
 InitializerList:  /** nomerge **/ //modified so that COMMAS are on the right
         MatchedInitializerList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | MatchedInitializerList DesignatedInitializer
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 MatchedInitializerList:  /** list, nomerge **/
         | MatchedInitializerList DesignatedInitializer COMMA
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 Designation:   /* ADDED */
         DesignatorList ASSIGN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ObsoleteArrayDesignation
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ObsoleteFieldDesignation
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 DesignatorList:  /** list, nomerge **/  /* ADDED */
         Designator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | DesignatorList Designator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 Designator:   /* ADDED */
         LBRACK ConstantExpression RBRACK
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | LBRACK ConstantExpression ELLIPSIS ConstantExpression RBRACK
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | DOT IDENTIFIER //IDENTIFIER
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | DOT TYPEDEFname // ADDED hack to get around using typedef names as struct fields
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 ObsoleteArrayDesignation: /** nomerge **/  /* ADDED */
         LBRACK ConstantExpression RBRACK
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | LBRACK ConstantExpression ELLIPSIS ConstantExpression RBRACK
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 ObsoleteFieldDesignation: /** nomerge **/  /* ADDED */
         IDENTIFIER COLON
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -2504,7 +2642,7 @@ PostfixingFunctionDeclarator:  /** nomerge **/
         LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN
         {
           //return whatever is in Parameter TypeListOpt
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ");
           /*StringBuilder sb = new StringBuilder("(");
           for (int i = 1; i <= 3; i++)
             if (getStringBuilderAt(subparser, i) != null && !getStringBuilderAt(subparser, i).equals("null"))
@@ -2567,30 +2705,36 @@ OldFunctionDeclarator: /** nomerge **/
 PostfixOldFunctionDeclarator: /** nomerge **/
         ParenIdentifierDeclarator LPAREN { EnterScope(subparser); } IdentifierList { ExitReentrantScope(subparser); } RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | LPAREN OldFunctionDeclarator RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | LPAREN OldFunctionDeclarator RPAREN PostfixingAbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 AbstractDeclarator: /** nomerge **/
         UnaryAbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | PostfixAbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | PostfixingAbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -2622,7 +2766,7 @@ ArrayAbstractDeclarator: /** nomerge **/
       	  DeclBuilder db = new DeclBuilder();
       	  db.addArray("",false);
           setTFValue(value, db);
-                  }
+        }
         | LBRACK ConstantExpression RBRACK
         {
       	  DeclBuilder db = new DeclBuilder();
@@ -2630,12 +2774,12 @@ ArrayAbstractDeclarator: /** nomerge **/
           Multiverse<StringBuilder> arrayBounds = getSBMVAt(subparser, 2);
           if (arrayBounds.size() > 1) {
             System.err.println("ERROR: configurable array bounds not yet supported.");
-            System.exit(1);
+            System.exit(1);;
           } else {
             db.addArray(arrayBounds.get(0).getData().toString());
           }
           setTFValue(value, db);
-          	      }
+	      }
         | ArrayAbstractDeclarator LBRACK ConstantExpression RBRACK
 	      {
       	  DeclBuilder db = getDBAt(subparser,4);
@@ -2643,49 +2787,57 @@ ArrayAbstractDeclarator: /** nomerge **/
           Multiverse<StringBuilder> arrayBounds = getSBMVAt(subparser, 2);
           if (arrayBounds.size() > 1) {
             System.err.println("ERROR: configurable array bounds not yet supported.");
-            System.exit(1);
+            System.exit(1);;
           } else {
             db.addArray(arrayBounds.get(0).getData().toString());
           }
           setTFValue(value, db);
-          	      }
+	      }
         ;
 
 UnaryAbstractDeclarator: /** nomerge **/
         STAR
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | STAR TypeQualifierList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | STAR AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | STAR TypeQualifierList AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 PostfixAbstractDeclarator: /** nomerge **/
         LPAREN UnaryAbstractDeclarator RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | LPAREN PostfixAbstractDeclarator RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | LPAREN PostfixingAbstractDeclarator RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | LPAREN UnaryAbstractDeclarator RPAREN PostfixingAbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -2733,22 +2885,26 @@ LabeledStatement:  /** complete **/  // ADDED attributes
         IdentifierOrTypedefName COLON AttributeSpecifierListOpt Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | CASE ConstantExpression COLON Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | CASE ConstantExpression ELLIPSIS ConstantExpression COLON Statement  // ADDED case range
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | DEFAULT COLON Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -2801,7 +2957,8 @@ LocalLabelDeclaration: /** complete **/  /* ADDED */
         __LABEL__ LocalLabelList SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -2809,12 +2966,14 @@ LocalLabelList:  /** list, complete **/  // ADDED
         IDENTIFIER
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | LocalLabelList COMMA IDENTIFIER
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -2888,7 +3047,7 @@ ExpressionStatement:  /** complete **/
       	    }
       	    sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
       	  }
-      	  setTFValue(value, sbmv);
+          setTFValue(value, sbmv);
         }
         ;
 
@@ -2896,17 +3055,20 @@ SelectionStatement:  /** complete **/
         IF LPAREN Expression RPAREN Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | IF LPAREN Expression RPAREN Statement ELSE Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | SWITCH LPAREN Expression RPAREN Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -2914,18 +3076,21 @@ IterationStatement:  /** complete **/
         WHILE LPAREN Expression RPAREN Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | DO Statement WHILE LPAREN Expression RPAREN SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | FOR LPAREN ExpressionOpt SEMICOLON ExpressionOpt SEMICOLON
                 ExpressionOpt RPAREN Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -2933,22 +3098,25 @@ JumpStatement:  /** passthrough, complete **/
         GotoStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ContinueStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | BreakStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ReturnStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ");
         }
         ;
 
@@ -2956,12 +3124,14 @@ GotoStatement:  /** complete **/
         GOTO IdentifierOrTypedefName SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | GOTO STAR Expression SEMICOLON  // ADDED
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -2969,7 +3139,8 @@ ContinueStatement:  /** complete **/
         CONTINUE SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -2977,7 +3148,8 @@ BreakStatement:  /** complete **/
         BREAK SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -2985,7 +3157,7 @@ ReturnStatement:  /** complete **/
         RETURN ExpressionOpt SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); 
+          System.err.println("WARNING: unsupported semantic action: ");
         }
         ;
 
@@ -3042,11 +3214,13 @@ Constant: /** passthrough, nomerge **/
 StringLiteralList:  /** list, nomerge **/
                 STRINGliteral
                 {
-                  System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+                  System.err.println("WARNING: unsupported semantic action: ");
+                  System.exit(1);;
                 }
                 | StringLiteralList STRINGliteral
                 {
-                  System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+                  System.err.println("WARNING: unsupported semantic action: ");
+                  System.exit(1);;
                 }
                 ;
 
@@ -3063,19 +3237,23 @@ PrimaryExpression:  /** nomerge, passthrough **/
         }
         | StringLiteralList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | LPAREN Expression RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | StatementAsExpression  // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | VariableArgumentAccess  // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3090,7 +3268,6 @@ PrimaryIdentifier: /** nomerge **/
 
 
           CContext scope = (CContext) subparser.scope;
-          /* Multiverse<StringBuilder> sbmv = universeToSB(scope.getMappings(sb.toString())); */
 
           // get the renamings from the symtab
           PresenceCondition cond = subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true);
@@ -3098,7 +3275,7 @@ PrimaryIdentifier: /** nomerge **/
           cond.delRef();
 
           // convert the renamings to stringbuilders
-          Multiverse<StringBuilder> sbmv = universeToSB(entries);
+          Multiverse<StringBuilder> sbmv = entryToStringBuilder.transform(entries);
           entries.destruct();
 
           setTFValue(value, sbmv);
@@ -3108,14 +3285,16 @@ PrimaryIdentifier: /** nomerge **/
 VariableArgumentAccess:  /** nomerge **/  // ADDED
         __BUILTIN_VA_ARG LPAREN AssignmentExpression COMMA TypeName RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 StatementAsExpression:  /** nomerge **/  //ADDED
         LPAREN { EnterScope(subparser); } CompoundStatement { ExitScope(subparser); } RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3130,15 +3309,18 @@ PostfixExpression:  /** passthrough, nomerge **/
         }
         | FunctionCall
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | DirectSelection
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | IndirectSelection
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | Increment
         {
@@ -3150,7 +3332,8 @@ PostfixExpression:  /** passthrough, nomerge **/
         }
         | CompoundLiteral  /* ADDED */
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3171,12 +3354,14 @@ Subscript:  /** nomerge **/
 FunctionCall:  /** nomerge **/
         PostfixExpression LPAREN RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           callFunction(subparser, getNodeAt(subparser, 3), null);
         }
         | PostfixExpression LPAREN ExpressionList RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
           callFunction(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 2));
         }
         ;
@@ -3184,14 +3369,16 @@ FunctionCall:  /** nomerge **/
 DirectSelection:  /** nomerge **/
         PostfixExpression DOT IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 IndirectSelection:  /** nomerge **/
         PostfixExpression ARROW IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3218,18 +3405,21 @@ Decrement:  /** nomerge **/
 CompoundLiteral:  /** nomerge **/  /* ADDED */
         LPAREN TypeName RPAREN LBRACE InitializerList RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 ExpressionList:  /** list, nomerge **/
         AssignmentExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ExpressionList COMMA AssignmentExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3258,81 +3448,96 @@ UnaryExpression:  /** passthrough, nomerge **/
         }
         | SIZEOF UnaryExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | SIZEOF LPAREN TypeName RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | LabelAddressExpression  // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | AlignofExpression // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ExtensionExpression // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | OffsetofExpression // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TypeCompatibilityExpression  // ADEED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 TypeCompatibilityExpression:  /** nomerge **/
         __BUILTIN_TYPES_COMPATIBLE_P LPAREN TypeName COMMA TypeName RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 OffsetofExpression:  /** nomerge **/
         __BUILTIN_OFFSETOF LPAREN TypeName COMMA PostfixExpression RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 ExtensionExpression:  /** nomerge **/
         __EXTENSION__ CastExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 AlignofExpression:  /** nomerge **/
         Alignofkeyword LPAREN TypeName RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | Alignofkeyword UnaryExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 Alignofkeyword:
         __ALIGNOF__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __ALIGNOF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 LabelAddressExpression:  /** nomerge  **/  // ADDED
         ANDAND IDENTIFIER
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3345,23 +3550,28 @@ Unaryoperator:
         }
         | STAR
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | PLUS
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | MINUS
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | NEGATE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | NOT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3372,7 +3582,8 @@ CastExpression:  /** passthrough, nomerge **/
         }
         | LPAREN TypeName RPAREN CastExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3437,11 +3648,13 @@ ShiftExpression:  /** passthrough, nomerge **/
         }
         | ShiftExpression LS AdditiveExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ShiftExpression RS AdditiveExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3452,19 +3665,23 @@ RelationalExpression:  /** passthrough, nomerge **/
         }
         | RelationalExpression LT ShiftExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | RelationalExpression GT ShiftExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | RelationalExpression LE ShiftExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | RelationalExpression GE ShiftExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3475,11 +3692,13 @@ EqualityExpression:  /** passthrough, nomerge **/
         }
         | EqualityExpression EQ RelationalExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | EqualityExpression NE RelationalExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3490,7 +3709,8 @@ AndExpression:  /** passthrough, nomerge **/
         }
         | AndExpression AND EqualityExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3501,7 +3721,8 @@ ExclusiveOrExpression:  /** passthrough, nomerge **/
         }
         | ExclusiveOrExpression XOR AndExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3512,7 +3733,8 @@ InclusiveOrExpression:  /** passthrough, nomerge **/
         }
         | InclusiveOrExpression PIPE ExclusiveOrExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3523,7 +3745,8 @@ LogicalAndExpression:  /** passthrough, nomerge **/
         }
         | LogicalAndExpression ANDAND InclusiveOrExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3534,7 +3757,8 @@ LogicalORExpression:  /** passthrough, nomerge **/
         }
         | LogicalORExpression OROR LogicalAndExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3546,12 +3770,14 @@ ConditionalExpression:  /** passthrough, nomerge **/
         | LogicalORExpression QUESTION Expression COLON
                 ConditionalExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | LogicalORExpression QUESTION COLON  // ADDED gcc innomerge conditional
                 ConditionalExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3617,11 +3843,13 @@ AssignmentOperator: /** nomerge **/
         }
         | LSassign
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | RSassign
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ANDassign
         {
@@ -3633,7 +3861,8 @@ AssignmentOperator: /** nomerge **/
         }
         | ERassign
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ORassign
         {
@@ -3660,7 +3889,8 @@ Expression:  /** passthrough, nomerge **/
         }
         | Expression COMMA AssignmentExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3675,36 +3905,42 @@ AttributeSpecifierListOpt: /** nomerge **/  // ADDED
         /* empty */
         | AttributeSpecifierList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 AttributeSpecifierList:  /** list, nomerge **/  // ADDED
         AttributeSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | AttributeSpecifierList AttributeSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 AttributeSpecifier: /** nomerge **/  // ADDED
         AttributeKeyword LPAREN LPAREN AttributeListOpt RPAREN RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 AttributeKeyword:   // ADDED
         __ATTRIBUTE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __ATTRIBUTE__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3712,18 +3948,21 @@ AttributeListOpt:   // ADDED
         /* empty */
         | AttributeList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 AttributeList:  /** list, nomerge **/  // ADDED
         Word AttributeExpressionOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | AttributeList COMMA Word AttributeExpressionOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -3731,278 +3970,346 @@ AttributeExpressionOpt:   // ADDED
         /* empty */
         | LPAREN RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | LPAREN ExpressionList RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 Word:  // ADDED
         IDENTIFIER
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | AUTO
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | DOUBLE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | INT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | STRUCT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | BREAK
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ELSE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | LONG
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | SWITCH
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | CASE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ENUM
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | REGISTER
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TYPEDEF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | CHAR
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | EXTERN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | RETURN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | UNION
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | CONST
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | FLOAT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | SHORT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | UNSIGNED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | CONTINUE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | FOR
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | SIGNED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | VOID
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | DEFAULT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | GOTO
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | SIZEOF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | VOLATILE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | DO
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | IF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | STATIC
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | WHILE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ASMSYM
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | _BOOL
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | _COMPLEX
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | RESTRICT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __ALIGNOF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __ALIGNOF__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | ASM
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __ASM
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __ASM__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __ATTRIBUTE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __ATTRIBUTE__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __BUILTIN_OFFSETOF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __BUILTIN_TYPES_COMPATIBLE_P
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __BUILTIN_VA_ARG
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __BUILTIN_VA_LIST
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __COMPLEX__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __CONST
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __CONST__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __EXTENSION__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | INLINE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __INLINE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __INLINE__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __LABEL__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __RESTRICT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __RESTRICT__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __SIGNED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __SIGNED__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __THREAD
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | TYPEOF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __TYPEOF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __TYPEOF__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __VOLATILE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __VOLATILE__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -4011,14 +4318,16 @@ Word:  // ADDED
 AssemblyDefinition:  /** nomerge **/
         AssemblyExpression SEMICOLON
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 AssemblyExpression:  /** nomerge **/
         AsmKeyword LPAREN StringLiteralList RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -4026,7 +4335,8 @@ AssemblyExpressionOpt:  /** nomerge **/
         /* empty */
         | AssemblyExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -4034,34 +4344,41 @@ AssemblyStatement:   /** nomerge **/ // ADDED
         AsmKeyword LPAREN Assemblyargument RPAREN SEMICOLON
         /* gcc>=4.5 */
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | AsmKeyword GOTO LPAREN AssemblyGotoargument RPAREN SEMICOLON
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | AsmKeyword TypeQualifier LPAREN Assemblyargument RPAREN SEMICOLON
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 Assemblyargument:  /** nomerge **/  // ADDED
         StringLiteralList COLON AssemblyoperandsOpt COLON AssemblyoperandsOpt COLON Assemblyclobbers
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | StringLiteralList COLON AssemblyoperandsOpt COLON AssemblyoperandsOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | StringLiteralList COLON AssemblyoperandsOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | StringLiteralList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -4069,29 +4386,34 @@ AssemblyoperandsOpt:  /** nomerge **/  // ADDED
         /* empty */
         | Assemblyoperands
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 Assemblyoperands:  /** list, nomerge **/  // ADDED
         Assemblyoperand
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | Assemblyoperands COMMA Assemblyoperand
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 Assemblyoperand:  /** nomerge **/  // ADDED
                              StringLiteralList LPAREN Expression RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | LBRACK Word RBRACK StringLiteralList LPAREN Expression RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -4099,51 +4421,60 @@ AssemblyclobbersOpt:  /** nomerge **/ // ADDED
         /* empty */
         | Assemblyclobbers
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 Assemblyclobbers:  /** nomerge **/  // ADDED
         StringLiteralList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | Assemblyclobbers COMMA StringLiteralList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 AssemblyGotoargument:  /** nomerge **/ // ADDED
         StringLiteralList COLON AssemblyoperandsOpt COLON AssemblyoperandsOpt COLON AssemblyclobbersOpt COLON AssemblyJumpLabels
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 AssemblyJumpLabels:  /** nomerge **/ // ADDED
         Identifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | AssemblyJumpLabels COMMA Identifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
 AsmKeyword:   // ADDED
         ASM
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __ASM
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         | __ASM__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null")); System.exit(1);
+          System.err.println("WARNING: unsupported semantic action: ");
+          System.exit(1);;
         }
         ;
 
@@ -4232,13 +4563,9 @@ private void getAndSetSBMVCond(int numChildren, Subparser subparser, Object valu
   Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
   for (int i = numChildren; i >= 1; i--)
   {
-    // Deprecated below:
-    // Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
+
     Multiverse<Node> children = getAllNodeConfigs(getNodeAt(subparser, i), subparser.getPresenceCondition());
-    /**
-     * iterates through every pair of (Node, PresenceCondition)
-     * and generates all combinations of the childrens' SBMVs
-     */
+
     for (Multiverse.Element<Node> child : children) {
       Multiverse<StringBuilder> temp = (Multiverse<StringBuilder>)(child.getData().getProperty(TRANSFORMATION));
       Multiverse<StringBuilder> product = cartesianProduct(sbmv, temp);
@@ -4247,8 +4574,21 @@ private void getAndSetSBMVCond(int numChildren, Subparser subparser, Object valu
       System.err.println("WARNING: a multiverse is not being destructed.");
       sbmv = product;
     }
+
+    /*Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+    Multiverse<StringBuilder> temp;
+    Node child;
+    System.err.println("WARNING: skipping over transformation code at some nodes in Declaration.");
+    // TODO: uncomment these lines once FunctionPrototype sets an SBMV.
+    //child = getNodeAt(subparser, 6);
+    //temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
+    //sbmv.destruct();
+    child = getNodeAt(subparser, 3);
+    temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
+    sbmv.destruct();
+    */
   }
-  ((Node)value).setProperty(TRANSFORMATION, sbmv);
+  setTFValue(value, sbmv);
   //System.err.println("Node " + (value != null ? ((Node) value).getName() : "null" ) + " is setting sbmv: " + sbmv);
 }
 
@@ -4275,7 +4615,7 @@ Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition presenceConditio
         someChildren.destruct();
       } else {
         System.err.println("unsupported AST child type in getNodeMultiverse");
-        System.exit(1);
+        System.exit(1);;
       }
     }
 
@@ -4368,18 +4708,6 @@ final Multiverse.Transformer<SymbolTable.Entry, StringBuilder> entryToStringBuil
     return new StringBuilder(from.getRenaming());
   }
 };
-
-/** Converts a Multiverse<SymbolTable.Entry> to a Multiverse<StringBuilder>
- *  so cartesianProduct() can be called on them.
- */
-private Multiverse<StringBuilder> universeToSB(Multiverse<SymbolTable.Entry> mv) {
-  return entryToStringBuilder.transform(mv);
-  /* Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>(); */
-  /* for (Element<SymbolTable.Entry> u : mv) { */
-  /*   sbmv.add(new Element<StringBuilder>(new StringBuilder(u.getData().getRenaming()), u.getCondition())); */
-  /* } */
-  /* return sbmv; */
-}
 
 /** True when statistics should be output. */
 private boolean languageStatistics = false;
@@ -4503,7 +4831,7 @@ public void addClauses(Clauses clauses, int[] assumptions) {
       }
     } catch (ContradictionException e) {
       e.printStackTrace();
-      System.exit(1);
+      System.exit(1);;
     }
   } else {
     this.hasClauses = false;
@@ -5158,7 +5486,7 @@ public void useIdent(Subparser subparser, Node ident) {
             contradiction = true;
           } catch (TimeoutException e) {
             e.printStackTrace();
-            /* System.exit(1); */
+            /*           System.exit(1);; */
           }
           notandnot.delRef();
         }
@@ -5864,7 +6192,7 @@ private Multiverse<SymbolTable.Entry> addMapping(Subparser subparser, TypeBuilde
   if (t == null || d == null || !t.getIsValid() || !d.getIsValid())
     {
       System.err.println("Invalid declaration");
-      //System.exit(1);
+      // System.exit(1);;
       return new Multiverse<SymbolTable.Entry>();
     }
   Multiverse<SymbolTable.Entry> unis = getType(t,d,subparser.getPresenceCondition());
@@ -5958,7 +6286,7 @@ private Multiverse<Node> getNodeMultiverse(Node node, PresenceConditionManager p
         mv.add(childNode, childCondition);
       } else {
         System.err.println("unsupported AST child type in getNodeMultiverse");
-        System.exit(1);
+                  System.exit(1);;
       }
     }
   } else {
