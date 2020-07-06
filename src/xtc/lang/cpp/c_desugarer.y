@@ -693,7 +693,6 @@ Declaration:  /** complete **/
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           Multiverse<StringBuilder> temp;
           Node child;
-          System.err.println("WARNING: skipping over transformation code at some nodes in Declaration.");
           child = getNodeAt(subparser, 3);
           temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
           sbmv.destruct();
@@ -705,7 +704,6 @@ Declaration:  /** complete **/
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           Multiverse<StringBuilder> temp;
           Node child;
-          System.err.println("WARNING: skipping over transformation code at some nodes in Declaration.");
           child = getNodeAt(subparser, 3);
           temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
           sbmv.destruct();
@@ -717,7 +715,6 @@ Declaration:  /** complete **/
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           Multiverse<StringBuilder> temp;
           Node child;
-          System.err.println("WARNING: skipping over transformation code at some nodes in Declaration.");
           child = getNodeAt(subparser, 3);
           temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
           sbmv.destruct();
@@ -729,7 +726,6 @@ Declaration:  /** complete **/
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           Multiverse<StringBuilder> temp;
           Node child;
-          System.err.println("WARNING: skipping over transformation code at some nodes in Declaration.");
           child = getNodeAt(subparser, 3);
           temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
           sbmv.destruct();
