@@ -3336,14 +3336,21 @@ PostfixExpression:  /** passthrough, nomerge **/
 Subscript:  /** nomerge **/
         PostfixExpression LBRACK Expression RBRACK
         {
-          {
-            Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-            sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 4));
-            sbmv = sbmv.product(new StringBuilder(" [ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-            sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
-            sbmv = sbmv.product(new StringBuilder(" ] "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-            setTFValue(value, sbmv);
-          }
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<StringBuilder> temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 4), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" [ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 2), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" ] "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          setTFValue(value, sbmv);
         }
         ;
 
@@ -3382,8 +3389,13 @@ Increment:  /** nomerge **/
         PostfixExpression ICR
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
-          sbmv = sbmv.product(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          Multiverse<StringBuilder> temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 2), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
           setTFValue(value, sbmv);
         }
         ;
@@ -3392,8 +3404,13 @@ Decrement:  /** nomerge **/
         PostfixExpression DECR
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
-          sbmv = sbmv.product(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          Multiverse<StringBuilder> temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 2), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
           setTFValue(value, sbmv);
         }
         ;
@@ -3427,15 +3444,21 @@ UnaryExpression:  /** passthrough, nomerge **/
         | ICR UnaryExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<StringBuilder> temp;
           sbmv.add(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
           setTFValue(value, sbmv);
         }
         | DECR UnaryExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<StringBuilder> temp;
           sbmv.add(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
           setTFValue(value, sbmv);
         }
         | Unaryoperator CastExpression
@@ -3591,25 +3614,46 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
         | MultiplicativeExpression STAR CastExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          sbmv = sbmv.product(new StringBuilder(" * "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
+          Multiverse<StringBuilder> temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" * "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
           setTFValue(value, sbmv);
         }
         | MultiplicativeExpression DIV CastExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          sbmv = sbmv.product(new StringBuilder(" / "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
+          Multiverse<StringBuilder> temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" / "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
           setTFValue(value, sbmv);
         }
         | MultiplicativeExpression MOD CastExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          sbmv = sbmv.product(new StringBuilder(" % "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
+          Multiverse<StringBuilder> temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" % "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
           setTFValue(value, sbmv);
         }
         ;
@@ -3622,17 +3666,31 @@ AdditiveExpression:  /** passthrough, nomerge **/
         | AdditiveExpression PLUS MultiplicativeExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          sbmv = sbmv.product(new StringBuilder(" + "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
+          Multiverse<StringBuilder> temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" + "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
           setTFValue(value, sbmv);
         }
         | AdditiveExpression MINUS MultiplicativeExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          sbmv = sbmv.product(new StringBuilder(" - "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
+          Multiverse<StringBuilder> temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" - "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
           setTFValue(value, sbmv);
         }
         ;
@@ -4545,6 +4603,52 @@ private String getCPC(Node n) {
   return (String) n.getProperty("C_PC");
 }
 
+// TODO: delete this later
+/** Takes two stringbuilder multiverses, and generates all of their combinations */
+private Multiverse<StringBuilder> cartesianProduct(Multiverse<StringBuilder> statements, Multiverse<StringBuilder> renamings) {
+  /* System.err.println("statements: " + statements); */
+  /* System.err.println("renamings: " + renamings); */
+  /* System.err.println("result: " + statements.product(renamings, */
+  /*                                                    (sb1, sb2) -> { */
+  /*                                                      StringBuilder newsb = new StringBuilder(); */
+  /*                                                      newsb.append(sb1); */
+  /*                                                      newsb.append(sb2); */
+  /*                                                      return newsb; */
+  /*                                                    })); */
+  if (renamings == null || statements == null) {
+    return new Multiverse<StringBuilder>();
+  } else {
+    return statements.product(renamings, SBCONCAT);
+  }
+  /* Multiverse<StringBuilder> allCombinations; */
+  /* if (renamings == null || statements == null) { */
+  /*   allCombinations = new Multiverse<StringBuilder>(); */
+  /* } else if (statements.size() < 1 && renamings.size() < 1) { */
+  /*   allCombinations = new Multiverse<StringBuilder>(); */
+  /* } else if (statements.size() < 1) { */
+  /*   allCombinations = new Multiverse<StringBuilder>(renamings); */
+  /* } else if (renamings.size() < 1) { */
+  /*   allCombinations = new Multiverse<StringBuilder>(statements); */
+  /* } else { */
+  /*   allCombinations = new Multiverse<StringBuilder>(); */
+  /*   for (Element<StringBuilder> statement : statements) { */
+  /*     for (Element<StringBuilder> renaming : renamings) { */
+  /*       StringBuilder sb = new StringBuilder(statement.getData().toString() + renaming.getData().toString()); */
+  /*       PresenceCondition pc = statement.getCondition().and(renaming.getCondition()); */
+  /*       if (pc.getBDD().isZero()) { */
+  /*         /\** generated code with unsatisfiable presence conditions is discarded *\/ */
+
+  /*         // for debugging: */
+  /*         //allCombinations.add(new Element<StringBuilder>(sb, pc)); */
+  /*       } else { */
+  /*         allCombinations.add(new Element<StringBuilder>(sb, pc)); */
+  /*       } */
+  /*     } */
+  /*   } */
+  /* } */
+  /* return allCombinations; */
+}
+
 /**
  * Gets the SBMVs from a node's (direct) children if there are no static conditionals between them.
  * Otherwise, the static choice nodes are traversed, until the children are reached.
@@ -4652,52 +4756,6 @@ final static Multiverse.Operator<StringBuilder> SBCONCAT = (sb1, sb2) -> {
   newsb.append(sb2);
   return newsb;
 };
-
-// TODO: delete this later
-/** Takes two stringbuilder multiverses, and generates all of their combinations */
-private Multiverse<StringBuilder> cartesianProduct(Multiverse<StringBuilder> statements, Multiverse<StringBuilder> renamings) {
-  /* System.err.println("statements: " + statements); */
-  /* System.err.println("renamings: " + renamings); */
-  /* System.err.println("result: " + statements.product(renamings, */
-  /*                                                    (sb1, sb2) -> { */
-  /*                                                      StringBuilder newsb = new StringBuilder(); */
-  /*                                                      newsb.append(sb1); */
-  /*                                                      newsb.append(sb2); */
-  /*                                                      return newsb; */
-  /*                                                    })); */
-  if (renamings == null || statements == null) {
-    return new Multiverse<StringBuilder>();
-  } else {
-    return statements.product(renamings, SBCONCAT);
-  }
-  /* Multiverse<StringBuilder> allCombinations; */
-  /* if (renamings == null || statements == null) { */
-  /*   allCombinations = new Multiverse<StringBuilder>(); */
-  /* } else if (statements.size() < 1 && renamings.size() < 1) { */
-  /*   allCombinations = new Multiverse<StringBuilder>(); */
-  /* } else if (statements.size() < 1) { */
-  /*   allCombinations = new Multiverse<StringBuilder>(renamings); */
-  /* } else if (renamings.size() < 1) { */
-  /*   allCombinations = new Multiverse<StringBuilder>(statements); */
-  /* } else { */
-  /*   allCombinations = new Multiverse<StringBuilder>(); */
-  /*   for (Element<StringBuilder> statement : statements) { */
-  /*     for (Element<StringBuilder> renaming : renamings) { */
-  /*       StringBuilder sb = new StringBuilder(statement.getData().toString() + renaming.getData().toString()); */
-  /*       PresenceCondition pc = statement.getCondition().and(renaming.getCondition()); */
-  /*       if (pc.getBDD().isZero()) { */
-  /*         /\** generated code with unsatisfiable presence conditions is discarded *\/ */
-
-  /*         // for debugging: */
-  /*         //allCombinations.add(new Element<StringBuilder>(sb, pc)); */
-  /*       } else { */
-  /*         allCombinations.add(new Element<StringBuilder>(sb, pc)); */
-  /*       } */
-  /*     } */
-  /*   } */
-  /* } */
-  /* return allCombinations; */
-}
 
 final Multiverse.Transformer<SymbolTable.Entry, StringBuilder> entryToStringBuilder = new Multiverse.Transformer<SymbolTable.Entry, StringBuilder>() {
   StringBuilder transform(SymbolTable.Entry from) {
