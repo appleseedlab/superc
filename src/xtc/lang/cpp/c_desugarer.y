@@ -424,10 +424,9 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
 FunctionPrototype:  /** nomerge **/
         IdentifierDeclarator
         {
-	bindFunDef(subparser, null, getNodeAt(subparser, 1)); 
+          bindFunDef(subparser, null, getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           getAndSetSBMVCond(1, subparser, value);
-          System.err.println("FunctionPrototype - IdentifierDeclarator not supported");
         }
         | DeclarationSpecifier     IdentifierDeclarator
         {
@@ -779,7 +778,7 @@ DeclaringList:  /** nomerge **/
         {
       	  TypeBuilderMultiverse type = getTBAt(subparser, 5);
       	  DeclBuilder decl = getDBAt(subparser, 4);
-                    System.err.println(decl.toString() + " " + type.toString());
+          System.err.println(decl.toString() + " " + type.toString());
           addMapping(subparser, type, decl);
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getTBAt(subparser, 5), getDBAt(subparser, 4));
@@ -846,7 +845,7 @@ DeclarationSpecifier:  /**  nomerge **/
 				{
 	  			TypeBuilderMultiverse decl = getTBAt(subparser, 1);
 	  			setTFValue(value, decl);
-          				}
+				}
         | SUEDeclarationSpecifier          /* struct/union/enum */
 				{
 					System.err.println("Unsupported grammar DeclarationSpecifier-SUE"); // TODO
@@ -856,7 +855,7 @@ DeclarationSpecifier:  /**  nomerge **/
 				{
 	 				TypeBuilderMultiverse decl = getTBAt(subparser, 1);
 	  			setTFValue(value, decl);
-          				}
+				}
         | VarArgDeclarationSpecifier  // ADDED
         {
 					System.err.println("Unsupported grammar DeclarationSpecifier-VarArg"); // TODO
@@ -874,7 +873,7 @@ TypeSpecifier:  /** nomerge **/
 				{
           TypeBuilderMultiverse t = getTBAt(subparser,1);
         	setTFValue(value,t);
-          				}
+				}
         | SUETypeSpecifier                 /* Struct/Union/Enum */
 				{
 					System.err.println("Unsupported grammar TypeSpecifier-SUE"); // TODO
@@ -883,7 +882,7 @@ TypeSpecifier:  /** nomerge **/
 				| TypedefTypeSpecifier             /* Typedef */
 				{
 					setTFValue(value,getTBAt(subparser,1));
-          				}
+				}
         | VarArgTypeSpecifier  // ADDED
 				{
 					System.err.println("Unsupported grammar TypeSpecifier-VarArg"); // TODO
@@ -892,7 +891,7 @@ TypeSpecifier:  /** nomerge **/
         | TypeofTypeSpecifier // ADDED
 				{
 					System.err.println("Unsupported grammar TypeSpecifier-Typeof"); // TODO
-          					System.exit(1);
+					System.exit(1);
 				}
         ;
 
@@ -901,9 +900,9 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
       	{
       	  TypeBuilderMultiverse storage = getTBAt(subparser,1);
       	  setTFValue(value, storage);
-                	  updateSpecs(subparser,
-                            getSpecsAt(subparser, 1),
-                            value);
+      	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 1),
+                      value);
       	}
       	| TypeQualifierList StorageClass
       	{
@@ -911,10 +910,10 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
       	  TypeBuilderMultiverse storage = getTBAt(subparser, 1);
       	  TypeBuilderMultiverse tb = qualList.combine(storage);
       	  setTFValue(value, tb);
-                	  updateSpecs(subparser,
-                            getSpecsAt(subparser, 2),
-                            getSpecsAt(subparser, 1),
-                            value);
+      	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
       	}
         | DeclarationQualifierList DeclarationQualifier
       	{
@@ -922,10 +921,10 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
       	  TypeBuilderMultiverse qual = getTBAt(subparser, 1);
       	  TypeBuilderMultiverse tb = qualList.combine(qual);
       	  setTFValue(value, tb);
-                	  updateSpecs(subparser,
-                            getSpecsAt(subparser, 2),
-                            getSpecsAt(subparser, 1),
-                            value);
+      	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
       	}
         ;
 
@@ -934,9 +933,9 @@ TypeQualifierList:  /** list, nomerge **/
       	{
       	  TypeBuilderMultiverse qual = getTBAt(subparser, 1);
       	  setTFValue(value, qual);
-                	   updateSpecs(subparser,
-                            getSpecsAt(subparser, 1),
-                            value);
+    	    updateSpecs(subparser,
+                      getSpecsAt(subparser, 1),
+                      value);
       	}
         | TypeQualifierList TypeQualifier
       	{
@@ -944,10 +943,10 @@ TypeQualifierList:  /** list, nomerge **/
       	    TypeBuilderMultiverse qual = getTBAt(subparser, 1);
       	    TypeBuilderMultiverse tb = qualList.combine(qual);
       	    setTFValue(value, tb);
-                  	    updateSpecs(subparser,
-                            getSpecsAt(subparser, 2),
-                            getSpecsAt(subparser, 1),
-                            value);
+      	    updateSpecs(subparser,
+                        getSpecsAt(subparser, 2),
+                        getSpecsAt(subparser, 1),
+                        value);
       	}
         ;
 
@@ -956,56 +955,56 @@ DeclarationQualifier:
         {
           TypeBuilderMultiverse qual = getTBAt(subparser, 1);
           setTFValue(value, qual);
-                  }
+        }
         | StorageClass
         {
           TypeBuilderMultiverse storage = getTBAt(subparser, 1);
           setTFValue(value, storage);
-                  }
+        }
         ;
 
 TypeQualifier:    // const, volatile, and restrict can have underscores
-ConstQualifier
-{
-  TypeBuilderMultiverse qual = new TypeBuilderMultiverse("const", subparser.getPresenceCondition());
-  setTFValue(value, qual);
-    updateSpecs(subparser,
+        ConstQualifier
+        {
+          TypeBuilderMultiverse qual = new TypeBuilderMultiverse("const", subparser.getPresenceCondition());
+          setTFValue(value, qual);
+          updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
-}
-| VolatileQualifier
-{
-  TypeBuilderMultiverse qual = new TypeBuilderMultiverse("volatile", subparser.getPresenceCondition());
-  setTFValue(value, qual);
-    updateSpecs(subparser,
+        }
+        | VolatileQualifier
+        {
+          TypeBuilderMultiverse qual = new TypeBuilderMultiverse("volatile", subparser.getPresenceCondition());
+          setTFValue(value, qual);
+          updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
-}
-| RestrictQualifier
-{
-  TypeBuilderMultiverse qual = new TypeBuilderMultiverse("restrict", subparser.getPresenceCondition());
-  setTFValue(value, qual);
-    updateSpecs(subparser,
+        }
+        | RestrictQualifier
+        {
+          TypeBuilderMultiverse qual = new TypeBuilderMultiverse("restrict", subparser.getPresenceCondition());
+          setTFValue(value, qual);
+          updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
-}
-| AttributeSpecifier // ADDED
-{
-  System.err.println("Unsupported grammar TypeQualifier-Attribute"); // TODO
-    System.exit(1);
-  updateSpecs(subparser,
+        }
+        | AttributeSpecifier // ADDED
+        {
+          System.err.println("Unsupported grammar TypeQualifier-Attribute"); // TODO
+          System.exit(1);
+          updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
-}
-| FunctionSpecifier  // ADDED
-{
-  TypeBuilderMultiverse qual = new TypeBuilderMultiverse("inline", subparser.getPresenceCondition());
-  setTFValue(value, qual);
-    updateSpecs(subparser,
+        }
+        | FunctionSpecifier  // ADDED
+        {
+          TypeBuilderMultiverse qual = new TypeBuilderMultiverse("inline", subparser.getPresenceCondition());
+          setTFValue(value, qual);
+          updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
-}
-;
+        }
+        ;
 
 ConstQualifier:    // ADDED
         CONST
@@ -1089,10 +1088,10 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
         TypeBuilderMultiverse tb = basicTypeSpecifier.combine(storageClass);
 
         setTFValue(value, tb);
-        	      updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
-                      getSpecsAt(subparser, 1),
-                      value);
+	      updateSpecs(subparser,
+                    getSpecsAt(subparser, 2),
+                    getSpecsAt(subparser, 1),
+                    value);
         }
         | DeclarationQualifierList BasicTypeName {
 	        TypeBuilderMultiverse qualList = getTBAt(subparser, 2);
@@ -1102,7 +1101,7 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
           TypeBuilderMultiverse tb = qualList.combine(basicTypeName);
 
 	        setTFValue(value, tb);
-          	        updateSpecs(subparser,
+	        updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
@@ -1116,7 +1115,7 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
           TypeBuilderMultiverse tb = decl.combine(qual);
 
       	  setTFValue(value, tb);
-                	  updateSpecs(subparser,
+      	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
@@ -1130,7 +1129,7 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
           TypeBuilderMultiverse tb = basicDeclSpecifier.combine(basicTypeName);
 
       	  setTFValue(value, tb);
-                	  updateSpecs(subparser,
+      	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
@@ -1145,7 +1144,7 @@ BasicTypeSpecifier: /**  nomerge **/
           // the child semantic value(s)
           TypeBuilderMultiverse tb = getTBAt(subparser, 1);
           setTFValue(value, tb);
-                    updateSpecs(subparser,
+          updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
 
@@ -1158,7 +1157,7 @@ BasicTypeSpecifier: /**  nomerge **/
           TypeBuilderMultiverse tb = qualList.combine(basicTypeName);
 
           setTFValue(value, tb);
-          	        updateSpecs(subparser,
+	        updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
@@ -1171,7 +1170,7 @@ BasicTypeSpecifier: /**  nomerge **/
           TypeBuilderMultiverse tb = basicTypeSpecifier.combine(qual);
 
           setTFValue(value, tb);
-          	        updateSpecs(subparser,
+	        updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
@@ -1186,7 +1185,7 @@ BasicTypeSpecifier: /**  nomerge **/
           TypeBuilderMultiverse tb = basicTypeSpecifier.combine(basicTypeName);
 
           setTFValue(value, tb);
-          	        updateSpecs(subparser,
+	        updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
