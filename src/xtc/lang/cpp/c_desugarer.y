@@ -422,10 +422,11 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
    the conditional will only be hoisted around the prototype, not the
    entire function definition. */
 FunctionPrototype:  /** nomerge **/
-        IdentifierDeclarator { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
+        IdentifierDeclarator
         {
+	bindFunDef(subparser, null, getNodeAt(subparser, 1)); 
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
-          getAndSetSBMVCond(2, subparser, value);
+          getAndSetSBMVCond(1, subparser, value);
           System.err.println("FunctionPrototype - IdentifierDeclarator not supported");
         }
         | DeclarationSpecifier     IdentifierDeclarator
