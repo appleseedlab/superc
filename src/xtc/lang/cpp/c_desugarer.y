@@ -2897,6 +2897,10 @@ PostfixingAbstractDeclarator: /**  nomerge **/
 
 ParameterTypeListOpt: /** nomerge **/
         /* empty */
+        {
+          List<Parameter> result = new LinkedList<Parameter>();
+          setTFValue(value, result);
+        }
         | ParameterTypeList
         {
           setTFValue(value,getParamAt(subparser,1));
@@ -3105,6 +3109,11 @@ CompoundStatement:  /** complete **/  /* ADDED */
 
 LocalLabelDeclarationListOpt: /** complete **/
         /* empty */
+        {
+          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
+          result.add(new StringBuilder(""), subparser.getPresenceCondition());
+          setTFValue(value, result);
+        }
         | LocalLabelDeclarationList
         {
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -3162,6 +3171,12 @@ LocalLabelList:  /** list, complete **/  // ADDED
         ;
 
 DeclarationOrStatementList:  /** list, complete **/  /* ADDED */
+        /* empty */
+        {
+          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
+          result.add(new StringBuilder(""), subparser.getPresenceCondition());
+          setTFValue(value, result);
+        }
         | DeclarationOrStatementList DeclarationOrStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
