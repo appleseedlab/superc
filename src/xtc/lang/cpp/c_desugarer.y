@@ -3181,9 +3181,9 @@ DeclarationOrStatementList:  /** list, complete **/  /* ADDED */
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          Node child1 = getNodeAt(subparser, 2);
-          Node child2 = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child1, child2);
+          Node list = getNodeAt(subparser, 2);
+          Node elem = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, list, elem);
           setTFValue(value, product);
         }
         ;
