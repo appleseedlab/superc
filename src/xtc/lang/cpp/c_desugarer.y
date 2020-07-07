@@ -353,6 +353,7 @@ ExternalDeclarationList: /** list, complete **/
 ExternalDeclaration:  /** passthrough, complete **/
         FunctionDefinitionExtension
         {
+          // TODO: do these actions need setCPC?
           System.err.println("ERROR: unsupported construct: ExternalDeclaration");
           PresenceCondition pc = subparser.getPresenceCondition();
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
@@ -4955,10 +4956,6 @@ private DeclBuilder getDB(Object node) {
 private DeclBuilder getDBAt(Subparser subparser, int component) {
   // value should be not null and should be a Node type
   return (DeclBuilder) getNodeAt(subparser, component).getProperty(TRANSFORMATION);
-}
-
-private List<Parameter> getParam(Object node) {
-  return (List<Parameter>)((Node)node).getProperty(TRANSFORMATION);
 }
 
 private List<Parameter> getParamAt(Subparser subparser, int component) {
