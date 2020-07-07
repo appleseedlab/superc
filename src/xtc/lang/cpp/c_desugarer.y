@@ -311,14 +311,14 @@ TranslationUnit:  /** complete, passthrough **/
             }
 
             // TODO: handle functions properly and remove this main function placeholder
-            System.err.println("TODO: generated 'return 0;' is a placeholder.");
-            writer.write("\nreturn 0;\n}\n");
+            System.err.println("TODO: generated curly braces are a placeholder.");
+            writer.write("\n}\n");
 
             writer.flush();
           }
           catch(Exception IOException) {
             System.err.println("ERROR: unable to write output");
-  System.exit(1);
+            System.exit(1);
           }
         }
         ;
@@ -329,31 +329,52 @@ ExternalDeclarationList: /** list, complete **/
         /* empty */  // ADDED gcc allows empty program
         | ExternalDeclarationList ExternalDeclaration
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
 ExternalDeclaration:  /** passthrough, complete **/
         FunctionDefinitionExtension
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          System.err.println("ERROR: unsupported construct: ExternalDeclaration");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | DeclarationExtension
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | AssemblyDefinition
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          System.err.println("ERROR: unsupported construct: ExternalDeclaration");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | EmptyDefinition
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          System.err.println("ERROR: unsupported construct: ExternalDeclaration");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         ;
 
@@ -361,21 +382,28 @@ EmptyDefinition:  /** complete **/
         SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: EmptyDefinition");
-          System.exit(1);
+          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
+          result.add(new StringBuilder("; "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
+          setTFValue(value, result);
         }
         ;
 
 FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
         FunctionDefinition
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | __EXTENSION__ FunctionDefinition
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -388,7 +416,7 @@ FunctionDefinition:  /** complete **/ // added scoping
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           Multiverse<StringBuilder> temp;
           Node child;
-          System.err.println("WARNING: skipping over transformation code at some nodes in Declaration.");
+          System.err.println("WARNING: skipping over transformation code at some nodes in FunctionDefinition.");
           // TODO: uncomment these lines once FunctionPrototype sets an SBMV.
           //child = getNodeAt(subparser, 6);
           //temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
@@ -413,7 +441,9 @@ FunctionDefinition:  /** complete **/ // added scoping
 FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
         LocalLabelDeclarationListOpt DeclarationOrStatementList
         {
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -426,7 +456,12 @@ FunctionPrototype:  /** nomerge **/
         {
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | DeclarationSpecifier     IdentifierDeclarator
         {
@@ -525,31 +560,44 @@ FunctionOldPrototype:  /** nomerge **/
         OldFunctionDeclarator
         {
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -559,13 +607,17 @@ FunctionOldPrototype:  /** nomerge **/
 NestedFunctionDefinition:  /** complete **/ // added scoping
         NestedFunctionPrototype { ReenterScope(subparser); } LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(7, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 7), getNodeAt(subparser, 4), getNodeAt(subparser, 3));
+          setTFValue(value, product);
         }
         | NestedFunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(8, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 8), getNodeAt(subparser, 6), getNodeAt(subparser, 4), getNodeAt(subparser, 3));
+          setTFValue(value, product);
         }
         ;
 
@@ -574,50 +626,66 @@ NestedFunctionPrototype:  /** nomerge **/
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TypeSpecifier            IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TypeQualifierList        IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
 
         | DeclarationSpecifier     OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -626,25 +694,33 @@ NestedFunctionOldPrototype:  /** nomerge **/
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -675,13 +751,21 @@ NestedFunctionOldPrototype:  /** nomerge **/
 DeclarationExtension:  /** passthrough, complete **/  // ADDED
         Declaration
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          System.err.println("declaration is setting: " + product);
+          setTFValue(value, product);
         }
         | __EXTENSION__ Declaration
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(2, subparser, value);
+          System.err.println("ERROR: unsupported construct: Declaration");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -2240,11 +2324,20 @@ InitializerOpt: /** nomerge **/
 DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         Initializer
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | Designation Initializer
         {
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -2256,15 +2349,24 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
 Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists
         LBRACE MatchedInitializerList RBRACE
         {
-          getAndSetSBMVCond(3, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | LBRACE MatchedInitializerList DesignatedInitializer RBRACE
         {
-          getAndSetSBMVCond(4, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | AssignmentExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         ;
 
@@ -2842,38 +2944,73 @@ PostfixAbstractDeclarator: /** nomerge **/
 Statement:  /** passthrough, complete **/
         LabeledStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | CompoundStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | ExpressionStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | SelectionStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | IterationStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | JumpStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | AssemblyStatement  // ADDED
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         ;
 
@@ -2912,18 +3049,12 @@ LabeledStatement:  /** complete **/  // ADDED attributes
         ;*/
 
 CompoundStatement:  /** complete **/  /* ADDED */
-        LBRACE
+        LBRACE { EnterScope(subparser); } LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
-          EnterScope(subparser);
-        }
-        LocalLabelDeclarationListOpt DeclarationOrStatementList
-        {
-          ExitScope(subparser);
-        }
-        RBRACE
-        {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(4, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 6), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -2931,21 +3062,33 @@ LocalLabelDeclarationListOpt: /** complete **/
         /* empty */
         | LocalLabelDeclarationList
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         ;
 
 LocalLabelDeclarationList:  /** list, complete **/
         LocalLabelDeclaration
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | LocalLabelDeclarationList LocalLabelDeclaration
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -2976,39 +3119,63 @@ LocalLabelList:  /** list, complete **/  // ADDED
 DeclarationOrStatementList:  /** list, complete **/  /* ADDED */
         | DeclarationOrStatementList DeclarationOrStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
 DeclarationOrStatement: /** passthrough, complete **/  /* ADDED */
         DeclarationExtension
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | NestedFunctionDefinition
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         ;
 
 DeclarationList:  /** list, complete **/
         DeclarationExtension
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | DeclarationList DeclarationExtension
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -3152,8 +3319,16 @@ BreakStatement:  /** complete **/
 ReturnStatement:  /** complete **/
         RETURN ExpressionOpt SEMICOLON
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: ReturnStatement");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
+          temp.add(new StringBuilder("return "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
+          Multiverse<StringBuilder> result = cartesianProductWithChild(temp, getNodeAt(subparser, 2), pc);
+          temp.destruct();
+          temp = result.product(new StringBuilder("; "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          result.destruct();
+          result = temp;
+          setTFValue(value, result);
         }
         ;
 
@@ -3225,11 +3400,21 @@ StringLiteralList:  /** list, nomerge **/
 PrimaryExpression:  /** nomerge, passthrough **/
         PrimaryIdentifier
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | Constant
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | StringLiteralList
         {
@@ -3297,11 +3482,21 @@ StatementAsExpression:  /** nomerge **/  //ADDED
 PostfixExpression:  /** passthrough, nomerge **/
         PrimaryExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | Subscript
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | FunctionCall
         {
@@ -3320,11 +3515,21 @@ PostfixExpression:  /** passthrough, nomerge **/
         }
         | Increment
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | Decrement
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | CompoundLiteral  /* ADDED */
         {
@@ -3439,7 +3644,12 @@ ExpressionList:  /** list, nomerge **/
 UnaryExpression:  /** passthrough, nomerge **/
         PostfixExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | ICR UnaryExpression
         {
@@ -3463,7 +3673,10 @@ UnaryExpression:  /** passthrough, nomerge **/
         }
         | Unaryoperator CastExpression
         {
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | SIZEOF UnaryExpression
         {
@@ -3597,7 +3810,12 @@ Unaryoperator:
 CastExpression:  /** passthrough, nomerge **/
         UnaryExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | LPAREN TypeName RPAREN CastExpression
         {
@@ -3609,7 +3827,12 @@ CastExpression:  /** passthrough, nomerge **/
 MultiplicativeExpression:  /** passthrough, nomerge **/
         CastExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | MultiplicativeExpression STAR CastExpression
         {
@@ -3661,7 +3884,12 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
 AdditiveExpression:  /** passthrough, nomerge **/
         MultiplicativeExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | AdditiveExpression PLUS MultiplicativeExpression
         {
@@ -3698,7 +3926,12 @@ AdditiveExpression:  /** passthrough, nomerge **/
 ShiftExpression:  /** passthrough, nomerge **/
         AdditiveExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | ShiftExpression LS AdditiveExpression
         {
@@ -3715,7 +3948,12 @@ ShiftExpression:  /** passthrough, nomerge **/
 RelationalExpression:  /** passthrough, nomerge **/
         ShiftExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | RelationalExpression LT ShiftExpression
         {
@@ -3742,7 +3980,12 @@ RelationalExpression:  /** passthrough, nomerge **/
 EqualityExpression:  /** passthrough, nomerge **/
         RelationalExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | EqualityExpression EQ RelationalExpression
         {
@@ -3759,7 +4002,12 @@ EqualityExpression:  /** passthrough, nomerge **/
 AndExpression:  /** passthrough, nomerge **/
         EqualityExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | AndExpression AND EqualityExpression
         {
@@ -3771,7 +4019,12 @@ AndExpression:  /** passthrough, nomerge **/
 ExclusiveOrExpression:  /** passthrough, nomerge **/
         AndExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | ExclusiveOrExpression XOR AndExpression
         {
@@ -3783,7 +4036,12 @@ ExclusiveOrExpression:  /** passthrough, nomerge **/
 InclusiveOrExpression:  /** passthrough, nomerge **/
         ExclusiveOrExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | InclusiveOrExpression PIPE ExclusiveOrExpression
         {
@@ -3795,7 +4053,12 @@ InclusiveOrExpression:  /** passthrough, nomerge **/
 LogicalAndExpression:  /** passthrough, nomerge **/
         InclusiveOrExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | LogicalAndExpression ANDAND InclusiveOrExpression
         {
@@ -3807,7 +4070,12 @@ LogicalAndExpression:  /** passthrough, nomerge **/
 LogicalORExpression:  /** passthrough, nomerge **/
         LogicalAndExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | LogicalORExpression OROR LogicalAndExpression
         {
@@ -3819,7 +4087,12 @@ LogicalORExpression:  /** passthrough, nomerge **/
 ConditionalExpression:  /** passthrough, nomerge **/
         LogicalORExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | LogicalORExpression QUESTION Expression COLON
                 ConditionalExpression
@@ -3838,11 +4111,19 @@ ConditionalExpression:  /** passthrough, nomerge **/
 AssignmentExpression:  /** passthrough, nomerge **/
         ConditionalExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | UnaryExpression AssignmentOperator AssignmentExpression
         {
-          getAndSetSBMVCond(3, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -3932,14 +4213,24 @@ ExpressionOpt:  /** passthrough, nomerge **/
         /* Nothing */
         | Expression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         ;
 
 Expression:  /** passthrough, nomerge **/
         AssignmentExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | Expression COMMA AssignmentExpression
         {
@@ -3951,7 +4242,12 @@ Expression:  /** passthrough, nomerge **/
 ConstantExpression: /** passthrough, nomerge **/
         ConditionalExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
 	      ;
 
@@ -4112,8 +4408,9 @@ Word:  // ADDED
         }
         | RETURN
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
+          result.add(new StringBuilder("return "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
+          setTFValue(value, result);
         }
         | UNION
         {
@@ -4603,93 +4900,17 @@ private String getCPC(Node n) {
   return (String) n.getProperty("C_PC");
 }
 
-// TODO: delete this later
-/** Takes two stringbuilder multiverses, and generates all of their combinations */
-private Multiverse<StringBuilder> cartesianProduct(Multiverse<StringBuilder> statements, Multiverse<StringBuilder> renamings) {
-  /* System.err.println("statements: " + statements); */
-  /* System.err.println("renamings: " + renamings); */
-  /* System.err.println("result: " + statements.product(renamings, */
-  /*                                                    (sb1, sb2) -> { */
-  /*                                                      StringBuilder newsb = new StringBuilder(); */
-  /*                                                      newsb.append(sb1); */
-  /*                                                      newsb.append(sb2); */
-  /*                                                      return newsb; */
-  /*                                                    })); */
-  if (renamings == null || statements == null) {
-    return new Multiverse<StringBuilder>();
-  } else {
-    return statements.product(renamings, SBCONCAT);
-  }
-  /* Multiverse<StringBuilder> allCombinations; */
-  /* if (renamings == null || statements == null) { */
-  /*   allCombinations = new Multiverse<StringBuilder>(); */
-  /* } else if (statements.size() < 1 && renamings.size() < 1) { */
-  /*   allCombinations = new Multiverse<StringBuilder>(); */
-  /* } else if (statements.size() < 1) { */
-  /*   allCombinations = new Multiverse<StringBuilder>(renamings); */
-  /* } else if (renamings.size() < 1) { */
-  /*   allCombinations = new Multiverse<StringBuilder>(statements); */
-  /* } else { */
-  /*   allCombinations = new Multiverse<StringBuilder>(); */
-  /*   for (Element<StringBuilder> statement : statements) { */
-  /*     for (Element<StringBuilder> renaming : renamings) { */
-  /*       StringBuilder sb = new StringBuilder(statement.getData().toString() + renaming.getData().toString()); */
-  /*       PresenceCondition pc = statement.getCondition().and(renaming.getCondition()); */
-  /*       if (pc.getBDD().isZero()) { */
-  /*         /\** generated code with unsatisfiable presence conditions is discarded *\/ */
-
-  /*         // for debugging: */
-  /*         //allCombinations.add(new Element<StringBuilder>(sb, pc)); */
-  /*       } else { */
-  /*         allCombinations.add(new Element<StringBuilder>(sb, pc)); */
-  /*       } */
-  /*     } */
-  /*   } */
-  /* } */
-  /* return allCombinations; */
-}
-
-/**
- * Gets the SBMVs from a node's (direct) children if there are no static conditionals between them.
- * Otherwise, the static choice nodes are traversed, until the children are reached.
- * The cartesian product is taken of all SBMVs of the children, and that is set at this node.
- *
- * @param numChildren The number of children of the node.
- * @param subparser The subparser.
- * @param value The current node.
- */
-private void getAndSetSBMVCond(int numChildren, Subparser subparser, Object value)
-{
+// TODO: javadoc
+// TODO: make note about how the numbers must be passed-in in the order that you want them concatenated.
+private Multiverse<StringBuilder> getProductOfSomeChildren(PresenceCondition pc, Node...children) {
   Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-  for (int i = numChildren; i >= 1; i--)
-  {
-
-    Multiverse<Node> children = getAllNodeConfigs(getNodeAt(subparser, i), subparser.getPresenceCondition());
-
-    for (Multiverse.Element<Node> child : children) {
-      Multiverse<StringBuilder> temp = (Multiverse<StringBuilder>)(child.getData().getProperty(TRANSFORMATION));
-      Multiverse<StringBuilder> product = cartesianProduct(sbmv, temp);
-      sbmv.destruct();
-      // temp.destruct();
-      System.err.println("WARNING: a multiverse is not being destructed.");
-      sbmv = product;
-    }
-
-    /*Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-    Multiverse<StringBuilder> temp;
-    Node child;
-    System.err.println("WARNING: skipping over transformation code at some nodes in Declaration.");
-    // TODO: uncomment these lines once FunctionPrototype sets an SBMV.
-    //child = getNodeAt(subparser, 6);
-    //temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
-    //sbmv.destruct();
-    child = getNodeAt(subparser, 3);
-    temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
+  Multiverse<StringBuilder> temp;
+  for (Node child : children) {
+    temp = cartesianProductWithChild(sbmv, child, pc);
     sbmv.destruct();
-    */
+    sbmv = temp;
   }
-  setTFValue(value, sbmv);
-  //System.err.println("Node " + (value != null ? ((Node) value).getName() : "null" ) + " is setting sbmv: " + sbmv);
+  return sbmv;
 }
 
 /**
@@ -4736,7 +4957,6 @@ Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition presenceConditio
  */
 Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringBuilder> sbmv, Node child, PresenceCondition presenceCondition) {
   sbmv = new Multiverse<StringBuilder>(sbmv); // copies the passed-in sbmv because the caller destructs it.
-
   // getAllNodeConfigs traverses all nested static choice nodes until they reach a regular node
   // and then gets all configurations of that node
   Multiverse<Node> allConfigs = getAllNodeConfigs(child, presenceCondition);
