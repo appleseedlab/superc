@@ -837,7 +837,8 @@ Declaration:  /** complete **/
 DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         DeclarationQualifierList IdentifierDeclarator
         {
-
+          System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList");
+          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -881,6 +882,9 @@ DeclaringList:  /** nomerge **/
           addDeclsToSymTab(subparser, type, decl);
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getTBAt(subparser, 5), getDBAt(subparser, 4));
+          // TODO: missing semantic value assignment
+          System.err.println("WARNING: unsupported semantic action: DeclaringList");
+          System.exit(1);
         }
         | TypeSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
@@ -4294,6 +4298,9 @@ ConstantExpression: /** passthrough, nomerge **/
 
 AttributeSpecifierListOpt: /** nomerge **/  // ADDED
         /* empty */
+        {
+          System.err.println("WARNING: unsupported semantic action: AttributeSpecifierListOpt");
+        }
         | AttributeSpecifierList
         {
           System.err.println("WARNING: unsupported semantic action: AttributeSpecifierListOpt");
@@ -4337,6 +4344,9 @@ AttributeKeyword:   // ADDED
 
 AttributeListOpt:   // ADDED
         /* empty */
+        {
+          System.err.println("WARNING: unsupported semantic action: AttributeListOpt");
+        }
         | AttributeList
         {
           System.err.println("WARNING: unsupported semantic action: AttributeListOpt");
@@ -4359,6 +4369,9 @@ AttributeList:  /** list, nomerge **/  // ADDED
 
 AttributeExpressionOpt:   // ADDED
         /* empty */
+        {
+          System.err.println("WARNING: unsupported semantic action: AttributeExpressionOpt");
+        }
         | LPAREN RPAREN
         {
           System.err.println("WARNING: unsupported semantic action: AttributeExpressionOpt");
@@ -4725,6 +4738,9 @@ AssemblyExpression:  /** nomerge **/
 
 AssemblyExpressionOpt:  /** nomerge **/
         /* empty */
+        {
+          System.err.println("WARNING: unsupported semantic action: AssemblyExpressionOpt");
+        }
         | AssemblyExpression
         {
           System.err.println("WARNING: unsupported semantic action: AssemblyExpressionOpt");
@@ -4776,6 +4792,9 @@ Assemblyargument:  /** nomerge **/  // ADDED
 
 AssemblyoperandsOpt:  /** nomerge **/  // ADDED
         /* empty */
+        {
+          System.err.println("WARNING: unsupported semantic action: AssemblyoperandsOpt");
+        }
         | Assemblyoperands
         {
           System.err.println("WARNING: unsupported semantic action: AssemblyoperandsOpt");
@@ -4811,6 +4830,9 @@ Assemblyoperand:  /** nomerge **/  // ADDED
 
 AssemblyclobbersOpt:  /** nomerge **/ // ADDED
         /* empty */
+        {
+          System.err.println("WARNING: unsupported semantic action: AssemblyclobbersOpt");
+        }
         | Assemblyclobbers
         {
           System.err.println("WARNING: unsupported semantic action: AssemblyclobbersOpt");
