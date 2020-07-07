@@ -331,7 +331,16 @@ ExternalDeclarationList: /** list, complete **/
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          System.err.println("before");
+          Node child1 = getNodeAt(subparser, 2);
+          Node child2 = getNodeAt(subparser, 1);
+          System.err.println("child1 " + child1);
+          System.err.println("child2 " + child2);
+          System.err.println("getSBMV(child1) " + getSBMV(child1));
+          System.err.println("getSBMV(child2) " + getSBMV(child2));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child2, child1);
+          System.err.println("after");
+          System.err.println("product " + product);
           setTFValue(value, product);
         }
         ;
@@ -383,6 +392,7 @@ EmptyDefinition:  /** complete **/
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
           Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
+          // TODO: should this use the current presence condition, i.e., subparser.getPresenceCondition()
           result.add(new StringBuilder("; "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
           setTFValue(value, result);
         }
@@ -3121,7 +3131,9 @@ DeclarationOrStatementList:  /** list, complete **/  /* ADDED */
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          Node child1 = getNodeAt(subparser, 2);
+          Node child2 = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child1, child2);
           setTFValue(value, product);
         }
         ;
