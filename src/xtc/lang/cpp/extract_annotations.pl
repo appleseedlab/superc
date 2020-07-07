@@ -32,6 +32,7 @@ my %valid_annotations
                         "action",
                         "passthrough",
                         "complete",
+                        "nomerge",
                         "void" );
 
 my %top_level_annotations
