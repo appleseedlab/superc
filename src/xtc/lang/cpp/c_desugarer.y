@@ -311,8 +311,8 @@ TranslationUnit:  /** complete, passthrough **/
             }
 
             // TODO: handle functions properly and remove this main function placeholder
-            System.err.println("TODO: generated 'return 0;' is a placeholder.");
-            writer.write("\nreturn 0;\n}\n");
+            System.err.println("TODO: generated curly braces are a placeholder.");
+            writer.write("\n}\n");
 
             writer.flush();
           }
@@ -327,33 +327,69 @@ TranslationUnit:  /** complete, passthrough **/
 
 ExternalDeclarationList: /** list, complete **/
         /* empty */  // ADDED gcc allows empty program
+        {
+          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
+          result.add(new StringBuilder(""), subparser.getPresenceCondition());
+          setTFValue(value, result);
+        }
         | ExternalDeclarationList ExternalDeclaration
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          System.err.println("before");
+          Node child1 = getNodeAt(subparser, 2);
+          Node child2 = getNodeAt(subparser, 1);
+          System.err.println("child1 " + child1);
+          System.err.println("child2 " + child2);
+          System.err.println("getSBMV(child1) " + getSBMV(child1));
+          System.err.println("getSBMV(child2) " + getSBMV(child2));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child2, child1);
+          System.err.println("after");
+          System.err.println("product " + product);
+          setTFValue(value, product);
         }
         ;
 
 ExternalDeclaration:  /** passthrough, complete **/
         FunctionDefinitionExtension
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          // TODO: do these actions need setCPC?
+          System.err.println("ERROR: unsupported construct: ExternalDeclaration");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | DeclarationExtension
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | AssemblyDefinition
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          System.err.println("ERROR: unsupported construct: ExternalDeclaration");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | EmptyDefinition
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          System.err.println("ERROR: unsupported construct: ExternalDeclaration");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         ;
 
@@ -361,20 +397,29 @@ EmptyDefinition:  /** complete **/
         SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
+          // TODO: should this use the current presence condition, i.e., subparser.getPresenceCondition()
+          result.add(new StringBuilder("; "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
+          setTFValue(value, result);
         }
         ;
 
 FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
         FunctionDefinition
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | __EXTENSION__ FunctionDefinition
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -384,12 +429,26 @@ FunctionDefinition:  /** complete **/ // added scoping
           //Get FunctionPrototype
           //Get FunctionCompoundStatement
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(6, subparser, value);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<StringBuilder> temp;
+          Node child;
+          System.err.println("WARNING: skipping over transformation code at some nodes in FunctionDefinition.");
+          // TODO: uncomment these lines once FunctionPrototype sets an SBMV.
+          //child = getNodeAt(subparser, 6);
+          //temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
+          //sbmv.destruct();
+          child = getNodeAt(subparser, 3);
+          temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
+          sbmv.destruct();
+          setTFValue(value, temp);
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(7, subparser, value);
+          // TODO
+          System.err.println("WARNING: unsupported semantic action: FunctionDefinition");
+          System.exit(1);
+
         }
         ;
 
@@ -398,7 +457,9 @@ FunctionDefinition:  /** complete **/ // added scoping
 FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
         LocalLabelDeclarationListOpt DeclarationOrStatementList
         {
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -407,25 +468,31 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
    the conditional will only be hoisted around the prototype, not the
    entire function definition. */
 FunctionPrototype:  /** nomerge **/
-        IdentifierDeclarator { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
+        IdentifierDeclarator
         {
-          getAndSetSBMVCond(1, subparser, value);
-          System.err.println("FunctionPrototype - IdentifierDeclarator not supported");
+          bindFunDef(subparser, null, getNodeAt(subparser, 1));
+          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | DeclarationSpecifier     IdentifierDeclarator
         {
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
-          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder decl = getDBAt(subparser, 1);
+          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           addDeclsToSymTab(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeSpecifier            IdentifierDeclarator
         {
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
-          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder decl = getDBAt(subparser, 1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           StringBuilder sb = new StringBuilder();
@@ -446,62 +513,62 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
-          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder decl = getDBAt(subparser, 1);
           addDeclsToSymTab(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeQualifierList        IdentifierDeclarator
         {
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
-          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder decl = getDBAt(subparser, 1);
           addDeclsToSymTab(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
         }
         |                          OldFunctionDeclarator
         {
+          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
-          getAndSetSBMVCond(1, subparser, value);
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
-          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder decl = getDBAt(subparser, 1);
           addDeclsToSymTab(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
-          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder decl = getDBAt(subparser, 1);
           addDeclsToSymTab(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
-          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder decl = getDBAt(subparser, 1);
           addDeclsToSymTab(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 2);
-          DeclBuilder decl = getDeclBuilderAt(subparser, 1);
+          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder decl = getDBAt(subparser, 1);
           addDeclsToSymTab(subparser,type,decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
         }
         ;
 
@@ -509,31 +576,44 @@ FunctionOldPrototype:  /** nomerge **/
         OldFunctionDeclarator
         {
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -543,13 +623,17 @@ FunctionOldPrototype:  /** nomerge **/
 NestedFunctionDefinition:  /** complete **/ // added scoping
         NestedFunctionPrototype { ReenterScope(subparser); } LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(7, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 7), getNodeAt(subparser, 4), getNodeAt(subparser, 3));
+          setTFValue(value, product);
         }
         | NestedFunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(8, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 8), getNodeAt(subparser, 6), getNodeAt(subparser, 4), getNodeAt(subparser, 3));
+          setTFValue(value, product);
         }
         ;
 
@@ -558,50 +642,66 @@ NestedFunctionPrototype:  /** nomerge **/
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TypeSpecifier            IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TypeQualifierList        IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
 
         | DeclarationSpecifier     OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -610,25 +710,33 @@ NestedFunctionOldPrototype:  /** nomerge **/
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -659,13 +767,21 @@ NestedFunctionOldPrototype:  /** nomerge **/
 DeclarationExtension:  /** passthrough, complete **/  // ADDED
         Declaration
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          System.err.println("declaration is setting: " + product);
+          setTFValue(value, product);
         }
         | __EXTENSION__ Declaration
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(2, subparser, value);
+          System.err.println("ERROR: unsupported construct: Declaration");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -673,22 +789,46 @@ Declaration:  /** complete **/
         SUEDeclarationSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(3, subparser, value);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<StringBuilder> temp;
+          Node child;
+          child = getNodeAt(subparser, 3);
+          temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
+          sbmv.destruct();
+          setTFValue(value, temp);
         }
         | SUETypeSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(3, subparser, value);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<StringBuilder> temp;
+          Node child;
+          child = getNodeAt(subparser, 3);
+          temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
+          sbmv.destruct();
+          setTFValue(value, temp);
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(3, subparser, value);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<StringBuilder> temp;
+          Node child;
+          child = getNodeAt(subparser, 3);
+          temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
+          sbmv.destruct();
+          setTFValue(value, temp);
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(3, subparser, value);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<StringBuilder> temp;
+          Node child;
+          child = getNodeAt(subparser, 3);
+          temp = cartesianProductWithChild(sbmv, child, subparser.getPresenceCondition());
+          sbmv.destruct();
+          setTFValue(value, temp);
         }
         ;
 
@@ -698,51 +838,59 @@ Declaration:  /** complete **/
 DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         DeclarationQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList");
+          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList");
+          System.exit(1);
         }
         | TypeQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList");
+          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList");
+          System.exit(1);
         }
         | DefaultDeclaringList COMMA AttributeSpecifierListOpt IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList");
+          System.exit(1);
           // reuses saved base type
           bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList");
+          System.exit(1);
         }
         ;
 
 DeclaringList:  /** nomerge **/
         DeclarationSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-      	  TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 5);
-      	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+      	  TypeBuilderMultiverse type = getTBAt(subparser, 5);
+      	  DeclBuilder decl = getDBAt(subparser, 4);
           System.err.println(decl.toString() + " " + type.toString());
           addDeclsToSymTab(subparser, type, decl);
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
-          bindIdent(subparser, getTypeBuilderAt(subparser, 5), getDeclBuilderAt(subparser, 4));
+          bindIdent(subparser, getTBAt(subparser, 5), getDBAt(subparser, 4));
+          // TODO: missing semantic value assignment
+          System.err.println("WARNING: unsupported semantic action: DeclaringList");
+          System.exit(1);
         }
         | TypeSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-      	  DeclBuilder decl = getDeclBuilderAt(subparser, 4);
-      	  TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 5);
+      	  DeclBuilder decl = getDBAt(subparser, 4);
+      	  TypeBuilderMultiverse type = getTBAt(subparser, 5);
       	  saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, type, decl);
 
@@ -782,80 +930,73 @@ DeclaringList:  /** nomerge **/
                          "\n}\n");
 
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: DeclaringList");
+          System.exit(1);
           // reuses saved base type
 	        bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: DeclaringList");
+          System.exit(1);
         }
         ;
 
 DeclarationSpecifier:  /**  nomerge **/
         BasicDeclarationSpecifier        /* Arithmetic or void */
 				{
-	  			TypeBuilderMultiverse decl = getTypeBuilderAt(subparser, 1);
-	  			setTypeBuilder(value, decl);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+	  			TypeBuilderMultiverse decl = getTBAt(subparser, 1);
+	  			setTFValue(value, decl);
 				}
         | SUEDeclarationSpecifier          /* struct/union/enum */
 				{
 					System.err.println("Unsupported grammar DeclarationSpecifier-SUE"); // TODO
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-					System.exit(1);
+          System.exit(1);
 				}
         | TypedefDeclarationSpecifier      /* typedef*/
 				{
-	 				TypeBuilderMultiverse decl = getTypeBuilderAt(subparser, 1);
-	  			setTypeBuilder(value, decl);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+	 				TypeBuilderMultiverse decl = getTBAt(subparser, 1);
+	  			setTFValue(value, decl);
 				}
         | VarArgDeclarationSpecifier  // ADDED
         {
 					System.err.println("Unsupported grammar DeclarationSpecifier-VarArg"); // TODO
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-					System.exit(1);
+          System.exit(1);
 				}
         | TypeofDeclarationSpecifier // ADDED
         {
 					System.err.println("Unsupported grammar DeclarationSpecifier-TypeofDeclSpec"); // TODO
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-					System.exit(1);
+          System.exit(1);
 				}
         ;
 
 TypeSpecifier:  /** nomerge **/
         BasicTypeSpecifier                 /* Arithmetic or void */
 				{
-          TypeBuilderMultiverse t = getTypeBuilderAt(subparser,1);
-        	setTypeBuilder(value,t);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+          // TODO: are there any issues with sharing references to the same type builder object?
+          TypeBuilderMultiverse t = getTBAt(subparser,1);
+        	setTFValue(value,t);
 				}
         | SUETypeSpecifier                 /* Struct/Union/Enum */
 				{
 					System.err.println("Unsupported grammar TypeSpecifier-SUE"); // TODO
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-					System.exit(1);
+          System.exit(1);
 				}
 				| TypedefTypeSpecifier             /* Typedef */
 				{
-					setTypeBuilder(value,getTypeBuilderAt(subparser,1));
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+					setTFValue(value,getTBAt(subparser,1));
 				}
         | VarArgTypeSpecifier  // ADDED
 				{
 					System.err.println("Unsupported grammar TypeSpecifier-VarArg"); // TODO
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-					System.exit(1);
+          System.exit(1);
 				}
         | TypeofTypeSpecifier // ADDED
 				{
 					System.err.println("Unsupported grammar TypeSpecifier-Typeof"); // TODO
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
 					System.exit(1);
 				}
         ;
@@ -863,211 +1004,209 @@ TypeSpecifier:  /** nomerge **/
 DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage class */
         StorageClass
       	{
-      	  TypeBuilderMultiverse storage = getTypeBuilderAt(subparser,1);
-      	  setTypeBuilder(value, storage);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+      	  TypeBuilderMultiverse storage = getTBAt(subparser,1);
+      	  setTFValue(value, storage);
       	  updateSpecs(subparser,
-                            getSpecsAt(subparser, 1),
-                            value);
+          getSpecsAt(subparser, 1),
+          value);
       	}
       	| TypeQualifierList StorageClass
       	{
-      	  TypeBuilderMultiverse qualList = getTypeBuilderAt(subparser, 2);
-      	  TypeBuilderMultiverse storage = getTypeBuilderAt(subparser, 1);
+      	  TypeBuilderMultiverse qualList = getTBAt(subparser, 2);
+      	  TypeBuilderMultiverse storage = getTBAt(subparser, 1);
       	  TypeBuilderMultiverse tb = qualList.combine(storage);
-      	  setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+      	  setTFValue(value, tb);
       	  updateSpecs(subparser,
-                            getSpecsAt(subparser, 2),
-                            getSpecsAt(subparser, 1),
-                            value);
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
       	}
         | DeclarationQualifierList DeclarationQualifier
       	{
-      	  TypeBuilderMultiverse qualList = getTypeBuilderAt(subparser, 2);
-      	  TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
+      	  TypeBuilderMultiverse qualList = getTBAt(subparser, 2);
+      	  TypeBuilderMultiverse qual = getTBAt(subparser, 1);
       	  TypeBuilderMultiverse tb = qualList.combine(qual);
-      	  setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+      	  setTFValue(value, tb);
       	  updateSpecs(subparser,
-                            getSpecsAt(subparser, 2),
-                            getSpecsAt(subparser, 1),
-                            value);
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
       	}
         ;
 
 TypeQualifierList:  /** list, nomerge **/
         TypeQualifier
       	{
-      	  TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
-      	  setTypeBuilder(value, qual);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	   updateSpecs(subparser,
-                            getSpecsAt(subparser, 1),
-                            value);
+      	  TypeBuilderMultiverse qual = getTBAt(subparser, 1);
+      	  setTFValue(value, qual);
+    	    updateSpecs(subparser,
+                      getSpecsAt(subparser, 1),
+                      value);
       	}
         | TypeQualifierList TypeQualifier
       	{
-      	  TypeBuilderMultiverse qualList = getTypeBuilderAt(subparser, 2);
-      	    TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
-      	    TypeBuilderMultiverse tb = qualList.combine(qual);
-      	    setTypeBuilder(value, tb);
-            System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	    updateSpecs(subparser,
-                            getSpecsAt(subparser, 2),
-                            getSpecsAt(subparser, 1),
-                            value);
+      	  TypeBuilderMultiverse qualList = getTBAt(subparser, 2);
+      	  TypeBuilderMultiverse qual = getTBAt(subparser, 1);
+      	  TypeBuilderMultiverse tb = qualList.combine(qual);
+      	  setTFValue(value, tb);
+      	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
       	}
         ;
 
 DeclarationQualifier:
         TypeQualifier                  /* const or volatile */
         {
-          TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
-          setTypeBuilder(value, qual);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+          TypeBuilderMultiverse qual = getTBAt(subparser, 1);
+          setTFValue(value, qual);
         }
         | StorageClass
         {
-          TypeBuilderMultiverse storage = getTypeBuilderAt(subparser, 1);
-          setTypeBuilder(value, storage);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+          TypeBuilderMultiverse storage = getTBAt(subparser, 1);
+          setTFValue(value, storage);
         }
         ;
 
 TypeQualifier:    // const, volatile, and restrict can have underscores
-ConstQualifier
-{
-  TypeBuilderMultiverse qual = new TypeBuilderMultiverse("const", subparser.getPresenceCondition());
-  setTypeBuilder(value, qual);
-  System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  updateSpecs(subparser,
+        ConstQualifier
+        {
+          TypeBuilderMultiverse qual = new TypeBuilderMultiverse("const", subparser.getPresenceCondition());
+          setTFValue(value, qual);
+          updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
-}
-| VolatileQualifier
-{
-  TypeBuilderMultiverse qual = new TypeBuilderMultiverse("volatile", subparser.getPresenceCondition());
-  setTypeBuilder(value, qual);
-  System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  updateSpecs(subparser,
+        }
+        | VolatileQualifier
+        {
+          TypeBuilderMultiverse qual = new TypeBuilderMultiverse("volatile", subparser.getPresenceCondition());
+          setTFValue(value, qual);
+          updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
-}
-| RestrictQualifier
-{
-  TypeBuilderMultiverse qual = new TypeBuilderMultiverse("restrict", subparser.getPresenceCondition());
-  setTypeBuilder(value, qual);
-  System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  updateSpecs(subparser,
+        }
+        | RestrictQualifier
+        {
+          TypeBuilderMultiverse qual = new TypeBuilderMultiverse("restrict", subparser.getPresenceCondition());
+          setTFValue(value, qual);
+          updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
-}
-| AttributeSpecifier // ADDED
-{
-  System.err.println("Unsupported grammar TypeQualifier-Attribute"); // TODO
-  System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  System.exit(1);
-  updateSpecs(subparser,
+        }
+        | AttributeSpecifier // ADDED
+        {
+          System.err.println("Unsupported grammar TypeQualifier-Attribute"); // TODO
+          System.exit(1);
+          updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
-}
-| FunctionSpecifier  // ADDED
-{
-  TypeBuilderMultiverse qual = new TypeBuilderMultiverse("inline", subparser.getPresenceCondition());
-  setTypeBuilder(value, qual);
-  System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  updateSpecs(subparser,
+        }
+        | FunctionSpecifier  // ADDED
+        {
+          TypeBuilderMultiverse qual = new TypeBuilderMultiverse("inline", subparser.getPresenceCondition());
+          setTFValue(value, qual);
+          updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
-}
-;
+        }
+        ;
 
 ConstQualifier:    // ADDED
         CONST
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ConstQualifier");
+          System.exit(1);
         }
         | __CONST
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ConstQualifier");
+          System.exit(1);
         }
         | __CONST__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ConstQualifier");
+          System.exit(1);
         }
         ;
 
 VolatileQualifier:   // ADDED
         VOLATILE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: VolatileQualifier");
+          System.exit(1);
         }
         | __VOLATILE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: VolatileQualifier");
+          System.exit(1);
         }
         | __VOLATILE__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: VolatileQualifier");
+          System.exit(1);
         }
         ;
 
 RestrictQualifier:   // ADDED
         RESTRICT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: RestrictQualifier");
+          System.exit(1);
         }
         | __RESTRICT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: RestrictQualifier");
+          System.exit(1);
         }
         | __RESTRICT__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: RestrictQualifier");
+          System.exit(1);
         }
         ;
 
 FunctionSpecifier:  // ADDED
         INLINE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: FunctionSpecifier");
+          System.exit(1);
         }
         | __INLINE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: FunctionSpecifier");
+          System.exit(1);
         }
         | __INLINE__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: FunctionSpecifier");
+          System.exit(1);
         }
         ;
 
 BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or void*/
         BasicTypeSpecifier  StorageClass
         {
-        TypeBuilderMultiverse basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
-        TypeBuilderMultiverse storageClass = getTypeBuilderAt(subparser, 1);
+        TypeBuilderMultiverse basicTypeSpecifier = getTBAt(subparser, 2);
+        TypeBuilderMultiverse storageClass = getTBAt(subparser, 1);
 
         // combine the partial type specs
         TypeBuilderMultiverse tb = basicTypeSpecifier.combine(storageClass);
 
-        setTypeBuilder(value, tb);
-        System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+        setTFValue(value, tb);
 	      updateSpecs(subparser,
-                      getSpecsAt(subparser, 2),
-                      getSpecsAt(subparser, 1),
-                      value);
+                    getSpecsAt(subparser, 2),
+                    getSpecsAt(subparser, 1),
+                    value);
         }
         | DeclarationQualifierList BasicTypeName {
-	        TypeBuilderMultiverse qualList = getTypeBuilderAt(subparser, 2);
-          TypeBuilderMultiverse basicTypeName = getTypeBuilderAt(subparser, 1);
+	        TypeBuilderMultiverse qualList = getTBAt(subparser, 2);
+          TypeBuilderMultiverse basicTypeName = getTBAt(subparser, 1);
 
           // combine the partial type specs
           TypeBuilderMultiverse tb = qualList.combine(basicTypeName);
 
-	        setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+	        setTFValue(value, tb);
 	        updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1075,14 +1214,13 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
         }
         | BasicDeclarationSpecifier DeclarationQualifier
         {
- 	        TypeBuilderMultiverse decl = getTypeBuilderAt(subparser, 2);
-          TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
+ 	        TypeBuilderMultiverse decl = getTBAt(subparser, 2);
+          TypeBuilderMultiverse qual = getTBAt(subparser, 1);
 
           // combine the partial type specs
           TypeBuilderMultiverse tb = decl.combine(qual);
 
-      	  setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+      	  setTFValue(value, tb);
       	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1090,14 +1228,13 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
         }
         | BasicDeclarationSpecifier BasicTypeName
         {
-	        TypeBuilderMultiverse basicDeclSpecifier = getTypeBuilderAt(subparser, 2);
-          TypeBuilderMultiverse basicTypeName = getTypeBuilderAt(subparser, 1);
+	        TypeBuilderMultiverse basicDeclSpecifier = getTBAt(subparser, 2);
+          TypeBuilderMultiverse basicTypeName = getTBAt(subparser, 1);
 
           // combine the partial type specs
           TypeBuilderMultiverse tb = basicDeclSpecifier.combine(basicTypeName);
 
-      	  setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+      	  setTFValue(value, tb);
       	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1111,9 +1248,8 @@ BasicTypeSpecifier: /**  nomerge **/
           // TUTORIAL: a semantic action that sets the semantic value
           // to a new typebuilder by adding a property derived from
           // the child semantic value(s)
-          TypeBuilderMultiverse tb = getTypeBuilderAt(subparser, 1);
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+          TypeBuilderMultiverse tb = getTBAt(subparser, 1);
+          setTFValue(value, tb);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
@@ -1121,13 +1257,12 @@ BasicTypeSpecifier: /**  nomerge **/
         }
         | TypeQualifierList BasicTypeName
 	      {
-          TypeBuilderMultiverse qualList = getTypeBuilderAt(subparser, 2);
-          TypeBuilderMultiverse basicTypeName = getTypeBuilderAt(subparser, 1);
+          TypeBuilderMultiverse qualList = getTBAt(subparser, 2);
+          TypeBuilderMultiverse basicTypeName = getTBAt(subparser, 1);
 
           TypeBuilderMultiverse tb = qualList.combine(basicTypeName);
 
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+          setTFValue(value, tb);
 	        updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1135,13 +1270,12 @@ BasicTypeSpecifier: /**  nomerge **/
         }
         | BasicTypeSpecifier TypeQualifier
 	      {
-          TypeBuilderMultiverse basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
-          TypeBuilderMultiverse qual = getTypeBuilderAt(subparser, 1);
+          TypeBuilderMultiverse basicTypeSpecifier = getTBAt(subparser, 2);
+          TypeBuilderMultiverse qual = getTBAt(subparser, 1);
 
           TypeBuilderMultiverse tb = basicTypeSpecifier.combine(qual);
 
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+          setTFValue(value, tb);
 	        updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1150,14 +1284,13 @@ BasicTypeSpecifier: /**  nomerge **/
         | BasicTypeSpecifier BasicTypeName
         {
           // get the semantic values of each child
-          TypeBuilderMultiverse basicTypeSpecifier = getTypeBuilderAt(subparser, 2);
-          TypeBuilderMultiverse basicTypeName = getTypeBuilderAt(subparser, 1);
+          TypeBuilderMultiverse basicTypeSpecifier = getTBAt(subparser, 2);
+          TypeBuilderMultiverse basicTypeName = getTBAt(subparser, 1);
 
           // combine the partial type specs
           TypeBuilderMultiverse tb = basicTypeSpecifier.combine(basicTypeName);
 
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+          setTFValue(value, tb);
 	        updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1168,30 +1301,36 @@ BasicTypeSpecifier: /**  nomerge **/
 SUEDeclarationSpecifier: /** nomerge **/          /* StorageClass + struct/union/enum */
         SUETypeSpecifier StorageClass
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: SUEDeclarationSpecifier");
+          System.exit(1);
         }
         | DeclarationQualifierList ElaboratedTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: SUEDeclarationSpecifier");
+          System.exit(1);
         }
         | SUEDeclarationSpecifier DeclarationQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: SUEDeclarationSpecifier");
+          System.exit(1);
         }
         ;
 
 SUETypeSpecifier: /** nomerge **/
         ElaboratedTypeName              /* struct/union/enum */
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: SUETypeSpecifier");
+          System.exit(1);
         }
         | TypeQualifierList ElaboratedTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: SUETypeSpecifier");
+          System.exit(1);
         }
         | SUETypeSpecifier TypeQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: SUETypeSpecifier");
+          System.exit(1);
         }
         ;
 
@@ -1199,28 +1338,25 @@ SUETypeSpecifier: /** nomerge **/
 TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef types */
         TypedefTypeSpecifier StorageClass
       	{
-      	  TypeBuilderMultiverse tb = getTypeBuilderAt(subparser, 2);
-          TypeBuilderMultiverse tb1 = getTypeBuilderAt(subparser, 1);
-          setTypeBuilder(value, tb.combine(tb1));
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  TypeBuilderMultiverse tb = getTBAt(subparser, 2);
+          TypeBuilderMultiverse tb1 = getTBAt(subparser, 1);
+          setTFValue(value, tb.combine(tb1));
+                	}
         | DeclarationQualifierList TYPEDEFname
         {
-      	  TypeBuilderMultiverse tb = getTypeBuilderAt(subparser, 2);
+      	  TypeBuilderMultiverse tb = getTBAt(subparser, 2);
           TypeBuilderMultiverse tb1 = new TypeBuilderMultiverse();
       	  String typeName = getStringAt(subparser, 1);
       	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition());
-          setTypeBuilder(value, tb.combine(tb1));
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+          setTFValue(value, tb.combine(tb1));
+                	}
         | TypedefDeclarationSpecifier DeclarationQualifier
       	{
-      	  TypeBuilderMultiverse tb1 = getTypeBuilderAt(subparser, 2);
-      	  TypeBuilderMultiverse dq = getTypeBuilderAt(subparser,1);
+      	  TypeBuilderMultiverse tb1 = getTBAt(subparser, 2);
+      	  TypeBuilderMultiverse dq = getTBAt(subparser,1);
       	  TypeBuilderMultiverse tb = tb1.combine(dq);
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+          setTFValue(value, tb);
+                	}
         ;
 
 TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
@@ -1229,96 +1365,107 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
       	  TypeBuilderMultiverse tb1 = new TypeBuilderMultiverse();
       	  String typeName = getStringAt(subparser, 1);
       	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition());
-          setTypeBuilder(value, tb1);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+          setTFValue(value, tb1);
+                	}
         | TypeQualifierList TYPEDEFname
       	{
-      	  TypeBuilderMultiverse tb = getTypeBuilderAt(subparser, 2);
+      	  TypeBuilderMultiverse tb = getTBAt(subparser, 2);
           TypeBuilderMultiverse tb1 = new TypeBuilderMultiverse();
       	  String typeName = getStringAt(subparser, 1);
       	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition());
-          setTypeBuilder(value, tb.combine(tb1));
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+          setTFValue(value, tb.combine(tb1));
 
       	}
         | TypedefTypeSpecifier TypeQualifier
         {
-          TypeBuilderMultiverse tb = getTypeBuilderAt(subparser, 2);
-          TypeBuilderMultiverse tb1 = getTypeBuilderAt(subparser, 1);
-          setTypeBuilder(value, tb.combine(tb1));
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-        }
+          TypeBuilderMultiverse tb = getTBAt(subparser, 2);
+          TypeBuilderMultiverse tb1 = getTBAt(subparser, 1);
+          setTFValue(value, tb.combine(tb1));
+                  }
 ;
 
 TypeofDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or void*/
         TypeofTypeSpecifier  StorageClass
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: TypeofDeclarationSpecifier");
+          System.exit(1);
         }
         | DeclarationQualifierList Typeofspecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: TypeofDeclarationSpecifier");
+          System.exit(1);
         }
         | TypeofDeclarationSpecifier DeclarationQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: TypeofDeclarationSpecifier");
+          System.exit(1);
         }
         | TypeofDeclarationSpecifier Typeofspecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: TypeofDeclarationSpecifier");
+          System.exit(1);
         }
         ;
 
 TypeofTypeSpecifier: /** nomerge **/  // ADDED
         Typeofspecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: TypeofTypeSpecifier");
+          System.exit(1);
         }
         | TypeQualifierList Typeofspecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: TypeofTypeSpecifier");
+          System.exit(1);
         }
         | TypeofTypeSpecifier TypeQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: TypeofTypeSpecifier");
+          System.exit(1);
         }
         | TypeofTypeSpecifier Typeofspecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: TypeofTypeSpecifier");
+          System.exit(1);
         }
         ;
 
 Typeofspecifier: /** nomerge **/  // ADDED
         Typeofkeyword LPAREN TypeName RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Typeofspecifier");
+          System.exit(1);
         }
         | Typeofkeyword LPAREN Expression RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Typeofspecifier");
+          System.exit(1);
         }
         ;
 
 Typeofkeyword: /** nomerge **/  // ADDED
         TYPEOF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Typeofkeyword");
+          System.exit(1);
         }
         | __TYPEOF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Typeofkeyword");
+          System.exit(1);
         }
         | __TYPEOF__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Typeofkeyword");
+          System.exit(1);
         }
         ;
 
 VarArgDeclarationSpecifier:      /*StorageClass+Arithmetic or void*/
         VarArgTypeSpecifier StorageClass
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: VarArgDeclarationSpecifier");
+          System.exit(1);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1326,7 +1473,8 @@ VarArgDeclarationSpecifier:      /*StorageClass+Arithmetic or void*/
         }
         | DeclarationQualifierList VarArgTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: VarArgDeclarationSpecifier");
+          System.exit(1);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1334,7 +1482,8 @@ VarArgDeclarationSpecifier:      /*StorageClass+Arithmetic or void*/
         }
         | VarArgDeclarationSpecifier DeclarationQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: VarArgDeclarationSpecifier");
+          System.exit(1);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1342,7 +1491,8 @@ VarArgDeclarationSpecifier:      /*StorageClass+Arithmetic or void*/
         }
         | VarArgDeclarationSpecifier VarArgTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: VarArgDeclarationSpecifier");
+          System.exit(1);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1353,14 +1503,16 @@ VarArgDeclarationSpecifier:      /*StorageClass+Arithmetic or void*/
 VarArgTypeSpecifier:
         VarArgTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: VarArgTypeSpecifier");
+          System.exit(1);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
         }
         | TypeQualifierList VarArgTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: VarArgTypeSpecifier");
+          System.exit(1);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1368,7 +1520,8 @@ VarArgTypeSpecifier:
         }
         | VarArgTypeSpecifier TypeQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: VarArgTypeSpecifier");
+          System.exit(1);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1376,7 +1529,8 @@ VarArgTypeSpecifier:
         }
         | VarArgTypeSpecifier VarArgTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: VarArgTypeSpecifier");
+          System.exit(1);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1387,7 +1541,8 @@ VarArgTypeSpecifier:
 VarArgTypeName:  // ADDED
         __BUILTIN_VA_LIST
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: VarArgTypeName");
+          System.exit(1);
           getSpecsAt(subparser, 1).type = InternalT.VA_LIST;
         }
         ;
@@ -1396,37 +1551,32 @@ StorageClass:
         TYPEDEF
     	  {
     	    TypeBuilderMultiverse storage = new TypeBuilderMultiverse("typedef", subparser.getPresenceCondition());
-    	    setTypeBuilder(value, storage);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-    	    getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF;
+    	    setTFValue(value, storage);
+              	    getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF;
     	  }
         | EXTERN
   	    {
   	      TypeBuilderMultiverse storage = new TypeBuilderMultiverse("extern", subparser.getPresenceCondition());
-  	      setTypeBuilder(value, storage);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN;
+  	      setTFValue(value, storage);
+            	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN;
   	    }
         | STATIC
   	    {
   	      TypeBuilderMultiverse storage = new TypeBuilderMultiverse("static", subparser.getPresenceCondition());
-  	      setTypeBuilder(value, storage);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC;
+  	      setTFValue(value, storage);
+            	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC;
   	    }
         | AUTO
   	    {
   	      TypeBuilderMultiverse storage = new TypeBuilderMultiverse("auto", subparser.getPresenceCondition());
-  	      setTypeBuilder(value, storage);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO;
+  	      setTFValue(value, storage);
+            	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO;
   	    }
         | REGISTER
   	    {
   	      TypeBuilderMultiverse storage = new TypeBuilderMultiverse("register", subparser.getPresenceCondition());
-  	      setTypeBuilder(value, storage);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-  	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER;
+  	      setTFValue(value, storage);
+            	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER;
   	    }
         ;
 
@@ -1434,131 +1584,127 @@ BasicTypeName:
         VOID
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(VoidT.TYPE, subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	  getSpecsAt(subparser, 1).type = VoidT.TYPE;
+          setTFValue(value, tb);
+          	  getSpecsAt(subparser, 1).type = VoidT.TYPE;
 
         }
         | CHAR
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.CHAR, subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	  getSpecsAt(subparser, 1).seenChar = true;
+          setTFValue(value, tb);
+          	  getSpecsAt(subparser, 1).seenChar = true;
         }
         | SHORT
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.SHORT, subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	  getSpecsAt(subparser, 1).seenShort = true;
+          setTFValue(value, tb);
+          	  getSpecsAt(subparser, 1).seenShort = true;
         }
         | INT
         {
           // See xtc.type.* for the class hiearchy for types
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.INT, subparser.getPresenceCondition());
           System.err.println(tb.toString());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-          getSpecsAt(subparser, 1).seenInt = true;
+          setTFValue(value, tb);
+                    getSpecsAt(subparser, 1).seenInt = true;
         }
         | __INT128
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.__INT128, subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	  getSpecsAt(subparser, 1).seenInt = true;
+          setTFValue(value, tb);
+                	  getSpecsAt(subparser, 1).seenInt = true;
         }
         | LONG
         {
           // See xtc.type.* for the class hiearchy for types
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.LONG, subparser.getPresenceCondition());
-      	  setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	  getSpecsAt(subparser, 1).longCount++;
+      	  setTFValue(value, tb);
+                	  getSpecsAt(subparser, 1).longCount++;
         }
         | FLOAT
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.FLOAT, subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-          getSpecsAt(subparser, 1).seenFloat = true;
+          setTFValue(value, tb);
+                    getSpecsAt(subparser, 1).seenFloat = true;
         }
         | DOUBLE
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.DOUBLE, subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	  getSpecsAt(subparser, 1).seenDouble = true;
+          setTFValue(value, tb);
+          	  getSpecsAt(subparser, 1).seenDouble = true;
         }
         | SignedKeyword
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse("signed", subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	  getSpecsAt(subparser, 1).seenSigned = true;
+          setTFValue(value, tb);
+          	  getSpecsAt(subparser, 1).seenSigned = true;
         }
         | UNSIGNED
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse("unsigned", subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	  getSpecsAt(subparser, 1).seenUnsigned = true;
+          setTFValue(value, tb);
+          	  getSpecsAt(subparser, 1).seenUnsigned = true;
         }
         | _BOOL
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(BooleanT.TYPE, subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	  getSpecsAt(subparser, 1).seenBool = true;
+          setTFValue(value, tb);
+          	  getSpecsAt(subparser, 1).seenBool = true;
         }
         | ComplexKeyword
         {
 	  TypeBuilderMultiverse tb = new TypeBuilderMultiverse("complex", subparser.getPresenceCondition());
-          setTypeBuilder(value, tb);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-	  getSpecsAt(subparser, 1).seenComplex = true;
+          setTFValue(value, tb);
+          	  getSpecsAt(subparser, 1).seenComplex = true;
         }
         ;
 
 SignedKeyword:
         SIGNED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: SignedKeyword");
+          System.exit(1);
         }
         | __SIGNED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: SignedKeyword");
+          System.exit(1);
         }
         | __SIGNED__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: SignedKeyword");
+          System.exit(1);
         }
         ;
 
 ComplexKeyword:
         _COMPLEX
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ComplexKeyword");
+          System.exit(1);
         }
         | __COMPLEX__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ComplexKeyword");
+          System.exit(1);
         }
         ;
 
 ElaboratedTypeName: /** passthrough, nomerge **/
         StructSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ElaboratedTypeName");
+          System.exit(1);
         }
         | UnionSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ElaboratedTypeName");
+          System.exit(1);
         }
         | EnumSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ElaboratedTypeName");
+          System.exit(1);
         }
         ;
 
@@ -1567,7 +1713,8 @@ StructSpecifier: /** nomerge **/  // ADDED attributes
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
+          System.exit(1);
           Node tag     = null;
           Node members = getNodeAt(subparser, 3);
           Node attrs   = null;
@@ -1579,7 +1726,8 @@ StructSpecifier: /** nomerge **/  // ADDED attributes
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
+          System.exit(1);
           Node tag     = getNodeAt(subparser, 6);
           Node members = getNodeAt(subparser, 3);
           Node attrs   = null;
@@ -1589,13 +1737,15 @@ StructSpecifier: /** nomerge **/  // ADDED attributes
         }
         | STRUCT IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
+          System.exit(1);
         }
         | STRUCT AttributeSpecifierList { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
+          System.exit(1);
           Node tag     = null;
           Node members = getNodeAt(subparser, 3);
           Node attrs   = getNodeAt(subparser, 6);
@@ -1607,7 +1757,8 @@ StructSpecifier: /** nomerge **/  // ADDED attributes
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
+          System.exit(1);
           Node tag     = getNodeAt(subparser, 6);
           Node members = getNodeAt(subparser, 3);
           Node attrs   = getNodeAt(subparser, 7);
@@ -1617,7 +1768,8 @@ StructSpecifier: /** nomerge **/  // ADDED attributes
         }
         | STRUCT AttributeSpecifierList IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
+          System.exit(1);
         }
         ;
 
@@ -1626,29 +1778,34 @@ UnionSpecifier: /** nomerge **/  // ADDED attributes
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnionSpecifier");
+          System.exit(1);
         }
         | UNION IdentifierOrTypedefName { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnionSpecifier");
+          System.exit(1);
         }
         | UNION IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnionSpecifier");
+          System.exit(1);
         }
         | UNION AttributeSpecifierList { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnionSpecifier");
+          System.exit(1);
         }
         | UNION AttributeSpecifierList IdentifierOrTypedefName { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnionSpecifier");
+          System.exit(1);
         }
         /* { */
         /*    updateSpecs(subparser,
@@ -1656,7 +1813,8 @@ UnionSpecifier: /** nomerge **/  // ADDED attributes
         /* } */
         | UNION AttributeSpecifierList IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnionSpecifier");
+          System.exit(1);
         }
         ;
 
@@ -1664,59 +1822,70 @@ StructDeclarationList: /** list, nomerge **/
         /* StructDeclaration */ /* ADDED gcc empty struct */
         {
           ((Node) value).setProperty(SPECS, new Specifiers());
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructDeclarationList");
+          System.exit(1);
         }
         | StructDeclarationList StructDeclaration {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructDeclarationList");
+          System.exit(1);
         }
         ;
 
 StructDeclaration: /** nomerge **/
         StructDeclaringList SEMICOLON
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
+          System.exit(1);
         }
         | StructDefaultDeclaringList SEMICOLON
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
+          System.exit(1);
         }
         | TypeQualifierList SEMICOLON  // ADDED Declarator is optional
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
+          System.exit(1);
         }
         | TypeSpecifier SEMICOLON  // ADDED Declarator is optional
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
+          System.exit(1);
         }
         | SEMICOLON // ADDED gcc allows empty struct field in declaration
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
+          System.exit(1);
         }
         ;
 
 StructDefaultDeclaringList: /** list, nomerge **/        /* doesn't redeclare typedef*/
         TypeQualifierList StructIdentifierDeclarator AttributeSpecifierListOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructDefaultDeclaringList");
+          System.exit(1);
         }
         | StructDefaultDeclaringList COMMA StructIdentifierDeclarator AttributeSpecifierListOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructDefaultDeclaringList");
+          System.exit(1);
         }
         ;
 
 StructDeclaringList: /** list, nomerge **/
         TypeSpecifier StructDeclarator AttributeSpecifierListOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructDeclaringList");
+          System.exit(1);
         }
         | StructDeclaringList COMMA StructDeclarator AttributeSpecifierListOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructDeclaringList");
+          System.exit(1);
         }
         ;
 
@@ -1724,22 +1893,26 @@ StructDeclaringList: /** list, nomerge **/
 StructDeclarator: /** nomerge **/
         Declarator BitFieldSizeOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructDeclarator");
+          System.exit(1);
         }
         | BitFieldSize
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructDeclarator");
+          System.exit(1);
         }
         ;
 
 StructIdentifierDeclarator: /** nomerge **/
         IdentifierDeclarator BitFieldSizeOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructIdentifierDeclarator");
+          System.exit(1);
         }
         | BitFieldSize
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StructIdentifierDeclarator");
+          System.exit(1);
         }
         ;
 
@@ -1747,57 +1920,69 @@ BitFieldSizeOpt: /** nomerge **/
         /* nothing */
         | BitFieldSize
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: BitFieldSizeOpt");
+          System.exit(1);
         }
         ;
 
 BitFieldSize: /** nomerge **/
         COLON ConstantExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: BitFieldSize");
+          System.exit(1);
         }
         ;
 
 EnumSpecifier: /** nomerge **/  /* ADDED attributes */
         ENUM LBRACE EnumeratorList RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
+          System.exit(1);
         }
         | ENUM IdentifierOrTypedefName LBRACE EnumeratorList RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
+          System.exit(1);
         }
         | ENUM IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
+          System.exit(1);
         }
         | ENUM LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
+          System.exit(1);
         }
         | ENUM IdentifierOrTypedefName LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
+          System.exit(1);
         }
         | ENUM AttributeSpecifierList LBRACE EnumeratorList RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
+          System.exit(1);
         }
         | ENUM AttributeSpecifierList IdentifierOrTypedefName LBRACE EnumeratorList RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
+          System.exit(1);
         }
         | ENUM AttributeSpecifierList IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
+          System.exit(1);
         }
         | ENUM AttributeSpecifierList LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
+          System.exit(1);
         }
         | ENUM AttributeSpecifierList IdentifierOrTypedefName LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
+          System.exit(1);
         }
         ;
 
@@ -1809,22 +1994,26 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */
 EnumeratorList:  /** list, nomerge **/  // easier to bind
         Enumerator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: EnumeratorList");
+          System.exit(1);
         }
         | EnumeratorList COMMA Enumerator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: EnumeratorList");
+          System.exit(1);
         }
         ;
 
 Enumerator: /** nomerge **/
         IDENTIFIER { BindEnum(subparser); } EnumeratorValueOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Enumerator");
+          System.exit(1);
         }
         | TYPEDEFname { BindEnum(subparser); } EnumeratorValueOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Enumerator");
+          System.exit(1);
         }
         ;
 
@@ -1832,40 +2021,37 @@ EnumeratorValueOpt: /** nomerge **/
         /* Nothing */
         | ASSIGN ConstantExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: EnumeratorValueOpt");
+          System.exit(1);
         }
         ;
 
 ParameterTypeList:  /** nomerge **/
         ParameterList
         {
-          getAndSetSBMVCond(1, subparser, value);
-          setParameter(value, getParameterAt(subparser,1));
+          setTFValue(value, getParamAt(subparser,1));
         }
         | ParameterList COMMA ELLIPSIS
         {
-          List<Parameter> ps = getParameterAt(subparser,3);
+          List<Parameter> ps = getParamAt(subparser,3);
           Parameter p = new Parameter();
           p.setEllipsis();
           ps.add(p);
-          setParameter(value,ps);
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          setTFValue(value,ps);
         }
         ;
 
 ParameterList:  /** list, nomerge **/
         ParameterDeclaration
         {
-          getAndSetSBMVCond(1, subparser, value);
-          setParameter(value, getParameterAt(subparser,1));
+          setTFValue(value, getParamAt(subparser,1));
         }
         | ParameterList COMMA ParameterDeclaration
         {
-          List<Parameter> p = getParameterAt(subparser,3);
+          List<Parameter> p = getParamAt(subparser,3);
 
-          p.addAll(getParameterAt(subparser,1));
-          setParameter(value,p);
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          p.addAll(getParamAt(subparser,1));
+          setTFValue(value,p);
         }
         ;
 
@@ -1913,12 +2099,10 @@ ParameterList:  /** list, nomerge **/
 ParameterDeclaration:  /** nomerge **/
         ParameterIdentifierDeclaration
         {
-          getAndSetSBMVCond(1, subparser, value);
-          setParameter(value, getParameterAt(subparser,1));
+          setTFValue(value, getParamAt(subparser,1));
         }
         | ParameterAbstractDeclaration
         {
-          getAndSetSBMVCond(1, subparser, value);
           System.err.println("ParameterDeclaration-Abstract not supported");
         }
         ;
@@ -1926,24 +2110,28 @@ ParameterDeclaration:  /** nomerge **/
 ParameterAbstractDeclaration:
         DeclarationSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ParameterAbstractDeclaration");
+          System.exit(1);
         }
         | DeclarationSpecifier AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ParameterAbstractDeclaration");
+          System.exit(1);
         }
         | DeclarationQualifierList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ParameterAbstractDeclaration");
+          System.exit(1);
         }
         | DeclarationQualifierList AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ParameterAbstractDeclaration");
+          System.exit(1);
         }
         | TypeSpecifier
         {
           StringBuilder sb = new StringBuilder();
-          List<Type> typeList = getTypeBuilderAt(subparser, 1).toType();
+          List<Type> typeList = getTBAt(subparser, 1).toType();
   	      if (typeList.size() == 1)
         		sb.append(typeList.get(0));
   	      else {
@@ -1952,124 +2140,139 @@ ParameterAbstractDeclaration:
   	      }
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | TypeSpecifier AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ParameterAbstractDeclaration");
+          System.exit(1);
         }
         | TypeQualifierList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ParameterAbstractDeclaration");
+          System.exit(1);
         }
         | TypeQualifierList AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ParameterAbstractDeclaration");
+          System.exit(1);
         }
         ;
 
 ParameterIdentifierDeclaration:
         DeclarationSpecifier IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
+          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
+          DeclBuilder decl = getDBAt(subparser, 3);
+          TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
           addDeclsToSymTab(subparser, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
-          setParameter(value, p);
+          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
+          setTFValue(value, p);
         }
         | DeclarationSpecifier ParameterTypedefDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
+          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
+          DeclBuilder decl = getDBAt(subparser, 3);
+          TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
           addDeclsToSymTab(subparser, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
-          setParameter(value, p);
+          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
+          setTFValue(value, p);
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
+          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
+          DeclBuilder decl = getDBAt(subparser, 3);
+          TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
           addDeclsToSymTab(subparser, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
-          setParameter(value, p);
+          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
+          setTFValue(value, p);
         }
         | TypeSpecifier IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
+          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
+          DeclBuilder decl = getDBAt(subparser, 3);
+          TypeBuilderMultiverse type = getTBAt(subparser, 4);
           System.err.println("ParamIdent:" + type.toString());
           Parameter p = new Parameter();
           addDeclsToSymTab(subparser, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
-          setParameter(value, p);
+          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
+          setTFValue(value, p);
         }
         | TypeSpecifier ParameterTypedefDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
+          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
+          DeclBuilder decl = getDBAt(subparser, 3);
+          TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
           addDeclsToSymTab(subparser, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
-          setParameter(value, p);
+          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
+          setTFValue(value, p);
         }
         | TypeQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
+          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = getDeclBuilderAt(subparser, 3);
-          TypeBuilderMultiverse type = getTypeBuilderAt(subparser, 4);
+          DeclBuilder decl = getDBAt(subparser, 3);
+          TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
           addDeclsToSymTab(subparser, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
-          setParameter(value, p);
+          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
+          setTFValue(value, p);
         }
         ;
 
@@ -2080,18 +2283,21 @@ ParameterIdentifierDeclaration:
 IdentifierList:  /** list, nomerge **/
         Identifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: IdentifierList");
+          System.exit(1);
         }
         | IdentifierList COMMA Identifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: IdentifierList");
+          System.exit(1);
         }
         ;
 
 Identifier:  /** nomerge **/
        IDENTIFIER
        {
-         System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+         System.err.println("WARNING: unsupported semantic action: Identifier");
+         System.exit(1);
          BindVar(subparser);
        }
        ;
@@ -2099,30 +2305,36 @@ Identifier:  /** nomerge **/
 IdentifierOrTypedefName: /** nomerge **/
         IDENTIFIER
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: IdentifierOrTypedefName");
+          System.exit(1);
         }
         | TYPEDEFname
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: IdentifierOrTypedefName");
+          System.exit(1);
         }
         ;
 
 TypeName: /** nomerge **/
         TypeSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: TypeName");
+          System.exit(1);
         }
         | TypeSpecifier AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: TypeName");
+          System.exit(1);
         }
         | TypeQualifierList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: TypeName");
+          System.exit(1);
         }
         | TypeQualifierList AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: TypeName");
+          System.exit(1);
         }
         ;
 
@@ -2151,18 +2363,27 @@ InitializerOpt: /** nomerge **/
               }
             }
           }
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         ;
 
 DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         Initializer
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | Designation Initializer
         {
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -2174,158 +2395,175 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
 Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists
         LBRACE MatchedInitializerList RBRACE
         {
-          getAndSetSBMVCond(3, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | LBRACE MatchedInitializerList DesignatedInitializer RBRACE
         {
-          getAndSetSBMVCond(4, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | AssignmentExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         ;
 
 InitializerList:  /** nomerge **/ //modified so that COMMAS are on the right
         MatchedInitializerList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: InitializerList");
+          System.exit(1);
         }
         | MatchedInitializerList DesignatedInitializer
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: InitializerList");
+          System.exit(1);
         }
         ;
 
 MatchedInitializerList:  /** list, nomerge **/
         | MatchedInitializerList DesignatedInitializer COMMA
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: MatchedInitializerList");
+          System.exit(1);
         }
         ;
 
 Designation:   /* ADDED */
         DesignatorList ASSIGN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Designation");
+          System.exit(1);
         }
         | ObsoleteArrayDesignation
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Designation");
+          System.exit(1);
         }
         | ObsoleteFieldDesignation
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Designation");
+          System.exit(1);
         }
         ;
 
 DesignatorList:  /** list, nomerge **/  /* ADDED */
         Designator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: DesignatorList");
+          System.exit(1);
         }
         | DesignatorList Designator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: DesignatorList");
+          System.exit(1);
         }
         ;
 
 Designator:   /* ADDED */
         LBRACK ConstantExpression RBRACK
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Designator");
+          System.exit(1);
         }
         | LBRACK ConstantExpression ELLIPSIS ConstantExpression RBRACK
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Designator");
+          System.exit(1);
         }
         | DOT IDENTIFIER //IDENTIFIER
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Designator");
+          System.exit(1);
         }
         | DOT TYPEDEFname // ADDED hack to get around using typedef names as struct fields
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Designator");
+          System.exit(1);
         }
         ;
 
 ObsoleteArrayDesignation: /** nomerge **/  /* ADDED */
         LBRACK ConstantExpression RBRACK
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ObsoleteArrayDesignation");
+          System.exit(1);
         }
         | LBRACK ConstantExpression ELLIPSIS ConstantExpression RBRACK
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ObsoleteArrayDesignation");
+          System.exit(1);
         }
         ;
 
 ObsoleteFieldDesignation: /** nomerge **/  /* ADDED */
         IDENTIFIER COLON
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ObsoleteFieldDesignation");
+          System.exit(1);
         }
         ;
 
 Declarator:  /** nomerge**/
         TypedefDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         | IdentifierDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         ;
 
 TypedefDeclarator:  /**  nomerge **/  // ADDED
         TypedefDeclaratorMain //AssemblyExpressionOpt AttributeSpecifierListOpt
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+
       	}
         ;
 
 TypedefDeclaratorMain:  /**  nomerge **/
         ParenTypedefDeclarator  /* would be ambiguous as Parameter*/
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         | ParameterTypedefDeclarator   /* not ambiguous as param*/
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         ;
 
 ParameterTypedefDeclarator: /** nomerge **/
         TYPEDEFname
         {
-          setDeclBuilder(value, new DeclBuilder(getStringAt(subparser, 1)));
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-        }
+          setTFValue(value, new DeclBuilder(getStringAt(subparser, 1)));
+                  }
         | TYPEDEFname PostfixingAbstractDeclarator
       	{
       	  DeclBuilder name = new DeclBuilder(getStringAt(subparser, 2));
-      	  DeclBuilder post = getDeclBuilderAt(subparser,1);
+      	  DeclBuilder post = getDBAt(subparser,1);
       	  name.merge(post);
-          setDeclBuilder(value, name);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-        }
+          setTFValue(value, name);
+                  }
         | CleanTypedefDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         ;
 
     /*  The  following have at least one STAR. There is no (redundant)
@@ -2334,44 +2572,39 @@ ParameterTypedefDeclarator: /** nomerge **/
 CleanTypedefDeclarator: /** nomerge **/
         CleanPostfixTypedefDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         | STAR ParameterTypedefDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+      	  DeclBuilder db = getDBAt(subparser,1);
       	  db.addPointer();
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  setTFValue(value, db);
+                	}
         | STAR TypeQualifierList ParameterTypedefDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+      	  DeclBuilder db = getDBAt(subparser,1);
       	  DeclBuilder outter = new DeclBuilder();
       	  outter.addPointer();
-      	  outter.addQuals(getTypeBuilderAt(subparser,2),db);
-      	  setDeclBuilder(value,outter);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  outter.addQuals(getTBAt(subparser,2),db);
+      	  setTFValue(value,outter);
+                	}
         ;
 
 CleanPostfixTypedefDeclarator: /** nomerge **/
         LPAREN CleanTypedefDeclarator RPAREN
       	{
       	  DeclBuilder db = new DeclBuilder();
-      	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  db.addDeclBuilder(getDBAt(subparser,2));
+      	  setTFValue(value, db);
+                	}
         | LPAREN CleanTypedefDeclarator RPAREN PostfixingAbstractDeclarator
         {
       	  DeclBuilder db = new DeclBuilder();
-      	  db.addDeclBuilder(getDeclBuilderAt(subparser,3));
-      	  db.merge(getDeclBuilderAt(subparser,1));
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  db.addDeclBuilder(getDBAt(subparser,3));
+      	  db.merge(getDBAt(subparser,1));
+      	  setTFValue(value, db);
+                	}
         ;
 
     /* The following have a redundant LPAREN placed immediately  to  the
@@ -2380,238 +2613,212 @@ CleanPostfixTypedefDeclarator: /** nomerge **/
 ParenTypedefDeclarator:  /** nomerge **/
         ParenPostfixTypedefDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         | STAR LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
       	{
       	  DeclBuilder db = new DeclBuilder();
-      	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
+      	  db.addDeclBuilder(getDBAt(subparser,2));
       	  db.addPointer();
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  setTFValue(value, db);
+                	}
       	| STAR TypeQualifierList
       	LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,2);
+      	  DeclBuilder db = getDBAt(subparser,2);
       	  DeclBuilder paren = new DeclBuilder();
       	  DeclBuilder outter = new DeclBuilder();
       	  outter.addPointer();
       	  paren.addDeclBuilder(db);
-      	  outter.addQuals(getTypeBuilderAt(subparser,4),paren);
-      	  setDeclBuilder(value,outter);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  outter.addQuals(getTBAt(subparser,4),paren);
+      	  setTFValue(value,outter);
+                	}
         | STAR ParenTypedefDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+      	  DeclBuilder db = getDBAt(subparser,1);
       	  db.addPointer();
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  setTFValue(value, db);
+                	}
         | STAR TypeQualifierList ParenTypedefDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+      	  DeclBuilder db = getDBAt(subparser,1);
       	  DeclBuilder outter = new DeclBuilder();
       	  outter.addPointer();
-      	  outter.addQuals(getTypeBuilderAt(subparser,2),db);
-      	  setDeclBuilder(value,outter);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  outter.addQuals(getTBAt(subparser,2),db);
+      	  setTFValue(value,outter);
+                	}
         ;
 
 ParenPostfixTypedefDeclarator: /** nomerge **/ /* redundant paren to left of tname*/
         LPAREN ParenTypedefDeclarator RPAREN
       	{
       	  DeclBuilder db = new DeclBuilder();
-      	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  db.addDeclBuilder(getDBAt(subparser,2));
+      	  setTFValue(value, db);
+                	}
         | LPAREN SimpleParenTypedefDeclarator PostfixingAbstractDeclarator RPAREN /* redundant paren */
       	{
       	  DeclBuilder db = new DeclBuilder();
-      	  DeclBuilder base = getDeclBuilderAt(subparser,3);
-      	  base.merge(getDeclBuilderAt(subparser,2));
+      	  DeclBuilder base = getDBAt(subparser,3);
+      	  base.merge(getDBAt(subparser,2));
       	  db.addDeclBuilder(base);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  setTFValue(value, db);
+                	}
         | LPAREN ParenTypedefDeclarator RPAREN PostfixingAbstractDeclarator
       	{
       	  DeclBuilder db = new DeclBuilder();
-      	  DeclBuilder base = getDeclBuilderAt(subparser,3);
+      	  DeclBuilder base = getDBAt(subparser,3);
       	  db.addDeclBuilder(base);
-      	  db.merge(getDeclBuilderAt(subparser,1));
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  db.merge(getDBAt(subparser,1));
+      	  setTFValue(value, db);
+                	}
         ;
 
 SimpleParenTypedefDeclarator: /** nomerge **/
         TYPEDEFname
       	{
-      	  setDeclBuilder(value, new DeclBuilder(getStringAt(subparser, 1)));
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  setTFValue(value, new DeclBuilder(getStringAt(subparser, 1)));
+                	}
         | LPAREN SimpleParenTypedefDeclarator RPAREN
       	{
       	  DeclBuilder db = new DeclBuilder();
-      	  DeclBuilder base = getDeclBuilderAt(subparser,2);
+      	  DeclBuilder base = getDBAt(subparser,2);
       	  db.addDeclBuilder(base);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  setTFValue(value, db);
+                	}
         ;
 
 IdentifierDeclarator:  /**  nomerge **/
         IdentifierDeclaratorMain //AssemblyExpressionOpt AttributeSpecifierListOpt
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-          getAndSetSBMVCond(1, subparser, value);
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         ;
 
 IdentifierDeclaratorMain:  /** nomerge **/
         UnaryIdentifierDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          getAndSetSBMVCond(1, subparser, value);
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
       	}
         | ParenIdentifierDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          getAndSetSBMVCond(1, subparser, value);
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
       	}
         ;
 
 UnaryIdentifierDeclarator: /** nomerge **/
         PostfixIdentifierDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          getAndSetSBMVCond(1, subparser, value);
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
       	}
         | STAR IdentifierDeclarator
         {
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+      	  DeclBuilder db = getDBAt(subparser,1);
       	  db.addPointer();
-      	  setDeclBuilder(value, db);
-          getAndSetSBMVCond(2, subparser, value);
+      	  setTFValue(value, db);
       	}
         | STAR TypeQualifierList IdentifierDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+      	  DeclBuilder db = getDBAt(subparser,1);
       	  DeclBuilder outter = new DeclBuilder();
       	  outter.addPointer();
-      	  outter.addQuals(getTypeBuilderAt(subparser,2),db);
-      	  setDeclBuilder(value,outter);
-          getAndSetSBMVCond(3, subparser, value);
+      	  outter.addQuals(getTBAt(subparser,2),db);
+      	  setTFValue(value,outter);
       	}
         ;
 
 PostfixIdentifierDeclarator: /** nomerge **/
         FunctionDeclarator
         {
-          System.err.println(getDeclBuilderAt(subparser,1) + ":PC::" + subparser.getPresenceCondition());
-          setDeclBuilder(value, getDeclBuilderAt(subparser,1));
-          getAndSetSBMVCond(1, subparser, value);
+          System.err.println(getDBAt(subparser,1) + ":PC::" + subparser.getPresenceCondition());
+          setTFValue(value, getDBAt(subparser,1));
         }
         | ArrayDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         | AttributedDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
+                	}
         | LPAREN UnaryIdentifierDeclarator RPAREN PostfixingAbstractDeclarator
       	{
       	  DeclBuilder base = new DeclBuilder();
-      	  base.addDeclBuilder(getDeclBuilderAt(subparser,3));
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
+      	  base.addDeclBuilder(getDBAt(subparser,3));
+      	  DeclBuilder db = getDBAt(subparser,1);
       	  base.merge(db);
-      	  setDeclBuilder(value,base);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  setTFValue(value,base);
+                	}
         ;
 
 AttributedDeclarator: /** nomerge **/
         LPAREN UnaryIdentifierDeclarator RPAREN
         {
       	  DeclBuilder db = new DeclBuilder();
-      	  db.addDeclBuilder(getDeclBuilderAt(subparser,2));
-      	  setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-      	}
+      	  db.addDeclBuilder(getDBAt(subparser,2));
+      	  setTFValue(value, db);
+                	}
         ;
 
 FunctionDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator PostfixingFunctionDeclarator
         {
           // TODO: construct the declaration of main here using the declbuilder stored at ParenIdentifierDeclarator and PostfixingFunctionDeclarator
-          DeclBuilder ident = new DeclBuilder(getDeclBuilderAt(subparser, 2));
+          DeclBuilder ident = new DeclBuilder(getDBAt(subparser, 2));
           /*StringBuilder sb = new StringBuilder();
           sb.append(ident);
           sb.append(getStringBuilderAt(subparser, 1));
           System.err.println("Node: " + value.hashCode());
           setStringBuilder(value, sb);*/
-          ident.setParams(getParameterAt(subparser,1));
-          setDeclBuilder(value,ident);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-        }
+          ident.setParams(getParamAt(subparser,1));
+          setTFValue(value,ident);
+                  }
         ;
 
 PostfixingFunctionDeclarator:  /** nomerge **/
         LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN
         {
           //return whatever is in Parameter TypeListOpt
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: PostfixingFunctionDeclarator");
           /*StringBuilder sb = new StringBuilder("(");
           for (int i = 1; i <= 3; i++)
             if (getStringBuilderAt(subparser, i) != null && !getStringBuilderAt(subparser, i).equals("null"))
               sb.append(getStringBuilderAt(subparser, i));
           sb.append(")");
           setStringBuilder(value, sb);*/
-          setParameter(value,getParameterAt(subparser, 3));
+          setTFValue(value,getParamAt(subparser, 3));
         }
         ;
 
 ArrayDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator ArrayAbstractDeclarator
         {
-          DeclBuilder base = getDeclBuilderAt(subparser,2);
-          DeclBuilder array = getDeclBuilderAt(subparser,1);
+          DeclBuilder base = getDBAt(subparser,2);
+          DeclBuilder array = getDBAt(subparser,1);
           base.merge(array);
-          setDeclBuilder(value,base);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-        }
+          setTFValue(value,base);
+                  }
         ;
 
 ParenIdentifierDeclarator:  /** nomerge **/
         SimpleDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value, db);
-          getAndSetSBMVCond(1, subparser, value);
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value, db);
       	}
         | LPAREN ParenIdentifierDeclarator RPAREN
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,2);
+      	  DeclBuilder db = getDBAt(subparser,2);
       	  DeclBuilder superDecl = new DeclBuilder();
       	  superDecl.addDeclBuilder(db);
-      	  setDeclBuilder(value,superDecl);
-          getAndSetSBMVCond(3, subparser, value);
+      	  setTFValue(value,superDecl);
       	}
         ;
 
@@ -2620,9 +2827,8 @@ SimpleDeclarator: /** nomerge **/
         {
           DeclBuilder db = new DeclBuilder(getStringAt(subparser, 1));
           System.err.println(db + ":PC::" + subparser.getPresenceCondition());
-          setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
-        }
+          setTFValue(value, db);
+                  }
         ;
 
 OldFunctionDeclarator: /** nomerge **/
@@ -2643,55 +2849,62 @@ OldFunctionDeclarator: /** nomerge **/
 PostfixOldFunctionDeclarator: /** nomerge **/
         ParenIdentifierDeclarator LPAREN { EnterScope(subparser); } IdentifierList { ExitReentrantScope(subparser); } RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: PostfixOldFunctionDeclarator");
+          System.exit(1);
         }
         | LPAREN OldFunctionDeclarator RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: PostfixOldFunctionDeclarator");
+          System.exit(1);
         }
         | LPAREN OldFunctionDeclarator RPAREN PostfixingAbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: PostfixOldFunctionDeclarator");
+          System.exit(1);
         }
         ;
 
 AbstractDeclarator: /** nomerge **/
         UnaryAbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AbstractDeclarator");
+          System.exit(1);
         }
         | PostfixAbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AbstractDeclarator");
+          System.exit(1);
         }
         | PostfixingAbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AbstractDeclarator");
+          System.exit(1);
         }
         ;
 
 PostfixingAbstractDeclarator: /**  nomerge **/
         ArrayAbstractDeclarator
       	{
-      	  DeclBuilder db = getDeclBuilderAt(subparser,1);
-      	  setDeclBuilder(value,db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  setTFValue(value,db);
       	}
         /* | LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN */
         | PostfixingFunctionDeclarator
         {
-          DeclBuilder db = getDeclBuilderAt(subparser,1);
-          setDeclBuilder(value,db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+          DeclBuilder db = getDBAt(subparser,1);
+          setTFValue(value,db);
         }
         ;
 
 ParameterTypeListOpt: /** nomerge **/
         /* empty */
+        {
+          List<Parameter> result = new LinkedList<Parameter>();
+          setTFValue(value, result);
+        }
         | ParameterTypeList
         {
-          getAndSetSBMVCond(1, subparser, value);
-          setParameter(value,getParameterAt(subparser,1));
+          setTFValue(value,getParamAt(subparser,1));
         }
         ;
 
@@ -2700,8 +2913,7 @@ ArrayAbstractDeclarator: /** nomerge **/
         {
       	  DeclBuilder db = new DeclBuilder();
       	  db.addArray("",false);
-          setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+          setTFValue(value, db);
         }
         | LBRACK ConstantExpression RBRACK
         {
@@ -2714,12 +2926,11 @@ ArrayAbstractDeclarator: /** nomerge **/
           } else {
             db.addArray(arrayBounds.get(0).getData().toString());
           }
-          setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+          setTFValue(value, db);
 	      }
         | ArrayAbstractDeclarator LBRACK ConstantExpression RBRACK
 	      {
-      	  DeclBuilder db = getDeclBuilderAt(subparser,4);
+      	  DeclBuilder db = getDBAt(subparser,4);
           // TODO: support configurable array bound expressions
           Multiverse<StringBuilder> arrayBounds = getSBMVAt(subparser, 2);
           if (arrayBounds.size() > 1) {
@@ -2728,46 +2939,53 @@ ArrayAbstractDeclarator: /** nomerge **/
           } else {
             db.addArray(arrayBounds.get(0).getData().toString());
           }
-          setDeclBuilder(value, db);
-          System.err.println("WARNING: no SBMV is being set here: " + (value != null ? ((Node) value).getName() : "null"));
+          setTFValue(value, db);
 	      }
         ;
 
 UnaryAbstractDeclarator: /** nomerge **/
         STAR
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnaryAbstractDeclarator");
+          System.exit(1);
         }
         | STAR TypeQualifierList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnaryAbstractDeclarator");
+          System.exit(1);
         }
         | STAR AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnaryAbstractDeclarator");
+          System.exit(1);
         }
         | STAR TypeQualifierList AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnaryAbstractDeclarator");
+          System.exit(1);
         }
         ;
 
 PostfixAbstractDeclarator: /** nomerge **/
         LPAREN UnaryAbstractDeclarator RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: PostfixAbstractDeclarator");
+          System.exit(1);
         }
         | LPAREN PostfixAbstractDeclarator RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: PostfixAbstractDeclarator");
+          System.exit(1);
         }
         | LPAREN PostfixingAbstractDeclarator RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: PostfixAbstractDeclarator");
+          System.exit(1);
         }
         | LPAREN UnaryAbstractDeclarator RPAREN PostfixingAbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: PostfixAbstractDeclarator");
+          System.exit(1);
         }
         ;
 
@@ -2776,38 +2994,73 @@ PostfixAbstractDeclarator: /** nomerge **/
 Statement:  /** passthrough, complete **/
         LabeledStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | CompoundStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | ExpressionStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | SelectionStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | IterationStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | JumpStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | AssemblyStatement  // ADDED
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         ;
 
@@ -2815,22 +3068,26 @@ LabeledStatement:  /** complete **/  // ADDED attributes
         IdentifierOrTypedefName COLON AttributeSpecifierListOpt Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: LabeledStatement");
+          System.exit(1);
         }
         | CASE ConstantExpression COLON Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: LabeledStatement");
+          System.exit(1);
         }
         | CASE ConstantExpression ELLIPSIS ConstantExpression COLON Statement  // ADDED case range
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: LabeledStatement");
+          System.exit(1);
         }
         | DEFAULT COLON Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: LabeledStatement");
+          System.exit(1);
         }
         ;
 
@@ -2842,42 +3099,51 @@ LabeledStatement:  /** complete **/  // ADDED attributes
         ;*/
 
 CompoundStatement:  /** complete **/  /* ADDED */
-        LBRACE
+        LBRACE { EnterScope(subparser); } LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
-          EnterScope(subparser);
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
-        }
-        LocalLabelDeclarationListOpt DeclarationOrStatementList
-        {
-          ExitScope(subparser);
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
-        }
-        RBRACE
-        {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 6), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
 LocalLabelDeclarationListOpt: /** complete **/
         /* empty */
+        {
+          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
+          result.add(new StringBuilder(""), subparser.getPresenceCondition());
+          setTFValue(value, result);
+        }
         | LocalLabelDeclarationList
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         ;
 
 LocalLabelDeclarationList:  /** list, complete **/
         LocalLabelDeclaration
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | LocalLabelDeclarationList LocalLabelDeclaration
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -2885,7 +3151,8 @@ LocalLabelDeclaration: /** complete **/  /* ADDED */
         __LABEL__ LocalLabelList SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: LocalLabelDeclaration");
+          System.exit(1);
         }
         ;
 
@@ -2893,51 +3160,85 @@ LocalLabelList:  /** list, complete **/  // ADDED
         IDENTIFIER
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: LocalLabelList");
+          System.exit(1);
         }
         | LocalLabelList COMMA IDENTIFIER
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: LocalLabelList");
+          System.exit(1);
         }
         ;
 
 DeclarationOrStatementList:  /** list, complete **/  /* ADDED */
+        /* empty */
+        {
+          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
+          result.add(new StringBuilder(""), subparser.getPresenceCondition());
+          setTFValue(value, result);
+        }
         | DeclarationOrStatementList DeclarationOrStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Node list = getNodeAt(subparser, 2);
+          Node elem = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, list, elem);
+          setTFValue(value, product);
         }
         ;
 
 DeclarationOrStatement: /** passthrough, complete **/  /* ADDED */
         DeclarationExtension
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | NestedFunctionDefinition
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         ;
 
 DeclarationList:  /** list, complete **/
         DeclarationExtension
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | DeclarationList DeclarationExtension
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -2950,7 +3251,29 @@ ExpressionStatement:  /** complete **/
         ExpressionOpt SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          addStatementIf(2, subparser, value);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+
+      	  Multiverse<Node> condChildren = getAllNodeConfigs(getNodeAt(subparser, 2), subparser.getPresenceCondition());
+
+      	  /** Iterates through all configurations of the child node */
+      	  for (Multiverse.Element<Node> configNode : condChildren) {
+      	    Multiverse<StringBuilder> statements = getSBMV(configNode.getData());
+      	    StringBuilder sb = new StringBuilder();
+
+      	    /** Iterates through all configurations of the stringbuilder stored in the child node */
+      	    for (Multiverse.Element<StringBuilder> statement : statements) {
+      	      sb.append("\nif (" +
+      			PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
+      			") {\n" + statement.getData().toString() + ";\n}\n");
+      	      /**
+      	       * NOTE: When writing the "if (PC)",
+      	       * we AND the child node's PC with each stored stringbuilder PC, and
+      	       * add that to the resultant SBMV.
+      	       */
+      	    }
+      	    sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+      	  }
+          setTFValue(value, sbmv);
         }
         ;
 
@@ -2958,17 +3281,20 @@ SelectionStatement:  /** complete **/
         IF LPAREN Expression RPAREN Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: SelectionStatement");
+          System.exit(1);
         }
         | IF LPAREN Expression RPAREN Statement ELSE Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: SelectionStatement");
+          System.exit(1);
         }
         | SWITCH LPAREN Expression RPAREN Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: SelectionStatement");
+          System.exit(1);
         }
         ;
 
@@ -2976,18 +3302,21 @@ IterationStatement:  /** complete **/
         WHILE LPAREN Expression RPAREN Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: IterationStatement");
+          System.exit(1);
         }
         | DO Statement WHILE LPAREN Expression RPAREN SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: IterationStatement");
+          System.exit(1);
         }
         | FOR LPAREN ExpressionOpt SEMICOLON ExpressionOpt SEMICOLON
                 ExpressionOpt RPAREN Statement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: IterationStatement");
+          System.exit(1);
         }
         ;
 
@@ -2995,22 +3324,25 @@ JumpStatement:  /** passthrough, complete **/
         GotoStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: JumpStatement");
+          System.exit(1);
         }
         | ContinueStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: JumpStatement");
+          System.exit(1);
         }
         | BreakStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: JumpStatement");
+          System.exit(1);
         }
         | ReturnStatement
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: JumpStatement");
         }
         ;
 
@@ -3018,12 +3350,14 @@ GotoStatement:  /** complete **/
         GOTO IdentifierOrTypedefName SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: GotoStatement");
+          System.exit(1);
         }
         | GOTO STAR Expression SEMICOLON  // ADDED
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: GotoStatement");
+          System.exit(1);
         }
         ;
 
@@ -3031,7 +3365,8 @@ ContinueStatement:  /** complete **/
         CONTINUE SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ContinueStatement");
+          System.exit(1);
         }
         ;
 
@@ -3039,15 +3374,25 @@ BreakStatement:  /** complete **/
         BREAK SEMICOLON
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: BreakStatement");
+          System.exit(1);
         }
         ;
 
 ReturnStatement:  /** complete **/
         RETURN ExpressionOpt SEMICOLON
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          // TODO: there's no need to hard-code the tokens's text below.  just use the RETURN and SEMICOLON's values
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
+          temp.add(new StringBuilder("return "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
+          Multiverse<StringBuilder> result = cartesianProductWithChild(temp, getNodeAt(subparser, 2), pc);
+          temp.destruct();
+          temp = result.product(new StringBuilder("; "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          result.destruct();
+          result = temp;
+          setTFValue(value, result);
         }
         ;
 
@@ -3061,7 +3406,7 @@ Constant: /** passthrough, nomerge **/
           sb.append(((Node)value).getTokenText());
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | INTEGERconstant
         {
@@ -3069,7 +3414,7 @@ Constant: /** passthrough, nomerge **/
           sb.append(((Node)value).getTokenText());
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         /* We are not including ENUMERATIONConstant here  because  we
         are  treating  it like a variable with a type of "enumeration
@@ -3080,7 +3425,7 @@ Constant: /** passthrough, nomerge **/
           sb.append(((Node)value).getTokenText());
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | HEXconstant
         {
@@ -3088,7 +3433,7 @@ Constant: /** passthrough, nomerge **/
           sb.append(((Node)value).getTokenText());
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | CHARACTERconstant
         {
@@ -3096,7 +3441,7 @@ Constant: /** passthrough, nomerge **/
           sb.append(((Node)value).getTokenText());
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         ;
 
@@ -3104,11 +3449,13 @@ Constant: /** passthrough, nomerge **/
 StringLiteralList:  /** list, nomerge **/
                 STRINGliteral
                 {
-                  System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+                  System.err.println("WARNING: unsupported semantic action: StringLiteralList");
+                  System.exit(1);
                 }
                 | StringLiteralList STRINGliteral
                 {
-                  System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+                  System.err.println("WARNING: unsupported semantic action: StringLiteralList");
+                  System.exit(1);
                 }
                 ;
 
@@ -3117,27 +3464,42 @@ StringLiteralList:  /** list, nomerge **/
 PrimaryExpression:  /** nomerge, passthrough **/
         PrimaryIdentifier
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | Constant
         {
-          getAndSetSBMVCond(1, subparser, value);
+          // TODO: since you are always creating a new empty multiverse, you could factor that out into cartesianProductWithChild so it has to deal with destructing sbmv
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | StringLiteralList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: PrimaryExpression");
+          System.exit(1);
         }
         | LPAREN Expression RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: PrimaryExpression");
+          System.exit(1);
         }
         | StatementAsExpression  // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: PrimaryExpression");
+          System.exit(1);
         }
         | VariableArgumentAccess  // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: PrimaryExpression");
+          System.exit(1);
         }
         ;
 
@@ -3152,7 +3514,6 @@ PrimaryIdentifier: /** nomerge **/
 
 
           CContext scope = (CContext) subparser.scope;
-          /* Multiverse<StringBuilder> sbmv = universeToSB(scope.getMappings(sb.toString())); */
 
           // get the renamings from the symtab
           PresenceCondition cond = subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true);
@@ -3160,85 +3521,121 @@ PrimaryIdentifier: /** nomerge **/
           cond.delRef();
 
           // convert the renamings to stringbuilders
-          Multiverse<StringBuilder> sbmv = universeToSB(entries);
+          Multiverse<StringBuilder> sbmv = entryToStringBuilder.transform(entries);
           entries.destruct();
 
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }  /* We cannot use a typedef name as a variable */
         ;
 
 VariableArgumentAccess:  /** nomerge **/  // ADDED
         __BUILTIN_VA_ARG LPAREN AssignmentExpression COMMA TypeName RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: VariableArgumentAccess");
+          System.exit(1);
         }
         ;
 
 StatementAsExpression:  /** nomerge **/  //ADDED
         LPAREN { EnterScope(subparser); } CompoundStatement { ExitScope(subparser); } RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: StatementAsExpression");
+          System.exit(1);
         }
         ;
 
 PostfixExpression:  /** passthrough, nomerge **/
         PrimaryExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | Subscript
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | FunctionCall
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: PostfixExpression");
+          System.exit(1);
         }
         | DirectSelection
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: PostfixExpression");
+          System.exit(1);
         }
         | IndirectSelection
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: PostfixExpression");
+          System.exit(1);
         }
         | Increment
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | Decrement
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | CompoundLiteral  /* ADDED */
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: PostfixExpression");
+          System.exit(1);
         }
         ;
 
 Subscript:  /** nomerge **/
         PostfixExpression LBRACK Expression RBRACK
         {
-          {
-            Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-            sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 4));
-            sbmv = sbmv.product(new StringBuilder(" [ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-            sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
-            sbmv = sbmv.product(new StringBuilder(" ] "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-            setSBMV(value, sbmv);
-          }
+          // TODO: let's figure out a way to allow child nodes that are tokens as well in the cartesian product method.  that will make actions like these simpler to write
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<StringBuilder> temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 4), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" [ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 2), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" ] "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          setTFValue(value, sbmv);
         }
         ;
 
 FunctionCall:  /** nomerge **/
         PostfixExpression LPAREN RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: FunctionCall");
+          System.exit(1);
           callFunction(subparser, getNodeAt(subparser, 3), null);
         }
         | PostfixExpression LPAREN ExpressionList RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: FunctionCall");
+          System.exit(1);
           callFunction(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 2));
         }
         ;
@@ -3246,14 +3643,16 @@ FunctionCall:  /** nomerge **/
 DirectSelection:  /** nomerge **/
         PostfixExpression DOT IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: DirectSelection");
+          System.exit(1);
         }
         ;
 
 IndirectSelection:  /** nomerge **/
         PostfixExpression ARROW IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: IndirectSelection");
+          System.exit(1);
         }
         ;
 
@@ -3261,9 +3660,14 @@ Increment:  /** nomerge **/
         PostfixExpression ICR
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
-          sbmv = sbmv.product(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          setSBMV(value, sbmv);
+          Multiverse<StringBuilder> temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 2), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          setTFValue(value, sbmv);
         }
         ;
 
@@ -3271,130 +3675,167 @@ Decrement:  /** nomerge **/
         PostfixExpression DECR
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 2));
-          sbmv = sbmv.product(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          setSBMV(value, sbmv);
+          Multiverse<StringBuilder> temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 2), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          setTFValue(value, sbmv);
         }
         ;
 
 CompoundLiteral:  /** nomerge **/  /* ADDED */
         LPAREN TypeName RPAREN LBRACE InitializerList RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: CompoundLiteral");
+          System.exit(1);
         }
         ;
 
 ExpressionList:  /** list, nomerge **/
         AssignmentExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ExpressionList");
+          System.exit(1);
         }
         | ExpressionList COMMA AssignmentExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ExpressionList");
+          System.exit(1);
         }
         ;
 
 UnaryExpression:  /** passthrough, nomerge **/
         PostfixExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | ICR UnaryExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<StringBuilder> temp;
           sbmv.add(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          setSBMV(value, sbmv);
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          setTFValue(value, sbmv);
         }
         | DECR UnaryExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<StringBuilder> temp;
           sbmv.add(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          setSBMV(value, sbmv);
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          setTFValue(value, sbmv);
         }
         | Unaryoperator CastExpression
         {
-          getAndSetSBMVCond(2, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | SIZEOF UnaryExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnaryExpression");
+          System.exit(1);
         }
         | SIZEOF LPAREN TypeName RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnaryExpression");
+          System.exit(1);
         }
         | LabelAddressExpression  // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnaryExpression");
+          System.exit(1);
         }
         | AlignofExpression // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnaryExpression");
+          System.exit(1);
         }
         | ExtensionExpression // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnaryExpression");
+          System.exit(1);
         }
         | OffsetofExpression // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnaryExpression");
+          System.exit(1);
         }
         | TypeCompatibilityExpression  // ADEED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: UnaryExpression");
+          System.exit(1);
         }
         ;
 
 TypeCompatibilityExpression:  /** nomerge **/
         __BUILTIN_TYPES_COMPATIBLE_P LPAREN TypeName COMMA TypeName RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: TypeCompatibilityExpression");
+          System.exit(1);
         }
         ;
 
 OffsetofExpression:  /** nomerge **/
         __BUILTIN_OFFSETOF LPAREN TypeName COMMA PostfixExpression RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: OffsetofExpression");
+          System.exit(1);
         }
         ;
 
 ExtensionExpression:  /** nomerge **/
         __EXTENSION__ CastExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ExtensionExpression");
+          System.exit(1);
         }
         ;
 
 AlignofExpression:  /** nomerge **/
         Alignofkeyword LPAREN TypeName RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AlignofExpression");
+          System.exit(1);
         }
         | Alignofkeyword UnaryExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AlignofExpression");
+          System.exit(1);
         }
         ;
 
 Alignofkeyword:
         __ALIGNOF__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Alignofkeyword");
+          System.exit(1);
         }
         | __ALIGNOF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Alignofkeyword");
+          System.exit(1);
         }
         ;
 
 LabelAddressExpression:  /** nomerge  **/  // ADDED
         ANDAND IDENTIFIER
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: LabelAddressExpression");
+          System.exit(1);
         }
         ;
 
@@ -3403,228 +3844,353 @@ Unaryoperator:
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Multiverse.Element<StringBuilder>(new StringBuilder(" & "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | STAR
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Unaryoperator");
+          System.exit(1);
         }
         | PLUS
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Unaryoperator");
+          System.exit(1);
         }
         | MINUS
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Unaryoperator");
+          System.exit(1);
         }
         | NEGATE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Unaryoperator");
+          System.exit(1);
         }
         | NOT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Unaryoperator");
+          System.exit(1);
         }
         ;
 
 CastExpression:  /** passthrough, nomerge **/
         UnaryExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | LPAREN TypeName RPAREN CastExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: CastExpression");
+          System.exit(1);
         }
         ;
 
 MultiplicativeExpression:  /** passthrough, nomerge **/
         CastExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | MultiplicativeExpression STAR CastExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          sbmv = sbmv.product(new StringBuilder(" * "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          setSBMV(value, sbmv);
+          Multiverse<StringBuilder> temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" * "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          setTFValue(value, sbmv);
         }
         | MultiplicativeExpression DIV CastExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          sbmv = sbmv.product(new StringBuilder(" / "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          setSBMV(value, sbmv);
+          Multiverse<StringBuilder> temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" / "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          setTFValue(value, sbmv);
         }
         | MultiplicativeExpression MOD CastExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          sbmv = sbmv.product(new StringBuilder(" % "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          setSBMV(value, sbmv);
+          Multiverse<StringBuilder> temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" % "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          setTFValue(value, sbmv);
         }
         ;
 
 AdditiveExpression:  /** passthrough, nomerge **/
         MultiplicativeExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | AdditiveExpression PLUS MultiplicativeExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          sbmv = sbmv.product(new StringBuilder(" + "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          setSBMV(value, sbmv);
+          Multiverse<StringBuilder> temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" + "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          setTFValue(value, sbmv);
         }
         | AdditiveExpression MINUS MultiplicativeExpression
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 3));
-          sbmv = sbmv.product(new StringBuilder(" - "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv = cartesianProduct(sbmv, getSBMVAt(subparser, 1));
-          setSBMV(value, sbmv);
+          Multiverse<StringBuilder> temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          temp = sbmv.product(new StringBuilder(" - "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          sbmv.destruct();
+          sbmv = temp;
+          setTFValue(value, sbmv);
         }
         ;
 
 ShiftExpression:  /** passthrough, nomerge **/
         AdditiveExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          // TODO: don't forget to add a reference whenever you use a presence condition.  this applies to all semantic actions that do this
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | ShiftExpression LS AdditiveExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ShiftExpression");
+          System.exit(1);
         }
         | ShiftExpression RS AdditiveExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ShiftExpression");
+          System.exit(1);
         }
         ;
 
 RelationalExpression:  /** passthrough, nomerge **/
         ShiftExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | RelationalExpression LT ShiftExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: RelationalExpression");
+          System.exit(1);
         }
         | RelationalExpression GT ShiftExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: RelationalExpression");
+          System.exit(1);
         }
         | RelationalExpression LE ShiftExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: RelationalExpression");
+          System.exit(1);
         }
         | RelationalExpression GE ShiftExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: RelationalExpression");
+          System.exit(1);
         }
         ;
 
 EqualityExpression:  /** passthrough, nomerge **/
         RelationalExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | EqualityExpression EQ RelationalExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: EqualityExpression");
+          System.exit(1);
         }
         | EqualityExpression NE RelationalExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: EqualityExpression");
+          System.exit(1);
         }
         ;
 
 AndExpression:  /** passthrough, nomerge **/
         EqualityExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | AndExpression AND EqualityExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AndExpression");
+          System.exit(1);
         }
         ;
 
 ExclusiveOrExpression:  /** passthrough, nomerge **/
         AndExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | ExclusiveOrExpression XOR AndExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ExclusiveOrExpression");
+          System.exit(1);
         }
         ;
 
 InclusiveOrExpression:  /** passthrough, nomerge **/
         ExclusiveOrExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | InclusiveOrExpression PIPE ExclusiveOrExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: InclusiveOrExpression");
+          System.exit(1);
         }
         ;
 
 LogicalAndExpression:  /** passthrough, nomerge **/
         InclusiveOrExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | LogicalAndExpression ANDAND InclusiveOrExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: LogicalAndExpression");
+          System.exit(1);
         }
         ;
 
 LogicalORExpression:  /** passthrough, nomerge **/
         LogicalAndExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | LogicalORExpression OROR LogicalAndExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: LogicalORExpression");
+          System.exit(1);
         }
         ;
 
 ConditionalExpression:  /** passthrough, nomerge **/
         LogicalORExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | LogicalORExpression QUESTION Expression COLON
                 ConditionalExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ConditionalExpression");
+          System.exit(1);
         }
         | LogicalORExpression QUESTION COLON  // ADDED gcc innomerge conditional
                 ConditionalExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: ConditionalExpression");
+          System.exit(1);
         }
         ;
 
 AssignmentExpression:  /** passthrough, nomerge **/
         ConditionalExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | UnaryExpression AssignmentOperator AssignmentExpression
         {
-          getAndSetSBMVCond(3, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -3635,7 +4201,7 @@ AssignmentOperator: /** nomerge **/
           sb.append(" = ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | MULTassign
         {
@@ -3643,7 +4209,7 @@ AssignmentOperator: /** nomerge **/
           sb.append(" *= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | DIVassign
         {
@@ -3651,7 +4217,7 @@ AssignmentOperator: /** nomerge **/
           sb.append(" /= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | MODassign
         {
@@ -3659,7 +4225,7 @@ AssignmentOperator: /** nomerge **/
           sb.append(" %= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | PLUSassign
         {
@@ -3667,7 +4233,7 @@ AssignmentOperator: /** nomerge **/
           sb.append(" += ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | MINUSassign
         {
@@ -3675,15 +4241,17 @@ AssignmentOperator: /** nomerge **/
           sb.append(" -= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | LSassign
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AssignmentOperator");
+          System.exit(1);
         }
         | RSassign
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AssignmentOperator");
+          System.exit(1);
         }
         | ANDassign
         {
@@ -3691,11 +4259,12 @@ AssignmentOperator: /** nomerge **/
           sb.append(" &= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         | ERassign
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AssignmentOperator");
+          System.exit(1);
         }
         | ORassign
         {
@@ -3703,7 +4272,7 @@ AssignmentOperator: /** nomerge **/
           sb.append(" |= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setSBMV(value, sbmv);
+          setTFValue(value, sbmv);
         }
         ;
 
@@ -3711,360 +4280,463 @@ ExpressionOpt:  /** passthrough, nomerge **/
         /* Nothing */
         | Expression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         ;
 
 Expression:  /** passthrough, nomerge **/
         AssignmentExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
         | Expression COMMA AssignmentExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Expression");
+          System.exit(1);
         }
         ;
 
 ConstantExpression: /** passthrough, nomerge **/
         ConditionalExpression
         {
-          getAndSetSBMVCond(1, subparser, value);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = cartesianProductWithChild(sbmv, child, pc);
+          sbmv.destruct();
+          setTFValue(value, product);
         }
 	      ;
 
 AttributeSpecifierListOpt: /** nomerge **/  // ADDED
         /* empty */
+        {
+          System.err.println("WARNING: unsupported semantic action: AttributeSpecifierListOpt");
+        }
         | AttributeSpecifierList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AttributeSpecifierListOpt");
+          System.exit(1);
         }
         ;
 
 AttributeSpecifierList:  /** list, nomerge **/  // ADDED
         AttributeSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AttributeSpecifierList");
+          System.exit(1);
         }
         | AttributeSpecifierList AttributeSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AttributeSpecifierList");
+          System.exit(1);
         }
         ;
 
 AttributeSpecifier: /** nomerge **/  // ADDED
         AttributeKeyword LPAREN LPAREN AttributeListOpt RPAREN RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AttributeSpecifier");
+          System.exit(1);
         }
         ;
 
 AttributeKeyword:   // ADDED
         __ATTRIBUTE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AttributeKeyword");
+          System.exit(1);
         }
         | __ATTRIBUTE__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AttributeKeyword");
+          System.exit(1);
         }
         ;
 
 AttributeListOpt:   // ADDED
         /* empty */
+        {
+          System.err.println("WARNING: unsupported semantic action: AttributeListOpt");
+        }
         | AttributeList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AttributeListOpt");
+          System.exit(1);
         }
         ;
 
 AttributeList:  /** list, nomerge **/  // ADDED
         Word AttributeExpressionOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AttributeList");
+          System.exit(1);
         }
         | AttributeList COMMA Word AttributeExpressionOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AttributeList");
+          System.exit(1);
         }
         ;
 
 AttributeExpressionOpt:   // ADDED
         /* empty */
+        {
+          System.err.println("WARNING: unsupported semantic action: AttributeExpressionOpt");
+        }
         | LPAREN RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AttributeExpressionOpt");
+          System.exit(1);
         }
         | LPAREN ExpressionList RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AttributeExpressionOpt");
+          System.exit(1);
         }
         ;
 
 Word:  // ADDED
         IDENTIFIER
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | AUTO
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | DOUBLE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | INT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | STRUCT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | BREAK
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | ELSE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | LONG
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | SWITCH
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | CASE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | ENUM
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | REGISTER
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | TYPEDEF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | CHAR
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | EXTERN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | RETURN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
+          result.add(new StringBuilder("return "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
+          setTFValue(value, result);
         }
         | UNION
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | CONST
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | FLOAT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | SHORT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | UNSIGNED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | CONTINUE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | FOR
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | SIGNED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | VOID
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | DEFAULT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | GOTO
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | SIZEOF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | VOLATILE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | DO
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | IF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | STATIC
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | WHILE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | ASMSYM
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | _BOOL
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | _COMPLEX
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | RESTRICT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __ALIGNOF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __ALIGNOF__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | ASM
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __ASM
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __ASM__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __ATTRIBUTE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __ATTRIBUTE__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __BUILTIN_OFFSETOF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __BUILTIN_TYPES_COMPATIBLE_P
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __BUILTIN_VA_ARG
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __BUILTIN_VA_LIST
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __COMPLEX__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __CONST
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __CONST__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __EXTENSION__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | INLINE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __INLINE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __INLINE__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __LABEL__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __RESTRICT
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __RESTRICT__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __SIGNED
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __SIGNED__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __THREAD
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | TYPEOF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __TYPEOF
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __TYPEOF__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __VOLATILE
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         | __VOLATILE__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Word");
+          System.exit(1);
         }
         ;
 
@@ -4073,22 +4745,28 @@ Word:  // ADDED
 AssemblyDefinition:  /** nomerge **/
         AssemblyExpression SEMICOLON
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AssemblyDefinition");
+          System.exit(1);
         }
         ;
 
 AssemblyExpression:  /** nomerge **/
         AsmKeyword LPAREN StringLiteralList RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AssemblyExpression");
+          System.exit(1);
         }
         ;
 
 AssemblyExpressionOpt:  /** nomerge **/
         /* empty */
+        {
+          System.err.println("WARNING: unsupported semantic action: AssemblyExpressionOpt");
+        }
         | AssemblyExpression
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AssemblyExpressionOpt");
+          System.exit(1);
         }
         ;
 
@@ -4096,116 +4774,143 @@ AssemblyStatement:   /** nomerge **/ // ADDED
         AsmKeyword LPAREN Assemblyargument RPAREN SEMICOLON
         /* gcc>=4.5 */
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AssemblyStatement");
+          System.exit(1);
         }
         | AsmKeyword GOTO LPAREN AssemblyGotoargument RPAREN SEMICOLON
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AssemblyStatement");
+          System.exit(1);
         }
         | AsmKeyword TypeQualifier LPAREN Assemblyargument RPAREN SEMICOLON
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AssemblyStatement");
+          System.exit(1);
         }
         ;
 
 Assemblyargument:  /** nomerge **/  // ADDED
         StringLiteralList COLON AssemblyoperandsOpt COLON AssemblyoperandsOpt COLON Assemblyclobbers
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Assemblyargument");
+          System.exit(1);
         }
         | StringLiteralList COLON AssemblyoperandsOpt COLON AssemblyoperandsOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Assemblyargument");
+          System.exit(1);
         }
         | StringLiteralList COLON AssemblyoperandsOpt
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Assemblyargument");
+          System.exit(1);
         }
         | StringLiteralList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Assemblyargument");
+          System.exit(1);
         }
         ;
 
 AssemblyoperandsOpt:  /** nomerge **/  // ADDED
         /* empty */
+        {
+          System.err.println("WARNING: unsupported semantic action: AssemblyoperandsOpt");
+        }
         | Assemblyoperands
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AssemblyoperandsOpt");
+          System.exit(1);
         }
         ;
 
 Assemblyoperands:  /** list, nomerge **/  // ADDED
         Assemblyoperand
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Assemblyoperands");
+          System.exit(1);
         }
         | Assemblyoperands COMMA Assemblyoperand
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Assemblyoperands");
+          System.exit(1);
         }
         ;
 
 Assemblyoperand:  /** nomerge **/  // ADDED
                              StringLiteralList LPAREN Expression RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Assemblyoperand");
+          System.exit(1);
         }
         | LBRACK Word RBRACK StringLiteralList LPAREN Expression RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Assemblyoperand");
+          System.exit(1);
         }
         ;
 
 AssemblyclobbersOpt:  /** nomerge **/ // ADDED
         /* empty */
+        {
+          System.err.println("WARNING: unsupported semantic action: AssemblyclobbersOpt");
+        }
         | Assemblyclobbers
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AssemblyclobbersOpt");
+          System.exit(1);
         }
         ;
 
 Assemblyclobbers:  /** nomerge **/  // ADDED
         StringLiteralList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Assemblyclobbers");
+          System.exit(1);
         }
         | Assemblyclobbers COMMA StringLiteralList
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: Assemblyclobbers");
+          System.exit(1);
         }
         ;
 
 AssemblyGotoargument:  /** nomerge **/ // ADDED
         StringLiteralList COLON AssemblyoperandsOpt COLON AssemblyoperandsOpt COLON AssemblyclobbersOpt COLON AssemblyJumpLabels
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AssemblyGotoargument");
+          System.exit(1);
         }
         ;
 
 AssemblyJumpLabels:  /** nomerge **/ // ADDED
         Identifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AssemblyJumpLabels");
+          System.exit(1);
         }
         | AssemblyJumpLabels COMMA Identifier
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AssemblyJumpLabels");
+          System.exit(1);
         }
         ;
 
 AsmKeyword:   // ADDED
         ASM
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AsmKeyword");
+          System.exit(1);
         }
         | __ASM
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AsmKeyword");
+          System.exit(1);
         }
         | __ASM__
         {
-          System.err.println("WARNING: unsupported semantic action: " + (value != null ? ((Node) value).getName() : "null"));
+          System.err.println("WARNING: unsupported semantic action: AsmKeyword");
+          System.exit(1);
         }
         ;
 
@@ -4215,72 +4920,47 @@ AsmKeyword:   // ADDED
 // resulting parser, specifically the CActions.java class
 
 
-// TUTORIAL: this function just annotates a semantic value with a typebuilder
-private void setTypeBuilder(Object value, TypeBuilderMultiverse tb) {
-  // value should be not null and should be a Node type
-  setTypeBuilder((Node) value, tb);
-}
-
-// TUTORIAL: these functions retrieve a type builder from the semantic value
-private void setTypeBuilder(Node value, TypeBuilderMultiverse tb) {
-  // value should be not null and should be a Node type
-  value.setProperty(TYPEBUILDER, tb);
-}
-
-private TypeBuilderMultiverse getTypeBuilderAt(Subparser subparser, int component) {
-  // value should be not null and should be a Node type
-  return (TypeBuilderMultiverse) getNodeAt(subparser, component).getProperty(TYPEBUILDER);
-}
-
 /**
    This is just a constant string name for a property used to assign
    semantic values that are type builders.
  */
-private static final String TYPEBUILDER = "xtc.lang.cpp.TypeBuilderMultiverse";
-private static final String PARAMETER = "xtc.lang.cpp.Parameter";
-private static final String DECLBUILDER = "xtc.lang.cpp.DeclBuilder";
 private static final String STRING = "xtc.String";
-private static final String SBMV = "xtc.lang.cpp.Multiverse<StringBuilder>";
+private static final String TRANSFORMATION = "transformation";
 
-
-// TUTORIAL: this function just annotates a semantic value with a typebuilder
-private void setDeclBuilder(Object value, DeclBuilder db) {
-  // value should be not null and should be a Node type
-  setDeclBuilder((Node) value, db);
+private void setTFValue(Object node, Object value) {
+  ((Node)node).setProperty(TRANSFORMATION, value);
 }
 
-// TUTORIAL: these functions retrieve a type builder from the semantic value
-private void setDeclBuilder(Node value, DeclBuilder db) {
-  // value should be not null and should be a Node type
-  value.setProperty(DECLBUILDER, db);
+private Multiverse<StringBuilder> getSBMV(Object node) {
+  return (Multiverse<StringBuilder>)((Node)node).getProperty(TRANSFORMATION);
 }
 
-private DeclBuilder getDeclBuilderAt(Subparser subparser, int component) {
+private Multiverse<StringBuilder> getSBMVAt(Subparser subparser, int component) {
   // value should be not null and should be a Node type
-  return (DeclBuilder) getNodeAt(subparser, component).getProperty(DECLBUILDER);
+  return (Multiverse<StringBuilder>) getNodeAt(subparser, component).getProperty(TRANSFORMATION);
 }
 
-private void setParameter(Object value, Parameter p) {
-  // value should be not null and should be a Node type
-  List<Parameter> ps = new LinkedList<Parameter>();
-  ps.add(p);
-  setParameter((Node) value, ps);
+private TypeBuilderMultiverse getTB(Object node) {
+  return (TypeBuilderMultiverse)((Node)node).getProperty(TRANSFORMATION);
 }
 
-private void setParameter(Object value, List<Parameter> p) {
+private TypeBuilderMultiverse getTBAt(Subparser subparser, int component) {
   // value should be not null and should be a Node type
-  setParameter((Node) value, p);
+  return (TypeBuilderMultiverse) getNodeAt(subparser, component).getProperty(TRANSFORMATION);
 }
 
-// TUTORIAL: these functions retrieve a type builder from the semantic value
-private void setParameter(Node value, List<Parameter> p) {
-  // value should be not null and should be a Node type
-  value.setProperty(PARAMETER, p);
+private DeclBuilder getDB(Object node) {
+  return (DeclBuilder)((Node)node).getProperty(TRANSFORMATION);
 }
 
-private List<Parameter> getParameterAt(Subparser subparser, int component) {
+private DeclBuilder getDBAt(Subparser subparser, int component) {
   // value should be not null and should be a Node type
-  return (List<Parameter>) getNodeAt(subparser, component).getProperty(PARAMETER);
+  return (DeclBuilder) getNodeAt(subparser, component).getProperty(TRANSFORMATION);
+}
+
+private List<Parameter> getParamAt(Subparser subparser, int component) {
+  // value should be not null and should be a Node type
+  return (List<Parameter>) getNodeAt(subparser, component).getProperty(TRANSFORMATION);
 }
 
 private void setCPC(Object value, String CPC) {
@@ -4301,93 +4981,74 @@ private String getCPC(Node n) {
   return (String) n.getProperty("C_PC");
 }
 
-private void setSBMV(Object value, Multiverse<StringBuilder> sbmv) {
-  // value should be not null and should be a Node type
-  setSBMV((Node) value, sbmv);
-}
-
-private void setSBMV(Node value, Multiverse<StringBuilder> sbmv) {
-  // value should be not null and should be a Node type
-  value.setProperty(SBMV, sbmv);
-}
-
-private Multiverse<StringBuilder> getSBMVAt(Subparser subparser, int component) {
-  Node n = getNodeAt(subparser, component);
-  if (n == null)
-    return null;
-  return (Multiverse<StringBuilder>) n.getProperty(SBMV);
-}
-
-private Multiverse<StringBuilder> getSBMV(Node n) {
-  return (Multiverse<StringBuilder>) n.getProperty(SBMV);
+// TODO: javadoc
+// TODO: make note about how the numbers must be passed-in in the order that you want them concatenated.
+private Multiverse<StringBuilder> getProductOfSomeChildren(PresenceCondition pc, Node...children) {
+  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+  Multiverse<StringBuilder> temp;
+  for (Node child : children) {
+    temp = cartesianProductWithChild(sbmv, child, pc);
+    sbmv.destruct();
+    sbmv = temp;
+  }
+  return sbmv;
 }
 
 /**
- * Gets the SBMVs from a node's (direct) children if there are no static conditionals between them.
- * Otherwise, the static choice nodes are traversed, until the children are reached.
- * The cartesian product is taken of all SBMVs of the children, and that is set at this node.
- *
- * @param numChildren The number of children of the node.
- * @param subparser The subparser.
- * @param value The current node.
+ * All configurations of this node are then returned in a multiverse.
+ * Traverses all nested static choice nodes until non-static choice nodes are reached.
+ * @param node The node to get the configurations of.
+ * @param presenceCondition The presence condition associated with node.
+ * @return A multiverse containing all configurations of the passed-in node.
  */
-private void getAndSetSBMVCond(int numChildren, Subparser subparser, Object value)
-{
-  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-  for (int i = numChildren; i >= 1; i--)
-  {
-    Multiverse<Node> children = getNodeMultiverse(getNodeAt(subparser, i), subparser.getPresenceCondition().presenceConditionManager());
-    /**
-     * iterates through every pair of (Node, PresenceCondition)
-     * and generates all combinations of the childrens' SBMVs
-     */
-    Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
-    for (Multiverse.Element<Node> child : children) {
-      if (child.getData() != null)
-        temp = getSBMV(child.getData());
-      if (temp != null)
-        sbmv = cartesianProduct(sbmv, temp);
+Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition presenceCondition) {
+  Multiverse<Node> allConfigs = new Multiverse<Node>();
+
+  if (node instanceof GNode && ((GNode) node).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
+    PresenceCondition pc = null;
+    for (Object child : node) {
+
+      if (child instanceof PresenceCondition) {
+        pc = (PresenceCondition)child;
+      } else if (child instanceof Node) {
+        // assumes that all static choice nodes are mutually exclusive
+        Multiverse<Node> someChildren = getAllNodeConfigs((Node)child, pc);
+        allConfigs.addAll(someChildren);
+        someChildren.destruct();
+      } else {
+        System.err.println("unsupported AST child type in getNodeMultiverse");
+        System.exit(1);
+      }
     }
+
+  } else {
+    // assumes that if it isn't a static choice node, then it must be a "normal" node
+    allConfigs.add(node, presenceCondition);
   }
-  setSBMV(value, sbmv);
+  // TODO: manage memory
+  return allConfigs;
 }
 
 /**
- * All configurations of "if (PC) { <child SBMV> }" are generated,
- * where the child SBMV stores a configurable statement.
- * This new SBMV is set at the current node, with presence condition TRUE.
- * The TRUE presence condition is used because the generated code should always
- * be written.
- *
- * @param statPos The position of the statement (as a child) of the current node.
- * @param subparser The subparser.
- * @param value The current node.
+ * Takes the cartesian product of the current node's SBMV with one of its children SBMVs.
+ * @param sbmv A multiverse that possibly contains the configurations of child's siblings.
+ * @param child The child of the current node.
+ * @param presenceCondition The presence condition associated with the current node.
+ * @return A multiverse containing all configurations of the passed-in node.
  */
-void addStatementIf(int statPos, Subparser subparser, Object value) {
-  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-
-  // NOTE: this assumes that there is at most one static choice node between the current node and its children.
-  Multiverse<Node> condChildren = getNodeMultiverse(getNodeAt(subparser, statPos), subparser.getPresenceCondition().presenceConditionManager());
-
-  /** Iterates through all configurations of the child node */
-  for (Multiverse.Element<Node> configNode : condChildren) {
-    Multiverse<StringBuilder> statements = getSBMV(configNode.getData());
-    StringBuilder sb = new StringBuilder();
-
-    /** Iterates through all configurations of the stringbuilder stored in the child node */
-    for (Multiverse.Element<StringBuilder> statement : statements) {
-      sb.append("\nif (" +
-                PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
-                ") {\n" + statement.getData().toString() + ";\n}\n");
-      /**
-       * NOTE: When writing the "if (PC)",
-       * we AND the child node's PC with each stored stringbuilder PC, and
-       * add that to the resultant SBMV.
-       */
-    }
-    sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringBuilder> sbmv, Node child, PresenceCondition presenceCondition) {
+  sbmv = new Multiverse<StringBuilder>(sbmv); // copies the passed-in sbmv because the caller destructs it.
+  // getAllNodeConfigs traverses all nested static choice nodes until they reach a regular node
+  // and then gets all configurations of that node
+  Multiverse<Node> allConfigs = getAllNodeConfigs(child, presenceCondition);
+  for (Multiverse.Element<Node> childNode : allConfigs) {
+    Multiverse<StringBuilder> childSBMV = getSBMV(childNode.getData());
+    Multiverse<StringBuilder> temp = sbmv.product(childSBMV, SBCONCAT);
+    sbmv.destruct();
+    sbmv = temp;
   }
-  setSBMV(value, sbmv);
+
+  return sbmv;
 }
 
 final static Multiverse.Operator<StringBuilder> SBCONCAT = (sb1, sb2) -> {
@@ -4397,68 +5058,11 @@ final static Multiverse.Operator<StringBuilder> SBCONCAT = (sb1, sb2) -> {
   return newsb;
 };
 
-/** Takes two stringbuilder multiverses, and generates all of their combinations */
-private Multiverse<StringBuilder> cartesianProduct(Multiverse<StringBuilder> statements, Multiverse<StringBuilder> renamings) {
-  /* System.err.println("statements: " + statements); */
-  /* System.err.println("renamings: " + renamings); */
-  /* System.err.println("result: " + statements.product(renamings, */
-  /*                                                    (sb1, sb2) -> { */
-  /*                                                      StringBuilder newsb = new StringBuilder(); */
-  /*                                                      newsb.append(sb1); */
-  /*                                                      newsb.append(sb2); */
-  /*                                                      return newsb; */
-  /*                                                    })); */
-  if (renamings == null || statements == null) {
-    return new Multiverse<StringBuilder>();
-  } else {
-    return statements.product(renamings, SBCONCAT);
-  }
-  /* Multiverse<StringBuilder> allCombinations; */
-  /* if (renamings == null || statements == null) { */
-  /*   allCombinations = new Multiverse<StringBuilder>(); */
-  /* } else if (statements.size() < 1 && renamings.size() < 1) { */
-  /*   allCombinations = new Multiverse<StringBuilder>(); */
-  /* } else if (statements.size() < 1) { */
-  /*   allCombinations = new Multiverse<StringBuilder>(renamings); */
-  /* } else if (renamings.size() < 1) { */
-  /*   allCombinations = new Multiverse<StringBuilder>(statements); */
-  /* } else { */
-  /*   allCombinations = new Multiverse<StringBuilder>(); */
-  /*   for (Element<StringBuilder> statement : statements) { */
-  /*     for (Element<StringBuilder> renaming : renamings) { */
-  /*       StringBuilder sb = new StringBuilder(statement.getData().toString() + renaming.getData().toString()); */
-  /*       PresenceCondition pc = statement.getCondition().and(renaming.getCondition()); */
-  /*       if (pc.getBDD().isZero()) { */
-  /*         /\** generated code with unsatisfiable presence conditions is discarded *\/ */
-
-  /*         // for debugging: */
-  /*         //allCombinations.add(new Element<StringBuilder>(sb, pc)); */
-  /*       } else { */
-  /*         allCombinations.add(new Element<StringBuilder>(sb, pc)); */
-  /*       } */
-  /*     } */
-  /*   } */
-  /* } */
-  /* return allCombinations; */
-}
-
 final Multiverse.Transformer<SymbolTable.Entry, StringBuilder> entryToStringBuilder = new Multiverse.Transformer<SymbolTable.Entry, StringBuilder>() {
   StringBuilder transform(SymbolTable.Entry from) {
     return new StringBuilder(from.getRenaming());
   }
 };
-
-/** Converts a Multiverse<SymbolTable.Entry> to a Multiverse<StringBuilder>
- *  so cartesianProduct() can be called on them.
- */
-private Multiverse<StringBuilder> universeToSB(Multiverse<SymbolTable.Entry> mv) {
-  return entryToStringBuilder.transform(mv);
-  /* Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>(); */
-  /* for (Element<SymbolTable.Entry> u : mv) { */
-  /*   sbmv.add(new Element<StringBuilder>(new StringBuilder(u.getData().getRenaming()), u.getCondition())); */
-  /* } */
-  /* return sbmv; */
-}
 
 /** True when statistics should be output. */
 private boolean languageStatistics = false;
@@ -4991,7 +5595,7 @@ private static Type grokabsdeclarator(Node absdeclarator, Type type) {
       break;
     }
 
-    FunctionT function = getParameterTypes(parms);
+    FunctionT function = getParamTypes(parms);
 
     function.setResult(type);
     type = function;
@@ -5005,7 +5609,7 @@ private static Type grokabsdeclarator(Node absdeclarator, Type type) {
   return type;
 }
 
-private static FunctionT getParameterTypes(Node parms) {
+private static FunctionT getParamTypes(Node parms) {
   // TODO flesh this out and do type checking
   boolean varArgs = false;
   ArrayList<Type> types = new ArrayList<Type>();
@@ -5237,7 +5841,7 @@ public void useIdent(Subparser subparser, Node ident) {
             contradiction = true;
           } catch (TimeoutException e) {
             e.printStackTrace();
-            /* System.exit(1); */
+            /*           System.exit(1); */
           }
           notandnot.delRef();
         }
