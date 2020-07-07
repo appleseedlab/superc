@@ -329,7 +329,7 @@ ExternalDeclarationList: /** list, complete **/
         /* empty */  // ADDED gcc allows empty program
         {
           Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
-          result.add(new StringBuilder(""), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
+          result.add(new StringBuilder(""), subparser.getPresenceCondition());
           setTFValue(value, result);
         }
         | ExternalDeclarationList ExternalDeclaration
