@@ -327,6 +327,11 @@ TranslationUnit:  /** complete, passthrough **/
 
 ExternalDeclarationList: /** list, complete **/
         /* empty */  // ADDED gcc allows empty program
+        {
+          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
+          result.add(new StringBuilder(""), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
+          setTFValue(value, result);
+        }
         | ExternalDeclarationList ExternalDeclaration
         {
           PresenceCondition pc = subparser.getPresenceCondition();
