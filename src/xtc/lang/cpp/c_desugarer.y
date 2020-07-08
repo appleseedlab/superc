@@ -4981,9 +4981,14 @@ private String getCPC(Node n) {
   return (String) n.getProperty("C_PC");
 }
 
-// TODO: javadoc
-// TODO: make note about how the numbers must be passed-in in the order that you want them concatenated.
+/**
+ * Creates the cartesian product of any number of children nodes' SBMVs.
+ * @param pc A PresenceCondition.
+ * @param children Nodes whose SBMVs should be combined.
+ * @return An SBMV containing the product of the passed-in childrens' SBMVs.
+ */
 private Multiverse<StringBuilder> getProductOfSomeChildren(PresenceCondition pc, Node...children) {
+  // NOTE: Nodes must be passed-in in the order that their SBMV stringbuilders should be concatenated.
   Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
   Multiverse<StringBuilder> temp;
   for (Node child : children) {
