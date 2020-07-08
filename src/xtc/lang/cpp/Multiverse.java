@@ -65,7 +65,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
     /**
      * Get the data field.
      *
-     * @returns The data field.
+     * @return The data field.
      */
     public T getData() {
       return data;
@@ -74,7 +74,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
     /**
      * Get the presence condition.
      *
-     * @returns The presence condition.
+     * @return The presence condition.
      */
     public PresenceCondition getCondition() {
       return cond;
@@ -161,7 +161,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   /**
    * Return the size of the Multiverse.
    *
-   * @returns The size of the Multiverse.
+   * @return The size of the Multiverse.
    */
   public int size() {
     return contents.size();
@@ -170,7 +170,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   /**
    * Checks whether the Multiverse is empty.
    *
-   * @returns true if the Multiverse is empty.
+   * @return true if the Multiverse is empty.
    */
   public boolean isEmpty() {
     return size() == 0;
@@ -179,7 +179,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   /**
    * Creates an iterator over the elements of the Multiverse.
    *
-   * @returns the iterator.
+   * @return the iterator.
    */
   public Iterator<Element<T>> iterator() {
     return contents.iterator();
@@ -208,7 +208,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * @param other The other Multiverse.
    * @param op The operator to use to combine individual elements of
    * the Multiverse
-   * @returns A new instance of Multiverse holding the cartesian
+   * @return A new instance of Multiverse holding the cartesian
    * product of the two Multiverses.
    */
   public Multiverse<T> product(Multiverse<T> other, Operator<T> op) {
@@ -245,7 +245,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * @param cond The other Multiverse's condition.
    * @param op The operator to use to combine individual elements of
    * the Multiverse
-   * @returns A new instance of Multiverse holding the cartesian
+   * @return A new instance of Multiverse holding the cartesian
    * product of the two Multiverses.
    */
   public Multiverse<T> product(T data, PresenceCondition cond, Operator<T> op) {
@@ -263,7 +263,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * when done.
    *
    * @param cond The condition.
-   * @returns The new Multiverse.
+   * @return The new Multiverse.
    */
   public Multiverse<T> filter(PresenceCondition cond) {
     Multiverse<T> newmv = new Multiverse<T>();
