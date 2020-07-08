@@ -1,8 +1,8 @@
 #!/bin/bash
 rm allTests.out
 touch allTests.out
-cd fonda/cpp_testsuite
-folders="declChecker funcChecker staticConfig typechecker"
+cd typechecker
+folders="compound configurable declarators examples functions struct"
 for b in $folders;do
   cd $b
   for f in *; do

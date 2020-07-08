@@ -19,33 +19,6 @@ public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
   static int count = 0;
   Integer personalCount;
 
-  // TODO: replace usage with just iterating over the TypeBuilderMultiverse
-  public List<Type> toType() {
-    List<Type> types = new LinkedList<Type>();
-    for (Element<TypeBuilderUnit> t : contents)
-	    types.add(t.getData().toType());
-    return types;	
-  }
-    
-  // TODO: replace usage with just iterating over the TypeBuilderMultiverse
-  public List<PresenceCondition> getConditions()
-  {	
-    List<PresenceCondition> conds = new LinkedList<PresenceCondition>();
-    for (Element<TypeBuilderUnit> e : contents)
-	    conds.add(e.getCondition());
-    return conds;
-  }
-
-    
-  // TODO: dead code?
-  public void addSpec(String name)
-  {
-    for (Element<TypeBuilderUnit> e : contents)
-	    {
-        e.setData(new TypeBuilderUnit(e.getData(), name));
-	    }
-  }
-
   // creates a new typebuilder using a string (which is NOT a type)
   public TypeBuilderMultiverse(String name, PresenceCondition p)
   {
@@ -100,14 +73,6 @@ public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
           t.contents.add(new Element<TypeBuilderUnit>(e.getData().combine(f.getData()),
                                                       e.getCondition().and(f.getCondition())));
     return t;
-  }
-
-  public List<Boolean> isTypeDef()
-  {
-    List<Boolean> vals = new LinkedList<Boolean>();
-    for (Element<TypeBuilderUnit> t : contents)
-	    vals.add( new Boolean(t.getData().isTypeDef()));
-    return vals;
   }
 
   // TODO: can this be replaced with a call to product?

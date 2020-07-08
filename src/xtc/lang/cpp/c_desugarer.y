@@ -498,9 +498,8 @@ FunctionPrototype:  /** nomerge **/
           StringBuilder sb = new StringBuilder();
 
           addDeclsToSymTab(subparser,type,decl);
-  	      List<Type> typeList = type.toType();
-  	      if (typeList.size() == 1)
-  		      sb.append(typeList.get(0) + " ");
+  	      if (type.size() == 1)
+  		      sb.append(type.get(0).getData().toType() + " ");
   	      else {
 	          System.err.println("ERROR: Configurable typedefs not yet supported.");
 		        // System.exit(1);
@@ -903,20 +902,20 @@ DeclaringList:  /** nomerge **/
       	  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           StringBuilder sb = new StringBuilder();
 
-          for (Element<SymbolTable.Entry> elem : entries) {
-      	    decl.identifier = elem.getData().getRenaming();
-      	    List<Type> typeList = type.toType();
-      	    if (typeList.size() == 1) {
-      	      if (typeList.get(0).getClass().getName().equals("xtc.type.TypedefT")) {
-      	        System.err.println("WARNING: typedef transformations not yet supported.");
+          if (entries != null) {
+            for (Element<SymbolTable.Entry> elem : entries) {
+              decl.identifier = elem.getData().getRenaming();
+              if (type.size() == 1){
+                if (type.get(0).getData().toType().getClass().getName().equals("xtc.type.TypedefT")) {
+                  System.err.println("WARNING: typedef transformations not yet supported.");
+                }
+                sb.append("\n" + type.get(0).getData().toType() + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
+              } else {
+                System.err.println("ERROR: Configurable typedefs not yet supported.");
+                // System.exit(1);
               }
-      	      sb.append("\n" + typeList.get(0) + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
-      	    } else {
-      	      System.err.println("ERROR: Configurable typedefs not yet supported.");
-      	      // System.exit(1);
-    	      }
+            }
           }
-
           // TODO: handle AttributeSpecifierListOpt
 
           /** hoists and writes initializing statements using the renamed variables */
@@ -2131,9 +2130,10 @@ ParameterAbstractDeclaration:
         | TypeSpecifier
         {
           StringBuilder sb = new StringBuilder();
-          List<Type> typeList = getTBAt(subparser, 1).toType();
-  	      if (typeList.size() == 1)
-        		sb.append(typeList.get(0));
+
+          TypeBuilderMultiverse type = getTBAt(subparser, 1);
+  	      if (type.size() == 1)
+        		sb.append(type.get(0).getData().toType());
   	      else {
         		System.err.println("ERROR: Configurable typedefs not yet supported."); // TODO
         		// System.exit(1);
@@ -5447,34 +5447,32 @@ public void bindIdent(Subparser subparser, TypeBuilderMultiverse typespec, DeclB
     for this to properly work, we will need to pull the specific presenceCondition for
     each individual TypeBuilderUnit. More or less the actions that were previously taken should take place
     multiple times now.
-   */
+  */
   StackFrame stack = subparser.stack;
   PresenceConditionManager.PresenceCondition presenceCondition = subparser.getPresenceCondition();
   CContext scope = (CContext) subparser.scope;
 
   String ident = declarator.getID();
 
-  List<Boolean> typedef = typespec.isTypeDef();
-  List<PresenceCondition> conds = typespec.getConditions();
-  for (int i = 0; i < typedef.size(); ++i)
+  for (Element<TypeBuilderUnit> elem : typespec)
     {
       if (languageStatistics) {
-	if (typedef.get(i)) {
-	  Location location = subparser.lookahead.token.syntax.getLocation();
-	  System.err.println(String.format("typedef %s %s", ident, location));
-	}
+        if (elem.getData().isTypedef()) {
+          Location location = subparser.lookahead.token.syntax.getLocation();
+          System.err.println(String.format("typedef %s %s", ident, location));
+        }
       }
 
       if (showErrors) {
-	System.err.println("bind: " + ident + " " + typedef.get(i));
+        System.err.println("bind: " + ident + " " + Boolean.toString(elem.getData().isTypedef()));
       }
       if (debug) {
-	System.err.println("def: " + ident + " " + alsoSet);
+        System.err.println("def: " + ident + " " + alsoSet);
       }
-      STField field = typedef.get(i) ? STField.TYPEDEF : STField.IDENT;
-      scope.getSymbolTable().setbool(ident, field, true, conds.get(i));
+      STField field = elem.getData().isTypedef() ? STField.TYPEDEF : STField.IDENT;
+      scope.getSymbolTable().setbool(ident, field, true, elem.getCondition());
       if (null != alsoSet) {
-	scope.getSymbolTable().setbool(ident, alsoSet, true,conds.get(i));
+        scope.getSymbolTable().setbool(ident, alsoSet, true,elem.getCondition());
       }
 
     }
