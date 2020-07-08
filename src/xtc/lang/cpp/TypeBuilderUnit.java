@@ -469,7 +469,7 @@ public class TypeBuilderUnit {
 	return result;
     }
 
-    boolean isTypeDef()
+    boolean isTypedef()
     {
 	return qualifiers[QUAL.isTypedef.ordinal()];
     }

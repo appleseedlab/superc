@@ -754,19 +754,20 @@ DeclaringList:  /** nomerge **/
       	  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           StringBuilder sb = new StringBuilder();
 
-          for (Element<SymbolTable.Entry> elem : entries) {
-      	    decl.identifier = elem.getData().getRenaming();
-      	    if (type.size() == 1){
-      	      if (type.get(0).getData().toType().getClass().getName().equals("xtc.type.TypedefT")) {
-      	        System.err.println("WARNING: typedef transformations not yet supported.");
+          if (entries != null) {
+            for (Element<SymbolTable.Entry> elem : entries) {
+              decl.identifier = elem.getData().getRenaming();
+              if (type.size() == 1){
+                if (type.get(0).getData().toType().getClass().getName().equals("xtc.type.TypedefT")) {
+                  System.err.println("WARNING: typedef transformations not yet supported.");
+                }
+                sb.append("\n" + type.get(0).getData().toType() + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
+              } else {
+                System.err.println("ERROR: Configurable typedefs not yet supported.");
+                // System.exit(1);
               }
-      	      sb.append("\n" + type.get(0).getData().toType() + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
-      	    } else {
-      	      System.err.println("ERROR: Configurable typedefs not yet supported.");
-      	      // System.exit(1);
-    	      }
+            }
           }
-
           // TODO: handle AttributeSpecifierListOpt
 
           /** hoists and writes initializing statements using the renamed variables */
