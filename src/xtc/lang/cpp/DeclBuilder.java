@@ -269,6 +269,16 @@ public class DeclBuilder
   {
     return parameters != null;
   }
+
+  public boolean isPointer()
+  {
+    if (numPointers > 0)
+      return true;
+    if (inner != null)
+	    return inner.isPointer();
+    return false;
+
+  }
   
   public void setParams(List<Parameter> p)
   {

@@ -1642,7 +1642,7 @@ BasicTypeName:
         {
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse("unsigned", subparser.getPresenceCondition());
           setTFValue(value, tb);
-          	  getSpecsAt(subparser, 1).seenUnsigned = true;
+          getSpecsAt(subparser, 1).seenUnsigned = true;
         }
         | _BOOL
         {
@@ -1652,41 +1652,21 @@ BasicTypeName:
         }
         | ComplexKeyword
         {
-	  TypeBuilderMultiverse tb = new TypeBuilderMultiverse("complex", subparser.getPresenceCondition());
+          TypeBuilderMultiverse tb = new TypeBuilderMultiverse("complex", subparser.getPresenceCondition());
           setTFValue(value, tb);
-          	  getSpecsAt(subparser, 1).seenComplex = true;
+          getSpecsAt(subparser, 1).seenComplex = true;
         }
         ;
 
 SignedKeyword:
         SIGNED
-        {
-          System.err.println("WARNING: unsupported semantic action: SignedKeyword");
-          System.exit(1);
-        }
         | __SIGNED
-        {
-          System.err.println("WARNING: unsupported semantic action: SignedKeyword");
-          System.exit(1);
-        }
         | __SIGNED__
-        {
-          System.err.println("WARNING: unsupported semantic action: SignedKeyword");
-          System.exit(1);
-        }
         ;
 
 ComplexKeyword:
         _COMPLEX
-        {
-          System.err.println("WARNING: unsupported semantic action: ComplexKeyword");
-          System.exit(1);
-        }
         | __COMPLEX__
-        {
-          System.err.println("WARNING: unsupported semantic action: ComplexKeyword");
-          System.exit(1);
-        }
         ;
 
 ElaboratedTypeName: /** passthrough, nomerge **/
@@ -6511,11 +6491,11 @@ private static Specifiers makeStructSpec(Subparser subparser,
  * @param declbuidler An object representing the declarator.
  */
 private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebuilder, DeclBuilder declbuilder) {
-  if (typebuilder == null || declbuilder == null || !typebuilder.getIsValid() || !declbuilder.getIsValid()) {
-    System.err.println("ERROR: invalid declaration");
-    //System.exit(1);
-    return;
+  if (typebuilder == null || declbuilder == null ) {
+    System.err.println("ERROR: null typebuilder or declbuilder");
+    System.exit(1);
   }
+  
   CContext scope = (CContext) subparser.scope;
 
   // get the list of parameters if it's a function declarator
@@ -6527,45 +6507,53 @@ private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebui
   // loop through each configuration of the type specifier, adding the
   // declaration to the symtab
   for (Element<TypeBuilderUnit> elem : typebuilder) {
-    System.err.println("cond:" + elem.getCondition().toString() + " current:" + subparser.getPresenceCondition().toString());
 
-    // combine the type spec and declarator into a complete type
-    DeclBuilder completedecl = new DeclBuilder(declbuilder);
-    completedecl.addType(elem.getData().toType());
+    TypeBuilderUnit t = elem.getData();
     
-    if (! declbuilder.isFunction()) {
-      // bind the symbol name to the type under the current presence condition
+    if (!isTypeDeclValid(t, declbuilder)) {
       PresenceCondition condition = subparser.getPresenceCondition().and(elem.getCondition());
-      scope.getSymbolTable().put(declbuilder.getID(), completedecl.toType(), condition);
+      scope.getSymbolTable().putError(declbuilder.getID(), condition);
       condition.delRef();
-      
-    } else {  // function types
-      // go through each combination of parameters, adding each
-      // variation of the function declarator to the symtab
-      for(Element<List<Parameter>> parmelem : parms) {
-        PresenceCondition condition = parmelem.getCondition().and(elem.getCondition());
-        
-        if (parmelem.getData().size() == 0) {  // function has no parameters
-          Type functype = new FunctionT(completedecl.toType());
-          scope.getSymbolTable().put(declbuilder.getID(), functype, condition);
-          
-        } else {  // function has parameters
-          List<Type> parmlist = new LinkedList<Type>();
-
-          // get list of parameter types
-          for (Parameter p : parmelem.getData()) {
-            if(! p.isEllipsis()) {
-              parmlist.add(p.getType());
-            }
-          }
-          
-          Type functype = new FunctionT(completedecl.toType(),
-                                        parmlist,
-                                        parmelem.getData().get(parmelem.getData().size() - 1).isEllipsis());
-          scope.getSymbolTable().put(declbuilder.getID(), functype, condition);
-        }
-        
+    } else {
+    
+      // combine the type spec and declarator into a complete type
+      DeclBuilder completedecl = new DeclBuilder(declbuilder);
+      completedecl.addType(t.toType());
+    
+      if (! declbuilder.isFunction()) {
+        // bind the symbol name to the type under the current presence condition
+        PresenceCondition condition = subparser.getPresenceCondition().and(elem.getCondition());
+        scope.getSymbolTable().put(declbuilder.getID(), completedecl.toType(), condition);
         condition.delRef();
+      
+      } else {  // function types
+        // go through each combination of parameters, adding each
+        // variation of the function declarator to the symtab
+        for(Element<List<Parameter>> parmelem : parms) {
+          PresenceCondition condition = parmelem.getCondition().and(elem.getCondition());
+        
+          if (parmelem.getData().size() == 0) {  // function has no parameters
+            Type functype = new FunctionT(completedecl.toType());
+            scope.getSymbolTable().put(declbuilder.getID(), functype, condition);
+          
+          } else {  // function has parameters
+            List<Type> parmlist = new LinkedList<Type>();
+
+            // get list of parameter types
+            for (Parameter p : parmelem.getData()) {
+              if(! p.isEllipsis()) {
+                parmlist.add(p.getType());
+              }
+            }
+          
+            Type functype = new FunctionT(completedecl.toType(),
+                                          parmlist,
+                                          parmelem.getData().get(parmelem.getData().size() - 1).isEllipsis());
+            scope.getSymbolTable().put(declbuilder.getID(), functype, condition);
+          }
+        
+          condition.delRef();
+        }
       }
     }
   }
@@ -6750,6 +6738,20 @@ public String generateBoolExpr(String CPPBoolExpr) {
  }
 
  return sb.toString();
+}
+
+private boolean isTypeDeclValid(TypeBuilderUnit t, DeclBuilder d)
+{
+  if (!t.getIsValid() || !d.getIsValid()) {
+    return false;
+  }
+  if (t.getIsVoid() && (!d.isPointer() && !d.isFunction())) {
+    return false;
+  }
+  if (t.getIsInline() && !d.isFunction()){
+    return false;
+  }
+  return true;
 }
 
 // ---------- Declarators

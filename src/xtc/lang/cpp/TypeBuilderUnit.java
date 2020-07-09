@@ -90,90 +90,89 @@ public class TypeBuilderUnit {
 	return sb.toString();
     }
 
-    // collects all information in the typebuilder and generates the corresponding type
-    public Type toType() {
-	// NOTE: .combine() already checked for invalid combinations while merging typebuilders
-	if (foundTypes[FOUND_TYPE.seenLongLong.ordinal()]) {
+  // collects all information in the typebuilder and generates the corresponding type
+  public Type toType() {
+    // NOTE: .combine() already checked for invalid combinations while merging typebuilders
+    if (foundTypes[FOUND_TYPE.seenLongLong.ordinal()]) {
 	    if (qualifiers[QUAL.isUnsigned.ordinal()])
-		type = new IntegerT(NumberT.Kind.U_LONG_LONG); // unsigned long long
+        type = new IntegerT(NumberT.Kind.U_LONG_LONG); // unsigned long long
 	    else
-		type = new IntegerT(NumberT.Kind.LONG_LONG); // long long
-	} else if (foundTypes[FOUND_TYPE.seenLong.ordinal()]) {
+        type = new IntegerT(NumberT.Kind.LONG_LONG); // long long
+    } else if (foundTypes[FOUND_TYPE.seenLong.ordinal()]) {
 	    if (foundTypes[FOUND_TYPE.seenInt.ordinal()])
-		if (qualifiers[QUAL.isUnsigned.ordinal()])
-		    type = new IntegerT(NumberT.Kind.LONG); // unsigned long
-		else if (qualifiers[QUAL.isSigned.ordinal()])
-		    type = new IntegerT(NumberT.Kind.LONG); // signed long
-		else
-		    type = new IntegerT(NumberT.Kind.LONG); // long
+        if (qualifiers[QUAL.isUnsigned.ordinal()])
+          type = new IntegerT(NumberT.Kind.LONG); // unsigned long
+        else if (qualifiers[QUAL.isSigned.ordinal()])
+          type = new IntegerT(NumberT.Kind.LONG); // signed long
+        else
+          type = new IntegerT(NumberT.Kind.LONG); // long
 	    else if (foundTypes[FOUND_TYPE.seenDouble.ordinal()]) {
-		if (foundTypes[FOUND_TYPE.seenComplex.ordinal()])
-		    type = new FloatT(NumberT.Kind.LONG_DOUBLE_COMPLEX); // long double complex
-		else
-		    type = new FloatT(NumberT.Kind.LONG_DOUBLE); // long double
+        if (foundTypes[FOUND_TYPE.seenComplex.ordinal()])
+          type = new FloatT(NumberT.Kind.LONG_DOUBLE_COMPLEX); // long double complex
+        else
+          type = new FloatT(NumberT.Kind.LONG_DOUBLE); // long double
 	    }
-	} else if (foundTypes[FOUND_TYPE.seenComplex.ordinal()]) {
+    } else if (foundTypes[FOUND_TYPE.seenComplex.ordinal()]) {
 	    if (foundTypes[FOUND_TYPE.seenDouble.ordinal()])
-		type = new FloatT(NumberT.Kind.DOUBLE_COMPLEX); // double complex
+        type = new FloatT(NumberT.Kind.DOUBLE_COMPLEX); // double complex
 	    else
-		type = new FloatT(NumberT.Kind.FLOAT_COMPLEX); // float complex
-	} else if (foundTypes[FOUND_TYPE.seenFloat.ordinal()]) {
+        type = new FloatT(NumberT.Kind.FLOAT_COMPLEX); // float complex
+    } else if (foundTypes[FOUND_TYPE.seenFloat.ordinal()]) {
 	    type = new FloatT(NumberT.Kind.FLOAT); // float
-	} else if (foundTypes[FOUND_TYPE.seenDouble.ordinal()]) {
+    } else if (foundTypes[FOUND_TYPE.seenDouble.ordinal()]) {
 	    type = new FloatT(NumberT.Kind.DOUBLE); // double
-	} else if (foundTypes[FOUND_TYPE.seenInt.ordinal()]) {
+    } else if (foundTypes[FOUND_TYPE.seenInt.ordinal()]) {
 	    if (qualifiers[QUAL.isUnsigned.ordinal()])
-		type = new IntegerT(NumberT.Kind.U_INT); // unsigned int
+        type = new IntegerT(NumberT.Kind.U_INT); // unsigned int
 	    else if (qualifiers[QUAL.isSigned.ordinal()])
-		type = new IntegerT(NumberT.Kind.U_CHAR); // signed int
+        type = new IntegerT(NumberT.Kind.U_CHAR); // signed int
 	    else
-		type = new IntegerT(NumberT.Kind.INT); // int
-	} else if (foundTypes[FOUND_TYPE.seenChar.ordinal()]) {
+        type = new IntegerT(NumberT.Kind.INT); // int
+    } else if (foundTypes[FOUND_TYPE.seenChar.ordinal()]) {
 	    if (qualifiers[QUAL.isSigned.ordinal()])
-		type = new IntegerT(NumberT.Kind.S_CHAR); // signed char
+        type = new IntegerT(NumberT.Kind.S_CHAR); // signed char
 	    else if (qualifiers[QUAL.isUnsigned.ordinal()])
-		type = new IntegerT(NumberT.Kind.U_CHAR); // unsigned char
+        type = new IntegerT(NumberT.Kind.U_CHAR); // unsigned char
 	    else
-		type = new IntegerT(NumberT.Kind.CHAR); // char
-	} else if (foundTypes[FOUND_TYPE.seenShort.ordinal()]) {
+        type = new IntegerT(NumberT.Kind.CHAR); // char
+    } else if (foundTypes[FOUND_TYPE.seenShort.ordinal()]) {
 	    if (qualifiers[QUAL.isUnsigned.ordinal()])
-		type = new IntegerT(NumberT.Kind.U_SHORT); // unsigned short
+        type = new IntegerT(NumberT.Kind.U_SHORT); // unsigned short
 	    else
-		type = new IntegerT(NumberT.Kind.SHORT); // short
-	} else if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
+        type = new IntegerT(NumberT.Kind.SHORT); // short
+    } else if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
 	    {
-		type = new TypedefT(typedefName, typedefType);
-  } else if (foundTypes[FOUND_TYPE.seenVoid.ordinal()]) {
-    type = new VoidT();
-  }
-
-	else{
+        type = new TypedefT(typedefName, typedefType);
+      } else if (foundTypes[FOUND_TYPE.seenVoid.ordinal()]) {
+      type = new VoidT();
+    }
+    else{
 	    System.err.println("ERROR: unsupported type found");
 	    System.exit(1);
-	}
+    }
 
-	// adds the qualifiers to the type
-	if (qualifiers[QUAL.isAuto.ordinal()])
+    // adds the qualifiers to the type
+    if (qualifiers[QUAL.isAuto.ordinal()])
 	    type.addAttribute(Constants.ATT_STORAGE_AUTO);
-	if (qualifiers[QUAL.isConst.ordinal()])
+    if (qualifiers[QUAL.isConst.ordinal()])
 	    type.addAttribute(Constants.ATT_CONSTANT);
-	if (qualifiers[QUAL.isVolatile.ordinal()])
+    if (qualifiers[QUAL.isVolatile.ordinal()])
 	    type.addAttribute(Constants.ATT_VOLATILE);
-	if (qualifiers[QUAL.isExtern.ordinal()])
+    if (qualifiers[QUAL.isExtern.ordinal()])
 	    type.addAttribute(Constants.ATT_STORAGE_EXTERN);
-	if (qualifiers[QUAL.isStatic.ordinal()])
+    if (qualifiers[QUAL.isStatic.ordinal()])
 	    type.addAttribute(Constants.ATT_STORAGE_STATIC);
-	if (qualifiers[QUAL.isRegister.ordinal()])
+    if (qualifiers[QUAL.isRegister.ordinal()])
 	    type.addAttribute(Constants.ATT_STORAGE_REGISTER);
-	if (qualifiers[QUAL.isThreadLocal.ordinal()])
+    if (qualifiers[QUAL.isThreadLocal.ordinal()])
 	    type.addAttribute(Constants.ATT_THREAD_LOCAL);
-	if (qualifiers[QUAL.isInline.ordinal()])
+    if (qualifiers[QUAL.isInline.ordinal()])
 	    type.addAttribute(Constants.ATT_INLINE);
-	if (qualifiers[QUAL.isTypedef.ordinal()])
+    if (qualifiers[QUAL.isTypedef.ordinal()])
 	    type.addAttribute(Constants.ATT_STORAGE_TYPEDEF);
 
-	return type;
-    }
+    return type;
+  }
 
     private void addQual(QUAL q){
 	if(qualifiers[q.ordinal()])
@@ -214,13 +213,12 @@ public class TypeBuilderUnit {
 	else if (x.equals("int"))
 	    addType(FOUND_TYPE.seenInt);
 	else if (x.equals("long"))
-	    if (foundTypes[FOUND_TYPE.seenLong.ordinal()])
-		{
-		    foundTypes[FOUND_TYPE.seenLong.ordinal()] = false;
-		    addType(FOUND_TYPE.seenLongLong);
+    if (foundTypes[FOUND_TYPE.seenLong.ordinal()]){
+      foundTypes[FOUND_TYPE.seenLong.ordinal()] = false;
+      addType(FOUND_TYPE.seenLongLong);
 		}
-	    else
-		addType(FOUND_TYPE.seenLong);
+    else
+      addType(FOUND_TYPE.seenLong);
 	else if (x.equals("char"))
 	    addType(FOUND_TYPE.seenChar);
 	else if (x.equals("short"))
@@ -353,157 +351,173 @@ public class TypeBuilderUnit {
     }
 
     // copy constructor creates a deep copy
-    public TypeBuilderUnit(TypeBuilderUnit old) {
-	type = old.type.copy();
-	for (int i = 0; i < NUM_QUALS; ++i)
+  public TypeBuilderUnit(TypeBuilderUnit old) {
+    type = old.type.copy();
+    for (int i = 0; i < NUM_QUALS; ++i)
 	    qualifiers[i] = old.qualifiers[i];
-	for (int i = 0; i < NUM_TYPES; ++i)
+    for (int i = 0; i < NUM_TYPES; ++i)
 	    foundTypes[i] = old.foundTypes[i];
-	attributes = new LinkedList<String>(old.attributes);
-	isFunction = old.isFunction;
-	isTypeError = old.isTypeError;
-	typedefName = old.typedefName;
-	typedefType = old.typedefType;
-    }
+    attributes = new LinkedList<String>(old.attributes);
+    isFunction = old.isFunction;
+    isTypeError = old.isTypeError;
+    typedefName = old.typedefName;
+    typedefType = old.typedefType;
+  }
 
 
-    private boolean qualComboExists(TypeBuilderUnit t1, TypeBuilderUnit t2, QUAL opt1, QUAL opt2)
-    {
-	return ((t1.qualifiers[opt1.ordinal()] || t2.qualifiers[opt1.ordinal()]) && (t1.qualifiers[opt2.ordinal()] || t2.qualifiers[opt2.ordinal()]));
-    }
+  private boolean qualComboExists(TypeBuilderUnit t1, TypeBuilderUnit t2, QUAL opt1, QUAL opt2)
+  {
+    return ((t1.qualifiers[opt1.ordinal()] || t2.qualifiers[opt1.ordinal()]) && (t1.qualifiers[opt2.ordinal()] || t2.qualifiers[opt2.ordinal()]));
+  }
 
-    private boolean typeComboExists(TypeBuilderUnit t1, TypeBuilderUnit t2, FOUND_TYPE opt1, FOUND_TYPE opt2)
-    {
-	return ((t1.foundTypes[opt1.ordinal()] ^ t2.foundTypes[opt1.ordinal()]) && (t1.foundTypes[opt2.ordinal()] ^ t2.foundTypes[opt2.ordinal()]));
-    }
+  private boolean typeComboExists(TypeBuilderUnit t1, TypeBuilderUnit t2, FOUND_TYPE opt1, FOUND_TYPE opt2)
+  {
+    return ((t1.foundTypes[opt1.ordinal()] ^ t2.foundTypes[opt1.ordinal()]) && (t1.foundTypes[opt2.ordinal()] ^ t2.foundTypes[opt2.ordinal()]));
+  }
 
 
-    private boolean isValidTypes(TypeBuilderUnit t1, TypeBuilderUnit t2)
-    {
-	//Notes: While long complex isn't a complete type, it's potentially valid if later joined with double.
-	// Since complex double and long double are valid on their own, there is no need to consider the tuple of long complex and double
-	//since they are all individually validated by the other types.
-	for (int i = 0; i < NUM_TYPES; ++i)
+  private boolean isValidTypes(TypeBuilderUnit t1, TypeBuilderUnit t2)
+  {
+    //Notes: While long complex isn't a complete type, it's potentially valid if later joined with double.
+    // Since complex double and long double are valid on their own, there is no need to consider the tuple of long complex and double
+    //since they are all individually validated by the other types.
+    for (int i = 0; i < NUM_TYPES; ++i)
 	    for (int j = 0; j < NUM_TYPES; ++j)
-		if (t1.foundTypes[i] && t2.foundTypes[j])
-		    //long int
-		    if (! (typeComboExists(t1,t2,FOUND_TYPE.seenLong,FOUND_TYPE.seenInt) ||
-			   //longlong int
-			   typeComboExists(t1,t2,FOUND_TYPE.seenLongLong,FOUND_TYPE.seenInt) ||
-			   //long double
-			   typeComboExists(t1,t2,FOUND_TYPE.seenLong,FOUND_TYPE.seenDouble) ||
-			   //float complex
-			   typeComboExists(t1,t2,FOUND_TYPE.seenFloat,FOUND_TYPE.seenComplex) ||
-			   //double complex
-			   typeComboExists(t1,t2,FOUND_TYPE.seenDouble,FOUND_TYPE.seenComplex) ||
-			   //long complex
-			   (typeComboExists(t1,t2,FOUND_TYPE.seenLong,FOUND_TYPE.seenComplex)) ||
-			   //long long
-			   (i == j && i == FOUND_TYPE.seenLong.ordinal()) ))
-			return false;
-	return true;
-    }
+        if (t1.foundTypes[i] && t2.foundTypes[j])
+          //long int
+          if (! (typeComboExists(t1,t2,FOUND_TYPE.seenLong,FOUND_TYPE.seenInt) ||
+                 //longlong int
+                 typeComboExists(t1,t2,FOUND_TYPE.seenLongLong,FOUND_TYPE.seenInt) ||
+                 //long double
+                 typeComboExists(t1,t2,FOUND_TYPE.seenLong,FOUND_TYPE.seenDouble) ||
+                 //float complex
+                 typeComboExists(t1,t2,FOUND_TYPE.seenFloat,FOUND_TYPE.seenComplex) ||
+                 //double complex
+                 typeComboExists(t1,t2,FOUND_TYPE.seenDouble,FOUND_TYPE.seenComplex) ||
+                 //long complex
+                 (typeComboExists(t1,t2,FOUND_TYPE.seenLong,FOUND_TYPE.seenComplex)) ||
+                 //long long
+                 (i == j && i == FOUND_TYPE.seenLong.ordinal()) ))
+            return false;
+    return true;
+  }
 
-    public TypeBuilderUnit combine(TypeBuilderUnit with) {
-	// TUTORIAL: this is where all the logic for combining specifiers
-	// will go
+  public TypeBuilderUnit combine(TypeBuilderUnit with) {
+    // TUTORIAL: this is where all the logic for combining specifiers
+    // will go
 
-	// this copy might be able to be optimized away, if we know that
-	// the reference to the semantic value won't be used again, e.g.,
-	// by another subparser
-	TypeBuilderUnit result = new TypeBuilderUnit(this);
+    // this copy might be able to be optimized away, if we know that
+    // the reference to the semantic value won't be used again, e.g.,
+    // by another subparser
+    TypeBuilderUnit result = new TypeBuilderUnit(this);
 
-	// checks for mutually-exclusive qualifiers
-	if (qualComboExists(result, with, QUAL.isStatic, QUAL.isExtern) ||
-	    qualComboExists(result, with, QUAL.isStatic, QUAL.isAuto) ||
-	    qualComboExists(result, with, QUAL.isAuto, QUAL.isExtern) ||
-	    qualComboExists(result, with, QUAL.isAuto, QUAL.isRegister) ||
-	    qualComboExists(result, with, QUAL.isStatic, QUAL.isRegister) ||
-	    qualComboExists(result, with, QUAL.isRegister, QUAL.isExtern) ||
-	    qualComboExists(result, with, QUAL.isThreadLocal, QUAL.isAuto) ||
-	    qualComboExists(result, with, QUAL.isThreadLocal, QUAL.isRegister) ||
-	    qualComboExists(result, with, QUAL.isUnsigned, QUAL.isSigned) ||
-	    qualComboExists(result, with, QUAL.isTypedef, QUAL.isStatic) ||
-	    qualComboExists(result, with, QUAL.isTypedef, QUAL.isAuto) ||
-	    qualComboExists(result, with, QUAL.isTypedef, QUAL.isExtern) ||
-	    qualComboExists(result, with, QUAL.isTypedef, QUAL.isRegister))
+    // checks for mutually-exclusive qualifiers
+    if (qualComboExists(result, with, QUAL.isStatic, QUAL.isExtern) ||
+        qualComboExists(result, with, QUAL.isStatic, QUAL.isAuto) ||
+        qualComboExists(result, with, QUAL.isAuto, QUAL.isExtern) ||
+        qualComboExists(result, with, QUAL.isAuto, QUAL.isRegister) ||
+        qualComboExists(result, with, QUAL.isStatic, QUAL.isRegister) ||
+        qualComboExists(result, with, QUAL.isRegister, QUAL.isExtern) ||
+        qualComboExists(result, with, QUAL.isThreadLocal, QUAL.isAuto) ||
+        qualComboExists(result, with, QUAL.isThreadLocal, QUAL.isRegister) ||
+        qualComboExists(result, with, QUAL.isUnsigned, QUAL.isSigned) ||
+        qualComboExists(result, with, QUAL.isTypedef, QUAL.isStatic) ||
+        qualComboExists(result, with, QUAL.isTypedef, QUAL.isAuto) ||
+        qualComboExists(result, with, QUAL.isTypedef, QUAL.isExtern) ||
+        qualComboExists(result, with, QUAL.isTypedef, QUAL.isRegister))
 	    result.isTypeError = true;
 
-	// checks for variables with inline specifier
-	if ((!result.isFunction && !with.isFunction) && (result.qualifiers[QUAL.isInline.ordinal()] || with.qualifiers[QUAL.isInline.ordinal()]))
+    // checks for variables with inline specifier
+    if ((!result.isFunction && !with.isFunction) && (result.qualifiers[QUAL.isInline.ordinal()] || with.qualifiers[QUAL.isInline.ordinal()]))
 	    result.isTypeError = true;
 
-	//invalid if signed/unsigned with float/double
-	if ((result.qualifiers[QUAL.isSigned.ordinal()] || with.qualifiers[QUAL.isSigned.ordinal()] ||
-	     result.qualifiers[QUAL.isUnsigned.ordinal()] || with.qualifiers[QUAL.isUnsigned.ordinal()]) &&
-	    (result.foundTypes[FOUND_TYPE.seenFloat.ordinal()] || with.foundTypes[FOUND_TYPE.seenFloat.ordinal()] ||
-	     result.foundTypes[FOUND_TYPE.seenDouble.ordinal()] || with.foundTypes[FOUND_TYPE.seenDouble.ordinal()]))
+    //invalid if signed/unsigned with float/double
+    if ((result.qualifiers[QUAL.isSigned.ordinal()] || with.qualifiers[QUAL.isSigned.ordinal()] ||
+         result.qualifiers[QUAL.isUnsigned.ordinal()] || with.qualifiers[QUAL.isUnsigned.ordinal()]) &&
+        (result.foundTypes[FOUND_TYPE.seenFloat.ordinal()] || with.foundTypes[FOUND_TYPE.seenFloat.ordinal()] ||
+         result.foundTypes[FOUND_TYPE.seenDouble.ordinal()] || with.foundTypes[FOUND_TYPE.seenDouble.ordinal()]))
 	    result.isTypeError = true;
 
-	if (!isValidTypes(result, with))
+    if (!isValidTypes(result, with))
 	    result.isTypeError = true;
 
-	for (int i = 0; i < NUM_QUALS; ++i)
+    for (int i = 0; i < NUM_QUALS; ++i)
 	    if (with.qualifiers[i])
-		if (i == QUAL.isConst.ordinal() || i == QUAL.isVolatile.ordinal())
-		    result.qualifiers[i] = true;
-		else
-		    result.addQual(QUAL.values()[i]);
-	for (int i = 0; i < NUM_TYPES; ++i)
-	    if (with.foundTypes[i] && i != FOUND_TYPE.seenLong.ordinal())
-		result.addType(FOUND_TYPE.values()[i]);
-	    else if (with.foundTypes[i] && i == FOUND_TYPE.seenLong.ordinal())
-		{
-		    if (result.foundTypes[i])
-			{
-			    result.foundTypes[FOUND_TYPE.seenLong.ordinal()] = false;
-			    result.foundTypes[FOUND_TYPE.seenLongLong.ordinal()] = true;
-			}
-		    else
-			result.foundTypes[FOUND_TYPE.seenLong.ordinal()] = true;
-		}
-	result.isTypeError = result.isTypeError || with.isTypeError;
-	result.isFunction = result.isFunction || with.isFunction;
-	result.typedefName = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefName : with.typedefName);
-	result.typedefType = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefType : with.typedefType);
-	return result;
+        if (i == QUAL.isConst.ordinal() || i == QUAL.isVolatile.ordinal())
+          result.qualifiers[i] = true;
+        else
+          result.addQual(QUAL.values()[i]);
+    for (int i = 0; i < NUM_TYPES; ++i){
+      if (with.foundTypes[i] && i != FOUND_TYPE.seenLong.ordinal()){
+        result.addType(FOUND_TYPE.values()[i]);
+      }
+      else if (with.foundTypes[i] && i == FOUND_TYPE.seenLong.ordinal()){
+        if (result.foundTypes[i])	{
+          result.foundTypes[FOUND_TYPE.seenLong.ordinal()] = false;
+          result.foundTypes[FOUND_TYPE.seenLongLong.ordinal()] = true;
+        }
+        else
+          result.foundTypes[FOUND_TYPE.seenLong.ordinal()] = true;
+      }
     }
+    result.isTypeError = result.isTypeError || with.isTypeError;
+    result.isFunction = result.isFunction || with.isFunction;
+    result.typedefName = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefName : with.typedefName);
+    result.typedefType = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefType : with.typedefType);
+    return result;
+  }
 
-    boolean isTypedef()
-    {
-	return qualifiers[QUAL.isTypedef.ordinal()];
+  boolean isTypedef()
+  {
+    return qualifiers[QUAL.isTypedef.ordinal()];
+  }
+
+  void setTypedef(String name, String rename, Type type)
+  {
+    foundTypes[FOUND_TYPE.seenTypedef.ordinal()] = true;
+    typedefName = name;
+    typedefRename = rename;
+    typedefType = type;
+  }
+
+  public boolean getIsValid()
+  {
+    return !isTypeError;
+  }
+
+  public boolean validDeclQuals()
+  {
+    boolean valid = !isTypeError;
+    for (int i = 0; i < NUM_QUALS; ++i){
+	    if (i != QUAL.isConst.ordinal() && i != QUAL.isVolatile.ordinal()){
+        valid = false;
+      }
     }
-
-    void setTypedef(String name, String rename, Type type)
-    {
-	foundTypes[FOUND_TYPE.seenTypedef.ordinal()] = true;
-	typedefName = name;
-	typedefRename = rename;
-	typedefType = type;
-    }
-
-    public boolean getIsValid()
-    {
-	return !isTypeError;
-    }
-
-    public boolean validDeclQuals()
-    {
-	boolean valid = !isTypeError;
-	for (int i = 0; i < NUM_QUALS; ++i)
-	    if (i != QUAL.isConst.ordinal() && i != QUAL.isVolatile.ordinal())
-		valid = false;
-	for (int i = 0; i < NUM_TYPES; ++i)
+    for (int i = 0; i < NUM_TYPES; ++i){
 	    valid = false;
-	return valid;
     }
-    public String qualString()
-    {
-	String output = "";
-	if (qualifiers[QUAL.isConst.ordinal()])
+    return valid;
+  }
+  
+  public String qualString()
+  {
+    String output = "";
+    if (qualifiers[QUAL.isConst.ordinal()]){
 	    output += "const ";
-	if (qualifiers[QUAL.isVolatile.ordinal()])
-	    output += "volatile ";
-	return output;
     }
+    if (qualifiers[QUAL.isVolatile.ordinal()]){
+	    output += "volatile ";
+    }
+    return output;
+  }
+
+  public boolean getIsVoid()
+  {
+    return foundTypes[FOUND_TYPE.seenVoid.ordinal()];
+  }
+
+  public boolean getIsInline()
+  {
+    return qualifiers[QUAL.isInline.ordinal()];
+  }
 }
