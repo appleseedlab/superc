@@ -1627,13 +1627,28 @@ BasicTypeName:
 
 SignedKeyword:
         SIGNED
+	{
+	  System.err.println("WARNING: empty semantic action: SignedKeyword");
+	}
         | __SIGNED
+	{
+	  System.err.println("WARNING: empty semantic action: SignedKeyword");
+	}
         | __SIGNED__
+	{
+	  System.err.println("WARNING: empty semantic action: SignedKeyword");
+	}
         ;
 
 ComplexKeyword:
         _COMPLEX
+	{
+	  System.err.println("WARNING: empty semantic action: ComplexKeyword");
+	}
         | __COMPLEX__
+	{
+	  System.err.println("WARNING: empty semantic action: ComplexKeyword");
+	}
         ;
 
 ElaboratedTypeName: /** passthrough, nomerge **/
