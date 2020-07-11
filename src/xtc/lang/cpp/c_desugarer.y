@@ -848,7 +848,11 @@ DeclaringList:  /** nomerge **/
           bindIdent(subparser, getTBAt(subparser, 5), getDBAt(subparser, 4));
           // TODO: missing semantic value assignment
           System.err.println("WARNING: unsupported semantic action: DeclaringList");
-          System.exit(1);
+          // System.exit(1);
+          //Below code is simply to avoid nullptr
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          sbmv.add(new Element<StringBuilder>(new StringBuilder(""), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setTFValue(value, sbmv);
         }
         | TypeSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
@@ -6413,7 +6417,7 @@ private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebui
       if (! declbuilder.isFunction()) {
         // bind the symbol name to the type under the current presence condition
         PresenceCondition condition = subparser.getPresenceCondition().and(elem.getCondition());
-        scope.getSymbolTable().put(declbuilder.getID(), completedecl.toType(), condition);
+        scope.putEntry(declbuilder.getID(), completedecl.toType(), condition);
         condition.delRef();
       
       } else {  // function types
@@ -6423,12 +6427,11 @@ private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebui
           PresenceCondition condition = parmelem.getCondition().and(elem.getCondition());
         
           if (parmelem.getData().size() == 0) {  // function has no parameters
-            Type functype = new FunctionT(completedecl.toType());
-            scope.getSymbolTable().put(declbuilder.getID(), functype, condition);
-          
+            Type funcType = new FunctionT(completedecl.toType());
+            scope.putEntry(declbuilder.getID(), funcType, condition);
           } else {  // function has parameters
             List<Type> parmlist = new LinkedList<Type>();
-
+            
             // get list of parameter types
             for (Parameter p : parmelem.getData()) {
               if(! p.isEllipsis()) {
@@ -6436,10 +6439,10 @@ private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebui
               }
             }
           
-            Type functype = new FunctionT(completedecl.toType(),
+            Type funcType = new FunctionT(completedecl.toType(),
                                           parmlist,
                                           parmelem.getData().get(parmelem.getData().size() - 1).isEllipsis());
-            scope.getSymbolTable().put(declbuilder.getID(), functype, condition);
+            scope.putEntry(declbuilder.getID(), funcType, condition);
           }
         
           condition.delRef();

@@ -7,7 +7,6 @@ import xtc.type.IntegerT;
 import xtc.type.FloatT;
 import xtc.type.VoidT;
 import xtc.type.UnitT;
-import xtc.type.TypedefT;
 import xtc.Constants;
 
 public class TypeBuilderUnit {
@@ -142,7 +141,7 @@ public class TypeBuilderUnit {
         type = new IntegerT(NumberT.Kind.SHORT); // short
     } else if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
 	    {
-        type = new TypedefT(typedefName, typedefType);
+        type = typedefType;
       } else if (foundTypes[FOUND_TYPE.seenVoid.ordinal()]) {
       type = new VoidT();
     }

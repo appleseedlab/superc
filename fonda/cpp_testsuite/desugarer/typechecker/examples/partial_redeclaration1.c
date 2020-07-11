@@ -1,5 +1,5 @@
 int main() {
-  printf("redeclarations under some configurations");
+  //  printf("redeclarations under some configurations");
 #ifdef A
   int x;
 #endif
