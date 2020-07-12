@@ -7,7 +7,6 @@ import xtc.type.Type;
 import xtc.type.UnitT;
 import xtc.type.PointerT;
 import xtc.type.ArrayT;
-import xtc.type.TypedefT;
 import xtc.lang.cpp.Multiverse.Element;
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
@@ -60,9 +59,6 @@ public class DeclBuilder
     }
     // continually create new pointerT objects where each one points to the previous one
     for (int i = 0; i < numPointers; i++) {
-      if(type instanceof TypedefT)
-        ((TypedefT)type).makePointer();
-      else
         type = new PointerT(type);
     }
 

@@ -8,7 +8,6 @@ import xtc.type.NumberT;
 import xtc.type.IntegerT;
 import xtc.type.FloatT;
 import xtc.type.UnitT;
-import xtc.type.TypedefT;
 import xtc.Constants;
 
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
