@@ -4816,6 +4816,26 @@ private void setTFValue(Object node, Object value) {
   ((Node)node).setProperty(TRANSFORMATION, value);
 }
 
+private static class TypeAndDeclList {
+  private TypeBuilderMultiverse type;
+  private List<DeclBuilder> declList;
+
+  private TypeAndDeclList(TypeBuilderMultiverse tb, List<DeclBuilder> decls) {
+    declList = decls;
+    type = tb;
+  }
+}
+
+private TypeAndDeclList getTBDBList(Object node) {
+  return (TypeAndDeclList)((Node)node).getProperty(TRANSFORMATION);
+}
+
+private TypeAndDeclList getTBDBListAt(Subparser subparser, int component) {
+  // value should be not null and should be a Node type
+  return (TypeAndDeclList)getNodeAt(subparser, component).getProperty(TRANSFORMATION);
+}
+
+
 private Multiverse<StringBuilder> getSBMV(Object node) {
   return (Multiverse<StringBuilder>)((Node)node).getProperty(TRANSFORMATION);
 }
