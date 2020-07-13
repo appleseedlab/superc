@@ -50,17 +50,17 @@
 
 /* keywords */
 %token AUTO            DOUBLE          INT             STRUCT
-%token BREAK  /** layout **/
+%token BREAK
 %token ELSE            LONG            SWITCH
 %token CASE            ENUM            REGISTER        TYPEDEF
 %token CHAR            EXTERN
-%token RETURN  /** layout **/
+%token RETURN  
 %token UNION
 %token CONST           FLOAT           SHORT           UNSIGNED
-%token CONTINUE  /** layout **/
+%token CONTINUE
 %token FOR             SIGNED          VOID
 %token DEFAULT
-%token GOTO  /** layout **/
+%token GOTO
 %token SIZEOF          VOLATILE
 %token DO              IF              STATIC          WHILE
 
@@ -76,7 +76,7 @@
     typedef name is provided to the parser as a TYPEDEFname.*/
 
 /* Multi-Character operators */
-%token  ARROW  /** layout **/            /*    ->                              */
+%token  ARROW            /*    ->                              */
 %token  ICR DECR         /*    ++      --                      */
 %token  LS RS            /*    <<      >>                      */
 %token  LE GE EQ NE      /*    <=      >=      ==      !=      */
@@ -90,16 +90,16 @@
 %token ANDassign   ERassign     ORassign    /*   &=      ^=      |=      */
 
 /* punctuation */
-%token LPAREN  /** layout **/
-%token RPAREN  /** layout **/
-%token COMMA  /** layout **/
+%token LPAREN
+%token RPAREN
+%token COMMA
 %token HASH
 %token DHASH
-%token LBRACE  /** layout **/
-%token RBRACE  /** layout **/
-%token LBRACK  /** layout **/
-%token RBRACK  /** layout **/
-%token DOT  /** layout **/
+%token LBRACE
+%token RBRACE
+%token LBRACK
+%token RBRACK
+%token DOT
 %token AND
 %token STAR
 %token PLUS
@@ -112,10 +112,10 @@
 %token GT
 %token XOR
 %token PIPE
-%token QUESTION  /** layout **/
-%token COLON  /** layout **/
-%token SEMICOLON  /** layout **/
-%token ASSIGN  /** layout **/
+%token QUESTION
+%token COLON
+%token SEMICOLON
+%token ASSIGN
 
 //tokens for gcc extensions
 %token ASMSYM
@@ -381,11 +381,10 @@ ExternalDeclaration:  /** passthrough, complete **/
 EmptyDefinition:  /** complete **/
         SEMICOLON
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
-          // TODO: should this use the current presence condition, i.e., subparser.getPresenceCondition()
-          result.add(new StringBuilder("; "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
-          setTFValue(value, result);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -3311,17 +3310,10 @@ BreakStatement:  /** complete **/
 ReturnStatement:  /** complete **/
         RETURN ExpressionOpt SEMICOLON
         {
-          // TODO: there's no need to hard-code the tokens's text below.  just use the RETURN and SEMICOLON's values
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
-          temp.add(new StringBuilder("return "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
-          Multiverse<StringBuilder> result = cartesianProductWithChild(temp, getNodeAt(subparser, 2), pc);
-          temp.destruct();
-          temp = result.product(new StringBuilder("; "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          result.destruct();
-          result = temp;
-          setTFValue(value, result);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -3388,6 +3380,7 @@ StringLiteralList:  /** list, nomerge **/
 PrimaryExpression:  /** nomerge, passthrough **/
         PrimaryIdentifier
         {
+        	System.out.println("not null yet");
           PresenceCondition pc = subparser.getPresenceCondition();
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
@@ -3518,22 +3511,9 @@ PostfixExpression:  /** passthrough, nomerge **/
 Subscript:  /** nomerge **/
         PostfixExpression LBRACK Expression RBRACK
         {
-          // TODO: let's figure out a way to allow child nodes that are tokens as well in the cartesian product method.  that will make actions like these simpler to write
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          Multiverse<StringBuilder> temp;
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 4), subparser.getPresenceCondition());
-          sbmv.destruct();
-          sbmv = temp;
-          temp = sbmv.product(new StringBuilder(" [ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 2), subparser.getPresenceCondition());
-          sbmv.destruct();
-          sbmv = temp;
-          temp = sbmv.product(new StringBuilder(" ] "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -3571,30 +3551,18 @@ IndirectSelection:  /** nomerge **/
 Increment:  /** nomerge **/
         PostfixExpression ICR
         {
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          Multiverse<StringBuilder> temp;
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 2), subparser.getPresenceCondition());
-          sbmv.destruct();
-          sbmv = temp;
-          temp = sbmv.product(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
 Decrement:  /** nomerge **/
         PostfixExpression DECR
         {
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          Multiverse<StringBuilder> temp;
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 2), subparser.getPresenceCondition());
-          sbmv.destruct();
-          sbmv = temp;
-          temp = sbmv.product(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -3629,23 +3597,15 @@ UnaryExpression:  /** passthrough, nomerge **/
         }
         | ICR UnaryExpression
         {
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          Multiverse<StringBuilder> temp;
-          sbmv.add(new StringBuilder(" ++ "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
-          sbmv.destruct();
-          sbmv = temp;
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | DECR UnaryExpression
         {
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          Multiverse<StringBuilder> temp;
-          sbmv.add(new StringBuilder(" -- "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
-          sbmv.destruct();
-          sbmv = temp;
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | Unaryoperator CastExpression
         {
@@ -3752,34 +3712,39 @@ LabelAddressExpression:  /** nomerge  **/  // ADDED
 Unaryoperator:
         AND
         {
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Multiverse.Element<StringBuilder>(new StringBuilder(" & "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | STAR
         {
-          System.err.println("WARNING: unsupported semantic action: Unaryoperator");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | PLUS
         {
-          System.err.println("WARNING: unsupported semantic action: Unaryoperator");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | MINUS
         {
-          System.err.println("WARNING: unsupported semantic action: Unaryoperator");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | NEGATE
         {
-          System.err.println("WARNING: unsupported semantic action: Unaryoperator");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | NOT
         {
-          System.err.println("WARNING: unsupported semantic action: Unaryoperator");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -3808,48 +3773,21 @@ MultiplicativeExpression:  /** passthrough, nomerge **/
         }
         | MultiplicativeExpression STAR CastExpression
         {
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          Multiverse<StringBuilder> temp;
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), subparser.getPresenceCondition());
-          sbmv.destruct();
-          sbmv = temp;
-          temp = sbmv.product(new StringBuilder(" * "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
-          sbmv.destruct();
-          sbmv = temp;
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | MultiplicativeExpression DIV CastExpression
         {
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          Multiverse<StringBuilder> temp;
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), subparser.getPresenceCondition());
-          sbmv.destruct();
-          sbmv = temp;
-          temp = sbmv.product(new StringBuilder(" / "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
-          sbmv.destruct();
-          sbmv = temp;
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | MultiplicativeExpression MOD CastExpression
         {
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          Multiverse<StringBuilder> temp;
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), subparser.getPresenceCondition());
-          sbmv.destruct();
-          sbmv = temp;
-          temp = sbmv.product(new StringBuilder(" % "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
-          sbmv.destruct();
-          sbmv = temp;
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -3863,33 +3801,15 @@ AdditiveExpression:  /** passthrough, nomerge **/
         }
         | AdditiveExpression PLUS MultiplicativeExpression
         {
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          Multiverse<StringBuilder> temp;
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), subparser.getPresenceCondition());
-          sbmv.destruct();
-          sbmv = temp;
-          temp = sbmv.product(new StringBuilder(" + "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
-          sbmv.destruct();
-          sbmv = temp;
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | AdditiveExpression MINUS MultiplicativeExpression
         {
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          Multiverse<StringBuilder> temp;
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), subparser.getPresenceCondition());
-          sbmv.destruct();
-          sbmv = temp;
-          temp = sbmv.product(new StringBuilder(" - "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true), SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), subparser.getPresenceCondition());
-          sbmv.destruct();
-          sbmv = temp;
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -4287,334 +4207,399 @@ AttributeExpressionOpt:   // ADDED
 Word:  // ADDED
         IDENTIFIER
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | AUTO
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | DOUBLE
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | INT
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | STRUCT
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | BREAK
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | ELSE
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | LONG
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | SWITCH
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | CASE
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | ENUM
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | REGISTER
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TYPEDEF
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | CHAR
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | EXTERN
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | RETURN
         {
-          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
-          result.add(new StringBuilder("return "), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true));
-          setTFValue(value, result);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | UNION
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | CONST
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | FLOAT
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | SHORT
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | UNSIGNED
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | CONTINUE
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | FOR
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | SIGNED
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | VOID
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | DEFAULT
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | GOTO
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | SIZEOF
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | VOLATILE
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | DO
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | IF
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | STATIC
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | WHILE
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | ASMSYM
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | _BOOL
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | _COMPLEX
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | RESTRICT
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __ALIGNOF
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __ALIGNOF__
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | ASM
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __ASM
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __ASM__
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __ATTRIBUTE
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __ATTRIBUTE__
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __BUILTIN_OFFSETOF
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __BUILTIN_TYPES_COMPATIBLE_P
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __BUILTIN_VA_ARG
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __BUILTIN_VA_LIST
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __COMPLEX__
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __CONST
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __CONST__
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __EXTENSION__
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | INLINE
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __INLINE
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __INLINE__
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __LABEL__
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __RESTRICT
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __RESTRICT__
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __SIGNED
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __SIGNED__
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __THREAD
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | TYPEOF
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __TYPEOF
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __TYPEOF__
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __VOLATILE
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __VOLATILE__
         {
-          System.err.println("WARNING: unsupported semantic action: Word");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -4890,7 +4875,8 @@ private Multiverse<StringBuilder> getProductOfSomeChildren(PresenceCondition pc,
   Multiverse<StringBuilder> temp;
   for (Node child : children) {
     if (child.isToken()) {
-      StringBuilder tokenText = new StringBuilder(child.getTokenText());
+      StringBuilder tokenText = new StringBuilder(" ");
+      tokenText.append(child.getTokenText());
       temp = sbmv.product(tokenText, pc, SBCONCAT);
       sbmv.destruct();
       sbmv = temp;
