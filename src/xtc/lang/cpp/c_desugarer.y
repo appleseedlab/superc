@@ -336,16 +336,9 @@ ExternalDeclarationList: /** list, complete **/
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          System.err.println("before");
           Node child1 = getNodeAt(subparser, 2);
           Node child2 = getNodeAt(subparser, 1);
-          System.err.println("child1 " + child1);
-          System.err.println("child2 " + child2);
-          System.err.println("getSBMV(child1) " + getSBMV(child1));
-          System.err.println("getSBMV(child2) " + getSBMV(child2));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child2, child1);
-          System.err.println("after");
-          System.err.println("product " + product);
           setTFValue(value, product);
         }
         ;
@@ -747,7 +740,6 @@ DeclarationExtension:  /** passthrough, complete **/  // ADDED
           PresenceCondition pc = subparser.getPresenceCondition();
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          System.err.println("declaration is setting: " + product);
           setTFValue(value, product);
         }
         | __EXTENSION__ Declaration
@@ -2877,11 +2869,14 @@ ArrayAbstractDeclarator: /** nomerge **/
       	  DeclBuilder db = new DeclBuilder();
           // TODO: support configurable array bound expressions
           Multiverse<StringBuilder> arrayBounds = getSBMVAt(subparser, 2);
-          if (arrayBounds.size() > 1) {
+          if (arrayBounds.size() == 1) {
+          	db.addArray(arrayBounds.get(0).getData().toString());
+          } else if (arrayBounds.size() > 1) {
             System.err.println("ERROR: configurable array bounds not yet supported.");
             System.exit(1);
-          } else {
-            db.addArray(arrayBounds.get(0).getData().toString());
+          } else /* arrayBounds.size() < 1 */ {
+            System.err.println("FATAL: children of ArrayAbstractDeclarator should not be missing");
+            System.exit(1);
           }
           setTFValue(value, db);
 	      }
@@ -2890,11 +2885,14 @@ ArrayAbstractDeclarator: /** nomerge **/
       	  DeclBuilder db = getDBAt(subparser,4);
           // TODO: support configurable array bound expressions
           Multiverse<StringBuilder> arrayBounds = getSBMVAt(subparser, 2);
-          if (arrayBounds.size() > 1) {
+          if (arrayBounds.size() == 1) {
+          	db.addArray(arrayBounds.get(0).getData().toString());
+          } else if (arrayBounds.size() > 1) {
             System.err.println("ERROR: configurable array bounds not yet supported.");
             System.exit(1);
-          } else {
-            db.addArray(arrayBounds.get(0).getData().toString());
+          } else /* arrayBounds.size() < 1 */ {
+            System.err.println("FATAL: children of ArrayAbstractDeclarator should not be missing");
+            System.exit(1);
           }
           setTFValue(value, db);
 	      }
@@ -3333,18 +3331,16 @@ ReturnStatement:  /** complete **/
 Constant: /** passthrough, nomerge **/
         FLOATINGconstant
         {
-          StringBuilder sb = new StringBuilder();
-          sb.append(((Node)value).getTokenText());
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+        	PresenceCondition pc = subparser.getPresenceCondition();
+        	Node child = getNodeAt(subparser, 1);
+        	Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, child);
           setTFValue(value, sbmv);
         }
         | INTEGERconstant
         {
-          StringBuilder sb = new StringBuilder();
-          sb.append(((Node)value).getTokenText());
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+        	PresenceCondition pc = subparser.getPresenceCondition();
+        	Node child = getNodeAt(subparser, 1);
+        	Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, child);
           setTFValue(value, sbmv);
         }
         /* We are not including ENUMERATIONConstant here  because  we
@@ -3352,26 +3348,23 @@ Constant: /** passthrough, nomerge **/
         Constant".  */
         | OCTALconstant
         {
-          StringBuilder sb = new StringBuilder();
-          sb.append(((Node)value).getTokenText());
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+        	PresenceCondition pc = subparser.getPresenceCondition();
+        	Node child = getNodeAt(subparser, 1);
+        	Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, child);
           setTFValue(value, sbmv);
         }
         | HEXconstant
         {
-          StringBuilder sb = new StringBuilder();
-          sb.append(((Node)value).getTokenText());
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+        	PresenceCondition pc = subparser.getPresenceCondition();
+        	Node child = getNodeAt(subparser, 1);
+        	Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, child);
           setTFValue(value, sbmv);
         }
         | CHARACTERconstant
         {
-          StringBuilder sb = new StringBuilder();
-          sb.append(((Node)value).getTokenText());
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+        	PresenceCondition pc = subparser.getPresenceCondition();
+        	Node child = getNodeAt(subparser, 1);
+        	Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, child);
           setTFValue(value, sbmv);
         }
         ;
@@ -4835,7 +4828,6 @@ private TypeAndDeclList getTBDBListAt(Subparser subparser, int component) {
   return (TypeAndDeclList)getNodeAt(subparser, component).getProperty(TRANSFORMATION);
 }
 
-
 private Multiverse<StringBuilder> getSBMV(Object node) {
   return (Multiverse<StringBuilder>)((Node)node).getProperty(TRANSFORMATION);
 }
@@ -4897,9 +4889,16 @@ private Multiverse<StringBuilder> getProductOfSomeChildren(PresenceCondition pc,
   Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
   Multiverse<StringBuilder> temp;
   for (Node child : children) {
-    temp = cartesianProductWithChild(sbmv, child, pc);
-    sbmv.destruct();
-    sbmv = temp;
+    if (child.isToken()) {
+      StringBuilder tokenText = new StringBuilder(child.getTokenText());
+      temp = sbmv.product(tokenText, pc, SBCONCAT);
+      sbmv.destruct();
+      sbmv = temp;
+    } else { 
+      temp = cartesianProductWithChild(sbmv, child, pc);
+      sbmv.destruct();
+      sbmv = temp;
+    }
   }
   return sbmv;
 }
@@ -4952,10 +4951,10 @@ Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringBuilder> sb
   // and then gets all configurations of that node
   Multiverse<Node> allConfigs = getAllNodeConfigs(child, presenceCondition);
   for (Multiverse.Element<Node> childNode : allConfigs) {
-    Multiverse<StringBuilder> childSBMV = getSBMV(childNode.getData());
-    Multiverse<StringBuilder> temp = sbmv.product(childSBMV, SBCONCAT);
-    sbmv.destruct();
-    sbmv = temp;
+	    Multiverse<StringBuilder> childSBMV = getSBMV(childNode.getData());
+	    Multiverse<StringBuilder> temp = sbmv.product(childSBMV, SBCONCAT);
+	    sbmv.destruct();
+	    sbmv = temp;
   }
 
   return sbmv;
@@ -6424,7 +6423,7 @@ private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebui
     System.err.println("ERROR: null typebuilder or declbuilder");
     System.exit(1);
   }
-  
+
   CContext scope = (CContext) subparser.scope;
 
   // get the list of parameters if it's a function declarator
@@ -6438,48 +6437,48 @@ private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebui
   for (Element<TypeBuilderUnit> elem : typebuilder) {
 
     TypeBuilderUnit t = elem.getData();
-    
+
     if (!isTypeDeclValid(t, declbuilder)) {
       PresenceCondition condition = subparser.getPresenceCondition().and(elem.getCondition());
       scope.getSymbolTable().putError(declbuilder.getID(), condition);
       condition.delRef();
     } else {
-    
+
       // combine the type spec and declarator into a complete type
       DeclBuilder completedecl = new DeclBuilder(declbuilder);
       completedecl.addType(t.toType());
-    
+
       if (! declbuilder.isFunction()) {
         // bind the symbol name to the type under the current presence condition
         PresenceCondition condition = subparser.getPresenceCondition().and(elem.getCondition());
         scope.putEntry(declbuilder.getID(), completedecl.toType(), condition);
         condition.delRef();
-      
+
       } else {  // function types
         // go through each combination of parameters, adding each
         // variation of the function declarator to the symtab
         for(Element<List<Parameter>> parmelem : parms) {
           PresenceCondition condition = parmelem.getCondition().and(elem.getCondition());
-        
+
           if (parmelem.getData().size() == 0) {  // function has no parameters
             Type funcType = new FunctionT(completedecl.toType());
             scope.putEntry(declbuilder.getID(), funcType, condition);
           } else {  // function has parameters
             List<Type> parmlist = new LinkedList<Type>();
-            
+
             // get list of parameter types
             for (Parameter p : parmelem.getData()) {
               if(! p.isEllipsis()) {
                 parmlist.add(p.getType());
               }
             }
-          
+
             Type funcType = new FunctionT(completedecl.toType(),
                                           parmlist,
                                           parmelem.getData().get(parmelem.getData().size() - 1).isEllipsis());
             scope.putEntry(declbuilder.getID(), funcType, condition);
           }
-        
+
           condition.delRef();
         }
       }
