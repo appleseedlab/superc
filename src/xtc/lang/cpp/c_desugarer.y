@@ -770,11 +770,55 @@ Declaration:  /** complete **/
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 3);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTFValue(value, product);
+        	// gets the type, the declarations, and any initializers
+        	TypeAndDeclInitList TBDBList = getTBDBListAt(subparser, 3);
+        	TypeBuilderMultiverse type = TBDBList.type;
+        	List<TypeAndDeclInitList.DeclAndInit> declAndInits = TBDBList.declAndInitList;
+
+
+        	// generates declarations and statements with the retrieved information
+        	Multiverse<StringBuilder> declarationSBMVWrapper = new Multiverse<StringBuilder>();
+        	StringBuilder sb = new StringBuilder();
+        	for (TypeAndDeclInitList.DeclAndInit declAndInit : declAndInits) {
+        		DeclBuilder decl = declAndInit.decl;
+	          String oldIdent = decl.identifier;
+	          System.err.println(decl.toString() + " " + type.toString());
+	          addDeclsToSymTab(subparser, type, decl);
+	          Multiverse<SymbolTable.Entry> entries
+	            = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
+	          // TODO: destruct multiverse when done
+	      	  
+	          for (Element<SymbolTable.Entry> elem : entries) {
+	      	    decl.identifier = elem.getData().getRenaming();
+	      	    if (type.size() == 1) {
+	      	      if (type.get(0).getData().toType().getClass().getName().equals("xtc.type.TypedefT")) {
+	                System.err.println("WARNING: typedef transformations not yet supported.");
+	              }
+	              sb.append("\n" + type.get(0).getData().toType() + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
+	      	    } else {
+	      	      System.err.println("ERROR: Configurable typedefs not yet supported.");
+	      	      // System.exit(1);
+	    	      }
+	          }
+
+	          // writes initializing statements using the renamed variables
+	        	if (declAndInit.hasInitializer) {
+	          	Multiverse<StringBuilder> initializer = declAndInit.initializerSBMV;
+	            for (Element<SymbolTable.Entry> u : entries) {
+	              for (Element<StringBuilder> sbelem : initializer) {
+	                sb.append("\nif (" + PCtoString(u.getCondition().and(sbelem.getCondition())) + ") {\n" +
+	                         (new StringBuilder(u.getData().getRenaming())).toString() +
+	                         sbelem.getData() + ";" +
+	                         "\n}\n");
+	              }
+	            }
+	        	}
+        	}
+
+        	// stores the generated declarations and initializing statements in the SBMV wrapper,
+        	// then sets the SBMV as this node's semantic value
+        	declarationSBMVWrapper.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          setTFValue(value, declarationSBMVWrapper);
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
@@ -837,13 +881,28 @@ DeclaringList:  /** nomerge **/
           addDeclsToSymTab(subparser, type, decl);
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getTBAt(subparser, 5), getDBAt(subparser, 4));
-          // TODO: missing semantic value assignment
-          System.err.println("WARNING: unsupported semantic action: DeclaringList");
-          // System.exit(1);
-          //Below code is simply to avoid nullptr
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(new StringBuilder(""), subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setTFValue(value, sbmv);
+
+          System.err.println("WARNING: skipping some children of DeclaringList");
+
+          TypeAndDeclInitList.DeclAndInit declAndInit = new TypeAndDeclInitList.DeclAndInit();
+          Multiverse<StringBuilder> initializer = getSBMVAt(subparser, 1);
+					if (initializer != null) {
+        		if (initializer.size() == 0) {
+	        		declAndInit.addDeclNoInit(decl);
+	      		} else if (initializer.size() > 0) {
+	        		declAndInit.addDeclWithInit(decl, initializer);
+	        	} else {
+	        		System.err.println("FATAL: initializer SBMV has a negative size");
+	        		System.exit(1);
+	        	}
+					} else {
+						declAndInit.addDeclNoInit(decl);
+					}
+
+        	LinkedList<TypeAndDeclInitList.DeclAndInit> declAndInitList = new LinkedList<TypeAndDeclInitList.DeclAndInit>();
+        	declAndInitList.add(declAndInit);
+          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(type, declAndInitList);
+          setTFValue(value, TBDBList);
         }
         | TypeSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
@@ -851,54 +910,59 @@ DeclaringList:  /** nomerge **/
       	  TypeBuilderMultiverse type = getTBAt(subparser, 5);
       	  saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, type, decl);
+          
+          System.err.println("WARNING: skipping some children of DeclaringList");
+          
+          TypeAndDeclInitList.DeclAndInit declAndInit = new TypeAndDeclInitList.DeclAndInit();
 
-          String oldIdent = decl.identifier;
-          System.err.println(decl.toString() + " " + type.toString());
-          addDeclsToSymTab(subparser, type, decl);
-          Multiverse<SymbolTable.Entry> entries
-            = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-          // TODO: destruct multiverse when done
-      	  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          StringBuilder sb = new StringBuilder();
+          Multiverse<StringBuilder> initializer = getSBMVAt(subparser, 1);
+					if (initializer != null) {
+        		if (initializer.size() == 0) {
+	        		declAndInit.addDeclNoInit(decl);
+	      		} else if (initializer.size() > 0) {
+	        		declAndInit.addDeclWithInit(decl, initializer);
+	        	} else {
+	        		System.err.println("FATAL: initializer SBMV has a negative size");
+	        		System.exit(1);
+	        	}
+					} else {
+						declAndInit.addDeclNoInit(decl);
+					}
 
-          for (Element<SymbolTable.Entry> elem : entries) {
-      	    decl.identifier = elem.getData().getRenaming();
-      	    if (type.size() == 1){
-      	      if (type.get(0).getData().toType().getClass().getName().equals("xtc.type.TypedefT")) {
-                System.err.println("WARNING: typedef transformations not yet supported.");
-              }
-              sb.append("\n" + type.get(0).getData().toType() + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
-      	    } else {
-      	      System.err.println("ERROR: Configurable typedefs not yet supported.");
-      	      // System.exit(1);
-    	      }
-          }
-
-          // TODO: handle AttributeSpecifierListOpt
-
-          /** hoists and writes initializing statements using the renamed variables */
-          Multiverse<StringBuilder> childSBMV = getSBMVAt(subparser, 1);
-          if (childSBMV != null)
-            for (Element<SymbolTable.Entry> u : entries)
-              for (Element<StringBuilder> sbelem : childSBMV)
-                sb.append("\nif (" + PCtoString(u.getCondition().and(sbelem.getCondition())) + ") {\n" +
-                         (new StringBuilder(u.getData().getRenaming())).toString() +
-                         sbelem.getData() + ";" +
-                         "\n}\n");
-
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setTFValue(value, sbmv);
+        	LinkedList<TypeAndDeclInitList.DeclAndInit> declAndInitList = new LinkedList<TypeAndDeclInitList.DeclAndInit>();
+        	declAndInitList.add(declAndInit);
+          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(type, declAndInitList);
+          setTFValue(value, TBDBList);
         }
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
-          System.err.println("WARNING: unsupported semantic action: DeclaringList");
-          System.exit(1);
           // reuses saved base type
 	        bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          System.err.println("WARNING: unsupported semantic action: DeclaringList");
-          System.exit(1);
+          Multiverse<StringBuilder> initializer = getSBMVAt(subparser, 1);
+          DeclBuilder decl = getDBAt(subparser, 5);
+          TypeAndDeclInitList TBDBListChild = getTBDBListAt(subparser, 8);
+          System.err.println("WARNING: skipping some children of DeclaringList");
+          
+          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(TBDBListChild); // TODO: add copy constructor
+          TypeAndDeclInitList.DeclAndInit declAndInit = new TypeAndDeclInitList.DeclAndInit();
+					if (initializer != null) {
+        		if (initializer.size() == 0) {
+	        		declAndInit.addDeclNoInit(decl);
+	      		} else if (initializer.size() > 0) {
+	        		declAndInit.addDeclWithInit(decl, initializer);
+	        	} else {
+	        		System.err.println("FATAL: initializer SBMV has a negative size");
+	        		System.exit(1);
+	        	}
+					} else {
+						declAndInit.addDeclNoInit(decl);
+					}
+
+        	TBDBList.addDeclAndInit(declAndInit);
+          
+          setTFValue(value, TBDBList);
         }
         ;
 
@@ -3380,7 +3444,6 @@ StringLiteralList:  /** list, nomerge **/
 PrimaryExpression:  /** nomerge, passthrough **/
         PrimaryIdentifier
         {
-        	System.out.println("not null yet");
           PresenceCondition pc = subparser.getPresenceCondition();
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
@@ -4794,23 +4857,128 @@ private void setTFValue(Object node, Object value) {
   ((Node)node).setProperty(TRANSFORMATION, value);
 }
 
-private static class TypeAndDeclList {
+/** 
+ * TypeAndDeclInitList stores type information,
+ * with a list of declarations and their optional initializing statements.
+ * This is used as the semantic value for declaring lists. 
+ * The parent of a declaring list should construct the transformation output using the stored information.
+ * 
+ */
+private static class TypeAndDeclInitList {
+	/** The type field */
   private TypeBuilderMultiverse type;
-  private List<DeclBuilder> declList;
+  /** The declaration and initializer list */
+  private static List<DeclAndInit> declAndInitList;
 
-  private TypeAndDeclList(TypeBuilderMultiverse tb, List<DeclBuilder> decls) {
-    declList = decls;
+	/**
+	* This constructor creates a TypeAndDeclInitList.
+	*
+	* @param tb The type information.
+	* @param declAndInits The declaration and initializer list.
+	*/
+  private TypeAndDeclInitList(TypeBuilderMultiverse tb, List<DeclAndInit> declsAndInits) {
+    declAndInitList = declsAndInits;
     type = tb;
   }
+
+  /** The copy constructor */
+  private TypeAndDeclInitList(TypeAndDeclInitList TBDBList) {
+  	if (TBDBList == null) {
+  		System.err.println("FATAL: attempting to copy a null TypeAndDeclInitList");
+  		System.exit(1);
+  	}
+
+  	type = new TypeBuilderMultiverse(TBDBList.type);
+  	declAndInitList = new LinkedList<DeclAndInit>(TBDBList.declAndInitList);
+  }
+
+  /** Adds a declaration and an optional initializer to the list */
+  private void addDeclAndInit(DeclAndInit declAndInit) {
+  	declAndInitList.add(declAndInit);
+  }
+
+  /** 
+	 * DeclAndInit stores the declaration and initializer statement information.
+	 */
+	private static class DeclAndInit {
+		/** The declaration field */
+		private DeclBuilder decl;
+		/** The initializer statement field*/
+	  private Multiverse<StringBuilder> initializerSBMV;
+	  /** The flag that keeps track of whether or not there is an initializer statement */
+	  private boolean hasInitializer;
+
+	  /** The default constructor. Sets the hasInitializer flag to false. */
+	  private DeclAndInit() {
+	  	hasInitializer = false;
+	  }
+
+  	/** 
+	   * Constructor for declarations with no initializer statements.
+	   * @param db The declaration information.
+	   */
+	  private DeclAndInit(DeclBuilder db) {
+	  	decl = db;
+	  	hasInitializer = false;
+	  }
+
+  	/** 
+	   * Constructor for declarations with an initializer statement.
+	   * @param db The declaration information.
+	   * @param initializer The initializer statement.
+	   */
+	  private DeclAndInit(DeclBuilder db, Multiverse<StringBuilder> initializer) {
+	  	decl = db;
+	  	hasInitializer = true;
+	  	initializerSBMV = initializer;
+	  }
+
+	  /** 
+	   * Adds declaration information, without an initializer.
+	   * Attempting to overwrite an existing declaration causes an error and an exit.
+	   * @param db The declaration information.
+	   */
+	  private void addDeclNoInit(DeclBuilder db) {
+	  	if (decl == null) {
+	  		decl = db;
+	  	} else {
+	  		System.err.println("ERROR: attempting to overwrite a declaration");
+				System.exit(1);
+	  	}
+	  }
+
+	  /** 
+	   * Adds declaration information, with an initializer.
+	   * Attempting to overwrite an existing declaration causes an error and an exit.
+	   * @param db The declaration information.
+		 * @param initializer The initializing statement.
+	   */
+	  private void addDeclWithInit(DeclBuilder db, Multiverse<StringBuilder> initializer) {
+			if (decl == null) {
+	  		decl = db;
+	  	} else {
+	  		System.err.println("ERROR: attempting to overwrite a declaration");
+				System.exit(1);
+	  	}
+
+	  	if (hasInitializer) {
+	  		System.err.println("ERROR: attempting to add multiple initializers to a single declaration");
+				System.exit(1);
+	  	} else {
+	  		initializerSBMV = initializer;
+	  		hasInitializer = true;
+	  	}
+	  }
+	}
 }
 
-private TypeAndDeclList getTBDBList(Object node) {
-  return (TypeAndDeclList)((Node)node).getProperty(TRANSFORMATION);
+private TypeAndDeclInitList getTBDBList(Object node) {
+  return (TypeAndDeclInitList)((Node)node).getProperty(TRANSFORMATION);
 }
 
-private TypeAndDeclList getTBDBListAt(Subparser subparser, int component) {
+private TypeAndDeclInitList getTBDBListAt(Subparser subparser, int component) {
   // value should be not null and should be a Node type
-  return (TypeAndDeclList)getNodeAt(subparser, component).getProperty(TRANSFORMATION);
+  return (TypeAndDeclInitList)getNodeAt(subparser, component).getProperty(TRANSFORMATION);
 }
 
 private Multiverse<StringBuilder> getSBMV(Object node) {
