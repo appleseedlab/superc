@@ -4066,6 +4066,12 @@ AssignmentOperator: /** nomerge **/
 
 ExpressionOpt:  /** passthrough, nomerge **/
         /* Nothing */
+{
+  Multiverse<StringBuilder> s = new Multiverse<StringBuilder>();
+  s.add(new StringBuilder(""),subparser.getPresenceCondition());
+  setTFValue(value, s);
+ 
+}
         | Expression
         {
           PresenceCondition pc = subparser.getPresenceCondition();

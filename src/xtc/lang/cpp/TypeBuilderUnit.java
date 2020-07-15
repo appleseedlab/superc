@@ -23,7 +23,6 @@ public class TypeBuilderUnit {
 
     List<String> attributes;
 
-    boolean isFunction;
     boolean isTypeError;
     String typedefName;
     String typedefRename;
@@ -241,7 +240,6 @@ public class TypeBuilderUnit {
 	for (int i = 0; i < NUM_QUALS; ++i)
 	    qualifiers[i] = old.qualifiers[i];
 	attributes = new LinkedList<String>(old.attributes);
-	isFunction = old.isFunction;
 	isTypeError = old.isTypeError;
 	typedefName = old.typedefName;
 	typedefType = old.typedefType;
@@ -256,8 +254,7 @@ public class TypeBuilderUnit {
 	    qualifiers[i] = false;
 	for (int i = 0; i < NUM_TYPES; ++i)
 	    foundTypes[i] = false;
-	isFunction = false;
-	isTypeError = false;
+  isTypeError = false;
 	typedefName = "";
 	typedefType = null;
 	add(name);
@@ -312,8 +309,7 @@ public class TypeBuilderUnit {
 
 	this.type = type;
 	attributes = new LinkedList<String>();
-	isFunction = false;
-	isTypeError = false;
+  isTypeError = false;
 	typedefName = "";
 	typedefType = null;
   }
@@ -327,7 +323,6 @@ public class TypeBuilderUnit {
 	    for (int i = 0; i < NUM_QUALS; ++i)
 		qualifiers[i] = old.qualifiers[i];
 	    attributes = new LinkedList<String>(old.attributes);
-	    isFunction = false;
 	    isTypeError = old.isTypeError;
 	    typedefName = old.typedefName;
 	    typedefType = old.typedefType;
@@ -343,8 +338,7 @@ public class TypeBuilderUnit {
 	for (int i = 0; i < NUM_TYPES; ++i)
 	    foundTypes[i] = false;
 	attributes = new LinkedList<String>();
-	isFunction = false;
-	isTypeError = false;
+  isTypeError = false;
 	typedefName = "";
 	typedefType = null;
     }
@@ -357,7 +351,6 @@ public class TypeBuilderUnit {
     for (int i = 0; i < NUM_TYPES; ++i)
 	    foundTypes[i] = old.foundTypes[i];
     attributes = new LinkedList<String>(old.attributes);
-    isFunction = old.isFunction;
     isTypeError = old.isTypeError;
     typedefName = old.typedefName;
     typedefType = old.typedefType;
@@ -426,10 +419,6 @@ public class TypeBuilderUnit {
         qualComboExists(result, with, QUAL.isTypedef, QUAL.isRegister))
 	    result.isTypeError = true;
 
-    // checks for variables with inline specifier
-    if ((!result.isFunction && !with.isFunction) && (result.qualifiers[QUAL.isInline.ordinal()] || with.qualifiers[QUAL.isInline.ordinal()]))
-	    result.isTypeError = true;
-
     //invalid if signed/unsigned with float/double
     if ((result.qualifiers[QUAL.isSigned.ordinal()] || with.qualifiers[QUAL.isSigned.ordinal()] ||
          result.qualifiers[QUAL.isUnsigned.ordinal()] || with.qualifiers[QUAL.isUnsigned.ordinal()]) &&
@@ -460,7 +449,6 @@ public class TypeBuilderUnit {
       }
     }
     result.isTypeError = result.isTypeError || with.isTypeError;
-    result.isFunction = result.isFunction || with.isFunction;
     result.typedefName = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefName : with.typedefName);
     result.typedefType = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefType : with.typedefType);
     return result;
