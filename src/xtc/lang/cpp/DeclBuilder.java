@@ -70,7 +70,6 @@ public class DeclBuilder
     Multiverse<List<Parameter>> m = new Multiverse<List<Parameter>>();
     List<Parameter> l = new LinkedList<Parameter>();
     m.add(l, current);
-    System.err.println("***\nCond:" + current.toString() + "\n" + parameters.toString() + "\n**");
     for (Parameter p : parameters)
       {
         Multiverse<List<Parameter>> newM = new Multiverse<List<Parameter>>();

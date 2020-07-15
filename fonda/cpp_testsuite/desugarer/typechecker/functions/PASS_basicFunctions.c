@@ -21,8 +21,8 @@ short w(int x, ...)
 
 int main()
 {
-  x();
-  y(2);
-  z(1,2);
+  //  x();
+  // y(2);
+  //z(1,2);
   return 0;
 }

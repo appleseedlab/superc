@@ -1072,36 +1072,24 @@ TypeQualifier:    // const, volatile, and restrict can have underscores
 ConstQualifier:    // ADDED
         CONST
         {
-          System.err.println("WARNING: unsupported semantic action: ConstQualifier");
-          System.exit(1);
         }
         | __CONST
         {
-          System.err.println("WARNING: unsupported semantic action: ConstQualifier");
-          System.exit(1);
         }
         | __CONST__
         {
-          System.err.println("WARNING: unsupported semantic action: ConstQualifier");
-          System.exit(1);
         }
         ;
 
 VolatileQualifier:   // ADDED
         VOLATILE
         {
-          System.err.println("WARNING: unsupported semantic action: VolatileQualifier");
-          System.exit(1);
         }
         | __VOLATILE
         {
-          System.err.println("WARNING: unsupported semantic action: VolatileQualifier");
-          System.exit(1);
         }
         | __VOLATILE__
         {
-          System.err.println("WARNING: unsupported semantic action: VolatileQualifier");
-          System.exit(1);
         }
         ;
 
@@ -1126,18 +1114,12 @@ RestrictQualifier:   // ADDED
 FunctionSpecifier:  // ADDED
         INLINE
         {
-          System.err.println("WARNING: unsupported semantic action: FunctionSpecifier");
-          System.exit(1);
         }
         | __INLINE
         {
-          System.err.println("WARNING: unsupported semantic action: FunctionSpecifier");
-          System.exit(1);
         }
         | __INLINE__
         {
-          System.err.println("WARNING: unsupported semantic action: FunctionSpecifier");
-          System.exit(1);
         }
         ;
 
@@ -1561,7 +1543,6 @@ BasicTypeName:
         {
           // See xtc.type.* for the class hiearchy for types
           TypeBuilderMultiverse tb = new TypeBuilderMultiverse(NumberT.INT, subparser.getPresenceCondition());
-          System.err.println(tb.toString());
           setTFValue(value, tb);
                     getSpecsAt(subparser, 1).seenInt = true;
         }
@@ -2115,7 +2096,6 @@ ParameterIdentifierDeclaration:
         DeclarationSpecifier IdentifierDeclarator
         {
           System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
-          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -2129,12 +2109,13 @@ ParameterIdentifierDeclaration:
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
           System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
-          setTFValue(value, p);
+          List<Parameter> lp = new LinkedList<Parameter>();
+          lp.add(p);
+          setTFValue(value, lp);
         }
         | DeclarationSpecifier ParameterTypedefDeclarator
         {
           System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
-          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -2148,12 +2129,13 @@ ParameterIdentifierDeclaration:
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
           System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
-          setTFValue(value, p);
+          List<Parameter> lp = new LinkedList<Parameter>();
+          lp.add(p);
+          setTFValue(value, lp);
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
           System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
-          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -2167,12 +2149,13 @@ ParameterIdentifierDeclaration:
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
           System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
-          setTFValue(value, p);
+          List<Parameter> lp = new LinkedList<Parameter>();
+          lp.add(p);
+          setTFValue(value, lp);
         }
         | TypeSpecifier IdentifierDeclarator
         {
           System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
-          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -2186,12 +2169,13 @@ ParameterIdentifierDeclaration:
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
           System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
-          setTFValue(value, p);
+          List<Parameter> lp = new LinkedList<Parameter>();
+          lp.add(p);
+          setTFValue(value, lp);
         }
         | TypeSpecifier ParameterTypedefDeclarator
         {
           System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
-          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -2205,12 +2189,13 @@ ParameterIdentifierDeclaration:
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
           System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
-          setTFValue(value, p);
+          List<Parameter> lp = new LinkedList<Parameter>();
+          lp.add(p);
+          setTFValue(value, lp);
         }
         | TypeQualifierList IdentifierDeclarator
         {
           System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
-          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -2224,7 +2209,9 @@ ParameterIdentifierDeclaration:
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
           System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
-          setTFValue(value, p);
+          List<Parameter> lp = new LinkedList<Parameter>();
+          lp.add(p);
+          setTFValue(value, lp);
         }
         ;
 
@@ -2381,7 +2368,10 @@ MatchedInitializerList:  /** list, nomerge **/
         | MatchedInitializerList DesignatedInitializer COMMA
         {
           System.err.println("WARNING: unsupported semantic action: MatchedInitializerList");
-          System.exit(1);
+          // System.exit(1);
+          Multiverse<StringBuilder> s = new Multiverse<StringBuilder>();
+          s.add(new StringBuilder(""), subparser.getPresenceCondition());
+          setTFValue(value, s);
         }
         ;
 
@@ -2683,7 +2673,6 @@ UnaryIdentifierDeclarator: /** nomerge **/
 PostfixIdentifierDeclarator: /** nomerge **/
         FunctionDeclarator
         {
-          System.err.println(getDBAt(subparser,1) + ":PC::" + subparser.getPresenceCondition());
           setTFValue(value, getDBAt(subparser,1));
         }
         | ArrayDeclarator
@@ -3475,12 +3464,10 @@ PostfixExpression:  /** passthrough, nomerge **/
         | FunctionCall
         {
           System.err.println("WARNING: unsupported semantic action: PostfixExpression");
-          System.exit(1);
         }
         | DirectSelection
         {
           System.err.println("WARNING: unsupported semantic action: PostfixExpression");
-          System.exit(1);
         }
         | IndirectSelection
         {
@@ -3504,8 +3491,7 @@ PostfixExpression:  /** passthrough, nomerge **/
         | CompoundLiteral  /* ADDED */
         {
           System.err.println("WARNING: unsupported semantic action: PostfixExpression");
-          System.exit(1);
-        }
+}
         ;
 
 Subscript:  /** nomerge **/
@@ -3521,13 +3507,11 @@ FunctionCall:  /** nomerge **/
         PostfixExpression LPAREN RPAREN
         {
           System.err.println("WARNING: unsupported semantic action: FunctionCall");
-          System.exit(1);
           callFunction(subparser, getNodeAt(subparser, 3), null);
         }
         | PostfixExpression LPAREN ExpressionList RPAREN
         {
           System.err.println("WARNING: unsupported semantic action: FunctionCall");
-          System.exit(1);
           callFunction(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 2));
         }
         ;
@@ -4932,6 +4916,8 @@ Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition presenceConditio
  * @return A multiverse containing all configurations of the passed-in node.
  */
 Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringBuilder> sbmv, Node child, PresenceCondition presenceCondition) {
+  if (sbmv == null || child == null)
+    return null;
   sbmv = new Multiverse<StringBuilder>(sbmv); // copies the passed-in sbmv because the caller destructs it.
   // getAllNodeConfigs traverses all nested static choice nodes until they reach a regular node
   // and then gets all configurations of that node

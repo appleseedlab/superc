@@ -701,6 +701,7 @@ public class CContext implements ParsingContext {
 
     return result;
   }
+  
   /**
    * When a value is to be added to the symbol table, duplications are allowed
    * if they have the same type and in a global scope. If the parent is not null,
@@ -716,14 +717,16 @@ public class CContext implements ParsingContext {
    */
   public void putEntry(String ident, Type putEntry, PresenceCondition putCond)
   {
+    SymbolTable s = getSymbolTable();
     //if its not a global scope, the function can run as is
     if (parent != null) {
-      symtab.put(ident, putEntry, putCond);
+      s.put(ident, putEntry, putCond);
+      return;
     }
     Multiverse<SymbolTable.Entry> curMV = symtab.get(ident, putCond);
     //if the scope is global but no entry exists for the ident, it is fine
     if (curMV == null) {
-      symtab.put(ident, putEntry, putCond);
+      s.put(ident, putEntry, putCond);
       return;
     }
     //otherwise, we need to remove intersection with pre-definitions with the same type since these are valid
@@ -735,10 +738,10 @@ public class CContext implements ParsingContext {
       Type t = e.getData().getType();
       PresenceCondition p = e.getCondition();
       if (e.getData() == SymbolTable.UNDECLARED) {
-        symtab.put(ident, putEntry, p);
+        s.put(ident, putEntry, p);
       }
       else if (!c.equal(putEntry, t) && e.getData() != SymbolTable.ERROR) {
-        symtab.putError(ident, p);
+        s.putError(ident, p);
       }
       p.delRef();
     }
