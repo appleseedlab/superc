@@ -789,12 +789,13 @@ Declaration:  /** complete **/
 	          // TODO: destruct multiverse when done
 	      	  
 	          for (Element<SymbolTable.Entry> elem : entries) {
-	      	    decl.identifier = elem.getData().getRenaming();
+		    DeclBuilder renamedDecl = new DeclBuilder(decl);
+		    renamedDecl.identifier = elem.getData().getRenaming();
 	      	    if (type.size() == 1) {
 	      	      if (type.get(0).getData().toType().getClass().getName().equals("xtc.type.TypedefT")) {
 	                System.err.println("WARNING: typedef transformations not yet supported.");
 	              }
-	              sb.append("\n" + type.get(0).getData().toType() + " " + decl + ";" + " /* renamed from " + oldIdent + " */\n");
+	              sb.append("\n" + type.get(0).getData().toType() + " " + renamedDecl + ";" + " /* renamed from " + oldIdent + " */\n");
 	      	    } else {
 	      	      System.err.println("ERROR: Configurable typedefs not yet supported.");
 	      	      // System.exit(1);
