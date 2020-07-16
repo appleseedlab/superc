@@ -18,10 +18,12 @@ c.bison_content
 c.epilogue
 c.prologue
 c.tab.c
+expression.bison_content
 expression.tab.c
 expression.prologue
 expression.action_switches
 expression.epilogue
 ExpressionParseTables.java
 ExpressionValues.java
+ExpressionActions.java
 ExpressionRats.java
