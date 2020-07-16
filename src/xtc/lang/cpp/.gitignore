@@ -3,12 +3,13 @@
 *.out
 *.toc
 *.pdf
+Builtins.java
 c.y
 .c.y
 CContext.java
 .CContext.java
-Builtins.java
 CActions.java
+CTag.java
 CLexer.java
 CParseTables.java
 CValues.java
@@ -17,3 +18,10 @@ c.bison_content
 c.epilogue
 c.prologue
 c.tab.c
+expression.tab.c
+expression.prologue
+expression.action_switches
+expression.epilogue
+ExpressionParseTables.java
+ExpressionValues.java
+ExpressionRats.java
