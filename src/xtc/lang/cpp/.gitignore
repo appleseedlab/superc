@@ -7,3 +7,13 @@ c.y
 .c.y
 CContext.java
 .CContext.java
+Builtins.java
+CActions.java
+CLexer.java
+CParseTables.java
+CValues.java
+c.action_switches
+c.bison_content
+c.epilogue
+c.prologue
+c.tab.c
