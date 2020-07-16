@@ -6598,7 +6598,7 @@ private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebui
       if (! declbuilder.isFunction()) {
         // bind the symbol name to the type under the current presence condition
         PresenceCondition condition = subparser.getPresenceCondition().and(elem.getCondition());
-        scope.putEntry(declbuilder.getID(), completedecl.toType(), condition);
+        putEntry(scope, declbuilder.getID(), completedecl.toType(), condition);
         condition.delRef();
 
       } else {  // function types
@@ -6609,7 +6609,7 @@ private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebui
 
           if (parmelem.getData().size() == 0) {  // function has no parameters
             Type funcType = new FunctionT(completedecl.toType());
-            scope.putEntry(declbuilder.getID(), funcType, condition);
+            putEntry(scope, declbuilder.getID(), funcType, condition);
           } else {  // function has parameters
             List<Type> parmlist = new LinkedList<Type>();
 
@@ -6623,7 +6623,7 @@ private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebui
             Type funcType = new FunctionT(completedecl.toType(),
                                           parmlist,
                                           parmelem.getData().get(parmelem.getData().size() - 1).isEllipsis());
-            scope.putEntry(declbuilder.getID(), funcType, condition);
+            putEntry(scope, declbuilder.getID(), funcType, condition);
           }
 
           condition.delRef();
@@ -6826,6 +6826,66 @@ private boolean isTypeDeclValid(TypeBuilderUnit t, DeclBuilder d)
     return false;
   }
   return true;
+}
+
+protected static C cOps = new C();
+
+/**
+   * When a value is to be added to the symbol table, duplications are allowed
+   * if they have the same type and in a global scope. If the parent is not null,
+   * the scope is not global and the value is added normally. If the identifier
+   * is not in the table, then it can't be a redeclaration and is added normally.
+   * Otherwise, the limited scope is checked, in an undeclared match, the value is added
+   * in error or same type matching, nothing is done, and in a different type match
+   * an error is added.
+   *
+   * @param ident original name of the declaration
+   * @param putEntry type to be added to the symbol table
+   * @param putCond condition of the declaration being added
+   */
+public void putEntry(CContext scope, String ident, Type putEntry, PresenceCondition putCond)
+{
+  SymbolTable s = scope.getSymbolTable();
+  
+  Multiverse<SymbolTable.Entry> curMV = s.get(ident, putCond);
+
+  //if the scope is global but no entry exists for the ident, it is fine
+  if (curMV == null) {
+    s.put(ident, putEntry, putCond);
+    return;
+  }
+  //otherwise, we need to remove intersection with pre-definitions with the same type since these are valid
+  //removing the intersection should be valid, as even if that intersection would cause an error with another
+  //entry, that error should already exist in the table
+  for (Element<SymbolTable.Entry> e : curMV) {
+      
+    Type t = e.getData().getType();
+    PresenceCondition p = e.getCondition();
+    p.addRef();
+    if (e.getData() == SymbolTable.UNDECLARED) {
+      s.put(ident, putEntry, p);
+    }
+    else if (e.getData() == SymbolTable.ERROR) {
+      //do nothing
+    }
+    else if (!cOps.equal(putEntry, t)) {
+      s.putError(ident, p);
+    }
+    else if (cOps.equal(putEntry, t) && !scope.isGlobal()) {
+      s.putError(ident, p);
+    }
+    else if (cOps.equal(putEntry, t) && scope.isGlobal()) {
+      //do nothing
+    }
+    else {
+      //should never happen
+      System.err.println("Should never happen");
+      System.exit(1);
+    }
+    
+    p.delRef();
+  }
+  curMV.destruct();
 }
 
 // ---------- Declarators

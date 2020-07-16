@@ -257,7 +257,8 @@ public class SymbolTable {
               PresenceCondition updateCollectErrors = collectErrors.or(andNewCond);
               collectErrors.delRef();
               collectErrors = updateCollectErrors;
-              System.err.println(String.format("WARNING: redeclaration of %s turned into an error entry.  use xtc.type.C.equal to check for legal redeclaration to same type.", ident));
+              System.err.println(String.format("FATAL: redeclaration of %s turned into an error entry.  use xtc.type.C.equal to check for legal redeclaration to same type.", ident));
+              System.exit(1);
             }
                 
             if (! andNotNewCond.isFalse()) {

@@ -702,50 +702,19 @@ public class CContext implements ParsingContext {
     return result;
   }
   
+  
   /**
-   * When a value is to be added to the symbol table, duplications are allowed
-   * if they have the same type and in a global scope. If the parent is not null,
-   * the scope is not global and the value is added normally. If the identifier
-   * is not in the table, then it can't be a redeclaration and is added normally.
-   * Otherwise, the limited scope is checked, in an undeclared match, the value is added
-   * in error or same type matching, nothing is done, and in a different type match
-   * an error is added.
+   * Returns if the current scope is in global space.
    *
-   * @param ident original name of the declaration
-   * @param putEntry type to be added to the symbol table
-   * @param putCond condition of the declaration being added
+   * @returns boolean describing if the current scope is global
    */
-  public void putEntry(String ident, Type putEntry, PresenceCondition putCond)
+  public boolean isGlobal()
   {
-    SymbolTable s = getSymbolTable();
-    //if its not a global scope, the function can run as is
-    if (parent != null) {
-      s.put(ident, putEntry, putCond);
-      return;
+    CContext scope = this;
+    while(scope.reentrant) {
+      scope = scope.parent;
     }
-    Multiverse<SymbolTable.Entry> curMV = symtab.get(ident, putCond);
-    //if the scope is global but no entry exists for the ident, it is fine
-    if (curMV == null) {
-      s.put(ident, putEntry, putCond);
-      return;
-    }
-    //otherwise, we need to remove intersection with pre-definitions with the same type since these are valid
-    //removing the intersection should be valid, as even if that intersection would cause an error with another
-    //entry, that error should already exist in the table
-    C c = new C();
-    for (Element<SymbolTable.Entry> e : curMV) {
-      
-      Type t = e.getData().getType();
-      PresenceCondition p = e.getCondition();
-      if (e.getData() == SymbolTable.UNDECLARED) {
-        s.put(ident, putEntry, p);
-      }
-      else if (!c.equal(putEntry, t) && e.getData() != SymbolTable.ERROR) {
-        s.putError(ident, p);
-      }
-      p.delRef();
-    }
-    curMV.destruct();
+    return scope.parent == null;
   }
   
   /**
