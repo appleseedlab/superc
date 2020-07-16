@@ -4859,7 +4859,7 @@ private static class TypeAndDeclInitList {
 	/** The type field */
   private TypeBuilderMultiverse type;
   /** The declaration and initializer list */
-  private static List<DeclAndInit> declAndInitList;
+  private List<DeclAndInit> declAndInitList;
 
 	/**
 	* This constructor creates a TypeAndDeclInitList.
