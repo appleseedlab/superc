@@ -54,9 +54,10 @@ c_lexer = CTag.java CLexer.java
 
 c_actions = CValues.java CActions.java
 
-c_expression_parsers = expression.tab.c expression.prologue						\
-expression.action_switches expression.epilogue												\
-ExpressionParseTables.java ExpressionValues.java ExpressionRats.java
+c_expression_parsers = expression.tab.c expression.prologue						   \
+expression.action_switches expression.epilogue expression.bison_content  \
+ExpressionParseTables.java ExpressionValues.java ExpressionRats.java     \
+ExpressionActions
 
 SOURCE = \
 	BuiltinsGenerator.java \
