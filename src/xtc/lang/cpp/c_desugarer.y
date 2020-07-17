@@ -228,6 +228,7 @@ import xtc.util.Utilities;
 
 import xtc.lang.cpp.Multiverse.Element;
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
+import xtc.lang.cpp.SymbolTable.Entry;
 
 import xtc.lang.cpp.ForkMergeParser.StackFrame;
 
@@ -2101,59 +2102,182 @@ ParameterDeclaration:  /** nomerge **/
         }
         | ParameterAbstractDeclaration
         {
-          System.err.println("ParameterDeclaration-Abstract not supported");
+          setTFValue(value, getParamAt(subparser,1));
         }
         ;
 
 ParameterAbstractDeclaration:
         DeclarationSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterAbstractDeclaration");
-          System.exit(1);
+          TypeBuilderMultiverse type = getTBAt(subparser, 1);
+          Parameter p = new Parameter();
+          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
+          for (Element<TypeBuilderUnit> e : type) {
+            Entry ent;
+            if (e.getData().getIsValid()) {
+              ent = new Entry("",e.getData().toType());
+            }
+            else {
+              ent = SymbolTable.ERROR;
+            }
+            entries.add(ent, e.getCondition());
+          }            
+          p.setMultiverse(entries);
+          List<Parameter> lp = new LinkedList<Parameter>();
+          lp.add(p);
+          setTFValue(value, lp);
         }
         | DeclarationSpecifier AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterAbstractDeclaration");
-          System.exit(1);
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder d = getDBAt(subparser,1);
+          Parameter p = new Parameter();
+          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
+          for (Element<TypeBuilderUnit> e : type) {
+            Entry ent;
+            if (isTypeDeclValid(e.getData(),d)) {
+              DeclBuilder x = new DeclBuilder(d);
+              x.addType(e.getData().toType());
+              ent = new Entry("",x.toType());
+            }
+            else {
+              ent = SymbolTable.ERROR;
+            }
+            entries.add(ent, e.getCondition());
+          }            
+          p.setMultiverse(entries);
+          List<Parameter> lp = new LinkedList<Parameter>();
+          lp.add(p);
+          setTFValue(value, lp);
         }
         | DeclarationQualifierList
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterAbstractDeclaration");
-          System.exit(1);
+          TypeBuilderMultiverse type = getTBAt(subparser, 1);
+          Parameter p = new Parameter();
+          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
+          for (Element<TypeBuilderUnit> e : type) {
+            Entry ent;
+            if (e.getData().getIsValid()) {
+              ent = new Entry("",e.getData().toType());
+            }
+            else {
+              ent = SymbolTable.ERROR;
+            }
+            entries.add(ent, e.getCondition());
+          }            
+          p.setMultiverse(entries);
+          List<Parameter> lp = new LinkedList<Parameter>();
+          lp.add(p);
+          setTFValue(value, lp);
         }
         | DeclarationQualifierList AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterAbstractDeclaration");
-          System.exit(1);
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder d = getDBAt(subparser,1);
+          Parameter p = new Parameter();
+          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
+          for (Element<TypeBuilderUnit> e : type) {
+            Entry ent;
+            if (isTypeDeclValid(e.getData(),d)) {
+              DeclBuilder x = new DeclBuilder(d);
+              x.addType(e.getData().toType());
+              ent = new Entry("",x.toType());
+            }
+            else {
+              ent = SymbolTable.ERROR;
+            }
+            entries.add(ent, e.getCondition());
+          }            
+          p.setMultiverse(entries);
+          List<Parameter> lp = new LinkedList<Parameter>();
+          lp.add(p);
+          setTFValue(value, lp);
         }
         | TypeSpecifier
         {
-          StringBuilder sb = new StringBuilder();
           TypeBuilderMultiverse type = getTBAt(subparser, 1);
-  	      if (type.size() == 1)
-        		sb.append(type.get(0).getData().toType());
-  	      else {
-        		System.err.println("ERROR: Configurable typedefs not yet supported."); // TODO
-        		// System.exit(1);
-  	      }
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
-          setTFValue(value, sbmv);
+          Parameter p = new Parameter();
+          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
+          for (Element<TypeBuilderUnit> e : type) {
+            Entry ent;
+            if (e.getData().getIsValid()) {
+              ent = new Entry("",e.getData().toType());
+            }
+            else {
+              ent = SymbolTable.ERROR;
+            }
+            entries.add(ent, e.getCondition());
+          }            
+          p.setMultiverse(entries);
+          List<Parameter> lp = new LinkedList<Parameter>();
+          lp.add(p);
+          setTFValue(value, lp);
         }
         | TypeSpecifier AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterAbstractDeclaration");
-          System.exit(1);
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder d = getDBAt(subparser,1);
+          Parameter p = new Parameter();
+          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
+          for (Element<TypeBuilderUnit> e : type) {
+            Entry ent;
+            if (isTypeDeclValid(e.getData(),d)) {
+              DeclBuilder x = new DeclBuilder(d);
+              x.addType(e.getData().toType());
+              ent = new Entry("",x.toType());
+            }
+            else {
+              ent = SymbolTable.ERROR;
+            }
+            entries.add(ent, e.getCondition());
+          }            
+          p.setMultiverse(entries);
+          List<Parameter> lp = new LinkedList<Parameter>();
+          lp.add(p);
+          setTFValue(value, lp);
         }
         | TypeQualifierList
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterAbstractDeclaration");
-          System.exit(1);
+          TypeBuilderMultiverse type = getTBAt(subparser, 1);
+          Parameter p = new Parameter();
+          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
+          for (Element<TypeBuilderUnit> e : type) {
+            Entry ent;
+            if (e.getData().getIsValid()) {
+              ent = new Entry("",e.getData().toType());
+            }
+            else {
+              ent = SymbolTable.ERROR;
+            }
+            entries.add(ent, e.getCondition());
+          }            
+          p.setMultiverse(entries);
+          List<Parameter> lp = new LinkedList<Parameter>();
+          lp.add(p);
+          setTFValue(value, lp);
         }
         | TypeQualifierList AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterAbstractDeclaration");
-          System.exit(1);
+          TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          DeclBuilder d = getDBAt(subparser,1);
+          Parameter p = new Parameter();
+          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
+          for (Element<TypeBuilderUnit> e : type) {
+            Entry ent;
+            if (isTypeDeclValid(e.getData(),d)) {
+              DeclBuilder x = new DeclBuilder(d);
+              x.addType(e.getData().toType());
+              ent = new Entry("",x.toType());
+            }
+            else {
+              ent = SymbolTable.ERROR;
+            }
+            entries.add(ent, e.getCondition());
+          }            
+          p.setMultiverse(entries);
+          List<Parameter> lp = new LinkedList<Parameter>();
+          lp.add(p);
+          setTFValue(value, lp);
         }
         ;
 
@@ -2173,7 +2297,6 @@ ParameterIdentifierDeclaration:
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
-          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
           List<Parameter> lp = new LinkedList<Parameter>();
           lp.add(p);
           setTFValue(value, lp);
@@ -2869,18 +2992,18 @@ PostfixOldFunctionDeclarator: /** nomerge **/
 AbstractDeclarator: /** nomerge **/
         UnaryAbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: AbstractDeclarator");
-          System.exit(1);
+          DeclBuilder db = getDBAt(subparser,1);
+          setTFValue(value,db);
         }
         | PostfixAbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: AbstractDeclarator");
-          System.exit(1);
+          DeclBuilder db = getDBAt(subparser,1);
+          setTFValue(value,db);
         }
         | PostfixingAbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: AbstractDeclarator");
-          System.exit(1);
+          DeclBuilder db = getDBAt(subparser,1);
+          setTFValue(value,db);
         }
         ;
 
@@ -2954,47 +3077,64 @@ ArrayAbstractDeclarator: /** nomerge **/
 UnaryAbstractDeclarator: /** nomerge **/
         STAR
         {
-          System.err.println("WARNING: unsupported semantic action: UnaryAbstractDeclarator");
-          System.exit(1);
+          DeclBuilder d = new DeclBuilder();
+          d.addPointer();
+          setTFValue(value,d);
         }
         | STAR TypeQualifierList
         {
-          System.err.println("WARNING: unsupported semantic action: UnaryAbstractDeclarator");
-          System.exit(1);
+          DeclBuilder d = new DeclBuilder();
+          d.addPointer();
+          d.addQuals(getTBAt(subparser,1),null);
+          setTFValue(value,d);
         }
         | STAR AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: UnaryAbstractDeclarator");
-          System.exit(1);
+          DeclBuilder d = getDBAt(subparser,1);
+          d.addPointer();
+          setTFValue(value,d);
         }
         | STAR TypeQualifierList AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: UnaryAbstractDeclarator");
-          System.exit(1);
-        }
+      	  DeclBuilder db = getDBAt(subparser,1);
+      	  DeclBuilder outter = new DeclBuilder();
+      	  outter.addPointer();
+      	  outter.addQuals(getTBAt(subparser,2),db);
+      	  setTFValue(value,outter);
+      	}
         ;
 
 PostfixAbstractDeclarator: /** nomerge **/
         LPAREN UnaryAbstractDeclarator RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: PostfixAbstractDeclarator");
-          System.exit(1);
-        }
+          DeclBuilder d = new DeclBuilder();
+          DeclBuilder db = getDBAt(subparser,2);
+          d.addDeclBuilder(db);
+          setTFValue(value,d);
+        } 
         | LPAREN PostfixAbstractDeclarator RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: PostfixAbstractDeclarator");
-          System.exit(1);
-        }
+          DeclBuilder d = new DeclBuilder();
+          DeclBuilder db = getDBAt(subparser,2);
+          d.addDeclBuilder(db);
+          setTFValue(value,d);
+        } 
         | LPAREN PostfixingAbstractDeclarator RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: PostfixAbstractDeclarator");
-          System.exit(1);
-        }
+          DeclBuilder d = new DeclBuilder();
+          DeclBuilder db = getDBAt(subparser,2);
+          d.addDeclBuilder(db);
+          setTFValue(value,d);
+        } 
         | LPAREN UnaryAbstractDeclarator RPAREN PostfixingAbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: PostfixAbstractDeclarator");
-          System.exit(1);
-        }
+          DeclBuilder d = new DeclBuilder();
+          DeclBuilder db = getDBAt(subparser,3);
+          d.addDeclBuilder(db);
+          DeclBuilder post = getDBAt(subparser,1);
+          d.merge(post);
+          setTFValue(value,d);
+        } 
         ;
 
 // ---------------------------------------------------------------- Statements

@@ -596,8 +596,6 @@ public class CContext implements ParsingContext {
 
     if (DEBUG) System.err.println("exit scope");
     
-    System.err.println(this.symtab);
-
     scope = this;
     while (scope.reentrant) {
       scope.symtab.delRef();
