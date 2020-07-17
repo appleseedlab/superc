@@ -282,6 +282,7 @@ class PresenceConditionManager {
     return global.equals(presenceCondition.getBDD());
   }
 
+  // START TODO: rework/remove code that is manipulating BDDs
   /**
    * Collect the domain of all CONFIG_-related BDDs.  This domain is
    * used by simplifyToConfigs.  Calling this method will regenerate
@@ -371,6 +372,7 @@ class PresenceConditionManager {
 
     return new PresenceCondition(restrictBDD);
   }
+  // END TODO
 
   /**
    * Return a new presence condition instance of true.
@@ -392,6 +394,7 @@ class PresenceConditionManager {
 
   // TODO: make this private
   public Variables getVariableManager() {
+  // private Variables getVariableManager() {
     return vars;
   }
 
@@ -447,6 +450,7 @@ class PresenceConditionManager {
     return stack.size();
   }
 
+  // TODO: don't expose the BDDs outside presence condition manager
   /**
    * The BDD factory used to create BDDs.  This is needed for directly
    * manipulating BDDs outside of the PresenceConditionManager, because all BDDs
@@ -672,49 +676,6 @@ class PresenceConditionManager {
     return allConfigs;
   }
 
-  /**
-   * A wrapper for a literal representation of presence condition
-   * expressions.  This is meant for more efficient printing of the
-   * expression and to be used in parallel with BDDs which provide
-   * efficient SAT solving.  This class is intended to be completely
-   * immutable.
-   */
-  protected class Expression {
-    /**
-     * The current implementation maintains strings.  Maintain the
-     * invariant that parentheses always wrap the string (except for
-     * constants) so that operations will not result in precedence
-     * issues.  TODO: use an expression tree or z3.
-     */
-    protected final String str;
-    
-    public Expression(boolean value) {
-      this(value ? "1" : "0");
-    }
-
-    public Expression(String str) {
-      // always wrap result in parentheses
-      this.str = String.format("(%s)", str);
-    }
-
-    public Expression and(Expression other) {
-      return new Expression(String.format("%s && %s", this.str, other));
-    }
-
-    public Expression or(Expression other) {
-      return new Expression(String.format("%s || %s", this.str, other));
-    }
-
-    public Expression not() {
-      // always wrap result in parentheses
-      return new Expression(String.format("! %s", this.str));
-    }
-
-    public String toString() {
-      return this.str;
-    }
-  }
-  
   /** A reference-counted presence condition that automatically cleans up BDD when
     * nothing references it anymore.
     */
@@ -775,7 +736,9 @@ class PresenceConditionManager {
     public PresenceCondition or(PresenceCondition c) {
       return new PresenceCondition(bdd.or(c.bdd));
     }
-    
+
+    // TODO: handle restrict and simplify for other representations or
+    // remove their use
     /** Restrict */
     public PresenceCondition restrict(PresenceCondition c) {
       return new PresenceCondition(bdd.restrict(c.getBDD()));
@@ -788,6 +751,7 @@ class PresenceConditionManager {
 
     /** One sat */
     public PresenceCondition satOne() {
+      // TODO: may need to remove this and rework its users
       return new PresenceCondition(bdd.satOne());
     }
     
