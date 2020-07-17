@@ -377,6 +377,49 @@ class PresenceConditionManager {
   }
 
   /**
+   * Gets the variable of the given name.
+   *
+   * @param The variable name.
+   * @return A new presence condition containing the variable.
+   */
+  public PresenceCondition getVariable(String name) {
+    // get variable gives a new bdd, which presence condition expects
+    return new PresenceCondition(getVariableManager().getVariable(name));
+  }
+
+  /**
+   * Syntactic sugar for getting a variable A in its (define A) form.
+   *
+   * @param name The macro name.
+   * @return A new presence condition containing the variable.
+   */
+  public PresenceCondition getDefinedVariable(String name) {
+    // get defined variable gives a new bdd, which presence condition expects
+    return new PresenceCondition(getVariableManager().getDefinedVariable(name));
+  }
+
+  /**
+   * Determines whether the variable name exists.
+   *
+   * @param The variable name.
+   * @return true if it exists.
+   */
+  public boolean hasVariable(String name) {
+    return getVariableManager().hasVariable(name);
+  }
+
+  /**
+   * Syntactic sugar for hasVariable on a (defined A) variable, where
+   * you just pass A.
+   *
+   * @param The variable name.
+   * @return true if it exists.
+   */
+  public boolean hasDefinedVariable(String name) {
+    return getVariableManager().hasDefinedVariable(name);
+  }
+
+  /**
    * The nesting depth of presence conditions.
    *
    * @return The nesting depth.
@@ -609,18 +652,67 @@ class PresenceConditionManager {
 
     return allConfigs;
   }
+
+  /**
+   * A wrapper for a literal representation of presence condition
+   * expressions.  This is meant for more efficient printing of the
+   * expression and to be used in parallel with BDDs which provide
+   * efficient SAT solving.  This class is intended to be completely
+   * immutable.
+   */
+  protected class Expression {
+    /**
+     * The current implementation maintains strings.  Maintain the
+     * invariant that parentheses always wrap the string (except for
+     * constants) so that operations will not result in precedence
+     * issues.  TODO: use an expression tree or z3.
+     */
+    protected final String str;
+    
+    public Expression(boolean value) {
+      this(value ? "1" : "0");
+    }
+
+    public Expression(String str) {
+      // always wrap result in parentheses
+      this.str = String.format("(%s)", str);
+    }
+
+    public Expression and(Expression other) {
+      return new Expression(String.format("%s && %s", this.str, other));
+    }
+
+    public Expression or(Expression other) {
+      return new Expression(String.format("%s || %s", this.str, other));
+    }
+
+    public Expression not() {
+      // always wrap result in parentheses
+      return new Expression(String.format("! %s", this.str));
+    }
+
+    public String toString() {
+      return this.str;
+    }
+  }
   
   /** A reference-counted presence condition that automatically cleans up BDD when
     * nothing references it anymore.
     */
   public class PresenceCondition {
+    /** The BDD backing the presence condition. */
     private BDD bdd;
+
+    /**
+     * The number of references to the presence condition, used to
+     * automatically destroy the BDD object.
+     */
     private int refs;
     
     /** Creates a new PresenceCondition out of the given bdd.  Make sure the bdd
       * is not shared by anyone else.
       */
-    public PresenceCondition(BDD bdd) {
+    private PresenceCondition(BDD bdd) {
       this.bdd = bdd;
       this.refs = 1;
     }
@@ -734,6 +826,7 @@ class PresenceConditionManager {
       }
     }
     
+    // TODO: don't expose the BDDs outside presence condition manager
     /**
      * Get the raw BDD backing this presence condition.
      *

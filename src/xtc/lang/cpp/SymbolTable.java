@@ -559,9 +559,9 @@ public class SymbolTable {
 
   public static void main(String args[]) {
     PresenceConditionManager presenceConditionManager = new PresenceConditionManager();
-    PresenceCondition A = presenceConditionManager.new PresenceCondition(presenceConditionManager.getVariableManager().getVariable("A"));
-    PresenceCondition B = presenceConditionManager.new PresenceCondition(presenceConditionManager.getVariableManager().getVariable("B"));
-    PresenceCondition C = presenceConditionManager.new PresenceCondition(presenceConditionManager.getVariableManager().getVariable("C"));
+    PresenceCondition A = presenceConditionManager.getVariable("A");
+    PresenceCondition B = presenceConditionManager.getVariable("B");
+    PresenceCondition C = presenceConditionManager.getVariable("C");
     PresenceCondition and = A.and(B);
     PresenceCondition or = and.or(C);
     SymbolTable symtab = new SymbolTable();
