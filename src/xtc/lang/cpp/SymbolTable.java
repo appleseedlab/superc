@@ -209,11 +209,11 @@ public class SymbolTable {
         // UNDECLARED entry under the True condition
         Multiverse<Entry> newmv = new Multiverse<Entry>();
 
-        PresenceCondition trueCond = putCond.presenceConditionManager().new PresenceCondition(true);
+        PresenceCondition trueCond = putCond.presenceConditionManager().newTrue();
         newmv.add(UNDECLARED, trueCond);
         trueCond.delRef();
 
-        PresenceCondition falseCond = putCond.presenceConditionManager().new PresenceCondition(false);
+        PresenceCondition falseCond = putCond.presenceConditionManager().newFalse();
         newmv.add(ERROR, falseCond);
         falseCond.delRef();
 
@@ -230,7 +230,7 @@ public class SymbolTable {
         PresenceCondition undeclaredCond = null;
         PresenceCondition errorCond = null;
         PresenceCondition notPutCond = putCond.not();
-        PresenceCondition collectErrors = putCond.presenceConditionManager().new PresenceCondition(false);
+        PresenceCondition collectErrors = putCond.presenceConditionManager().newFalse();
 
         for (Element<Entry> entry : oldmv) {
           if (UNDECLARED == entry.getData()) {
@@ -326,7 +326,7 @@ public class SymbolTable {
 
       // check invariants
       {
-        PresenceCondition union = putCond.presenceConditionManager().new PresenceCondition(false);
+        PresenceCondition union = putCond.presenceConditionManager().newFalse();
 
         // has redundant checks
         for (Element<Entry> entry_i : newmv) {

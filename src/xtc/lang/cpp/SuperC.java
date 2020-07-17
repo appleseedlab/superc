@@ -702,7 +702,7 @@ public class SuperC extends Tool {
       // conditions of nested conditionals.
       LinkedList<PresenceCondition> presenceConditions = new LinkedList<PresenceCondition>();
 
-      presenceConditions.addLast(presenceConditionManager.new PresenceCondition(true));
+      presenceConditions.addLast(presenceConditionManager.newTrue());
 
       // Read each token from the token stream until EOF.
       while (true) {
@@ -784,7 +784,7 @@ public class SuperC extends Tool {
       LinkedList<PresenceCondition> parents
         = new LinkedList<PresenceCondition>();
 
-      parents.push(presenceConditionManager.new PresenceCondition(true));
+      parents.push(presenceConditionManager.newTrue());
       while (syntax.kind() != Kind.EOF) {
         if (! runtime.test("statisticsPreprocessor")
             && ! runtime.test("preprocessor")) {
@@ -1157,10 +1157,10 @@ public class SuperC extends Tool {
         LinkedList<PresenceCondition> parents
           = new LinkedList<PresenceCondition>();
 
-        parents.push(presenceConditionManager.new PresenceCondition(true));
+        parents.push(presenceConditionManager.newTrue());
 
         printSource((Node) translationUnit,
-                    presenceConditionManager.new PresenceCondition(true),
+                    presenceConditionManager.newTrue(),
                     parents, writer);
 
         parents.pop();
@@ -1224,7 +1224,7 @@ public class SuperC extends Tool {
           }
         }
 
-        // PresenceCondition t = presenceConditionManager.new PresenceCondition(true);
+        // PresenceCondition t = presenceConditionManager.newTrue();
         // macroTable._define("CONFIG_64BIT", new MacroTable.Macro.Object(null), t);
 
         // StringBuilder sb;
@@ -1268,7 +1268,7 @@ public class SuperC extends Tool {
           Arrays.asList(runtime.getString("configureExceptions").split(",")) :
           null;
         PresenceCondition t =
-          presenceConditionManager.new PresenceCondition(true);
+          presenceConditionManager.newTrue();
         Iterator<String> clIterator = null != clExceptions ? clExceptions.iterator()
           : null;
         String line;
@@ -1360,7 +1360,7 @@ public class SuperC extends Tool {
 
         // Evaluate each BDD variable according to the Linux .config
         // file settings.
-        BDD configuration = presenceConditionManager.new PresenceCondition(true).getBDD();
+        BDD configuration = presenceConditionManager.newTrue().getBDD();
         int var_idx = 0;
         String var_name = null;
 

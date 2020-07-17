@@ -366,7 +366,7 @@ public class MacroTable {
       headerGuards.add(guardMacro);
     }
 
-    _define(guardMacro, Macro.undefined, presenceConditionManager.new PresenceCondition(true));
+    _define(guardMacro, Macro.undefined, presenceConditionManager.newTrue());
   }
   
   /**

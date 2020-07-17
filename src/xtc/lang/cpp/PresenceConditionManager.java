@@ -372,6 +372,25 @@ class PresenceConditionManager {
     return new PresenceCondition(restrictBDD);
   }
 
+  /**
+   * Return a new presence condition instance of true.
+   *
+   * @returns a new presence condition instance of true.
+   */
+  public PresenceCondition newTrue() {
+    return new PresenceCondition(true);
+  }
+
+  /**
+   * Return a new presence condition instance of false.
+   *
+   * @returns a new presence condition instance of false
+   */
+  public PresenceCondition newFalse() {
+    return new PresenceCondition(false);
+  }
+
+  // TODO: make this private
   public Variables getVariableManager() {
     return vars;
   }
@@ -717,7 +736,7 @@ class PresenceConditionManager {
       this.refs = 1;
     }
     
-    public PresenceCondition(boolean value) {
+    private PresenceCondition(boolean value) {
       this.bdd = value ? B.one() : B.zero();
       this.refs = 1;
     }
