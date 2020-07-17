@@ -128,7 +128,7 @@ configure:
 	$(MAKE) Builtins.java
 	$(MAKE) Builtins.class
 	if [ -f ${JAVA_DEV_ROOT}/classes/xtc/lang/cpp/SuperC.class ]; then $(RM) ${JAVA_DEV_ROOT}/classes/xtc/lang/cpp/SuperC.class; $(MAKE) SuperC.class; fi
-	$(MAKE) select-typechecker
+	$(MAKE) select-desugarer
 
 Builtins.java:
 	$(CPP) $(CPPFLAGS) -v empty.c 2> sysdirs > /dev/null
