@@ -853,6 +853,7 @@ Declaration:  /** complete **/
 
         	// stores the generated declarations and initializing statements in an SBMV wrapper,
         	// then sets the SBMV as this node's semantic value
+          Multiverse<StringBuilder> declarationSBMVWrapper = new Multiverse<StringBuilder>();
         	declarationSBMVWrapper.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, declarationSBMVWrapper);
         }
