@@ -422,6 +422,9 @@ public class SymbolTable {
       sb = sb.delete(23, ident.length());
       ident = sb.toString();
     }
+    
+    // return String.format("_%s%d_%s", prefix, varcount++, ident);
+    // NOTE: when doing regression testing, uncomment the line above, and comment-out the line below
     return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
   }
 
