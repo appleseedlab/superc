@@ -282,6 +282,7 @@ class PresenceConditionManager {
     return global.equals(presenceCondition.getBDD());
   }
 
+  // START TODO: rework/remove code that is manipulating BDDs
   /**
    * Collect the domain of all CONFIG_-related BDDs.  This domain is
    * used by simplifyToConfigs.  Calling this method will regenerate
@@ -371,9 +372,73 @@ class PresenceConditionManager {
 
     return new PresenceCondition(restrictBDD);
   }
+  // END TODO
 
+  /**
+   * Return a new presence condition instance of true.
+   *
+   * @returns a new presence condition instance of true.
+   */
+  public PresenceCondition newTrue() {
+    return new PresenceCondition(true);
+  }
+
+  /**
+   * Return a new presence condition instance of false.
+   *
+   * @returns a new presence condition instance of false
+   */
+  public PresenceCondition newFalse() {
+    return new PresenceCondition(false);
+  }
+
+  // TODO: make this private
   public Variables getVariableManager() {
+  // private Variables getVariableManager() {
     return vars;
+  }
+
+  /**
+   * Gets the variable of the given name.
+   *
+   * @param The variable name.
+   * @return A new presence condition containing the variable.
+   */
+  public PresenceCondition getVariable(String name) {
+    // get variable gives a new bdd, which presence condition expects
+    return new PresenceCondition(getVariableManager().getVariable(name));
+  }
+
+  /**
+   * Syntactic sugar for getting a variable A in its (define A) form.
+   *
+   * @param name The macro name.
+   * @return A new presence condition containing the variable.
+   */
+  public PresenceCondition getDefinedVariable(String name) {
+    // get defined variable gives a new bdd, which presence condition expects
+    return new PresenceCondition(getVariableManager().getDefinedVariable(name));
+  }
+
+  /**
+   * Determines whether the variable name exists.
+   *
+   * @param The variable name.
+   * @return true if it exists.
+   */
+  public boolean hasVariable(String name) {
+    return getVariableManager().hasVariable(name);
+  }
+
+  /**
+   * Syntactic sugar for hasVariable on a (defined A) variable, where
+   * you just pass A.
+   *
+   * @param The variable name.
+   * @return true if it exists.
+   */
+  public boolean hasDefinedVariable(String name) {
+    return getVariableManager().hasDefinedVariable(name);
   }
 
   /**
@@ -385,6 +450,7 @@ class PresenceConditionManager {
     return stack.size();
   }
 
+  // TODO: don't expose the BDDs outside presence condition manager
   /**
    * The BDD factory used to create BDDs.  This is needed for directly
    * manipulating BDDs outside of the PresenceConditionManager, because all BDDs
@@ -609,23 +675,29 @@ class PresenceConditionManager {
 
     return allConfigs;
   }
-  
+
   /** A reference-counted presence condition that automatically cleans up BDD when
     * nothing references it anymore.
     */
   public class PresenceCondition {
+    /** The BDD backing the presence condition. */
     private BDD bdd;
+
+    /**
+     * The number of references to the presence condition, used to
+     * automatically destroy the BDD object.
+     */
     private int refs;
     
     /** Creates a new PresenceCondition out of the given bdd.  Make sure the bdd
       * is not shared by anyone else.
       */
-    public PresenceCondition(BDD bdd) {
+    private PresenceCondition(BDD bdd) {
       this.bdd = bdd;
       this.refs = 1;
     }
     
-    public PresenceCondition(boolean value) {
+    private PresenceCondition(boolean value) {
       this.bdd = value ? B.one() : B.zero();
       this.refs = 1;
     }
@@ -664,7 +736,9 @@ class PresenceConditionManager {
     public PresenceCondition or(PresenceCondition c) {
       return new PresenceCondition(bdd.or(c.bdd));
     }
-    
+
+    // TODO: handle restrict and simplify for other representations or
+    // remove their use
     /** Restrict */
     public PresenceCondition restrict(PresenceCondition c) {
       return new PresenceCondition(bdd.restrict(c.getBDD()));
@@ -677,6 +751,7 @@ class PresenceConditionManager {
 
     /** One sat */
     public PresenceCondition satOne() {
+      // TODO: may need to remove this and rework its users
       return new PresenceCondition(bdd.satOne());
     }
     
@@ -734,6 +809,7 @@ class PresenceConditionManager {
       }
     }
     
+    // TODO: don't expose the BDDs outside presence condition manager
     /**
      * Get the raw BDD backing this presence condition.
      *

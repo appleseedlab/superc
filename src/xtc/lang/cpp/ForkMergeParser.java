@@ -255,7 +255,7 @@ public class ForkMergeParser {
     skipConditionalCache = new HashMap<Integer, OrderedSyntax>();
 
     if (SAVE_ERROR_COND) {
-      this.invalid = presenceConditionManager.new PresenceCondition(false);
+      this.invalid = presenceConditionManager.newFalse();
     }
   }
 
@@ -546,10 +546,9 @@ public class ForkMergeParser {
     OrderedSyntax startOfFile = new OrderedSyntax(stream);
     Subparser firstSubparser
       = new Subparser(new Lookahead(startOfFile,
-                                    presenceConditionManager
-                                    .new PresenceCondition(true)), 
+                                    presenceConditionManager.newTrue()), 
                       new StackFrame(STARTSTATE, 0, null, null),
-                      presenceConditionManager.new PresenceCondition(true),
+                      presenceConditionManager.newTrue(),
                       initialParsingContext);
     firstSubparser.lookahead.token = firstSubparser.lookahead.token.getNext();
 
@@ -731,7 +730,7 @@ public class ForkMergeParser {
                 cachedFollowSet = getCachedSet(subparser.lookahead.token);
               } else {
                 PresenceCondition T
-                  = presenceConditionManager.new PresenceCondition(true);
+                  = presenceConditionManager.newTrue();
 
                 cachedFollowSet
                   = follow(subparser.lookahead.token, T).values();
@@ -1037,10 +1036,9 @@ public class ForkMergeParser {
     OrderedSyntax startOfFile = new OrderedSyntax(stream);
     Subparser firstSubparser =
       new Subparser(new Lookahead(startOfFile,
-                                  presenceConditionManager
-                                  .new PresenceCondition(true)), 
+                                  presenceConditionManager.newTrue()), 
                     new StackFrame(STARTSTATE, 0, null, null),
-                    presenceConditionManager.new PresenceCondition(true),
+                    presenceConditionManager.newTrue(),
                     initialParsingContext);
     firstSubparser.lookahead.token = firstSubparser.lookahead.token.getNext();
 
@@ -1266,7 +1264,7 @@ public class ForkMergeParser {
 
             // Save the presence conditions of all empty branches.
 
-            PresenceCondition emptyConditions = presenceConditionManager.new PresenceCondition(false);
+            PresenceCondition emptyConditions = presenceConditionManager.newFalse();
 
 
             // The union of the branches conditions.  Used to determine
@@ -1604,7 +1602,7 @@ public class ForkMergeParser {
           n.presenceCondition = union;
         }
         presenceCondition.delRef();
-        return presenceConditionManager.new PresenceCondition(false);
+        return presenceConditionManager.newFalse();
 
       case CONDITIONAL:
         Conditional conditional = a.syntax.toConditional();
@@ -1618,7 +1616,7 @@ public class ForkMergeParser {
         case START:
           // Holds the union of empty branch conditions.
           PresenceCondition emptyConditions
-            = presenceConditionManager.new PresenceCondition(false);
+            = presenceConditionManager.newFalse();
 
           // Holds the union of non-empty branches.
           PresenceCondition union

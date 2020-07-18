@@ -138,12 +138,12 @@ public class MacroTable {
      * replace with equivalent defined M and ! defined M
      */
     if (contains(name)
-        && presenceConditionManager.getVariableManager().hasDefinedVariable(name)) {
+        && presenceConditionManager.hasDefinedVariable(name)) {
       PresenceCondition var;
       PresenceCondition not;
       List<Entry> entries;
       
-      var = presenceConditionManager.new PresenceCondition(presenceConditionManager.getVariableManager().getDefinedVariable(name));
+      var = presenceConditionManager.getDefinedVariable(name);
       not = var.not();
       
       entries = table.get(name);
@@ -366,7 +366,7 @@ public class MacroTable {
       headerGuards.add(guardMacro);
     }
 
-    _define(guardMacro, Macro.undefined, presenceConditionManager.new PresenceCondition(true));
+    _define(guardMacro, Macro.undefined, presenceConditionManager.newTrue());
   }
   
   /**

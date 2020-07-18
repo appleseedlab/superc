@@ -854,7 +854,7 @@ Declaration:  /** complete **/
         	// stores the generated declarations and initializing statements in an SBMV wrapper,
         	// then sets the SBMV as this node's semantic value
           Multiverse<StringBuilder> declarationSBMVWrapper = new Multiverse<StringBuilder>();
-        	declarationSBMVWrapper.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+        	declarationSBMVWrapper.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, declarationSBMVWrapper);
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
@@ -3428,7 +3428,7 @@ ExpressionStatement:  /** complete **/
       	       * add that to the resultant SBMV.
       	       */
       	    }
-      	    sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+      	    sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
       	  }
           setTFValue(value, sbmv);
         }
@@ -3651,13 +3651,13 @@ PrimaryIdentifier: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(((Node)getNodeAt(subparser, 1)).getTokenText());
           //Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          //sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          //sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
 
 
           CContext scope = (CContext) subparser.scope;
 
           // get the renamings from the symtab
-          PresenceCondition cond = subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true);
+          PresenceCondition cond = subparser.getPresenceCondition().presenceConditionManager().newTrue();
           Multiverse<SymbolTable.Entry> entries = scope.get(sb.toString(), cond);
           cond.delRef();
 
@@ -4227,7 +4227,7 @@ AssignmentOperator: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(" = ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, sbmv);
         }
         | MULTassign
@@ -4235,7 +4235,7 @@ AssignmentOperator: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(" *= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, sbmv);
         }
         | DIVassign
@@ -4243,7 +4243,7 @@ AssignmentOperator: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(" /= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, sbmv);
         }
         | MODassign
@@ -4251,7 +4251,7 @@ AssignmentOperator: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(" %= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, sbmv);
         }
         | PLUSassign
@@ -4259,7 +4259,7 @@ AssignmentOperator: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(" += ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, sbmv);
         }
         | MINUSassign
@@ -4267,7 +4267,7 @@ AssignmentOperator: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(" -= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, sbmv);
         }
         | LSassign
@@ -4285,7 +4285,7 @@ AssignmentOperator: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(" &= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, sbmv);
         }
         | ERassign
@@ -4298,7 +4298,7 @@ AssignmentOperator: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(" |= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, sbmv);
         }
         ;
@@ -6854,7 +6854,7 @@ private Multiverse<Node> getNodeMultiverse(Node node, PresenceConditionManager p
       }
     }
   } else {
-    mv.add(node, presenceConditionManager.new PresenceCondition(true));
+    mv.add(node, presenceConditionManager.newTrue());
   }
 
   return mv;
