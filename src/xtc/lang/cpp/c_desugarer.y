@@ -329,6 +329,8 @@ TranslationUnit:  /** complete, passthrough **/
 ExternalDeclarationList: /** list, complete **/
         /* empty */  // ADDED gcc allows empty program
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
           result.add(new StringBuilder(""), subparser.getPresenceCondition());
           setTFValue(value, result);
@@ -350,6 +352,7 @@ ExternalDeclaration:  /** passthrough, complete **/
           // TODO: do these actions need setCPC?
           System.err.println("ERROR: unsupported construct: ExternalDeclaration");
           PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
           setTFValue(value, product);
@@ -357,6 +360,7 @@ ExternalDeclaration:  /** passthrough, complete **/
         | DeclarationExtension
         {
           PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
           setTFValue(value, product);
@@ -365,6 +369,7 @@ ExternalDeclaration:  /** passthrough, complete **/
         {
           System.err.println("ERROR: unsupported construct: ExternalDeclaration");
           PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
           setTFValue(value, product);
@@ -373,6 +378,7 @@ ExternalDeclaration:  /** passthrough, complete **/
         {
           System.err.println("ERROR: unsupported construct: ExternalDeclaration");
           PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
           setTFValue(value, product);
@@ -393,6 +399,7 @@ FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
         FunctionDefinition
         {
           PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
           setTFValue(value, product);
@@ -738,6 +745,7 @@ DeclarationExtension:  /** passthrough, complete **/  // ADDED
         Declaration
         {
           PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
           setTFValue(value, product);
@@ -3236,25 +3244,29 @@ Statement:  /** passthrough, complete **/
 LabeledStatement:  /** complete **/  // ADDED attributes
         IdentifierOrTypedefName COLON AttributeSpecifierListOpt Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
         | CASE ConstantExpression COLON Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
         | CASE ConstantExpression ELLIPSIS ConstantExpression COLON Statement  // ADDED case range
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
         | DEFAULT COLON Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
@@ -3280,6 +3292,8 @@ CompoundStatement:  /** complete **/  /* ADDED */
 LocalLabelDeclarationListOpt: /** complete **/
         /* empty */
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
           result.add(new StringBuilder(""), subparser.getPresenceCondition());
           setTFValue(value, result);
@@ -3315,7 +3329,8 @@ LocalLabelDeclarationList:  /** list, complete **/
 LocalLabelDeclaration: /** complete **/  /* ADDED */
         __LABEL__ LocalLabelList SEMICOLON
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LocalLabelDeclaration");
           System.exit(1);
         }
@@ -3324,13 +3339,15 @@ LocalLabelDeclaration: /** complete **/  /* ADDED */
 LocalLabelList:  /** list, complete **/  // ADDED
         IDENTIFIER
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LocalLabelList");
           System.exit(1);
         }
         | LocalLabelList COMMA IDENTIFIER
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LocalLabelList");
           System.exit(1);
         }
@@ -3339,6 +3356,8 @@ LocalLabelList:  /** list, complete **/  // ADDED
 DeclarationOrStatementList:  /** list, complete **/  /* ADDED */
         /* empty */
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
           result.add(new StringBuilder(""), subparser.getPresenceCondition());
           setTFValue(value, result);
@@ -3419,14 +3438,14 @@ ExpressionStatement:  /** complete **/
 
       	    /** Iterates through all configurations of the stringbuilder stored in the child node */
       	    for (Multiverse.Element<StringBuilder> statement : statements) {
-      	      sb.append("\nif (" +
-      			PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
-      			") {\n" + statement.getData().toString() + ";\n}\n");
-      	      /**
-      	       * NOTE: When writing the "if (PC)",
-      	       * we AND the child node's PC with each stored stringbuilder PC, and
-      	       * add that to the resultant SBMV.
-      	       */
+              sb.append("\nif (" +
+              PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
+              ") {\n" + statement.getData().toString() + ";\n}\n");
+              /**
+               * NOTE: When writing the "if (PC)",
+               * we AND the child node's PC with each stored stringbuilder PC, and
+               * add that to the resultant SBMV.
+               */
       	    }
       	    sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
       	  }
@@ -3437,19 +3456,22 @@ ExpressionStatement:  /** complete **/
 SelectionStatement:  /** complete **/
         IF LPAREN Expression RPAREN Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: SelectionStatement");
           System.exit(1);
         }
         | IF LPAREN Expression RPAREN Statement ELSE Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: SelectionStatement");
           System.exit(1);
         }
         | SWITCH LPAREN Expression RPAREN Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: SelectionStatement");
           System.exit(1);
         }
@@ -3458,20 +3480,23 @@ SelectionStatement:  /** complete **/
 IterationStatement:  /** complete **/
         WHILE LPAREN Expression RPAREN Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: IterationStatement");
           System.exit(1);
         }
         | DO Statement WHILE LPAREN Expression RPAREN SEMICOLON
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: IterationStatement");
           System.exit(1);
         }
         | FOR LPAREN ExpressionOpt SEMICOLON ExpressionOpt SEMICOLON
                 ExpressionOpt RPAREN Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: IterationStatement");
           System.exit(1);
         }
@@ -3480,25 +3505,29 @@ IterationStatement:  /** complete **/
 JumpStatement:  /** passthrough, complete **/
         GotoStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: JumpStatement");
           System.exit(1);
         }
         | ContinueStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: JumpStatement");
           System.exit(1);
         }
         | BreakStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: JumpStatement");
           System.exit(1);
         }
         | ReturnStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: JumpStatement");
         }
         ;
@@ -3506,13 +3535,15 @@ JumpStatement:  /** passthrough, complete **/
 GotoStatement:  /** complete **/
         GOTO IdentifierOrTypedefName SEMICOLON
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: GotoStatement");
           System.exit(1);
         }
         | GOTO STAR Expression SEMICOLON  // ADDED
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: GotoStatement");
           System.exit(1);
         }
@@ -3521,7 +3552,8 @@ GotoStatement:  /** complete **/
 ContinueStatement:  /** complete **/
         CONTINUE SEMICOLON
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: ContinueStatement");
           System.exit(1);
         }
@@ -3530,7 +3562,8 @@ ContinueStatement:  /** complete **/
 BreakStatement:  /** complete **/
         BREAK SEMICOLON
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: BreakStatement");
           System.exit(1);
         }
