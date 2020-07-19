@@ -3458,22 +3458,28 @@ SelectionStatement:  /** complete **/
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          System.err.println("WARNING: unsupported semantic action: SelectionStatement");
-          System.exit(1);
+          // TODO: hard-code curly braces to ensure that any rewritings of the statement (node 1),
+          // remain inside the scope of the condition.
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | IF LPAREN Expression RPAREN Statement ELSE Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          System.err.println("WARNING: unsupported semantic action: SelectionStatement");
-          System.exit(1);
+          // TODO: hard-code curly braces to ensure that any rewritings of the statement (node 1),
+          // remain inside the scope of the condition.
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 7), getNodeAt(subparser, 6), getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | SWITCH LPAREN Expression RPAREN Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          System.err.println("WARNING: unsupported semantic action: SelectionStatement");
-          System.exit(1);
+          // TODO: hard-code curly braces to ensure that any rewritings of the statement (node 1),
+          // remain inside the scope of the condition.
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
