@@ -4175,13 +4175,15 @@ EqualityExpression:  /** passthrough, nomerge **/
         }
         | EqualityExpression EQ RelationalExpression
         {
-          System.err.println("WARNING: unsupported semantic action: EqualityExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | EqualityExpression NE RelationalExpression
         {
-          System.err.println("WARNING: unsupported semantic action: EqualityExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
