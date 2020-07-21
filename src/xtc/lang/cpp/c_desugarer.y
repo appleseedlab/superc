@@ -4141,23 +4141,27 @@ RelationalExpression:  /** passthrough, nomerge **/
         }
         | RelationalExpression LT ShiftExpression
         {
-          System.err.println("WARNING: unsupported semantic action: RelationalExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | RelationalExpression GT ShiftExpression
         {
-          System.err.println("WARNING: unsupported semantic action: RelationalExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | RelationalExpression LE ShiftExpression
         {
-          System.err.println("WARNING: unsupported semantic action: RelationalExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | RelationalExpression GE ShiftExpression
         {
-          System.err.println("WARNING: unsupported semantic action: RelationalExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
