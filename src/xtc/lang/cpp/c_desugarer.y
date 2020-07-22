@@ -3482,7 +3482,7 @@ SelectionStatement:  /** complete **/
 
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7), getNodeAt(subparser, 6), getNodeAt(subparser, 5), getNodeAt(subparser, 4));
 
-          temp = new Multiverse<StringBuilder>();
+          Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
           temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
