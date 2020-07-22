@@ -3456,34 +3456,11 @@ ExpressionStatement:  /** complete **/
 SelectionStatement:  /** complete **/
         IF LPAREN Expression RPAREN Statement
         {
-	  PresenceCondition pc = subparser.getPresenceCondition();
+          PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          //Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          Multiverse<StringBuilder> temp;
-
-          StringBuilder tokenText = new StringBuilder(" ");
-          tokenText.append(getNodeAt(subparser, 5).getTokenText());
-          temp = sbmv.product(tokenText, pc, SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-          tokenText = new StringBuilder(" ");
-          tokenText.append(getNodeAt(subparser, 4).getTokenText());
-          temp = sbmv.product(tokenText, pc, SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), pc);
-          sbmv.destruct();
-          sbmv = temp;
-          tokenText = new StringBuilder(" ");
-          tokenText.append(getNodeAt(subparser, 2).getTokenText());
-          temp = sbmv.product(tokenText, pc, SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-	  
-	  // NOTE: curly braces are hard-coded, so that statements 
-	  // rewritten with renamings are all under the scope of the condition
-          temp = new Multiverse<StringBuilder>();
+          
+          Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2));
+          Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
           temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
