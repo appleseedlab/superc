@@ -3555,8 +3555,20 @@ IterationStatement:  /** complete **/
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          System.err.println("WARNING: unsupported semantic action: IterationStatement");
-          System.exit(1);
+          Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2));
+          Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
+          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), pc);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          setTFValue(value, sbmv);
         }
         | DO Statement WHILE LPAREN Expression RPAREN SEMICOLON
         {
