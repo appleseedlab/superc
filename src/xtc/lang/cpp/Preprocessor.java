@@ -250,7 +250,7 @@ public class Preprocessor implements Iterator<Syntax> {
     this.stackOfBuffers = new LinkedList<TokenBuffer>();
     this.prescanning = 0;
     if (EMPTY_INVALID_BRANCHES) {
-      this.invalid = presenceConditionManager.new PresenceCondition(false);
+      this.invalid = presenceConditionManager.newFalse();
     }
     this.nestedConditionals = new LinkedList<Integer>();
     this.DEFINED = tokenCreator.createIdentifier("defined");
@@ -933,8 +933,7 @@ public class Preprocessor implements Iterator<Syntax> {
 
       stackOfBuffers
         .push(new OneTokenBuffer(new Conditional(ConditionalTag.START,
-                                                 presenceConditionManager.new
-                                                 PresenceCondition(false),
+                                                 presenceConditionManager.newFalse(),
                                                  directive.getLocation())));
 
       return new Error(message, false);
@@ -1242,8 +1241,7 @@ public class Preprocessor implements Iterator<Syntax> {
 
       stackOfBuffers
         .push(new OneTokenBuffer(new Conditional(ConditionalTag.START,
-                                                 presenceConditionManager.new
-                                                 PresenceCondition(false),
+                                                 presenceConditionManager.newFalse(),
                                                  directive.getLocation())));
 
       return new Error(message, false);
@@ -1263,8 +1261,7 @@ public class Preprocessor implements Iterator<Syntax> {
 
         stackOfBuffers
           .push(new OneTokenBuffer(new Conditional(ConditionalTag.START,
-                                                   presenceConditionManager.new
-                                                   PresenceCondition(false),
+                                                   presenceConditionManager.newFalse(),
                                                    directive.getLocation())));
         return new Error(message, false);
       }
@@ -1334,8 +1331,7 @@ public class Preprocessor implements Iterator<Syntax> {
 
       stackOfBuffers
         .push(new OneTokenBuffer(new Conditional(ConditionalTag.START,
-                                                 presenceConditionManager.new
-                                                 PresenceCondition(false),
+                                                 presenceConditionManager.newFalse(),
                                                  directive.getLocation())));
       return new Error(message, false);
 
@@ -1353,8 +1349,7 @@ public class Preprocessor implements Iterator<Syntax> {
 
         stackOfBuffers
           .push(new OneTokenBuffer(new Conditional(ConditionalTag.START,
-                                                   presenceConditionManager.new
-                                                   PresenceCondition(false),
+                                                   presenceConditionManager.newFalse(),
                                                    directive.getLocation())));
         return new Error(message, false);
       }
@@ -1426,8 +1421,7 @@ public class Preprocessor implements Iterator<Syntax> {
 
       stackOfBuffers
         .push(new OneTokenBuffer(new Conditional(ConditionalTag.START,
-                                                 presenceConditionManager.new
-                                                 PresenceCondition(false),
+                                                 presenceConditionManager.newFalse(),
                                                  directive.getLocation())));
       return new Error(message, false);
     } else {
@@ -3854,7 +3848,7 @@ public class Preprocessor implements Iterator<Syntax> {
     // list of expansions of the macro.
     List<List<Syntax>> lists = new LinkedList<List<Syntax>>();
     List<PresenceCondition> presenceConditions = new LinkedList<PresenceCondition>();
-    PresenceCondition nonFunction = presenceConditionManager.new PresenceCondition(false);
+    PresenceCondition nonFunction = presenceConditionManager.newFalse();
 
     for (Entry e : entries) {
       if (e.macro.isFunction()) {
@@ -4524,7 +4518,7 @@ public class Preprocessor implements Iterator<Syntax> {
     List<PresenceCondition> presenceConditions = new LinkedList<PresenceCondition>();
 
     branches.add(tokens);
-    presenceConditions.add(presenceConditionManager.new PresenceCondition(true));
+    presenceConditions.add(presenceConditionManager.newTrue());
 
     List<Syntax> list = new LinkedList<Syntax>();
 

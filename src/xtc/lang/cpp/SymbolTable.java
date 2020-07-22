@@ -209,11 +209,11 @@ public class SymbolTable {
         // UNDECLARED entry under the True condition
         Multiverse<Entry> newmv = new Multiverse<Entry>();
 
-        PresenceCondition trueCond = putCond.presenceConditionManager().new PresenceCondition(true);
+        PresenceCondition trueCond = putCond.presenceConditionManager().newTrue();
         newmv.add(UNDECLARED, trueCond);
         trueCond.delRef();
 
-        PresenceCondition falseCond = putCond.presenceConditionManager().new PresenceCondition(false);
+        PresenceCondition falseCond = putCond.presenceConditionManager().newFalse();
         newmv.add(ERROR, falseCond);
         falseCond.delRef();
 
@@ -230,7 +230,7 @@ public class SymbolTable {
         PresenceCondition undeclaredCond = null;
         PresenceCondition errorCond = null;
         PresenceCondition notPutCond = putCond.not();
-        PresenceCondition collectErrors = putCond.presenceConditionManager().new PresenceCondition(false);
+        PresenceCondition collectErrors = putCond.presenceConditionManager().newFalse();
 
         for (Element<Entry> entry : oldmv) {
           if (UNDECLARED == entry.getData()) {
@@ -326,7 +326,7 @@ public class SymbolTable {
 
       // check invariants
       {
-        PresenceCondition union = putCond.presenceConditionManager().new PresenceCondition(false);
+        PresenceCondition union = putCond.presenceConditionManager().newFalse();
 
         // has redundant checks
         for (Element<Entry> entry_i : newmv) {
@@ -422,6 +422,9 @@ public class SymbolTable {
       sb = sb.delete(23, ident.length());
       ident = sb.toString();
     }
+    
+    // return String.format("_%s%d_%s", prefix, varcount++, ident);
+    // NOTE: when doing regression testing, uncomment the line above, and comment-out the line below
     return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
   }
 
@@ -559,9 +562,9 @@ public class SymbolTable {
 
   public static void main(String args[]) {
     PresenceConditionManager presenceConditionManager = new PresenceConditionManager();
-    PresenceCondition A = presenceConditionManager.new PresenceCondition(presenceConditionManager.getVariableManager().getVariable("A"));
-    PresenceCondition B = presenceConditionManager.new PresenceCondition(presenceConditionManager.getVariableManager().getVariable("B"));
-    PresenceCondition C = presenceConditionManager.new PresenceCondition(presenceConditionManager.getVariableManager().getVariable("C"));
+    PresenceCondition A = presenceConditionManager.getVariable("A");
+    PresenceCondition B = presenceConditionManager.getVariable("B");
+    PresenceCondition C = presenceConditionManager.getVariable("C");
     PresenceCondition and = A.and(B);
     PresenceCondition or = and.or(C);
     SymbolTable symtab = new SymbolTable();

@@ -329,6 +329,8 @@ TranslationUnit:  /** complete, passthrough **/
 ExternalDeclarationList: /** list, complete **/
         /* empty */  // ADDED gcc allows empty program
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
           result.add(new StringBuilder(""), subparser.getPresenceCondition());
           setTFValue(value, result);
@@ -350,6 +352,7 @@ ExternalDeclaration:  /** passthrough, complete **/
           // TODO: do these actions need setCPC?
           System.err.println("ERROR: unsupported construct: ExternalDeclaration");
           PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
           setTFValue(value, product);
@@ -357,6 +360,7 @@ ExternalDeclaration:  /** passthrough, complete **/
         | DeclarationExtension
         {
           PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
           setTFValue(value, product);
@@ -365,6 +369,7 @@ ExternalDeclaration:  /** passthrough, complete **/
         {
           System.err.println("ERROR: unsupported construct: ExternalDeclaration");
           PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
           setTFValue(value, product);
@@ -373,6 +378,7 @@ ExternalDeclaration:  /** passthrough, complete **/
         {
           System.err.println("ERROR: unsupported construct: ExternalDeclaration");
           PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
           setTFValue(value, product);
@@ -393,6 +399,7 @@ FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
         FunctionDefinition
         {
           PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
           setTFValue(value, product);
@@ -457,7 +464,7 @@ FunctionPrototype:  /** nomerge **/
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
-          addDeclsToSymTab(subparser,type,decl);
+          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -470,7 +477,7 @@ FunctionPrototype:  /** nomerge **/
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           StringBuilder sb = new StringBuilder();
 
-          addDeclsToSymTab(subparser,type,decl);
+          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
            if (type.size() == 1)
              sb.append(type.get(0).getData().toType() + " ");
           else {
@@ -488,7 +495,7 @@ FunctionPrototype:  /** nomerge **/
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
-          addDeclsToSymTab(subparser,type,decl);
+          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -497,7 +504,7 @@ FunctionPrototype:  /** nomerge **/
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
-          addDeclsToSymTab(subparser,type,decl);
+          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -511,7 +518,7 @@ FunctionPrototype:  /** nomerge **/
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
-          addDeclsToSymTab(subparser,type,decl);
+          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -520,7 +527,7 @@ FunctionPrototype:  /** nomerge **/
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
-          addDeclsToSymTab(subparser,type,decl);
+          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -529,7 +536,7 @@ FunctionPrototype:  /** nomerge **/
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
-          addDeclsToSymTab(subparser,type,decl);
+          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -538,7 +545,7 @@ FunctionPrototype:  /** nomerge **/
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
-          addDeclsToSymTab(subparser,type,decl);
+          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -738,6 +745,7 @@ DeclarationExtension:  /** passthrough, complete **/  // ADDED
         Declaration
         {
           PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
           setTFValue(value, product);
@@ -777,49 +785,84 @@ Declaration:  /** complete **/
         	List<TypeAndDeclInitList.DeclAndInit> declAndInits = TBDBList.declAndInitList;
 
 
-        	// generates declarations and statements with the retrieved information
-        	Multiverse<StringBuilder> declarationSBMVWrapper = new Multiverse<StringBuilder>();
+        	// all declarations get generated, with no if(PC) {} wrapped around them,
+          // so we can append every declaration to a single stringbuilder
         	StringBuilder sb = new StringBuilder();
+
+          // generates declarations and statements with the retrieved information
         	for (TypeAndDeclInitList.DeclAndInit declAndInit : declAndInits) {
         		DeclBuilder decl = declAndInit.decl;
 	          String oldIdent = decl.identifier;
 	          System.err.println(decl.toString() + " " + type.toString());
-	          addDeclsToSymTab(subparser, type, decl);
-	          Multiverse<SymbolTable.Entry> entries
-	            = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-	          // TODO: destruct multiverse when done
-	      	  
-	          for (Element<SymbolTable.Entry> elem : entries) {
-		    DeclBuilder renamedDecl = new DeclBuilder(decl);
-		    renamedDecl.identifier = elem.getData().getRenaming();
-	      	    if (type.size() == 1) {
-	      	      if (type.get(0).getData().toType().getClass().getName().equals("xtc.type.TypedefT")) {
-	                System.err.println("WARNING: typedef transformations not yet supported.");
-	              }
-	              sb.append("\n" + type.get(0).getData().toType() + " " + renamedDecl + ";" + " /* renamed from " + oldIdent + " */\n");
-	      	    } else {
-	      	      System.err.println("ERROR: Configurable typedefs not yet supported.");
-	      	      // System.exit(1);
-	    	      }
-	          }
 
-	          // writes initializing statements using the renamed variables
-	        	if (declAndInit.hasInitializer) {
-	          	Multiverse<StringBuilder> initializer = declAndInit.initializerSBMV;
-	            for (Element<SymbolTable.Entry> u : entries) {
-	              for (Element<StringBuilder> sbelem : initializer) {
-	                sb.append("\nif (" + PCtoString(u.getCondition().and(sbelem.getCondition())) + ") {\n" +
-	                         (new StringBuilder(u.getData().getRenaming())).toString() +
-	                         sbelem.getData() + ";" +
-	                         "\n}\n");
-	              }
-	            }
-	        	}
+            // if the declaration has an initializer under at least one presence condition,
+            // then we iterate through every initializer, add a new instance to the symtab,
+            // then write the declaration of that new variable with its initializer.
+            if (declAndInit.hasInitializer) {
+              Multiverse<StringBuilder> configInitializers = declAndInit.initializerSBMV;
+
+              for (Element<StringBuilder> initializer : configInitializers) {
+                addDeclsToSymTab(subparser.getPresenceCondition().and(initializer.getCondition()), (CContext)subparser.scope, type, decl);
+                Multiverse<SymbolTable.Entry> entries
+                  = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition().and(initializer.getCondition()));
+                // TODO: destruct multiverse when done
+                
+                // ensures that entries does not contain more than one renaming under this PC
+                if (entries.size() > 1) {
+                  System.err.println("ERROR: symboltable contains multiple renamings under a single presence condition");
+                }
+
+                // writes the declaration
+                for (Element<SymbolTable.Entry> elem : entries) {
+                  DeclBuilder renamedDecl = new DeclBuilder(decl);
+                  renamedDecl.identifier = elem.getData().getRenaming();
+                  if (type.size() == 1) {
+                    if (type.get(0).getData().toType().getClass().getName().equals("xtc.type.TypedefT")) {
+                      System.err.println("WARNING: typedef transformations not yet supported.");
+                    }
+                    sb.append("\n" + type.get(0).getData().toType() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ");
+                  } else {
+                    System.err.println("ERROR: Configurable typedefs not yet supported.");
+                    // System.exit(1);
+                  }
+                }
+                sb.append(initializer.getData());
+                sb.append(";\n");
+              }
+            } else {
+              // if there is no initializer under any presence condition,
+              // then we add this variable to the symboltable, and write its declaration.
+              addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+              Multiverse<SymbolTable.Entry> entries
+                = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
+              // TODO: destruct multiverse when done
+              
+              // ensures that entries does not contain more than one renaming under this PC
+              if (entries.size() > 1) {
+                System.err.println("ERROR: symboltable contains multiple renamings under a single presence condition");
+              }
+
+              // writes the declaration
+              for (Element<SymbolTable.Entry> elem : entries) {
+                DeclBuilder renamedDecl = new DeclBuilder(decl);
+                renamedDecl.identifier = elem.getData().getRenaming();
+                if (type.size() == 1) {
+                  if (type.get(0).getData().toType().getClass().getName().equals("xtc.type.TypedefT")) {
+                    System.err.println("WARNING: typedef transformations not yet supported.");
+                  }
+                  sb.append("\n" + type.get(0).getData().toType() + " " + renamedDecl + ";" + " /* renamed from " + oldIdent + " */ \n");
+                } else {
+                  System.err.println("ERROR: Configurable typedefs not yet supported.");
+                  // System.exit(1);
+                }
+              }
+            }
         	}
 
-        	// stores the generated declarations and initializing statements in the SBMV wrapper,
+        	// stores the generated declarations and initializing statements in an SBMV wrapper,
         	// then sets the SBMV as this node's semantic value
-        	declarationSBMVWrapper.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          Multiverse<StringBuilder> declarationSBMVWrapper = new Multiverse<StringBuilder>();
+        	declarationSBMVWrapper.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, declarationSBMVWrapper);
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
@@ -880,7 +923,7 @@ DeclaringList:  /** nomerge **/
       	  TypeBuilderMultiverse type = getTBAt(subparser, 5);
       	  DeclBuilder decl = getDBAt(subparser, 4);
           System.err.println(decl.toString() + " " + type.toString());
-          addDeclsToSymTab(subparser, type, decl);
+          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getTBAt(subparser, 5), getDBAt(subparser, 4));
 
@@ -2293,7 +2336,7 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
-          addDeclsToSymTab(subparser, type, decl);
+          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
@@ -2312,7 +2355,7 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
-          addDeclsToSymTab(subparser, type, decl);
+          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
@@ -2332,7 +2375,7 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
-          addDeclsToSymTab(subparser, type, decl);
+          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
@@ -2352,7 +2395,7 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
           System.err.println("ParamIdent:" + type.toString());
           Parameter p = new Parameter();
-          addDeclsToSymTab(subparser, type, decl);
+          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
@@ -2372,7 +2415,7 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
-          addDeclsToSymTab(subparser, type, decl);
+          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
@@ -2392,7 +2435,7 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
-          addDeclsToSymTab(subparser, type, decl);
+          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
@@ -3202,25 +3245,29 @@ Statement:  /** passthrough, complete **/
 LabeledStatement:  /** complete **/  // ADDED attributes
         IdentifierOrTypedefName COLON AttributeSpecifierListOpt Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
         | CASE ConstantExpression COLON Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
         | CASE ConstantExpression ELLIPSIS ConstantExpression COLON Statement  // ADDED case range
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
         | DEFAULT COLON Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
@@ -3246,6 +3293,8 @@ CompoundStatement:  /** complete **/  /* ADDED */
 LocalLabelDeclarationListOpt: /** complete **/
         /* empty */
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
           result.add(new StringBuilder(""), subparser.getPresenceCondition());
           setTFValue(value, result);
@@ -3281,7 +3330,8 @@ LocalLabelDeclarationList:  /** list, complete **/
 LocalLabelDeclaration: /** complete **/  /* ADDED */
         __LABEL__ LocalLabelList SEMICOLON
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LocalLabelDeclaration");
           System.exit(1);
         }
@@ -3290,13 +3340,15 @@ LocalLabelDeclaration: /** complete **/  /* ADDED */
 LocalLabelList:  /** list, complete **/  // ADDED
         IDENTIFIER
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LocalLabelList");
           System.exit(1);
         }
         | LocalLabelList COMMA IDENTIFIER
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LocalLabelList");
           System.exit(1);
         }
@@ -3305,6 +3357,8 @@ LocalLabelList:  /** list, complete **/  // ADDED
 DeclarationOrStatementList:  /** list, complete **/  /* ADDED */
         /* empty */
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
           result.add(new StringBuilder(""), subparser.getPresenceCondition());
           setTFValue(value, result);
@@ -3385,16 +3439,16 @@ ExpressionStatement:  /** complete **/
 
       	    /** Iterates through all configurations of the stringbuilder stored in the child node */
       	    for (Multiverse.Element<StringBuilder> statement : statements) {
-      	      sb.append("\nif (" +
-      			PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
-      			") {\n" + statement.getData().toString() + ";\n}\n");
-      	      /**
-      	       * NOTE: When writing the "if (PC)",
-      	       * we AND the child node's PC with each stored stringbuilder PC, and
-      	       * add that to the resultant SBMV.
-      	       */
+              sb.append("\nif (" +
+              PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
+              ") {\n" + statement.getData().toString() + ";\n}\n");
+              /**
+               * NOTE: When writing the "if (PC)",
+               * we AND the child node's PC with each stored stringbuilder PC, and
+               * add that to the resultant SBMV.
+               */
       	    }
-      	    sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+      	    sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
       	  }
           setTFValue(value, sbmv);
         }
@@ -3403,41 +3457,120 @@ ExpressionStatement:  /** complete **/
 SelectionStatement:  /** complete **/
         IF LPAREN Expression RPAREN Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: SelectionStatement");
-          System.exit(1);
+	  PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          //Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<StringBuilder> temp;
+
+          StringBuilder tokenText = new StringBuilder(" ");
+          tokenText.append(getNodeAt(subparser, 5).getTokenText());
+          temp = sbmv.product(tokenText, pc, SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          tokenText = new StringBuilder(" ");
+          tokenText.append(getNodeAt(subparser, 4).getTokenText());
+          temp = sbmv.product(tokenText, pc, SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), pc);
+          sbmv.destruct();
+          sbmv = temp;
+          tokenText = new StringBuilder(" ");
+          tokenText.append(getNodeAt(subparser, 2).getTokenText());
+          temp = sbmv.product(tokenText, pc, SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+	  
+	  // NOTE: curly braces are hard-coded, so that statements 
+	  // rewritten with renamings are all under the scope of the condition
+          temp = new Multiverse<StringBuilder>();
+          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), pc);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          setTFValue(value, sbmv);
         }
         | IF LPAREN Expression RPAREN Statement ELSE Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: SelectionStatement");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+
+          Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7), getNodeAt(subparser, 6), getNodeAt(subparser, 5), getNodeAt(subparser, 4));
+
+          temp = new Multiverse<StringBuilder>();
+          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), pc);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          StringBuilder tokenText = new StringBuilder(" ");
+          tokenText.append(getNodeAt(subparser, 2).getTokenText());
+          temp = sbmv.product(tokenText, pc, SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = new Multiverse<StringBuilder>();
+          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), pc);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          setTFValue(value, sbmv);  
         }
         | SWITCH LPAREN Expression RPAREN Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          System.err.println("WARNING: unsupported semantic action: SelectionStatement");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          // TODO: hard-code curly braces to ensure that any rewritings of the statement (node 1),
+          // remain inside the scope of the condition.
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
 IterationStatement:  /** complete **/
         WHILE LPAREN Expression RPAREN Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: IterationStatement");
           System.exit(1);
         }
         | DO Statement WHILE LPAREN Expression RPAREN SEMICOLON
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: IterationStatement");
           System.exit(1);
         }
         | FOR LPAREN ExpressionOpt SEMICOLON ExpressionOpt SEMICOLON
                 ExpressionOpt RPAREN Statement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: IterationStatement");
           System.exit(1);
         }
@@ -3446,25 +3579,29 @@ IterationStatement:  /** complete **/
 JumpStatement:  /** passthrough, complete **/
         GotoStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: JumpStatement");
           System.exit(1);
         }
         | ContinueStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: JumpStatement");
           System.exit(1);
         }
         | BreakStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: JumpStatement");
           System.exit(1);
         }
         | ReturnStatement
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: JumpStatement");
         }
         ;
@@ -3472,13 +3609,15 @@ JumpStatement:  /** passthrough, complete **/
 GotoStatement:  /** complete **/
         GOTO IdentifierOrTypedefName SEMICOLON
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: GotoStatement");
           System.exit(1);
         }
         | GOTO STAR Expression SEMICOLON  // ADDED
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: GotoStatement");
           System.exit(1);
         }
@@ -3487,7 +3626,8 @@ GotoStatement:  /** complete **/
 ContinueStatement:  /** complete **/
         CONTINUE SEMICOLON
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: ContinueStatement");
           System.exit(1);
         }
@@ -3496,7 +3636,8 @@ ContinueStatement:  /** complete **/
 BreakStatement:  /** complete **/
         BREAK SEMICOLON
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: BreakStatement");
           System.exit(1);
         }
@@ -3617,13 +3758,13 @@ PrimaryIdentifier: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(((Node)getNodeAt(subparser, 1)).getTokenText());
           //Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          //sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          //sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
 
 
           CContext scope = (CContext) subparser.scope;
 
           // get the renamings from the symtab
-          PresenceCondition cond = subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true);
+          PresenceCondition cond = subparser.getPresenceCondition().presenceConditionManager().newTrue();
           Multiverse<SymbolTable.Entry> entries = scope.get(sb.toString(), cond);
           cond.delRef();
 
@@ -4033,23 +4174,27 @@ RelationalExpression:  /** passthrough, nomerge **/
         }
         | RelationalExpression LT ShiftExpression
         {
-          System.err.println("WARNING: unsupported semantic action: RelationalExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | RelationalExpression GT ShiftExpression
         {
-          System.err.println("WARNING: unsupported semantic action: RelationalExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | RelationalExpression LE ShiftExpression
         {
-          System.err.println("WARNING: unsupported semantic action: RelationalExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | RelationalExpression GE ShiftExpression
         {
-          System.err.println("WARNING: unsupported semantic action: RelationalExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -4063,13 +4208,15 @@ EqualityExpression:  /** passthrough, nomerge **/
         }
         | EqualityExpression EQ RelationalExpression
         {
-          System.err.println("WARNING: unsupported semantic action: EqualityExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | EqualityExpression NE RelationalExpression
         {
-          System.err.println("WARNING: unsupported semantic action: EqualityExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -4193,7 +4340,7 @@ AssignmentOperator: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(" = ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, sbmv);
         }
         | MULTassign
@@ -4201,7 +4348,7 @@ AssignmentOperator: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(" *= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, sbmv);
         }
         | DIVassign
@@ -4209,7 +4356,7 @@ AssignmentOperator: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(" /= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, sbmv);
         }
         | MODassign
@@ -4217,7 +4364,7 @@ AssignmentOperator: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(" %= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, sbmv);
         }
         | PLUSassign
@@ -4225,7 +4372,7 @@ AssignmentOperator: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(" += ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, sbmv);
         }
         | MINUSassign
@@ -4233,7 +4380,7 @@ AssignmentOperator: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(" -= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, sbmv);
         }
         | LSassign
@@ -4251,7 +4398,7 @@ AssignmentOperator: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(" &= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, sbmv);
         }
         | ERassign
@@ -4264,7 +4411,7 @@ AssignmentOperator: /** nomerge **/
           StringBuilder sb = new StringBuilder();
           sb.append(" |= ");
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)));
+          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
           setTFValue(value, sbmv);
         }
         ;
@@ -6706,18 +6853,16 @@ private static Specifiers makeStructSpec(Subparser subparser,
  * @param typebuilder A Multiverse of type specifier objects.
  * @param declbuidler An object representing the declarator.
  */
-private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebuilder, DeclBuilder declbuilder) {
+private void addDeclsToSymTab(PresenceCondition presenceCondition, CContext scope, TypeBuilderMultiverse typebuilder, DeclBuilder declbuilder) {
   if (typebuilder == null || declbuilder == null ) {
     System.err.println("ERROR: null typebuilder or declbuilder");
     System.exit(1);
   }
 
-  CContext scope = (CContext) subparser.scope;
-
   // get the list of parameters if it's a function declarator
   Multiverse<List<Parameter>> parms = null;
   if (declbuilder.isFunction()) {
-    parms = declbuilder.getParams(subparser.getPresenceCondition());
+    parms = declbuilder.getParams(presenceCondition);
   }
 
   // loop through each configuration of the type specifier, adding the
@@ -6727,7 +6872,7 @@ private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebui
     TypeBuilderUnit t = elem.getData();
 
     if (!isTypeDeclValid(t, declbuilder)) {
-      PresenceCondition condition = subparser.getPresenceCondition().and(elem.getCondition());
+      PresenceCondition condition = presenceCondition.and(elem.getCondition());
       scope.getSymbolTable().putError(declbuilder.getID(), condition);
       condition.delRef();
     } else {
@@ -6738,7 +6883,7 @@ private void addDeclsToSymTab(Subparser subparser, TypeBuilderMultiverse typebui
 
       if (! declbuilder.isFunction()) {
         // bind the symbol name to the type under the current presence condition
-        PresenceCondition condition = subparser.getPresenceCondition().and(elem.getCondition());
+        PresenceCondition condition = presenceCondition.and(elem.getCondition());
         putEntry(scope, declbuilder.getID(), completedecl.toType(), condition);
         condition.delRef();
 
@@ -6822,7 +6967,7 @@ private Multiverse<Node> getNodeMultiverse(Node node, PresenceConditionManager p
       }
     }
   } else {
-    mv.add(node, presenceConditionManager.new PresenceCondition(true));
+    mv.add(node, presenceConditionManager.newTrue());
   }
 
   return mv;
