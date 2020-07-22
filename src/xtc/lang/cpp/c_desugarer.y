@@ -3029,7 +3029,8 @@ ParameterTypeListOpt: /** nomerge **/
         }
         | ParameterTypeList
         {
-          setTFValue(value,getParamAt(subparser,1));
+          List<Parameter> p = getParamAt(subparser,1);
+          setTFValue(value,p);
         }
         ;
 
@@ -6959,7 +6960,7 @@ private boolean isTypeDeclValid(TypeBuilderUnit t, DeclBuilder d)
   if (!t.getIsValid() || !d.getIsValid()) {
     return false;
   }
-  if (t.getIsVoid() && (!d.isPointer() && !d.isFunction())) {
+  if (t.getIsVoid() && !t.isTypedef() && (!d.isPointer() && !d.isFunction())) {
     return false;
   }
   if (t.getIsInline() && !d.isFunction()){
@@ -7027,6 +7028,7 @@ public void putEntry(CContext scope, String ident, Type putEntry, PresenceCondit
   }
   curMV.destruct();
 }
+
 
 // ---------- Declarators
 

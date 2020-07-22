@@ -454,12 +454,12 @@ public class TypeBuilderUnit {
     return result;
   }
 
-  boolean isTypedef()
+  public boolean isTypedef()
   {
     return qualifiers[QUAL.isTypedef.ordinal()];
   }
 
-  void setTypedef(String name, String rename, Type type)
+  public void setTypedef(String name, String rename, Type type)
   {
     foundTypes[FOUND_TYPE.seenTypedef.ordinal()] = true;
     typedefName = name;

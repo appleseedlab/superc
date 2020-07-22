@@ -19,7 +19,7 @@ short w(int x, ...)
   return 0;
 }
 
-int main()
+int main(void)
 {
   //  x();
   // y(2);
