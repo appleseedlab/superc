@@ -20,11 +20,14 @@ The following environment variables are expected by xtc.
 
 From the root of the xtc source tree, run the following:
 
-    cd src/xtc/lang/cpp/  # go to the SuperC directory
-    make configure  # configure SuperC
-    make parsers  # generate the parsers
-    cd -  # go back to the source root
-    make  # build all of xtc
+    # build xtc
+    make configure
+    make
+    
+    # build SuperC
+    (cd src/xtc/lang/cpp/; make configure)
+    (cd src/xtc/lang/cpp/; make parsers)
+    (cd src/xtc/lang/cpp/; make)
 
 ## Running SuperC's Desugarer
 

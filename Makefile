@@ -44,7 +44,7 @@ PACKAGES = \
 	xtc.type \
 	xtc.parser \
 	xtc.lang \
-	xtc.lang.cpp \
+	# xtc.lang.cpp \
 	xtc.lang.jeannie \
 	xtc.lang.blink \
 	xtc.lang.blink.agent
@@ -157,7 +157,7 @@ printenv :
 
 configure :
 	$(MAKE) -C $(SOURCE_DIR)/xtc configure
-	$(MAKE) -C $(SOURCE_DIR)/xtc/lang/cpp configure
+	# $(MAKE) -C $(SOURCE_DIR)/xtc/lang/cpp configure
 
 clean   : $(CLEAN)
 %.clean :
@@ -225,7 +225,7 @@ ifdef JAVA_DEV_ROOT
 	$(RM) $(SOURCE_DIR)/xtc/lang/jeannie/JeannieParser.java
 	$(RM) $(SOURCE_DIR)/xtc/lang/jeannie/PreJeannieParser.java
 	$(RM) $(SOURCE_DIR)/xtc/lang/blink/CommandParser.java
-	$(MAKE) -C $(SOURCE_DIR)/xtc/lang/cpp clobber-parsers
+	# $(MAKE) -C $(SOURCE_DIR)/xtc/lang/cpp clobber-parsers
 endif
 
 jars    : classes
