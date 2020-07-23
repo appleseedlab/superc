@@ -21,7 +21,11 @@
 # Create a temporary file with a unique name.  Uses the tempfile
 # command if the system has it.
 
-tmpdir=${SUPERC_SCRATCH-/scratch/pcg234/tmp}
+if [[ ! -d ${SUPERC_SCRATCH} ]]; then
+  echo "Please 'export SUPERC_SCRATCH=~/path/to/some/tmp' for holding output during regression testing.  Output files will not be removed." >&2
+  exit 1
+fi
+tmpdir=${SUPERC_SCRATCH}
 
 which tempfile >/dev/null 2>&1
 

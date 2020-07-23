@@ -14,17 +14,21 @@ The following environment variables are expected by xtc.
     CLASSPATH=$CLASSPATH:$JAVA_DEV_ROOT/classes:$JAVA_DEV_ROOT/bin/junit.jar:$JAVA_DEV_ROOT/bin/antlr.jar:$JAVA_DEV_ROOT/bin/javabdd.jar:/usr/share/java/org.sat4j.core.jar
     JAVA_ARGS="-Xms2048m -Xmx4048m -Xss128m" # JVM settings
     JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/  # Location of java jdk
+    SUPERC_SCRATCH=~/tmp/superc # Temporary files during regression testing
     export JAVA_DEV_ROOT CLASSPATH JAVA_ARGS JAVA_HOME
 
 ## Building xtc and SuperC
 
 From the root of the xtc source tree, run the following:
 
-    cd src/xtc/lang/cpp/  # go to the SuperC directory
-    make configure  # configure SuperC
-    make parsers  # generate the parsers
-    cd -  # go back to the source root
-    make  # build all of xtc
+    # build xtc
+    make configure
+    make
+    
+    # build SuperC
+    (cd src/xtc/lang/cpp/; make configure)
+    (cd src/xtc/lang/cpp/; make parsers)
+    (cd src/xtc/lang/cpp/; make)
 
 ## Running SuperC's Desugarer
 

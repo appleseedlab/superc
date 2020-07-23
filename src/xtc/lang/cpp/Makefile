@@ -182,9 +182,9 @@ $(c_expression_parsers): expression.y gen_tables.c Condition.rats
 	$(RATS) -option 'parser(xtc.lang.cpp.ExpressionRats)' Condition.rats
 	$(MAKE) ExpressionRats.class
 
-	# force rebuild of fml parser to use newly built expression parsers
-	$(RM) ${JAVA_DEV_ROOT}/classes/xtc/lang/cpp/ForkMergeParser.class
-	$(MAKE) ForkMergeParser.class
+# ForkMergeParser depends on the ExpressionRats parser, so make sure ForkMergerParser gets rebuilt
+$(PACKAGE_DIR)/ForkMergeParser.class: $(SOURCE_DIR)/$(PACKAGE_LOC)/ForkMergeParser.java $(PACKAGE_DIR)/ExpressionRats.class
+	$(JAVAC) $(JAVAC_OPTIONS) $< 
 
 parsers:
 	$(MAKE) $(c_parse_tables)
