@@ -14,12 +14,12 @@ public class TypeBuilderUnit {
     enum QUAL {isAuto, isConst, isVolatile, isExtern, isStatic, isRegister, isThreadLocal,
 	       isInline, isSigned, isUnsigned, isTypedef}
     final int NUM_QUALS = 12;
-    enum FOUND_TYPE {seenVoid, seenInt, seenLong, seenLongLong, seenChar, seenShort, seenFloat, seenDouble,
-		     seenComplex, seenTypedef}
+    enum FOUND_TYPE {seenVoid, seenInt, seenLong, seenLongLong, seenChar, seenShort, seenFloat,
+                     seenDouble, seenComplex, seenTypedef}
     final int NUM_TYPES = 10;
     // note: these can appear in any order (in the source file), and they will be initialized to false                                                                        /*boolean isAuto;
-    boolean qualifiers[] = new boolean[NUM_QUALS];
-    boolean foundTypes[] = new boolean[NUM_TYPES];
+  boolean qualifiers[] = new boolean[NUM_QUALS];
+  boolean foundTypes[] = new boolean[NUM_TYPES];
 
     List<String> attributes;
 
@@ -465,6 +465,10 @@ public class TypeBuilderUnit {
     typedefName = name;
     typedefRename = rename;
     typedefType = type;
+    if (type.isUnit()) {
+      isTypeError = true;
+    }
+      
   }
 
   public boolean getIsValid()
@@ -500,7 +504,9 @@ public class TypeBuilderUnit {
 
   public boolean getIsVoid()
   {
-    return foundTypes[FOUND_TYPE.seenVoid.ordinal()];
+    return foundTypes[FOUND_TYPE.seenVoid.ordinal()] ||
+      (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] &&
+       typedefType.isVoid());
   }
 
   public boolean getIsInline()

@@ -1,6 +1,7 @@
 package xtc.lang.cpp;
 
 import xtc.type.Type;
+import xtc.type.ErrorT;
 
 import xtc.lang.cpp.Multiverse.Element;
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
@@ -51,7 +52,7 @@ public class Parameter
   public Type getType()
   {
     if (ellipsis || multiverse.size() != 1)
-      return null;
+      return new ErrorT();
     return multiverse.get(0).getData().getType();
   }
 
@@ -61,5 +62,36 @@ public class Parameter
       return "...";
     else
       return multiverse.toString();
+  }
+
+  public boolean isVoid()
+  {
+    if (ellipsis || multiverse.size() != 1) {
+      return false;
+    }
+    return multiverse.get(0).getData().getType().isVoid();
+  }
+  
+  /**
+   * Returns if a type is valid for a parameter. If this statement
+   * is called, it is assumed that it is not the sole element of a
+   * list. If there is more than one possible entry in the multiverse
+   * then this was called incorrectly and returns false. A type should
+   * be valid provided it is not void, uninitialized, or an error.
+   *
+   * @return if the parameter type is valid in a list
+   */
+  public boolean isValidType()
+  {
+    if (ellipsis) {
+      return true;
+    }
+    if ( multiverse.size() != 1) {
+      return false;
+    }
+    Type t = multiverse.get(0).getData().getType();
+    System.err.println(t.toString());
+    return !t.isVoid() && !t.isUnit() && !t.isError();
+    
   }
 }

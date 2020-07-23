@@ -2178,7 +2178,7 @@ ParameterAbstractDeclaration:
           Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
           for (Element<TypeBuilderUnit> e : type) {
             Entry ent;
-            if (isTypeDeclValid(e.getData(),d)) {
+            if (e.getData().getIsValid() && d.getIsValid()) {
               DeclBuilder x = new DeclBuilder(d);
               x.addType(e.getData().toType());
               ent = new Entry("",x.toType());
@@ -2221,7 +2221,7 @@ ParameterAbstractDeclaration:
           Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
           for (Element<TypeBuilderUnit> e : type) {
             Entry ent;
-            if (isTypeDeclValid(e.getData(),d)) {
+            if (e.getData().getIsValid() && d.getIsValid()) {
               DeclBuilder x = new DeclBuilder(d);
               x.addType(e.getData().toType());
               ent = new Entry("",x.toType());
@@ -2264,7 +2264,7 @@ ParameterAbstractDeclaration:
           Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
           for (Element<TypeBuilderUnit> e : type) {
             Entry ent;
-            if (isTypeDeclValid(e.getData(),d)) {
+            if (e.getData().getIsValid() && d.getIsValid()) {
               DeclBuilder x = new DeclBuilder(d);
               x.addType(e.getData().toType());
               ent = new Entry("",x.toType());
@@ -2307,7 +2307,7 @@ ParameterAbstractDeclaration:
           Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
           for (Element<TypeBuilderUnit> e : type) {
             Entry ent;
-            if (isTypeDeclValid(e.getData(),d)) {
+            if (e.getData().getIsValid() && d.getIsValid()) {
               DeclBuilder x = new DeclBuilder(d);
               x.addType(e.getData().toType());
               ent = new Entry("",x.toType());
@@ -3505,7 +3505,8 @@ SelectionStatement:  /** complete **/
           setCPC(value, PCtoString(pc));
 
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7), getNodeAt(subparser, 6), getNodeAt(subparser, 5), getNodeAt(subparser, 4));
-
+          Multiverse<StringBuilder> temp;
+          
           temp = new Multiverse<StringBuilder>();
           temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
           sbmv.destruct();
@@ -6891,6 +6892,11 @@ private void addDeclsToSymTab(PresenceCondition presenceCondition, CContext scop
         // go through each combination of parameters, adding each
         // variation of the function declarator to the symtab
         for(Element<List<Parameter>> parmelem : parms) {
+          if (!validateParamList(parmelem.getData())) {
+            PresenceCondition condition = presenceCondition.and(parmelem.getCondition());
+            scope.getSymbolTable().putError(declbuilder.getID(), condition);
+            condition.delRef();
+          }
           PresenceCondition condition = parmelem.getCondition().and(elem.getCondition());
 
           if (parmelem.getData().size() == 0) {  // function has no parameters
@@ -7172,6 +7178,31 @@ public void putEntry(CContext scope, String ident, Type putEntry, PresenceCondit
     p.delRef();
   }
   curMV.destruct();
+}
+
+/**
+ * Returns if the provided list is a valid Parameter list.
+ * If there is only one entry, and it is void, then the list
+ * is acceptable and should proceed as an empty list. Otherwise
+ * if any Parameter in the list is not valid({@link xtc.lang.cpp.Parameter#isValidType()})
+ * then the list is invalid and false is returned.
+ *
+ * @param lp List of Parameters to be checked for validity
+ * @return if the list "lp" is valid
+ */
+boolean validateParamList(List<Parameter> lp)
+{
+  if (lp.size() == 1 && lp.get(0).isVoid()) {
+    lp.remove(0);
+    return true;
+  }
+  
+  for (Parameter p : lp) {
+    if (!p.isValidType()) {
+      return false;
+    }
+  }
+  return true;
 }
 
 
