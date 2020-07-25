@@ -798,7 +798,7 @@ Declaration:  /** complete **/
             // if the declaration has an initializer under at least one presence condition,
             // then we iterate through every initializer, add a new instance to the symtab,
             // then write the declaration of that new variable with its initializer.
-            if (declAndInit.hasInitializer) {
+            if (declAndInit.initializerSBMV.size() > 0) {
               Multiverse<StringBuilder> configInitializers = declAndInit.initializerSBMV;
 
               for (Element<StringBuilder> initializer : configInitializers) {
@@ -856,7 +856,7 @@ Declaration:  /** complete **/
                   // System.exit(1);
                 }
               }
-            }
+            } 
         	}
 
         	// stores the generated declarations and initializing statements in an SBMV wrapper,
@@ -920,95 +920,63 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
 DeclaringList:  /** nomerge **/
         DeclarationSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-      	  TypeBuilderMultiverse type = getTBAt(subparser, 5);
-      	  DeclBuilder decl = getDBAt(subparser, 4);
+          // gets the type, declaration, and optional initializer information from the children nodes
+          TypeBuilderMultiverse type = getTBAt(subparser, 5);
+          DeclBuilder decl = getDBAt(subparser, 4);
           System.err.println(decl.toString() + " " + type.toString());
-      	  saveBaseType(subparser, getNodeAt(subparser, 5));
+          saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getTBAt(subparser, 5), getDBAt(subparser, 4));
+          Multiverse<StringBuilder> initializer = getSBMVAt(subparser, 1);
 
+          // TODO: AssemblyExpressionOpt and AttributeSpecifierListOpt
           System.err.println("WARNING: skipping some children of DeclaringList");
 
-          TypeAndDeclInitList.DeclAndInit declAndInit = new TypeAndDeclInitList.DeclAndInit();
-          Multiverse<StringBuilder> initializer = getSBMVAt(subparser, 1);
-					if (initializer != null) {
-        		if (initializer.size() == 0) {
-	        		declAndInit.addDeclNoInit(decl);
-	      		} else if (initializer.size() > 0) {
-	        		declAndInit.addDeclWithInit(decl, initializer);
-	        	} else {
-	        		System.err.println("FATAL: initializer SBMV has a negative size");
-	        		System.exit(1);
-	        	}
-					} else {
-						declAndInit.addDeclNoInit(decl);
-					}
+          // wraps the information in a TypeAndDeclInitList
+          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(type, decl, initializer);
 
-        	LinkedList<TypeAndDeclInitList.DeclAndInit> declAndInitList = new LinkedList<TypeAndDeclInitList.DeclAndInit>();
-        	declAndInitList.add(declAndInit);
-          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(type, declAndInitList);
           setTFValue(value, TBDBList);
         }
         | TypeSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-      	  DeclBuilder decl = getDBAt(subparser, 4);
-      	  TypeBuilderMultiverse type = getTBAt(subparser, 5);
-      	  saveBaseType(subparser, getNodeAt(subparser, 2));
+          // gets the type, declaration, and optional initializer information from the children nodes
+          DeclBuilder decl = getDBAt(subparser, 4);
+          TypeBuilderMultiverse type = getTBAt(subparser, 5);
+          saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, type, decl);
-          
-          System.err.println("WARNING: skipping some children of DeclaringList");
-          
-          TypeAndDeclInitList.DeclAndInit declAndInit = new TypeAndDeclInitList.DeclAndInit();
-
           Multiverse<StringBuilder> initializer = getSBMVAt(subparser, 1);
-					if (initializer != null) {
-        		if (initializer.size() == 0) {
-	        		declAndInit.addDeclNoInit(decl);
-	      		} else if (initializer.size() > 0) {
-	        		declAndInit.addDeclWithInit(decl, initializer);
-	        	} else {
-	        		System.err.println("FATAL: initializer SBMV has a negative size");
-	        		System.exit(1);
-	        	}
-					} else {
-						declAndInit.addDeclNoInit(decl);
-					}
+          
+          // TODO: AssemblyExpressionOpt and AttributeSpecifierListOpt
+          System.err.println("WARNING: skipping some children of DeclaringList");
 
-        	LinkedList<TypeAndDeclInitList.DeclAndInit> declAndInitList = new LinkedList<TypeAndDeclInitList.DeclAndInit>();
-        	declAndInitList.add(declAndInit);
-          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(type, declAndInitList);
+          // wraps the information in a TypeAndDeclInitList
+          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(type, decl, initializer);
+
           setTFValue(value, TBDBList);
         }
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
           // reuses saved base type
-	        bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
+          bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
+          // gets the type, declaration, and optional initializer information from the children nodes
           Multiverse<StringBuilder> initializer = getSBMVAt(subparser, 1);
           DeclBuilder decl = getDBAt(subparser, 5);
           TypeAndDeclInitList TBDBListChild = getTBDBListAt(subparser, 8);
+
+          // TODO: AssemblyExpressionOpt and AttributeSpecifierListOpt
           System.err.println("WARNING: skipping some children of DeclaringList");
           
-          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(TBDBListChild); // TODO: add copy constructor
-          TypeAndDeclInitList.DeclAndInit declAndInit = new TypeAndDeclInitList.DeclAndInit();
-					if (initializer != null) {
-        		if (initializer.size() == 0) {
-	        		declAndInit.addDeclNoInit(decl);
-	      		} else if (initializer.size() > 0) {
-	        		declAndInit.addDeclWithInit(decl, initializer);
-	        	} else {
-	        		System.err.println("FATAL: initializer SBMV has a negative size");
-	        		System.exit(1);
-	        	}
-					} else {
-						declAndInit.addDeclNoInit(decl);
-					}
+          // copies the child declaring list
+          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(TBDBListChild);
 
-        	TBDBList.addDeclAndInit(declAndInit);
+          // adds this new declaration to the list of declarations
+          TBDBList.addDeclAndInit(decl, initializer);
           
           setTFValue(value, TBDBList);
         }
         ;
+
 
 DeclarationSpecifier:  /**  nomerge **/
         BasicDeclarationSpecifier        /* Arithmetic or void */
@@ -2509,7 +2477,7 @@ TypeName: /** nomerge **/
 
 InitializerOpt: /** nomerge **/
         /* nothing */
-	{
+        {
           Multiverse<StringBuilder> emptyInit = new Multiverse<StringBuilder>();
           setTFValue(value, emptyInit);
         }
@@ -5147,24 +5115,22 @@ private static class TypeAndDeclInitList {
 	* @param tb The type information.
 	* @param declAndInits The declaration and initializer list.
 	*/
-  private TypeAndDeclInitList(TypeBuilderMultiverse tb, List<DeclAndInit> declsAndInits) {
-    declAndInitList = declsAndInits;
+  private TypeAndDeclInitList(TypeBuilderMultiverse tb, DeclBuilder decl, Multiverse<StringBuilder> init) {
     type = tb;
+    DeclAndInit declAndInit = new DeclAndInit(decl, init);
+    declAndInitList = new LinkedList<DeclAndInit>();
+    declAndInitList.add(declAndInit);
   }
 
   /** The copy constructor */
   private TypeAndDeclInitList(TypeAndDeclInitList TBDBList) {
-  	if (TBDBList == null) {
-  		System.err.println("FATAL: attempting to copy a null TypeAndDeclInitList");
-  		System.exit(1);
-  	}
-
   	type = new TypeBuilderMultiverse(TBDBList.type);
   	declAndInitList = new LinkedList<DeclAndInit>(TBDBList.declAndInitList);
   }
 
   /** Adds a declaration and an optional initializer to the list */
-  private void addDeclAndInit(DeclAndInit declAndInit) {
+  private void addDeclAndInit(DeclBuilder decl, Multiverse<StringBuilder> init) {
+    DeclAndInit declAndInit = new DeclAndInit(decl, init);
   	declAndInitList.add(declAndInit);
   }
 
@@ -5176,22 +5142,6 @@ private static class TypeAndDeclInitList {
 		private DeclBuilder decl;
 		/** The initializer statement field*/
 	  private Multiverse<StringBuilder> initializerSBMV;
-	  /** The flag that keeps track of whether or not there is an initializer statement */
-	  private boolean hasInitializer;
-
-	  /** The default constructor. Sets the hasInitializer flag to false. */
-	  private DeclAndInit() {
-	  	hasInitializer = false;
-	  }
-
-  	/** 
-	   * Constructor for declarations with no initializer statements.
-	   * @param db The declaration information.
-	   */
-	  private DeclAndInit(DeclBuilder db) {
-	  	decl = db;
-	  	hasInitializer = false;
-	  }
 
   	/** 
 	   * Constructor for declarations with an initializer statement.
@@ -5200,45 +5150,7 @@ private static class TypeAndDeclInitList {
 	   */
 	  private DeclAndInit(DeclBuilder db, Multiverse<StringBuilder> initializer) {
 	  	decl = db;
-	  	hasInitializer = true;
 	  	initializerSBMV = initializer;
-	  }
-
-	  /** 
-	   * Adds declaration information, without an initializer.
-	   * Attempting to overwrite an existing declaration causes an error and an exit.
-	   * @param db The declaration information.
-	   */
-	  private void addDeclNoInit(DeclBuilder db) {
-	  	if (decl == null) {
-	  		decl = db;
-	  	} else {
-	  		System.err.println("ERROR: attempting to overwrite a declaration");
-				System.exit(1);
-	  	}
-	  }
-
-	  /** 
-	   * Adds declaration information, with an initializer.
-	   * Attempting to overwrite an existing declaration causes an error and an exit.
-	   * @param db The declaration information.
-		 * @param initializer The initializing statement.
-	   */
-	  private void addDeclWithInit(DeclBuilder db, Multiverse<StringBuilder> initializer) {
-			if (decl == null) {
-	  		decl = db;
-	  	} else {
-	  		System.err.println("ERROR: attempting to overwrite a declaration");
-				System.exit(1);
-	  	}
-
-	  	if (hasInitializer) {
-	  		System.err.println("ERROR: attempting to add multiple initializers to a single declaration");
-				System.exit(1);
-	  	} else {
-	  		initializerSBMV = initializer;
-	  		hasInitializer = true;
-	  	}
 	  }
 	}
 }
