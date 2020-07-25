@@ -923,7 +923,6 @@ DeclaringList:  /** nomerge **/
       	  TypeBuilderMultiverse type = getTBAt(subparser, 5);
       	  DeclBuilder decl = getDBAt(subparser, 4);
           System.err.println(decl.toString() + " " + type.toString());
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
       	  saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getTBAt(subparser, 5), getDBAt(subparser, 4));
 
