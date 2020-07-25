@@ -2509,6 +2509,10 @@ TypeName: /** nomerge **/
 
 InitializerOpt: /** nomerge **/
         /* nothing */
+	{
+          Multiverse<StringBuilder> emptyInit = new Multiverse<StringBuilder>();
+          setTFValue(value, emptyInit);
+        }
         | ASSIGN DesignatedInitializer
         {
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
