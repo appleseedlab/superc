@@ -1564,35 +1564,40 @@ VarArgTypeName:  // ADDED
 
 StorageClass:
         TYPEDEF
-    	  {
-    	    TypeBuilderMultiverse storage = new TypeBuilderMultiverse("typedef", subparser.getPresenceCondition());
-    	    setTFValue(value, storage);
-              	    getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF;
-    	  }
+    	{
+          String storageName = getNodeAt(subparser, 1).getTokenText();
+    	  TypeBuilderMultiverse storage = new TypeBuilderMultiverse(storageName, subparser.getPresenceCondition());
+    	  setTFValue(value, storage);
+          getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF;
+    	}
         | EXTERN
-  	    {
-  	      TypeBuilderMultiverse storage = new TypeBuilderMultiverse("extern", subparser.getPresenceCondition());
-  	      setTFValue(value, storage);
-            	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN;
-  	    }
+  	{
+          String storageName = getNodeAt(subparser, 1).getTokenText();
+          TypeBuilderMultiverse storage = new TypeBuilderMultiverse(storageName, subparser.getPresenceCondition());
+  	  setTFValue(value, storage);
+          getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN;
+  	}
         | STATIC
-  	    {
-  	      TypeBuilderMultiverse storage = new TypeBuilderMultiverse("static", subparser.getPresenceCondition());
-  	      setTFValue(value, storage);
-            	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC;
-  	    }
+  	{
+          String storageName = getNodeAt(subparser, 1).getTokenText();
+          TypeBuilderMultiverse storage = new TypeBuilderMultiverse(storageName, subparser.getPresenceCondition());
+  	  setTFValue(value, storage);
+          getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC;
+  	}
         | AUTO
-  	    {
-  	      TypeBuilderMultiverse storage = new TypeBuilderMultiverse("auto", subparser.getPresenceCondition());
-  	      setTFValue(value, storage);
-            	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO;
-  	    }
+  	{
+          String storageName = getNodeAt(subparser, 1).getTokenText();
+          TypeBuilderMultiverse storage = new TypeBuilderMultiverse(storageName, subparser.getPresenceCondition());
+  	  setTFValue(value, storage);
+          getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO;
+  	}
         | REGISTER
-  	    {
-  	      TypeBuilderMultiverse storage = new TypeBuilderMultiverse("register", subparser.getPresenceCondition());
-  	      setTFValue(value, storage);
-            	      getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER;
-  	    }
+  	{
+          String storageName = getNodeAt(subparser, 1).getTokenText();
+          TypeBuilderMultiverse storage = new TypeBuilderMultiverse(storageName, subparser.getPresenceCondition());
+  	  setTFValue(value, storage);
+          getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER;
+        }
         ;
 
 BasicTypeName:
