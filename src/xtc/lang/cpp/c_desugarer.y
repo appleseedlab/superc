@@ -2483,28 +2483,9 @@ InitializerOpt: /** nomerge **/
         }
         | ASSIGN DesignatedInitializer
         {
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          Multiverse<StringBuilder> allAssignVals = getSBMVAt(subparser, 1);
-          if (allAssignVals != null) {
-            CContext scope = (CContext) subparser.scope;
-            /** Gets all renamings of the variable, and adds them to the sbmv */
-            for (Multiverse.Element<StringBuilder> sbelem : allAssignVals) {
-              Multiverse<SymbolTable.Entry> renamings = scope.getSymbolTable().map.get(sbelem.getData().toString());
-              /** Checks for renamings in the symbol table */
-              if (renamings != null) {
-                /** Writes part of the assignment using the variables' renamings */
-                for (Multiverse.Element<SymbolTable.Entry> renaming : renamings) {
-                  sbmv.add(new Element<StringBuilder>(new StringBuilder(" = " + renaming.getData().getRenaming()), sbelem.getCondition().and(renaming.getCondition())/*subparser.getPresenceCondition().presenceConditionManager().new PresenceCondition(true)*/));
-                }
-              } else {
-                /** If there is no renaming, then we are assigning something other than a variable (such as a constant).
-                  * So, we do not get the renaming of what we are assigning, and instead just add that to the stringbuilder.
-                  */
-                sbmv.add(new Element<StringBuilder>(new StringBuilder(" = " + sbelem.getData().toString()), sbelem.getCondition()));
-              }
-            }
-          }
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
