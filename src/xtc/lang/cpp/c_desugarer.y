@@ -306,7 +306,7 @@ TranslationUnit:  /** complete, passthrough **/
                 writer.write(elemSB.getData().toString());
               }
               else {
-                writer.write("\nif (" + elemSB.getCondition() + ") {");
+                writer.write("\nif (" + PCtoString(elemSB.getCondition().and(subparser.getPresenceCondition())) + ") {");
                 writer.write("\n" + elemSB.getData().toString() + "\n}\n");
               }
             }
