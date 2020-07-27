@@ -12,11 +12,11 @@ import xtc.Constants;
 public class TypeBuilderUnit {
     Type type; // void, char, short, int, long, float, double, SUE, typedef
     enum QUAL {isAuto, isConst, isVolatile, isExtern, isStatic, isRegister, isThreadLocal,
-	       isInline, isSigned, isUnsigned, isTypedef}
-    final int NUM_QUALS = 12;
+               isInline, isSigned, isUnsigned, isTypedef, isStruct}
+    final int NUM_QUALS = 13;
     enum FOUND_TYPE {seenVoid, seenInt, seenLong, seenLongLong, seenChar, seenShort, seenFloat,
-                     seenDouble, seenComplex, seenTypedef}
-    final int NUM_TYPES = 10;
+                     seenDouble, seenComplex, seenTypedef, seenStruct}
+    final int NUM_TYPES = 11;
     // note: these can appear in any order (in the source file), and they will be initialized to false                                                                        /*boolean isAuto;
   boolean qualifiers[] = new boolean[NUM_QUALS];
   boolean foundTypes[] = new boolean[NUM_TYPES];
@@ -64,6 +64,8 @@ public class TypeBuilderUnit {
 	    sb.append("signed ");
 	if (qualifiers[QUAL.isUnsigned.ordinal()])
 	    sb.append("unsigned ");
+  if (qualifiers[QUAL.isStruct.ordinal()])
+    sb.append("struct ");
 
 	if (foundTypes[FOUND_TYPE.seenLong.ordinal()])
 	    sb.append("long ");
@@ -83,6 +85,8 @@ public class TypeBuilderUnit {
 	    sb.append("complex ");
 	if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
 	    sb.append(typedefName + " " + typedefType);
+  if (foundTypes[FOUND_TYPE.seenStruct.ordinal()])
+	    sb.append("struct ");
 	sb.append(attributesToString());
 
 	return sb.toString();
@@ -172,18 +176,19 @@ public class TypeBuilderUnit {
     return type;
   }
 
-    private void addQual(QUAL q){
+  private void addQual(QUAL q){
 	if(qualifiers[q.ordinal()])
 	    isTypeError = true;
 	else
 	    qualifiers[q.ordinal()] = true;
     }
-    private void addType(FOUND_TYPE f){
-	if(foundTypes[f.ordinal()])
+  
+  private void addType(FOUND_TYPE f){
+    if(foundTypes[f.ordinal()])
 	    isTypeError = true;
-	else
+    else
 	    foundTypes[f.ordinal()] = true;
-    }
+  }
 
     private void add(String x) {
 	if (x.equals("auto"))
@@ -229,6 +234,9 @@ public class TypeBuilderUnit {
 	    addType(FOUND_TYPE.seenComplex);
   else if (x.equals("void"))
 	    addType(FOUND_TYPE.seenVoid);
+  else if (x.equals("struct")) {
+    addType(FOUND_TYPE.seenStruct);
+  }
 	else {
 	    attributes.add(x);
 	}
@@ -246,19 +254,19 @@ public class TypeBuilderUnit {
 	add(name);
     }
 
-    // creates a new typebuilder using a string (which is NOT a type)
-    public TypeBuilderUnit(String name) {
-	type = new UnitT();
-	attributes = new LinkedList<String>();
-	for (int i = 0; i < NUM_QUALS; ++i)
+  // creates a new typebuilder using a string (which is NOT a type)
+  public TypeBuilderUnit(String name) {
+    type = new UnitT();
+    attributes = new LinkedList<String>();
+    for (int i = 0; i < NUM_QUALS; ++i)
 	    qualifiers[i] = false;
-	for (int i = 0; i < NUM_TYPES; ++i)
+    for (int i = 0; i < NUM_TYPES; ++i)
 	    foundTypes[i] = false;
-  isTypeError = false;
-	typedefName = "";
-	typedefType = null;
-	add(name);
-    }
+    isTypeError = false;
+    typedefName = "";
+    typedefType = null;
+    add(name);
+  }
 
     // creates a new typebuilder using only a type
     public TypeBuilderUnit(Type type) {
@@ -512,5 +520,10 @@ public class TypeBuilderUnit {
   public boolean getIsInline()
   {
     return qualifiers[QUAL.isInline.ordinal()];
+  }
+
+  public void setIsStruct()
+  {
+    addQual(QUAL.isStruct);
   }
 }

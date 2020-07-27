@@ -771,11 +771,91 @@ Declaration:  /** complete **/
         }
         | SUETypeSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 3);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTFValue(value, product);
+        	// gets the type, the declarations, and any initializers
+        	TypeAndDeclInitList TBDBList = getTBDBListAt(subparser, 3);
+        	TypeBuilderMultiverse type = TBDBList.type;
+        	List<TypeAndDeclInitList.DeclAndInit> declAndInits = TBDBList.declAndInitList;
+
+
+        	// all declarations get generated, with no if(PC) {} wrapped around them,
+          // so we can append every declaration to a single stringbuilder
+        	StringBuilder sb = new StringBuilder();
+
+          // generates declarations and statements with the retrieved information
+        	for (TypeAndDeclInitList.DeclAndInit declAndInit : declAndInits) {
+        		DeclBuilder decl = declAndInit.decl;
+	          String oldIdent = decl.identifier;
+	          System.err.println(decl.toString() + " " + type.toString());
+
+            // if the declaration has an initializer under at least one presence condition,
+            // then we iterate through every initializer, add a new instance to the symtab,
+            // then write the declaration of that new variable with its initializer.
+            if (declAndInit.hasInitializer) {
+              Multiverse<StringBuilder> configInitializers = declAndInit.initializerSBMV;
+
+              for (Element<StringBuilder> initializer : configInitializers) {
+                addSUEDeclsToSymTab(subparser.getPresenceCondition().and(initializer.getCondition()), (CContext)subparser.scope, type, decl);
+                Multiverse<SymbolTable.Entry> entries
+                  = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition().and(initializer.getCondition()));
+                // TODO: destruct multiverse when done
+                
+                // ensures that entries does not contain more than one renaming under this PC
+                if (entries.size() > 1) {
+                  System.err.println("ERROR: symboltable contains multiple renamings under a single presence condition");
+                }
+
+                // writes the declaration
+                for (Element<SymbolTable.Entry> elem : entries) {
+                  DeclBuilder renamedDecl = new DeclBuilder(decl);
+                  renamedDecl.identifier = elem.getData().getRenaming();
+                  if (type.size() == 1) {
+                    if (type.get(0).getData().toType().getClass().getName().equals("xtc.type.TypedefT")) {
+                      System.err.println("WARNING: typedef transformations not yet supported.");
+                    }
+                    sb.append("\n" + type.get(0).getData().toType() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ");
+                  } else {
+                    System.err.println("ERROR: Configurable typedefs not yet supported.");
+                    // System.exit(1);
+                  }
+                }
+                sb.append(initializer.getData());
+                sb.append(";\n");
+              }
+            } else {
+              // if there is no initializer under any presence condition,
+              // then we add this variable to the symboltable, and write its declaration.
+              addSUEDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+              Multiverse<SymbolTable.Entry> entries
+                = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
+              // TODO: destruct multiverse when done
+              
+              // ensures that entries does not contain more than one renaming under this PC
+              if (entries.size() > 1) {
+                System.err.println("ERROR: symboltable contains multiple renamings under a single presence condition");
+              }
+
+              // writes the declaration
+              for (Element<SymbolTable.Entry> elem : entries) {
+                DeclBuilder renamedDecl = new DeclBuilder(decl);
+                renamedDecl.identifier = elem.getData().getRenaming();
+                if (type.size() == 1) {
+                  if (type.get(0).getData().toType().getClass().getName().equals("xtc.type.TypedefT")) {
+                    System.err.println("WARNING: typedef transformations not yet supported.");
+                  }
+                  sb.append("\n" + type.get(0).getData().toType() + " " + renamedDecl + ";" + " /* renamed from " + oldIdent + " */ \n");
+                } else {
+                  System.err.println("ERROR: Configurable typedefs not yet supported.");
+                  // System.exit(1);
+                }
+              }
+            }
+        	}
+
+        	// stores the generated declarations and initializing statements in an SBMV wrapper,
+        	// then sets the SBMV as this node's semantic value
+          Multiverse<StringBuilder> declarationSBMVWrapper = new Multiverse<StringBuilder>();
+        	declarationSBMVWrapper.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
+          setTFValue(value, declarationSBMVWrapper);
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
@@ -1367,13 +1447,12 @@ SUEDeclarationSpecifier: /** nomerge **/          /* StorageClass + struct/union
 SUETypeSpecifier: /** nomerge **/
         ElaboratedTypeName              /* struct/union/enum */
         {
-          System.err.println("WARNING: unsupported semantic action: SUETypeSpecifier");
-          System.exit(1);
+          setTFValue(value, getTBDBListAt(subparser, 1));
         }
         | TypeQualifierList ElaboratedTypeName
         {
           System.err.println("WARNING: unsupported semantic action: SUETypeSpecifier");
-          System.exit(1);
+          //System.exit(1);
         }
         | SUETypeSpecifier TypeQualifier
         {
@@ -1735,8 +1814,7 @@ ComplexKeyword:
 ElaboratedTypeName: /** passthrough, nomerge **/
         StructSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: ElaboratedTypeName");
-          System.exit(1);
+          setTFValue(value, getTBDBListAt(subparser, 1));
         }
         | UnionSpecifier
         {
@@ -1768,14 +1846,25 @@ StructSpecifier: /** nomerge **/  // ADDED attributes
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
-          System.exit(1);
           Node tag     = getNodeAt(subparser, 6);
           Node members = getNodeAt(subparser, 3);
           Node attrs   = null;
           updateSpecs(subparser,
                       makeStructSpec(subparser, tag, members, attrs),
                       value);
+          DeclBuilder d = getDBAt(subparser,6);
+          d.setFields(getFieldAt(subparser,3));
+          TypeBuilderMultiverse t = new TypeBuilderMultiverse();
+          TypeBuilderUnit tu = new TypeBuilderUnit();
+          tu.setIsStruct();
+          t.add(tu, subparser.getPresenceCondition());
+          TypeAndDeclInitList.DeclAndInit declAndInit = new TypeAndDeclInitList.DeclAndInit();
+          declAndInit.addDeclNoInit(d);
+        	LinkedList<TypeAndDeclInitList.DeclAndInit> declAndInitList =
+            new LinkedList<TypeAndDeclInitList.DeclAndInit>();
+        	declAndInitList.add(declAndInit);
+          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(t, declAndInitList);
+          setTFValue(value, TBDBList);
         }
         | STRUCT IdentifierOrTypedefName
         {
@@ -1864,24 +1953,24 @@ StructDeclarationList: /** list, nomerge **/
         /* StructDeclaration */ /* ADDED gcc empty struct */
         {
           ((Node) value).setProperty(SPECS, new Specifiers());
-          System.err.println("WARNING: unsupported semantic action: StructDeclarationList");
-          System.exit(1);
+          List<Multiverse<VariableT>> l = new LinkedList<Multiverse<VariableT>>();
+          setTFValue(value, l);
         }
         | StructDeclarationList StructDeclaration {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
-          System.err.println("WARNING: unsupported semantic action: StructDeclarationList");
-          System.exit(1);
+          List<Multiverse<VariableT>> l = getFieldAt(subparser, 2);
+          l.addAll(getFieldAt(subparser, 1));
+          setTFValue(value, l);
         }
         ;
 
 StructDeclaration: /** nomerge **/
         StructDeclaringList SEMICOLON
         {
-          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
-          System.exit(1);
+          setTFValue(value, getFieldAt(subparser, 2));
         }
         | StructDefaultDeclaringList SEMICOLON
         {
@@ -1909,34 +1998,43 @@ StructDefaultDeclaringList: /** list, nomerge **/        /* doesn't redeclare ty
         TypeQualifierList StructIdentifierDeclarator AttributeSpecifierListOpt
         {
           System.err.println("WARNING: unsupported semantic action: StructDefaultDeclaringList");
-          System.exit(1);
+          //System.exit(1);
         }
         | StructDefaultDeclaringList COMMA StructIdentifierDeclarator AttributeSpecifierListOpt
         {
           System.err.println("WARNING: unsupported semantic action: StructDefaultDeclaringList");
-          System.exit(1);
+          //System.exit(1);
         }
         ;
 
 StructDeclaringList: /** list, nomerge **/
         TypeSpecifier StructDeclarator AttributeSpecifierListOpt
         {
-          System.err.println("WARNING: unsupported semantic action: StructDeclaringList");
-          System.exit(1);
+          DeclBuilder decl = getDBAt(subparser, 2);
+      	  TypeBuilderMultiverse type = getTBAt(subparser, 3);
+          Multiverse<VariableT> mv = new Multiverse<VariableT>();
+          for (Element<TypeBuilderUnit> e : type) {
+            DeclBuilder temp = new DeclBuilder(decl);
+            temp.addType(e.getData().toType());
+            mv.add(VariableT.newField(temp.toType(), temp.getID()), e.getCondition());
+          }
+          List<Multiverse<VariableT>> l = new LinkedList<Multiverse<VariableT>>();
+          l.add(mv);
+          setTFValue(value, l);
         }
         | StructDeclaringList COMMA StructDeclarator AttributeSpecifierListOpt
         {
+          
           System.err.println("WARNING: unsupported semantic action: StructDeclaringList");
           System.exit(1);
         }
         ;
 
-
 StructDeclarator: /** nomerge **/
         Declarator BitFieldSizeOpt
         {
-          System.err.println("WARNING: unsupported semantic action: StructDeclarator");
-          System.exit(1);
+          DeclBuilder db = getDBAt(subparser,2);
+      	  setTFValue(value, db);
         }
         | BitFieldSize
         {
@@ -2075,10 +2173,12 @@ ParameterTypeList:  /** nomerge **/
         }
         | ParameterList COMMA ELLIPSIS
         {
-          List<Parameter> ps = getParamAt(subparser,3);
+          List<Multiverse<Parameter>> ps = getParamAt(subparser,3);
           Parameter p = new Parameter();
           p.setEllipsis();
-          ps.add(p);
+          Multiverse<Parameter> m = new Multiverse<Parameter>();
+          m.add(p,subparser.getPresenceCondition());
+          ps.add(m);
           setTFValue(value,ps);
         }
         ;
@@ -2090,8 +2190,7 @@ ParameterList:  /** list, nomerge **/
         }
         | ParameterList COMMA ParameterDeclaration
         {
-          List<Parameter> p = getParamAt(subparser,3);
-
+          List<Multiverse<Parameter>> p = getParamAt(subparser,3);
           p.addAll(getParamAt(subparser,1));
           setTFValue(value,p);
         }
@@ -2153,8 +2252,7 @@ ParameterAbstractDeclaration:
         DeclarationSpecifier
         {
           TypeBuilderMultiverse type = getTBAt(subparser, 1);
-          Parameter p = new Parameter();
-          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
+          Multiverse<Parameter> p = new Multiverse<Parameter>();
           for (Element<TypeBuilderUnit> e : type) {
             Entry ent;
             if (e.getData().getIsValid()) {
@@ -2163,10 +2261,11 @@ ParameterAbstractDeclaration:
             else {
               ent = SymbolTable.ERROR;
             }
-            entries.add(ent, e.getCondition());
+            Parameter x = new Parameter();
+            x.setVar(ent);
+            p.add(x, e.getCondition());
           }            
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
+          List<Multiverse<Parameter>> lp = new LinkedList<Multiverse<Parameter>>();
           lp.add(p);
           setTFValue(value, lp);
         }
@@ -2174,8 +2273,7 @@ ParameterAbstractDeclaration:
         {
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder d = getDBAt(subparser,1);
-          Parameter p = new Parameter();
-          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
+          Multiverse<Parameter> p = new Multiverse<Parameter>();
           for (Element<TypeBuilderUnit> e : type) {
             Entry ent;
             if (e.getData().getIsValid() && d.getIsValid()) {
@@ -2186,18 +2284,18 @@ ParameterAbstractDeclaration:
             else {
               ent = SymbolTable.ERROR;
             }
-            entries.add(ent, e.getCondition());
-          }            
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
+            Parameter pa = new Parameter();
+            pa.setVar(ent);
+            p.add(pa, e.getCondition());
+          }
+          List<Multiverse<Parameter>> lp = new LinkedList<Multiverse<Parameter>>();
           lp.add(p);
           setTFValue(value, lp);
         }
         | DeclarationQualifierList
         {
           TypeBuilderMultiverse type = getTBAt(subparser, 1);
-          Parameter p = new Parameter();
-          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
+          Multiverse<Parameter> p = new Multiverse<Parameter>();
           for (Element<TypeBuilderUnit> e : type) {
             Entry ent;
             if (e.getData().getIsValid()) {
@@ -2206,10 +2304,11 @@ ParameterAbstractDeclaration:
             else {
               ent = SymbolTable.ERROR;
             }
-            entries.add(ent, e.getCondition());
+            Parameter x = new Parameter();
+            x.setVar(ent);
+            p.add(x, e.getCondition());
           }            
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
+          List<Multiverse<Parameter>> lp = new LinkedList<Multiverse<Parameter>>();
           lp.add(p);
           setTFValue(value, lp);
         }
@@ -2217,8 +2316,7 @@ ParameterAbstractDeclaration:
         {
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder d = getDBAt(subparser,1);
-          Parameter p = new Parameter();
-          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
+          Multiverse<Parameter> p = new Multiverse<Parameter>();
           for (Element<TypeBuilderUnit> e : type) {
             Entry ent;
             if (e.getData().getIsValid() && d.getIsValid()) {
@@ -2229,18 +2327,18 @@ ParameterAbstractDeclaration:
             else {
               ent = SymbolTable.ERROR;
             }
-            entries.add(ent, e.getCondition());
-          }            
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
+            Parameter pa = new Parameter();
+            pa.setVar(ent);
+            p.add(pa, e.getCondition());
+          }
+          List<Multiverse<Parameter>> lp = new LinkedList<Multiverse<Parameter>>();
           lp.add(p);
           setTFValue(value, lp);
         }
         | TypeSpecifier
         {
           TypeBuilderMultiverse type = getTBAt(subparser, 1);
-          Parameter p = new Parameter();
-          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
+          Multiverse<Parameter> p = new Multiverse<Parameter>();
           for (Element<TypeBuilderUnit> e : type) {
             Entry ent;
             if (e.getData().getIsValid()) {
@@ -2249,10 +2347,11 @@ ParameterAbstractDeclaration:
             else {
               ent = SymbolTable.ERROR;
             }
-            entries.add(ent, e.getCondition());
+            Parameter x = new Parameter();
+            x.setVar(ent);
+            p.add(x, e.getCondition());
           }            
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
+          List<Multiverse<Parameter>> lp = new LinkedList<Multiverse<Parameter>>();
           lp.add(p);
           setTFValue(value, lp);
         }
@@ -2260,8 +2359,7 @@ ParameterAbstractDeclaration:
         {
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder d = getDBAt(subparser,1);
-          Parameter p = new Parameter();
-          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
+          Multiverse<Parameter> p = new Multiverse<Parameter>();
           for (Element<TypeBuilderUnit> e : type) {
             Entry ent;
             if (e.getData().getIsValid() && d.getIsValid()) {
@@ -2272,18 +2370,18 @@ ParameterAbstractDeclaration:
             else {
               ent = SymbolTable.ERROR;
             }
-            entries.add(ent, e.getCondition());
-          }            
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
+            Parameter pa = new Parameter();
+            pa.setVar(ent);
+            p.add(pa, e.getCondition());
+          }
+          List<Multiverse<Parameter>> lp = new LinkedList<Multiverse<Parameter>>();
           lp.add(p);
           setTFValue(value, lp);
         }
         | TypeQualifierList
         {
           TypeBuilderMultiverse type = getTBAt(subparser, 1);
-          Parameter p = new Parameter();
-          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
+          Multiverse<Parameter> p = new Multiverse<Parameter>();
           for (Element<TypeBuilderUnit> e : type) {
             Entry ent;
             if (e.getData().getIsValid()) {
@@ -2292,10 +2390,11 @@ ParameterAbstractDeclaration:
             else {
               ent = SymbolTable.ERROR;
             }
-            entries.add(ent, e.getCondition());
+            Parameter x = new Parameter();
+            x.setVar(ent);
+            p.add(x, e.getCondition());
           }            
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
+          List<Multiverse<Parameter>> lp = new LinkedList<Multiverse<Parameter>>();
           lp.add(p);
           setTFValue(value, lp);
         }
@@ -2303,8 +2402,7 @@ ParameterAbstractDeclaration:
         {
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder d = getDBAt(subparser,1);
-          Parameter p = new Parameter();
-          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
+          Multiverse<Parameter> p = new Multiverse<Parameter>();
           for (Element<TypeBuilderUnit> e : type) {
             Entry ent;
             if (e.getData().getIsValid() && d.getIsValid()) {
@@ -2315,10 +2413,11 @@ ParameterAbstractDeclaration:
             else {
               ent = SymbolTable.ERROR;
             }
-            entries.add(ent, e.getCondition());
-          }            
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
+            Parameter pa = new Parameter();
+            pa.setVar(ent);
+            p.add(pa, e.getCondition());
+          }
+          List<Multiverse<Parameter>> lp = new LinkedList<Multiverse<Parameter>>();
           lp.add(p);
           setTFValue(value, lp);
         }
@@ -2327,7 +2426,6 @@ ParameterAbstractDeclaration:
 ParameterIdentifierDeclaration:
         DeclarationSpecifier IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -2335,18 +2433,21 @@ ParameterIdentifierDeclaration:
           DeclBuilder decl = getDBAt(subparser, 3);
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
-          Parameter p = new Parameter();
+          Multiverse<Parameter> p = new Multiverse<Parameter>();
           addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
+          for (Element<Entry> e : entries) {
+            Parameter pa = new Parameter();
+            pa.setVar(e.getData());
+            p.add(pa, e.getCondition());
+          }
+          List<Multiverse<Parameter>> lp = new LinkedList<Multiverse<Parameter>>();
           lp.add(p);
           setTFValue(value, lp);
         }
         | DeclarationSpecifier ParameterTypedefDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -2354,19 +2455,21 @@ ParameterIdentifierDeclaration:
           DeclBuilder decl = getDBAt(subparser, 3);
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
-          Parameter p = new Parameter();
+          Multiverse<Parameter> p = new Multiverse<Parameter>();
           addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-          p.setMultiverse(entries);
-          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
-          List<Parameter> lp = new LinkedList<Parameter>();
+          for (Element<Entry> e : entries) {
+            Parameter pa = new Parameter();
+            pa.setVar(e.getData());
+            p.add(pa, e.getCondition());
+          }
+          List<Multiverse<Parameter>> lp = new LinkedList<Multiverse<Parameter>>();
           lp.add(p);
           setTFValue(value, lp);
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -2374,39 +2477,43 @@ ParameterIdentifierDeclaration:
           DeclBuilder decl = getDBAt(subparser, 3);
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
-          Parameter p = new Parameter();
+          Multiverse<Parameter> p = new Multiverse<Parameter>();
           addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-          p.setMultiverse(entries);
-          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
-          List<Parameter> lp = new LinkedList<Parameter>();
+          for (Element<Entry> e : entries) {
+            Parameter pa = new Parameter();
+            pa.setVar(e.getData());
+            p.add(pa, e.getCondition());
+          }
+          List<Multiverse<Parameter>> lp = new LinkedList<Multiverse<Parameter>>();
           lp.add(p);
           setTFValue(value, lp);
         }
         | TypeSpecifier IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
           DeclBuilder decl = getDBAt(subparser, 3);
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
-          System.err.println("ParamIdent:" + type.toString());
-          Parameter p = new Parameter();
+
+          Multiverse<Parameter> p = new Multiverse<Parameter>();
           addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-          p.setMultiverse(entries);
-          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
-          List<Parameter> lp = new LinkedList<Parameter>();
+          for (Element<Entry> e : entries) {
+            Parameter pa = new Parameter();
+            pa.setVar(e.getData());
+            p.add(pa, e.getCondition());
+          }
+          List<Multiverse<Parameter>> lp = new LinkedList<Multiverse<Parameter>>();
           lp.add(p);
           setTFValue(value, lp);
         }
         | TypeSpecifier ParameterTypedefDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -2414,19 +2521,21 @@ ParameterIdentifierDeclaration:
           DeclBuilder decl = getDBAt(subparser, 3);
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
-          Parameter p = new Parameter();
+          Multiverse<Parameter> p = new Multiverse<Parameter>();
           addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-          p.setMultiverse(entries);
-          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
-          List<Parameter> lp = new LinkedList<Parameter>();
+          for (Element<Entry> e : entries) {
+            Parameter pa = new Parameter();
+            pa.setVar(e.getData());
+            p.add(pa, e.getCondition());
+          }
+          List<Multiverse<Parameter>> lp = new LinkedList<Multiverse<Parameter>>();
           lp.add(p);
           setTFValue(value, lp);
         }
         | TypeQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
@@ -2434,13 +2543,16 @@ ParameterIdentifierDeclaration:
           DeclBuilder decl = getDBAt(subparser, 3);
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
-          Parameter p = new Parameter();
+          Multiverse<Parameter> p = new Multiverse<Parameter>();
           addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-          p.setMultiverse(entries);
-          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
-          List<Parameter> lp = new LinkedList<Parameter>();
+          for (Element<Entry> e : entries) {
+            Parameter pa = new Parameter();
+            pa.setVar(e.getData());
+            p.add(pa, e.getCondition());
+          }
+          List<Multiverse<Parameter>> lp = new LinkedList<Multiverse<Parameter>>();
           lp.add(p);
           setTFValue(value, lp);
         }
@@ -2475,8 +2587,8 @@ Identifier:  /** nomerge **/
 IdentifierOrTypedefName: /** nomerge **/
         IDENTIFIER
         {
-          System.err.println("WARNING: unsupported semantic action: IdentifierOrTypedefName");
-          System.exit(1);
+          DeclBuilder db = new DeclBuilder(getStringAt(subparser, 1));
+          setTFValue(value, db);
         }
         | TYPEDEFname
         {
@@ -2686,12 +2798,12 @@ Declarator:  /** nomerge**/
       	{
       	  DeclBuilder db = getDBAt(subparser,1);
       	  setTFValue(value, db);
-                	}
+        }
         | IdentifierDeclarator
       	{
       	  DeclBuilder db = getDBAt(subparser,1);
       	  setTFValue(value, db);
-                	}
+        }
         ;
 
 TypedefDeclarator:  /**  nomerge **/  // ADDED
@@ -2994,9 +3106,8 @@ SimpleDeclarator: /** nomerge **/
         IDENTIFIER  /* bind */
         {
           DeclBuilder db = new DeclBuilder(getStringAt(subparser, 1));
-          System.err.println(db + ":PC::" + subparser.getPresenceCondition());
           setTFValue(value, db);
-                  }
+        }
         ;
 
 OldFunctionDeclarator: /** nomerge **/
@@ -3067,12 +3178,12 @@ PostfixingAbstractDeclarator: /**  nomerge **/
 ParameterTypeListOpt: /** nomerge **/
         /* empty */
         {
-          List<Parameter> result = new LinkedList<Parameter>();
+          List<Multiverse<Parameter>> result = new LinkedList<Multiverse<Parameter>>();
           setTFValue(value, result);
         }
         | ParameterTypeList
         {
-          List<Parameter> p = getParamAt(subparser,1);
+          List<Multiverse<Parameter>> p = getParamAt(subparser,1);
           setTFValue(value,p);
         }
         ;
@@ -5125,6 +5236,7 @@ private void setTFValue(Object node, Object value) {
   ((Node)node).setProperty(TRANSFORMATION, value);
 }
 
+
 /** 
  * TypeAndDeclInitList stores type information,
  * with a list of declarations and their optional initializing statements.
@@ -5276,9 +5388,13 @@ private DeclBuilder getDBAt(Subparser subparser, int component) {
   return (DeclBuilder) getNodeAt(subparser, component).getProperty(TRANSFORMATION);
 }
 
-private List<Parameter> getParamAt(Subparser subparser, int component) {
+private List<Multiverse<Parameter>> getParamAt(Subparser subparser, int component) {
   // value should be not null and should be a Node type
-  return (List<Parameter>) getNodeAt(subparser, component).getProperty(TRANSFORMATION);
+  return (List<Multiverse<Parameter>>) getNodeAt(subparser, component).getProperty(TRANSFORMATION);
+}
+
+private List<Multiverse<VariableT>> getFieldAt(Subparser subparser, int component) {
+  return (List<Multiverse<VariableT>>) getNodeAt(subparser, component).getProperty(TRANSFORMATION);
 }
 
 private void setCPC(Object value, String CPC) {
@@ -6838,7 +6954,8 @@ private static Specifiers makeStructSpec(Subparser subparser,
  * goes through each element of the TypeBuilderMultiverse, completing
  * the type with the given DeclBuilder.
  *
- * @param subparser The current subparser.
+ * @param presenceCondition current presence condition of the subparser
+ * @param scope current scope of the subparser 
  * @param typebuilder A Multiverse of type specifier objects.
  * @param declbuidler An object representing the declarator.
  */
@@ -6906,6 +7023,70 @@ private void addDeclsToSymTab(PresenceCondition presenceCondition, CContext scop
             putEntry(scope, declbuilder.getID(), funcType, condition);
           }
 
+          condition.delRef();
+        }
+      }
+    }
+  }
+}
+
+/**
+ * This method adds all given declarations to the symbol table, with
+ * the knowledge that all decls are SUE types.  It goes through each 
+ * element of the TypeBuilderMultiverse, completing
+ * the type with the given DeclBuilder.
+ *
+ * @param presenceCondition current presence condition of the subparser
+ * @param scope current scope of the subparser
+ * @param typebuilder A Multiverse of type specifier objects.
+ * @param declbuidler An object representing the declarator.
+ */
+private void addSUEDeclsToSymTab(PresenceCondition presenceCondition, CContext scope, TypeBuilderMultiverse typebuilder, DeclBuilder declbuilder) {
+  if (typebuilder == null || declbuilder == null ) {
+    System.err.println("ERROR: null typebuilder or declbuilder");
+    System.exit(1);
+  }
+  
+  // get the list of parameters if it's a function declarator
+  Multiverse<List<VariableT>> fields = null;
+  fields = declbuilder.getFields(presenceCondition);
+  
+  // loop through each configuration of the type specifier, adding the
+  // declaration to the symtab
+  for (Element<TypeBuilderUnit> elem : typebuilder) {
+
+    TypeBuilderUnit t = elem.getData();
+
+    if (!isTypeDeclValid(t, declbuilder)) {
+      PresenceCondition condition = presenceCondition.and(elem.getCondition());
+      scope.getSymbolTable().putError(declbuilder.getID(), condition);
+      condition.delRef();
+    } else {
+
+      // combine the type spec and declarator into a complete type
+      DeclBuilder completedecl = new DeclBuilder(declbuilder);
+      completedecl.addType(t.toType());
+
+      if (! declbuilder.isFunction()) {
+        // bind the symbol name to the type under the current presence condition
+        PresenceCondition condition = presenceCondition.and(elem.getCondition());
+        putEntry(scope, declbuilder.getID(), completedecl.toType(), condition);
+        condition.delRef();
+
+      } else {  // function types
+        // go through each combination of parameters, adding each
+        // variation of the function declarator to the symtab
+        for(Element<List<VariableT>> varelem : fields) {
+          if (!validateFieldList(varelem.getData())) {
+            PresenceCondition condition = presenceCondition.and(varelem.getCondition());
+            scope.getSymbolTable().putError(declbuilder.getID(), condition);
+            condition.delRef();
+          }
+          PresenceCondition condition = varelem.getCondition().and(elem.getCondition());
+          
+          Type structType = new StructT(declbuilder.getID(), varelem.getData());
+          putEntry(scope, declbuilder.getID(), structType, condition);
+          
           condition.delRef();
         }
       }
@@ -7190,6 +7371,24 @@ boolean validateParamList(List<Parameter> lp)
       return false;
     }
   }
+  return true;
+}
+
+/**
+ * Returns if the provided list is a valid Field list.
+ *
+ * @param lp List of Parameters to be checked for validity
+ * @return if the list "lp" is valid
+ */
+boolean validateFieldList(List<VariableT> lv)
+{
+  /*
+  for (VariableT v : lv) {
+    if (!p.isValidType()) {
+      return false;
+    }
+  }
+  */
   return true;
 }
 

@@ -7,6 +7,8 @@ import xtc.type.Type;
 import xtc.type.UnitT;
 import xtc.type.PointerT;
 import xtc.type.ArrayT;
+import xtc.type.VariableT;
+
 import xtc.lang.cpp.Multiverse.Element;
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
@@ -23,7 +25,8 @@ public class DeclBuilder
   TypeBuilderUnit quals;
   Type basicType;
 
-  List<Parameter> parameters;
+  List<Multiverse<Parameter>> parameters;
+  List<Multiverse<VariableT>> fields;
 
 
   /**
@@ -64,49 +67,44 @@ public class DeclBuilder
 
     return type;
   }
-  
+
   public Multiverse<List<Parameter>> getParams(PresenceCondition current)
   {
-    Multiverse<List<Parameter>> m = new Multiverse<List<Parameter>>();
-    List<Parameter> l = new LinkedList<Parameter>();
+    return getPossibleCombos(current, parameters);
+  }
+
+  public Multiverse<List<VariableT>> getFields(PresenceCondition current)
+  {
+    return getPossibleCombos(current, fields);
+  }
+  
+  private <T> Multiverse<List<T>> getPossibleCombos(PresenceCondition current, List<Multiverse<T>> obs)
+  {
+    Multiverse<List<T>> m = new Multiverse<List<T>>();
+    List<T> l = new LinkedList<T>();
     m.add(l, current);
-    for (Parameter p : parameters)
-      {
-        Multiverse<List<Parameter>> newM = new Multiverse<List<Parameter>>();
-        if (!p.isEllipsis())
-          {
-            Multiverse<SymbolTable.Entry> mult = p.getMultiverse();
-            PresenceCondition gap = p.getGap(current);
-            for (Element<SymbolTable.Entry> u : mult)
-              {
-                for (Element<List<Parameter>> lp : m)
-                  {
-                    if (!lp.getCondition().isMutuallyExclusive(u.getCondition()))
-                      {
-                        List<Parameter> lp2 = new LinkedList<Parameter>();
-                        lp2.addAll(lp.getData());
-                        Multiverse<SymbolTable.Entry> tempM = new Multiverse<SymbolTable.Entry>();
-                        tempM.add(u);
-                        Parameter tempP = new Parameter();
-                        tempP.setMultiverse(tempM);
-                        lp2.add(tempP);
-                        newM.add(new Element<List<Parameter>>(lp2, lp.getCondition().and(u.getCondition())));
-                      }
-                  }
-              }
-            for (Element<List<Parameter>> lp : m)
-              if (!lp.getCondition().isMutuallyExclusive(gap))
-                newM.add(new Element<List<Parameter>>(lp.getData(), lp.getCondition().and(gap)));
+    for (Multiverse<T> o : obs) {
+      Multiverse<List<T>> newM = new Multiverse<List<T>>();
+      
+      Multiverse<T> mult = o;
+      PresenceCondition gap = o.getGap(current);
+      for (Element<T> u : mult) {
+        for (Element<List<T>> lp : m) {
+          if (!lp.getCondition().isMutuallyExclusive(u.getCondition())) {
+            List<T> lp2 = new LinkedList<T>();
+            lp2.addAll(lp.getData());
+            lp2.add(u.getData());
+            newM.add(new Element<List<T>>(lp2, lp.getCondition().and(u.getCondition())));
           }
-        else
-          for (Element<List<Parameter>> lp : m)
-            {
-              List<Parameter> lp2 = lp.getData();
-              lp2.add(p);
-              newM.add(new Element<List<Parameter>>(lp2, lp.getCondition()));
-            }
-        m = newM;
+        }
       }
+      for (Element<List<T>> lp : m) {
+        if (!lp.getCondition().isMutuallyExclusive(gap)) {
+          newM.add(new Element<List<T>>(lp.getData(), lp.getCondition().and(gap)));
+        }
+      }
+      m = newM;
+    }
     return m;
   }
 
@@ -122,6 +120,7 @@ public class DeclBuilder
     isValid = true;
     basicType = new UnitT();
     parameters = null;
+    fields = null;
   }
 
   public DeclBuilder(DeclBuilder d)
@@ -141,6 +140,7 @@ public class DeclBuilder
     isValid = d.isValid;
     basicType = d.basicType.copy();
     parameters = d.parameters;
+    fields = d.fields;
   }
 
   public DeclBuilder(String name)
@@ -155,6 +155,7 @@ public class DeclBuilder
     isValid = true;
     basicType = new UnitT();
     parameters = null;
+    fields = null;
   }
 
   public void addPointer() {
@@ -220,6 +221,8 @@ public class DeclBuilder
   public String getID() {
     if (identifier.equals("") && inner != null)
       return inner.getID();
+    if (identifier == null)
+      return "";
     return identifier;
   }
 
@@ -275,8 +278,13 @@ public class DeclBuilder
 
   }
   
-  public void setParams(List<Parameter> p)
+  public void setParams(List<Multiverse<Parameter>> p)
   {
     parameters = p;
+  }
+
+  public void setFields(List<Multiverse<VariableT>> l)
+  {
+    fields = l;
   }
 }

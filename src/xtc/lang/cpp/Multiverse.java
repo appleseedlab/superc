@@ -32,6 +32,25 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   }
 
   /**
+   * Returns a PresenceCondition which covers the inverse
+   * of the union of all presence conditions in the Multiverse.
+   *
+   * @param pc currentPresenceCondition
+   * @return The inverse of the union of all presence conditions in the Multiverse.
+   */
+  public PresenceCondition getGap(PresenceCondition pc)
+  {
+    PresenceCondition p = pc.presenceConditionManager().newTrue();
+    p = p.and(pc);
+    for (Element<T> e : contents)
+      {
+        p = p.andNot(e.getCondition());
+      }
+    return p;
+  }
+
+
+  /**
    * This is one element of the multiverse, i.e., a pair containing
    * the data and the presence condition representing the
    * configuration under which that version of the data appears.
@@ -79,7 +98,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
     public PresenceCondition getCondition() {
       return cond;
     }
-
+    
     /**
      * Set the data field.
      *
@@ -184,7 +203,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   public Iterator<Element<T>> iterator() {
     return contents.iterator();
   }
-
+   
   /**
    * The function signature for combining two individual elements of a
    * Multiverse.

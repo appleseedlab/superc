@@ -8,30 +8,30 @@ import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 
 public class Parameter
 {
-  Multiverse<SymbolTable.Entry> multiverse;
+  SymbolTable.Entry var;
   boolean ellipsis;
 
   public Parameter()
   {
-    multiverse = null;
+    var = null;
     ellipsis = false;
   }
 
-  public void setMultiverse(Multiverse<SymbolTable.Entry> m)
+  public void setVar(SymbolTable.Entry s)
   {
-    multiverse = m;
+    var = s;
     ellipsis = false;
   }
 
   public void setEllipsis()
   {
     ellipsis = true;
-    multiverse = null;
+    var = null;
   }
 
-  public Multiverse<SymbolTable.Entry> getMultiverse()
+  public SymbolTable.Entry getVar()
   {
-    return multiverse;
+    return var;
   }
 
   public boolean isEllipsis()
@@ -39,21 +39,11 @@ public class Parameter
     return ellipsis;
   }
 
-  public PresenceCondition getGap(PresenceCondition pc)
-  {
-    PresenceCondition p = pc;
-    for (Element<SymbolTable.Entry> e : multiverse)
-      {
-        p = p.andNot(e.getCondition());
-      }
-    return p;
-  }
-
   public Type getType()
   {
-    if (ellipsis || multiverse.size() != 1)
+    if (ellipsis)
       return new ErrorT();
-    return multiverse.get(0).getData().getType();
+    return var.getType();
   }
 
   public String toString()
@@ -61,15 +51,15 @@ public class Parameter
     if (ellipsis)
       return "...";
     else
-      return multiverse.toString();
+      return var.toString();
   }
 
   public boolean isVoid()
   {
-    if (ellipsis || multiverse.size() != 1) {
+    if (ellipsis) {
       return false;
     }
-    return multiverse.get(0).getData().getType().isVoid();
+    return var.getType().isVoid();
   }
   
   /**
@@ -86,11 +76,7 @@ public class Parameter
     if (ellipsis) {
       return true;
     }
-    if ( multiverse.size() != 1) {
-      return false;
-    }
-    Type t = multiverse.get(0).getData().getType();
-    System.err.println(t.toString());
+    Type t = var.getType();
     return !t.isVoid() && !t.isUnit() && !t.isError();
     
   }
