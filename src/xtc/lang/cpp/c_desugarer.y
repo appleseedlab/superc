@@ -2458,8 +2458,8 @@ IdentifierOrTypedefName: /** nomerge **/
 TypeName: /** nomerge **/
         TypeSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: TypeName");
-          System.exit(1);
+          TypeBuilderMultiverse type = getTBAt(subparser, 1);
+          setTFValue(value, type);
         }
         | TypeSpecifier AbstractDeclarator
         {
@@ -4032,8 +4032,25 @@ CastExpression:  /** passthrough, nomerge **/
         }
         | LPAREN TypeName RPAREN CastExpression
         {
-          System.err.println("WARNING: unsupported semantic action: CastExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<StringBuilder> temp;
+          temp = getProductOfSomeChildren(pc, getNodeAt(subparser, 4));
+          sbmv.destruct();
+          sbmv = temp;
+          TypeBuilderMultiverse type = getTBAt(subparser, 3);
+          System.err.println("WARNING: CastExpression assumes that there is only one element in the type multiverse.");
+          temp = sbmv.product(new StringBuilder(type.get(0).getData().toString()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          StringBuilder tokenText = new StringBuilder(getNodeAt(subparser, 2).getTokenText());
+          temp = sbmv.product(tokenText, pc, SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), pc);
+          sbmv.destruct();
+          sbmv = temp;
+          setTFValue(value, sbmv);
         }
         ;
 
