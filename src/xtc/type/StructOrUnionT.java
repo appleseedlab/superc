@@ -172,4 +172,8 @@ public abstract class StructOrUnionT extends DerivedT implements Tagged {
     return t.hasTagged() && (nonce == t.toTagged().getNonce());
   }
 
+  public String toString()
+  {
+    return name + ":" + members.toString();
+  }
 }

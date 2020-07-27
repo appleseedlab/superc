@@ -790,7 +790,7 @@ Declaration:  /** complete **/
             // if the declaration has an initializer under at least one presence condition,
             // then we iterate through every initializer, add a new instance to the symtab,
             // then write the declaration of that new variable with its initializer.
-            if (declAndInit.hasInitializer) {
+            if (declAndInit.initializerSBMV.size() > 0) {
               Multiverse<StringBuilder> configInitializers = declAndInit.initializerSBMV;
 
               for (Element<StringBuilder> initializer : configInitializers) {
@@ -834,21 +834,7 @@ Declaration:  /** complete **/
                 System.err.println("ERROR: symboltable contains multiple renamings under a single presence condition");
               }
 
-              // writes the declaration
-              for (Element<SymbolTable.Entry> elem : entries) {
-                DeclBuilder renamedDecl = new DeclBuilder(decl);
-                renamedDecl.identifier = elem.getData().getRenaming();
-                if (type.size() == 1) {
-                  if (type.get(0).getData().toType().getClass().getName().equals("xtc.type.TypedefT")) {
-                    System.err.println("WARNING: typedef transformations not yet supported.");
-                  }
-                  sb.append("\n" + type.get(0).getData().toType() + " " + renamedDecl + ";" + " /* renamed from " + oldIdent + " */ \n");
-                } else {
-                  System.err.println("ERROR: Configurable typedefs not yet supported.");
-                  // System.exit(1);
-                }
-              }
-            }
+            } 
         	}
 
         	// stores the generated declarations and initializing statements in an SBMV wrapper,
@@ -1830,12 +1816,8 @@ StructSpecifier: /** nomerge **/  // ADDED attributes
           TypeBuilderUnit tu = new TypeBuilderUnit();
           tu.setIsStruct();
           t.add(tu, subparser.getPresenceCondition());
-          TypeAndDeclInitList.DeclAndInit declAndInit = new TypeAndDeclInitList.DeclAndInit();
-          declAndInit.addDeclNoInit(d);
-        	LinkedList<TypeAndDeclInitList.DeclAndInit> declAndInitList =
-            new LinkedList<TypeAndDeclInitList.DeclAndInit>();
-        	declAndInitList.add(declAndInit);
-          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(t, declAndInitList);
+          Multiverse<StringBuilder> m = new Multiverse<StringBuilder>();
+          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(t, d,m);
           setTFValue(value, TBDBList);
         }
         | STRUCT IdentifierOrTypedefName
@@ -6963,33 +6945,22 @@ private void addSUEDeclsToSymTab(PresenceCondition presenceCondition, CContext s
       scope.getSymbolTable().putError(declbuilder.getID(), condition);
       condition.delRef();
     } else {
-
+      
       // combine the type spec and declarator into a complete type
       DeclBuilder completedecl = new DeclBuilder(declbuilder);
-      completedecl.addType(t.toType());
 
-      if (! declbuilder.isFunction()) {
-        // bind the symbol name to the type under the current presence condition
-        PresenceCondition condition = presenceCondition.and(elem.getCondition());
-        putEntry(scope, declbuilder.getID(), completedecl.toType(), condition);
-        condition.delRef();
-
-      } else {  // function types
-        // go through each combination of parameters, adding each
-        // variation of the function declarator to the symtab
-        for(Element<List<VariableT>> varelem : fields) {
-          if (!validateFieldList(varelem.getData())) {
-            PresenceCondition condition = presenceCondition.and(varelem.getCondition());
-            scope.getSymbolTable().putError(declbuilder.getID(), condition);
-            condition.delRef();
-          }
-          PresenceCondition condition = varelem.getCondition().and(elem.getCondition());
-          
-          Type structType = new StructT(declbuilder.getID(), varelem.getData());
-          putEntry(scope, declbuilder.getID(), structType, condition);
-          
+      for(Element<List<VariableT>> varelem : fields) {
+        if (!validateFieldList(varelem.getData())) {
+          PresenceCondition condition = presenceCondition.and(varelem.getCondition());
+          scope.getSymbolTable().putError(declbuilder.getID(), condition);
           condition.delRef();
         }
+        PresenceCondition condition = varelem.getCondition().and(elem.getCondition());
+          
+        Type structType = new StructT(declbuilder.getID(), varelem.getData());
+        putEntry(scope, declbuilder.getID(), structType, condition);
+          
+        condition.delRef();
       }
     }
   }

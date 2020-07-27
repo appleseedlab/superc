@@ -90,4 +90,8 @@ public class StructT extends StructOrUnionT {
     out.append(name);
   }
 
+  public String toString()
+  {
+    return "struct " + super.toString();
+  }
 }
