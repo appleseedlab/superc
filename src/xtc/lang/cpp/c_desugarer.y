@@ -816,10 +816,8 @@ Declaration:  /** complete **/
                 for (Element<SymbolTable.Entry> elem : entries) {
                   DeclBuilder renamedDecl = new DeclBuilder(decl);
                   renamedDecl.identifier = elem.getData().getRenaming();
+		  System.err.println("WARNING: Declaration assumes the type multiverse only contains one element.");
                   if (type.size() == 1) {
-                    if (type.get(0).getData().toType().getClass().getName().equals("xtc.type.TypedefT")) {
-                      System.err.println("WARNING: typedef transformations not yet supported.");
-                    }
                     sb.append("\n" + type.get(0).getData().toType() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ");
                   } else {
                     System.err.println("ERROR: Configurable typedefs not yet supported.");
