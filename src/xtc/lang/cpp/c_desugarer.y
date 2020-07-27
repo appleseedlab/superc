@@ -752,7 +752,6 @@ DeclarationExtension:  /** passthrough, complete **/  // ADDED
         }
         | __EXTENSION__ Declaration
         {
-          System.err.println("ERROR: unsupported construct: Declaration");
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
