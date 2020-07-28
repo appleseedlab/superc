@@ -3666,7 +3666,6 @@ PrimaryExpression:  /** nomerge, passthrough **/
         }
         | Constant
         {
-          // TODO: since you are always creating a new empty multiverse, you could factor that out into cartesianProductWithChild so it has to deal with destructing sbmv
           PresenceCondition pc = subparser.getPresenceCondition();
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
@@ -3674,23 +3673,30 @@ PrimaryExpression:  /** nomerge, passthrough **/
         }
         | StringLiteralList
         {
-          System.err.println("WARNING: unsupported semantic action: PrimaryExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
+          setTFValue(value, product);
         }
         | LPAREN Expression RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: PrimaryExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | StatementAsExpression  // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: PrimaryExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
+          setTFValue(value, product);
         }
         | VariableArgumentAccess  // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: PrimaryExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
+          setTFValue(value, product);
         }
         ;
 
@@ -3752,16 +3758,24 @@ PostfixExpression:  /** passthrough, nomerge **/
         }
         | FunctionCall
         {
-          System.err.println("WARNING: unsupported semantic action: PostfixExpression");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
+          setTFValue(value, product);
         }
         | DirectSelection
         {
-          System.err.println("WARNING: unsupported semantic action: PostfixExpression");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
+          setTFValue(value, product);
         }
         | IndirectSelection
         {
-          System.err.println("WARNING: unsupported semantic action: PostfixExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
+          setTFValue(value, product);
         }
         | Increment
         {
@@ -3779,8 +3793,11 @@ PostfixExpression:  /** passthrough, nomerge **/
         }
         | CompoundLiteral  /* ADDED */
         {
-          System.err.println("WARNING: unsupported semantic action: PostfixExpression");
-}
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
+          setTFValue(value, product);
+        }
         ;
 
 Subscript:  /** nomerge **/
@@ -3889,8 +3906,10 @@ UnaryExpression:  /** passthrough, nomerge **/
         }
         | SIZEOF UnaryExpression
         {
-          System.err.println("WARNING: unsupported semantic action: UnaryExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | SIZEOF LPAREN TypeName RPAREN
         {
@@ -3899,28 +3918,38 @@ UnaryExpression:  /** passthrough, nomerge **/
         }
         | LabelAddressExpression  // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: UnaryExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
+          setTFValue(value, product);
         }
         | AlignofExpression // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: UnaryExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
+          setTFValue(value, product);
         }
         | ExtensionExpression // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: UnaryExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
+          setTFValue(value, product);
         }
         | OffsetofExpression // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: UnaryExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
+          setTFValue(value, product);
         }
-        | TypeCompatibilityExpression  // ADEED
+        | TypeCompatibilityExpression  // ADDED
         {
-          System.err.println("WARNING: unsupported semantic action: UnaryExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Node child = getNodeAt(subparser, 1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
+          setTFValue(value, product);
         }
         ;
 
@@ -3943,8 +3972,9 @@ OffsetofExpression:  /** nomerge **/
 ExtensionExpression:  /** nomerge **/
         __EXTENSION__ CastExpression
         {
-          System.err.println("WARNING: unsupported semantic action: ExtensionExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -3964,13 +3994,15 @@ AlignofExpression:  /** nomerge **/
 Alignofkeyword:
         __ALIGNOF__
         {
-          System.err.println("WARNING: unsupported semantic action: Alignofkeyword");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | __ALIGNOF
         {
-          System.err.println("WARNING: unsupported semantic action: Alignofkeyword");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -4114,13 +4146,15 @@ ShiftExpression:  /** passthrough, nomerge **/
         }
         | ShiftExpression LS AdditiveExpression
         {
-          System.err.println("WARNING: unsupported semantic action: ShiftExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | ShiftExpression RS AdditiveExpression
         {
-          System.err.println("WARNING: unsupported semantic action: ShiftExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -4190,8 +4224,9 @@ AndExpression:  /** passthrough, nomerge **/
         }
         | AndExpression AND EqualityExpression
         {
-          System.err.println("WARNING: unsupported semantic action: AndExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -4205,8 +4240,9 @@ ExclusiveOrExpression:  /** passthrough, nomerge **/
         }
         | ExclusiveOrExpression XOR AndExpression
         {
-          System.err.println("WARNING: unsupported semantic action: ExclusiveOrExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -4220,8 +4256,9 @@ InclusiveOrExpression:  /** passthrough, nomerge **/
         }
         | InclusiveOrExpression PIPE ExclusiveOrExpression
         {
-          System.err.println("WARNING: unsupported semantic action: InclusiveOrExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -4235,8 +4272,9 @@ LogicalAndExpression:  /** passthrough, nomerge **/
         }
         | LogicalAndExpression ANDAND InclusiveOrExpression
         {
-          System.err.println("WARNING: unsupported semantic action: LogicalAndExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -4250,8 +4288,9 @@ LogicalORExpression:  /** passthrough, nomerge **/
         }
         | LogicalORExpression OROR LogicalAndExpression
         {
-          System.err.println("WARNING: unsupported semantic action: LogicalORExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -4266,14 +4305,16 @@ ConditionalExpression:  /** passthrough, nomerge **/
         | LogicalORExpression QUESTION Expression COLON
                 ConditionalExpression
         {
-          System.err.println("WARNING: unsupported semantic action: ConditionalExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | LogicalORExpression QUESTION COLON  // ADDED gcc innomerge conditional
                 ConditionalExpression
         {
-          System.err.println("WARNING: unsupported semantic action: ConditionalExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -4297,82 +4338,69 @@ AssignmentExpression:  /** passthrough, nomerge **/
 AssignmentOperator: /** nomerge **/
         ASSIGN
         {
-          StringBuilder sb = new StringBuilder();
-          sb.append(" = ");
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | MULTassign
         {
-          StringBuilder sb = new StringBuilder();
-          sb.append(" *= ");
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | DIVassign
         {
-          StringBuilder sb = new StringBuilder();
-          sb.append(" /= ");
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | MODassign
         {
-          StringBuilder sb = new StringBuilder();
-          sb.append(" %= ");
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | PLUSassign
         {
-          StringBuilder sb = new StringBuilder();
-          sb.append(" += ");
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | MINUSassign
         {
-          StringBuilder sb = new StringBuilder();
-          sb.append(" -= ");
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | LSassign
         {
-          System.err.println("WARNING: unsupported semantic action: AssignmentOperator");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | RSassign
         {
-          System.err.println("WARNING: unsupported semantic action: AssignmentOperator");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | ANDassign
         {
-          StringBuilder sb = new StringBuilder();
-          sb.append(" &= ");
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | ERassign
         {
-          System.err.println("WARNING: unsupported semantic action: AssignmentOperator");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         | ORassign
         {
-          StringBuilder sb = new StringBuilder();
-          sb.append(" |= ");
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
-          setTFValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
@@ -4403,8 +4431,9 @@ Expression:  /** passthrough, nomerge **/
         }
         | Expression COMMA AssignmentExpression
         {
-          System.err.println("WARNING: unsupported semantic action: Expression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTFValue(value, product);
         }
         ;
 
