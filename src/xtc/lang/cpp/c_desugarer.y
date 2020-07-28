@@ -783,9 +783,6 @@ Declaration:  /** complete **/
         	TypeBuilderMultiverse type = TBDBList.type;
         	List<TypeAndDeclInitList.DeclAndInit> declAndInits = TBDBList.declAndInitList;
 
-
-        	// all declarations get generated, with no if(PC) {} wrapped around them,
-          // so we can append every declaration to a single stringbuilder
         	StringBuilder sb = new StringBuilder();
 
           // generates declarations and statements with the retrieved information
@@ -804,7 +801,6 @@ Declaration:  /** complete **/
                 addDeclsToSymTab(subparser.getPresenceCondition().and(initializer.getCondition()), (CContext)subparser.scope, type, decl);
                 Multiverse<SymbolTable.Entry> entries
                   = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition().and(initializer.getCondition()));
-                // TODO: destruct multiverse when done
                 
                 // ensures that entries does not contain more than one renaming under this PC
                 if (entries.size() > 1) {
@@ -815,16 +811,13 @@ Declaration:  /** complete **/
                 for (Element<SymbolTable.Entry> elem : entries) {
                   DeclBuilder renamedDecl = new DeclBuilder(decl);
                   renamedDecl.identifier = elem.getData().getRenaming();
-		  System.err.println("WARNING: Declaration assumes the type multiverse only contains one element.");
-                  if (type.size() == 1) {
-                    sb.append("\n" + type.get(0).getData().toType() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ");
-                  } else {
-                    System.err.println("ERROR: Configurable typedefs not yet supported.");
-                    // System.exit(1);
+                  for (Element<TypeBuilderUnit> typeUnit : type) {
+                    sb.append("\n" + typeUnit.getData().toString() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ");
                   }
                 }
                 sb.append(initializer.getData());
                 sb.append(";\n");
+                entries.destruct();
               }
             } else {
               // if there is no initializer under any presence condition,
@@ -832,7 +825,6 @@ Declaration:  /** complete **/
               addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
               Multiverse<SymbolTable.Entry> entries
                 = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-              // TODO: destruct multiverse when done
               
               // ensures that entries does not contain more than one renaming under this PC
               if (entries.size() > 1) {
@@ -843,19 +835,15 @@ Declaration:  /** complete **/
               for (Element<SymbolTable.Entry> elem : entries) {
                 DeclBuilder renamedDecl = new DeclBuilder(decl);
                 renamedDecl.identifier = elem.getData().getRenaming();
-                if (type.size() == 1) {
-                  if (type.get(0).getData().toType().getClass().getName().equals("xtc.type.TypedefT")) {
-                    System.err.println("WARNING: typedef transformations not yet supported.");
-                  }
-                  sb.append("\n" + type.get(0).getData().toType() + " " + renamedDecl + ";" + " /* renamed from " + oldIdent + " */ \n");
-                } else {
-                  System.err.println("ERROR: Configurable typedefs not yet supported.");
-                  // System.exit(1);
+                for (Element<TypeBuilderUnit> typeUnit : type) {
+                  sb.append("\n" + typeUnit.getData().toString() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ;\n");
                 }
               }
-            } 
-        	}
 
+              entries.destruct();
+            }
+          }
+        
         	// stores the generated declarations and initializing statements in an SBMV wrapper,
         	// then sets the SBMV as this node's semantic value
           Multiverse<StringBuilder> declarationSBMVWrapper = new Multiverse<StringBuilder>();
