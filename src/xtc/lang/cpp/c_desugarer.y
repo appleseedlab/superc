@@ -811,9 +811,10 @@ Declaration:  /** complete **/
                 for (Element<SymbolTable.Entry> elem : entries) {
                   DeclBuilder renamedDecl = new DeclBuilder(decl);
                   renamedDecl.identifier = elem.getData().getRenaming();
-                  for (Element<TypeBuilderUnit> typeUnit : type) {
-                    sb.append("\n" + typeUnit.getData().toString() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ");
-                  }
+                  //for (Element<TypeBuilderUnit> typeUnit : type) {
+                    //sb.append("\n" + typeUnit.getData().toString() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ");
+                  //}
+                  sb.append("\n" + elem.getData().getType() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ");
                 }
                 sb.append(initializer.getData());
                 sb.append(";\n");
@@ -835,9 +836,9 @@ Declaration:  /** complete **/
               for (Element<SymbolTable.Entry> elem : entries) {
                 DeclBuilder renamedDecl = new DeclBuilder(decl);
                 renamedDecl.identifier = elem.getData().getRenaming();
-                for (Element<TypeBuilderUnit> typeUnit : type) {
-                  sb.append("\n" + typeUnit.getData().toString() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ;\n");
-                }
+
+                // TODO: symbol table entry stores an xtc type, and not a typebuilderunit (where the qualifiers are.)
+                sb.append("\n" + elem.getData().getType() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ;\n");
               }
 
               entries.destruct();
