@@ -5301,8 +5301,6 @@ Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition presenceConditio
  * @return A multiverse containing all configurations of the passed-in node.
  */
 Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringBuilder> sbmv, Node child, PresenceCondition presenceCondition) {
-  if (sbmv == null || child == null)
-    return null;
   sbmv = new Multiverse<StringBuilder>(sbmv); // copies the passed-in sbmv because the caller destructs it.
   // getAllNodeConfigs traverses all nested static choice nodes until they reach a regular node
   // and then gets all configurations of that node
