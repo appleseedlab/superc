@@ -3578,10 +3578,30 @@ BreakStatement:  /** complete **/
 ReturnStatement:  /** complete **/
         RETURN ExpressionOpt SEMICOLON
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTFValue(value, product);
+          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+
+          Multiverse<Node> condChildren = getAllNodeConfigs(getNodeAt(subparser, 2), subparser.getPresenceCondition());
+
+          /** Iterates through all configurations of the child node */
+          for (Multiverse.Element<Node> configNode : condChildren) {
+            Multiverse<StringBuilder> statements = getSBMV(configNode.getData());
+            StringBuilder sb = new StringBuilder();
+
+            /** Iterates through all configurations of the stringbuilder stored in the child node */
+            for (Multiverse.Element<StringBuilder> statement : statements) {
+              sb.append("\nif (" +
+              PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
+              ") {\n" + getNodeAt(subparser, 3).getTokenText() + " " + statement.getData().toString() + getNodeAt(subparser, 1).getTokenText() + "\n}\n");
+              /**
+               * NOTE: When writing the "if (PC)",
+               * we AND the child node's PC with each stored stringbuilder PC, and
+               * add that to the resultant SBMV.
+               */
+            }
+            sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
+          }
+          setTFValue(value, sbmv);
         }
         ;
 
