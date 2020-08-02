@@ -425,7 +425,7 @@ FunctionDefinition:  /** complete **/ // added scoping
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
           setTFValue(value, product);
         }
-        | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
+| FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
           setCPC(value, PCtoString(subparser.getPresenceCondition()));
           // TODO
@@ -1081,9 +1081,12 @@ TypeSpecifier:  /** nomerge **/
 				}
         | SUETypeSpecifier                 /* Struct/Union/Enum */
 				{
-					System.err.println("Unsupported grammar TypeSpecifier-SUE"); // TODO
-          System.exit(1);
-				}
+          TypeAndDeclInitList TBDBList = getTBDBListAt(subparser,1);
+          TypeBuilderMultiverse tb = TBDBList.type;
+          String typeName = TBDBList.getDeclName();
+      	  tb.setSUE(typeName, getTypeOfDecl(subparser, typeName), subparser.getPresenceCondition());
+          setTFValue(value, tb);
+        }
 				| TypedefTypeSpecifier             /* Typedef */
 				{
 					setTFValue(value,getTBAt(subparser,1));
@@ -1405,7 +1408,7 @@ SUETypeSpecifier: /** nomerge **/
         | TypeQualifierList ElaboratedTypeName
         {
           System.err.println("WARNING: unsupported semantic action: SUETypeSpecifier");
-          //System.exit(1);
+          System.exit(1);
         }
         | SUETypeSpecifier TypeQualifier
         {
@@ -1427,7 +1430,7 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
       	  TypeBuilderMultiverse tb = getTBAt(subparser, 2);
           TypeBuilderMultiverse tb1 = new TypeBuilderMultiverse();
       	  String typeName = getStringAt(subparser, 1);
-      	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition());
+      	  tb1.setTypedef(typeName, getTypeOfDecl(subparser, typeName), subparser.getPresenceCondition());
           setTFValue(value, tb.combine(tb1));
                 	}
         | TypedefDeclarationSpecifier DeclarationQualifier
@@ -1444,15 +1447,15 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
       	{
       	  TypeBuilderMultiverse tb1 = new TypeBuilderMultiverse();
       	  String typeName = getStringAt(subparser, 1);
-      	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition());
+      	  tb1.setTypedef(typeName, getTypeOfDecl(subparser, typeName), subparser.getPresenceCondition());
           setTFValue(value, tb1);
-                	}
+        }
         | TypeQualifierList TYPEDEFname
       	{
       	  TypeBuilderMultiverse tb = getTBAt(subparser, 2);
           TypeBuilderMultiverse tb1 = new TypeBuilderMultiverse();
       	  String typeName = getStringAt(subparser, 1);
-      	  tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition());
+      	  tb1.setTypedef(typeName, getTypeOfDecl(subparser, typeName), subparser.getPresenceCondition());
           setTFValue(value, tb.combine(tb1));
 
       	}
@@ -1461,7 +1464,7 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
           TypeBuilderMultiverse tb = getTBAt(subparser, 2);
           TypeBuilderMultiverse tb1 = getTBAt(subparser, 1);
           setTFValue(value, tb.combine(tb1));
-                  }
+        }
 ;
 
 TypeofDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or void*/
@@ -1822,8 +1825,13 @@ StructSpecifier: /** nomerge **/  // ADDED attributes
         }
         | STRUCT IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
-          System.exit(1);
+          DeclBuilder d = getDBAt(subparser,1);
+          TypeBuilderMultiverse t = new TypeBuilderMultiverse();
+          TypeBuilderUnit tu = new TypeBuilderUnit("struct");
+          t.add(tu, subparser.getPresenceCondition());
+          Multiverse<StringBuilder> m = new Multiverse<StringBuilder>();
+          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(t, d,m);
+          setTFValue(value, TBDBList);
         }
         | STRUCT AttributeSpecifierList { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
@@ -1933,18 +1941,36 @@ StructDeclaration: /** nomerge **/
         }
         | TypeQualifierList SEMICOLON  // ADDED Declarator is optional
         {
-          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
-          System.exit(1);
+      	  TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          Multiverse<VariableT> mv = new Multiverse<VariableT>();
+          for (Element<TypeBuilderUnit> e : type) {
+            DeclBuilder temp = new DeclBuilder();
+            temp.addType(e.getData().toType());
+            mv.add(VariableT.newField(temp.toType(), temp.getID()), e.getCondition());
+          }
+          List<Multiverse<VariableT>> l = new LinkedList<Multiverse<VariableT>>();
+          l.add(mv);
+          setTFValue(value, l);
         }
         | TypeSpecifier SEMICOLON  // ADDED Declarator is optional
         {
-          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
-          System.exit(1);
+      	  TypeBuilderMultiverse type = getTBAt(subparser, 2);
+          Multiverse<VariableT> mv = new Multiverse<VariableT>();
+          for (Element<TypeBuilderUnit> e : type) {
+            DeclBuilder temp = new DeclBuilder();
+            temp.addType(e.getData().toType());
+            mv.add(VariableT.newField(temp.toType(), temp.getID()), e.getCondition());
+          }
+          List<Multiverse<VariableT>> l = new LinkedList<Multiverse<VariableT>>();
+          l.add(mv);
+          setTFValue(value, l);
         }
         | SEMICOLON // ADDED gcc allows empty struct field in declaration
         {
-          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
-          System.exit(1);
+          Multiverse<VariableT> mv = new Multiverse<VariableT>();
+          List<Multiverse<VariableT>> l = new LinkedList<Multiverse<VariableT>>();
+          l.add(mv);
+          setTFValue(value, l);
         }
         ;
 
@@ -5214,6 +5240,13 @@ private static class TypeAndDeclInitList {
   	declAndInitList.add(declAndInit);
   }
 
+  private String getDeclName() {
+    if (declAndInitList.size() != 1) {
+      return "";
+    }
+    return declAndInitList.get(0).decl.getID();
+  }
+
   /** 
 	 * DeclAndInit stores the declaration and initializer statement information.
 	 */
@@ -6966,12 +6999,12 @@ private void addSUEDeclsToSymTab(PresenceCondition presenceCondition, CContext s
   }
 }
 
-private Multiverse<SymbolTable.Entry> getTypeOfTypedef(Subparser subparser, String typeName)
+private Multiverse<SymbolTable.Entry> getTypeOfDecl(Subparser subparser, String typeName)
 {
-  /* Multiverse<SymbolTable.Entry> foundType = ((CContext)subparser.scope).getMappings(typeName, subparser.getPresenceCondition()); */
   Multiverse<SymbolTable.Entry> foundType = ((CContext)subparser.scope).get(typeName, subparser.getPresenceCondition());
   return foundType;
 }
+
 
 /**
  * Check that the tag declaration is not located within a

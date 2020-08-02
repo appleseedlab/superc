@@ -15,7 +15,7 @@ import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
 public class DeclBuilder
 {
   static int count = 0;
-  Integer personalCount;;
+  Integer personalCount;
 
   String identifier;
   int numPointers;

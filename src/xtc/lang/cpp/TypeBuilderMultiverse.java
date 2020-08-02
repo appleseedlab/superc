@@ -74,28 +74,38 @@ public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
     return t;
   }
 
-  // TODO: can this be replaced with a call to product?
+  public void setSUE(String name, Multiverse<SymbolTable.Entry> unis, PresenceCondition p)
+  {
+    setFoundType(name, unis, p, false);
+  }
+
   public void setTypedef(String name, Multiverse<SymbolTable.Entry> unis, PresenceCondition p)
   {
-    //At this point, you can't actually have more than one
-    //typedef and typedef is the only source of
-    //explosion in a decl. builders.size SHOULD always be 1,
-    //but we will create a cross product regardless
+    setFoundType(name, unis, p, true);
+  }
+  
+  // TODO: can this be replaced with a call to product?
+  private void setFoundType(String name, Multiverse<SymbolTable.Entry> unis, PresenceCondition p,
+                            boolean isTypedef)
+  {
     List<Element<TypeBuilderUnit>> l = new LinkedList<Element<TypeBuilderUnit>>();
-    if (contents.size() == 0)
-	    {
-        contents.add(new Element<TypeBuilderUnit>(new TypeBuilderUnit(), p));
-	    }
-    for (Element<SymbolTable.Entry> u : unis)
-	    for (Element<TypeBuilderUnit> e : contents)
-        {
-          if (!u.getCondition().isMutuallyExclusive(e.getCondition()))
-            {
-              TypeBuilderUnit t = new TypeBuilderUnit(e.getData());
-              t.setTypedef(name, u.getData().getRenaming(), u.getData().getType());
-              l.add(new Element<TypeBuilderUnit>(t, u.getCondition().and(e.getCondition()) ));
-            }
+    if (contents.size() == 0) {
+      contents.add(new Element<TypeBuilderUnit>(new TypeBuilderUnit(), p));
+    }
+    for (Element<SymbolTable.Entry> u : unis) {
+	    for (Element<TypeBuilderUnit> e : contents) {
+        if (!u.getCondition().isMutuallyExclusive(e.getCondition())) {
+          TypeBuilderUnit t = new TypeBuilderUnit(e.getData());
+          if (isTypedef) {
+            t.setTypedef(name, u.getData().getRenaming(), u.getData().getType());
+          }
+          else if (u.getData().getType().isStruct()) {
+            t.setStruct(name, u.getData().getRenaming(), u.getData().getType());
+          }
+          l.add(new Element<TypeBuilderUnit>(t, u.getCondition().and(e.getCondition()) ));
         }
+      }
+    }
     for (Element<TypeBuilderUnit> e : contents)
       {
         e.destruct();

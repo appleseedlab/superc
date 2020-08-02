@@ -16,13 +16,6 @@ struct basic3
   float k;
 };
 
-struct nested
-{
-  struct basic a;
-  struct basic2 b;
-  struct basic3 c;
-};
-
 int main()
 {
   return 0;

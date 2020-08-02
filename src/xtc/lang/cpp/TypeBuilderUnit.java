@@ -21,12 +21,17 @@ public class TypeBuilderUnit {
   boolean qualifiers[] = new boolean[NUM_QUALS];
   boolean foundTypes[] = new boolean[NUM_TYPES];
 
-    List<String> attributes;
+  List<String> attributes;
 
-    boolean isTypeError;
-    String typedefName;
-    String typedefRename;
-    Type typedefType;
+  boolean isTypeError;
+  String typedefName;
+  String typedefRename;
+  Type typedefType;
+
+  String structName;
+  String structRename;
+  Type structType;
+
 
     public String attributesToString() {
 	if (attributes == null)
@@ -142,10 +147,11 @@ public class TypeBuilderUnit {
         type = new IntegerT(NumberT.Kind.U_SHORT); // unsigned short
 	    else
         type = new IntegerT(NumberT.Kind.SHORT); // short
-    } else if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
-	    {
-        type = typedefType;
-      } else if (foundTypes[FOUND_TYPE.seenVoid.ordinal()]) {
+    } else if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()]) {
+      type = typedefType;
+    } else if (foundTypes[FOUND_TYPE.seenStruct.ordinal()]) {
+      type = structType;
+    } else if (foundTypes[FOUND_TYPE.seenVoid.ordinal()]) {
       type = new VoidT();
     }
     else{
@@ -473,6 +479,18 @@ public class TypeBuilderUnit {
     typedefName = name;
     typedefRename = rename;
     typedefType = type;
+    if (type.isUnit()) {
+      isTypeError = true;
+    }
+      
+  }
+
+  public void setStruct(String name, String rename, Type type)
+  {
+    foundTypes[FOUND_TYPE.seenStruct.ordinal()] = true;
+    structName = name;
+    structRename = rename;
+    structType = type;
     if (type.isUnit()) {
       isTypeError = true;
     }
