@@ -762,85 +762,17 @@ DeclarationExtension:  /** passthrough, complete **/  // ADDED
 Declaration:  /** complete **/
         SUEDeclarationSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 3);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTFValue(value, product);
+        	TypeBuilderMultiverse type = getTBAt(subparser,3);
+        	
+        	Multiverse<StringBuilder> declarationSBMVWrapper = new Multiverse<StringBuilder>();
+        	setTFValue(value, declarationSBMVWrapper);
         }
         | SUETypeSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
-        	// gets the type, the declarations, and any initializers
-        	TypeAndDeclInitList TBDBList = getTBDBListAt(subparser, 3);
-        	TypeBuilderMultiverse type = TBDBList.type;
-        	List<TypeAndDeclInitList.DeclAndInit> declAndInits = TBDBList.declAndInitList;
-
-
-        	// all declarations get generated, with no if(PC) {} wrapped around them,
-          // so we can append every declaration to a single stringbuilder
-        	StringBuilder sb = new StringBuilder();
-
-          // generates declarations and statements with the retrieved information
-        	for (TypeAndDeclInitList.DeclAndInit declAndInit : declAndInits) {
-        		DeclBuilder decl = declAndInit.decl;
-	          String oldIdent = decl.identifier;
-	          System.err.println(decl.toString() + " " + type.toString());
-
-            // if the declaration has an initializer under at least one presence condition,
-            // then we iterate through every initializer, add a new instance to the symtab,
-            // then write the declaration of that new variable with its initializer.
-            if (declAndInit.initializerSBMV.size() > 0) {
-              Multiverse<StringBuilder> configInitializers = declAndInit.initializerSBMV;
-
-              for (Element<StringBuilder> initializer : configInitializers) {
-                addSUEDeclsToSymTab(subparser.getPresenceCondition().and(initializer.getCondition()), (CContext)subparser.scope, type, decl);
-                Multiverse<SymbolTable.Entry> entries
-                  = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition().and(initializer.getCondition()));
-                // TODO: destruct multiverse when done
-                
-                // ensures that entries does not contain more than one renaming under this PC
-                if (entries.size() > 1) {
-                  System.err.println("ERROR: symboltable contains multiple renamings under a single presence condition");
-                }
-
-                // writes the declaration
-                for (Element<SymbolTable.Entry> elem : entries) {
-                  DeclBuilder renamedDecl = new DeclBuilder(decl);
-                  renamedDecl.identifier = elem.getData().getRenaming();
-                  if (type.size() == 1) {
-                    if (type.get(0).getData().toType().getClass().getName().equals("xtc.type.TypedefT")) {
-                      System.err.println("WARNING: typedef transformations not yet supported.");
-                    }
-                    sb.append("\n" + type.get(0).getData().toType() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ");
-                  } else {
-                    System.err.println("ERROR: Configurable typedefs not yet supported.");
-                    // System.exit(1);
-                  }
-                }
-                sb.append(initializer.getData());
-                sb.append(";\n");
-              }
-            } else {
-              // if there is no initializer under any presence condition,
-              // then we add this variable to the symboltable, and write its declaration.
-              addSUEDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
-              Multiverse<SymbolTable.Entry> entries
-                = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-              // TODO: destruct multiverse when done
-              
-              // ensures that entries does not contain more than one renaming under this PC
-              if (entries.size() > 1) {
-                System.err.println("ERROR: symboltable contains multiple renamings under a single presence condition");
-              }
-
-            } 
-        	}
-
-        	// stores the generated declarations and initializing statements in an SBMV wrapper,
-        	// then sets the SBMV as this node's semantic value
-          Multiverse<StringBuilder> declarationSBMVWrapper = new Multiverse<StringBuilder>();
-        	declarationSBMVWrapper.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
-          setTFValue(value, declarationSBMVWrapper);
+        	TypeBuilderMultiverse type = getTBAt(subparser,3);
+        	
+        	Multiverse<StringBuilder> declarationSBMVWrapper = new Multiverse<StringBuilder>();
+        	setTFValue(value, declarationSBMVWrapper);
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
@@ -1038,9 +970,9 @@ DeclarationSpecifier:  /**  nomerge **/
 				}
         | SUEDeclarationSpecifier          /* struct/union/enum */
 				{
-					System.err.println("Unsupported grammar DeclarationSpecifier-SUE"); // TODO
-          System.exit(1);
-				}
+          TypeBuilderMultiverse decl = getTBAt(subparser, 1);
+	  			setTFValue(value, decl);
+        }
         | TypedefDeclarationSpecifier      /* typedef*/
 				{
 	 				TypeBuilderMultiverse decl = getTBAt(subparser, 1);
@@ -1067,11 +999,7 @@ TypeSpecifier:  /** nomerge **/
 				}
         | SUETypeSpecifier                 /* Struct/Union/Enum */
 				{
-          TypeAndDeclInitList TBDBList = getTBDBListAt(subparser,1);
-          TypeBuilderMultiverse tb = TBDBList.type;
-          String typeName = TBDBList.getDeclName();
-      	  tb.setSUE(typeName, getTypeOfDecl(subparser, typeName), subparser.getPresenceCondition());
-          setTFValue(value, tb);
+          setTFValue(value, getTBAt(subparser,1));
         }
 				| TypedefTypeSpecifier             /* Typedef */
 				{
@@ -1371,35 +1299,40 @@ BasicTypeSpecifier: /**  nomerge **/
 SUEDeclarationSpecifier: /** nomerge **/          /* StorageClass + struct/union/enum */
         SUETypeSpecifier StorageClass
         {
-          System.err.println("WARNING: unsupported semantic action: SUEDeclarationSpecifier");
-          System.exit(1);
+          TypeBuilderMultiverse s = getTBAt(subparser, 2);
+          TypeBuilderMultiverse sc = getTBAt(subparser, 1);
+          setTFValue(value, s.combine(sc));
         }
         | DeclarationQualifierList ElaboratedTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: SUEDeclarationSpecifier");
-          System.exit(1);
+          TypeBuilderMultiverse dq = getTBAt(subparser, 2);
+          TypeBuilderMultiverse et = getTBAt(subparser, 1);
+          setTFValue(value, dq.combine(et));
         }
         | SUEDeclarationSpecifier DeclarationQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: SUEDeclarationSpecifier");
-          System.exit(1);
+          TypeBuilderMultiverse dq = getTBAt(subparser, 1);
+          TypeBuilderMultiverse s = getTBAt(subparser, 2);
+          setTFValue(value, s.combine(dq));
         }
         ;
 
 SUETypeSpecifier: /** nomerge **/
         ElaboratedTypeName              /* struct/union/enum */
         {
-          setTFValue(value, getTBDBListAt(subparser, 1));
+          setTFValue(value, getTBAt(subparser, 1));
         }
         | TypeQualifierList ElaboratedTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: SUETypeSpecifier");
-          System.exit(1);
+          TypeBuilderMultiverse etn = getTBAt(subparser, 1);
+          TypeBuilderMultiverse tql = getTBAt(subparser, 2);
+          setTFValue(value, tql.combine(etn));
         }
         | SUETypeSpecifier TypeQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: SUETypeSpecifier");
-          System.exit(1);
+          TypeBuilderMultiverse etn = getTBAt(subparser, 1);
+          TypeBuilderMultiverse tql = getTBAt(subparser, 2);
+          setTFValue(value, etn.combine(tql));
         }
         ;
 
@@ -1761,7 +1694,7 @@ ComplexKeyword:
 ElaboratedTypeName: /** passthrough, nomerge **/
         StructSpecifier
         {
-          setTFValue(value, getTBDBListAt(subparser, 1));
+          setTFValue(value, getTBAt(subparser, 1));
         }
         | UnionSpecifier
         {
@@ -1780,19 +1713,44 @@ StructSpecifier: /** nomerge **/  // ADDED attributes
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
-          System.exit(1);
+          /*
+            A Struct type is made with the purpose of defining a single variable
+            nothing is added to the symbol table.
+           */
           Node tag     = null;
           Node members = getNodeAt(subparser, 3);
           Node attrs   = null;
           updateSpecs(subparser,
                       makeStructSpec(subparser, tag, members, attrs),
                       value);
+          DeclBuilder d = new DeclBuilder();
+          d.setFields(getFieldAt(subparser,3));
+          TypeBuilderMultiverse t = new TypeBuilderMultiverse();
+          TypeBuilderUnit tu = new TypeBuilderUnit();
+          t.add(tu, subparser.getPresenceCondition());
+          Multiverse<SymbolTable.Entry> m = new Multiverse<SymbolTable.Entry>();
+          
+          Multiverse<List<VariableT>> fields = d.getFields(subparser.getPresenceCondition());
+          for(Element<List<VariableT>> varelem : fields) {
+            if (validateFieldList(varelem.getData())) {
+               Type structType = new StructT("", varelem.getData());
+               SymbolTable.Entry e = new SymbolTable.Entry("", structType);
+               m.add(e, varelem.getCondition());
+            } else {
+              m.add(SymbolTable.ERROR, varelem.getCondition());
+            }
+          }
+      
+          t.setSUE(d.getID(), m , subparser.getPresenceCondition());
+          setTFValue(value, t);
         }
         | STRUCT IdentifierOrTypedefName { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
+          /*
+            A Struct type is made to be referenced later, it is added to the symbol table
+           */
           Node tag     = getNodeAt(subparser, 6);
           Node members = getNodeAt(subparser, 3);
           Node attrs   = null;
@@ -1803,21 +1761,22 @@ StructSpecifier: /** nomerge **/  // ADDED attributes
           d.setFields(getFieldAt(subparser,3));
           TypeBuilderMultiverse t = new TypeBuilderMultiverse();
           TypeBuilderUnit tu = new TypeBuilderUnit();
-          tu.setIsStruct();
           t.add(tu, subparser.getPresenceCondition());
-          Multiverse<StringBuilder> m = new Multiverse<StringBuilder>();
-          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(t, d,m);
-          setTFValue(value, TBDBList);
+          addSUEDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, t, d);
+          t.setSUE(d.getID(),getTypeOfDecl(subparser, d.getID()), subparser.getPresenceCondition());
+          setTFValue(value, t);
         }
         | STRUCT IdentifierOrTypedefName
         {
+          /*
+            A struct is retrieved from the symbol table.
+           */
           DeclBuilder d = getDBAt(subparser,1);
           TypeBuilderMultiverse t = new TypeBuilderMultiverse();
-          TypeBuilderUnit tu = new TypeBuilderUnit("struct");
+          TypeBuilderUnit tu = new TypeBuilderUnit();
           t.add(tu, subparser.getPresenceCondition());
-          Multiverse<StringBuilder> m = new Multiverse<StringBuilder>();
-          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(t, d,m);
-          setTFValue(value, TBDBList);
+          t.setSUE(d.getID(),getTypeOfDecl(subparser, d.getID()), subparser.getPresenceCondition());
+          setTFValue(value, t);
         }
         | STRUCT AttributeSpecifierList { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
@@ -1931,8 +1890,7 @@ StructDeclaration: /** nomerge **/
           Multiverse<VariableT> mv = new Multiverse<VariableT>();
           for (Element<TypeBuilderUnit> e : type) {
             DeclBuilder temp = new DeclBuilder();
-            temp.addType(e.getData().toType());
-            mv.add(VariableT.newField(temp.toType(), temp.getID()), e.getCondition());
+            mv.add(VariableT.newField(typeOfPair(temp, e.getData()), temp.getID()), e.getCondition());
           }
           List<Multiverse<VariableT>> l = new LinkedList<Multiverse<VariableT>>();
           l.add(mv);
@@ -1944,8 +1902,7 @@ StructDeclaration: /** nomerge **/
           Multiverse<VariableT> mv = new Multiverse<VariableT>();
           for (Element<TypeBuilderUnit> e : type) {
             DeclBuilder temp = new DeclBuilder();
-            temp.addType(e.getData().toType());
-            mv.add(VariableT.newField(temp.toType(), temp.getID()), e.getCondition());
+            mv.add(VariableT.newField(typeOfPair(temp, e.getData()), temp.getID()), e.getCondition());
           }
           List<Multiverse<VariableT>> l = new LinkedList<Multiverse<VariableT>>();
           l.add(mv);
@@ -1980,9 +1937,7 @@ StructDeclaringList: /** list, nomerge **/
       	  TypeBuilderMultiverse type = getTBAt(subparser, 3);
           Multiverse<VariableT> mv = new Multiverse<VariableT>();
           for (Element<TypeBuilderUnit> e : type) {
-            DeclBuilder temp = new DeclBuilder(decl);
-            temp.addType(e.getData().toType());
-            mv.add(VariableT.newField(temp.toType(), temp.getID()), e.getCondition());
+            mv.add(VariableT.newField(typeOfPair(decl, e.getData()), decl.getID()), e.getCondition());
           }
           List<Multiverse<VariableT>> l = new LinkedList<Multiverse<VariableT>>();
           l.add(mv);
@@ -2243,9 +2198,7 @@ ParameterAbstractDeclaration:
           for (Element<TypeBuilderUnit> e : type) {
             Entry ent;
             if (e.getData().getIsValid() && d.getIsValid()) {
-              DeclBuilder x = new DeclBuilder(d);
-              x.addType(e.getData().toType());
-              ent = new Entry("",x.toType());
+              ent = new Entry("",typeOfPair(d,e.getData()));
             }
             else {
               ent = SymbolTable.ERROR;
@@ -2286,9 +2239,7 @@ ParameterAbstractDeclaration:
           for (Element<TypeBuilderUnit> e : type) {
             Entry ent;
             if (e.getData().getIsValid() && d.getIsValid()) {
-              DeclBuilder x = new DeclBuilder(d);
-              x.addType(e.getData().toType());
-              ent = new Entry("",x.toType());
+              ent = new Entry("",typeOfPair(d,e.getData()));
             }
             else {
               ent = SymbolTable.ERROR;
@@ -2329,9 +2280,7 @@ ParameterAbstractDeclaration:
           for (Element<TypeBuilderUnit> e : type) {
             Entry ent;
             if (e.getData().getIsValid() && d.getIsValid()) {
-              DeclBuilder x = new DeclBuilder(d);
-              x.addType(e.getData().toType());
-              ent = new Entry("",x.toType());
+              ent = new Entry("",typeOfPair(d,e.getData()));
             }
             else {
               ent = SymbolTable.ERROR;
@@ -2372,9 +2321,7 @@ ParameterAbstractDeclaration:
           for (Element<TypeBuilderUnit> e : type) {
             Entry ent;
             if (e.getData().getIsValid() && d.getIsValid()) {
-              DeclBuilder x = new DeclBuilder(d);
-              x.addType(e.getData().toType());
-              ent = new Entry("",x.toType());
+              ent = new Entry("",typeOfPair(d,e.getData()));
             }
             else {
               ent = SymbolTable.ERROR;
@@ -5292,13 +5239,6 @@ private static class TypeAndDeclInitList {
   	declAndInitList.add(declAndInit);
   }
 
-  private String getDeclName() {
-    if (declAndInitList.size() != 1) {
-      return "";
-    }
-    return declAndInitList.get(0).decl.getID();
-  }
-
   /** 
 	 * DeclAndInit stores the declaration and initializer statement information.
 	 */
@@ -6949,14 +6889,10 @@ private void addDeclsToSymTab(PresenceCondition presenceCondition, CContext scop
       condition.delRef();
     } else {
 
-      // combine the type spec and declarator into a complete type
-      DeclBuilder completedecl = new DeclBuilder(declbuilder);
-      completedecl.addType(t.toType());
-
       if (! declbuilder.isFunction()) {
         // bind the symbol name to the type under the current presence condition
         PresenceCondition condition = presenceCondition.and(elem.getCondition());
-        putEntry(scope, declbuilder.getID(), completedecl.toType(), condition);
+        putEntry(scope, declbuilder.getID(), typeOfPair(declbuilder,elem.getData()), condition);
         condition.delRef();
 
       } else {  // function types
@@ -6971,7 +6907,7 @@ private void addDeclsToSymTab(PresenceCondition presenceCondition, CContext scop
           PresenceCondition condition = parmelem.getCondition().and(elem.getCondition());
 
           if (parmelem.getData().size() == 0) {  // function has no parameters
-            Type funcType = new FunctionT(completedecl.toType());
+            Type funcType = new FunctionT(typeOfPair(declbuilder,elem.getData()));
             putEntry(scope, declbuilder.getID(), funcType, condition);
           } else {  // function has parameters
             List<Type> parmlist = new LinkedList<Type>();
@@ -6983,7 +6919,7 @@ private void addDeclsToSymTab(PresenceCondition presenceCondition, CContext scop
               }
             }
 
-            Type funcType = new FunctionT(completedecl.toType(),
+            Type funcType = new FunctionT(typeOfPair(declbuilder,elem.getData()),
                                           parmlist,
                                           parmelem.getData().get(parmelem.getData().size() - 1).isEllipsis());
             putEntry(scope, declbuilder.getID(), funcType, condition);
@@ -7029,21 +6965,19 @@ private void addSUEDeclsToSymTab(PresenceCondition presenceCondition, CContext s
       condition.delRef();
     } else {
       
-      // combine the type spec and declarator into a complete type
-      DeclBuilder completedecl = new DeclBuilder(declbuilder);
-
       for(Element<List<VariableT>> varelem : fields) {
         if (!validateFieldList(varelem.getData())) {
           PresenceCondition condition = presenceCondition.and(varelem.getCondition());
           scope.getSymbolTable().putError(declbuilder.getID(), condition);
           condition.delRef();
+        } else {
+          PresenceCondition condition = varelem.getCondition().and(elem.getCondition());
+          
+          Type structType = new StructT(declbuilder.getID(), varelem.getData());
+          putEntry(scope, declbuilder.getID(), structType, condition);
+          
+          condition.delRef();
         }
-        PresenceCondition condition = varelem.getCondition().and(elem.getCondition());
-          
-        Type structType = new StructT(declbuilder.getID(), varelem.getData());
-        putEntry(scope, declbuilder.getID(), structType, condition);
-          
-        condition.delRef();
       }
     }
   }
@@ -7345,6 +7279,25 @@ boolean validateFieldList(List<VariableT> lv)
   }
   */
   return true;
+}
+
+/**
+ * returns the type of the pairing of a decl and type builder.
+ *
+ * @param d the declBuilder
+ * @param t the typeBuilder
+ * @return type which represents the combination of d and t.
+ */
+Type typeOfPair(DeclBuilder d, TypeBuilderUnit t)
+{
+  System.err.println(d.toString() + " " + t.toString());
+  DeclBuilder temp = new DeclBuilder(d);
+  temp.addType(t.toType());
+  Type x = temp.toType();
+  if (t.isTypedef()) {
+    x = new AliasT(d.getID(), x);
+  }
+  return x;   
 }
 
 

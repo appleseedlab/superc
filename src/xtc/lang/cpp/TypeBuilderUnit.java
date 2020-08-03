@@ -7,13 +7,14 @@ import xtc.type.IntegerT;
 import xtc.type.FloatT;
 import xtc.type.VoidT;
 import xtc.type.UnitT;
+import xtc.type.AliasT;
 import xtc.Constants;
 
 public class TypeBuilderUnit {
     Type type; // void, char, short, int, long, float, double, SUE, typedef
     enum QUAL {isAuto, isConst, isVolatile, isExtern, isStatic, isRegister, isThreadLocal,
-               isInline, isSigned, isUnsigned, isTypedef, isStruct}
-    final int NUM_QUALS = 13;
+               isInline, isSigned, isUnsigned, isTypedef}
+    final int NUM_QUALS = 12;
     enum FOUND_TYPE {seenVoid, seenInt, seenLong, seenLongLong, seenChar, seenShort, seenFloat,
                      seenDouble, seenComplex, seenTypedef, seenStruct}
     final int NUM_TYPES = 11;
@@ -69,9 +70,7 @@ public class TypeBuilderUnit {
 	    sb.append("signed ");
 	if (qualifiers[QUAL.isUnsigned.ordinal()])
 	    sb.append("unsigned ");
-  if (qualifiers[QUAL.isStruct.ordinal()])
-    sb.append("struct ");
-
+  
 	if (foundTypes[FOUND_TYPE.seenLong.ordinal()])
 	    sb.append("long ");
 	if (foundTypes[FOUND_TYPE.seenLongLong.ordinal()])
@@ -91,7 +90,7 @@ public class TypeBuilderUnit {
 	if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
 	    sb.append(typedefName + " " + typedefType);
   if (foundTypes[FOUND_TYPE.seenStruct.ordinal()])
-	    sb.append("struct ");
+    sb.append(structType.toString());
 	sb.append(attributesToString());
 
 	return sb.toString();
@@ -463,8 +462,15 @@ public class TypeBuilderUnit {
       }
     }
     result.isTypeError = result.isTypeError || with.isTypeError;
+
+    result.typedefRename = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefRename : with.typedefRename);
     result.typedefName = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefName : with.typedefName);
     result.typedefType = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefType : with.typedefType);
+
+    result.structRename = (foundTypes[FOUND_TYPE.seenStruct.ordinal()] ? structRename : with.structRename);
+    result.structName = (foundTypes[FOUND_TYPE.seenStruct.ordinal()] ? structName : with.structName);
+    result.structType = (foundTypes[FOUND_TYPE.seenStruct.ordinal()] ? structType : with.structType);
+    
     return result;
   }
 
@@ -538,10 +544,5 @@ public class TypeBuilderUnit {
   public boolean getIsInline()
   {
     return qualifiers[QUAL.isInline.ordinal()];
-  }
-
-  public void setIsStruct()
-  {
-    addQual(QUAL.isStruct);
   }
 }

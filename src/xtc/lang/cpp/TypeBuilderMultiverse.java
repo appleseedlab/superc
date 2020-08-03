@@ -8,6 +8,8 @@ import xtc.type.NumberT;
 import xtc.type.IntegerT;
 import xtc.type.FloatT;
 import xtc.type.UnitT;
+import xtc.type.AliasT;
+
 import xtc.Constants;
 
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
@@ -97,7 +99,7 @@ public class TypeBuilderMultiverse extends Multiverse<TypeBuilderUnit>
         if (!u.getCondition().isMutuallyExclusive(e.getCondition())) {
           TypeBuilderUnit t = new TypeBuilderUnit(e.getData());
           if (isTypedef) {
-            t.setTypedef(name, u.getData().getRenaming(), u.getData().getType());
+            t.setTypedef(name, u.getData().getRenaming(), ((AliasT)(u.getData().getType())).getType());
           }
           else if (u.getData().getType().isStruct()) {
             t.setStruct(name, u.getData().getRenaming(), u.getData().getType());
