@@ -306,14 +306,22 @@ TranslationUnit:  /** complete, passthrough **/
                 writer.write(elemSB.getData().toString());
               }
               else {
-                writer.write("\nif (" + PCtoString(elemSB.getCondition().and(subparser.getPresenceCondition())) + ") {");
-                writer.write("\n" + elemSB.getData().toString() + "\n}\n");
+                //writer.write("\nif (" + PCtoString(elemSB.getCondition().and(subparser.getPresenceCondition())) + ") {");
+                //writer.write("\n" + elemSB.getData().toString() + "\n}\n");
+                writer.write(elemSB.getData().toString());
               }
             }
+            writer.write("\nint main(void) {\n");
+            Multiverse<SymbolTable.Entry> mainEntries
+              = ((CContext) subparser.scope).getSymbolTable().get("main", subparser.getPresenceCondition()); // TODO: should we use the above PC, or the current subparser's?
+            for (Multiverse.Element<SymbolTable.Entry> mainRenaming : mainEntries) {
+              writer.write("\nif (" + PCtoString(mainRenaming.getCondition()) + ") {\nreturn " + mainRenaming.getData().getRenaming() + "();" +"\n}\n");
+            }
 
-            /* // TODO: handle functions properly and remove this main function placeholder */
-            /* System.err.println("TODO: generated curly braces are a placeholder."); */
-            /* writer.write("\n}\n"); */
+
+            // TODO: handle functions properly and remove this main function placeholder
+            System.err.println("TODO: check that main function is being multiplexed properly");
+            writer.write("\n}\n");
 
             writer.flush();
           }
@@ -416,95 +424,74 @@ FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
 FunctionDefinition:  /** complete **/ // added scoping
         FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
-          // this takes the type and decl of the prototype and
-          // transforms all combinations of with the compound
-          // statement.  currently prototype and compound statement
-          // are not complete nodes, so they will not have any static
-          // conditionals.  in the future, use
-          // getProductOfSomeChildren to get all possible combinations
-          // of static choices
-          
-          // get and unpack the semantic value of the function prototype
-          TypeAndDeclarator typeAndDecl = (TypeAndDeclarator) getTransformationValue(subparser, 6);
-          TypeBuilderMultiverse typemv = typeAndDecl.type;
-          DeclBuilder decl = typeAndDecl.decl;
-          String originalSymbol = decl.identifier;
-
-          // get the compound statement's semantic value
-          Multiverse<StringBuilder> body = (Multiverse<StringBuilder>) getTransformationValue(subparser, 3);
-
-          // add all variations of the function declaration to the symtab
-          CContext scope = (CContext)subparser.scope;
-          addDeclsToSymTab(subparser.getPresenceCondition(), scope, typemv, decl);
-
-          // declarations, including function definitions, should
-          // appear unconditionally in the desugared output, since
-          // renaming handles different configurations.  so add all
-          // resulting definitions to a single element multiverse
-          // under the true condition.
-          StringBuilder sb = new StringBuilder();
-          
-          // loop over each variation of the function declaration and write it out
-          Multiverse<SymbolTable.Entry> entries
-            = scope.getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-
-          for (Element<SymbolTable.Entry> elem : entries) {
-            if (elem.getData() == SymbolTable.ERROR) {
-              assert scope.isGlobal();  // nested functions have different productions
-              recordInvalidGlobalDeclaration(originalSymbol, elem.getCondition());
-            } else if (elem.getData() == SymbolTable.UNDECLARED) {
-              // it should not be possible to get an undeclared
-              // entry, because this semantic action is only
-              // triggered when there is a declaration in the
-              // input program under this presence condition.
-              throw new AssertionError("undeclared entries should be not possible under a presence condition that has a function definition");
-            } else {
-              Type type = elem.getData().getType();
-              DeclBuilder renamedDecl = new DeclBuilder(decl);
-              String renaming = elem.getData().getRenaming();
-              renamedDecl.identifier = renaming;
-
-              // desugar function definitions by wrapping the body of
-              // the function with the presence condition under which
-              // it is defined, since C conditionals cannot appear in
-              // the global scope
-
-              System.err.println("TYPE: " + type);
-              System.err.println("DECL: " + renamedDecl);
-
-              // TODO: we need a method to convert a function declarator into a desugared string
-
-              sb.append(type);
-              sb.append(" ");
-              sb.append(renamedDecl);
-              sb.append(" /* renamed from ");
-              sb.append(originalSymbol);
-              sb.append(" */ ");
-              sb.append(getNodeAt(subparser, 4).getTokenText());  // opening brace
-              // TODO: wrap the body with a conditional
-              // TODO: add the body
-              sb.append(getNodeAt(subparser, 1).getTokenText());  // closing
-              recordRenaming(renaming, originalSymbol);
-              
-              // TODO: potential optimization: create a multiplexer
-              // function.  requires merging the parameter lists of
-              // each function, either by adding them all as
-              // parameters, or merging the types of the parameters,
-              // themselves, e.g., int/long -> long
-            }
-            sb.append("\n"); // TODO: pass results through a pretty printer or ultimately preserve input file formatting
-          }
-          
-          
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
 
-          // return a single-element multiverse for all presence
-          // conditions, since the transformation value is a
-          // multiverse.
-          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
-          result.add(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue());
-          setTransformationValue(value, result);
+          FunctionReturnAndDecl prototype = getFunctionReturnAndDecl(subparser, 6);
+          // TODO: call getAllNodeConfigs(), because a static choice node can be around FunctionPrototype
+          TypeBuilderMultiverse type = prototype.returnType;
+          DeclBuilder identifierAndParameters = prototype.identifierAndParams;
+          Multiverse<List<Parameter>> parametersMultiverse = identifierAndParameters.getParams(pc);
+
+          Multiverse<StringBuilder> functionBodyMultiverse = new Multiverse<StringBuilder>(getSBMVAt(subparser, 3));
+          Multiverse<StringBuilder> allRenamedDeclarations = new Multiverse<StringBuilder>();
+          // adds the declaration to the symbol table for every configuration of the function body
+          for (Multiverse.Element<StringBuilder> functionBody : functionBodyMultiverse)
+          {
+            // adds the declaration to the symbol table for every configuration of the function parameters
+            for (Multiverse.Element<List<Parameter>> parameters : parametersMultiverse)
+            {
+                // adds the function to the symbol table, and then gets the renamings back
+                addDeclsToSymTab(pc.and(functionBody.getCondition()).and(parameters.getCondition())/*.and(parameter.getCondition())*/, (CContext)subparser.scope, type, identifierAndParameters);
+                Multiverse<SymbolTable.Entry> entries
+                  = ((CContext) subparser.scope).getSymbolTable().get(identifierAndParameters.getID(), subparser.getPresenceCondition()); // TODO: should we use the above PC, or the current subparser's?
+
+                StringBuilder functionPrototype = new StringBuilder();
+                String oldIdent = identifierAndParameters.identifier;
+
+                // writes the declaration
+                for (Element<SymbolTable.Entry> elem : entries) {
+                  DeclBuilder renamedDecl = new DeclBuilder(identifierAndParameters);
+                  renamedDecl.identifier = elem.getData().getRenaming();
+
+                  Type returnType = elem.getData().getType();
+
+                  System.err.println("TODO: handle function parameters");
+                  functionPrototype.append("\n" + elem.getData().getType().toFunction().getResult() + " " + renamedDecl.identifier + "(");
+
+                  boolean is_first_parameter = true;
+                  for (Parameter parameter : parameters.getData()) {
+                    // TODO: support configurable function arguments
+                    System.err.println("TODO: support configurable function parameters");
+
+                    if ((parameter.getMultiverse()).size() > 1)
+                    {
+                      System.err.println("ERROR: configurable function parameters not yet supported");
+                    }
+                    else
+                    {
+                      if (is_first_parameter)
+                      {
+                        functionPrototype.append(parameter.getMultiverse().get(0).getData().getType() + " " + parameter.getMultiverse().get(0).getData().getRenaming());
+                        is_first_parameter = false;
+                      }
+                      else
+                      {
+                        functionPrototype.append(", " + parameter.getMultiverse().get(0).getData().getType() + " " + parameter.getMultiverse().get(0).getData().getRenaming());
+                      }
+                    }
+                  }
+                  functionPrototype.append(")" + " /* renamed from " + oldIdent + " */ \n");
+                  functionPrototype.append("{\n"+ functionBody.getData().toString() +"\n}\n"); // TODO: stop hard-coding the curly braces
+
+                }
+                entries.destruct();
+                // all function declarations are written under all presence conditions
+                allRenamedDeclarations.add(functionPrototype, subparser.getPresenceCondition().presenceConditionManager().newTrue());
+            }
+          }
+
+          setTransformationValue(value, allRenamedDeclarations);
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
@@ -533,6 +520,7 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
 FunctionPrototype:  /** nomerge **/
         IdentifierDeclarator
         {
+	  // TODO
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -557,13 +545,12 @@ FunctionPrototype:  /** nomerge **/
           // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-
-          // save the semantic value
-
-          setTransformationValue(value, new TypeAndDeclarator(type, decl));
+          FunctionReturnAndDecl prototype = new FunctionReturnAndDecl(type, decl);
+          setTransformationValue(value, prototype);
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
+	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
           DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 1);
@@ -573,6 +560,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeQualifierList        IdentifierDeclarator
         {
+	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
           DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 1);
@@ -582,11 +570,13 @@ FunctionPrototype:  /** nomerge **/
         }
         |                          OldFunctionDeclarator
         {
+	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
+	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
           DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 1);
@@ -596,6 +586,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
+	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
           DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 1);
@@ -605,6 +596,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
+	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
           DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 1);
@@ -614,6 +606,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
+	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
           DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 1);
@@ -3275,17 +3268,39 @@ Statement:  /** passthrough, complete **/
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
+
+          StringBuilder allStatements = new StringBuilder();
+
+          for (Multiverse.Element<StringBuilder> statement : product) {
+            allStatements.append("\nif (" +
+            PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
+            ") {\n" + statement.getData().toString() + "\n}\n");
+          }
+
+          Multiverse<StringBuilder> statementWrapper = new Multiverse<StringBuilder>();
+          statementWrapper.add(allStatements, subparser.getPresenceCondition().presenceConditionManager().newTrue());
+          setTransformationValue(value, statementWrapper);
         }
         | SelectionStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
+
+          StringBuilder allStatements = new StringBuilder();
+
+          for (Multiverse.Element<StringBuilder> statement : product) {
+            allStatements.append("\nif (" +
+            PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
+            ") {\n" + statement.getData().toString() + "\n}\n");
+          }
+
+          Multiverse<StringBuilder> statementWrapper = new Multiverse<StringBuilder>();
+          statementWrapper.add(allStatements, subparser.getPresenceCondition().presenceConditionManager().newTrue());
+          setTransformationValue(value, statementWrapper);
         }
         | IterationStatement
         {
@@ -3299,9 +3314,20 @@ Statement:  /** passthrough, complete **/
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
+
+          StringBuilder allStatements = new StringBuilder();
+
+          for (Multiverse.Element<StringBuilder> statement : product) {
+            allStatements.append("\nif (" +
+            PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
+            ") {\n" + statement.getData().toString() + "\n}\n");
+          }
+
+          Multiverse<StringBuilder> statementWrapper = new Multiverse<StringBuilder>();
+          statementWrapper.add(allStatements, subparser.getPresenceCondition().presenceConditionManager().newTrue());
+          setTransformationValue(value, statementWrapper);
         }
         | AssemblyStatement  // ADDED
         {
@@ -3498,31 +3524,10 @@ DeclarationList:  /** list, complete **/
 ExpressionStatement:  /** complete **/
         ExpressionOpt SEMICOLON
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-
-      	  Multiverse<Node> condChildren = getAllNodeConfigs(getNodeAt(subparser, 2), subparser.getPresenceCondition());
-
-      	  /** Iterates through all configurations of the child node */
-      	  for (Multiverse.Element<Node> configNode : condChildren) {
-      	    Multiverse<StringBuilder> statements = (Multiverse<StringBuilder>) getTransformationValue(configNode.getData());
-      	    StringBuilder sb = new StringBuilder();
-
-      	    /** Iterates through all configurations of the stringbuilder stored in the child node */
-      	    for (Multiverse.Element<StringBuilder> statement : statements) {
-              sb.append("\nif (" +
-              // TODO: memory leak of new presence condition
-              PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
-              ") {\n" + statement.getData().toString() + ";\n}\n");
-              /**
-               * NOTE: When writing the "if (PC)",
-               * we AND the child node's PC with each stored stringbuilder PC, and
-               * add that to the resultant SBMV.
-               */
-      	    }
-      	    sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
-      	  }
-          setTransformationValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTransformationValue(value, product);
         }
         ;
 
@@ -3707,30 +3712,10 @@ BreakStatement:  /** complete **/
 ReturnStatement:  /** complete **/
         RETURN ExpressionOpt SEMICOLON
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-
-          Multiverse<Node> condChildren = getAllNodeConfigs(getNodeAt(subparser, 2), subparser.getPresenceCondition());
-
-          /** Iterates through all configurations of the child node */
-          for (Multiverse.Element<Node> configNode : condChildren) {
-            Multiverse<StringBuilder> statements = (Multiverse<StringBuilder>) getTransformationValue(configNode.getData());
-            StringBuilder sb = new StringBuilder();
-
-            /** Iterates through all configurations of the stringbuilder stored in the child node */
-            for (Multiverse.Element<StringBuilder> statement : statements) {
-              sb.append("\nif (" +
-              PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
-              ") {\n" + getNodeAt(subparser, 3).getTokenText() + " " + statement.getData().toString() + getNodeAt(subparser, 1).getTokenText() + "\n}\n");
-              /**
-               * NOTE: When writing the "if (PC)",
-               * we AND the child node's PC with each stored stringbuilder PC, and
-               * add that to the resultant SBMV.
-               */
-            }
-            sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
-          }
-          setTransformationValue(value, sbmv);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setCPC(value, PCtoString(pc));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTransformationValue(value, product);
         }
         ;
 
@@ -5264,6 +5249,31 @@ private void setTransformationValue(Object node, Object value) {
   ((Node)node).setProperty(TRANSFORMATION, value);
 }
 
+/**
+  Stores the function prototype information to be passed up to functiondefinition
+  TODO: fill in the rest of the javadoc
+*/
+private static class FunctionReturnAndDecl {
+  /** The return type field */
+  private TypeBuilderMultiverse returnType;
+  /** The identifier and parameters */
+  private DeclBuilder identifierAndParams;
+
+  private FunctionReturnAndDecl(TypeBuilderMultiverse type, DeclBuilder decl) {
+    returnType = type;
+    identifierAndParams = decl;
+  }
+}
+
+private FunctionReturnAndDecl getFunctionReturnAndDecl(Object node) {
+  return (FunctionReturnAndDecl)((Node)node).getProperty(TRANSFORMATION);
+}
+
+private FunctionReturnAndDecl getFunctionReturnAndDecl(Subparser subparser, int component) {
+  // value should be not null and should be a Node type
+  return (FunctionReturnAndDecl)getNodeAt(subparser, component).getProperty(TRANSFORMATION);
+}
+
 /** 
  * TypeAndDeclInitList stores type information,
  * with a list of declarations and their optional initializing statements.
@@ -5453,12 +5463,17 @@ Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringBuilder> sb
   // getAllNodeConfigs traverses all nested static choice nodes until they reach a regular node
   // and then gets all configurations of that node
   Multiverse<Node> allConfigs = getAllNodeConfigs(child, presenceCondition);
+  Multiverse<StringBuilder> allConfigsSBMV = new Multiverse<StringBuilder>();
   for (Multiverse.Element<Node> childNode : allConfigs) {
-	    Multiverse<StringBuilder> childSBMV = (Multiverse<StringBuilder>) getTransformationValue(childNode.getData());
-	    Multiverse<StringBuilder> temp = sbmv.product(childSBMV, SBCONCAT);
-	    sbmv.destruct();
-	    sbmv = temp;
+    for (Multiverse.Element<StringBuilder> childNodeSBMV : getSBMV(childNode.getData()))
+    {
+      allConfigsSBMV.add(childNodeSBMV.getData(), childNodeSBMV.getCondition().and(childNode.getCondition())); // add the sbmv elements with the sbmv element condition ANDED with the node pc
+    }
   }
+
+  Multiverse<StringBuilder> temp = sbmv.product(allConfigsSBMV, SBCONCAT);
+  sbmv.destruct();
+  sbmv = temp;
 
   return sbmv;
 }
