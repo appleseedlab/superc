@@ -5325,12 +5325,17 @@ Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringBuilder> sb
   // getAllNodeConfigs traverses all nested static choice nodes until they reach a regular node
   // and then gets all configurations of that node
   Multiverse<Node> allConfigs = getAllNodeConfigs(child, presenceCondition);
+  Multiverse<StringBuilder> allConfigsSBMV = new Multiverse<StringBuilder>();
   for (Multiverse.Element<Node> childNode : allConfigs) {
-	    Multiverse<StringBuilder> childSBMV = getSBMV(childNode.getData());
-	    Multiverse<StringBuilder> temp = sbmv.product(childSBMV, SBCONCAT);
-	    sbmv.destruct();
-	    sbmv = temp;
+    for (Multiverse.Element<StringBuilder> childNodeSBMV : getSBMV(childNode.getData()))
+    {
+      allConfigsSBMV.add(childNodeSBMV.getData(), childNodeSBMV.getCondition().and(childNode.getCondition())); // add the sbmv elements with the sbmv element condition ANDED with the node pc
+    }
   }
+
+  Multiverse<StringBuilder> temp = sbmv.product(allConfigsSBMV, SBCONCAT);
+  sbmv.destruct();
+  sbmv = temp;
 
   return sbmv;
 }
