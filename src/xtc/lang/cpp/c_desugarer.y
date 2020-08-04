@@ -416,14 +416,74 @@ FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
 FunctionDefinition:  /** complete **/ // added scoping
         FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
-          //Get FunctionPrototype
-          //Get FunctionCompoundStatement
-          System.err.println("WARNING: skipping over transformation code at some nodes in FunctionDefinition.");
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 3); // TODO: add other children once supported
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTFValue(value, product);
+
+          FunctionReturnAndDecl prototype = getFunctionReturnAndDecl(subparser, 6);
+          // TODO: call getAllNodeConfigs(), because a static choice node can be around FunctionPrototype
+          TypeBuilderMultiverse type = prototype.returnType;
+          DeclBuilder identifierAndParameters = prototype.identifierAndParams;
+          Multiverse<List<Parameter>> parametersMultiverse = identifierAndParameters.getParams(pc);
+
+          Multiverse<StringBuilder> functionBodyMultiverse = new Multiverse<StringBuilder>(getSBMVAt(subparser, 3));
+          Multiverse<StringBuilder> allRenamedDeclarations = new Multiverse<StringBuilder>();
+          // adds the declaration to the symbol table for every configuration of the function body
+          for (Multiverse.Element<StringBuilder> functionBody : functionBodyMultiverse)
+          {
+            // adds the declaration to the symbol table for every configuration of the function parameters
+            for (Multiverse.Element<List<Parameter>> parameters : parametersMultiverse)
+            {
+                // adds the function to the symbol table, and then gets the renamings back
+                addDeclsToSymTab(pc.and(functionBody.getCondition()).and(parameters.getCondition())/*.and(parameter.getCondition())*/, (CContext)subparser.scope, type, identifierAndParameters);
+                Multiverse<SymbolTable.Entry> entries
+                  = ((CContext) subparser.scope).getSymbolTable().get(identifierAndParameters.getID(), subparser.getPresenceCondition()); // TODO: should we use the above PC, or the current subparser's?
+
+                StringBuilder functionPrototype = new StringBuilder();
+                String oldIdent = identifierAndParameters.identifier;
+
+                // writes the declaration
+                for (Element<SymbolTable.Entry> elem : entries) {
+                  DeclBuilder renamedDecl = new DeclBuilder(identifierAndParameters);
+                  renamedDecl.identifier = elem.getData().getRenaming();
+
+                  Type returnType = elem.getData().getType();
+
+                  System.err.println("TODO: handle function parameters");
+                  functionPrototype.append("\n" + elem.getData().getType().toFunction().getResult() + " " + renamedDecl.identifier + "(");
+
+                  boolean is_first_parameter = true;
+                  for (Parameter parameter : parameters.getData()) {
+                    // TODO: support configurable function arguments
+                    System.err.println("TODO: support configurable function parameters");
+
+                    if ((parameter.getMultiverse()).size() > 1)
+                    {
+                      System.err.println("ERROR: configurable function parameters not yet supported");
+                    }
+                    else
+                    {
+                      if (is_first_parameter)
+                      {
+                        functionPrototype.append(parameter.getMultiverse().get(0).getData().getType() + " " + parameter.getMultiverse().get(0).getData().getRenaming());
+                        is_first_parameter = false;
+                      }
+                      else
+                      {
+                        functionPrototype.append(", " + parameter.getMultiverse().get(0).getData().getType() + " " + parameter.getMultiverse().get(0).getData().getRenaming());
+                      }
+                    }
+                  }
+                  functionPrototype.append(")" + " /* renamed from " + oldIdent + " */ \n");
+                  functionPrototype.append("{\n"+ functionBody.getData().toString() +"\n}\n"); // TODO: stop hard-coding the curly braces
+
+                }
+                entries.destruct();
+                // all function declarations are written under all presence conditions
+                allRenamedDeclarations.add(functionPrototype, subparser.getPresenceCondition().presenceConditionManager().newTrue());
+            }
+          }
+
+          setTFValue(value, allRenamedDeclarations);
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
