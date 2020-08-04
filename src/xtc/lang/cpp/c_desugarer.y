@@ -778,71 +778,113 @@ Declaration:  /** complete **/
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
-        	// gets the type, the declarations, and any initializers
+        	// unpack type specifier, declarators, and initializers from the transformation value
         	TypeAndDeclInitList TBDBList = (TypeAndDeclInitList) getTransformationValue(subparser, 3);
-        	TypeBuilderMultiverse type = TBDBList.type;
+        	TypeBuilderMultiverse typemv = TBDBList.type;
         	List<TypeAndDeclInitList.DeclAndInit> declAndInits = TBDBList.declAndInitList;
 
         	StringBuilder sb = new StringBuilder();
-
-          // generates declarations and statements with the retrieved information
+          
+          // go through each combination of type, declarator, and initializer (if present)
         	for (TypeAndDeclInitList.DeclAndInit declAndInit : declAndInits) {
         		DeclBuilder decl = declAndInit.decl;
 	          String oldIdent = decl.identifier;
-	          System.err.println(decl.toString() + " " + type.toString());
+	          System.err.println(decl.toString() + " " + typemv.toString());
 
-            // if the declaration has an initializer under at least one presence condition,
-            // then we iterate through every initializer, add a new instance to the symtab,
-            // then write the declaration of that new variable with its initializer.
+            // check for an initializer
             if (declAndInit.initializerSBMV.size() > 0) {
+              // if the declaration has an initializer under at least one presence condition,
+              // then we iterate through every initializer, add a new instance to the symtab,
+              // then write the declaration of that new variable with its initializer.
               Multiverse<StringBuilder> configInitializers = declAndInit.initializerSBMV;
 
               for (Element<StringBuilder> initializer : configInitializers) {
-                addDeclsToSymTab(subparser.getPresenceCondition().and(initializer.getCondition()), (CContext)subparser.scope, type, decl);
+                // note that because typemv is a multiverse and decl
+                // may also contain multiverses, addDeclsToSymTab may
+                // add multiple renamings of the symbol
+                addDeclsToSymTab(subparser.getPresenceCondition().and(initializer.getCondition()), (CContext)subparser.scope, typemv, decl);
                 Multiverse<SymbolTable.Entry> entries
                   = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition().and(initializer.getCondition()));
-                
-                // ensures that entries does not contain more than one renaming under this PC
-                if (entries.size() > 1) {
-                  System.err.println("ERROR: symboltable contains multiple renamings under a single presence condition");
-                }
 
                 // writes the declaration
+                // TODO: consider abstracting away writing declarations into an emitDeclaration method
+                // TODO: consider also proactively determining which configurations do not declare this config and emitting a type-error for that (instead of writing the type error every time its used
                 for (Element<SymbolTable.Entry> elem : entries) {
-                  DeclBuilder renamedDecl = new DeclBuilder(decl);
-                  // TODO: check for error or undeclared entry
-                  renamedDecl.identifier = elem.getData().getRenaming();
-                  //for (Element<TypeBuilderUnit> typeUnit : type) {
+                  if (elem.getData() == SymbolTable.ERROR) {
+                    sb.append("if (");
+                    sb.append(PCtoString(elem.getCondition()));
+                    sb.append(") {\n");
+                    sb.append(String.format("__type_error(\"invalid declaration of %s under this presence condition\");\n", oldIdent));
+                    System.err.println("TODO: declare __typeerror() as extern");
+                    sb.append("}\n");
+                  } else if (elem.getData() == SymbolTable.UNDECLARED) {
+                    // it should not be possible to get an undeclared
+                    // entry, because this semantic action is only
+                    // triggered when there is a declaration in the
+                    // input program under this presence condition.
+                    throw new AssertionError("undeclared entries should be not possible under a presence condition that has a declaration");
+                  } else {
+                    DeclBuilder renamedDecl = new DeclBuilder(decl);
+                    String renaming = elem.getData().getRenaming();
+                    renamedDecl.identifier = renaming;
+                    //for (Element<TypeBuilderUnit> typeUnit : type) {
                     //sb.append("\n" + typeUnit.getData().toString() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ");
-                  //}
-                  // TODO: check for error or undeclared entry
-                  sb.append("\n" + elem.getData().getType() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ");
+                    //}
+                    sb.append(elem.getData().getType());
+                    sb.append(" ");
+                    sb.append(renamedDecl);
+                    sb.append(" /* renamed from ");
+                    sb.append(oldIdent);
+                    sb.append(" */ ");
+                    sb.append(initializer.getData());
+                    sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
+                    recordRenaming(renaming, oldIdent);
+                  }
+                  sb.append("\n"); // TODO: pass results through a pretty printer or ultimately preserve input file formatting
                 }
-                sb.append(initializer.getData());
-                sb.append(";\n");
                 entries.destruct();
               }
             } else {
-              // if there is no initializer under any presence condition,
-              // then we add this variable to the symboltable, and write its declaration.
-              addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+              // if there is no initializer under any presence
+              // condition, just add the renamings and write the
+              // transformed declarations without initializers.
+              addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, typemv, decl);
               Multiverse<SymbolTable.Entry> entries
                 = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-              
-              // ensures that entries does not contain more than one renaming under this PC
-              if (entries.size() > 1) {
-                System.err.println("ERROR: symboltable contains multiple renamings under a single presence condition");
-              }
 
               // writes the declaration
               for (Element<SymbolTable.Entry> elem : entries) {
-                DeclBuilder renamedDecl = new DeclBuilder(decl);
-                // TODO: check for error or undeclared entry
-                renamedDecl.identifier = elem.getData().getRenaming();
-
-                // TODO: symbol table entry stores an xtc type, and not a typebuilderunit (where the qualifiers are.)
-                // TODO: check for error or undeclared entry
-                sb.append("\n" + elem.getData().getType() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ;\n");
+                if (elem.getData() == SymbolTable.ERROR) {
+                  sb.append("if (");
+                  sb.append(PCtoString(elem.getCondition()));
+                  sb.append(") {\n");
+                  sb.append(String.format("__type_error(\"invalid declaration of %s under this presence condition\");\n", oldIdent));
+                  System.err.println("TODO: declare __typeerror() as extern");
+                  sb.append("}\n");
+                } else if (elem.getData() == SymbolTable.UNDECLARED) {
+                  // it should not be possible to get an undeclared
+                  // entry, because this semantic action is only
+                  // triggered when there is a declaration in the
+                  // input program under this presence condition.
+                  throw new AssertionError("undeclared entries should be not possible under a presence condition that has a declaration");
+                } else {
+                  DeclBuilder renamedDecl = new DeclBuilder(decl);
+                  String renaming = elem.getData().getRenaming();
+                  renamedDecl.identifier = renaming;
+                  //for (Element<TypeBuilderUnit> typeUnit : type) {
+                  //sb.append("\n" + typeUnit.getData().toString() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ");
+                  //}
+                  // TODO: check for error or undeclared entry
+                  sb.append(elem.getData().getType());
+                  sb.append(" ");
+                  sb.append(renamedDecl);
+                  sb.append(" /* renamed from ");
+                  sb.append(oldIdent);
+                  sb.append(" */ ");
+                  sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
+                  recordRenaming(renaming, oldIdent);
+                }
+                sb.append("\n"); // TODO: pass results through a pretty printer or ultimately preserve input file formatting
               }
 
               entries.destruct();
@@ -3387,6 +3429,7 @@ ExpressionStatement:  /** complete **/
       	    /** Iterates through all configurations of the stringbuilder stored in the child node */
       	    for (Multiverse.Element<StringBuilder> statement : statements) {
               sb.append("\nif (" +
+              // TODO: memory leak of new presence condition
               PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
               ") {\n" + statement.getData().toString() + ";\n}\n");
               /**
@@ -5337,6 +5380,10 @@ final Multiverse.Transformer<SymbolTable.Entry, StringBuilder> entryToStringBuil
   }
 };
 
+
+void recordRenaming(String renaming, String original) {
+  System.err.println(String.format("TODO: record renamings: __desugarer_renaming(\"%s\", \"%s\");", renaming, original));
+}
 /** True when statistics should be output. */
 private boolean languageStatistics = false;
 
