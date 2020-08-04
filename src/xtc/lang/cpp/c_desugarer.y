@@ -5136,6 +5136,22 @@ private void setTFValue(Object node, Object value) {
   ((Node)node).setProperty(TRANSFORMATION, value);
 }
 
+/**
+  Stores the function prototype information to be passed up to functiondefinition
+  TODO: fill in the rest of the javadoc
+*/
+private static class FunctionReturnAndDecl {
+  /** The return type field */
+  private TypeBuilderMultiverse returnType;
+  /** The identifier and parameters */
+  private DeclBuilder identifierAndParams;
+
+  private FunctionReturnAndDecl(TypeBuilderMultiverse type, DeclBuilder decl) {
+    returnType = type;
+    identifierAndParams = decl;
+  }
+}
+
 /** 
  * TypeAndDeclInitList stores type information,
  * with a list of declarations and their optional initializing statements.
