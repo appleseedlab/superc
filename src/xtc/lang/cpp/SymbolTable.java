@@ -396,7 +396,8 @@ public class SymbolTable {
    * the given condition or null if the symbol is not defined.
    */
   public void put(String ident, Type type, PresenceCondition putCond) {
-    String renaming = mangleRenaming("", ident);
+    // String renaming = mangleRenaming("", ident);
+    String renaming = freshCId(ident);
     Entry entry = new Entry(renaming, type);
     put(ident, entry, putCond);
   }
@@ -411,41 +412,41 @@ public class SymbolTable {
     put(ident, ERROR, putCond);
   }
 
-  private static long varcount = 0;
-  private final static char[] charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
-  private final static Random random = new Random();
-  private final static int RAND_SIZE = 5;
+  // private static long varcount = 0;
+  // private final static char[] charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
+  // private final static Random random = new Random();
+  // private final static int RAND_SIZE = 5;
 
-  /**
-   * Produce a random string of a given size.
-   *
-   * @returns The random string.
-   */
-  protected String randomString(int string_size) {
-    StringBuilder randomstring = new StringBuilder();
-    for (int i = 0; i < string_size; i++) {
-      randomstring.append(charset[random.nextInt(charset.length)]);
-    }
-    return randomstring.toString();
-  }
+  // /**
+  //  * Produce a random string of a given size.
+  //  *
+  //  * @returns The random string.
+  //  */
+  // protected String randomString(int string_size) {
+  //   StringBuilder randomstring = new StringBuilder();
+  //   for (int i = 0; i < string_size; i++) {
+  //     randomstring.append(charset[random.nextInt(charset.length)]);
+  //   }
+  //   return randomstring.toString();
+  // }
 
-  /**
-   * Mangle the given identifier to avoid naming clashes when symbols
-   * are multiply-declared.
-   */
-  protected String mangleRenaming(String prefix, String ident) {
-    // don't want to exceed c identifier length limit (31)
-    if (ident.length() > 22) {
-      // shorten ident to be at max, 22 chars
-      StringBuilder sb = new StringBuilder(ident);
-      sb = sb.delete(23, ident.length());
-      ident = sb.toString();
-    }
+  // /**
+  //  * Mangle the given identifier to avoid naming clashes when symbols
+  //  * are multiply-declared.
+  //  */
+  // protected String mangleRenaming(String prefix, String ident) {
+  //   // don't want to exceed c identifier length limit (31)
+  //   if (ident.length() > 22) {
+  //     // shorten ident to be at max, 22 chars
+  //     StringBuilder sb = new StringBuilder(ident);
+  //     sb = sb.delete(23, ident.length());
+  //     ident = sb.toString();
+  //   }
     
-    // return String.format("_%s%d_%s", prefix, varcount++, ident);
-    // NOTE: when doing regression testing, uncomment the line above, and comment-out the line below
-    return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
-  }
+  //   // return String.format("_%s%d_%s", prefix, varcount++, ident);
+  //   // NOTE: when doing regression testing, uncomment the line above, and comment-out the line below
+  //   return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
+  // }
 
   /***************************************************************************
    **** The following naming and namespacing functionality is taken
