@@ -3166,9 +3166,20 @@ Statement:  /** passthrough, complete **/
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTFValue(value, product);
+
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
+
+          StringBuilder allStatements = new StringBuilder();
+
+          for (Multiverse.Element<StringBuilder> statement : product) {
+            allStatements.append("\nif (" +
+            PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
+            ") {\n" + statement.getData().toString() + "\n}\n");
+          }
+
+          Multiverse<StringBuilder> statementWrapper = new Multiverse<StringBuilder>();
+          statementWrapper.add(allStatements, subparser.getPresenceCondition().presenceConditionManager().newTrue());
+          setTFValue(value, statementWrapper);
         }
         | IterationStatement
         {
