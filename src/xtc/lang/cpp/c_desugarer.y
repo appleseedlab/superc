@@ -288,9 +288,9 @@ TranslationUnit:  /** complete, passthrough **/
               temp.setLength(0);
             }
 
-            // TODO: handle functions properly and remove this main function placeholder
-            System.err.println("TODO: generated main() is a placeholder.");
-            writer.write("\nint main(void) {\n");
+            /* // TODO: handle functions properly and remove this main function placeholder */
+            /* System.err.println("TODO: generated main() is a placeholder."); */
+            /* writer.write("\nint main(void) {\n"); */
 
             /** writes all file-dependent transformation code that isn't
              *  a renamed config macro declaration
@@ -311,9 +311,9 @@ TranslationUnit:  /** complete, passthrough **/
               }
             }
 
-            // TODO: handle functions properly and remove this main function placeholder
-            System.err.println("TODO: generated curly braces are a placeholder.");
-            writer.write("\n}\n");
+            /* // TODO: handle functions properly and remove this main function placeholder */
+            /* System.err.println("TODO: generated curly braces are a placeholder."); */
+            /* writer.write("\n}\n"); */
 
             writer.flush();
           }
@@ -416,14 +416,95 @@ FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
 FunctionDefinition:  /** complete **/ // added scoping
         FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
-          //Get FunctionPrototype
-          //Get FunctionCompoundStatement
-          System.err.println("WARNING: skipping over transformation code at some nodes in FunctionDefinition.");
+          // this takes the type and decl of the prototype and
+          // transforms all combinations of with the compound
+          // statement.  currently prototype and compound statement
+          // are not complete nodes, so they will not have any static
+          // conditionals.  in the future, use
+          // getProductOfSomeChildren to get all possible combinations
+          // of static choices
+          
+          // get and unpack the semantic value of the function prototype
+          TypeAndDeclarator typeAndDecl = (TypeAndDeclarator) getTransformationValue(subparser, 6);
+          TypeBuilderMultiverse typemv = typeAndDecl.type;
+          DeclBuilder decl = typeAndDecl.decl;
+          String originalSymbol = decl.identifier;
+
+          // get the compound statement's semantic value
+          Multiverse<StringBuilder> body = (Multiverse<StringBuilder>) getTransformationValue(subparser, 3);
+
+          // add all variations of the function declaration to the symtab
+          CContext scope = (CContext)subparser.scope;
+          addDeclsToSymTab(subparser.getPresenceCondition(), scope, typemv, decl);
+
+          // declarations, including function definitions, should
+          // appear unconditionally in the desugared output, since
+          // renaming handles different configurations.  so add all
+          // resulting definitions to a single element multiverse
+          // under the true condition.
+          StringBuilder sb = new StringBuilder();
+          
+          // loop over each variation of the function declaration and write it out
+          Multiverse<SymbolTable.Entry> entries
+            = scope.getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
+
+          for (Element<SymbolTable.Entry> elem : entries) {
+            if (elem.getData() == SymbolTable.ERROR) {
+              assert scope.isGlobal();  // nested functions have different productions
+              recordInvalidGlobalDeclaration(originalSymbol, elem.getCondition());
+            } else if (elem.getData() == SymbolTable.UNDECLARED) {
+              // it should not be possible to get an undeclared
+              // entry, because this semantic action is only
+              // triggered when there is a declaration in the
+              // input program under this presence condition.
+              throw new AssertionError("undeclared entries should be not possible under a presence condition that has a function definition");
+            } else {
+              Type type = elem.getData().getType();
+              DeclBuilder renamedDecl = new DeclBuilder(decl);
+              String renaming = elem.getData().getRenaming();
+              renamedDecl.identifier = renaming;
+
+              // desugar function definitions by wrapping the body of
+              // the function with the presence condition under which
+              // it is defined, since C conditionals cannot appear in
+              // the global scope
+
+              System.err.println("TYPE: " + type);
+              System.err.println("DECL: " + renamedDecl);
+
+              // TODO: we need a method to convert a function declarator into a desugared string
+
+              sb.append(type);
+              sb.append(" ");
+              sb.append(renamedDecl);
+              sb.append(" /* renamed from ");
+              sb.append(originalSymbol);
+              sb.append(" */ ");
+              sb.append(getNodeAt(subparser, 4).getTokenText());  // opening brace
+              // TODO: wrap the body with a conditional
+              // TODO: add the body
+              sb.append(getNodeAt(subparser, 1).getTokenText());  // closing
+              recordRenaming(renaming, originalSymbol);
+              
+              // TODO: potential optimization: create a multiplexer
+              // function.  requires merging the parameter lists of
+              // each function, either by adding them all as
+              // parameters, or merging the types of the parameters,
+              // themselves, e.g., int/long -> long
+            }
+            sb.append("\n"); // TODO: pass results through a pretty printer or ultimately preserve input file formatting
+          }
+          
+          
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 3); // TODO: add other children once supported
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+
+          // return a single-element multiverse for all presence
+          // conditions, since the transformation value is a
+          // multiverse.
+          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
+          result.add(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue());
+          setTransformationValue(value, result);
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
@@ -470,25 +551,16 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeSpecifier            IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
           DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 1);
+
+          // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          StringBuilder sb = new StringBuilder();
 
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
-           if (type.size() == 1)
-             sb.append(type.get(0).getData().toType() + " ");
-          else {
-	          System.err.println("ERROR: Configurable typedefs not yet supported.");
-		        // System.exit(1);
-  	      }
-          // TODO
-          /*sb.append(getStringBuilderAt(subparser, 1));
-          //System.err.println("main function signature is " + sb.toString());
-      	  setStringBuilder(value, sb);
-          */
+          // save the semantic value
+
+          setTransformationValue(value, new TypeAndDeclarator(type, decl));
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
@@ -5250,6 +5322,21 @@ private static class TypeAndDeclInitList {
 	  }
 	}
 }
+
+/**
+ * This class packages a typebuildermultiverse and declbuilder as a
+ * single semantic value.  It is used for function prototypes.
+ */
+private static class TypeAndDeclarator {
+  public final TypeBuilderMultiverse type;
+  public final DeclBuilder decl;
+
+  public TypeAndDeclarator(TypeBuilderMultiverse type, DeclBuilder decl) {
+    this.type = type;
+    this.decl = decl;
+  }
+}
+
 
 /**
  * Get the semantic value for the transformation.  The caller is
