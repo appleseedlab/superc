@@ -784,6 +784,8 @@ Declaration:  /** complete **/
         	List<TypeAndDeclInitList.DeclAndInit> declAndInits = TBDBList.declAndInitList;
 
         	StringBuilder sb = new StringBuilder();
+
+          CContext scope = ((CContext) subparser.scope);
           
           // go through each combination of type, declarator, and initializer (if present)
         	for (TypeAndDeclInitList.DeclAndInit declAndInit : declAndInits) {
@@ -804,19 +806,23 @@ Declaration:  /** complete **/
                 // add multiple renamings of the symbol
                 addDeclsToSymTab(subparser.getPresenceCondition().and(initializer.getCondition()), (CContext)subparser.scope, typemv, decl);
                 Multiverse<SymbolTable.Entry> entries
-                  = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition().and(initializer.getCondition()));
+                  = scope.getSymbolTable().get(decl.getID(), subparser.getPresenceCondition().and(initializer.getCondition()));
 
                 // writes the declaration
                 // TODO: consider abstracting away writing declarations into an emitDeclaration method
                 // TODO: consider also proactively determining which configurations do not declare this config and emitting a type-error for that (instead of writing the type error every time its used
                 for (Element<SymbolTable.Entry> elem : entries) {
                   if (elem.getData() == SymbolTable.ERROR) {
-                    sb.append("if (");
-                    sb.append(PCtoString(elem.getCondition()));
-                    sb.append(") {\n");
-                    sb.append(String.format("__type_error(\"invalid declaration of %s under this presence condition\");\n", oldIdent));
-                    System.err.println("TODO: declare __typeerror() as extern");
-                    sb.append("}\n");
+                    if (scope.isGlobal()) {
+                      recordInvalidGlobalDeclaration(oldIdent, elem.getCondition());
+                    } else {
+                      sb.append("if (");
+                      sb.append(PCtoString(elem.getCondition()));
+                      sb.append(") {\n");
+                      sb.append(String.format("__type_error(\"invalid declaration of %s under this presence condition\");\n", oldIdent));
+                      System.err.println("TODO: declare __typeerror() as extern");
+                      sb.append("}\n");
+                    }
                   } else if (elem.getData() == SymbolTable.UNDECLARED) {
                     // it should not be possible to get an undeclared
                     // entry, because this semantic action is only
@@ -850,17 +856,21 @@ Declaration:  /** complete **/
               // transformed declarations without initializers.
               addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, typemv, decl);
               Multiverse<SymbolTable.Entry> entries
-                = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
+                = scope.getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
 
               // writes the declaration
               for (Element<SymbolTable.Entry> elem : entries) {
                 if (elem.getData() == SymbolTable.ERROR) {
-                  sb.append("if (");
-                  sb.append(PCtoString(elem.getCondition()));
-                  sb.append(") {\n");
-                  sb.append(String.format("__type_error(\"invalid declaration of %s under this presence condition\");\n", oldIdent));
-                  System.err.println("TODO: declare __typeerror() as extern");
-                  sb.append("}\n");
+                  if (scope.isGlobal()) {
+                    recordInvalidGlobalDeclaration(oldIdent, elem.getCondition());
+                  } else {
+                    sb.append("if (");
+                    sb.append(PCtoString(elem.getCondition()));
+                    sb.append(") {\n");
+                    sb.append(String.format("__type_error(\"invalid declaration of %s under this presence condition\");\n", oldIdent));
+                    System.err.println("TODO: declare __typeerror() as extern");
+                    sb.append("}\n");
+                  }
                 } else if (elem.getData() == SymbolTable.UNDECLARED) {
                   // it should not be possible to get an undeclared
                   // entry, because this semantic action is only
@@ -5380,8 +5390,30 @@ final Multiverse.Transformer<SymbolTable.Entry, StringBuilder> entryToStringBuil
   }
 };
 
+/*****************************************************************************
+ ********* Methods to record global desugaring information.  These
+ ********* will go into a special initializer function defined at the
+ ********* end of the transformation.
+ *****************************************************************************/
 
-void recordRenaming(String renaming, String original) {
+/**
+ * Record an invalid global declaration.
+ *
+ * @param ident The name of the global symbol.
+ * @param condition The presence condition under which the error occurred.
+ */
+private void recordInvalidGlobalDeclaration(String ident, PresenceCondition condition) {
+  System.err.println(String.format("TODO: record global invalid declaration: __invalid_declaration(%s, %s)", ident, PCtoString(condition)));
+}
+
+/**
+ * Record a renaming.
+ *
+ * @param renaming The new name of the symbol.
+ * @param original The old name of the symbol.
+ */
+private void recordRenaming(String renaming, String original) {
+  // TODO: support struct/label namespaces, or just use the mangled name, e.g., tag(structname)
   System.err.println(String.format("TODO: record renamings: __desugarer_renaming(\"%s\", \"%s\");", renaming, original));
 }
 /** True when statistics should be output. */
