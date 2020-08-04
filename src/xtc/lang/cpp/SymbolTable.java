@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Iterator;
 
+import xtc.Constants;
+
 import xtc.tree.Location;
 
 import xtc.lang.cpp.Syntax.Kind;
@@ -58,12 +60,28 @@ import xtc.lang.cpp.ForkMergeParser.Lookahead;
 public class SymbolTable {
 
   public static final Entry UNDECLARED = new Entry("<UNDECLARED>", UnitT.TYPE) {
+      public String getRenaming() {
+        throw new UnsupportedOperationException("the undeclared symbol table entry has no renaming");
+      }
+
+      public Type getType() {
+        throw new UnsupportedOperationException("the undeclared symbol table entry has no renaming");
+      }
+
       public String toString() {
         return "<UNDECLARED>";
       }
     };
     
   public static final Entry ERROR = new Entry("<ERROR>", UnitT.TYPE) {
+      public String getRenaming() {
+        throw new UnsupportedOperationException("the error symbol table entry has no renaming");
+      }
+
+      public Type getType() {
+        throw new UnsupportedOperationException("the error symbol table entry has no renaming");
+      }
+
       public String toString() {
         return "<ERROR>";
       }
@@ -126,6 +144,12 @@ public class SymbolTable {
   /** The reference count for cleaning up the table BDDs */
   public int refs;
 
+  /** The fresh name count. */
+  protected int freshNameCount;
+
+  /** The fresh identifier count. */
+  protected int freshIdCount;
+
   /**
    * Create a new, empty symbol table.
    */
@@ -133,6 +157,8 @@ public class SymbolTable {
     this.refs = 1;
     this.map = new HashMap<String, Multiverse<Entry>>();
     this.bools = new HashMap<String, EnumMap<STField, ConditionedBool>>();
+    this.freshNameCount = 0;
+    this.freshIdCount   = 0;
   }
 
   /**
@@ -235,15 +261,13 @@ public class SymbolTable {
         for (Element<Entry> entry : oldmv) {
           if (UNDECLARED == entry.getData()) {
             if (null != undeclaredCond) {
-              System.err.println("FATAL: there should only be one UNDECLARED entry");
-              System.exit(1);
+              throw new AssertionError("there should only be one UNDECLARED entry in the symbol table");
             }
             undeclaredCond = entry.getCondition();
             undeclaredCond.addRef();
           } else if (ERROR == entry.getData()) {
             if (null != errorCond) {
-              System.err.println("FATAL: there should only be one ERROR entry");
-              System.exit(1);
+              throw new AssertionError("there should only be one ERROR entry in the symbol table");
             }
             errorCond = entry.getCondition();
             errorCond.addRef();
@@ -253,14 +277,15 @@ public class SymbolTable {
             PresenceCondition andNewCond = entry.getCondition().and(putCond);
               
             if (! andNewCond.isFalse() && putEntry != ERROR) {
-              // redeclarations cause the symbol to be undeclared
-              /*PresenceCondition updateCollectErrors = collectErrors.or(andNewCond);
-              collectErrors.delRef();
-              collectErrors = updateCollectErrors;
-              if (putEntry != ERROR) {*/
-                System.err.println(String.format("FATAL: redeclaration of %s turned into an error entry.  use xtc.type.C.equal to check for legal redeclaration to same type.", ident));
-                System.exit(1);
-                //}
+              throw new IllegalStateException("only updates to the ERROR entry can be used to updated an existing entry");
+              // // redeclarations cause the symbol to be undeclared
+              // /*PresenceCondition updateCollectErrors = collectErrors.or(andNewCond);
+              // collectErrors.delRef();
+              // collectErrors = updateCollectErrors;
+              // if (putEntry != ERROR) {*/
+              //   System.err.println(String.format("FATAL: redeclaration of %s turned into an error entry.  use xtc.type.C.equal to check for legal redeclaration to same type.", ident));
+              //   System.exit(1);
+              //   //}
             }
                 
             if (! andNotNewCond.isFalse()) {
@@ -274,13 +299,11 @@ public class SymbolTable {
         }
 
         if (null == undeclaredCond) {
-          System.err.println("FATAL: undeclared entry should always be present");
-          System.exit(1);
+          throw new AssertionError("the undeclared entry should always be present in the symbol table");
         }
 
         if (null == errorCond) {
-          System.err.println("FATAL: error entry should always be present");
-          System.exit(1);
+          throw new AssertionError("the error entry should always be present in the symbol table");
         }
 
         // add a new declaration
@@ -337,9 +360,7 @@ public class SymbolTable {
           for (Element<Entry> entry_j : newmv) {
             if (entry_i != entry_j) {
               if (! entry_i.getCondition().isMutuallyExclusive(entry_j.getCondition())) {
-                System.err.println("FATAL: symbol table full converage invariant check failed");
-                System.err.println(toString());
-                System.exit(1);
+                throw new AssertionError("symbol table invariant violation: entries should be in mutually-exclusive configurations");
               }
             }
           }
@@ -347,9 +368,7 @@ public class SymbolTable {
 
         PresenceCondition notUnion = union.not();
         if (! notUnion.isFalse()) {
-          System.err.println("FATAL: symbol table mutual exclusion invariant check failed");
-          System.err.println(toString());
-          System.exit(1);
+          throw new AssertionError("symbol table invariant violation: entries should cover all possible configurations, i.e., union to true");
         }
         notUnion.delRef();
         
@@ -377,7 +396,8 @@ public class SymbolTable {
    * the given condition or null if the symbol is not defined.
    */
   public void put(String ident, Type type, PresenceCondition putCond) {
-    String renaming = mangleRenaming("", ident);
+    // String renaming = mangleRenaming("", ident);
+    String renaming = freshCId(ident);
     Entry entry = new Entry(renaming, type);
     put(ident, entry, putCond);
   }
@@ -392,40 +412,176 @@ public class SymbolTable {
     put(ident, ERROR, putCond);
   }
 
-  private static long varcount = 0;
-  private final static char[] charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
-  private final static Random random = new Random();
-  private final static int RAND_SIZE = 5;
+  // private static long varcount = 0;
+  // private final static char[] charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
+  // private final static Random random = new Random();
+  // private final static int RAND_SIZE = 5;
+
+  // /**
+  //  * Produce a random string of a given size.
+  //  *
+  //  * @returns The random string.
+  //  */
+  // protected String randomString(int string_size) {
+  //   StringBuilder randomstring = new StringBuilder();
+  //   for (int i = 0; i < string_size; i++) {
+  //     randomstring.append(charset[random.nextInt(charset.length)]);
+  //   }
+  //   return randomstring.toString();
+  // }
+
+  // /**
+  //  * Mangle the given identifier to avoid naming clashes when symbols
+  //  * are multiply-declared.
+  //  */
+  // protected String mangleRenaming(String prefix, String ident) {
+  //   // don't want to exceed c identifier length limit (31)
+  //   if (ident.length() > 22) {
+  //     // shorten ident to be at max, 22 chars
+  //     StringBuilder sb = new StringBuilder(ident);
+  //     sb = sb.delete(23, ident.length());
+  //     ident = sb.toString();
+  //   }
+    
+  //   // return String.format("_%s%d_%s", prefix, varcount++, ident);
+  //   // NOTE: when doing regression testing, uncomment the line above, and comment-out the line below
+  //   return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
+  // }
+
+  /***************************************************************************
+   **** The following naming and namespacing functionality is taken
+   **** directly from xtc.util.SymbolTable.
+   ***************************************************************************/
 
   /**
-   * Produce a random string of a given size.
+   * Create a fresh name.  The returned name has
+   * "<code>anonymous</code>" as it base name.
    *
-   * @returns The random string.
+   * @see #freshName(String)
+   * 
+   * @return A fresh name.
    */
-  protected String randomString(int string_size) {
-    StringBuilder randomstring = new StringBuilder();
-    for (int i = 0; i < string_size; i++) {
-      randomstring.append(charset[random.nextInt(charset.length)]);
-    }
-    return randomstring.toString();
+  public String freshName() {
+    return freshName("anonymous");
   }
 
   /**
-   * Mangle the given identifier to avoid naming clashes when symbols
-   * are multiply-declared.
+   * Create a fresh name incorporating the specified base name.  The
+   * returned name is of the form
+   * <code><i>name</i>(<i>count</i>)</code>.
+   *
+   * @param base The base name.
+   * @return The corresponding fresh name.
    */
-  protected String mangleRenaming(String prefix, String ident) {
-    // don't want to exceed c identifier length limit (31)
-    if (ident.length() > 22) {
-      // shorten ident to be at max, 22 chars
-      StringBuilder sb = new StringBuilder(ident);
-      sb = sb.delete(23, ident.length());
-      ident = sb.toString();
+  public String freshName(String base) {
+    StringBuilder buf = new StringBuilder();
+    buf.append(base);
+    buf.append(Constants.START_OPAQUE);
+    buf.append(freshNameCount++);
+    buf.append(Constants.END_OPAQUE);
+    return buf.toString();
+  }
+
+  /**
+   * Create a fresh C identifier.  The returned identifier has
+   * "<code>tmp</code>" as its base name.
+   *
+   * @see #freshCId(String)
+   *
+   * @return A fresh C identifier.
+   */
+  public String freshCId() {
+    return freshCId("tmp");
+  }
+
+  /**
+   * Create a fresh C identifier incorporating the specified base
+   * name.  The returned name is of the form
+   * <code>__<i>name</i>_<i>count</i></code>.
+   *
+   * @param base The base name.
+   * @return The corresponding fresh C identifier.
+   */
+  public String freshCId(String base) {
+    StringBuilder buf = new StringBuilder();
+    buf.append("__");
+    buf.append(base);
+    buf.append('_');
+    buf.append(freshIdCount++);
+    return buf.toString();
+  }
+
+  /** The end of opaqueness marker as a string. */
+  private static final String END_OPAQUE =
+    Character.toString(Constants.END_OPAQUE);
+
+  /**
+   * Determine whether the specified symbol is in the specified name
+   * space.
+   *
+   * @param symbol The symbol.
+   * @param space The name space.
+   * @return <code>true</code> if the symbol is mangled symbol in the
+   *   name space.
+   */
+  public static boolean isInNameSpace(String symbol, String space) {
+    try {
+      return (symbol.startsWith(space) &&
+              (Constants.START_OPAQUE == symbol.charAt(space.length())) &&
+              symbol.endsWith(END_OPAQUE));
+    } catch (IndexOutOfBoundsException x) {
+      return false;
     }
-    
-    // return String.format("_%s%d_%s", prefix, varcount++, ident);
-    // NOTE: when doing regression testing, uncomment the line above, and comment-out the line below
-    return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
+  }
+
+  /**
+   * Convert the specified unqualified symbol to a symbol in the
+   * specified name space.
+   *
+   * @param symbol The symbol
+   * @param space The name space.
+   * @return The mangled symbol.
+   */
+  public static String toNameSpace(String symbol, String space) {
+    return space + Constants.START_OPAQUE + symbol + Constants.END_OPAQUE;
+  }
+
+  /**
+   * Convert the specified unqualified symbol within a name space to a
+   * symbol without a name space.
+   *
+   * @param symbol The mangled symbol within a name space.
+   * @return The corresponding symbol without a name space.
+   */
+  public static String fromNameSpace(String symbol) {
+    int start = symbol.indexOf(Constants.START_OPAQUE);
+    int end   = symbol.length() - 1;
+    if ((0 < start) && (Constants.END_OPAQUE == symbol.charAt(end))) {
+      return symbol.substring(start + 1, end);
+    } else {
+      throw new IllegalArgumentException("Not a mangled symbol '"+symbol+"'");
+    }
+  }
+
+  /**
+   * Convert the specified C struct, union, or enum tag into a symbol
+   * table name.
+   *
+   * @param tag The tag.
+   * @return The corresponding symbol table name.
+   */
+  public static String toTagName(String tag) {
+    return toNameSpace(tag, "tag");
+  }
+
+  /**
+   * Convert the specified label identifier into a symbol table name.
+   *
+   * @param id The identifier.
+   * @return The corresponding symbol table name.
+   */
+  public static String toLabelName(String id) {
+    return toNameSpace(id, "label");
   }
 
   public String toString() {
@@ -435,16 +591,15 @@ public class SymbolTable {
     sb.append("\n");
     for (String ident : this.map.keySet()) {
       sb.append(String.format("%s -> %s", ident, this.map.get(ident)));
-      sb.append("\n");
     }
     
     return sb.toString();
   }
   
   /*******************************************************************
-   The fields below are the original symbol table implementation that
-   only tracks the kind of symbol in order to support C's
-   context-sensitive parsing.
+   ***** The fields below are the original symbol table implementation
+   ***** that only tracks the kind of symbol in order to support C's
+   ***** context-sensitive parsing.
    *******************************************************************/
 
   public enum STField {
