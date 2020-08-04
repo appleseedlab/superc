@@ -182,7 +182,7 @@ public class SymbolTable {
       // System.err.println(String.format("after get: %s -> %s", ident, newmv));
       return newmv;
     } else {
-      return null;
+      return new Multiverse<Entry>();
     }
   }
 
@@ -363,8 +363,6 @@ public class SymbolTable {
       // nothing to add, since the given presence condition is False
     }
 
-    // System.err.println(String.format("after put: %s -> %s", ident, map.get(ident)));
-    System.err.println(toString());
   }
 
   /**
@@ -380,6 +378,7 @@ public class SymbolTable {
     String renaming = mangleRenaming("", ident);
     Entry entry = new Entry(renaming, type);
     put(ident, entry, putCond);
+    System.err.println(this.toString());
   }
 
   /**
@@ -390,6 +389,7 @@ public class SymbolTable {
    */
   public void putError(String ident, PresenceCondition putCond) {
     put(ident, ERROR, putCond);
+    System.err.println(this.toString());
   }
 
   private static long varcount = 0;

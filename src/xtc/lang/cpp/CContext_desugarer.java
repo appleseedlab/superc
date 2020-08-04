@@ -732,7 +732,7 @@ public class CContext implements ParsingContext {
     }
     
     Multiverse<SymbolTable.Entry> local = scope.getSymbolTable().get(ident, cond);
-    if (null == local) {
+    if (local.size() == 0) {
       // this scope has no declarations of ident, so the entire cond is undeclared
       get(result, scope.parent, ident, cond);
     } else {

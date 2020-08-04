@@ -7200,7 +7200,7 @@ public void putEntry(CContext scope, String ident, Type putEntry, PresenceCondit
   Multiverse<SymbolTable.Entry> curMV = s.get(ident, putCond);
 
   //if the scope is global but no entry exists for the ident, it is fine
-  if (curMV == null) {
+  if (curMV.size() == 0) {
     s.put(ident, putEntry, putCond);
     return;
   }
