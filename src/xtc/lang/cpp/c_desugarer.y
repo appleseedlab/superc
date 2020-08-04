@@ -452,6 +452,7 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
 FunctionPrototype:  /** nomerge **/
         IdentifierDeclarator
         {
+	  // TODO
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -461,6 +462,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationSpecifier     IdentifierDeclarator
         {
+	  // TODO
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
@@ -470,28 +472,16 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeSpecifier            IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          StringBuilder sb = new StringBuilder();
-
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
-           if (type.size() == 1)
-             sb.append(type.get(0).getData().toType() + " ");
-          else {
-	          System.err.println("ERROR: Configurable typedefs not yet supported.");
-		        // System.exit(1);
-  	      }
-          // TODO
-          /*sb.append(getStringBuilderAt(subparser, 1));
-          //System.err.println("main function signature is " + sb.toString());
-      	  setStringBuilder(value, sb);
-          */
+          FunctionReturnAndDecl prototype = new FunctionReturnAndDecl(type, decl);
+          setTFValue(value, prototype);
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
+	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
@@ -501,6 +491,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeQualifierList        IdentifierDeclarator
         {
+	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
@@ -510,11 +501,13 @@ FunctionPrototype:  /** nomerge **/
         }
         |                          OldFunctionDeclarator
         {
+	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
+	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
@@ -524,6 +517,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
+	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
@@ -533,6 +527,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
+	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
@@ -542,6 +537,7 @@ FunctionPrototype:  /** nomerge **/
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
+	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
