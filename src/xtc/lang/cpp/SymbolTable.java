@@ -58,12 +58,28 @@ import xtc.lang.cpp.ForkMergeParser.Lookahead;
 public class SymbolTable {
 
   public static final Entry UNDECLARED = new Entry("<UNDECLARED>", UnitT.TYPE) {
+      public String getRenaming() {
+        throw new UnsupportedOperationException("the undeclared symbol table entry has no renaming");
+      }
+
+      public Type getType() {
+        throw new UnsupportedOperationException("the undeclared symbol table entry has no renaming");
+      }
+
       public String toString() {
         return "<UNDECLARED>";
       }
     };
     
   public static final Entry ERROR = new Entry("<ERROR>", UnitT.TYPE) {
+      public String getRenaming() {
+        throw new UnsupportedOperationException("the error symbol table entry has no renaming");
+      }
+
+      public Type getType() {
+        throw new UnsupportedOperationException("the error symbol table entry has no renaming");
+      }
+
       public String toString() {
         return "<ERROR>";
       }
@@ -235,15 +251,13 @@ public class SymbolTable {
         for (Element<Entry> entry : oldmv) {
           if (UNDECLARED == entry.getData()) {
             if (null != undeclaredCond) {
-              System.err.println("FATAL: there should only be one UNDECLARED entry");
-              System.exit(1);
+              throw new AssertionError("there should only be one UNDECLARED entry in the symbol table");
             }
             undeclaredCond = entry.getCondition();
             undeclaredCond.addRef();
           } else if (ERROR == entry.getData()) {
             if (null != errorCond) {
-              System.err.println("FATAL: there should only be one ERROR entry");
-              System.exit(1);
+              throw new AssertionError("there should only be one ERROR entry in the symbol table");
             }
             errorCond = entry.getCondition();
             errorCond.addRef();
@@ -253,14 +267,15 @@ public class SymbolTable {
             PresenceCondition andNewCond = entry.getCondition().and(putCond);
               
             if (! andNewCond.isFalse() && putEntry != ERROR) {
-              // redeclarations cause the symbol to be undeclared
-              /*PresenceCondition updateCollectErrors = collectErrors.or(andNewCond);
-              collectErrors.delRef();
-              collectErrors = updateCollectErrors;
-              if (putEntry != ERROR) {*/
-                System.err.println(String.format("FATAL: redeclaration of %s turned into an error entry.  use xtc.type.C.equal to check for legal redeclaration to same type.", ident));
-                System.exit(1);
-                //}
+              throw new IllegalStateException("only updates to the ERROR entry can be used to updated an existing entry");
+              // // redeclarations cause the symbol to be undeclared
+              // /*PresenceCondition updateCollectErrors = collectErrors.or(andNewCond);
+              // collectErrors.delRef();
+              // collectErrors = updateCollectErrors;
+              // if (putEntry != ERROR) {*/
+              //   System.err.println(String.format("FATAL: redeclaration of %s turned into an error entry.  use xtc.type.C.equal to check for legal redeclaration to same type.", ident));
+              //   System.exit(1);
+              //   //}
             }
                 
             if (! andNotNewCond.isFalse()) {
@@ -274,13 +289,11 @@ public class SymbolTable {
         }
 
         if (null == undeclaredCond) {
-          System.err.println("FATAL: undeclared entry should always be present");
-          System.exit(1);
+          throw new AssertionError("the undeclared entry should always be present in the symbol table");
         }
 
         if (null == errorCond) {
-          System.err.println("FATAL: error entry should always be present");
-          System.exit(1);
+          throw new AssertionError("the error entry should always be present in the symbol table");
         }
 
         // add a new declaration
@@ -337,9 +350,7 @@ public class SymbolTable {
           for (Element<Entry> entry_j : newmv) {
             if (entry_i != entry_j) {
               if (! entry_i.getCondition().isMutuallyExclusive(entry_j.getCondition())) {
-                System.err.println("FATAL: symbol table full converage invariant check failed");
-                System.err.println(toString());
-                System.exit(1);
+                throw new AssertionError("symbol table invariant violation: entries should be in mutually-exclusive configurations");
               }
             }
           }
@@ -347,9 +358,7 @@ public class SymbolTable {
 
         PresenceCondition notUnion = union.not();
         if (! notUnion.isFalse()) {
-          System.err.println("FATAL: symbol table mutual exclusion invariant check failed");
-          System.err.println(toString());
-          System.exit(1);
+          throw new AssertionError("symbol table invariant violation: entries should cover all possible configurations, i.e., union to true");
         }
         notUnion.delRef();
         
@@ -435,7 +444,6 @@ public class SymbolTable {
     sb.append("\n");
     for (String ident : this.map.keySet()) {
       sb.append(String.format("%s -> %s", ident, this.map.get(ident)));
-      sb.append("\n");
     }
     
     return sb.toString();
