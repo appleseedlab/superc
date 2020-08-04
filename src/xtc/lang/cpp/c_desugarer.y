@@ -810,10 +810,12 @@ Declaration:  /** complete **/
                 // writes the declaration
                 for (Element<SymbolTable.Entry> elem : entries) {
                   DeclBuilder renamedDecl = new DeclBuilder(decl);
+                  // TODO: check for error or undeclared entry
                   renamedDecl.identifier = elem.getData().getRenaming();
                   //for (Element<TypeBuilderUnit> typeUnit : type) {
                     //sb.append("\n" + typeUnit.getData().toString() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ");
                   //}
+                  // TODO: check for error or undeclared entry
                   sb.append("\n" + elem.getData().getType() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ");
                 }
                 sb.append(initializer.getData());
@@ -835,9 +837,11 @@ Declaration:  /** complete **/
               // writes the declaration
               for (Element<SymbolTable.Entry> elem : entries) {
                 DeclBuilder renamedDecl = new DeclBuilder(decl);
+                // TODO: check for error or undeclared entry
                 renamedDecl.identifier = elem.getData().getRenaming();
 
                 // TODO: symbol table entry stores an xtc type, and not a typebuilderunit (where the qualifiers are.)
+                // TODO: check for error or undeclared entry
                 sb.append("\n" + elem.getData().getType() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ;\n");
               }
 
@@ -3727,6 +3731,7 @@ PrimaryIdentifier: /** nomerge **/
           cond.delRef();
 
           // convert the renamings to stringbuilders
+          // TODO: check for error or undeclared entry
           Multiverse<StringBuilder> sbmv = entryToStringBuilder.transform(entries);
           entries.destruct();
 
@@ -5344,6 +5349,7 @@ final static Multiverse.Operator<StringBuilder> SBCONCAT = (sb1, sb2) -> {
 
 final Multiverse.Transformer<SymbolTable.Entry, StringBuilder> entryToStringBuilder = new Multiverse.Transformer<SymbolTable.Entry, StringBuilder>() {
   StringBuilder transform(SymbolTable.Entry from) {
+    // TODO: check for error or undeclared entry
     return new StringBuilder(from.getRenaming());
   }
 };
@@ -7090,28 +7096,30 @@ public void putEntry(CContext scope, String ident, Type putEntry, PresenceCondit
   //entry, that error should already exist in the table
   for (Element<SymbolTable.Entry> e : curMV) {
       
-    Type t = e.getData().getType();
     PresenceCondition p = e.getCondition();
     p.addRef();
     if (e.getData() == SymbolTable.UNDECLARED) {
       s.put(ident, putEntry, p);
     }
     else if (e.getData() == SymbolTable.ERROR) {
-      //do nothing
-    }
-    else if (!cOps.equal(putEntry, t)) {
-      s.putError(ident, p);
-    }
-    else if (cOps.equal(putEntry, t) && !scope.isGlobal()) {
-      s.putError(ident, p);
-    }
-    else if (cOps.equal(putEntry, t) && scope.isGlobal()) {
-      //do nothing
+      // do nothing, since the presence condition is already an error
     }
     else {
-      //should never happen
-      System.err.println("Should never happen");
-      System.exit(1);
+      Type t = e.getData().getType();
+      if (!cOps.equal(putEntry, t)) {
+        s.putError(ident, p);
+      }
+      else if (cOps.equal(putEntry, t) && !scope.isGlobal()) {
+        s.putError(ident, p);
+      }
+      else if (cOps.equal(putEntry, t) && scope.isGlobal()) {
+        // symbols in global scope can be redeclared to a compatible type
+      }
+      else {
+        //should never happen
+        System.err.println("Should never happen");
+        System.exit(1);
+      }
     }
     
     p.delRef();
