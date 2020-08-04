@@ -5213,6 +5213,15 @@ private static class FunctionReturnAndDecl {
   }
 }
 
+private FunctionReturnAndDecl getFunctionReturnAndDecl(Object node) {
+  return (FunctionReturnAndDecl)((Node)node).getProperty(TRANSFORMATION);
+}
+
+private FunctionReturnAndDecl getFunctionReturnAndDecl(Subparser subparser, int component) {
+  // value should be not null and should be a Node type
+  return (FunctionReturnAndDecl)getNodeAt(subparser, component).getProperty(TRANSFORMATION);
+}
+
 /** 
  * TypeAndDeclInitList stores type information,
  * with a list of declarations and their optional initializing statements.
