@@ -464,7 +464,7 @@ FunctionPrototype:  /** nomerge **/
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+          Multiverse<DeclBuilder> renamedDeclBuilders = addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -477,7 +477,7 @@ FunctionPrototype:  /** nomerge **/
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           StringBuilder sb = new StringBuilder();
 
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+          Multiverse<DeclBuilder> renamedDeclBuilders = addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
            if (type.size() == 1)
              sb.append(type.get(0).getData().toType() + " ");
           else {
@@ -495,7 +495,7 @@ FunctionPrototype:  /** nomerge **/
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+          Multiverse<DeclBuilder> renamedDeclBuilders = addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -504,7 +504,7 @@ FunctionPrototype:  /** nomerge **/
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+          Multiverse<DeclBuilder> renamedDeclBuilders = addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -518,7 +518,7 @@ FunctionPrototype:  /** nomerge **/
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+          Multiverse<DeclBuilder> renamedDeclBuilders = addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -527,7 +527,7 @@ FunctionPrototype:  /** nomerge **/
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+          Multiverse<DeclBuilder> renamedDeclBuilders = addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -536,7 +536,7 @@ FunctionPrototype:  /** nomerge **/
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+          Multiverse<DeclBuilder> renamedDeclBuilders = addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -545,7 +545,7 @@ FunctionPrototype:  /** nomerge **/
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
           TypeBuilderMultiverse type = getTBAt(subparser, 2);
           DeclBuilder decl = getDBAt(subparser, 1);
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+          Multiverse<DeclBuilder> renamedDeclBuilders = addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -798,7 +798,7 @@ Declaration:  /** complete **/
               Multiverse<StringBuilder> configInitializers = declAndInit.initializerSBMV;
 
               for (Element<StringBuilder> initializer : configInitializers) {
-                addDeclsToSymTab(subparser.getPresenceCondition().and(initializer.getCondition()), (CContext)subparser.scope, type, decl);
+                Multiverse<DeclBuilder> renamedDeclBuilders = addDeclsToSymTab(subparser.getPresenceCondition().and(initializer.getCondition()), (CContext)subparser.scope, type, decl);
                 Multiverse<SymbolTable.Entry> entries
                   = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition().and(initializer.getCondition()));
                 
@@ -825,7 +825,7 @@ Declaration:  /** complete **/
             } else {
               // if there is no initializer under any presence condition,
               // then we add this variable to the symboltable, and write its declaration.
-              addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+              Multiverse<DeclBuilder> renamedDeclBuilders = addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
               Multiverse<SymbolTable.Entry> entries
                 = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
               
@@ -2298,7 +2298,7 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+          Multiverse<DeclBuilder> renamedDeclBuilders = addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
@@ -2317,7 +2317,7 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+          Multiverse<DeclBuilder> renamedDeclBuilders = addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
@@ -2337,7 +2337,7 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+          Multiverse<DeclBuilder> renamedDeclBuilders = addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
@@ -2357,7 +2357,7 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
           System.err.println("ParamIdent:" + type.toString());
           Parameter p = new Parameter();
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+          Multiverse<DeclBuilder> renamedDeclBuilders = addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
@@ -2377,7 +2377,7 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+          Multiverse<DeclBuilder> renamedDeclBuilders = addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
@@ -2397,7 +2397,7 @@ ParameterIdentifierDeclaration:
           TypeBuilderMultiverse type = getTBAt(subparser, 4);
 
           Parameter p = new Parameter();
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
+          Multiverse<DeclBuilder> renamedDeclBuilders = addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl);
           Multiverse<SymbolTable.Entry> entries
             = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
           p.setMultiverse(entries);
@@ -6797,9 +6797,10 @@ private static Specifiers makeStructSpec(Subparser subparser,
  *
  * @param subparser The current subparser.
  * @param typebuilder A Multiverse of type specifier objects.
- * @param declbuidler An object representing the declarator.
+ * @param declbuilder An object representing the declarator.
+ * @return Multiverse<DeclBuilder> A multiverse containing all configurations and renamings of the declBuilder.
  */
-private void addDeclsToSymTab(PresenceCondition presenceCondition, CContext scope, TypeBuilderMultiverse typebuilder, DeclBuilder declbuilder) {
+private Multiverse<DeclBuilder> addDeclsToSymTab(PresenceCondition presenceCondition, CContext scope, TypeBuilderMultiverse typebuilder, DeclBuilder declbuilder) {
   if (typebuilder == null || declbuilder == null ) {
     System.err.println("ERROR: null typebuilder or declbuilder");
     System.exit(1);
@@ -6810,6 +6811,8 @@ private void addDeclsToSymTab(PresenceCondition presenceCondition, CContext scop
   if (declbuilder.isFunction()) {
     parms = declbuilder.getParams(presenceCondition);
   }
+
+  Multiverse<DeclBuilder> allDecls = new Multiverse<DeclBuilder>();
 
   // loop through each configuration of the type specifier, adding the
   // declaration to the symtab
@@ -6831,6 +6834,15 @@ private void addDeclsToSymTab(PresenceCondition presenceCondition, CContext scop
         // bind the symbol name to the type under the current presence condition
         PresenceCondition condition = presenceCondition.and(elem.getCondition());
         putEntry(scope, declbuilder.getID(), completedecl.toType(), condition);
+        
+        // add the declBuilder to the multiverse for non-functions
+        Multiverse<SymbolTable.Entry> symbolTableEntries = scope.getSymbolTable().get(declbuilder.getID(), condition);
+        for (Multiverse.Element<SymbolTable.Entry> renaming : symbolTableEntries) {
+          DeclBuilder renamedDecl = new DeclBuilder(declbuilder);
+          renamedDecl.identifier = renaming.getData().getRenaming();
+          allDecls.add(renamedDecl, renaming.getCondition());
+        }
+
         condition.delRef();
 
       } else {  // function types
@@ -6847,6 +6859,15 @@ private void addDeclsToSymTab(PresenceCondition presenceCondition, CContext scop
           if (parmelem.getData().size() == 0) {  // function has no parameters
             Type funcType = new FunctionT(completedecl.toType());
             putEntry(scope, declbuilder.getID(), funcType, condition);
+
+            // add the declBuilder to the multiverse for functions without parameters
+            Multiverse<SymbolTable.Entry> symbolTableEntries = scope.getSymbolTable().get(declbuilder.getID(), condition);
+            for (Multiverse.Element<SymbolTable.Entry> renaming : symbolTableEntries) {
+              DeclBuilder renamedDecl = new DeclBuilder(declbuilder);
+              renamedDecl.identifier = renaming.getData().getRenaming();
+              allDecls.add(renamedDecl, renaming.getCondition());
+            }
+
           } else {  // function has parameters
             List<Type> parmlist = new LinkedList<Type>();
 
@@ -6861,6 +6882,14 @@ private void addDeclsToSymTab(PresenceCondition presenceCondition, CContext scop
                                           parmlist,
                                           parmelem.getData().get(parmelem.getData().size() - 1).isEllipsis());
             putEntry(scope, declbuilder.getID(), funcType, condition);
+
+            // add the declBuilder to the multiverse for functions with parameters
+            Multiverse<SymbolTable.Entry> symbolTableEntries = scope.getSymbolTable().get(declbuilder.getID(), condition);
+            for (Multiverse.Element<SymbolTable.Entry> renaming : symbolTableEntries) {
+              DeclBuilder renamedDecl = new DeclBuilder(declbuilder);
+              renamedDecl.identifier = renaming.getData().getRenaming();
+              allDecls.add(renamedDecl, renaming.getCondition());
+            }
           }
 
           condition.delRef();
@@ -6868,6 +6897,8 @@ private void addDeclsToSymTab(PresenceCondition presenceCondition, CContext scop
       }
     }
   }
+  System.err.println("addDeclsToSymTab() is returning: " + allDecls);
+  return allDecls;
 }
 
 private Multiverse<SymbolTable.Entry> getTypeOfTypedef(Subparser subparser, String typeName)
