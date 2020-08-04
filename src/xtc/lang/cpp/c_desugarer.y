@@ -288,9 +288,6 @@ TranslationUnit:  /** complete, passthrough **/
               temp.setLength(0);
             }
 
-            // TODO: handle functions properly and remove this main function placeholder
-            System.err.println("TODO: generated main() is a placeholder.");
-            writer.write("\nint main(void) {\n");
 
             /** writes all file-dependent transformation code that isn't
              *  a renamed config macro declaration
@@ -306,13 +303,21 @@ TranslationUnit:  /** complete, passthrough **/
                 writer.write(elemSB.getData().toString());
               }
               else {
-                writer.write("\nif (" + PCtoString(elemSB.getCondition().and(subparser.getPresenceCondition())) + ") {");
-                writer.write("\n" + elemSB.getData().toString() + "\n}\n");
+                //writer.write("\nif (" + PCtoString(elemSB.getCondition().and(subparser.getPresenceCondition())) + ") {");
+                //writer.write("\n" + elemSB.getData().toString() + "\n}\n");
+                writer.write(elemSB.getData().toString());
               }
             }
+            writer.write("\nint main(void) {\n");
+            Multiverse<SymbolTable.Entry> mainEntries
+              = ((CContext) subparser.scope).getSymbolTable().get("main", subparser.getPresenceCondition()); // TODO: should we use the above PC, or the current subparser's?
+            for (Multiverse.Element<SymbolTable.Entry> mainRenaming : mainEntries) {
+              writer.write("\nif (" + PCtoString(mainRenaming.getCondition()) + ") {\nreturn " + mainRenaming.getData().getRenaming() + "();" +"\n}\n");
+            }
+
 
             // TODO: handle functions properly and remove this main function placeholder
-            System.err.println("TODO: generated curly braces are a placeholder.");
+            System.err.println("TODO: check that main function is being multiplexed properly");
             writer.write("\n}\n");
 
             writer.flush();
