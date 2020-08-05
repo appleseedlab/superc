@@ -5250,15 +5250,21 @@ private void setTransformationValue(Object node, Object value) {
 }
 
 /**
-  Stores the function prototype information to be passed up to functiondefinition
-  TODO: fill in the rest of the javadoc
-*/
+ * Stores the FunctionPrototype information to be passed up to FunctionDefinition.
+ * The return type of the function is stored as a TypeBuilderMultiverse,
+ * and the identifier and parameters are stored in a DeclBuilder.
+ */
 private static class FunctionReturnAndDecl {
   /** The return type field */
   private TypeBuilderMultiverse returnType;
   /** The identifier and parameters */
   private DeclBuilder identifierAndParams;
 
+  /** 
+   * This constructor creates a FunctionReturnAndDecl.
+   * @param type The return type of the function.
+   * @param decl The identifier and parameters of the function.
+   */
   private FunctionReturnAndDecl(TypeBuilderMultiverse type, DeclBuilder decl) {
     returnType = type;
     identifierAndParams = decl;
