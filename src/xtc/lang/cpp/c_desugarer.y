@@ -459,12 +459,9 @@ FunctionDefinition:  /** complete **/ // added scoping
           
           // iterate over all single-configuration declbuidlers
           
-          { // replace these three lines with the three lines below once hoisting of declbuilders is done
-            DeclBuilder singledeclbuilder = decl;
-            PresenceCondition singledeclpc = pc.addRef();
-          /* for (Element<DeclBuilder> singledecl : declmv) { */
-          /*   PresenceCondition singledeclpc = actionpc.and(singledecl.getCondition()); */
-          /*   DeclBuilder singledeclbuilder = singledecl.getData(); */
+          for (Element<DeclBuilder> singledecl : declmv) { 
+            PresenceCondition singledeclpc = pc.and(singledecl.getCondition()); 
+            DeclBuilder singledeclbuilder = singledecl.getData(); 
 
             // get each symtab entry for this symbol under the current action's pc and current declbuilder's pc
             Multiverse<SymbolTable.Entry> entries
