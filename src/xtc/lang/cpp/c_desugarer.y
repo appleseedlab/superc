@@ -7062,7 +7062,6 @@ private static Specifiers makeStructSpec(Subparser subparser,
  * @return A multiverse a single-configuration DeclBuilders.  The caller is responsible for destructing this Multiverse.
  */
 private Multiverse<DeclBuilder> addDeclsToSymTab(PresenceCondition presenceCondition, CContext scope, TypeBuilderMultiverse typebuilder, DeclBuilder declbuilder) {
-  // TODO: this shouldn't returned the renamed declbuilders, but the original ones, just with any static choices lifted outside the declbuilder
   
   if (typebuilder == null || declbuilder == null ) {
     System.err.println("ERROR: null typebuilder or declbuilder");
@@ -7101,9 +7100,8 @@ private Multiverse<DeclBuilder> addDeclsToSymTab(PresenceCondition presenceCondi
         // add the declBuilder to the multiverse for non-functions
         Multiverse<SymbolTable.Entry> symbolTableEntries = scope.getSymbolTable().get(declbuilder.getID(), condition);
         for (Multiverse.Element<SymbolTable.Entry> renaming : symbolTableEntries) {
-          DeclBuilder renamedDecl = new DeclBuilder(declbuilder);
-          renamedDecl.identifier = renaming.getData().getRenaming();
-          allDecls.add(renamedDecl, renaming.getCondition());
+          DeclBuilder db = new DeclBuilder(declbuilder);
+          allDecls.add(db, renaming.getCondition());
         }
 
         condition.delRef();
@@ -7126,9 +7124,8 @@ private Multiverse<DeclBuilder> addDeclsToSymTab(PresenceCondition presenceCondi
             // add the declBuilder to the multiverse for functions without parameters
             Multiverse<SymbolTable.Entry> symbolTableEntries = scope.getSymbolTable().get(declbuilder.getID(), condition);
             for (Multiverse.Element<SymbolTable.Entry> renaming : symbolTableEntries) {
-              DeclBuilder renamedDecl = new DeclBuilder(declbuilder);
-              renamedDecl.identifier = renaming.getData().getRenaming();
-              allDecls.add(renamedDecl, renaming.getCondition());
+              DeclBuilder db = new DeclBuilder(declbuilder);
+              allDecls.add(db, renaming.getCondition());
             }
 
           } else {  // function has parameters
@@ -7149,9 +7146,8 @@ private Multiverse<DeclBuilder> addDeclsToSymTab(PresenceCondition presenceCondi
             // add the declBuilder to the multiverse for functions with parameters
             Multiverse<SymbolTable.Entry> symbolTableEntries = scope.getSymbolTable().get(declbuilder.getID(), condition);
             for (Multiverse.Element<SymbolTable.Entry> renaming : symbolTableEntries) {
-              DeclBuilder renamedDecl = new DeclBuilder(declbuilder);
-              renamedDecl.identifier = renaming.getData().getRenaming();
-              allDecls.add(renamedDecl, renaming.getCondition());
+              DeclBuilder db = new DeclBuilder(declbuilder);
+              allDecls.add(db, renaming.getCondition());
             }
           }
 
