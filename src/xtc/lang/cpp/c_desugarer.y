@@ -496,9 +496,11 @@ FunctionDefinition:  /** complete **/ // added scoping
                 System.err.println("TYPE: " + type);
                 System.err.println("DECL: " + renamedDecl);
 
+                Type returnType = type.toFunction().getResult();
+
                 // TODO: write a method to turn an xtc type into a string
                 // TODO: check for a function type and use the return type specifiers and quals (not the param list)
-                String typeString = type.toString();
+                String typeString = returnType.toString();
               
                 // TODO: write a method to turn a single-configuration declbuilder into a string
                 String declString = renamedDecl.toString();
