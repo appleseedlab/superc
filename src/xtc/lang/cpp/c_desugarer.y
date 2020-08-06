@@ -3382,13 +3382,7 @@ Statement:  /** passthrough, complete **/
 
           Multiverse<StringBuilder> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
 
-          StringBuilder allStatements = new StringBuilder();
-
-          for (Multiverse.Element<StringBuilder> statement : product) {
-            allStatements.append("\nif (" +
-            PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
-            ") {\n" + statement.getData().toString() + "\n}\n");
-          }
+          StringBuilder allStatements = emitStatement(product, pc);
 
           Multiverse<StringBuilder> statementWrapper = new Multiverse<StringBuilder>();
           statementWrapper.add(allStatements, subparser.getPresenceCondition().presenceConditionManager().newTrue());
@@ -3401,13 +3395,7 @@ Statement:  /** passthrough, complete **/
 
           Multiverse<StringBuilder> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
 
-          StringBuilder allStatements = new StringBuilder();
-
-          for (Multiverse.Element<StringBuilder> statement : product) {
-            allStatements.append("\nif (" +
-            PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
-            ") {\n" + statement.getData().toString() + "\n}\n");
-          }
+          StringBuilder allStatements = emitStatement(product, pc);
 
           Multiverse<StringBuilder> statementWrapper = new Multiverse<StringBuilder>();
           statementWrapper.add(allStatements, subparser.getPresenceCondition().presenceConditionManager().newTrue());
@@ -3428,13 +3416,7 @@ Statement:  /** passthrough, complete **/
 
           Multiverse<StringBuilder> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
 
-          StringBuilder allStatements = new StringBuilder();
-
-          for (Multiverse.Element<StringBuilder> statement : product) {
-            allStatements.append("\nif (" +
-            PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
-            ") {\n" + statement.getData().toString() + "\n}\n");
-          }
+          StringBuilder allStatements = emitStatement(product, pc);
 
           Multiverse<StringBuilder> statementWrapper = new Multiverse<StringBuilder>();
           statementWrapper.add(allStatements, subparser.getPresenceCondition().presenceConditionManager().newTrue());
@@ -5481,6 +5463,22 @@ private String getCPC(Subparser subparser, int component) {
 
 private String getCPC(Node n) {
   return (String) n.getProperty("C_PC");
+}
+
+/**
+ * Writes if (presence condition) { } around a statement, for all configurations.
+ * @param allStatementConfigs A multiverse containing all configurations of a statement.
+ * @param pc The current presence condition.
+ * @return A StringBuilder containing the transformed statement.
+ */
+private StringBuilder emitStatement(Multiverse<StringBuilder> allStatementConfigs, PresenceCondition pc) {
+  StringBuilder sb = new StringBuilder();
+  for (Multiverse.Element<StringBuilder> statement : allStatementConfigs) {
+    sb.append("\nif (");
+    sb.append(PCtoString(statement.getCondition().and(pc)));
+    sb.append(") {\n" + statement.getData().toString() + "\n}\n");
+  }
+  return sb;
 }
 
 /**
