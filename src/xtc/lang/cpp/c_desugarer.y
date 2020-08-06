@@ -3706,7 +3706,7 @@ SelectionStatement:  /** complete **/
           sbmv.destruct();
           sbmv = temp;
 
-          setTFValue(value, sbmv);
+          setTransformationValue(value, sbmv);
         }
         ;
 
