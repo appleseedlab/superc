@@ -4029,11 +4029,14 @@ Subscript:  /** nomerge **/
 FunctionCall:  /** nomerge **/
         PostfixExpression LPAREN RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: FunctionCall");
           callFunction(subparser, getNodeAt(subparser, 3), null);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTransformationValue(value, product);
         }
         | PostfixExpression LPAREN ExpressionList RPAREN
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("WARNING: unsupported semantic action: FunctionCall");
           callFunction(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 2));
         }
