@@ -194,11 +194,11 @@ abstract class Declarator {
   }
 
   /**
-   * A function declarator contains the function name and a list of
-   * parameters.
+   * A function pointer declarator contains another declarator and a
+   * list of parameters.
    */
   public static class FunctionPointerDeclarator extends Declarator {
-    /** This is the pointer declarator. */
+    /** The pointer declarator. */
     protected final Declarator declarator;
 
     /**
