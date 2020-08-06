@@ -94,6 +94,7 @@ SOURCE = \
 	GCCShunt.java \
 	cdiff.java \
 	FunctionChecker.java \
+	Declarator.java \
 	DeclBuilder.java \
 	TypeBuilderMultiverse.java \
 	TypeBuilderUnit.java \
