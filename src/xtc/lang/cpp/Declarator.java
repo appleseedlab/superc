@@ -88,7 +88,7 @@ abstract class Declarator {
     }
 
     @Override
-      public boolean isSimpleDeclarator() { return true; }
+    public boolean isSimpleDeclarator() { return true; }
   }
 
   /**
@@ -108,7 +108,7 @@ abstract class Declarator {
     }
   
     @Override
-      public boolean isPointerDeclarator() { return true; }
+    public boolean isPointerDeclarator() { return true; }
   }
 
   // note this uses TypeBuilderUnit, not a Multiverse, so the action needs to hoist, because TypeQualifiers returns a Multiverse
@@ -134,7 +134,7 @@ abstract class Declarator {
     }
   
     @Override
-      public boolean isQualifiedPointerDeclarator() { return true; }
+    public boolean isQualifiedPointerDeclarator() { return true; }
   }
 
   // do we ever need to know the syntax of the array's expression?  if
@@ -163,7 +163,7 @@ abstract class Declarator {
     }
 
     @Override
-      public boolean isArrayDeclarator() { return true; }
+    public boolean isArrayDeclarator() { return true; }
   }
 
   /**
@@ -190,7 +190,7 @@ abstract class Declarator {
     }
   
     @Override
-      public boolean isFunctionDeclarator() { return true; }
+    public boolean isFunctionDeclarator() { return true; }
   }
 
   /**
@@ -218,6 +218,6 @@ abstract class Declarator {
     }
   
     @Override
-      public boolean isFunctionPointerDeclarator() { return true; }
+    public boolean isFunctionPointerDeclarator() { return true; }
   }
 }
