@@ -3233,6 +3233,7 @@ PostfixingAbstractDeclarator: /**  nomerge **/
         /* | LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN */
         | PostfixingFunctionDeclarator
         {
+          System.err.println("ERROR: mismatch in semantic values between list of params and declbuilder in PostfixingAbstractDeclarator's PostfixingFunctionDeclarator production.");
           DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
           setTransformationValue(value,db);
         }
