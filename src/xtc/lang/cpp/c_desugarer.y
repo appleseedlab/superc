@@ -4099,13 +4099,15 @@ CompoundLiteral:  /** nomerge **/  /* ADDED */
 ExpressionList:  /** list, nomerge **/
         AssignmentExpression
         {
-          System.err.println("WARNING: unsupported semantic action: ExpressionList");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTransformationValue(value, product);
         }
         | ExpressionList COMMA AssignmentExpression
         {
-          System.err.println("WARNING: unsupported semantic action: ExpressionList");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTransformationValue(value, product);
         }
         ;
 
