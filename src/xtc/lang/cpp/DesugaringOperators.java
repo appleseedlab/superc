@@ -30,27 +30,9 @@ import java.util.LinkedList;
  * holds static fields and methods and is not meant to be
  * instantiated.
  */
-class DesguaringOperators {
+class DesugaringOperators {
 
-  private DesguaringOperators() { }
-
-  /*****************************************************************************
-   ********* Multiverse operators for StringBuilders
-   *****************************************************************************/
-
-  public final static Multiverse.Operator<StringBuilder> SBCONCAT = (sb1, sb2) -> {
-    StringBuilder newsb = new StringBuilder();
-    newsb.append(sb1);
-    newsb.append(sb2);
-    return newsb;
-  };
-
-  public final static Multiverse.Transformer<SymbolTable.Entry, StringBuilder> entryToStringBuilder = new Multiverse.Transformer<SymbolTable.Entry, StringBuilder>() {
-    StringBuilder transform(SymbolTable.Entry from) {
-      // TODO: check for error or undeclared entry
-      return new StringBuilder(from.getRenaming());
-    }
-  };
+  private DesugaringOperators() { }
 
   /*****************************************************************************
    ********* Multiverse operators for Declarators
@@ -158,39 +140,52 @@ class DesguaringOperators {
    return tb1.combine(tb2);
  };
 
- /**
-  * A multiverse transformation to turn a symtab entries for a
-  * typedefname into a multiverse of typebuilders.
-  */
- public final static Multiverse.Transformer<SymbolTable.Entry, TypeBuilder> typedefEntriesToTypeBuilder = new Multiverse.Transformer<SymbolTable.Entry, TypeBuilder>() {
-   TypeBuilder transform(SymbolTable.Entry from) {
-     // TODO: improve TypeBuilder's interface
-     TypeBuilder tbunit = new TypeBuilder();
-     if (from == SymbolTable.ERROR) {
-       System.err.println("INFO: use of typedefname with invalid declaration");
-       // TODO: needs a unit test
-       tbunit.isTypeError = true;
-     } else if (from == SymbolTable.UNDECLARED) {
-       System.err.println("INFO: use of undeclared typedefname");
-       // TODO: needs a unit test
-       tbunit.isTypeError = true;
-     } else {
-       System.err.println("TODO: check that type is actually alias " + from.getType().isAlias());
-       if (! from.getType().isAlias()) {
-         System.err.println("INFO: typedefname is not declared as alias type");
-         tbunit.isTypeError = true;
-         // TODO: double-check that the parser already handles
-         // this case, although it seems like the parser is
-         // already handling this
+  /**
+   * A multiverse transformation to turn a symtab entries for a
+   * typedefname into a multiverse of typebuilders.
+   */
+  public final static Multiverse.Transformer<SymbolTable.Entry, TypeBuilder> typedefEntriesToTypeBuilder = new Multiverse.Transformer<SymbolTable.Entry, TypeBuilder>() {
+      TypeBuilder transform(SymbolTable.Entry from) {
+        // TODO: improve TypeBuilder's interface
+        TypeBuilder tbunit = new TypeBuilder();
+        if (from == SymbolTable.ERROR) {
+          System.err.println("INFO: use of typedefname with invalid declaration");
+          // TODO: needs a unit test
+          tbunit.isTypeError = true;
+        } else if (from == SymbolTable.UNDECLARED) {
+          System.err.println("INFO: use of undeclared typedefname");
+          // TODO: needs a unit test
+          tbunit.isTypeError = true;
+        } else {
+          System.err.println("TODO: check that type is actually alias " + from.getType().isAlias());
+          if (! from.getType().isAlias()) {
+            System.err.println("INFO: typedefname is not declared as alias type");
+            tbunit.isTypeError = true;
+            // TODO: double-check that the parser already handles
+            // this case, although it seems like the parser is
+            // already handling this
 
-         // TODO: use the new symtab for reclassifying
-         // typedefname tokens
-       } else {
-         tbunit.setTypedef(from.getRenaming(), from.getType());
-       }
-     }
-     return tbunit;
-   }
- };
+            // TODO: use the new symtab for reclassifying
+            // typedefname tokens
+          } else {
+            tbunit.setTypedef(from.getRenaming(), from.getType());
+          }
+        }
+        return tbunit;
+      }
+    };
 
+ /*****************************************************************************
+  ********* Multiverse operators for Statements and Expressions
+  *****************************************************************************/
+
+  /**
+   * Concatenate operator for string builders.
+   */
+  public final static Multiverse.Operator<StringBuilder> SBCONCAT = (sb1, sb2) -> {
+    StringBuilder newsb = new StringBuilder();
+    newsb.append(sb1);
+    newsb.append(sb2);
+    return newsb;
+  };
 }

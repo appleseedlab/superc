@@ -287,11 +287,12 @@ TranslationUnit:  /** complete **/
           try {
             OutputStreamWriter writer = new OutputStreamWriter(System.out);
             setCPC(value, PCtoString(subparser.getPresenceCondition()));
-            /** writes transformation code */
-            writer.write("#include <stdbool.h>\n");
-            //writer.write("#include \"desugared_macros.h\" /* configuration macros converted to C variables */\n");
 
-            /** writes the extern declarations for the renamed preprocessor BDDs */
+            // the signature for the type error call.
+            writer.write("void * __type_error(char *message); /* this method should halt */\n");
+            
+            // writes the extern declarations for the renamed preprocessor BDDs
+            writer.write("#include <stdbool.h>\n");
             StringBuilder temp = new StringBuilder();
             for (String originalExpr : boolVarRenamings.keySet()) {
               temp.append(originalExpr);
@@ -301,6 +302,7 @@ TranslationUnit:  /** complete **/
               temp.setLength(0);
             }
 
+            // write the transformed C
             writer.write(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()).toString());
 
             writer.flush();
@@ -840,7 +842,6 @@ Declaration:  /** complete **/
                       sb.append(PCtoString(combinedCond));
                       sb.append(") {\n");
                       sb.append(String.format("__type_error(\"invalid declaration of \"%s\" under this presence condition\");\n", originalName));
-                      System.err.println("TODO: declare __type_error() as extern");
                       sb.append("}\n");
                     }
                   } else {
@@ -882,7 +883,6 @@ Declaration:  /** complete **/
                           sb.append(PCtoString(combinedCond));
                           sb.append(") {\n");
                           sb.append(String.format("__type_error(\"redeclaration of local symbol: %s\");\n", originalName));
-                          System.err.println("TODO: declare __type_error() as extern");
                           sb.append("}\n");
                         } else {
                           if (! cOps.equal(entry.getData().getType(), declaration.getType())) {
@@ -3399,7 +3399,7 @@ IterationStatement:  /** complete **/
           setCPC(value, PCtoString(pc));
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7));
           Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
-          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
@@ -3407,15 +3407,15 @@ IterationStatement:  /** complete **/
           sbmv.destruct();
           sbmv = temp;
 
-          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
-          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 5).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 5).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
-          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 4).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 4).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
@@ -3423,11 +3423,11 @@ IterationStatement:  /** complete **/
           sbmv.destruct();
           sbmv = temp;
 
-          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 2).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 2).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
-          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 1).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 1).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesguaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
@@ -3625,23 +3625,43 @@ PrimaryExpression:  /** nomerge, passthrough **/
 PrimaryIdentifier: /** nomerge **/
         IDENTIFIER
         {
-          useIdent(subparser, getNodeAt(subparser, 1));
-          StringBuilder sb = new StringBuilder();
-          sb.append(((Node)getNodeAt(subparser, 1)).getTokenText());
+          useIdent(subparser, getNodeAt(subparser, 1));  // legacy type checking
+          
+          String originalName = ((Node)getNodeAt(subparser, 1)).getTokenText();
           //Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
           //sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
-
 
           CContext scope = (CContext) subparser.scope;
 
           // get the renamings from the symtab
           PresenceCondition cond = subparser.getPresenceCondition().presenceConditionManager().newTrue();
-          Multiverse<SymbolTable.Entry> entries = scope.get(sb.toString(), cond);
+          Multiverse<SymbolTable.Entry> entries = scope.get(originalName, cond);
           cond.delRef();
 
           // convert the renamings to stringbuilders
-          System.err.println("TODO: check for error or undeclared entry from symtab");
-          Multiverse<StringBuilder> sbmv = DesguaringOperators.entryToStringBuilder.transform(entries);
+          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          for (Element<SymbolTable.Entry> entry : entries) {
+            if (entry.getData() == SymbolTable.ERROR) {
+              System.err.println("INFO: use of symbol with invalid declaration");
+              // emit a call to the type error function
+              String result
+                = String.format("__type_error(\"use of symbol with invalid declaration: %s\")", originalName);
+              sbmv.add(new StringBuilder(result), entry.getCondition());
+            } else if (entry.getData() == SymbolTable.UNDECLARED) {
+              System.err.println("INFO: use of undeclared symbol");
+              // TODO: see how replacing the identifier with a
+              // function call affects the typing.  perhaps emit a
+              // cast to surrounding type to ensure it always has the
+              // right type
+              String result
+                = String.format("__type_error(\"use of symbol with invalid declaration: %s\")", originalName);
+              sbmv.add(new StringBuilder(result), entry.getCondition());
+            } else {
+              // TODO: add type checking.  may need to tag the resulting
+              // stringbuilder with the type to handle this
+              sbmv.add(new StringBuilder(entry.getData().getRenaming()), entry.getCondition());
+            }
+          }
           entries.destruct();
 
           setTransformationValue(value, sbmv);
