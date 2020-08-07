@@ -707,7 +707,7 @@ public class CContext implements ParsingContext {
    * @param ident The identifier to look up.
    * @param cond The presence condition.
    * @returns A new Multiverse instance containing the entries under
-   * the given condition.
+   * the given condition, including UNDECLARED.
    */
   public Multiverse<SymbolTable.Entry> getLocal(String ident, PresenceCondition cond) {
     return getSymbolTable().get(ident, cond);
@@ -732,52 +732,52 @@ public class CContext implements ParsingContext {
    * base cases are when we have already reached the global scope or
    * there are no more configurations with an undeclared entry.
    *
-   * @param result The current list of resulting entries.
+   * @param result The current list of resulting entries.  If there
+   * are none, then the only entry will be UNDECLARED.
    * @param scope The current scope to look up.
    * @param ident The identifier to look up.
    * @param cond The current presence condition.
    */
   private void get(Multiverse<SymbolTable.Entry> result, CContext scope, String ident, PresenceCondition cond) {
-    if (null == scope) {
-      // already reached the global scope
-      return;
-    }
-    
     Multiverse<SymbolTable.Entry> local = scope.getSymbolTable().get(ident, cond);
-    if (null == local) {
-      // this scope has no declarations of ident, so the entire cond is undeclared
-      get(result, scope.parent, ident, cond);
-    } else {
-      // add any declarations to the result, and continue looking in
-      // the parent if this scope has any undeclared presence
-      // condition.
-      PresenceCondition undefinedCondition = null;
+    // add any declarations to the result, and continue looking in
+    // the parent if this scope has any undeclared presence
+    // condition.
+    PresenceCondition undefinedCondition = null;
 
-      // if undefinedCondition remains null, it means there was no
-      // presence condition under which the identifier is undeclared.
-      for (Element<SymbolTable.Entry> entry : local) {
-        if (SymbolTable.UNDECLARED == entry.getData()) {
-          if (null != undefinedCondition) {
-            System.err.println("FATAL: there should only one entry for UNDECLARED");
-            System.exit(1);
-          }
-          undefinedCondition = entry.getCondition();
-          entry.getCondition().addRef();
-        } else {
-          result.add(entry.getData(), entry.getCondition());
-          entry.getCondition().addRef();
+    // if undefinedCondition remains null, it means there was no
+    // presence condition under which the identifier is undeclared.
+    for (Element<SymbolTable.Entry> entry : local) {
+      if (SymbolTable.UNDECLARED == entry.getData()) {
+        if (null != undefinedCondition) {
+          System.err.println("FATAL: there should only one entry for UNDECLARED");
+          System.exit(1);
         }
+        undefinedCondition = entry.getCondition();
+        entry.getCondition().addRef();
+      } else {
+        result.add(entry.getData(), entry.getCondition());
+        entry.getCondition().addRef();
       }
+    }
 
-      local.destruct();
+    local.destruct();
 
-      // use the UNDECLARED presence condition to continue looking in
-      // the parent for definitions.
-      if (null != undefinedCondition) {
+    // use the UNDECLARED presence condition to continue looking in
+    // the parent for definitions.
+    if (null != undefinedCondition) {
+      if (null != scope.parent) {
+        // continue search in the global scope
         get(result, scope.parent, ident, undefinedCondition);
+        undefinedCondition.delRef();
+      } else {
+        // we've reached the global scope, so add the remaining
+        // condition as an UNDECLARED entry.
+        result.add(SymbolTable.UNDECLARED, undefinedCondition);
         undefinedCondition.delRef();
       }
     }
+
     if (DEBUG) System.err.println(String.format("context.get: %s -> %s", ident, result));
   }
 }
