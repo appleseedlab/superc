@@ -933,38 +933,44 @@ Declaration:  /** complete **/
 DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         DeclarationQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList");
-          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList");
-          System.exit(1);
+          Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 6);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
+          // TODO: just represent assembly and attributes as strings that get pass with the declaration object
+          Multiverse<StringBuilder> initializers = new Multiverse<StringBuilder>(new StringBuilder(), subparser.getPresenceCondition());
+          List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
+          declaringlist.add(new DeclaringListValue(types, declarators, initializers));
+          setTransformationValue(value, declaringlist);
         }
         | TypeQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList");
-          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList");
-          System.exit(1);
+          Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 6);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
+          // TODO: just represent assembly and attributes as strings that get pass with the declaration object
+          Multiverse<StringBuilder> initializers = new Multiverse<StringBuilder>(new StringBuilder(), subparser.getPresenceCondition());
+          List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
+          declaringlist.add(new DeclaringListValue(types, declarators, initializers));
+          setTransformationValue(value, declaringlist);
         }
         | DefaultDeclaringList COMMA AttributeSpecifierListOpt IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList");
+          System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList (5)");
           System.exit(1);
           // reuses saved base type
           bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList");
+          System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList (6)");
           System.exit(1);
         }
         ;
