@@ -9,7 +9,11 @@ import xtc.type.VoidT;
 import xtc.type.UnitT;
 import xtc.Constants;
 
-public class TypeBuilderUnit {
+/**
+ * A type specific for a single configuration.  This is used to build
+ * the type specifier during parsing.
+ */
+public class TypeBuilder {
     Type type; // void, char, short, int, long, float, double, SUE, typedef
     enum QUAL {isAuto, isConst, isVolatile, isExtern, isStatic, isRegister, isThreadLocal,
 	       isInline, isSigned, isUnsigned, isTypedef}
@@ -25,7 +29,6 @@ public class TypeBuilderUnit {
 
     boolean isTypeError;
     String typedefName;
-    String typedefRename;
     Type typedefType;
 
     public String attributesToString() {
@@ -35,9 +38,9 @@ public class TypeBuilderUnit {
     }
 
     public String toString() {
-	if (isTypeError) {
-	    return "ERROR:";
-	}
+      if (isTypeError) {
+        throw new IllegalStateException("invalid type specifiers cannot be printed as a string");
+      }
 	StringBuilder sb = new StringBuilder();
 
 	// TODO: check if the order of these matters
@@ -235,7 +238,7 @@ public class TypeBuilderUnit {
     }
 
 
-    public TypeBuilderUnit(TypeBuilderUnit old, String name) {
+    public TypeBuilder(TypeBuilder old, String name) {
 	type = old.type;
 	for (int i = 0; i < NUM_QUALS; ++i)
 	    qualifiers[i] = old.qualifiers[i];
@@ -246,8 +249,10 @@ public class TypeBuilderUnit {
 	add(name);
     }
 
-    // creates a new typebuilder using a string (which is NOT a type)
-    public TypeBuilderUnit(String name) {
+  /**
+   * Create a new TypeBuilder with a single type qualifier.
+   */
+    public TypeBuilder(String qualifier) {
 	type = new UnitT();
 	attributes = new LinkedList<String>();
 	for (int i = 0; i < NUM_QUALS; ++i)
@@ -257,11 +262,11 @@ public class TypeBuilderUnit {
   isTypeError = false;
 	typedefName = "";
 	typedefType = null;
-	add(name);
+	add(qualifier);
     }
 
     // creates a new typebuilder using only a type
-    public TypeBuilderUnit(Type type) {
+    public TypeBuilder(Type type) {
 	// set the proper foundTypes flag
 
 	for (int i = 0; i < NUM_QUALS; ++i)
@@ -298,7 +303,7 @@ public class TypeBuilderUnit {
 		  break;*/
 
 	    default:
-		System.err.println("ERROR: unknown type passed to TypeBuilderUnit(Type type)");
+		System.err.println("ERROR: unknown type passed to TypeBuilder(Type type)");
 		System.exit(1);
 	    }
   } else if (type instanceof VoidT) {
@@ -316,7 +321,7 @@ public class TypeBuilderUnit {
 
     // copy constructor that changes type (should be used whenever a type is found)
     // the default constructor should be used before this ever gets called.
-    public TypeBuilderUnit(TypeBuilderUnit old, Type type) {
+    public TypeBuilder(TypeBuilder old, Type type) {
 	// copy constructor that changes the type
 	if (old.type instanceof UnitT) {
 	    this.type = type;
@@ -331,7 +336,7 @@ public class TypeBuilderUnit {
     }
 
     // sets all flags to false and type starts as unit
-    public TypeBuilderUnit() {
+    public TypeBuilder() {
 	type = new UnitT();
 	for (int i = 0; i < NUM_QUALS; ++i)
 	    qualifiers[i] = false;
@@ -344,7 +349,7 @@ public class TypeBuilderUnit {
     }
 
     // copy constructor creates a deep copy
-  public TypeBuilderUnit(TypeBuilderUnit old) {
+  public TypeBuilder(TypeBuilder old) {
     type = old.type.copy();
     for (int i = 0; i < NUM_QUALS; ++i)
 	    qualifiers[i] = old.qualifiers[i];
@@ -357,18 +362,18 @@ public class TypeBuilderUnit {
   }
 
 
-  private boolean qualComboExists(TypeBuilderUnit t1, TypeBuilderUnit t2, QUAL opt1, QUAL opt2)
+  private boolean qualComboExists(TypeBuilder t1, TypeBuilder t2, QUAL opt1, QUAL opt2)
   {
     return ((t1.qualifiers[opt1.ordinal()] || t2.qualifiers[opt1.ordinal()]) && (t1.qualifiers[opt2.ordinal()] || t2.qualifiers[opt2.ordinal()]));
   }
 
-  private boolean typeComboExists(TypeBuilderUnit t1, TypeBuilderUnit t2, FOUND_TYPE opt1, FOUND_TYPE opt2)
+  private boolean typeComboExists(TypeBuilder t1, TypeBuilder t2, FOUND_TYPE opt1, FOUND_TYPE opt2)
   {
     return ((t1.foundTypes[opt1.ordinal()] ^ t2.foundTypes[opt1.ordinal()]) && (t1.foundTypes[opt2.ordinal()] ^ t2.foundTypes[opt2.ordinal()]));
   }
 
 
-  private boolean isValidTypes(TypeBuilderUnit t1, TypeBuilderUnit t2)
+  private boolean isValidTypes(TypeBuilder t1, TypeBuilder t2)
   {
     //Notes: While long complex isn't a complete type, it's potentially valid if later joined with double.
     // Since complex double and long double are valid on their own, there is no need to consider the tuple of long complex and double
@@ -394,14 +399,14 @@ public class TypeBuilderUnit {
     return true;
   }
 
-  public TypeBuilderUnit combine(TypeBuilderUnit with) {
+  public TypeBuilder combine(TypeBuilder with) {
     // TUTORIAL: this is where all the logic for combining specifiers
     // will go
 
     // this copy might be able to be optimized away, if we know that
     // the reference to the semantic value won't be used again, e.g.,
     // by another subparser
-    TypeBuilderUnit result = new TypeBuilderUnit(this);
+    TypeBuilder result = new TypeBuilder(this);
 
     // checks for mutually-exclusive qualifiers
     if (qualComboExists(result, with, QUAL.isStatic, QUAL.isExtern) ||
@@ -459,11 +464,10 @@ public class TypeBuilderUnit {
     return qualifiers[QUAL.isTypedef.ordinal()];
   }
 
-  public void setTypedef(String name, String rename, Type type)
+  public void setTypedef(String name, Type type)
   {
     foundTypes[FOUND_TYPE.seenTypedef.ordinal()] = true;
     typedefName = name;
-    typedefRename = rename;
     typedefType = type;
     if (type.isUnit()) {
       isTypeError = true;

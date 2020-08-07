@@ -183,10 +183,10 @@ abstract class Declarator {
     protected final Declarator declarator;
 
     /** Qualifiers of this pointer. */
-    protected final TypeBuilderUnit qualifiers;
+    protected final TypeBuilder qualifiers;
 
     public QualifiedPointerDeclarator(Declarator declarator,
-                                      TypeBuilderUnit qualifiers) {
+                                      TypeBuilder qualifiers) {
       this.declarator = declarator;
       this.qualifiers = qualifiers;
     }
@@ -244,7 +244,7 @@ abstract class Declarator {
     }
   }
 
-  // note this uses TypeBuilderUnit, not a Multiverse, so the action needs to hoist, because TypeQualifiers returns a Multiverse
+  // note this uses TypeBuilder, not a Multiverse, so the action needs to hoist, because TypeQualifiers returns a Multiverse
   /**
    * A qualified pointer declarator without an explicit declarator
    * that it points to.  It has no declarator field, because it is an
@@ -252,9 +252,9 @@ abstract class Declarator {
    */
   public static class QualifiedPointerAbstractDeclarator extends Declarator {
     /** Qualifiers, if any, of this pointer. */
-    protected final TypeBuilderUnit qualifiers;
+    protected final TypeBuilder qualifiers;
 
-    public QualifiedPointerAbstractDeclarator(TypeBuilderUnit qualifiers) {
+    public QualifiedPointerAbstractDeclarator(TypeBuilder qualifiers) {
       this.qualifiers = qualifiers;
     }
 
@@ -417,7 +417,7 @@ abstract class Declarator {
       List<Type> paramtypes = new LinkedList<Type>();
       boolean varargs = false;  // TODO: handle varargs here
       for (ParameterDeclarator param : parameters.parameters) {
-        TypeBuilderUnit typebuilder = param.getType();
+        TypeBuilder typebuilder = param.getType();
         paramtypes.add(typebuilder.toType());
       }
       return new FunctionT(declarator.getType(type), paramtypes, varargs);
@@ -475,12 +475,12 @@ abstract class Declarator {
    */
   public static class ParameterDeclarator extends Declarator {
     /** Type of the parameter. */
-    protected final TypeBuilderUnit type;
+    protected final TypeBuilder type;
 
     /** Type of the parameter. */
     protected final Declarator declarator;
 
-    public ParameterDeclarator(TypeBuilderUnit type, Declarator declarator) {
+    public ParameterDeclarator(TypeBuilder type, Declarator declarator) {
       this.type = type;
       this.declarator = declarator;
     }
@@ -496,7 +496,7 @@ abstract class Declarator {
     /**
      * Return the typebuilder for this parameter.
      */
-    public TypeBuilderUnit getType() {
+    public TypeBuilder getType() {
       return type;
     }
 

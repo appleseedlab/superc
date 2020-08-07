@@ -688,7 +688,7 @@ public class CContext implements ParsingContext {
    * @param ident The identifier to look up.
    * @param cond The presence condition.
    * @returns A new Multiverse instance containing the entries under
-   * the given condition or null if the symbol is not defined.
+   * the given condition.
    */
   public Multiverse<SymbolTable.Entry> get(String ident, PresenceCondition cond) {
     Multiverse<SymbolTable.Entry> result = new Multiverse<SymbolTable.Entry>();
@@ -699,8 +699,20 @@ public class CContext implements ParsingContext {
 
     return result;
   }
-  
-  
+
+  /**
+   * Get only the local symbol table entries for the given identifier under the
+   * given presence conditions.
+   *
+   * @param ident The identifier to look up.
+   * @param cond The presence condition.
+   * @returns A new Multiverse instance containing the entries under
+   * the given condition.
+   */
+  public Multiverse<SymbolTable.Entry> getLocal(String ident, PresenceCondition cond) {
+    return getSymbolTable().get(ident, cond);
+  }
+
   /**
    * Returns if the current scope is in global space.
    *
