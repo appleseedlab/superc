@@ -456,7 +456,8 @@ FunctionDefinition:  /** complete **/ // added scoping
                     
                       // already declared entries
                       if (! cOps.equal(entry.getData().getType(), declaration.getType())) {
-                        recordInvalidGlobalDeclaration(originalName, combinedCond);
+                        symtab.putError(originalName, entry.getCondition());
+                        recordInvalidGlobalDeclaration(originalName, entry.getCondition());
                       } else {
                         // emit the same declaration, since it's legal to redeclare globals to a compatible type
                         Type type = declaration.getType();
@@ -483,7 +484,7 @@ FunctionDefinition:  /** complete **/ // added scoping
             // challenge is that they are shared by nodes.
             /* typebuildermv.destruct(); */
             /* declaratormv.destruct(); */
-          }
+          } // end of check for invalid typebuilder
           if (debug) System.err.println(symtab);
           prototypeNodemv.destruct();          
           setTransformationValue(value, sb);
@@ -880,7 +881,7 @@ Declaration:  /** complete **/
                           // not allowed to redeclare local symbols at all
                           symtab.putError(originalName, entry.getCondition());
                           sb.append("if (");
-                          sb.append(PCtoString(combinedCond));
+                          sb.append(PCtoString(entry.getCondition()));
                           sb.append(") {\n");
                           sb.append(String.format("__type_error(\"redeclaration of local symbol: %s\");\n", originalName));
                           sb.append("}\n");
@@ -888,7 +889,7 @@ Declaration:  /** complete **/
                           if (! cOps.equal(entry.getData().getType(), declaration.getType())) {
                             // not allowed to redeclare globals to a different type
                             symtab.putError(originalName, entry.getCondition());
-                            recordInvalidGlobalRedeclaration(originalName, combinedCond);
+                            recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
                           } else {
                             // emit the same declaration, since it's legal to redeclare globals to a compatible type
                             sb.append(declaration.toString());
