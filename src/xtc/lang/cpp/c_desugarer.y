@@ -3699,9 +3699,10 @@ Subscript:  /** nomerge **/
 FunctionCall:  /** nomerge **/
         PostfixExpression LPAREN RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: FunctionCall");
-          System.exit(1);
           callFunction(subparser, getNodeAt(subparser, 3), null);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTransformationValue(value, product);
         }
         | PostfixExpression LPAREN ExpressionList RPAREN
         {
@@ -5160,6 +5161,22 @@ private String getCPC(Subparser subparser, int component) {
 
 private String getCPC(Node n) {
   return (String) n.getProperty("C_PC");
+}
+
+/**
+ * Writes if (presence condition) { } around a statement, for all configurations.
+ * @param allStatementConfigs A multiverse containing all configurations of a statement.
+ * @param pc The current presence condition.
+ * @return A StringBuilder containing the transformed statement.
+ */
+private StringBuilder emitStatement(Multiverse<StringBuilder> allStatementConfigs, PresenceCondition pc) {
+  StringBuilder sb = new StringBuilder();
+  for (Multiverse.Element<StringBuilder> statement : allStatementConfigs) {
+    sb.append("\nif (");
+    sb.append(PCtoString(statement.getCondition().and(pc)));
+    sb.append(") {\n" + statement.getData().toString() + "\n}\n");
+  }
+  return sb;
 }
 
 /*****************************************************************************
