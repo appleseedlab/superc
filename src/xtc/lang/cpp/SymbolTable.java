@@ -406,9 +406,7 @@ public class SymbolTable {
    * @returns A new Multiverse instance containing the entries under
    * the given condition or null if the symbol is not defined.
    */
-  public void put(String ident, Type type, PresenceCondition putCond) {
-    // String renaming = mangleRenaming("", ident);
-    String renaming = freshCId(ident);
+  public void put(String ident, String renaming, Type type, PresenceCondition putCond) {
     Entry entry = new Entry(renaming, type);
     put(ident, entry, putCond);
   }
@@ -735,7 +733,7 @@ public class SymbolTable {
     PresenceCondition or = and.or(C);
     SymbolTable symtab = new SymbolTable();
     System.err.println(symtab);
-    symtab.put("x", UnitT.TYPE, or);
+    symtab.put("x", symtab.freshCId("x"), UnitT.TYPE, or);
     System.err.println(symtab);
     symtab.putError("x", and.not());
     System.err.println(symtab);
