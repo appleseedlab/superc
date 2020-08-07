@@ -5172,11 +5172,13 @@ private String getCPC(Node n) {
  */
 private StringBuilder emitStatement(Multiverse<StringBuilder> allStatementConfigs, PresenceCondition pc) {
   StringBuilder sb = new StringBuilder();
+  sb.append("\n{");
   for (Multiverse.Element<StringBuilder> statement : allStatementConfigs) {
     sb.append("\nif (");
     sb.append(PCtoString(statement.getCondition().and(pc)));
     sb.append(") {\n" + statement.getData().toString() + "\n}\n");
   }
+  sb.append("\n}");
   return sb;
 }
 
