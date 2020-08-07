@@ -24,6 +24,12 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   public Multiverse() {
     contents = new LinkedList<Element<T>>();
   }
+
+  /** Create a multiverse containing a single element. */
+  public Multiverse(T data, PresenceCondition cond) {
+    this();
+    add(data, cond);
+  }
 	
   /** The copy constructor. */
   public Multiverse(Multiverse<T> mv) {
