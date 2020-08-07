@@ -3247,19 +3247,20 @@ DeclarationOrStatement: /** complete **/  /* ADDED */
           setCPC(value, PCtoString(pc));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
 
-          StringBuilder allStatements = new StringBuilder();
+          /* StringBuilder allStatements = new StringBuilder(); */
 
-          allStatements.append("\n{");
-          for (Multiverse.Element<StringBuilder> statement : product) {
-            PresenceCondition combinedCond = statement.getCondition().and(subparser.getPresenceCondition());
-            allStatements.append("\nif (" +
-            PCtoString(combinedCond) +
-            ") {\n" + statement.getData().toString() + "\n}\n");
-            combinedCond.delRef();
-          }
-          allStatements.append("\n}");
+          /* allStatements.append("\n{"); */
+          /* for (Multiverse.Element<StringBuilder> statement : product) { */
+          /*   PresenceCondition combinedCond = statement.getCondition().and(subparser.getPresenceCondition()); */
+          /*   allStatements.append("\nif (" + */
+          /*   PCtoString(combinedCond) + */
+          /*   ") {\n" + statement.getData().toString() + "\n}\n"); */
+          /*   combinedCond.delRef(); */
+          /* } */
+          /* allStatements.append("\n}"); */
 
-          setTransformationValue(value, allStatements);
+          /* setTransformationValue(value, allStatements); */
+          setTransformationValue(value, emitStatement(product, pc));
         }
         | NestedFunctionDefinition
         {
