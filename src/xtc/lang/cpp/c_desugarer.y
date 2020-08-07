@@ -3705,7 +3705,7 @@ PrimaryIdentifier: /** nomerge **/
               System.err.println("INFO: use of symbol with invalid declaration");
               // emit a call to the type error function
               String result
-                = String.format("__type_error(\"use of symbol with invalid declaration: %s\")", originalName);
+                = String.format(" __type_error(\"use of symbol with invalid declaration: %s\") ", originalName);
               sbmv.add(new StringBuilder(result), entry.getCondition());
             } else if (entry.getData() == SymbolTable.UNDECLARED) {
               System.err.println("INFO: use of undeclared symbol");
@@ -3714,12 +3714,14 @@ PrimaryIdentifier: /** nomerge **/
               // cast to surrounding type to ensure it always has the
               // right type
               String result
-                = String.format("__type_error(\"use of symbol with invalid declaration: %s\")", originalName);
+                = String.format(" __type_error(\"use of symbol with invalid declaration: %s\") ", originalName);
               sbmv.add(new StringBuilder(result), entry.getCondition());
             } else {
               // TODO: add type checking.  may need to tag the resulting
               // stringbuilder with the type to handle this
-              sbmv.add(new StringBuilder(entry.getData().getRenaming()), entry.getCondition());
+              String result  // use the renamed symbol
+                = String.format(" %s ", entry.getData().getRenaming());
+              sbmv.add(new StringBuilder(result), entry.getCondition());
             }
           }
           entries.destruct();
