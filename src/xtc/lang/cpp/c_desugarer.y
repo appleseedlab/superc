@@ -2567,30 +2567,13 @@ ParameterTypedefDeclarator: /** nomerge **/
         }
         | TYPEDEFname PostfixingAbstractDeclarator
       	{
-          SimpleDeclarator declarator = new SimpleDeclarator(getStringAt(subparser, 2));
+          Multiverse<Declarator> declarators = new Multiverse<Declarator>(new SimpleDeclarator(getStringAt(subparser, 2)),
+                                                                          subparser.getPresenceCondition());
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-          // get each combination of declarator abstract declarator,
-          // checking the kind of the abstract and building the
-          // appropriate declarator.
-          for (Element<Declarator> abstractdeclarator : abstractdeclarators) {
-            PresenceCondition combinedCond = subparser.getPresenceCondition().and(abstractdeclarator.getCondition());
-            if (abstractdeclarator.getData().isParameterListDeclarator()) {
-              valuemv.add(new FunctionDeclarator(declarator,
-                                                 (ParameterListDeclarator) abstractdeclarator.getData()),
-                          combinedCond);
-            } else if (abstractdeclarator.getData().isArrayAbstractDeclarator()) {
-              valuemv.add(new ArrayDeclarator(declarator,
-                                              (ArrayAbstractDeclarator) abstractdeclarator.getData()),
-                          combinedCond);
-            } else {
-              throw new AssertionError("unexpected abstract declarator type in ParameterTypedefDeclarator");
-            }
-            combinedCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, createCompoundDeclarator);
+          declarators.destruct();  // safe to destruct because not added as transformation value
           /* abstractdeclarators.destruct(); */
-          
+          // no need to filter since declarators started with subparser's pc
           setTransformationValue(value, valuemv);
         }
         | CleanTypedefDeclarator
@@ -2609,42 +2592,24 @@ CleanTypedefDeclarator: /** nomerge **/
         }
         | STAR ParameterTypedefDeclarator
       	{
+          // TODO: do we need to conjoin with subparser.getPresenceCondition() in all these declarators?
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-
-          // create a multiverse of new pointer declarators
-          for (Element<Declarator> declarator : declarators) {
-            PresenceCondition combinedCond = subparser.getPresenceCondition().and(declarator.getCondition());
-            valuemv.add(new PointerDeclarator(declarator.getData()),
-                        combinedCond);
-            combinedCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = toPointerDeclarator.transform(declarators);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declarators.destruct(); */
-          
-          setTransformationValue(value, valuemv);
+          setTransformationValue(value, filtered);
         }
         | STAR TypeQualifierList ParameterTypedefDeclarator
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-
-          // create a multiverse of new pointer declarators
-          for (Element<TypeBuilder> qualifierlist : qualifierlists) {
-            PresenceCondition qualifierlistCond = subparser.getPresenceCondition();
-            for (Element<Declarator> declarator : declarators) {
-              PresenceCondition combinedCond = qualifierlistCond.and(declarator.getCondition());
-              valuemv.add(new QualifiedPointerDeclarator(declarator.getData(),
-                                                         qualifierlist.getData()),
-                          combinedCond);
-              combinedCond.delRef();
-            }
-            qualifierlistCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = createQualifiedPointerDeclarator(declarators, qualifierlists);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declarators.destruct(); */
           /* qualifierlists.destruct(); */
-          
-          setTransformationValue(value, valuemv);
+          setTransformationValue(value, filtered);
         }
         ;
 
@@ -2657,33 +2622,12 @@ CleanPostfixTypedefDeclarator: /** nomerge **/
         {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-          // get each combination of declarator abstract declarator,
-          // checking the kind of the abstract and building the
-          // appropriate declarator.
-          for (Element<Declarator> declarator : declarators) {
-            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
-            for (Element<Declarator> abstractdeclarator : abstractdeclarators) {
-              PresenceCondition combinedCond = declaratorCond.and(abstractdeclarator.getCondition());
-              if (abstractdeclarator.getData().isParameterListDeclarator()) {
-                valuemv.add(new FunctionDeclarator(declarator.getData(),
-                                                   (ParameterListDeclarator) abstractdeclarator.getData()),
-                            combinedCond);
-              } else if (abstractdeclarator.getData().isArrayAbstractDeclarator()) {
-                valuemv.add(new ArrayDeclarator(declarator.getData(),
-                                                (ArrayAbstractDeclarator) abstractdeclarator.getData()),
-                            combinedCond);
-              } else {
-                throw new AssertionError("unexpected abstract declarator type in CleanPostfixTypedefDeclarator");
-              }
-              combinedCond.delRef();
-            }
-            declaratorCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, createCompoundDeclarator);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declarators.destruct(); */
           /* abstractdeclarators.destruct(); */
-          setTransformationValue(value, valuemv);
+          setTransformationValue(value, filtered);
         }
         ;
 
@@ -2698,81 +2642,43 @@ ParenTypedefDeclarator:  /** nomerge **/
         | STAR LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-
-          // create a multiverse of new pointer declarators
-          for (Element<Declarator> declarator : declarators) {
-            PresenceCondition combinedCond = subparser.getPresenceCondition().and(declarator.getCondition());
-            valuemv.add(new PointerDeclarator(declarator.getData()),
-                        declarator.getCondition());
-            combinedCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = toPointerDeclarator.transform(declarators);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declarators.destruct(); */
-          
-          setTransformationValue(value, valuemv);
+          setTransformationValue(value, filtered);
         }
       	| STAR TypeQualifierList
       	LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,4);
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,2);
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-
-          // create a multiverse of new pointer declarators
-          for (Element<TypeBuilder> qualifierlist : qualifierlists) {
-            PresenceCondition qualifierlistCond = subparser.getPresenceCondition();
-            for (Element<Declarator> declarator : declarators) {
-              PresenceCondition combinedCond = qualifierlistCond.and(declarator.getCondition());
-              valuemv.add(new QualifiedPointerDeclarator(declarator.getData(),
-                                                         qualifierlist.getData()),
-                          combinedCond);
-              combinedCond.delRef();
-            }
-            qualifierlistCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = createQualifiedPointerDeclarator(declarators, qualifierlists);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declarators.destruct(); */
           /* qualifierlists.destruct(); */
-          
-          setTransformationValue(value, valuemv);
+          setTransformationValue(value, filtered);
         }
         | STAR ParenTypedefDeclarator
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-
-          // create a multiverse of new pointer declarators
-          for (Element<Declarator> declarator : declarators) {
-            PresenceCondition combinedCond = subparser.getPresenceCondition().and(declarator.getCondition());
-            valuemv.add(new PointerDeclarator(declarator.getData()),
-                        declarator.getCondition());
-            combinedCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = toPointerDeclarator.transform(declarators);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declarators.destruct(); */
-          
-          setTransformationValue(value, valuemv);
+          setTransformationValue(value, filtered);
         }
         | STAR TypeQualifierList ParenTypedefDeclarator
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-
-          // create a multiverse of new pointer declarators
-          for (Element<TypeBuilder> qualifierlist : qualifierlists) {
-            PresenceCondition qualifierlistCond = subparser.getPresenceCondition();
-            for (Element<Declarator> declarator : declarators) {
-              PresenceCondition combinedCond = qualifierlistCond.and(declarator.getCondition());
-              valuemv.add(new QualifiedPointerDeclarator(declarator.getData(),
-                                                         qualifierlist.getData()),
-                          combinedCond);
-              combinedCond.delRef();
-            }
-            qualifierlistCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = createQualifiedPointerDeclarator(declarators, qualifierlists);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declarators.destruct(); */
           /* qualifierlists.destruct(); */
-          
-          setTransformationValue(value, valuemv);
+          setTransformationValue(value, filtered);
         }
         ;
 
@@ -2785,65 +2691,23 @@ ParenPostfixTypedefDeclarator: /** nomerge **/ /* redundant paren to left of tna
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
-
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-          // get each combination of declarator abstract declarator,
-          // checking the kind of the abstract and building the
-          // appropriate declarator.
-          for (Element<Declarator> declarator : declarators) {
-            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
-            for (Element<Declarator> abstractdeclarator : abstractdeclarators) {
-              PresenceCondition combinedCond = declaratorCond.and(abstractdeclarator.getCondition());
-              if (abstractdeclarator.getData().isParameterListDeclarator()) {
-                valuemv.add(new FunctionDeclarator(declarator.getData(),
-                                                   (ParameterListDeclarator) abstractdeclarator.getData()),
-                            combinedCond);
-              } else if (abstractdeclarator.getData().isArrayAbstractDeclarator()) {
-                valuemv.add(new ArrayDeclarator(declarator.getData(),
-                                                (ArrayAbstractDeclarator) abstractdeclarator.getData()),
-                            combinedCond);
-              } else {
-                throw new AssertionError("unexpected abstract declarator type in ParenPostfixTypedefDeclarator (2)");
-              }
-              combinedCond.delRef();
-            }
-            declaratorCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, createCompoundDeclarator);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declarators.destruct(); */
           /* abstractdeclarators.destruct(); */
-          setTransformationValue(value, valuemv);
+          setTransformationValue(value, filtered);
         }
         | LPAREN ParenTypedefDeclarator RPAREN PostfixingAbstractDeclarator
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-          // get each combination of declarator abstract declarator,
-          // checking the kind of the abstract and building the
-          // appropriate declarator.
-          for (Element<Declarator> declarator : declarators) {
-            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
-            for (Element<Declarator> abstractdeclarator : abstractdeclarators) {
-              PresenceCondition combinedCond = declaratorCond.and(abstractdeclarator.getCondition());
-              if (abstractdeclarator.getData().isParameterListDeclarator()) {
-                valuemv.add(new FunctionDeclarator(declarator.getData(),
-                                                   (ParameterListDeclarator) abstractdeclarator.getData()),
-                            combinedCond);
-              } else if (abstractdeclarator.getData().isArrayAbstractDeclarator()) {
-                valuemv.add(new ArrayDeclarator(declarator.getData(),
-                                                (ArrayAbstractDeclarator) abstractdeclarator.getData()),
-                            combinedCond);
-              } else {
-                throw new AssertionError("unexpected abstract declarator type in ParenPostfixTypedefDeclarator (3)");
-              }
-              combinedCond.delRef();
-            }
-            declaratorCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, createCompoundDeclarator);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declarators.destruct(); */
           /* abstractdeclarators.destruct(); */
-          setTransformationValue(value, valuemv);
+          setTransformationValue(value, filtered);
         }
         ;
 
@@ -2884,41 +2748,22 @@ UnaryIdentifierDeclarator: /** nomerge **/
         | STAR IdentifierDeclarator
         {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-
-          // create a multiverse of new pointer declarators
-          for (Element<Declarator> declarator : declarators) {
-            PresenceCondition combinedCond = subparser.getPresenceCondition().and(declarator.getCondition());
-            valuemv.add(new PointerDeclarator(declarator.getData()),
-                        declarator.getCondition());
-            combinedCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = toPointerDeclarator.transform(declarators);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declarators.destruct(); */
-          
-          setTransformationValue(value, valuemv);
+          setTransformationValue(value, filtered);
       	}
         | STAR TypeQualifierList IdentifierDeclarator
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-
-          // create a multiverse of new pointer declarators
-          for (Element<TypeBuilder> qualifierlist : qualifierlists) {
-            PresenceCondition qualifierlistCond = subparser.getPresenceCondition();
-            for (Element<Declarator> declarator : declarators) {
-              PresenceCondition combinedCond = qualifierlistCond.and(declarator.getCondition());
-              valuemv.add(new QualifiedPointerDeclarator(declarator.getData(),
-                                                         qualifierlist.getData()),
-                          combinedCond);
-              combinedCond.delRef();
-            }
-            qualifierlistCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = createQualifiedPointerDeclarator(declarators, qualifierlists);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declarators.destruct(); */
           /* qualifierlists.destruct(); */
-          
-          setTransformationValue(value, valuemv);
+          setTransformationValue(value, filtered);
       	}
         ;
 
@@ -2939,33 +2784,12 @@ PostfixIdentifierDeclarator: /** nomerge **/
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-          // get each combination of declarator abstract declarator,
-          // checking the kind of the abstract and building the
-          // appropriate declarator.
-          for (Element<Declarator> declarator : declarators) {
-            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
-            for (Element<Declarator> abstractdeclarator : abstractdeclarators) {
-              PresenceCondition combinedCond = declaratorCond.and(abstractdeclarator.getCondition());
-              if (abstractdeclarator.getData().isParameterListDeclarator()) {
-                valuemv.add(new FunctionDeclarator(declarator.getData(),
-                                                   (ParameterListDeclarator) abstractdeclarator.getData()),
-                            combinedCond);
-              } else if (abstractdeclarator.getData().isArrayAbstractDeclarator()) {
-                valuemv.add(new ArrayDeclarator(declarator.getData(),
-                                                (ArrayAbstractDeclarator) abstractdeclarator.getData()),
-                            combinedCond);
-              } else {
-                throw new AssertionError("unexpected abstract declarator type in PostfixIdentifierDeclarator (4)");
-              }
-              combinedCond.delRef();
-            }
-            declaratorCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, createCompoundDeclarator);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declarators.destruct(); */
           /* abstractdeclarators.destruct(); */
-          setTransformationValue(value, valuemv);
+          setTransformationValue(value, filtered);
         }
         ;
 
@@ -2979,28 +2803,14 @@ AttributedDeclarator: /** nomerge **/
 FunctionDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator PostfixingFunctionDeclarator
         {
-          Multiverse<Declarator> declaratorsmv
-            = (Multiverse<Declarator>) getTransformationValue(subparser,2);
-
-          Multiverse<Declarator> parametersmv
-            = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          
-          // take each combination of declarator and function parameters
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-          for (Element<Declarator> declarator : declaratorsmv) {
-            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
-            for (Element<Declarator> parameters : parametersmv) {
-              PresenceCondition combinedCond = declaratorCond.and(parameters.getCondition());
-              valuemv.add(new FunctionDeclarator(declarator.getData(),
-                                                 (ParameterListDeclarator) parameters.getData()),
-                          combinedCond);
-              combinedCond.delRef();
-            }
-            declaratorCond.delRef();
-          }
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
+          Multiverse<Declarator> parameters = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          Multiverse<Declarator> valuemv = declarators.product(parameters, createCompoundDeclarator);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declaratorsmv.destruct(); */
           /* parametersmv.destruct(); */
-          setTransformationValue(value, valuemv);
+          setTransformationValue(value, filtered);
         }
         ;
 
@@ -3011,7 +2821,10 @@ PostfixingFunctionDeclarator:  /** nomerge **/
           List<ParameterDeclarationValue> parameterdeclarationvalues
             = (List<ParameterDeclarationValue>) getTransformationValue(subparser,3);
 
-          // find each combination of single-configuration parameter lists
+          // find each combination of single-configuration parameter
+          // lists.  not using a product, because it is combining two
+          // different types, typebuilder and declarator.  perhaps
+          // having a qualifierdeclarator would make this possible.
           Multiverse<List<ParameterDeclarator>> parametersmv = new Multiverse<List<ParameterDeclarator>>();
           parametersmv.add(new LinkedList<ParameterDeclarator>(), subparser.getPresenceCondition());
           for (ParameterDeclarationValue parameterdeclarationvalue : parameterdeclarationvalues) {
@@ -3042,7 +2855,7 @@ PostfixingFunctionDeclarator:  /** nomerge **/
           // transform it into a multiverse of ParameterListDeclarators
           Multiverse<ParameterListDeclarator> paramlistmv = toParameterList.transform(parametersmv);
           parametersmv.destruct();
-
+          // no need to filter, since we started parametersmv with the subparser pc
           setTransformationValue(value, paramlistmv);
           System.err.println(paramlistmv);
         }
@@ -3053,23 +2866,12 @@ ArrayDeclarator:  /** nomerge **/
         {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<Declarator> arrayabstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-          // take each combination of declarator and array abstract declarator
-          for (Element<Declarator> declarator : declarators) {
-            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
-            for (Element<Declarator> arrayabstractdeclarator : arrayabstractdeclarators) {
-              PresenceCondition combinedCond = declaratorCond.and(arrayabstractdeclarator.getCondition());
-              valuemv.add(new ArrayDeclarator(declarator.getData(),
-                                              (ArrayAbstractDeclarator) arrayabstractdeclarator.getData()),
-                          combinedCond);
-              combinedCond.delRef();
-            }
-            declaratorCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = declarators.product(arrayabstractdeclarators, createCompoundDeclarator);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declarators.destruct(); */
-          /* arrayabstractdeclarators.destruct(); */
-          setTransformationValue(value, valuemv);;
+          /* abstractdeclarators.destruct(); */
+          setTransformationValue(value, filtered);
         }
         ;
 
@@ -3177,18 +2979,12 @@ ArrayAbstractDeclarator: /** nomerge **/
         }
         | LBRACK ConstantExpression RBRACK
         {
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
           Multiverse<StringBuilder> arrayBounds = (Multiverse<StringBuilder>) getTransformationValue(subparser, 2);
-          // add each version of the array abstract declarator to the
-          // resulting semantic value, assuming that the constant
-          // expression's presence conditions are the conditions of
-          // the array abstract declarator.
-          for (Element<StringBuilder> expression : arrayBounds) {
-            PresenceCondition combinedCond = subparser.getPresenceCondition().and(expression.getCondition());
-            valuemv.add(new ArrayAbstractDeclarator(expression.getData()), combinedCond);
-            combinedCond.delRef();
-          }
-          setTransformationValue(value, valuemv);;
+          Multiverse<Declarator> valuemv = toAbstractArrayDeclarator.transform(arrayBounds);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
+          /* declarators.destruct(); */
+          setTransformationValue(value, filtered);
 	      }
         | ArrayAbstractDeclarator LBRACK ConstantExpression RBRACK
 	      {
@@ -3224,57 +3020,31 @@ UnaryAbstractDeclarator: /** nomerge **/
         | STAR TypeQualifierList
         {
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
-
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-          // create a multiverse of new pointer declarators
-          for (Element<TypeBuilder> qualifierlist : qualifierlists) {
-            PresenceCondition qualifierlistCond = subparser.getPresenceCondition();
-            valuemv.add(new QualifiedPointerAbstractDeclarator(qualifierlist.getData()),
-                        qualifierlistCond);
-            qualifierlistCond.delRef();
-          }
-          /* qualifierlists.destruct(); */
-          
-          setTransformationValue(value, valuemv);
+          Multiverse<Declarator> valuemv = toQualifiedPointerAbstractDeclarator.transform(qualifierlists);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
+          /* declarators.destruct(); */
+          setTransformationValue(value, filtered);
         }
         | STAR AbstractDeclarator
         {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-
-          // create a multiverse of new pointer declarators
-          for (Element<Declarator> declarator : declarators) {
-            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
-            valuemv.add(new PointerDeclarator(declarator.getData()),
-                        declaratorCond);
-            declaratorCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = toPointerDeclarator.transform(declarators);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declarators.destruct(); */
-          
-          setTransformationValue(value, valuemv);
+          setTransformationValue(value, filtered);
         }
         | STAR TypeQualifierList AbstractDeclarator
         {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-
-          // create a multiverse of new pointer declarators
-          for (Element<TypeBuilder> qualifierlist : qualifierlists) {
-            PresenceCondition qualifierlistCond = subparser.getPresenceCondition();
-            for (Element<Declarator> declarator : declarators) {
-              PresenceCondition combinedCond = qualifierlistCond.and(declarator.getCondition());
-              valuemv.add(new QualifiedPointerDeclarator(declarator.getData(),
-                                                         qualifierlist.getData()),
-                          combinedCond);
-              combinedCond.delRef();
-            }
-            qualifierlistCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = createQualifiedPointerDeclarator(declarators, qualifierlists);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declarators.destruct(); */
           /* qualifierlists.destruct(); */
-          
-          setTransformationValue(value, valuemv);
+          setTransformationValue(value, filtered);
       	}
         ;
 
@@ -3295,33 +3065,12 @@ PostfixAbstractDeclarator: /** nomerge **/
         {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-          // get each combination of declarator abstract declarator,
-          // checking the kind of the abstract and building the
-          // appropriate declarator.
-          for (Element<Declarator> declarator : declarators) {
-            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
-            for (Element<Declarator> abstractdeclarator : abstractdeclarators) {
-              PresenceCondition combinedCond = declaratorCond.and(abstractdeclarator.getCondition());
-              if (abstractdeclarator.getData().isParameterListDeclarator()) {
-                valuemv.add(new FunctionDeclarator(declarator.getData(),
-                                                   (ParameterListDeclarator) abstractdeclarator.getData()),
-                            combinedCond);
-              } else if (abstractdeclarator.getData().isArrayAbstractDeclarator()) {
-                valuemv.add(new ArrayDeclarator(declarator.getData(),
-                                                (ArrayAbstractDeclarator) abstractdeclarator.getData()),
-                            combinedCond);
-              } else {
-                throw new AssertionError("unexpected abstract declarator type in ParenPostfixTypedefDeclarator (4)");
-              }
-              combinedCond.delRef();
-            }
-            declaratorCond.delRef();
-          }
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, createCompoundDeclarator);
+          Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
+          valuemv.destruct();
           /* declarators.destruct(); */
           /* abstractdeclarators.destruct(); */
-          setTransformationValue(value, valuemv);
+          setTransformationValue(value, filtered);
         } 
         ;
 
@@ -5413,6 +5162,10 @@ private String getCPC(Node n) {
   return (String) n.getProperty("C_PC");
 }
 
+/*****************************************************************************
+ ********* Multiverse handlers for Nodes
+ *****************************************************************************/
+
 /**
  * Creates the cartesian product of any number of children nodes' SBMVs.
  * @param pc A PresenceCondition.
@@ -5522,6 +5275,10 @@ Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringBuilder> sb
   return sbmv;
 }
 
+/*****************************************************************************
+ ********* Multiverse operators for StringBuilders
+ *****************************************************************************/
+
 final static Multiverse.Operator<StringBuilder> SBCONCAT = (sb1, sb2) -> {
   StringBuilder newsb = new StringBuilder();
   newsb.append(sb1);
@@ -5536,7 +5293,75 @@ final Multiverse.Transformer<SymbolTable.Entry, StringBuilder> entryToStringBuil
   }
 };
 
+/*****************************************************************************
+ ********* Multiverse operators for Declarators
+ *****************************************************************************/
+
+/**
+ * Create a function declarator from the product of a declarator and parameters.
+ */
+final static Multiverse.Operator<Declarator> createCompoundDeclarator = (declarator, abstractdeclarator) -> {
+  if (abstractdeclarator.isParameterListDeclarator()) {
+    return new FunctionDeclarator(declarator, (ParameterListDeclarator) abstractdeclarator);
+  } else if (abstractdeclarator.isArrayAbstractDeclarator()) {
+    return new ArrayDeclarator(declarator, (ArrayAbstractDeclarator) abstractdeclarator);
+  } else {
+    throw new AssertionError("unexpected abstract declarator type in ParameterTypedefDeclarator");
+  }
+};
+
+/**
+ * Create a multiverse of qualified pointer declarators.  This is not
+ * a multiverse operator, because it combines two different types,
+ * TypeBuilder and Declarator.
+ */
+final static Multiverse<Declarator> createQualifiedPointerDeclarator(Multiverse<Declarator> declarators, Multiverse<TypeBuilder> qualifierlists) {
+  Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+
+  for (Element<TypeBuilder> qualifierlist : qualifierlists) {
+    for (Element<Declarator> declarator : declarators) {
+      PresenceCondition combinedCond = qualifierlist.getCondition().and(declarator.getCondition());
+      valuemv.add(new QualifiedPointerDeclarator(declarator.getData(),
+                                                 qualifierlist.getData()),
+                  combinedCond);
+      combinedCond.delRef();
+    }
+  }
+
+  return valuemv;
+}
+
+/**
+ * Create pointer declarators.
+ */
+final Multiverse.Transformer<Declarator, Declarator> toPointerDeclarator = new Multiverse.Transformer<Declarator, Declarator>() {
+  Declarator transform(Declarator from) {
+    return new PointerDeclarator(from);
+  }
+};
+
+/**
+ * Create qualified pointer declarators.
+ */
+final Multiverse.Transformer<TypeBuilder, Declarator> toQualifiedPointerAbstractDeclarator = new Multiverse.Transformer<TypeBuilder, Declarator>() {
+  Declarator transform(TypeBuilder from) {
+    return new QualifiedPointerAbstractDeclarator(from);
+  }
+};
+
+/**
+ * Create abstract array declarators.
+ */
+final Multiverse.Transformer<StringBuilder, Declarator> toAbstractArrayDeclarator = new Multiverse.Transformer<StringBuilder, Declarator>() {
+  Declarator transform(StringBuilder from) {
+    return new ArrayAbstractDeclarator(from);
+  }
+};
+
 // TODO make these two methods generic for any list
+/**
+ * Concatenate two ParmeterListDeclarators
+ */
 final static Multiverse.Operator<List<ParameterDeclarator>> PARAMLISTCONCAT = (list1, list2) -> {
   List<ParameterDeclarator> newlist = new LinkedList<ParameterDeclarator>();
   newlist.addAll(list1);
@@ -5567,7 +5392,7 @@ final Multiverse.Transformer<List<ParameterDeclarator>, ParameterListDeclarator>
 };
 
 /*****************************************************************************
- ********* TypeBuilder support for semantic actions.
+ ********* Multiverse operators for TypeBuilders
  *****************************************************************************/
 
 final static Multiverse.Operator<TypeBuilder> TBCONCAT = (tb1, tb2) -> {
