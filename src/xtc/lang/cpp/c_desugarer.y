@@ -3083,6 +3083,7 @@ Statement:  /** complete **/
         }
         | CompoundStatement
         {
+	  // NOTE: calling emitStatement() here can also break switch cases.
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
           // compound statements contain already-hoisted constructs
@@ -3396,8 +3397,42 @@ IterationStatement:  /** complete **/
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          System.err.println("WARNING: unsupported semantic action: IterationStatement");
-          System.exit(1);
+          Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7));
+          Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
+          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 6), pc);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 5).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 4).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), pc);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 2).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 1).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+
+          setTransformationValue(value, sbmv);
         }
         | FOR LPAREN ExpressionOpt SEMICOLON ExpressionOpt SEMICOLON
                 ExpressionOpt RPAREN Statement
@@ -3458,8 +3493,8 @@ ContinueStatement:  /** complete **/
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          System.err.println("WARNING: unsupported semantic action: ContinueStatement");
-          System.exit(1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTransformationValue(value, product);
         }
         ;
 
@@ -3468,8 +3503,8 @@ BreakStatement:  /** complete **/
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          System.err.println("WARNING: unsupported semantic action: BreakStatement");
-          System.exit(1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTransformationValue(value, product);
         }
         ;
 
@@ -3707,8 +3742,9 @@ FunctionCall:  /** nomerge **/
         }
         | PostfixExpression LPAREN ExpressionList RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: FunctionCall");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTransformationValue(value, product);
           callFunction(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 2));
         }
         ;
@@ -3758,13 +3794,15 @@ CompoundLiteral:  /** nomerge **/  /* ADDED */
 ExpressionList:  /** list, nomerge **/
         AssignmentExpression
         {
-          System.err.println("WARNING: unsupported semantic action: ExpressionList");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          setTransformationValue(value, product);
         }
         | ExpressionList COMMA AssignmentExpression
         {
-          System.err.println("WARNING: unsupported semantic action: ExpressionList");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTransformationValue(value, product);
         }
         ;
 
@@ -5270,6 +5308,7 @@ protected static Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition
 
 /**
  * Takes the cartesian product of the current node's SBMV with one of its children SBMVs.
+ * Assumes that the child parameter is not a token.
  * @param sbmv A multiverse that possibly contains the configurations of child's siblings.
  * @param child The child of the current node.
  * @param presenceCondition The presence condition associated with the current node.
