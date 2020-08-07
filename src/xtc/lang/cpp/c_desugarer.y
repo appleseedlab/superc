@@ -2182,7 +2182,66 @@ ParameterList:  /** list, nomerge **/
 ParameterDeclaration:  /** nomerge **/
         ParameterIdentifierDeclaration
         {
-          setTransformationValue(value, (ParameterDeclarationValue) getTransformationValue(subparser,1));
+          ParameterDeclarationValue declarationvalue = (ParameterDeclarationValue) getTransformationValue(subparser,1);
+
+          CContext scope = (CContext)subparser.scope;
+          SymbolTable symtab = scope.getSymbolTable();
+          
+          // add the symbols to the function-local symbol table, which
+          // PostfixingFunctionDeclarator enters and exits, before
+          // FunctionDefinition reenters and exits.
+          for (Element<TypeBuilder> typebuilder : declarationvalue.typebuilder) {
+            PresenceCondition typebuilderCond = subparser.getPresenceCondition().and(typebuilder.getCondition());
+            for (Element<Declarator> declarator : declarationvalue.declarator) {
+              PresenceCondition combinedCond = typebuilderCond.and(declarator.getCondition());
+              Declaration declaration = new Declaration(typebuilder.getData(),
+                                                        declarator.getData());
+
+              if (typebuilder.getData().isTypeError) {
+                symtab.putError(declarator.getData().getName(), combinedCond);
+              } else {
+                // getName() shouldn't have an error, because thit is
+                // the identifierdeclaration.  abstract declarators
+                // can't go in the symbol table, because there is no
+                // symbol.
+                Multiverse<SymbolTable.Entry> entries = symtab.get(declarator.getData().getName(), combinedCond);
+
+                // TODO: check for multiply-defined parameter names,
+                // which (I believe) should make the entire function
+                // declarator invalid.
+
+                for (Element<SymbolTable.Entry> entry : entries) {
+                  if (entry.getData() == SymbolTable.ERROR) {
+                    System.err.println("INFO: invalid parameter declaration for function");
+                    System.err.println("TODO: any invalid parameter declarations should cause the entire function declaration to be invalid under that condition");
+                    symtab.putError(declarator.getData().getName(), combinedCond);
+                  } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                    // function parameters don't need to be renamed,
+                    // so just use the original name in the renaming
+                    // field.  this way the desugarer will use the
+                    // original name.  in the future, this is where we
+                    // can combine the function prototypes of many
+                    // definitions to share the same body.
+                    symtab.put(declarator.getData().getName(),
+                               declarator.getData().getName(),
+                               declaration.getType(),
+                               entry.getCondition());
+                  } else {
+                    System.err.println("INFO: reuse of the same parameter name in function");
+                    System.err.println("TODO: any invalid parameter declarations should cause the entire function declaration to be invalid under that condition");
+                    symtab.putError(declarator.getData().getName(), combinedCond);
+                  }  // end test of symtab entry type
+                } // end loop over symtab entries
+              } // end of check for invalid typebuilder
+
+              combinedCond.delRef();
+            }
+            typebuilderCond.delRef();
+          }
+
+          if (debug) System.err.println(symtab);
+
+          setTransformationValue(value, declarationvalue);
         }
         | ParameterAbstractDeclaration
         {
