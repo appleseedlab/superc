@@ -199,17 +199,28 @@ public class SymbolTable {
    * @param ident The identifier to look up.
    * @param cond The presence condition.
    * @returns A new Multiverse instance containing the entries under
-   * the given condition or null if the symbol is not defined.
+   * the given condition.  If the symbol was never seen before, it
+   * returns a Multiverse that contains only the UNDECLARED entry.
    */
   public Multiverse<Entry> get(String ident, PresenceCondition cond) {
-    if (this.map.containsKey(ident)) {
-      // System.err.println(String.format("before get: %s -> %s", ident, map.get(ident)));
-      Multiverse<Entry> newmv = this.map.get(ident).filter(cond);
-      // System.err.println(String.format("after get: %s -> %s", ident, newmv));
-      return newmv;
-    } else {
-      return null;
+    if (! this.map.containsKey(ident)) {
+      // Create a new multiverse for the symbol that has only the
+      // UNDECLARED entry under the True condition
+      Multiverse<Entry> newmv = new Multiverse<Entry>();
+
+      PresenceCondition trueCond = cond.presenceConditionManager().newTrue();
+      newmv.add(UNDECLARED, trueCond);
+      trueCond.delRef();
+
+      PresenceCondition falseCond = cond.presenceConditionManager().newFalse();
+      newmv.add(ERROR, falseCond);
+      falseCond.delRef();
+
+      this.map.put(ident, newmv);
+      
     }
+    Multiverse<Entry> newmv = this.map.get(ident).filter(cond);
+    return newmv;
   }
 
   /**
