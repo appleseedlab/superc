@@ -131,7 +131,7 @@ abstract class Declarator {
     }
 
     public Declarator rename(String newName) {
-      return declarator.rename(newName);
+      return new ParenDeclarator(declarator.rename(newName));
     }
 
     public Type getType(Type type) {
