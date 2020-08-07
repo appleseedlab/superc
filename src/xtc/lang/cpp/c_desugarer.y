@@ -3361,6 +3361,8 @@ PostfixAbstractDeclarator: /** nomerge **/
 Statement:  /** passthrough, complete **/
         LabeledStatement
         {
+	  // NOTE: if (PC) cannot be around a case in a switch statement.
+          // Thus we purposefully do not call emitStatement() here.
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
           Node child = getNodeAt(subparser, 1);
@@ -3369,6 +3371,7 @@ Statement:  /** passthrough, complete **/
         }
         | CompoundStatement
         {
+	  // NOTE: calling emitStatement() here can also break switch cases.
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
           Node child = getNodeAt(subparser, 1);
@@ -5597,6 +5600,7 @@ Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition presenceConditio
 
 /**
  * Takes the cartesian product of the current node's SBMV with one of its children SBMVs.
+ * Assumes that the child parameter is not a token.
  * @param sbmv A multiverse that possibly contains the configurations of child's siblings.
  * @param child The child of the current node.
  * @param presenceCondition The presence condition associated with the current node.
