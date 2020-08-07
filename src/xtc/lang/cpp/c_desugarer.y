@@ -1410,14 +1410,18 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
         }
         | DeclarationQualifierList TYPEDEFname
         {
-      	  /* Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2); */
-          /* Multiverse<TypeBuilder> tb1 = new Multiverse<TypeBuilder>(); */
-      	  /* String typeName = getStringAt(subparser, 1); */
-          /* // TODO: lookup typedef here and generate all possible typedef names or error */
-      	  /* tb1.setTypedef(typeName, getTypeOfTypedef(subparser, typeName), subparser.getPresenceCondition()); */
-          /* setTransformationValue(value, tb.product(tb1)); */
-          System.err.println("WARNING: unsupported semantic action using TYPEDEFname");
-          System.exit(1);
+          // TODO: needs a unit test
+          Multiverse<TypeBuilder> qualtbmv = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
+      	  String typeName = getStringAt(subparser, 1);
+          // look up the typedef name
+          Multiverse<SymbolTable.Entry> entries
+            = ((CContext)subparser.scope).get(typeName, subparser.getPresenceCondition());
+          // expand all renamings of the typedefname and handle type errors
+      	  Multiverse<TypeBuilder> typedefnametbmv = typedefEntriesToTypeBuilder.transform(entries);
+          // combine with the existing qualifier list
+          Multiverse<TypeBuilder> combinedtbmv = qualtbmv.product(typedefnametbmv, TBCONCAT);
+          typedefnametbmv.destruct();
+          setTransformationValue(value, combinedtbmv);
         }
         | TypedefDeclarationSpecifier DeclarationQualifier
       	{
@@ -1436,28 +1440,8 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
           Multiverse<SymbolTable.Entry> entries
             = ((CContext)subparser.scope).get(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
-      	  Multiverse<TypeBuilder> tbmv = new Multiverse<TypeBuilder>();
-          for (Element<SymbolTable.Entry> entry : entries) {
-            // TODO: improve TypeBuilder's interface
-            TypeBuilder tbunit = new TypeBuilder();
-            if (entry.getData() == SymbolTable.ERROR) {
-              System.err.println("INFO: use of typedefname with invalid declaration");
-              tbunit.isTypeError = true;
-            } else if (entry.getData() == SymbolTable.UNDECLARED) {
-              System.err.println("INFO: use of undeclared typedefname");
-              tbunit.isTypeError = true;
-            } else {
-              System.err.println("TODO: check that type is actually alias");
-              if (false) {
-                System.err.println("INFO: typedefname is not declared as alias type");
-                tbunit.isTypeError = true;
-              } else {
-                tbunit.setTypedef(entry.getData().getRenaming(), entry.getData().getType());
-              }
-            }
-            tbmv.add(tbunit, entry.getCondition());
-          }
-          setTransformationValue(value, tbmv);
+      	  Multiverse<TypeBuilder> typedefnametbmv = typedefEntriesToTypeBuilder.transform(entries);
+          setTransformationValue(value, typedefnametbmv);
         }
         | TypeQualifierList TYPEDEFname
       	{
@@ -1467,30 +1451,11 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
           Multiverse<SymbolTable.Entry> entries
             = ((CContext)subparser.scope).get(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
-      	  Multiverse<TypeBuilder> typedefnametbmv = new Multiverse<TypeBuilder>();
-          for (Element<SymbolTable.Entry> entry : entries) {
-            // TODO: improve TypeBuilder's interface
-            TypeBuilder tbunit = new TypeBuilder();
-            if (entry.getData() == SymbolTable.ERROR) {
-              System.err.println("INFO: use of typedefname with invalid declaration");
-              tbunit.isTypeError = true;
-            } else if (entry.getData() == SymbolTable.UNDECLARED) {
-              System.err.println("INFO: use of undeclared typedefname");
-              tbunit.isTypeError = true;
-            } else {
-              System.err.println("TODO: check that type is actually alias");
-              if (false) {
-                System.err.println("INFO: typedefname is not declared as alias type");
-                tbunit.isTypeError = true;
-              } else {
-                tbunit.setTypedef(entry.getData().getRenaming(), entry.getData().getType());
-              }
-            }
-            typedefnametbmv.add(tbunit, entry.getCondition());
-            Multiverse<TypeBuilder> combinedtbmv = qualtbmv.product(typedefnametbmv, TBCONCAT);
-            typedefnametbmv.destruct();
-            setTransformationValue(value, combinedtbmv);
-          }
+      	  Multiverse<TypeBuilder> typedefnametbmv = typedefEntriesToTypeBuilder.transform(entries);
+          // combine with the existing qualifier list
+          Multiverse<TypeBuilder> combinedtbmv = qualtbmv.product(typedefnametbmv, TBCONCAT);
+          typedefnametbmv.destruct();
+          setTransformationValue(value, combinedtbmv);
       	}
         | TypedefTypeSpecifier TypeQualifier
         {
