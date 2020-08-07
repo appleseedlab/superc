@@ -4049,7 +4049,8 @@ FunctionCall:  /** nomerge **/
         | PostfixExpression LPAREN ExpressionList RPAREN
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          System.err.println("WARNING: unsupported semantic action: FunctionCall");
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTransformationValue(value, product);
           callFunction(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 2));
         }
         ;
