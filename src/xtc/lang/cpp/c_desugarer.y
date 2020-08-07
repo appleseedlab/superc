@@ -2219,9 +2219,11 @@ ParameterDeclaration:  /** nomerge **/
                     // function parameters don't need to be renamed,
                     // so just use the original name in the renaming
                     // field.  this way the desugarer will use the
-                    // original name.  in the future, this is where we
-                    // can combine the function prototypes of many
-                    // definitions to share the same body.
+                    // original name and there is no need to generate
+                    // a new declarator for the function.  in the
+                    // future, this is where we can combine the
+                    // function prototypes of many definitions to
+                    // share the same body.
                     symtab.put(declarator.getData().getName(),
                                declarator.getData().getName(),
                                declaration.getType(),
