@@ -3458,8 +3458,8 @@ LabeledStatement:  /** complete **/  // ADDED attributes
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          System.err.println("WARNING: unsupported semantic action: LabeledStatement");
-          System.exit(1);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          setTransformationValue(value, product);
         }
         ;
 
