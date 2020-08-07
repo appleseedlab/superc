@@ -68,6 +68,7 @@ SOURCE = \
 	SemanticValues.java \
 	SemanticActions.java \
 	Multiverse.java \
+	DesugaringOperators.java \
 	SymbolTable.java \
 	CContext.java \
 	$(c_parse_tables) \

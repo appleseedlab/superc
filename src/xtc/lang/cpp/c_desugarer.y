@@ -1098,7 +1098,7 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
       	{
       	  Multiverse<TypeBuilder> qualList = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
       	  Multiverse<TypeBuilder> storage = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
-      	  Multiverse<TypeBuilder> tb = qualList.product(storage, TBCONCAT);
+      	  Multiverse<TypeBuilder> tb = qualList.product(storage, DesguaringOperators.TBCONCAT);
       	  setTransformationValue(value, tb);
       	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
@@ -1109,7 +1109,7 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
       	{
       	  Multiverse<TypeBuilder> qualList = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
       	  Multiverse<TypeBuilder> qual = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
-      	  Multiverse<TypeBuilder> tb = qualList.product(qual, TBCONCAT);
+      	  Multiverse<TypeBuilder> tb = qualList.product(qual, DesguaringOperators.TBCONCAT);
       	  setTransformationValue(value, tb);
       	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
@@ -1131,7 +1131,7 @@ TypeQualifierList:  /** list, nomerge **/
       	{
       	  Multiverse<TypeBuilder> qualList = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
       	  Multiverse<TypeBuilder> qual = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
-      	  Multiverse<TypeBuilder> tb = qualList.product(qual, TBCONCAT);
+      	  Multiverse<TypeBuilder> tb = qualList.product(qual, DesguaringOperators.TBCONCAT);
       	  setTransformationValue(value, tb);
       	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
@@ -1257,7 +1257,7 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
         Multiverse<TypeBuilder> storageClass = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
 
         // combine the partial type specs
-        Multiverse<TypeBuilder> tb = basicTypeSpecifier.product(storageClass, TBCONCAT);
+        Multiverse<TypeBuilder> tb = basicTypeSpecifier.product(storageClass, DesguaringOperators.TBCONCAT);
 
         setTransformationValue(value, tb);
 	      updateSpecs(subparser,
@@ -1270,7 +1270,7 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
           Multiverse<TypeBuilder> basicTypeName = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
 
           // combine the partial type specs
-          Multiverse<TypeBuilder> tb = qualList.product(basicTypeName, TBCONCAT);
+          Multiverse<TypeBuilder> tb = qualList.product(basicTypeName, DesguaringOperators.TBCONCAT);
 
 	        setTransformationValue(value, tb);
 	        updateSpecs(subparser,
@@ -1284,7 +1284,7 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
           Multiverse<TypeBuilder> qual = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
 
           // combine the partial type specs
-          Multiverse<TypeBuilder> tb = decl.product(qual, TBCONCAT);
+          Multiverse<TypeBuilder> tb = decl.product(qual, DesguaringOperators.TBCONCAT);
 
       	  setTransformationValue(value, tb);
       	  updateSpecs(subparser,
@@ -1298,7 +1298,7 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
           Multiverse<TypeBuilder> basicTypeName = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
 
           // combine the partial type specs
-          Multiverse<TypeBuilder> tb = basicDeclSpecifier.product(basicTypeName, TBCONCAT);
+          Multiverse<TypeBuilder> tb = basicDeclSpecifier.product(basicTypeName, DesguaringOperators.TBCONCAT);
 
       	  setTransformationValue(value, tb);
       	  updateSpecs(subparser,
@@ -1326,7 +1326,7 @@ BasicTypeSpecifier: /**  nomerge **/
           Multiverse<TypeBuilder> qualList = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> basicTypeName = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
 
-          Multiverse<TypeBuilder> tb = qualList.product(basicTypeName, TBCONCAT);
+          Multiverse<TypeBuilder> tb = qualList.product(basicTypeName, DesguaringOperators.TBCONCAT);
 
           setTransformationValue(value, tb);
 	        updateSpecs(subparser,
@@ -1339,7 +1339,7 @@ BasicTypeSpecifier: /**  nomerge **/
           Multiverse<TypeBuilder> basicTypeSpecifier = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> qual = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
 
-          Multiverse<TypeBuilder> tb = basicTypeSpecifier.product(qual, TBCONCAT);
+          Multiverse<TypeBuilder> tb = basicTypeSpecifier.product(qual, DesguaringOperators.TBCONCAT);
 
           setTransformationValue(value, tb);
 	        updateSpecs(subparser,
@@ -1354,7 +1354,7 @@ BasicTypeSpecifier: /**  nomerge **/
           Multiverse<TypeBuilder> basicTypeName = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
 
           // combine the partial type specs
-          Multiverse<TypeBuilder> tb = basicTypeSpecifier.product(basicTypeName, TBCONCAT);
+          Multiverse<TypeBuilder> tb = basicTypeSpecifier.product(basicTypeName, DesguaringOperators.TBCONCAT);
 
           setTransformationValue(value, tb);
 	        updateSpecs(subparser,
@@ -1406,7 +1406,7 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
       	{
       	  Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
-          setTransformationValue(value, tb.product(tb1, TBCONCAT));
+          setTransformationValue(value, tb.product(tb1, DesguaringOperators.TBCONCAT));
         }
         | DeclarationQualifierList TYPEDEFname
         {
@@ -1417,9 +1417,9 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
           Multiverse<SymbolTable.Entry> entries
             = ((CContext)subparser.scope).get(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
-      	  Multiverse<TypeBuilder> typedefnametbmv = typedefEntriesToTypeBuilder.transform(entries);
+      	  Multiverse<TypeBuilder> typedefnametbmv = DesguaringOperators.typedefEntriesToTypeBuilder.transform(entries);
           // combine with the existing qualifier list
-          Multiverse<TypeBuilder> combinedtbmv = qualtbmv.product(typedefnametbmv, TBCONCAT);
+          Multiverse<TypeBuilder> combinedtbmv = qualtbmv.product(typedefnametbmv, DesguaringOperators.TBCONCAT);
           typedefnametbmv.destruct();
           setTransformationValue(value, combinedtbmv);
         }
@@ -1427,7 +1427,7 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
       	{
       	  Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
       	  Multiverse<TypeBuilder> dq = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
-      	  Multiverse<TypeBuilder> tb = tb1.product(dq, TBCONCAT);
+      	  Multiverse<TypeBuilder> tb = tb1.product(dq, DesguaringOperators.TBCONCAT);
           setTransformationValue(value, tb);
         }
         ;
@@ -1440,7 +1440,7 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
           Multiverse<SymbolTable.Entry> entries
             = ((CContext)subparser.scope).get(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
-      	  Multiverse<TypeBuilder> typedefnametbmv = typedefEntriesToTypeBuilder.transform(entries);
+      	  Multiverse<TypeBuilder> typedefnametbmv = DesguaringOperators.typedefEntriesToTypeBuilder.transform(entries);
           setTransformationValue(value, typedefnametbmv);
         }
         | TypeQualifierList TYPEDEFname
@@ -1451,9 +1451,9 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
           Multiverse<SymbolTable.Entry> entries
             = ((CContext)subparser.scope).get(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
-      	  Multiverse<TypeBuilder> typedefnametbmv = typedefEntriesToTypeBuilder.transform(entries);
+      	  Multiverse<TypeBuilder> typedefnametbmv = DesguaringOperators.typedefEntriesToTypeBuilder.transform(entries);
           // combine with the existing qualifier list
-          Multiverse<TypeBuilder> combinedtbmv = qualtbmv.product(typedefnametbmv, TBCONCAT);
+          Multiverse<TypeBuilder> combinedtbmv = qualtbmv.product(typedefnametbmv, DesguaringOperators.TBCONCAT);
           typedefnametbmv.destruct();
           setTransformationValue(value, combinedtbmv);
       	}
@@ -1461,7 +1461,7 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
         {
           Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
-          setTransformationValue(value, tb.product(tb1, TBCONCAT));
+          setTransformationValue(value, tb.product(tb1, DesguaringOperators.TBCONCAT));
         }
         ;
 
@@ -2570,7 +2570,7 @@ ParameterTypedefDeclarator: /** nomerge **/
           Multiverse<Declarator> declarators = new Multiverse<Declarator>(new SimpleDeclarator(getStringAt(subparser, 2)),
                                                                           subparser.getPresenceCondition());
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, createCompoundDeclarator);
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesguaringOperators.createCompoundDeclarator);
           declarators.destruct();  // safe to destruct because not added as transformation value
           /* abstractdeclarators.destruct(); */
           // no need to filter since declarators started with subparser's pc
@@ -2594,7 +2594,7 @@ CleanTypedefDeclarator: /** nomerge **/
       	{
           // TODO: do we need to conjoin with subparser.getPresenceCondition() in all these declarators?
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = toPointerDeclarator.transform(declarators);
+          Multiverse<Declarator> valuemv = DesguaringOperators.toPointerDeclarator.transform(declarators);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2604,7 +2604,7 @@ CleanTypedefDeclarator: /** nomerge **/
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = createQualifiedPointerDeclarator(declarators, qualifierlists);
+          Multiverse<Declarator> valuemv = DesguaringOperators.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2622,7 +2622,7 @@ CleanPostfixTypedefDeclarator: /** nomerge **/
         {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, createCompoundDeclarator);
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesguaringOperators.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2642,7 +2642,7 @@ ParenTypedefDeclarator:  /** nomerge **/
         | STAR LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
-          Multiverse<Declarator> valuemv = toPointerDeclarator.transform(declarators);
+          Multiverse<Declarator> valuemv = DesguaringOperators.toPointerDeclarator.transform(declarators);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2653,7 +2653,7 @@ ParenTypedefDeclarator:  /** nomerge **/
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,4);
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,2);
-          Multiverse<Declarator> valuemv = createQualifiedPointerDeclarator(declarators, qualifierlists);
+          Multiverse<Declarator> valuemv = DesguaringOperators.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2663,7 +2663,7 @@ ParenTypedefDeclarator:  /** nomerge **/
         | STAR ParenTypedefDeclarator
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = toPointerDeclarator.transform(declarators);
+          Multiverse<Declarator> valuemv = DesguaringOperators.toPointerDeclarator.transform(declarators);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2673,7 +2673,7 @@ ParenTypedefDeclarator:  /** nomerge **/
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = createQualifiedPointerDeclarator(declarators, qualifierlists);
+          Multiverse<Declarator> valuemv = DesguaringOperators.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2691,7 +2691,7 @@ ParenPostfixTypedefDeclarator: /** nomerge **/ /* redundant paren to left of tna
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
-          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, createCompoundDeclarator);
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesguaringOperators.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2702,7 +2702,7 @@ ParenPostfixTypedefDeclarator: /** nomerge **/ /* redundant paren to left of tna
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, createCompoundDeclarator);
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesguaringOperators.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2748,7 +2748,7 @@ UnaryIdentifierDeclarator: /** nomerge **/
         | STAR IdentifierDeclarator
         {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = toPointerDeclarator.transform(declarators);
+          Multiverse<Declarator> valuemv = DesguaringOperators.toPointerDeclarator.transform(declarators);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2758,7 +2758,7 @@ UnaryIdentifierDeclarator: /** nomerge **/
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = createQualifiedPointerDeclarator(declarators, qualifierlists);
+          Multiverse<Declarator> valuemv = DesguaringOperators.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2784,7 +2784,7 @@ PostfixIdentifierDeclarator: /** nomerge **/
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, createCompoundDeclarator);
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesguaringOperators.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2805,7 +2805,7 @@ FunctionDeclarator:  /** nomerge **/
         {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<Declarator> parameters = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = declarators.product(parameters, createCompoundDeclarator);
+          Multiverse<Declarator> valuemv = declarators.product(parameters, DesguaringOperators.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declaratorsmv.destruct(); */
@@ -2842,9 +2842,9 @@ PostfixingFunctionDeclarator:  /** nomerge **/
               typebuilderCond.delRef();            
             }
             // take the product of that multiverse with the existing, hoisted list of parameters
-            Multiverse<List<ParameterDeclarator>> nextparameterwrapped = listWrap.transform(nextparameter);
+            Multiverse<List<ParameterDeclarator>> nextparameterwrapped = DesguaringOperators.listWrap.transform(nextparameter);
             nextparameter.destruct();
-            Multiverse<List<ParameterDeclarator>> newparametersmv = parametersmv.product(nextparameterwrapped, PARAMLISTCONCAT);
+            Multiverse<List<ParameterDeclarator>> newparametersmv = parametersmv.product(nextparameterwrapped, DesguaringOperators.PARAMLISTCONCAT);
             nextparameterwrapped.destruct();
             parametersmv.destruct();
             parametersmv = newparametersmv;
@@ -2853,7 +2853,7 @@ PostfixingFunctionDeclarator:  /** nomerge **/
           // single-configuration parameter lists
 
           // transform it into a multiverse of ParameterListDeclarators
-          Multiverse<ParameterListDeclarator> paramlistmv = toParameterList.transform(parametersmv);
+          Multiverse<ParameterListDeclarator> paramlistmv = DesguaringOperators.toParameterList.transform(parametersmv);
           parametersmv.destruct();
           // no need to filter, since we started parametersmv with the subparser pc
           setTransformationValue(value, paramlistmv);
@@ -2866,7 +2866,7 @@ ArrayDeclarator:  /** nomerge **/
         {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<Declarator> arrayabstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = declarators.product(arrayabstractdeclarators, createCompoundDeclarator);
+          Multiverse<Declarator> valuemv = declarators.product(arrayabstractdeclarators, DesguaringOperators.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2980,7 +2980,7 @@ ArrayAbstractDeclarator: /** nomerge **/
         | LBRACK ConstantExpression RBRACK
         {
           Multiverse<StringBuilder> arrayBounds = (Multiverse<StringBuilder>) getTransformationValue(subparser, 2);
-          Multiverse<Declarator> valuemv = toAbstractArrayDeclarator.transform(arrayBounds);
+          Multiverse<Declarator> valuemv = DesguaringOperators.toAbstractArrayDeclarator.transform(arrayBounds);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -3020,7 +3020,7 @@ UnaryAbstractDeclarator: /** nomerge **/
         | STAR TypeQualifierList
         {
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = toQualifiedPointerAbstractDeclarator.transform(qualifierlists);
+          Multiverse<Declarator> valuemv = DesguaringOperators.toQualifiedPointerAbstractDeclarator.transform(qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -3029,7 +3029,7 @@ UnaryAbstractDeclarator: /** nomerge **/
         | STAR AbstractDeclarator
         {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = toPointerDeclarator.transform(declarators);
+          Multiverse<Declarator> valuemv = DesguaringOperators.toPointerDeclarator.transform(declarators);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -3039,7 +3039,7 @@ UnaryAbstractDeclarator: /** nomerge **/
         {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = createQualifiedPointerDeclarator(declarators, qualifierlists);
+          Multiverse<Declarator> valuemv = DesguaringOperators.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -3065,7 +3065,7 @@ PostfixAbstractDeclarator: /** nomerge **/
         {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, createCompoundDeclarator);
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesguaringOperators.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -3305,7 +3305,7 @@ SelectionStatement:  /** complete **/
           
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2));
           Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
-          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesguaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
@@ -3313,7 +3313,7 @@ SelectionStatement:  /** complete **/
           sbmv.destruct();
           sbmv = temp;
 
-          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesguaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
@@ -3327,7 +3327,7 @@ SelectionStatement:  /** complete **/
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7), getNodeAt(subparser, 6), getNodeAt(subparser, 5), getNodeAt(subparser, 4));
 
           Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
-          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesguaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
@@ -3335,18 +3335,18 @@ SelectionStatement:  /** complete **/
           sbmv.destruct();
           sbmv = temp;
 
-          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesguaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
           StringBuilder tokenText = new StringBuilder(" ");
           tokenText.append(getNodeAt(subparser, 2).getTokenText());
-          temp = sbmv.product(tokenText, pc, SBCONCAT);
+          temp = sbmv.product(tokenText, pc, DesguaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
           temp = new Multiverse<StringBuilder>();
-          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesguaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
@@ -3354,7 +3354,7 @@ SelectionStatement:  /** complete **/
           sbmv.destruct();
           sbmv = temp;
 
-          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesguaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
@@ -3378,7 +3378,7 @@ IterationStatement:  /** complete **/
           setCPC(value, PCtoString(pc));
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2));
           Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
-          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesguaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
@@ -3386,7 +3386,7 @@ IterationStatement:  /** complete **/
           sbmv.destruct();
           sbmv = temp;
 
-          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesguaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
           setTransformationValue(value, sbmv);
@@ -3605,7 +3605,7 @@ PrimaryIdentifier: /** nomerge **/
 
           // convert the renamings to stringbuilders
           System.err.println("TODO: check for error or undeclared entry from symtab");
-          Multiverse<StringBuilder> sbmv = entryToStringBuilder.transform(entries);
+          Multiverse<StringBuilder> sbmv = DesguaringOperators.entryToStringBuilder.transform(entries);
           entries.destruct();
 
           setTransformationValue(value, sbmv);
@@ -3960,11 +3960,11 @@ CastExpression:  /** passthrough, nomerge **/
           sbmv = temp;
           Multiverse<TypeBuilder> type = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 3);
           System.err.println("WARNING: CastExpression assumes that there is only one element in the type multiverse.");
-          temp = sbmv.product(new StringBuilder(type.get(0).getData().toString()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          temp = sbmv.product(new StringBuilder(type.get(0).getData().toString()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesguaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
           StringBuilder tokenText = new StringBuilder(getNodeAt(subparser, 2).getTokenText());
-          temp = sbmv.product(tokenText, pc, SBCONCAT);
+          temp = sbmv.product(tokenText, pc, DesguaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
           temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), pc);
@@ -5172,7 +5172,7 @@ private String getCPC(Node n) {
  * @param children Nodes whose SBMVs should be combined.
  * @return An SBMV containing the product of the passed-in childrens' SBMVs.
  */
-private Multiverse<StringBuilder> getProductOfSomeChildren(PresenceCondition pc, Node...children) {
+protected Multiverse<StringBuilder> getProductOfSomeChildren(PresenceCondition pc, Node...children) {
   // NOTE: Nodes must be passed-in in the order that their SBMV stringbuilders should be concatenated.
   Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
   Multiverse<StringBuilder> temp;
@@ -5180,7 +5180,7 @@ private Multiverse<StringBuilder> getProductOfSomeChildren(PresenceCondition pc,
     if (child.isToken()) {
       StringBuilder tokenText = new StringBuilder(" ");
       tokenText.append(child.getTokenText());
-      temp = sbmv.product(tokenText, pc, SBCONCAT);
+      temp = sbmv.product(tokenText, pc, DesguaringOperators.SBCONCAT);
       sbmv.destruct();
       sbmv = temp;
     } else { 
@@ -5220,7 +5220,7 @@ protected StringBuilder concatAllStringBuilders(Node node, PresenceCondition pc)
  * @param presenceCondition The presence condition associated with node.
  * @return A multiverse containing all configurations of the passed-in node.
  */
-Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition presenceCondition) {
+protected static Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition presenceCondition) {
   Multiverse<Node> allConfigs = new Multiverse<Node>();
 
   if (node instanceof GNode && ((GNode) node).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
@@ -5255,7 +5255,7 @@ Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition presenceConditio
  * @param presenceCondition The presence condition associated with the current node.
  * @return A multiverse containing all configurations of the passed-in node.
  */
-Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringBuilder> sbmv, Node child, PresenceCondition presenceCondition) {
+protected Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringBuilder> sbmv, Node child, PresenceCondition presenceCondition) {
   sbmv = new Multiverse<StringBuilder>(sbmv); // copies the passed-in sbmv because the caller destructs it.
   // getAllNodeConfigs traverses all nested static choice nodes until they reach a regular node
   // and then gets all configurations of that node
@@ -5268,171 +5268,12 @@ Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringBuilder> sb
     }
   }
 
-  Multiverse<StringBuilder> temp = sbmv.product(allConfigsSBMV, SBCONCAT);
+  Multiverse<StringBuilder> temp = sbmv.product(allConfigsSBMV, DesguaringOperators.SBCONCAT);
   sbmv.destruct();
   sbmv = temp;
 
   return sbmv;
 }
-
-/*****************************************************************************
- ********* Multiverse operators for StringBuilders
- *****************************************************************************/
-
-final static Multiverse.Operator<StringBuilder> SBCONCAT = (sb1, sb2) -> {
-  StringBuilder newsb = new StringBuilder();
-  newsb.append(sb1);
-  newsb.append(sb2);
-  return newsb;
-};
-
-final Multiverse.Transformer<SymbolTable.Entry, StringBuilder> entryToStringBuilder = new Multiverse.Transformer<SymbolTable.Entry, StringBuilder>() {
-  StringBuilder transform(SymbolTable.Entry from) {
-    // TODO: check for error or undeclared entry
-    return new StringBuilder(from.getRenaming());
-  }
-};
-
-/*****************************************************************************
- ********* Multiverse operators for Declarators
- *****************************************************************************/
-
-/**
- * Create a function declarator from the product of a declarator and parameters.
- */
-final static Multiverse.Operator<Declarator> createCompoundDeclarator = (declarator, abstractdeclarator) -> {
-  if (abstractdeclarator.isParameterListDeclarator()) {
-    return new FunctionDeclarator(declarator, (ParameterListDeclarator) abstractdeclarator);
-  } else if (abstractdeclarator.isArrayAbstractDeclarator()) {
-    return new ArrayDeclarator(declarator, (ArrayAbstractDeclarator) abstractdeclarator);
-  } else {
-    throw new AssertionError("unexpected abstract declarator type in ParameterTypedefDeclarator");
-  }
-};
-
-/**
- * Create a multiverse of qualified pointer declarators.  This is not
- * a multiverse operator, because it combines two different types,
- * TypeBuilder and Declarator.
- */
-final static Multiverse<Declarator> createQualifiedPointerDeclarator(Multiverse<Declarator> declarators, Multiverse<TypeBuilder> qualifierlists) {
-  Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-
-  for (Element<TypeBuilder> qualifierlist : qualifierlists) {
-    for (Element<Declarator> declarator : declarators) {
-      PresenceCondition combinedCond = qualifierlist.getCondition().and(declarator.getCondition());
-      valuemv.add(new QualifiedPointerDeclarator(declarator.getData(),
-                                                 qualifierlist.getData()),
-                  combinedCond);
-      combinedCond.delRef();
-    }
-  }
-
-  return valuemv;
-}
-
-/**
- * Create pointer declarators.
- */
-final Multiverse.Transformer<Declarator, Declarator> toPointerDeclarator = new Multiverse.Transformer<Declarator, Declarator>() {
-  Declarator transform(Declarator from) {
-    return new PointerDeclarator(from);
-  }
-};
-
-/**
- * Create qualified pointer declarators.
- */
-final Multiverse.Transformer<TypeBuilder, Declarator> toQualifiedPointerAbstractDeclarator = new Multiverse.Transformer<TypeBuilder, Declarator>() {
-  Declarator transform(TypeBuilder from) {
-    return new QualifiedPointerAbstractDeclarator(from);
-  }
-};
-
-/**
- * Create abstract array declarators.
- */
-final Multiverse.Transformer<StringBuilder, Declarator> toAbstractArrayDeclarator = new Multiverse.Transformer<StringBuilder, Declarator>() {
-  Declarator transform(StringBuilder from) {
-    return new ArrayAbstractDeclarator(from);
-  }
-};
-
-// TODO make these two methods generic for any list
-/**
- * Concatenate two ParmeterListDeclarators
- */
-final static Multiverse.Operator<List<ParameterDeclarator>> PARAMLISTCONCAT = (list1, list2) -> {
-  List<ParameterDeclarator> newlist = new LinkedList<ParameterDeclarator>();
-  newlist.addAll(list1);
-  newlist.addAll(list2);
-  return newlist;
-};
-
-/**
- * A multiverse transformation to wrap a parameter declarator into a
- * single-element list.
- */
-final Multiverse.Transformer<ParameterDeclarator, List<ParameterDeclarator>> listWrap = new Multiverse.Transformer<ParameterDeclarator, List<ParameterDeclarator>>() {
-  List<ParameterDeclarator> transform(ParameterDeclarator from) {
-    List result = new LinkedList();
-    result.add(from);
-    return result;
-  }
-};
-
-/**
- * A multiverse transformation to turn a list of ParameterDeclarators
- * into a ParameterListDeclarator.
- */
-final Multiverse.Transformer<List<ParameterDeclarator>, ParameterListDeclarator> toParameterList = new Multiverse.Transformer<List<ParameterDeclarator>, ParameterListDeclarator>() {
-  ParameterListDeclarator transform(List<ParameterDeclarator> from) {
-    return new ParameterListDeclarator(from);
-  }
-};
-
-/*****************************************************************************
- ********* Multiverse operators for TypeBuilders
- *****************************************************************************/
-
-final static Multiverse.Operator<TypeBuilder> TBCONCAT = (tb1, tb2) -> {
-  return tb1.combine(tb2);
-};
-
-/**
- * A multiverse transformation to turn a symtab entries for a
- * typedefname into a multiverse of typebuilders.
- */
-final Multiverse.Transformer<SymbolTable.Entry, TypeBuilder> typedefEntriesToTypeBuilder = new Multiverse.Transformer<SymbolTable.Entry, TypeBuilder>() {
-  TypeBuilder transform(SymbolTable.Entry from) {
-    // TODO: improve TypeBuilder's interface
-    TypeBuilder tbunit = new TypeBuilder();
-    if (from == SymbolTable.ERROR) {
-      System.err.println("INFO: use of typedefname with invalid declaration");
-      // TODO: needs a unit test
-      tbunit.isTypeError = true;
-    } else if (from == SymbolTable.UNDECLARED) {
-      System.err.println("INFO: use of undeclared typedefname");
-      // TODO: needs a unit test
-      tbunit.isTypeError = true;
-    } else {
-      System.err.println("TODO: check that type is actually alias " + from.getType().isAlias());
-      if (! from.getType().isAlias()) {
-        System.err.println("INFO: typedefname is not declared as alias type");
-        tbunit.isTypeError = true;
-        // TODO: double-check that the parser already handles
-        // this case, although it seems like the parser is
-        // already handling this
-
-        // TODO: use the new symtab for reclassifying
-        // typedefname tokens
-      } else {
-        tbunit.setTypedef(from.getRenaming(), from.getType());
-      }
-    }
-    return tbunit;
-  }
-};
 
   /*****************************************************************************
   ********* Methods to record global desugaring information.  These
