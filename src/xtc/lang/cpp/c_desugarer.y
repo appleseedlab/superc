@@ -1156,7 +1156,7 @@ DeclarationQualifier:
 TypeQualifier:    // const, volatile, and restrict can have underscores
         ConstQualifier
         {
-          Multiverse<TypeBuilder> qual = singleTypeBuilder("const", subparser.getPresenceCondition());
+          Multiverse<TypeBuilder> qual = new Multiverse<TypeBuilder>(new TypeBuilder("const"), subparser.getPresenceCondition());
           setTransformationValue(value, qual);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -1164,7 +1164,7 @@ TypeQualifier:    // const, volatile, and restrict can have underscores
         }
         | VolatileQualifier
         {
-          Multiverse<TypeBuilder> qual = singleTypeBuilder("volatile", subparser.getPresenceCondition());
+          Multiverse<TypeBuilder> qual = new Multiverse<TypeBuilder>(new TypeBuilder("volatile"), subparser.getPresenceCondition());
           setTransformationValue(value, qual);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -1172,7 +1172,7 @@ TypeQualifier:    // const, volatile, and restrict can have underscores
         }
         | RestrictQualifier
         {
-          Multiverse<TypeBuilder> qual = singleTypeBuilder("restrict", subparser.getPresenceCondition());
+          Multiverse<TypeBuilder> qual = new Multiverse<TypeBuilder>(new TypeBuilder("restrict"), subparser.getPresenceCondition());
           setTransformationValue(value, qual);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -1188,7 +1188,7 @@ TypeQualifier:    // const, volatile, and restrict can have underscores
         }
         | FunctionSpecifier  // ADDED
         {
-          Multiverse<TypeBuilder> qual = singleTypeBuilder("inline", subparser.getPresenceCondition());
+          Multiverse<TypeBuilder> qual = new Multiverse<TypeBuilder>(new TypeBuilder("inline"), subparser.getPresenceCondition());
           setTransformationValue(value, qual);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -1665,38 +1665,38 @@ VarArgTypeName:  // ADDED
 
 StorageClass:
         TYPEDEF
-    	{
+        {
           String storageName = getNodeAt(subparser, 1).getTokenText();
-    	  Multiverse<TypeBuilder> storage = singleTypeBuilder(storageName, subparser.getPresenceCondition());
-    	  setTransformationValue(value, storage);
+          Multiverse<TypeBuilder> storage = new Multiverse<TypeBuilder>(new TypeBuilder(storageName), subparser.getPresenceCondition());
+          setTransformationValue(value, storage);
           getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF;
-    	}
+        }
         | EXTERN
-  	{
+        {
           String storageName = getNodeAt(subparser, 1).getTokenText();
-          Multiverse<TypeBuilder> storage = singleTypeBuilder(storageName, subparser.getPresenceCondition());
-  	  setTransformationValue(value, storage);
+          Multiverse<TypeBuilder> storage = new Multiverse<TypeBuilder>(new TypeBuilder(storageName), subparser.getPresenceCondition());
+          setTransformationValue(value, storage);
           getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN;
-  	}
+        }
         | STATIC
-  	{
+        {
           String storageName = getNodeAt(subparser, 1).getTokenText();
-          Multiverse<TypeBuilder> storage = singleTypeBuilder(storageName, subparser.getPresenceCondition());
-  	  setTransformationValue(value, storage);
+          Multiverse<TypeBuilder> storage = new Multiverse<TypeBuilder>(new TypeBuilder(storageName), subparser.getPresenceCondition());
+          setTransformationValue(value, storage);
           getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC;
-  	}
+        }
         | AUTO
-  	{
+        {
           String storageName = getNodeAt(subparser, 1).getTokenText();
-          Multiverse<TypeBuilder> storage = singleTypeBuilder(storageName, subparser.getPresenceCondition());
-  	  setTransformationValue(value, storage);
+          Multiverse<TypeBuilder> storage = new Multiverse<TypeBuilder>(new TypeBuilder(storageName), subparser.getPresenceCondition());
+          setTransformationValue(value, storage);
           getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO;
-  	}
+        }
         | REGISTER
-  	{
+        {
           String storageName = getNodeAt(subparser, 1).getTokenText();
-          Multiverse<TypeBuilder> storage = singleTypeBuilder(storageName, subparser.getPresenceCondition());
-  	  setTransformationValue(value, storage);
+          Multiverse<TypeBuilder> storage = new Multiverse<TypeBuilder>(new TypeBuilder(storageName), subparser.getPresenceCondition());
+          setTransformationValue(value, storage);
           getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER;
         }
         ;
@@ -1704,76 +1704,76 @@ StorageClass:
 BasicTypeName:
         VOID
         {
-          Multiverse<TypeBuilder> tb = singleTypeBuilder(VoidT.TYPE, subparser.getPresenceCondition());
+          Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(VoidT.TYPE), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
           	  getSpecsAt(subparser, 1).type = VoidT.TYPE;
 
         }
         | CHAR
         {
-          Multiverse<TypeBuilder> tb = singleTypeBuilder(NumberT.CHAR, subparser.getPresenceCondition());
+          Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(NumberT.CHAR), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
           	  getSpecsAt(subparser, 1).seenChar = true;
         }
         | SHORT
         {
-          Multiverse<TypeBuilder> tb = singleTypeBuilder(NumberT.SHORT, subparser.getPresenceCondition());
+          Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(NumberT.SHORT), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
           	  getSpecsAt(subparser, 1).seenShort = true;
         }
         | INT
         {
           // See xtc.type.* for the class hiearchy for types
-          Multiverse<TypeBuilder> tb = singleTypeBuilder(NumberT.INT, subparser.getPresenceCondition());
+          Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(NumberT.INT), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
                     getSpecsAt(subparser, 1).seenInt = true;
         }
         | __INT128
         {
-          Multiverse<TypeBuilder> tb = singleTypeBuilder(NumberT.__INT128, subparser.getPresenceCondition());
+          Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(NumberT.__INT128), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
                 	  getSpecsAt(subparser, 1).seenInt = true;
         }
         | LONG
         {
           // See xtc.type.* for the class hiearchy for types
-          Multiverse<TypeBuilder> tb = singleTypeBuilder(NumberT.LONG, subparser.getPresenceCondition());
+          Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(NumberT.LONG), subparser.getPresenceCondition());
       	  setTransformationValue(value, tb);
                 	  getSpecsAt(subparser, 1).longCount++;
         }
         | FLOAT
         {
-          Multiverse<TypeBuilder> tb = singleTypeBuilder(NumberT.FLOAT, subparser.getPresenceCondition());
+          Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(NumberT.FLOAT), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
                     getSpecsAt(subparser, 1).seenFloat = true;
         }
         | DOUBLE
         {
-          Multiverse<TypeBuilder> tb = singleTypeBuilder(NumberT.DOUBLE, subparser.getPresenceCondition());
+          Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(NumberT.DOUBLE), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
           	  getSpecsAt(subparser, 1).seenDouble = true;
         }
         | SignedKeyword
         {
-          Multiverse<TypeBuilder> tb = singleTypeBuilder("signed", subparser.getPresenceCondition());
+          Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder("signed"), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
           	  getSpecsAt(subparser, 1).seenSigned = true;
         }
         | UNSIGNED
         {
-          Multiverse<TypeBuilder> tb = singleTypeBuilder("unsigned", subparser.getPresenceCondition());
+          Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder("unsigned"), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
           getSpecsAt(subparser, 1).seenUnsigned = true;
         }
         | _BOOL
         {
-          Multiverse<TypeBuilder> tb = singleTypeBuilder(BooleanT.TYPE, subparser.getPresenceCondition());
+          Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(BooleanT.TYPE), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
           	  getSpecsAt(subparser, 1).seenBool = true;
         }
         | ComplexKeyword
         {
-          Multiverse<TypeBuilder> tb = singleTypeBuilder("complex", subparser.getPresenceCondition());
+          Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder("complex"), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
           getSpecsAt(subparser, 1).seenComplex = true;
         }
@@ -5597,35 +5597,54 @@ final Multiverse.Transformer<List<ParameterDeclarator>, ParameterListDeclarator>
   }
 };
 
+/*****************************************************************************
+ ********* TypeBuilder support for semantic actions.
+ *****************************************************************************/
+
 final static Multiverse.Operator<TypeBuilder> TBCONCAT = (tb1, tb2) -> {
   return tb1.combine(tb2);
 };
 
 /**
- * Create a multiverse containing a single type builder with the given
- * qualifier string.
+ * A multiverse transformation to turn a symtab entries for a
+ * typedefname into a multiverse of typebuilders.
  */
-final static Multiverse<TypeBuilder> singleTypeBuilder(String qualifier, PresenceCondition pc) {
-  Multiverse<TypeBuilder> tbmv = new Multiverse<TypeBuilder>();
-  tbmv.add(new TypeBuilder(qualifier), pc);
-  return tbmv;
-}
+final Multiverse.Transformer<SymbolTable.Entry, TypeBuilder> typedefEntriesToTypeBuilder = new Multiverse.Transformer<SymbolTable.Entry, TypeBuilder>() {
+  TypeBuilder transform(SymbolTable.Entry from) {
+    // TODO: improve TypeBuilder's interface
+    TypeBuilder tbunit = new TypeBuilder();
+    if (from == SymbolTable.ERROR) {
+      System.err.println("INFO: use of typedefname with invalid declaration");
+      // TODO: needs a unit test
+      tbunit.isTypeError = true;
+    } else if (from == SymbolTable.UNDECLARED) {
+      System.err.println("INFO: use of undeclared typedefname");
+      // TODO: needs a unit test
+      tbunit.isTypeError = true;
+    } else {
+      System.err.println("TODO: check that type is actually alias " + from.getType().isAlias());
+      if (! from.getType().isAlias()) {
+        System.err.println("INFO: typedefname is not declared as alias type");
+        tbunit.isTypeError = true;
+        // TODO: double-check that the parser already handles
+        // this case, although it seems like the parser is
+        // already handling this
 
-/**
- * Create a multiverse containing a single type builder with the given
- * type.
- */
-final static Multiverse<TypeBuilder> singleTypeBuilder(Type type, PresenceCondition pc) {
-  Multiverse<TypeBuilder> tbmv = new Multiverse<TypeBuilder>();
-  tbmv.add(new TypeBuilder(type), pc);
-  return tbmv;
-}
+        // TODO: use the new symtab for reclassifying
+        // typedefname tokens
+      } else {
+        tbunit.setTypedef(from.getRenaming(), from.getType());
+      }
+    }
+    return tbunit;
+  }
+};
 
-/*****************************************************************************
- ********* Methods to record global desugaring information.  These
- ********* will go into a special initializer function defined at the
- ********* end of the transformation.
- *****************************************************************************/
+  /*****************************************************************************
+  ********* Methods to record global desugaring information.  These
+   ********* will go into a special initializer function defined at the
+   ********* end of the transformation.
+   *****************************************************************************/
 
 /**
  * Record an invalid global declaration.
