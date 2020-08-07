@@ -5292,13 +5292,25 @@ private String getCPC(Node n) {
  */
 private StringBuilder emitStatement(Multiverse<StringBuilder> allStatementConfigs, PresenceCondition pc) {
   StringBuilder sb = new StringBuilder();
-  sb.append("\n{");
-  for (Multiverse.Element<StringBuilder> statement : allStatementConfigs) {
-    sb.append("\nif (");
-    sb.append(PCtoString(statement.getCondition().and(pc)));
-    sb.append(") {\n" + statement.getData().toString() + "\n}\n");
+  if (allStatementConfigs.size() > 1) {
+    sb.append("\n{");
   }
-  sb.append("\n}");
+  for (Multiverse.Element<StringBuilder> statement : allStatementConfigs) {
+    if (! pc.isTrue()) {
+      // don't bother using an if the statement applies to all configurations
+      sb.append("\nif (");
+      sb.append(PCtoString(statement.getCondition().and(pc)));
+      sb.append(") {\n");
+    }
+    sb.append(statement.getData().toString());
+    if (! pc.isTrue()) {
+      sb.append("\n}");
+    }
+    sb.append("\n");
+  }
+  if (allStatementConfigs.size() > 1) {
+    sb.append("\n}");
+  }
   return sb;
 }
 
