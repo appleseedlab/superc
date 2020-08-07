@@ -95,10 +95,8 @@ SOURCE = \
 	cdiff.java \
 	FunctionChecker.java \
 	Declarator.java \
-	DeclBuilder.java \
 	TypeBuilderMultiverse.java \
 	TypeBuilderUnit.java \
-	Parameter.java \
 	SuperC.java
 
 

@@ -7130,31 +7130,6 @@ public String generateBoolExpr(String CPPBoolExpr) {
 
 protected static C cOps = new C();
 
-/**
- * Returns if the provided list is a valid Parameter list.
- * If there is only one entry, and it is void, then the list
- * is acceptable and should proceed as an empty list. Otherwise
- * if any Parameter in the list is not valid({@link xtc.lang.cpp.Parameter#isValidType()})
- * then the list is invalid and false is returned.
- *
- * @param lp List of Parameters to be checked for validity
- * @return if the list "lp" is valid
- */
-boolean validateParamList(List<Parameter> lp)
-{
-  if (lp.size() == 1 && lp.get(0).isVoid()) {
-    lp.remove(0);
-    return true;
-  }
-  
-  for (Parameter p : lp) {
-    if (!p.isValidType()) {
-      return false;
-    }
-  }
-  return true;
-}
-
 
 // ---------- Declarators
 
