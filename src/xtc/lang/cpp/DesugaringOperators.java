@@ -10,6 +10,7 @@ import xtc.lang.cpp.SymbolTable.Entry;
 
 import xtc.lang.cpp.Declarator;
 import xtc.lang.cpp.Declarator.EmptyDeclarator;
+import xtc.lang.cpp.Declarator.ParenDeclarator;
 import xtc.lang.cpp.Declarator.SimpleDeclarator;
 import xtc.lang.cpp.Declarator.PointerDeclarator;
 import xtc.lang.cpp.Declarator.QualifiedPointerDeclarator;
@@ -71,6 +72,15 @@ class DesugaringOperators {
 
     return valuemv;
   }
+
+  /**
+   * Wrap with paren declarators.
+   */
+  public final static Multiverse.Transformer<Declarator, Declarator> toParenDeclarator = new Multiverse.Transformer<Declarator, Declarator>() {
+    Declarator transform(Declarator from) {
+      return new ParenDeclarator(from);
+    }
+  };
 
   /**
    * Create pointer declarators.

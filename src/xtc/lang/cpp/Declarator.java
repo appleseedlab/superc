@@ -51,6 +51,9 @@ abstract class Declarator {
   /** Returns true if this is a EmptyDeclarator object. */
   public boolean isEmptyDeclarator() { return false; }
   
+  /** Returns true if this is a ParenDeclarator object. */
+  public boolean isParenDeclarator() { return false; }
+  
   /** Returns true if this is a SimpleDeclarator object. */
   public boolean isSimpleDeclarator() { return false; }
   
@@ -102,11 +105,44 @@ abstract class Declarator {
     }
 
     @Override
-    public boolean isSimpleDeclarator() { return true; }
+    public boolean isEmptyDeclarator() { return true; }
 
     public String toString() {
       // empty declarators have no string
       return "";
+    }
+  }
+
+  /**
+   * This declarator is for preserving placement of parentheses.
+   */
+  public static class ParenDeclarator extends Declarator {
+    /**
+     * The wrapped declarator.
+     */
+    protected final Declarator declarator;
+    
+    public ParenDeclarator(Declarator declarator) {
+      this.declarator = declarator;
+    }
+
+    public String getName() {
+      return declarator.getName();
+    }
+
+    public Declarator rename(String newName) {
+      return declarator.rename(newName);
+    }
+
+    public Type getType(Type type) {
+      return declarator.getType(type);
+    }
+
+    @Override
+    public boolean isParenDeclarator() { return true; }
+
+    public String toString() {
+      return String.format("(%s)", declarator.toString());
     }
   }
 
@@ -170,7 +206,7 @@ abstract class Declarator {
     public boolean isPointerDeclarator() { return true; }
 
     public String toString() {
-      return String.format("(* %s)", declarator.toString());
+      return String.format("* %s", declarator.toString());
     }
   }
 
@@ -209,7 +245,7 @@ abstract class Declarator {
 
     public String toString() {
       // TODO: waiting on typebuidlerunit tostring
-      throw new AssertionError("not yet implemented");
+      throw new AssertionError("not yet implemented: waiting on typebuilder qualifiers");
     }
   }
 
@@ -277,7 +313,7 @@ abstract class Declarator {
 
     public String toString() {
       // TODO: waiting on typebuidlerunit tostring
-      throw new AssertionError("not yet implemented");
+      throw new AssertionError("yet implemented: waiting on typebuilder qualifiers");
     }
   }
 
@@ -317,7 +353,7 @@ abstract class Declarator {
 
     public String toString() {
       System.err.println("WARNING: do we need parentheses?");
-      return String.format("(%s%s)", declarator.toString(), arrayabstractdeclarator.toString());
+      return String.format("%s%s", declarator.toString(), arrayabstractdeclarator.toString());
     }
   }
 
