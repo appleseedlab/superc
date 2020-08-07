@@ -192,6 +192,19 @@ import xtc.lang.cpp.Syntax.Error;
 
 import xtc.lang.cpp.Multiverse;
 
+import xtc.lang.cpp.Declarator;
+import xtc.lang.cpp.Declarator.EmptyDeclarator;
+import xtc.lang.cpp.Declarator.SimpleDeclarator;
+import xtc.lang.cpp.Declarator.PointerDeclarator;
+import xtc.lang.cpp.Declarator.QualifiedPointerDeclarator;
+import xtc.lang.cpp.Declarator.PointerAbstractDeclarator;
+import xtc.lang.cpp.Declarator.QualifiedPointerAbstractDeclarator;
+import xtc.lang.cpp.Declarator.ArrayDeclarator;
+import xtc.lang.cpp.Declarator.ArrayAbstractDeclarator;
+import xtc.lang.cpp.Declarator.FunctionDeclarator;
+import xtc.lang.cpp.Declarator.ParameterDeclarator;
+import xtc.lang.cpp.Declarator.ParameterListDeclarator;
+
 import xtc.type.AliasT;
 import xtc.type.ArrayT;
 import xtc.type.BooleanT;
@@ -268,7 +281,7 @@ import org.sat4j.tools.ModelIterator;
 
 %%
 
-TranslationUnit:  /** complete, passthrough **/
+TranslationUnit:  /** complete **/
         ExternalDeclarationList
         {
           try {
@@ -288,45 +301,12 @@ TranslationUnit:  /** complete, passthrough **/
               temp.setLength(0);
             }
 
-            /* // TODO: handle functions properly and remove this main function placeholder */
-            /* System.err.println("TODO: generated main() is a placeholder."); */
-            /* writer.write("\nint main(void) {\n"); */
-
-            /** writes all file-dependent transformation code that isn't
-             *  a renamed config macro declaration
-             */
-            Multiverse<StringBuilder> sbmv = (Multiverse<StringBuilder>) getTransformationValue(subparser, 1);
-            for (Element<StringBuilder> elemSB : sbmv) {
-              /** Writes generated code that exists in all presence conditions,
-               *  without hoisting "if (1)", because variables declared here need
-               *  to be accessible from all other presence conditions
-               */
-              if (elemSB.getCondition().getBDD().isOne())
-              {
-                writer.write(elemSB.getData().toString());
-              }
-              else {
-                //writer.write("\nif (" + PCtoString(elemSB.getCondition().and(subparser.getPresenceCondition())) + ") {");
-                //writer.write("\n" + elemSB.getData().toString() + "\n}\n");
-                writer.write(elemSB.getData().toString());
-              }
-            }
-
-            // TODO: this is a null pointer error if there is no main
-            // TODO: handle functions properly and remove this main function placeholder
-            /* writer.write("\nint main(void) {\n"); */
-            /* Multiverse<SymbolTable.Entry> mainEntries */
-            /*   = ((CContext) subparser.scope).getSymbolTable().get("main", subparser.getPresenceCondition()); // TODO: should we use the above PC, or the current subparser's? */
-            /* for (Multiverse.Element<SymbolTable.Entry> mainRenaming : mainEntries) { */
-            /*   writer.write("\nif (" + PCtoString(mainRenaming.getCondition()) + ") {\nreturn " + mainRenaming.getData().getRenaming() + "();" +"\n}\n"); */
-            /* } */
-            /* System.err.println("TODO: check that main function is being multiplexed properly"); */
-            /* writer.write("\n}\n"); */
+            writer.write(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()).toString());
 
             writer.flush();
           } catch(IOException e) {
-            System.err.println("ERROR: unable to write output");
             e.printStackTrace();
+            System.exit(1);
           }
         }
         ;
@@ -336,87 +316,57 @@ TranslationUnit:  /** complete, passthrough **/
 ExternalDeclarationList: /** list, complete **/
         /* empty */  // ADDED gcc allows empty program
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
-          result.add(new StringBuilder(""), subparser.getPresenceCondition());
-          setTransformationValue(value, result);
+          StringBuilder valuesb = new StringBuilder();
+          setTransformationValue(value, valuesb);
         }
         | ExternalDeclarationList ExternalDeclaration
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child1 = getNodeAt(subparser, 2);
-          Node child2 = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child2, child1);
-          setTransformationValue(value, product);
+          StringBuilder valuesb = new StringBuilder();
+          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
+          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, valuesb);
         }
         ;
 
-ExternalDeclaration:  /** passthrough, complete **/
+ExternalDeclaration:  /** complete **/
         FunctionDefinitionExtension
         {
-          // TODO: do these actions need setCPC?
-          System.err.println("ERROR: unsupported construct: ExternalDeclaration");
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | DeclarationExtension
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | AssemblyDefinition
         {
-          System.err.println("ERROR: unsupported construct: ExternalDeclaration");
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | EmptyDefinition
         {
-          System.err.println("ERROR: unsupported construct: ExternalDeclaration");
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         ;
 
 EmptyDefinition:  /** complete **/
         SEMICOLON
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          StringBuilder valuesb = new StringBuilder();
+          valuesb.append(getNodeAt(subparser, 1).getTokenText());
+          setTransformationValue(value, valuesb);
         }
         ;
 
-FunctionDefinitionExtension:  /** passthrough, complete **/  // ADDED
+FunctionDefinitionExtension:  /** complete **/  // ADDED
         FunctionDefinition
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | __EXTENSION__ FunctionDefinition
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          StringBuilder valuesb = new StringBuilder();
+          valuesb.append(getNodeAt(subparser, 2).getTokenText());
+          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, valuesb);
         }
         ;
 
@@ -426,18 +376,16 @@ FunctionDefinition:  /** complete **/ // added scoping
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
 
-          TypeAndDeclarator prototype = (TypeAndDeclarator) getTransformationValue(subparser, 6);
-          // TODO: call getAllNodeConfigs(), because a static choice node can be around FunctionPrototype
-          TypeBuilderMultiverse typemv = prototype.type;
-          DeclBuilder decl = prototype.decl;
-          String originalSymbol = decl.identifier;
+          String leftcurly = getNodeAt(subparser, 4).getTokenText();
+          String body = concatAllStringBuilders(getNodeAt(subparser, 3), subparser.getPresenceCondition()).toString();
+          String rightcurly = getNodeAt(subparser, 1).getTokenText();
           
-          // TODO: use add decls to get a Multiverse<DeclBuilder> and iterate over it instead
-          
-          // TODO: separately turn DeclBuilder into Multiverse<DeclBuilder> and iterate over each instead
+          /* System.err.println("TYPE: " + typebuildermv); */
+          /* System.err.println("DECLARATOR: " + declaratormv); */
 
-          // get the compound statement's semantic value
-          Multiverse<StringBuilder> bodymv = (Multiverse<StringBuilder>) getTransformationValue(subparser, 3);
+          // add all variations of the function declaration to the symtab
+          CContext scope = (CContext)subparser.scope;
+          SymbolTable symtab = scope.getSymbolTable();
 
           // declarations, including function definitions, should
           // appear unconditionally in the desugared output, since
@@ -445,164 +393,98 @@ FunctionDefinition:  /** complete **/ // added scoping
           // resulting definitions to a single element multiverse
           // under the true condition.
           StringBuilder sb = new StringBuilder();
+
+          // TODO: investigate why the function prototype can still
+          // have a conditional underneath even though the complete
+          // annotation isn't on functionprototype.  this is why we
+          // are getting all nodes at this point
+          Multiverse<Node> prototypeNodemv = getAllNodeConfigs(getNodeAt(subparser, 6), subparser.getPresenceCondition());
+          for (Element<Node> prototypeNode : prototypeNodemv) {
+            FunctionPrototypeValue prototype = (FunctionPrototypeValue) getTransformationValue(prototypeNode.getData());
+            TypeBuilderMultiverse typebuildermv = prototype.typebuilder;
+            Multiverse<Declarator> declaratormv = prototype.declarator;
+
+            assert scope.isGlobal(); // function definitions should be global.  nested functions have a separate subgrammar.
           
-          // add all variations of the function declaration to the symtab
-          CContext scope = (CContext)subparser.scope;
+            for (Element<TypeBuilderUnit> typebuilder : typebuildermv) {
+              PresenceCondition typebuilderCond = prototypeNode.getCondition().and(typebuilder.getCondition());
+              for (Element<Declarator> declarator : declaratormv) {
+                PresenceCondition combinedCond = typebuilderCond.and(declarator.getCondition());
+                String originalName = declarator.getData().getName();
 
-          // TODO: get all single-configuration declbuilders and
-          // iterate over them.  currently addDeclsToSymTab returns
-          // the renamed ones, which breaks symbol table lookup,
-          // because it expects the original name
-          Multiverse<DeclBuilder> declmv = addDeclsToSymTab(pc, scope, typemv, decl);
-          
-          // TODO: add test cases where there are multiple decls, e.g., due to typedefs or ifdefs in parameters
-          
-          // iterate over all single-configuration declbuidlers
-          
-          for (Element<DeclBuilder> singledecl : declmv) { 
-            PresenceCondition singledeclpc = pc.and(singledecl.getCondition()); 
-            DeclBuilder singledeclbuilder = singledecl.getData(); 
+                if (typebuilder.getData().isTypeError) {
+                  // if type is invalid, put an error entry, emit a call
+                  // to the type error function
+                  symtab.putError(originalName, combinedCond);
+                  recordInvalidGlobalDeclaration(originalName, combinedCond);
+                } else {
+                  // otherwise loop over each existing entry check for
+                  // type errors or add a new declaration
+                  Multiverse<SymbolTable.Entry> entries = symtab.get(originalName, combinedCond);
+                  for (Element<SymbolTable.Entry> entry : entries) {
+                    if (entry.getData() == SymbolTable.ERROR) {
+                      // ERROR entry
+                      System.err.println(String.format("INFO: %s is being redeclared in an existing invalid declaration", originalName));
 
-            // get each symtab entry for this symbol under the current action's pc and current declbuilder's pc
-            Multiverse<SymbolTable.Entry> entries
-              = scope.getSymbolTable().get(singledeclbuilder.getID(), singledeclpc);
+                    } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                      // UNDECLARED entry
+                      String renaming = symtab.freshCId(originalName);
+                      Declarator renamedDeclarator = declarator.getData().rename(renaming);
+                      Declaration declaration = new Declaration(typebuilder.getData(),
+                                                                renamedDeclarator);
+                      Type type = declaration.getType();
 
-            // iterate over each symtab entry and emit the renamed function definition
-            for (Element<SymbolTable.Entry> elem : entries) {
-              if (elem.getData() == SymbolTable.ERROR) {
-                // FunctionDefinitions are always global, because nested functions have different productions
-                assert scope.isGlobal();
-                recordInvalidGlobalDeclaration(originalSymbol, elem.getCondition());
-              } else if (elem.getData() == SymbolTable.UNDECLARED) {
-                // it should not be possible to get an undeclared
-                // entry, because this semantic action is only
-                // triggered when there is a declaration in the
-                // input program under this presence condition.
-                throw new AssertionError("undeclared entries should be not possible under a presence condition that has a function definition");
-              } else {
-                Type type = elem.getData().getType();
-                DeclBuilder renamedDecl = new DeclBuilder(singledeclbuilder);
-                String renaming = elem.getData().getRenaming();
-                renamedDecl.identifier = renaming;
+                      // update the symbol table for this presence condition
+                      symtab.put(originalName, renaming, type, entry.getCondition());
+                      sb.append(declaration.toString());
+                      sb.append(" ");
+                      sb.append(leftcurly);
+                      sb.append("\n");
+                      sb.append(body);
+                      sb.append("\n");
+                      sb.append(rightcurly);
+                      sb.append("\n");
+                      recordRenaming(renaming, originalName);
 
-                // desugar function definitions by wrapping the body of
-                // the function with the presence condition under which
-                // it is defined, since C conditionals cannot appear in
-                // the global scope
-
-                System.err.println("TYPE: " + type);
-                System.err.println("DECL: " + renamedDecl);
-
-                Type returnType = type.toFunction().getResult();
-
-                // TODO: write a method to turn an xtc type into a string
-                // TODO: check for a function type and use the return type specifiers and quals (not the param list)
-                String typeString = returnType.toString();
-              
-                // TODO: write a method to turn a single-configuration declbuilder into a string
-                String declString = renamedDecl.toString();
-
-                sb.append(typeString);
-                sb.append(" ");
-                sb.append(declString);
-                sb.append(" /* renamed from ");
-                sb.append(originalSymbol);
-                sb.append(" */ ");
-                sb.append(getNodeAt(subparser, 4).getTokenText());  // opening brace
-                sb.append("\n");
-                for (Multiverse.Element<StringBuilder> bodyElement : bodymv) {
-                  sb.append("if (");
-                  sb.append(PCtoString(bodyElement.getCondition()));
-                  sb.append(") {\n");
-                  sb.append(bodyElement.getData());
-                  sb.append("}\n");
+                    } else {
+                      String renaming = entry.getData().getRenaming();
+                      Declarator renamedDeclarator = declarator.getData().rename(renaming);
+                      Declaration declaration = new Declaration(typebuilder.getData(),
+                                                                renamedDeclarator);
+                    
+                      // already declared entries
+                      if (! cOps.equal(entry.getData().getType(), declaration.getType())) {
+                        recordInvalidGlobalDeclaration(originalName, combinedCond);
+                      } else {
+                        // emit the same declaration, since it's legal to redeclare globals to a compatible type
+                        Type type = declaration.getType();
+                        sb.append(declaration.toString());
+                        sb.append(" ");
+                        sb.append(getNodeAt(subparser, 4).getTokenText());
+                        sb.append("\n");
+                        sb.append((StringBuilder) getTransformationValue(subparser, 3));
+                        sb.append("\n");
+                        sb.append(getNodeAt(subparser, 1).getTokenText());
+                        sb.append("\n");
+                        System.err.println(String.format("INFO: %s is being redeclared in global scope to compatible type", originalName));
+                      }
+                    }  // end test of symtab entry type
+                    sb.append("\n"); // TODO: pass results through a pretty printer or ultimately preserve input file formatting
+                  } // end loop over symtab entries
                 }
-                sb.append(getNodeAt(subparser, 1).getTokenText());  // closing brace
-                recordRenaming(renaming, originalSymbol);
               
-                // TODO: potential optimization: create a multiplexer
-                // function.  requires merging the parameter lists of
-                // each function, either by adding them all as
-                // parameters, or merging the types of the parameters,
-                // themselves, e.g., int/long -> long
-              }
-              sb.append("\n"); // TODO: pass results through a pretty printer or ultimately preserve input file formatting
-            }  // finish iterating over all entries under the decl's presence condition
-            entries.destruct();
-            singledeclpc.delRef();
-          }  // finish iterating over all declbuilders
-          declmv.destruct();
-          setCPC(value, PCtoString(pc));
-
-          // return a single-element multiverse for all presence
-          // conditions, since the transformation value is a
-          // multiverse.
-          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
-          result.add(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue());
-          setTransformationValue(value, result);
-          
-          
-/*           Multiverse<List<Parameter>> parametersMultiverse = decl.getParams(pc); */
-
-/*           Multiverse<StringBuilder> functionBodyMultiverse = new Multiverse<StringBuilder>((Multiverse<StringBuilder>) getTransformationValue(subparser, 3)); */
-/*           Multiverse<StringBuilder> allRenamedDeclarations = new Multiverse<StringBuilder>(); */
-/*           // adds the declaration to the symbol table for every configuration of the function body */
-/*           for (Multiverse.Element<StringBuilder> functionBody : functionBodyMultiverse) */
-/*           { */
-/*             // adds the declaration to the symbol table for every configuration of the function parameters */
-/*             for (Multiverse.Element<List<Parameter>> parameters : parametersMultiverse) */
-/*             { */
-/*                 // adds the function to the symbol table, and then gets the renamings back */
-/* p                addDeclsToSymTab(pc.and(functionBody.getCondition()).and(parameters.getCondition())/\*.and(parameter.getCondition())*\/, (CContext)subparser.scope, typemv, decl); */
-/*                 Multiverse<SymbolTable.Entry> entries */
-/*                   = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition()); // TODO: should we use the above PC, or the current subparser's? */
-
-/*                 StringBuilder functionPrototype = new StringBuilder(); */
-/*                 String oldIdent = decl.identifier; */
-
-/*                 // writes the declaration */
-/*                 for (Element<SymbolTable.Entry> elem : entries) { */
-/*                   DeclBuilder renamedDecl = new DeclBuilder(decl); */
-/*                   renamedDecl.identifier = elem.getData().getRenaming(); */
-
-/*                   Type returnType = elem.getData().getType(); */
-
-/*                   System.err.println("TODO: handle function parameters"); */
-/*                   functionPrototype.append("\n" + elem.getData().getType().toFunction().getResult() + " " + renamedDecl.identifier + "("); */
-
-/*                   boolean is_first_parameter = true; */
-/*                   for (Parameter parameter : parameters.getData()) { */
-/*                     // TODO: support configurable function arguments */
-/*                     System.err.println("TODO: support configurable function parameters"); */
-
-/*                     if ((parameter.getMultiverse()).size() > 1) */
-/*                     { */
-/*                       System.err.println("ERROR: configurable function parameters not yet supported"); */
-/*                     } */
-/*                     else */
-/*                     { */
-/*                       if (is_first_parameter) */
-/*                       { */
-/*                         functionPrototype.append(parameter.getMultiverse().get(0).getData().getType() + " " + parameter.getMultiverse().get(0).getData().getRenaming()); */
-/*                         is_first_parameter = false; */
-/*                       } */
-/*                       else */
-/*                       { */
-/*                         functionPrototype.append(", " + parameter.getMultiverse().get(0).getData().getType() + " " + parameter.getMultiverse().get(0).getData().getRenaming()); */
-/*                       } */
-/*                     } */
-/*                   } */
-/*                   functionPrototype.append(")" + " /\* renamed from " + oldIdent + " *\/ \n"); */
-/*                   functionPrototype.append("{\n"+ functionBody.getData().toString() +"\n}\n"); // TODO: stop hard-coding the curly braces */
-
-/*                 } */
-/*                 entries.destruct(); */
-/*                 // all function declarations are written under all presence conditions */
-/*                 allRenamedDeclarations.add(functionPrototype, subparser.getPresenceCondition().presenceConditionManager().newTrue()); */
-/*             } */
-/*           } */
-
-/*           setTransformationValue(value, allRenamedDeclarations); */
+                combinedCond.delRef();
+              } // end of loop over declarators
+              typebuilderCond.delRef();
+            } // end of loop over typebuilders
+            // TODO: improve memory usage by destructing these.
+            // challenge is that they are shared by nodes.
+            /* typebuildermv.destruct(); */
+            /* declaratormv.destruct(); */
+          }
+          if (debug) System.err.println(symtab);
+          prototypeNodemv.destruct();          
+          setTransformationValue(value, sb);
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
@@ -619,8 +501,12 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
         LocalLabelDeclarationListOpt DeclarationOrStatementList
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setCPC(value, PCtoString(pc));
+          StringBuilder valuesb = new StringBuilder();
+          System.err.println("ERROR: todo implement locallabeldeclarationlistopt");
+          /* valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 2), subparser.getPresenceCondition())); */
+          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, valuesb);
         }
         ;
 
@@ -631,89 +517,80 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
 FunctionPrototype:  /** nomerge **/
         IdentifierDeclarator
         {
-	  // TODO
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 1);
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
-          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
+          System.err.println("ERROR: unsupported semantic action: FunctionPrototype");
+          System.exit(1);
+          // TODO: handle the case when there is no type spec, i.e.,
+          // it defaults to int, so just create a new
+          // typebuildermultiverse with one int inside under the current presence condition
         }
         | DeclarationSpecifier     IdentifierDeclarator
         {
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 1);
-          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        }
-        | TypeSpecifier            IdentifierDeclarator
-        {
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 1);
-
           // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
 
-          // set the semantic value to be the type and declarator
-          TypeAndDeclarator prototype = new TypeAndDeclarator(type, decl);
-          setTransformationValue(value, prototype);
+          setTransformationValue(value, new FunctionPrototypeValue((TypeBuilderMultiverse) getTransformationValue(subparser, 2),
+                                                                   (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
+        }
+        | TypeSpecifier            IdentifierDeclarator
+        {
+          // legacy type checking code
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+
+          setTransformationValue(value, new FunctionPrototypeValue((TypeBuilderMultiverse) getTransformationValue(subparser, 2),
+                                                                   (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
-	  // TODO
-          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 1);
+          // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+
+          setTransformationValue(value, new FunctionPrototypeValue((TypeBuilderMultiverse) getTransformationValue(subparser, 2),
+                                                                   (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
         }
         | TypeQualifierList        IdentifierDeclarator
         {
-	  // TODO
-          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 1);
+          // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+
+          setTransformationValue(value, new FunctionPrototypeValue((TypeBuilderMultiverse) getTransformationValue(subparser, 2),
+                                                                   (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
         }
         |                          OldFunctionDeclarator
         {
-	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
+          System.exit(1);
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
-	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 1);
+          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
-	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 1);
+          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
-	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 1);
+          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
-	  // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 1);
+          System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -722,43 +599,37 @@ FunctionPrototype:  /** nomerge **/
 FunctionOldPrototype:  /** nomerge **/
         OldFunctionDeclarator
         {
+          System.err.println("WARNING: unsupported semantic action: FunctionOldPrototype");
+          System.exit(1);
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: FunctionOldPrototype");
+          System.exit(1);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: FunctionOldPrototype");
+          System.exit(1);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: FunctionOldPrototype");
+          System.exit(1);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: FunctionOldPrototype");
+          System.exit(1);
         }
         ;
 
@@ -769,16 +640,14 @@ NestedFunctionDefinition:  /** complete **/ // added scoping
         NestedFunctionPrototype { ReenterScope(subparser); } LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 7), getNodeAt(subparser, 4), getNodeAt(subparser, 3));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
+          System.exit(1);
         }
         | NestedFunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 8), getNodeAt(subparser, 6), getNodeAt(subparser, 4), getNodeAt(subparser, 3));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
+          System.exit(1);
         }
         ;
 
@@ -787,66 +656,58 @@ NestedFunctionPrototype:  /** nomerge **/
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
+          System.exit(1);
         }
         | TypeSpecifier            IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
+          System.exit(1);
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
+          System.exit(1);
         }
         | TypeQualifierList        IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
+          System.exit(1);
         }
 
         | DeclarationSpecifier     OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
+          System.exit(1);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
+          System.exit(1);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
+          System.exit(1);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
+          System.exit(1);
         }
         ;
 
@@ -855,33 +716,29 @@ NestedFunctionOldPrototype:  /** nomerge **/
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
+          System.exit(1);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
+          System.exit(1);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
+          System.exit(1);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
+          System.exit(1);
         }
         ;
 
@@ -909,186 +766,161 @@ NestedFunctionOldPrototype:  /** nomerge **/
              parsed * /
     */
 
-DeclarationExtension:  /** passthrough, complete **/  // ADDED
+DeclarationExtension:  /** complete **/  // ADDED
         Declaration
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | __EXTENSION__ Declaration
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          StringBuilder valuesb = new StringBuilder();
+          valuesb.append(getNodeAt(subparser, 2).getTokenText());
+          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, valuesb);
         }
         ;
 
 Declaration:  /** complete **/
         SUEDeclarationSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 3);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          System.err.println("TODO: Declaration (1)");
+          System.exit(1);
         }
         | SUETypeSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 3);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          System.err.println("TODO: Declaration (2)");
+          System.exit(1);
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
-        	// unpack type specifier, declarators, and initializers from the transformation value
-        	TypeAndDeclInitList TBDBList = (TypeAndDeclInitList) getTransformationValue(subparser, 3);
-        	TypeBuilderMultiverse typemv = TBDBList.type;
-        	List<TypeAndDeclInitList.DeclAndInit> declAndInits = TBDBList.declAndInitList;
-
-        	StringBuilder sb = new StringBuilder();
-
           CContext scope = ((CContext) subparser.scope);
+          SymbolTable symtab = scope.getSymbolTable();
+        	StringBuilder sb = new StringBuilder();  // the desugared output
+
+          /*
+           * to desugar declarations, we need to iterate over all
+           * combinations of (1) declarators in the declaring list,
+           * (2) the type multiverse, (3) the declarator multiverse,
+           * and (4) the initializer multiverse.  TODO: also add the
+           * assembly and attribute contents, although this is not
+           * necessary for source-level analysis.
+           */
           
-          // go through each combination of type, declarator, and initializer (if present)
-        	for (TypeAndDeclInitList.DeclAndInit declAndInit : declAndInits) {
-        		DeclBuilder decl = declAndInit.decl;
-	          String oldIdent = decl.identifier;
-	          System.err.println(decl.toString() + " " + typemv.toString());
+          // loop over each element of the declaration list
+        	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
+          for (DeclaringListValue declaringlistvalue : declaringlistvalues) {
+            /* // unpack type specifier, declarators, and initializers from the transformation value */
+            TypeBuilderMultiverse typebuildermv = declaringlistvalue.typebuilder;
+            Multiverse<Declarator> declaratormv = declaringlistvalue.declarator;
+            Multiverse<StringBuilder> initializermv = declaringlistvalue.initializer;
 
-            // check for an initializer
-            if (declAndInit.initializerSBMV.size() > 0) {
-              // if the declaration has an initializer under at least one presence condition,
-              // then we iterate through every initializer, add a new instance to the symtab,
-              // then write the declaration of that new variable with its initializer.
-              Multiverse<StringBuilder> configInitializers = declAndInit.initializerSBMV;
+            for (Element<TypeBuilderUnit> typebuilder : typebuildermv) {
+              PresenceCondition typebuilderCond = subparser.getPresenceCondition().and(typebuilder.getCondition());
+              for (Element<StringBuilder> initializer : initializermv) {
+                // TODO: optimization opportunity, share multiple
+                // initialiers with one renaming (harder for globals)
+                PresenceCondition initializerCond = typebuilderCond.and(initializer.getCondition());
+                for (Element<Declarator> declarator : declaratormv) {
+                  PresenceCondition combinedCond = initializerCond.and(declarator.getCondition());
+                  String originalName = declarator.getData().getName();
 
-              for (Element<StringBuilder> initializer : configInitializers) {
-                // note that because typemv is a multiverse and decl
-                // may also contain multiverses, addDeclsToSymTab may
-                // add multiple renamings of the symbol
-                Multiverse<DeclBuilder> declmv
-                  = addDeclsToSymTab(subparser.getPresenceCondition().and(initializer.getCondition()),
-                                   (CContext)subparser.scope, typemv, decl);
+                  // get xtc type from type and declarator
 
-                // TODO: iterate over all variations of the declbuilder
-                
-                Multiverse<SymbolTable.Entry> entries
-                  = scope.getSymbolTable().get(decl.getID(), subparser.getPresenceCondition().and(initializer.getCondition()));
-
-                // writes the declaration
-                // TODO: consider abstracting away writing declarations into an emitDeclaration method
-                // TODO: consider also proactively determining which configurations do not declare this config and emitting a type-error for that (instead of writing the type error every time its used
-                for (Element<SymbolTable.Entry> elem : entries) {
-                  if (elem.getData() == SymbolTable.ERROR) {
+                  if (typebuilder.getData().isTypeError) {
+                    // if type is invalid, put an error entry, emit a call
+                    // to the type error function
+                    symtab.putError(originalName, combinedCond);
                     if (scope.isGlobal()) {
-                      recordInvalidGlobalDeclaration(oldIdent, elem.getCondition());
+                      recordInvalidGlobalDeclaration(originalName, combinedCond);
                     } else {
                       sb.append("if (");
-                      sb.append(PCtoString(elem.getCondition()));
+                      sb.append(PCtoString(combinedCond));
                       sb.append(") {\n");
-                      sb.append(String.format("__type_error(\"invalid declaration of %s under this presence condition\");\n", oldIdent));
-                      System.err.println("TODO: declare __typeerror() as extern");
+                      sb.append(String.format("__type_error(\"invalid declaration of %s under this presence condition\");\n", originalName));
+                      System.err.println("TODO: declare __type_error() as extern");
                       sb.append("}\n");
                     }
-                  } else if (elem.getData() == SymbolTable.UNDECLARED) {
-                    // it should not be possible to get an undeclared
-                    // entry, because this semantic action is only
-                    // triggered when there is a declaration in the
-                    // input program under this presence condition.
-                    throw new AssertionError("undeclared entries should be not possible under a presence condition that has a declaration");
                   } else {
-                    DeclBuilder renamedDecl = new DeclBuilder(decl);
-                    String renaming = elem.getData().getRenaming();
-                    renamedDecl.identifier = renaming;
-                    //for (Element<TypeBuilderUnit> typeUnit : type) {
-                    //sb.append("\n" + typeUnit.getData().toString() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ");
-                    //}
-                    sb.append(elem.getData().getType());
-                    sb.append(" ");
-                    sb.append(renamedDecl);
-                    sb.append(" /* renamed from ");
-                    sb.append(oldIdent);
-                    sb.append(" */ ");
-                    sb.append(initializer.getData());
-                    sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
-                    recordRenaming(renaming, oldIdent);
-                  }
-                  sb.append("\n"); // TODO: pass results through a pretty printer or ultimately preserve input file formatting
-                }
-                declmv.destruct();
-                entries.destruct();
-              }
-            } else {
-              // if there is no initializer under any presence
-              // condition, just add the renamings and write the
-              // transformed declarations without initializers.
-              Multiverse<DeclBuilder> declmv
-                = addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, typemv, decl);
-              Multiverse<SymbolTable.Entry> entries
-                = scope.getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
+                    // otherwise loop over each existing entry check for
+                    // type errors or add a new declaration
+                    Multiverse<SymbolTable.Entry> entries = symtab.get(originalName, combinedCond);
+                    for (Element<SymbolTable.Entry> entry : entries) {
+                      if (entry.getData() == SymbolTable.ERROR) {
+                        // ERROR entry
+                        System.err.println(String.format("INFO: %s is being redeclared in an existing invalid declaration", originalName));
 
-              // writes the declaration
-              for (Element<SymbolTable.Entry> elem : entries) {
-                if (elem.getData() == SymbolTable.ERROR) {
-                  if (scope.isGlobal()) {
-                    recordInvalidGlobalDeclaration(oldIdent, elem.getCondition());
-                  } else {
-                    sb.append("if (");
-                    sb.append(PCtoString(elem.getCondition()));
-                    sb.append(") {\n");
-                    sb.append(String.format("__type_error(\"invalid declaration of %s under this presence condition\");\n", oldIdent));
-                    System.err.println("TODO: declare __typeerror() as extern");
-                    sb.append("}\n");
+                      } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                        // UNDECLARED entry
+                        String renaming = symtab.freshCId(originalName);
+                        Declarator renamedDeclarator = declarator.getData().rename(renaming);
+                        Declaration declaration = new Declaration(typebuilder.getData(),
+                                                                  renamedDeclarator);
+                        Type type = declaration.getType();
+
+                        // update the symbol table for this presence condition
+                        symtab.put(originalName, renaming, type, entry.getCondition());
+                    
+                        sb.append(declaration.toString());
+                        sb.append(initializer.getData());
+                        sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
+                        recordRenaming(renaming, originalName);
+
+                      } else {
+                        // already declared entries
+                        String renaming = entry.getData().getRenaming();
+                        Declarator renamedDeclarator = declarator.getData().rename(renaming);
+                        Declaration declaration = new Declaration(typebuilder.getData(),
+                                                                  renamedDeclarator);
+
+                        if (! scope.isGlobal()) {
+                          // not allowed to redeclare local symbols at all
+                          symtab.putError(originalName, entry.getCondition());
+                          sb.append("if (");
+                          sb.append(PCtoString(combinedCond));
+                          sb.append(") {\n");
+                          sb.append(String.format("__type_error(\"redeclaration of local symbol: %s\");\n", originalName));
+                          System.err.println("TODO: declare __type_error() as extern");
+                          sb.append("}\n");
+                        } else {
+                          if (! cOps.equal(entry.getData().getType(), declaration.getType())) {
+                            // not allowed to redeclare globals to a different type
+                            symtab.putError(originalName, entry.getCondition());
+                            recordInvalidGlobalRedeclaration(originalName, combinedCond);
+                          } else {
+                            // emit the same declaration, since it's legal to redeclare globals to a compatible type
+                            sb.append(declaration.toString());
+                            sb.append(initializer.getData());
+                            sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
+                            System.err.println(String.format("INFO: %s is being redeclared in global scope to compatible type", originalName));
+                          }
+                        }
+                      }
+                      sb.append("\n"); // TODO: pass results through a pretty printer or ultimately preserve input file formatting
+                    } // end loop over symtab entries
                   }
-                } else if (elem.getData() == SymbolTable.UNDECLARED) {
-                  // it should not be possible to get an undeclared
-                  // entry, because this semantic action is only
-                  // triggered when there is a declaration in the
-                  // input program under this presence condition.
-                  throw new AssertionError("undeclared entries should be not possible under a presence condition that has a declaration");
-                } else {
-                  DeclBuilder renamedDecl = new DeclBuilder(decl);
-                  String renaming = elem.getData().getRenaming();
-                  renamedDecl.identifier = renaming;
-                  //for (Element<TypeBuilderUnit> typeUnit : type) {
-                  //sb.append("\n" + typeUnit.getData().toString() + " " + renamedDecl + " /* renamed from " + oldIdent + " */ ");
-                  //}
-                  // TODO: check for error or undeclared entry
-                  sb.append(elem.getData().getType());
-                  sb.append(" ");
-                  sb.append(renamedDecl);
-                  sb.append(" /* renamed from ");
-                  sb.append(oldIdent);
-                  sb.append(" */ ");
-                  sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
-                  recordRenaming(renaming, oldIdent);
-                }
-                sb.append("\n"); // TODO: pass results through a pretty printer or ultimately preserve input file formatting
-              }
-              declmv.destruct();
-              entries.destruct();
-            }
-          }
-        
-        	// stores the generated declarations and initializing statements in an SBMV wrapper,
-        	// then sets the SBMV as this node's semantic value
-          Multiverse<StringBuilder> declarationSBMVWrapper = new Multiverse<StringBuilder>();
-        	declarationSBMVWrapper.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
-          setTransformationValue(value, declarationSBMVWrapper);
+              
+                  combinedCond.delRef();
+                } // end loop over declarators
+                initializerCond.delRef();
+              } // end loop over initializers
+              typebuilderCond.delRef();
+            } // end loop over typebuilders
+            // TODO: these destructs causes nullpointer errors due to
+            // the sharing of semantic values.  not destructing will
+            // cause memory leak
+            /* typebuildermv.destruct(); */
+            /* declaratormv.destruct(); */
+            /* initializermv.destruct(); */
+          } // end loop over declaringlistvalues
+          
+          if (debug) System.err.println(symtab);
+
+          setTransformationValue(value, sb);
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 3);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          System.err.println("TODO: Declaration (4)");
+          System.exit(1);
         }
         ;
 
@@ -1137,38 +969,29 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
 DeclaringList:  /** nomerge **/
         DeclarationSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          // gets the type, declaration, and optional initializer information from the children nodes
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 5);
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 4);
-          System.err.println(decl.toString() + " " + type.toString());
           saveBaseType(subparser, getNodeAt(subparser, 5));
-          bindIdent(subparser, type, decl);
-          Multiverse<StringBuilder> initializer = (Multiverse<StringBuilder>) getTransformationValue(subparser, 1);
+          bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));  // TODO: use new bindIdent to find typedefname
 
-          // TODO: AssemblyExpressionOpt and AttributeSpecifierListOpt
-          System.err.println("WARNING: skipping some children of DeclaringList");
-
-          // wraps the information in a TypeAndDeclInitList
-          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(type, decl, initializer);
-
-          setTransformationValue(value, TBDBList);
+          TypeBuilderMultiverse types = (TypeBuilderMultiverse) getTransformationValue(subparser, 5);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 4);
+          // TODO: just represent assembly and attributes as strings that get pass with the declaration object
+          Multiverse<StringBuilder> initializers = (Multiverse<StringBuilder>) getTransformationValue(subparser, 1);
+          List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
+          declaringlist.add(new DeclaringListValue(types, declarators, initializers));
+          setTransformationValue(value, declaringlist);
         }
         | TypeSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          // gets the type, declaration, and optional initializer information from the children nodes
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 4);
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 5);
           saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindIdent(subparser, type, decl);
-          Multiverse<StringBuilder> initializer = (Multiverse<StringBuilder>) getTransformationValue(subparser, 1);
-          
-          // TODO: AssemblyExpressionOpt and AttributeSpecifierListOpt
-          System.err.println("WARNING: skipping some children of DeclaringList");
+          bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));  // TODO: use new bindIdent to find typedefname
 
-          // wraps the information in a TypeAndDeclInitList
-          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(type, decl, initializer);
-
-          setTransformationValue(value, TBDBList);
+          TypeBuilderMultiverse types = (TypeBuilderMultiverse) getTransformationValue(subparser, 5);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 4);
+          // TODO: just represent assembly and attributes as strings that get pass with the declaration object
+          Multiverse<StringBuilder> initializers = (Multiverse<StringBuilder>) getTransformationValue(subparser, 1);
+          List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
+          declaringlist.add(new DeclaringListValue(types, declarators, initializers));
+          setTransformationValue(value, declaringlist);
         }
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
@@ -1176,21 +999,23 @@ DeclaringList:  /** nomerge **/
           bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          // gets the type, declaration, and optional initializer information from the children nodes
-          Multiverse<StringBuilder> initializer = (Multiverse<StringBuilder>) getTransformationValue(subparser, 1);
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 5);
-          TypeAndDeclInitList TBDBListChild = (TypeAndDeclInitList) getTransformationValue(subparser, 8);
-
-          // TODO: AssemblyExpressionOpt and AttributeSpecifierListOpt
-          System.err.println("WARNING: skipping some children of DeclaringList");
-          
-          // copies the child declaring list
-          TypeAndDeclInitList TBDBList = new TypeAndDeclInitList(TBDBListChild);
-
-          // adds this new declaration to the list of declarations
-          TBDBList.addDeclAndInit(decl, initializer);
-          
-          setTransformationValue(value, TBDBList);
+          // TODO: hoist initiazliers around the entire InitializedDeclaration
+          List<DeclaringListValue> declaringlist = (List<DeclaringListValue>) getTransformationValue(subparser, 8);
+          // there must be at least one element in the DeclaringList
+          // according to the grammar
+          assert declaringlist.size() > 0;
+          // each element is given the same typebuildermultiverse, so
+          // we can take it from the first element, which is
+          // guaranteed to be there.
+          TypeBuilderMultiverse types = declaringlist.get(0).typebuilder;
+          // the rest of the action is the same as its other
+          // productions, except we add to the list instead of making
+          // a new one
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
+          // TODO: just represent assembly and attributes as strings that get pass with the declaration object
+          Multiverse<StringBuilder> initializers = (Multiverse<StringBuilder>) getTransformationValue(subparser, 1);
+          declaringlist.add(new DeclaringListValue(types, declarators, initializers));
+          setTransformationValue(value, declaringlist);
         }
         ;
 
@@ -1898,26 +1723,26 @@ BasicTypeName:
 SignedKeyword:
         SIGNED
 	{
-	  System.err.println("WARNING: empty semantic action: SignedKeyword");
+	  System.err.println("TODO: use token");
 	}
         | __SIGNED
 	{
-	  System.err.println("WARNING: empty semantic action: SignedKeyword");
+	  System.err.println("TODO: use token");
 	}
         | __SIGNED__
 	{
-	  System.err.println("WARNING: empty semantic action: SignedKeyword");
+	  System.err.println("TODO: use token");
 	}
         ;
 
 ComplexKeyword:
         _COMPLEX
 	{
-	  System.err.println("WARNING: empty semantic action: ComplexKeyword");
+	  System.err.println("TODO: use token");
 	}
         | __COMPLEX__
 	{
-	  System.err.println("WARNING: empty semantic action: ComplexKeyword");
+	  System.err.println("TODO: use token");
 	}
         ;
 
@@ -2260,29 +2085,31 @@ EnumeratorValueOpt: /** nomerge **/
 ParameterTypeList:  /** nomerge **/
         ParameterList
         {
-          setTransformationValue(value, (List<Parameter>) getTransformationValue(subparser,1));
+          setTransformationValue(value, (List<ParameterDeclarationValue>) getTransformationValue(subparser,1));
         }
         | ParameterList COMMA ELLIPSIS
         {
-          List<Parameter> ps = (List<Parameter>) getTransformationValue(subparser,3);
-          Parameter p = new Parameter();
-          p.setEllipsis();
-          ps.add(p);
-          setTransformationValue(value,ps);
+          List<ParameterDeclarationValue> paramlist = (List<ParameterDeclarationValue>) getTransformationValue(subparser,1);
+          System.err.println("TODO: support variadic parameter lists");  // add a special parameterdeclarationvalue to the list
+          setTransformationValue(value, paramlist);
         }
         ;
 
+// returns a multiverse of nonconfigurable parameter lists
 ParameterList:  /** list, nomerge **/
         ParameterDeclaration
         {
-          setTransformationValue(value, (List<Parameter>) getTransformationValue(subparser,1));
+          List<ParameterDeclarationValue> parameters = new LinkedList<ParameterDeclarationValue>();
+          ParameterDeclarationValue declarationvalue = (ParameterDeclarationValue) getTransformationValue(subparser,1);
+          parameters.add(declarationvalue);
+          setTransformationValue(value, parameters);
         }
         | ParameterList COMMA ParameterDeclaration
         {
-          List<Parameter> p = (List<Parameter>) getTransformationValue(subparser,3);
-
-          p.addAll((List<Parameter>) getTransformationValue(subparser,1));
-          setTransformationValue(value,p);
+          List<ParameterDeclarationValue> parameters = (LinkedList<ParameterDeclarationValue>) getTransformationValue(subparser,3);
+          ParameterDeclarationValue declarationvalue = (ParameterDeclarationValue) getTransformationValue(subparser,1);
+          parameters.add(declarationvalue);
+          setTransformationValue(value, parameters);
         }
         ;
 
@@ -2330,308 +2157,129 @@ ParameterList:  /** list, nomerge **/
 ParameterDeclaration:  /** nomerge **/
         ParameterIdentifierDeclaration
         {
-          setTransformationValue(value, (List<Parameter>) getTransformationValue(subparser,1));
+          setTransformationValue(value, (ParameterDeclarationValue) getTransformationValue(subparser,1));
         }
         | ParameterAbstractDeclaration
         {
-          setTransformationValue(value, (List<Parameter>) getTransformationValue(subparser,1));
+          setTransformationValue(value, (ParameterDeclarationValue) getTransformationValue(subparser,1));
         }
         ;
 
 ParameterAbstractDeclaration:
         DeclarationSpecifier
         {
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 1);
-          Parameter p = new Parameter();
-          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
-          for (Element<TypeBuilderUnit> e : type) {
-            Entry ent;
-            if (e.getData().getIsValid()) {
-              ent = new Entry("",e.getData().toType());
-            }
-            else {
-              ent = SymbolTable.ERROR;
-            }
-            entries.add(ent, e.getCondition());
-          }            
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
-          lp.add(p);
-          setTransformationValue(value, lp);
+          System.err.println("TODO: reimplement parameterabstractdeclaration (1)");
+          System.exit(1);
         }
         | DeclarationSpecifier AbstractDeclarator
         {
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
-          DeclBuilder d = (DeclBuilder) getTransformationValue(subparser,1);
-          Parameter p = new Parameter();
-          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
-          for (Element<TypeBuilderUnit> e : type) {
-            Entry ent;
-            if (e.getData().getIsValid() && d.getIsValid()) {
-              DeclBuilder x = new DeclBuilder(d);
-              x.addType(e.getData().toType());
-              ent = new Entry("",x.toType());
-            }
-            else {
-              ent = SymbolTable.ERROR;
-            }
-            entries.add(ent, e.getCondition());
-          }            
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
-          lp.add(p);
-          setTransformationValue(value, lp);
+          TypeBuilderMultiverse types = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | DeclarationQualifierList
         {
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 1);
-          Parameter p = new Parameter();
-          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
-          for (Element<TypeBuilderUnit> e : type) {
-            Entry ent;
-            if (e.getData().getIsValid()) {
-              ent = new Entry("",e.getData().toType());
-            }
-            else {
-              ent = SymbolTable.ERROR;
-            }
-            entries.add(ent, e.getCondition());
-          }            
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
-          lp.add(p);
-          setTransformationValue(value, lp);
+          System.err.println("TODO: reimplement parameterabstractdeclaration (3)");
+          System.exit(1);
         }
         | DeclarationQualifierList AbstractDeclarator
         {
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
-          DeclBuilder d = (DeclBuilder) getTransformationValue(subparser,1);
-          Parameter p = new Parameter();
-          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
-          for (Element<TypeBuilderUnit> e : type) {
-            Entry ent;
-            if (e.getData().getIsValid() && d.getIsValid()) {
-              DeclBuilder x = new DeclBuilder(d);
-              x.addType(e.getData().toType());
-              ent = new Entry("",x.toType());
-            }
-            else {
-              ent = SymbolTable.ERROR;
-            }
-            entries.add(ent, e.getCondition());
-          }            
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
-          lp.add(p);
-          setTransformationValue(value, lp);
+          TypeBuilderMultiverse types = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | TypeSpecifier
         {
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 1);
-          Parameter p = new Parameter();
-          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
-          for (Element<TypeBuilderUnit> e : type) {
-            Entry ent;
-            if (e.getData().getIsValid()) {
-              ent = new Entry("",e.getData().toType());
-            }
-            else {
-              ent = SymbolTable.ERROR;
-            }
-            entries.add(ent, e.getCondition());
-          }            
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
-          lp.add(p);
-          setTransformationValue(value, lp);
+          TypeBuilderMultiverse types = (TypeBuilderMultiverse) getTransformationValue(subparser, 1);
+          Multiverse<Declarator> declarators = new Multiverse<Declarator>();
+          declarators.add(new EmptyDeclarator(), subparser.getPresenceCondition());
+          setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | TypeSpecifier AbstractDeclarator
         {
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
-          DeclBuilder d = (DeclBuilder) getTransformationValue(subparser,1);
-          Parameter p = new Parameter();
-          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
-          for (Element<TypeBuilderUnit> e : type) {
-            Entry ent;
-            if (e.getData().getIsValid() && d.getIsValid()) {
-              DeclBuilder x = new DeclBuilder(d);
-              x.addType(e.getData().toType());
-              ent = new Entry("",x.toType());
-            }
-            else {
-              ent = SymbolTable.ERROR;
-            }
-            entries.add(ent, e.getCondition());
-          }            
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
-          lp.add(p);
-          setTransformationValue(value, lp);
+          TypeBuilderMultiverse types = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | TypeQualifierList
         {
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 1);
-          Parameter p = new Parameter();
-          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
-          for (Element<TypeBuilderUnit> e : type) {
-            Entry ent;
-            if (e.getData().getIsValid()) {
-              ent = new Entry("",e.getData().toType());
-            }
-            else {
-              ent = SymbolTable.ERROR;
-            }
-            entries.add(ent, e.getCondition());
-          }            
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
-          lp.add(p);
-          setTransformationValue(value, lp);
+          System.err.println("TODO: reimplement parameterabstractdeclaration (7)");
+          System.exit(1);
         }
         | TypeQualifierList AbstractDeclarator
         {
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
-          DeclBuilder d = (DeclBuilder) getTransformationValue(subparser,1);
-          Parameter p = new Parameter();
-          Multiverse<Entry> entries = new Multiverse<SymbolTable.Entry>();
-          for (Element<TypeBuilderUnit> e : type) {
-            Entry ent;
-            if (e.getData().getIsValid() && d.getIsValid()) {
-              DeclBuilder x = new DeclBuilder(d);
-              x.addType(e.getData().toType());
-              ent = new Entry("",x.toType());
-            }
-            else {
-              ent = SymbolTable.ERROR;
-            }
-            entries.add(ent, e.getCondition());
-          }            
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
-          lp.add(p);
-          setTransformationValue(value, lp);
+          TypeBuilderMultiverse types = (TypeBuilderMultiverse) getTransformationValue(subparser, 2);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         ;
 
 ParameterIdentifierDeclaration:
         DeclarationSpecifier IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 3);
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 4);
-
-          Parameter p = new Parameter();
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl).destruct();  // don't need to resulting multiverse
-          Multiverse<SymbolTable.Entry> entries
-            = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-          p.setMultiverse(entries);
-          List<Parameter> lp = new LinkedList<Parameter>();
-          lp.add(p);
-          setTransformationValue(value, lp);
+          TypeBuilderMultiverse types = (TypeBuilderMultiverse) getTransformationValue(subparser, 4);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
+          // TODO: save attributes
+          setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | DeclarationSpecifier ParameterTypedefDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 3);
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 4);
-
-          Parameter p = new Parameter();
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl).destruct();  // don't need to resulting multiverse
-          Multiverse<SymbolTable.Entry> entries
-            = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-          p.setMultiverse(entries);
-          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
-          List<Parameter> lp = new LinkedList<Parameter>();
-          lp.add(p);
-          setTransformationValue(value, lp);
+          TypeBuilderMultiverse types = (TypeBuilderMultiverse) getTransformationValue(subparser, 4);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
+          // TODO: save attributes
+          setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 3);
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 4);
-
-          Parameter p = new Parameter();
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl).destruct();  // don't need to resulting multiverse
-          Multiverse<SymbolTable.Entry> entries
-            = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-          p.setMultiverse(entries);
-          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
-          List<Parameter> lp = new LinkedList<Parameter>();
-          lp.add(p);
-          setTransformationValue(value, lp);
+          TypeBuilderMultiverse types = (TypeBuilderMultiverse) getTransformationValue(subparser, 4);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
+          // TODO: save attributes
+          setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | TypeSpecifier IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 3);
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 4);
-          System.err.println("ParamIdent:" + type.toString());
-          Parameter p = new Parameter();
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl).destruct();  // don't need to resulting multiverse
-          Multiverse<SymbolTable.Entry> entries
-            = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-          p.setMultiverse(entries);
-          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
-          List<Parameter> lp = new LinkedList<Parameter>();
-          lp.add(p);
-          setTransformationValue(value, lp);
+          TypeBuilderMultiverse types = (TypeBuilderMultiverse) getTransformationValue(subparser, 4);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
+          // TODO: save attributes
+          setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | TypeSpecifier ParameterTypedefDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 3);
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 4);
-
-          Parameter p = new Parameter();
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl).destruct();  // don't need to resulting multiverse
-          Multiverse<SymbolTable.Entry> entries
-            = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-          p.setMultiverse(entries);
-          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
-          List<Parameter> lp = new LinkedList<Parameter>();
-          lp.add(p);
-          setTransformationValue(value, lp);
+          TypeBuilderMultiverse types = (TypeBuilderMultiverse) getTransformationValue(subparser, 4);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
+          // TODO: save attributes
+          setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | TypeQualifierList IdentifierDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: ParameterIdentifierDeclaration");
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          DeclBuilder decl = (DeclBuilder) getTransformationValue(subparser, 3);
-          TypeBuilderMultiverse type = (TypeBuilderMultiverse) getTransformationValue(subparser, 4);
-
-          Parameter p = new Parameter();
-          addDeclsToSymTab(subparser.getPresenceCondition(), (CContext)subparser.scope, type, decl).destruct();  // don't need to resulting multiverse
-          Multiverse<SymbolTable.Entry> entries
-            = ((CContext) subparser.scope).getSymbolTable().get(decl.getID(), subparser.getPresenceCondition());
-          p.setMultiverse(entries);
-          System.err.println("WARNING: not setting semantic value to List<Parmater>: ParameterIdentifierDeclaration");
-          List<Parameter> lp = new LinkedList<Parameter>();
-          lp.add(p);
-          setTransformationValue(value, lp);
+          TypeBuilderMultiverse types = (TypeBuilderMultiverse) getTransformationValue(subparser, 4);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
+          // TODO: save attributes
+          setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         ;
 
@@ -2701,6 +2349,7 @@ InitializerOpt: /** nomerge **/
         /* nothing */
         {
           Multiverse<StringBuilder> emptyInit = new Multiverse<StringBuilder>();
+          emptyInit.add(new StringBuilder(), subparser.getPresenceCondition());
           setTransformationValue(value, emptyInit);
         }
         | ASSIGN DesignatedInitializer
@@ -2773,7 +2422,7 @@ MatchedInitializerList:  /** list, nomerge **/
         | MatchedInitializerList DesignatedInitializer COMMA
         {
           System.err.println("WARNING: unsupported semantic action: MatchedInitializerList");
-          // System.exit(1);
+          System.exit(1);
           Multiverse<StringBuilder> s = new Multiverse<StringBuilder>();
           s.add(new StringBuilder(""), subparser.getPresenceCondition());
           setTransformationValue(value, s);
@@ -2858,55 +2507,72 @@ ObsoleteFieldDesignation: /** nomerge **/  /* ADDED */
 Declarator:  /** nomerge**/
         TypedefDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  setTransformationValue(value, db);
-                	}
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+        }
         | IdentifierDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  setTransformationValue(value, db);
-                	}
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+        }
         ;
 
 TypedefDeclarator:  /**  nomerge **/  // ADDED
         TypedefDeclaratorMain //AssemblyExpressionOpt AttributeSpecifierListOpt
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  setTransformationValue(value, db);
-
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
       	}
         ;
 
 TypedefDeclaratorMain:  /**  nomerge **/
         ParenTypedefDeclarator  /* would be ambiguous as Parameter*/
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  setTransformationValue(value, db);
-                	}
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+        }
         | ParameterTypedefDeclarator   /* not ambiguous as param*/
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  setTransformationValue(value, db);
-                	}
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+        }
         ;
 
 ParameterTypedefDeclarator: /** nomerge **/
         TYPEDEFname
         {
-          setTransformationValue(value, new DeclBuilder(getStringAt(subparser, 1)));
-                  }
+          System.err.println("TODO: do we need to expand all possible typedef names here? parametertypedefdeclarator");
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+          valuemv.add(new SimpleDeclarator(getStringAt(subparser, 1)), subparser.getPresenceCondition());
+          setTransformationValue(value, valuemv);;
+        }
         | TYPEDEFname PostfixingAbstractDeclarator
       	{
-      	  DeclBuilder name = new DeclBuilder(getStringAt(subparser, 2));
-      	  DeclBuilder post = (DeclBuilder) getTransformationValue(subparser,1);
-      	  name.merge(post);
-          setTransformationValue(value, name);
-                  }
+          SimpleDeclarator declarator = new SimpleDeclarator(getStringAt(subparser, 2));
+          Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+          // get each combination of declarator abstract declarator,
+          // checking the kind of the abstract and building the
+          // appropriate declarator.
+          for (Element<Declarator> abstractdeclarator : abstractdeclarators) {
+            PresenceCondition combinedCond = subparser.getPresenceCondition().and(abstractdeclarator.getCondition());
+            if (abstractdeclarator.getData().isParameterListDeclarator()) {
+              valuemv.add(new FunctionDeclarator(declarator,
+                                                 (ParameterListDeclarator) abstractdeclarator.getData()),
+                          combinedCond);
+            } else if (abstractdeclarator.getData().isArrayAbstractDeclarator()) {
+              valuemv.add(new ArrayDeclarator(declarator,
+                                              (ArrayAbstractDeclarator) abstractdeclarator.getData()),
+                          combinedCond);
+            } else {
+              throw new AssertionError("unexpected abstract declarator type in ParameterTypedefDeclarator");
+            }
+            combinedCond.delRef();
+          }
+          /* abstractdeclarators.destruct(); */
+          
+          setTransformationValue(value, valuemv);
+        }
         | CleanTypedefDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  setTransformationValue(value, db);
-                	}
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+        }
         ;
 
     /*  The  following have at least one STAR. There is no (redundant)
@@ -2915,39 +2581,86 @@ ParameterTypedefDeclarator: /** nomerge **/
 CleanTypedefDeclarator: /** nomerge **/
         CleanPostfixTypedefDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  setTransformationValue(value, db);
-                	}
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+        }
         | STAR ParameterTypedefDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  db.addPointer();
-      	  setTransformationValue(value, db);
-                	}
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+
+          // create a multiverse of new pointer declarators
+          for (Element<Declarator> declarator : declarators) {
+            PresenceCondition combinedCond = subparser.getPresenceCondition().and(declarator.getCondition());
+            valuemv.add(new PointerDeclarator(declarator.getData()),
+                        combinedCond);
+            combinedCond.delRef();
+          }
+          /* declarators.destruct(); */
+          
+          setTransformationValue(value, valuemv);
+        }
         | STAR TypeQualifierList ParameterTypedefDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  DeclBuilder outter = new DeclBuilder();
-      	  outter.addPointer();
-      	  outter.addQuals((TypeBuilderMultiverse) getTransformationValue(subparser,2),db);
-      	  setTransformationValue(value,outter);
-                	}
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
+          TypeBuilderMultiverse qualifierlists = (TypeBuilderMultiverse) getTransformationValue(subparser,1);
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+
+          // create a multiverse of new pointer declarators
+          for (Element<TypeBuilderUnit> qualifierlist : qualifierlists) {
+            PresenceCondition qualifierlistCond = subparser.getPresenceCondition();
+            for (Element<Declarator> declarator : declarators) {
+              PresenceCondition combinedCond = qualifierlistCond.and(declarator.getCondition());
+              valuemv.add(new QualifiedPointerDeclarator(declarator.getData(),
+                                                         qualifierlist.getData()),
+                          combinedCond);
+              combinedCond.delRef();
+            }
+            qualifierlistCond.delRef();
+          }
+          /* declarators.destruct(); */
+          /* qualifierlists.destruct(); */
+          
+          setTransformationValue(value, valuemv);
+        }
         ;
 
 CleanPostfixTypedefDeclarator: /** nomerge **/
         LPAREN CleanTypedefDeclarator RPAREN
       	{
-      	  DeclBuilder db = new DeclBuilder();
-      	  db.addDeclBuilder((DeclBuilder) getTransformationValue(subparser,2));
-      	  setTransformationValue(value, db);
-                	}
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
+        }
         | LPAREN CleanTypedefDeclarator RPAREN PostfixingAbstractDeclarator
         {
-      	  DeclBuilder db = new DeclBuilder();
-      	  db.addDeclBuilder((DeclBuilder) getTransformationValue(subparser,3));
-      	  db.merge((DeclBuilder) getTransformationValue(subparser,1));
-      	  setTransformationValue(value, db);
-                	}
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
+          Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+          // get each combination of declarator abstract declarator,
+          // checking the kind of the abstract and building the
+          // appropriate declarator.
+          for (Element<Declarator> declarator : declarators) {
+            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
+            for (Element<Declarator> abstractdeclarator : abstractdeclarators) {
+              PresenceCondition combinedCond = declaratorCond.and(abstractdeclarator.getCondition());
+              if (abstractdeclarator.getData().isParameterListDeclarator()) {
+                valuemv.add(new FunctionDeclarator(declarator.getData(),
+                                                   (ParameterListDeclarator) abstractdeclarator.getData()),
+                            combinedCond);
+              } else if (abstractdeclarator.getData().isArrayAbstractDeclarator()) {
+                valuemv.add(new ArrayDeclarator(declarator.getData(),
+                                                (ArrayAbstractDeclarator) abstractdeclarator.getData()),
+                            combinedCond);
+              } else {
+                throw new AssertionError("unexpected abstract declarator type in CleanPostfixTypedefDeclarator");
+              }
+              combinedCond.delRef();
+            }
+            declaratorCond.delRef();
+          }
+          /* declarators.destruct(); */
+          /* abstractdeclarators.destruct(); */
+          setTransformationValue(value, valuemv);
+        }
         ;
 
     /* The following have a redundant LPAREN placed immediately  to  the
@@ -2956,235 +2669,421 @@ CleanPostfixTypedefDeclarator: /** nomerge **/
 ParenTypedefDeclarator:  /** nomerge **/
         ParenPostfixTypedefDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  setTransformationValue(value, db);
-                	}
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+        }
         | STAR LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
       	{
-      	  DeclBuilder db = new DeclBuilder();
-      	  db.addDeclBuilder((DeclBuilder) getTransformationValue(subparser,2));
-      	  db.addPointer();
-      	  setTransformationValue(value, db);
-                	}
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+
+          // create a multiverse of new pointer declarators
+          for (Element<Declarator> declarator : declarators) {
+            PresenceCondition combinedCond = subparser.getPresenceCondition().and(declarator.getCondition());
+            valuemv.add(new PointerDeclarator(declarator.getData()),
+                        declarator.getCondition());
+            combinedCond.delRef();
+          }
+          /* declarators.destruct(); */
+          
+          setTransformationValue(value, valuemv);
+        }
       	| STAR TypeQualifierList
       	LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,2);
-      	  DeclBuilder paren = new DeclBuilder();
-      	  DeclBuilder outter = new DeclBuilder();
-      	  outter.addPointer();
-      	  paren.addDeclBuilder(db);
-      	  outter.addQuals((TypeBuilderMultiverse) getTransformationValue(subparser,4),paren);
-      	  setTransformationValue(value,outter);
-                	}
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,4);
+          TypeBuilderMultiverse qualifierlists = (TypeBuilderMultiverse) getTransformationValue(subparser,2);
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+
+          // create a multiverse of new pointer declarators
+          for (Element<TypeBuilderUnit> qualifierlist : qualifierlists) {
+            PresenceCondition qualifierlistCond = subparser.getPresenceCondition();
+            for (Element<Declarator> declarator : declarators) {
+              PresenceCondition combinedCond = qualifierlistCond.and(declarator.getCondition());
+              valuemv.add(new QualifiedPointerDeclarator(declarator.getData(),
+                                                         qualifierlist.getData()),
+                          combinedCond);
+              combinedCond.delRef();
+            }
+            qualifierlistCond.delRef();
+          }
+          /* declarators.destruct(); */
+          /* qualifierlists.destruct(); */
+          
+          setTransformationValue(value, valuemv);
+        }
         | STAR ParenTypedefDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  db.addPointer();
-      	  setTransformationValue(value, db);
-                	}
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+
+          // create a multiverse of new pointer declarators
+          for (Element<Declarator> declarator : declarators) {
+            PresenceCondition combinedCond = subparser.getPresenceCondition().and(declarator.getCondition());
+            valuemv.add(new PointerDeclarator(declarator.getData()),
+                        declarator.getCondition());
+            combinedCond.delRef();
+          }
+          /* declarators.destruct(); */
+          
+          setTransformationValue(value, valuemv);
+        }
         | STAR TypeQualifierList ParenTypedefDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  DeclBuilder outter = new DeclBuilder();
-      	  outter.addPointer();
-      	  outter.addQuals((TypeBuilderMultiverse) getTransformationValue(subparser,2),db);
-      	  setTransformationValue(value,outter);
-                	}
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
+          TypeBuilderMultiverse qualifierlists = (TypeBuilderMultiverse) getTransformationValue(subparser,1);
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+
+          // create a multiverse of new pointer declarators
+          for (Element<TypeBuilderUnit> qualifierlist : qualifierlists) {
+            PresenceCondition qualifierlistCond = subparser.getPresenceCondition();
+            for (Element<Declarator> declarator : declarators) {
+              PresenceCondition combinedCond = qualifierlistCond.and(declarator.getCondition());
+              valuemv.add(new QualifiedPointerDeclarator(declarator.getData(),
+                                                         qualifierlist.getData()),
+                          combinedCond);
+              combinedCond.delRef();
+            }
+            qualifierlistCond.delRef();
+          }
+          /* declarators.destruct(); */
+          /* qualifierlists.destruct(); */
+          
+          setTransformationValue(value, valuemv);
+        }
         ;
 
 ParenPostfixTypedefDeclarator: /** nomerge **/ /* redundant paren to left of tname*/
         LPAREN ParenTypedefDeclarator RPAREN
       	{
-      	  DeclBuilder db = new DeclBuilder();
-      	  db.addDeclBuilder((DeclBuilder) getTransformationValue(subparser,2));
-      	  setTransformationValue(value, db);
-                	}
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
+        }
         | LPAREN SimpleParenTypedefDeclarator PostfixingAbstractDeclarator RPAREN /* redundant paren */
       	{
-      	  DeclBuilder db = new DeclBuilder();
-      	  DeclBuilder base = (DeclBuilder) getTransformationValue(subparser,3);
-      	  base.merge((DeclBuilder) getTransformationValue(subparser,2));
-      	  db.addDeclBuilder(base);
-      	  setTransformationValue(value, db);
-                	}
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
+          Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
+
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+          // get each combination of declarator abstract declarator,
+          // checking the kind of the abstract and building the
+          // appropriate declarator.
+          for (Element<Declarator> declarator : declarators) {
+            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
+            for (Element<Declarator> abstractdeclarator : abstractdeclarators) {
+              PresenceCondition combinedCond = declaratorCond.and(abstractdeclarator.getCondition());
+              if (abstractdeclarator.getData().isParameterListDeclarator()) {
+                valuemv.add(new FunctionDeclarator(declarator.getData(),
+                                                   (ParameterListDeclarator) abstractdeclarator.getData()),
+                            combinedCond);
+              } else if (abstractdeclarator.getData().isArrayAbstractDeclarator()) {
+                valuemv.add(new ArrayDeclarator(declarator.getData(),
+                                                (ArrayAbstractDeclarator) abstractdeclarator.getData()),
+                            combinedCond);
+              } else {
+                throw new AssertionError("unexpected abstract declarator type in ParenPostfixTypedefDeclarator (2)");
+              }
+              combinedCond.delRef();
+            }
+            declaratorCond.delRef();
+          }
+          /* declarators.destruct(); */
+          /* abstractdeclarators.destruct(); */
+          setTransformationValue(value, valuemv);
+        }
         | LPAREN ParenTypedefDeclarator RPAREN PostfixingAbstractDeclarator
       	{
-      	  DeclBuilder db = new DeclBuilder();
-      	  DeclBuilder base = (DeclBuilder) getTransformationValue(subparser,3);
-      	  db.addDeclBuilder(base);
-      	  db.merge((DeclBuilder) getTransformationValue(subparser,1));
-      	  setTransformationValue(value, db);
-                	}
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
+          Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+          // get each combination of declarator abstract declarator,
+          // checking the kind of the abstract and building the
+          // appropriate declarator.
+          for (Element<Declarator> declarator : declarators) {
+            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
+            for (Element<Declarator> abstractdeclarator : abstractdeclarators) {
+              PresenceCondition combinedCond = declaratorCond.and(abstractdeclarator.getCondition());
+              if (abstractdeclarator.getData().isParameterListDeclarator()) {
+                valuemv.add(new FunctionDeclarator(declarator.getData(),
+                                                   (ParameterListDeclarator) abstractdeclarator.getData()),
+                            combinedCond);
+              } else if (abstractdeclarator.getData().isArrayAbstractDeclarator()) {
+                valuemv.add(new ArrayDeclarator(declarator.getData(),
+                                                (ArrayAbstractDeclarator) abstractdeclarator.getData()),
+                            combinedCond);
+              } else {
+                throw new AssertionError("unexpected abstract declarator type in ParenPostfixTypedefDeclarator (3)");
+              }
+              combinedCond.delRef();
+            }
+            declaratorCond.delRef();
+          }
+          /* declarators.destruct(); */
+          /* abstractdeclarators.destruct(); */
+          setTransformationValue(value, valuemv);
+        }
         ;
 
 SimpleParenTypedefDeclarator: /** nomerge **/
         TYPEDEFname
       	{
-      	  setTransformationValue(value, new DeclBuilder(getStringAt(subparser, 1)));
-                	}
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+        }
         | LPAREN SimpleParenTypedefDeclarator RPAREN
       	{
-      	  DeclBuilder db = new DeclBuilder();
-      	  DeclBuilder base = (DeclBuilder) getTransformationValue(subparser,2);
-      	  db.addDeclBuilder(base);
-      	  setTransformationValue(value, db);
-                	}
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
+        }
         ;
 
 IdentifierDeclarator:  /**  nomerge **/
         IdentifierDeclaratorMain //AssemblyExpressionOpt AttributeSpecifierListOpt
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  setTransformationValue(value, db);
-                	}
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+        }
         ;
 
 IdentifierDeclaratorMain:  /** nomerge **/
         UnaryIdentifierDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  setTransformationValue(value, db);
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
       	}
         | ParenIdentifierDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  setTransformationValue(value, db);
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
       	}
         ;
 
 UnaryIdentifierDeclarator: /** nomerge **/
         PostfixIdentifierDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  setTransformationValue(value, db);
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
       	}
         | STAR IdentifierDeclarator
         {
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  db.addPointer();
-      	  setTransformationValue(value, db);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+
+          // create a multiverse of new pointer declarators
+          for (Element<Declarator> declarator : declarators) {
+            PresenceCondition combinedCond = subparser.getPresenceCondition().and(declarator.getCondition());
+            valuemv.add(new PointerDeclarator(declarator.getData()),
+                        declarator.getCondition());
+            combinedCond.delRef();
+          }
+          /* declarators.destruct(); */
+          
+          setTransformationValue(value, valuemv);
       	}
         | STAR TypeQualifierList IdentifierDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  DeclBuilder outter = new DeclBuilder();
-      	  outter.addPointer();
-      	  outter.addQuals((TypeBuilderMultiverse) getTransformationValue(subparser,2),db);
-      	  setTransformationValue(value,outter);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
+          TypeBuilderMultiverse qualifierlists = (TypeBuilderMultiverse) getTransformationValue(subparser,1);
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+
+          // create a multiverse of new pointer declarators
+          for (Element<TypeBuilderUnit> qualifierlist : qualifierlists) {
+            PresenceCondition qualifierlistCond = subparser.getPresenceCondition();
+            for (Element<Declarator> declarator : declarators) {
+              PresenceCondition combinedCond = qualifierlistCond.and(declarator.getCondition());
+              valuemv.add(new QualifiedPointerDeclarator(declarator.getData(),
+                                                         qualifierlist.getData()),
+                          combinedCond);
+              combinedCond.delRef();
+            }
+            qualifierlistCond.delRef();
+          }
+          /* declarators.destruct(); */
+          /* qualifierlists.destruct(); */
+          
+          setTransformationValue(value, valuemv);
       	}
         ;
 
 PostfixIdentifierDeclarator: /** nomerge **/
         FunctionDeclarator
         {
-          setTransformationValue(value, (DeclBuilder) getTransformationValue(subparser,1));
+          setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
         | ArrayDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  setTransformationValue(value, db);
-                	}
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+        }
         | AttributedDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  setTransformationValue(value, db);
-                	}
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+        }
         | LPAREN UnaryIdentifierDeclarator RPAREN PostfixingAbstractDeclarator
       	{
-      	  DeclBuilder base = new DeclBuilder();
-      	  base.addDeclBuilder((DeclBuilder) getTransformationValue(subparser,3));
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  base.merge(db);
-      	  setTransformationValue(value,base);
-                	}
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
+          Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+          // get each combination of declarator abstract declarator,
+          // checking the kind of the abstract and building the
+          // appropriate declarator.
+          for (Element<Declarator> declarator : declarators) {
+            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
+            for (Element<Declarator> abstractdeclarator : abstractdeclarators) {
+              PresenceCondition combinedCond = declaratorCond.and(abstractdeclarator.getCondition());
+              if (abstractdeclarator.getData().isParameterListDeclarator()) {
+                valuemv.add(new FunctionDeclarator(declarator.getData(),
+                                                   (ParameterListDeclarator) abstractdeclarator.getData()),
+                            combinedCond);
+              } else if (abstractdeclarator.getData().isArrayAbstractDeclarator()) {
+                valuemv.add(new ArrayDeclarator(declarator.getData(),
+                                                (ArrayAbstractDeclarator) abstractdeclarator.getData()),
+                            combinedCond);
+              } else {
+                throw new AssertionError("unexpected abstract declarator type in PostfixIdentifierDeclarator (4)");
+              }
+              combinedCond.delRef();
+            }
+            declaratorCond.delRef();
+          }
+          /* declarators.destruct(); */
+          /* abstractdeclarators.destruct(); */
+          setTransformationValue(value, valuemv);
+        }
         ;
 
 AttributedDeclarator: /** nomerge **/
         LPAREN UnaryIdentifierDeclarator RPAREN
         {
-      	  DeclBuilder db = new DeclBuilder();
-      	  db.addDeclBuilder((DeclBuilder) getTransformationValue(subparser,2));
-      	  setTransformationValue(value, db);
-                	}
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
+        }
         ;
 
 FunctionDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator PostfixingFunctionDeclarator
         {
-          // TODO: construct the declaration of main here using the declbuilder stored at ParenIdentifierDeclarator and PostfixingFunctionDeclarator
-          DeclBuilder ident = new DeclBuilder((DeclBuilder) getTransformationValue(subparser, 2));
-          /*StringBuilder sb = new StringBuilder();
-          sb.append(ident);
-          sb.append(getStringBuilderAt(subparser, 1));
-          System.err.println("Node: " + value.hashCode());
-          setStringBuilder(value, sb);*/
-          ident.setParams((List<Parameter>) getTransformationValue(subparser,1));
-          setTransformationValue(value,ident);
-                  }
+          Multiverse<Declarator> declaratorsmv
+            = (Multiverse<Declarator>) getTransformationValue(subparser,2);
+
+          Multiverse<Declarator> parametersmv
+            = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          
+          // take each combination of declarator and function parameters
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+          for (Element<Declarator> declarator : declaratorsmv) {
+            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
+            for (Element<Declarator> parameters : parametersmv) {
+              PresenceCondition combinedCond = declaratorCond.and(parameters.getCondition());
+              valuemv.add(new FunctionDeclarator(declarator.getData(),
+                                                 (ParameterListDeclarator) parameters.getData()),
+                          combinedCond);
+              combinedCond.delRef();
+            }
+            declaratorCond.delRef();
+          }
+          /* declaratorsmv.destruct(); */
+          /* parametersmv.destruct(); */
+          setTransformationValue(value, valuemv);
+        }
         ;
 
 PostfixingFunctionDeclarator:  /** nomerge **/
         LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN
         {
-          //return whatever is in Parameter TypeListOpt
-          System.err.println("WARNING: unsupported semantic action: PostfixingFunctionDeclarator");
-          /*StringBuilder sb = new StringBuilder("(");
-          for (int i = 1; i <= 3; i++)
-            if (getStringBuilderAt(subparser, i) != null && !getStringBuilderAt(subparser, i).equals("null"))
-              sb.append(getStringBuilderAt(subparser, i));
-          sb.append(")");
-          setStringBuilder(value, sb);*/
-          setTransformationValue(value,(List<Parameter>) getTransformationValue(subparser, 3));
+          // TODO: account for parameterdeclarationvalue that is the ellipsis
+          List<ParameterDeclarationValue> parameterdeclarationvalues
+            = (List<ParameterDeclarationValue>) getTransformationValue(subparser,3);
+
+          // find each combination of single-configuration parameter lists
+          Multiverse<List<ParameterDeclarator>> parametersmv = new Multiverse<List<ParameterDeclarator>>();
+          parametersmv.add(new LinkedList<ParameterDeclarator>(), subparser.getPresenceCondition());
+          for (ParameterDeclarationValue parameterdeclarationvalue : parameterdeclarationvalues) {
+            // get a multiverse of parameter declarators from the parameter declaration values
+            Multiverse<ParameterDeclarator> nextparameter = new Multiverse<ParameterDeclarator>();
+            for (Element<TypeBuilderUnit> typebuilder : parameterdeclarationvalue.typebuilder) {
+              PresenceCondition typebuilderCond = subparser.getPresenceCondition().and(typebuilder.getCondition());
+              for (Element<Declarator> declarator : parameterdeclarationvalue.declarator) {
+                PresenceCondition combinedCond = typebuilderCond.and(declarator.getCondition());
+                nextparameter.add(new ParameterDeclarator(typebuilder.getData(),
+                                                          declarator.getData()),
+                                  combinedCond);
+                combinedCond.delRef();
+              }
+              typebuilderCond.delRef();            
+            }
+            // take the product of that multiverse with the existing, hoisted list of parameters
+            Multiverse<List<ParameterDeclarator>> nextparameterwrapped = listWrap.transform(nextparameter);
+            nextparameter.destruct();
+            Multiverse<List<ParameterDeclarator>> newparametersmv = parametersmv.product(nextparameterwrapped, PARAMLISTCONCAT);
+            nextparameterwrapped.destruct();
+            parametersmv.destruct();
+            parametersmv = newparametersmv;
+          }
+          // parametersmv should now contains all possible
+          // single-configuration parameter lists
+
+          // transform it into a multiverse of ParameterListDeclarators
+          Multiverse<ParameterListDeclarator> paramlistmv = toParameterList.transform(parametersmv);
+          parametersmv.destruct();
+
+          setTransformationValue(value, paramlistmv);
+          System.err.println(paramlistmv);
         }
         ;
 
 ArrayDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator ArrayAbstractDeclarator
         {
-          DeclBuilder base = (DeclBuilder) getTransformationValue(subparser,2);
-          DeclBuilder array = (DeclBuilder) getTransformationValue(subparser,1);
-          base.merge(array);
-          setTransformationValue(value,base);
-                  }
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
+          Multiverse<Declarator> arrayabstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+          // take each combination of declarator and array abstract declarator
+          for (Element<Declarator> declarator : declarators) {
+            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
+            for (Element<Declarator> arrayabstractdeclarator : arrayabstractdeclarators) {
+              PresenceCondition combinedCond = declaratorCond.and(arrayabstractdeclarator.getCondition());
+              valuemv.add(new ArrayDeclarator(declarator.getData(),
+                                              (ArrayAbstractDeclarator) arrayabstractdeclarator.getData()),
+                          combinedCond);
+              combinedCond.delRef();
+            }
+            declaratorCond.delRef();
+          }
+          /* declarators.destruct(); */
+          /* arrayabstractdeclarators.destruct(); */
+          setTransformationValue(value, valuemv);;
+        }
         ;
 
 ParenIdentifierDeclarator:  /** nomerge **/
         SimpleDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  setTransformationValue(value, db);
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
       	}
         | LPAREN ParenIdentifierDeclarator RPAREN
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,2);
-      	  DeclBuilder superDecl = new DeclBuilder();
-      	  superDecl.addDeclBuilder(db);
-      	  setTransformationValue(value,superDecl);
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
       	}
         ;
 
 SimpleDeclarator: /** nomerge **/
         IDENTIFIER  /* bind */
         {
-          DeclBuilder db = new DeclBuilder(getStringAt(subparser, 1));
-          System.err.println(db + ":PC::" + subparser.getPresenceCondition());
-          setTransformationValue(value, db);
-                  }
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+          valuemv.add(new SimpleDeclarator(getStringAt(subparser, 1)), subparser.getPresenceCondition());
+          setTransformationValue(value, valuemv);;
+        }
         ;
 
 OldFunctionDeclarator: /** nomerge **/
         PostfixOldFunctionDeclarator
         {
           System.err.println("OldFunctionDecl not supported");
+          System.exit(1);
         }
         | STAR OldFunctionDeclarator
         {
           System.err.println("OldFunctionDecl not supported");
+          System.exit(1);
         }
         | STAR TypeQualifierList OldFunctionDeclarator
         {
           System.err.println("OldFunctionDecl not supported");
+          System.exit(1);
         }
         ;
 
@@ -3209,244 +3108,236 @@ PostfixOldFunctionDeclarator: /** nomerge **/
 AbstractDeclarator: /** nomerge **/
         UnaryAbstractDeclarator
         {
-          DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-          setTransformationValue(value,db);
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
         | PostfixAbstractDeclarator
         {
-          DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-          setTransformationValue(value,db);
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
         | PostfixingAbstractDeclarator
         {
-          DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-          setTransformationValue(value,db);
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
         ;
 
 PostfixingAbstractDeclarator: /**  nomerge **/
         ArrayAbstractDeclarator
       	{
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  setTransformationValue(value,db);
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
       	}
         /* | LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN */
         | PostfixingFunctionDeclarator
         {
-          System.err.println("ERROR: mismatch in semantic values between list of params and declbuilder in PostfixingAbstractDeclarator's PostfixingFunctionDeclarator production.");
-          DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-          setTransformationValue(value,db);
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
         ;
 
 ParameterTypeListOpt: /** nomerge **/
         /* empty */
         {
-          List<Parameter> result = new LinkedList<Parameter>();
-          setTransformationValue(value, result);
+          setTransformationValue(value, new LinkedList<ParameterDeclarationValue>());
         }
         | ParameterTypeList
         {
-          List<Parameter> p = (List<Parameter>) getTransformationValue(subparser,1);
-          setTransformationValue(value,p);
+          setTransformationValue(value, (List<ParameterDeclarationValue>) getTransformationValue(subparser,1));
         }
         ;
 
 ArrayAbstractDeclarator: /** nomerge **/
         LBRACK RBRACK
         {
-      	  DeclBuilder db = new DeclBuilder();
-      	  db.addArray("",false);
-          setTransformationValue(value, db);
+          StringBuilder expression = new StringBuilder();
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+          valuemv.add(new ArrayAbstractDeclarator(expression), subparser.getPresenceCondition());
+          setTransformationValue(value, valuemv);;
         }
         | LBRACK ConstantExpression RBRACK
         {
-      	  DeclBuilder db = new DeclBuilder();
-          // TODO: support configurable array bound expressions
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
           Multiverse<StringBuilder> arrayBounds = (Multiverse<StringBuilder>) getTransformationValue(subparser, 2);
-          if (arrayBounds.size() == 1) {
-          	db.addArray(arrayBounds.get(0).getData().toString());
-          } else if (arrayBounds.size() > 1) {
-            System.err.println("ERROR: configurable array bounds not yet supported.");
-            System.exit(1);
-          } else /* arrayBounds.size() < 1 */ {
-            System.err.println("FATAL: children of ArrayAbstractDeclarator should not be missing");
-            System.exit(1);
+          // add each version of the array abstract declarator to the
+          // resulting semantic value, assuming that the constant
+          // expression's presence conditions are the conditions of
+          // the array abstract declarator.
+          for (Element<StringBuilder> expression : arrayBounds) {
+            PresenceCondition combinedCond = subparser.getPresenceCondition().and(expression.getCondition());
+            valuemv.add(new ArrayAbstractDeclarator(expression.getData()), combinedCond);
+            combinedCond.delRef();
           }
-          setTransformationValue(value, db);
+          setTransformationValue(value, valuemv);;
 	      }
         | ArrayAbstractDeclarator LBRACK ConstantExpression RBRACK
 	      {
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,4);
-          // TODO: support configurable array bound expressions
+      	  Multiverse<Declarator> arrayabstractdeclarator = (Multiverse<Declarator>) getTransformationValue(subparser,4);
           Multiverse<StringBuilder> arrayBounds = (Multiverse<StringBuilder>) getTransformationValue(subparser, 2);
-          if (arrayBounds.size() == 1) {
-          	db.addArray(arrayBounds.get(0).getData().toString());
-          } else if (arrayBounds.size() > 1) {
-            System.err.println("ERROR: configurable array bounds not yet supported.");
-            System.exit(1);
-          } else /* arrayBounds.size() < 1 */ {
-            System.err.println("FATAL: children of ArrayAbstractDeclarator should not be missing");
-            System.exit(1);
+
+          // get each combination of the existing array abstract declarators and the new constant expressions
+          // TODO: is there a way to do this with product?  harder because not combining the same types
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+          for (Element<Declarator> declarator : arrayabstractdeclarator) {
+            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
+            for (Element<StringBuilder> expression : arrayBounds) {
+              PresenceCondition combinedCondition = declaratorCond.and(expression.getCondition());
+              valuemv.add(new ArrayAbstractDeclarator((ArrayAbstractDeclarator) declarator.getData(),
+                                                 expression.getData()),
+                     combinedCondition);
+              combinedCondition.delRef();
+            }
+            declaratorCond.delRef();
           }
-          setTransformationValue(value, db);
+          /* arrayabstractdeclarator.destruct(); */
+          setTransformationValue(value, valuemv);;
 	      }
         ;
 
 UnaryAbstractDeclarator: /** nomerge **/
         STAR
         {
-          DeclBuilder d = new DeclBuilder();
-          d.addPointer();
-          setTransformationValue(value,d);
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+          valuemv.add(new PointerAbstractDeclarator(), subparser.getPresenceCondition());
+          setTransformationValue(value, valuemv);
         }
         | STAR TypeQualifierList
         {
-          DeclBuilder d = new DeclBuilder();
-          d.addPointer();
-          d.addQuals((TypeBuilderMultiverse) getTransformationValue(subparser,1),null);
-          setTransformationValue(value,d);
+          TypeBuilderMultiverse qualifierlists = (TypeBuilderMultiverse) getTransformationValue(subparser,1);
+
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+          // create a multiverse of new pointer declarators
+          for (Element<TypeBuilderUnit> qualifierlist : qualifierlists) {
+            PresenceCondition qualifierlistCond = subparser.getPresenceCondition();
+            valuemv.add(new QualifiedPointerAbstractDeclarator(qualifierlist.getData()),
+                        qualifierlistCond);
+            qualifierlistCond.delRef();
+          }
+          /* qualifierlists.destruct(); */
+          
+          setTransformationValue(value, valuemv);
         }
         | STAR AbstractDeclarator
         {
-          DeclBuilder d = (DeclBuilder) getTransformationValue(subparser,1);
-          d.addPointer();
-          setTransformationValue(value,d);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+
+          // create a multiverse of new pointer declarators
+          for (Element<Declarator> declarator : declarators) {
+            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
+            valuemv.add(new PointerDeclarator(declarator.getData()),
+                        declaratorCond);
+            declaratorCond.delRef();
+          }
+          /* declarators.destruct(); */
+          
+          setTransformationValue(value, valuemv);
         }
         | STAR TypeQualifierList AbstractDeclarator
         {
-      	  DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,1);
-      	  DeclBuilder outter = new DeclBuilder();
-      	  outter.addPointer();
-      	  outter.addQuals((TypeBuilderMultiverse) getTransformationValue(subparser,2),db);
-      	  setTransformationValue(value,outter);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
+          TypeBuilderMultiverse qualifierlists = (TypeBuilderMultiverse) getTransformationValue(subparser,1);
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+
+          // create a multiverse of new pointer declarators
+          for (Element<TypeBuilderUnit> qualifierlist : qualifierlists) {
+            PresenceCondition qualifierlistCond = subparser.getPresenceCondition();
+            for (Element<Declarator> declarator : declarators) {
+              PresenceCondition combinedCond = qualifierlistCond.and(declarator.getCondition());
+              valuemv.add(new QualifiedPointerDeclarator(declarator.getData(),
+                                                         qualifierlist.getData()),
+                          combinedCond);
+              combinedCond.delRef();
+            }
+            qualifierlistCond.delRef();
+          }
+          /* declarators.destruct(); */
+          /* qualifierlists.destruct(); */
+          
+          setTransformationValue(value, valuemv);
       	}
         ;
 
 PostfixAbstractDeclarator: /** nomerge **/
         LPAREN UnaryAbstractDeclarator RPAREN
         {
-          DeclBuilder d = new DeclBuilder();
-          DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,2);
-          d.addDeclBuilder(db);
-          setTransformationValue(value,d);
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
         } 
         | LPAREN PostfixAbstractDeclarator RPAREN
         {
-          DeclBuilder d = new DeclBuilder();
-          DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,2);
-          d.addDeclBuilder(db);
-          setTransformationValue(value,d);
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
         } 
         | LPAREN PostfixingAbstractDeclarator RPAREN
         {
-          DeclBuilder d = new DeclBuilder();
-          DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,2);
-          d.addDeclBuilder(db);
-          setTransformationValue(value,d);
+      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
         } 
         | LPAREN UnaryAbstractDeclarator RPAREN PostfixingAbstractDeclarator
         {
-          DeclBuilder d = new DeclBuilder();
-          DeclBuilder db = (DeclBuilder) getTransformationValue(subparser,3);
-          d.addDeclBuilder(db);
-          DeclBuilder post = (DeclBuilder) getTransformationValue(subparser,1);
-          d.merge(post);
-          setTransformationValue(value,d);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
+          Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+          // get each combination of declarator abstract declarator,
+          // checking the kind of the abstract and building the
+          // appropriate declarator.
+          for (Element<Declarator> declarator : declarators) {
+            PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
+            for (Element<Declarator> abstractdeclarator : abstractdeclarators) {
+              PresenceCondition combinedCond = declaratorCond.and(abstractdeclarator.getCondition());
+              if (abstractdeclarator.getData().isParameterListDeclarator()) {
+                valuemv.add(new FunctionDeclarator(declarator.getData(),
+                                                   (ParameterListDeclarator) abstractdeclarator.getData()),
+                            combinedCond);
+              } else if (abstractdeclarator.getData().isArrayAbstractDeclarator()) {
+                valuemv.add(new ArrayDeclarator(declarator.getData(),
+                                                (ArrayAbstractDeclarator) abstractdeclarator.getData()),
+                            combinedCond);
+              } else {
+                throw new AssertionError("unexpected abstract declarator type in ParenPostfixTypedefDeclarator (4)");
+              }
+              combinedCond.delRef();
+            }
+            declaratorCond.delRef();
+          }
+          /* declarators.destruct(); */
+          /* abstractdeclarators.destruct(); */
+          setTransformationValue(value, valuemv);
         } 
         ;
 
 // ---------------------------------------------------------------- Statements
 
-Statement:  /** passthrough, complete **/
+Statement:  /** complete **/
         LabeledStatement
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | CompoundStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          // compound statements contain already-hoisted constructs
+          // (declarations and statements), so just wrap this in a
+          // single-element multiverse
+          Multiverse<StringBuilder> valuemv = new Multiverse<StringBuilder>();
+          valuemv.add((StringBuilder) getTransformationValue(subparser, 1), subparser.getPresenceCondition());
+          setTransformationValue(value, valuemv);
         }
         | ExpressionStatement
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
-
-          StringBuilder allStatements = new StringBuilder();
-
-          for (Multiverse.Element<StringBuilder> statement : product) {
-            allStatements.append("\nif (" +
-            PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
-            ") {\n" + statement.getData().toString() + "\n}\n");
-          }
-
-          Multiverse<StringBuilder> statementWrapper = new Multiverse<StringBuilder>();
-          statementWrapper.add(allStatements, subparser.getPresenceCondition().presenceConditionManager().newTrue());
-          setTransformationValue(value, statementWrapper);
+          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | SelectionStatement
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
-
-          StringBuilder allStatements = new StringBuilder();
-
-          for (Multiverse.Element<StringBuilder> statement : product) {
-            allStatements.append("\nif (" +
-            PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
-            ") {\n" + statement.getData().toString() + "\n}\n");
-          }
-
-          Multiverse<StringBuilder> statementWrapper = new Multiverse<StringBuilder>();
-          statementWrapper.add(allStatements, subparser.getPresenceCondition().presenceConditionManager().newTrue());
-          setTransformationValue(value, statementWrapper);
+          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | IterationStatement
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | JumpStatement
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
-
-          StringBuilder allStatements = new StringBuilder();
-
-          for (Multiverse.Element<StringBuilder> statement : product) {
-            allStatements.append("\nif (" +
-            PCtoString(statement.getCondition().and(subparser.getPresenceCondition())) +
-            ") {\n" + statement.getData().toString() + "\n}\n");
-          }
-
-          Multiverse<StringBuilder> statementWrapper = new Multiverse<StringBuilder>();
-          statementWrapper.add(allStatements, subparser.getPresenceCondition().presenceConditionManager().newTrue());
-          setTransformationValue(value, statementWrapper);
+          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | AssemblyStatement  // ADDED
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         ;
 
@@ -3493,45 +3384,38 @@ CompoundStatement:  /** complete **/  /* ADDED */
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 6), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          StringBuilder valuesb = new StringBuilder();
+          valuesb.append(getNodeAt(subparser, 6).getTokenText());
+          valuesb.append((StringBuilder) getTransformationValue(subparser, 4));
+          valuesb.append((StringBuilder) getTransformationValue(subparser, 3));
+          valuesb.append(getNodeAt(subparser, 1).getTokenText());
+          setTransformationValue(value, valuesb);
         }
         ;
 
 LocalLabelDeclarationListOpt: /** complete **/
         /* empty */
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
-          result.add(new StringBuilder(""), subparser.getPresenceCondition());
-          setTransformationValue(value, result);
+          setTransformationValue(value, new StringBuilder());
         }
         | LocalLabelDeclarationList
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          System.err.println("implement locallabeldeclarationlistopt (2)");
+          // do hoisting here, return a stringbuilder
+          System.exit(1);
         }
         ;
 
 LocalLabelDeclarationList:  /** list, complete **/
         LocalLabelDeclaration
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          System.err.println("implement locallabeldeclarationlist (1)");
+          System.exit(1);
         }
         | LocalLabelDeclarationList LocalLabelDeclaration
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("implement locallabeldeclarationlist (2)");
+          System.exit(1);
         }
         ;
 
@@ -3565,65 +3449,63 @@ LocalLabelList:  /** list, complete **/  // ADDED
 DeclarationOrStatementList:  /** list, complete **/  /* ADDED */
         /* empty */
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> result = new Multiverse<StringBuilder>();
-          result.add(new StringBuilder(""), subparser.getPresenceCondition());
-          setTransformationValue(value, result);
+          StringBuilder valuesb = new StringBuilder();
+          setTransformationValue(value, valuesb);
         }
         | DeclarationOrStatementList DeclarationOrStatement
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node list = getNodeAt(subparser, 2);
-          Node elem = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, list, elem);
-          setTransformationValue(value, product);
+          StringBuilder valuesb = new StringBuilder();
+          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
+          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, valuesb);
         }
         ;
 
-DeclarationOrStatement: /** passthrough, complete **/  /* ADDED */
+DeclarationOrStatement: /** complete **/  /* ADDED */
         DeclarationExtension
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          // declarations are already hoisted, so just pass through the strinbguilder
+          setTransformationValue(value, (StringBuilder) getTransformationValue(subparser, 1));
         }
         | Statement
         {
+          // hoist all statements here, that declaratinorstatement is just a string
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
+
+          StringBuilder allStatements = new StringBuilder();
+
+          allStatements.append("\n{");
+          for (Multiverse.Element<StringBuilder> statement : product) {
+            PresenceCondition combinedCond = statement.getCondition().and(subparser.getPresenceCondition());
+            allStatements.append("\nif (" +
+            PCtoString(combinedCond) +
+            ") {\n" + statement.getData().toString() + "\n}\n");
+            combinedCond.delRef();
+          }
+          allStatements.append("\n}");
+
+          setTransformationValue(value, allStatements);
         }
         | NestedFunctionDefinition
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          System.err.println("nestedfunctiondefinition not implemented yet");
+          System.exit(1);
         }
         ;
 
 DeclarationList:  /** list, complete **/
         DeclarationExtension
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | DeclarationList DeclarationExtension
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          StringBuilder valuesb = new StringBuilder();
+          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
+          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, valuesb);
         }
         ;
 
@@ -3753,33 +3635,30 @@ IterationStatement:  /** complete **/
         }
         ;
 
-JumpStatement:  /** passthrough, complete **/
+JumpStatement:  /** complete **/
         GotoStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          System.err.println("WARNING: unsupported semantic action: JumpStatement");
-          System.exit(1);
+          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | ContinueStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          System.err.println("WARNING: unsupported semantic action: JumpStatement");
-          System.exit(1);
+          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | BreakStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          System.err.println("WARNING: unsupported semantic action: JumpStatement");
-          System.exit(1);
+          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | ReturnStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          System.err.println("WARNING: unsupported semantic action: JumpStatement");
+          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         ;
 
@@ -4048,11 +3927,13 @@ FunctionCall:  /** nomerge **/
         PostfixExpression LPAREN RPAREN
         {
           System.err.println("WARNING: unsupported semantic action: FunctionCall");
+          System.exit(1);
           callFunction(subparser, getNodeAt(subparser, 3), null);
         }
         | PostfixExpression LPAREN ExpressionList RPAREN
         {
           System.err.println("WARNING: unsupported semantic action: FunctionCall");
+          System.exit(1);
           callFunction(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 2));
         }
         ;
@@ -5360,85 +5241,161 @@ private void setTransformationValue(Object node, Object value) {
   ((Node)node).setProperty(TRANSFORMATION, value);
 }
 
+/**
+ * This class represents a single-configuration declaration and is
+ * used by Declaration to get the type and string versions of the
+ * declaration. */
+private static class Declaration {
+  /** The type. */
+  protected final TypeBuilderUnit typebuilder;
+
+  /** The declarator. */
+  protected final Declarator declarator;
+
+  public Declaration(TypeBuilderUnit typebuilder, Declarator declarator) {
+    this.typebuilder = typebuilder;
+    this.declarator = declarator;
+  }
+
+  public String toString() {
+    return String.format("%s %s", typebuilder.toString(), declarator.toString());
+  }
+
+  public Type getType() {
+    // TODO: handle typedef, which should be part of the typebuilderunit
+    return declarator.getType(typebuilder.toType());
+  }
+}
+
 /*
- * This class packages a typebuildermultiverse and declbuilder as a
- * single semantic value.  It is used for function prototypes.
+ * This class is the semantic value for FunctionPrototype.
  */
-private static class TypeAndDeclarator {
-  /** The return type field */
-  private TypeBuilderMultiverse type;
-  /** The identifier and parameters */
-  private DeclBuilder decl;
+private static class FunctionPrototypeValue {
+  /** The type. */
+  public final TypeBuilderMultiverse typebuilder;
+  
+  /** The declarator */
+  public final Multiverse<Declarator> declarator;
 
   /** 
    * This constructor creates a new instance.
    * @param type is the type.
-   * @param decl is the DeclBuilder.
+   * @param declarator is the declarator.
    */
-  private TypeAndDeclarator(TypeBuilderMultiverse type, DeclBuilder decl) {
-    this.type = type;
-    this.decl = decl;
+  private FunctionPrototypeValue(TypeBuilderMultiverse typebuilder, Multiverse<Declarator> declarator) {
+    this.typebuilder = typebuilder;
+    this.declarator = declarator;
   }
 }
 
-/** 
- * TypeAndDeclInitList stores type information,
- * with a list of declarations and their optional initializing statements.
- * This is used as the semantic value for declaring lists. 
- * The parent of a declaring list should construct the transformation output using the stored information.
- * 
+/*
+ * This class is the semantic value for DeclaringList.
  */
-private static class TypeAndDeclInitList {
-	/** The type field */
-  private TypeBuilderMultiverse type;
-  /** The declaration and initializer list */
-  private List<DeclAndInit> declAndInitList;
+private static class DeclaringListValue {
+  /** The type. */
+  public final TypeBuilderMultiverse typebuilder;
+  
+  /** The declarator */
+  public final Multiverse<Declarator> declarator;
 
-	/**
-	* This constructor creates a TypeAndDeclInitList.
-	*
-	* @param tb The type information.
-	* @param declAndInits The declaration and initializer list.
-	*/
-  private TypeAndDeclInitList(TypeBuilderMultiverse tb, DeclBuilder decl, Multiverse<StringBuilder> init) {
-    type = tb;
-    DeclAndInit declAndInit = new DeclAndInit(decl, init);
-    declAndInitList = new LinkedList<DeclAndInit>();
-    declAndInitList.add(declAndInit);
-  }
-
-  /** The copy constructor */
-  private TypeAndDeclInitList(TypeAndDeclInitList TBDBList) {
-  	type = new TypeBuilderMultiverse(TBDBList.type);
-  	declAndInitList = new LinkedList<DeclAndInit>(TBDBList.declAndInitList);
-  }
-
-  /** Adds a declaration and an optional initializer to the list */
-  private void addDeclAndInit(DeclBuilder decl, Multiverse<StringBuilder> init) {
-    DeclAndInit declAndInit = new DeclAndInit(decl, init);
-  	declAndInitList.add(declAndInit);
-  }
+  /** The initializer. */
+  public Multiverse<StringBuilder> initializer;
 
   /** 
-	 * DeclAndInit stores the declaration and initializer statement information.
-	 */
-	private static class DeclAndInit {
-		/** The declaration field */
-		private DeclBuilder decl;
-		/** The initializer statement field*/
-	  private Multiverse<StringBuilder> initializerSBMV;
-
-  	/** 
-	   * Constructor for declarations with an initializer statement.
-	   * @param db The declaration information.
-	   * @param initializer The initializer statement.
-	   */
-	  private DeclAndInit(DeclBuilder db, Multiverse<StringBuilder> initializer) {
-	  	decl = db;
-	  	initializerSBMV = initializer;
-	  }
-	}
+   * This constructor creates a new instance.
+   * @param type is the type.
+   * @param declarator is the declarator.
+   * @param declarator is the initializer.
+   */
+  private DeclaringListValue(TypeBuilderMultiverse typebuilder,
+                             Multiverse<Declarator> declarator,
+                             Multiverse<StringBuilder> initializer) {
+    this.typebuilder = typebuilder;
+    this.declarator = declarator;
+    this.initializer = initializer;
+  }
 }
+
+/*
+ * This class is the semantic value for DeclaringList.
+ */
+private static class ParameterDeclarationValue {
+  /** The type. */
+  public final TypeBuilderMultiverse typebuilder;
+  
+  /** The declarator */
+  public final Multiverse<Declarator> declarator;
+
+  /** 
+   * This constructor creates a new instance.
+   * @param type is the type.
+   * @param declarator is the declarator.
+   */
+  private ParameterDeclarationValue(TypeBuilderMultiverse typebuilder,
+                                    Multiverse<Declarator> declarator) {
+    this.typebuilder = typebuilder;
+    this.declarator = declarator;
+  }
+}
+
+/* /\**  */
+/*  * TypeAndDeclInitList stores type information, */
+/*  * with a list of declarations and their optional initializing statements. */
+/*  * This is used as the semantic value for declaring lists.  */
+/*  * The parent of a declaring list should construct the transformation output using the stored information. */
+/*  *  */
+/*  *\/ */
+/* private static class TypeAndDeclInitList { */
+/* 	/\** The type field *\/ */
+/*   private TypeBuilderMultiverse type; */
+/*   /\** The declaration and initializer list *\/ */
+/*   private List<DeclAndInit> declAndInitList; */
+
+/* 	/\** */
+/* 	* This constructor creates a TypeAndDeclInitList. */
+/* 	* */
+/* 	* @param tb The type information. */
+/* 	* @param declAndInits The declaration and initializer list. */
+/* 	*\/ */
+/*   private TypeAndDeclInitList(TypeBuilderMultiverse tb, DeclBuilder decl, Multiverse<StringBuilder> init) { */
+/*     type = tb; */
+/*     DeclAndInit declAndInit = new DeclAndInit(decl, init); */
+/*     declAndInitList = new LinkedList<DeclAndInit>(); */
+/*     declAndInitList.add(declAndInit); */
+/*   } */
+
+/*   /\** The copy constructor *\/ */
+/*   private TypeAndDeclInitList(TypeAndDeclInitList TBDBList) { */
+/*   	type = new TypeBuilderMultiverse(TBDBList.type); */
+/*   	declAndInitList = new LinkedList<DeclAndInit>(TBDBList.declAndInitList); */
+/*   } */
+
+/*   /\** Adds a declaration and an optional initializer to the list *\/ */
+/*   private void addDeclAndInit(DeclBuilder decl, Multiverse<StringBuilder> init) { */
+/*     DeclAndInit declAndInit = new DeclAndInit(decl, init); */
+/*   	declAndInitList.add(declAndInit); */
+/*   } */
+
+/*   /\**  */
+/* 	 * DeclAndInit stores the declaration and initializer statement information. */
+/* 	 *\/ */
+/* 	private static class DeclAndInit { */
+/* 		/\** The declaration field *\/ */
+/* 		private DeclBuilder decl; */
+/* 		/\** The initializer statement field*\/ */
+/* 	  private Multiverse<StringBuilder> initializerSBMV; */
+
+/*   	/\**  */
+/* 	   * Constructor for declarations with an initializer statement. */
+/* 	   * @param db The declaration information. */
+/* 	   * @param initializer The initializer statement. */
+/* 	   *\/ */
+/* 	  private DeclAndInit(DeclBuilder db, Multiverse<StringBuilder> initializer) { */
+/* 	  	decl = db; */
+/* 	  	initializerSBMV = initializer; */
+/* 	  } */
+/* 	} */
+/* } */
 
 
 /**
@@ -5461,7 +5418,12 @@ private Object getTransformationValue(Subparser subparser, int component) {
  * @param node The AST node holding the semantic value.
  */
 private Object getTransformationValue(Object node) {
-  return ((Node) node).getProperty(TRANSFORMATION);
+  Object transformationValue = ((Node) node).getProperty(TRANSFORMATION);
+  assert transformationValue != null;
+  if (transformationValue == null) {
+    throw new IllegalStateException("getting null transformation value");
+  }
+  return transformationValue;
 }
 
 private void setCPC(Object value, String CPC) {
@@ -5508,6 +5470,27 @@ private Multiverse<StringBuilder> getProductOfSomeChildren(PresenceCondition pc,
   }
   return sbmv;
 }
+
+/**
+ * This is for nodes that have static choices under them where all the
+ * nodes under the static choice have a StringBuilder as the
+ * transformation value.  This happens with top-level nodes where all
+ * desugaring has already been handled by declaration and statement.
+ */
+protected StringBuilder concatAllStringBuilders(Node node, PresenceCondition pc) {
+  // TODO: create a version of getAllNodeConfigs that doesn't use the
+  // presence condition, since it isn't needed to just concat the
+  // stringbuilders
+  StringBuilder valuesb = new StringBuilder();
+  Multiverse<Node> allNodes = getAllNodeConfigs(node, pc);
+  for (Element<Node> elem : allNodes) {
+    valuesb.append((StringBuilder) getTransformationValue(elem.getData()));
+    // no need for presence conditions, since declaration
+    // already handles them via renaming
+  }
+  return valuesb;
+}
+
 
 /**
  * All configurations of this node are then returned in a multiverse.
@@ -5585,6 +5568,36 @@ final Multiverse.Transformer<SymbolTable.Entry, StringBuilder> entryToStringBuil
   }
 };
 
+// TODO make these two methods generic for any list
+final static Multiverse.Operator<List<ParameterDeclarator>> PARAMLISTCONCAT = (list1, list2) -> {
+  List<ParameterDeclarator> newlist = new LinkedList<ParameterDeclarator>();
+  newlist.addAll(list1);
+  newlist.addAll(list2);
+  return newlist;
+};
+
+/**
+ * A multiverse transformation to wrap a parameter declarator into a
+ * single-element list.
+ */
+final Multiverse.Transformer<ParameterDeclarator, List<ParameterDeclarator>> listWrap = new Multiverse.Transformer<ParameterDeclarator, List<ParameterDeclarator>>() {
+  List<ParameterDeclarator> transform(ParameterDeclarator from) {
+    List result = new LinkedList();
+    result.add(from);
+    return result;
+  }
+};
+
+/**
+ * A multiverse transformation to turn a list of ParameterDeclarators
+ * into a ParameterListDeclarator.
+ */
+final Multiverse.Transformer<List<ParameterDeclarator>, ParameterListDeclarator> toParameterList = new Multiverse.Transformer<List<ParameterDeclarator>, ParameterListDeclarator>() {
+  ParameterListDeclarator transform(List<ParameterDeclarator> from) {
+    return new ParameterListDeclarator(from);
+  }
+};
+
 /*****************************************************************************
  ********* Methods to record global desugaring information.  These
  ********* will go into a special initializer function defined at the
@@ -5599,6 +5612,16 @@ final Multiverse.Transformer<SymbolTable.Entry, StringBuilder> entryToStringBuil
  */
 private void recordInvalidGlobalDeclaration(String ident, PresenceCondition condition) {
   System.err.println(String.format("TODO: record global invalid declaration: __invalid_declaration(%s, %s)", ident, PCtoString(condition)));
+}
+
+/**
+ * Record an invalid global declaration.
+ *
+ * @param ident The name of the global symbol.
+ * @param condition The presence condition under which the error occurred.
+ */
+private void recordInvalidGlobalRedeclaration(String ident, PresenceCondition condition) {
+  System.err.println(String.format("TODO: record global invalid global redeclaration: __invalid_declaration(%s, %s)", ident, PCtoString(condition)));
 }
 
 /**
@@ -5984,45 +6007,45 @@ public void bindIdent(Subparser subparser, Node typespec, Node declarator, STFie
   /* scope.bind(ident.getTokenText(), typedef, presenceCondition); */
 }
 
-public void bindIdent(Subparser subparser, TypeBuilderMultiverse typespec, DeclBuilder declarator)
-{
-	bindIdent(subparser, typespec, declarator, null);
-}
+/* public void bindIdent(Subparser subparser, TypeBuilderMultiverse typespec, DeclBuilder declarator) */
+/* { */
+/* 	bindIdent(subparser, typespec, declarator, null); */
+/* } */
 
-public void bindIdent(Subparser subparser, TypeBuilderMultiverse typespec, DeclBuilder declarator, STField alsoSet) {
-  /*
-    for this to properly work, we will need to pull the specific presenceCondition for
-    each individual TypeBuilderUnit. More or less the actions that were previously taken should take place
-    multiple times now.
-   */
-  StackFrame stack = subparser.stack;
-  PresenceConditionManager.PresenceCondition presenceCondition = subparser.getPresenceCondition();
-  CContext scope = (CContext) subparser.scope;
+/* public void bindIdent(Subparser subparser, TypeBuilderMultiverse typespec, DeclBuilder declarator, STField alsoSet) { */
+/*   /\* */
+/*     for this to properly work, we will need to pull the specific presenceCondition for */
+/*     each individual TypeBuilderUnit. More or less the actions that were previously taken should take place */
+/*     multiple times now. */
+/*    *\/ */
+/*   StackFrame stack = subparser.stack; */
+/*   PresenceConditionManager.PresenceCondition presenceCondition = subparser.getPresenceCondition(); */
+/*   CContext scope = (CContext) subparser.scope; */
 
-  String ident = declarator.getID();
+/*   String ident = declarator.getID(); */
 
-  for (Element<TypeBuilderUnit> elem : typespec){
-    if (languageStatistics) {
-      if (elem.getData().isTypedef()) {
-        Location location = subparser.lookahead.token.syntax.getLocation();
-        System.err.println(String.format("typedef %s %s", ident, location));
-      }
-    }
+/*   for (Element<TypeBuilderUnit> elem : typespec){ */
+/*     if (languageStatistics) { */
+/*       if (elem.getData().isTypedef()) { */
+/*         Location location = subparser.lookahead.token.syntax.getLocation(); */
+/*         System.err.println(String.format("typedef %s %s", ident, location)); */
+/*       } */
+/*     } */
 
-    if (showErrors) {
-      System.err.println("bind: " + ident + " " + Boolean.toString(elem.getData().isTypedef()));
-    }
-    if (debug) {
-      System.err.println("def: " + ident + " " + alsoSet);
-    }
-    STField field = elem.getData().isTypedef() ? STField.TYPEDEF : STField.IDENT;
-    scope.getSymbolTable().setbool(ident, field, true, elem.getCondition());
-    if (null != alsoSet) {
-      scope.getSymbolTable().setbool(ident, alsoSet, true,elem.getCondition());
-    }
+/*     if (showErrors) { */
+/*       System.err.println("bind: " + ident + " " + Boolean.toString(elem.getData().isTypedef())); */
+/*     } */
+/*     if (debug) { */
+/*       System.err.println("def: " + ident + " " + alsoSet); */
+/*     } */
+/*     STField field = elem.getData().isTypedef() ? STField.TYPEDEF : STField.IDENT; */
+/*     scope.getSymbolTable().setbool(ident, field, true, elem.getCondition()); */
+/*     if (null != alsoSet) { */
+/*       scope.getSymbolTable().setbool(ident, alsoSet, true,elem.getCondition()); */
+/*     } */
 
-  }
-}
+/*   } */
+/* } */
 
 private static Binding grokdeclarator(Node declarator, Type type) {
   Language ident = null;
@@ -7047,116 +7070,116 @@ private static Specifiers makeStructSpec(Subparser subparser,
   return specs;
 }
 
-/**
- * This method adds all given declarations to the symbol table.  It
- * goes through each element of the TypeBuilderMultiverse, completing
- * the type with the given DeclBuilder.  It constructs a Multiverse of
- * the resulting single-configuration DeclBuilders. The caller is
- * responsible for destructing the resulting Multiverse
- *
- * @param subparser The current subparser.
- * @param typebuilder A Multiverse of type specifier objects.
- * @param declbuilder An object representing the declarator.
- * @return A multiverse a single-configuration DeclBuilders.  The caller is responsible for destructing this Multiverse.
- */
-private Multiverse<DeclBuilder> addDeclsToSymTab(PresenceCondition presenceCondition, CContext scope, TypeBuilderMultiverse typebuilder, DeclBuilder declbuilder) {
+/* /\** */
+/*  * This method adds all given declarations to the symbol table.  It */
+/*  * goes through each element of the TypeBuilderMultiverse, completing */
+/*  * the type with the given DeclBuilder.  It constructs a Multiverse of */
+/*  * the resulting single-configuration DeclBuilders. The caller is */
+/*  * responsible for destructing the resulting Multiverse */
+/*  * */
+/*  * @param subparser The current subparser. */
+/*  * @param typebuilder A Multiverse of type specifier objects. */
+/*  * @param declbuilder An object representing the declarator. */
+/*  * @return A multiverse a single-configuration DeclBuilders.  The caller is responsible for destructing this Multiverse. */
+/*  *\/ */
+/* private Multiverse<DeclBuilder> addDeclsToSymTab(PresenceCondition presenceCondition, CContext scope, TypeBuilderMultiverse typebuilder, DeclBuilder declbuilder) { */
   
-  if (typebuilder == null || declbuilder == null ) {
-    System.err.println("ERROR: null typebuilder or declbuilder");
-    System.exit(1);
-  }
+/*   if (typebuilder == null || declbuilder == null ) { */
+/*     System.err.println("ERROR: null typebuilder or declbuilder"); */
+/*     System.exit(1); */
+/*   } */
 
-  // get the list of parameters if it's a function declarator
-  Multiverse<List<Parameter>> parms = null;
-  if (declbuilder.isFunction()) {
-    parms = declbuilder.getParams(presenceCondition);
-  }
+/*   // get the list of parameters if it's a function declarator */
+/*   Multiverse<List<Parameter>> parms = null; */
+/*   if (declbuilder.isFunction()) { */
+/*     parms = declbuilder.getParams(presenceCondition); */
+/*   } */
 
-  Multiverse<DeclBuilder> allDecls = new Multiverse<DeclBuilder>();
+/*   Multiverse<DeclBuilder> allDecls = new Multiverse<DeclBuilder>(); */
 
-  // loop through each configuration of the type specifier, adding the
-  // declaration to the symtab
-  for (Element<TypeBuilderUnit> elem : typebuilder) {
+/*   // loop through each configuration of the type specifier, adding the */
+/*   // declaration to the symtab */
+/*   for (Element<TypeBuilderUnit> elem : typebuilder) { */
 
-    TypeBuilderUnit t = elem.getData();
+/*     TypeBuilderUnit t = elem.getData(); */
 
-    if (!isTypeDeclValid(t, declbuilder)) {
-      PresenceCondition condition = presenceCondition.and(elem.getCondition());
-      scope.getSymbolTable().putError(declbuilder.getID(), condition);
-      condition.delRef();
-    } else {
+/*     if (!isTypeDeclValid(t, declbuilder)) { */
+/*       PresenceCondition condition = presenceCondition.and(elem.getCondition()); */
+/*       scope.getSymbolTable().putError(declbuilder.getID(), condition); */
+/*       condition.delRef(); */
+/*     } else { */
 
-      // combine the type spec and declarator into a complete type
-      DeclBuilder completedecl = new DeclBuilder(declbuilder);
-      completedecl.addType(t.toType());
+/*       // combine the type spec and declarator into a complete type */
+/*       DeclBuilder completedecl = new DeclBuilder(declbuilder); */
+/*       completedecl.addType(t.toType()); */
 
-      if (! declbuilder.isFunction()) {
-        // bind the symbol name to the type under the current presence condition
-        PresenceCondition condition = presenceCondition.and(elem.getCondition());
-        putEntry(scope, declbuilder.getID(), completedecl.toType(), condition);
+/*       if (! declbuilder.isFunction()) { */
+/*         // bind the symbol name to the type under the current presence condition */
+/*         PresenceCondition condition = presenceCondition.and(elem.getCondition()); */
+/*         putEntry(scope, declbuilder.getID(), completedecl.toType(), condition); */
         
-        // add the declBuilder to the multiverse for non-functions
-        Multiverse<SymbolTable.Entry> symbolTableEntries = scope.getSymbolTable().get(declbuilder.getID(), condition);
-        for (Multiverse.Element<SymbolTable.Entry> renaming : symbolTableEntries) {
-          DeclBuilder db = new DeclBuilder(declbuilder);
-          allDecls.add(db, renaming.getCondition());
-        }
+/*         // add the declBuilder to the multiverse for non-functions */
+/*         Multiverse<SymbolTable.Entry> symbolTableEntries = scope.getSymbolTable().get(declbuilder.getID(), condition); */
+/*         for (Multiverse.Element<SymbolTable.Entry> renaming : symbolTableEntries) { */
+/*           DeclBuilder db = new DeclBuilder(declbuilder); */
+/*           allDecls.add(db, renaming.getCondition()); */
+/*         } */
 
-        condition.delRef();
+/*         condition.delRef(); */
 
-      } else {  // function types
-        // go through each combination of parameters, adding each
-        // variation of the function declarator to the symtab
-        for(Element<List<Parameter>> parmelem : parms) {
-          if (!validateParamList(parmelem.getData())) {
-            PresenceCondition condition = presenceCondition.and(parmelem.getCondition());
-            scope.getSymbolTable().putError(declbuilder.getID(), condition);
-            condition.delRef();
-          }
-          PresenceCondition condition = parmelem.getCondition().and(elem.getCondition());
+/*       } else {  // function types */
+/*         // go through each combination of parameters, adding each */
+/*         // variation of the function declarator to the symtab */
+/*         for(Element<List<Parameter>> parmelem : parms) { */
+/*           if (!validateParamList(parmelem.getData())) { */
+/*             PresenceCondition condition = presenceCondition.and(parmelem.getCondition()); */
+/*             scope.getSymbolTable().putError(declbuilder.getID(), condition); */
+/*             condition.delRef(); */
+/*           } */
+/*           PresenceCondition condition = parmelem.getCondition().and(elem.getCondition()); */
 
-          if (parmelem.getData().size() == 0) {  // function has no parameters
-            Type funcType = new FunctionT(completedecl.toType());
-            putEntry(scope, declbuilder.getID(), funcType, condition);
+/*           if (parmelem.getData().size() == 0) {  // function has no parameters */
+/*             Type funcType = new FunctionT(completedecl.toType()); */
+/*             putEntry(scope, declbuilder.getID(), funcType, condition); */
 
-            // add the declBuilder to the multiverse for functions without parameters
-            Multiverse<SymbolTable.Entry> symbolTableEntries = scope.getSymbolTable().get(declbuilder.getID(), condition);
-            for (Multiverse.Element<SymbolTable.Entry> renaming : symbolTableEntries) {
-              DeclBuilder db = new DeclBuilder(declbuilder);
-              allDecls.add(db, renaming.getCondition());
-            }
+/*             // add the declBuilder to the multiverse for functions without parameters */
+/*             Multiverse<SymbolTable.Entry> symbolTableEntries = scope.getSymbolTable().get(declbuilder.getID(), condition); */
+/*             for (Multiverse.Element<SymbolTable.Entry> renaming : symbolTableEntries) { */
+/*               DeclBuilder db = new DeclBuilder(declbuilder); */
+/*               allDecls.add(db, renaming.getCondition()); */
+/*             } */
 
-          } else {  // function has parameters
-            List<Type> parmlist = new LinkedList<Type>();
+/*           } else {  // function has parameters */
+/*             List<Type> parmlist = new LinkedList<Type>(); */
 
-            // get list of parameter types
-            for (Parameter p : parmelem.getData()) {
-              if(! p.isEllipsis()) {
-                parmlist.add(p.getType());
-              }
-            }
+/*             // get list of parameter types */
+/*             for (Parameter p : parmelem.getData()) { */
+/*               if(! p.isEllipsis()) { */
+/*                 parmlist.add(p.getType()); */
+/*               } */
+/*             } */
 
-            Type funcType = new FunctionT(completedecl.toType(),
-                                          parmlist,
-                                          parmelem.getData().get(parmelem.getData().size() - 1).isEllipsis());
-            putEntry(scope, declbuilder.getID(), funcType, condition);
+/*             Type funcType = new FunctionT(completedecl.toType(), */
+/*                                           parmlist, */
+/*                                           parmelem.getData().get(parmelem.getData().size() - 1).isEllipsis()); */
+/*             putEntry(scope, declbuilder.getID(), funcType, condition); */
 
-            // add the declBuilder to the multiverse for functions with parameters
-            Multiverse<SymbolTable.Entry> symbolTableEntries = scope.getSymbolTable().get(declbuilder.getID(), condition);
-            for (Multiverse.Element<SymbolTable.Entry> renaming : symbolTableEntries) {
-              DeclBuilder db = new DeclBuilder(declbuilder);
-              allDecls.add(db, renaming.getCondition());
-            }
-          }
+/*             // add the declBuilder to the multiverse for functions with parameters */
+/*             Multiverse<SymbolTable.Entry> symbolTableEntries = scope.getSymbolTable().get(declbuilder.getID(), condition); */
+/*             for (Multiverse.Element<SymbolTable.Entry> renaming : symbolTableEntries) { */
+/*               DeclBuilder db = new DeclBuilder(declbuilder); */
+/*               allDecls.add(db, renaming.getCondition()); */
+/*             } */
+/*           } */
 
-          condition.delRef();
-        }
-      }
-    }
-  }
-  System.err.println("addDeclsToSymTab() is returning: " + allDecls);
-  return allDecls;
-}
+/*           condition.delRef(); */
+/*         } */
+/*       } */
+/*     } */
+/*   } */
+/*   System.err.println("addDeclsToSymTab() is returning: " + allDecls); */
+/*   return allDecls; */
+/* } */
 
 private Multiverse<SymbolTable.Entry> getTypeOfTypedef(Subparser subparser, String typeName)
 {
@@ -7339,81 +7362,81 @@ public String generateBoolExpr(String CPPBoolExpr) {
  return sb.toString();
 }
 
-private boolean isTypeDeclValid(TypeBuilderUnit t, DeclBuilder d)
-{
-  if (!t.getIsValid() || !d.getIsValid()) {
-    return false;
-  }
-  if (t.getIsVoid() && !t.isTypedef() && (!d.isPointer() && !d.isFunction())) {
-    return false;
-  }
-  if (t.getIsInline() && !d.isFunction()){
-    return false;
-  }
-  return true;
-}
+/* private boolean isTypeDeclValid(TypeBuilderUnit t, DeclBuilder d) */
+/* { */
+/*   if (!t.getIsValid() || !d.getIsValid()) { */
+/*     return false; */
+/*   } */
+/*   if (t.getIsVoid() && !t.isTypedef() && (!d.isPointer() && !d.isFunction())) { */
+/*     return false; */
+/*   } */
+/*   if (t.getIsInline() && !d.isFunction()){ */
+/*     return false; */
+/*   } */
+/*   return true; */
+/* } */
 
 protected static C cOps = new C();
 
-/**
-   * When a value is to be added to the symbol table, duplications are allowed
-   * if they have the same type and in a global scope. If the parent is not null,
-   * the scope is not global and the value is added normally. If the identifier
-   * is not in the table, then it can't be a redeclaration and is added normally.
-   * Otherwise, the limited scope is checked, in an undeclared match, the value is added
-   * in error or same type matching, nothing is done, and in a different type match
-   * an error is added.
-   *
-   * @param ident original name of the declaration
-   * @param putEntry type to be added to the symbol table
-   * @param putCond condition of the declaration being added
-   */
-public void putEntry(CContext scope, String ident, Type putEntry, PresenceCondition putCond)
-{
-  SymbolTable s = scope.getSymbolTable();
+/* /\** */
+/*    * When a value is to be added to the symbol table, duplications are allowed */
+/*    * if they have the same type and in a global scope. If the parent is not null, */
+/*    * the scope is not global and the value is added normally. If the identifier */
+/*    * is not in the table, then it can't be a redeclaration and is added normally. */
+/*    * Otherwise, the limited scope is checked, in an undeclared match, the value is added */
+/*    * in error or same type matching, nothing is done, and in a different type match */
+/*    * an error is added. */
+/*    * */
+/*    * @param ident original name of the declaration */
+/*    * @param putEntry type to be added to the symbol table */
+/*    * @param putCond condition of the declaration being added */
+/*    *\/ */
+/* public void putEntry(CContext scope, String ident, Type putEntry, PresenceCondition putCond) */
+/* { */
+/*   SymbolTable s = scope.getSymbolTable(); */
   
-  Multiverse<SymbolTable.Entry> curMV = s.get(ident, putCond);
+/*   Multiverse<SymbolTable.Entry> curMV = s.get(ident, putCond); */
 
-  //if the scope is global but no entry exists for the ident, it is fine
-  if (curMV == null) {
-    s.put(ident, putEntry, putCond);
-    return;
-  }
-  //otherwise, we need to remove intersection with pre-definitions with the same type since these are valid
-  //removing the intersection should be valid, as even if that intersection would cause an error with another
-  //entry, that error should already exist in the table
-  for (Element<SymbolTable.Entry> e : curMV) {
+/*   //if the scope is global but no entry exists for the ident, it is fine */
+/*   if (curMV == null) { */
+/*     s.put(ident, putEntry, putCond); */
+/*     return; */
+/*   } */
+/*   //otherwise, we need to remove intersection with pre-definitions with the same type since these are valid */
+/*   //removing the intersection should be valid, as even if that intersection would cause an error with another */
+/*   //entry, that error should already exist in the table */
+/*   for (Element<SymbolTable.Entry> e : curMV) { */
       
-    PresenceCondition p = e.getCondition();
-    p.addRef();
-    if (e.getData() == SymbolTable.UNDECLARED) {
-      s.put(ident, putEntry, p);
-    }
-    else if (e.getData() == SymbolTable.ERROR) {
-      // do nothing, since the presence condition is already an error
-    }
-    else {
-      Type t = e.getData().getType();
-      if (!cOps.equal(putEntry, t)) {
-        s.putError(ident, p);
-      }
-      else if (cOps.equal(putEntry, t) && !scope.isGlobal()) {
-        s.putError(ident, p);
-      }
-      else if (cOps.equal(putEntry, t) && scope.isGlobal()) {
-        // symbols in global scope can be redeclared to a compatible type
-      }
-      else {
-        //should never happen
-        System.err.println("Should never happen");
-        System.exit(1);
-      }
-    }
+/*     PresenceCondition p = e.getCondition(); */
+/*     p.addRef(); */
+/*     if (e.getData() == SymbolTable.UNDECLARED) { */
+/*       s.put(ident, putEntry, p); */
+/*     } */
+/*     else if (e.getData() == SymbolTable.ERROR) { */
+/*       // do nothing, since the presence condition is already an error */
+/*     } */
+/*     else { */
+/*       Type t = e.getData().getType(); */
+/*       if (!cOps.equal(putEntry, t)) { */
+/*         s.putError(ident, p); */
+/*       } */
+/*       else if (cOps.equal(putEntry, t) && !scope.isGlobal()) { */
+/*         s.putError(ident, p); */
+/*       } */
+/*       else if (cOps.equal(putEntry, t) && scope.isGlobal()) { */
+/*         // symbols in global scope can be redeclared to a compatible type */
+/*       } */
+/*       else { */
+/*         //should never happen */
+/*         System.err.println("Should never happen"); */
+/*         System.exit(1); */
+/*       } */
+/*     } */
     
-    p.delRef();
-  }
-  curMV.destruct();
-}
+/*     p.delRef(); */
+/*   } */
+/*   curMV.destruct(); */
+/* } */
 
 /**
  * Returns if the provided list is a valid Parameter list.
