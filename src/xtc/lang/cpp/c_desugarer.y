@@ -5286,8 +5286,12 @@ private static class Declaration {
   }
 
   public Type getType() {
-    // TODO: handle typedef, which should be part of the typebuilderunit
-    return declarator.getType(typebuilder.toType());
+    Type type = declarator.getType(typebuilder.toType());
+    if (typebuilder.isTypedef()) {
+      String name = declarator.getName();
+      type = new AliasT(name, type);
+    }
+    return type;
   }
 }
 
