@@ -3734,8 +3734,42 @@ IterationStatement:  /** complete **/
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
-          System.err.println("WARNING: unsupported semantic action: IterationStatement");
-          System.exit(1);
+          Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7));
+          Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
+          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 6), pc);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 5).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 4).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), pc);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 2).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 1).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), SBCONCAT);
+          sbmv.destruct();
+          sbmv = temp;
+
+
+          setTransformationValue(value, sbmv);
         }
         | FOR LPAREN ExpressionOpt SEMICOLON ExpressionOpt SEMICOLON
                 ExpressionOpt RPAREN Statement
