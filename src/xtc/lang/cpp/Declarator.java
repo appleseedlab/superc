@@ -114,7 +114,10 @@ abstract class Declarator {
   }
 
   /**
-   * This declarator is for preserving placement of parentheses.
+   * This declarator is for preserving placement of parentheses.  It
+   * is currently not used, since it causes issues with detecting
+   * abstract postif declarators and is not needed since explicit
+   * ordering of the output is done by always putting parentheses.
    */
   public static class ParenDeclarator extends Declarator {
     /**
@@ -206,7 +209,8 @@ abstract class Declarator {
     public boolean isPointerDeclarator() { return true; }
 
     public String toString() {
-      return String.format("* %s", declarator.toString());
+      // return String.format("* %s", declarator.toString());
+      return String.format("(* %s)", declarator.toString());  // preserve order of operations
     }
   }
 
@@ -246,6 +250,8 @@ abstract class Declarator {
     public String toString() {
       // TODO: waiting on typebuidlerunit tostring
       throw new AssertionError("not yet implemented: waiting on typebuilder qualifiers");
+      // // return String.format("* %s", declarator.toString());
+      // return String.format("(* %s)", declarator.toString());  // preserve order of operations
     }
   }
 
@@ -353,7 +359,7 @@ abstract class Declarator {
 
     public String toString() {
       System.err.println("WARNING: do we need parentheses?");
-      return String.format("%s%s", declarator.toString(), arrayabstractdeclarator.toString());
+      return String.format("(%s%s)", declarator.toString(), arrayabstractdeclarator.toString());
     }
   }
 
