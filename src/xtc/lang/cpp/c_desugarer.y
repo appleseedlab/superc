@@ -2684,7 +2684,7 @@ CleanPostfixTypedefDeclarator: /** nomerge **/
         {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesguaringOperators.createCompoundDeclarator);
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesugaringOperators.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2704,7 +2704,7 @@ ParenTypedefDeclarator:  /** nomerge **/
         | STAR LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
-          Multiverse<Declarator> valuemv = DesguaringOperators.toPointerDeclarator.transform(declarators);
+          Multiverse<Declarator> valuemv = DesugaringOperators.toPointerDeclarator.transform(declarators);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2715,7 +2715,7 @@ ParenTypedefDeclarator:  /** nomerge **/
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,4);
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,2);
-          Multiverse<Declarator> valuemv = DesguaringOperators.createQualifiedPointerDeclarator(declarators, qualifierlists);
+          Multiverse<Declarator> valuemv = DesugaringOperators.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2725,7 +2725,7 @@ ParenTypedefDeclarator:  /** nomerge **/
         | STAR ParenTypedefDeclarator
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = DesguaringOperators.toPointerDeclarator.transform(declarators);
+          Multiverse<Declarator> valuemv = DesugaringOperators.toPointerDeclarator.transform(declarators);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2735,7 +2735,7 @@ ParenTypedefDeclarator:  /** nomerge **/
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = DesguaringOperators.createQualifiedPointerDeclarator(declarators, qualifierlists);
+          Multiverse<Declarator> valuemv = DesugaringOperators.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2753,7 +2753,7 @@ ParenPostfixTypedefDeclarator: /** nomerge **/ /* redundant paren to left of tna
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
-          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesguaringOperators.createCompoundDeclarator);
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesugaringOperators.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2764,7 +2764,7 @@ ParenPostfixTypedefDeclarator: /** nomerge **/ /* redundant paren to left of tna
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesguaringOperators.createCompoundDeclarator);
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesugaringOperators.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2846,7 +2846,7 @@ PostfixIdentifierDeclarator: /** nomerge **/
       	{
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesguaringOperators.createCompoundDeclarator);
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesugaringOperators.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
@@ -2904,9 +2904,9 @@ PostfixingFunctionDeclarator:  /** nomerge **/
               typebuilderCond.delRef();            
             }
             // take the product of that multiverse with the existing, hoisted list of parameters
-            Multiverse<List<ParameterDeclarator>> nextparameterwrapped = DesguaringOperators.listWrap.transform(nextparameter);
+            Multiverse<List<ParameterDeclarator>> nextparameterwrapped = DesugaringOperators.listWrap.transform(nextparameter);
             nextparameter.destruct();
-            Multiverse<List<ParameterDeclarator>> newparametersmv = parametersmv.product(nextparameterwrapped, DesguaringOperators.PARAMLISTCONCAT);
+            Multiverse<List<ParameterDeclarator>> newparametersmv = parametersmv.product(nextparameterwrapped, DesugaringOperators.PARAMLISTCONCAT);
             nextparameterwrapped.destruct();
             parametersmv.destruct();
             parametersmv = newparametersmv;
@@ -2915,7 +2915,7 @@ PostfixingFunctionDeclarator:  /** nomerge **/
           // single-configuration parameter lists
 
           // transform it into a multiverse of ParameterListDeclarators
-          Multiverse<ParameterListDeclarator> paramlistmv = DesguaringOperators.toParameterList.transform(parametersmv);
+          Multiverse<ParameterListDeclarator> paramlistmv = DesugaringOperators.toParameterList.transform(parametersmv);
           parametersmv.destruct();
           // no need to filter, since we started parametersmv with the subparser pc
           setTransformationValue(value, paramlistmv);
@@ -3126,7 +3126,7 @@ PostfixAbstractDeclarator: /** nomerge **/
         {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
-          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesguaringOperators.createCompoundDeclarator);
+          Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesugaringOperators.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           /* declarators.destruct(); */
