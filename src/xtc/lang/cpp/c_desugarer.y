@@ -414,7 +414,7 @@ FunctionDefinition:  /** complete **/ // added scoping
                 PresenceCondition combinedCond = typebuilderCond.and(declarator.getCondition());
                 String originalName = declarator.getData().getName();
 
-                if (typebuilder.getData().isTypeError) {
+                if (typebuilder.getData().hasTypeError()) {
                   // if type is invalid, put an error entry, emit a call
                   // to the type error function
                   symtab.putError(originalName, combinedCond);
@@ -815,7 +815,7 @@ Declaration:  /** complete **/
           // loop over each element of the declaration list
         	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
           for (DeclaringListValue declaringlistvalue : declaringlistvalues) {
-            /* // unpack type specifier, declarators, and initializers from the transformation value */
+            // unpack type specifier, declarators, and initializers from the transformation value
             Multiverse<TypeBuilder> typebuildermv = declaringlistvalue.typebuilder;
             Multiverse<Declarator> declaratormv = declaringlistvalue.declarator;
             Multiverse<StringBuilder> initializermv = declaringlistvalue.initializer;
@@ -835,7 +835,7 @@ Declaration:  /** complete **/
 
                   // get xtc type from type and declarator
 
-                  if (typebuilder.getData().isTypeError) {
+                  if (typebuilder.getData().hasTypeError()) {
                     // if type is invalid, put an error entry, emit a call
                     // to the type error function
                     symtab.putError(originalName, combinedCond);
@@ -2200,7 +2200,7 @@ ParameterDeclaration:  /** nomerge **/
               Declaration declaration = new Declaration(typebuilder.getData(),
                                                         declarator.getData());
 
-              if (typebuilder.getData().isTypeError) {
+              if (typebuilder.getData().hasTypeError()) {
                 symtab.putError(declarator.getData().getName(), combinedCond);
               } else {
                 // getName() shouldn't have an error, because thit is
@@ -5157,10 +5157,20 @@ private static class Declaration {
     this.declarator = declarator;
   }
 
-  public String toString() {
-    return String.format("%s %s", typebuilder.toString(), declarator.toString());
+  /**
+   * Returns true if the type specifier is invalid.
+   */
+  public boolean hasTypeError() {
+    return typebuilder.hasTypeError();
   }
 
+  /*
+   * Gets the type that this declaration defines.  This works by
+   * combining the type specifier with the declarator (type
+   * constructor).  Declaration handles creating an alias type, since
+   * only when we know there is a typedef qualifier and the complete
+   * type can we construct it.
+   */
   public Type getType() {
     Type type = declarator.getType(typebuilder.toType());
     if (typebuilder.isTypedef()) {
@@ -5168,6 +5178,10 @@ private static class Declaration {
       type = new AliasT(name, type);
     }
     return type;
+  }
+
+  public String toString() {
+    return String.format("%s %s", typebuilder.toString(), declarator.toString());
   }
 }
 

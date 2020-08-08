@@ -22,6 +22,8 @@ import xtc.lang.cpp.Declarator.FunctionDeclarator;
 import xtc.lang.cpp.Declarator.ParameterDeclarator;
 import xtc.lang.cpp.Declarator.ParameterListDeclarator;
 
+import xtc.type.AliasT;
+
 import java.util.List;
 import java.util.LinkedList;
 
@@ -178,7 +180,9 @@ class DesugaringOperators {
             // TODO: use the new symtab for reclassifying
             // typedefname tokens
           } else {
-            tbunit.setTypedef(from.getRenaming(), from.getType());
+            AliasT aliastype = from.getType().toAlias();
+            AliasT renamedalias = new AliasT(from.getRenaming(), aliastype.getType());
+            tbunit.setTypedef(renamedalias);
           }
         }
         return tbunit;

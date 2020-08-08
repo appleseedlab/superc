@@ -7,6 +7,7 @@ import xtc.type.IntegerT;
 import xtc.type.FloatT;
 import xtc.type.VoidT;
 import xtc.type.UnitT;
+import xtc.type.AliasT;
 import xtc.Constants;
 
 /**
@@ -14,7 +15,7 @@ import xtc.Constants;
  * the type specifier during parsing.
  */
 public class TypeBuilder {
-    Type type; // void, char, short, int, long, float, double, SUE, typedef
+    Type type; // void, char, short, int, long, float, double, SUE, typedefname
     enum QUAL {isAuto, isConst, isVolatile, isExtern, isStatic, isRegister, isThreadLocal,
 	       isInline, isSigned, isUnsigned, isTypedef}
     final int NUM_QUALS = 12;
@@ -28,8 +29,8 @@ public class TypeBuilder {
     List<String> attributes;
 
     boolean isTypeError;
-    String typedefName;
-    Type typedefType;
+
+    AliasT typedeftype;
 
     public String attributesToString() {
 	if (attributes == null)
@@ -85,7 +86,7 @@ public class TypeBuilder {
 	if (foundTypes[FOUND_TYPE.seenComplex.ordinal()])
 	    sb.append("complex ");
 	if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
-	    sb.append(typedefName + " " + typedefType);
+      sb.append(typedeftype.getName());
 	sb.append(attributesToString());
 
       if (type.isUnit()) {
@@ -146,7 +147,7 @@ public class TypeBuilder {
         type = new IntegerT(NumberT.Kind.SHORT); // short
     } else if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
 	    {
-        type = typedefType;
+        type = typedeftype;
       } else if (foundTypes[FOUND_TYPE.seenVoid.ordinal()]) {
       type = new VoidT();
     }
@@ -247,8 +248,7 @@ public class TypeBuilder {
 	    qualifiers[i] = old.qualifiers[i];
 	attributes = new LinkedList<String>(old.attributes);
 	isTypeError = old.isTypeError;
-	typedefName = old.typedefName;
-	typedefType = old.typedefType;
+	typedeftype = old.typedeftype;
 	add(name);
     }
 
@@ -263,8 +263,7 @@ public class TypeBuilder {
 	for (int i = 0; i < NUM_TYPES; ++i)
 	    foundTypes[i] = false;
   isTypeError = false;
-	typedefName = "";
-	typedefType = null;
+  typedeftype = null;
 	add(qualifier);
     }
 
@@ -318,8 +317,7 @@ public class TypeBuilder {
 	this.type = type;
 	attributes = new LinkedList<String>();
   isTypeError = false;
-	typedefName = "";
-	typedefType = null;
+	typedeftype = null;
   }
 
     // copy constructor that changes type (should be used whenever a type is found)
@@ -332,8 +330,7 @@ public class TypeBuilder {
 		qualifiers[i] = old.qualifiers[i];
 	    attributes = new LinkedList<String>(old.attributes);
 	    isTypeError = old.isTypeError;
-	    typedefName = old.typedefName;
-	    typedefType = old.typedefType;
+	    typedeftype = old.typedeftype;
 	}
 
     }
@@ -347,8 +344,7 @@ public class TypeBuilder {
 	    foundTypes[i] = false;
 	attributes = new LinkedList<String>();
   isTypeError = false;
-	typedefName = "";
-	typedefType = null;
+	typedeftype = null;
     }
 
     // copy constructor creates a deep copy
@@ -360,8 +356,7 @@ public class TypeBuilder {
 	    foundTypes[i] = old.foundTypes[i];
     attributes = new LinkedList<String>(old.attributes);
     isTypeError = old.isTypeError;
-    typedefName = old.typedefName;
-    typedefType = old.typedefType;
+    typedeftype = old.typedeftype;
   }
 
 
@@ -457,8 +452,7 @@ public class TypeBuilder {
       }
     }
     result.isTypeError = result.isTypeError || with.isTypeError;
-    result.typedefName = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefName : with.typedefName);
-    result.typedefType = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefType : with.typedefType);
+    result.typedeftype = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedeftype : with.typedeftype);
     return result;
   }
 
@@ -467,57 +461,21 @@ public class TypeBuilder {
     return qualifiers[QUAL.isTypedef.ordinal()];
   }
 
-  public void setTypedef(String name, Type type)
+  /**
+   * Adds a type alias (via a typedefname) to this specifier.
+   *
+   * @param type The type alias.
+   */
+  public void setTypedef(AliasT alias)
   {
     foundTypes[FOUND_TYPE.seenTypedef.ordinal()] = true;
-    typedefName = name;
-    typedefType = type;
-    if (type.isUnit()) {
-      isTypeError = true;
-    }
-      
+    typedeftype = alias;
   }
 
-  public boolean getIsValid()
-  {
-    return !isTypeError;
-  }
-
-  public boolean validDeclQuals()
-  {
-    boolean valid = !isTypeError;
-    for (int i = 0; i < NUM_QUALS; ++i){
-	    if (i != QUAL.isConst.ordinal() && i != QUAL.isVolatile.ordinal()){
-        valid = false;
-      }
-    }
-    for (int i = 0; i < NUM_TYPES; ++i){
-	    valid = false;
-    }
-    return valid;
-  }
-  
-  public String qualString()
-  {
-    String output = "";
-    if (qualifiers[QUAL.isConst.ordinal()]){
-	    output += "const ";
-    }
-    if (qualifiers[QUAL.isVolatile.ordinal()]){
-	    output += "volatile ";
-    }
-    return output;
-  }
-
-  public boolean getIsVoid()
-  {
-    return foundTypes[FOUND_TYPE.seenVoid.ordinal()] ||
-      (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] &&
-       typedefType.isVoid());
-  }
-
-  public boolean getIsInline()
-  {
-    return qualifiers[QUAL.isInline.ordinal()];
+  /**
+   * Returns true if the type specifier is invalid.
+   */
+  public boolean hasTypeError() {
+    return isTypeError;
   }
 }
