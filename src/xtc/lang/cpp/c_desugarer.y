@@ -5297,14 +5297,14 @@ private StringBuilder emitStatement(Multiverse<StringBuilder> allStatementConfig
     sb.append("\n{");
   }
   for (Multiverse.Element<StringBuilder> statement : allStatementConfigs) {
-    if (! pc.isTrue()) {
+    if (! statement.getCondition().isTrue()) {
       // don't bother using an if the statement applies to all configurations
       sb.append("\nif (");
       sb.append(PCtoString(statement.getCondition().and(pc)));
       sb.append(") {\n");
     }
     sb.append(statement.getData().toString());
-    if (! pc.isTrue()) {
+    if (! statement.getCondition().isTrue()) {
       sb.append("\n}");
     }
     sb.append("\n");
