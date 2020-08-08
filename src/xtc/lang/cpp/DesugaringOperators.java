@@ -136,8 +136,8 @@ class DesugaringOperators {
   * A multiverse transformation to turn a list of ParameterDeclarators
   * into a ParameterListDeclarator.
   */
- public final static Multiverse.Transformer<List<ParameterDeclarator>, Declarator> toParameterList = new Multiverse.Transformer<List<ParameterDeclarator>, Declarator>() {
-   Declarator transform(List<ParameterDeclarator> from) {
+ public final static Multiverse.Transformer<List<ParameterDeclarator>, ParameterListDeclarator> toParameterList = new Multiverse.Transformer<List<ParameterDeclarator>, ParameterListDeclarator>() {
+   ParameterListDeclarator transform(List<ParameterDeclarator> from) {
      return new ParameterListDeclarator(from);
    }
  };
