@@ -820,6 +820,9 @@ Declaration:  /** complete **/
             Multiverse<Declarator> declaratormv = declaringlistvalue.declarator;
             Multiverse<StringBuilder> initializermv = declaringlistvalue.initializer;
 
+            // TODO: use typebuilder/declarator to reclassify the
+            // tokens as typedef/ident in parsing context
+
             for (Element<TypeBuilder> typebuilder : typebuildermv) {
               PresenceCondition typebuilderCond = subparser.getPresenceCondition().and(typebuilder.getCondition());
               for (Element<StringBuilder> initializer : initializermv) {
@@ -2733,8 +2736,8 @@ ParenTypedefDeclarator:  /** nomerge **/
         }
         | STAR TypeQualifierList ParenTypedefDeclarator
       	{
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
-          Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
+          Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,2);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugaringOperators.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -2818,8 +2821,8 @@ UnaryIdentifierDeclarator: /** nomerge **/
       	}
         | STAR TypeQualifierList IdentifierDeclarator
       	{
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
-          Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
+          Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,2);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugaringOperators.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3098,8 +3101,8 @@ UnaryAbstractDeclarator: /** nomerge **/
         }
         | STAR TypeQualifierList AbstractDeclarator
         {
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
-          Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
+          Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,2);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugaringOperators.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -5140,7 +5143,8 @@ private void setTransformationValue(Object node, Object value) {
 /**
  * This class represents a single-configuration declaration and is
  * used by Declaration to get the type and string versions of the
- * declaration. */
+ * declaration.
+ */
 private static class Declaration {
   /** The type. */
   protected final TypeBuilder typebuilder;

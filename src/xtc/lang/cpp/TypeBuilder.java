@@ -88,6 +88,9 @@ public class TypeBuilder {
 	    sb.append(typedefName + " " + typedefType);
 	sb.append(attributesToString());
 
+      if (type.isUnit()) {
+        throw new IllegalStateException("not enough information to make a complete type");
+      }
 	return sb.toString();
     }
 

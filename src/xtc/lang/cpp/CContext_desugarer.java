@@ -161,6 +161,7 @@ public class CContext implements ParsingContext {
 
   // get around capture of ? to CTag warning
   public boolean shouldReclassify(Collection<Lookahead> set) {
+    // TODO: use the new symboltable to do this
     // Check whether any tokens need reclassification, i.e. they are
     // an identifier and have an entry in the symbol.
     for (Lookahead n : set) {
@@ -201,6 +202,7 @@ public class CContext implements ParsingContext {
 
   // get around capture of ? to CTag warning
   public Collection<Lookahead> reclassify(Collection<Lookahead> set) {
+    // TODO: use the new symboltable to do this
     // Reclassify any tokens that are typedef names and also create a
     // new token when there is a typedef/var ambiguity so the FMLR
     // parser will fork.
@@ -212,6 +214,9 @@ public class CContext implements ParsingContext {
         isTypedef = isType(n.token.syntax.getTokenText(),
                            n.presenceCondition, n.token.syntax.getLocation());
       }
+
+      // TODO: do a lookup and check in which configurations it's an
+      // alias type
 
       switch (isTypedef) {
       case TRUEFALSE:

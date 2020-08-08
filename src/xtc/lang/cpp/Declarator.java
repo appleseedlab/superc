@@ -248,10 +248,8 @@ abstract class Declarator {
     public boolean isQualifiedPointerDeclarator() { return true; }
 
     public String toString() {
-      // TODO: waiting on typebuidlerunit tostring
-      throw new AssertionError("not yet implemented: waiting on typebuilder qualifiers");
-      // // return String.format("* %s", declarator.toString());
-      // return String.format("(* %s)", declarator.toString());  // preserve order of operations
+      // return String.format("* %s %s", qualifiers.toString(), declarator.toString());
+      return String.format("(* %s %s)", qualifiers.toString(), declarator.toString());  // preserve order of operations
     }
   }
 
@@ -318,8 +316,7 @@ abstract class Declarator {
     public boolean isQualifiedPointerAbstractDeclarator() { return true; }
 
     public String toString() {
-      // TODO: waiting on typebuidlerunit tostring
-      throw new AssertionError("yet implemented: waiting on typebuilder qualifiers");
+      return String.format("* %s", qualifiers.toString());
     }
   }
 
