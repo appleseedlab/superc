@@ -1070,8 +1070,8 @@ TypeSpecifier:  /** nomerge **/
 				}
         | SUETypeSpecifier                 /* Struct/Union/Enum */
 				{
-					System.err.println("Unsupported grammar TypeSpecifier-SUE"); // TODO
-          System.exit(1);
+          Multiverse<TypeBuilder> t = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
+        	setTransformationValue(value,t);
 				}
 				| TypedefTypeSpecifier             /* Typedef */
 				{
@@ -1389,8 +1389,8 @@ SUEDeclarationSpecifier: /** nomerge **/          /* StorageClass + struct/union
 SUETypeSpecifier: /** nomerge **/
         ElaboratedTypeName              /* struct/union/enum */
         {
-          System.err.println("WARNING: unsupported semantic action: SUETypeSpecifier");
-          System.exit(1);
+          Multiverse<TypeBuilder> t = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
+        	setTransformationValue(value,t);
         }
         | TypeQualifierList ElaboratedTypeName
         {
@@ -1777,8 +1777,8 @@ ComplexKeyword:
 ElaboratedTypeName: /** passthrough, nomerge **/
         StructSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: ElaboratedTypeName");
-          System.exit(1);
+          Multiverse<TypeBuilder> t = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
+        	setTransformationValue(value,t);
         }
         | UnionSpecifier
         {
@@ -1792,24 +1792,66 @@ ElaboratedTypeName: /** passthrough, nomerge **/
         }
         ;
 
-StructSpecifier: /** nomerge **/  // ADDED attributes
-        STRUCT { EnterScope(subparser); } LBRACE
-          StructDeclarationList { ExitScope(subparser); }
-        RBRACE
+/**
+ * This construct represents all possible configurations of a struct
+ * specifier.  Struct specifiers are type specifiers, so they are
+ * represented by (a subclass of) TypeBuilder.  To preserve all
+ * configurations of it, these actions produce
+ * Multiverse<TypeBuilder>.
+ */
+// transformation notes:
+//   we can either take all combinations of declaration lists and make a new, renamed type spec
+//   or we can combine all fields into a single struct, renaming the fields
+StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder>
+        STRUCT LBRACE StructDeclarationList RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
-          System.exit(1);
+          // legacy type checking
           Node tag     = null;
           Node members = getNodeAt(subparser, 3);
           Node attrs   = null;
           updateSpecs(subparser,
                       makeStructSpec(subparser, tag, members, attrs),
                       value);
+
+          List<Multiverse<Declaration>> structfields
+            = (List<Multiverse<Declaration>>) getTransformationValue(subparser,2);
+
+          // if any field in the struct is invalid, then the entire
+          // struct typespec is invalid
+
+          // version 1: produce all combinations of this list for each
+          // possible configuration, i.e., take
+          // List<Multiverse<Declaration>> and create
+          // Multiverse<List<Declaration>>, which will be
+          // exponentially larger in size.
+
+          System.err.println("STRUCTFIELDS: " + structfields);
+
+          // TODO: look at PostfixingFunctionDeclarator to see how to
+          // construct a multiverse of lists from a list of
+          // multiverses
+
+          // TODO: version 2: produce a single List<Declaration>,
+          // where each declaration is renamed according to the
+          // configuration.  note that this version requires a
+          // modification to the symtab to store a configurable struct
+          // type.
+          
+          System.err.println("TODO: construct all possible struct type specifiers");
+          System.err.println("TODO: use a subclass of typebuilder for structtypebuilder that also has member fields");
+          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
+          System.exit(1);
+          
+        	/* setTransformationValue(value,t); */
         }
         | STRUCT IdentifierOrTypedefName { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
+          // TODO put struct in symtab in the struct tag namespace
+
+          // TODO stop entering/exiting scope on structs, since they
+          // all end up in the same scope anyway.
           System.err.println("WARNING: unsupported semantic action: StructSpecifier");
           System.exit(1);
           Node tag     = getNodeAt(subparser, 6);
@@ -1901,29 +1943,62 @@ UnionSpecifier: /** nomerge **/  // ADDED attributes
           System.exit(1);
         }
         ;
-
-StructDeclarationList: /** list, nomerge **/
+/*
+ * This construct returns a list of declaration multiverses, i.e., a
+ * list of declarations, where each declaration may be different
+ * depending on the configuration.
+ */
+StructDeclarationList: /** list, nomerge **/  // List<Multiverse<Declaration>>
         /* StructDeclaration */ /* ADDED gcc empty struct */
         {
-          ((Node) value).setProperty(SPECS, new Specifiers());
-          System.err.println("WARNING: unsupported semantic action: StructDeclarationList");
-          System.exit(1);
+          ((Node) value).setProperty(SPECS, new Specifiers()); // legacy type checking
+
+          setTransformationValue(value, new LinkedList<Multiverse<Declaration>>());
         }
         | StructDeclarationList StructDeclaration {
+          //legacy type checking
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
-          System.err.println("WARNING: unsupported semantic action: StructDeclarationList");
-          System.exit(1);
+
+          List<Multiverse<Declaration>> structfields
+            = (LinkedList<Multiverse<Declaration>>) getTransformationValue(subparser,2);
+          Multiverse<Declaration> declarationvalue
+            = (Multiverse<Declaration>) getTransformationValue(subparser,1);
+          structfields.add(declarationvalue);
+          setTransformationValue(value, structfields);
         }
         ;
 
-StructDeclaration: /** nomerge **/
+StructDeclaration: /** nomerge **/  // returns Multiverse<Declaration>
         StructDeclaringList SEMICOLON
         {
-          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
-          System.exit(1);
+          // TODO: implement like Declaration, except return a
+          // multiverse of declarations instead of strings
+          
+        	List<StructDeclaringListValue> declaringlistvalues = (List<StructDeclaringListValue>) getTransformationValue(subparser, 2);
+
+          // take all combinations of type specifiers and declarators
+          // and produce a multiverse of declaration objects.
+          Multiverse<Declaration> resultmv = new Multiverse<Declaration>();
+          for (StructDeclaringListValue declaringlistvalue : declaringlistvalues) {
+            // unpack type specifier, declarators, and initializers from the transformation value
+            Multiverse<TypeBuilder> typebuildermv = declaringlistvalue.typebuilder;
+            Multiverse<Declarator> declaratormv = declaringlistvalue.declarator;
+            
+            for (Element<TypeBuilder> typebuilder : typebuildermv) {
+              PresenceCondition typebuilderCond = subparser.getPresenceCondition().and(typebuilder.getCondition());
+              for (Element<Declarator> declarator : declaratormv) {
+                PresenceCondition combinedCond = typebuilderCond.and(declarator.getCondition());
+                resultmv.add(new Declaration(typebuilder.getData(), declarator.getData()), combinedCond);
+                combinedCond.delRef();
+              } // end loop over declarators
+              typebuilderCond.delRef();
+            } // end loop over typebuilders
+          } // end loop of declaring list values
+
+          setTransformationValue(value, resultmv);
         }
         | StructDefaultDeclaringList SEMICOLON
         {
@@ -1960,29 +2035,38 @@ StructDefaultDeclaringList: /** list, nomerge **/        /* doesn't redeclare ty
         }
         ;
 
-StructDeclaringList: /** list, nomerge **/
+StructDeclaringList: /** list, nomerge **/  // returns List<StructDeclaringListValue>
         TypeSpecifier StructDeclarator AttributeSpecifierListOpt
         {
-          System.err.println("WARNING: unsupported semantic action: StructDeclaringList");
-          System.exit(1);
+          List<StructDeclaringListValue> declaringlist = new LinkedList<StructDeclaringListValue>();
+          Multiverse<TypeBuilder> typebuilders = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 3);
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 2);
+          System.err.println("TODO: support attribuetspecifierlistopt in StructDeclarator");
+          declaringlist.add(new StructDeclaringListValue(typebuilders, declarators));
+          setTransformationValue(value, declaringlist);
         }
         | StructDeclaringList COMMA StructDeclarator AttributeSpecifierListOpt
         {
-          System.err.println("WARNING: unsupported semantic action: StructDeclaringList");
-          System.exit(1);
+          List<StructDeclaringListValue> declaringlist = (List<StructDeclaringListValue>) getTransformationValue(subparser, 4);
+          assert declaringlist.size() > 0;
+          Multiverse<TypeBuilder> typebuilders = declaringlist.get(0).typebuilder;
+          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 2);
+          System.err.println("TODO: support attribuetspecifierlistopt in StructDeclarator");
+          declaringlist.add(new StructDeclaringListValue(typebuilders, declarators));
+          setTransformationValue(value, declaringlist);
         }
         ;
 
 
-StructDeclarator: /** nomerge **/
+StructDeclarator: /** nomerge **/  // returns Multiverse<Declarator>
         Declarator BitFieldSizeOpt
         {
-          System.err.println("WARNING: unsupported semantic action: StructDeclarator");
-          System.exit(1);
+          System.err.println("TODO: support bitfieldsizeopt in a new StructDeclarator");
+          setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser, 2));
         }
         | BitFieldSize
         {
-          System.err.println("WARNING: unsupported semantic action: StructDeclarator");
+          System.err.println("WARNING: unsupported semantic action: StructDeclarator (2)");
           System.exit(1);
         }
         ;
@@ -2110,7 +2194,7 @@ EnumeratorValueOpt: /** nomerge **/
         }
         ;
 
-ParameterTypeList:  /** nomerge **/
+ParameterTypeList:  /** nomerge **/  // List<ParameterDeclarationValue>
         ParameterList
         {
           setTransformationValue(value, (List<ParameterDeclarationValue>) getTransformationValue(subparser,1));
@@ -2124,7 +2208,7 @@ ParameterTypeList:  /** nomerge **/
         ;
 
 // returns a multiverse of nonconfigurable parameter lists
-ParameterList:  /** list, nomerge **/
+ParameterList:  /** list, nomerge **/ // List<ParameterDeclarationValue>
         ParameterDeclaration
         {
           List<ParameterDeclarationValue> parameters = new LinkedList<ParameterDeclarationValue>();
@@ -2879,7 +2963,7 @@ FunctionDeclarator:  /** nomerge **/
         }
         ;
 
-PostfixingFunctionDeclarator:  /** nomerge **/
+PostfixingFunctionDeclarator:  /** nomerge **/ // Multiverse<ParameterListDeclarator>
         LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN
         {
           // TODO: account for parameterdeclarationvalue that is the ellipsis
@@ -2889,7 +2973,7 @@ PostfixingFunctionDeclarator:  /** nomerge **/
           // find each combination of single-configuration parameter
           // lists.  not using a product, because it is combining two
           // different types, typebuilder and declarator.  perhaps
-          // having a qualifierdeclarator would make this possible.
+          // having a typebuilderdeclarator would make this possible.
           Multiverse<List<ParameterDeclarator>> parametersmv = new Multiverse<List<ParameterDeclarator>>();
           parametersmv.add(new LinkedList<ParameterDeclarator>(), subparser.getPresenceCondition());
           for (ParameterDeclarationValue parameterdeclarationvalue : parameterdeclarationvalues) {
@@ -3022,7 +3106,7 @@ PostfixingAbstractDeclarator: /**  nomerge **/
         }
         ;
 
-ParameterTypeListOpt: /** nomerge **/
+ParameterTypeListOpt: /** nomerge **/  // List<ParameterDeclarationValue>
         /* empty */
         {
           setTransformationValue(value, new LinkedList<ParameterDeclarationValue>());
@@ -5206,6 +5290,9 @@ private static class FunctionPrototypeValue {
   }
 }
 
+
+// TODO: look into making these three types of values sibling classes,
+// since they all share typebuidler and declarator
 /*
  * This class is the semantic value for DeclaringList.
  */
@@ -5235,7 +5322,7 @@ private static class DeclaringListValue {
 }
 
 /*
- * This class is the semantic value for DeclaringList.
+ * This class is the semantic value for parameters.
  */
 private static class ParameterDeclarationValue {
   /** The type. */
@@ -5251,6 +5338,30 @@ private static class ParameterDeclarationValue {
    */
   private ParameterDeclarationValue(Multiverse<TypeBuilder> typebuilder,
                                     Multiverse<Declarator> declarator) {
+    this.typebuilder = typebuilder;
+    this.declarator = declarator;
+  }
+}
+
+// TODO: can we make a common superclass with DeclaringListValue,
+// which only add an initializer?
+/*
+ * This class is the semantic value for struct fields.
+ */
+private static class StructDeclaringListValue {
+  /** The type. */
+  public final Multiverse<TypeBuilder> typebuilder;
+  
+  /** The declarator */
+  public final Multiverse<Declarator> declarator;
+
+  /** 
+   * This constructor creates a new instance.
+   * @param type is the type.
+   * @param declarator is the declarator.
+   */
+  private StructDeclaringListValue(Multiverse<TypeBuilder> typebuilder,
+                                 Multiverse<Declarator> declarator) {
     this.typebuilder = typebuilder;
     this.declarator = declarator;
   }
