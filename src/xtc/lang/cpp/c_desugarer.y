@@ -792,8 +792,17 @@ Declaration:  /** complete **/
         }
         | SUETypeSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
-          System.err.println("TODO: Declaration (2)");
-          System.exit(1);
+        	Multiverse<TypeBuilder> structtypesmv
+            = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 3);
+        	StringBuilder sb = new StringBuilder();  // the desugared output
+
+          for (Element<TypeBuilder> typebuilder : structtypesmv) {
+            sb.append(typebuilder.getData().toString());
+            sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
+          }
+          sb.append("\n");
+          
+          setTransformationValue(value, sb);
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
@@ -1389,8 +1398,8 @@ SUEDeclarationSpecifier: /** nomerge **/          /* StorageClass + struct/union
 SUETypeSpecifier: /** nomerge **/
         ElaboratedTypeName              /* struct/union/enum */
         {
-          Multiverse<TypeBuilder> t = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
-        	setTransformationValue(value,t);
+        	setTransformationValue(value,
+            (Multiverse<TypeBuilder>) getTransformationValue(subparser,1));
         }
         | TypeQualifierList ElaboratedTypeName
         {
@@ -1777,8 +1786,8 @@ ComplexKeyword:
 ElaboratedTypeName: /** passthrough, nomerge **/
         StructSpecifier
         {
-          Multiverse<TypeBuilder> t = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
-        	setTransformationValue(value,t);
+        	setTransformationValue(value,
+            (Multiverse<TypeBuilder>) getTransformationValue(subparser,1));
         }
         | UnionSpecifier
         {
@@ -1829,14 +1838,95 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           // Multiverse<List<Declaration>>, which will be
           // exponentially larger in size.
 
-          System.err.println("STRUCTFIELDS: " + structfields);
+          // (1) start with an empty multiverse of declaration lists
+          Multiverse<List<Declaration>> listsmv
+            = new Multiverse<List<Declaration>>(new LinkedList<Declaration>(), subparser.getPresenceCondition());
+          // (2) go through each declaration multiverse
+          for (Multiverse<Declaration> structfield : structfields) {
+            // (3) turn each declaration into a single-element list
+            Multiverse<List<Declaration>> wrappeddeclarationmv = DesugaringOperators.declarationListWrap.transform(structfield);
+            // (4) make a new multiverse of declaration form the
+            // product of the previous with the single-element
+            // declaration lists from (3), allowing for missing
+            // declarations in some configurations
+            // with complementedProduct
+            Multiverse<List<Declaration>> newlistsmv
+              = listsmv.complementedProduct(wrappeddeclarationmv, DesugaringOperators.DECLARATIONLISTCONCAT);
+            wrappeddeclarationmv.destruct();
+            listsmv.destruct();
+            listsmv = newlistsmv;
+          }
+
+          // create a multiverse of struct types
+          Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
+          for (Element<List<Declaration>> declarationlist : listsmv) {
+            // give it an anonymous tag name (CAnalyzer)
+            String structTag = symtab.freshName("tag");
+
+            // no need to rename anonymous structs, since the tag is
+            // not emitted
+            TypeBuilder tb = new TypeBuilder();
+            tb.setStructDefinition(structTag,  
+                                   declarationlist.getData());
+            valuemv.add(tb, declarationlist.getCondition());
+            
+            symtab.put(structTag,
+                       structTag,
+                       tb.toType(),
+                       declarationlist.getCondition());
+            System.err.println("STRUCTTYPE: " + tb.toType());
+            // declared as this type
+          }
+          // should be non-empty, since we start with a single entry multiverse containing an empty list
+          assert ! valuemv.isEmpty();
+
+          // TODO: version 2: produce a single List<Declaration>,
+          // where each declaration is renamed according to the
+          // configuration.  note that this version requires a
+          // modification to the symtab to store a configurable struct
+          // type.
+          
+        	setTransformationValue(value, valuemv);
+        }
+        | STRUCT IdentifierOrTypedefName LBRACE StructDeclarationList RBRACE
+        {
+          // TODO put struct in symtab in the struct tag namespace
+
+          // TODO see if you need the tag in the symtab before
+          // processing the decl list for recursive structs
+
+          // replace existing incomplete struct in the symtab
+          /* structtype.setMembers(memberlist); */  // add members later
+          
+          // TODO stop entering/exiting scope on structs, since they
+          // all end up in the same scope anyway.
+          Node tag     = getNodeAt(subparser, 4);
+          Node members = getNodeAt(subparser, 2);
+          Node attrs   = null;
+          updateSpecs(subparser,
+                      makeStructSpec(subparser, tag, members, attrs),
+                      value);
+
+          String structTag = ((Syntax) getNodeAt(subparser, 4).get(0)).getTokenText();
+          List<Multiverse<Declaration>> structfields
+            = (List<Multiverse<Declaration>>) getTransformationValue(subparser, 2);
+
+          // get scope to make an anonymous tag
+          CContext scope = (CContext)subparser.scope;
+          SymbolTable symtab = scope.getSymbolTable();
+          
+          // TODO: if any field in the struct is invalid, then the
+          // entire struct typespec is invalid (see TypeBuilder)
+
+          // version 1: produce all combinations of this list for each
+          // possible configuration, i.e., take
+          // List<Multiverse<Declaration>> and create
+          // Multiverse<List<Declaration>>, which will be
+          // exponentially larger in size.
 
           // (1) start with an empty multiverse of declaration lists
           Multiverse<List<Declaration>> listsmv
             = new Multiverse<List<Declaration>>(new LinkedList<Declaration>(), subparser.getPresenceCondition());
-            /* = new Multiverse<List<Declaration>>(new LinkedList<Declaration>(), subparser.getPresenceCondition().presenceConditionManager().newTrue()); */
-          /* System.err.println(value); */
-          /* System.err.println("listsmv: " + listsmv); */
           // (2) go through each declaration multiverse
           for (Multiverse<Declaration> structfield : structfields) {
             // (3) turn each declaration into a single-element list
@@ -1853,102 +1943,58 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
             listsmv = newlistsmv;
           }
           
-          System.err.println("HOISTED STRUCTFIELDS: " + listsmv);
-
           // create a multiverse of struct types
-          Multiverse<Type> structtypes = new Multiverse<Type>();
+          Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
           for (Element<List<Declaration>> declarationlist : listsmv) {
-            // TODO: support bitfield sizes
-            List<VariableT> memberlist = new LinkedList<VariableT>();
-            for (Declaration declaration : declarationlist.getData()) {
-              VariableT member = VariableT.newField(declaration.getType(),
-                                                    declaration.getName());
-              memberlist.add(member);
-              // TODO: use Variable.newBitfield()
-            }
-            // TODO: support flexible array member, not allowed with unnamed struct.  see CAnalyzer
-            // give it an anonymous tag name (CAnalyzer)
-            StructT structtype = new StructT(symtab.freshName("tag"), memberlist);
-            // TODO: add to symtab for use in type-checking any identifier
+            String renamedTag = symtab.freshCId(structTag);
+
+            System.err.println("TODO: recursively rename any selfref struct type refs in any descendent field.");
+            // TODO: recursively rename any selfreferencing struct
+            // types.  we need to look through any members for struct
+            // typebuilders and rename the struct refs, doing this
+            // recursively.  also check for any redeclarations of the
+            // struct (seenStructDefinition instead of
+            // seenStructReference)
+          
+            TypeBuilder tb = new TypeBuilder();
+            tb.setStructDefinition(structTag,
+                                   renamedTag,
+                                   declarationlist.getData());
+            valuemv.add(tb, declarationlist.getCondition());
+            System.err.println("TODO: add to symtab for use in type-checking any identifier");
+            
+            String tagname = SymbolTable.toTagName(structTag);
+            symtab.put(tagname,
+                       renamedTag,
+                       tb.toType(),
+                       declarationlist.getCondition());
+            System.err.println("STRUCTTYPE: " + tb.toType());
             // declared as this type
-            System.err.println("STRUCTTYPE: " + structtype);
-            System.err.println("MEMBERS: " + structtype.getMembers());
-            structtypes.add(structtype, declarationlist.getCondition());
-            // TODO: need to save both the Declarations and the type
-            // together in the typebuilder.  perhaps have a struct
-            // like Declaration, e.g., StructOrUnionDefinition, to preserve
-            // the original strings and the types.  this can also have
-            // a tostring and a totype method.
           }
           // should be non-empty, since we start with a single entry multiverse containing an empty list
-          assert ! structtypes.isEmpty();
+          assert ! valuemv.isEmpty();
 
-          System.err.println(structtypes);
-
-          // TODO: look at PostfixingFunctionDeclarator to see how to
-          // construct a multiverse of lists from a list of
-          // multiverses
-
-          // TODO: version 2: produce a single List<Declaration>,
-          // where each declaration is renamed according to the
-          // configuration.  note that this version requires a
-          // modification to the symtab to store a configurable struct
-          // type.
+          System.err.println(valuemv);
           
-          System.err.println("TODO: construct all possible struct type specifiers");
-          System.err.println("TODO: use a subclass of typebuilder for structtypebuilder that also has member fields");
-          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
-          System.exit(1);
-          
-        	/* setTransformationValue(value,t); */
+        	setTransformationValue(value, valuemv);
         }
         | STRUCT IdentifierOrTypedefName
         {
-          /* instead of entering scope, add incomplete tag to symtab
-             for use in recursive symtab types. */
-
-          CContext scope = (CContext)subparser.scope;
-          SymbolTable symtab = scope.getSymbolTable();
-
-          String tag = ((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText();
-          StructT structtype = new StructT(tag);
-          // TODO: updated symtab
-          String tagname = SymbolTable.toTagName(tag);
-          System.err.println("TAG " + tagname);
-          EnterScope(subparser);
-        } LBRACE
-          StructDeclarationList { ExitScope(subparser); }
-        RBRACE
-        {
-          // TODO put struct in symtab in the struct tag namespace
-
-          // TODO see if you need the tag in the symtab before
-          // processing the decl list for recursive structs
-
-          // replace existing incomplete struct in the symtab
-          /* structtype.setMembers(memberlist); */  // add members later
-          
-          // TODO stop entering/exiting scope on structs, since they
-          // all end up in the same scope anyway.
-          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
-          System.exit(1);
-          Node tag     = getNodeAt(subparser, 6);
-          Node members = getNodeAt(subparser, 3);
-          Node attrs   = null;
-          updateSpecs(subparser,
-                      makeStructSpec(subparser, tag, members, attrs),
-                      value);
-        }
-        | STRUCT IdentifierOrTypedefName
-        {
-          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
-          System.exit(1);
+          String structTag = ((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText();
+          TypeBuilder typebuilder = new TypeBuilder();
+          System.err.println("TODO: get the renaming, have the enter scope help with that.");
+          typebuilder.setStructReference(structTag, structTag /* change this to renaming */);
+          // TODO: use the context to store a nested set of struct tags
+          Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>(typebuilder,
+                                                                        subparser.getPresenceCondition());
+          System.err.println(valuemv);
+          setTransformationValue(value, valuemv);
         }
         | STRUCT AttributeSpecifierList { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
+          System.err.println("WARNING: unsupported semantic action: StructSpecifier (4)");
           System.exit(1);
           Node tag     = null;
           Node members = getNodeAt(subparser, 3);
@@ -1961,7 +2007,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
-          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
+          System.err.println("WARNING: unsupported semantic action: StructSpecifier (5)");
           System.exit(1);
           Node tag     = getNodeAt(subparser, 6);
           Node members = getNodeAt(subparser, 3);
@@ -1972,7 +2018,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
         }
         | STRUCT AttributeSpecifierList IdentifierOrTypedefName
         {
-          System.err.println("WARNING: unsupported semantic action: StructSpecifier");
+          System.err.println("WARNING: unsupported semantic action: StructSpecifier (6)");
           System.exit(1);
         }
         ;
