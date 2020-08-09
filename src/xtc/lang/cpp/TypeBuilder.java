@@ -85,6 +85,8 @@ public class TypeBuilder {
 	    sb.append("double ");
 	if (foundTypes[FOUND_TYPE.seenComplex.ordinal()])
 	    sb.append("complex ");
+	if (foundTypes[FOUND_TYPE.seenVoid.ordinal()])
+	    sb.append("void ");
 	if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
       sb.append(typedeftype.getName());
 	sb.append(attributesToString());
