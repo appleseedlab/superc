@@ -197,7 +197,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * @param index The index to retrieve.
    */
   public Element<T> get(int index) {
-    return contents.get(0);
+    return contents.get(index);
   }
 
   /**
@@ -426,7 +426,12 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
       sb.append("\n");
     }
     sb.append("  COMPLEMENT: ");
-    sb.append(this.complement);
+    if (null == complement) {
+      assert isEmpty();
+      sb.append("1");
+    } else{
+      sb.append(this.complement);
+    }
     sb.append(")");
     sb.append("\n");
     return sb.toString();
