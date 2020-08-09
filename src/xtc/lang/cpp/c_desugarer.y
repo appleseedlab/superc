@@ -1827,6 +1827,28 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
 
           System.err.println("STRUCTFIELDS: " + structfields);
 
+          // (1) start with an empty multiverse of declaration lists
+          Multiverse<List<Declaration>> listsmv
+            = new Multiverse<List<Declaration>>(new LinkedList<Declaration>(), subparser.getPresenceCondition());
+            /* = new Multiverse<List<Declaration>>(new LinkedList<Declaration>(), subparser.getPresenceCondition().presenceConditionManager().newTrue()); */
+          /* System.err.println(value); */
+          /* System.err.println("listsmv: " + listsmv); */
+          // (2) go through each declaration multiverse
+          for (Multiverse<Declaration> structfield : structfields) {
+            // (3) turn each declaration into a single-element list
+            Multiverse<List<Declaration>> wrappeddeclarationmv = DesugaringOperators.declarationListWrap.transform(structfield);
+            // (4) make a new multiverse of declaration form the
+            // product of the previous with the single-element
+            // declaration lists from (3)
+            Multiverse<List<Declaration>> newlistsmv
+              = listsmv.complementedProduct(wrappeddeclarationmv, DesugaringOperators.DECLARATIONLISTCONCAT);
+            wrappeddeclarationmv.destruct();
+            listsmv.destruct();
+            listsmv = newlistsmv;
+          }
+          
+          System.err.println("HOISTED STRUCTFIELDS: " + listsmv);
+
           // TODO: look at PostfixingFunctionDeclarator to see how to
           // construct a multiverse of lists from a list of
           // multiverses
