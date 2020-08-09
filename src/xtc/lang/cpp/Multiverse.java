@@ -219,6 +219,32 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    */
   public Multiverse<T> product(Multiverse<T> other, Operator<T> op) {
     if (this.isEmpty()) {
+      throw new IllegalStateException("trying to take cartesian product of empty multiverse");
+      // return new Multiverse<T>(other);
+    } else if (other.isEmpty()) {
+      throw new IllegalStateException("trying to take cartesian product of empty multiverse");
+      // return new Multiverse<T>(this);
+    } else {
+      Multiverse<T> newmv = new Multiverse<T>();
+      /* The computes the following new set, where '*' is the operator:
+           newmv = { ( data1 * data2, cond1 and cond2 )
+                     for (data1, cond1) in this and (data2, cond2) in other } */
+      for (Element<T> elem1 : this) {
+        for (Element<T> elem2 : other) {
+          PresenceCondition condition = elem1.getCondition().and(elem2.getCondition());
+          if (! condition.isFalse()) {
+            T data = op.product(elem1.getData(), elem2.getData());
+            newmv.add(data, condition);
+            condition.addRef();
+          }
+          condition.delRef();
+        }
+      }
+      
+      return newmv;
+    }
+  }
+    if (this.isEmpty()) {
       return new Multiverse<T>(other);
     } else if (other.isEmpty()) {
       return new Multiverse<T>(this);

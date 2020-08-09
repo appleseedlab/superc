@@ -1997,6 +1997,9 @@ StructDeclaration: /** nomerge **/  // returns Multiverse<Declaration>
               typebuilderCond.delRef();
             } // end loop over typebuilders
           } // end loop of declaring list values
+          // should be non-empty since structdeclaringlist cannot be
+          // empty
+          assert ! resultmv.isEmpty();
 
           setTransformationValue(value, resultmv);
         }
@@ -2350,6 +2353,10 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<ParameterDeclarator>
             } // end loop over declarators
             typebuilderCond.delRef();
           } // end loop over typebuilders
+          // should be non-empty because
+          // parameteridentifierdeclaration should always return a
+          // typebuildermv and declaratormv
+          assert ! valuemv.isEmpty();
 
           /* if (debug) System.err.println(symtab); */
 
@@ -2391,8 +2398,7 @@ ParameterAbstractDeclaration: // ParameterDeclarationValue
         | TypeSpecifier
         {
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
-          Multiverse<Declarator> declarators = new Multiverse<Declarator>();
-          declarators.add(new EmptyDeclarator(), subparser.getPresenceCondition());
+          Multiverse<Declarator> declarators = new Multiverse<Declarator>(new EmptyDeclarator(), subparser.getPresenceCondition());
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | TypeSpecifier AbstractDeclarator
@@ -2552,8 +2558,7 @@ TypeName: /** nomerge **/
 InitializerOpt: /** nomerge **/
         /* nothing */
         {
-          Multiverse<StringBuilder> emptyInit = new Multiverse<StringBuilder>();
-          emptyInit.add(new StringBuilder(), subparser.getPresenceCondition());
+          Multiverse<StringBuilder> emptyInit = new Multiverse<StringBuilder>(new StringBuilder(), subparser.getPresenceCondition());
           setTransformationValue(value, emptyInit);
         }
         | ASSIGN DesignatedInitializer
@@ -2627,8 +2632,7 @@ MatchedInitializerList:  /** list, nomerge **/
         {
           System.err.println("WARNING: unsupported semantic action: MatchedInitializerList");
           System.exit(1);
-          Multiverse<StringBuilder> s = new Multiverse<StringBuilder>();
-          s.add(new StringBuilder(""), subparser.getPresenceCondition());
+          Multiverse<StringBuilder> s = new Multiverse<StringBuilder>(new StringBuilder(""), subparser.getPresenceCondition());
           setTransformationValue(value, s);
         }
         ;
@@ -2741,8 +2745,7 @@ ParameterTypedefDeclarator: /** nomerge **/
         TYPEDEFname
         {
           System.err.println("TODO: do we need to expand all possible typedef names here? parametertypedefdeclarator");
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-          valuemv.add(new SimpleDeclarator(getStringAt(subparser, 1)), subparser.getPresenceCondition());
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>(new SimpleDeclarator(getStringAt(subparser, 1)), subparser.getPresenceCondition());
           setTransformationValue(value, valuemv);;
         }
         | TYPEDEFname PostfixingAbstractDeclarator
@@ -3005,8 +3008,8 @@ PostfixingFunctionDeclarator:  /** nomerge **/ // Multiverse<ParameterListDeclar
           // lists.  not using a product, because it is combining two
           // different types, typebuilder and declarator.  perhaps
           // having a typebuilderdeclarator would make this possible.
-          Multiverse<List<ParameterDeclarator>> parametersmv = new Multiverse<List<ParameterDeclarator>>();
-          parametersmv.add(new LinkedList<ParameterDeclarator>(), subparser.getPresenceCondition());
+          Multiverse<List<ParameterDeclarator>> parametersmv
+            = new Multiverse<List<ParameterDeclarator>>(new LinkedList<ParameterDeclarator>(), subparser.getPresenceCondition());
           for (Multiverse<ParameterDeclarator> nextparameter : parameterdeclaratorlistsmv) {
             // take the product of that multiverse with the existing, hoisted list of parameters
             // (1) wrap each element of the multiverse in a list 
@@ -3063,8 +3066,8 @@ ParenIdentifierDeclarator:  /** nomerge **/
 SimpleDeclarator: /** nomerge **/
         IDENTIFIER  /* bind */
         {
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-          valuemv.add(new SimpleDeclarator(getStringAt(subparser, 1)), subparser.getPresenceCondition());
+          Multiverse<Declarator> valuemv
+            = new Multiverse<Declarator>(new SimpleDeclarator(getStringAt(subparser, 1)), subparser.getPresenceCondition());
           setTransformationValue(value, valuemv);;
         }
         ;
@@ -3147,8 +3150,8 @@ ArrayAbstractDeclarator: /** nomerge **/
         LBRACK RBRACK
         {
           StringBuilder expression = new StringBuilder();
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-          valuemv.add(new ArrayAbstractDeclarator(expression), subparser.getPresenceCondition());
+          Multiverse<Declarator> valuemv
+            = new Multiverse<Declarator>(new ArrayAbstractDeclarator(expression), subparser.getPresenceCondition());
           setTransformationValue(value, valuemv);;
         }
         | LBRACK ConstantExpression RBRACK
@@ -3179,6 +3182,11 @@ ArrayAbstractDeclarator: /** nomerge **/
             }
             declaratorCond.delRef();
           }
+          // should be non-empty because arrayabstractdeclarator
+          // returns a non-empty multiverse.  an array abstract
+          // declarator, i.e., [], will be a single-element multiverse
+          // containing the empty string
+          assert ! valuemv.isEmpty();
           /* arrayabstractdeclarator.destruct(); */
           setTransformationValue(value, valuemv);;
 	      }
@@ -3187,8 +3195,8 @@ ArrayAbstractDeclarator: /** nomerge **/
 UnaryAbstractDeclarator: /** nomerge **/
         STAR
         {
-          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
-          valuemv.add(new PointerAbstractDeclarator(), subparser.getPresenceCondition());
+          Multiverse<Declarator> valuemv
+            = new Multiverse<Declarator>(new PointerAbstractDeclarator(), subparser.getPresenceCondition());
           setTransformationValue(value, valuemv);
         }
         | STAR TypeQualifierList
@@ -3263,8 +3271,8 @@ Statement:  /** complete **/
           // compound statements contain already-hoisted constructs
           // (declarations and statements), so just wrap this in a
           // single-element multiverse
-          Multiverse<StringBuilder> valuemv = new Multiverse<StringBuilder>();
-          valuemv.add((StringBuilder) getTransformationValue(subparser, 1), subparser.getPresenceCondition());
+          Multiverse<StringBuilder> valuemv
+            = new Multiverse<StringBuilder>((StringBuilder) getTransformationValue(subparser, 1), subparser.getPresenceCondition());
           setTransformationValue(value, valuemv);
         }
         | ExpressionStatement
@@ -3480,8 +3488,10 @@ SelectionStatement:  /** complete **/
           setCPC(value, PCtoString(pc));
           
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2));
-          Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
-          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
+          Multiverse<StringBuilder> temp
+            = sbmv.product(new StringBuilder(" {\n"),
+                           subparser.getPresenceCondition().presenceConditionManager().newTrue(),
+                           DesugaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
@@ -3489,7 +3499,9 @@ SelectionStatement:  /** complete **/
           sbmv.destruct();
           sbmv = temp;
 
-          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
+          temp = sbmv.product(new StringBuilder("\n}\n "),
+                              subparser.getPresenceCondition().presenceConditionManager().newTrue(),
+                              DesugaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
@@ -3502,8 +3514,10 @@ SelectionStatement:  /** complete **/
 
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7), getNodeAt(subparser, 6), getNodeAt(subparser, 5), getNodeAt(subparser, 4));
 
-          Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
-          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
+          Multiverse<StringBuilder> temp
+            = sbmv.product(new StringBuilder(" {\n"),
+                           subparser.getPresenceCondition().presenceConditionManager().newTrue(),
+                           DesugaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
@@ -3511,7 +3525,10 @@ SelectionStatement:  /** complete **/
           sbmv.destruct();
           sbmv = temp;
 
-          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
+          // TODO: should these really always be the true condition?
+          temp = sbmv.product(new StringBuilder("\n}\n "),
+                              subparser.getPresenceCondition().presenceConditionManager().newTrue(),
+                              DesugaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
@@ -3521,8 +3538,9 @@ SelectionStatement:  /** complete **/
           sbmv.destruct();
           sbmv = temp;
 
-          temp = new Multiverse<StringBuilder>();
-          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
+          temp = sbmv.product(new StringBuilder(" {\n"),
+                              subparser.getPresenceCondition().presenceConditionManager().newTrue(),
+                              DesugaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
@@ -3553,8 +3571,10 @@ IterationStatement:  /** complete **/
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2));
-          Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
-          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
+          Multiverse<StringBuilder> temp
+            = sbmv.product(new StringBuilder(" {\n"),
+                           subparser.getPresenceCondition().presenceConditionManager().newTrue(),
+                           DesugaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
@@ -3572,8 +3592,10 @@ IterationStatement:  /** complete **/
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7));
-          Multiverse<StringBuilder> temp = new Multiverse<StringBuilder>();
-          temp = sbmv.product(new StringBuilder(" {\n"), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
+          Multiverse<StringBuilder> temp
+            = sbmv.product(new StringBuilder(" {\n"),
+                           subparser.getPresenceCondition().presenceConditionManager().newTrue(),
+                           DesugaringOperators.SBCONCAT);
           sbmv.destruct();
           sbmv = temp;
 
@@ -3838,6 +3860,9 @@ PrimaryIdentifier: /** nomerge **/
               sbmv.add(new StringBuilder(result), entry.getCondition());
             }
           }
+          // should be nonempty, since the above loop always adds to
+          // it and the symtab should always return a non-empty mv
+          assert ! sbmv.isEmpty();
           entries.destruct();
 
           setTransformationValue(value, sbmv);
@@ -4189,10 +4214,9 @@ CastExpression:  /** passthrough, nomerge **/
         | LPAREN TypeName RPAREN CastExpression
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<StringBuilder> sbmv;
           Multiverse<StringBuilder> temp;
           temp = getProductOfSomeChildren(pc, getNodeAt(subparser, 4));
-          sbmv.destruct();
           sbmv = temp;
           Multiverse<TypeBuilder> type = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 3);
           System.err.println("WARNING: CastExpression assumes that there is only one element in the type multiverse.");
@@ -4531,12 +4555,10 @@ AssignmentOperator: /** nomerge **/
 
 ExpressionOpt:  /** passthrough, nomerge **/
         /* Nothing */
-{
-  Multiverse<StringBuilder> s = new Multiverse<StringBuilder>();
-  s.add(new StringBuilder(""),subparser.getPresenceCondition());
-  setTransformationValue(value, s);
- 
-}
+        {
+          Multiverse<StringBuilder> s = new Multiverse<StringBuilder>(new StringBuilder(""),subparser.getPresenceCondition());
+          setTransformationValue(value, s);
+        }
         | Expression
         {
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -5437,7 +5459,9 @@ private StringBuilder emitStatement(Multiverse<StringBuilder> allStatementConfig
  */
 protected Multiverse<StringBuilder> getProductOfSomeChildren(PresenceCondition pc, Node...children) {
   // NOTE: Nodes must be passed-in in the order that their SBMV stringbuilders should be concatenated.
-  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+  Multiverse<StringBuilder> sbmv
+    = new Multiverse<StringBuilder>(new StringBuilder(),
+                                    pc);
   Multiverse<StringBuilder> temp;
   for (Node child : children) {
     if (child.isToken()) {
@@ -5502,11 +5526,14 @@ protected static Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition
         System.exit(1);
       }
     }
-
   } else {
     // assumes that if it isn't a static choice node, then it must be a "normal" node
     allConfigs.add(node, presenceCondition);
   }
+  // shouldn't be empty because node is not null, static choice nodes
+  // should not be empty (by superc), and this recursive method will
+  // eventually hit the base-case of a non-static-choice node
+  assert ! allConfigs.isEmpty();
   // TODO: manage memory
   return allConfigs;
 }
@@ -6991,6 +7018,11 @@ private Multiverse<Node> getNodeMultiverse(Node node, PresenceConditionManager p
   } else {
     mv.add(node, presenceConditionManager.newTrue());
   }
+
+  // this multiverse should not be empty, because node is not null,
+  // static choices contain nodes (from superc), or the else case is
+  // hit
+  assert ! mv.isEmpty();
 
   return mv;
 }
