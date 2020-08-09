@@ -2229,7 +2229,7 @@ ParameterTypeList:  /** nomerge **/  // List<Multiverse<ParameterDeclarator>>
         | ParameterList COMMA ELLIPSIS
         {
           List<Multiverse<ParameterDeclarator>> paramlist
-            = (List<Multiverse<ParameterDeclarator>>) getTransformationValue(subparser,1);
+            = (List<Multiverse<ParameterDeclarator>>) getTransformationValue(subparser,3);
           System.err.println("TODO: support variadic parameter lists");  // add a special parameterdeclarationvalue to the list
           setTransformationValue(value, paramlist);
         }
