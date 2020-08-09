@@ -1839,7 +1839,9 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
             Multiverse<List<Declaration>> wrappeddeclarationmv = DesugaringOperators.declarationListWrap.transform(structfield);
             // (4) make a new multiverse of declaration form the
             // product of the previous with the single-element
-            // declaration lists from (3)
+            // declaration lists from (3), allowing for missing
+            // declarations in some configurations
+            // with complementedProduct
             Multiverse<List<Declaration>> newlistsmv
               = listsmv.complementedProduct(wrappeddeclarationmv, DesugaringOperators.DECLARATIONLISTCONCAT);
             wrappeddeclarationmv.destruct();
@@ -2386,7 +2388,32 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<ParameterDeclarator>
         }
         | ParameterAbstractDeclaration
         {
-          setTransformationValue(value, (ParameterDeclarationValue) getTransformationValue(subparser,1));
+          // TODO: needs a unit test
+          ParameterDeclarationValue declarationvalue = (ParameterDeclarationValue) getTransformationValue(subparser,1);
+          
+          // create a multiverse of parameterdeclarators
+          Multiverse<ParameterDeclarator> valuemv = new Multiverse<ParameterDeclarator>();
+          for (Element<TypeBuilder> typebuilder : declarationvalue.typebuilder) {
+            PresenceCondition typebuilderCond = subparser.getPresenceCondition().and(typebuilder.getCondition());
+            for (Element<Declarator> declarator : declarationvalue.declarator) {
+              PresenceCondition combinedCond = typebuilderCond.and(declarator.getCondition());
+
+              // for each combination of typebuilder and declarator
+              // create a ParameterDeclarator for use in the semantic
+              // value.  abstract declarators have no name, so should
+              // not need to rename or add to a symtab.
+              ParameterDeclarator parameterDeclarator = new ParameterDeclarator(typebuilder.getData(),
+                                                                                declarator.getData());
+              combinedCond.delRef();
+            } // end loop over declarators
+            typebuilderCond.delRef();
+          } // end loop over typebuilders
+          // should be non-empty because
+          // parameteridentifierdeclaration should always return a
+          // typebuildermv and declaratormv
+          assert ! valuemv.isEmpty();
+
+          setTransformationValue(value, valuemv);
         }
         ;
 
@@ -3037,11 +3064,12 @@ PostfixingFunctionDeclarator:  /** nomerge **/ // Multiverse<ParameterListDeclar
             // (1) wrap each element of the multiverse in a list 
             Multiverse<List<ParameterDeclarator>> nextparameterwrapped
               = DesugaringOperators.parameterListWrap.transform(nextparameter);
-            nextparameter.destruct();
             // (2) take the product of the existing parameter list
-            // with the new, single-element parameter list
+            // with the new, single-element parameter list, allowing
+            // for missing parameters in some configurations
+            // complementedProduct
             Multiverse<List<ParameterDeclarator>> newparametersmv
-              = parametersmv.product(nextparameterwrapped, DesugaringOperators.PARAMLISTCONCAT);
+              = parametersmv.complementedProduct(nextparameterwrapped, DesugaringOperators.PARAMLISTCONCAT);
             nextparameterwrapped.destruct();
             parametersmv.destruct();
             // (3) use the new list for the next iteration
