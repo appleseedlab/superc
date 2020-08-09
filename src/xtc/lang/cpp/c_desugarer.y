@@ -2991,7 +2991,7 @@ PostfixingFunctionDeclarator:  /** nomerge **/ // Multiverse<ParameterListDeclar
               typebuilderCond.delRef();            
             }
             // take the product of that multiverse with the existing, hoisted list of parameters
-            Multiverse<List<ParameterDeclarator>> nextparameterwrapped = DesugaringOperators.listWrap.transform(nextparameter);
+            Multiverse<List<ParameterDeclarator>> nextparameterwrapped = DesugaringOperators.parameterListWrap.transform(nextparameter);
             nextparameter.destruct();
             Multiverse<List<ParameterDeclarator>> newparametersmv = parametersmv.product(nextparameterwrapped, DesugaringOperators.PARAMLISTCONCAT);
             nextparameterwrapped.destruct();

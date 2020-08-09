@@ -37,6 +37,32 @@ class DesugaringOperators {
 
   private DesugaringOperators() { }
 
+  /**
+   * A generic transformer that takes an object of some type and
+   * turns it into a single-element list.  This is used for taking the
+   * cartesian product of a multiverse of lists with a multiverse of
+   * objects of the type that list stores.
+   */
+  public static class ListWrapper<T> extends Multiverse.Transformer<T, List<T>> {
+    List<T> transform(T from) {
+      List<T> result = new LinkedList<T>();
+      result.add(from);
+      return result;
+    }
+  }
+  
+  /**
+   * Concatenates two list non-destructively.  This is used to create
+   * multiverse operators that concat multiverses of lists of any
+   * type.
+   */
+  private static <T> List<T> concatLists(List<T> list1, List<T> list2) {
+    List<T> newlist = new LinkedList<T>();
+    newlist.addAll(list1);
+    newlist.addAll(list2);
+    return newlist;
+  }
+
   /*****************************************************************************
    ********* Multiverse operators for Declarators
    *****************************************************************************/
@@ -111,46 +137,37 @@ class DesugaringOperators {
     }
   };
 
-  // TODO make these two methods generic for any list
   /**
    * Concatenate two ParmeterListDeclarators
    */
   public final static Multiverse.Operator<List<ParameterDeclarator>> PARAMLISTCONCAT = (list1, list2) -> {
-    List<ParameterDeclarator> newlist = new LinkedList<ParameterDeclarator>();
-    newlist.addAll(list1);
-    newlist.addAll(list2);
-    return newlist;
+    return concatLists(list1, list2);
   };
 
   /**
-     * A multiverse transformation to wrap a parameter declarator into a
-  * single-element list.
-  */
- public final static Multiverse.Transformer<ParameterDeclarator, List<ParameterDeclarator>> listWrap = new Multiverse.Transformer<ParameterDeclarator, List<ParameterDeclarator>>() {
-   List<ParameterDeclarator> transform(ParameterDeclarator from) {
-     List result = new LinkedList();
-     result.add(from);
-     return result;
-   }
- };
+   * A multiverse transformation to wrap a parameter declarator into a
+   * single-element list.
+   */
+  public final static Multiverse.Transformer<ParameterDeclarator, List<ParameterDeclarator>> parameterListWrap
+    = new ListWrapper<ParameterDeclarator>();
 
- /**
-  * A multiverse transformation to turn a list of ParameterDeclarators
-  * into a ParameterListDeclarator.
-  */
- public final static Multiverse.Transformer<List<ParameterDeclarator>, ParameterListDeclarator> toParameterList = new Multiverse.Transformer<List<ParameterDeclarator>, ParameterListDeclarator>() {
-   ParameterListDeclarator transform(List<ParameterDeclarator> from) {
-     return new ParameterListDeclarator(from);
-   }
- };
+  /**
+   * A multiverse transformation to turn a list of ParameterDeclarators
+   * into a ParameterListDeclarator.
+   */
+  public final static Multiverse.Transformer<List<ParameterDeclarator>, ParameterListDeclarator> toParameterList = new Multiverse.Transformer<List<ParameterDeclarator>, ParameterListDeclarator>() {
+      ParameterListDeclarator transform(List<ParameterDeclarator> from) {
+        return new ParameterListDeclarator(from);
+      }
+    };
 
- /*****************************************************************************
-  ********* Multiverse operators for TypeBuilders
-  *****************************************************************************/
+  /*****************************************************************************
+   ********* Multiverse operators for TypeBuilders
+   *****************************************************************************/
 
- public final static Multiverse.Operator<TypeBuilder> TBCONCAT = (tb1, tb2) -> {
-   return tb1.combine(tb2);
- };
+  public final static Multiverse.Operator<TypeBuilder> TBCONCAT = (tb1, tb2) -> {
+    return tb1.combine(tb2);
+  };
 
   /**
    * A multiverse transformation to turn a symtab entries for a
@@ -189,9 +206,27 @@ class DesugaringOperators {
       }
     };
 
- /*****************************************************************************
-  ********* Multiverse operators for Statements and Expressions
-  *****************************************************************************/
+  /*****************************************************************************
+   ********* Multiverse operators for declarations
+   *****************************************************************************/
+
+  /**
+   * A multiverse transformation to wrap a parameter declarator into a
+   * single-element list.
+   */
+  public final static Multiverse.Transformer<Declaration, List<Declaration>> declarationListWrap
+    = new ListWrapper<Declaration>();
+  
+  /**
+   * Concatenate two Declaration lists
+   */
+  public final static Multiverse.Operator<List<Declaration>> DECLARATIONLISTCONCAT = (list1, list2) -> {
+    return concatLists(list1, list2);
+  };
+
+  /*****************************************************************************
+   ********* Multiverse operators for Statements and Expressions
+   *****************************************************************************/
 
   /**
    * Concatenate operator for string builders.

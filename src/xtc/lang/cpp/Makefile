@@ -98,8 +98,6 @@ SOURCE = \
 	GCCShunt.java \
 	cdiff.java \
 	FunctionChecker.java \
-	Declarator.java \
-	TypeBuilder.java \
 	SuperC.java
 
 
