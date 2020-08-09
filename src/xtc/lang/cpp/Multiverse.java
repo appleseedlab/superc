@@ -20,9 +20,15 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   /** The set of (data, condition) pairs. */
   protected List<Element<T>> contents;
 
+  /** The complement of the elements' presence conditions. */
+  protected PresenceCondition complement;
+
   /** The default constructor creates an empty multiverse. */
   public Multiverse() {
     contents = new LinkedList<Element<T>>();
+    // start with null, to avoid having to take a presence condition
+    // manager
+    complement = null;
   }
 
   /** Create a multiverse containing a single element. */
@@ -115,6 +121,13 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * calling this function.
    */
   public void destruct() {
+    if (this.contents.size() > 1) {
+      complement.delRef();
+      complement = null;
+    } else {
+      assert complement == null;
+    }
+
     for (Element<T> elem : contents) {
       elem.destruct();
     }
@@ -140,6 +153,29 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   public void add(T data, PresenceCondition cond) {
     contents.add(new Element<T>(data, cond));
     cond.addRef();
+    if (null == complement) {
+      assert contents.size() == 1;
+      complement = cond.not();
+    } else {
+      assert contents.size() > 1;
+      // make sure the user is not adding an element that overlaps
+      // with an existing element's presence condition, i.e., the
+      // elements of the multiverse should be mutually-exclusive
+      PresenceCondition notcomplement = complement.not(); // the union of existing entry's conditions
+      PresenceCondition checkmutex = notcomplement.and(cond);
+      notcomplement.delRef();
+      if (! checkmutex.isFalse()) {  // the union of existing entry's conditions should be mutex with the new entry
+        throw new IllegalStateException("all multiverse entries must have mutually-exclusive presence conditions");
+      }
+      checkmutex.delRef();
+
+      // update the complement to exclude the new element
+      PresenceCondition notcond = cond.not();
+      PresenceCondition newcomplement = complement.and(notcond);
+      notcond.delRef();
+      complement.delRef();
+      complement = newcomplement;
+    }
   }
 
   /**
@@ -162,6 +198,15 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    */
   public Element<T> get(int index) {
     return contents.get(0);
+  }
+
+  /**
+   * Get the complement of the multiverse, i.e., the negation of the
+   * union of the existing element's presence conditions.  The caller
+   * is responsible for calling addRef of the result.
+   */
+  public PresenceCondition getComplement() {
+    return complement;
   }
 
   /**
@@ -220,10 +265,8 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   public Multiverse<T> product(Multiverse<T> other, Operator<T> op) {
     if (this.isEmpty()) {
       throw new IllegalStateException("trying to take cartesian product of empty multiverse");
-      // return new Multiverse<T>(other);
     } else if (other.isEmpty()) {
       throw new IllegalStateException("trying to take cartesian product of empty multiverse");
-      // return new Multiverse<T>(this);
     } else {
       Multiverse<T> newmv = new Multiverse<T>();
       /* The computes the following new set, where '*' is the operator:
@@ -344,6 +387,8 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
       sb.append(elem);
       sb.append("\n");
     }
+    sb.append("COMPLEMENT: ");
+    sb.append(this.complement);
     sb.append(")");
     sb.append("\n");
     return sb.toString();
