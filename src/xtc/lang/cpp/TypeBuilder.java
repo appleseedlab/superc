@@ -20,8 +20,8 @@ public class TypeBuilder {
 	       isInline, isSigned, isUnsigned, isTypedef}
     final int NUM_QUALS = 12;
     enum FOUND_TYPE {seenVoid, seenInt, seenLong, seenLongLong, seenChar, seenShort, seenFloat,
-                     seenDouble, seenComplex, seenTypedef}
-    final int NUM_TYPES = 10;
+                     seenDouble, seenComplex, seenTypedefType, seenStructReference, seenStructDefinition}
+    final int NUM_TYPES = 12;
     // note: these can appear in any order (in the source file), and they will be initialized to false                                                                        /*boolean isAuto;
   boolean qualifiers[] = new boolean[NUM_QUALS];
   boolean foundTypes[] = new boolean[NUM_TYPES];
@@ -30,7 +30,11 @@ public class TypeBuilder {
 
     boolean isTypeError;
 
-    AliasT typedeftype;
+    AliasT typedefType;  // used with seenTypedefType
+    // StructTypeDefinition structTypeDef;  // used with seenStructDefinition
+    // StructTypeReference structTypeRef;  // used with seenStructReference
+    Type structTypeDef;  // used with seenStructDefinition
+    Type structTypeRef;  // used with seenStructReference
 
     public String attributesToString() {
 	if (attributes == null)
@@ -87,8 +91,14 @@ public class TypeBuilder {
 	    sb.append("complex ");
 	if (foundTypes[FOUND_TYPE.seenVoid.ordinal()])
 	    sb.append("void ");
-	if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
-      sb.append(typedeftype.getName());
+	if (foundTypes[FOUND_TYPE.seenTypedefType.ordinal()])
+      sb.append(typedefType.getName());
+    if (foundTypes[FOUND_TYPE.seenStructReference.ordinal()]) {
+      throw new AssertionError("implement toString for struct reference");
+    }
+    if (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()]) {
+      throw new AssertionError("implement toString for struct definition");
+    }
 	sb.append(attributesToString());
 
 	return sb.toString();
@@ -144,11 +154,17 @@ public class TypeBuilder {
         type = new IntegerT(NumberT.Kind.U_SHORT); // unsigned short
 	    else
         type = new IntegerT(NumberT.Kind.SHORT); // short
-    } else if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
+    } else if (foundTypes[FOUND_TYPE.seenTypedefType.ordinal()])
 	    {
-        type = typedeftype;
+        type = typedefType;
       } else if (foundTypes[FOUND_TYPE.seenVoid.ordinal()]) {
       type = new VoidT();
+    }
+    else if (foundTypes[FOUND_TYPE.seenStructReference.ordinal()]) {
+      throw new AssertionError("implement toString for struct reference");
+    }
+    else if (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()]) {
+      throw new AssertionError("implement toString for struct definition");
     }
     else{
 	    System.err.println("ERROR: unsupported type found");
@@ -247,7 +263,9 @@ public class TypeBuilder {
 	    qualifiers[i] = old.qualifiers[i];
 	attributes = new LinkedList<String>(old.attributes);
 	isTypeError = old.isTypeError;
-	typedeftype = old.typedeftype;
+	typedefType = old.typedefType;
+      structTypeDef = old.structTypeDef;
+      structTypeRef = old.structTypeRef;
 	add(name);
     }
 
@@ -262,7 +280,9 @@ public class TypeBuilder {
 	for (int i = 0; i < NUM_TYPES; ++i)
 	    foundTypes[i] = false;
   isTypeError = false;
-  typedeftype = null;
+  typedefType = null;
+      structTypeDef = null;
+      structTypeRef = null;
 	add(qualifier);
     }
 
@@ -316,7 +336,9 @@ public class TypeBuilder {
 	this.type = type;
 	attributes = new LinkedList<String>();
   isTypeError = false;
-	typedeftype = null;
+	typedefType = null;
+      structTypeDef = null;
+      structTypeRef = null;
   }
 
     // copy constructor that changes type (should be used whenever a type is found)
@@ -329,7 +351,9 @@ public class TypeBuilder {
 		qualifiers[i] = old.qualifiers[i];
 	    attributes = new LinkedList<String>(old.attributes);
 	    isTypeError = old.isTypeError;
-	    typedeftype = old.typedeftype;
+	    typedefType = old.typedefType;
+      structTypeDef = old.structTypeDef;
+      structTypeRef = old.structTypeRef;
 	}
 
     }
@@ -343,7 +367,9 @@ public class TypeBuilder {
 	    foundTypes[i] = false;
 	attributes = new LinkedList<String>();
   isTypeError = false;
-	typedeftype = null;
+	typedefType = null;
+      structTypeDef = null;
+      structTypeRef = null;
     }
 
     // copy constructor creates a deep copy
@@ -355,7 +381,9 @@ public class TypeBuilder {
 	    foundTypes[i] = old.foundTypes[i];
     attributes = new LinkedList<String>(old.attributes);
     isTypeError = old.isTypeError;
-    typedeftype = old.typedeftype;
+    typedefType = old.typedefType;
+      structTypeDef = old.structTypeDef;
+      structTypeRef = old.structTypeRef;
   }
 
 
@@ -393,6 +421,13 @@ public class TypeBuilder {
                  //long long
                  (i == j && i == FOUND_TYPE.seenLong.ordinal()) ))
             return false;
+    // not allowed to have two struct refs/defs
+    if (typeComboExists(t1,t2,FOUND_TYPE.seenStructReference,FOUND_TYPE.seenStructReference)
+        || typeComboExists(t1,t2,FOUND_TYPE.seenStructReference,FOUND_TYPE.seenStructDefinition)
+        || typeComboExists(t1,t2,FOUND_TYPE.seenStructDefinition,FOUND_TYPE.seenStructDefinition)
+        || typeComboExists(t1,t2,FOUND_TYPE.seenStructDefinition,FOUND_TYPE.seenStructDefinition)) {
+      return false;
+    }
     return true;
   }
 
@@ -451,7 +486,9 @@ public class TypeBuilder {
       }
     }
     result.isTypeError = result.isTypeError || with.isTypeError;
-    result.typedeftype = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedeftype : with.typedeftype);
+    result.typedefType = (foundTypes[FOUND_TYPE.seenTypedefType.ordinal()] ? typedefType : with.typedefType);
+      result.structTypeDef = (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()] ? structTypeDef : with.structTypeDef);
+      result.structTypeRef = (foundTypes[FOUND_TYPE.seenStructReference.ordinal()] ? structTypeRef : with.structTypeRef);
     return result;
   }
 
@@ -467,8 +504,36 @@ public class TypeBuilder {
    */
   public void setTypedef(AliasT alias)
   {
-    foundTypes[FOUND_TYPE.seenTypedef.ordinal()] = true;
-    typedeftype = alias;
+    foundTypes[FOUND_TYPE.seenTypedefType.ordinal()] = true;
+    typedefType = alias;
+  }
+
+  /**
+   * Adds a struct specifier to this type.
+   */
+  public void setStructDefinition(/* TODO: set the type of the input */) {
+    // make sure no other types are turned on when a struct def or ref is used
+    for (int i = 0; i < NUM_TYPES; i++) {
+      if (foundTypes[i]) {
+        isTypeError = true;
+      }
+    }
+    foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()] = true;
+    // structTypeDeef = def;
+  }
+
+  /**
+   * Adds a struct specifier to this type.
+   */
+  public void setStructReference(/* TODO: set the type of the input */) {
+    // make sure no other types are turned on when a struct def or ref is used
+    for (int i = 0; i < NUM_TYPES; i++) {
+      if (foundTypes[i]) {
+        isTypeError = true;
+      }
+    }
+    foundTypes[FOUND_TYPE.seenStructReference.ordinal()] = true;
+    // structTypeRef = ref;
   }
 
   /**
