@@ -8,6 +8,8 @@ import xtc.type.FloatT;
 import xtc.type.VoidT;
 import xtc.type.UnitT;
 import xtc.type.AliasT;
+import xtc.type.StructT;
+import xtc.type.VariableT;
 import xtc.Constants;
 
 /**
@@ -31,10 +33,13 @@ public class TypeBuilder {
     boolean isTypeError;
 
     AliasT typedefType;  // used with seenTypedefType
-    // StructTypeDefinition structTypeDef;  // used with seenStructDefinition
-    // StructTypeReference structTypeRef;  // used with seenStructReference
-    Type structTypeDef;  // used with seenStructDefinition
-    Type structTypeRef;  // used with seenStructReference
+
+    // used with seenStructDefinition, seenStructReference
+    String structTag;  
+    String structRenamedTag;
+    boolean structIsAnon;  // is the struct anonymous, so don't print tag
+    List<Declaration> structMembers;  // null for seenStructReference
+    StructT structType;
 
     public String attributesToString() {
 	if (attributes == null)
@@ -73,6 +78,8 @@ public class TypeBuilder {
 	if (qualifiers[QUAL.isUnsigned.ordinal()])
 	    sb.append("unsigned ");
 
+      // TODO: check that only one seen is here
+
 	if (foundTypes[FOUND_TYPE.seenLong.ordinal()])
 	    sb.append("long ");
 	if (foundTypes[FOUND_TYPE.seenLongLong.ordinal()])
@@ -94,10 +101,22 @@ public class TypeBuilder {
 	if (foundTypes[FOUND_TYPE.seenTypedefType.ordinal()])
       sb.append(typedefType.getName());
     if (foundTypes[FOUND_TYPE.seenStructReference.ordinal()]) {
-      throw new AssertionError("implement toString for struct reference");
+      sb.append("struct ");
+      // struct refs can't be anonymous
+      sb.append(structRenamedTag);
     }
     if (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()]) {
-      throw new AssertionError("implement toString for struct definition");
+      sb.append("struct ");
+      if (! this.structIsAnon) {
+        sb.append(structRenamedTag);
+        sb.append(" ");
+      }
+      sb.append("{\n");
+      for (Declaration declaration : this.structMembers) {
+        sb.append(declaration.toString());
+        sb.append(";\n");
+      }
+      sb.append("}");
     }
 	sb.append(attributesToString());
 
@@ -161,10 +180,10 @@ public class TypeBuilder {
       type = new VoidT();
     }
     else if (foundTypes[FOUND_TYPE.seenStructReference.ordinal()]) {
-      throw new AssertionError("implement toString for struct reference");
+      type = this.structType;
     }
     else if (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()]) {
-      throw new AssertionError("implement toString for struct definition");
+      type = this.structType;
     }
     else{
 	    System.err.println("ERROR: unsupported type found");
@@ -256,44 +275,18 @@ public class TypeBuilder {
 	}
     }
 
-
-    public TypeBuilder(TypeBuilder old, String name) {
-	type = old.type;
-	for (int i = 0; i < NUM_QUALS; ++i)
-	    qualifiers[i] = old.qualifiers[i];
-	attributes = new LinkedList<String>(old.attributes);
-	isTypeError = old.isTypeError;
-	typedefType = old.typedefType;
-      structTypeDef = old.structTypeDef;
-      structTypeRef = old.structTypeRef;
-	add(name);
-    }
-
   /**
    * Create a new TypeBuilder with a single type qualifier.
    */
     public TypeBuilder(String qualifier) {
-	type = new UnitT();
-	attributes = new LinkedList<String>();
-	for (int i = 0; i < NUM_QUALS; ++i)
-	    qualifiers[i] = false;
-	for (int i = 0; i < NUM_TYPES; ++i)
-	    foundTypes[i] = false;
-  isTypeError = false;
-  typedefType = null;
-      structTypeDef = null;
-      structTypeRef = null;
+      this();
 	add(qualifier);
     }
 
     // creates a new typebuilder using only a type
     public TypeBuilder(Type type) {
+      this();
 	// set the proper foundTypes flag
-
-	for (int i = 0; i < NUM_QUALS; ++i)
-	    qualifiers[i] = false;
-	for (int i = 0; i < NUM_TYPES; ++i)
-	    foundTypes[i] = false;
 
 	if (type.isNumber()) {
 	    switch (((NumberT) type).getKind()) {
@@ -331,32 +324,8 @@ public class TypeBuilder {
       foundTypes[FOUND_TYPE.seenVoid.ordinal()] = true;
   }
 
-
-
 	this.type = type;
-	attributes = new LinkedList<String>();
-  isTypeError = false;
-	typedefType = null;
-      structTypeDef = null;
-      structTypeRef = null;
   }
-
-    // copy constructor that changes type (should be used whenever a type is found)
-    // the default constructor should be used before this ever gets called.
-    public TypeBuilder(TypeBuilder old, Type type) {
-	// copy constructor that changes the type
-	if (old.type instanceof UnitT) {
-	    this.type = type;
-	    for (int i = 0; i < NUM_QUALS; ++i)
-		qualifiers[i] = old.qualifiers[i];
-	    attributes = new LinkedList<String>(old.attributes);
-	    isTypeError = old.isTypeError;
-	    typedefType = old.typedefType;
-      structTypeDef = old.structTypeDef;
-      structTypeRef = old.structTypeRef;
-	}
-
-    }
 
     // sets all flags to false and type starts as unit
     public TypeBuilder() {
@@ -368,8 +337,10 @@ public class TypeBuilder {
 	attributes = new LinkedList<String>();
   isTypeError = false;
 	typedefType = null;
-      structTypeDef = null;
-      structTypeRef = null;
+      structTag = null;
+      structRenamedTag = null;
+      structIsAnon = false;
+      structMembers = null;
     }
 
     // copy constructor creates a deep copy
@@ -382,8 +353,10 @@ public class TypeBuilder {
     attributes = new LinkedList<String>(old.attributes);
     isTypeError = old.isTypeError;
     typedefType = old.typedefType;
-      structTypeDef = old.structTypeDef;
-      structTypeRef = old.structTypeRef;
+      structTag = old.structTag;
+      structRenamedTag = null;
+      structIsAnon = old.structIsAnon;
+      structMembers = old.structMembers;
   }
 
 
@@ -487,8 +460,10 @@ public class TypeBuilder {
     }
     result.isTypeError = result.isTypeError || with.isTypeError;
     result.typedefType = (foundTypes[FOUND_TYPE.seenTypedefType.ordinal()] ? typedefType : with.typedefType);
-      result.structTypeDef = (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()] ? structTypeDef : with.structTypeDef);
-      result.structTypeRef = (foundTypes[FOUND_TYPE.seenStructReference.ordinal()] ? structTypeRef : with.structTypeRef);
+      result.structTag = (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()] ? structTag : with.structTag);
+      result.structRenamedTag = (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()] ? structRenamedTag : with.structRenamedTag);
+      result.structMembers = (foundTypes[FOUND_TYPE.seenStructReference.ordinal()] ? structMembers : with.structMembers);
+      result.structIsAnon = (foundTypes[FOUND_TYPE.seenStructReference.ordinal()] ? structIsAnon : with.structIsAnon);
     return result;
   }
 
@@ -509,9 +484,25 @@ public class TypeBuilder {
   }
 
   /**
+   * Adds a tagged struct with its renaming.
+   */
+  protected void setStructDefinition(String tag, String renamedtag, List<Declaration> members) {
+    setStructDefinition(tag, renamedtag, members, false);
+  }
+
+  /**
+   * Adds an anonymous struct.  For the tag, use the symbol tabl's
+   * freshName("tag") method.  Anonymous structs don't need renaming,
+   * since the name is not printed out during transformation.
+   */
+  protected void setStructDefinition(String tag, List<Declaration> members) {
+    setStructDefinition(tag, tag, members, true);
+  }
+
+  /**
    * Adds a struct specifier to this type.
    */
-  public void setStructDefinition(/* TODO: set the type of the input */) {
+  protected void setStructDefinition(String tag, String renamedtag, List<Declaration> members, boolean isAnon) {
     // make sure no other types are turned on when a struct def or ref is used
     for (int i = 0; i < NUM_TYPES; i++) {
       if (foundTypes[i]) {
@@ -519,13 +510,45 @@ public class TypeBuilder {
       }
     }
     foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()] = true;
-    // structTypeDeef = def;
+    this.structTag = tag;
+    this.structRenamedTag = renamedtag;
+    this.structMembers = members;
+    this.structIsAnon = isAnon;
+
+    System.err.println("TODO: check that all members have different names, don't have type errors themselves, and rename selfrefs");
+    List<VariableT> memberlist = new LinkedList<VariableT>();
+    for (Declaration declaration : this.structMembers) {
+      if (declaration.hasTypeError()) {
+        this.isTypeError = true;
+        // TODO: this should be caught by toString
+      } else {
+        VariableT member = VariableT.newField(declaration.getType(),
+                                              declaration.getName());
+        memberlist.add(member);
+      }
+      // TODO: use Variable.newBitfield()
+    }
+
+    // TODO: recursively go through the struct fields and
+    // (1) rename recursive struct references
+    // (2) check for redeclaration of struct
+
+    // TODO: go through the fields and
+    // (1) check that all members have different names
+    // (2) check whether any members have a type error themselves (making the struct type an error)
+    
+
+    
+    // the type in the symtab should have the original tag name, so we
+    // can look up and find the struct appropriate for the declared
+    // symbol's presence condition.
+    this.structType = new StructT(tag, memberlist);
   }
 
   /**
    * Adds a struct specifier to this type.
    */
-  public void setStructReference(/* TODO: set the type of the input */) {
+  public void setStructReference(String tag, String renamedtag) {
     // make sure no other types are turned on when a struct def or ref is used
     for (int i = 0; i < NUM_TYPES; i++) {
       if (foundTypes[i]) {
@@ -533,7 +556,11 @@ public class TypeBuilder {
       }
     }
     foundTypes[FOUND_TYPE.seenStructReference.ordinal()] = true;
-    // structTypeRef = ref;
+    this.structTag = tag;
+    this.structRenamedTag = renamedtag;
+    this.structMembers = null;
+    this.structIsAnon = false;
+    this.structType = new StructT(tag);
   }
 
   /**
