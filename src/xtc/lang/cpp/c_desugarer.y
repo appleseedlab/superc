@@ -2194,32 +2194,39 @@ EnumeratorValueOpt: /** nomerge **/
         }
         ;
 
-ParameterTypeList:  /** nomerge **/  // List<ParameterDeclarationValue>
+ParameterTypeList:  /** nomerge **/  // List<Multiverse<ParameterDeclarator>>
         ParameterList
         {
-          setTransformationValue(value, (List<ParameterDeclarationValue>) getTransformationValue(subparser,1));
+          setTransformationValue(value, (List<Multiverse<ParameterDeclarator>>) getTransformationValue(subparser,1));
         }
         | ParameterList COMMA ELLIPSIS
         {
-          List<ParameterDeclarationValue> paramlist = (List<ParameterDeclarationValue>) getTransformationValue(subparser,1);
+          List<Multiverse<ParameterDeclarator>> paramlist
+            = (List<Multiverse<ParameterDeclarator>>) getTransformationValue(subparser,1);
           System.err.println("TODO: support variadic parameter lists");  // add a special parameterdeclarationvalue to the list
           setTransformationValue(value, paramlist);
         }
         ;
 
 // returns a multiverse of nonconfigurable parameter lists
-ParameterList:  /** list, nomerge **/ // List<ParameterDeclarationValue>
+ParameterList:  /** list, nomerge **/ // List<Multiverse<ParameterDeclarator>>
         ParameterDeclaration
         {
-          List<ParameterDeclarationValue> parameters = new LinkedList<ParameterDeclarationValue>();
-          ParameterDeclarationValue declarationvalue = (ParameterDeclarationValue) getTransformationValue(subparser,1);
+          // create a new list
+          List<Multiverse<ParameterDeclarator>> parameters
+            = new LinkedList<Multiverse<ParameterDeclarator>>();
+          Multiverse<ParameterDeclarator> declarationvalue
+            = (Multiverse<ParameterDeclarator>) getTransformationValue(subparser,1);
           parameters.add(declarationvalue);
           setTransformationValue(value, parameters);
         }
         | ParameterList COMMA ParameterDeclaration
         {
-          List<ParameterDeclarationValue> parameters = (LinkedList<ParameterDeclarationValue>) getTransformationValue(subparser,3);
-          ParameterDeclarationValue declarationvalue = (ParameterDeclarationValue) getTransformationValue(subparser,1);
+          // add to the existing parameter list
+          List<Multiverse<ParameterDeclarator>> parameters
+            = (LinkedList<Multiverse<ParameterDeclarator>>) getTransformationValue(subparser,3);
+          Multiverse<ParameterDeclarator> declarationvalue
+            = (Multiverse<ParameterDeclarator>) getTransformationValue(subparser,1);
           parameters.add(declarationvalue);
           setTransformationValue(value, parameters);
         }
@@ -2266,7 +2273,14 @@ ParameterList:  /** list, nomerge **/ // List<ParameterDeclarationValue>
 /*         } AttributeSpecifierListOpt */
 /*         ; */
 
-ParameterDeclaration:  /** nomerge **/
+ParameterDeclaration:  /** nomerge **/  // Multiverse<ParameterDeclarator>
+        /*
+         * This action, akin to declaration, adds each parameter
+         * declaration to the (function-local) symtab.  It handles
+         * renaming.  The difference is that this needs to return
+         * declarators because it is actually part of another
+         * different declarator (FunctionDeclarator).
+         */
         ParameterIdentifierDeclaration
         {
           ParameterDeclarationValue declarationvalue = (ParameterDeclarationValue) getTransformationValue(subparser,1);
@@ -2274,16 +2288,30 @@ ParameterDeclaration:  /** nomerge **/
           CContext scope = (CContext)subparser.scope;
           SymbolTable symtab = scope.getSymbolTable();
           
-          // add the symbols to the function-local symbol table, which
+          // create a multiverse of parameterdeclarators and add the
+          // symbols to the function-local symbol table, which
           // PostfixingFunctionDeclarator enters and exits, before
           // FunctionDefinition reenters and exits.
+          Multiverse<ParameterDeclarator> valuemv = new Multiverse<ParameterDeclarator>();
           for (Element<TypeBuilder> typebuilder : declarationvalue.typebuilder) {
             PresenceCondition typebuilderCond = subparser.getPresenceCondition().and(typebuilder.getCondition());
             for (Element<Declarator> declarator : declarationvalue.declarator) {
               PresenceCondition combinedCond = typebuilderCond.and(declarator.getCondition());
-              Declaration declaration = new Declaration(typebuilder.getData(),
-                                                        declarator.getData());
 
+              // for each combination of typebuilder and declarator
+
+              // (1) rename the declarator part
+              String originalName = declarator.getData().getName();
+              String renaming = symtab.freshCId(originalName);
+              Declarator renamedDeclarator = declarator.getData().rename(renaming);
+
+              // (2) create a ParameterDeclarator for use in the
+              // semantic value
+              ParameterDeclarator parameterDeclarator = new ParameterDeclarator(typebuilder.getData(),
+                                                                                renamedDeclarator);
+              valuemv.add(parameterDeclarator, combinedCond);
+
+              // (3) add the parameter to the symbol table
               if (typebuilder.getData().hasTypeError()) {
                 symtab.putError(declarator.getData().getName(), combinedCond);
               } else {
@@ -2303,16 +2331,11 @@ ParameterDeclaration:  /** nomerge **/
                     System.err.println("TODO: any invalid parameter declarations should cause the entire function declaration to be invalid under that condition");
                     symtab.putError(declarator.getData().getName(), combinedCond);
                   } else if (entry.getData() == SymbolTable.UNDECLARED) {
-                    // function parameters don't need to be renamed,
-                    // so just use the original name in the renaming
-                    // field.  this way the desugarer will use the
-                    // original name and there is no need to generate
-                    // a new declarator for the function.  in the
-                    // future, this is where we can combine the
-                    // function prototypes of many definitions to
-                    // share the same body.
-                    symtab.put(declarator.getData().getName(),
-                               declarator.getData().getName(),
+                    // get the type and add it to the symtab
+                    Declaration declaration = new Declaration(typebuilder.getData(),
+                                                              declarator.getData().rename(renaming));
+                    symtab.put(originalName,
+                               renaming,
                                declaration.getType(),
                                entry.getCondition());
                   } else {
@@ -2324,13 +2347,13 @@ ParameterDeclaration:  /** nomerge **/
               } // end of check for invalid typebuilder
 
               combinedCond.delRef();
-            }
+            } // end loop over declarators
             typebuilderCond.delRef();
-          }
+          } // end loop over typebuilders
 
           /* if (debug) System.err.println(symtab); */
 
-          setTransformationValue(value, declarationvalue);
+          setTransformationValue(value, valuemv);
         }
         | ParameterAbstractDeclaration
         {
@@ -2338,7 +2361,11 @@ ParameterDeclaration:  /** nomerge **/
         }
         ;
 
-ParameterAbstractDeclaration:
+/*
+ * These actions just bundle the typebuilders and declarators for
+ * processing by ParameterDeclaration
+ */
+ParameterAbstractDeclaration: // ParameterDeclarationValue
         DeclarationSpecifier
         {
           System.err.println("TODO: reimplement parameterabstractdeclaration (1)");
@@ -2387,7 +2414,11 @@ ParameterAbstractDeclaration:
         }
         ;
 
-ParameterIdentifierDeclaration:
+/*
+ * These actions just bundle the typebuilders and declarators for
+ * processing by ParameterDeclaration
+ */
+ParameterIdentifierDeclaration:  // ParameterDeclarationValue
         DeclarationSpecifier IdentifierDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -2967,8 +2998,8 @@ PostfixingFunctionDeclarator:  /** nomerge **/ // Multiverse<ParameterListDeclar
         LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN
         {
           // TODO: account for parameterdeclarationvalue that is the ellipsis
-          List<ParameterDeclarationValue> parameterdeclarationvalues
-            = (List<ParameterDeclarationValue>) getTransformationValue(subparser,3);
+          List<Multiverse<ParameterDeclarator>> parameterdeclaratorlistsmv
+            = (List<Multiverse<ParameterDeclarator>>) getTransformationValue(subparser,3);
 
           // find each combination of single-configuration parameter
           // lists.  not using a product, because it is combining two
@@ -2976,32 +3007,27 @@ PostfixingFunctionDeclarator:  /** nomerge **/ // Multiverse<ParameterListDeclar
           // having a typebuilderdeclarator would make this possible.
           Multiverse<List<ParameterDeclarator>> parametersmv = new Multiverse<List<ParameterDeclarator>>();
           parametersmv.add(new LinkedList<ParameterDeclarator>(), subparser.getPresenceCondition());
-          for (ParameterDeclarationValue parameterdeclarationvalue : parameterdeclarationvalues) {
-            // get a multiverse of parameter declarators from the parameter declaration values
-            Multiverse<ParameterDeclarator> nextparameter = new Multiverse<ParameterDeclarator>();
-            for (Element<TypeBuilder> typebuilder : parameterdeclarationvalue.typebuilder) {
-              PresenceCondition typebuilderCond = subparser.getPresenceCondition().and(typebuilder.getCondition());
-              for (Element<Declarator> declarator : parameterdeclarationvalue.declarator) {
-                PresenceCondition combinedCond = typebuilderCond.and(declarator.getCondition());
-                nextparameter.add(new ParameterDeclarator(typebuilder.getData(),
-                                                          declarator.getData()),
-                                  combinedCond);
-                combinedCond.delRef();
-              }
-              typebuilderCond.delRef();            
-            }
+          for (Multiverse<ParameterDeclarator> nextparameter : parameterdeclaratorlistsmv) {
             // take the product of that multiverse with the existing, hoisted list of parameters
-            Multiverse<List<ParameterDeclarator>> nextparameterwrapped = DesugaringOperators.parameterListWrap.transform(nextparameter);
+            // (1) wrap each element of the multiverse in a list 
+            Multiverse<List<ParameterDeclarator>> nextparameterwrapped
+              = DesugaringOperators.parameterListWrap.transform(nextparameter);
             nextparameter.destruct();
-            Multiverse<List<ParameterDeclarator>> newparametersmv = parametersmv.product(nextparameterwrapped, DesugaringOperators.PARAMLISTCONCAT);
+            // (2) take the product of the existing parameter list
+            // with the new, single-element parameter list
+            Multiverse<List<ParameterDeclarator>> newparametersmv
+              = parametersmv.product(nextparameterwrapped, DesugaringOperators.PARAMLISTCONCAT);
             nextparameterwrapped.destruct();
             parametersmv.destruct();
+            // (3) use the new list for the next iteration
             parametersmv = newparametersmv;
           }
           // parametersmv should now contains all possible
           // single-configuration parameter lists
 
-          // transform it into a multiverse of ParameterListDeclarators
+          // (4) transform the resulting List<ParameterDeclarator>
+          // into a ParameterListDeclarator, so that it can be used in
+          // the Declarator AST
           Multiverse<ParameterListDeclarator> paramlistmv = DesugaringOperators.toParameterList.transform(parametersmv);
           parametersmv.destruct();
           // no need to filter, since we started parametersmv with the subparser pc
@@ -3106,14 +3132,14 @@ PostfixingAbstractDeclarator: /**  nomerge **/
         }
         ;
 
-ParameterTypeListOpt: /** nomerge **/  // List<ParameterDeclarationValue>
+ParameterTypeListOpt: /** nomerge **/  // List<Multiverse<ParameterDeclarator>>
         /* empty */
         {
-          setTransformationValue(value, new LinkedList<ParameterDeclarationValue>());
+          setTransformationValue(value, new LinkedList<Multiverse<ParameterDeclarator>>());
         }
         | ParameterTypeList
         {
-          setTransformationValue(value, (List<ParameterDeclarationValue>) getTransformationValue(subparser,1));
+          setTransformationValue(value, (List<Multiverse<ParameterDeclarator>>) getTransformationValue(subparser,1));
         }
         ;
 
