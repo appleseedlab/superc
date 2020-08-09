@@ -3868,7 +3868,7 @@ PrimaryExpression:  /** nomerge, passthrough **/
         }
         ;
 
-PrimaryIdentifier: /** nomerge **/
+PrimaryIdentifier: /** nomerge **/ // Multiverse<StringBuilder>
         IDENTIFIER
         {
           useIdent(subparser, getNodeAt(subparser, 1));  // legacy type checking
@@ -4008,7 +4008,7 @@ FunctionCall:  /** nomerge **/
         {
           callFunction(subparser, getNodeAt(subparser, 3), null);
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | PostfixExpression LPAREN ExpressionList RPAREN
