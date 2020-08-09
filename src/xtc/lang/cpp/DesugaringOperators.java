@@ -105,37 +105,37 @@ class DesugaringOperators {
    * Wrap with paren declarators.
    */
   public final static Multiverse.Transformer<Declarator, Declarator> toParenDeclarator = new Multiverse.Transformer<Declarator, Declarator>() {
-    Declarator transform(Declarator from) {
-      return new ParenDeclarator(from);
-    }
-  };
+      Declarator transform(Declarator from) {
+        return new ParenDeclarator(from);
+      }
+    };
 
   /**
    * Create pointer declarators.
    */
   public final static Multiverse.Transformer<Declarator, Declarator> toPointerDeclarator = new Multiverse.Transformer<Declarator, Declarator>() {
-    Declarator transform(Declarator from) {
-      return new PointerDeclarator(from);
-    }
-  };
+      Declarator transform(Declarator from) {
+        return new PointerDeclarator(from);
+      }
+    };
 
   /**
    * Create qualified pointer declarators.
    */
   public final static Multiverse.Transformer<TypeBuilder, Declarator> toQualifiedPointerAbstractDeclarator = new Multiverse.Transformer<TypeBuilder, Declarator>() {
-    Declarator transform(TypeBuilder from) {
-      return new QualifiedPointerAbstractDeclarator(from);
-    }
-  };
+      Declarator transform(TypeBuilder from) {
+        return new QualifiedPointerAbstractDeclarator(from);
+      }
+    };
 
   /**
    * Create abstract array declarators.
    */
   public final static Multiverse.Transformer<StringBuilder, Declarator> toAbstractArrayDeclarator = new Multiverse.Transformer<StringBuilder, Declarator>() {
-    Declarator transform(StringBuilder from) {
-      return new ArrayAbstractDeclarator(from);
-    }
-  };
+      Declarator transform(StringBuilder from) {
+        return new ArrayAbstractDeclarator(from);
+      }
+    };
 
   /**
    * Concatenate two ParmeterListDeclarators
