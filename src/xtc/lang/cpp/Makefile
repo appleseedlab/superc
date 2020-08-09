@@ -68,6 +68,9 @@ SOURCE = \
 	SemanticValues.java \
 	SemanticActions.java \
 	Multiverse.java \
+	Declarator.java \
+	TypeBuilder.java \
+	Declaration.java \
 	DesugaringOperators.java \
 	SymbolTable.java \
 	CContext.java \
