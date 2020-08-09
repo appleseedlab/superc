@@ -206,6 +206,9 @@ class DesugaringOperators {
       }
     };
 
+  // public final static Multiverse.Transformer<List<Declaration>, Type> declarationListToStruct = new Multiverse.Transformer<List<Declaration>, Type>() {
+  //   }
+
   /*****************************************************************************
    ********* Multiverse operators for declarations
    *****************************************************************************/

@@ -27,6 +27,13 @@ class Declaration {
     return typebuilder.hasTypeError();
   }
 
+  /**
+   * Get the name from the declarator.
+   */
+  public String getName() {
+    return this.declarator.getName();
+  }
+
   /*
    * Gets the type that this declaration defines.  This works by
    * combining the type specifier with the declarator (type

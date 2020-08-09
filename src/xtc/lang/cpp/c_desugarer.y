@@ -1816,6 +1816,10 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           List<Multiverse<Declaration>> structfields
             = (List<Multiverse<Declaration>>) getTransformationValue(subparser,2);
 
+          // get scope to make an anonymous tag
+          CContext scope = (CContext)subparser.scope;
+          SymbolTable symtab = scope.getSymbolTable();
+          
           // if any field in the struct is invalid, then the entire
           // struct typespec is invalid
 
@@ -1851,6 +1855,36 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           
           System.err.println("HOISTED STRUCTFIELDS: " + listsmv);
 
+          // create a multiverse of struct types
+          Multiverse<Type> structtypes = new Multiverse<Type>();
+          for (Element<List<Declaration>> declarationlist : listsmv) {
+            // TODO: support bitfield sizes
+            List<VariableT> memberlist = new LinkedList<VariableT>();
+            for (Declaration declaration : declarationlist.getData()) {
+              VariableT member = VariableT.newField(declaration.getType(),
+                                                    declaration.getName());
+              memberlist.add(member);
+              // TODO: use Variable.newBitfield()
+            }
+            // TODO: support flexible array member, not allowed with unnamed struct.  see CAnalyzer
+            // give it an anonymous tag name (CAnalyzer)
+            StructT structtype = new StructT(symtab.freshName("tag"), memberlist);
+            // TODO: add to symtab for use in type-checking any identifier
+            // declared as this type
+            System.err.println("STRUCTTYPE: " + structtype);
+            System.err.println("MEMBERS: " + structtype.getMembers());
+            structtypes.add(structtype, declarationlist.getCondition());
+            // TODO: need to save both the Declarations and the type
+            // together in the typebuilder.  perhaps have a struct
+            // like Declaration, e.g., StructOrUnionDefinition, to preserve
+            // the original strings and the types.  this can also have
+            // a tostring and a totype method.
+          }
+          // should be non-empty, since we start with a single entry multiverse containing an empty list
+          assert ! structtypes.isEmpty();
+
+          System.err.println(structtypes);
+
           // TODO: look at PostfixingFunctionDeclarator to see how to
           // construct a multiverse of lists from a list of
           // multiverses
@@ -1868,12 +1902,32 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           
         	/* setTransformationValue(value,t); */
         }
-        | STRUCT IdentifierOrTypedefName { EnterScope(subparser); } LBRACE
+        | STRUCT IdentifierOrTypedefName
+        {
+          /* instead of entering scope, add incomplete tag to symtab
+             for use in recursive symtab types. */
+
+          CContext scope = (CContext)subparser.scope;
+          SymbolTable symtab = scope.getSymbolTable();
+
+          String tag = ((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText();
+          StructT structtype = new StructT(tag);
+          // TODO: updated symtab
+          String tagname = SymbolTable.toTagName(tag);
+          System.err.println("TAG " + tagname);
+          EnterScope(subparser);
+        } LBRACE
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
           // TODO put struct in symtab in the struct tag namespace
 
+          // TODO see if you need the tag in the symtab before
+          // processing the decl list for recursive structs
+
+          // replace existing incomplete struct in the symtab
+          /* structtype.setMembers(memberlist); */  // add members later
+          
           // TODO stop entering/exiting scope on structs, since they
           // all end up in the same scope anyway.
           System.err.println("WARNING: unsupported semantic action: StructSpecifier");
@@ -2571,13 +2625,11 @@ Identifier:  /** nomerge **/
 IdentifierOrTypedefName: /** nomerge **/
         IDENTIFIER
         {
-          System.err.println("WARNING: unsupported semantic action: IdentifierOrTypedefName");
-          System.exit(1);
+          // get token text from the parent
         }
         | TYPEDEFname
         {
-          System.err.println("WARNING: unsupported semantic action: IdentifierOrTypedefName");
-          System.exit(1);
+          // get token text from the parent
         }
         ;
 
