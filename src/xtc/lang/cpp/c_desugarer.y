@@ -1869,7 +1869,8 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
             tb.setStructDefinition(structTag,  
                                    declarationlist.getData());
             valuemv.add(tb, declarationlist.getCondition());
-            
+
+            System.err.println("TODO: if we are filling in a definition of a forward struct reference, we need to record it, generate a struct for the forward reference, and add casts to future uses of that variable.");
             symtab.put(structTag,
                        structTag,
                        tb.toType(),
@@ -1911,19 +1912,8 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           List<Multiverse<Declaration>> structfields
             = (List<Multiverse<Declaration>>) getTransformationValue(subparser, 2);
 
-          // get scope to make an anonymous tag
-          CContext scope = (CContext)subparser.scope;
-          SymbolTable symtab = scope.getSymbolTable();
+          // hoist all possible combinations of struct fields
           
-          // TODO: if any field in the struct is invalid, then the
-          // entire struct typespec is invalid (see TypeBuilder)
-
-          // version 1: produce all combinations of this list for each
-          // possible configuration, i.e., take
-          // List<Multiverse<Declaration>> and create
-          // Multiverse<List<Declaration>>, which will be
-          // exponentially larger in size.
-
           // (1) start with an empty multiverse of declaration lists
           Multiverse<List<Declaration>> listsmv
             = new Multiverse<List<Declaration>>(new LinkedList<Declaration>(), subparser.getPresenceCondition());
@@ -1942,53 +1932,91 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
             listsmv.destruct();
             listsmv = newlistsmv;
           }
-          
-          // create a multiverse of struct types
-          Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
-          for (Element<List<Declaration>> declarationlist : listsmv) {
-            String renamedTag = symtab.freshCId(structTag);
 
-            System.err.println("TODO: recursively rename any selfref struct type refs in any descendent field.");
-            // TODO: recursively rename any selfreferencing struct
-            // types.  we need to look through any members for struct
-            // typebuilders and rename the struct refs, doing this
-            // recursively.  also check for any redeclarations of the
-            // struct (seenStructDefinition instead of
-            // seenStructReference)
+          // listsmv contains a multiverse of declaration lists
           
-            TypeBuilder tb = new TypeBuilder();
-            tb.setStructDefinition(structTag,
-                                   renamedTag,
-                                   declarationlist.getData());
-            valuemv.add(tb, declarationlist.getCondition());
-            System.err.println("TODO: add to symtab for use in type-checking any identifier");
+
+          CContext scope = (CContext)subparser.scope;
+          SymbolTable symtab = scope.getSymbolTable();
+
+          if (scope.isGlobal()) {
+            // handle global structs by merging all struct fields into
+            // a single one.  make sure to print out the nested
+            // structs before the ones that use them, except for
+            // nested struct refs.
+            System.err.println("TODO: support global structs by merging all fields and printing at the beginning of the file");
+            System.exit(1);
+          } else {
+            // for a local scope, produce all possible variations of
+            // the struct
+            Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
+            // create a multiverse of struct types
+            for (Element<List<Declaration>> declarationlist : listsmv) {
+              String renamedTag = freshCId(structTag);
+
+              TypeBuilder typebuilder = new TypeBuilder();
+              typebuilder.setStructDefinition(structTag,
+                                     renamedTag,
+                                     declarationlist.getData());
+              valuemv.add(typebuilder, declarationlist.getCondition());
+              System.err.println("TODO: add to symtab for use in type-checking any identifier");
             
-            String tagname = SymbolTable.toTagName(structTag);
-            symtab.put(tagname,
-                       renamedTag,
-                       tb.toType(),
-                       declarationlist.getCondition());
-            System.err.println("STRUCTTYPE: " + tb.toType());
-            // declared as this type
-          }
-          // should be non-empty, since we start with a single entry multiverse containing an empty list
-          assert ! valuemv.isEmpty();
+              String tagname = toTagName(structTag);
+              symtab.put(tagname,
+                         renamedTag,
+                         typebuilder.toType(),
+                         declarationlist.getCondition());
+              System.err.println("STRUCTTYPE: " + typebuilder.toType());
+              // declared as this type
+            }
+            // should be non-empty, since we start with a single entry multiverse containing an empty list
+            assert ! valuemv.isEmpty();
 
-          System.err.println(valuemv);
+            System.err.println(valuemv);
           
-        	setTransformationValue(value, valuemv);
+            setTransformationValue(value, valuemv);
+          }
+
+
         }
         | STRUCT IdentifierOrTypedefName
         {
+          // get scope to make an anonymous tag
+          CContext scope = (CContext)subparser.scope;
+          SymbolTable symtab = scope.getSymbolTable();
+
           String structTag = ((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText();
-          TypeBuilder typebuilder = new TypeBuilder();
-          System.err.println("TODO: get the renaming, have the enter scope help with that.");
-          typebuilder.setStructReference(structTag, structTag /* change this to renaming */);
-          // TODO: use the context to store a nested set of struct tags
-          Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>(typebuilder,
-                                                                        subparser.getPresenceCondition());
-          System.err.println(valuemv);
-          setTransformationValue(value, valuemv);
+          String tagname = toTagName(structTag);
+
+          if (scope.isGlobal()) {
+            System.err.println("TODO: struct reference in global scope.  handle global structs by compositing every (renamed) field, so no need to renamed it.  keep track of all global structs and their lists of members and renamed members.");
+            System.exit(1);
+          } else {
+            // forward references are not allowed in local scope, so
+            // we can just use the renamed struct from the symtab
+            // TODO: be sure that symtab entries for global-scope
+            // structs use the original name instead of a renaming
+            Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
+            Multiverse<SymbolTable.Entry> entries = symtab.get(tagname, subparser.getPresenceCondition());
+            for (Element<SymbolTable.Entry> entry : entries) {
+              TypeBuilder typebuilder = new TypeBuilder();
+              if (entry.getData() == SymbolTable.ERROR) {
+                System.err.println(String.format("INFO: trying to use an invalid specifier: %s", structTag));
+                typebuilder.setTypeError();
+              } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                System.err.println(String.format("INFO: local structs must be defined before being referenced: %s", structTag));
+                typebuilder.setTypeError();
+              } else {
+                String renaming = entry.getData().getRenaming();
+                typebuilder.setStructReference(structTag, renaming);
+              }
+              valuemv.add(typebuilder, entry.getCondition());
+            }
+            // should not be empty because symtab.get is not supposed
+            // to be empty
+            assert ! valuemv.isEmpty();
+            setTransformationValue(value, valuemv);
+          }
         }
         | STRUCT AttributeSpecifierList { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }

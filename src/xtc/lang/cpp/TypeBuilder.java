@@ -489,7 +489,7 @@ public class TypeBuilder {
   /**
    * Adds a tagged struct with its renaming.
    */
-  protected void setStructDefinition(String tag, String renamedtag, List<Declaration> members) {
+  public void setStructDefinition(String tag, String renamedtag, List<Declaration> members) {
     setStructDefinition(tag, renamedtag, members, false);
   }
 
@@ -498,7 +498,7 @@ public class TypeBuilder {
    * freshName("tag") method.  Anonymous structs don't need renaming,
    * since the name is not printed out during transformation.
    */
-  protected void setStructDefinition(String tag, List<Declaration> members) {
+  public void setStructDefinition(String tag, List<Declaration> members) {
     setStructDefinition(tag, tag, members, true);
   }
 
