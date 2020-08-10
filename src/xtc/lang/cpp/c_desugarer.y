@@ -419,26 +419,32 @@ FunctionDefinition:  /** complete **/ // added scoping
                   // to the type error function
                   symtab.putError(originalName, combinedCond);
                   recordInvalidGlobalDeclaration(originalName, combinedCond);
+                  System.err.println(String.format("INFO: \"%s\" has an invalid type specifier", originalName));
                 } else {
                   // otherwise loop over each existing entry check for
                   // type errors or add a new declaration
                   Multiverse<SymbolTable.Entry> entries = symtab.get(originalName, combinedCond);
                   for (Element<SymbolTable.Entry> entry : entries) {
+                    String renaming = freshCId(originalName);
+                    Declarator renamedDeclarator = declarator.getData().rename(renaming);
+                    Declaration renamedDeclaration = new Declaration(typebuilder.getData(),
+                                                                     renamedDeclarator);
+                    // renamedDeclaration must be a FunctionT because
+                    // that is created by a FunctionDeclarator
+                    Type type = new NamedFunctionT(renamedDeclaration.getType().toFunction().getResult(),
+                                                   renaming,
+                                                   renamedDeclaration.getType().toFunction().getParameters(),
+                                                   renamedDeclaration.getType().toFunction().isVarArgs());
+                    
                     if (entry.getData() == SymbolTable.ERROR) {
                       // ERROR entry
-                      System.err.println(String.format("INFO: %s is being redeclared in an existing invalid declaration", originalName));
-                      
+                      System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
                     } else if (entry.getData() == SymbolTable.UNDECLARED) {
                       // UNDECLARED entry
-                      String renaming = freshCId(originalName);
-                      Declarator renamedDeclarator = declarator.getData().rename(renaming);
-                      Declaration declaration = new Declaration(typebuilder.getData(),
-                                                                renamedDeclarator);
-                      Type type = declaration.getType();
 
                       // update the symbol table for this presence condition
-                      symtab.put(originalName, renaming, type, entry.getCondition());
-                      sb.append(declaration.toString());
+                      symtab.put(originalName, type, entry.getCondition());
+                      sb.append(renamedDeclaration.toString());
                       sb.append(" ");
                       sb.append(leftcurly);
                       sb.append("\n");
@@ -449,28 +455,36 @@ FunctionDefinition:  /** complete **/ // added scoping
                       recordRenaming(renaming, originalName);
 
                     } else {
-                      String renaming = entry.getData().getRenaming();
-                      Declarator renamedDeclarator = declarator.getData().rename(renaming);
-                      Declaration declaration = new Declaration(typebuilder.getData(),
-                                                                renamedDeclarator);
+                      if (entry.getData().getType() instanceof NamedFunctionT) {  // there is no Type.isFunctionOrMethod()
+                        FunctionT newtype = ((NamedFunctionT) type).toFunctionT();
+                        FunctionT previoustype = ((NamedFunctionT) entry.getData().getType()).toFunctionT();
+
+                        // TODO: make sure a function is only defined
+                        // once, although it can be declared multiple
+                        // times.
                     
-                      // already declared entries
-                      if (! cOps.equal(entry.getData().getType(), declaration.getType())) {
+                        // already declared entries
+                        if (cOps.equal(newtype, previoustype)) {
+                          System.err.println("TODO: distinguish between previous declaration vs definition.");
+                          sb.append(renamedDeclaration.toString());
+                          sb.append(" ");
+                          sb.append(getNodeAt(subparser, 4).getTokenText());
+                          sb.append("\n");
+                          sb.append((StringBuilder) getTransformationValue(subparser, 3));
+                          sb.append("\n");
+                          sb.append(getNodeAt(subparser, 1).getTokenText());
+                          sb.append("\n");
+                          System.err.println(String.format("INFO: %s is being redeclared in global scope to compatible type", originalName));
+                        } else {
+                          symtab.putError(originalName, entry.getCondition());
+                          recordInvalidGlobalDeclaration(originalName, entry.getCondition());
+                          // emit the same declaration, since it's legal to redeclare globals to a compatible type
+                        }
+                      } else { // existing entry is a function type
                         symtab.putError(originalName, entry.getCondition());
                         recordInvalidGlobalDeclaration(originalName, entry.getCondition());
-                      } else {
-                        // emit the same declaration, since it's legal to redeclare globals to a compatible type
-                        Type type = declaration.getType();
-                        sb.append(declaration.toString());
-                        sb.append(" ");
-                        sb.append(getNodeAt(subparser, 4).getTokenText());
-                        sb.append("\n");
-                        sb.append((StringBuilder) getTransformationValue(subparser, 3));
-                        sb.append("\n");
-                        sb.append(getNodeAt(subparser, 1).getTokenText());
-                        sb.append("\n");
-                        System.err.println(String.format("INFO: %s is being redeclared in global scope to compatible type", originalName));
-                      }
+                        System.err.println(String.format("INFO: attempted to redeclare \"%s\" as function instead of non-function", originalName));
+                      }  // end of check for existing function type
                     }  // end test of symtab entry type
                     sb.append("\n"); // TODO: pass results through a pretty printer or ultimately preserve input file formatting
                   } // end loop over symtab entries
@@ -797,8 +811,23 @@ Declaration:  /** complete **/
         	StringBuilder sb = new StringBuilder();  // the desugared output
 
           for (Element<TypeBuilder> typebuilder : structtypesmv) {
-            sb.append(typebuilder.getData().toString());
-            sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
+            if (! typebuilder.getData().hasTypeError()) {
+              sb.append(typebuilder.getData().toString());
+              sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
+            } else {
+              CContext scope = ((CContext) subparser.scope);
+              if (scope.isGlobal()) {
+                recordInvalidGlobalDeclaration(typebuilder.getData().getStructTag(),
+                                               typebuilder.getCondition());
+              } else {
+                sb.append("if (");
+                sb.append(PCtoString(typebuilder.getCondition()));
+                sb.append(") {\n");
+                sb.append(String.format("__type_error(\"invalid declaration of struct: %s\");\n",
+                                        typebuilder.getData().getStructTag()));
+                sb.append("}\n");
+              }
+            }
           }
           sb.append("\n");
           
@@ -862,33 +891,31 @@ Declaration:  /** complete **/
                     // type errors or add a new declaration
                     Multiverse<SymbolTable.Entry> entries = symtab.get(originalName, combinedCond);
                     for (Element<SymbolTable.Entry> entry : entries) {
+                      String renaming = freshCId(originalName);
+                      Declarator renamedDeclarator = declarator.getData().rename(renaming);
+                      Declaration renamedDeclaration = new Declaration(typebuilder.getData(),
+                                                                       renamedDeclarator);
+                      Type type = renamedDeclaration.typebuilder.isTypedef()
+                        ? new AliasT(renaming, renamedDeclaration.getType())
+                        : (scope.isGlobal()
+                           ? VariableT.newGlobal(renamedDeclaration.getType(), renaming)
+                           : VariableT.newLocal(renamedDeclaration.getType(), renaming));
+
                       if (entry.getData() == SymbolTable.ERROR) {
                         // ERROR entry
                         System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
 
                       } else if (entry.getData() == SymbolTable.UNDECLARED) {
                         // UNDECLARED entry
-                        String renaming = freshCId(originalName);
-                        Declarator renamedDeclarator = declarator.getData().rename(renaming);
-                        Declaration declaration = new Declaration(typebuilder.getData(),
-                                                                  renamedDeclarator);
-                        Type type = declaration.getType();
-
                         // update the symbol table for this presence condition
-                        symtab.put(originalName, renaming, type, entry.getCondition());
+                        symtab.put(originalName, type, entry.getCondition());
                     
-                        sb.append(declaration.toString());
+                        sb.append(renamedDeclaration.toString());
                         sb.append(initializer.getData());
                         sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
                         recordRenaming(renaming, originalName);
 
-                      } else {
-                        // already declared entries
-                        String renaming = entry.getData().getRenaming();
-                        Declarator renamedDeclarator = declarator.getData().rename(renaming);
-                        Declaration declaration = new Declaration(typebuilder.getData(),
-                                                                  renamedDeclarator);
-
+                      } else {  // already declared entries
                         if (! scope.isGlobal()) {
                           // not allowed to redeclare local symbols at all
                           symtab.putError(originalName, entry.getCondition());
@@ -897,20 +924,28 @@ Declaration:  /** complete **/
                           sb.append(") {\n");
                           sb.append(String.format("__type_error(\"redeclaration of local symbol: %s\");\n", originalName));
                           sb.append("}\n");
-                        } else {
-                          if (! cOps.equal(entry.getData().getType(), declaration.getType())) {
-                            // not allowed to redeclare globals to a different type
+                        } else {  // global scope
+                          if (entry.getData().getType().tag() == type.tag()) {
+                            if (! cOps.equal(entry.getData().getType().toVariable().getType(),
+                                             type.toVariable().getType())) {
+                              // not allowed to redeclare globals to a different type
+                              symtab.putError(originalName, entry.getCondition());
+                              recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+                            } else {
+                              // emit the same declaration, since it's legal to redeclare globals to a compatible type
+                              sb.append(renamedDeclaration.toString());
+                              sb.append(initializer.getData());
+                              sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
+                              System.err.println(String.format("INFO: \"%s\" is being redeclared in global scope to compatible type", originalName));
+                            }
+
+                          } else { // not the same kind of type
                             symtab.putError(originalName, entry.getCondition());
+                            System.err.println(String.format("INFO: attempted to redeclare global to a different kind of type: %s", originalName));
                             recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
-                          } else {
-                            // emit the same declaration, since it's legal to redeclare globals to a compatible type
-                            sb.append(declaration.toString());
-                            sb.append(initializer.getData());
-                            sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
-                            System.err.println(String.format("INFO: \"%s\" is being redeclared in global scope to compatible type", originalName));
-                          }
-                        }
-                      }
+                          } // end check for variable type
+                        } // end check global/local scope
+                      } // end entry kind
                       sb.append("\n"); // TODO: pass results through a pretty printer or ultimately preserve input file formatting
                     } // end loop over symtab entries
                   }
@@ -1870,9 +1905,9 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
                                    declarationlist.getData());
             valuemv.add(tb, declarationlist.getCondition());
 
-            System.err.println("TODO: if we are filling in a definition of a forward struct reference, we need to record it, generate a struct for the forward reference, and add casts to future uses of that variable.");
+            System.err.println("TODO: check if tb has an error before entering in symtab.");
+            // use separate, global symtab for structs
             symtab.put(structTag,
-                       structTag,
                        tb.toType(),
                        declarationlist.getCondition());
             System.err.println("STRUCTTYPE: " + tb.toType());
@@ -1971,11 +2006,14 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
                   TypeBuilder typebuilder = new TypeBuilder();
                   typebuilder.setStructDefinition(structTag, renamedTag, declarationlist.getData());
                   valuemv.add(typebuilder, combinedCond);
-            
-                  symtab.put(toTagName(structTag),
-                             renamedTag,
-                             typebuilder.toType(),
-                             combinedCond);
+
+                  if (! typebuilder.hasTypeError()) {
+                    symtab.put(toTagName(structTag),
+                               typebuilder.toType(),
+                               combinedCond);
+                  } else {
+                    symtab.putError(toTagName(structTag), combinedCond);
+                  }
                 }
               } else {
                 System.err.println(String.format("INFO: trying redefine a struct: %s", structTag));
@@ -2499,12 +2537,11 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<ParameterDeclarator>
                     symtab.putError(declarator.getData().getName(), combinedCond);
                   } else if (entry.getData() == SymbolTable.UNDECLARED) {
                     // get the type and add it to the symtab
-                    Declaration declaration = new Declaration(typebuilder.getData(),
+                    Declaration renamedDeclaration = new Declaration(typebuilder.getData(),
                                                               declarator.getData().rename(renaming));
-                    symtab.put(originalName,
-                               renaming,
-                               declaration.getType(),
-                               entry.getCondition());
+                    Type type = VariableT.newParam(renamedDeclaration.getType(),
+                                                   renamedDeclaration.getName());
+                    symtab.put(originalName, type, entry.getCondition());
                   } else {
                     System.err.println("INFO: reuse of the same parameter name in function");
                     System.err.println("TODO: any invalid parameter declarations should cause the entire function declaration to be invalid under that condition");
@@ -4043,9 +4080,20 @@ PrimaryIdentifier: /** nomerge **/ // Multiverse<StringBuilder>
             } else {
               // TODO: add type checking.  may need to tag the resulting
               // stringbuilder with the type to handle this
-              String result  // use the renamed symbol
-                = String.format(" %s ", entry.getData().getRenaming());
-              sbmv.add(new StringBuilder(result), entry.getCondition());
+
+              if (entry.getData().getType().isVariable()) {
+                String result  // use the renamed symbol
+                  = String.format(" %s ", entry.getData().getType().toVariable().getName());
+                sbmv.add(new StringBuilder(result), entry.getCondition());
+              } else if (entry.getData().getType() instanceof NamedFunctionT) {
+                String result  // use the renamed symbol
+                  = String.format(" %s ", ((NamedFunctionT) entry.getData().getType()).getName());
+                sbmv.add(new StringBuilder(result), entry.getCondition());
+              } else {
+                String result
+                  = String.format(" __type_error(\"use of symbol other than variable or function: %s\") ", originalName);
+                sbmv.add(new StringBuilder(result), entry.getCondition());
+              }
             }
           }
           // should be nonempty, since the above loop always adds to

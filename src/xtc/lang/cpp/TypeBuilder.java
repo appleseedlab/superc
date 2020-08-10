@@ -566,6 +566,15 @@ public class TypeBuilder {
     this.structType = new StructT(tag);
   }
 
+  public String getStructTag() {
+    if (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()]
+        || foundTypes[FOUND_TYPE.seenStructReference.ordinal()]) {
+      return structTag;
+    } else {
+      throw new IllegalStateException("attempted to get struct tag on typebuilder that doesn't represent a struct");
+    }
+  }
+
   /**
    * Marks this type builder as a type error.
    */
