@@ -1,6 +1,6 @@
 #ifdef A
 int x;
-#endif
+#else
 char x;
 #endif
 
