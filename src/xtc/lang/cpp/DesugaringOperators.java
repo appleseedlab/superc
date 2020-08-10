@@ -180,16 +180,16 @@ class DesugaringOperators {
         if (from == SymbolTable.ERROR) {
           System.err.println("INFO: use of typedefname with invalid declaration");
           // TODO: needs a unit test
-          tbunit.isTypeError = true;
+          tbunit.setTypeError();
         } else if (from == SymbolTable.UNDECLARED) {
           System.err.println("INFO: use of undeclared typedefname");
           // TODO: needs a unit test
-          tbunit.isTypeError = true;
+          tbunit.setTypeError();
         } else {
           System.err.println("TODO: check that type is actually alias " + from.getType().isAlias());
           if (! from.getType().isAlias()) {
             System.err.println("INFO: typedefname is not declared as alias type");
-            tbunit.isTypeError = true;
+            tbunit.setTypeError();
             // TODO: double-check that the parser already handles
             // this case, although it seems like the parser is
             // already handling this

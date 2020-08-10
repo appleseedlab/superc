@@ -564,6 +564,13 @@ public class TypeBuilder {
   }
 
   /**
+   * Marks this type builder as a type error.
+   */
+  public void setTypeError() {
+    this.isTypeError = true;
+  }
+
+  /**
    * Returns true if the type specifier is invalid.
    */
   public boolean hasTypeError() {
