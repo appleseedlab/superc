@@ -427,10 +427,10 @@ FunctionDefinition:  /** complete **/ // added scoping
                     if (entry.getData() == SymbolTable.ERROR) {
                       // ERROR entry
                       System.err.println(String.format("INFO: %s is being redeclared in an existing invalid declaration", originalName));
-
+                      
                     } else if (entry.getData() == SymbolTable.UNDECLARED) {
                       // UNDECLARED entry
-                      String renaming = symtab.freshCId(originalName);
+                      String renaming = freshCId(originalName);
                       Declarator renamedDeclarator = declarator.getData().rename(renaming);
                       Declaration declaration = new Declaration(typebuilder.getData(),
                                                                 renamedDeclarator);
@@ -868,7 +868,7 @@ Declaration:  /** complete **/
 
                       } else if (entry.getData() == SymbolTable.UNDECLARED) {
                         // UNDECLARED entry
-                        String renaming = symtab.freshCId(originalName);
+                        String renaming = freshCId(originalName);
                         Declarator renamedDeclarator = declarator.getData().rename(renaming);
                         Declaration declaration = new Declaration(typebuilder.getData(),
                                                                   renamedDeclarator);
@@ -1861,7 +1861,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
           for (Element<List<Declaration>> declarationlist : listsmv) {
             // give it an anonymous tag name (CAnalyzer)
-            String structTag = symtab.freshName("tag");
+            String structTag = freshName("tag");
 
             // no need to rename anonymous structs, since the tag is
             // not emitted
@@ -2429,7 +2429,7 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<ParameterDeclarator>
 
               // (1) rename the declarator part
               String originalName = declarator.getData().getName();
-              String renaming = symtab.freshCId(originalName);
+              String renaming = freshCId(originalName);
               Declarator renamedDeclarator = declarator.getData().rename(renaming);
 
               // (2) create a ParameterDeclarator for use in the
@@ -5409,6 +5409,153 @@ AsmKeyword:   // ADDED
 // resulting parser, specifically the CActions.java class
 
 
+
+/***************************************************************************
+**** The following naming and namespacing functionality is taken
+**** directly from xtc.util.SymbolTable.
+***************************************************************************/
+
+/** The fresh name count. */
+protected int freshNameCount = 0;
+
+/** The fresh identifier count. */
+protected int freshIdCount = 0;
+
+/**
+* Create a fresh name.  The returned name has
+* "<code>anonymous</code>" as it base name.
+*
+* @see #freshName(String)
+* 
+* @return A fresh name.
+*/
+public String freshName() {
+ return freshName("anonymous");
+}
+
+/**
+* Create a fresh name incorporating the specified base name.  The
+* returned name is of the form
+* <code><i>name</i>(<i>count</i>)</code>.
+*
+* @param base The base name.
+* @return The corresponding fresh name.
+*/
+public String freshName(String base) {
+  StringBuilder buf = new StringBuilder();
+  buf.append(base);
+  buf.append(Constants.START_OPAQUE);
+  buf.append(freshNameCount++);
+  buf.append(Constants.END_OPAQUE);
+  return buf.toString();
+}
+
+/**
+ * Create a fresh C identifier.  The returned identifier has
+ * "<code>tmp</code>" as its base name.
+ *
+ * @see #freshCId(String)
+ *
+ * @return A fresh C identifier.
+ */
+public String freshCId() {
+  return freshCId("tmp");
+}
+
+/**
+ * Create a fresh C identifier incorporating the specified base
+ * name.  The returned name is of the form
+ * <code>__<i>name</i>_<i>count</i></code>.
+ *
+ * @param base The base name.
+ * @return The corresponding fresh C identifier.
+ */
+public String freshCId(String base) {
+  StringBuilder buf = new StringBuilder();
+  buf.append("__");
+  buf.append(base);
+  buf.append('_');
+  buf.append(freshIdCount++);
+  return buf.toString();
+}
+
+/** The end of opaqueness marker as a string. */
+private static final String END_OPAQUE =
+  Character.toString(Constants.END_OPAQUE);
+
+/**
+ * Determine whether the specified symbol is in the specified name
+ * space.
+ *
+ * @param symbol The symbol.
+ * @param space The name space.
+ * @return <code>true</code> if the symbol is mangled symbol in the
+ *   name space.
+ */
+public static boolean isInNameSpace(String symbol, String space) {
+  try {
+    return (symbol.startsWith(space) &&
+            (Constants.START_OPAQUE == symbol.charAt(space.length())) &&
+            symbol.endsWith(END_OPAQUE));
+  } catch (IndexOutOfBoundsException x) {
+    return false;
+  }
+}
+
+/**
+ * Convert the specified unqualified symbol to a symbol in the
+ * specified name space.
+ *
+ * @param symbol The symbol
+ * @param space The name space.
+ * @return The mangled symbol.
+ */
+public static String toNameSpace(String symbol, String space) {
+  return space + Constants.START_OPAQUE + symbol + Constants.END_OPAQUE;
+}
+
+/**
+ * Convert the specified unqualified symbol within a name space to a
+ * symbol without a name space.
+ *
+ * @param symbol The mangled symbol within a name space.
+ * @return The corresponding symbol without a name space.
+ */
+public static String fromNameSpace(String symbol) {
+  int start = symbol.indexOf(Constants.START_OPAQUE);
+  int end   = symbol.length() - 1;
+  if ((0 < start) && (Constants.END_OPAQUE == symbol.charAt(end))) {
+    return symbol.substring(start + 1, end);
+  } else {
+    throw new IllegalArgumentException("Not a mangled symbol '"+symbol+"'");
+  }
+}
+
+/**
+ * Convert the specified C struct, union, or enum tag into a symbol
+ * table name.
+ *
+ * @param tag The tag.
+ * @return The corresponding symbol table name.
+ */
+public static String toTagName(String tag) {
+  return toNameSpace(tag, "tag");
+}
+
+/**
+ * Convert the specified label identifier into a symbol table name.
+ *
+ * @param id The identifier.
+ * @return The corresponding symbol table name.
+ */
+public static String toLabelName(String id) {
+  return toNameSpace(id, "label");
+}
+
+/*****************************************************************************
+ ********* Methods for Transformation Values
+ *****************************************************************************/
+
 /**
    This is just a constant string name for a property used to assign
    semantic values that are type builders.
@@ -7076,7 +7223,7 @@ private static Specifiers makeStructSpec(Subparser subparser,
   } else {
     // TODO check for conditional here
     /* tag = ((Syntax) tagNode.get(0)).toLanguage().getTokenText(); */
-    /* name = SymbolTable.toTagName(tag); */
+    /* name = toTagName(tag); */
   }
 
   // TODO remove this once above code is complete

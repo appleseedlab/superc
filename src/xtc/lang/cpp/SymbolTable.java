@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Iterator;
 
-import xtc.Constants;
-
 import xtc.tree.Location;
 
 import xtc.lang.cpp.Syntax.Kind;
@@ -144,12 +142,6 @@ public class SymbolTable {
   /** The reference count for cleaning up the table BDDs */
   public int refs;
 
-  /** The fresh name count. */
-  protected int freshNameCount;
-
-  /** The fresh identifier count. */
-  protected int freshIdCount;
-
   /**
    * Create a new, empty symbol table.
    */
@@ -157,8 +149,6 @@ public class SymbolTable {
     this.refs = 1;
     this.map = new HashMap<String, Multiverse<Entry>>();
     this.bools = new HashMap<String, EnumMap<STField, ConditionedBool>>();
-    this.freshNameCount = 0;
-    this.freshIdCount   = 0;
   }
 
   /**
@@ -457,142 +447,6 @@ public class SymbolTable {
   //   return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
   // }
 
-  /***************************************************************************
-   **** The following naming and namespacing functionality is taken
-   **** directly from xtc.util.SymbolTable.
-   ***************************************************************************/
-
-  /**
-   * Create a fresh name.  The returned name has
-   * "<code>anonymous</code>" as it base name.
-   *
-   * @see #freshName(String)
-   * 
-   * @return A fresh name.
-   */
-  public String freshName() {
-    return freshName("anonymous");
-  }
-
-  /**
-   * Create a fresh name incorporating the specified base name.  The
-   * returned name is of the form
-   * <code><i>name</i>(<i>count</i>)</code>.
-   *
-   * @param base The base name.
-   * @return The corresponding fresh name.
-   */
-  public String freshName(String base) {
-    StringBuilder buf = new StringBuilder();
-    buf.append(base);
-    buf.append(Constants.START_OPAQUE);
-    buf.append(freshNameCount++);
-    buf.append(Constants.END_OPAQUE);
-    return buf.toString();
-  }
-
-  /**
-   * Create a fresh C identifier.  The returned identifier has
-   * "<code>tmp</code>" as its base name.
-   *
-   * @see #freshCId(String)
-   *
-   * @return A fresh C identifier.
-   */
-  public String freshCId() {
-    return freshCId("tmp");
-  }
-
-  /**
-   * Create a fresh C identifier incorporating the specified base
-   * name.  The returned name is of the form
-   * <code>__<i>name</i>_<i>count</i></code>.
-   *
-   * @param base The base name.
-   * @return The corresponding fresh C identifier.
-   */
-  public String freshCId(String base) {
-    StringBuilder buf = new StringBuilder();
-    buf.append("__");
-    buf.append(base);
-    buf.append('_');
-    buf.append(freshIdCount++);
-    return buf.toString();
-  }
-
-  /** The end of opaqueness marker as a string. */
-  private static final String END_OPAQUE =
-    Character.toString(Constants.END_OPAQUE);
-
-  /**
-   * Determine whether the specified symbol is in the specified name
-   * space.
-   *
-   * @param symbol The symbol.
-   * @param space The name space.
-   * @return <code>true</code> if the symbol is mangled symbol in the
-   *   name space.
-   */
-  public static boolean isInNameSpace(String symbol, String space) {
-    try {
-      return (symbol.startsWith(space) &&
-              (Constants.START_OPAQUE == symbol.charAt(space.length())) &&
-              symbol.endsWith(END_OPAQUE));
-    } catch (IndexOutOfBoundsException x) {
-      return false;
-    }
-  }
-
-  /**
-   * Convert the specified unqualified symbol to a symbol in the
-   * specified name space.
-   *
-   * @param symbol The symbol
-   * @param space The name space.
-   * @return The mangled symbol.
-   */
-  public static String toNameSpace(String symbol, String space) {
-    return space + Constants.START_OPAQUE + symbol + Constants.END_OPAQUE;
-  }
-
-  /**
-   * Convert the specified unqualified symbol within a name space to a
-   * symbol without a name space.
-   *
-   * @param symbol The mangled symbol within a name space.
-   * @return The corresponding symbol without a name space.
-   */
-  public static String fromNameSpace(String symbol) {
-    int start = symbol.indexOf(Constants.START_OPAQUE);
-    int end   = symbol.length() - 1;
-    if ((0 < start) && (Constants.END_OPAQUE == symbol.charAt(end))) {
-      return symbol.substring(start + 1, end);
-    } else {
-      throw new IllegalArgumentException("Not a mangled symbol '"+symbol+"'");
-    }
-  }
-
-  /**
-   * Convert the specified C struct, union, or enum tag into a symbol
-   * table name.
-   *
-   * @param tag The tag.
-   * @return The corresponding symbol table name.
-   */
-  public static String toTagName(String tag) {
-    return toNameSpace(tag, "tag");
-  }
-
-  /**
-   * Convert the specified label identifier into a symbol table name.
-   *
-   * @param id The identifier.
-   * @return The corresponding symbol table name.
-   */
-  public static String toLabelName(String id) {
-    return toNameSpace(id, "label");
-  }
-
   public String toString() {
     StringBuilder sb  = new StringBuilder();
 
@@ -733,7 +587,7 @@ public class SymbolTable {
     PresenceCondition or = and.or(C);
     SymbolTable symtab = new SymbolTable();
     System.err.println(symtab);
-    symtab.put("x", symtab.freshCId("x"), UnitT.TYPE, or);
+    symtab.put("x", "x_renaming", UnitT.TYPE, or);
     System.err.println(symtab);
     symtab.putError("x", and.not());
     System.err.println(symtab);
