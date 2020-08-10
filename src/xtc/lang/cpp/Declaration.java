@@ -1,6 +1,7 @@
 package xtc.lang.cpp;
 
 import xtc.type.Type;
+import xtc.type.VariableT;
 import xtc.type.AliasT;
 
 /**
@@ -35,19 +36,13 @@ class Declaration {
   }
 
   /*
-   * Gets the type that this declaration defines.  This works by
-   * combining the type specifier with the declarator (type
-   * constructor).  Declaration handles creating an alias type, since
-   * only when we know there is a typedef qualifier and the complete
-   * type can we construct it.
+   * Gets the type that this declaration defines.  This is meant to be
+   * used by the desugaring to wrap the type with the renaming using
+   * VariableT, AliasT, or NamedFunctionT.
    */
   public Type getType() {
-    Type type = declarator.getType(typebuilder.toType());
-    if (typebuilder.isTypedef()) {
-      String name = declarator.getName();
-      type = new AliasT(name, type);
-    }
-    return type;
+    String name = declarator.getName();
+    return declarator.getType(typebuilder.toType());
   }
 
   public String toString() {

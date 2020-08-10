@@ -70,6 +70,7 @@ SOURCE = \
 	Multiverse.java \
 	Declarator.java \
 	TypeBuilder.java \
+	NamedFunctionT.java \
 	Declaration.java \
 	DesugaringOperators.java \
 	SymbolTable.java \

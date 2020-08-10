@@ -57,13 +57,9 @@ import xtc.lang.cpp.ForkMergeParser.Lookahead;
  */
 public class SymbolTable {
 
-  public static final Entry UNDECLARED = new Entry("<UNDECLARED>", UnitT.TYPE) {
-      public String getRenaming() {
-        throw new UnsupportedOperationException("the undeclared symbol table entry has no renaming");
-      }
-
+  public static final Entry UNDECLARED = new Entry(null) {
       public Type getType() {
-        throw new UnsupportedOperationException("the undeclared symbol table entry has no renaming");
+        throw new UnsupportedOperationException("the undeclared symbol table entry has no type");
       }
 
       public String toString() {
@@ -71,13 +67,9 @@ public class SymbolTable {
       }
     };
     
-  public static final Entry ERROR = new Entry("<ERROR>", UnitT.TYPE) {
-      public String getRenaming() {
-        throw new UnsupportedOperationException("the error symbol table entry has no renaming");
-      }
-
+  public static final Entry ERROR = new Entry(null) {
       public Type getType() {
-        throw new UnsupportedOperationException("the error symbol table entry has no renaming");
+        throw new UnsupportedOperationException("the error symbol table entry has no type");
       }
 
       public String toString() {
@@ -86,17 +78,10 @@ public class SymbolTable {
     };
     
   /**
-   * A symbol table entry that holds a multiverse of types and
-   * renamings.
+   * A symbol table entry that holds a type.
    */
   public static class Entry {
-    // TODO: make this abstract and only have renaming and type for VALID entries, have an error message for other kinds
-
-    /**
-     * The renaming of the variable for a given set of
-     * configurations.
-     */
-    protected final String renaming;
+    // TODO: make this abstract and have type for VALID entries, have an error message for other kinds
 
     /**
      * The type under a given set of configurations.
@@ -104,18 +89,8 @@ public class SymbolTable {
     protected final Type type;
 
     /** Create a new symbol table entry. */
-    public Entry(String renaming, Type type) {
-      this.renaming = renaming;
+    public Entry(Type type) {
       this.type = type;
-    }
-
-    /**
-     * Get the renaming field.
-     *
-     * @returns The renaming field.
-     */
-    public String getRenaming() {
-      return renaming;
     }
 
     /**
@@ -128,14 +103,13 @@ public class SymbolTable {
     }
 
     public String toString() {
-      return String.format("(TYPE=%s, RENAMING=\"%s\")", getType().toString(), getRenaming());
-      // return String.format("%s %s", getRenaming(), getType().toString());
+      return String.format("(TYPE=%s)", getType().toString());
     }
   }
 
   /**
    * The symbol table's core data structure that maps symbols to a
-   * multiverse of types and renamings.
+   * multiverse of types.
    */
   protected HashMap<String, Multiverse<Entry>> map;
 
@@ -396,8 +370,8 @@ public class SymbolTable {
    * @returns A new Multiverse instance containing the entries under
    * the given condition or null if the symbol is not defined.
    */
-  public void put(String ident, String renaming, Type type, PresenceCondition putCond) {
-    Entry entry = new Entry(renaming, type);
+  public void put(String ident, Type type, PresenceCondition putCond) {
+    Entry entry = new Entry(type);
     put(ident, entry, putCond);
   }
 
@@ -587,7 +561,7 @@ public class SymbolTable {
     PresenceCondition or = and.or(C);
     SymbolTable symtab = new SymbolTable();
     System.err.println(symtab);
-    symtab.put("x", "x_renaming", UnitT.TYPE, or);
+    symtab.put("x", UnitT.TYPE, or);
     System.err.println(symtab);
     symtab.putError("x", and.not());
     System.err.println(symtab);
