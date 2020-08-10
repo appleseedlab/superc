@@ -125,6 +125,9 @@ public class TypeBuilder {
 
   // collects all information in the typebuilder and generates the corresponding type
   public Type toType() {
+      if (isTypeError) {
+        throw new IllegalStateException("invalid type specifiers do not have a type");
+      }
     // NOTE: .combine() already checked for invalid combinations while merging typebuilders
     if (foundTypes[FOUND_TYPE.seenLongLong.ordinal()]) {
 	    if (qualifiers[QUAL.isUnsigned.ordinal()])
