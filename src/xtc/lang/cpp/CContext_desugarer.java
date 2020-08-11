@@ -719,6 +719,45 @@ public class CContext implements ParsingContext {
   }
 
   /**
+   * Put a symbol into the current symbol table.
+   *
+   * @param ident The identifier to enter.
+   * @param type The type.
+   * @param putCond The presence condition.
+   * @returns A new Multiverse instance containing the entries under
+   * the given condition or null if the symbol is not defined.
+   */
+  public void put(String ident, Type type, PresenceCondition putCond) {
+    getSymbolTable().put(ident, type, putCond);
+  }
+  
+  /**
+   * Add an entry representing a type error to the current symbol
+   * table.
+   *
+   * @param ident The identifier to enter.
+   * @param putCond The presence condition.
+   */
+  public void putError(String ident, PresenceCondition putCond) {
+    getSymbolTable().putError(ident, putCond);
+  }
+  
+  /**
+   * Put a symbol into the global symbol table.
+   *
+   * @param ident The identifier to enter.
+   * @param type The type.
+   * @param putCond The presence condition.
+   */
+  public void putGlobal(String ident, Type type, PresenceCondition putCond) {
+    CContext scope = this;
+    while (null != scope.parent) {
+      scope = scope.parent;
+    }
+    scope.getSymbolTable().put(ident, type, putCond);
+  }
+  
+  /**
    * Returns if the current scope is in global space.
    *
    * @returns boolean describing if the current scope is global

@@ -367,8 +367,6 @@ public class SymbolTable {
    * @param ident The identifier to enter.
    * @param type The type.
    * @param putCond The presence condition.
-   * @returns A new Multiverse instance containing the entries under
-   * the given condition or null if the symbol is not defined.
    */
   public void put(String ident, Type type, PresenceCondition putCond) {
     Entry entry = new Entry(type);
