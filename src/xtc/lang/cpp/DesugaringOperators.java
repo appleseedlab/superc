@@ -197,9 +197,7 @@ class DesugaringOperators {
             // TODO: use the new symtab for reclassifying
             // typedefname tokens
           } else {
-            AliasT aliastype = from.getType().toAlias();
-            AliasT renamedalias = new AliasT(from.getRenaming(), aliastype.getType());
-            tbunit.setTypedef(renamedalias);
+            tbunit.setTypedef(from.getType().toAlias());
           }
         }
         return tbunit;
