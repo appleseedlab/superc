@@ -69,6 +69,17 @@ public class CContext implements ParsingContext {
   protected SymbolTable symtab;
 
   /**
+   * Declarations to put at the top of the scope.  This is used to
+   * handle the use of forward references for structs/unions.  All
+   * user-defined type declarations (typedefs, structs/unions) are
+   * added here in the order in which they appear in the input file.
+   * Since declarations are desugared via renaming, there is no need
+   * to distinguish between configurations and all declarations can be
+   * concatenated.  Forking and merging
+   */
+  protected StringBuilder declarations;
+
+  /**
    * The parent parsing context, corresponding to the parent
    * scope.
    */
@@ -115,6 +126,8 @@ public class CContext implements ParsingContext {
     this.parent = parent;
 
     this.reentrant = false;
+
+    this.declarations = new StringBuilder();
   }
 
   /**
@@ -142,6 +155,11 @@ public class CContext implements ParsingContext {
     }
 
     this.reentrant = scope.reentrant;
+
+    // forked contexts share the same declarations. renaming is used
+    // instead of presence conditions, allowing them to be merged by
+    // concatenation.
+    this.declarations = scope.declarations;
   }
 
 
@@ -810,6 +828,15 @@ public class CContext implements ParsingContext {
     }
 
     if (DEBUG) System.err.println(String.format("context.get: %s -> %s", ident, result));
+  }
+
+  /**
+   * Add to the declarations to be put at the top of the scope.
+   *
+   * @param sb The string builder of the declaration to add.
+   */
+  public void addDeclaration(StringBuilder sb) {
+    this.declarations.append(sb);
   }
   /***************************************************************************
    **** The following naming and namespacing functionality is taken
