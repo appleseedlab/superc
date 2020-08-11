@@ -266,7 +266,7 @@ public class CContext implements ParsingContext {
   /**
    * This method determines whether an identifier is a typedef name,
    * var name, or both by inspecting the symbol table in this scope
-   * and any parent scopes.
+   * and any parent scopes.  (Legacy type checking).
    *
    * @param ident The identifier.
    * @param presenceCondition The presence condition.
@@ -489,7 +489,7 @@ public class CContext implements ParsingContext {
 
   /**
    * Return the presence condition under which an identifier is a
-   * typedef name.
+   * typedef name.  (Legacy type checking).
    *
    * @param ident The identifier.
    * @param presenceCondition The current presence condition.
@@ -541,7 +541,7 @@ public class CContext implements ParsingContext {
 
   /**
    * Return the presence condition under which an identifier is a
-   * typedef name.
+   * typedef name.  (Legacy type checking).
    *
    * @param ident The identifier.
    * @param presenceCondition The current presence condition.
@@ -697,7 +697,7 @@ public class CContext implements ParsingContext {
    * @returns A new Multiverse instance containing the entries under
    * the given condition.
    */
-  public Multiverse<SymbolTable.Entry> get(String ident, PresenceCondition cond) {
+  public Multiverse<SymbolTable.Entry> getAnyScope(String ident, PresenceCondition cond) {
     Multiverse<SymbolTable.Entry> result = new Multiverse<SymbolTable.Entry>();
 
     if (! cond.isFalse()) {
@@ -716,7 +716,7 @@ public class CContext implements ParsingContext {
    * @returns A new Multiverse instance containing the entries under
    * the given condition, including UNDECLARED.
    */
-  public Multiverse<SymbolTable.Entry> getLocal(String ident, PresenceCondition cond) {
+  public Multiverse<SymbolTable.Entry> getCurrentScope(String ident, PresenceCondition cond) {
     return getSymbolTable().get(ident, cond);
   }
 

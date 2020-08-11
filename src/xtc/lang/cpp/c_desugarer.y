@@ -475,12 +475,13 @@ FunctionDefinition:  /** complete **/ // added scoping
                 } else {
                   // otherwise loop over each existing entry check for
                   // type errors or add a new declaration
-                  Multiverse<SymbolTable.Entry> entries = scope.get(originalName, combinedCond);
+                  Multiverse<SymbolTable.Entry> entries = scope.getCurrentScope(originalName, combinedCond);
                   for (Element<SymbolTable.Entry> entry : entries) {
                     String renaming = freshCId(originalName);
                     Declarator renamedDeclarator = declarator.getData().rename(renaming);
                     Declaration renamedDeclaration = new Declaration(typebuilder.getData(),
                                                                      renamedDeclarator);
+
                     // renamedDeclaration must be a FunctionT because
                     // that is created by a FunctionDeclarator
                     Type type = new NamedFunctionT(renamedDeclaration.getType().toFunction().getResult(),
@@ -942,7 +943,7 @@ Declaration:  /** complete **/
                   } else {
                     // otherwise loop over each existing entry check for
                     // type errors or add a new declaration
-                    Multiverse<SymbolTable.Entry> entries = scope.get(originalName, combinedCond);
+                    Multiverse<SymbolTable.Entry> entries = scope.getCurrentScope(originalName, combinedCond);
                     for (Element<SymbolTable.Entry> entry : entries) {
                       String renaming = freshCId(originalName);
                       Declarator renamedDeclarator = declarator.getData().rename(renaming);
@@ -1519,7 +1520,7 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
           Multiverse<SymbolTable.Entry> entries
-            = ((CContext)subparser.scope).get(typeName, subparser.getPresenceCondition());
+            = ((CContext)subparser.scope).getAnyScope(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
       	  Multiverse<TypeBuilder> typedefnametbmv = DesugaringOperators.typedefEntriesToTypeBuilder.transform(entries);
           // combine with the existing qualifier list
@@ -1542,7 +1543,7 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
           Multiverse<SymbolTable.Entry> entries
-            = ((CContext)subparser.scope).get(typeName, subparser.getPresenceCondition());
+            = ((CContext)subparser.scope).getAnyScope(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
       	  Multiverse<TypeBuilder> typedefnametbmv = DesugaringOperators.typedefEntriesToTypeBuilder.transform(entries);
           setTransformationValue(value, typedefnametbmv);
@@ -1553,7 +1554,7 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
           Multiverse<SymbolTable.Entry> entries
-            = ((CContext)subparser.scope).get(typeName, subparser.getPresenceCondition());
+            = ((CContext)subparser.scope).getAnyScope(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
       	  Multiverse<TypeBuilder> typedefnametbmv = DesugaringOperators.typedefEntriesToTypeBuilder.transform(entries);
           // combine with the existing qualifier list
@@ -2568,7 +2569,7 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<ParameterDeclarator>
                 // the identifierdeclaration.  abstract declarators
                 // can't go in the symbol table, because there is no
                 // symbol.
-                Multiverse<SymbolTable.Entry> entries = scope.get(declarator.getData().getName(), combinedCond);
+                Multiverse<SymbolTable.Entry> entries = scope.getCurrentScope(declarator.getData().getName(), combinedCond);
 
                 // TODO: check for multiply-defined parameter names,
                 // which (I believe) should make the entire function
@@ -4100,7 +4101,7 @@ PrimaryIdentifier: /** nomerge **/ // Multiverse<StringBuilder>
 
           // get the renamings from the symtab
           PresenceCondition cond = subparser.getPresenceCondition().presenceConditionManager().newTrue();
-          Multiverse<SymbolTable.Entry> entries = scope.get(originalName, cond);
+          Multiverse<SymbolTable.Entry> entries = scope.getAnyScope(originalName, cond);
           cond.delRef();
 
           // convert the renamings to stringbuilders
