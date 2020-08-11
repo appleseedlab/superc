@@ -46,6 +46,7 @@ import xtc.lang.cpp.Syntax.Directive;
 import xtc.lang.cpp.Syntax.Conditional;
 
 import xtc.type.Type;
+import xtc.type.StructT;
 import xtc.type.C;
 
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
@@ -838,6 +839,48 @@ public class CContext implements ParsingContext {
   public void addDeclaration(StringBuilder sb) {
     this.declarations.append(sb);
   }
+
+  /**
+   * Get the declarations to be put at the top of the scope.
+   *
+   * @returns The string
+   */
+  public StringBuilder getDeclarations(PresenceCondition presenceCondition) {
+    StringBuilder sb = new StringBuilder();
+
+    // emit the user-defined type declarations, which are renamed
+    sb.append(this.declarations);
+    sb.append("\n");
+
+    // replace the original struct declaration with a struct
+    // containing of union containing each user-defined struct
+    SymbolTable symtab = getSymbolTable();
+    for (String symbol : symtab) {
+      if (isInNameSpace(symbol, "tag")) {
+        String tag = fromNameSpace(symbol);
+        sb.append(String.format("struct %s {", tag));
+        sb.append(" // generated union of struct variations");
+        sb.append("\nunion {\n");
+        for (Element<SymbolTable.Entry> entry : symtab.get(symbol, presenceCondition)) {
+          if (entry.getData() == SymbolTable.ERROR) {
+            sb.append(" // error entry\n");
+          } else if (entry.getData() == SymbolTable.UNDECLARED) {
+            sb.append(" // no declaration\n");
+          } else {
+            StructT type = entry.getData().getType().toStruct();
+            String renamedTag = type.getName();
+            sb.append(String.format("struct %s %s;", renamedTag, renamedTag));
+            sb.append("\n");
+          }
+        }
+        sb.append("};\n};\n\n");
+      }
+    }
+    
+    return sb;
+  }
+
+
   /***************************************************************************
    **** The following naming and namespacing functionality is taken
    **** directly from xtc.util.SymbolTable.
