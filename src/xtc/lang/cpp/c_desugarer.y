@@ -289,6 +289,7 @@ TranslationUnit:  /** complete **/
             setCPC(value, PCtoString(subparser.getPresenceCondition()));
 
             // the signature for the type error call.
+            // TODO: only emit if __type_error is used
             writer.write("void * __type_error(char *message); /* this method should halt */\n");
             
             // writes the extern declarations for the renamed preprocessor BDDs
@@ -301,6 +302,57 @@ TranslationUnit:  /** complete **/
 
               temp.setLength(0);
             }
+
+            SymbolTable symtab = ((CContext) subparser.scope).getSymbolTable();
+
+            // collect this in the scope as we go along.  forking and
+            // merging is easy: fork just share the list; merge do
+            // nothing since forking shared the list (or even just use
+            // a stringbuilder).
+            for (TypeBuilder elem : templist) {
+              if (! elem.hasTypeError()) {
+                System.err.println(elem.toString() + ";");
+              }
+            }
+
+            // can we collect all declarations in a scope and just
+            // move them to the top?  then we can put these at the end
+            // of the section of declarations.  this will mess with
+            // initializers as well though, e.g., for global scope.
+            // but global scope also allow redeclaration, so perhaps
+            // we can use that.  another thing to try is to only move
+            // structs and typedefs, i.e., user-defined types to the
+            // top.  since they can't depend on program values, they
+            // can't depend on variables (i.e., no dependent types).
+            // does this affect function declarations as well?  i
+            // don't think so, since those can't affect
+            // struct/typedefs either.
+
+            // do this step on scope exit, adding it to the
+            // declaration list and adding at the front of the
+            // stringbuilder for the whole scope
+            for (String symbol : symtab) {
+              if (isInNameSpace(symbol, "tag")) {
+                String tag = fromNameSpace(symbol);
+                System.err.println(String.format("struct %s {\nunion {", tag));
+                System.err.println("// STRUCT: " + tag);
+                for (Element<SymbolTable.Entry> entry : symtab.get(symbol, subparser.getPresenceCondition())) {
+                  if (entry.getData() == SymbolTable.ERROR) {
+                    System.err.println(" // error entry");
+                  } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                    System.err.println(" // no declaration");
+                  } else {
+                    StructT type = entry.getData().getType().toStruct();
+                    String renamedTag = type.getName();
+                    System.err.println(String.format("struct %s %s;", renamedTag, renamedTag));
+                  }
+                }
+                System.err.println("};\n};");
+              }
+            }
+
+            System.err.println(symtab.hashCode());
+            System.err.println(symtab);
 
             // write the transformed C
             writer.write(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()).toString());
@@ -521,6 +573,7 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
           StringBuilder valuesb = new StringBuilder();
           System.err.println("ERROR: todo implement locallabeldeclarationlistopt");
           /* valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 2), subparser.getPresenceCondition())); */
+          // TODO: add the struct/typedef just before the rest.  generate the union struct types as well
           valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
           if (debug) System.err.println(((CContext) subparser.scope).getSymbolTable());
           setTransformationValue(value, valuesb);
@@ -830,6 +883,7 @@ Declaration:  /** complete **/
           }
           sb.append("\n");
           
+          /* System.err.println(((CContext) subparser.scope).getSymbolTable()); */
           setTransformationValue(value, sb);
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
@@ -898,6 +952,9 @@ Declaration:  /** complete **/
                         : (scope.isGlobal()
                            ? VariableT.newGlobal(renamedDeclaration.getType(), renaming)
                            : VariableT.newLocal(renamedDeclaration.getType(), renaming));
+
+                      // TODO: if it's a typedef, store its desugaring
+                      // in the scope's declaration list.
 
                       if (entry.getData() == SymbolTable.ERROR) {
                         // ERROR entry
@@ -1858,17 +1915,12 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           List<Multiverse<Declaration>> structfields
             = (List<Multiverse<Declaration>>) getTransformationValue(subparser,2);
 
+          // for anonymous structs, just take every combination and
+          // make new declaration for it.  since there is no tag,
+          // there is no way to reference this struct type again.
+
           // get scope to make an anonymous tag
           CContext scope = (CContext)subparser.scope;
-          
-          // if any field in the struct is invalid, then the entire
-          // struct typespec is invalid
-
-          // version 1: produce all combinations of this list for each
-          // possible configuration, i.e., take
-          // List<Multiverse<Declaration>> and create
-          // Multiverse<List<Declaration>>, which will be
-          // exponentially larger in size.
 
           // (1) start with an empty multiverse of declaration lists
           Multiverse<List<Declaration>> listsmv
@@ -1912,27 +1964,18 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           }
           // should be non-empty, since we start with a single entry multiverse containing an empty list
           assert ! valuemv.isEmpty();
-
-          // TODO: version 2: produce a single List<Declaration>,
-          // where each declaration is renamed according to the
-          // configuration.  note that this version requires a
-          // modification to the symtab to store a configurable struct
-          // type.
           
         	setTransformationValue(value, valuemv);
         }
         | STRUCT IdentifierOrTypedefName LBRACE StructDeclarationList RBRACE
         {
-          // TODO put struct in symtab in the struct tag namespace
 
-          // TODO see if you need the tag in the symtab before
-          // processing the decl list for recursive structs
+          // for tagged structs, always replace it with a reference to
+          // the original tag name.  save each configuration of the
+          // struct in the global namespace, so that we can later emit
+          // all of the (renamed) variations at the top of output and
+          // use a union-based struct for the original struct tag.
 
-          // replace existing incomplete struct in the symtab
-          /* structtype.setMembers(memberlist); */  // add members later
-          
-          // TODO stop entering/exiting scope on structs, since they
-          // all end up in the same scope anyway.
           Node tag     = getNodeAt(subparser, 4);
           Node members = getNodeAt(subparser, 2);
           Node attrs   = null;
@@ -1966,66 +2009,61 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           }
           // listsmv contains a multiverse of declaration lists
 
+          // TODO: track when a struct is being redeclared in some
+          // configuration, which should be possible from the symtab
+          
           CContext scope = (CContext)subparser.scope;
 
-          if (scope.isGlobal()) {
-            // handle global structs by merging all struct fields into
-            // a single one.  make sure to print out the nested
-            // structs before the ones that use them, except for
-            // nested struct refs.
+          Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
+          Multiverse<SymbolTable.Entry> entries = scope.get(toTagName(structTag), subparser.getPresenceCondition());
+          for (Element<SymbolTable.Entry> entry : entries) {
+            if (entry.getData() == SymbolTable.ERROR) {
+              System.err.println(String.format("INFO: trying to use an invalid specifier: %s", structTag));
+              TypeBuilder typebuilder = new TypeBuilder();
+              typebuilder.setTypeError();
+              valuemv.add(typebuilder, entry.getCondition());
+              // no need to add to symtab since this config is
+              // already an error
+            } else if (entry.getData() == SymbolTable.UNDECLARED) {
+              // create a multiverse of struct types
+              for (Element<List<Declaration>> declarationlist : listsmv) {
+                String renamedTag = freshCId(structTag);
+                PresenceCondition combinedCond = entry.getCondition().and(declarationlist.getCondition());
 
-            // global structs are handled by compositing every (renamed)
-            // field, so their renaming entry should just be the
-            // original name
-
-            System.err.println("TODO: support global structs by merging all fields and printing at the beginning of the file");
-            System.exit(1);
-          } else {
-            // for a local scope, produce all possible variations of
-            // the struct
-            Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
-            Multiverse<SymbolTable.Entry> entries = scope.get(toTagName(structTag), subparser.getPresenceCondition());
-            for (Element<SymbolTable.Entry> entry : entries) {
-              if (entry.getData() == SymbolTable.ERROR) {
-                System.err.println(String.format("INFO: trying to use an invalid specifier: %s", structTag));
                 TypeBuilder typebuilder = new TypeBuilder();
-                typebuilder.setTypeError();
-                valuemv.add(typebuilder, entry.getCondition());
-                // no need to add to symtab since this config is
-                // already an error
-              } else if (entry.getData() == SymbolTable.UNDECLARED) {
-                // create a multiverse of struct types
-                for (Element<List<Declaration>> declarationlist : listsmv) {
-                  String renamedTag = freshCId(structTag);
-                  PresenceCondition combinedCond = entry.getCondition().and(declarationlist.getCondition());
+                typebuilder.setStructDefinition(structTag, renamedTag, declarationlist.getData());
 
-                  TypeBuilder typebuilder = new TypeBuilder();
-                  typebuilder.setStructDefinition(structTag, renamedTag, declarationlist.getData());
-                  valuemv.add(typebuilder, combinedCond);
-
-                  if (! typebuilder.hasTypeError()) {
-                    scope.put(toTagName(structTag),
-                               typebuilder.toType(),
-                               combinedCond);
-                  } else {
-                    scope.putError(toTagName(structTag), combinedCond);
-                  }
+                if (! typebuilder.hasTypeError()) {
+                  scope.put(toTagName(structTag),
+                            typebuilder.toType(),
+                            combinedCond);
+                  templist.add(typebuilder);
+                } else {
+                  scope.putError(toTagName(structTag), combinedCond);
                 }
-              } else {
-                System.err.println(String.format("INFO: trying redefine a struct: %s", structTag));
-                TypeBuilder typebuilder = new TypeBuilder();
-                typebuilder.setTypeError();
-                valuemv.add(typebuilder, entry.getCondition());
-
-                // this configuration has a type error entry
-                scope.putError(toTagName(structTag), entry.getCondition());
+                
+                // just use a struct ref for the transformation value, since
+                // we will print all struct defs at the top of the scope in
+                // the output
+                TypeBuilder reftypebuilder = new TypeBuilder();
+                reftypebuilder.setStructReference(structTag, structTag);
+                valuemv.add(reftypebuilder, combinedCond);
               }
+            } else {
+              System.err.println(String.format("INFO: trying redefine a struct: %s", structTag));
+              TypeBuilder typebuilder = new TypeBuilder();
+              typebuilder.setTypeError();
+              valuemv.add(typebuilder, entry.getCondition());
+
+              // this configuration has a type error entry
+              scope.putError(toTagName(structTag), entry.getCondition());
             }
-            // should not be empty because symtab.get is not supposed
-            // to be empty
-            assert ! valuemv.isEmpty();
-            setTransformationValue(value, valuemv);
           }
+          // should not be empty because symtab.get is not supposed
+          // to be empty
+          assert ! valuemv.isEmpty();
+
+          setTransformationValue(value, valuemv);
         }
         | STRUCT IdentifierOrTypedefName
         {
@@ -2050,11 +2088,22 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
               System.err.println(String.format("INFO: trying to use an invalid specifier: %s", structTag));
               typebuilder.setTypeError();
             } else if (entry.getData() == SymbolTable.UNDECLARED) {
-              System.err.println(String.format("INFO: local structs must be defined before being referenced: %s", structTag));
-              typebuilder.setTypeError();
+              System.err.println(String.format("TODO: local structs must be defined before being used, unless it's a pointer to a struct: %s", structTag));
+              /* typebuilder.setTypeError(); */
+              typebuilder.setStructReference(structTag, structTag);
             } else {
-              String renaming = entry.getData().getRenaming();
-              typebuilder.setStructReference(structTag, renaming);
+              assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
+              if (entry.getData().getType().isStruct()) {
+                // just use the original tag name, since we will use a
+                // union type for it
+                typebuilder.setStructReference(structTag, structTag);
+                /* typebuilder.setStructReference(structTag, */
+                /*                                entry.getData().getType().toStruct().getName()); */
+              } else {
+                System.err.println("TODO: expected a struct type in the tag namespace.  this is either a bug or due to mishandling of union types.");
+                System.exit(1);
+                typebuilder.setTypeError();
+              }
             }
             valuemv.add(typebuilder, entry.getCondition());
           }
@@ -5943,11 +5992,19 @@ protected Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringB
   return sbmv;
 }
 
-  /*****************************************************************************
-  ********* Methods to record global desugaring information.  These
-   ********* will go into a special initializer function defined at the
-   ********* end of the transformation.
-   *****************************************************************************/
+/*****************************************************************************
+ ********* Methods for collecting global structs.
+ *****************************************************************************/
+
+
+List<TypeBuilder> templist = new LinkedList<TypeBuilder>();
+
+
+/*****************************************************************************
+ ********* Methods to record global desugaring information.  These
+ ********* will go into a special initializer function defined at the
+ ********* end of the transformation.
+ *****************************************************************************/
 
 /**
  * Record an invalid global declaration.

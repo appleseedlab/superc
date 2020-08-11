@@ -545,7 +545,7 @@ public class TypeBuilder {
     // the type in the symtab should have the original tag name, so we
     // can look up and find the struct appropriate for the declared
     // symbol's presence condition.
-    this.structType = new StructT(tag, memberlist);
+    this.structType = new StructT(renamedtag, memberlist);
   }
 
   /**
@@ -563,7 +563,7 @@ public class TypeBuilder {
     this.structRenamedTag = renamedtag;
     this.structMembers = null;
     this.structIsAnon = false;
-    this.structType = new StructT(tag);
+    this.structType = new StructT(renamedtag);
   }
 
   public String getStructTag() {
