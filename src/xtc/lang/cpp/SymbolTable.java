@@ -55,7 +55,7 @@ import xtc.lang.cpp.ForkMergeParser.Lookahead;
 /**
  * The symbol table that stores a scope's symbol bindings.
  */
-public class SymbolTable {
+public class SymbolTable implements Iterable<String> {
 
   public static final Entry UNDECLARED = new Entry(null) {
       public Type getType() {
@@ -167,10 +167,11 @@ public class SymbolTable {
    * returns a Multiverse that contains only the UNDECLARED entry.
    */
   public Multiverse<Entry> get(String ident, PresenceCondition cond) {
+    Multiverse<Entry> newmv;
     if (! this.map.containsKey(ident)) {
       // Create a new multiverse for the symbol that has only the
       // UNDECLARED entry under the True condition
-      Multiverse<Entry> newmv = new Multiverse<Entry>();
+      newmv = new Multiverse<Entry>();
 
       PresenceCondition trueCond = cond.presenceConditionManager().newTrue();
       newmv.add(UNDECLARED, trueCond);
@@ -179,12 +180,13 @@ public class SymbolTable {
       PresenceCondition falseCond = cond.presenceConditionManager().newFalse();
       newmv.add(ERROR, falseCond);
       falseCond.delRef();
-
-      this.map.put(ident, newmv);
       
+      Multiverse<Entry> filtered = newmv.filter(cond);
+      newmv.destruct();
+      return filtered;
+    } else {
+      return this.map.get(ident).filter(cond);
     }
-    Multiverse<Entry> newmv = this.map.get(ident).filter(cond);
-    return newmv;
   }
 
   /**
@@ -381,6 +383,15 @@ public class SymbolTable {
    */
   public void putError(String ident, PresenceCondition putCond) {
     put(ident, ERROR, putCond);
+  }
+
+  /**
+   * Creates an iterator over the symbols.
+   *
+   * @return the iterator.
+   */
+  public Iterator<String> iterator() {
+    return map.keySet().iterator();
   }
 
   // private static long varcount = 0;
