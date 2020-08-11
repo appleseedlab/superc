@@ -2015,7 +2015,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           CContext scope = (CContext)subparser.scope;
 
           Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
-          Multiverse<SymbolTable.Entry> entries = scope.get(toTagName(structTag), subparser.getPresenceCondition());
+          Multiverse<SymbolTable.Entry> entries = scope.getCurrentScope(CContext.toTagName(structTag), subparser.getPresenceCondition());
           for (Element<SymbolTable.Entry> entry : entries) {
             if (entry.getData() == SymbolTable.ERROR) {
               System.err.println(String.format("INFO: trying to use an invalid specifier: %s", structTag));
@@ -2034,12 +2034,12 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
                 typebuilder.setStructDefinition(structTag, renamedTag, declarationlist.getData());
 
                 if (! typebuilder.hasTypeError()) {
-                  scope.put(toTagName(structTag),
+                  scope.put(CContext.toTagName(structTag),
                             typebuilder.toType(),
                             combinedCond);
                   templist.add(typebuilder);
                 } else {
-                  scope.putError(toTagName(structTag), combinedCond);
+                  scope.putError(CContext.toTagName(structTag), combinedCond);
                 }
                 
                 // just use a struct ref for the transformation value, since
@@ -2056,7 +2056,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
               valuemv.add(typebuilder, entry.getCondition());
 
               // this configuration has a type error entry
-              scope.putError(toTagName(structTag), entry.getCondition());
+              scope.putError(CContext.toTagName(structTag), entry.getCondition());
             }
           }
           // should not be empty because symtab.get is not supposed
@@ -2080,8 +2080,8 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           // we can just use the renamed struct from the symtab
           
           Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
-          Multiverse<SymbolTable.Entry> entries = scope.get(toTagName(structTag),
-                                                             subparser.getPresenceCondition());
+          Multiverse<SymbolTable.Entry> entries = scope.getAnyScope(CContext.toTagName(structTag),
+                                                                    subparser.getPresenceCondition());
           for (Element<SymbolTable.Entry> entry : entries) {
             TypeBuilder typebuilder = new TypeBuilder();
             if (entry.getData() == SymbolTable.ERROR) {
@@ -5608,79 +5608,6 @@ public String freshCId(String base) {
   buf.append('_');
   buf.append(freshIdCount++);
   return buf.toString();
-}
-
-/** The end of opaqueness marker as a string. */
-private static final String END_OPAQUE =
-  Character.toString(Constants.END_OPAQUE);
-
-/**
- * Determine whether the specified symbol is in the specified name
- * space.
- *
- * @param symbol The symbol.
- * @param space The name space.
- * @return <code>true</code> if the symbol is mangled symbol in the
- *   name space.
- */
-public static boolean isInNameSpace(String symbol, String space) {
-  try {
-    return (symbol.startsWith(space) &&
-            (Constants.START_OPAQUE == symbol.charAt(space.length())) &&
-            symbol.endsWith(END_OPAQUE));
-  } catch (IndexOutOfBoundsException x) {
-    return false;
-  }
-}
-
-/**
- * Convert the specified unqualified symbol to a symbol in the
- * specified name space.
- *
- * @param symbol The symbol
- * @param space The name space.
- * @return The mangled symbol.
- */
-public static String toNameSpace(String symbol, String space) {
-  return space + Constants.START_OPAQUE + symbol + Constants.END_OPAQUE;
-}
-
-/**
- * Convert the specified unqualified symbol within a name space to a
- * symbol without a name space.
- *
- * @param symbol The mangled symbol within a name space.
- * @return The corresponding symbol without a name space.
- */
-public static String fromNameSpace(String symbol) {
-  int start = symbol.indexOf(Constants.START_OPAQUE);
-  int end   = symbol.length() - 1;
-  if ((0 < start) && (Constants.END_OPAQUE == symbol.charAt(end))) {
-    return symbol.substring(start + 1, end);
-  } else {
-    throw new IllegalArgumentException("Not a mangled symbol '"+symbol+"'");
-  }
-}
-
-/**
- * Convert the specified C struct, union, or enum tag into a symbol
- * table name.
- *
- * @param tag The tag.
- * @return The corresponding symbol table name.
- */
-public static String toTagName(String tag) {
-  return toNameSpace(tag, "tag");
-}
-
-/**
- * Convert the specified label identifier into a symbol table name.
- *
- * @param id The identifier.
- * @return The corresponding symbol table name.
- */
-public static String toLabelName(String id) {
-  return toNameSpace(id, "label");
 }
 
 /*****************************************************************************
