@@ -2066,7 +2066,10 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
                   scope.put(CContext.toTagName(structTag),
                             typebuilder.toType(),
                             combinedCond);
-                  templist.add(typebuilder);
+                  StringBuilder sb = new StringBuilder();
+                  sb.append(typebuilder.toString());
+                  sb.append(";\n");
+                  scope.addDeclaration(sb);
                 } else {
                   scope.putError(CContext.toTagName(structTag), combinedCond);
                 }
