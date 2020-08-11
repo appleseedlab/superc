@@ -4256,6 +4256,9 @@ FunctionCall:  /** nomerge **/
 DirectSelection:  /** nomerge **/
         PostfixExpression DOT IdentifierOrTypedefName
         {
+          // TODO: need to cast PostfixExpression to the union field
+          // of the configurable struct declaration.  this means we
+          // need to know the type of postfixexpression
           System.err.println("WARNING: unsupported semantic action: DirectSelection");
           System.exit(1);
         }
@@ -4264,6 +4267,9 @@ DirectSelection:  /** nomerge **/
 IndirectSelection:  /** nomerge **/
         PostfixExpression ARROW IdentifierOrTypedefName
         {
+          // TODO: need to cast PostfixExpression to the union field
+          // of the configurable struct declaration.  this means we
+          // need to know the type of postfixexpression
           System.err.println("WARNING: unsupported semantic action: IndirectSelection");
           System.exit(1);
         }
