@@ -891,7 +891,7 @@ Declaration:  /** complete **/
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
           CContext scope = ((CContext) subparser.scope);
-        	StringBuilder sb = new StringBuilder();  // the desugared output
+        	StringBuilder valuesb = new StringBuilder();  // the desugared output
 
           /*
            * to desugar declarations, we need to iterate over all
@@ -934,11 +934,11 @@ Declaration:  /** complete **/
                     if (scope.isGlobal()) {
                       recordInvalidGlobalDeclaration(originalName, combinedCond);
                     } else {
-                      sb.append("if (");
-                      sb.append(PCtoString(combinedCond));
-                      sb.append(") {\n");
-                      sb.append(String.format("__type_error(\"invalid declaration of \"%s\" under this presence condition\");\n", originalName));
-                      sb.append("}\n");
+                      valuesb.append("if (");
+                      valuesb.append(PCtoString(combinedCond));
+                      valuesb.append(") {\n");
+                      valuesb.append(String.format("__type_error(\"invalid declaration of \"%s\" under this presence condition\");\n", originalName));
+                      valuesb.append("}\n");
                     }
                   } else {
                     // otherwise loop over each existing entry check for
@@ -949,14 +949,14 @@ Declaration:  /** complete **/
                       Declarator renamedDeclarator = declarator.getData().rename(renaming);
                       Declaration renamedDeclaration = new Declaration(typebuilder.getData(),
                                                                        renamedDeclarator);
+
+                      StringBuilder entrysb = new StringBuilder();
+
                       Type type = renamedDeclaration.typebuilder.isTypedef()
                         ? new AliasT(renaming, renamedDeclaration.getType())
                         : (scope.isGlobal()
                            ? VariableT.newGlobal(renamedDeclaration.getType(), renaming)
                            : VariableT.newLocal(renamedDeclaration.getType(), renaming));
-
-                      // TODO: if it's a typedef, store its desugaring
-                      // in the scope's declaration list.
 
                       if (entry.getData() == SymbolTable.ERROR) {
                         // ERROR entry
@@ -967,20 +967,20 @@ Declaration:  /** complete **/
                         // update the symbol table for this presence condition
                         scope.put(originalName, type, entry.getCondition());
                     
-                        sb.append(renamedDeclaration.toString());
-                        sb.append(initializer.getData());
-                        sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
+                        entrysb.append(renamedDeclaration.toString());
+                        entrysb.append(initializer.getData());
+                        entrysb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
                         recordRenaming(renaming, originalName);
 
                       } else {  // already declared entries
                         if (! scope.isGlobal()) {
                           // not allowed to redeclare local symbols at all
                           scope.putError(originalName, entry.getCondition());
-                          sb.append("if (");
-                          sb.append(PCtoString(entry.getCondition()));
-                          sb.append(") {\n");
-                          sb.append(String.format("__type_error(\"redeclaration of local symbol: %s\");\n", originalName));
-                          sb.append("}\n");
+                          entrysb.append("if (");
+                          entrysb.append(PCtoString(entry.getCondition()));
+                          entrysb.append(") {\n");
+                          entrysb.append(String.format("__type_error(\"redeclaration of local symbol: %s\");\n", originalName));
+                          entrysb.append("}\n");
                         } else {  // global scope
 
                           // declarations only set VariableT or AliasT
@@ -1007,9 +1007,9 @@ Declaration:  /** complete **/
                               recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
                             } else {
                               // emit the same declaration, since it's legal to redeclare globals to a compatible type
-                              sb.append(renamedDeclaration.toString());
-                              sb.append(initializer.getData());
-                              sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
+                              entrysb.append(renamedDeclaration.toString());
+                              entrysb.append(initializer.getData());
+                              entrysb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
                               System.err.println(String.format("INFO: \"%s\" is being redeclared in global scope to compatible type", originalName));
                             }
 
@@ -1020,7 +1020,17 @@ Declaration:  /** complete **/
                           } // end check for variable type
                         } // end check global/local scope
                       } // end entry kind
-                      sb.append("\n"); // TODO: pass results through a pretty printer or ultimately preserve input file formatting
+                      entrysb.append("\n");
+
+                      if (renamedDeclaration.typebuilder.isTypedef()) {
+                        // typedefs are moved to the top of the scope
+                        // to support forward references of structs
+                        scope.addDeclaration(entrysb);
+                        valuesb.append("// typedef moved to top of scope\n");
+                      } else {
+                        // not a typedef, so add it to regular output
+                        valuesb.append(entrysb);
+                      }
                     } // end loop over symtab entries
                   }
               
@@ -1040,7 +1050,7 @@ Declaration:  /** complete **/
           
           if (debug) System.err.println(scope.getSymbolTable());
 
-          setTransformationValue(value, sb);
+          setTransformationValue(value, valuesb);
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
