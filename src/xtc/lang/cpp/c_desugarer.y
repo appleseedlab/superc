@@ -464,8 +464,9 @@ FunctionDefinition:  /** complete **/ // added scoping
               for (Element<Declarator> declarator : declaratormv) {
                 PresenceCondition combinedCond = typebuilderCond.and(declarator.getCondition());
                 String originalName = declarator.getData().getName();
+                Declaration originalDeclaration = new Declaration(typebuilder.getData(), declarator.getData());
 
-                if (typebuilder.getData().hasTypeError()) {
+                if (originalDeclaration.hasTypeError()) {
                   // if type is invalid, put an error entry, emit a call
                   // to the type error function
                   scope.putError(originalName, combinedCond);

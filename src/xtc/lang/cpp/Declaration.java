@@ -25,7 +25,7 @@ class Declaration {
    * Returns true if the type specifier is invalid.
    */
   public boolean hasTypeError() {
-    return typebuilder.hasTypeError();
+    return typebuilder.hasTypeError() || declarator.hasTypeError();
   }
 
   /**

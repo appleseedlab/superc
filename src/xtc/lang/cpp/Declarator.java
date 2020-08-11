@@ -48,6 +48,12 @@ abstract class Declarator {
    */
   abstract public Type getType(Type type);
 
+  /**
+   * Returns true if any type builder contained in the declarator has
+   * a type error.
+   */
+  abstract public boolean hasTypeError();
+
   /** Returns true if this is a EmptyDeclarator object. */
   public boolean isEmptyDeclarator() { return false; }
   
@@ -104,6 +110,10 @@ abstract class Declarator {
       throw new IllegalStateException("abstract declarators have no type");
     }
 
+    public boolean hasTypeError() {
+      return false;
+    }
+
     @Override
     public boolean isEmptyDeclarator() { return true; }
 
@@ -141,6 +151,10 @@ abstract class Declarator {
       return declarator.getType(type);
     }
 
+    public boolean hasTypeError() {
+      return declarator.hasTypeError();
+    }
+
     @Override
     public boolean isParenDeclarator() { return true; }
 
@@ -173,6 +187,10 @@ abstract class Declarator {
       return type;
     }
 
+    public boolean hasTypeError() {
+      return false;
+    }
+
     @Override
     public boolean isSimpleDeclarator() { return true; }
 
@@ -203,6 +221,10 @@ abstract class Declarator {
 
     public Type getType(Type type) {
       return new PointerT(declarator.getType(type));
+    }
+
+    public boolean hasTypeError() {
+      return declarator.hasTypeError();
     }
   
     @Override
@@ -243,6 +265,10 @@ abstract class Declarator {
       System.err.println("WARNING: need to add qualifiers from typebuilderunit");
       return new PointerT(declarator.getType(type));
     }
+
+    public boolean hasTypeError() {
+      return qualifiers.hasTypeError() || declarator.hasTypeError();
+    }
   
     @Override
     public boolean isQualifiedPointerDeclarator() { return true; }
@@ -273,6 +299,10 @@ abstract class Declarator {
 
     public Type getType(Type type) {
       return new PointerT(type);
+    }
+
+    public boolean hasTypeError() {
+      return false;
     }
   
     @Override
@@ -310,6 +340,10 @@ abstract class Declarator {
     public Type getType(Type type) {
       System.err.println("WARNING: need to add qualifiers from typebuilderunit");
       return new PointerT(type);
+    }
+
+    public boolean hasTypeError() {
+      return qualifiers.hasTypeError();
     }
   
     @Override
@@ -349,6 +383,10 @@ abstract class Declarator {
     public Type getType(Type type) {
       // this an array of whatever the declarator is
       return arrayabstractdeclarator.getType(declarator.getType(type));
+    }
+
+    public boolean hasTypeError() {
+      return declarator.hasTypeError() || arrayabstractdeclarator.hasTypeError();
     }
 
     @Override
@@ -399,6 +437,10 @@ abstract class Declarator {
         arrayType = new ArrayT(arrayType);
       }
       return arrayType;
+    }
+
+    public boolean hasTypeError() {
+      return false;
     }
 
     public String getName() {
@@ -461,6 +503,10 @@ abstract class Declarator {
       }
       return new FunctionT(declarator.getType(type), paramtypes, varargs);
     }
+
+    public boolean hasTypeError() {
+      return declarator.hasTypeError() || parameters.hasTypeError();
+    }
   
     @Override
     public boolean isFunctionDeclarator() { return true; }
@@ -489,6 +535,15 @@ abstract class Declarator {
 
     public Type getType(Type type) {
       throw new IllegalStateException("Should only get parameter types via FunctionDeclarator");
+    }
+
+    public boolean hasTypeError() {
+      for (ParameterDeclarator param : parameters) {
+        if (param.hasTypeError()) {
+          return true;
+        }
+      }
+      return false;
     }
   
     @Override
@@ -537,6 +592,10 @@ abstract class Declarator {
      */
     public TypeBuilder getType() {
       return type;
+    }
+
+    public boolean hasTypeError() {
+      return type.hasTypeError() || declarator.hasTypeError();
     }
 
     public Type getType(Type type) {
