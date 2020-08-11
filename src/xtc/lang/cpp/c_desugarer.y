@@ -4109,10 +4109,14 @@ PrimaryIdentifier: /** nomerge **/ // Multiverse<StringBuilder>
           for (Element<SymbolTable.Entry> entry : entries) {
             if (entry.getData() == SymbolTable.ERROR) {
               System.err.println("INFO: use of symbol with invalid declaration");
-              // emit a call to the type error function
-              String result
-                = String.format(" __type_error(\"use of symbol with invalid declaration: %s\") ", originalName);
-              sbmv.add(new StringBuilder(result), entry.getCondition());
+              // we shouldn't need to emit a call to __type_error(),
+              // since this is supposed to be done by the declaration
+              // itself
+              
+              /* // emit a call to the type error function */
+              /* String result */
+              /*   = String.format(" __type_error(\"use of symbol with invalid declaration: %s\") ", originalName); */
+              /* sbmv.add(new StringBuilder(result), entry.getCondition()); */
             } else if (entry.getData() == SymbolTable.UNDECLARED) {
               System.err.println("INFO: use of undeclared symbol");
               // TODO: see how replacing the identifier with a
@@ -4120,7 +4124,7 @@ PrimaryIdentifier: /** nomerge **/ // Multiverse<StringBuilder>
               // cast to surrounding type to ensure it always has the
               // right type
               String result
-                = String.format(" __type_error(\"use of symbol with invalid declaration: %s\") ", originalName);
+                = String.format(" __type_error(\"use of undeclared symbol: %s\") ", originalName);
               sbmv.add(new StringBuilder(result), entry.getCondition());
             } else {
               // TODO: add type checking.  may need to tag the resulting
