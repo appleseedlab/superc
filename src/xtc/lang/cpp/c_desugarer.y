@@ -387,7 +387,6 @@ FunctionDefinition:  /** complete **/ // added scoping
 
           // add all variations of the function declaration to the symtab
           CContext scope = (CContext)subparser.scope;
-          SymbolTable symtab = scope.getSymbolTable();
 
           // declarations, including function definitions, should
           // appear unconditionally in the desugared output, since
@@ -417,13 +416,13 @@ FunctionDefinition:  /** complete **/ // added scoping
                 if (typebuilder.getData().hasTypeError()) {
                   // if type is invalid, put an error entry, emit a call
                   // to the type error function
-                  symtab.putError(originalName, combinedCond);
+                  scope.putError(originalName, combinedCond);
                   recordInvalidGlobalDeclaration(originalName, combinedCond);
                   System.err.println(String.format("INFO: \"%s\" has an invalid type specifier", originalName));
                 } else {
                   // otherwise loop over each existing entry check for
                   // type errors or add a new declaration
-                  Multiverse<SymbolTable.Entry> entries = symtab.get(originalName, combinedCond);
+                  Multiverse<SymbolTable.Entry> entries = scope.get(originalName, combinedCond);
                   for (Element<SymbolTable.Entry> entry : entries) {
                     String renaming = freshCId(originalName);
                     Declarator renamedDeclarator = declarator.getData().rename(renaming);
@@ -443,7 +442,7 @@ FunctionDefinition:  /** complete **/ // added scoping
                       // UNDECLARED entry
 
                       // update the symbol table for this presence condition
-                      symtab.put(originalName, type, entry.getCondition());
+                      scope.put(originalName, type, entry.getCondition());
                       sb.append(renamedDeclaration.toString());
                       sb.append(" ");
                       sb.append(leftcurly);
@@ -476,12 +475,12 @@ FunctionDefinition:  /** complete **/ // added scoping
                           sb.append("\n");
                           System.err.println(String.format("INFO: %s is being redeclared in global scope to compatible type", originalName));
                         } else {
-                          symtab.putError(originalName, entry.getCondition());
+                          scope.putError(originalName, entry.getCondition());
                           recordInvalidGlobalDeclaration(originalName, entry.getCondition());
                           // emit the same declaration, since it's legal to redeclare globals to a compatible type
                         }
                       } else { // existing entry is a function type
-                        symtab.putError(originalName, entry.getCondition());
+                        scope.putError(originalName, entry.getCondition());
                         recordInvalidGlobalDeclaration(originalName, entry.getCondition());
                         System.err.println(String.format("INFO: attempted to redeclare \"%s\" as function instead of non-function", originalName));
                       }  // end of check for existing function type
@@ -499,7 +498,7 @@ FunctionDefinition:  /** complete **/ // added scoping
             /* typebuildermv.destruct(); */
             /* declaratormv.destruct(); */
           } // end of check for invalid typebuilder
-          if (debug) System.err.println(symtab);
+          if (debug) System.err.println(scope.getSymbolTable());
           prototypeNodemv.destruct();          
           setTransformationValue(value, sb);
         }
@@ -836,7 +835,6 @@ Declaration:  /** complete **/
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
           CContext scope = ((CContext) subparser.scope);
-          SymbolTable symtab = scope.getSymbolTable();
         	StringBuilder sb = new StringBuilder();  // the desugared output
 
           /*
@@ -876,7 +874,7 @@ Declaration:  /** complete **/
                   if (typebuilder.getData().hasTypeError()) {
                     // if type is invalid, put an error entry, emit a call
                     // to the type error function
-                    symtab.putError(originalName, combinedCond);
+                    scope.putError(originalName, combinedCond);
                     if (scope.isGlobal()) {
                       recordInvalidGlobalDeclaration(originalName, combinedCond);
                     } else {
@@ -889,7 +887,7 @@ Declaration:  /** complete **/
                   } else {
                     // otherwise loop over each existing entry check for
                     // type errors or add a new declaration
-                    Multiverse<SymbolTable.Entry> entries = symtab.get(originalName, combinedCond);
+                    Multiverse<SymbolTable.Entry> entries = scope.get(originalName, combinedCond);
                     for (Element<SymbolTable.Entry> entry : entries) {
                       String renaming = freshCId(originalName);
                       Declarator renamedDeclarator = declarator.getData().rename(renaming);
@@ -908,7 +906,7 @@ Declaration:  /** complete **/
                       } else if (entry.getData() == SymbolTable.UNDECLARED) {
                         // UNDECLARED entry
                         // update the symbol table for this presence condition
-                        symtab.put(originalName, type, entry.getCondition());
+                        scope.put(originalName, type, entry.getCondition());
                     
                         sb.append(renamedDeclaration.toString());
                         sb.append(initializer.getData());
@@ -918,7 +916,7 @@ Declaration:  /** complete **/
                       } else {  // already declared entries
                         if (! scope.isGlobal()) {
                           // not allowed to redeclare local symbols at all
-                          symtab.putError(originalName, entry.getCondition());
+                          scope.putError(originalName, entry.getCondition());
                           sb.append("if (");
                           sb.append(PCtoString(entry.getCondition()));
                           sb.append(") {\n");
@@ -929,7 +927,7 @@ Declaration:  /** complete **/
                             if (! cOps.equal(entry.getData().getType().toVariable().getType(),
                                              type.toVariable().getType())) {
                               // not allowed to redeclare globals to a different type
-                              symtab.putError(originalName, entry.getCondition());
+                              scope.putError(originalName, entry.getCondition());
                               recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
                             } else {
                               // emit the same declaration, since it's legal to redeclare globals to a compatible type
@@ -940,7 +938,7 @@ Declaration:  /** complete **/
                             }
 
                           } else { // not the same kind of type
-                            symtab.putError(originalName, entry.getCondition());
+                            scope.putError(originalName, entry.getCondition());
                             System.err.println(String.format("INFO: attempted to redeclare global to a different kind of type: %s", originalName));
                             recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
                           } // end check for variable type
@@ -964,7 +962,7 @@ Declaration:  /** complete **/
             /* initializermv.destruct(); */
           } // end loop over declaringlistvalues
           
-          if (debug) System.err.println(symtab);
+          if (debug) System.err.println(scope.getSymbolTable());
 
           setTransformationValue(value, sb);
         }
@@ -1862,7 +1860,6 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
 
           // get scope to make an anonymous tag
           CContext scope = (CContext)subparser.scope;
-          SymbolTable symtab = scope.getSymbolTable();
           
           // if any field in the struct is invalid, then the entire
           // struct typespec is invalid
@@ -1907,7 +1904,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
 
             System.err.println("TODO: check if tb has an error before entering in symtab.");
             // use separate, global symtab for structs
-            symtab.put(structTag,
+            scope.put(structTag,
                        tb.toType(),
                        declarationlist.getCondition());
             System.err.println("STRUCTTYPE: " + tb.toType());
@@ -1970,7 +1967,6 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           // listsmv contains a multiverse of declaration lists
 
           CContext scope = (CContext)subparser.scope;
-          SymbolTable symtab = scope.getSymbolTable();
 
           if (scope.isGlobal()) {
             // handle global structs by merging all struct fields into
@@ -1988,7 +1984,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
             // for a local scope, produce all possible variations of
             // the struct
             Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
-            Multiverse<SymbolTable.Entry> entries = symtab.get(toTagName(structTag), subparser.getPresenceCondition());
+            Multiverse<SymbolTable.Entry> entries = scope.get(toTagName(structTag), subparser.getPresenceCondition());
             for (Element<SymbolTable.Entry> entry : entries) {
               if (entry.getData() == SymbolTable.ERROR) {
                 System.err.println(String.format("INFO: trying to use an invalid specifier: %s", structTag));
@@ -2008,11 +2004,11 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
                   valuemv.add(typebuilder, combinedCond);
 
                   if (! typebuilder.hasTypeError()) {
-                    symtab.put(toTagName(structTag),
+                    scope.put(toTagName(structTag),
                                typebuilder.toType(),
                                combinedCond);
                   } else {
-                    symtab.putError(toTagName(structTag), combinedCond);
+                    scope.putError(toTagName(structTag), combinedCond);
                   }
                 }
               } else {
@@ -2022,7 +2018,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
                 valuemv.add(typebuilder, entry.getCondition());
 
                 // this configuration has a type error entry
-                symtab.putError(toTagName(structTag), entry.getCondition());
+                scope.putError(toTagName(structTag), entry.getCondition());
               }
             }
             // should not be empty because symtab.get is not supposed
@@ -2035,7 +2031,6 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
         {
           // get scope to make an anonymous tag
           CContext scope = (CContext)subparser.scope;
-          SymbolTable symtab = scope.getSymbolTable();
 
           String structTag = ((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText();
 
@@ -2047,7 +2042,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           // we can just use the renamed struct from the symtab
           
           Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
-          Multiverse<SymbolTable.Entry> entries = symtab.get(toTagName(structTag),
+          Multiverse<SymbolTable.Entry> entries = scope.get(toTagName(structTag),
                                                              subparser.getPresenceCondition());
           for (Element<SymbolTable.Entry> entry : entries) {
             TypeBuilder typebuilder = new TypeBuilder();
@@ -2491,7 +2486,6 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<ParameterDeclarator>
           ParameterDeclarationValue declarationvalue = (ParameterDeclarationValue) getTransformationValue(subparser,1);
 
           CContext scope = (CContext)subparser.scope;
-          SymbolTable symtab = scope.getSymbolTable();
           
           // create a multiverse of parameterdeclarators and add the
           // symbols to the function-local symbol table, which
@@ -2518,13 +2512,13 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<ParameterDeclarator>
 
               // (3) add the parameter to the symbol table
               if (typebuilder.getData().hasTypeError()) {
-                symtab.putError(declarator.getData().getName(), combinedCond);
+                scope.putError(declarator.getData().getName(), combinedCond);
               } else {
                 // getName() shouldn't have an error, because thit is
                 // the identifierdeclaration.  abstract declarators
                 // can't go in the symbol table, because there is no
                 // symbol.
-                Multiverse<SymbolTable.Entry> entries = symtab.get(declarator.getData().getName(), combinedCond);
+                Multiverse<SymbolTable.Entry> entries = scope.get(declarator.getData().getName(), combinedCond);
 
                 // TODO: check for multiply-defined parameter names,
                 // which (I believe) should make the entire function
@@ -2534,18 +2528,18 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<ParameterDeclarator>
                   if (entry.getData() == SymbolTable.ERROR) {
                     System.err.println("INFO: invalid parameter declaration for function");
                     System.err.println("TODO: any invalid parameter declarations should cause the entire function declaration to be invalid under that condition");
-                    symtab.putError(declarator.getData().getName(), combinedCond);
+                    scope.putError(declarator.getData().getName(), combinedCond);
                   } else if (entry.getData() == SymbolTable.UNDECLARED) {
                     // get the type and add it to the symtab
                     Declaration renamedDeclaration = new Declaration(typebuilder.getData(),
                                                               declarator.getData().rename(renaming));
                     Type type = VariableT.newParam(renamedDeclaration.getType(),
                                                    renamedDeclaration.getName());
-                    symtab.put(originalName, type, entry.getCondition());
+                    scope.put(originalName, type, entry.getCondition());
                   } else {
                     System.err.println("INFO: reuse of the same parameter name in function");
                     System.err.println("TODO: any invalid parameter declarations should cause the entire function declaration to be invalid under that condition");
-                    symtab.putError(declarator.getData().getName(), combinedCond);
+                    scope.putError(declarator.getData().getName(), combinedCond);
                   }  // end test of symtab entry type
                 } // end loop over symtab entries
               } // end of check for invalid typebuilder
@@ -2559,7 +2553,7 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<ParameterDeclarator>
           // typebuildermv and declaratormv
           assert ! valuemv.isEmpty();
 
-          /* if (debug) System.err.println(symtab); */
+          /* if (debug) System.err.println(context.getSymbolTable()); */
 
           setTransformationValue(value, valuemv);
         }
