@@ -982,9 +982,26 @@ Declaration:  /** complete **/
                           sb.append(String.format("__type_error(\"redeclaration of local symbol: %s\");\n", originalName));
                           sb.append("}\n");
                         } else {  // global scope
-                          if (entry.getData().getType().tag() == type.tag()) {
-                            if (! cOps.equal(entry.getData().getType().toVariable().getType(),
-                                             type.toVariable().getType())) {
+
+                          // declarations only set VariableT or AliasT
+                          boolean sameTypeKind
+                            = entry.getData().getType().isVariable() && type.isVariable()
+                            ||  entry.getData().getType().isAlias() && type.isAlias();
+
+                          // check compatibility of types
+                          if (sameTypeKind) {
+                            boolean compatibleTypes = false;
+                            if (type.isVariable()) {
+                              compatibleTypes = cOps.equal(entry.getData().getType().toVariable().getType(),
+                                                           type.toVariable().getType());
+                            } else if (type.isAlias()) {
+                              compatibleTypes = cOps.equal(entry.getData().getType().toAlias().getType(),
+                                                           type.toAlias().getType());
+                            } else {
+                              throw new AssertionError("should not be possible given sameTypeKind");
+                            }
+                            
+                            if (! compatibleTypes) {
                               // not allowed to redeclare globals to a different type
                               scope.putError(originalName, entry.getCondition());
                               recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
