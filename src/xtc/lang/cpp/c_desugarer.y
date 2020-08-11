@@ -305,51 +305,9 @@ TranslationUnit:  /** complete **/
 
             SymbolTable symtab = ((CContext) subparser.scope).getSymbolTable();
 
-            // collect this in the scope as we go along.  forking and
-            // merging is easy: fork just share the list; merge do
-            // nothing since forking shared the list (or even just use
-            // a stringbuilder).
-            for (TypeBuilder elem : templist) {
-              if (! elem.hasTypeError()) {
-                System.err.println(elem.toString() + ";");
-              }
-            }
-
-            // can we collect all declarations in a scope and just
-            // move them to the top?  then we can put these at the end
-            // of the section of declarations.  this will mess with
-            // initializers as well though, e.g., for global scope.
-            // but global scope also allow redeclaration, so perhaps
-            // we can use that.  another thing to try is to only move
-            // structs and typedefs, i.e., user-defined types to the
-            // top.  since they can't depend on program values, they
-            // can't depend on variables (i.e., no dependent types).
-            // does this affect function declarations as well?  i
-            // don't think so, since those can't affect
-            // struct/typedefs either.
-
-            // do this step on scope exit, adding it to the
-            // declaration list and adding at the front of the
-            // stringbuilder for the whole scope
-            for (String symbol : symtab) {
-              if (isInNameSpace(symbol, "tag")) {
-                String tag = fromNameSpace(symbol);
-                System.err.println(String.format("struct %s {\nunion {", tag));
-                System.err.println("// STRUCT: " + tag);
-                for (Element<SymbolTable.Entry> entry : symtab.get(symbol, subparser.getPresenceCondition())) {
-                  if (entry.getData() == SymbolTable.ERROR) {
-                    System.err.println(" // error entry");
-                  } else if (entry.getData() == SymbolTable.UNDECLARED) {
-                    System.err.println(" // no declaration");
-                  } else {
-                    StructT type = entry.getData().getType().toStruct();
-                    String renamedTag = type.getName();
-                    System.err.println(String.format("struct %s %s;", renamedTag, renamedTag));
-                  }
-                }
-                System.err.println("};\n};");
-              }
-            }
+            // write the user-defined types at the top of the scope.
+            CContext scope = ((CContext) subparser.scope);
+            writer.write(scope.getDeclarations(subparser.getPresenceCondition()).toString());
 
             System.err.println(symtab.hashCode());
             System.err.println(symtab);
@@ -572,10 +530,14 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
+
           StringBuilder valuesb = new StringBuilder();
-          System.err.println("ERROR: todo implement locallabeldeclarationlistopt");
-          /* valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 2), subparser.getPresenceCondition())); */
-          // TODO: add the struct/typedef just before the rest.  generate the union struct types as well
+          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
+
+          // print user-defined type declarations at top of scope
+          CContext scope = ((CContext) subparser.scope);
+          valuesb.append(scope.getDeclarations(subparser.getPresenceCondition()));
+
           valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
           if (debug) System.err.println(((CContext) subparser.scope).getSymbolTable());
           setTransformationValue(value, valuesb);
@@ -3640,9 +3602,15 @@ CompoundStatement:  /** complete **/  /* ADDED */
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           setCPC(value, PCtoString(pc));
+          
           StringBuilder valuesb = new StringBuilder();
           valuesb.append(getNodeAt(subparser, 6).getTokenText());
-          valuesb.append((StringBuilder) getTransformationValue(subparser, 4));
+          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 4), subparser.getPresenceCondition()));
+
+          // print user-defined type declarations at top of scope
+          CContext scope = ((CContext) subparser.scope);
+          valuesb.append(scope.getDeclarations(subparser.getPresenceCondition()));
+
           valuesb.append((StringBuilder) getTransformationValue(subparser, 3));
           valuesb.append(getNodeAt(subparser, 1).getTokenText());
           setTransformationValue(value, valuesb);
@@ -3657,7 +3625,7 @@ LocalLabelDeclarationListOpt: /** complete **/
         | LocalLabelDeclarationList
         {
           System.err.println("implement locallabeldeclarationlistopt (2)");
-          // do hoisting here, return a stringbuilder
+          // do hoisting here, return a stringbuilder, not a multiverse
           System.exit(1);
         }
         ;
@@ -5954,14 +5922,6 @@ protected Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringB
 
   return sbmv;
 }
-
-/*****************************************************************************
- ********* Methods for collecting global structs.
- *****************************************************************************/
-
-
-List<TypeBuilder> templist = new LinkedList<TypeBuilder>();
-
 
 /*****************************************************************************
  ********* Methods to record global desugaring information.  These
