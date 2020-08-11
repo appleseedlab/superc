@@ -7,16 +7,23 @@ import xtc.type.IntegerT;
 import xtc.type.FloatT;
 import xtc.type.VoidT;
 import xtc.type.UnitT;
+import xtc.type.AliasT;
+import xtc.type.StructT;
+import xtc.type.VariableT;
 import xtc.Constants;
 
-public class TypeBuilderUnit {
-    Type type; // void, char, short, int, long, float, double, SUE, typedef
+/**
+ * A type specific for a single configuration.  This is used to build
+ * the type specifier during parsing.
+ */
+public class TypeBuilder {
+    Type type; // void, char, short, int, long, float, double, SUE, typedefname
     enum QUAL {isAuto, isConst, isVolatile, isExtern, isStatic, isRegister, isThreadLocal,
 	       isInline, isSigned, isUnsigned, isTypedef}
     final int NUM_QUALS = 12;
     enum FOUND_TYPE {seenVoid, seenInt, seenLong, seenLongLong, seenChar, seenShort, seenFloat,
-                     seenDouble, seenComplex, seenTypedef}
-    final int NUM_TYPES = 10;
+                     seenDouble, seenComplex, seenTypedefType, seenStructReference, seenStructDefinition}
+    final int NUM_TYPES = 12;
     // note: these can appear in any order (in the source file), and they will be initialized to false                                                                        /*boolean isAuto;
   boolean qualifiers[] = new boolean[NUM_QUALS];
   boolean foundTypes[] = new boolean[NUM_TYPES];
@@ -24,9 +31,15 @@ public class TypeBuilderUnit {
     List<String> attributes;
 
     boolean isTypeError;
-    String typedefName;
-    String typedefRename;
-    Type typedefType;
+
+    AliasT typedefType;  // used with seenTypedefType
+
+    // used with seenStructDefinition, seenStructReference
+    String structTag;  
+    String structRenamedTag;
+    boolean structIsAnon;  // is the struct anonymous, so don't print tag
+    List<Declaration> structMembers;  // null for seenStructReference
+    StructT structType;
 
     public String attributesToString() {
 	if (attributes == null)
@@ -35,9 +48,9 @@ public class TypeBuilderUnit {
     }
 
     public String toString() {
-	if (isTypeError) {
-	    return "ERROR:";
-	}
+      if (isTypeError) {
+        throw new IllegalStateException("invalid type specifiers cannot be printed as a string");
+      }
 	StringBuilder sb = new StringBuilder();
 
 	// TODO: check if the order of these matters
@@ -65,6 +78,8 @@ public class TypeBuilderUnit {
 	if (qualifiers[QUAL.isUnsigned.ordinal()])
 	    sb.append("unsigned ");
 
+      // TODO: check that only one seen is here
+
 	if (foundTypes[FOUND_TYPE.seenLong.ordinal()])
 	    sb.append("long ");
 	if (foundTypes[FOUND_TYPE.seenLongLong.ordinal()])
@@ -81,8 +96,28 @@ public class TypeBuilderUnit {
 	    sb.append("double ");
 	if (foundTypes[FOUND_TYPE.seenComplex.ordinal()])
 	    sb.append("complex ");
-	if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
-	    sb.append(typedefName + " " + typedefType);
+	if (foundTypes[FOUND_TYPE.seenVoid.ordinal()])
+	    sb.append("void ");
+	if (foundTypes[FOUND_TYPE.seenTypedefType.ordinal()])
+      sb.append(typedefType.getName());
+    if (foundTypes[FOUND_TYPE.seenStructReference.ordinal()]) {
+      sb.append("struct ");
+      // struct refs can't be anonymous
+      sb.append(structRenamedTag);
+    }
+    if (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()]) {
+      sb.append("struct ");
+      if (! this.structIsAnon) {
+        sb.append(structRenamedTag);
+        sb.append(" ");
+      }
+      sb.append("{\n");
+      for (Declaration declaration : this.structMembers) {
+        sb.append(declaration.toString());
+        sb.append(";\n");
+      }
+      sb.append("}");
+    }
 	sb.append(attributesToString());
 
 	return sb.toString();
@@ -90,6 +125,9 @@ public class TypeBuilderUnit {
 
   // collects all information in the typebuilder and generates the corresponding type
   public Type toType() {
+      if (isTypeError) {
+        throw new IllegalStateException("invalid type specifiers do not have a type");
+      }
     // NOTE: .combine() already checked for invalid combinations while merging typebuilders
     if (foundTypes[FOUND_TYPE.seenLongLong.ordinal()]) {
 	    if (qualifiers[QUAL.isUnsigned.ordinal()])
@@ -138,11 +176,17 @@ public class TypeBuilderUnit {
         type = new IntegerT(NumberT.Kind.U_SHORT); // unsigned short
 	    else
         type = new IntegerT(NumberT.Kind.SHORT); // short
-    } else if (foundTypes[FOUND_TYPE.seenTypedef.ordinal()])
+    } else if (foundTypes[FOUND_TYPE.seenTypedefType.ordinal()])
 	    {
         type = typedefType;
       } else if (foundTypes[FOUND_TYPE.seenVoid.ordinal()]) {
       type = new VoidT();
+    }
+    else if (foundTypes[FOUND_TYPE.seenStructReference.ordinal()]) {
+      type = this.structType;
+    }
+    else if (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()]) {
+      type = this.structType;
     }
     else{
 	    System.err.println("ERROR: unsupported type found");
@@ -234,40 +278,18 @@ public class TypeBuilderUnit {
 	}
     }
 
-
-    public TypeBuilderUnit(TypeBuilderUnit old, String name) {
-	type = old.type;
-	for (int i = 0; i < NUM_QUALS; ++i)
-	    qualifiers[i] = old.qualifiers[i];
-	attributes = new LinkedList<String>(old.attributes);
-	isTypeError = old.isTypeError;
-	typedefName = old.typedefName;
-	typedefType = old.typedefType;
-	add(name);
-    }
-
-    // creates a new typebuilder using a string (which is NOT a type)
-    public TypeBuilderUnit(String name) {
-	type = new UnitT();
-	attributes = new LinkedList<String>();
-	for (int i = 0; i < NUM_QUALS; ++i)
-	    qualifiers[i] = false;
-	for (int i = 0; i < NUM_TYPES; ++i)
-	    foundTypes[i] = false;
-  isTypeError = false;
-	typedefName = "";
-	typedefType = null;
-	add(name);
+  /**
+   * Create a new TypeBuilder with a single type qualifier.
+   */
+    public TypeBuilder(String qualifier) {
+      this();
+	add(qualifier);
     }
 
     // creates a new typebuilder using only a type
-    public TypeBuilderUnit(Type type) {
+    public TypeBuilder(Type type) {
+      this();
 	// set the proper foundTypes flag
-
-	for (int i = 0; i < NUM_QUALS; ++i)
-	    qualifiers[i] = false;
-	for (int i = 0; i < NUM_TYPES; ++i)
-	    foundTypes[i] = false;
 
 	if (type.isNumber()) {
 	    switch (((NumberT) type).getKind()) {
@@ -298,40 +320,18 @@ public class TypeBuilderUnit {
 		  break;*/
 
 	    default:
-		System.err.println("ERROR: unknown type passed to TypeBuilderUnit(Type type)");
+		System.err.println("ERROR: unknown type passed to TypeBuilder(Type type)");
 		System.exit(1);
 	    }
   } else if (type instanceof VoidT) {
       foundTypes[FOUND_TYPE.seenVoid.ordinal()] = true;
   }
 
-
-
 	this.type = type;
-	attributes = new LinkedList<String>();
-  isTypeError = false;
-	typedefName = "";
-	typedefType = null;
   }
 
-    // copy constructor that changes type (should be used whenever a type is found)
-    // the default constructor should be used before this ever gets called.
-    public TypeBuilderUnit(TypeBuilderUnit old, Type type) {
-	// copy constructor that changes the type
-	if (old.type instanceof UnitT) {
-	    this.type = type;
-	    for (int i = 0; i < NUM_QUALS; ++i)
-		qualifiers[i] = old.qualifiers[i];
-	    attributes = new LinkedList<String>(old.attributes);
-	    isTypeError = old.isTypeError;
-	    typedefName = old.typedefName;
-	    typedefType = old.typedefType;
-	}
-
-    }
-
     // sets all flags to false and type starts as unit
-    public TypeBuilderUnit() {
+    public TypeBuilder() {
 	type = new UnitT();
 	for (int i = 0; i < NUM_QUALS; ++i)
 	    qualifiers[i] = false;
@@ -339,12 +339,15 @@ public class TypeBuilderUnit {
 	    foundTypes[i] = false;
 	attributes = new LinkedList<String>();
   isTypeError = false;
-	typedefName = "";
 	typedefType = null;
+      structTag = null;
+      structRenamedTag = null;
+      structIsAnon = false;
+      structMembers = null;
     }
 
     // copy constructor creates a deep copy
-  public TypeBuilderUnit(TypeBuilderUnit old) {
+  public TypeBuilder(TypeBuilder old) {
     type = old.type.copy();
     for (int i = 0; i < NUM_QUALS; ++i)
 	    qualifiers[i] = old.qualifiers[i];
@@ -352,23 +355,26 @@ public class TypeBuilderUnit {
 	    foundTypes[i] = old.foundTypes[i];
     attributes = new LinkedList<String>(old.attributes);
     isTypeError = old.isTypeError;
-    typedefName = old.typedefName;
     typedefType = old.typedefType;
+      structTag = old.structTag;
+      structRenamedTag = null;
+      structIsAnon = old.structIsAnon;
+      structMembers = old.structMembers;
   }
 
 
-  private boolean qualComboExists(TypeBuilderUnit t1, TypeBuilderUnit t2, QUAL opt1, QUAL opt2)
+  private boolean qualComboExists(TypeBuilder t1, TypeBuilder t2, QUAL opt1, QUAL opt2)
   {
     return ((t1.qualifiers[opt1.ordinal()] || t2.qualifiers[opt1.ordinal()]) && (t1.qualifiers[opt2.ordinal()] || t2.qualifiers[opt2.ordinal()]));
   }
 
-  private boolean typeComboExists(TypeBuilderUnit t1, TypeBuilderUnit t2, FOUND_TYPE opt1, FOUND_TYPE opt2)
+  private boolean typeComboExists(TypeBuilder t1, TypeBuilder t2, FOUND_TYPE opt1, FOUND_TYPE opt2)
   {
     return ((t1.foundTypes[opt1.ordinal()] ^ t2.foundTypes[opt1.ordinal()]) && (t1.foundTypes[opt2.ordinal()] ^ t2.foundTypes[opt2.ordinal()]));
   }
 
 
-  private boolean isValidTypes(TypeBuilderUnit t1, TypeBuilderUnit t2)
+  private boolean isValidTypes(TypeBuilder t1, TypeBuilder t2)
   {
     //Notes: While long complex isn't a complete type, it's potentially valid if later joined with double.
     // Since complex double and long double are valid on their own, there is no need to consider the tuple of long complex and double
@@ -391,17 +397,24 @@ public class TypeBuilderUnit {
                  //long long
                  (i == j && i == FOUND_TYPE.seenLong.ordinal()) ))
             return false;
+    // not allowed to have two struct refs/defs
+    if (typeComboExists(t1,t2,FOUND_TYPE.seenStructReference,FOUND_TYPE.seenStructReference)
+        || typeComboExists(t1,t2,FOUND_TYPE.seenStructReference,FOUND_TYPE.seenStructDefinition)
+        || typeComboExists(t1,t2,FOUND_TYPE.seenStructDefinition,FOUND_TYPE.seenStructDefinition)
+        || typeComboExists(t1,t2,FOUND_TYPE.seenStructDefinition,FOUND_TYPE.seenStructDefinition)) {
+      return false;
+    }
     return true;
   }
 
-  public TypeBuilderUnit combine(TypeBuilderUnit with) {
+  public TypeBuilder combine(TypeBuilder with) {
     // TUTORIAL: this is where all the logic for combining specifiers
     // will go
 
     // this copy might be able to be optimized away, if we know that
     // the reference to the semantic value won't be used again, e.g.,
     // by another subparser
-    TypeBuilderUnit result = new TypeBuilderUnit(this);
+    TypeBuilder result = new TypeBuilder(this);
 
     // checks for mutually-exclusive qualifiers
     if (qualComboExists(result, with, QUAL.isStatic, QUAL.isExtern) ||
@@ -449,68 +462,126 @@ public class TypeBuilderUnit {
       }
     }
     result.isTypeError = result.isTypeError || with.isTypeError;
-    result.typedefName = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefName : with.typedefName);
-    result.typedefType = (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] ? typedefType : with.typedefType);
+    result.typedefType = (foundTypes[FOUND_TYPE.seenTypedefType.ordinal()] ? typedefType : with.typedefType);
+      result.structTag = (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()] ? structTag : with.structTag);
+      result.structRenamedTag = (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()] ? structRenamedTag : with.structRenamedTag);
+      result.structMembers = (foundTypes[FOUND_TYPE.seenStructReference.ordinal()] ? structMembers : with.structMembers);
+      result.structIsAnon = (foundTypes[FOUND_TYPE.seenStructReference.ordinal()] ? structIsAnon : with.structIsAnon);
     return result;
   }
 
-  public boolean isTypedef()
-  {
+  /**
+   * Returns true if this type builder is a typedef.
+   */
+  public boolean isTypedef() {
     return qualifiers[QUAL.isTypedef.ordinal()];
   }
 
-  public void setTypedef(String name, String rename, Type type)
-  {
-    foundTypes[FOUND_TYPE.seenTypedef.ordinal()] = true;
-    typedefName = name;
-    typedefRename = rename;
-    typedefType = type;
-    if (type.isUnit()) {
-      isTypeError = true;
-    }
-      
+  /**
+   * Returns true if this type builder is a struct definition.
+   */
+  public boolean isStructDefinition() {
+    return foundTypes[FOUND_TYPE.seenStructReference.ordinal()];
   }
 
-  public boolean getIsValid()
+  /**
+   * Adds a type alias (via a typedefname) to this specifier.
+   *
+   * @param type The type alias.
+   */
+  public void setTypedef(AliasT alias)
   {
-    return !isTypeError;
+    foundTypes[FOUND_TYPE.seenTypedefType.ordinal()] = true;
+    typedefType = alias;
   }
 
-  public boolean validDeclQuals()
-  {
-    boolean valid = !isTypeError;
-    for (int i = 0; i < NUM_QUALS; ++i){
-	    if (i != QUAL.isConst.ordinal() && i != QUAL.isVolatile.ordinal()){
-        valid = false;
+  /**
+   * Adds a tagged struct with its renaming.
+   */
+  public void setStructDefinition(String tag, String renamedtag, List<Declaration> members) {
+    setStructDefinition(tag, renamedtag, members, false);
+  }
+
+  /**
+   * Adds an anonymous struct.  For the tag, use the symbol tabl's
+   * freshName("tag") method.  Anonymous structs don't need renaming,
+   * since the name is not printed out during transformation.
+   */
+  public void setStructDefinition(String tag, List<Declaration> members) {
+    setStructDefinition(tag, tag, members, true);
+  }
+
+  /**
+   * Adds a struct specifier to this type.
+   */
+  protected void setStructDefinition(String tag, String renamedtag, List<Declaration> members, boolean isAnon) {
+    // make sure no other types are turned on when a struct def or ref is used
+    for (int i = 0; i < NUM_TYPES; i++) {
+      if (foundTypes[i]) {
+        isTypeError = true;
       }
     }
-    for (int i = 0; i < NUM_TYPES; ++i){
-	    valid = false;
+    foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()] = true;
+    this.structTag = tag;
+    this.structRenamedTag = renamedtag;
+    this.structMembers = members;
+    this.structIsAnon = isAnon;
+
+    System.err.println("TODO: check that all members have different names, don't have type errors themselves, and rename selfrefs");
+    List<VariableT> memberlist = new LinkedList<VariableT>();
+    for (Declaration declaration : this.structMembers) {
+      if (declaration.hasTypeError()) {
+        this.isTypeError = true;
+        // TODO: this should be caught by toString if the desugaring fails to check for type error
+      } else {
+        VariableT member = VariableT.newField(declaration.getType(),
+                                              declaration.getName());
+        memberlist.add(member);
+      }
+      // TODO: use Variable.newBitfield()
     }
-    return valid;
-  }
-  
-  public String qualString()
-  {
-    String output = "";
-    if (qualifiers[QUAL.isConst.ordinal()]){
-	    output += "const ";
-    }
-    if (qualifiers[QUAL.isVolatile.ordinal()]){
-	    output += "volatile ";
-    }
-    return output;
+
+    this.structType = new StructT(renamedtag, memberlist);
   }
 
-  public boolean getIsVoid()
-  {
-    return foundTypes[FOUND_TYPE.seenVoid.ordinal()] ||
-      (foundTypes[FOUND_TYPE.seenTypedef.ordinal()] &&
-       typedefType.isVoid());
+  /**
+   * Adds a struct specifier to this type.
+   */
+  public void setStructReference(String tag, String renamedtag) {
+    // make sure no other types are turned on when a struct def or ref is used
+    for (int i = 0; i < NUM_TYPES; i++) {
+      if (foundTypes[i]) {
+        isTypeError = true;
+      }
+    }
+    foundTypes[FOUND_TYPE.seenStructReference.ordinal()] = true;
+    this.structTag = tag;
+    this.structRenamedTag = renamedtag;
+    this.structMembers = null;
+    this.structIsAnon = false;
+    this.structType = new StructT(renamedtag);
   }
 
-  public boolean getIsInline()
-  {
-    return qualifiers[QUAL.isInline.ordinal()];
+  public String getStructTag() {
+    if (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()]
+        || foundTypes[FOUND_TYPE.seenStructReference.ordinal()]) {
+      return structTag;
+    } else {
+      throw new IllegalStateException("attempted to get struct tag on typebuilder that doesn't represent a struct");
+    }
+  }
+
+  /**
+   * Marks this type builder as a type error.
+   */
+  public void setTypeError() {
+    this.isTypeError = true;
+  }
+
+  /**
+   * Returns true if the type specifier is invalid.
+   */
+  public boolean hasTypeError() {
+    return isTypeError;
   }
 }

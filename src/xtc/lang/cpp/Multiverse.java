@@ -20,9 +20,21 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   /** The set of (data, condition) pairs. */
   protected List<Element<T>> contents;
 
+  /** The complement of the elements' presence conditions. */
+  protected PresenceCondition complement;
+
   /** The default constructor creates an empty multiverse. */
   public Multiverse() {
     contents = new LinkedList<Element<T>>();
+    // start with null, to avoid having to take a presence condition
+    // manager
+    complement = null;
+  }
+
+  /** Create a multiverse containing a single element. */
+  public Multiverse(T data, PresenceCondition cond) {
+    this();
+    add(data, cond);
   }
 	
   /** The copy constructor. */
@@ -109,6 +121,13 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * calling this function.
    */
   public void destruct() {
+    if (this.contents.size() > 1) {
+      complement.delRef();
+      complement = null;
+    } else {
+      assert complement == null;
+    }
+
     for (Element<T> elem : contents) {
       elem.destruct();
     }
@@ -134,6 +153,29 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   public void add(T data, PresenceCondition cond) {
     contents.add(new Element<T>(data, cond));
     cond.addRef();
+    if (null == complement) {
+      assert contents.size() == 1;
+      complement = cond.not();
+    } else {
+      assert contents.size() > 1;
+      // make sure the user is not adding an element that overlaps
+      // with an existing element's presence condition, i.e., the
+      // elements of the multiverse should be mutually-exclusive
+      PresenceCondition notcomplement = complement.not(); // the union of existing entry's conditions
+      PresenceCondition checkmutex = notcomplement.and(cond);
+      notcomplement.delRef();
+      if (! checkmutex.isFalse()) {  // the union of existing entry's conditions should be mutex with the new entry
+        throw new IllegalStateException("all multiverse entries must have mutually-exclusive presence conditions");
+      }
+      checkmutex.delRef();
+
+      // update the complement to exclude the new element
+      PresenceCondition notcond = cond.not();
+      PresenceCondition newcomplement = complement.and(notcond);
+      notcond.delRef();
+      complement.delRef();
+      complement = newcomplement;
+    }
   }
 
   /**
@@ -155,7 +197,16 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * @param index The index to retrieve.
    */
   public Element<T> get(int index) {
-    return contents.get(0);
+    return contents.get(index);
+  }
+
+  /**
+   * Get the complement of the multiverse, i.e., the negation of the
+   * union of the existing element's presence conditions.  The caller
+   * is responsible for calling addRef of the result.
+   */
+  public PresenceCondition getComplement() {
+    return complement;
   }
 
   /**
@@ -213,9 +264,9 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    */
   public Multiverse<T> product(Multiverse<T> other, Operator<T> op) {
     if (this.isEmpty()) {
-      return new Multiverse<T>(other);
+      throw new IllegalStateException("trying to take cartesian product of empty multiverse");
     } else if (other.isEmpty()) {
-      return new Multiverse<T>(this);
+      throw new IllegalStateException("trying to take cartesian product of empty multiverse");
     } else {
       Multiverse<T> newmv = new Multiverse<T>();
       /* The computes the following new set, where '*' is the operator:
@@ -237,6 +288,68 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
     }
   }
 
+  /**
+   * This function is the same as the cartesian product, except that
+   * it also takes the product of the complement of each multiverse
+   * with each element of the other multiverse.  The complement is
+   * assumed to have empty data.  For instance,
+   *
+   *   mv1 = [ ("a", A and B), COMPLEMENT=!A or !B ]
+   *   mv2 = [ ("b", !A),   COMPLEMENT=A ]
+   *
+   * product() would yield an empty multiverse, because no combination
+   * of elements is satisfiable.  complementedProduct would instead
+   * return
+   *
+   *   [ ("a", A and B), ("b", !A and !B) COMPLEMENT=!B and A ]
+   *
+   * @param other The other Multiverse.
+   * @param op The operator to use to combine individual elements of
+   * the Multiverse
+   * @return A new instance of Multiverse holding the complemented
+   * cartesian product of the two Multiverses.
+   */
+  public Multiverse<T> complementedProduct(Multiverse<T> other, Operator<T> op) {
+    // treat an empty multiverse as having a single element containing
+    // empty data with the presence condition True.  filtering with
+    // true yields the same multiverse.
+    if (this.isEmpty()) {
+      return new Multiverse<T>(other);
+    } else if (other.isEmpty()) {
+      return new Multiverse<T>(this);
+    } else {
+      // first take the product
+      Multiverse<T> newmv = this.product(other, op);
+      
+      // then add the elements from each set
+      // filtered by the other set's complement.  this simulates
+      // having an empty operand for the complement that elides taking
+      // a product.
+      for (Element<T> otherelem : this) {
+        PresenceCondition andComplement = otherelem.getCondition().and(this.getComplement());
+        // all elements added should be mutually exclusive, since new
+        // the multiverse's complement should be (this.complement OR
+        // other.complement)
+        if (! andComplement.isFalse()) {
+          newmv.add(otherelem.getData(), andComplement);
+        }
+        andComplement.delRef();
+      }
+      for (Element<T> thiselem : this) {
+        PresenceCondition andComplement = thiselem.getCondition().and(other.getComplement());
+        // all elements added should be mutually exclusive, since new
+        // the multiverse's complement should be (this.complement OR
+        // other.complement)
+        if (! andComplement.isFalse()) {
+          newmv.add(thiselem.getData(), andComplement);
+        }
+        andComplement.delRef();
+      }
+      
+      return newmv;
+    }
+  }
+  
   /**
    * This is a special case of the cartesian product where the other
    * multiverse contains only a single element.
@@ -311,6 +424,13 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
       sb.append("  ");
       sb.append(elem);
       sb.append("\n");
+    }
+    sb.append("  COMPLEMENT: ");
+    if (null == complement) {
+      assert isEmpty();
+      sb.append("1");
+    } else{
+      sb.append(this.complement);
     }
     sb.append(")");
     sb.append("\n");

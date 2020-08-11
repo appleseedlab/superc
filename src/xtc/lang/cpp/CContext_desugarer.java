@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Iterator;
 
+import xtc.Constants;
+
 import xtc.tree.Location;
 
 import xtc.lang.cpp.Syntax.Kind;
@@ -44,6 +46,7 @@ import xtc.lang.cpp.Syntax.Directive;
 import xtc.lang.cpp.Syntax.Conditional;
 
 import xtc.type.Type;
+import xtc.type.StructT;
 import xtc.type.C;
 
 import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
@@ -65,6 +68,17 @@ public class CContext implements ParsingContext {
 
   /** The symbol table for this parsing context. */
   protected SymbolTable symtab;
+
+  /**
+   * Declarations to put at the top of the scope.  This is used to
+   * handle the use of forward references for structs/unions.  All
+   * user-defined type declarations (typedefs, structs/unions) are
+   * added here in the order in which they appear in the input file.
+   * Since declarations are desugared via renaming, there is no need
+   * to distinguish between configurations and all declarations can be
+   * concatenated.  Forking and merging
+   */
+  protected StringBuilder declarations;
 
   /**
    * The parent parsing context, corresponding to the parent
@@ -113,6 +127,8 @@ public class CContext implements ParsingContext {
     this.parent = parent;
 
     this.reentrant = false;
+
+    this.declarations = new StringBuilder();
   }
 
   /**
@@ -140,6 +156,11 @@ public class CContext implements ParsingContext {
     }
 
     this.reentrant = scope.reentrant;
+
+    // forked contexts share the same declarations. renaming is used
+    // instead of presence conditions, allowing them to be merged by
+    // concatenation.
+    this.declarations = scope.declarations;
   }
 
 
@@ -161,6 +182,7 @@ public class CContext implements ParsingContext {
 
   // get around capture of ? to CTag warning
   public boolean shouldReclassify(Collection<Lookahead> set) {
+    // TODO: use the new symboltable to do this
     // Check whether any tokens need reclassification, i.e. they are
     // an identifier and have an entry in the symbol.
     for (Lookahead n : set) {
@@ -201,6 +223,7 @@ public class CContext implements ParsingContext {
 
   // get around capture of ? to CTag warning
   public Collection<Lookahead> reclassify(Collection<Lookahead> set) {
+    // TODO: use the new symboltable to do this
     // Reclassify any tokens that are typedef names and also create a
     // new token when there is a typedef/var ambiguity so the FMLR
     // parser will fork.
@@ -212,6 +235,9 @@ public class CContext implements ParsingContext {
         isTypedef = isType(n.token.syntax.getTokenText(),
                            n.presenceCondition, n.token.syntax.getLocation());
       }
+
+      // TODO: do a lookup and check in which configurations it's an
+      // alias type
 
       switch (isTypedef) {
       case TRUEFALSE:
@@ -259,7 +285,7 @@ public class CContext implements ParsingContext {
   /**
    * This method determines whether an identifier is a typedef name,
    * var name, or both by inspecting the symbol table in this scope
-   * and any parent scopes.
+   * and any parent scopes.  (Legacy type checking).
    *
    * @param ident The identifier.
    * @param presenceCondition The presence condition.
@@ -482,7 +508,7 @@ public class CContext implements ParsingContext {
 
   /**
    * Return the presence condition under which an identifier is a
-   * typedef name.
+   * typedef name.  (Legacy type checking).
    *
    * @param ident The identifier.
    * @param presenceCondition The current presence condition.
@@ -534,7 +560,7 @@ public class CContext implements ParsingContext {
 
   /**
    * Return the presence condition under which an identifier is a
-   * typedef name.
+   * typedef name.  (Legacy type checking).
    *
    * @param ident The identifier.
    * @param presenceCondition The current presence condition.
@@ -688,9 +714,9 @@ public class CContext implements ParsingContext {
    * @param ident The identifier to look up.
    * @param cond The presence condition.
    * @returns A new Multiverse instance containing the entries under
-   * the given condition or null if the symbol is not defined.
+   * the given condition.
    */
-  public Multiverse<SymbolTable.Entry> get(String ident, PresenceCondition cond) {
+  public Multiverse<SymbolTable.Entry> getAnyScope(String ident, PresenceCondition cond) {
     Multiverse<SymbolTable.Entry> result = new Multiverse<SymbolTable.Entry>();
 
     if (! cond.isFalse()) {
@@ -699,7 +725,43 @@ public class CContext implements ParsingContext {
 
     return result;
   }
+
+  /**
+   * Get only the local symbol table entries for the given identifier under the
+   * given presence conditions.
+   *
+   * @param ident The identifier to look up.
+   * @param cond The presence condition.
+   * @returns A new Multiverse instance containing the entries under
+   * the given condition, including UNDECLARED.
+   */
+  public Multiverse<SymbolTable.Entry> getCurrentScope(String ident, PresenceCondition cond) {
+    return getSymbolTable().get(ident, cond);
+  }
+
+  /**
+   * Put a symbol into the current symbol table.
+   *
+   * @param ident The identifier to enter.
+   * @param type The type.
+   * @param putCond The presence condition.
+   * @returns A new Multiverse instance containing the entries under
+   * the given condition or null if the symbol is not defined.
+   */
+  public void put(String ident, Type type, PresenceCondition putCond) {
+    getSymbolTable().put(ident, type, putCond);
+  }
   
+  /**
+   * Add an entry representing a type error to the current symbol
+   * table.
+   *
+   * @param ident The identifier to enter.
+   * @param putCond The presence condition.
+   */
+  public void putError(String ident, PresenceCondition putCond) {
+    getSymbolTable().putError(ident, putCond);
+  }
   
   /**
    * Returns if the current scope is in global space.
@@ -720,52 +782,180 @@ public class CContext implements ParsingContext {
    * base cases are when we have already reached the global scope or
    * there are no more configurations with an undeclared entry.
    *
-   * @param result The current list of resulting entries.
+   * @param result The current list of resulting entries.  If there
+   * are none, then the only entry will be UNDECLARED.
    * @param scope The current scope to look up.
    * @param ident The identifier to look up.
    * @param cond The current presence condition.
    */
   private void get(Multiverse<SymbolTable.Entry> result, CContext scope, String ident, PresenceCondition cond) {
-    if (null == scope) {
-      // already reached the global scope
-      return;
-    }
-    
     Multiverse<SymbolTable.Entry> local = scope.getSymbolTable().get(ident, cond);
-    if (null == local) {
-      // this scope has no declarations of ident, so the entire cond is undeclared
-      get(result, scope.parent, ident, cond);
-    } else {
-      // add any declarations to the result, and continue looking in
-      // the parent if this scope has any undeclared presence
-      // condition.
-      PresenceCondition undefinedCondition = null;
+    // add any declarations to the result, and continue looking in
+    // the parent if this scope has any undeclared presence
+    // condition.
+    PresenceCondition undefinedCondition = null;
 
-      // if undefinedCondition remains null, it means there was no
-      // presence condition under which the identifier is undeclared.
-      for (Element<SymbolTable.Entry> entry : local) {
-        if (SymbolTable.UNDECLARED == entry.getData()) {
-          if (null != undefinedCondition) {
-            System.err.println("FATAL: there should only one entry for UNDECLARED");
-            System.exit(1);
-          }
-          undefinedCondition = entry.getCondition();
-          entry.getCondition().addRef();
-        } else {
-          result.add(entry.getData(), entry.getCondition());
-          entry.getCondition().addRef();
+    // if undefinedCondition remains null, it means there was no
+    // presence condition under which the identifier is undeclared.
+    for (Element<SymbolTable.Entry> entry : local) {
+      if (SymbolTable.UNDECLARED == entry.getData()) {
+        if (null != undefinedCondition) {
+          System.err.println("FATAL: there should only one entry for UNDECLARED");
+          System.exit(1);
         }
+        undefinedCondition = entry.getCondition();
+        entry.getCondition().addRef();
+      } else {
+        result.add(entry.getData(), entry.getCondition());
+        entry.getCondition().addRef();
       }
+    }
 
-      local.destruct();
+    local.destruct();
 
-      // use the UNDECLARED presence condition to continue looking in
-      // the parent for definitions.
-      if (null != undefinedCondition) {
+    // use the UNDECLARED presence condition to continue looking in
+    // the parent for definitions.
+    if (null != undefinedCondition) {
+      if (null != scope.parent) {
+        // continue search in the global scope
         get(result, scope.parent, ident, undefinedCondition);
+        undefinedCondition.delRef();
+      } else {
+        // we've reached the global scope, so add the remaining
+        // condition as an UNDECLARED entry.
+        result.add(SymbolTable.UNDECLARED, undefinedCondition);
         undefinedCondition.delRef();
       }
     }
+
     if (DEBUG) System.err.println(String.format("context.get: %s -> %s", ident, result));
+  }
+
+  /**
+   * Add to the declarations to be put at the top of the scope.
+   *
+   * @param sb The string builder of the declaration to add.
+   */
+  public void addDeclaration(StringBuilder sb) {
+    this.declarations.append(sb);
+  }
+
+  /**
+   * Get the declarations to be put at the top of the scope.
+   *
+   * @returns The string
+   */
+  public StringBuilder getDeclarations(PresenceCondition presenceCondition) {
+    StringBuilder sb = new StringBuilder();
+
+    // emit the user-defined type declarations, which are renamed
+    sb.append(this.declarations);
+    sb.append("\n");
+
+    // replace the original struct declaration with a struct
+    // containing of union containing each user-defined struct
+    SymbolTable symtab = getSymbolTable();
+    for (String symbol : symtab) {
+      if (isInNameSpace(symbol, "tag")) {
+        String tag = fromNameSpace(symbol);
+        sb.append(String.format("struct %s {", tag));
+        sb.append(" // generated union of struct variations");
+        sb.append("\nunion {\n");
+        for (Element<SymbolTable.Entry> entry : symtab.get(symbol, presenceCondition)) {
+          if (entry.getData() == SymbolTable.ERROR) {
+            sb.append(" // error entry\n");
+          } else if (entry.getData() == SymbolTable.UNDECLARED) {
+            sb.append(" // no declaration\n");
+          } else {
+            StructT type = entry.getData().getType().toStruct();
+            String renamedTag = type.getName();
+            sb.append(String.format("struct %s %s;", renamedTag, renamedTag));
+            sb.append("\n");
+          }
+        }
+        sb.append("};\n};\n\n");
+      }
+    }
+    
+    return sb;
+  }
+
+
+  /***************************************************************************
+   **** The following naming and namespacing functionality is taken
+   **** directly from xtc.util.SymbolTable.
+   ***************************************************************************/
+
+  /** The end of opaqueness marker as a string. */
+  private static final String END_OPAQUE =
+    Character.toString(Constants.END_OPAQUE);
+
+  /**
+   * Determine whether the specified symbol is in the specified name
+   * space.
+   *
+   * @param symbol The symbol.
+   * @param space The name space.
+   * @return <code>true</code> if the symbol is mangled symbol in the
+   *   name space.
+   */
+  public static boolean isInNameSpace(String symbol, String space) {
+    try {
+      return (symbol.startsWith(space) &&
+              (Constants.START_OPAQUE == symbol.charAt(space.length())) &&
+              symbol.endsWith(END_OPAQUE));
+    } catch (IndexOutOfBoundsException x) {
+      return false;
+    }
+  }
+
+  /**
+   * Convert the specified unqualified symbol to a symbol in the
+   * specified name space.
+   *
+   * @param symbol The symbol
+   * @param space The name space.
+   * @return The mangled symbol.
+   */
+  public static String toNameSpace(String symbol, String space) {
+    return space + Constants.START_OPAQUE + symbol + Constants.END_OPAQUE;
+  }
+
+  /**
+   * Convert the specified unqualified symbol within a name space to a
+   * symbol without a name space.
+   *
+   * @param symbol The mangled symbol within a name space.
+   * @return The corresponding symbol without a name space.
+   */
+  public static String fromNameSpace(String symbol) {
+    int start = symbol.indexOf(Constants.START_OPAQUE);
+    int end   = symbol.length() - 1;
+    if ((0 < start) && (Constants.END_OPAQUE == symbol.charAt(end))) {
+      return symbol.substring(start + 1, end);
+    } else {
+      throw new IllegalArgumentException("Not a mangled symbol '"+symbol+"'");
+    }
+  }
+
+  /**
+   * Convert the specified C struct, union, or enum tag into a symbol
+   * table name.
+   *
+   * @param tag The tag.
+   * @return The corresponding symbol table name.
+   */
+  public static String toTagName(String tag) {
+    return toNameSpace(tag, "tag");
+  }
+
+  /**
+   * Convert the specified label identifier into a symbol table name.
+   *
+   * @param id The identifier.
+   * @return The corresponding symbol table name.
+   */
+  public static String toLabelName(String id) {
+    return toNameSpace(id, "label");
   }
 }

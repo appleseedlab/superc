@@ -68,6 +68,11 @@ SOURCE = \
 	SemanticValues.java \
 	SemanticActions.java \
 	Multiverse.java \
+	Declarator.java \
+	TypeBuilder.java \
+	NamedFunctionT.java \
+	Declaration.java \
+	DesugaringOperators.java \
 	SymbolTable.java \
 	CContext.java \
 	$(c_parse_tables) \
@@ -94,10 +99,6 @@ SOURCE = \
 	GCCShunt.java \
 	cdiff.java \
 	FunctionChecker.java \
-	DeclBuilder.java \
-	TypeBuilderMultiverse.java \
-	TypeBuilderUnit.java \
-	Parameter.java \
 	SuperC.java
 
 

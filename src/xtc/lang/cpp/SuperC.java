@@ -305,8 +305,8 @@ public class SuperC extends Tool {
         "Show scope changes and identifier bindings.").*/
       /*bool("traceIncludes", "traceInclude", false,
         "Show every header entrance and exit.").*/
-      bool("showErrors", "showErrors", false,
-           "Emit preprocessing and parsing errors to standard err.").
+      bool("hideErrors", "hideErrors", false,
+           "Hide preprocessing and parsing errors in standard err.").
       bool("showAccepts", "showAccepts", false,
            "Emit ACCEPT messages when a subparser accepts input.").
       bool("showActions", "showActions", false,
@@ -605,7 +605,7 @@ public class SuperC extends Tool {
                                           iquote, I, sysdirs, tokenCreator,
                                           lexerTimer);
       fileManager.collectStatistics(runtime.test("statisticsPreprocessor"));
-      fileManager.showErrors(runtime.test("showErrors"));
+      fileManager.showErrors(! runtime.test("hideErrors"));
       fileManager.doTiming(runtime.test("time"));
 
       preprocessor = new Preprocessor(fileManager,
@@ -616,7 +616,7 @@ public class SuperC extends Tool {
       ((Preprocessor) preprocessor)
         .collectStatistics(runtime.test("statisticsPreprocessor"));
       ((Preprocessor) preprocessor)
-        .showErrors(runtime.test("showErrors"));
+        .showErrors(! runtime.test("hideErrors"));
 
       if (runtime.test("time")) {
         preprocessor = new StreamTimer<Syntax>(preprocessor, preprocessorTimer);
@@ -633,7 +633,7 @@ public class SuperC extends Tool {
                                         tokenCreator, lexerTimer,
                                         runtime.getString(xtc.util.Runtime.INPUT_ENCODING));
     fileManager.collectStatistics(runtime.test("statisticsPreprocessor"));
-    fileManager.showErrors(runtime.test("showErrors"));
+    fileManager.showErrors(! runtime.test("hideErrors"));
     fileManager.doTiming(runtime.test("time"));
 
     if (null != runtime.getList("headerChain")) {
@@ -655,7 +655,7 @@ public class SuperC extends Tool {
     ((Preprocessor) preprocessor)
       .collectStatistics(runtime.test("statisticsPreprocessor"));
     ((Preprocessor) preprocessor)
-      .showErrors(runtime.test("showErrors"));
+      .showErrors(! runtime.test("hideErrors"));
     ((Preprocessor) preprocessor)
       .showPresenceConditions(runtime.test("presenceConditions"));
     ((Preprocessor) preprocessor)
@@ -1053,7 +1053,7 @@ public class SuperC extends Tool {
       parser.collectStatistics(runtime.test("statisticsParser"));
       parser.conditionGranularity(runtime.test("conditionGranularity"));
       parser.showActions(runtime.test("showActions"));
-      parser.showErrors(runtime.test("showErrors"));
+      parser.showErrors(! runtime.test("hideErrors"));
       parser.showAccepts(runtime.test("showAccepts"));
       parser.showFM(runtime.test("showFM"));
       parser.showLookaheads(runtime.test("showLookaheads"));

@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Iterator;
 
-import xtc.Constants;
-
 import xtc.tree.Location;
 
 import xtc.lang.cpp.Syntax.Kind;
@@ -57,15 +55,11 @@ import xtc.lang.cpp.ForkMergeParser.Lookahead;
 /**
  * The symbol table that stores a scope's symbol bindings.
  */
-public class SymbolTable {
+public class SymbolTable implements Iterable<String> {
 
-  public static final Entry UNDECLARED = new Entry("<UNDECLARED>", UnitT.TYPE) {
-      public String getRenaming() {
-        throw new UnsupportedOperationException("the undeclared symbol table entry has no renaming");
-      }
-
+  public static final Entry UNDECLARED = new Entry(null) {
       public Type getType() {
-        throw new UnsupportedOperationException("the undeclared symbol table entry has no renaming");
+        throw new UnsupportedOperationException("the undeclared symbol table entry has no type");
       }
 
       public String toString() {
@@ -73,13 +67,9 @@ public class SymbolTable {
       }
     };
     
-  public static final Entry ERROR = new Entry("<ERROR>", UnitT.TYPE) {
-      public String getRenaming() {
-        throw new UnsupportedOperationException("the error symbol table entry has no renaming");
-      }
-
+  public static final Entry ERROR = new Entry(null) {
       public Type getType() {
-        throw new UnsupportedOperationException("the error symbol table entry has no renaming");
+        throw new UnsupportedOperationException("the error symbol table entry has no type");
       }
 
       public String toString() {
@@ -88,36 +78,21 @@ public class SymbolTable {
     };
     
   /**
-   * A symbol table entry that holds a multiverse of types and
-   * renamings.
+   * A symbol table entry that holds a type.
    */
   public static class Entry {
-    // TODO: make this abstract and only have renaming and type for VALID entries, have an error message for other kinds
+    // TODO: make this abstract and have type for VALID entries, have an error message for other kinds
 
     /**
-     * The renaming of the variable for a given set of
-     * configurations.
-     */
-    protected final String renaming;
-
-    /**
-     * The type under a given set of configurations.
+     * The type under a given set of configurations.  This type should
+     * be a VariableT, AliasT, or NamedFunctionT, all of which store
+     * the renaming of the symbol.
      */
     protected final Type type;
 
     /** Create a new symbol table entry. */
-    public Entry(String renaming, Type type) {
-      this.renaming = renaming;
+    public Entry(Type type) {
       this.type = type;
-    }
-
-    /**
-     * Get the renaming field.
-     *
-     * @returns The renaming field.
-     */
-    public String getRenaming() {
-      return renaming;
     }
 
     /**
@@ -130,25 +105,18 @@ public class SymbolTable {
     }
 
     public String toString() {
-      return String.format("(TYPE=%s, RENAMING=\"%s\")", getType().toString(), getRenaming());
-      // return String.format("%s %s", getRenaming(), getType().toString());
+      return String.format("(TYPE=%s)", getType().toString());
     }
   }
 
   /**
    * The symbol table's core data structure that maps symbols to a
-   * multiverse of types and renamings.
+   * multiverse of types.
    */
   protected HashMap<String, Multiverse<Entry>> map;
 
   /** The reference count for cleaning up the table BDDs */
   public int refs;
-
-  /** The fresh name count. */
-  protected int freshNameCount;
-
-  /** The fresh identifier count. */
-  protected int freshIdCount;
 
   /**
    * Create a new, empty symbol table.
@@ -157,8 +125,6 @@ public class SymbolTable {
     this.refs = 1;
     this.map = new HashMap<String, Multiverse<Entry>>();
     this.bools = new HashMap<String, EnumMap<STField, ConditionedBool>>();
-    this.freshNameCount = 0;
-    this.freshIdCount   = 0;
   }
 
   /**
@@ -199,16 +165,29 @@ public class SymbolTable {
    * @param ident The identifier to look up.
    * @param cond The presence condition.
    * @returns A new Multiverse instance containing the entries under
-   * the given condition or null if the symbol is not defined.
+   * the given condition.  If the symbol was never seen before, it
+   * returns a Multiverse that contains only the UNDECLARED entry.
    */
   public Multiverse<Entry> get(String ident, PresenceCondition cond) {
-    if (this.map.containsKey(ident)) {
-      // System.err.println(String.format("before get: %s -> %s", ident, map.get(ident)));
-      Multiverse<Entry> newmv = this.map.get(ident).filter(cond);
-      // System.err.println(String.format("after get: %s -> %s", ident, newmv));
-      return newmv;
+    Multiverse<Entry> newmv;
+    if (! this.map.containsKey(ident)) {
+      // Create a new multiverse for the symbol that has only the
+      // UNDECLARED entry under the True condition
+      newmv = new Multiverse<Entry>();
+
+      PresenceCondition trueCond = cond.presenceConditionManager().newTrue();
+      newmv.add(UNDECLARED, trueCond);
+      trueCond.delRef();
+
+      PresenceCondition falseCond = cond.presenceConditionManager().newFalse();
+      newmv.add(ERROR, falseCond);
+      falseCond.delRef();
+      
+      Multiverse<Entry> filtered = newmv.filter(cond);
+      newmv.destruct();
+      return filtered;
     } else {
-      return null;
+      return this.map.get(ident).filter(cond);
     }
   }
 
@@ -392,13 +371,9 @@ public class SymbolTable {
    * @param ident The identifier to enter.
    * @param type The type.
    * @param putCond The presence condition.
-   * @returns A new Multiverse instance containing the entries under
-   * the given condition or null if the symbol is not defined.
    */
   public void put(String ident, Type type, PresenceCondition putCond) {
-    // String renaming = mangleRenaming("", ident);
-    String renaming = freshCId(ident);
-    Entry entry = new Entry(renaming, type);
+    Entry entry = new Entry(type);
     put(ident, entry, putCond);
   }
 
@@ -410,6 +385,15 @@ public class SymbolTable {
    */
   public void putError(String ident, PresenceCondition putCond) {
     put(ident, ERROR, putCond);
+  }
+
+  /**
+   * Creates an iterator over the symbols.
+   *
+   * @return the iterator.
+   */
+  public Iterator<String> iterator() {
+    return map.keySet().iterator();
   }
 
   // private static long varcount = 0;
@@ -447,142 +431,6 @@ public class SymbolTable {
   //   // NOTE: when doing regression testing, uncomment the line above, and comment-out the line below
   //   return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
   // }
-
-  /***************************************************************************
-   **** The following naming and namespacing functionality is taken
-   **** directly from xtc.util.SymbolTable.
-   ***************************************************************************/
-
-  /**
-   * Create a fresh name.  The returned name has
-   * "<code>anonymous</code>" as it base name.
-   *
-   * @see #freshName(String)
-   * 
-   * @return A fresh name.
-   */
-  public String freshName() {
-    return freshName("anonymous");
-  }
-
-  /**
-   * Create a fresh name incorporating the specified base name.  The
-   * returned name is of the form
-   * <code><i>name</i>(<i>count</i>)</code>.
-   *
-   * @param base The base name.
-   * @return The corresponding fresh name.
-   */
-  public String freshName(String base) {
-    StringBuilder buf = new StringBuilder();
-    buf.append(base);
-    buf.append(Constants.START_OPAQUE);
-    buf.append(freshNameCount++);
-    buf.append(Constants.END_OPAQUE);
-    return buf.toString();
-  }
-
-  /**
-   * Create a fresh C identifier.  The returned identifier has
-   * "<code>tmp</code>" as its base name.
-   *
-   * @see #freshCId(String)
-   *
-   * @return A fresh C identifier.
-   */
-  public String freshCId() {
-    return freshCId("tmp");
-  }
-
-  /**
-   * Create a fresh C identifier incorporating the specified base
-   * name.  The returned name is of the form
-   * <code>__<i>name</i>_<i>count</i></code>.
-   *
-   * @param base The base name.
-   * @return The corresponding fresh C identifier.
-   */
-  public String freshCId(String base) {
-    StringBuilder buf = new StringBuilder();
-    buf.append("__");
-    buf.append(base);
-    buf.append('_');
-    buf.append(freshIdCount++);
-    return buf.toString();
-  }
-
-  /** The end of opaqueness marker as a string. */
-  private static final String END_OPAQUE =
-    Character.toString(Constants.END_OPAQUE);
-
-  /**
-   * Determine whether the specified symbol is in the specified name
-   * space.
-   *
-   * @param symbol The symbol.
-   * @param space The name space.
-   * @return <code>true</code> if the symbol is mangled symbol in the
-   *   name space.
-   */
-  public static boolean isInNameSpace(String symbol, String space) {
-    try {
-      return (symbol.startsWith(space) &&
-              (Constants.START_OPAQUE == symbol.charAt(space.length())) &&
-              symbol.endsWith(END_OPAQUE));
-    } catch (IndexOutOfBoundsException x) {
-      return false;
-    }
-  }
-
-  /**
-   * Convert the specified unqualified symbol to a symbol in the
-   * specified name space.
-   *
-   * @param symbol The symbol
-   * @param space The name space.
-   * @return The mangled symbol.
-   */
-  public static String toNameSpace(String symbol, String space) {
-    return space + Constants.START_OPAQUE + symbol + Constants.END_OPAQUE;
-  }
-
-  /**
-   * Convert the specified unqualified symbol within a name space to a
-   * symbol without a name space.
-   *
-   * @param symbol The mangled symbol within a name space.
-   * @return The corresponding symbol without a name space.
-   */
-  public static String fromNameSpace(String symbol) {
-    int start = symbol.indexOf(Constants.START_OPAQUE);
-    int end   = symbol.length() - 1;
-    if ((0 < start) && (Constants.END_OPAQUE == symbol.charAt(end))) {
-      return symbol.substring(start + 1, end);
-    } else {
-      throw new IllegalArgumentException("Not a mangled symbol '"+symbol+"'");
-    }
-  }
-
-  /**
-   * Convert the specified C struct, union, or enum tag into a symbol
-   * table name.
-   *
-   * @param tag The tag.
-   * @return The corresponding symbol table name.
-   */
-  public static String toTagName(String tag) {
-    return toNameSpace(tag, "tag");
-  }
-
-  /**
-   * Convert the specified label identifier into a symbol table name.
-   *
-   * @param id The identifier.
-   * @return The corresponding symbol table name.
-   */
-  public static String toLabelName(String id) {
-    return toNameSpace(id, "label");
-  }
 
   public String toString() {
     StringBuilder sb  = new StringBuilder();

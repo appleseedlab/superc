@@ -2,7 +2,7 @@ int returnOne(
 			  #if A
 			  int x
 			  #else
-			  char x;
+			  char x
 			  #endif
 				) {
 	return 1;
