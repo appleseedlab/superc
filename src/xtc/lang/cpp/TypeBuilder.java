@@ -470,9 +470,18 @@ public class TypeBuilder {
     return result;
   }
 
-  public boolean isTypedef()
-  {
+  /**
+   * Returns true if this type builder is a typedef.
+   */
+  public boolean isTypedef() {
     return qualifiers[QUAL.isTypedef.ordinal()];
+  }
+
+  /**
+   * Returns true if this type builder is a struct definition.
+   */
+  public boolean isStructDefinition() {
+    return foundTypes[FOUND_TYPE.seenStructReference.ordinal()];
   }
 
   /**
@@ -523,7 +532,7 @@ public class TypeBuilder {
     for (Declaration declaration : this.structMembers) {
       if (declaration.hasTypeError()) {
         this.isTypeError = true;
-        // TODO: this should be caught by toString
+        // TODO: this should be caught by toString if the desugaring fails to check for type error
       } else {
         VariableT member = VariableT.newField(declaration.getType(),
                                               declaration.getName());
@@ -532,19 +541,6 @@ public class TypeBuilder {
       // TODO: use Variable.newBitfield()
     }
 
-    // TODO: recursively go through the struct fields and
-    // (1) rename recursive struct references
-    // (2) check for redeclaration of struct
-
-    // TODO: go through the fields and
-    // (1) check that all members have different names
-    // (2) check whether any members have a type error themselves (making the struct type an error)
-    
-
-    
-    // the type in the symtab should have the original tag name, so we
-    // can look up and find the struct appropriate for the declared
-    // symbol's presence condition.
     this.structType = new StructT(renamedtag, memberlist);
   }
 
