@@ -743,21 +743,6 @@ public class CContext implements ParsingContext {
   }
   
   /**
-   * Put a symbol into the global symbol table.
-   *
-   * @param ident The identifier to enter.
-   * @param type The type.
-   * @param putCond The presence condition.
-   */
-  public void putGlobal(String ident, Type type, PresenceCondition putCond) {
-    CContext scope = this;
-    while (null != scope.parent) {
-      scope = scope.parent;
-    }
-    scope.getSymbolTable().put(ident, type, putCond);
-  }
-  
-  /**
    * Returns if the current scope is in global space.
    *
    * @returns boolean describing if the current scope is global
