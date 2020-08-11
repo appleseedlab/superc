@@ -1964,7 +1964,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
           for (Element<List<Declaration>> declarationlist : listsmv) {
             // give it an anonymous tag name (CAnalyzer)
-            String structTag = freshName("tag");
+            String structTag = freshName("anonymousstruct");
 
             // no need to rename anonymous structs, since the tag is
             // not emitted
