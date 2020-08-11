@@ -84,7 +84,9 @@ public class SymbolTable implements Iterable<String> {
     // TODO: make this abstract and have type for VALID entries, have an error message for other kinds
 
     /**
-     * The type under a given set of configurations.
+     * The type under a given set of configurations.  This type should
+     * be a VariableT, AliasT, or NamedFunctionT, all of which store
+     * the renaming of the symbol.
      */
     protected final Type type;
 
