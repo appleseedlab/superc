@@ -104,7 +104,7 @@ abstract class Declarator {
     }
 
     public Type getType(Type type) {
-      throw new IllegalStateException("abstract declarators have no type");
+      return type;
     }
 
     public boolean hasTypeError() {
