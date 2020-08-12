@@ -75,13 +75,10 @@ abstract class Declarator {
   /** Returns true if this is a PointerDeclarator object. */
   public boolean isPointerDeclarator() { return false; }
   
-  /** Returns true if this is a FunctionPointerDeclarator object. */
+  /** Returns true if this is a FunctionDeclarator object. */
   public boolean isFunctionDeclarator() { return false; }
   
-  /** Returns true if this is a FunctionDeclarator object. */
-  public boolean isParameterDeclarator() { return false; }
-  
-  /** Returns true if this is a FunctionDeclarator object. */
+  /** Returns true if this is a ParameterListDeclarator object. */
   public boolean isParameterListDeclarator() { return false; }
   
   /** Returns true if this is a ArrayAbstractDeclarator object. */
@@ -498,9 +495,8 @@ abstract class Declarator {
     public Type getType(Type returnType) {
       List<Type> paramtypes = new LinkedList<Type>();
       boolean varargs = false;  // TODO: handle varargs here
-      for (ParameterDeclarator param : parameters.parameters) {
-        TypeBuilder typebuilder = param.getType();
-        paramtypes.add(typebuilder.toType());
+      for (Declaration param : parameters.parameters) {
+        paramtypes.add(param.getType());
       }
 
       if (declarator.isSimpleDeclarator()) {
@@ -528,9 +524,9 @@ abstract class Declarator {
   /** A parameter list. */
   public static class ParameterListDeclarator extends Declarator {
     /** The list of parameters. */
-    protected final List<ParameterDeclarator> parameters;
+    protected final List<Declaration> parameters;
 
-    public ParameterListDeclarator(List<ParameterDeclarator> parameters) {
+    public ParameterListDeclarator(List<Declaration> parameters) {
       this.parameters = parameters;
     }
 
@@ -547,7 +543,7 @@ abstract class Declarator {
     }
 
     public boolean hasTypeError() {
-      for (ParameterDeclarator param : parameters) {
+      for (Declaration param : parameters) {
         if (param.hasTypeError()) {
           return true;
         }
@@ -562,60 +558,13 @@ abstract class Declarator {
       StringBuilder sb = new StringBuilder();
       sb.append("(");
       String delim = "";
-      for (ParameterDeclarator param : parameters) {
+      for (Declaration param : parameters) {
         sb.append(delim);
         sb.append(param.toString());
         delim = ", ";
       }
       sb.append(")");
       return sb.toString();
-    }
-  }
-
-  /**
-   * A function declarator contains the function name and a list of
-   * parameters.
-   */
-  public static class ParameterDeclarator extends Declarator {
-    /** Type of the parameter. */
-    protected final TypeBuilder type;
-
-    /** Type of the parameter. */
-    protected final Declarator declarator;
-
-    public ParameterDeclarator(TypeBuilder type, Declarator declarator) {
-      this.type = type;
-      this.declarator = declarator;
-    }
-
-    public String getName() {
-      throw new IllegalStateException("parameters don't affect the name of the function");
-    }
-
-    public Declarator rename(String newName) {
-      throw new IllegalStateException("parameters don't affect the name of the function");
-    }
-
-    /**
-     * Return the typebuilder for this parameter.
-     */
-    public TypeBuilder getType() {
-      return type;
-    }
-
-    public boolean hasTypeError() {
-      return type.hasTypeError() || declarator.hasTypeError();
-    }
-
-    public Type getType(Type type) {
-      throw new IllegalStateException("Should only get parameter types via FunctionDeclarator");
-    }
-  
-    @Override
-    public boolean isParameterDeclarator() { return true; }
-
-    public String toString() {
-      return String.format("%s %s", type.toString(), declarator.toString());
     }
   }
 }
