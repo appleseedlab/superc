@@ -398,10 +398,11 @@ public class TypeBuilder {
                  (i == j && i == FOUND_TYPE.seenLong.ordinal()) ))
             return false;
     // not allowed to have two struct refs/defs
-    if (typeComboExists(t1,t2,FOUND_TYPE.seenStructReference,FOUND_TYPE.seenStructReference)
-        || typeComboExists(t1,t2,FOUND_TYPE.seenStructReference,FOUND_TYPE.seenStructDefinition)
-        || typeComboExists(t1,t2,FOUND_TYPE.seenStructDefinition,FOUND_TYPE.seenStructDefinition)
-        || typeComboExists(t1,t2,FOUND_TYPE.seenStructDefinition,FOUND_TYPE.seenStructDefinition)) {
+
+    if (t1.foundTypes[FOUND_TYPE.seenStructReference.ordinal()] && t2.foundTypes[FOUND_TYPE.seenStructReference.ordinal()]
+        || t1.foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()] && t2.foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()]
+        || t1.foundTypes[FOUND_TYPE.seenStructReference.ordinal()] && t2.foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()]
+        || t1.foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()] && t2.foundTypes[FOUND_TYPE.seenStructReference.ordinal()]) {
       return false;
     }
     return true;
@@ -462,11 +463,14 @@ public class TypeBuilder {
       }
     }
     result.isTypeError = result.isTypeError || with.isTypeError;
+    
     result.typedefType = (foundTypes[FOUND_TYPE.seenTypedefType.ordinal()] ? typedefType : with.typedefType);
       result.structTag = (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()] ? structTag : with.structTag);
       result.structRenamedTag = (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()] ? structRenamedTag : with.structRenamedTag);
       result.structMembers = (foundTypes[FOUND_TYPE.seenStructReference.ordinal()] ? structMembers : with.structMembers);
       result.structIsAnon = (foundTypes[FOUND_TYPE.seenStructReference.ordinal()] ? structIsAnon : with.structIsAnon);
+      result.structType = (foundTypes[FOUND_TYPE.seenStructReference.ordinal()] ? structType : with.structType);
+
     return result;
   }
 

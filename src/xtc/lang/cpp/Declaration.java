@@ -41,7 +41,6 @@ class Declaration {
    * VariableT, AliasT, or NamedFunctionT.
    */
   public Type getType() {
-    String name = declarator.getName();
     return declarator.getType(typebuilder.toType());
   }
 

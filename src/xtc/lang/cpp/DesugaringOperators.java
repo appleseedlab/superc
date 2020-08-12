@@ -19,7 +19,6 @@ import xtc.lang.cpp.Declarator.QualifiedPointerAbstractDeclarator;
 import xtc.lang.cpp.Declarator.ArrayDeclarator;
 import xtc.lang.cpp.Declarator.ArrayAbstractDeclarator;
 import xtc.lang.cpp.Declarator.FunctionDeclarator;
-import xtc.lang.cpp.Declarator.ParameterDeclarator;
 import xtc.lang.cpp.Declarator.ParameterListDeclarator;
 
 import xtc.type.AliasT;
@@ -138,25 +137,11 @@ class DesugaringOperators {
     };
 
   /**
-   * Concatenate two ParmeterListDeclarators
-   */
-  public final static Multiverse.Operator<List<ParameterDeclarator>> PARAMLISTCONCAT = (list1, list2) -> {
-    return concatLists(list1, list2);
-  };
-
-  /**
-   * A multiverse transformation to wrap a parameter declarator into a
-   * single-element list.
-   */
-  public final static Multiverse.Transformer<ParameterDeclarator, List<ParameterDeclarator>> parameterListWrap
-    = new ListWrapper<ParameterDeclarator>();
-
-  /**
-   * A multiverse transformation to turn a list of ParameterDeclarators
+   * A multiverse transformation to turn a list of Declarations
    * into a ParameterListDeclarator.
    */
-  public final static Multiverse.Transformer<List<ParameterDeclarator>, ParameterListDeclarator> toParameterList = new Multiverse.Transformer<List<ParameterDeclarator>, ParameterListDeclarator>() {
-      ParameterListDeclarator transform(List<ParameterDeclarator> from) {
+  public final static Multiverse.Transformer<List<Declaration>, ParameterListDeclarator> toParameterList = new Multiverse.Transformer<List<Declaration>, ParameterListDeclarator>() {
+      ParameterListDeclarator transform(List<Declaration> from) {
         return new ParameterListDeclarator(from);
       }
     };

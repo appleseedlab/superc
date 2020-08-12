@@ -202,7 +202,6 @@ import xtc.lang.cpp.Declarator.QualifiedPointerAbstractDeclarator;
 import xtc.lang.cpp.Declarator.ArrayDeclarator;
 import xtc.lang.cpp.Declarator.ArrayAbstractDeclarator;
 import xtc.lang.cpp.Declarator.FunctionDeclarator;
-import xtc.lang.cpp.Declarator.ParameterDeclarator;
 import xtc.lang.cpp.Declarator.ParameterListDeclarator;
 
 import xtc.type.AliasT;
@@ -817,8 +816,33 @@ DeclarationExtension:  /** complete **/  // ADDED
 Declaration:  /** complete **/
         SUEDeclarationSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
-          System.err.println("TODO: Declaration (1)");
-          System.exit(1);
+        	Multiverse<TypeBuilder> structtypesmv
+            = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 3);
+        	StringBuilder sb = new StringBuilder();  // the desugared output
+
+          for (Element<TypeBuilder> typebuilder : structtypesmv) {
+            if (! typebuilder.getData().hasTypeError()) {
+              sb.append(typebuilder.getData().toString());
+              sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
+            } else {
+              CContext scope = ((CContext) subparser.scope);
+              if (scope.isGlobal()) {
+                recordInvalidGlobalDeclaration(typebuilder.getData().getStructTag(),
+                                               typebuilder.getCondition());
+              } else {
+                sb.append("if (");
+                sb.append(PCtoString(typebuilder.getCondition()));
+                sb.append(") {\n");
+                sb.append(String.format("__type_error(\"invalid declaration of struct: %s\");\n",
+                                        typebuilder.getData().getStructTag()));
+                sb.append("}\n");
+              }
+            }
+          }
+          sb.append("\n");
+          
+          /* System.err.println(((CContext) subparser.scope).getSymbolTable()); */
+          setTransformationValue(value, sb);
         }
         | SUETypeSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
@@ -864,8 +888,6 @@ Declaration:  /** complete **/
            * necessary for source-level analysis.
            */
 
-          System.err.println("TODO: expand typebuilderunit into an implicit conditional by looking at typedef names and SUE tags");
-          
           // loop over each element of the declaration list
         	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
           for (DeclaringListValue declaringlistvalue : declaringlistvalues) {
@@ -1132,13 +1154,13 @@ DeclarationSpecifier:  /**  nomerge **/
 				}
         | SUEDeclarationSpecifier          /* struct/union/enum */
 				{
-					System.err.println("Unsupported grammar DeclarationSpecifier-SUE"); // TODO
-          System.exit(1);
+          Multiverse<TypeBuilder> t = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
+        	setTransformationValue(value,t);
 				}
         | TypedefDeclarationSpecifier      /* typedef*/
 				{
-	 				Multiverse<TypeBuilder> decl = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
-	  			setTransformationValue(value, decl);
+          Multiverse<TypeBuilder> t = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
+        	setTransformationValue(value,t);
 				}
         | VarArgDeclarationSpecifier  // ADDED
         {
@@ -1403,7 +1425,7 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
         }
         ;
 
-BasicTypeSpecifier: /**  nomerge **/
+BasicTypeSpecifier: /**  nomerge **/  // Multiverse<TypeBuilder>
         BasicTypeName           /* Arithmetic or void */
         {
           // TUTORIAL: a semantic action that sets the semantic value
@@ -1459,21 +1481,27 @@ BasicTypeSpecifier: /**  nomerge **/
         }
         ;
 
-SUEDeclarationSpecifier: /** nomerge **/          /* StorageClass + struct/union/enum */
+SUEDeclarationSpecifier: /** nomerge **/          /* StorageClass + struct/union/enum */   // Multiverse<TypeBuilder>
         SUETypeSpecifier StorageClass
         {
-          System.err.println("WARNING: unsupported semantic action: SUEDeclarationSpecifier");
-          System.exit(1);
+          // TODO: unit test this action
+          Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
+          Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, tb.product(tb1, DesugaringOperators.TBCONCAT));
         }
         | DeclarationQualifierList ElaboratedTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: SUEDeclarationSpecifier");
-          System.exit(1);
+          // TODO: unit test this action
+          Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
+          Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, tb.product(tb1, DesugaringOperators.TBCONCAT));
         }
         | SUEDeclarationSpecifier DeclarationQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: SUEDeclarationSpecifier");
-          System.exit(1);
+          // TODO: unit test this action
+          Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
+          Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, tb.product(tb1, DesugaringOperators.TBCONCAT));
         }
         ;
 
@@ -1485,13 +1513,17 @@ SUETypeSpecifier: /** nomerge **/
         }
         | TypeQualifierList ElaboratedTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: SUETypeSpecifier");
-          System.exit(1);
+          // TODO: unit test this action
+          Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
+          Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, tb.product(tb1, DesugaringOperators.TBCONCAT));
         }
         | SUETypeSpecifier TypeQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: SUETypeSpecifier");
-          System.exit(1);
+          // TODO: unit test this action
+          Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
+          Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, tb.product(tb1, DesugaringOperators.TBCONCAT));
         }
         ;
 
@@ -1520,10 +1552,9 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
         }
         | TypedefDeclarationSpecifier DeclarationQualifier
       	{
-      	  Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
-      	  Multiverse<TypeBuilder> dq = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
-      	  Multiverse<TypeBuilder> tb = tb1.product(dq, DesugaringOperators.TBCONCAT);
-          setTransformationValue(value, tb);
+          Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
+          Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, tb.product(tb1, DesugaringOperators.TBCONCAT));
         }
         ;
 
@@ -1913,6 +1944,11 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
 
           // get scope to make an anonymous tag
           CContext scope = (CContext)subparser.scope;
+
+          // TODO: make a new desugaring operator that turns a
+          // List<Multiverse<Declaration>> into a
+          // Multiverse<List<Declaration>>.  use for struct specifiers
+          // and param lists
 
           // (1) start with an empty multiverse of declaration lists
           Multiverse<List<Declaration>> listsmv
@@ -2439,39 +2475,39 @@ EnumeratorValueOpt: /** nomerge **/
         }
         ;
 
-ParameterTypeList:  /** nomerge **/  // List<Multiverse<ParameterDeclarator>>
+ParameterTypeList:  /** nomerge **/  // List<Multiverse<Declaration>>
         ParameterList
         {
-          setTransformationValue(value, (List<Multiverse<ParameterDeclarator>>) getTransformationValue(subparser,1));
+          setTransformationValue(value, (List<Multiverse<Declaration>>) getTransformationValue(subparser,1));
         }
         | ParameterList COMMA ELLIPSIS
         {
-          List<Multiverse<ParameterDeclarator>> paramlist
-            = (List<Multiverse<ParameterDeclarator>>) getTransformationValue(subparser,3);
+          List<Multiverse<Declaration>> paramlist
+            = (List<Multiverse<Declaration>>) getTransformationValue(subparser,3);
           System.err.println("TODO: support variadic parameter lists");  // add a special parameterdeclarationvalue to the list
           setTransformationValue(value, paramlist);
         }
         ;
 
 // returns a multiverse of nonconfigurable parameter lists
-ParameterList:  /** list, nomerge **/ // List<Multiverse<ParameterDeclarator>>
+ParameterList:  /** list, nomerge **/ // List<Multiverse<Declaration>>
         ParameterDeclaration
         {
           // create a new list
-          List<Multiverse<ParameterDeclarator>> parameters
-            = new LinkedList<Multiverse<ParameterDeclarator>>();
-          Multiverse<ParameterDeclarator> declarationvalue
-            = (Multiverse<ParameterDeclarator>) getTransformationValue(subparser,1);
+          List<Multiverse<Declaration>> parameters
+            = new LinkedList<Multiverse<Declaration>>();
+          Multiverse<Declaration> declarationvalue
+            = (Multiverse<Declaration>) getTransformationValue(subparser,1);
           parameters.add(declarationvalue);
           setTransformationValue(value, parameters);
         }
         | ParameterList COMMA ParameterDeclaration
         {
           // add to the existing parameter list
-          List<Multiverse<ParameterDeclarator>> parameters
-            = (LinkedList<Multiverse<ParameterDeclarator>>) getTransformationValue(subparser,3);
-          Multiverse<ParameterDeclarator> declarationvalue
-            = (Multiverse<ParameterDeclarator>) getTransformationValue(subparser,1);
+          List<Multiverse<Declaration>> parameters
+            = (LinkedList<Multiverse<Declaration>>) getTransformationValue(subparser,3);
+          Multiverse<Declaration> declarationvalue
+            = (Multiverse<Declaration>) getTransformationValue(subparser,1);
           parameters.add(declarationvalue);
           setTransformationValue(value, parameters);
         }
@@ -2518,7 +2554,7 @@ ParameterList:  /** list, nomerge **/ // List<Multiverse<ParameterDeclarator>>
 /*         } AttributeSpecifierListOpt */
 /*         ; */
 
-ParameterDeclaration:  /** nomerge **/  // Multiverse<ParameterDeclarator>
+ParameterDeclaration:  /** nomerge **/  // Multiverse<Declaration>
         /*
          * This action, akin to declaration, adds each parameter
          * declaration to the (function-local) symtab.  It handles
@@ -2536,7 +2572,7 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<ParameterDeclarator>
           // symbols to the function-local symbol table, which
           // PostfixingFunctionDeclarator enters and exits, before
           // FunctionDefinition reenters and exits.
-          Multiverse<ParameterDeclarator> valuemv = new Multiverse<ParameterDeclarator>();
+          Multiverse<Declaration> valuemv = new Multiverse<Declaration>();
           for (Element<TypeBuilder> typebuilder : declarationvalue.typebuilder) {
             PresenceCondition typebuilderCond = subparser.getPresenceCondition().and(typebuilder.getCondition());
             for (Element<Declarator> declarator : declarationvalue.declarator) {
@@ -2544,18 +2580,17 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<ParameterDeclarator>
 
               // for each combination of typebuilder and declarator
 
-              // (1) rename the declarator part
+              // (1) rename the declarator part and create a
+              // Declaration for use as the semantic value
               String originalName = declarator.getData().getName();
               String renaming = freshCId(originalName);
               Declarator renamedDeclarator = declarator.getData().rename(renaming);
+              Declaration renamedDeclaration = new Declaration(typebuilder.getData(),
+                                                               renamedDeclarator);
 
-              // (2) create a ParameterDeclarator for use in the
-              // semantic value
-              ParameterDeclarator parameterDeclarator = new ParameterDeclarator(typebuilder.getData(),
-                                                                                renamedDeclarator);
-              valuemv.add(parameterDeclarator, combinedCond);
+              valuemv.add(renamedDeclaration, combinedCond);
 
-              // (3) add the parameter to the symbol table
+              // (2) add the parameter to the symbol table
               if (typebuilder.getData().hasTypeError()) {
                 scope.putError(declarator.getData().getName(), combinedCond);
               } else {
@@ -2576,8 +2611,6 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<ParameterDeclarator>
                     scope.putError(declarator.getData().getName(), combinedCond);
                   } else if (entry.getData() == SymbolTable.UNDECLARED) {
                     // get the type and add it to the symtab
-                    Declaration renamedDeclaration = new Declaration(typebuilder.getData(),
-                                                              declarator.getData().rename(renaming));
                     Type type = VariableT.newParam(renamedDeclaration.getType(),
                                                    renamedDeclaration.getName());
                     scope.put(originalName, type, entry.getCondition());
@@ -2608,18 +2641,20 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<ParameterDeclarator>
           ParameterDeclarationValue declarationvalue = (ParameterDeclarationValue) getTransformationValue(subparser,1);
           
           // create a multiverse of parameterdeclarators
-          Multiverse<ParameterDeclarator> valuemv = new Multiverse<ParameterDeclarator>();
+          Multiverse<Declaration> valuemv = new Multiverse<Declaration>();
           for (Element<TypeBuilder> typebuilder : declarationvalue.typebuilder) {
             PresenceCondition typebuilderCond = subparser.getPresenceCondition().and(typebuilder.getCondition());
             for (Element<Declarator> declarator : declarationvalue.declarator) {
               PresenceCondition combinedCond = typebuilderCond.and(declarator.getCondition());
+              Declaration declaration = new Declaration(typebuilder.getData(),
+                                                        declarator.getData());
 
               // for each combination of typebuilder and declarator
-              // create a ParameterDeclarator for use in the semantic
+              // create a Declaration for use in the semantic
               // value.  abstract declarators have no name, so should
               // not need to rename or add to a symtab.
-              ParameterDeclarator parameterDeclarator = new ParameterDeclarator(typebuilder.getData(),
-                                                                                declarator.getData());
+              valuemv.add(declaration, combinedCond);
+              
               combinedCond.delRef();
             } // end loop over declarators
             typebuilderCond.delRef();
@@ -3264,26 +3299,26 @@ PostfixingFunctionDeclarator:  /** nomerge **/ // Multiverse<ParameterListDeclar
         LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN
         {
           // TODO: account for parameterdeclarationvalue that is the ellipsis
-          List<Multiverse<ParameterDeclarator>> parameterdeclaratorlistsmv
-            = (List<Multiverse<ParameterDeclarator>>) getTransformationValue(subparser,3);
+          List<Multiverse<Declaration>> parameterdeclaratorlistsmv
+            = (List<Multiverse<Declaration>>) getTransformationValue(subparser,3);
 
           // find each combination of single-configuration parameter
           // lists.  not using a product, because it is combining two
           // different types, typebuilder and declarator.  perhaps
           // having a typebuilderdeclarator would make this possible.
-          Multiverse<List<ParameterDeclarator>> parametersmv
-            = new Multiverse<List<ParameterDeclarator>>(new LinkedList<ParameterDeclarator>(), subparser.getPresenceCondition());
-          for (Multiverse<ParameterDeclarator> nextparameter : parameterdeclaratorlistsmv) {
+          Multiverse<List<Declaration>> parametersmv
+            = new Multiverse<List<Declaration>>(new LinkedList<Declaration>(), subparser.getPresenceCondition());
+          for (Multiverse<Declaration> nextparameter : parameterdeclaratorlistsmv) {
             // take the product of that multiverse with the existing, hoisted list of parameters
             // (1) wrap each element of the multiverse in a list 
-            Multiverse<List<ParameterDeclarator>> nextparameterwrapped
-              = DesugaringOperators.parameterListWrap.transform(nextparameter);
+            Multiverse<List<Declaration>> nextparameterwrapped
+              = DesugaringOperators.declarationListWrap.transform(nextparameter);
             // (2) take the product of the existing parameter list
             // with the new, single-element parameter list, allowing
             // for missing parameters in some configurations
             // complementedProduct
-            Multiverse<List<ParameterDeclarator>> newparametersmv
-              = parametersmv.complementedProduct(nextparameterwrapped, DesugaringOperators.PARAMLISTCONCAT);
+            Multiverse<List<Declaration>> newparametersmv
+              = parametersmv.complementedProduct(nextparameterwrapped, DesugaringOperators.DECLARATIONLISTCONCAT);
             nextparameterwrapped.destruct();
             parametersmv.destruct();
             // (3) use the new list for the next iteration
@@ -3292,7 +3327,7 @@ PostfixingFunctionDeclarator:  /** nomerge **/ // Multiverse<ParameterListDeclar
           // parametersmv should now contains all possible
           // single-configuration parameter lists
 
-          // (4) transform the resulting List<ParameterDeclarator>
+          // (4) transform the resulting List<Declaration>
           // into a ParameterListDeclarator, so that it can be used in
           // the Declarator AST
           Multiverse<ParameterListDeclarator> paramlistmv = DesugaringOperators.toParameterList.transform(parametersmv);
@@ -3399,14 +3434,14 @@ PostfixingAbstractDeclarator: /**  nomerge **/
         }
         ;
 
-ParameterTypeListOpt: /** nomerge **/  // List<Multiverse<ParameterDeclarator>>
+ParameterTypeListOpt: /** nomerge **/  // List<Multiverse<Declaration>>
         /* empty */
         {
-          setTransformationValue(value, new LinkedList<Multiverse<ParameterDeclarator>>());
+          setTransformationValue(value, new LinkedList<Multiverse<Declaration>>());
         }
         | ParameterTypeList
         {
-          setTransformationValue(value, (List<Multiverse<ParameterDeclarator>>) getTransformationValue(subparser,1));
+          setTransformationValue(value, (List<Multiverse<Declaration>>) getTransformationValue(subparser,1));
         }
         ;
 
