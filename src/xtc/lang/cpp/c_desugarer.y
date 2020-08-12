@@ -309,7 +309,6 @@ TranslationUnit:  /** complete **/
             CContext scope = ((CContext) subparser.scope);
             writer.write(scope.getDeclarations(subparser.getPresenceCondition()).toString());
 
-            System.err.println(symtab.hashCode());
             System.err.println(symtab);
 
             // write the transformed C
@@ -442,10 +441,11 @@ FunctionDefinition:  /** complete **/ // added scoping
 
                     // renamedDeclaration must be a FunctionT because
                     // that is created by a FunctionDeclarator
-                    Type type = new NamedFunctionT(renamedDeclaration.getType().toFunction().getResult(),
+                    Type declarationType = renamedDeclaration.getType();
+                    Type type = new NamedFunctionT(declarationType.toFunction().getResult(),
                                                    renaming,
-                                                   renamedDeclaration.getType().toFunction().getParameters(),
-                                                   renamedDeclaration.getType().toFunction().isVarArgs());
+                                                   declarationType.toFunction().getParameters(),
+                                                   declarationType.toFunction().isVarArgs());
                     
                     if (entry.getData() == SymbolTable.ERROR) {
                       // ERROR entry
@@ -914,11 +914,12 @@ Declaration:  /** complete **/
 
                       StringBuilder entrysb = new StringBuilder();
 
+                      Type declarationType = renamedDeclaration.getType();
                       Type type = renamedDeclaration.typebuilder.isTypedef()
-                        ? new AliasT(renaming, renamedDeclaration.getType())
+                        ? new AliasT(renaming, declarationType)
                         : (scope.isGlobal()
-                           ? VariableT.newGlobal(renamedDeclaration.getType(), renaming)
-                           : VariableT.newLocal(renamedDeclaration.getType(), renaming));
+                           ? VariableT.newGlobal(declarationType, renaming)
+                           : VariableT.newLocal(declarationType, renaming));
 
                       if (entry.getData() == SymbolTable.ERROR) {
                         // ERROR entry
@@ -2046,6 +2047,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
             } else {
               System.err.println(String.format("INFO: trying redefine a struct: %s", structTag));
               TypeBuilder typebuilder = new TypeBuilder();
+              typebuilder.setStructReference(structTag, structTag);  // set a struct ref for later error output
               typebuilder.setTypeError();
               valuemv.add(typebuilder, entry.getCondition());
 
