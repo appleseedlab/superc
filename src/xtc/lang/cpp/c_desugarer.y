@@ -816,8 +816,33 @@ DeclarationExtension:  /** complete **/  // ADDED
 Declaration:  /** complete **/
         SUEDeclarationSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
-          System.err.println("TODO: Declaration (1)");
-          System.exit(1);
+        	Multiverse<TypeBuilder> structtypesmv
+            = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 3);
+        	StringBuilder sb = new StringBuilder();  // the desugared output
+
+          for (Element<TypeBuilder> typebuilder : structtypesmv) {
+            if (! typebuilder.getData().hasTypeError()) {
+              sb.append(typebuilder.getData().toString());
+              sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
+            } else {
+              CContext scope = ((CContext) subparser.scope);
+              if (scope.isGlobal()) {
+                recordInvalidGlobalDeclaration(typebuilder.getData().getStructTag(),
+                                               typebuilder.getCondition());
+              } else {
+                sb.append("if (");
+                sb.append(PCtoString(typebuilder.getCondition()));
+                sb.append(") {\n");
+                sb.append(String.format("__type_error(\"invalid declaration of struct: %s\");\n",
+                                        typebuilder.getData().getStructTag()));
+                sb.append("}\n");
+              }
+            }
+          }
+          sb.append("\n");
+          
+          /* System.err.println(((CContext) subparser.scope).getSymbolTable()); */
+          setTransformationValue(value, sb);
         }
         | SUETypeSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
@@ -1131,13 +1156,13 @@ DeclarationSpecifier:  /**  nomerge **/
 				}
         | SUEDeclarationSpecifier          /* struct/union/enum */
 				{
-					System.err.println("Unsupported grammar DeclarationSpecifier-SUE"); // TODO
-          System.exit(1);
+          Multiverse<TypeBuilder> t = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
+        	setTransformationValue(value,t);
 				}
         | TypedefDeclarationSpecifier      /* typedef*/
 				{
-	 				Multiverse<TypeBuilder> decl = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
-	  			setTransformationValue(value, decl);
+          Multiverse<TypeBuilder> t = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
+        	setTransformationValue(value,t);
 				}
         | VarArgDeclarationSpecifier  // ADDED
         {
@@ -1402,7 +1427,7 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
         }
         ;
 
-BasicTypeSpecifier: /**  nomerge **/
+BasicTypeSpecifier: /**  nomerge **/  // Multiverse<TypeBuilder>
         BasicTypeName           /* Arithmetic or void */
         {
           // TUTORIAL: a semantic action that sets the semantic value
@@ -1458,21 +1483,27 @@ BasicTypeSpecifier: /**  nomerge **/
         }
         ;
 
-SUEDeclarationSpecifier: /** nomerge **/          /* StorageClass + struct/union/enum */
+SUEDeclarationSpecifier: /** nomerge **/          /* StorageClass + struct/union/enum */   // Multiverse<TypeBuilder>
         SUETypeSpecifier StorageClass
         {
-          System.err.println("WARNING: unsupported semantic action: SUEDeclarationSpecifier");
-          System.exit(1);
+          // TODO: unit test this action
+          Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
+          Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, tb.product(tb1, DesugaringOperators.TBCONCAT));
         }
         | DeclarationQualifierList ElaboratedTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: SUEDeclarationSpecifier");
-          System.exit(1);
+          // TODO: unit test this action
+          Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
+          Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, tb.product(tb1, DesugaringOperators.TBCONCAT));
         }
         | SUEDeclarationSpecifier DeclarationQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: SUEDeclarationSpecifier");
-          System.exit(1);
+          // TODO: unit test this action
+          Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
+          Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, tb.product(tb1, DesugaringOperators.TBCONCAT));
         }
         ;
 
@@ -1484,13 +1515,17 @@ SUETypeSpecifier: /** nomerge **/
         }
         | TypeQualifierList ElaboratedTypeName
         {
-          System.err.println("WARNING: unsupported semantic action: SUETypeSpecifier");
-          System.exit(1);
+          // TODO: unit test this action
+          Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
+          Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, tb.product(tb1, DesugaringOperators.TBCONCAT));
         }
         | SUETypeSpecifier TypeQualifier
         {
-          System.err.println("WARNING: unsupported semantic action: SUETypeSpecifier");
-          System.exit(1);
+          // TODO: unit test this action
+          Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
+          Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, tb.product(tb1, DesugaringOperators.TBCONCAT));
         }
         ;
 
@@ -1519,10 +1554,9 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
         }
         | TypedefDeclarationSpecifier DeclarationQualifier
       	{
-      	  Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
-      	  Multiverse<TypeBuilder> dq = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
-      	  Multiverse<TypeBuilder> tb = tb1.product(dq, DesugaringOperators.TBCONCAT);
-          setTransformationValue(value, tb);
+          Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
+          Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, tb.product(tb1, DesugaringOperators.TBCONCAT));
         }
         ;
 
