@@ -220,7 +220,7 @@ abstract class Declarator {
     }
 
     public Type getType(Type type) {
-      return new PointerT(declarator.getType(type));
+      return declarator.getType(new PointerT(type));
     }
 
     public boolean hasTypeError() {
@@ -231,7 +231,6 @@ abstract class Declarator {
     public boolean isPointerDeclarator() { return true; }
 
     public String toString() {
-      // return String.format("* %s", declarator.toString());
       return String.format("(* %s)", declarator.toString());  // preserve order of operations
     }
   }
@@ -262,8 +261,9 @@ abstract class Declarator {
     }
 
     public Type getType(Type type) {
-      System.err.println("WARNING: need to add qualifiers from typebuilderunit");
-      return new PointerT(declarator.getType(type));
+      System.err.println("TODO: check correctness of qualified pointer declarator type");
+      Type qualifiedtype = qualifiers.combine(new TypeBuilder(type)).toType();
+      return declarator.getType(new PointerT(qualifiedtype));
     }
 
     public boolean hasTypeError() {
@@ -338,8 +338,8 @@ abstract class Declarator {
     }
 
     public Type getType(Type type) {
-      System.err.println("WARNING: need to add qualifiers from typebuilderunit");
-      return new PointerT(type);
+      Type qualifiedtype = qualifiers.combine(new TypeBuilder(type)).toType();
+      return new PointerT(qualifiedtype);
     }
 
     public boolean hasTypeError() {
@@ -382,7 +382,8 @@ abstract class Declarator {
 
     public Type getType(Type type) {
       // this an array of whatever the declarator is
-      return arrayabstractdeclarator.getType(declarator.getType(type));
+      System.err.println("TODO: check correctness of array abstract declarator type");
+      return declarator.getType(arrayabstractdeclarator.getType(type));
     }
 
     public boolean hasTypeError() {
@@ -432,7 +433,7 @@ abstract class Declarator {
     public Type getType(Type type) {
       Type arrayType = type;
       assert expressions.size() > 0;  // otherwise no arraytype will be made
-      System.err.println("need to handle the expression to see if the array has a variable size of not");
+      System.err.println("TODO: need to handle the expression to see if the array has a variable size of not");
       for (StringBuilder expression : expressions) {
         arrayType = new ArrayT(arrayType);
       }
@@ -494,14 +495,22 @@ abstract class Declarator {
                                     parameters);
     }
 
-    public Type getType(Type type) {
+    public Type getType(Type returnType) {
       List<Type> paramtypes = new LinkedList<Type>();
       boolean varargs = false;  // TODO: handle varargs here
       for (ParameterDeclarator param : parameters.parameters) {
         TypeBuilder typebuilder = param.getType();
         paramtypes.add(typebuilder.toType());
       }
-      return new FunctionT(declarator.getType(type), paramtypes, varargs);
+
+      if (declarator.isSimpleDeclarator()) {
+        return new FunctionT(returnType, paramtypes, varargs);
+      } else if (declarator.isPointerDeclarator()) {
+        // the pointer declarators creator a function pointer
+        return declarator.getType(new FunctionT(returnType, paramtypes, varargs));
+      } else {
+        throw new AssertionError("function declarator should either be simple or pointer");
+      }
     }
 
     public boolean hasTypeError() {
