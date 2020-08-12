@@ -888,8 +888,6 @@ Declaration:  /** complete **/
            * necessary for source-level analysis.
            */
 
-          System.err.println("TODO: expand typebuilderunit into an implicit conditional by looking at typedef names and SUE tags");
-          
           // loop over each element of the declaration list
         	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
           for (DeclaringListValue declaringlistvalue : declaringlistvalues) {
