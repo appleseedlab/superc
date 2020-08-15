@@ -5844,6 +5844,17 @@ private String getCPC(Node n) {
 }
 
 /**
+ * Produces the string used when a compile-time error needs to be
+ * represented at runtime.
+ *
+ * @param msg The message.
+ * @returns A snippet of C code representing the compile-time error.
+ */
+private String emitError(String msg) {
+  return String.format("exit(1);  // %s", msg);
+}
+
+/**
  * Writes if (presence condition) { } around a statement, for all configurations.
  * @param allStatementConfigs A multiverse containing all configurations of a statement.
  * @param pc The current presence condition.
