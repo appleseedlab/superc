@@ -1013,6 +1013,27 @@ class PresenceConditionManager {
 
       return writer.toString();
     }
+
+    /**
+     * Use the underlying BDD's hashcode so that the same conditions
+     * will have the same hash code.
+     */
+    @Override
+    public int hashCode() {
+      return this.bdd.hashCode();
+    }
+
+    /**
+     *
+     */
+    @Override
+    public boolean equals(Object cond) {
+      if (cond instanceof PresenceCondition) {
+        return this.hashCode() == ((PresenceCondition) cond).hashCode();
+      } else {
+        return false;
+      }
+    }
   }
   
   /**
