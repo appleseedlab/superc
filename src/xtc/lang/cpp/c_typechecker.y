@@ -2604,7 +2604,7 @@ public void useIdent(Subparser subparser, Node ident) {
         if (contradiction) {
           System.err.print("invalid config invalidated by contradiction " + name + " at " + ident.getLocation());
         } else if (satWithKconfig) {
-          PresenceCondition sat = andnot.satOne();
+          /* PresenceCondition sat = andnot.satOne(); */
           if (null != scope.symbolPresenceCond(name, STField.GLOBAL_FUNDEF) || null != scope.symbolPresenceCond(name, STField.STATIC_FUNDEF)) {
             System.err.println("found for function def");
           }
@@ -2628,7 +2628,7 @@ public void useIdent(Subparser subparser, Node ident) {
               System.err.println("]");
             }
           }
-          sat.delRef();
+          /* sat.delRef(); */
         }
       } else {
         if (debug) {
@@ -2684,8 +2684,8 @@ public void callFunction(Subparser subparser, Node fun, Node parms) {
       PresenceCondition andnot = subparser.getPresenceCondition().and(not);
       not.delRef();
       if (! andnot.isFalse()) {
-        PresenceCondition sat = andnot.satOne();
-        System.err.println("found invalid configuration on function call " + name + " at " + fun.getLocation() + " config " + sat);        sat.delRef();
+        /* PresenceCondition sat = andnot.satOne(); */
+        /* System.err.println("found invalid configuration on function call " + name + " at " + fun.getLocation() + " config " + sat);        sat.delRef(); */
       }
       andnot.delRef();
 
