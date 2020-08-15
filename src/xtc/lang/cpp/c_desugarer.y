@@ -7501,6 +7501,19 @@ private Multiverse<Node> getNodeMultiverse(Node node, PresenceConditionManager p
   return mv;
 }
 
+private Map<Integer, String> condVars = new HashMap<Integer, String>();
+
+public String condToCVar(PresenceCondition cond) {
+  int hash = cond.hashCode();
+  if (condVars.containsKey(hash)) {
+    return condVars.get(hash);
+  } else {
+    String cvar = freshCId("static_condition");
+    condVars.put(hash, cvar);
+    return cvar;
+  }
+}
+
 public HashMap<String, String> boolVarRenamings = new HashMap<String, String>();
 private HashMap<String, String> BoolExprs = new HashMap<String, String>();
 
