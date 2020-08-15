@@ -5798,6 +5798,32 @@ private Object getTransformationValue(Object node) {
   return transformationValue;
 }
 
+/**
+ * Get the type of an expression node.
+ *
+ * @param subparser The subparser containing the semantic value stack.
+ * @param component The index into the semantic value stack.
+ * @returns The type.
+ */
+private Multiverse<Type> getType(Subparser subparser, int component) {
+  return (Multiverse<Type>) getType(getNodeAt(subparser, component));
+}
+
+/**
+ * Get the type of an expression node.
+ *
+ * @param node The AST node holding the semantic value.
+ * @returns The type.
+ */
+private Multiverse<Type> getType(Object node) {
+  Object type = ((Node) node).getProperty(Constants.TYPE);
+  assert type != null;
+  if (type == null) {
+    throw new IllegalStateException("getting null type value");
+  }
+  return (Multiverse<Type>) type;
+}
+
 private void setCPC(Object value, String CPC) {
   // value should be not null and should be a Node type
   setCPC((Node) value, CPC);
@@ -6214,7 +6240,7 @@ private String getStringAtNode(Subparser subparser, int component) {
  * @param value A node object.
  * @param type The type to set.
  */
-private static void setType(Object value, Type type) {
+private static void setType(Object value, Multiverse<Type> type) {
   ((Node) value).setProperty(Constants.TYPE, type);
 }
 
