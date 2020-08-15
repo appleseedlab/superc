@@ -5851,6 +5851,89 @@ private StringBuilder emitStatement(Multiverse<StringBuilder> allStatementConfig
  ********* Multiverse handlers for Nodes
  *****************************************************************************/
 
+/*
+ * This takes the product of two or more multiverses.
+ */
+protected static <T> Multiverse<T> productAll(Multiverse.Operator<T> op, Multiverse<T> ...all) {
+  if (all.length < 2) {
+    throw new IllegalStateException("productAll requires at least two multiverses");
+  }
+
+  Multiverse<T> productmv = null;
+  for (Multiverse<T> mv : all) {
+    if (null == productmv) {
+      productmv = new Multiverse<T>(mv);
+    } else {
+      Multiverse<T> tempmv = productmv.product(mv, op);
+      productmv.destruct();
+      productmv = tempmv;
+    }
+  }
+  // shouldn't be empty because all is not empty
+  assert productmv.size() > 0;
+
+  return productmv;
+}
+
+/**
+ * All configurations of this node are then returned in a multiverse.
+ * Traverses all nested static choice nodes until non-static choice nodes are reached.
+ * @param node The node to get the configurations of.
+ * @param presenceCondition The presence condition associated with node.
+ * @return A multiverse containing all configurations of the passed-in node.
+ */
+protected static Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition presenceCondition) {
+  Multiverse<Node> allConfigs = new Multiverse<Node>();
+
+  if (node instanceof GNode && ((GNode) node).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
+    PresenceCondition pc = null;
+    for (Object child : node) {
+
+      if (child instanceof PresenceCondition) {
+        pc = (PresenceCondition)child;
+      } else if (child instanceof Node) {
+        // assumes that all static choice nodes are mutually exclusive
+        Multiverse<Node> someChildren = getAllNodeConfigs((Node)child, pc);
+        allConfigs.addAll(someChildren);
+        someChildren.destruct();
+      } else {
+        System.err.println("unsupported AST child type in getNodeMultiverse");
+        System.exit(1);
+      }
+    }
+  } else {
+    // assumes that if it isn't a static choice node, then it must be a "normal" node
+    allConfigs.add(node, presenceCondition);
+  }
+  // shouldn't be empty because node is not null, static choice nodes
+  // should not be empty (by superc), and this recursive method will
+  // eventually hit the base-case of a non-static-choice node
+  assert ! allConfigs.isEmpty();
+  // TODO: manage memory
+  return allConfigs;
+}
+
+/**
+ * Get a multiverse of all stringbuilder transformation values from
+ * node, including any under a static conditional.
+ *
+ * @param The node to get the stringbuilder transformation values
+ *        from, which can be a static choice node or a regular node.
+ * @param The presence condition of the subparser.
+ * @returns A multiverse of stringbuilders that are the transformation values.
+ */
+protected Multiverse<StringBuilder> getAllNodeValues(Node node, PresenceCondition pc) {
+  Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+  Multiverse<Node> allnodes = getAllNodeConfigs(node, pc);
+  for (Multiverse.Element<Node> child : allnodes) {
+    for (Multiverse.Element<StringBuilder> childsbmv : (Multiverse<StringBuilder>) getTransformationValue(child.getData())) {
+      sbmv.add(childsbmv.getData(), childsbmv.getCondition().and(child.getCondition()));
+    }
+  }
+  
+  return sbmv;
+}
+
 /**
  * Creates the cartesian product of any number of children nodes' SBMVs.
  * @param pc A PresenceCondition.
@@ -5899,45 +5982,6 @@ protected StringBuilder concatAllStringBuilders(Node node, PresenceCondition pc)
   return valuesb;
 }
 
-
-/**
- * All configurations of this node are then returned in a multiverse.
- * Traverses all nested static choice nodes until non-static choice nodes are reached.
- * @param node The node to get the configurations of.
- * @param presenceCondition The presence condition associated with node.
- * @return A multiverse containing all configurations of the passed-in node.
- */
-protected static Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition presenceCondition) {
-  Multiverse<Node> allConfigs = new Multiverse<Node>();
-
-  if (node instanceof GNode && ((GNode) node).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
-    PresenceCondition pc = null;
-    for (Object child : node) {
-
-      if (child instanceof PresenceCondition) {
-        pc = (PresenceCondition)child;
-      } else if (child instanceof Node) {
-        // assumes that all static choice nodes are mutually exclusive
-        Multiverse<Node> someChildren = getAllNodeConfigs((Node)child, pc);
-        allConfigs.addAll(someChildren);
-        someChildren.destruct();
-      } else {
-        System.err.println("unsupported AST child type in getNodeMultiverse");
-        System.exit(1);
-      }
-    }
-  } else {
-    // assumes that if it isn't a static choice node, then it must be a "normal" node
-    allConfigs.add(node, presenceCondition);
-  }
-  // shouldn't be empty because node is not null, static choice nodes
-  // should not be empty (by superc), and this recursive method will
-  // eventually hit the base-case of a non-static-choice node
-  assert ! allConfigs.isEmpty();
-  // TODO: manage memory
-  return allConfigs;
-}
-
 /**
  * Takes the cartesian product of the current node's SBMV with one of its children SBMVs.
  * Assumes that the child parameter is not a token.
@@ -5950,14 +5994,7 @@ protected Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringB
   sbmv = new Multiverse<StringBuilder>(sbmv); // copies the passed-in sbmv because the caller destructs it.
   // getAllNodeConfigs traverses all nested static choice nodes until they reach a regular node
   // and then gets all configurations of that node
-  Multiverse<Node> allConfigs = getAllNodeConfigs(child, presenceCondition);
-  Multiverse<StringBuilder> allConfigsSBMV = new Multiverse<StringBuilder>();
-  for (Multiverse.Element<Node> childNode : allConfigs) {
-    for (Multiverse.Element<StringBuilder> childNodeSBMV : (Multiverse<StringBuilder>) getTransformationValue(childNode.getData()))
-    {
-      allConfigsSBMV.add(childNodeSBMV.getData(), childNodeSBMV.getCondition().and(childNode.getCondition())); // add the sbmv elements with the sbmv element condition ANDED with the node pc
-    }
-  }
+  Multiverse<StringBuilder> allConfigsSBMV = getAllNodeValues(child, presenceCondition);
 
   Multiverse<StringBuilder> temp = sbmv.product(allConfigsSBMV, DesugaringOperators.SBCONCAT);
   sbmv.destruct();
