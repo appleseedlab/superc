@@ -53,30 +53,27 @@ class PresenceConditionManager {
   private Variables vars;
   
   /** The stack of nested presence conditions. */
-  private LinkedList<BDD> stack;
+  private LinkedList<PresenceCondition> stack;
 
   /**
    * The current global presence condition, i.e. the conjunction of
    * nested presence conditions.
    */
-  private BDD global;
+  private PresenceCondition global;
 
   /**
    * The local presence condition of the current conditional branch.
    */
-  private BDD branch;
+  private PresenceCondition branch;
 
   /**
    * The not of the union of all previous conditional branches.  This
    * models the short-circuiting of preprocessor conditonals.
    */
-  private BDD notBranches;
+  private PresenceCondition notBranches;
   
-  /** The current presence condition. */
-  private PresenceCondition current;
-
   /** The CONFIG_-only domain of variables. */
-  private BDD configDomain;
+  private PresenceCondition configDomain;
 
   /**
    * Create a new presence condition manager.
@@ -84,11 +81,10 @@ class PresenceConditionManager {
   public PresenceConditionManager() {
     this.B = BDDFactory.init(5000000, 50000);
     this.vars = new Variables(B);
-    this.stack = new LinkedList<BDD>();
-    this.global = B.one();
+    this.stack = new LinkedList<PresenceCondition>();
+    this.global = newTrue();
     this.branch = null;
     this.notBranches = null;
-    this.current = null;
     this.configDomain = null;
   }
 
@@ -101,32 +97,27 @@ class PresenceConditionManager {
     this.B = presenceConditionManager.B;
     this.vars = presenceConditionManager.vars;
     
-    this.stack = new LinkedList<BDD>();
+    this.stack = new LinkedList<PresenceCondition>();
 
-    for (BDD bdd : presenceConditionManager.stack) {
-      if (bdd != null) {
-        this.stack.add(bdd.id());
-      }
-      else {
+    for (PresenceCondition cond : presenceConditionManager.stack) {
+      if (cond != null) {
+        this.stack.add(cond.addRef());
+      } else {
         this.stack.add(null);
       }
     }
 
-    this.global = presenceConditionManager.global.id();
+    this.global = presenceConditionManager.global.addRef();
     if (null != presenceConditionManager.branch) {
-      this.branch = presenceConditionManager.branch.id();
-    }
-    else {
+      this.branch = presenceConditionManager.branch.addRef();
+    } else {
       this.branch = null;
     }
     if (null != presenceConditionManager.notBranches) {
-      this.notBranches = presenceConditionManager.notBranches.id();
-    }
-    else {
+      this.notBranches = presenceConditionManager.notBranches.addRef();
+    } else {
       this.notBranches = null;
     }
-    
-    this.current = null;
   }
   
   /**
@@ -135,22 +126,17 @@ class PresenceConditionManager {
    * nested presence conditions.
    */
   public void free() {
-    global.free();
+    global.delRef();
     if (null != branch) {
-      branch.free();
+      branch.delRef();
     }
     if (null != notBranches) {
-      notBranches.free();
+      notBranches.delRef();
     }
-    for (BDD bdd : stack) {
-      if (null != bdd) {
-        bdd.free();
+    for (PresenceCondition cond : stack) {
+      if (null != cond) {
+        cond.delRef();
       }
-    }
-    
-    if (null != current) {
-      current.delRef();
-      current = null;
     }
   }
   
@@ -162,14 +148,9 @@ class PresenceConditionManager {
     stack.push(branch);
     stack.push(global);
     
-    notBranches = B.one();
-    branch = B.zero();
-    global = B.zero();
-    
-    if (null != current) {
-      current.delRef();
-      current = null;
-    }
+    notBranches = newTrue();
+    branch = newFalse();
+    global = newFalse();
   }
   
   /**
@@ -177,19 +158,15 @@ class PresenceConditionManager {
    *
    * @param bdd The new local presence condition.  Will be delRef'ed.
    */
-  public void enter(BDD bdd) {
-    notBranches.andWith(branch.not());
-    branch.free();
-    branch = bdd;
+  public void enter(PresenceCondition cond) {
+    PresenceCondition andNot = notBranches.andNot(branch);
+    notBranches.delRef(); notBranches = andNot;
+    branch.delRef(); branch = cond.addRef();
     
-    global.free();
     //       peekGlobal   &&  notBranches   &&     branch
-    global = stack.peek().and(notBranches).andWith(branch.id());
-    
-    if (null != current) {
-      current.delRef();
-      current = null;
-    }
+    PresenceCondition peekGlobalAndNotBranches = stack.peek().and(notBranches);
+    global.delRef(); global = peekGlobalAndNotBranches.and(branch);
+    peekGlobalAndNotBranches.delRef();
   }
   
   /**
@@ -200,14 +177,12 @@ class PresenceConditionManager {
    *
    * @param bdd The presence condition of the branch.
    */
-  public void enterElif(BDD bdd) {
-    branch = bdd;
-    global = stack.peek().and(notBranches).andWith(branch.id());
+  public void enterElif(PresenceCondition cond) {
+    branch = cond.addRef();
     
-    if (null != current) {
-      current.delRef();
-      current = null;
-    }
+    PresenceCondition peekGlobalAndNotBranches = stack.peek().and(notBranches);
+    global.delRef(); global = peekGlobalAndNotBranches.and(branch);
+    peekGlobalAndNotBranches.delRef();
   }
   
   /**
@@ -215,25 +190,16 @@ class PresenceConditionManager {
    * TRUE.
    */
   public void enterElse() {
-    enter(B.one());
+    enter(newTrue());
   }
   
   /**
    * Pop the current presence condition off of the stack.
    */
   public void pop() {
-    global.free();
-    branch.free();
-    notBranches.free();
-    
-    global = stack.pop();
-    branch = stack.pop();
-    notBranches = stack.pop();
-    
-    if (null != current) {
-      current.delRef();
-      current = null;
-    }
+    global.delRef(); global = stack.pop();
+    branch.delRef(); branch = stack.pop();
+    notBranches.delRef(); notBranches = stack.pop();
   }
   
   /**
@@ -243,25 +209,36 @@ class PresenceConditionManager {
    * @param The parent presence condition.
    */
   public PresenceCondition parent() {
-    return new PresenceCondition(stack.peek().id());
+    return stack.peek().addRef();
   }
 
   /**
-   * Whether the current presence condition is true.
+   * Whether the current presence condition is always true.
    *
    * @return true When the the current presence condition is true.
    */
   public boolean isTrue() {
-    return global.isOne();
+    return global.isTrue();
   }
   
   /**
-   * Whether the current presence condition is false
+   * Whether the current presence condition is always false.
    *
    * @return true When the the current presence condition is false.
    */
   public boolean isFalse() {
-    return global.isZero();
+    return global.isFalse();
+  }
+  
+  /**
+   * Whether the current presence condition is not always false.  Note
+   * that this is not the same is isTrue, which means that the
+   * formulas is always true.
+   *
+   * @return true When the the current presence condition is not false.
+   */
+  public boolean isNotFalse() {
+    return ! global.isFalse();
   }
 
   /**
@@ -270,109 +247,115 @@ class PresenceConditionManager {
    * @return The current presence condition.
    */
   public PresenceCondition reference() {
-    if (null == current) {
-      current = new PresenceCondition(global.id());
-    }
-    current.addRef();
-    
-    return current;
+    return global.addRef();
   }
   
   public boolean is(PresenceCondition presenceCondition) {
-    return global.equals(presenceCondition.getBDD());
+    return global.is(presenceCondition);
   }
 
   // START TODO: rework/remove code that is manipulating BDDs
-  /**
-   * Collect the domain of all CONFIG_-related BDDs.  This domain is
-   * used by simplifyToConfigs.  Calling this method will regenerate
-   * the domain if it's already computed.
-   */
-  public void generateConfigDomain() {
-    if (null != this.configDomain) this.configDomain.free();
+  // /**
+  //  * Collect the domain of all CONFIG_-related BDDs.  This domain is
+  //  * used by simplifyToConfigs.  Calling this method will regenerate
+  //  * the domain if it's already computed.
+  //  */
+  // public void generateConfigDomain() {
+  //   if (null != this.configDomain) this.configDomain.free();
     
-    this.configDomain = B.zero();
-    for (int i = 0; i < getVariableManager().getSize(); i++) {
-      if (getVariableManager().getName(i).startsWith("(defined CONFIG_")) {
-        this.configDomain = this.configDomain.orWith(getVariableManager().getVariable(getVariableManager().getName(i)));
-      }
-    }
-  }
+  //   this.configDomain = B.zero();
+  //   for (int i = 0; i < getVariableManager().getSize(); i++) {
+  //     if (getVariableManager().getName(i).startsWith("(defined CONFIG_")) {
+  //       this.configDomain = this.configDomain.orWith(getVariableManager().getVariable(getVariableManager().getName(i)));
+  //     }
+  //   }
+  // }
 
-  /**
-   * Check whether the config domain has been computed yet.
-   *
-   * @return true if the domain has been computed.
-   */
-  public boolean hasConfigDomain() {
-    return null != this.getConfigDomain();
-  }
+  // /**
+  //  * Check whether the config domain has been computed yet.
+  //  *
+  //  * @return true if the domain has been computed.
+  //  */
+  // public boolean hasConfigDomain() {
+  //   return null != this.getConfigDomain();
+  // }
 
-  /**
-   * Get the CONFIG_-only domain.
-   *
-   * @return The config domain
-   */
-  public BDD getConfigDomain() {
-    return this.configDomain;
-  }
+  // /**
+  //  * Get the CONFIG_-only domain.
+  //  *
+  //  * @return The config domain
+  //  */
+  // public BDD getConfigDomain() {
+  //   return this.configDomain;
+  // }
 
-  /**
-   * Get the CONFIG_-only domain.
-   *
-   * @return The config domain
-   */
-  public PresenceCondition getConfigDomainCond() {
-    if (! hasConfigDomain()) {
-      generateConfigDomain();
-    }
+  // /**
+  //  * Get the CONFIG_-only domain.
+  //  *
+  //  * @return The config domain
+  //  */
+  // public PresenceCondition getConfigDomainCond() {
+  //   if (! hasConfigDomain()) {
+  //     generateConfigDomain();
+  //   }
 
-    return new PresenceCondition(getConfigDomain());
-  }
+  //   return new PresenceCondition(getConfigDomain());
+  // }
 
-  /**
-   * Simplify the BDD by narrowing the domain to only CONFIG_
-   * variables.  This will call generateConfigDomain only if the
-   * domain does not exist already.  Call generateConfigDomain to
-   * regenerate if new variables have been added.
-   *
-   * @param pc The presence condition to simplify.
-   * @return The simplified BDD.
-   */
-  public PresenceCondition simplifyToConfigs(PresenceCondition pc) {
-    if (! hasConfigDomain()) {
-      generateConfigDomain();
-    }
+  // /**
+  //  * Simplify the BDD by narrowing the domain to only CONFIG_
+  //  * variables.  This will call generateConfigDomain only if the
+  //  * domain does not exist already.  Call generateConfigDomain to
+  //  * regenerate if new variables have been added.
+  //  *
+  //  * @param pc The presence condition to simplify.
+  //  * @return The simplified BDD.
+  //  */
+  // public PresenceCondition simplifyToConfigs(PresenceCondition pc) {
+  //   if (! hasConfigDomain()) {
+  //     generateConfigDomain();
+  //   }
 
-    BDD r = pc.getBDD().id();
-    for (int i = 0; i < getVariableManager().getSize(); i++) {
-      if (getVariableManager().getName(i).contains("CONFIG_")) {
-        r = r.simplify(getVariableManager().getVariable(getVariableManager().getName(i)));
-      }
-    }
+  //   BDD r = pc.getBDD().id();
+  //   for (int i = 0; i < getVariableManager().getSize(); i++) {
+  //     if (getVariableManager().getName(i).contains("CONFIG_")) {
+  //       r = r.simplify(getVariableManager().getVariable(getVariableManager().getName(i)));
+  //     }
+  //   }
 
-    return new PresenceCondition(r);
-    // return new PresenceCondition(pc.getBDD().simplify(getConfigDomain()));
-  }
+  //   return new PresenceCondition(r);
+  //   // return new PresenceCondition(pc.getBDD().simplify(getConfigDomain()));
+  // }
 
-  public PresenceCondition getRestrictCond(boolean val) {
-    BDD restrictBDD = B.one();
-    for (int i = 0; i < getVariableManager().getSize(); i++) {
-      // if (! getVariableManager().getName(i).contains("(defined CONFIG_")) {
-      if (! getVariableManager().getName(i).contains("CONFIG_")) {
-        if (val) {
-          restrictBDD = restrictBDD.andWith(getVariableManager().getVariable(getVariableManager().getName(i)));
-        } else {
-          BDD varbdd = getVariableManager().getVariable(getVariableManager().getName(i));
-          restrictBDD = restrictBDD.andWith(varbdd.not());
-          varbdd.free();
-        }
-      }
-    }
+  // // TODO: convert to use presence condition operations
+  // public PresenceCondition getRestrictCond(boolean val) {
+  //   BDD restrictBDD = B.one();
+  //   for (int i = 0; i < getVariableManager().getSize(); i++) {
+  //     // if (! getVariableManager().getName(i).contains("(defined CONFIG_")) {
+  //     if (! getVariableManager().getName(i).contains("CONFIG_")) {
+  //       if (val) {
+  //         restrictBDD = restrictBDD.andWith(getVariableManager().getVariable(name));
+  //       } else {
+  //         BDD varbdd = getVariableManager().getVariable(getVariableManager().getName(i));
+  //         restrictBDD = restrictBDD.andWith(varbdd.not());
+  //         varbdd.free();
+  //       }
+  //     }
+  //   }
 
-    return new PresenceCondition(restrictBDD);
-  }
+  //   return new PresenceCondition(restrictBDD);
+  // }
   // END TODO
+
+  /**
+   * Return a new presence condition, given the bdd (created by this
+   * PresenceConditionManager's BDDFactory) and a string
+   * representation of the expression.  This is used by
+   * ConditionEvaluator to construct a presence condition.
+   */
+  public PresenceCondition newCondition(BDD bdd, Node tree) {
+    return new PresenceCondition(bdd, tree);
+  }
 
   /**
    * Return a new presence condition instance of true.
