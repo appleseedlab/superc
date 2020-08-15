@@ -250,6 +250,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.HashMap;
 
 import java.io.File;
@@ -285,21 +286,16 @@ TranslationUnit:  /** complete **/
         {
           try {
             OutputStreamWriter writer = new OutputStreamWriter(System.out);
-            setCPC(value, PCtoString(subparser.getPresenceCondition()));
+            setCPC(value, condToCVar(subparser.getPresenceCondition()));
 
             // the signature for the type error call.
             // TODO: only emit if __type_error is used
-            writer.write("void * __type_error(char *message); /* this method should halt */\n");
             
             // writes the extern declarations for the renamed preprocessor BDDs
             writer.write("#include <stdbool.h>\n");
-            StringBuilder temp = new StringBuilder();
-            for (String originalExpr : boolVarRenamings.keySet()) {
-              temp.append(originalExpr);
-              writer.write("extern bool " + boolVarRenamings.get(originalExpr) + "; " + "/* renamed from " + temp.toString() + " */" + "\n");
-              writer.write("extern bool " + boolVarRenamings.get(originalExpr) + "_DEFINED;" + "\n");
-
-              temp.setLength(0);
+            System.err.println("TODO: record original presence condition strings in file as well once raw strings are collected");
+            for (Integer hash : condVars.keySet()) {
+              writer.write(String.format("extern bool %s;\n", condVars.get(hash)));
             }
 
             SymbolTable symtab = ((CContext) subparser.scope).getSymbolTable();
@@ -384,7 +380,7 @@ FunctionDefinition:  /** complete **/ // added scoping
         FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
 
           String leftcurly = getNodeAt(subparser, 4).getTokenText();
           String body = concatAllStringBuilders(getNodeAt(subparser, 3), subparser.getPresenceCondition()).toString();
@@ -515,7 +511,7 @@ FunctionDefinition:  /** complete **/ // added scoping
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
+          setCPC(value, condToCVar(subparser.getPresenceCondition()));
           // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionDefinition");
           System.exit(1);
@@ -528,7 +524,7 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
         LocalLabelDeclarationListOpt DeclarationOrStatementList
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
 
           StringBuilder valuesb = new StringBuilder();
           valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
@@ -831,10 +827,10 @@ Declaration:  /** complete **/
                                                typebuilder.getCondition());
               } else {
                 sb.append("if (");
-                sb.append(PCtoString(typebuilder.getCondition()));
+                sb.append(condToCVar(typebuilder.getCondition()));
                 sb.append(") {\n");
-                sb.append(String.format("__type_error(\"invalid declaration of struct: %s\");\n",
-                                        typebuilder.getData().getStructTag()));
+                sb.append(emitError(String.format("invalid declaration of struct: %s",
+                                                  typebuilder.getData().getStructTag())));
                 sb.append("}\n");
               }
             }
@@ -861,10 +857,10 @@ Declaration:  /** complete **/
                                                typebuilder.getCondition());
               } else {
                 sb.append("if (");
-                sb.append(PCtoString(typebuilder.getCondition()));
+                sb.append(condToCVar(typebuilder.getCondition()));
                 sb.append(") {\n");
-                sb.append(String.format("__type_error(\"invalid declaration of struct: %s\");\n",
-                                        typebuilder.getData().getStructTag()));
+                sb.append(emitError(String.format("invalid declaration of struct: %s",
+                                                  typebuilder.getData().getStructTag())));
                 sb.append("}\n");
               }
             }
@@ -919,9 +915,10 @@ Declaration:  /** complete **/
                       recordInvalidGlobalDeclaration(originalName, combinedCond);
                     } else {
                       valuesb.append("if (");
-                      valuesb.append(PCtoString(combinedCond));
+                      valuesb.append(condToCVar(combinedCond));
                       valuesb.append(") {\n");
-                      valuesb.append(String.format("__type_error(\"invalid declaration of \"%s\" under this presence condition\");\n", originalName));
+                      valuesb.append(emitError(String.format("invalid declaration of \"%s\" under this presence condition",
+                                                             originalName)));
                       valuesb.append("}\n");
                     }
                   } else {
@@ -962,9 +959,10 @@ Declaration:  /** complete **/
                           // not allowed to redeclare local symbols at all
                           scope.putError(originalName, entry.getCondition());
                           entrysb.append("if (");
-                          entrysb.append(PCtoString(entry.getCondition()));
+                          entrysb.append(condToCVar(entry.getCondition()));
                           entrysb.append(") {\n");
-                          entrysb.append(String.format("__type_error(\"redeclaration of local symbol: %s\");\n", originalName));
+                          entrysb.append(emitError(String.format("redeclaration of local symbol: %s",
+                                                                 originalName)));
                           entrysb.append("}\n");
                         } else {  // global scope
 
@@ -2871,7 +2869,7 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         Initializer
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
           setTransformationValue(value, product);
@@ -2879,7 +2877,7 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         | Designation Initializer
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
@@ -3557,6 +3555,11 @@ PostfixAbstractDeclarator: /** nomerge **/
 
 // ---------------------------------------------------------------- Statements
 
+
+/*
+use this to get one pc for all errors in the types
+PresenceCondition errorCond = typemv.getPresenceCondition(ErrorT.TYPE);
+ */
 Statement:  /** complete **/
         LabeledStatement
         {
@@ -3566,7 +3569,7 @@ Statement:  /** complete **/
         {
 	  // NOTE: calling emitStatement() here can also break switch cases.
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           // compound statements contain already-hoisted constructs
           // (declarations and statements), so just wrap this in a
           // single-element multiverse
@@ -3600,28 +3603,28 @@ LabeledStatement:  /** complete **/  // ADDED attributes
         IdentifierOrTypedefName COLON AttributeSpecifierListOpt Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
         | CASE ConstantExpression COLON Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
         | CASE ConstantExpression ELLIPSIS ConstantExpression COLON Statement  // ADDED case range
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
         | DEFAULT COLON Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
@@ -3638,7 +3641,7 @@ CompoundStatement:  /** complete **/  /* ADDED */
         LBRACE { EnterScope(subparser); } LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           
           StringBuilder valuesb = new StringBuilder();
           valuesb.append(getNodeAt(subparser, 6).getTokenText());
@@ -3684,7 +3687,7 @@ LocalLabelDeclaration: /** complete **/  /* ADDED */
         __LABEL__ LocalLabelList SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: LocalLabelDeclaration");
           System.exit(1);
         }
@@ -3694,14 +3697,14 @@ LocalLabelList:  /** list, complete **/  // ADDED
         IDENTIFIER
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: LocalLabelList");
           System.exit(1);
         }
         | LocalLabelList COMMA IDENTIFIER
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: LocalLabelList");
           System.exit(1);
         }
@@ -3732,7 +3735,7 @@ DeclarationOrStatement: /** complete **/  /* ADDED */
         {
           // hoist all statements here, that declaratinorstatement is just a string
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
 
           /* StringBuilder allStatements = new StringBuilder(); */
@@ -3741,7 +3744,7 @@ DeclarationOrStatement: /** complete **/  /* ADDED */
           /* for (Multiverse.Element<StringBuilder> statement : product) { */
           /*   PresenceCondition combinedCond = statement.getCondition().and(subparser.getPresenceCondition()); */
           /*   allStatements.append("\nif (" + */
-          /*   PCtoString(combinedCond) + */
+          /*   condToCVar(combinedCond) + */
           /*   ") {\n" + statement.getData().toString() + "\n}\n"); */
           /*   combinedCond.delRef(); */
           /* } */
@@ -3790,7 +3793,7 @@ SelectionStatement:  /** complete **/
         IF LPAREN Expression RPAREN Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2));
           Multiverse<StringBuilder> temp
@@ -3815,7 +3818,7 @@ SelectionStatement:  /** complete **/
         | IF LPAREN Expression RPAREN Statement ELSE Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
 
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7), getNodeAt(subparser, 6), getNodeAt(subparser, 5), getNodeAt(subparser, 4));
 
@@ -3861,8 +3864,9 @@ SelectionStatement:  /** complete **/
         }
         | SWITCH LPAREN Expression RPAREN Statement
         {
+          System.err.println("TODO: switch statement");
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           // TODO: hard-code curly braces to ensure that any rewritings of the statement (node 1),
           // remain inside the scope of the condition.
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
@@ -3874,7 +3878,7 @@ IterationStatement:  /** complete **/
         WHILE LPAREN Expression RPAREN Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2));
           Multiverse<StringBuilder> temp
             = sbmv.product(new StringBuilder(" {\n"),
@@ -3895,7 +3899,7 @@ IterationStatement:  /** complete **/
         | DO Statement WHILE LPAREN Expression RPAREN SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7));
           Multiverse<StringBuilder> temp
             = sbmv.product(new StringBuilder(" {\n"),
@@ -3939,7 +3943,7 @@ IterationStatement:  /** complete **/
                 ExpressionOpt RPAREN Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: IterationStatement");
           System.exit(1);
         }
@@ -3949,25 +3953,25 @@ JumpStatement:  /** complete **/
         GotoStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | ContinueStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | BreakStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | ReturnStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         ;
@@ -3976,14 +3980,14 @@ GotoStatement:  /** complete **/
         GOTO IdentifierOrTypedefName SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: GotoStatement");
           System.exit(1);
         }
         | GOTO STAR Expression SEMICOLON  // ADDED
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: GotoStatement");
           System.exit(1);
         }
@@ -3993,7 +3997,7 @@ ContinueStatement:  /** complete **/
         CONTINUE SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
@@ -4003,7 +4007,7 @@ BreakStatement:  /** complete **/
         BREAK SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
@@ -4013,7 +4017,7 @@ ReturnStatement:  /** complete **/
         RETURN ExpressionOpt SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          setCPC(value, condToCVar(pc));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
@@ -5665,7 +5669,7 @@ public String freshCId(String base) {
    This is just a constant string name for a property used to assign
    semantic values that are type builders.
  */
-private static final String STRING = "xtc.String";
+private static final String STRING = "xtc.String";  // todo remove if not needed
 private static final String TRANSFORMATION = "transformation";
 
 private void setTransformationValue(Object node, Object value) {
@@ -5869,7 +5873,7 @@ private StringBuilder emitStatement(Multiverse<StringBuilder> allStatementConfig
     if (! statement.getCondition().isTrue()) {
       // don't bother using an if the statement applies to all configurations
       sb.append("\nif (");
-      sb.append(PCtoString(statement.getCondition().and(pc)));
+      sb.append(condToCVar(statement.getCondition().and(pc)));
       sb.append(") {\n");
     }
     sb.append(statement.getData().toString());
@@ -6040,6 +6044,7 @@ protected Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringB
   return sbmv;
 }
 
+
 /*****************************************************************************
  ********* Methods to record global desugaring information.  These
  ********* will go into a special initializer function defined at the
@@ -6053,7 +6058,7 @@ protected Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringB
  * @param condition The presence condition under which the error occurred.
  */
 private void recordInvalidGlobalDeclaration(String ident, PresenceCondition condition) {
-  System.err.println(String.format("TODO: record global invalid declaration: __invalid_declaration(%s, %s)", ident, PCtoString(condition)));
+  System.err.println(String.format("TODO: record global invalid declaration: __invalid_declaration(%s, %s)", ident, condToCVar(condition)));
 }
 
 /**
@@ -6063,7 +6068,7 @@ private void recordInvalidGlobalDeclaration(String ident, PresenceCondition cond
  * @param condition The presence condition under which the error occurred.
  */
 private void recordInvalidGlobalRedeclaration(String ident, PresenceCondition condition) {
-  System.err.println(String.format("TODO: record global invalid global redeclaration: __invalid_declaration(%s, %s)", ident, PCtoString(condition)));
+  System.err.println(String.format("TODO: record global invalid global redeclaration: __invalid_declaration(%s, %s)", ident, condToCVar(condition)));
 }
 
 /**
@@ -6817,7 +6822,7 @@ public void useIdent(Subparser subparser, Node ident) {
         if (contradiction) {
           System.err.print("invalid config invalidated by contradiction " + name + " at " + ident.getLocation());
         } else if (satWithKconfig) {
-          PresenceCondition sat = andnot.satOne();
+          /* PresenceCondition sat = andnot.satOne(); */
           if (null != scope.symbolPresenceCond(name, STField.GLOBAL_FUNDEF) || null != scope.symbolPresenceCond(name, STField.STATIC_FUNDEF)) {
             System.err.println("found for function def");
           }
@@ -6841,7 +6846,7 @@ public void useIdent(Subparser subparser, Node ident) {
               System.err.println("]");
             }
           }
-          sat.delRef();
+          /* sat.delRef(); */
         }
       } else {
         if (debug) {
@@ -6897,8 +6902,8 @@ public void callFunction(Subparser subparser, Node fun, Node parms) {
       PresenceCondition andnot = subparser.getPresenceCondition().and(not);
       not.delRef();
       if (! andnot.isFalse()) {
-        PresenceCondition sat = andnot.satOne();
-        System.err.println("found invalid configuration on function call " + name + " at " + fun.getLocation() + " config " + sat);        sat.delRef();
+        /* PresenceCondition sat = andnot.satOne(); */
+        /* System.err.println("found invalid configuration on function call " + name + " at " + fun.getLocation() + " config " + sat);        sat.delRef(); */
       }
       andnot.delRef();
 
