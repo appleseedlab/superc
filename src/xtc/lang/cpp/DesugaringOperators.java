@@ -21,7 +21,8 @@ import xtc.lang.cpp.Declarator.ArrayAbstractDeclarator;
 import xtc.lang.cpp.Declarator.FunctionDeclarator;
 import xtc.lang.cpp.Declarator.ParameterListDeclarator;
 
-import xtc.type.AliasT;
+import xtc.type.ErrorT;
+import xtc.type.Type;
 
 import java.util.List;
 import java.util.LinkedList;
@@ -219,5 +220,22 @@ class DesugaringOperators {
     newsb.append(sb1);
     newsb.append(sb2);
     return newsb;
+  };
+
+  /**
+   * Product of two types.  Results in an ErrorT if they aren't
+   * compatible.
+   */
+  public final static Multiverse.Operator<Type> compareTypes = (t1, t2) -> {
+    Type newtype;
+    if (CActions.cOps.equal(t1, t2)) {
+      // TODO: may need to pick correct type based on kind of
+      // construct
+      System.err.println("TODO: handle type coercion.  see xtc.lang.CAnalyzer.processAssignment.");
+      newtype = t1;
+    } else {
+      newtype = ErrorT.TYPE;
+    }
+    return newtype;
   };
 }
