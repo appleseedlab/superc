@@ -1,3 +1,5 @@
+#define OPENSSL_FILE ""
+#define OPENSSL_LINE 0
 #define size_t unsigned int
 
 void OPENSSL_cleanse(void *ptr, size_t len);
