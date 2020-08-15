@@ -34,6 +34,9 @@ import java.util.HashSet;
 
 import xtc.lang.cpp.Syntax.Kind;
 
+import xtc.tree.Node;
+import xtc.tree.GNode;
+
 import net.sf.javabdd.BDDFactory;
 import net.sf.javabdd.BDD;
   
@@ -389,7 +392,8 @@ class PresenceConditionManager {
    */
   public PresenceCondition getVariable(String name) {
     // get variable gives a new bdd, which presence condition expects
-    return new PresenceCondition(getVariableManager().getVariable(name));
+    return new PresenceCondition(getVariableManager().getVariable(name),
+                                 GNode.create("PrimaryIdentifier", name));
   }
 
   /**
@@ -400,7 +404,8 @@ class PresenceConditionManager {
    */
   public PresenceCondition getDefinedVariable(String name) {
     // get defined variable gives a new bdd, which presence condition expects
-    return new PresenceCondition(getVariableManager().getDefinedVariable(name));
+    return new PresenceCondition(getVariableManager().getDefinedVariable(name),
+                                 GNode.create("DefinedExpression", GNode.create("PrimaryIdentifier", name)));
   }
 
   /**
@@ -445,123 +450,123 @@ class PresenceConditionManager {
     return B;
   }
 
-  /**
-   * Return a new presence condition with the disjunction of all
-   * variables, turned off or on according to the parameters.
-   *
-   * @param defaultSetting true for all variables on, false for off.
-   * @param exceptions null for none, list of strings to set opposite
-   * the defaultSetting.
-   * @return The new presence condition.
-   */
-  public BDD evaluateBDDs(ConditionEvaluator evaluator) {
-    BDD b = B.one();
+  // /**
+  //  * Return a new presence condition with the disjunction of all
+  //  * variables, turned off or on according to the parameters.
+  //  *
+  //  * @param defaultSetting true for all variables on, false for off.
+  //  * @param exceptions null for none, list of strings to set opposite
+  //  * the defaultSetting.
+  //  * @return The new presence condition.
+  //  */
+  // public BDD evaluateBDDs(ConditionEvaluator evaluator) {
+  //   BDD b = B.one();
 
-    for (int i = 0; i < vars.indices.size(); i++) {
-      String varString = vars.indices.get(i);
-      final CLexer clexer = new CLexer(new StringReader(varString));
-      clexer.setFileName("string expression");
+  //   for (int i = 0; i < vars.indices.size(); i++) {
+  //     String varString = vars.indices.get(i);
+  //     final CLexer clexer = new CLexer(new StringReader(varString));
+  //     clexer.setFileName("string expression");
 
-      Iterator<Syntax> stream = new Iterator<Syntax>() {
-          Syntax syntax;
+  //     Iterator<Syntax> stream = new Iterator<Syntax>() {
+  //         Syntax syntax;
     
-          public Syntax next() {
-            try {
-              syntax = clexer.yylex();
-            } catch (IOException e) {
-              e.printStackTrace();
-              throw new RuntimeException();
-            }
-            return syntax;
-          }
+  //         public Syntax next() {
+  //           try {
+  //             syntax = clexer.yylex();
+  //           } catch (IOException e) {
+  //             e.printStackTrace();
+  //             throw new RuntimeException();
+  //           }
+  //           return syntax;
+  //         }
     
-          public boolean hasNext() {
-            return syntax.kind() != Kind.EOF;
-          }
+  //         public boolean hasNext() {
+  //           return syntax.kind() != Kind.EOF;
+  //         }
 
-          public void remove() {
-            throw new UnsupportedOperationException();
-          }
-        };
+  //         public void remove() {
+  //           throw new UnsupportedOperationException();
+  //         }
+  //       };
 
-      stream.next();
+  //     stream.next();
 
-      BDD result = evaluator.evaluate(stream);
+  //     BDD result = evaluator.evaluate(stream);
 
-      if (result.isOne()) {
-        b.andWith(B.ithVar(i));
-      } else if (result.isZero()) {
-        BDD ith = B.ithVar(i);
-        BDD not = ith.not();
-        ith.free();
-        b.andWith(not);
-      } else {
-        System.err.println("unresolved BDD variable");
-        System.err.println(varString);
-        BDD ith = B.ithVar(i);
-        BDD not = ith.not();
-        ith.free();
-        b.andWith(not);
-        // System.exit(1);
-      }
-    }
+  //     if (result.isOne()) {
+  //       b.andWith(B.ithVar(i));
+  //     } else if (result.isZero()) {
+  //       BDD ith = B.ithVar(i);
+  //       BDD not = ith.not();
+  //       ith.free();
+  //       b.andWith(not);
+  //     } else {
+  //       System.err.println("unresolved BDD variable");
+  //       System.err.println(varString);
+  //       BDD ith = B.ithVar(i);
+  //       BDD not = ith.not();
+  //       ith.free();
+  //       b.andWith(not);
+  //       // System.exit(1);
+  //     }
+  //   }
 
-    return b;
-  }
+  //   return b;
+  // }
 
-  /**
-   * Return a new presence condition with the disjunction of all
-   * variables, turned off or on according to the parameters.
-   *
-   * @param defaultSetting true for all variables on, false for off.
-   * @param exceptions null for none, list of strings to set opposite
-   * the defaultSetting.
-   * @return The new presence condition.
-   */
-  public BDD createConfiguration(boolean defaultSetting,
-                                 List<String> exceptions) {
-    BDD b = B.one();
+  // /**
+  //  * Return a new presence condition with the disjunction of all
+  //  * variables, turned off or on according to the parameters.
+  //  *
+  //  * @param defaultSetting true for all variables on, false for off.
+  //  * @param exceptions null for none, list of strings to set opposite
+  //  * the defaultSetting.
+  //  * @return The new presence condition.
+  //  */
+  // public BDD createConfiguration(boolean defaultSetting,
+  //                                List<String> exceptions) {
+  //   BDD b = B.one();
 
-    for (int i = 0; i < vars.indices.size(); i++) {
-      boolean setting = defaultSetting;
-      String varString = vars.indices.get(i);
+  //   for (int i = 0; i < vars.indices.size(); i++) {
+  //     boolean setting = defaultSetting;
+  //     String varString = vars.indices.get(i);
 
-      if (null != exceptions && exceptions.contains(varString)) {
-        setting = ! setting;
-      }
+  //     if (null != exceptions && exceptions.contains(varString)) {
+  //       setting = ! setting;
+  //     }
 
-      if (setting) {
-        b.andWith(B.ithVar(i));
-      } else {
-        BDD ith = B.ithVar(i);
-        BDD not = ith.not();
-        ith.free();
-        b.andWith(not);
-      }
-    }
+  //     if (setting) {
+  //       b.andWith(B.ithVar(i));
+  //     } else {
+  //       BDD ith = B.ithVar(i);
+  //       BDD not = ith.not();
+  //       ith.free();
+  //       b.andWith(not);
+  //     }
+  //   }
 
-    return b;
-  }
+  //   return b;
+  // }
 
-  /**
-   * Return a new presence condition with the disjunction of all
-   * variables.
-   *
-   * @return The new presence condition.
-   */
-  public BDD allYes() {
-    return createConfiguration(true, null);
-  }
+  // /**
+  //  * Return a new presence condition with the disjunction of all
+  //  * variables.
+  //  *
+  //  * @return The new presence condition.
+  //  */
+  // public BDD allYes() {
+  //   return createConfiguration(true, null);
+  // }
 
-  /**
-   * Return a new presence condition with the disjunction of all
-   * variables negated.
-   *
-   * @return The new presence condition.
-   */
-  public BDD allNo() {
-    return createConfiguration(false, null);
-  }
+  // /**
+  //  * Return a new presence condition with the disjunction of all
+  //  * variables negated.
+  //  *
+  //  * @return The new presence condition.
+  //  */
+  // public BDD allNo() {
+  //   return createConfiguration(false, null);
+  // }
 
   /**
    * Print one sat to a writer.
@@ -658,6 +663,11 @@ class PresenceConditionManager {
 
     return allConfigs;
   }
+  
+  private static Node oneNode = GNode.create("IntegerConstant", "1");
+
+  private static Node zeroNode = GNode.create("IntegerConstant", "0");
+    
 
   /** A reference-counted presence condition that automatically cleans up BDD when
     * nothing references it anymore.
@@ -666,23 +676,28 @@ class PresenceConditionManager {
     /** The BDD backing the presence condition. */
     private BDD bdd;
 
+    /** The tree representation of this expression. */
+    private Node tree;
+
     /**
      * The number of references to the presence condition, used to
      * automatically destroy the BDD object.
      */
     private int refs;
-    
+
     /** Creates a new PresenceCondition out of the given bdd.  Make sure the bdd
       * is not shared by anyone else.
       */
-    private PresenceCondition(BDD bdd) {
+    private PresenceCondition(BDD bdd, Node tree) {
       this.bdd = bdd;
       this.refs = 1;
+      this.tree = tree;
     }
     
     private PresenceCondition(boolean value) {
       this.bdd = value ? B.one() : B.zero();
       this.refs = 1;
+      this.tree = value ? oneNode : zeroNode;
     }
     
     public boolean isTrue() {
@@ -693,50 +708,88 @@ class PresenceConditionManager {
       return bdd.isZero();
     }
     
+    public boolean isNotFalse() {
+      return ! isFalse();
+    }
+    
     /** Return the negated presence condition. */
     public PresenceCondition not() {
-      return new PresenceCondition(bdd.not());
+      GNode nottree;
+      if (this.tree.getName().equals("LogicalNegationExpression")) {
+        nottree = (GNode) this.tree.get(0);
+      } else {
+        nottree = GNode.create("LogicalNegationExpression", this.tree);
+      }
+      return new PresenceCondition(bdd.not(), nottree);
     }
     
     /** Return this presence condition and c.  Free any intermediate bdds. */
     public PresenceCondition and(PresenceCondition c) {
-      return new PresenceCondition(bdd.and(c.bdd));
+      if (this.is(c)) {
+        return this.addRef();
+      } else if (c.isTrue()) {
+        return this.addRef();
+      } else if (this.isTrue()) {
+        return c.addRef();
+      } else if (this.isFalse()) {
+        return new PresenceCondition(false);
+      } else if (c.isFalse()) {
+        return new PresenceCondition(false);
+      } else {
+        return new PresenceCondition(bdd.and(c.bdd), GNode.create("LogicalAndExpression", this.tree, c.tree));
+      }
     }
 
     /** Return this presence condition and not c.  Free any intermediate bdds. */
     public PresenceCondition andNot(PresenceCondition c) {
-      PresenceCondition newPresenceCondition;
-      BDD notBDD;
+      PresenceCondition not = c.not();
+      PresenceCondition result = this.and(not);
+      not.delRef();
+      return result;
+      // PresenceCondition newPresenceCondition;
+      // BDD notBDD;
       
-      notBDD = c.bdd.not();
-      newPresenceCondition = new PresenceCondition(bdd.and(notBDD));
-      notBDD.free();
+      // notBDD = c.bdd.not();
+      // newPresenceCondition = new PresenceCondition(bdd.and(notBDD));
+      // notBDD.free();
       
-      return newPresenceCondition;
+      // return newPresenceCondition;
     }
     
     /** Return this presence condition or c.  Free any intermediate bdds. */
     public PresenceCondition or(PresenceCondition c) {
-      return new PresenceCondition(bdd.or(c.bdd));
+      if (this.is(c)) {
+        return this.addRef();
+      } else if (c.isFalse()) {
+        return this.addRef();
+      } else if (this.isFalse()) {
+        return c.addRef();
+      } else if (this.isTrue()) {
+        return new PresenceCondition(true);
+      } else if (c.isTrue()) {
+        return new PresenceCondition(true);
+      } else {
+        return new PresenceCondition(bdd.or(c.bdd), GNode.create("LogicalOrExpression", this.tree, c.tree));
+      }
     }
 
     // TODO: handle restrict and simplify for other representations or
-    // remove their use
-    /** Restrict */
-    public PresenceCondition restrict(PresenceCondition c) {
-      return new PresenceCondition(bdd.restrict(c.getBDD()));
-    }
+    // // remove their use
+    // /** Restrict */
+    // public PresenceCondition restrict(PresenceCondition c) {
+    //   return new PresenceCondition(bdd.restrict(c.getBDD()));
+    // }
     
-    /** Simplify */
-    public PresenceCondition simplify(PresenceCondition c) {
-      return new PresenceCondition(bdd.simplify(c.getBDD()));
-    }
+    // /** Simplify */
+    // public PresenceCondition simplify(PresenceCondition c) {
+    //   return new PresenceCondition(bdd.simplify(c.getBDD()));
+    // }
 
-    /** One sat */
-    public PresenceCondition satOne() {
-      // TODO: may need to remove this and rework its users
-      return new PresenceCondition(bdd.satOne());
-    }
+    // /** One sat */
+    // public PresenceCondition satOne() {
+    //   // TODO: may need to remove this and rework its users
+    //   return new PresenceCondition(bdd.satOne());
+    // }
     
     /** All sats */
     public void allsat() {
@@ -812,7 +865,6 @@ class PresenceConditionManager {
     public void print(Writer writer) throws IOException {
       printBDD(bdd, writer);
     }
-
 
     // /**
     //  * Print the BDD as a CNF clauses.
@@ -950,40 +1002,42 @@ class PresenceConditionManager {
       return PresenceConditionManager.this;
     }
 
-    /** Output the presence condition as a valid cpp conditional expression */
-    public String toCNF() {
-      StringWriter writer = new StringWriter();
+    // /** Output the presence condition as a valid cpp conditional expression */
+    // public String toCNF() {
+    //   StringWriter writer = new StringWriter();
 
-      try {
-        PresenceCondition not = this.not();
-        printNotCNF(not, writer);
-        not.delRef();
-      } catch (IOException e) {
-        // An inelegant way to sidestep not being able to throw an
-        // exception from the overridden toString method.
-        throw new RuntimeException();
-      }
+    //   try {
+    //     PresenceCondition not = this.not();
+    //     printNotCNF(not, writer);
+    //     not.delRef();
+    //   } catch (IOException e) {
+    //     // An inelegant way to sidestep not being able to throw an
+    //     // exception from the overridden toString method.
+    //     throw new RuntimeException();
+    //   }
 
-      return writer.toString();
-    }
+    //   return writer.toString();
+    // }
 
-    /** Output the presence condition as a valid cpp conditional expression */
-    public String toNotCNF() {
-      StringWriter writer = new StringWriter();
+    // /** Output the presence condition as a valid cpp conditional expression */
+    // public String toNotCNF() {
+    //   StringWriter writer = new StringWriter();
 
-      try {
-        printNotCNF(this, writer);
-      } catch (IOException e) {
-        // An inelegant way to sidestep not being able to throw an
-        // exception from the overridden toString method.
-        throw new RuntimeException();
-      }
+    //   try {
+    //     printNotCNF(this, writer);
+    //   } catch (IOException e) {
+    //     // An inelegant way to sidestep not being able to throw an
+    //     // exception from the overridden toString method.
+    //     throw new RuntimeException();
+    //   }
 
-      return writer.toString();
-    }
+    //   return writer.toString();
+    // }
 
     /** Output the presence condition as a valid cpp conditional expression */
     public String toString() {
+      // TODO: do boolean expression simplification
+      // return this.tree.toString();
       StringWriter writer = new StringWriter();
 
       try {
@@ -997,14 +1051,14 @@ class PresenceConditionManager {
       return writer.toString();
     }
 
-    /**
-     * Use the underlying BDD's hashcode so that the same conditions
-     * will have the same hash code.
-     */
-    @Override
-    public int hashCode() {
-      return this.bdd.hashCode();
-    }
+    // /**
+    //  * Use the underlying BDD's hashcode so that the same conditions
+    //  * will have the same hash code.
+    //  */
+    // @Override
+    // public int hashCode() {
+    //   return this.bdd.hashCode();
+    // }
 
     /**
      *
@@ -1012,7 +1066,8 @@ class PresenceConditionManager {
     @Override
     public boolean equals(Object cond) {
       if (cond instanceof PresenceCondition) {
-        return this.hashCode() == ((PresenceCondition) cond).hashCode();
+        return this.is((PresenceCondition) cond);
+        // return this.hashCode() == ((PresenceCondition) cond).hashCode();
       } else {
         return false;
       }
