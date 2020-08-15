@@ -286,7 +286,6 @@ TranslationUnit:  /** complete **/
         {
           try {
             OutputStreamWriter writer = new OutputStreamWriter(System.out);
-            setCPC(value, condToCVar(subparser.getPresenceCondition()));
 
             // the signature for the type error call.
             // TODO: only emit if __type_error is used
@@ -380,7 +379,6 @@ FunctionDefinition:  /** complete **/ // added scoping
         FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
 
           String leftcurly = getNodeAt(subparser, 4).getTokenText();
           String body = concatAllStringBuilders(getNodeAt(subparser, 3), subparser.getPresenceCondition()).toString();
@@ -511,7 +509,6 @@ FunctionDefinition:  /** complete **/ // added scoping
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
-          setCPC(value, condToCVar(subparser.getPresenceCondition()));
           // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionDefinition");
           System.exit(1);
@@ -524,7 +521,6 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
         LocalLabelDeclarationListOpt DeclarationOrStatementList
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
 
           StringBuilder valuesb = new StringBuilder();
           valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
@@ -2869,7 +2865,6 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         Initializer
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           Node child = getNodeAt(subparser, 1);
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
           setTransformationValue(value, product);
@@ -2877,7 +2872,6 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         | Designation Initializer
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
@@ -3569,7 +3563,6 @@ Statement:  /** complete **/
         {
 	  // NOTE: calling emitStatement() here can also break switch cases.
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           // compound statements contain already-hoisted constructs
           // (declarations and statements), so just wrap this in a
           // single-element multiverse
@@ -3603,28 +3596,24 @@ LabeledStatement:  /** complete **/  // ADDED attributes
         IdentifierOrTypedefName COLON AttributeSpecifierListOpt Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
         | CASE ConstantExpression COLON Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
         | CASE ConstantExpression ELLIPSIS ConstantExpression COLON Statement  // ADDED case range
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
         | DEFAULT COLON Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
@@ -3641,7 +3630,6 @@ CompoundStatement:  /** complete **/  /* ADDED */
         LBRACE { EnterScope(subparser); } LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           
           StringBuilder valuesb = new StringBuilder();
           valuesb.append(getNodeAt(subparser, 6).getTokenText());
@@ -3687,7 +3675,6 @@ LocalLabelDeclaration: /** complete **/  /* ADDED */
         __LABEL__ LocalLabelList SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: LocalLabelDeclaration");
           System.exit(1);
         }
@@ -3697,14 +3684,12 @@ LocalLabelList:  /** list, complete **/  // ADDED
         IDENTIFIER
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: LocalLabelList");
           System.exit(1);
         }
         | LocalLabelList COMMA IDENTIFIER
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: LocalLabelList");
           System.exit(1);
         }
@@ -3735,7 +3720,6 @@ DeclarationOrStatement: /** complete **/  /* ADDED */
         {
           // hoist all statements here, that declaratinorstatement is just a string
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
 
           /* StringBuilder allStatements = new StringBuilder(); */
@@ -3783,7 +3767,6 @@ ExpressionStatement:  /** complete **/
         ExpressionOpt SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
@@ -3793,7 +3776,6 @@ SelectionStatement:  /** complete **/
         IF LPAREN Expression RPAREN Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2));
           Multiverse<StringBuilder> temp
@@ -3818,7 +3800,6 @@ SelectionStatement:  /** complete **/
         | IF LPAREN Expression RPAREN Statement ELSE Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
 
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7), getNodeAt(subparser, 6), getNodeAt(subparser, 5), getNodeAt(subparser, 4));
 
@@ -3866,7 +3847,6 @@ SelectionStatement:  /** complete **/
         {
           System.err.println("TODO: switch statement");
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           // TODO: hard-code curly braces to ensure that any rewritings of the statement (node 1),
           // remain inside the scope of the condition.
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
@@ -3878,7 +3858,6 @@ IterationStatement:  /** complete **/
         WHILE LPAREN Expression RPAREN Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2));
           Multiverse<StringBuilder> temp
             = sbmv.product(new StringBuilder(" {\n"),
@@ -3899,7 +3878,6 @@ IterationStatement:  /** complete **/
         | DO Statement WHILE LPAREN Expression RPAREN SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7));
           Multiverse<StringBuilder> temp
             = sbmv.product(new StringBuilder(" {\n"),
@@ -3943,7 +3921,6 @@ IterationStatement:  /** complete **/
                 ExpressionOpt RPAREN Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: IterationStatement");
           System.exit(1);
         }
@@ -3953,25 +3930,21 @@ JumpStatement:  /** complete **/
         GotoStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | ContinueStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | BreakStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | ReturnStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         ;
@@ -3980,14 +3953,12 @@ GotoStatement:  /** complete **/
         GOTO IdentifierOrTypedefName SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: GotoStatement");
           System.exit(1);
         }
         | GOTO STAR Expression SEMICOLON  // ADDED
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           System.err.println("WARNING: unsupported semantic action: GotoStatement");
           System.exit(1);
         }
@@ -3997,7 +3968,6 @@ ContinueStatement:  /** complete **/
         CONTINUE SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
@@ -4007,7 +3977,6 @@ BreakStatement:  /** complete **/
         BREAK SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
@@ -4017,7 +3986,6 @@ ReturnStatement:  /** complete **/
         RETURN ExpressionOpt SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, condToCVar(pc));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
@@ -4380,14 +4348,12 @@ UnaryExpression:  /** passthrough, nomerge **/
         | Unaryoperator CastExpression
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | SIZEOF UnaryExpression
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
@@ -4808,7 +4774,6 @@ AssignmentExpression:  /** passthrough, nomerge **/
         | UnaryExpression AssignmentOperator AssignmentExpression
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
@@ -5826,25 +5791,6 @@ private Multiverse<Type> getType(Object node) {
     throw new IllegalStateException("getting null type value");
   }
   return (Multiverse<Type>) type;
-}
-
-private void setCPC(Object value, String CPC) {
-  // value should be not null and should be a Node type
-  setCPC((Node) value, CPC);
-}
-
-private void setCPC(Node value, String CPC) {
-  // value should be not null and should be a Node type
-  value.setProperty("C_PC", CPC);
-}
-
-// TODO: getCPC doesn't seem to be used, so why is setCPC used?
-private String getCPC(Subparser subparser, int component) {
-  return (String) getNodeAt(subparser, component).getProperty("C_PC");
-}
-
-private String getCPC(Node n) {
-  return (String) n.getProperty("C_PC");
 }
 
 /**
