@@ -215,6 +215,32 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   }
 
   /**
+   * Get the presence condition of the given data.  This uses the
+   * object's equals() method.
+   *
+   * @param match The data to find in the multiverse.
+   * @returns The union of the conditions of all elements that are
+   * equal to the given data.
+   */
+  public PresenceCondition getConditionOf(T match) {
+    if (this.contents.size() == 0) {
+      throw new IllegalStateException("multiverse is not initialized");
+    }
+    assert this.complement != null;
+
+    PresenceCondition pc = this.complement.presenceConditionManager().newFalse();
+    for (Element<T> elem : this.contents) {
+      if (elem.getData().equals(match)) {
+        PresenceCondition newpc = pc.or(elem.getCondition());
+        pc.delRef();
+        pc = newpc;
+      }
+    }
+
+    return pc;
+  }
+
+  /**
    * Get the complement of the multiverse, i.e., the negation of the
    * union of the existing element's presence conditions.  The caller
    * is responsible for calling addRef of the result.
