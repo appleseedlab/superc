@@ -4126,26 +4126,17 @@ PrimaryIdentifier: /** nomerge **/ // Multiverse<StringBuilder>
 
           // convert the renamings to stringbuilders
           Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<Type> typemv = new Multiverse<Type>();
+          // any presence conditions with an error can be omitted from
+          // the desugaring.  instead, this information is preserved
+          // in the type value for use by the statement.
           for (Element<SymbolTable.Entry> entry : entries) {
             if (entry.getData() == SymbolTable.ERROR) {
-              System.err.println("INFO: use of symbol with invalid declaration");
-              // we shouldn't need to emit a call to __type_error(),
-              // since this is supposed to be done by the declaration
-              // itself
-              
-              /* // emit a call to the type error function */
-              /* String result */
-              /*   = String.format(" __type_error(\"use of symbol with invalid declaration: %s\") ", originalName); */
-              /* sbmv.add(new StringBuilder(result), entry.getCondition()); */
+              System.err.println(String.format("type error: use of symbol with invalid declaration: %s", originalName));
+              typemv.add(ErrorT.TYPE, entry.getCondition());
             } else if (entry.getData() == SymbolTable.UNDECLARED) {
-              System.err.println("INFO: use of undeclared symbol");
-              // TODO: see how replacing the identifier with a
-              // function call affects the typing.  perhaps emit a
-              // cast to surrounding type to ensure it always has the
-              // right type
-              String result
-                = String.format(" __type_error(\"use of undeclared symbol: %s\") ", originalName);
-              sbmv.add(new StringBuilder(result), entry.getCondition());
+              System.err.println(String.format("type error: use of undeclared symbol: %s", originalName));
+              typemv.add(ErrorT.TYPE, entry.getCondition());
             } else {
               // TODO: add type checking.  may need to tag the resulting
               // stringbuilder with the type to handle this
@@ -4154,14 +4145,15 @@ PrimaryIdentifier: /** nomerge **/ // Multiverse<StringBuilder>
                 String result  // use the renamed symbol
                   = String.format(" %s ", entry.getData().getType().toVariable().getName());
                 sbmv.add(new StringBuilder(result), entry.getCondition());
+                typemv.add(entry.getData().getType().toVariable().getType(), entry.getCondition());
               } else if (entry.getData().getType() instanceof NamedFunctionT) {
                 String result  // use the renamed symbol
                   = String.format(" %s ", ((NamedFunctionT) entry.getData().getType()).getName());
                 sbmv.add(new StringBuilder(result), entry.getCondition());
+                typemv.add(((NamedFunctionT) entry.getData().getType()), entry.getCondition());
               } else {
-                String result
-                  = String.format(" __type_error(\"use of symbol other than variable or function: %s\") ", originalName);
-                sbmv.add(new StringBuilder(result), entry.getCondition());
+                System.err.println(String.format("type error: use of symbol other than variable or function: %s", originalName));
+                typemv.add(ErrorT.TYPE, entry.getCondition());
               }
             }
           }
@@ -4170,7 +4162,11 @@ PrimaryIdentifier: /** nomerge **/ // Multiverse<StringBuilder>
           assert ! sbmv.isEmpty();
           entries.destruct();
 
+          System.err.println(sbmv);
+          System.err.println(typemv);
+
           setTransformationValue(value, sbmv);
+          setType(value, typemv);
         }  /* We cannot use a typedef name as a variable */
         ;
 
