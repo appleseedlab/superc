@@ -3461,7 +3461,10 @@ ArrayAbstractDeclarator: /** nomerge **/
         }
         | LBRACK ConstantExpression RBRACK
         {
-          Multiverse<String> arrayBounds = (Multiverse<String>) getTransformationValue(subparser, 2);
+          todoReminder("check expression in ArrayAbstractDeclarator (2)");
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          
+          Multiverse<String> arrayBounds = exprval.transformation;
           Multiverse<Declarator> valuemv = DesugaringOperators.toAbstractArrayDeclarator.transform(arrayBounds);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3470,9 +3473,11 @@ ArrayAbstractDeclarator: /** nomerge **/
 	      }
         | ArrayAbstractDeclarator LBRACK ConstantExpression RBRACK
 	      {
-          todoReminder("expression returns expression/type pair, so this will result in type cast error");
+          todoReminder("check expression in ArrayAbstractDeclarator (2)");
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+
       	  Multiverse<Declarator> arrayabstractdeclarator = (Multiverse<Declarator>) getTransformationValue(subparser,4);
-          Multiverse<String> arrayBounds = (Multiverse<String>) getTransformationValue(subparser, 2);
+          Multiverse<String> arrayBounds = exprval.transformation;
 
           // get each combination of the existing array abstract declarators and the new constant expressions
           // TODO: is there a way to do this with product?  harder because not combining the same types
@@ -3798,7 +3803,8 @@ ExpressionStatement:  /** complete **/  // Multiverse<String>
             // if filtering of type errors is done right, this add
             // should not violate mutual-exclusion in the multiverse
             // TODO: use dce and other optimizations to remove superfluous __type_error calls
-            valuemv.add(emitError("type error"), errorCond);
+            todoReminder("add emitError back to ExpressionStatement once type checking is done");
+            /* valuemv.add(emitError("type error"), errorCond); */
           } else {
             valuemv = new Multiverse<String>(emitError("type error"), errorCond);
           }
@@ -4356,6 +4362,7 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
           System.err.println("typemv " + typemv);
           System.err.println("identmv " + identmv);
 
+          todoReminder("check for all type errors or else the product for directselect will fail because of a product of an empty multiverse");
           Multiverse<String> valuemv = productAll(DesugaringOperators.concatStrings, postfixmv, dotmv, identmv);
           dotmv.destruct(); identmv.destruct();  // postfixmv is from child, so don't destruct
           // valuemv shouldn't need to filtered for error conditions,
@@ -4478,7 +4485,7 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
 
-          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> opmv = new Multiverse<String>((String) getTransformationValue(subparser, 2), pc);
           Multiverse<String> exprmv = exprval.transformation;
 
           setTransformationValue(value,
