@@ -3646,6 +3646,7 @@ LabeledStatement:  /** complete **/  // ADDED attributes
 CompoundStatement:  /** complete **/  /* ADDED */
         LBRACE { EnterScope(subparser); } LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
+          System.err.println("TODO: compoundstatement maybe need to reenter scope rather than enterscope to support for loops with declarations");
           PresenceCondition pc = subparser.getPresenceCondition();
           
           StringBuilder valuesb = new StringBuilder();
@@ -3961,7 +3962,16 @@ IterationStatement:  /** complete **/
                 ExpressionOpt RPAREN Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          System.err.println("WARNING: unsupported semantic action: IterationStatement");
+          System.err.println("WARNING: unsupported semantic action: IterationStatement (6)");
+          System.exit(1);
+        }
+        // n1570 6.8.5 Iteration statements allows for a declaration in the initializer of a for loop
+        | FOR LPAREN Declaration ExpressionOpt SEMICOLON
+                ExpressionOpt RPAREN Statement
+        {
+          // TODO: use a reentrant scope to add the declaration's symbol to the for-loop's scope
+          PresenceCondition pc = subparser.getPresenceCondition();
+          System.err.println("WARNING: unsupported semantic action: IterationStatement (7)");
           System.exit(1);
         }
         ;
