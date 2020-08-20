@@ -5818,6 +5818,22 @@ private static class StructDeclaringListValue {
 }
 
 /**
+ *
+ */
+private static class ExpressionValue {
+  /** The type. */
+  public final Multiverse<Type> type;
+
+  /** The transformation. */
+  public final Multiverse<String> transformation;
+
+  public ExpressionValue(Multiverse<Type> type, Multiverse<String> transformation) {
+    this.type = type;
+    this.transformation = transformation;
+  }
+}
+
+/**
  * Get the semantic value for the transformation.  The caller is
  * responsible for casting the value into the correct type according
  * to its child nodes.
