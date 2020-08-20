@@ -803,7 +803,7 @@ DeclarationExtension:  /** complete **/  // ADDED
         }
         ;
 
-Declaration:  /** complete **/
+Declaration:  /** complete **/  // String
         SUEDeclarationSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
         	Multiverse<TypeBuilder> structtypesmv
@@ -3470,10 +3470,9 @@ ArrayAbstractDeclarator: /** nomerge **/
 	      }
         | ArrayAbstractDeclarator LBRACK ConstantExpression RBRACK
 	      {
+          todoReminder("expression returns expression/type pair, so this will result in type cast error");
       	  Multiverse<Declarator> arrayabstractdeclarator = (Multiverse<Declarator>) getTransformationValue(subparser,4);
           Multiverse<String> arrayBounds = (Multiverse<String>) getTransformationValue(subparser, 2);
-
-          System.err.println("TODO: expression will return expression/type pair");
 
           // get each combination of the existing array abstract declarators and the new constant expressions
           // TODO: is there a way to do this with product?  harder because not combining the same types
@@ -3571,7 +3570,7 @@ PostfixAbstractDeclarator: /** nomerge **/
 use this to get one pc for all errors in the types
 PresenceCondition errorCond = typemv.getPresenceCondition(ErrorT.TYPE);
  */
-Statement:  /** complete **/
+Statement:  /** complete **/  // Multiverse<String>
         LabeledStatement
         {
           setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
@@ -3784,25 +3783,29 @@ ExpressionStatement:  /** complete **/  // Multiverse<String>
         ExpressionOpt SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-
-          Multiverse<String> expr = (Multiverse<String>) getTransformationValue(subparser, 2);
-          Multiverse<String> semi
-            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
-
-          Multiverse<String> valuemv = productAll(DesugaringOperators.concatStrings, expr, semi);
-          
-          Multiverse<Type> exprtype = getType(subparser, 2);
-
-          System.err.println("EXPSMT: " + valuemv);
-          System.err.println("EXPSMT: " + exprtype);
-
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          Multiverse<Type> exprtype = exprval.type;
           PresenceCondition errorCond = exprtype.getConditionOf(ErrorT.TYPE);
-          // if filtering of type errors is done right, this add
-          // should not violate mutual-exclusion in the multiverse
-          valuemv.add(emitError("type error"), errorCond);
-          // TODO: use dce and other optimizations to remove superfluous __type_error calls
-          errorCond.delRef();
+          System.err.println("EXPTYP: " + exprtype);
+
+          Multiverse<String> valuemv;
+          if (! exprval.isAlwaysError()) {
+            Multiverse<String> expr = exprval.transformation;
+            Multiverse<String> semi
+              = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
+
+            valuemv = productAll(DesugaringOperators.concatStrings, expr, semi);
+            // if filtering of type errors is done right, this add
+            // should not violate mutual-exclusion in the multiverse
+            // TODO: use dce and other optimizations to remove superfluous __type_error calls
+            valuemv.add(emitError("type error"), errorCond);
+          } else {
+            valuemv = new Multiverse<String>(emitError("type error"), errorCond);
+          }
+          assert valuemv != null;
+          System.err.println("EXPSMT: " + valuemv);
           
+          errorCond.delRef();
           setTransformationValue(value, valuemv);
         }
         ;
@@ -3810,153 +3813,95 @@ ExpressionStatement:  /** complete **/  // Multiverse<String>
 SelectionStatement:  /** complete **/
         IF LPAREN Expression RPAREN Statement
         {
+          todoReminder("check the type of the conditional expression SelectionStatement (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          
-          Multiverse<String> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2));
-          Multiverse<String> temp
-            = sbmv.product(" {\n",
-                           subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                           DesugaringOperators.concatStrings);
-          sbmv.destruct();
-          sbmv = temp;
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
 
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), pc);
-          sbmv.destruct();
-          sbmv = temp;
+          Multiverse<String> ifmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 5)).getTokenText(), pc);
+          Multiverse<String> lparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> rparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> stmtmv = (Multiverse<String>) getTransformationValue(subparser, 1);
 
-          temp = sbmv.product("\n}\n ",
-                              subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                              DesugaringOperators.concatStrings);
-          sbmv.destruct();
-          sbmv = temp;
-
-          setTransformationValue(value, sbmv);
+          setTransformationValue(value, productAll(DesugaringOperators.concatStrings,
+                                                   ifmv,
+                                                   lparenmv,
+                                                   exprmv,
+                                                   rparenmv,
+                                                   stmtmv));
         }
         | IF LPAREN Expression RPAREN Statement ELSE Statement
         {
+          todoReminder("check the type of the conditional expression SelectionStatement (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 5);
 
-          Multiverse<String> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7), getNodeAt(subparser, 6), getNodeAt(subparser, 5), getNodeAt(subparser, 4));
+          Multiverse<String> ifmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 7)).getTokenText(), pc);
+          Multiverse<String> lparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 6)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> rparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
+          Multiverse<String> ifbranchmv = (Multiverse<String>) getTransformationValue(subparser, 3);
+          Multiverse<String> elsemv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> elsebranchmv = (Multiverse<String>) getTransformationValue(subparser, 1);
 
-          Multiverse<String> temp
-            = sbmv.product(" {\n",
-                           subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                           DesugaringOperators.concatStrings);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), pc);
-          sbmv.destruct();
-          sbmv = temp;
-
-          // TODO: should these really always be the true condition?
-          temp = sbmv.product("\n}\n ",
-                              subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                              DesugaringOperators.concatStrings);
-          sbmv.destruct();
-          sbmv = temp;
-
-          String tokenText = " ";
-          tokenText += getNodeAt(subparser, 2).getTokenText();
-          temp = sbmv.product(tokenText, pc, DesugaringOperators.concatStrings);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = sbmv.product(" {\n",
-                              subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                              DesugaringOperators.concatStrings);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), pc);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = sbmv.product("\n}\n ",
-                              subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                              DesugaringOperators.concatStrings);
-          sbmv.destruct();
-          sbmv = temp;
-
-          setTransformationValue(value, sbmv);  
+          setTransformationValue(value, productAll(DesugaringOperators.concatStrings,
+                                                   ifmv,
+                                                   lparenmv,
+                                                   exprmv,
+                                                   rparenmv,
+                                                   ifbranchmv,
+                                                   elsemv,
+                                                   elsebranchmv));
         }
         | SWITCH LPAREN Expression RPAREN Statement
         {
           System.err.println("TODO: switch statement");
-          PresenceCondition pc = subparser.getPresenceCondition();
-          // TODO: hard-code curly braces to ensure that any rewritings of the statement (node 1),
-          // remain inside the scope of the condition.
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.exit(1);
         }
         ;
 
 IterationStatement:  /** complete **/
         WHILE LPAREN Expression RPAREN Statement
         {
+          todoReminder("check the type of the conditional expression IterationStatement (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2));
-          Multiverse<String> temp
-            = sbmv.product(" {\n",
-                           subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                           DesugaringOperators.concatStrings);
-          sbmv.destruct();
-          sbmv = temp;
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
 
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), pc);
-          sbmv.destruct();
-          sbmv = temp;
+          Multiverse<String> whilemv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 5)).getTokenText(), pc);
+          Multiverse<String> lparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> rparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> stmtmv = (Multiverse<String>) getTransformationValue(subparser, 1);
 
-          temp = sbmv.product("\n}\n ",
-                              subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                              DesugaringOperators.concatStrings);
-          sbmv.destruct();
-          sbmv = temp;
-          setTransformationValue(value, sbmv);
+          setTransformationValue(value, productAll(DesugaringOperators.concatStrings,
+                                                   whilemv,
+                                                   lparenmv,
+                                                   exprmv,
+                                                   rparenmv,
+                                                   stmtmv));
         }
         | DO Statement WHILE LPAREN Expression RPAREN SEMICOLON
         {
+          todoReminder("check the type of the conditional expression IterationStatement (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7));
-          Multiverse<String> temp
-            = sbmv.product(" {\n",
-                           subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                           DesugaringOperators.concatStrings);
-          sbmv.destruct();
-          sbmv = temp;
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
 
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 6), pc);
-          sbmv.destruct();
-          sbmv = temp;
+          Multiverse<String> domv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 7)).getTokenText(), pc);
+          Multiverse<String> stmtmv = (Multiverse<String>) getTransformationValue(subparser, 6);
+          Multiverse<String> whilemv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 5)).getTokenText(), pc);
+          Multiverse<String> lparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> rparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> semimv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
 
-          temp = sbmv.product("\n}\n ",
-                              subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                              DesugaringOperators.concatStrings);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = sbmv.product(getNodeAt(subparser, 5).getTokenText(), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.concatStrings);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = sbmv.product(getNodeAt(subparser, 4).getTokenText(), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.concatStrings);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), pc);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = sbmv.product(getNodeAt(subparser, 2).getTokenText(), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.concatStrings);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = sbmv.product(getNodeAt(subparser, 1).getTokenText(), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.concatStrings);
-          sbmv.destruct();
-          sbmv = temp;
-
-
-          setTransformationValue(value, sbmv);
+          setTransformationValue(value, productAll(DesugaringOperators.concatStrings,
+                                                   domv,
+                                                   stmtmv,
+                                                   whilemv,
+                                                   lparenmv,
+                                                   exprmv,
+                                                   rparenmv,
+                                                   semimv));
         }
         | FOR LPAREN ExpressionOpt SEMICOLON ExpressionOpt SEMICOLON
                 ExpressionOpt RPAREN Statement
@@ -3970,6 +3915,8 @@ IterationStatement:  /** complete **/
                 ExpressionOpt RPAREN Statement
         {
           // TODO: use a reentrant scope to add the declaration's symbol to the for-loop's scope
+          // TODO: Declaration returns a String, not a multiverse.  We need a multiverse to hoist around the entire for loop.
+          // TODO: consider rewriting this to put the declaration outside the for loop.  since it's renamed, we should have conflicts, and it resolves issues with scope and semantic values
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("WARNING: unsupported semantic action: IterationStatement (7)");
           System.exit(1);
@@ -4035,112 +3982,133 @@ BreakStatement:  /** complete **/
 ReturnStatement:  /** complete **/
         RETURN ExpressionOpt SEMICOLON
         {
+          todoReminder("check the type of the return value");
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+
+          Multiverse<String> returnmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 3)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> semimv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
+
+          setTransformationValue(value, productAll(DesugaringOperators.concatStrings,
+                                                   returnmv,
+                                                   exprmv,
+                                                   semimv));
         }
         ;
 
 // --------------------------------------------------------------- Expressions
 
 /* CONSTANTS */
-Constant: /** passthrough, nomerge **/  // String
+Constant: /** passthrough, nomerge **/  // ExpressionValue
         FLOATINGconstant
         {
-          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
-          setType(value, new Multiverse<Type>(NumberT.FLOAT, subparser.getPresenceCondition()));
+          setTransformationValue(value,
+                                 new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
+                                                     NumberT.FLOAT, subparser.getPresenceCondition()));
         }
         | INTEGERconstant
         {
-          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          setTransformationValue(value,
+                                 new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
+                                                     NumberT.INT, subparser.getPresenceCondition()));
           // TODO: check whether INT is correct here, or whether we
           // need to look at the token itself to determine long, etc.
-          setType(value, new Multiverse<Type>(NumberT.INT, subparser.getPresenceCondition()));
         }
         /* We are not including ENUMERATIONConstant here  because  we
         are  treating  it like a variable with a type of "enumeration
         Constant".  */
         | OCTALconstant
         {
-          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
-          setType(value, new Multiverse<Type>(NumberT.INT, subparser.getPresenceCondition()));
+          setTransformationValue(value,
+                                 new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
+                                                     NumberT.INT, subparser.getPresenceCondition()));
         }
         | HEXconstant
         {
-          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
-          setType(value, new Multiverse<Type>(NumberT.INT, subparser.getPresenceCondition()));
+          setTransformationValue(value,
+                                 new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
+                                                     NumberT.INT, subparser.getPresenceCondition()));
         }
         | CHARACTERconstant
         {
-          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
-          setType(value, new Multiverse<Type>(NumberT.CHAR, subparser.getPresenceCondition()));
+          setTransformationValue(value,
+                                 new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
+                                                     NumberT.CHAR, subparser.getPresenceCondition()));
         }
         ;
 
 /* STRING LITERALS */
-StringLiteralList:  /** list, nomerge **/
-                STRINGliteral
-                {
-                  System.err.println("WARNING: unsupported semantic action: StringLiteralList");
-                  System.exit(1);
-                  // TODO: pointer to char
-                }
-                | StringLiteralList STRINGliteral
-                {
-                  System.err.println("WARNING: unsupported semantic action: StringLiteralList");
-                  System.exit(1);
-                  // TODO: pointer to char
-                }
-                ;
+// TODO: unit tests
+StringLiteralListString:  /** list, nomerge **/ // String
+        STRINGliteral
+        {
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
+        }
+        | StringLiteralListString STRINGliteral
+        {
+          StringBuilder valuesb = new StringBuilder();
+          valuesb.append((String) getTransformationValue(subparser, 2));
+          valuesb.append(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          setTransformationValue(value, valuesb.toString());
+        }
+        ;
+
+// This nontermal just adds type information to the string literal
+StringLiteralList:  /** list, nomerge **/ // ExpressionValue
+        StringLiteralListString
+        {
+          // TODO: CAnalyzer distinguishes between wide and non-wide characters
+          // TODO: use a fixed-size array instead of a pointer to char
+          setTransformationValue(value,
+                                 new ExpressionValue((String) getTransformationValue(subparser, 1),
+                                                     new PointerT(NumberT.CHAR),
+                                                     subparser.getPresenceCondition()));
+        }
+        ;
 
 
 /* EXPRESSIONS */
-PrimaryExpression:  /** nomerge, passthrough **/
+PrimaryExpression:  /** nomerge, passthrough **/ // ExpressionValue
         PrimaryIdentifier
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | Constant
         {
-          String constantval = (String) getTransformationValue(subparser, 1);
-          setTransformationValue(value, new Multiverse<String>(constantval, subparser.getPresenceCondition()));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | StringLiteralList
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | LPAREN Expression RPAREN
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+
           Multiverse<String> lparenmv
             = new Multiverse<String>(((Syntax) getNodeAt(subparser, 3)).getTokenText(), pc);
-          Multiverse<String> exprmv = (Multiverse<String>) getTransformationValue(subparser, 2);
+          Multiverse<String> exprmv = exprval.transformation;
           Multiverse<String> rparenmv
             = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
 
-          setTransformationValue(value, productAll(DesugaringOperators.concatStrings, lparenmv, exprmv, rparenmv));
-          lparenmv.destruct();
-          rparenmv.destruct();
-
-          setType(value, getType(subparser, 2));
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings, lparenmv, exprmv, rparenmv),
+                                                     exprval.type));
+          lparenmv.destruct(); rparenmv.destruct();
         }
         | StatementAsExpression  // ADDED
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | VariableArgumentAccess  // ADDED
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         ;
 
-PrimaryIdentifier: /** nomerge **/ // Multiverse<String>
+PrimaryIdentifier: /** nomerge **/ // ExpressionValue
         IDENTIFIER
         {
           useIdent(subparser, getNodeAt(subparser, 1));  // legacy type checking
@@ -4197,8 +4165,7 @@ PrimaryIdentifier: /** nomerge **/ // Multiverse<String>
           System.err.println(sbmv);
           System.err.println(typemv);
 
-          setTransformationValue(value, sbmv);
-          setType(value, typemv);
+          setTransformationValue(value, new ExpressionValue(sbmv, typemv));
         }  /* We cannot use a typedef name as a variable */
         ;
 
@@ -4218,46 +4185,38 @@ StatementAsExpression:  /** nomerge **/  //ADDED
         }
         ;
 
-PostfixExpression:  /** passthrough, nomerge **/
+PostfixExpression:  /** passthrough, nomerge **/ // ExpressionValue
         PrimaryExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | Subscript
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | FunctionCall
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | DirectSelection
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | IndirectSelection
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1)); 
-         setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | Increment
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | Decrement
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | CompoundLiteral  /* ADDED */
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         ;
 
@@ -4293,10 +4252,12 @@ FunctionCall:  /** nomerge **/
         }
         ;
 
-DirectSelection:  /** nomerge **/
+DirectSelection:  /** nomerge **/  // ExpressionValue
         PostfixExpression DOT IdentifierOrTypedefName
         {
-          Multiverse<String> postfixmv = (Multiverse<String>) getTransformationValue(subparser, 3);
+          ExpressionValue postfixval = (ExpressionValue) getTransformationValue(subparser, 3);
+
+          Multiverse<String> postfixmv = postfixval.transformation;
           Multiverse<String> dotmv
             = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(),
                                             subparser.getPresenceCondition());
@@ -4304,7 +4265,7 @@ DirectSelection:  /** nomerge **/
 
           // go through each type and see which have a field with this
           // name and collect the resulting type
-          Multiverse<Type> postfixtype = (Multiverse<Type>) getType(subparser, 3);
+          Multiverse<Type> postfixtype = postfixval.type;
           Multiverse<Type> typemv = new Multiverse<Type>();  // resulting type
           Multiverse<String> identmv = new Multiverse<String>();  // desugaring
           CContext scope = ((CContext) subparser.scope);
@@ -4402,8 +4363,7 @@ DirectSelection:  /** nomerge **/
           // correctly typed
 
           System.err.println("valuemv " + valuemv);
-          setTransformationValue(value, valuemv);
-          setType(value, typemv);
+          setTransformationValue(value, new ExpressionValue(valuemv, typemv));
         }
         ;
 
@@ -4420,21 +4380,39 @@ IndirectSelection:  /** nomerge **/
         }
         ;
 
-Increment:  /** nomerge **/
+Increment:  /** nomerge **/  // ExpressionValue
         PostfixExpression ICR
         {
-          System.err.println("TODO: Increment");
-          System.exit(1);
+          todoReminder("typecheck Increment");
           // TODO: check that postfixexpression is a number or pointer (see CAnalyzer)
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> opmv
+            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings, exprmv, opmv),
+                                                     exprval.type));
+          opmv.destruct();
         }
         ;
 
-Decrement:  /** nomerge **/
+Decrement:  /** nomerge **/  // ExpressionValue
         PostfixExpression DECR
         {
-          System.err.println("TODO: Decrement");
-          System.exit(1);
+          todoReminder("typecheck Decrement");
           // TODO: check that postfixexpression is a number or pointer (see CAnalyzer)
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> opmv
+            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings, exprmv, opmv),
+                                                     exprval.type));
+          opmv.destruct();
         }
         ;
 
@@ -4449,8 +4427,7 @@ CompoundLiteral:  /** nomerge **/  /* ADDED */
 ExpressionList:  /** list, nomerge **/
         AssignmentExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | ExpressionList COMMA AssignmentExpression
         {
@@ -4459,71 +4436,101 @@ ExpressionList:  /** list, nomerge **/
         }
         ;
 
-UnaryExpression:  /** passthrough, nomerge **/
+UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
         PostfixExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | ICR UnaryExpression
         {
-          System.err.println("TODO: UnaryExpression");
-          System.exit(1);
-          // TODO: check for number/pointer
+          todoReminder("typecheck unaryexpression (2)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                opmv,
+                                                                exprmv),
+                                                     exprval.type));  // TODO: placeholder until type checking
         }
         | DECR UnaryExpression
         {
-          System.err.println("TODO: UnaryExpression");
-          System.exit(1);
-          // TODO: check for number/pointer
+          todoReminder("typecheck unaryexpression (3)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                opmv,
+                                                                exprmv),
+                                                     exprval.type));  // TODO: placeholder until type checking
         }
         | Unaryoperator CastExpression
         {
-          System.err.println("TODO: implement UnaryExpression (4)");
-          System.exit(1);
-          // TODO: get unaryoperator's value which is a string.  see assignmentexpression
-          // TODO: check what CAnalyzer does
+          // TODO: need to look at the unaryoperator to determine whether it's the correct type usage
+          todoReminder("typecheck unaryexpression (4)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                opmv,
+                                                                exprmv),
+                                                     exprval.type));  // TODO: placeholder until type checking
         }
         | SIZEOF UnaryExpression
         {
-          System.err.println("TODO: UnaryExpression");
-          System.exit(1);
-          // TODO: check what CAnalyzer does
+          todoReminder("typecheck unaryexpression (5)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                opmv,
+                                                                exprmv),
+                                                     exprval.type));  // TODO: placeholder until type checking
         }
         | SIZEOF LPAREN TypeName RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: UnaryExpression");
+          System.err.println("WARNING: unsupported unaryexpression (6)");
           System.exit(1);
         }
         | LabelAddressExpression  // ADDED
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
-          // TODO: check what CAnalyzer does
+          todoReminder("typecheck unaryexpression (7)");
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | AlignofExpression // ADDED
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
-          // TODO: check what CAnalyzer does
+          todoReminder("typecheck unaryexpression (8)");
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | ExtensionExpression // ADDED
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
-          // TODO: check what CAnalyzer does
+          todoReminder("typecheck unaryexpression (9)");
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | OffsetofExpression // ADDED
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
-          // TODO: check what CAnalyzer does
+          todoReminder("typecheck unaryexpression (10)");
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | TypeCompatibilityExpression  // ADDED
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
-          // TODO: check what CAnalyzer does
+          todoReminder("typecheck unaryexpression (11)");
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         ;
 
@@ -4543,17 +4550,19 @@ OffsetofExpression:  /** nomerge **/
         }
         ;
 
-ExtensionExpression:  /** nomerge **/
+ExtensionExpression:  /** nomerge **/  // ExpressionValue
         __EXTENSION__ CastExpression
         {
           PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
           
           Multiverse<String> extmv
             = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
-          Multiverse<String> exprmv = (Multiverse<String>) getTransformationValue(subparser, 1);
-          setTransformationValue(value, productAll(DesugaringOperators.concatStrings, extmv, exprmv));
+          Multiverse<String> exprmv = exprval.transformation;
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings, extmv, exprmv),
+                                                     exprval.type));
           extmv.destruct();
-          setType(value, getType(subparser, 1));
         }
         ;
 
@@ -4616,91 +4625,185 @@ Unaryoperator:  // String
         }
         ;
 
-CastExpression:  /** passthrough, nomerge **/
+CastExpression:  /** passthrough, nomerge **/  // ExpressionValue
         UnaryExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | LPAREN TypeName RPAREN CastExpression
         {
           System.err.println("TODO: CastExpression (2) type checking");
           System.exit(1);
-          PresenceCondition pc = subparser.getPresenceCondition();
         }
         ;
 
-MultiplicativeExpression:  /** passthrough, nomerge **/
+
+
+          /* PresenceCondition pc = subparser.getPresenceCondition(); */
+          /* ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2); */
+
+          /* Multiverse<String> lparenmv */
+          /*   = new Multiverse<String>(((Syntax) getNodeAt(subparser, 3)).getTokenText(), pc); */
+          /* Multiverse<String> exprmv = exprval.transformation; */
+          /* Multiverse<String> rparenmv */
+          /*   = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc); */
+
+          /* setTransformationValue(value, */
+          /*                        new ExpressionValue(productAll(DesugaringOperators.concatStrings, lparenmv, exprmv, rparenmv), */
+          /*                                            exprval.type)); */
+          /* lparenmv.destruct(); rparenmv.destruct(); */
+
+MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
         CastExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | MultiplicativeExpression STAR CastExpression
         {
-          System.err.println("TODO: MultiplicativeExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck MultiplicativeExpression (2)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         | MultiplicativeExpression DIV CastExpression
         {
-          System.err.println("TODO: MultiplicativeExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck MultiplicativeExpression (3)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         | MultiplicativeExpression MOD CastExpression
         {
-          System.err.println("TODO: MultiplicativeExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck MultiplicativeExpression (4)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         ;
 
-AdditiveExpression:  /** passthrough, nomerge **/
+AdditiveExpression:  /** passthrough, nomerge **/  // ExpressionValue
         MultiplicativeExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | AdditiveExpression PLUS MultiplicativeExpression
         {
-          System.err.println("TODO: AdditiveExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck AdditiveExpression (2)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         | AdditiveExpression MINUS MultiplicativeExpression
         {
-          System.err.println("TODO: AdditiveExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck AdditiveExpression (3)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         ;
 
-ShiftExpression:  /** passthrough, nomerge **/
+ShiftExpression:  /** passthrough, nomerge **/  // ExpressionValue
         AdditiveExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | ShiftExpression LS AdditiveExpression
         {
-          System.err.println("TODO: ShiftExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck ShiftExpression (2)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         | ShiftExpression RS AdditiveExpression
         {
-          System.err.println("TODO: ShiftExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck ShiftExpression (3)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         ;
 
-RelationalExpression:  /** passthrough, nomerge **/
+RelationalExpression:  /** passthrough, nomerge **/ // ExpressionValue
         ShiftExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | RelationalExpression LT ShiftExpression
         {
@@ -4728,11 +4831,10 @@ RelationalExpression:  /** passthrough, nomerge **/
         }
         ;
 
-EqualityExpression:  /** passthrough, nomerge **/
+EqualityExpression:  /** passthrough, nomerge **/  // ExpressionValue
         RelationalExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | EqualityExpression EQ RelationalExpression
         {
@@ -4748,11 +4850,10 @@ EqualityExpression:  /** passthrough, nomerge **/
         }
         ;
 
-AndExpression:  /** passthrough, nomerge **/
+AndExpression:  /** passthrough, nomerge **/  // ExpressionValue
         EqualityExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | AndExpression AND EqualityExpression
         {
@@ -4762,11 +4863,10 @@ AndExpression:  /** passthrough, nomerge **/
         }
         ;
 
-ExclusiveOrExpression:  /** passthrough, nomerge **/
+ExclusiveOrExpression:  /** passthrough, nomerge **/  // ExpressionValue
         AndExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | ExclusiveOrExpression XOR AndExpression
         {
@@ -4776,11 +4876,10 @@ ExclusiveOrExpression:  /** passthrough, nomerge **/
         }
         ;
 
-InclusiveOrExpression:  /** passthrough, nomerge **/
+InclusiveOrExpression:  /** passthrough, nomerge **/  // ExpressionValue
         ExclusiveOrExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | InclusiveOrExpression PIPE ExclusiveOrExpression
         {
@@ -4790,11 +4889,10 @@ InclusiveOrExpression:  /** passthrough, nomerge **/
         }
         ;
 
-LogicalAndExpression:  /** passthrough, nomerge **/
+LogicalAndExpression:  /** passthrough, nomerge **/  // ExpressionValue
         InclusiveOrExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | LogicalAndExpression ANDAND InclusiveOrExpression
         {
@@ -4804,11 +4902,10 @@ LogicalAndExpression:  /** passthrough, nomerge **/
         }
         ;
 
-LogicalORExpression:  /** passthrough, nomerge **/
+LogicalORExpression:  /** passthrough, nomerge **/ // ExpressionValue
         LogicalAndExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | LogicalORExpression OROR LogicalAndExpression
         {
@@ -4818,11 +4915,10 @@ LogicalORExpression:  /** passthrough, nomerge **/
         }
         ;
 
-ConditionalExpression:  /** passthrough, nomerge **/
+ConditionalExpression:  /** passthrough, nomerge **/  // ExpressionValue
         LogicalORExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | LogicalORExpression QUESTION Expression COLON
                 ConditionalExpression
@@ -4840,24 +4936,26 @@ ConditionalExpression:  /** passthrough, nomerge **/
         }
         ;
 
-AssignmentExpression:  /** passthrough, nomerge **/
+AssignmentExpression:  /** passthrough, nomerge **/  // ExpressionValue
         ConditionalExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | UnaryExpression AssignmentOperator AssignmentExpression
         {
           PresenceCondition pc = subparser.getPresenceCondition();
 
-          Multiverse<String> expr = (Multiverse<String>) getTransformationValue(subparser, 3);
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> expr = leftval.transformation;
           Multiverse<String> op
             = new Multiverse<String>((String) getTransformationValue(subparser, 2), pc);
-          Multiverse<String> assign = (Multiverse<String>) getTransformationValue(subparser, 1);
+          Multiverse<String> assign = rightval.transformation;
 
           // type-checking
-          Multiverse<Type> exprtype = getType(subparser, 3);
-          Multiverse<Type> assigntype = getType(subparser, 1);
+          Multiverse<Type> exprtype = leftval.type;
+          Multiverse<Type> assigntype = rightval.type;
           System.err.println("exprtype: " + exprtype);
           System.err.println("assigntype: " + assigntype);
           Multiverse<Type> producttype = productAll(DesugaringOperators.compareTypes, exprtype, assigntype);
@@ -4871,7 +4969,10 @@ AssignmentExpression:  /** passthrough, nomerge **/
           PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
           Multiverse<String> product = productAll(DesugaringOperators.concatStrings, expr, op, assign);
           PresenceCondition typesafeCond = errorCond.not();
-          Multiverse<String> valuemv = product.filter(typesafeCond);
+
+          todoReminder("TODO: always filter out expressions with type errors so that expressionstatement can convert it to a runtime error.");
+          /* Multiverse<String> valuemv = product.filter(typesafeCond); */
+          Multiverse<String> valuemv = new Multiverse<String>(product);
 
           // TODO: need to check for all type errors anywhere that is
           // getting a type.  perhaps use a single value,
@@ -4880,16 +4981,12 @@ AssignmentExpression:  /** passthrough, nomerge **/
           // doesn't work for parts of the language without a type,
           // like operators.
 
-          System.err.println("TODO: check everywhere for the case where there are only type errors in all configurations.");
-          System.exit(1);
-
-          System.err.println("assvalue: " + valuemv);
-          System.err.println("asstype: " + typemv);
+          System.err.println("assignvalue: " + valuemv);
+          System.err.println("assigntype: " + typemv);
 
           op.destruct(); product.destruct(); errorCond.delRef(); typesafeCond.delRef();
           
-          setTransformationValue(value, valuemv);
-          setType(value, typemv);
+          setTransformationValue(value, new ExpressionValue(valuemv, typemv));
         }
         ;
 
@@ -4940,27 +5037,24 @@ AssignmentOperator: /** nomerge **/  // String
         }
         ;
 
-ExpressionOpt:  /** passthrough, nomerge **/
+ExpressionOpt:  /** passthrough, nomerge **/ // ExpressionValue
         /* Nothing */
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> empty = new Multiverse<String>("", pc);
-          setTransformationValue(value, empty);
-          // use a unit type since there is value
-          setType(value, new Multiverse<Type>(UnitT.TYPE, pc));
+          setTransformationValue(value, new ExpressionValue("",
+                                                            UnitT.TYPE,
+                                                            pc));
         }
         | Expression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         ;
 
-Expression:  /** passthrough, nomerge **/
+Expression:  /** passthrough, nomerge **/  // ExpressionValue
         AssignmentExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | Expression COMMA AssignmentExpression
         {
@@ -4968,11 +5062,10 @@ Expression:  /** passthrough, nomerge **/
         }
         ;
 
-ConstantExpression: /** passthrough, nomerge **/
+ConstantExpression: /** passthrough, nomerge **/  // ExpressionValue
         ConditionalExpression
         {
-          setTransformationValue(value, (Multiverse<String>) getTransformationValue(subparser, 1));
-          setType(value, getType(subparser, 1));
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
 	      ;
 
@@ -5837,9 +5930,44 @@ private static class ExpressionValue {
   /** The transformation. */
   public final Multiverse<String> transformation;
 
-  public ExpressionValue(Multiverse<Type> type, Multiverse<String> transformation) {
-    this.type = type;
+  public ExpressionValue(Multiverse<String> transformation, Multiverse<Type> type) {
     this.transformation = transformation;
+    this.type = type;
+  }
+
+  /**
+   * Create a new expression value from a single type and a single
+   * transformation string.
+   */
+  public ExpressionValue(String transformation, Type type, PresenceCondition pc) {
+    this.transformation = new Multiverse<String>(transformation, pc);
+    this.type = new Multiverse<Type>(type, pc);
+  }
+
+  /**
+   * Returns true if this expression is a type error in every
+   * configuration in which there is a value.  Note that this excludes
+   * the configurations in which there is no value at all, i.e., the
+   * complement of the multiverse.
+   */
+  public boolean isAlwaysError() {
+    // return true unless we find one type that isn't an error
+    for (Element<Type> elem : type) {
+      if (! elem.getData().isError()) {
+        return false;
+      }
+    }
+    return true;
+  }
+}
+
+private static boolean haltUnfinished = false;
+
+private static void todoReminder(String msg) {
+  System.err.println(String.format("TODO: %s", msg));
+  if (haltUnfinished) {
+    System.err.println("FATAL: halting on unfinished semantic action");
+    System.exit(1);
   }
 }
 
@@ -5869,32 +5997,6 @@ private Object getTransformationValue(Object node) {
     throw new IllegalStateException("getting null transformation value");
   }
   return transformationValue;
-}
-
-/**
- * Get the type of an expression node.
- *
- * @param subparser The subparser containing the semantic value stack.
- * @param component The index into the semantic value stack.
- * @returns The type.
- */
-private Multiverse<Type> getType(Subparser subparser, int component) {
-  return (Multiverse<Type>) getType(getNodeAt(subparser, component));
-}
-
-/**
- * Get the type of an expression node.
- *
- * @param node The AST node holding the semantic value.
- * @returns The type.
- */
-private Multiverse<Type> getType(Object node) {
-  Object type = ((Node) node).getProperty(Constants.TYPE);
-  assert type != null;
-  if (type == null) {
-    throw new IllegalStateException("getting null type value");
-  }
-  return (Multiverse<Type>) type;
 }
 
 /**
@@ -6298,17 +6400,6 @@ private static void setString(Object value, String s) {
 private String getStringAtNode(Subparser subparser, int component) {
   // value should be not null and should be a Node type
   return (String) getNodeAt(subparser, component).getProperty(STRING);
-}
-
-/**
- * A helper function to set the type property of the given node.  The
- * given value will be first cast to a Node.
- *
- * @param value A node object.
- * @param type The type to set.
- */
-private static void setType(Object value, Multiverse<Type> type) {
-  ((Node) value).setProperty(Constants.TYPE, type);
 }
 
 private static void error(String msg) {
