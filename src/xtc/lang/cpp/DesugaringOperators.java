@@ -131,8 +131,8 @@ class DesugaringOperators {
   /**
    * Create abstract array declarators.
    */
-  public final static Multiverse.Transformer<StringBuilder, Declarator> toAbstractArrayDeclarator = new Multiverse.Transformer<StringBuilder, Declarator>() {
-      Declarator transform(StringBuilder from) {
+  public final static Multiverse.Transformer<String, Declarator> toAbstractArrayDeclarator = new Multiverse.Transformer<String, Declarator>() {
+      Declarator transform(String from) {
         return new ArrayAbstractDeclarator(from);
       }
     };
@@ -220,6 +220,16 @@ class DesugaringOperators {
     newsb.append(sb1);
     newsb.append(sb2);
     return newsb;
+  };
+
+  /**
+   * Concatenate operator for strings.x
+   */
+  public final static Multiverse.Operator<String> concatStrings = (sb1, sb2) -> {
+    StringBuilder newsb = new StringBuilder();
+    newsb.append(sb1);
+    newsb.append(sb2);
+    return newsb.toString();
   };
 
   /**
