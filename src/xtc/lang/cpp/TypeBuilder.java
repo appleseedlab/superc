@@ -178,7 +178,9 @@ public class TypeBuilder {
         type = new IntegerT(NumberT.Kind.SHORT); // short
     } else if (foundTypes[FOUND_TYPE.seenTypedefType.ordinal()])
 	    {
-        type = typedefType;
+        // when a type spec has a typedef name, give the type it is
+        // aliasing, not the AliasT itself
+        type = typedefType.getType();
       } else if (foundTypes[FOUND_TYPE.seenVoid.ordinal()]) {
       type = new VoidT();
     }
