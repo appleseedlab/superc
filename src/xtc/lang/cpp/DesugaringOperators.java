@@ -21,7 +21,8 @@ import xtc.lang.cpp.Declarator.ArrayAbstractDeclarator;
 import xtc.lang.cpp.Declarator.FunctionDeclarator;
 import xtc.lang.cpp.Declarator.ParameterListDeclarator;
 
-import xtc.type.AliasT;
+import xtc.type.ErrorT;
+import xtc.type.Type;
 
 import java.util.List;
 import java.util.LinkedList;
@@ -130,8 +131,8 @@ class DesugaringOperators {
   /**
    * Create abstract array declarators.
    */
-  public final static Multiverse.Transformer<StringBuilder, Declarator> toAbstractArrayDeclarator = new Multiverse.Transformer<StringBuilder, Declarator>() {
-      Declarator transform(StringBuilder from) {
+  public final static Multiverse.Transformer<String, Declarator> toAbstractArrayDeclarator = new Multiverse.Transformer<String, Declarator>() {
+      Declarator transform(String from) {
         return new ArrayAbstractDeclarator(from);
       }
     };
@@ -219,5 +220,61 @@ class DesugaringOperators {
     newsb.append(sb1);
     newsb.append(sb2);
     return newsb;
+  };
+
+  /**
+   * Concatenate operator for strings.x
+   */
+  public final static Multiverse.Operator<String> concatStrings = (sb1, sb2) -> {
+    StringBuilder newsb = new StringBuilder();
+    newsb.append(sb1);
+    newsb.append(" ");
+    newsb.append(sb2);
+    return newsb.toString();
+  };
+
+  /**
+   * Product of two types.  Results in an ErrorT if they aren't
+   * compatible.
+   */
+  public final static Multiverse.Operator<Type> compareTypes = (t1, t2) -> {
+    Type newtype;
+    if (CActions.cOps.equal(t1, t2)) {
+      // TODO: may need to pick correct type based on kind of
+      // construct
+      newtype = t1;
+    } else {
+      System.err.println("WARNING: support C's type coercion rules.  see CAnalyzer.processAssignment");
+      newtype = ErrorT.TYPE;
+    }
+    return newtype;
+  };
+
+  /**
+   * A multiverse transformation to wrap string into a single-element
+   * list.
+   */
+  public final static Multiverse.Transformer<String, List<String>> stringListWrap
+    = new ListWrapper<String>();
+
+  /**
+   * A multiverse transformation to wrap a type into a single-element
+   * list.
+   */
+  public final static Multiverse.Transformer<Type, List<Type>> typeListWrap
+    = new ListWrapper<Type>();
+  
+  /**
+   * Concatenate two String lists
+   */
+  public final static Multiverse.Operator<List<String>> STRINGLISTCONCAT = (list1, list2) -> {
+    return concatLists(list1, list2);
+  };
+  
+  /**
+   * Concatenate two Type lists
+   */
+  public final static Multiverse.Operator<List<Type>> TYPELISTCONCAT = (list1, list2) -> {
+    return concatLists(list1, list2);
   };
 }

@@ -1,4 +1,4 @@
-/* Copyright (C) 1989,1990 James A. Roskind, All rights reserved.
+/*   Copyright (C) 1989,1990 James A. Roskind, All rights reserved.
      This grammar was developed  and  written  by  James  A.  Roskind.
      Copying  of  this  grammar  description, as a whole, is permitted
      providing this notice is intact and applicable  in  all  complete
@@ -250,6 +250,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.HashMap;
 
 import java.io.File;
@@ -285,33 +286,47 @@ TranslationUnit:  /** complete **/
         {
           try {
             OutputStreamWriter writer = new OutputStreamWriter(System.out);
-            setCPC(value, PCtoString(subparser.getPresenceCondition()));
 
-            // the signature for the type error call.
-            // TODO: only emit if __type_error is used
-            writer.write("void * __type_error(char *message); /* this method should halt */\n");
+            // emit headers
+            writer.write("#include <stdbool.h>\n");
+            writer.write("\n");
+
+            // emit extern declarations for desugaring runtime.
+            writer.write("extern void __static_type_error(char *msg);\n");
+            writer.write("extern void __static_renaming(char *renaming, char *original);\n");
+            writer.write("extern void __static_condition_renaming(char *renaming, char *expression);\n");
+            writer.write("\n");
+
+            // emit static initializer declaration.
+            String static_initializer_name = freshCId("static_initializer");
+            String static_initializer_signature = String.format("void %s()", static_initializer_name);
+            writer.write(String.format("%s;\n", static_initializer_signature));
+            writer.write("\n");
+            
+            // emit the static initializer definition
+            writer.write(String.format("%s {\n%s\n%s\n};\n",
+                                       static_initializer_signature,
+                                       recordedRenamings.toString(),
+                                       invalidGlobals.toString()));
+            
             
             // writes the extern declarations for the renamed preprocessor BDDs
-            writer.write("#include <stdbool.h>\n");
-            StringBuilder temp = new StringBuilder();
-            for (String originalExpr : boolVarRenamings.keySet()) {
-              temp.append(originalExpr);
-              writer.write("extern bool " + boolVarRenamings.get(originalExpr) + "; " + "/* renamed from " + temp.toString() + " */" + "\n");
-              writer.write("extern bool " + boolVarRenamings.get(originalExpr) + "_DEFINED;" + "\n");
-
-              temp.setLength(0);
+            System.err.println("TODO: record original presence condition strings in file as well once raw strings are collected");
+            for (Integer hash : condVars.keySet()) {
+              writer.write(String.format("extern const bool %s;\n", condVars.get(hash)));
             }
 
             SymbolTable symtab = ((CContext) subparser.scope).getSymbolTable();
 
             // write the user-defined types at the top of the scope.
             CContext scope = ((CContext) subparser.scope);
-            writer.write(scope.getDeclarations(subparser.getPresenceCondition()).toString());
+            writer.write(scope.getDeclarations(subparser.getPresenceCondition()));
 
             System.err.println(symtab);
 
             // write the transformed C
-            writer.write(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()).toString());
+            writer.write(concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()).toString());
+            writer.write("\n");
 
             writer.flush();
           } catch(IOException e) {
@@ -326,68 +341,67 @@ TranslationUnit:  /** complete **/
 ExternalDeclarationList: /** list, complete **/
         /* empty */  // ADDED gcc allows empty program
         {
-          StringBuilder valuesb = new StringBuilder();
+          String valuesb = "";
           setTransformationValue(value, valuesb);
         }
         | ExternalDeclarationList ExternalDeclaration
         {
           StringBuilder valuesb = new StringBuilder();
-          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
-          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
-          setTransformationValue(value, valuesb);
+          valuesb.append(concatAllStrings(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
+          valuesb.append(concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, valuesb.toString());
         }
         ;
 
 ExternalDeclaration:  /** complete **/
         FunctionDefinitionExtension
         {
-          setTransformationValue(value, concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | DeclarationExtension
         {
-          setTransformationValue(value, concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | AssemblyDefinition
         {
-          setTransformationValue(value, concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | EmptyDefinition
         {
-          setTransformationValue(value, concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         ;
 
 EmptyDefinition:  /** complete **/
         SEMICOLON
         {
-          StringBuilder valuesb = new StringBuilder();
-          valuesb.append(getNodeAt(subparser, 1).getTokenText());
-          setTransformationValue(value, valuesb);
+          setTransformationValue(value, (String) getNodeAt(subparser, 1).getTokenText());
         }
         ;
 
 FunctionDefinitionExtension:  /** complete **/  // ADDED
         FunctionDefinition
         {
-          setTransformationValue(value, concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | __EXTENSION__ FunctionDefinition
         {
           StringBuilder valuesb = new StringBuilder();
           valuesb.append(getNodeAt(subparser, 2).getTokenText());
-          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
-          setTransformationValue(value, valuesb);
+          valuesb.append(concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, valuesb.toString());
         }
         ;
 
-FunctionDefinition:  /** complete **/ // added scoping
+FunctionDefinition:  /** complete **/ // added scoping  // String
         FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
+          // similar to Declaration, but different in that this has a
+          // compoundstatement, while declaration has an initializer.
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
 
           String leftcurly = getNodeAt(subparser, 4).getTokenText();
-          String body = concatAllStringBuilders(getNodeAt(subparser, 3), subparser.getPresenceCondition()).toString();
+          String body = concatAllStrings(getNodeAt(subparser, 3), subparser.getPresenceCondition()).toString();
           String rightcurly = getNodeAt(subparser, 1).getTokenText();
           
           /* System.err.println("TYPE: " + typebuildermv); */
@@ -402,6 +416,10 @@ FunctionDefinition:  /** complete **/ // added scoping
           // resulting definitions to a single element multiverse
           // under the true condition.
           StringBuilder sb = new StringBuilder();
+
+          // TODO: optimization: dedeuplicate functions that have the
+          // same type.  this type deduplication maybe also be useful
+          // for typechecking to find a single type eror.
 
           // TODO: investigate why the function prototype can still
           // have a conditional underneath even though the complete
@@ -454,6 +472,15 @@ FunctionDefinition:  /** complete **/ // added scoping
 
                       // update the symbol table for this presence condition
                       scope.put(originalName, type, entry.getCondition());
+
+                      // add the forward declaration to the scope to
+                      // facilitate matching of signatures for linking
+                      StringBuilder forward = new StringBuilder();
+                      forward.append(renamedDeclaration.toString());
+                      forward.append(";\n");
+                      scope.addDeclaration(forward.toString());
+                      forward = null;
+                      
                       sb.append(renamedDeclaration.toString());
                       sb.append(" ");
                       sb.append(leftcurly);
@@ -480,7 +507,7 @@ FunctionDefinition:  /** complete **/ // added scoping
                           sb.append(" ");
                           sb.append(getNodeAt(subparser, 4).getTokenText());
                           sb.append("\n");
-                          sb.append((StringBuilder) getTransformationValue(subparser, 3));
+                          sb.append((String) getTransformationValue(subparser, 3));
                           sb.append("\n");
                           sb.append(getNodeAt(subparser, 1).getTokenText());
                           sb.append("\n");
@@ -511,11 +538,10 @@ FunctionDefinition:  /** complete **/ // added scoping
           } // end of check for invalid typebuilder
           if (debug) System.err.println(scope.getSymbolTable());
           prototypeNodemv.destruct();          
-          setTransformationValue(value, sb);
+          setTransformationValue(value, sb.toString());
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
-          setCPC(value, PCtoString(subparser.getPresenceCondition()));
           // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionDefinition");
           System.exit(1);
@@ -524,22 +550,22 @@ FunctionDefinition:  /** complete **/ // added scoping
 
 /* Functions have their own compound statement because of the need for
    reentering scope. */
-FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
+FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/  // String
         LocalLabelDeclarationListOpt DeclarationOrStatementList
         {
+          // TODO: same as CompoundStatement
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
 
           StringBuilder valuesb = new StringBuilder();
-          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
+          valuesb.append(concatAllStrings(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
 
           // print user-defined type declarations at top of scope
           CContext scope = ((CContext) subparser.scope);
           valuesb.append(scope.getDeclarations(subparser.getPresenceCondition()));
 
-          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          valuesb.append(concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
           if (debug) System.err.println(((CContext) subparser.scope).getSymbolTable());
-          setTransformationValue(value, valuesb);
+          setTransformationValue(value, valuesb.toString());
         }
         ;
 
@@ -802,18 +828,18 @@ NestedFunctionOldPrototype:  /** nomerge **/
 DeclarationExtension:  /** complete **/  // ADDED
         Declaration
         {
-          setTransformationValue(value, concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | __EXTENSION__ Declaration
         {
           StringBuilder valuesb = new StringBuilder();
           valuesb.append(getNodeAt(subparser, 2).getTokenText());
-          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
-          setTransformationValue(value, valuesb);
+          valuesb.append(concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, valuesb.toString());
         }
         ;
 
-Declaration:  /** complete **/
+Declaration:  /** complete **/  // String
         SUEDeclarationSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
         	Multiverse<TypeBuilder> structtypesmv
@@ -831,10 +857,10 @@ Declaration:  /** complete **/
                                                typebuilder.getCondition());
               } else {
                 sb.append("if (");
-                sb.append(PCtoString(typebuilder.getCondition()));
+                sb.append(condToCVar(typebuilder.getCondition()));
                 sb.append(") {\n");
-                sb.append(String.format("__type_error(\"invalid declaration of struct: %s\");\n",
-                                        typebuilder.getData().getStructTag()));
+                sb.append(emitError(String.format("invalid declaration of struct: %s",
+                                                  typebuilder.getData().getStructTag())));
                 sb.append("}\n");
               }
             }
@@ -842,7 +868,7 @@ Declaration:  /** complete **/
           sb.append("\n");
           
           /* System.err.println(((CContext) subparser.scope).getSymbolTable()); */
-          setTransformationValue(value, sb);
+          setTransformationValue(value, sb.toString());
         }
         | SUETypeSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
@@ -861,10 +887,10 @@ Declaration:  /** complete **/
                                                typebuilder.getCondition());
               } else {
                 sb.append("if (");
-                sb.append(PCtoString(typebuilder.getCondition()));
+                sb.append(condToCVar(typebuilder.getCondition()));
                 sb.append(") {\n");
-                sb.append(String.format("__type_error(\"invalid declaration of struct: %s\");\n",
-                                        typebuilder.getData().getStructTag()));
+                sb.append(emitError(String.format("invalid declaration of struct: %s",
+                                                  typebuilder.getData().getStructTag())));
                 sb.append("}\n");
               }
             }
@@ -872,7 +898,7 @@ Declaration:  /** complete **/
           sb.append("\n");
           
           /* System.err.println(((CContext) subparser.scope).getSymbolTable()); */
-          setTransformationValue(value, sb);
+          setTransformationValue(value, sb.toString());
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
@@ -894,14 +920,14 @@ Declaration:  /** complete **/
             // unpack type specifier, declarators, and initializers from the transformation value
             Multiverse<TypeBuilder> typebuildermv = declaringlistvalue.typebuilder;
             Multiverse<Declarator> declaratormv = declaringlistvalue.declarator;
-            Multiverse<StringBuilder> initializermv = declaringlistvalue.initializer;
+            Multiverse<String> initializermv = declaringlistvalue.initializer;
 
             // TODO: use typebuilder/declarator to reclassify the
             // tokens as typedef/ident in parsing context
 
             for (Element<TypeBuilder> typebuilder : typebuildermv) {
               PresenceCondition typebuilderCond = subparser.getPresenceCondition().and(typebuilder.getCondition());
-              for (Element<StringBuilder> initializer : initializermv) {
+              for (Element<String> initializer : initializermv) {
                 // TODO: optimization opportunity, share multiple
                 // initialiers with one renaming (harder for globals)
                 PresenceCondition initializerCond = typebuilderCond.and(initializer.getCondition());
@@ -919,9 +945,10 @@ Declaration:  /** complete **/
                       recordInvalidGlobalDeclaration(originalName, combinedCond);
                     } else {
                       valuesb.append("if (");
-                      valuesb.append(PCtoString(combinedCond));
+                      valuesb.append(condToCVar(combinedCond));
                       valuesb.append(") {\n");
-                      valuesb.append(String.format("__type_error(\"invalid declaration of \"%s\" under this presence condition\");\n", originalName));
+                      valuesb.append(emitError(String.format("invalid declaration of \"%s\" under this presence condition",
+                                                             originalName)));
                       valuesb.append("}\n");
                     }
                   } else {
@@ -962,9 +989,10 @@ Declaration:  /** complete **/
                           // not allowed to redeclare local symbols at all
                           scope.putError(originalName, entry.getCondition());
                           entrysb.append("if (");
-                          entrysb.append(PCtoString(entry.getCondition()));
+                          entrysb.append(condToCVar(entry.getCondition()));
                           entrysb.append(") {\n");
-                          entrysb.append(String.format("__type_error(\"redeclaration of local symbol: %s\");\n", originalName));
+                          entrysb.append(emitError(String.format("redeclaration of local symbol: %s",
+                                                                 originalName)));
                           entrysb.append("}\n");
                         } else {  // global scope
 
@@ -1010,11 +1038,11 @@ Declaration:  /** complete **/
                       if (renamedDeclaration.typebuilder.isTypedef()) {
                         // typedefs are moved to the top of the scope
                         // to support forward references of structs
-                        scope.addDeclaration(entrysb);
+                        scope.addDeclaration(entrysb.toString());
                         valuesb.append("// typedef moved to top of scope\n");
                       } else {
                         // not a typedef, so add it to regular output
-                        valuesb.append(entrysb);
+                        valuesb.append(entrysb.toString());
                       }
                     } // end loop over symtab entries
                   }
@@ -1035,7 +1063,7 @@ Declaration:  /** complete **/
           
           if (debug) System.err.println(scope.getSymbolTable());
 
-          setTransformationValue(value, valuesb);
+          setTransformationValue(value, valuesb.toString());
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
@@ -1052,13 +1080,15 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
+          System.err.println("TODO: DeclarationDeclaringList (1)");
+          System.exit(1);
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 6);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<StringBuilder> initializers = new Multiverse<StringBuilder>(new StringBuilder(), subparser.getPresenceCondition());
+          Multiverse<String> initializers = new Multiverse<String>("", subparser.getPresenceCondition());
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
           declaringlist.add(new DeclaringListValue(types, declarators, initializers));
           setTransformationValue(value, declaringlist);
@@ -1067,13 +1097,15 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
+          System.err.println("TODO: DeclarationDeclaringList (3)");
+          System.exit(1);
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 6);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<StringBuilder> initializers = new Multiverse<StringBuilder>(new StringBuilder(), subparser.getPresenceCondition());
+          Multiverse<String> initializers = new Multiverse<String>("", subparser.getPresenceCondition());
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
           declaringlist.add(new DeclaringListValue(types, declarators, initializers));
           setTransformationValue(value, declaringlist);
@@ -1101,7 +1133,7 @@ DeclaringList:  /** nomerge **/
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 5);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 4);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<StringBuilder> initializers = (Multiverse<StringBuilder>) getTransformationValue(subparser, 1);
+          Multiverse<String> initializers = (Multiverse<String>) getTransformationValue(subparser, 1);
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
           declaringlist.add(new DeclaringListValue(types, declarators, initializers));
           setTransformationValue(value, declaringlist);
@@ -1114,7 +1146,7 @@ DeclaringList:  /** nomerge **/
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 5);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 4);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<StringBuilder> initializers = (Multiverse<StringBuilder>) getTransformationValue(subparser, 1);
+          Multiverse<String> initializers = (Multiverse<String>) getTransformationValue(subparser, 1);
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
           declaringlist.add(new DeclaringListValue(types, declarators, initializers));
           setTransformationValue(value, declaringlist);
@@ -1123,6 +1155,8 @@ DeclaringList:  /** nomerge **/
         {
           // reuses saved base type
           bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
+          System.err.println("TODO: DeclaringList (3)");
+          System.exit(1);
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
           // TODO: hoist initiazliers around the entire InitializedDeclaration
@@ -1139,7 +1173,7 @@ DeclaringList:  /** nomerge **/
           // a new one
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<StringBuilder> initializers = (Multiverse<StringBuilder>) getTransformationValue(subparser, 1);
+          Multiverse<String> initializers = (Multiverse<String>) getTransformationValue(subparser, 1);
           declaringlist.add(new DeclaringListValue(types, declarators, initializers));
           setTransformationValue(value, declaringlist);
         }
@@ -1313,6 +1347,7 @@ TypeQualifier:    // const, volatile, and restrict can have underscores
         }
         ;
 
+// TODO: syntax
 ConstQualifier:    // ADDED
         CONST
         {
@@ -1325,6 +1360,7 @@ ConstQualifier:    // ADDED
         }
         ;
 
+// TODO: syntax
 VolatileQualifier:   // ADDED
         VOLATILE
         {
@@ -1337,6 +1373,7 @@ VolatileQualifier:   // ADDED
         }
         ;
 
+// TODO: syntax
 RestrictQualifier:   // ADDED
         RESTRICT
         {
@@ -1355,6 +1392,7 @@ RestrictQualifier:   // ADDED
         }
         ;
 
+// TODO: syntax
 FunctionSpecifier:  // ADDED
         INLINE
         {
@@ -1754,6 +1792,7 @@ VarArgTypeName:  // ADDED
         }
         ;
 
+// TODO: syntax
 StorageClass:
         TYPEDEF
         {
@@ -1792,6 +1831,7 @@ StorageClass:
         }
         ;
 
+// TODO: syntax
 BasicTypeName:
         VOID
         {
@@ -1870,6 +1910,7 @@ BasicTypeName:
         }
         ;
 
+// TODO: syntax
 SignedKeyword:
         SIGNED
 	{
@@ -1885,6 +1926,7 @@ SignedKeyword:
 	}
         ;
 
+// TODO: syntax
 ComplexKeyword:
         _COMPLEX
 	{
@@ -1973,7 +2015,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
           for (Element<List<Declaration>> declarationlist : listsmv) {
             // give it an anonymous tag name (CAnalyzer)
-            String structTag = freshName("anonymousstruct");
+            String structTag = freshName("anonymous");
 
             // no need to rename anonymous structs, since the tag is
             // not emitted
@@ -2067,8 +2109,10 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
                             combinedCond);
                   StringBuilder sb = new StringBuilder();
                   sb.append(typebuilder.toString());
+                  // TODO: syntax list
                   sb.append(";\n");
-                  scope.addDeclaration(sb);
+                  scope.addDeclaration(sb.toString());
+                  todoReminder("record struct renamings as well");
                 } else {
                   scope.putError(CContext.toTagName(structTag), combinedCond);
                 }
@@ -2503,7 +2547,9 @@ ParameterList:  /** list, nomerge **/ // List<Multiverse<Declaration>>
         }
         | ParameterList COMMA ParameterDeclaration
         {
-          // add to the existing parameter list
+          // add to the existing parameter list.  this reuse of a
+          // semantic value may be an issue if static conditionals are
+          // permitted under parameterlists
           List<Multiverse<Declaration>> parameters
             = (LinkedList<Multiverse<Declaration>>) getTransformationValue(subparser,3);
           Multiverse<Declaration> declarationvalue
@@ -2853,34 +2899,37 @@ TypeName: /** nomerge **/
         }
         ;
 
-InitializerOpt: /** nomerge **/
+InitializerOpt: /** nomerge **/ // ExpressionValue
         /* nothing */
         {
-          Multiverse<StringBuilder> emptyInit = new Multiverse<StringBuilder>(new StringBuilder(), subparser.getPresenceCondition());
+          todoReminder("initializers need to have expressionvalue since they need to be typechecked InitializerOpt (1)");
+          Multiverse<String> emptyInit = new Multiverse<String>("", subparser.getPresenceCondition());
           setTransformationValue(value, emptyInit);
         }
         | ASSIGN DesignatedInitializer
         {
+          todoReminder("initializers need to have expressionvalue since they need to be typechecked InitializerOpt (2)");
+          // TODO: syntax
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         ;
 
-DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
+DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */ // ExpressionValue
         Initializer
         {
+          todoReminder("initializers need to have expressionvalue since they need to be typechecked DesignatedInitializer (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
+          Multiverse<String> product = getProductOfSomeChildren(pc, child);
           setTransformationValue(value, product);
         }
         | Designation Initializer
         {
+          todoReminder("initializers need to have expressionvalue since they need to be typechecked DesignatedInitializer (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         ;
@@ -2890,24 +2939,27 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         | AssignmentExpression
         ;*/
 
-Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists
+Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists // ExpressionValue
         LBRACE MatchedInitializerList RBRACE
         {
+          todoReminder("initializers need to have expressionvalue since they need to be typechecked Initializer (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | LBRACE MatchedInitializerList DesignatedInitializer RBRACE
         {
+          todoReminder("initializers need to have expressionvalue since they need to be typechecked Initializer (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | AssignmentExpression
         {
+          todoReminder("initializers need to have expressionvalue since they need to be typechecked Initializer (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
           Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
+          Multiverse<String> product = getProductOfSomeChildren(pc, child);
           setTransformationValue(value, product);
         }
         ;
@@ -2930,7 +2982,7 @@ MatchedInitializerList:  /** list, nomerge **/
         {
           System.err.println("WARNING: unsupported semantic action: MatchedInitializerList");
           System.exit(1);
-          Multiverse<StringBuilder> s = new Multiverse<StringBuilder>(new StringBuilder(""), subparser.getPresenceCondition());
+          Multiverse<String> s = new Multiverse<String>("", subparser.getPresenceCondition());
           setTransformationValue(value, s);
         }
         ;
@@ -3448,14 +3500,17 @@ ParameterTypeListOpt: /** nomerge **/  // List<Multiverse<Declaration>>
 ArrayAbstractDeclarator: /** nomerge **/
         LBRACK RBRACK
         {
-          StringBuilder expression = new StringBuilder();
+          String expression = "";
           Multiverse<Declarator> valuemv
             = new Multiverse<Declarator>(new ArrayAbstractDeclarator(expression), subparser.getPresenceCondition());
           setTransformationValue(value, valuemv);;
         }
         | LBRACK ConstantExpression RBRACK
         {
-          Multiverse<StringBuilder> arrayBounds = (Multiverse<StringBuilder>) getTransformationValue(subparser, 2);
+          todoReminder("check expression in ArrayAbstractDeclarator (2)");
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          
+          Multiverse<String> arrayBounds = exprval.transformation;
           Multiverse<Declarator> valuemv = DesugaringOperators.toAbstractArrayDeclarator.transform(arrayBounds);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3464,15 +3519,18 @@ ArrayAbstractDeclarator: /** nomerge **/
 	      }
         | ArrayAbstractDeclarator LBRACK ConstantExpression RBRACK
 	      {
+          todoReminder("check expression in ArrayAbstractDeclarator (2)");
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+
       	  Multiverse<Declarator> arrayabstractdeclarator = (Multiverse<Declarator>) getTransformationValue(subparser,4);
-          Multiverse<StringBuilder> arrayBounds = (Multiverse<StringBuilder>) getTransformationValue(subparser, 2);
+          Multiverse<String> arrayBounds = exprval.transformation;
 
           // get each combination of the existing array abstract declarators and the new constant expressions
           // TODO: is there a way to do this with product?  harder because not combining the same types
           Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
           for (Element<Declarator> declarator : arrayabstractdeclarator) {
             PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
-            for (Element<StringBuilder> expression : arrayBounds) {
+            for (Element<String> expression : arrayBounds) {
               PresenceCondition combinedCondition = declaratorCond.and(expression.getCondition());
               valuemv.add(new ArrayAbstractDeclarator((ArrayAbstractDeclarator) declarator.getData(),
                                                  expression.getData()),
@@ -3557,7 +3615,13 @@ PostfixAbstractDeclarator: /** nomerge **/
 
 // ---------------------------------------------------------------- Statements
 
-Statement:  /** complete **/
+
+// TODO: passthrough transformation value
+/*
+use this to get one pc for all errors in the types
+PresenceCondition errorCond = typemv.getPresenceCondition(ErrorT.TYPE);
+ */
+Statement:  /** complete **/  // Multiverse<String>
         LabeledStatement
         {
           setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
@@ -3566,12 +3630,11 @@ Statement:  /** complete **/
         {
 	  // NOTE: calling emitStatement() here can also break switch cases.
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           // compound statements contain already-hoisted constructs
           // (declarations and statements), so just wrap this in a
           // single-element multiverse
-          Multiverse<StringBuilder> valuemv
-            = new Multiverse<StringBuilder>((StringBuilder) getTransformationValue(subparser, 1), subparser.getPresenceCondition());
+          Multiverse<String> valuemv
+            = new Multiverse<String>((String) getTransformationValue(subparser, 1), subparser.getPresenceCondition());
           setTransformationValue(value, valuemv);
         }
         | ExpressionStatement
@@ -3600,28 +3663,24 @@ LabeledStatement:  /** complete **/  // ADDED attributes
         IdentifierOrTypedefName COLON AttributeSpecifierListOpt Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
         | CASE ConstantExpression COLON Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
         | CASE ConstantExpression ELLIPSIS ConstantExpression COLON Statement  // ADDED case range
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
         | DEFAULT COLON Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
@@ -3637,27 +3696,27 @@ LabeledStatement:  /** complete **/  // ADDED attributes
 CompoundStatement:  /** complete **/  /* ADDED */
         LBRACE { EnterScope(subparser); } LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
+          System.err.println("TODO: compoundstatement maybe need to reenter scope rather than enterscope to support for loops with declarations");
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           
           StringBuilder valuesb = new StringBuilder();
           valuesb.append(getNodeAt(subparser, 6).getTokenText());
-          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 4), subparser.getPresenceCondition()));
+          valuesb.append(concatAllStrings(getNodeAt(subparser, 4), subparser.getPresenceCondition()));
 
           // print user-defined type declarations at top of scope
           CContext scope = ((CContext) subparser.scope);
           valuesb.append(scope.getDeclarations(subparser.getPresenceCondition()));
 
-          valuesb.append((StringBuilder) getTransformationValue(subparser, 3));
+          valuesb.append((String) getTransformationValue(subparser, 3));
           valuesb.append(getNodeAt(subparser, 1).getTokenText());
-          setTransformationValue(value, valuesb);
+          setTransformationValue(value, valuesb.toString());
         }
         ;
 
 LocalLabelDeclarationListOpt: /** complete **/
         /* empty */
         {
-          setTransformationValue(value, new StringBuilder());
+          setTransformationValue(value, "");
         }
         | LocalLabelDeclarationList
         {
@@ -3684,7 +3743,6 @@ LocalLabelDeclaration: /** complete **/  /* ADDED */
         __LABEL__ LocalLabelList SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LocalLabelDeclaration");
           System.exit(1);
         }
@@ -3694,14 +3752,12 @@ LocalLabelList:  /** list, complete **/  // ADDED
         IDENTIFIER
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LocalLabelList");
           System.exit(1);
         }
         | LocalLabelList COMMA IDENTIFIER
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: LocalLabelList");
           System.exit(1);
         }
@@ -3710,15 +3766,14 @@ LocalLabelList:  /** list, complete **/  // ADDED
 DeclarationOrStatementList:  /** list, complete **/  /* ADDED */
         /* empty */
         {
-          StringBuilder valuesb = new StringBuilder();
-          setTransformationValue(value, valuesb);
+          setTransformationValue(value, "");
         }
         | DeclarationOrStatementList DeclarationOrStatement
         {
           StringBuilder valuesb = new StringBuilder();
-          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
-          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
-          setTransformationValue(value, valuesb);
+          valuesb.append(concatAllStrings(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
+          valuesb.append(concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, valuesb.toString());
         }
         ;
 
@@ -3726,14 +3781,13 @@ DeclarationOrStatement: /** complete **/  /* ADDED */
         DeclarationExtension
         {
           // declarations are already hoisted, so just pass through the strinbguilder
-          setTransformationValue(value, (StringBuilder) getTransformationValue(subparser, 1));
+          setTransformationValue(value, (String) getTransformationValue(subparser, 1));
         }
         | Statement
         {
           // hoist all statements here, that declaratinorstatement is just a string
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
 
           /* StringBuilder allStatements = new StringBuilder(); */
 
@@ -3741,7 +3795,7 @@ DeclarationOrStatement: /** complete **/  /* ADDED */
           /* for (Multiverse.Element<StringBuilder> statement : product) { */
           /*   PresenceCondition combinedCond = statement.getCondition().and(subparser.getPresenceCondition()); */
           /*   allStatements.append("\nif (" + */
-          /*   PCtoString(combinedCond) + */
+          /*   condToCVar(combinedCond) + */
           /*   ") {\n" + statement.getData().toString() + "\n}\n"); */
           /*   combinedCond.delRef(); */
           /* } */
@@ -3760,14 +3814,14 @@ DeclarationOrStatement: /** complete **/  /* ADDED */
 DeclarationList:  /** list, complete **/
         DeclarationExtension
         {
-          setTransformationValue(value, concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | DeclarationList DeclarationExtension
         {
           StringBuilder valuesb = new StringBuilder();
-          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
-          valuesb.append(concatAllStringBuilders(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
-          setTransformationValue(value, valuesb);
+          valuesb.append(concatAllStrings(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
+          valuesb.append(concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, valuesb.toString());
         }
         ;
 
@@ -3776,171 +3830,147 @@ DeclarationList:  /** list, complete **/
         | StatementList Statement
         ;*/
 
-ExpressionStatement:  /** complete **/
+ExpressionStatement:  /** complete **/  // Multiverse<String>
         ExpressionOpt SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          Multiverse<Type> exprtype = exprval.type;
+          PresenceCondition errorCond = exprtype.getConditionOf(ErrorT.TYPE);
+          System.err.println("EXPTYP: " + exprtype);
+
+          Multiverse<String> valuemv;
+          if (! exprval.isAlwaysError()) {
+            Multiverse<String> expr = exprval.transformation;
+            Multiverse<String> semi
+              = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
+
+            valuemv = productAll(DesugaringOperators.concatStrings, expr, semi);
+            // if filtering of type errors is done right, this add
+            // should not violate mutual-exclusion in the multiverse
+            // TODO: use dce and other optimizations to remove superfluous __static_type_error calls
+            todoReminder("add emitError back to ExpressionStatement once type checking is done");
+            /* valuemv.add(emitError("type error"), errorCond); */
+          } else {
+            valuemv = new Multiverse<String>(emitError("type error"), errorCond);
+          }
+          assert valuemv != null;
+          System.err.println("EXPSMT: " + valuemv);
+          
+          errorCond.delRef();
+          setTransformationValue(value, valuemv);
         }
         ;
 
 SelectionStatement:  /** complete **/
         IF LPAREN Expression RPAREN Statement
         {
+          todoReminder("check the type of the conditional expression SelectionStatement (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          
-          Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2));
-          Multiverse<StringBuilder> temp
-            = sbmv.product(new StringBuilder(" {\n"),
-                           subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                           DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
 
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), pc);
-          sbmv.destruct();
-          sbmv = temp;
+          Multiverse<String> ifmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 5)).getTokenText(), pc);
+          Multiverse<String> lparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> rparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> stmtmv = (Multiverse<String>) getTransformationValue(subparser, 1);
 
-          temp = sbmv.product(new StringBuilder("\n}\n "),
-                              subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                              DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-
-          setTransformationValue(value, sbmv);
+          setTransformationValue(value, productAll(DesugaringOperators.concatStrings,
+                                                   ifmv,
+                                                   lparenmv,
+                                                   exprmv,
+                                                   rparenmv,
+                                                   stmtmv));
         }
         | IF LPAREN Expression RPAREN Statement ELSE Statement
         {
+          todoReminder("check the type of the conditional expression SelectionStatement (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 5);
 
-          Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7), getNodeAt(subparser, 6), getNodeAt(subparser, 5), getNodeAt(subparser, 4));
+          Multiverse<String> ifmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 7)).getTokenText(), pc);
+          Multiverse<String> lparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 6)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> rparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
+          Multiverse<String> ifbranchmv = (Multiverse<String>) getTransformationValue(subparser, 3);
+          Multiverse<String> elsemv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> elsebranchmv = (Multiverse<String>) getTransformationValue(subparser, 1);
 
-          Multiverse<StringBuilder> temp
-            = sbmv.product(new StringBuilder(" {\n"),
-                           subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                           DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), pc);
-          sbmv.destruct();
-          sbmv = temp;
-
-          // TODO: should these really always be the true condition?
-          temp = sbmv.product(new StringBuilder("\n}\n "),
-                              subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                              DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-
-          StringBuilder tokenText = new StringBuilder(" ");
-          tokenText.append(getNodeAt(subparser, 2).getTokenText());
-          temp = sbmv.product(tokenText, pc, DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = sbmv.product(new StringBuilder(" {\n"),
-                              subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                              DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), pc);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-
-          setTransformationValue(value, sbmv);  
+          setTransformationValue(value, productAll(DesugaringOperators.concatStrings,
+                                                   ifmv,
+                                                   lparenmv,
+                                                   exprmv,
+                                                   rparenmv,
+                                                   ifbranchmv,
+                                                   elsemv,
+                                                   elsebranchmv));
         }
         | SWITCH LPAREN Expression RPAREN Statement
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          // TODO: hard-code curly braces to ensure that any rewritings of the statement (node 1),
-          // remain inside the scope of the condition.
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("TODO: switch statement");
+          System.exit(1);
         }
         ;
 
 IterationStatement:  /** complete **/
         WHILE LPAREN Expression RPAREN Statement
         {
+          todoReminder("check the type of the conditional expression IterationStatement (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2));
-          Multiverse<StringBuilder> temp
-            = sbmv.product(new StringBuilder(" {\n"),
-                           subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                           DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
 
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), pc);
-          sbmv.destruct();
-          sbmv = temp;
+          Multiverse<String> whilemv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 5)).getTokenText(), pc);
+          Multiverse<String> lparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> rparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> stmtmv = (Multiverse<String>) getTransformationValue(subparser, 1);
 
-          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-          setTransformationValue(value, sbmv);
+          setTransformationValue(value, productAll(DesugaringOperators.concatStrings,
+                                                   whilemv,
+                                                   lparenmv,
+                                                   exprmv,
+                                                   rparenmv,
+                                                   stmtmv));
         }
         | DO Statement WHILE LPAREN Expression RPAREN SEMICOLON
         {
+          todoReminder("check the type of the conditional expression IterationStatement (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, getNodeAt(subparser, 7));
-          Multiverse<StringBuilder> temp
-            = sbmv.product(new StringBuilder(" {\n"),
-                           subparser.getPresenceCondition().presenceConditionManager().newTrue(),
-                           DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
 
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 6), pc);
-          sbmv.destruct();
-          sbmv = temp;
+          Multiverse<String> domv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 7)).getTokenText(), pc);
+          Multiverse<String> stmtmv = (Multiverse<String>) getTransformationValue(subparser, 6);
+          Multiverse<String> whilemv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 5)).getTokenText(), pc);
+          Multiverse<String> lparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> rparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> semimv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
 
-          temp = sbmv.product(new StringBuilder("\n}\n "), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 5).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 4).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 3), pc);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 2).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-
-          temp = sbmv.product(new StringBuilder(getNodeAt(subparser, 1).getTokenText()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-
-
-          setTransformationValue(value, sbmv);
+          setTransformationValue(value, productAll(DesugaringOperators.concatStrings,
+                                                   domv,
+                                                   stmtmv,
+                                                   whilemv,
+                                                   lparenmv,
+                                                   exprmv,
+                                                   rparenmv,
+                                                   semimv));
         }
         | FOR LPAREN ExpressionOpt SEMICOLON ExpressionOpt SEMICOLON
                 ExpressionOpt RPAREN Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          System.err.println("WARNING: unsupported semantic action: IterationStatement");
+          System.err.println("WARNING: unsupported semantic action: IterationStatement (6)");
+          System.exit(1);
+        }
+        // n1570 6.8.5 Iteration statements allows for a declaration in the initializer of a for loop
+        | FOR LPAREN Declaration ExpressionOpt SEMICOLON
+                ExpressionOpt RPAREN Statement
+        {
+          // TODO: use a reentrant scope to add the declaration's symbol to the for-loop's scope
+          // TODO: Declaration returns a String, not a multiverse.  We need a multiverse to hoist around the entire for loop.
+          // TODO: consider rewriting this to put the declaration outside the for loop.  since it's renamed, we should have conflicts, and it resolves issues with scope and semantic values
+          PresenceCondition pc = subparser.getPresenceCondition();
+          System.err.println("WARNING: unsupported semantic action: IterationStatement (7)");
           System.exit(1);
         }
         ;
@@ -3949,25 +3979,21 @@ JumpStatement:  /** complete **/
         GotoStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | ContinueStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | BreakStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         | ReturnStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
         }
         ;
@@ -3976,14 +4002,12 @@ GotoStatement:  /** complete **/
         GOTO IdentifierOrTypedefName SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: GotoStatement");
           System.exit(1);
         }
         | GOTO STAR Expression SEMICOLON  // ADDED
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
           System.err.println("WARNING: unsupported semantic action: GotoStatement");
           System.exit(1);
         }
@@ -3993,8 +4017,7 @@ ContinueStatement:  /** complete **/
         CONTINUE SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         ;
@@ -4003,8 +4026,7 @@ BreakStatement:  /** complete **/
         BREAK SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         ;
@@ -4012,125 +4034,140 @@ BreakStatement:  /** complete **/
 ReturnStatement:  /** complete **/
         RETURN ExpressionOpt SEMICOLON
         {
+          todoReminder("check the type of the return value");
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+
+          Multiverse<String> returnmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 3)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> semimv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
+
+          setTransformationValue(value, productAll(DesugaringOperators.concatStrings,
+                                                   returnmv,
+                                                   exprmv,
+                                                   semimv));
         }
         ;
 
 // --------------------------------------------------------------- Expressions
 
 /* CONSTANTS */
-Constant: /** passthrough, nomerge **/
+Constant: /** passthrough, nomerge **/  // ExpressionValue
         FLOATINGconstant
         {
-        	PresenceCondition pc = subparser.getPresenceCondition();
-        	Node child = getNodeAt(subparser, 1);
-        	Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, sbmv);
+          setTransformationValue(value,
+                                 new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
+                                                     NumberT.FLOAT, subparser.getPresenceCondition()));
         }
         | INTEGERconstant
         {
-        	PresenceCondition pc = subparser.getPresenceCondition();
-        	Node child = getNodeAt(subparser, 1);
-        	Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, sbmv);
+          setTransformationValue(value,
+                                 new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
+                                                     NumberT.INT, subparser.getPresenceCondition()));
+          // TODO: check whether INT is correct here, or whether we
+          // need to look at the token itself to determine long, etc.
         }
         /* We are not including ENUMERATIONConstant here  because  we
         are  treating  it like a variable with a type of "enumeration
         Constant".  */
         | OCTALconstant
         {
-        	PresenceCondition pc = subparser.getPresenceCondition();
-        	Node child = getNodeAt(subparser, 1);
-        	Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, sbmv);
+          setTransformationValue(value,
+                                 new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
+                                                     NumberT.INT, subparser.getPresenceCondition()));
         }
         | HEXconstant
         {
-        	PresenceCondition pc = subparser.getPresenceCondition();
-        	Node child = getNodeAt(subparser, 1);
-        	Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, sbmv);
+          setTransformationValue(value,
+                                 new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
+                                                     NumberT.INT, subparser.getPresenceCondition()));
         }
         | CHARACTERconstant
         {
-        	PresenceCondition pc = subparser.getPresenceCondition();
-        	Node child = getNodeAt(subparser, 1);
-        	Multiverse<StringBuilder> sbmv = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, sbmv);
+          setTransformationValue(value,
+                                 new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
+                                                     NumberT.CHAR, subparser.getPresenceCondition()));
         }
         ;
 
 /* STRING LITERALS */
-StringLiteralList:  /** list, nomerge **/
-                STRINGliteral
-                {
-                  System.err.println("WARNING: unsupported semantic action: StringLiteralList");
-                  System.exit(1);
-                }
-                | StringLiteralList STRINGliteral
-                {
-                  System.err.println("WARNING: unsupported semantic action: StringLiteralList");
-                  System.exit(1);
-                }
-                ;
+// TODO: unit tests
+StringLiteralListString:  /** list, nomerge **/ // String
+        STRINGliteral
+        {
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
+        }
+        | StringLiteralListString STRINGliteral
+        {
+          StringBuilder valuesb = new StringBuilder();
+          valuesb.append((String) getTransformationValue(subparser, 2));
+          valuesb.append(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          setTransformationValue(value, valuesb.toString());
+        }
+        ;
+
+// This nontermal just adds type information to the string literal
+StringLiteralList:  /** list, nomerge **/ // ExpressionValue
+        StringLiteralListString
+        {
+          // TODO: CAnalyzer distinguishes between wide and non-wide characters
+          // TODO: use a fixed-size array instead of a pointer to char
+          setTransformationValue(value,
+                                 new ExpressionValue((String) getTransformationValue(subparser, 1),
+                                                     new PointerT(NumberT.CHAR),
+                                                     subparser.getPresenceCondition()));
+        }
+        ;
 
 
 /* EXPRESSIONS */
-PrimaryExpression:  /** nomerge, passthrough **/
+PrimaryExpression:  /** nomerge, passthrough **/ // ExpressionValue
         PrimaryIdentifier
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | Constant
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | StringLiteralList
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | LPAREN Expression RPAREN
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+
+          Multiverse<String> lparenmv
+            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 3)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> rparenmv
+            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
+
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings, lparenmv, exprmv, rparenmv),
+                                                     exprval.type));
+          lparenmv.destruct(); rparenmv.destruct();
         }
         | StatementAsExpression  // ADDED
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | VariableArgumentAccess  // ADDED
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         ;
 
-PrimaryIdentifier: /** nomerge **/ // Multiverse<StringBuilder>
+PrimaryIdentifier: /** nomerge **/ // ExpressionValue
         IDENTIFIER
         {
           useIdent(subparser, getNodeAt(subparser, 1));  // legacy type checking
           
           String originalName = ((Node)getNodeAt(subparser, 1)).getTokenText();
-          //Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
-          //sbmv.add(new Element<StringBuilder>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
+          //Multiverse<String> sbmv = new Multiverse<String>();
+          //sbmv.add(new Element<String>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
 
           CContext scope = (CContext) subparser.scope;
 
@@ -4140,27 +4177,18 @@ PrimaryIdentifier: /** nomerge **/ // Multiverse<StringBuilder>
           cond.delRef();
 
           // convert the renamings to stringbuilders
-          Multiverse<StringBuilder> sbmv = new Multiverse<StringBuilder>();
+          Multiverse<String> sbmv = new Multiverse<String>();
+          Multiverse<Type> typemv = new Multiverse<Type>();
+          // any presence conditions with an error can be omitted from
+          // the desugaring.  instead, this information is preserved
+          // in the type value for use by the statement.
           for (Element<SymbolTable.Entry> entry : entries) {
             if (entry.getData() == SymbolTable.ERROR) {
-              System.err.println("INFO: use of symbol with invalid declaration");
-              // we shouldn't need to emit a call to __type_error(),
-              // since this is supposed to be done by the declaration
-              // itself
-              
-              /* // emit a call to the type error function */
-              /* String result */
-              /*   = String.format(" __type_error(\"use of symbol with invalid declaration: %s\") ", originalName); */
-              /* sbmv.add(new StringBuilder(result), entry.getCondition()); */
+              System.err.println(String.format("type error: use of symbol with invalid declaration: %s", originalName));
+              typemv.add(ErrorT.TYPE, entry.getCondition());
             } else if (entry.getData() == SymbolTable.UNDECLARED) {
-              System.err.println("INFO: use of undeclared symbol");
-              // TODO: see how replacing the identifier with a
-              // function call affects the typing.  perhaps emit a
-              // cast to surrounding type to ensure it always has the
-              // right type
-              String result
-                = String.format(" __type_error(\"use of undeclared symbol: %s\") ", originalName);
-              sbmv.add(new StringBuilder(result), entry.getCondition());
+              System.err.println(String.format("type error: use of undeclared symbol: %s", originalName));
+              typemv.add(ErrorT.TYPE, entry.getCondition());
             } else {
               // TODO: add type checking.  may need to tag the resulting
               // stringbuilder with the type to handle this
@@ -4168,15 +4196,16 @@ PrimaryIdentifier: /** nomerge **/ // Multiverse<StringBuilder>
               if (entry.getData().getType().isVariable()) {
                 String result  // use the renamed symbol
                   = String.format(" %s ", entry.getData().getType().toVariable().getName());
-                sbmv.add(new StringBuilder(result), entry.getCondition());
+                sbmv.add(result, entry.getCondition());
+                typemv.add(entry.getData().getType().toVariable().getType(), entry.getCondition());
               } else if (entry.getData().getType() instanceof NamedFunctionT) {
                 String result  // use the renamed symbol
                   = String.format(" %s ", ((NamedFunctionT) entry.getData().getType()).getName());
-                sbmv.add(new StringBuilder(result), entry.getCondition());
+                sbmv.add(result, entry.getCondition());
+                typemv.add(((NamedFunctionT) entry.getData().getType()), entry.getCondition());
               } else {
-                String result
-                  = String.format(" __type_error(\"use of symbol other than variable or function: %s\") ", originalName);
-                sbmv.add(new StringBuilder(result), entry.getCondition());
+                System.err.println(String.format("type error: use of symbol other than variable or function: %s", originalName));
+                typemv.add(ErrorT.TYPE, entry.getCondition());
               }
             }
           }
@@ -4185,7 +4214,10 @@ PrimaryIdentifier: /** nomerge **/ // Multiverse<StringBuilder>
           assert ! sbmv.isEmpty();
           entries.destruct();
 
-          setTransformationValue(value, sbmv);
+          System.err.println(sbmv);
+          System.err.println(typemv);
+
+          setTransformationValue(value, new ExpressionValue(sbmv, typemv));
         }  /* We cannot use a typedef name as a variable */
         ;
 
@@ -4205,128 +4237,409 @@ StatementAsExpression:  /** nomerge **/  //ADDED
         }
         ;
 
-PostfixExpression:  /** passthrough, nomerge **/
+PostfixExpression:  /** passthrough, nomerge **/ // ExpressionValue
         PrimaryExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | Subscript
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | FunctionCall
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | DirectSelection
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | IndirectSelection
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | Increment
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | Decrement
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | CompoundLiteral  /* ADDED */
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         ;
 
 Subscript:  /** nomerge **/
         PostfixExpression LBRACK Expression RBRACK
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // TODO: check that expression is numeric, check that postfixexpression is array, and get arrays types
+          System.err.println("TODO: Subscript");
+          System.exit(1);
         }
         ;
 
 FunctionCall:  /** nomerge **/
         PostfixExpression LPAREN RPAREN
         {
-          callFunction(subparser, getNodeAt(subparser, 3), null);
+          todoReminder("typecheck functioncall (1)");
+          // type check by making sure the postfixexpression type is a
+          // function, has no params, and setting the return value to
+          // the type
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
+
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> lparen = new Multiverse<String>((String) getNodeAt(subparser, 2).getTokenText(), pc);
+          Multiverse<String> rparen = new Multiverse<String>((String) getNodeAt(subparser, 1).getTokenText(), pc);
+
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                exprmv,
+                                                                lparen,
+                                                                rparen),
+                                                     exprval.type));  // TODO: placeholder until type checking
         }
         | PostfixExpression LPAREN ExpressionList RPAREN
         {
+          // type check by making sure the postfixexpression type is a
+          // function, that each type of the expressionlist matches
+          // each type of the function types's list, and setting the
+          // return value to the type
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
-          callFunction(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 2));
+          ExpressionValue postfixexprval = (ExpressionValue) getTransformationValue(subparser, 4);
+
+          if (postfixexprval.hasValidType()) {
+            /* postfixexprval.transformation; */
+            Multiverse<String> lparen
+              = new Multiverse<String>((String) getNodeAt(subparser, 3).getTokenText(), pc);
+            Multiverse<String> rparen
+              = new Multiverse<String>((String) getNodeAt(subparser, 1).getTokenText(), pc);
+
+            // Get all possible expression lists by successively taking
+            // the combined product of each element of the list.  See
+            // postfixingfunctiondeclarator and struct for something
+            // similar.
+            List<ExpressionValue> exprlist
+              = (List<ExpressionValue>) getTransformationValue(subparser, 2);
+            Multiverse<List<String>> exprlistmv
+              = new Multiverse<List<String>>(new LinkedList<String>(), pc);
+            Multiverse<List<Type>> exprlisttypemv
+              = new Multiverse<List<Type>>(new LinkedList<Type>(), pc);
+            for (ExpressionValue listelem : exprlist) {
+              // wrap each listelem's string and type in a list
+              Multiverse<List<String>> wrapped_listelem_transformation
+                = DesugaringOperators.stringListWrap.transform(listelem.transformation);
+              Multiverse<List<Type>> wrapped_listelem_type
+                = DesugaringOperators.typeListWrap.transform(listelem.type);
+
+              // take the product of the multiverse of lists collected
+              // so far with the new element
+              Multiverse<List<String>> new_exprlistmv
+                = exprlistmv.complementedProduct(wrapped_listelem_transformation,
+                                                 DesugaringOperators.STRINGLISTCONCAT);
+              Multiverse<List<Type>> new_exprlisttypemv
+                = exprlisttypemv.complementedProduct(wrapped_listelem_type,
+                                                     DesugaringOperators.TYPELISTCONCAT);
+
+              exprlistmv.destruct(); exprlistmv = new_exprlistmv;
+              exprlisttypemv.destruct(); exprlisttypemv = new_exprlisttypemv;
+            }
+
+            System.err.println("EXPRLISTMV: " + exprlistmv);
+            System.err.println("EXPRLISTTYPEMV: " + exprlisttypemv);
+
+            // typecheck each combination of postfix expression and
+            // parameter list.
+            Multiverse<Type> typemv = new Multiverse<Type>();
+            Multiverse<String> valuemv = new Multiverse<String>();
+            // collect the presence condition of all type errors
+            PresenceCondition errorCond
+              = subparser.getPresenceCondition().presenceConditionManager().newFalse();
+            todoReminder("support variadic arguments.  see CAnalyzer.processFunctionCall");
+            // loop over each combination of postfix expression and
+            // parameter list
+            for (Element<Type> postfixelem : postfixexprval.type) {
+              // check that postfix expression is a function type
+              if (postfixelem.getData() instanceof NamedFunctionT) {
+                FunctionT functiontype = ((NamedFunctionT) postfixelem.getData()).toFunctionT();
+                List<Type> formals = functiontype.getParameters();
+                for (Element<List<Type>> exprlisttype : exprlisttypemv) {
+                  PresenceCondition combinedCond = postfixelem.getCondition().and(exprlisttype.getCondition());
+                  // compare formal vs actual parameter types
+                  int size1 =  formals.size();
+                  int size2 = exprlisttype.getData().size();
+                  int min = Math.min(size1, size2);
+
+                  if (size1 > size2) {
+                    // TODO: unit test
+                    PresenceCondition new_errorCond = errorCond.or(combinedCond);
+                    valuemv.add(emitError("too few arguments to function"), combinedCond);
+                    errorCond.delRef(); errorCond = new_errorCond;
+                  } else if ((! functiontype.isVarArgs()) && (size1 < size2)) {
+                    // TODO: unit test
+                    PresenceCondition new_errorCond = errorCond.or(combinedCond);
+                    valuemv.add(emitError("too many arguments to function"), combinedCond);
+                    errorCond.delRef(); errorCond = new_errorCond;
+                  } else {  // parameter size is right
+                    // check compare each of the parameters' types
+                    // one-at-a-time and if one doesn't match, break
+                    // and set the presence condition to be an error
+                    boolean match = true;
+                    for (int i = 0; i < min; i++) {
+                      Type formal = formals.get(i);
+                      Type actual = exprlisttype.getData().get(i);
+                      if (! cOps.equal(formal, actual)) {
+                        todoReminder("support C's type coercion rules in function call parameter checking");
+                        match = false;
+                        break;
+                      }
+                    }
+                    if (match) {
+                      // the expression's type is the return value's type of the function being called
+                      typemv.add(functiontype.getResult(), combinedCond);
+                    } else {
+                      // TODO: unit test
+                      // parameters don't match.  type error.
+                      PresenceCondition new_errorCond = errorCond.or(combinedCond);
+                      valuemv.add(emitError("function call parameter types do not match function type"), combinedCond);
+                      errorCond.delRef(); errorCond = new_errorCond;
+                    }
+                  }
+                  combinedCond.delRef();
+                }  // end loop over parameter list
+              } else {  // not a function type
+                PresenceCondition new_errorCond = errorCond.or(postfixelem.getCondition());
+                // TODO: unit test
+                valuemv.add(emitError("attempting function call on non-function type"), postfixelem.getCondition());
+                errorCond.delRef(); errorCond = new_errorCond;
+              } // end check for function type
+            } // end loop over postfixelems
+            typemv.add(ErrorT.TYPE, errorCond);
+            /* valuemv.add(emitError("type error on function call"), errorCond); */  // TODO: add an option to emit one type error message for all instead of individual messages for each configuration
+
+            // should be non-empty because either errorCond is
+            // non-false or some parameter list matched and added the
+            // return type
+            assert ! typemv.isEmpty();
+
+            // filter out the postfix value and the expression list
+            // values that are type errors.
+            PresenceCondition validTypes = errorCond.not();
+            Multiverse<String> filtered_postfixexpr = postfixexprval.transformation.filter(validTypes);
+            Multiverse<List<String>> filtered_exprlistmv = exprlistmv.filter(validTypes);
+            errorCond.delRef(); validTypes.delRef();
+            
+            System.err.println("filtered1: " + filtered_postfixexpr);
+            System.err.println("filtered2: " + filtered_exprlistmv);
+
+            if (filtered_postfixexpr.isEmpty() || filtered_exprlistmv.isEmpty()) {
+              // if either is empty, there is nothing left to
+              // do. there were no valid type checking results for any
+              // combination of postfix expr and parameter list.
+              // valuemv will only contain the error message.
+            } else {
+              // construct the resulting function call's transformations
+              // and types
+              for (Element<String> postfixelem : filtered_postfixexpr) {
+                for (Element<List<String>> exprlistelem : filtered_exprlistmv) {
+                  PresenceCondition combinedCond = postfixelem.getCondition().and(exprlistelem.getCondition());
+                  // note that this does not use the original tokens
+                  // from the AST for command and parens
+                  String callstring = String.format("%s ( %s )",
+                                                    postfixelem.getData(),
+                                                    String.join(", ", exprlistelem.getData()));
+                  valuemv.add(callstring, combinedCond);
+                  combinedCond.delRef();
+                }
+              }
+            }
+            assert ! valuemv.isEmpty();
+            if (! filtered_postfixexpr.isEmpty()) {
+              filtered_postfixexpr.destruct();
+            }
+            if (! filtered_exprlistmv.isEmpty()) {
+              filtered_exprlistmv.destruct();
+            }
+
+            System.err.println("FCALLTYPE: " + typemv);
+            System.err.println("FCALLERRVALS: " + valuemv);
+            
+            setTransformationValue(value, new ExpressionValue(valuemv, typemv));
+          } else { // types of postfixexprval are all errors
+            // TODO: this throws away the type message from the child,
+            // so perhaps copy the child's mv values instead.
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type for the function part of the function call"),
+                                                              ErrorT.TYPE,
+                                                              pc));
+          }
         }
         ;
 
-DirectSelection:  /** nomerge **/
+DirectSelection:  /** nomerge **/  // ExpressionValue
         PostfixExpression DOT IdentifierOrTypedefName
         {
-          // TODO: need to cast PostfixExpression to the union field
-          // of the configurable struct declaration.  this means we
-          // need to know the type of postfixexpression
-          System.err.println("WARNING: unsupported semantic action: DirectSelection");
-          System.exit(1);
+          ExpressionValue postfixval = (ExpressionValue) getTransformationValue(subparser, 3);
+
+          Multiverse<String> postfixmv = postfixval.transformation;
+          Multiverse<String> dotmv
+            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(),
+                                            subparser.getPresenceCondition());
+          String ident = ((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText();
+
+          // go through each type and see which have a field with this
+          // name and collect the resulting type
+          Multiverse<Type> postfixtype = postfixval.type;
+          Multiverse<Type> typemv = new Multiverse<Type>();  // resulting type
+          Multiverse<String> identmv = new Multiverse<String>();  // desugaring
+          CContext scope = ((CContext) subparser.scope);
+          for (Element<Type> type : postfixtype) {
+            // check that the postfix type is a struct or union
+            if (type.getData().isStruct() || type.getData().isUnion()) {
+              StructOrUnionT sutype = (StructT) type.getData();
+              String tag = sutype.getName();
+              assert tag != null;  // even anonymous structs get a name, e.g., anonymous(0)
+              if (tag.startsWith("anonymous(")) {  // anonymous struct or union
+                // go through each symtab entry for this struct/union
+                Multiverse<SymbolTable.Entry> entries = scope.getAnyScope(tag, type.getCondition());
+                for (Element<SymbolTable.Entry> entry : entries) {
+                  PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
+                  if (entry.getData() == SymbolTable.ERROR) {
+                    // TODO: type error
+                    typemv.add(ErrorT.TYPE, combinedCond);
+                  } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                    // TODO: type error, symbol not declared in this presence condition
+                    typemv.add(ErrorT.TYPE, combinedCond);
+                  } else {
+                    // TODO: check for correct field usage, otherwise type error
+                    System.err.println("TODO: finish DirectSelection for anonymous structs");
+                    System.exit(1);
+                  }
+                  combinedCond.delRef();
+                }
+                entries.destruct();
+              } else {  // tagged struct or union
+                // tagged structs work by using the original name for
+                // a struct that is the union of all variations, so we
+                // need to replace the field with level of indirection
+                // into this union.
+
+                // first go through each symtab entry for the struct tag
+                String tagname = CContext.toTagName(sutype.getName());
+                Multiverse<SymbolTable.Entry> entries = scope.getAnyScope(tagname, type.getCondition());
+                for (Element<SymbolTable.Entry> entry : entries) {
+                  PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
+                  if (entry.getData() == SymbolTable.ERROR) {
+                    // TODO: type error
+                    typemv.add(ErrorT.TYPE, combinedCond);
+                  } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                    // TODO: type error, symbol not declared in this presence condition
+                    typemv.add(ErrorT.TYPE, combinedCond);
+                  } else {
+                    // TODO: check for correct field usage, otherwise type error
+                    // TODO: insert field of the union inside the original struct/union
+
+                    // since we looked up a tagname, not seeing a
+                    // struct/union type likely means there's a bug
+                    assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
+                    StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
+
+                    // similarly, if we looked up a tagname, there
+                    // should be definitions with members
+                    assert null != entrytype.getMembers();
+
+                    // check that the field exist in this variation of
+                    // the struct.  TypeBuilder sets all members to
+                    // VariableT FIELD types
+                    VariableT fieldtype = (VariableT) entrytype.lookup(ident);
+                    if (fieldtype.isError()) {
+                      System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName()));
+                      typemv.add(ErrorT.TYPE, combinedCond);
+                    } else {
+                      // found a valid field and we now know its type
+                      
+                      typemv.add(fieldtype.getType(), combinedCond);
+
+                      // add the indirection using the tag (which is
+                      // the same name as the field in the combined
+                      // struct's union)
+                      identmv.add(String.format("%s.%s", entrytype.getName(), fieldtype.getName()), combinedCond);
+                    }
+                  }
+                  combinedCond.delRef();
+                }
+              }
+            } else {
+              // TODO: not a struct or union, type error
+              typemv.add(ErrorT.TYPE, type.getCondition());
+            }
+          }
+          
+          assert ! typemv.isEmpty();
+
+          System.err.println("typemv " + typemv);
+          System.err.println("identmv " + identmv);
+
+          todoReminder("check for all type errors or else the product for directselect will fail because of a product of an empty multiverse");
+          Multiverse<String> valuemv = productAll(DesugaringOperators.concatStrings, postfixmv, dotmv, identmv);
+          dotmv.destruct(); identmv.destruct();  // postfixmv is from child, so don't destruct
+          // valuemv shouldn't need to filtered for error conditions,
+          // because identmv only has those configurations that were
+          // correctly typed
+
+          System.err.println("valuemv " + valuemv);
+          setTransformationValue(value, new ExpressionValue(valuemv, typemv));
         }
         ;
 
 IndirectSelection:  /** nomerge **/
         PostfixExpression ARROW IdentifierOrTypedefName
         {
+          System.err.println("TODO: IndirectSelection");
+          System.exit(1);
           // TODO: need to cast PostfixExpression to the union field
           // of the configurable struct declaration.  this means we
           // need to know the type of postfixexpression
-          System.err.println("WARNING: unsupported semantic action: IndirectSelection");
-          System.exit(1);
+          System.err.println("TODO: rename according to struct fields");
+          // TODO: check that postfix expression is a pointer to a struct and that the identifier is one of its fields
         }
         ;
 
-Increment:  /** nomerge **/
+Increment:  /** nomerge **/  // ExpressionValue
         PostfixExpression ICR
         {
+          todoReminder("typecheck Increment");
+          // TODO: check that postfixexpression is a number or pointer (see CAnalyzer)
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> opmv
+            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings, exprmv, opmv),
+                                                     exprval.type));
+          opmv.destruct();
         }
         ;
 
-Decrement:  /** nomerge **/
+Decrement:  /** nomerge **/  // ExpressionValue
         PostfixExpression DECR
         {
+          todoReminder("typecheck Decrement");
+          // TODO: check that postfixexpression is a number or pointer (see CAnalyzer)
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> opmv
+            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings, exprmv, opmv),
+                                                     exprval.type));
+          opmv.destruct();
         }
         ;
 
@@ -4338,94 +4651,125 @@ CompoundLiteral:  /** nomerge **/  /* ADDED */
         }
         ;
 
-ExpressionList:  /** list, nomerge **/
+ExpressionList:  /** list, nomerge **/  // List<ExpressionValue>
         AssignmentExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // create a new list
+          List<ExpressionValue> exprlist = new LinkedList<ExpressionValue>();
+          ExpressionValue exprval
+            = (ExpressionValue) getTransformationValue(subparser,1);
+          exprlist.add(exprval);
+          setTransformationValue(value, exprlist);
         }
         | ExpressionList COMMA AssignmentExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // add to the existing expression list.  this reuse of a
+          // semantic value may be an issue if static conditionals are
+          // permitted under expressionlists
+          List<ExpressionValue> exprlist
+            = (LinkedList<ExpressionValue>) getTransformationValue(subparser,3);
+          ExpressionValue exprval
+            = (ExpressionValue) getTransformationValue(subparser,1);
+          exprlist.add(exprval);
+          setTransformationValue(value, exprlist);
         }
         ;
 
-UnaryExpression:  /** passthrough, nomerge **/
+UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
         PostfixExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | ICR UnaryExpression
         {
+          todoReminder("typecheck unaryexpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                opmv,
+                                                                exprmv),
+                                                     exprval.type));  // TODO: placeholder until type checking
         }
         | DECR UnaryExpression
         {
+          todoReminder("typecheck unaryexpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                opmv,
+                                                                exprmv),
+                                                     exprval.type));  // TODO: placeholder until type checking
         }
         | Unaryoperator CastExpression
         {
+          // TODO: need to look at the unaryoperator to determine whether it's the correct type usage
+          todoReminder("typecheck unaryexpression (4)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> opmv = new Multiverse<String>((String) getTransformationValue(subparser, 2), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                opmv,
+                                                                exprmv),
+                                                     exprval.type));  // TODO: placeholder until type checking
         }
         | SIZEOF UnaryExpression
         {
+          todoReminder("typecheck unaryexpression (5)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                opmv,
+                                                                exprmv),
+                                                     exprval.type));  // TODO: placeholder until type checking
         }
         | SIZEOF LPAREN TypeName RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: UnaryExpression");
+          System.err.println("WARNING: unsupported unaryexpression (6)");
           System.exit(1);
         }
         | LabelAddressExpression  // ADDED
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          todoReminder("typecheck unaryexpression (7)");
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | AlignofExpression // ADDED
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          todoReminder("typecheck unaryexpression (8)");
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | ExtensionExpression // ADDED
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          todoReminder("typecheck unaryexpression (9)");
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | OffsetofExpression // ADDED
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          todoReminder("typecheck unaryexpression (10)");
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | TypeCompatibilityExpression  // ADDED
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          todoReminder("typecheck unaryexpression (11)");
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         ;
 
@@ -4445,12 +4789,19 @@ OffsetofExpression:  /** nomerge **/
         }
         ;
 
-ExtensionExpression:  /** nomerge **/
+ExtensionExpression:  /** nomerge **/  // ExpressionValue
         __EXTENSION__ CastExpression
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+          
+          Multiverse<String> extmv
+            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> exprmv = exprval.transformation;
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings, extmv, exprmv),
+                                                     exprval.type));
+          extmv.destruct();
         }
         ;
 
@@ -4467,18 +4818,14 @@ AlignofExpression:  /** nomerge **/
         }
         ;
 
-Alignofkeyword:
+Alignofkeyword:  // String
         __ALIGNOF__
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         | __ALIGNOF
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         ;
 
@@ -4490,433 +4837,474 @@ LabelAddressExpression:  /** nomerge  **/  // ADDED
         }
         ;
 
-Unaryoperator:
+Unaryoperator:  // String
         AND
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         | STAR
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         | PLUS
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         | MINUS
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         | NEGATE
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         | NOT
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         ;
 
-CastExpression:  /** passthrough, nomerge **/
+CastExpression:  /** passthrough, nomerge **/  // ExpressionValue
         UnaryExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | LPAREN TypeName RPAREN CastExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> sbmv;
-          Multiverse<StringBuilder> temp;
-          temp = getProductOfSomeChildren(pc, getNodeAt(subparser, 4));
-          sbmv = temp;
-          Multiverse<TypeBuilder> type = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 3);
-          System.err.println("WARNING: CastExpression assumes that there is only one element in the type multiverse.");
-          temp = sbmv.product(new StringBuilder(type.get(0).getData().toString()), subparser.getPresenceCondition().presenceConditionManager().newTrue(), DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-          StringBuilder tokenText = new StringBuilder(getNodeAt(subparser, 2).getTokenText());
-          temp = sbmv.product(tokenText, pc, DesugaringOperators.SBCONCAT);
-          sbmv.destruct();
-          sbmv = temp;
-          temp = cartesianProductWithChild(sbmv, getNodeAt(subparser, 1), pc);
-          sbmv.destruct();
-          sbmv = temp;
-          setTransformationValue(value, sbmv);
+          System.err.println("TODO: CastExpression (2) type checking");
+          System.exit(1);
         }
         ;
 
-MultiplicativeExpression:  /** passthrough, nomerge **/
+
+
+          /* PresenceCondition pc = subparser.getPresenceCondition(); */
+          /* ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2); */
+
+          /* Multiverse<String> lparenmv */
+          /*   = new Multiverse<String>(((Syntax) getNodeAt(subparser, 3)).getTokenText(), pc); */
+          /* Multiverse<String> exprmv = exprval.transformation; */
+          /* Multiverse<String> rparenmv */
+          /*   = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc); */
+
+          /* setTransformationValue(value, */
+          /*                        new ExpressionValue(productAll(DesugaringOperators.concatStrings, lparenmv, exprmv, rparenmv), */
+          /*                                            exprval.type)); */
+          /* lparenmv.destruct(); rparenmv.destruct(); */
+
+MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
         CastExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | MultiplicativeExpression STAR CastExpression
         {
+          todoReminder("typecheck MultiplicativeExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         | MultiplicativeExpression DIV CastExpression
         {
+          todoReminder("typecheck MultiplicativeExpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         | MultiplicativeExpression MOD CastExpression
         {
+          todoReminder("typecheck MultiplicativeExpression (4)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         ;
 
-AdditiveExpression:  /** passthrough, nomerge **/
+AdditiveExpression:  /** passthrough, nomerge **/  // ExpressionValue
         MultiplicativeExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | AdditiveExpression PLUS MultiplicativeExpression
         {
+          todoReminder("typecheck AdditiveExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         | AdditiveExpression MINUS MultiplicativeExpression
         {
+          todoReminder("typecheck AdditiveExpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         ;
 
-ShiftExpression:  /** passthrough, nomerge **/
+ShiftExpression:  /** passthrough, nomerge **/  // ExpressionValue
         AdditiveExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          // TODO: don't forget to add a reference whenever you use a presence condition.  this applies to all semantic actions that do this
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | ShiftExpression LS AdditiveExpression
         {
+          todoReminder("typecheck ShiftExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         | ShiftExpression RS AdditiveExpression
         {
+          todoReminder("typecheck ShiftExpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         ;
 
-RelationalExpression:  /** passthrough, nomerge **/
+RelationalExpression:  /** passthrough, nomerge **/ // ExpressionValue
         ShiftExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | RelationalExpression LT ShiftExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("TODO: RelationalExpression");
+          System.exit(1);
+          // TODO: check for valid types
         }
         | RelationalExpression GT ShiftExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("TODO: RelationalExpression");
+          System.exit(1);
+          // TODO: check for valid types
         }
         | RelationalExpression LE ShiftExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("TODO: RelationalExpression");
+          System.exit(1);
+          // TODO: check for valid types
         }
         | RelationalExpression GE ShiftExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("TODO: RelationalExpression");
+          System.exit(1);
+          // TODO: check for valid types
         }
         ;
 
-EqualityExpression:  /** passthrough, nomerge **/
+EqualityExpression:  /** passthrough, nomerge **/  // ExpressionValue
         RelationalExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | EqualityExpression EQ RelationalExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("TODO: EqualityExpression");
+          System.exit(1);
+          // TODO: check for valid types
         }
         | EqualityExpression NE RelationalExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("TODO: EqualityExpression");
+          System.exit(1);
+          // TODO: check for valid types
         }
         ;
 
-AndExpression:  /** passthrough, nomerge **/
+AndExpression:  /** passthrough, nomerge **/  // ExpressionValue
         EqualityExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | AndExpression AND EqualityExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("TODO: AndExpression");
+          System.exit(1);
+          // TODO: check for valid types
         }
         ;
 
-ExclusiveOrExpression:  /** passthrough, nomerge **/
+ExclusiveOrExpression:  /** passthrough, nomerge **/  // ExpressionValue
         AndExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | ExclusiveOrExpression XOR AndExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("TODO: ExclusiveOrExpression");
+          System.exit(1);
+          // TODO: check for valid types
         }
         ;
 
-InclusiveOrExpression:  /** passthrough, nomerge **/
+InclusiveOrExpression:  /** passthrough, nomerge **/  // ExpressionValue
         ExclusiveOrExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | InclusiveOrExpression PIPE ExclusiveOrExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("TODO: InclusiveOrExpression");
+          System.exit(1);
+          // TODO: check for valid types
         }
         ;
 
-LogicalAndExpression:  /** passthrough, nomerge **/
+LogicalAndExpression:  /** passthrough, nomerge **/  // ExpressionValue
         InclusiveOrExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | LogicalAndExpression ANDAND InclusiveOrExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("TODO: LogicalAndExpression");
+          System.exit(1);
+          // TODO: check for valid types
         }
         ;
 
-LogicalORExpression:  /** passthrough, nomerge **/
+LogicalORExpression:  /** passthrough, nomerge **/ // ExpressionValue
         LogicalAndExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | LogicalORExpression OROR LogicalAndExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("TODO: LogicalORExpression");
+          System.exit(1);
+          // TODO: check for valid types
         }
         ;
 
-ConditionalExpression:  /** passthrough, nomerge **/
+ConditionalExpression:  /** passthrough, nomerge **/  // ExpressionValue
         LogicalORExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | LogicalORExpression QUESTION Expression COLON
                 ConditionalExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 5), getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("TODO: ConditionalExpression");
+          System.exit(1);
+          // TODO: check for valid types
         }
         | LogicalORExpression QUESTION COLON  // ADDED gcc innomerge conditional
                 ConditionalExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("TODO: ConditionalExpression");
+          System.exit(1);
+          // TODO: check for valid types
         }
         ;
 
-AssignmentExpression:  /** passthrough, nomerge **/
+AssignmentExpression:  /** passthrough, nomerge **/  // ExpressionValue
         ConditionalExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | UnaryExpression AssignmentOperator AssignmentExpression
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          setCPC(value, PCtoString(pc));
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> expr = leftval.transformation;
+          Multiverse<String> op
+            = new Multiverse<String>((String) getTransformationValue(subparser, 2), pc);
+          Multiverse<String> assign = rightval.transformation;
+
+          // type-checking
+          Multiverse<Type> exprtype = leftval.type;
+          Multiverse<Type> assigntype = rightval.type;
+          System.err.println("exprtype: " + exprtype);
+          System.err.println("assigntype: " + assigntype);
+          Multiverse<Type> producttype = productAll(DesugaringOperators.compareTypes, exprtype, assigntype);
+          System.err.println("TODO: deduplicate ErrorT");
+          System.err.println("TODO: allow type coercion");
+          Multiverse<Type> typemv = producttype;
+          /* Multiverse<Type> typemv = producttype.deduplicate(ErrorT.TYPE); */
+          /* producttype.destruct(); */
+
+          // filter out configurations with type errors
+          PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
+          Multiverse<String> product = productAll(DesugaringOperators.concatStrings, expr, op, assign);
+          PresenceCondition typesafeCond = errorCond.not();
+
+          todoReminder("TODO: always filter out expressions with type errors so that expressionstatement can convert it to a runtime error.");
+          /* Multiverse<String> valuemv = product.filter(typesafeCond); */
+          Multiverse<String> valuemv = new Multiverse<String>(product);
+
+          // TODO: need to check for all type errors anywhere that is
+          // getting a type.  perhaps use a single value,
+          // ExpressionValue that holds two multiverses (instead of
+          // trying to combine them in one multiverse element, which
+          // doesn't work for parts of the language without a type,
+          // like operators.
+
+          System.err.println("assignvalue: " + valuemv);
+          System.err.println("assigntype: " + typemv);
+
+          op.destruct(); product.destruct(); errorCond.delRef(); typesafeCond.delRef();
+          
+          setTransformationValue(value, new ExpressionValue(valuemv, typemv));
         }
         ;
 
-AssignmentOperator: /** nomerge **/
+AssignmentOperator: /** nomerge **/  // String
         ASSIGN
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         | MULTassign
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         | DIVassign
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         | MODassign
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         | PLUSassign
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         | MINUSassign
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         | LSassign
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         | RSassign
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         | ANDassign
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         | ERassign
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         | ORassign
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
         ;
 
-ExpressionOpt:  /** passthrough, nomerge **/
+ExpressionOpt:  /** passthrough, nomerge **/ // ExpressionValue
         /* Nothing */
         {
-          Multiverse<StringBuilder> s = new Multiverse<StringBuilder>(new StringBuilder(""),subparser.getPresenceCondition());
-          setTransformationValue(value, s);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          setTransformationValue(value, new ExpressionValue("",
+                                                            UnitT.TYPE,
+                                                            pc));
         }
         | Expression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         ;
 
-Expression:  /** passthrough, nomerge **/
+Expression:  /** passthrough, nomerge **/  // ExpressionValue
         AssignmentExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
         | Expression COMMA AssignmentExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          System.err.println("TODO: Expression (2)");
         }
         ;
 
-ConstantExpression: /** passthrough, nomerge **/
+ConstantExpression: /** passthrough, nomerge **/  // ExpressionValue
         ConditionalExpression
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
 	      ;
 
@@ -5008,401 +5396,402 @@ AttributeExpressionOpt:   // ADDED
         }
         ;
 
-Word:  // ADDED
+// return syntax, not a multiverse
+Word:  // ADDED  // Syntax
         IDENTIFIER
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | AUTO
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | DOUBLE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | INT
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | STRUCT
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | BREAK
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | ELSE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | LONG
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | SWITCH
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | CASE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | ENUM
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | REGISTER
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | TYPEDEF
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | CHAR
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | EXTERN
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | RETURN
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | UNION
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | CONST
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | FLOAT
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | SHORT
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | UNSIGNED
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | CONTINUE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | FOR
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | SIGNED
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | VOID
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | DEFAULT
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | GOTO
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | SIZEOF
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | VOLATILE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | DO
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | IF
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | STATIC
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | WHILE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | ASMSYM
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | _BOOL
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | _COMPLEX
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | RESTRICT
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __ALIGNOF
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __ALIGNOF__
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | ASM
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __ASM
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __ASM__
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __ATTRIBUTE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __ATTRIBUTE__
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __BUILTIN_OFFSETOF
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __BUILTIN_TYPES_COMPATIBLE_P
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __BUILTIN_VA_ARG
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __BUILTIN_VA_LIST
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __COMPLEX__
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __CONST
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __CONST__
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __EXTENSION__
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | INLINE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __INLINE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __INLINE__
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __LABEL__
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __RESTRICT
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __RESTRICT__
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __SIGNED
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __SIGNED__
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __THREAD
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | TYPEOF
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __TYPEOF
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __TYPEOF__
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __VOLATILE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | __VOLATILE__
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<StringBuilder> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
+          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         ;
@@ -5665,7 +6054,7 @@ public String freshCId(String base) {
    This is just a constant string name for a property used to assign
    semantic values that are type builders.
  */
-private static final String STRING = "xtc.String";
+private static final String STRING = "xtc.String";  // todo remove if not needed
 private static final String TRANSFORMATION = "transformation";
 
 private void setTransformationValue(Object node, Object value) {
@@ -5707,7 +6096,7 @@ private static class DeclaringListValue {
   public final Multiverse<Declarator> declarator;
 
   /** The initializer. */
-  public Multiverse<StringBuilder> initializer;
+  public Multiverse<String> initializer;
 
   /** 
    * This constructor creates a new instance.
@@ -5717,7 +6106,7 @@ private static class DeclaringListValue {
    */
   private DeclaringListValue(Multiverse<TypeBuilder> typebuilder,
                              Multiverse<Declarator> declarator,
-                             Multiverse<StringBuilder> initializer) {
+                             Multiverse<String> initializer) {
     this.typebuilder = typebuilder;
     this.declarator = declarator;
     this.initializer = initializer;
@@ -5771,6 +6160,72 @@ private static class StructDeclaringListValue {
 }
 
 /**
+ * This is the semantic value for expressions.  It contains one
+ * multiverse of types and one multiverse of strings for the
+ * transformation.  While algorithms over a Multiverse of (type,
+ * string) pairs would be easier to write, there are cases where
+ * expression strings do not have a type, e.g., puncutation and types
+ * that don't have a string value, i.e., error types.  Keeping them
+ * separate also enables deduplication of multiple transformations
+ * types even if those the transformations have different strings.
+ */
+private static class ExpressionValue {
+  /** The type. */
+  public final Multiverse<Type> type;
+
+  /** The transformation. */
+  public final Multiverse<String> transformation;
+
+  public ExpressionValue(Multiverse<String> transformation, Multiverse<Type> type) {
+    this.transformation = transformation;
+    this.type = type;
+  }
+
+  /**
+   * Create a new expression value from a single type and a single
+   * transformation string.
+   */
+  public ExpressionValue(String transformation, Type type, PresenceCondition pc) {
+    this.transformation = new Multiverse<String>(transformation, pc);
+    this.type = new Multiverse<Type>(type, pc);
+  }
+
+  /**
+   * Return true there is at least one type that is not an error.
+   * This is the negation of isAlwaysError().
+   */
+  public boolean hasValidType() {
+    return ! isAlwaysError();
+  }
+
+  /**
+   * Returns true if this expression is a type error in every
+   * configuration in which there is a value.  Note that this excludes
+   * the configurations in which there is no value at all, i.e., the
+   * complement of the multiverse.
+   */
+  public boolean isAlwaysError() {
+    // return true unless we find one type that isn't an error
+    for (Element<Type> elem : type) {
+      if (! elem.getData().isError()) {
+        return false;
+      }
+    }
+    return true;
+  }
+}
+
+private static boolean haltUnfinished = false;
+
+public static void todoReminder(String msg) {
+  System.err.println(String.format("TODO: %s", msg));
+  if (haltUnfinished) {
+    System.err.println("FATAL: halting on unfinished semantic action");
+    System.exit(1);
+  }
+}
+
+/**
  * Get the semantic value for the transformation.  The caller is
  * responsible for casting the value into the correct type according
  * to its child nodes.
@@ -5798,44 +6253,36 @@ private Object getTransformationValue(Object node) {
   return transformationValue;
 }
 
-private void setCPC(Object value, String CPC) {
-  // value should be not null and should be a Node type
-  setCPC((Node) value, CPC);
-}
-
-private void setCPC(Node value, String CPC) {
-  // value should be not null and should be a Node type
-  value.setProperty("C_PC", CPC);
-}
-
-// TODO: getCPC doesn't seem to be used, so why is setCPC used?
-private String getCPC(Subparser subparser, int component) {
-  return (String) getNodeAt(subparser, component).getProperty("C_PC");
-}
-
-private String getCPC(Node n) {
-  return (String) n.getProperty("C_PC");
+/**
+ * Produces the string used when a compile-time error needs to be
+ * represented at runtime.
+ *
+ * @param msg The message.
+ * @returns A snippet of C code representing the compile-time error.
+ */
+private String emitError(String msg) {
+  return String.format("__static_type_error(\"%s\")", msg);
 }
 
 /**
  * Writes if (presence condition) { } around a statement, for all configurations.
  * @param allStatementConfigs A multiverse containing all configurations of a statement.
  * @param pc The current presence condition.
- * @return A StringBuilder containing the transformed statement.
+ * @return A String containing the transformed statement.
  */
-private StringBuilder emitStatement(Multiverse<StringBuilder> allStatementConfigs, PresenceCondition pc) {
+private String emitStatement(Multiverse<String> allStatementConfigs, PresenceCondition pc) {
   StringBuilder sb = new StringBuilder();
   if (allStatementConfigs.size() > 1) {
     sb.append("\n{");
   }
-  for (Multiverse.Element<StringBuilder> statement : allStatementConfigs) {
+  for (Multiverse.Element<String> statement : allStatementConfigs) {
     if (! statement.getCondition().isTrue()) {
       // don't bother using an if the statement applies to all configurations
       sb.append("\nif (");
-      sb.append(PCtoString(statement.getCondition().and(pc)));
+      sb.append(condToCVar(statement.getCondition().and(pc)));
       sb.append(") {\n");
     }
-    sb.append(statement.getData().toString());
+    sb.append(statement.getData());
     if (! statement.getCondition().isTrue()) {
       sb.append("\n}");
     }
@@ -5844,61 +6291,36 @@ private StringBuilder emitStatement(Multiverse<StringBuilder> allStatementConfig
   if (allStatementConfigs.size() > 1) {
     sb.append("\n}");
   }
-  return sb;
+  return sb.toString();
 }
 
 /*****************************************************************************
  ********* Multiverse handlers for Nodes
  *****************************************************************************/
 
-/**
- * Creates the cartesian product of any number of children nodes' SBMVs.
- * @param pc A PresenceCondition.
- * @param children Nodes whose SBMVs should be combined.
- * @return An SBMV containing the product of the passed-in childrens' SBMVs.
+/*
+ * This takes the product of two or more multiverses.
  */
-protected Multiverse<StringBuilder> getProductOfSomeChildren(PresenceCondition pc, Node...children) {
-  // NOTE: Nodes must be passed-in in the order that their SBMV stringbuilders should be concatenated.
-  Multiverse<StringBuilder> sbmv
-    = new Multiverse<StringBuilder>(new StringBuilder(),
-                                    pc);
-  Multiverse<StringBuilder> temp;
-  for (Node child : children) {
-    if (child.isToken()) {
-      StringBuilder tokenText = new StringBuilder(" ");
-      tokenText.append(child.getTokenText());
-      temp = sbmv.product(tokenText, pc, DesugaringOperators.SBCONCAT);
-      sbmv.destruct();
-      sbmv = temp;
-    } else { 
-      temp = cartesianProductWithChild(sbmv, child, pc);
-      sbmv.destruct();
-      sbmv = temp;
+protected static <T> Multiverse<T> productAll(Multiverse.Operator<T> op, Multiverse<T> ...all) {
+  if (all.length < 2) {
+    throw new IllegalStateException("productAll requires at least two multiverses");
+  }
+
+  Multiverse<T> productmv = null;
+  for (Multiverse<T> mv : all) {
+    if (null == productmv) {
+      productmv = new Multiverse<T>(mv);
+    } else {
+      Multiverse<T> tempmv = productmv.product(mv, op);
+      productmv.destruct();
+      productmv = tempmv;
     }
   }
-  return sbmv;
-}
+  // shouldn't be empty because all is not empty
+  assert productmv.size() > 0;
 
-/**
- * This is for nodes that have static choices under them where all the
- * nodes under the static choice have a StringBuilder as the
- * transformation value.  This happens with top-level nodes where all
- * desugaring has already been handled by declaration and statement.
- */
-protected StringBuilder concatAllStringBuilders(Node node, PresenceCondition pc) {
-  // TODO: create a version of getAllNodeConfigs that doesn't use the
-  // presence condition, since it isn't needed to just concat the
-  // stringbuilders
-  StringBuilder valuesb = new StringBuilder();
-  Multiverse<Node> allNodes = getAllNodeConfigs(node, pc);
-  for (Element<Node> elem : allNodes) {
-    valuesb.append((StringBuilder) getTransformationValue(elem.getData()));
-    // no need for presence conditions, since declaration
-    // already handles them via renaming
-  }
-  return valuesb;
+  return productmv;
 }
-
 
 /**
  * All configurations of this node are then returned in a multiverse.
@@ -5939,6 +6361,76 @@ protected static Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition
 }
 
 /**
+ * Get a multiverse of all stringbuilder transformation values from
+ * node, including any under a static conditional.
+ *
+ * @param The node to get the stringbuilder transformation values
+ *        from, which can be a static choice node or a regular node.
+ * @param The presence condition of the subparser.
+ * @returns A multiverse of stringbuilders that are the transformation values.
+ */
+protected Multiverse<String> getAllNodeValues(Node node, PresenceCondition pc) {
+  Multiverse<String> sbmv = new Multiverse<String>();
+  Multiverse<Node> allnodes = getAllNodeConfigs(node, pc);
+  for (Multiverse.Element<Node> child : allnodes) {
+    for (Multiverse.Element<String> childsbmv : (Multiverse<String>) getTransformationValue(child.getData())) {
+      sbmv.add(childsbmv.getData(), childsbmv.getCondition().and(child.getCondition()));
+    }
+  }
+  assert ! sbmv.isEmpty();
+  
+  return sbmv;
+}
+
+/**
+ * Creates the cartesian product of any number of children nodes' SBMVs.
+ * @param pc A PresenceCondition.
+ * @param children Nodes whose SBMVs should be combined.
+ * @return An SBMV containing the product of the passed-in childrens' SBMVs.
+ */
+protected Multiverse<String> getProductOfSomeChildren(PresenceCondition pc, Node...children) {
+  // NOTE: Nodes must be passed-in in the order that their SBMV stringbuilders should be concatenated.
+  Multiverse<String> sbmv
+    = new Multiverse<String>("", pc);
+  
+  Multiverse<String> temp;
+  for (Node child : children) {
+    if (child.isToken()) {
+      String tokenText = " ";
+      tokenText += child.getTokenText();
+      temp = sbmv.product(tokenText, pc, DesugaringOperators.concatStrings);
+      sbmv.destruct();
+      sbmv = temp;
+    } else { 
+      temp = cartesianProductWithChild(sbmv, child, pc);
+      sbmv.destruct();
+      sbmv = temp;
+    }
+  }
+  return sbmv;
+}
+
+/**
+ * This is for nodes that have static choices under them where all the
+ * nodes under the static choice have a String as the
+ * transformation value.  This happens with top-level nodes where all
+ * desugaring has already been handled by declaration and statement.
+ */
+protected String concatAllStrings(Node node, PresenceCondition pc) {
+  // TODO: create a version of getAllNodeConfigs that doesn't use the
+  // presence condition, since it isn't needed to just concat the
+  // stringbuilders
+  StringBuilder valuesb = new StringBuilder();
+  Multiverse<Node> allNodes = getAllNodeConfigs(node, pc);
+  for (Element<Node> elem : allNodes) {
+    valuesb.append((String) getTransformationValue(elem.getData()));
+    // no need for presence conditions, since declaration
+    // already handles them via renaming
+  }
+  return valuesb.toString();
+}
+
+/**
  * Takes the cartesian product of the current node's SBMV with one of its children SBMVs.
  * Assumes that the child parameter is not a token.
  * @param sbmv A multiverse that possibly contains the configurations of child's siblings.
@@ -5946,31 +6438,28 @@ protected static Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition
  * @param presenceCondition The presence condition associated with the current node.
  * @return A multiverse containing all configurations of the passed-in node.
  */
-protected Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringBuilder> sbmv, Node child, PresenceCondition presenceCondition) {
-  sbmv = new Multiverse<StringBuilder>(sbmv); // copies the passed-in sbmv because the caller destructs it.
+protected Multiverse<String> cartesianProductWithChild(Multiverse<String> sbmv, Node child, PresenceCondition presenceCondition) {
+  sbmv = new Multiverse<String>(sbmv); // copies the passed-in sbmv because the caller destructs it.
   // getAllNodeConfigs traverses all nested static choice nodes until they reach a regular node
   // and then gets all configurations of that node
-  Multiverse<Node> allConfigs = getAllNodeConfigs(child, presenceCondition);
-  Multiverse<StringBuilder> allConfigsSBMV = new Multiverse<StringBuilder>();
-  for (Multiverse.Element<Node> childNode : allConfigs) {
-    for (Multiverse.Element<StringBuilder> childNodeSBMV : (Multiverse<StringBuilder>) getTransformationValue(childNode.getData()))
-    {
-      allConfigsSBMV.add(childNodeSBMV.getData(), childNodeSBMV.getCondition().and(childNode.getCondition())); // add the sbmv elements with the sbmv element condition ANDED with the node pc
-    }
-  }
+  Multiverse<String> allConfigsSBMV = getAllNodeValues(child, presenceCondition);
 
-  Multiverse<StringBuilder> temp = sbmv.product(allConfigsSBMV, DesugaringOperators.SBCONCAT);
+  Multiverse<String> temp = sbmv.product(allConfigsSBMV, DesugaringOperators.concatStrings);
   sbmv.destruct();
   sbmv = temp;
 
   return sbmv;
 }
 
+
 /*****************************************************************************
  ********* Methods to record global desugaring information.  These
  ********* will go into a special initializer function defined at the
  ********* end of the transformation.
  *****************************************************************************/
+
+private StringBuilder recordedRenamings = new StringBuilder();
+private StringBuilder invalidGlobals = new StringBuilder();
 
 /**
  * Record an invalid global declaration.
@@ -5979,7 +6468,9 @@ protected Multiverse<StringBuilder> cartesianProductWithChild(Multiverse<StringB
  * @param condition The presence condition under which the error occurred.
  */
 private void recordInvalidGlobalDeclaration(String ident, PresenceCondition condition) {
-  System.err.println(String.format("TODO: record global invalid declaration: __invalid_declaration(%s, %s)", ident, PCtoString(condition)));
+  invalidGlobals.append(String.format("if (%s) { %s; }\n",
+                                      condToCVar(condition),
+                                      emitError(String.format("invalid global declaration of %s", ident))));
 }
 
 /**
@@ -5989,7 +6480,9 @@ private void recordInvalidGlobalDeclaration(String ident, PresenceCondition cond
  * @param condition The presence condition under which the error occurred.
  */
 private void recordInvalidGlobalRedeclaration(String ident, PresenceCondition condition) {
-  System.err.println(String.format("TODO: record global invalid global redeclaration: __invalid_declaration(%s, %s)", ident, PCtoString(condition)));
+  invalidGlobals.append(String.format("if (%s) { %s; }\n",
+                                      condToCVar(condition),
+                                      emitError(String.format("invalid global redeclaration of %s", ident))));
 }
 
 /**
@@ -5999,8 +6492,7 @@ private void recordInvalidGlobalRedeclaration(String ident, PresenceCondition co
  * @param original The old name of the symbol.
  */
 private void recordRenaming(String renaming, String original) {
-  // TODO: support struct/label namespaces, or just use the mangled name, e.g., tag(structname)
-  System.err.println(String.format("TODO: record renamings: __desugarer_renaming(\"%s\", \"%s\");", renaming, original));
+  recordedRenamings.append(String.format("__static_renaming(\"%s\", \"%s\");\n", renaming, original));
 }
 /** True when statistics should be output. */
 private boolean languageStatistics = false;
@@ -6168,17 +6660,6 @@ private static void setString(Object value, String s) {
 private String getStringAtNode(Subparser subparser, int component) {
   // value should be not null and should be a Node type
   return (String) getNodeAt(subparser, component).getProperty(STRING);
-}
-
-/**
- * A helper function to set the type property of the given node.  The
- * given value will be first cast to a Node.
- *
- * @param value A node object.
- * @param type The type to set.
- */
-private static void setType(Object value, Type type) {
-  ((Node) value).setProperty(Constants.TYPE, type);
 }
 
 private static void error(String msg) {
@@ -6743,7 +7224,7 @@ public void useIdent(Subparser subparser, Node ident) {
         if (contradiction) {
           System.err.print("invalid config invalidated by contradiction " + name + " at " + ident.getLocation());
         } else if (satWithKconfig) {
-          PresenceCondition sat = andnot.satOne();
+          /* PresenceCondition sat = andnot.satOne(); */
           if (null != scope.symbolPresenceCond(name, STField.GLOBAL_FUNDEF) || null != scope.symbolPresenceCond(name, STField.STATIC_FUNDEF)) {
             System.err.println("found for function def");
           }
@@ -6767,7 +7248,7 @@ public void useIdent(Subparser subparser, Node ident) {
               System.err.println("]");
             }
           }
-          sat.delRef();
+          /* sat.delRef(); */
         }
       } else {
         if (debug) {
@@ -6823,8 +7304,8 @@ public void callFunction(Subparser subparser, Node fun, Node parms) {
       PresenceCondition andnot = subparser.getPresenceCondition().and(not);
       not.delRef();
       if (! andnot.isFalse()) {
-        PresenceCondition sat = andnot.satOne();
-        System.err.println("found invalid configuration on function call " + name + " at " + fun.getLocation() + " config " + sat);        sat.delRef();
+        /* PresenceCondition sat = andnot.satOne(); */
+        /* System.err.println("found invalid configuration on function call " + name + " at " + fun.getLocation() + " config " + sat);        sat.delRef(); */
       }
       andnot.delRef();
 
@@ -7427,132 +7908,151 @@ private Multiverse<Node> getNodeMultiverse(Node node, PresenceConditionManager p
   return mv;
 }
 
-public HashMap<String, String> boolVarRenamings = new HashMap<String, String>();
-private HashMap<String, String> BoolExprs = new HashMap<String, String>();
+private Map<Integer, String> condVars = new HashMap<Integer, String>();
 
-/** Takes a presence condition and generates a valid C string for conditionals */
-public String PCtoString(PresenceCondition cond) {
- List allsat = (List) cond.getBDD().allsat();
- ArrayList<String> currentExprs;
- String CBoolExpr;
- StringBuilder sb = new StringBuilder();
- boolean firstTerm = true;
- boolean firstTermOuter = true;
+// TODO: record the string values of the condVars as well as the C
+// variables.  also emit the renaming from the c var to the
+// preprocessor expression it represents
 
- if (cond.getBDD().isOne()) {
-   return "1";
- } else if (cond.getBDD().isZero()) {
-   return "0";
- }
-
- for (Object o : allsat) {
-   if (!firstTermOuter)
-     sb.append(" || ");
-   firstTermOuter = false;
-   currentExprs = getBoolExprs((byte[]) o, cond);
-   firstTerm = true;
-   for (String CPPBoolExpr : currentExprs) {
-     if (!firstTerm)
-       sb.append(" && ");
-     firstTerm = false;
-     if (BoolExprs.isEmpty() || !BoolExprs.containsKey(CPPBoolExpr)) {
-       /** generates a new C boolean expression with hashcode appended, then adds it to hashmap, then returns it */
-       CBoolExpr = generateBoolExpr(CPPBoolExpr);
-       BoolExprs.put(CPPBoolExpr, CBoolExpr);
-       sb.append(CBoolExpr);
-     } else /* if (BoolExprs.containsKey(CPPBoolExpr)) */ {
-       CBoolExpr = BoolExprs.get(CPPBoolExpr);
-       sb.append(CBoolExpr);
-     }
-   }
- }
- return sb.toString();
+public String condToCVar(PresenceCondition cond) {
+  // TODO: traverse the (simplified) expression AST and convert
+  // non-boolean leaves to C variables.
+  int hash = cond.hashCode();
+  if (condVars.containsKey(hash)) {
+    return condVars.get(hash);
+  } else {
+    String cvar = freshCId("static_condition");
+    condVars.put(hash, cvar);
+    return cvar;
+  }
 }
 
-/** returns a list of every expression in the BDD */
-public ArrayList<String> getBoolExprs(byte[] sat, PresenceCondition cond) {
- ArrayList<String> allExprs = new ArrayList<String>();
- for (int i = 0; i < sat.length; i++) {
-   if (sat[i] == 1) {
-     /** builds up a list of the (CPP) boolean expressions within the PresenceCondition */
-     allExprs.add(cond.presenceConditionManager().getVariableManager().getName(i));
-   } else if (sat[i] == 0) {
-     allExprs.add("!" + cond.presenceConditionManager().getVariableManager().getName(i));
-   }
- }
- return allExprs;
-}
+/* public HashMap<String, String> boolVarRenamings = new HashMap<String, String>(); */
+/* private HashMap<String, String> BoolExprs = new HashMap<String, String>(); */
 
-/** Returns a new (valid C) boolean expression, with hashcode appended */
-public String generateBoolExpr(String CPPBoolExpr) {
- StringBuilder sb = new StringBuilder();
- boolean falseExpr = false;
- boolean definedExpr = false;
+/* /\** Takes a presence condition and generates a valid C string for conditionals *\/ */
+/* public String PCtoString(PresenceCondition cond) { */
+/*  List allsat = (List) cond.getBDD().allsat(); */
+/*  ArrayList<String> currentExprs; */
+/*  String CBoolExpr; */
+/*  StringBuilder sb = new StringBuilder(); */
+/*  boolean firstTerm = true; */
+/*  boolean firstTermOuter = true; */
 
- /** need to remove the '!' character from the string, so that it doesn't change the hashcode (then append it later) */
- if (CPPBoolExpr.contains("!")) {
-   falseExpr = true;
-   sb.append(CPPBoolExpr);
+/*  if (cond.getBDD().isOne()) { */
+/*    return "1"; */
+/*  } else if (cond.getBDD().isZero()) { */
+/*    return "0"; */
+/*  } */
 
-   /** if there is a '!' character, it will be at the 0th position of sb */
-   sb.deleteCharAt(0);
-   CPPBoolExpr = sb.toString();
-   sb.setLength(0);
- }
+/*  for (Object o : allsat) { */
+/*    if (!firstTermOuter) */
+/*      sb.append(" || "); */
+/*    firstTermOuter = false; */
+/*    currentExprs = getBoolExprs((byte[]) o, cond); */
+/*    firstTerm = true; */
+/*    for (String CPPBoolExpr : currentExprs) { */
+/*      if (!firstTerm) */
+/*        sb.append(" && "); */
+/*      firstTerm = false; */
+/*      if (BoolExprs.isEmpty() || !BoolExprs.containsKey(CPPBoolExpr)) { */
+/*        /\** generates a new C boolean expression with hashcode appended, then adds it to hashmap, then returns it *\/ */
+/*        CBoolExpr = generateBoolExpr(CPPBoolExpr); */
+/*        BoolExprs.put(CPPBoolExpr, CBoolExpr); */
+/*        sb.append(CBoolExpr); */
+/*      } else /\* if (BoolExprs.containsKey(CPPBoolExpr)) *\/ { */
+/*        CBoolExpr = BoolExprs.get(CPPBoolExpr); */
+/*        sb.append(CBoolExpr); */
+/*      } */
+/*    } */
+/*  } */
+/*  return sb.toString(); */
+/* } */
 
- /** need to remove "defined" from the string, so that it doesn't affect the hashcode (then append it later) */
- if (CPPBoolExpr.contains("defined")) {
-   definedExpr = true;
-   sb.append(CPPBoolExpr);
+/* /\** returns a list of every expression in the BDD *\/ */
+/* public ArrayList<String> getBoolExprs(byte[] sat, PresenceCondition cond) { */
+/*  ArrayList<String> allExprs = new ArrayList<String>(); */
+/*  for (int i = 0; i < sat.length; i++) { */
+/*    if (sat[i] == 1) { */
+/*      /\** builds up a list of the (CPP) boolean expressions within the PresenceCondition *\/ */
+/*      allExprs.add(cond.presenceConditionManager().getVariableManager().getName(i)); */
+/*    } else if (sat[i] == 0) { */
+/*      allExprs.add("!" + cond.presenceConditionManager().getVariableManager().getName(i)); */
+/*    } */
+/*  } */
+/*  return allExprs; */
+/* } */
 
-   /** if the expression is a "defined" expression, it will be in the form (defined <>)
-    *  note that there will not be a '!' character by this point.
-    */
-   for (int i = 0; i <= 7; i++)
-     sb.deleteCharAt(1);
+/* /\** Returns a new (valid C) boolean expression, with hashcode appended *\/ */
+/* public String generateBoolExpr(String CPPBoolExpr) { */
+/*  StringBuilder sb = new StringBuilder(); */
+/*  boolean falseExpr = false; */
+/*  boolean definedExpr = false; */
 
-   /** removes parentheses */
-   sb.deleteCharAt(0);
-   sb.deleteCharAt(sb.length() - 1);
+/*  /\** need to remove the '!' character from the string, so that it doesn't change the hashcode (then append it later) *\/ */
+/*  if (CPPBoolExpr.contains("!")) { */
+/*    falseExpr = true; */
+/*    sb.append(CPPBoolExpr); */
 
-   CPPBoolExpr = sb.toString();
-   sb.setLength(0);
- }
+/*    /\** if there is a '!' character, it will be at the 0th position of sb *\/ */
+/*    sb.deleteCharAt(0); */
+/*    CPPBoolExpr = sb.toString(); */
+/*    sb.setLength(0); */
+/*  } */
 
- sb.append("_C_");
- sb.append(CPPBoolExpr.hashCode());
+/*  /\** need to remove "defined" from the string, so that it doesn't affect the hashcode (then append it later) *\/ */
+/*  if (CPPBoolExpr.contains("defined")) { */
+/*    definedExpr = true; */
+/*    sb.append(CPPBoolExpr); */
 
- if (sb.charAt(3) == '-')
-   sb.replace(3, 4, "n"); /** replaces the '-' with 'n' */
+/*    /\** if the expression is a "defined" expression, it will be in the form (defined <>) */
+/*     *  note that there will not be a '!' character by this point. */
+/*     *\/ */
+/*    for (int i = 0; i <= 7; i++) */
+/*      sb.deleteCharAt(1); */
 
- if (!boolVarRenamings.containsKey(CPPBoolExpr)) {
-   boolVarRenamings.put(CPPBoolExpr, sb.toString());
-}
- sb.setLength(0);
+/*    /\** removes parentheses *\/ */
+/*    sb.deleteCharAt(0); */
+/*    sb.deleteCharAt(sb.length() - 1); */
 
- if (falseExpr)
-   sb.append("!");
+/*    CPPBoolExpr = sb.toString(); */
+/*    sb.setLength(0); */
+/*  } */
 
- sb.append("_C_");
- sb.append(CPPBoolExpr.hashCode());
+/*  sb.append("_C_"); */
+/*  sb.append(CPPBoolExpr.hashCode()); */
 
- if (definedExpr)
-   sb.append("_DEFINED");
+/*  if (sb.charAt(3) == '-') */
+/*    sb.replace(3, 4, "n"); /\** replaces the '-' with 'n' *\/ */
 
- /** the expression cannot have a '-' character in it (because it would evaluate as subtraction) */
- if (falseExpr) {
-   /** if the expression is false, then the '-' will come later in the string due to the additional '!' character */
-   if (sb.charAt(4) == '-') {
-     sb.replace(4, 5, "n"); /** replaces the '-' with 'n' */
-   }
- } else {
-   if (sb.charAt(3) == '-') {
-     sb.replace(3, 4, "n"); /** replaces the '-' with 'n' */
-   }
- }
+/*  if (!boolVarRenamings.containsKey(CPPBoolExpr)) { */
+/*    boolVarRenamings.put(CPPBoolExpr, sb.toString()); */
+/* } */
+/*  sb.setLength(0); */
 
- return sb.toString();
-}
+/*  if (falseExpr) */
+/*    sb.append("!"); */
+
+/*  sb.append("_C_"); */
+/*  sb.append(CPPBoolExpr.hashCode()); */
+
+/*  if (definedExpr) */
+/*    sb.append("_DEFINED"); */
+
+/*  /\** the expression cannot have a '-' character in it (because it would evaluate as subtraction) *\/ */
+/*  if (falseExpr) { */
+/*    /\** if the expression is false, then the '-' will come later in the string due to the additional '!' character *\/ */
+/*    if (sb.charAt(4) == '-') { */
+/*      sb.replace(4, 5, "n"); /\** replaces the '-' with 'n' *\/ */
+/*    } */
+/*  } else { */
+/*    if (sb.charAt(3) == '-') { */
+/*      sb.replace(3, 4, "n"); /\** replaces the '-' with 'n' *\/ */
+/*    } */
+/*  } */
+
+/*  return sb.toString(); */
+/* } */
 
 protected static C cOps = new C();
 

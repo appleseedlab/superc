@@ -23,7 +23,13 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   /** The complement of the elements' presence conditions. */
   protected PresenceCondition complement;
 
-  /** The default constructor creates an empty multiverse. */
+  /**
+   * The default constructor creates an empty multiverse.  WARNING:
+   * this should only be used in cases where the multiverse is
+   * immediately populated; an empty multiverse has no meaning, since
+   * the complement field is null.  Instead the list should have at
+   * least one element.
+   */
   public Multiverse() {
     contents = new LinkedList<Element<T>>();
     // start with null, to avoid having to take a presence condition
@@ -121,6 +127,10 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * calling this function.
    */
   public void destruct() {
+    if (this.contents.size() == 0) {
+      throw new IllegalStateException("multiverse is not initialized");
+    }
+    
     if (this.contents.size() > 1) {
       complement.delRef();
       complement = null;
@@ -197,7 +207,37 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * @param index The index to retrieve.
    */
   public Element<T> get(int index) {
+    if (this.contents.size() == 0) {
+      throw new IllegalStateException("multiverse is not initialized");
+    }
+    
     return contents.get(index);
+  }
+
+  /**
+   * Get the presence condition of the given data.  This uses the
+   * object's equals() method.
+   *
+   * @param match The data to find in the multiverse.
+   * @returns The union of the conditions of all elements that are
+   * equal to the given data.
+   */
+  public PresenceCondition getConditionOf(T match) {
+    if (this.contents.size() == 0) {
+      throw new IllegalStateException("multiverse is not initialized");
+    }
+    assert this.complement != null;
+
+    PresenceCondition pc = this.complement.presenceConditionManager().newFalse();
+    for (Element<T> elem : this.contents) {
+      if (elem.getData().equals(match)) {
+        PresenceCondition newpc = pc.or(elem.getCondition());
+        pc.delRef();
+        pc = newpc;
+      }
+    }
+
+    return pc;
   }
 
   /**
@@ -206,6 +246,11 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * is responsible for calling addRef of the result.
    */
   public PresenceCondition getComplement() {
+    if (this.contents.size() == 0) {
+      throw new IllegalStateException("multiverse is not initialized");
+    }
+    assert this.complement != null;
+    
     return complement;
   }
 
@@ -233,6 +278,10 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * @return the iterator.
    */
   public Iterator<Element<T>> iterator() {
+    if (this.contents.size() == 0) {
+      throw new IllegalStateException("multiverse is not initialized");
+    }
+    
     return contents.iterator();
   }
 
@@ -379,6 +428,10 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * @return The new Multiverse.
    */
   public Multiverse<T> filter(PresenceCondition cond) {
+    if (this.contents.size() == 0) {
+      throw new IllegalStateException("multiverse is not initialized");
+    }
+
     Multiverse<T> newmv = new Multiverse<T>();
     for (Element<T> elem : this) {
       PresenceCondition condition = elem.getCondition().and(cond);

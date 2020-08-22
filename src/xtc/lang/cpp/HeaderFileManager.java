@@ -432,9 +432,9 @@ public class HeaderFileManager implements Iterator<Syntax> {
       // have already verified the header's existence.
       e.printStackTrace();
       throw new RuntimeException();
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw new RuntimeException();
+    // } catch (IOException e) {
+    //   e.printStackTrace();
+    //   throw new RuntimeException();
     }
 
     // Look for a guard macro for the header, unless we know it

@@ -836,7 +836,7 @@ public class CContext implements ParsingContext {
    *
    * @param sb The string builder of the declaration to add.
    */
-  public void addDeclaration(StringBuilder sb) {
+  public void addDeclaration(String sb) {
     this.declarations.append(sb);
   }
 
@@ -845,7 +845,7 @@ public class CContext implements ParsingContext {
    *
    * @returns The string
    */
-  public StringBuilder getDeclarations(PresenceCondition presenceCondition) {
+  public String getDeclarations(PresenceCondition presenceCondition) {
     StringBuilder sb = new StringBuilder();
 
     // emit the user-defined type declarations, which are renamed
@@ -877,7 +877,7 @@ public class CContext implements ParsingContext {
       }
     }
     
-    return sb;
+    return sb.toString();
   }
 
 

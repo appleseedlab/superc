@@ -18,6 +18,8 @@
  */
 package xtc.lang.cpp;
 
+import java.lang.Iterable;
+
 import java.util.List;
 import java.util.Iterator;
 import java.util.Set;
@@ -149,11 +151,13 @@ public class ConditionEvaluator {
   /**
    * Evaluate a conditional expression.
    *
-   * @param expression An expression.
-   * @return A BDD.
+   * @param expression An expression iterator.
+   * @return A presence condition.
    */
-  public BDD evaluate(Iterator<Syntax> expression) {
-    return evaluate(parser.parse(expression));
+  public PresenceCondition evaluate(Iterator<Syntax> expression) {
+    Node tree = parser.parse(expression);
+    BDD bdd = evaluate(tree);
+    return presenceConditionManager.newCondition(bdd, tree);
   }
 
   /**

@@ -408,12 +408,12 @@ abstract class Declarator {
      * empty (but not null) if there is no expression between the
      * brackets.
      */
-    protected final List<StringBuilder> expressions;
+    protected final List<String> expressions;
 
     /**
      * The initial single dimension array declarator.
      */
-    public ArrayAbstractDeclarator(StringBuilder expression) {
+    public ArrayAbstractDeclarator(String expression) {
       this.expressions = new LinkedList();
       this.expressions.add(expression);
     }
@@ -422,7 +422,7 @@ abstract class Declarator {
      * Multi-dimensional array declarator.
      */
     public ArrayAbstractDeclarator(ArrayAbstractDeclarator arraydeclarator,
-                           StringBuilder expression) {
+                           String expression) {
       this.expressions = new LinkedList(arraydeclarator.expressions);
       this.expressions.add(expression);
     }
@@ -431,7 +431,7 @@ abstract class Declarator {
       Type arrayType = type;
       assert expressions.size() > 0;  // otherwise no arraytype will be made
       System.err.println("TODO: need to handle the expression to see if the array has a variable size of not");
-      for (StringBuilder expression : expressions) {
+      for (String expression : expressions) {
         arrayType = new ArrayT(arrayType);
       }
       return arrayType;
@@ -457,7 +457,7 @@ abstract class Declarator {
       StringBuilder sb = new StringBuilder();
       assert expressions.size() > 0;  // otherwise no arraytype will be made
       System.err.println("need to handle the expression to see if the array has a variable size of not");
-      for (StringBuilder expression : expressions) {
+      for (String expression : expressions) {
         sb.append(String.format("[%s]", expression));
       }
       return sb.toString();

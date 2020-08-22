@@ -400,7 +400,7 @@ public class Preprocessor implements Iterator<Syntax> {
           // Fall through.
 
         case NEXT:
-          presenceConditionManager.enter(syntax.toConditional().presenceCondition.getBDD().id());
+          presenceConditionManager.enter(syntax.toConditional().presenceCondition);
           break;
 
         case END:
@@ -954,14 +954,14 @@ public class Preprocessor implements Iterator<Syntax> {
         nestedConditionals.push(1);
       }
 
-      BDD bdd = evaluateExpression(tokens, "if");
+      PresenceCondition cond = evaluateExpression(tokens, "if");
       
       presenceConditionManager.push();
-      presenceConditionManager.enter(bdd);
+      presenceConditionManager.enter(cond);
 
-      if (showPresenceConditions) {
-        printPresenceCondition(directive.getLocation(), "if");
-      }
+      // if (showPresenceConditions) {
+      //   printPresenceCondition(directive.getLocation(), "if");
+      // }
 
       Conditional conditional = new Conditional(ConditionalTag.START,
                                                 presenceConditionManager.reference(),
@@ -971,31 +971,31 @@ public class Preprocessor implements Iterator<Syntax> {
     }
   }
 
-  private void printPresenceCondition(Location loc, String type) {
-    PresenceCondition pc = presenceConditionManager.reference();
-    BDD bdd = pc.getBDD();
+  // private void printPresenceCondition(Location loc, String type) {
+  //   PresenceCondition pc = presenceConditionManager.reference();
+  //   BDD bdd = pc.getBDD();
 
-    int hashCode;
-    if (! printedpc.containsKey(bdd.hashCode())) {
-      String pcstr = pc.toString();
-      hashCode = pcstr.hashCode();
-      printedpc.put(bdd.hashCode(), hashCode);
-      System.err.println("presence_condition," + hashCode + "," + pcstr);
-    } else {
-      hashCode = printedpc.get(bdd.hashCode());
-    }
-    pc.delRef();
+  //   int hashCode;
+  //   if (! printedpc.containsKey(bdd.hashCode())) {
+  //     String pcstr = pc.toString();
+  //     hashCode = pcstr.hashCode();
+  //     printedpc.put(bdd.hashCode(), hashCode);
+  //     System.err.println("presence_condition," + hashCode + "," + pcstr);
+  //   } else {
+  //     hashCode = printedpc.get(bdd.hashCode());
+  //   }
+  //   pc.delRef();
 
-    System.err.println("static_conditional," + type + "," + loc + "," + hashCode);
-  }
+  //   System.err.println("static_conditional," + type + "," + loc + "," + hashCode);
+  // }
   
   /**
    * Take expression tokens and return an expanded, completed, parsed,
-   * and evaluated expression as a BDD.
+   * and evaluated expression as a presence condition.
    *
    * @param tokens The tokens of the expression to evaluate.
    */
-  private BDD evaluateExpression(List<Syntax> tokens, String type) {
+  private PresenceCondition evaluateExpression(List<Syntax> tokens, String type) {
 
     // Add an end-of-expansion marker to the list of tokens to
     // preprocess it without reading any tokens after it.
@@ -1046,7 +1046,7 @@ public class Preprocessor implements Iterator<Syntax> {
               // Fall through.
             case NEXT:
               presenceConditionManager
-                .enter(syntax.toConditional().presenceCondition.getBDD().id());
+                .enter(syntax.toConditional().presenceCondition);
               break;
 
             case END:
@@ -1096,40 +1096,40 @@ public class Preprocessor implements Iterator<Syntax> {
           break;
         }
       } else /* not a "defined" expression */ {
-        if (showConditionConfigs) {
-          switch (syntax.kind()) {
-          case LANGUAGE:
-            if (syntax.toLanguage().tag().hasName() &&
-                ! syntax.getTokenText().equals("defined")) {
-              String containingMacro = getContainingMacro(stackOfBuffers,
-                                                          startingDepth);
-              // System.err.println("inside macro: " + containingMacro);
-              // System.err.println("token in conditional: " + syntax.getTokenText());
-              seenConfigs.add(syntax.getTokenText());
-            }
-            break;
-          case CONDITIONAL:
-            String containingMacro = getContainingMacro(stackOfBuffers,
-                                                        startingDepth);
-            // System.err.println("inside macro: " + containingMacro);          
-            switch (syntax.toConditional().tag()) {
-            case START:
-              // Fall through.
-            case NEXT:
-              // System.err.println("conditional in conditional: " + syntax.toConditional().presenceCondition().getAllConfigs());          
-              seenConfigs.addAll(syntax.toConditional().presenceCondition().
-                                 getAllConfigs());
-              break;
+        // if (showConditionConfigs) {
+        //   switch (syntax.kind()) {
+        //   case LANGUAGE:
+        //     if (syntax.toLanguage().tag().hasName() &&
+        //         ! syntax.getTokenText().equals("defined")) {
+        //       String containingMacro = getContainingMacro(stackOfBuffers,
+        //                                                   startingDepth);
+        //       // System.err.println("inside macro: " + containingMacro);
+        //       // System.err.println("token in conditional: " + syntax.getTokenText());
+        //       seenConfigs.add(syntax.getTokenText());
+        //     }
+        //     break;
+        //   case CONDITIONAL:
+        //     String containingMacro = getContainingMacro(stackOfBuffers,
+        //                                                 startingDepth);
+        //     // System.err.println("inside macro: " + containingMacro);          
+        //     switch (syntax.toConditional().tag()) {
+        //     case START:
+        //       // Fall through.
+        //     case NEXT:
+        //       // System.err.println("conditional in conditional: " + syntax.toConditional().presenceCondition().getAllConfigs());          
+        //       seenConfigs.addAll(syntax.toConditional().presenceCondition().
+        //                          getAllConfigs());
+        //       break;
 
-            case END:
-              break;
-            }
-            break;
-          case CONDITIONAL_BLOCK:
-            System.err.println("CONDITIONAL BLOCK in conditional directive");
-            break;
-          }
-        }
+        //     case END:
+        //       break;
+        //     }
+        //     break;
+        //   case CONDITIONAL_BLOCK:
+        //     System.err.println("CONDITIONAL BLOCK in conditional directive");
+        //     break;
+        //   }
+        // }
       }
     }
 
@@ -1163,7 +1163,7 @@ public class Preprocessor implements Iterator<Syntax> {
     List<PresenceCondition> presenceConditions = hoistedBlock.presenceConditions;
 
     // Union of all terms, where Term = PresenceCondition && CompletedExpression.
-    List<BDD> terms = new LinkedList<BDD>();
+    List<PresenceCondition> terms = new LinkedList<PresenceCondition>();
     for (int i = 0; i < completed.size(); i++) {
       List<Syntax> tokenlist = completed.get(i);
       PresenceCondition presenceCondition = presenceConditions.get(i);
@@ -1173,31 +1173,27 @@ public class Preprocessor implements Iterator<Syntax> {
 
         tokenlist.add(EOF);
         if (showConditionConfigs) evaluator.setSeenConfigs(seenConfigs);
-        BDD bdd = evaluator.evaluate(tokenlist.iterator());
+        PresenceCondition cond = evaluator.evaluate(tokenlist.iterator());
         if (showConditionConfigs) evaluator.unsetSeenConfigs();
 
         // as a test compare new and old evaluators' outputs
 
-        if (! bdd.isZero()) {
-          terms.add(bdd.and(presenceCondition.getBDD()));
+        if (cond.isNotFalse()) {
+          terms.add(cond.and(presenceCondition));
         }
-          
-        bdd.free();
+        
+        cond.delRef();
       }
 
       presenceCondition.delRef();
     }
 
-    // Take union of each subexpression term.  Use raw BDD operations
-    // for efficiency.
-    BDD newBdd = presenceConditionManager.getBDDFactory().zero();
+    PresenceCondition newpc = presenceConditionManager.newFalse();
 
-    for (BDD term : terms) {
-      BDD bdd = newBdd.or(term);
-
-      term.free();
-      newBdd.free();
-      newBdd = bdd;
+    for (PresenceCondition term : terms) {
+      PresenceCondition cond = newpc.or(term);
+      term.delRef();
+      newpc.delRef(); newpc = cond;
     }
     
     if (preprocessorStatistics || showConditionConfigs) {
@@ -1215,7 +1211,7 @@ public class Preprocessor implements Iterator<Syntax> {
                         configsOpt);
     }
 
-    return newBdd;
+    return newpc;
   }
   
   /**
@@ -1270,18 +1266,18 @@ public class Preprocessor implements Iterator<Syntax> {
       if (showConditionConfigs) seenConfigs = new HashSet<String>();
       if (showConditionConfigs) evaluator.setSeenConfigs(seenConfigs);
 
-      BDD bdd
+      PresenceCondition cond
         = evaluator.evaluate(new ThreeTokenBuffer(DEFINED,
                                                   (Syntax) directive.get(s),
                                                   EOF));
       presenceConditionManager.push();
-      presenceConditionManager.enter(bdd);
+      presenceConditionManager.enter(cond);
       
       if (showConditionConfigs) evaluator.unsetSeenConfigs();
 
-      if (showPresenceConditions) {
-        printPresenceCondition(directive.getLocation(), "ifdef");
-      }
+      // if (showPresenceConditions) {
+      //   printPresenceCondition(directive.getLocation(), "ifdef");
+      // }
 
       if (preprocessorStatistics || showConditionConfigs) {
         String configsOpt = "";
@@ -1358,20 +1354,19 @@ public class Preprocessor implements Iterator<Syntax> {
       if (showConditionConfigs) seenConfigs = new HashSet<String>();
       if (showConditionConfigs) evaluator.setSeenConfigs(seenConfigs);
 
-      BDD bdd
+      PresenceCondition cond
         = evaluator.evaluate(new ThreeTokenBuffer(DEFINED,
                                                   (Syntax) directive.get(s),
                                                   EOF));
-
       presenceConditionManager.push();
-      presenceConditionManager.enter(bdd.not());
-      bdd.free();
+      presenceConditionManager.enter(cond.not());
+      cond.delRef();
 
       if (showConditionConfigs) evaluator.unsetSeenConfigs();
 
-      if (showPresenceConditions) {
-        printPresenceCondition(directive.getLocation(), "ifndef");
-      }
+      // if (showPresenceConditions) {
+      //   printPresenceCondition(directive.getLocation(), "ifndef");
+      // }
 
       if (preprocessorStatistics || showConditionConfigs) {
         String configsOpt = "";
@@ -1443,13 +1438,13 @@ public class Preprocessor implements Iterator<Syntax> {
         nestedConditionals.push(nestedConditionals.pop() + 1);
       }
 
-      BDD bdd = evaluateExpression(tokens, "elif");
+      PresenceCondition cond = evaluateExpression(tokens, "elif");
       
-      presenceConditionManager.enterElif(bdd);
+      presenceConditionManager.enterElif(cond);
 
-      if (showPresenceConditions) {
-        printPresenceCondition(directive.getLocation(), "elif");
-      }
+      // if (showPresenceConditions) {
+      //   printPresenceCondition(directive.getLocation(), "elif");
+      // }
 
       Conditional conditional = new Conditional(ConditionalTag.NEXT,
                                                 presenceConditionManager.reference(),
@@ -1470,9 +1465,9 @@ public class Preprocessor implements Iterator<Syntax> {
 
     presenceConditionManager.enterElse();
 
-    if (showPresenceConditions) {
-      printPresenceCondition(directive.getLocation(), "else");
-    }
+    // if (showPresenceConditions) {
+    //   printPresenceCondition(directive.getLocation(), "else");
+    // }
 
     if (preprocessorStatistics || showConditionConfigs) {
       System.err.format("conditional %s %s %s %d %d\n",
@@ -2155,7 +2150,7 @@ public class Preprocessor implements Iterator<Syntax> {
       }
       if (saveErrorConstraints) {
         // save negated constraint
-        errorConstraints.add(errorCond.toCNF());
+        // errorConstraints.add(errorCond.toCNF());
       }
       errorCond.delRef();
     }
@@ -2857,7 +2852,7 @@ public class Preprocessor implements Iterator<Syntax> {
           presenceConditionManager.push();
           // Fall through.
         case NEXT:
-          presenceConditionManager.enter(syntax.toConditional().presenceCondition.getBDD().id());
+          presenceConditionManager.enter(syntax.toConditional().presenceCondition);
           break;
 
         case END:
@@ -3081,7 +3076,7 @@ public class Preprocessor implements Iterator<Syntax> {
           presenceConditionManager.push();
           // Fall through.
         case NEXT:
-          presenceConditionManager.enter(syntax.toConditional().presenceCondition.getBDD().id());
+          presenceConditionManager.enter(syntax.toConditional().presenceCondition);
           presenceConditionChanged = true;
           break;
 
@@ -3285,7 +3280,7 @@ public class Preprocessor implements Iterator<Syntax> {
             presenceConditionManager.push();
             // Fall through.
           case NEXT:
-            presenceConditionManager.enter(s.toConditional().presenceCondition.getBDD().id());
+            presenceConditionManager.enter(s.toConditional().presenceCondition);
 
             break;
 

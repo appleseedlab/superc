@@ -933,7 +933,7 @@ public class ForkMergeParser {
     }
 
     if (SAVE_ERROR_COND) {
-      System.err.println(this.invalid.satOne());
+      // System.err.println(this.invalid.satOne());
     }
 
     if (accepted.size() == 0) {
