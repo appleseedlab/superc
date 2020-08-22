@@ -294,7 +294,7 @@ TranslationUnit:  /** complete **/
             writer.write("#include <stdbool.h>\n");
             System.err.println("TODO: record original presence condition strings in file as well once raw strings are collected");
             for (Integer hash : condVars.keySet()) {
-              writer.write(String.format("extern bool %s;\n", condVars.get(hash)));
+              writer.write(String.format("extern const bool %s;\n", condVars.get(hash)));
             }
 
             SymbolTable symtab = ((CContext) subparser.scope).getSymbolTable();
