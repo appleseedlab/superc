@@ -26,7 +26,7 @@ void dfree(struct dnode **arr)
 void showdirs(int **arr)
 {
   for (int i = 0; i < 5; ++i) {
-      printf("\n%d", *arr[i]->val);
+      printf("\n%d", *arr[i]);
         }
 
 #ifdef CONFIG_FEATURE_LS_RECURSIVE
