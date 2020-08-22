@@ -4250,23 +4250,194 @@ Subscript:  /** nomerge **/
 FunctionCall:  /** nomerge **/
         PostfixExpression LPAREN RPAREN
         {
-          System.err.println("TODO: FunctionCall");
-          System.exit(1);
-          callFunction(subparser, getNodeAt(subparser, 3), null);
+          todoReminder("typecheck functioncall (1)");
+          // type check by making sure the postfixexpression type is a
+          // function, has no params, and setting the return value to
+          // the type
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
-          // TODO: check that postfixexpression is a function type that has no parameters
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
+
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> lparen = new Multiverse<String>((String) getNodeAt(subparser, 2).getTokenText(), pc);
+          Multiverse<String> rparen = new Multiverse<String>((String) getNodeAt(subparser, 1).getTokenText(), pc);
+
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                exprmv,
+                                                                lparen,
+                                                                rparen),
+                                                     exprval.type));  // TODO: placeholder until type checking
         }
         | PostfixExpression LPAREN ExpressionList RPAREN
         {
-          System.err.println("TODO: FunctionCall");
-          System.exit(1);
+          // type check by making sure the postfixexpression type is a
+          // function, that each type of the expressionlist matches
+          // each type of the function types's list, and setting the
+          // return value to the type
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
-          callFunction(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 2));
-          // TODO: check that postfixexpression is a function type and check it against the expression list's types
+          ExpressionValue postfixexprval = (ExpressionValue) getTransformationValue(subparser, 4);
+
+          if (postfixexprval.hasValidType()) {
+            /* postfixexprval.transformation; */
+            Multiverse<String> lparen
+              = new Multiverse<String>((String) getNodeAt(subparser, 3).getTokenText(), pc);
+            Multiverse<String> rparen
+              = new Multiverse<String>((String) getNodeAt(subparser, 1).getTokenText(), pc);
+
+            // Get all possible expression lists by successively taking
+            // the combined product of each element of the list.  See
+            // postfixingfunctiondeclarator and struct for something
+            // similar.
+            List<ExpressionValue> exprlist
+              = (List<ExpressionValue>) getTransformationValue(subparser, 2);
+            Multiverse<List<String>> exprlistmv
+              = new Multiverse<List<String>>(new LinkedList<String>(), pc);
+            Multiverse<List<Type>> exprlisttypemv
+              = new Multiverse<List<Type>>(new LinkedList<Type>(), pc);
+            for (ExpressionValue listelem : exprlist) {
+              // wrap each listelem's string and type in a list
+              Multiverse<List<String>> wrapped_listelem_transformation
+                = DesugaringOperators.stringListWrap.transform(listelem.transformation);
+              Multiverse<List<Type>> wrapped_listelem_type
+                = DesugaringOperators.typeListWrap.transform(listelem.type);
+
+              // take the product of the multiverse of lists collected
+              // so far with the new element
+              Multiverse<List<String>> new_exprlistmv
+                = exprlistmv.complementedProduct(wrapped_listelem_transformation,
+                                                 DesugaringOperators.STRINGLISTCONCAT);
+              Multiverse<List<Type>> new_exprlisttypemv
+                = exprlisttypemv.complementedProduct(wrapped_listelem_type,
+                                                     DesugaringOperators.TYPELISTCONCAT);
+
+              exprlistmv.destruct(); exprlistmv = new_exprlistmv;
+              exprlisttypemv.destruct(); exprlisttypemv = new_exprlisttypemv;
+            }
+
+            System.err.println("EXPRLISTMV: " + exprlistmv);
+            System.err.println("EXPRLISTTYPEMV: " + exprlisttypemv);
+
+            // typecheck each combination of postfix expression and
+            // parameter list.
+            Multiverse<Type> typemv = new Multiverse<Type>();
+            Multiverse<String> valuemv = new Multiverse<String>();
+            // collect the presence condition of all type errors
+            PresenceCondition errorCond
+              = subparser.getPresenceCondition().presenceConditionManager().newFalse();
+            todoReminder("support variadic arguments.  see CAnalyzer.processFunctionCall");
+            // loop over each combination of postfix expression and
+            // parameter list
+            for (Element<Type> postfixelem : postfixexprval.type) {
+              // check that postfix expression is a function type
+              if (postfixelem.getData() instanceof NamedFunctionT) {
+                FunctionT functiontype = ((NamedFunctionT) postfixelem.getData()).toFunctionT();
+                List<Type> formals = functiontype.getParameters();
+                for (Element<List<Type>> exprlisttype : exprlisttypemv) {
+                  PresenceCondition combinedCond = postfixelem.getCondition().and(exprlisttype.getCondition());
+                  // compare formal vs actual parameter types
+                  int size1 =  formals.size();
+                  int size2 = exprlisttype.getData().size();
+                  int min = Math.min(size1, size2);
+
+                  if (size1 > size2) {
+                    // TODO: unit test
+                    PresenceCondition new_errorCond = errorCond.or(combinedCond);
+                    valuemv.add(emitError("too few arguments to function"), combinedCond);
+                    errorCond.delRef(); errorCond = new_errorCond;
+                  } else if ((! functiontype.isVarArgs()) && (size1 < size2)) {
+                    // TODO: unit test
+                    PresenceCondition new_errorCond = errorCond.or(combinedCond);
+                    valuemv.add(emitError("too many arguments to function"), combinedCond);
+                    errorCond.delRef(); errorCond = new_errorCond;
+                  } else {  // parameter size is right
+                    // check compare each of the parameters' types
+                    // one-at-a-time and if one doesn't match, break
+                    // and set the presence condition to be an error
+                    boolean match = true;
+                    for (int i = 0; i < min; i++) {
+                      Type formal = formals.get(i);
+                      Type actual = exprlisttype.getData().get(i);
+                      if (! cOps.equal(formal, actual)) {
+                        todoReminder("support C's type coercion rules in function call parameter checking");
+                        match = false;
+                        break;
+                      }
+                    }
+                    if (match) {
+                      // the expression's type is the return value's type of the function being called
+                      typemv.add(functiontype.getResult(), combinedCond);
+                    } else {
+                      // TODO: unit test
+                      // parameters don't match.  type error.
+                      PresenceCondition new_errorCond = errorCond.or(combinedCond);
+                      valuemv.add(emitError("function call parameter types do not match function type"), combinedCond);
+                      errorCond.delRef(); errorCond = new_errorCond;
+                    }
+                  }
+                  combinedCond.delRef();
+                }  // end loop over parameter list
+              } else {  // not a function type
+                PresenceCondition new_errorCond = errorCond.or(postfixelem.getCondition());
+                // TODO: unit test
+                valuemv.add(emitError("attempting function call on non-function type"), postfixelem.getCondition());
+                errorCond.delRef(); errorCond = new_errorCond;
+              } // end check for function type
+            } // end loop over postfixelems
+            typemv.add(ErrorT.TYPE, errorCond);
+            /* valuemv.add(emitError("type error on function call"), errorCond); */  // TODO: add an option to emit one type error message for all instead of individual messages for each configuration
+
+            // should be non-empty because either errorCond is
+            // non-false or some parameter list matched and added the
+            // return type
+            assert ! typemv.isEmpty();
+
+            // filter out the postfix value and the expression list
+            // values that are type errors.
+            PresenceCondition validTypes = errorCond.not();
+            Multiverse<String> filtered_postfixexpr = postfixexprval.transformation.filter(validTypes);
+            Multiverse<List<String>> filtered_exprlistmv = exprlistmv.filter(validTypes);
+            errorCond.delRef(); validTypes.delRef();
+            
+            System.err.println("filtered1: " + filtered_postfixexpr);
+            System.err.println("filtered2: " + filtered_exprlistmv);
+
+            if (filtered_postfixexpr.isEmpty() || filtered_exprlistmv.isEmpty()) {
+              // if either is empty, there is nothing left to
+              // do. there were no valid type checking results for any
+              // combination of postfix expr and parameter list.
+              // valuemv will only contain the error message.
+            } else {
+              // construct the resulting function call's transformations
+              // and types
+              for (Element<String> postfixelem : filtered_postfixexpr) {
+                for (Element<List<String>> exprlistelem : filtered_exprlistmv) {
+                  PresenceCondition combinedCond = postfixelem.getCondition().and(exprlistelem.getCondition());
+                  // note that this does not use the original tokens
+                  // from the AST for command and parens
+                  String callstring = String.format("%s ( %s )",
+                                                    postfixelem.getData(),
+                                                    String.join(", ", exprlistelem.getData()));
+                  valuemv.add(callstring, combinedCond);
+                  combinedCond.delRef();
+                }
+              }
+            }
+            assert ! valuemv.isEmpty();
+
+            filtered_postfixexpr.destruct();
+            filtered_exprlistmv.destruct();
+
+            System.err.println("FCALLTYPE: " + typemv);
+            System.err.println("FCALLERRVALS: " + valuemv);
+            
+            setTransformationValue(value, new ExpressionValue(valuemv, typemv));
+          } else { // types of postfixexprval are all errors
+            // TODO: this throws away the type message from the child,
+            // so perhaps copy the child's mv values instead.
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type for the function part of the function call"),
+                                                              ErrorT.TYPE,
+                                                              pc));
+          }
         }
         ;
 
@@ -4443,15 +4614,27 @@ CompoundLiteral:  /** nomerge **/  /* ADDED */
         }
         ;
 
-ExpressionList:  /** list, nomerge **/
+ExpressionList:  /** list, nomerge **/  // List<ExpressionValue>
         AssignmentExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          // create a new list
+          List<ExpressionValue> exprlist = new LinkedList<ExpressionValue>();
+          ExpressionValue exprval
+            = (ExpressionValue) getTransformationValue(subparser,1);
+          exprlist.add(exprval);
+          setTransformationValue(value, exprlist);
         }
         | ExpressionList COMMA AssignmentExpression
         {
-          System.err.println("TODO: ExpressionList");
-          System.exit(1);
+          // add to the existing expression list.  this reuse of a
+          // semantic value may be an issue if static conditionals are
+          // permitted under expressionlists
+          List<ExpressionValue> exprlist
+            = (LinkedList<ExpressionValue>) getTransformationValue(subparser,3);
+          ExpressionValue exprval
+            = (ExpressionValue) getTransformationValue(subparser,1);
+          exprlist.add(exprval);
+          setTransformationValue(value, exprlist);
         }
         ;
 
