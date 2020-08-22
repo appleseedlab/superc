@@ -241,11 +241,39 @@ class DesugaringOperators {
     if (CActions.cOps.equal(t1, t2)) {
       // TODO: may need to pick correct type based on kind of
       // construct
-      System.err.println("TODO: handle type coercion.  see xtc.lang.CAnalyzer.processAssignment.");
       newtype = t1;
     } else {
+      System.err.println("WARNING: support C's type coercion rules.  see CAnalyzer.processAssignment");
       newtype = ErrorT.TYPE;
     }
     return newtype;
+  };
+
+  /**
+   * A multiverse transformation to wrap string into a single-element
+   * list.
+   */
+  public final static Multiverse.Transformer<String, List<String>> stringListWrap
+    = new ListWrapper<String>();
+
+  /**
+   * A multiverse transformation to wrap a type into a single-element
+   * list.
+   */
+  public final static Multiverse.Transformer<Type, List<Type>> typeListWrap
+    = new ListWrapper<Type>();
+  
+  /**
+   * Concatenate two String lists
+   */
+  public final static Multiverse.Operator<List<String>> STRINGLISTCONCAT = (list1, list2) -> {
+    return concatLists(list1, list2);
+  };
+  
+  /**
+   * Concatenate two Type lists
+   */
+  public final static Multiverse.Operator<List<Type>> TYPELISTCONCAT = (list1, list2) -> {
+    return concatLists(list1, list2);
   };
 }
