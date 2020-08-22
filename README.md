@@ -1,6 +1,10 @@
-# xtc
+# SuperC
 
-A clone of the xtc project including SuperC and Kmax.  The main homepage for xtc is http://www.cs.nyu.edu/xtc/, where past versions and links to publications can be found.
+SuperC is a parsing framework that preserves preprocessor conditionals
+during C preprocessing and parsing.  SuperC is bundled with the xtc
+framework, from which it uses the AST and Type libraries.  The
+original project homepage can be found at http://www.cs.nyu.edu/xtc/,
+where past versions and links to publications can be found.
 
 ## Dependencies and environment variables
 
