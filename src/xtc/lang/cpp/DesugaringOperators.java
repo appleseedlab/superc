@@ -228,6 +228,7 @@ class DesugaringOperators {
   public final static Multiverse.Operator<String> concatStrings = (sb1, sb2) -> {
     StringBuilder newsb = new StringBuilder();
     newsb.append(sb1);
+    newsb.append(" ");
     newsb.append(sb2);
     return newsb.toString();
   };
