@@ -373,9 +373,11 @@ FunctionDefinitionExtension:  /** complete **/  // ADDED
         }
         ;
 
-FunctionDefinition:  /** complete **/ // added scoping
+FunctionDefinition:  /** complete **/ // added scoping  // String
         FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         {
+          // similar to Declaration, but different in that this has a
+          // compoundstatement, while declaration has an initializer.
           PresenceCondition pc = subparser.getPresenceCondition();
 
           String leftcurly = getNodeAt(subparser, 4).getTokenText();
@@ -515,9 +517,10 @@ FunctionDefinition:  /** complete **/ // added scoping
 
 /* Functions have their own compound statement because of the need for
    reentering scope. */
-FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/
+FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/  // String
         LocalLabelDeclarationListOpt DeclarationOrStatementList
         {
+          // TODO: same as CompoundStatement
           PresenceCondition pc = subparser.getPresenceCondition();
 
           StringBuilder valuesb = new StringBuilder();
@@ -2510,7 +2513,9 @@ ParameterList:  /** list, nomerge **/ // List<Multiverse<Declaration>>
         }
         | ParameterList COMMA ParameterDeclaration
         {
-          // add to the existing parameter list
+          // add to the existing parameter list.  this reuse of a
+          // semantic value may be an issue if static conditionals are
+          // permitted under parameterlists
           List<Multiverse<Declaration>> parameters
             = (LinkedList<Multiverse<Declaration>>) getTransformationValue(subparser,3);
           Multiverse<Declaration> declarationvalue
@@ -2860,14 +2865,16 @@ TypeName: /** nomerge **/
         }
         ;
 
-InitializerOpt: /** nomerge **/
+InitializerOpt: /** nomerge **/ // ExpressionValue
         /* nothing */
         {
+          todoReminder("initializers need to have expressionvalue since they need to be typechecked InitializerOpt (1)");
           Multiverse<String> emptyInit = new Multiverse<String>("", subparser.getPresenceCondition());
           setTransformationValue(value, emptyInit);
         }
         | ASSIGN DesignatedInitializer
         {
+          todoReminder("initializers need to have expressionvalue since they need to be typechecked InitializerOpt (2)");
           // TODO: syntax
           PresenceCondition pc = subparser.getPresenceCondition();
           Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
@@ -2875,9 +2882,10 @@ InitializerOpt: /** nomerge **/
         }
         ;
 
-DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
+DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */ // ExpressionValue
         Initializer
         {
+          todoReminder("initializers need to have expressionvalue since they need to be typechecked DesignatedInitializer (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
           Node child = getNodeAt(subparser, 1);
           Multiverse<String> product = getProductOfSomeChildren(pc, child);
@@ -2885,6 +2893,7 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         }
         | Designation Initializer
         {
+          todoReminder("initializers need to have expressionvalue since they need to be typechecked DesignatedInitializer (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
@@ -2896,21 +2905,24 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */
         | AssignmentExpression
         ;*/
 
-Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists
+Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists // ExpressionValue
         LBRACE MatchedInitializerList RBRACE
         {
+          todoReminder("initializers need to have expressionvalue since they need to be typechecked Initializer (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
           Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | LBRACE MatchedInitializerList DesignatedInitializer RBRACE
         {
+          todoReminder("initializers need to have expressionvalue since they need to be typechecked Initializer (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           setTransformationValue(value, product);
         }
         | AssignmentExpression
         {
+          todoReminder("initializers need to have expressionvalue since they need to be typechecked Initializer (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
           Node child = getNodeAt(subparser, 1);
           Multiverse<String> product = getProductOfSomeChildren(pc, child);
@@ -5928,7 +5940,14 @@ private static class StructDeclaringListValue {
 }
 
 /**
- *
+ * This is the semantic value for expressions.  It contains one
+ * multiverse of types and one multiverse of strings for the
+ * transformation.  While algorithms over a Multiverse of (type,
+ * string) pairs would be easier to write, there are cases where
+ * expression strings do not have a type, e.g., puncutation and types
+ * that don't have a string value, i.e., error types.  Keeping them
+ * separate also enables deduplication of multiple transformations
+ * types even if those the transformations have different strings.
  */
 private static class ExpressionValue {
   /** The type. */
@@ -5952,6 +5971,14 @@ private static class ExpressionValue {
   }
 
   /**
+   * Return true there is at least one type that is not an error.
+   * This is the negation of isAlwaysError().
+   */
+  public boolean hasValidType() {
+    return ! isAlwaysError();
+  }
+
+  /**
    * Returns true if this expression is a type error in every
    * configuration in which there is a value.  Note that this excludes
    * the configurations in which there is no value at all, i.e., the
@@ -5970,7 +5997,7 @@ private static class ExpressionValue {
 
 private static boolean haltUnfinished = false;
 
-private static void todoReminder(String msg) {
+public static void todoReminder(String msg) {
   System.err.println(String.format("TODO: %s", msg));
   if (haltUnfinished) {
     System.err.println("FATAL: halting on unfinished semantic action");
