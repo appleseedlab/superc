@@ -1,10 +1,11 @@
-# SuperC
+# SuperC and xtc
 
 SuperC is a parsing framework that preserves preprocessor conditionals
 during C preprocessing and parsing.  SuperC is bundled with the xtc
 framework, from which it uses the AST and Type libraries.  The
-original project homepage can be found at http://www.cs.nyu.edu/xtc/,
-where past versions and links to publications can be found.
+original project homepage for both can be found at
+http://www.cs.nyu.edu/xtc/, where past versions and links to
+publications can be found.
 
 ## Dependencies and environment variables
 
@@ -12,49 +13,56 @@ Building SuperC requires `bison` and `sat4j`.  For debian and ubuntu run
 
     apt-get install bison sat4j
 
-The following environment variables are expected by xtc.
+The following environment variables are expected by SuperC/xtc.
 
-    JAVA_DEV_ROOT=~/src/xtc  # or wherever your git repo is cloned
+    JAVA_DEV_ROOT=~/src/superc  # or wherever your git repo is cloned
     CLASSPATH=$CLASSPATH:$JAVA_DEV_ROOT/classes:$JAVA_DEV_ROOT/bin/junit.jar:$JAVA_DEV_ROOT/bin/antlr.jar:$JAVA_DEV_ROOT/bin/javabdd.jar:/usr/share/java/org.sat4j.core.jar
     JAVA_ARGS="-Xms2048m -Xmx4048m -Xss128m" # JVM settings
     JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/  # Location of java jdk
-    SUPERC_SCRATCH=~/tmp/superc # Temporary files during regression testing
     export JAVA_DEV_ROOT CLASSPATH JAVA_ARGS JAVA_HOME
 
-## Building xtc and SuperC
+## Building SuperC and xtc
 
 From the root of the xtc source tree, run the following:
 
-    # build xtc
     make configure
     make
-    
-    # build SuperC
-    (cd src/xtc/lang/cpp/; make configure)
-    (cd src/xtc/lang/cpp/; make parsers)
-    (cd src/xtc/lang/cpp/; make)
 
-## Running SuperC's Desugarer
+## Running the SuperC parser
 
-    java xtc.lang.cpp.SuperC -silent <file_to_transform>.c > <output_destination>.c
+    java xtc.lang.cpp.SuperC -silent -printAST file_to_transform.c
 
-## Testing SuperC
+## Running the SuperC desugarer
 
-Configure SuperC to do parsing only.  From the root of the source tree, run
+    java xtc.lang.cpp.SugarC file_to_desugarer.c > desugared_file.c
 
-    cd src/xtc/lang/cpp/  # go to the SuperC directory
-    make select-typechecker  # configure SuperC for parsing (typechecker is a bit of a misnomer)
-    make # recompile SuperC
-    cd -  # go back to the source root
+## Testing SuperC's parser
+
+### Requirements
+
+- A python 2 interpreter for some tests
+- Setting `SUPERC_SCRATCH=~/tmp/superc` to some existing directory for holding temp files.
+
+### Running the tests
+
+From the root of the source tree, run
+
     make check-cpp  # run SuperC tests
 
 ## Using SuperC with Linux source code
 
-Use the script [`src/xtc/lang/cpp/scripts/superc_linux.sh`](src/xtc/lang/cpp/scripts/superc_linux.sh).  See [`src/xtc/lang/cpp/scripts/data.sh`](src/xtc/lang/cpp/scripts/data.sh) for example usage.  Linux versions past 2013 have not been tested.
+Use the script [`scripts/superc_linux.sh`](scripts/superc_linux.sh).  See [`scripts/data.sh`](scripts/data.sh) for example usage.  Linux versions past 2013 have not been tested.
+
+## Regenerating SuperC's parsers for development
+
+SuperC comes shippped with prebuilt parsers.  To modify then generate
+
+    make -C src/superc parsers
+    make
 
 ## SuperC Manual
 
-Run `make manual` in src/xtc/lang/cpp.  Requires `pdflatex`.
+Run `make manual` in src/superc/manual.  Requires `pdflatex`.
 
 ## Kmax
 
