@@ -228,6 +228,8 @@ public class SugarC extends Tool {
     // Set the command-line argument defaults.
     runtime.initDefaultValues();
 
+    runtime.setValue("optionSilent", true);
+
     // Use the Java implementation of JavaBDD. Setting it here means
     // the user doesn't have to set it on the commandline.
     System.setProperty("bdd", "java");
