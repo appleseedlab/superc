@@ -35,7 +35,7 @@ From the root of the xtc source tree, run the following:
 
 ## Running the SuperC desugarer
 
-    java xtc.lang.cpp.SugarC -silent -printAST file_to_desugarer.c > desugared_file.c
+    java xtc.lang.cpp.SugarC -silent file_to_desugarer.c > desugared_file.c
 
 ## Testing SuperC's parser
 
