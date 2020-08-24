@@ -45,6 +45,7 @@ PACKAGES = \
 	xtc.parser \
 	xtc.lang \
 	xtc.lang.jeannie \
+	superc.expression \
 	superc.core \
 	superc.cparser \
 	superc.cdesugarer \
