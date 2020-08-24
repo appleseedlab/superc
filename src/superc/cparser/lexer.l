@@ -65,7 +65,7 @@
 
 
 #ifndef LANGUAGE_TAGS // Generate the lexer specification.
-package superc.cparser;
+package PACKAGE_NAME;
 
 import xtc.tree.Location;
 
@@ -181,7 +181,7 @@ whitespace=({horizontal_white})+|({v_tab}|{c_return})+|{continuation}
 
 
 #else // Generate the CTag enumeration.
-package superc.cparser;
+package PACKAGE_NAME;
 
 import superc.core.Syntax.Layout;
 import superc.core.Syntax.PreprocessorTag;

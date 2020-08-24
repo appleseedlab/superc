@@ -75,17 +75,17 @@ CParseTables.java: parser.y ../parsergen/gen_tables.c
 	# extract prologue, epilogue, and inline actions for inclusion in
 	# CActions
 	../parsergen/extract_bison_java.sh parser.y
-	$(CC) $(CFLAGS) -I./ -DBISON_PARSER_FILE=parser.bison_content -DCLASS_NAME=CParseTables -o gen_c_tables ../parsergen/gen_tables.c
+	$(CC) $(CFLAGS) -I./ -DBISON_PARSER_FILE=parser.bison_content -DPACKAGE_NAME=superc.cparser -DCLASS_NAME=CParseTables -o gen_c_tables ../parsergen/gen_tables.c
 	./gen_c_tables > CParseTables.java
 	$(RM) gen_c_tables
 	$(MAKE) CParseTables.class
 
 CTag.java: lexer.l
-	$(CPP) $(CPPFLAGS) -DLANGUAGE_TAGS - < lexer.l | grep -v "^#" > CTag.java
+	$(CPP) $(CPPFLAGS) -DPACKAGE_NAME=superc.cparser -DLANGUAGE_TAGS - < lexer.l | grep -v "^#" > CTag.java
 
 CLexer.java: lexer.l
 	#   filter out line directives for java compilation
-	$(CPP) $(CPPFLAGS) - < lexer.l | grep -v "^#" > lexer.l.i
+	$(CPP) $(CPPFLAGS) -DPACKAGE_NAME=superc.cparser - < lexer.l | grep -v "^#" > lexer.l.i
 	$(JAVA) -jar $(JAVA_DEV_ROOT)/bin/JFlex.jar lexer.l.i
 	$(RM) lexer.l.i
 

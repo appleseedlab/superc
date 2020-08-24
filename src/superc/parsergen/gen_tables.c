@@ -98,7 +98,7 @@ int main() {
   printf(" * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,\n");
   printf(" * USA.\n");
   printf(" */\n");
-  printf("package superc.cparser;\n");
+  printf("package %s;\n", str(PACKAGE_NAME));
   printf("\n");
   printf("import superc.core.ParseTables;\n");
   printf("\n");
