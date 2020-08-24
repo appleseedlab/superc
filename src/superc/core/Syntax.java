@@ -534,8 +534,8 @@ public abstract class Syntax extends xtc.tree.Token {
    */
   public static class Conditional extends Syntax {
 
-    protected final ConditionalTag tag;
-    protected final PresenceCondition presenceCondition;
+    public final ConditionalTag tag;
+    public final PresenceCondition presenceCondition;
 
     /**
      * Create a new conditional token with location.

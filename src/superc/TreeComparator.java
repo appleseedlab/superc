@@ -16,7 +16,7 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc;
 
 import java.util.List;
 import java.util.LinkedList;
@@ -24,8 +24,14 @@ import java.util.Arrays;
 
 import java.io.StringReader;
 
-import xtc.lang.cpp.Syntax.Kind;
-import xtc.lang.cpp.Syntax.Language;
+import superc.core.SemanticValues;
+
+import superc.core.Syntax;
+import superc.core.Syntax.Kind;
+import superc.core.Syntax.Language;
+
+import superc.cparser.CParseTables;
+import superc.cparser.CValues;
 
 import xtc.parser.Result;
 

@@ -86,7 +86,7 @@ parsers:
 # 	../generators/extract_annotations.pl < expression.y | $(JAVA) superc.generators.GenerateValuesClass ExpressionValues superc.expression.ExpressionParseTables > ExpressionValues.java
 # 	../generators/extract_annotations.pl < expression.y | $(JAVA) superc.generators.GenerateActionsClass ExpressionActions superc.generators.ExpressionParseTables expression.action_switches expression.prologue expression.epilogue > ExpressionActions.java
 
-clobber-parsers :
+clobber:
 	$(RM) ExpressionRats.java # $(c_expression_superc_parser)
 
 endif

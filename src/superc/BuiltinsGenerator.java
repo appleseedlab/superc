@@ -16,7 +16,7 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc;
 
 import java.lang.*;
 import java.io.*;
@@ -64,7 +64,7 @@ public class BuiltinsGenerator {
 " * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,\n" +
 " * USA.\n" +
 " */\n" +
-"package xtc.lang.cpp;\n" + 
+"package superc;\n" + 
 "\n" +  
 "/** This class's purpose is to provide the built-in macros and system includes.\n" +
 "  */\n" +

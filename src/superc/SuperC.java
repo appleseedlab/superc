@@ -16,7 +16,7 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc;
 
 import java.lang.StringBuilder;
 
@@ -40,21 +40,49 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import xtc.lang.cpp.Syntax.Kind;
-import xtc.lang.cpp.Syntax.LanguageTag;
-import xtc.lang.cpp.Syntax.ConditionalTag;
-import xtc.lang.cpp.Syntax.DirectiveTag;
-import xtc.lang.cpp.Syntax.Layout;
-import xtc.lang.cpp.Syntax.Language;
-import xtc.lang.cpp.Syntax.Text;
-import xtc.lang.cpp.Syntax.Directive;
-import xtc.lang.cpp.Syntax.Conditional;
-import xtc.lang.cpp.Syntax.Error;
-import xtc.lang.cpp.Syntax.ErrorType;
+import superc.core.Lexer;
+import superc.core.LexerCreator;
+import superc.core.TokenCreator;
+import superc.core.HeaderFileManager;
+import superc.core.MacroTable;
+import superc.core.ExpressionParser;
+import superc.core.ConditionEvaluator;
+import superc.core.StopWatch;
+import superc.core.StreamTimer;
+import superc.core.Preprocessor;
+import superc.core.TokenFilter;
+import superc.core.ForkMergeParser;
+import superc.core.SemanticValues;
+import superc.core.DirectiveParser;
 
-import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
+import superc.core.PresenceConditionManager;
+import superc.core.PresenceConditionManager.PresenceCondition;
 
-import xtc.lang.cpp.SymbolTable.STField;
+import superc.core.Clauses;
+
+import superc.core.Syntax;
+import superc.core.Syntax.Kind;
+import superc.core.Syntax.LanguageTag;
+import superc.core.Syntax.ConditionalTag;
+import superc.core.Syntax.DirectiveTag;
+import superc.core.Syntax.Layout;
+import superc.core.Syntax.Language;
+import superc.core.Syntax.Text;
+import superc.core.Syntax.Directive;
+import superc.core.Syntax.Conditional;
+import superc.core.Syntax.Error;
+import superc.core.Syntax.ErrorType;
+
+import superc.expression.ExpressionRats;
+
+import superc.cparser.CParseTables;
+import superc.cparser.CValues;
+import superc.cparser.CActions;
+import superc.cparser.CContext;
+import superc.cparser.CLexerCreator;
+import superc.cparser.CTokenCreator;
+
+import superc.cparser.CContext.SymbolTable.STField;
 
 import xtc.tree.Node;
 import xtc.tree.GNode;
@@ -98,6 +126,9 @@ public class SuperC extends Tool {
   
   /** Command-line macros and includes */
   StringReader commandline;
+
+  /** Plug-in to create a new lexer for a given parser. */
+  private final static LexerCreator lexerCreator = new CLexerCreator();
 
   /** Preprocessor support for token-creation. */
   private final static TokenCreator tokenCreator = new CTokenCreator();
@@ -522,7 +553,7 @@ public class SuperC extends Tool {
         || runtime.test("directiveParser")) {
       // Just do lexing and/or directive parsing, print the tokens and
       // quit if these options are selected.
-      final CLexer clexer = new CLexer(in);
+      final Lexer clexer = lexerCreator.newLexer(in);
       clexer.setFileName(file.getName());
 
       Iterator<Syntax> stream = new Iterator<Syntax>() {
@@ -570,12 +601,12 @@ public class SuperC extends Tool {
       .getConfigurationVariables(runtime.test("configurationVariables"));
     macroTable.getHeaderGuards(runtime.test("headerGuards"));
     presenceConditionManager = new PresenceConditionManager();
-    if (runtime.test("checkExpressionParser")) {
-      expressionParser = ExpressionParser.comparator(presenceConditionManager);
-    } else {
-      // expressionParser = ExpressionParser.fromSuperC(presenceConditionManager);
+    // if (runtime.test("checkExpressionParser")) {
+    //   expressionParser = ExpressionParser.comparator(presenceConditionManager);
+    // } else {
+    //   // expressionParser = ExpressionParser.fromSuperC(presenceConditionManager);
       expressionParser = ExpressionParser.fromRats();
-    }
+    // }
     conditionEvaluator = new ConditionEvaluator(expressionParser,
                                                 presenceConditionManager,
                                                 macroTable);
@@ -602,7 +633,8 @@ public class SuperC extends Tool {
 
       fileManager = new HeaderFileManager(commandline,
                                           new File("<command-line>"),
-                                          iquote, I, sysdirs, tokenCreator,
+                                          iquote, I, sysdirs,
+                                          lexerCreator, tokenCreator,
                                           lexerTimer);
       fileManager.collectStatistics(runtime.test("statisticsPreprocessor"));
       fileManager.showErrors(! runtime.test("hideErrors"));
@@ -630,7 +662,7 @@ public class SuperC extends Tool {
     }
     
     fileManager = new HeaderFileManager(in, file, iquote, I, sysdirs,
-                                        tokenCreator, lexerTimer,
+                                        lexerCreator, tokenCreator, lexerTimer,
                                         runtime.getString(xtc.util.Runtime.INPUT_ENCODING));
     fileManager.collectStatistics(runtime.test("statisticsPreprocessor"));
     fileManager.showErrors(! runtime.test("hideErrors"));
@@ -1129,21 +1161,21 @@ public class SuperC extends Tool {
 
       initialParsingContext.free();
 
-      if (runtime.test("checkAST")) {
-        FileReader ratsReader = new FileReader(file);
-        CParser ratsParser
-          = new CParser(ratsReader, file.toString(), (int)file.length());
-        Result  ratsResult = ratsParser.pTranslationUnit(0);
-        Node rats = (Node) ratsParser.value(ratsResult);
-        Node superc = (Node) translationUnit;
+      // if (runtime.test("checkAST")) {
+      //   FileReader ratsReader = new FileReader(file);
+      //   CParser ratsParser
+      //     = new CParser(ratsReader, file.toString(), (int)file.length());
+      //   Result  ratsResult = ratsParser.pTranslationUnit(0);
+      //   Node rats = (Node) ratsParser.value(ratsResult);
+      //   Node superc = (Node) translationUnit;
 
-        if (! TreeComparator.getInstance().traverse(superc, rats)) {
-          System.err.println("superc: " + superc);
-          System.err.println("rats:   " + rats);
+      //   if (! TreeComparator.getInstance().traverse(superc, rats)) {
+      //     System.err.println("superc: " + superc);
+      //     System.err.println("rats:   " + rats);
 
-          throw new RuntimeException("C asts are different");
-        }
-      }
+      //     throw new RuntimeException("C asts are different");
+      //   }
+      // }
 
       if (runtime.test("printAST")) {
         runtime.console().format((Node) translationUnit).pln().flush();
