@@ -16,7 +16,7 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc.util;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.FileReader;

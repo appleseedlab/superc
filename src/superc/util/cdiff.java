@@ -16,7 +16,7 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc.util;
 
 import java.io.File;
 import java.io.FileReader;
@@ -24,8 +24,16 @@ import java.io.BufferedReader;
 
 import java.util.Iterator;
 
-import xtc.lang.cpp.Syntax.Kind;
-import xtc.lang.cpp.Syntax.Language;
+import superc.core.DirectiveParser;
+import superc.core.Lexer;
+import superc.core.LexerCreator;
+
+import superc.core.Syntax;
+import superc.core.Syntax.Kind;
+import superc.core.Syntax.Language;
+
+import superc.cparser.CTag;
+import superc.cparser.CLexerCreator;
 
 /**
  * Token-based diff.
@@ -53,9 +61,9 @@ public class cdiff {
 "\n" +
 "USAGE:\n" +
 "\n" +
-"  java xtc.lang.cpp.cdiff -?\n" +
+"  java superc.util.cdiff -?\n" +
 "\n" +
-"  java xtc.lang.cpp.cdiff [-l|-d] [-s] [-e #] file1 file2\n" +
+"  java superc.util.cdiff [-l|-d] [-s] [-e #] file1 file2\n" +
 "\n" +
 "FLAGS:\n" +
 "  -l\tTreat directives as individual tokens.\n" +
@@ -111,6 +119,9 @@ public class cdiff {
   public static void main(String[] args) {
     String filename1 = null;
     String filename2 = null;
+
+    // The class to create lexers.
+    LexerCreator lexerCreator = new CLexerCreator();
 
     // Whether directives should be compare token-by-token.
     boolean pureLexer = false;
@@ -186,7 +197,7 @@ public class cdiff {
       BufferedReader reader1 = new BufferedReader(new FileReader(file1));
       BufferedReader reader2 = new BufferedReader(new FileReader(file2));
 
-      final CLexer clexer1 = new CLexer(reader1);
+      final Lexer clexer1 = lexerCreator.newLexer(reader1);
       clexer1.setFileName(filename1);
       Iterator<Syntax> stream1 = new Iterator<Syntax>() {
           Syntax syntax;
@@ -210,7 +221,7 @@ public class cdiff {
           }
         };
 
-      final CLexer clexer2 = new CLexer(reader2);
+      final Lexer clexer2 = lexerCreator.newLexer(reader2);
       clexer2.setFileName(filename2);
       Iterator<Syntax> stream2 = new Iterator<Syntax>() {
           Syntax syntax;

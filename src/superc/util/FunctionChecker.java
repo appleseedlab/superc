@@ -16,7 +16,7 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -44,7 +44,11 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.zip.Inflater;
 
-import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
+import superc.expression.ExpressionRats;
+
+import superc.core.PresenceConditionManager.PresenceCondition;
+
+import superc.core.Clauses;
 
 import xtc.tree.Node;
 import xtc.tree.GNode;
@@ -149,7 +153,7 @@ class FunctionChecker {
     if (args.length != 5 && args.length != 7 && args.length != 8) {
       System.err.println("" +
 "USAGE\n" +
-"java xtc.lang.cpp.FunctionChecker functions functions_pc unit_pcs kconfig_model model_assumptions [[server port] | [callunit funname defunit] ]\n" +
+"java superc.util.FunctionChecker functions functions_pc unit_pcs kconfig_model model_assumptions [[server port] | [callunit funname defunit] ]\n" +
 "\n" +
 "Check for linker errors across the entire Linux kernel.  Requires using\n" +
 "$KMAX_ROOT/collection_functions.py to collect global function definitions and\n" +
@@ -158,7 +162,7 @@ class FunctionChecker {
 "server and port retrieve unit names from a FilenameService.\n" +
 "\n" +
 "EXAMPLE\n" +
-"java xtc.lang.cpp.FunctionChecker functions_4.0x86.txt functions_pc_4.0x86 unit_pc_4.0x86.txt clauses_4.0x86.txt model_assumptions_4.0x86.txt\n" +
+"java superc.util.FunctionChecker functions_4.0x86.txt functions_pc_4.0x86 unit_pc_4.0x86.txt clauses_4.0x86.txt model_assumptions_4.0x86.txt\n" +
 "\n" +
                          "");
       System.exit(1);
