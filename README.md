@@ -19,7 +19,6 @@ The following environment variables are expected by SuperC/xtc.
     CLASSPATH=$CLASSPATH:$JAVA_DEV_ROOT/classes:$JAVA_DEV_ROOT/bin/junit.jar:$JAVA_DEV_ROOT/bin/antlr.jar:$JAVA_DEV_ROOT/bin/javabdd.jar:/usr/share/java/org.sat4j.core.jar
     JAVA_ARGS="-Xms2048m -Xmx4048m -Xss128m" # JVM settings
     JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/  # Location of java jdk
-    SUPERC_SCRATCH=~/tmp/superc # Temporary files during regression testing
     export JAVA_DEV_ROOT CLASSPATH JAVA_ARGS JAVA_HOME
 
 ## Building SuperC and xtc
@@ -35,11 +34,18 @@ From the root of the xtc source tree, run the following:
 
 ## Running the SuperC desugarer
 
-    java xtc.lang.cpp.SugarC -silent file_to_desugarer.c > desugared_file.c
+    java xtc.lang.cpp.SugarC file_to_desugarer.c > desugared_file.c
 
 ## Testing SuperC's parser
 
-Configure SuperC to do parsing only.  From the root of the source tree, run
+### Requirements
+
+- A python 2 interpreter for some tests
+- Setting `SUPERC_SCRATCH=~/tmp/superc` to some existing directory for holding temp files.
+
+### Running the tests
+
+From the root of the source tree, run
 
     make check-cpp  # run SuperC tests
 
