@@ -69,7 +69,7 @@ include $(JAVA_DEV_ROOT)/Makerules
 
 .PHONY: configure parsers clobber
 
-Configure:
+configure:
 	if [ -f Builtins.java ]; then $(RM) Builtins.java; fi
 	$(MAKE) BuiltinsGenerator.class
 	$(MAKE) Builtins.java
