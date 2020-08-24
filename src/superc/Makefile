@@ -67,7 +67,9 @@ JAR_EXTRAS =
 ifdef JAVA_DEV_ROOT
 include $(JAVA_DEV_ROOT)/Makerules
 
-configure:
+.PHONY: configure parsers clobber
+
+Configure:
 	if [ -f Builtins.java ]; then $(RM) Builtins.java; fi
 	$(MAKE) BuiltinsGenerator.class
 	$(MAKE) Builtins.java
@@ -83,11 +85,11 @@ Builtins.java:
 	$(RM) builtins
 
 parsers:
-	$(MAKE) -C expression
-	$(MAKE) -C cparser
-	$(MAKE) -C cdesugarer
+	$(MAKE) -C expression generate
+	$(MAKE) -C cparser generate
+	$(MAKE) -C cdesugarer generate
 
-clobber:
+clobber-parsers:
 	$(MAKE) -C expression clobber
 	$(MAKE) -C cparser clobber
 	$(MAKE) -C cdesugarer clobber

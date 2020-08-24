@@ -45,12 +45,13 @@ PACKAGES = \
 	xtc.parser \
 	xtc.lang \
 	xtc.lang.jeannie \
-	xtc.lang.blink \
-	xtc.lang.blink.agent \
 	superc.core \
 	superc.cparser \
 	superc.cdesugarer \
 	superc
+
+# xtc.lang.blink \
+	# xtc.lang.blink.agent \
 
 #***************************************************************************
 #
@@ -228,7 +229,7 @@ ifdef JAVA_DEV_ROOT
 	$(RM) $(SOURCE_DIR)/xtc/lang/jeannie/JeannieParser.java
 	$(RM) $(SOURCE_DIR)/xtc/lang/jeannie/PreJeannieParser.java
 	$(RM) $(SOURCE_DIR)/xtc/lang/blink/CommandParser.java
-	$(MAKE) -C $(SOURCE_DIR)/superc clobber
+	$(MAKE) -C $(SOURCE_DIR)/superc clobber-parsers
 endif
 
 jars    : classes
