@@ -16,7 +16,7 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc.core;
 
 import java.io.Writer;
 import java.io.StringWriter;
@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 
-import xtc.lang.cpp.Syntax.Kind;
+import superc.core.Syntax.Kind;
 
 import xtc.tree.Node;
 import xtc.tree.GNode;

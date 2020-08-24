@@ -16,12 +16,12 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc.core;
 
 import java.util.Iterator;
 
-import xtc.lang.cpp.Syntax.Kind;
-import xtc.lang.cpp.Syntax.ErrorType;
+import superc.core.Syntax.Kind;
+import superc.core.Syntax.ErrorType;
 
 /**
  * A stream that filters out all tokens except for regular and

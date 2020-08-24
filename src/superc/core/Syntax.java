@@ -16,9 +16,9 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc.core;
 
-import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
+import superc.core.PresenceConditionManager.PresenceCondition;
 
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -16,7 +16,7 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc.core;
 
 import java.lang.StringBuilder;
 
@@ -26,16 +26,16 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import xtc.lang.cpp.Syntax.Kind;
-import xtc.lang.cpp.Syntax.LanguageTag;
-import xtc.lang.cpp.Syntax.PreprocessorTag;
-import xtc.lang.cpp.Syntax.ConditionalTag;
-import xtc.lang.cpp.Syntax.DirectiveTag;
-import xtc.lang.cpp.Syntax.Layout;
-import xtc.lang.cpp.Syntax.Language;
-import xtc.lang.cpp.Syntax.Text;
-import xtc.lang.cpp.Syntax.Directive;
-import xtc.lang.cpp.Syntax.Conditional;
+import superc.core.Syntax.Kind;
+import superc.core.Syntax.LanguageTag;
+import superc.core.Syntax.PreprocessorTag;
+import superc.core.Syntax.ConditionalTag;
+import superc.core.Syntax.DirectiveTag;
+import superc.core.Syntax.Layout;
+import superc.core.Syntax.Language;
+import superc.core.Syntax.Text;
+import superc.core.Syntax.Directive;
+import superc.core.Syntax.Conditional;
 
 import xtc.tree.Location;
 

@@ -16,11 +16,11 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc.core;
 
 import java.util.Collection;
 
-import xtc.lang.cpp.ForkMergeParser.Lookahead;
+import superc.core.ForkMergeParser.Lookahead;
 
 /**
  * The interface for the parsing context plugin.

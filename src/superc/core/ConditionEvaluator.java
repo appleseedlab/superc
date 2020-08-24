@@ -16,7 +16,7 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc.core;
 
 import java.lang.Iterable;
 
@@ -32,10 +32,10 @@ import xtc.tree.Visitor;
 import xtc.type.C;
 import xtc.type.Type;
 
-import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
-import xtc.lang.cpp.MacroTable.Macro;
-import xtc.lang.cpp.MacroTable.Entry;
-import xtc.lang.cpp.Syntax.Kind;
+import superc.core.PresenceConditionManager.PresenceCondition;
+import superc.core.MacroTable.Macro;
+import superc.core.MacroTable.Entry;
+import superc.core.Syntax.Kind;
 
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDFactory;

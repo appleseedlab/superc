@@ -16,11 +16,11 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc.core;
 
 import java.io.IOException;
 
-import xtc.lang.cpp.Syntax.Language;
+import superc.core.Syntax.Language;
 
 /**
  * Token creation methods

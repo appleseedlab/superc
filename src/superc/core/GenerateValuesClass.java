@@ -16,7 +16,7 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc.core;
 
 import java.lang.*;
 
@@ -40,13 +40,14 @@ public class GenerateValuesClass {
     PrintWriter outputStream = null;
 
     if (args.length != 2) {
-      System.err.println("USAGE: GenerateValuesClass outClassName"
+      System.err.println("USAGE: GenerateValuesClass outPackageName outClassName"
                          + " parseTablesClassName");
       System.exit(1);
     }
 
-    String outClassName = args[0];
-    String parseTablesClassName = args[1];
+    String outPackageName = args[0];
+    String outClassName = args[1];
+    String parseTablesClassName = args[2];
     ParseTables parseTables
       = (ParseTables) Class.forName(parseTablesClassName).newInstance();
     
@@ -72,9 +73,9 @@ public class GenerateValuesClass {
 " * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,\n" +
 " * USA.\n" +
 " */\n" +
-"package xtc.lang.cpp;\n" + 
+"package " + outPackageName + ";\n" + 
 "\n" +  
-"import xtc.lang.cpp.ForkMergeParser.Subparser;\n" +  
+"import superc.core.ForkMergeParser.Subparser;\n" +  
 "import xtc.tree.GNode;\n" +
 "import xtc.util.Pair;" +
 "\n" +  

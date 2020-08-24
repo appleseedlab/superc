@@ -16,7 +16,7 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc.core;
 
 import java.lang.StringBuilder;
 
@@ -39,21 +39,21 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import xtc.lang.cpp.Syntax.Kind;
-import xtc.lang.cpp.Syntax.LanguageTag;
-import xtc.lang.cpp.Syntax.ConditionalTag;
-import xtc.lang.cpp.Syntax.DirectiveTag;
-import xtc.lang.cpp.Syntax.Layout;
-import xtc.lang.cpp.Syntax.Language;
-import xtc.lang.cpp.Syntax.Text;
-import xtc.lang.cpp.Syntax.Directive;
-import xtc.lang.cpp.Syntax.Conditional;
+import superc.core.Syntax.Kind;
+import superc.core.Syntax.LanguageTag;
+import superc.core.Syntax.ConditionalTag;
+import superc.core.Syntax.DirectiveTag;
+import superc.core.Syntax.Layout;
+import superc.core.Syntax.Language;
+import superc.core.Syntax.Text;
+import superc.core.Syntax.Directive;
+import superc.core.Syntax.Conditional;
 
-import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
+import superc.core.PresenceConditionManager.PresenceCondition;
 
-import xtc.lang.cpp.MacroTable.Entry;
-import xtc.lang.cpp.MacroTable.Macro;
-import xtc.lang.cpp.MacroTable.Macro.State;
+import superc.core.MacroTable.Entry;
+import superc.core.MacroTable.Macro;
+import superc.core.MacroTable.Macro.State;
 
 import xtc.tree.Location;
 
@@ -73,6 +73,9 @@ public class HeaderFileManager implements Iterator<Syntax> {
   
   /** System directories from the CPP tool */
   private List<String> sysdirs;
+
+  /** The lexer creator. */
+  private LexerCreator lexerCreator;
 
   /** The token creator. */
   private TokenCreator tokenCreator;
@@ -128,11 +131,12 @@ public class HeaderFileManager implements Iterator<Syntax> {
    */
   public HeaderFileManager(Reader in, File file, List<String> iquote,
                            List<String> I, List<String> sysdirs,
-                           TokenCreator tokenCreator, StopWatch lexerTimer,
-                           String encoding) {
+                           LexerCreator lexerCreator, TokenCreator tokenCreator,
+                           StopWatch lexerTimer, String encoding) {
     this.iquote = iquote;
     this.I = I;
     this.sysdirs = sysdirs;
+    this.lexerCreator = lexerCreator;
     this.tokenCreator = tokenCreator;
     this.lexerTimer = lexerTimer;
     this.encoding = encoding;
@@ -151,8 +155,9 @@ public class HeaderFileManager implements Iterator<Syntax> {
    */
   public HeaderFileManager(Reader in, File file, List<String> iquote,
                            List<String> I, List<String> sysdirs,
-                           TokenCreator tokenCreator, StopWatch lexerTimer) {
-    this(in, file, iquote, I, sysdirs, tokenCreator, lexerTimer, null);
+                           LexerCreator lexerCreator, TokenCreator tokenCreator,
+                           StopWatch lexerTimer) {
+    this(in, file, iquote, I, sysdirs, lexerCreator, tokenCreator, lexerTimer, null);
   }
 
   /**
@@ -752,7 +757,7 @@ public class HeaderFileManager implements Iterator<Syntax> {
    * headers that have to include several headers in different
    * presenceCondition.
    */
-  public abstract static class Include {
+  public abstract class Include {
     /** Construct a new instance. */
     private Include() { /* Nothing to do. */ }
     
@@ -875,7 +880,7 @@ public class HeaderFileManager implements Iterator<Syntax> {
         fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
       }
 
-      final CLexer clexer = new CLexer(fileReader);
+      final Lexer clexer = lexerCreator.newLexer(fileReader);
       clexer.setFileName(getName());
 
       Iterator<Syntax> lexer = new Iterator<Syntax>() {
@@ -913,7 +918,7 @@ public class HeaderFileManager implements Iterator<Syntax> {
      * @param in an already open reader.
      */
     public void open(Reader in) {
-      final CLexer clexer = new CLexer(in);
+      final Lexer clexer = lexerCreator.newLexer(in);
       clexer.setFileName(getName());
 
       Iterator<Syntax> lexer = new Iterator<Syntax>() {

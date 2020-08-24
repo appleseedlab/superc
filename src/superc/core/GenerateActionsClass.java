@@ -16,7 +16,7 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc.core;
 
 import java.lang.*;
 
@@ -41,7 +41,7 @@ public class GenerateActionsClass {
     PrintWriter outputStream = null;
 
     if (args.length < 2) {
-      System.err.println("USAGE: GenerateValuesClass outClassName"
+      System.err.println("USAGE: GenerateValuesClass outPackageName outClassName"
                          + " parseTablesClassName [all]");
       System.err.println("\n" +
 "This will create an abstract java class with methods for each action" +
@@ -50,11 +50,12 @@ public class GenerateActionsClass {
       System.exit(1);
     }
 
-    String outClassName = args[0];
-    String parseTablesClassName = args[1];
-    String actionSwitchFile = args.length > 2 ? args[2] : null;
-    String prologueFile = args.length > 3 ? args[3] : null;
-    String epilogueFile = args.length > 4 ? args[4] : null;
+    String outPackageName = args[0];
+    String outClassName = args[1];
+    String parseTablesClassName = args[2];
+    String actionSwitchFile = args.length > 3 ? args[3] : null;
+    String prologueFile = args.length > 4 ? args[4] : null;
+    String epilogueFile = args.length > 5 ? args[5] : null;
     ParseTables parseTables
       = (ParseTables) Class.forName(parseTablesClassName).newInstance();
     
@@ -83,9 +84,9 @@ public class GenerateActionsClass {
 " * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,\n" +
 " * USA.\n" +
 " */\n" +
-"package xtc.lang.cpp;\n" + 
+"package " + outPackageName + ";\n" + 
 "\n" +
-"import xtc.lang.cpp.ForkMergeParser.Subparser;\n" +  
+"import superc.core.ForkMergeParser.Subparser;\n" +  
 "\n");
 
       if (null != prologueFile) {
