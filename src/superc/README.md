@@ -1,24 +1,14 @@
 ## Troubleshooting
 
-### When to rebuild the parser vs the type builder
-
-The grammar only needs to be rebuilt if `c.y` is changed, i.e,
-
-    make select-desugarer; make
-
-Any changes to `TypeBuilder` alone can be rebuilt with just `make`, i.e.,
-
-    `make`
-
 ### Tracing the parser
 
-Sometimes, it may be difficult to tell from the AST which grammar
+Sometimes it may be difficult to tell from the AST which grammar
 productions are being reduced (matched), and therefore whether its
 expected semantic action is being executed.
 
 To trace the parser, use `-showActions`.  To trace the forking and merging, use `-showFM`. For example,
 
-    java xtc.lang.cpp.SuperC -showActions -showFM -printAST canonical_example.c
+    java superc.SuperC -showActions -showFM -printAST canonical_example.c
 
 ### Checking a single configuration's C file using the C preprocessor
 
@@ -52,14 +42,14 @@ Similarly, we can compile this configuration like so to see any type errors:
 
 Try clobbering the parser intermediate files and rebuilding them
 
-    make clobber-parsers; make parsers; make
+    make -C cparsers/ clobber; make -C cparsers/
 
 
 #### Problems with the parse table conversion to Java
 
 If the parser isn't working, diagnose it with
 
-    java xtc.lang.cpp.SuperC -showActions file.c
+    java superc.SuperC -showActions file.c
     
 If you see something like
 
