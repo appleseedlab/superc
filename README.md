@@ -47,6 +47,13 @@ Configure SuperC to do parsing only.  From the root of the source tree, run
 
 Use the script [`scripts/superc_linux.sh`](scripts/superc_linux.sh).  See [`scripts/data.sh`](scripts/data.sh) for example usage.  Linux versions past 2013 have not been tested.
 
+## Regenerating SuperC's parsers for development
+
+SuperC comes shippped with prebuilt parsers.  To modify then generate
+
+    make -C src/superc parsers
+    make
+
 ## SuperC Manual
 
 Run `make manual` in src/superc/manual.  Requires `pdflatex`.

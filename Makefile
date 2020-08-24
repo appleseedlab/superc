@@ -48,6 +48,7 @@ PACKAGES = \
 	superc.core \
 	superc.cparser \
 	superc.cdesugarer \
+	superc.util \
 	superc
 
 # xtc.lang.blink \
