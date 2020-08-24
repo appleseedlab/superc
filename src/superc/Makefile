@@ -67,13 +67,6 @@ JAR_EXTRAS =
 ifdef JAVA_DEV_ROOT
 include $(JAVA_DEV_ROOT)/Makerules
 
-manual: manual.pdf
-
-manual.pdf: manual.tex
-	pdflatex manual.tex
-	pdflatex manual.tex
-	pdflatex manual.tex
-
 configure:
 	if [ -f Builtins.java ]; then $(RM) Builtins.java; fi
 	$(MAKE) BuiltinsGenerator.class
