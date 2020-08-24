@@ -251,7 +251,7 @@ if [ "$system" == "SuperC" ]; then
 
     echo "# Flags: $partialPreprocFlagsSuperC $args $file" >&2
 
-    java $javaOpts xtc.lang.cpp.SuperC -silent \
+    java $javaOpts superc.SuperC -silent \
         $partialPreprocFlagsSuperC $args $file
 
 else

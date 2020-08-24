@@ -191,7 +191,7 @@ while :; do
         file=${files[$i]}
         i=$i+1
     else
-        file=`java xtc.lang.cpp.FilenameService -client $host $port`
+        file=`java superc.util.FilenameService -client $host $port`
         errcode=$?
         if [[ $errcode -eq 3 ]]; then
             echo "No more files."

@@ -8,10 +8,10 @@
                                                                         
 # Also, it assumes that xtc's JAVA_DEV_ROOT environment variable is
 # set and that SuperC's scripts directory,
-# $JAVA_DEV_ROOT/src/xtc/lang/cpp/scripts, is in the shell's search
+# $JAVA_DEV_ROOT/scripts, is in the shell's search
 # path and that other environment variables,
 # e.g. $JAVA_DEV_ROOT/data/cpp, are properly set.  See and run the
-# script env.sh in xtc-root/src/xtc/lang/cpp/scripts (where xtc-root
+# script env.sh in xtc-root/scripts (where xtc-root
 # is the root of the xtc source tree) to set up these environment
 # variables.
 
@@ -73,10 +73,10 @@ nohup superc_linux.sh -r -l typechef_files.txt -L configurations/ -o performance
 
 # Get subparsers of constrained linux-2.6.33.3 kernel.
 sed 's/^\(.*\)$/linux-2.6.33.3\/\1.c/' linux_files.lst | sort | uniq > typechef_files.txt
-nohup java xtc.lang.cpp.FilenameService -server 7001 typechef_files.txt &
+nohup java superc.util.FilenameService -server 7001 typechef_files.txt &
 for server in `cat $JAVA_DEV_ROOT/data/cpp/server_list.txt`; do
     echo "Starting slave $server"
-    ssh $server "source $JAVA_DEV_ROOT/src/xtc/lang/cpp/scripts/env.sh; cd $PWD; typechef_test.sh -h beaker-2.news.cs.nyu.edu -p 7001 -a-parserStatistics -o subparsers1_fullopt.txt.$server SuperC" &
+    ssh $server "source $JAVA_DEV_ROOT/scripts/env.sh; cd $PWD; typechef_test.sh -h beaker-2.news.cs.nyu.edu -p 7001 -a-parserStatistics -o subparsers1_fullopt.txt.$server SuperC" &
 done &
 
 
@@ -193,11 +193,11 @@ diff typechef_files.txt all.txt | grep "^>" | cut -c3- > extra_files.txt
 
 # Collect preprocessor statistics as well as compilation unit size,
 # configuration variables, and header guards.
-nohup java xtc.lang.cpp.FilenameService -server 4000 typechef_files.txt &
+nohup java superc.util.FilenameService -server 4000 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 4000 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-preprocessor -preprocessorStatistics -size -configurationVariables -headerGuards" -d preprocessorStatistics/
 
 # Collect language statistics and subparser counts.
-nohup java xtc.lang.cpp.FilenameService -server 4001 typechef_files.txt &
+nohup java superc.util.FilenameService -server 4001 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 4001 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-languageStatistics -parserStatistics" -d languageStatistics/
 
 # Compute subparsers
@@ -210,11 +210,11 @@ table_subparser_cdf.sh subparsers.csv
 
 # # Compute summary stats, distributed.
 # find preprocessorStatistics/ -type f > preprocessor_data_files.txt
-# nohup java xtc.lang.cpp.FilenameService -server 4002 preprocessor_data_files.txt &
+# nohup java superc.util.FilenameService -server 4002 preprocessor_data_files.txt &
 # nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 4002 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -D -o preprocessor_statistics.txt
 
 # find languageStatistics/ -type f > language_data_files.txt
-# nohup java xtc.lang.cpp.FilenameService -server 4003 language_data_typechef_files.txt &
+# nohup java superc.util.FilenameService -server 4003 language_data_typechef_files.txt &
 # nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 4003 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -D -o language_statistics.txt
 
 # Compute summary stats, single-machine.
@@ -251,23 +251,23 @@ top_includes.sh typechef_files.txt typechef_headers.txt > top_includes.txt &
 #############################################################################
 
 # All optimizations.  No need to run if dynamic analysis was run.
-nohup java xtc.lang.cpp.FilenameService -server 6001 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6001 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6001 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics" -o subparsers01_all.txt
 
 #Oshared
-nohup java xtc.lang.cpp.FilenameService -server 6006 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6006 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6006 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Oshared" -o subparsers06_shared.txt
 
 #Onone
-nohup java xtc.lang.cpp.FilenameService -server 6008 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6008 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6008 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Onone" -o subparsers08_none.txt
 
 #Oshared and Olazy
-nohup java xtc.lang.cpp.FilenameService -server 6002 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6002 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6002 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Oshared -Olazy" -o subparsers02_shared_lazy.txt
 
 #Olazy
-nohup java xtc.lang.cpp.FilenameService -server 6005 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6005 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6005 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Olazy" -o subparsers05_lazy.txt
 
 # Generate CDFs
@@ -307,11 +307,11 @@ table_subparser_cdf.sh \
     subparsers08_none.csv
 
 #naive and platoffOrdering
-nohup java xtc.lang.cpp.FilenameService -server 6500 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6500 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6500 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -naiveFMLR -platoffOrdering -killswitch 16000" -o naive1_platoff.txt
 
 #naive
-nohup java xtc.lang.cpp.FilenameService -server 6501 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6501 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6501 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -naiveFMLR -killswitch 16000" -o naive2_none.txt
 
 # Get percentage of files tripping the killswitch for naiveFMLR.
@@ -322,15 +322,15 @@ echo "`grep killswitch naive2_none.txt* | wc -l` / `grep Processing naive2_none.
 # Other combinations of optimizations.
 
 #Olazy and Oearly
-nohup java xtc.lang.cpp.FilenameService -server 6003 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6003 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6003 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Olazy -Oearly" -o subparsers03_lazy_early.txt
 
 #Oshared and Oearly
-nohup java xtc.lang.cpp.FilenameService -server 6004 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6004 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6004 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Oshared -Oearly" -o subparsers04_shared_early.txt
 
 #Oearly
-nohup java xtc.lang.cpp.FilenameService -server 6007 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6007 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6007 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Oearly" -o subparsers07_early.txt
 
 # Generate CDFs
@@ -348,19 +348,19 @@ table_subparser_cdf.sh \
 # Check early shifts.
 
 #earlyShift, Oshared, Olazy.
-nohup java xtc.lang.cpp.FilenameService -server 6017 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6017 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6017 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Oshared -Olazy -earlyShift" -o subparsers17_shared_lazy_shift.txt
 
 #earlyShift Oshared
-nohup java xtc.lang.cpp.FilenameService -server 6018 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6018 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6018 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Oshared -earlyShift" -o subparsers18_shared_shift.txt
 
 #earlyShift Olazy
-nohup java xtc.lang.cpp.FilenameService -server 6019 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6019 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6019 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Olazy -earlyShift" -o subparsers19_lazy_shift.txt
 
 #earlyShift
-nohup java xtc.lang.cpp.FilenameService -server 6020 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6020 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6020 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Onone -earlyShift" -o subparsers20_none_shift.txt
 
 # Generate CDFs
@@ -397,35 +397,35 @@ graph_subparser_cdf.sh compare_none.pdf subparsers08_none.csv "None" subparsers0
 # With Platoff ordering.
 
 # All optimizations and platoffOrdering
-nohup java xtc.lang.cpp.FilenameService -server 6009 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6009 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6009 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -platoffOrdering" -o subparsers09_all_platoff.txt
 
 #Oshared, Olazy, and platoffOrdering
-nohup java xtc.lang.cpp.FilenameService -server 6010 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6010 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6010 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Oshared -Olazy -platoffOrdering" -o subparsers10_shared_lazy_platoff.txt
 
 #Olazy, Oearly, and platoffOrdering
-nohup java xtc.lang.cpp.FilenameService -server 6011 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6011 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6011 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Olazy -Oearly -platoffOrdering" -o subparsers11_lazy_early_platoff.txt
 
 #Oshared, Oearly, and platoffOrdering
-nohup java xtc.lang.cpp.FilenameService -server 6012 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6012 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6012 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Oshared -Oearly -platoffOrdering" -o subparsers12_shared_early_platoff.txt
 
 #Olazy and platoffOrdering
-nohup java xtc.lang.cpp.FilenameService -server 6013 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6013 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6013 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Olazy -platoffOrdering" -o subparsers13_lazy_platoff.txt
 
 #Oshared and platoffOrdering
-nohup java xtc.lang.cpp.FilenameService -server 6014 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6014 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6014 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Oshared -platoffOrdering" -o subparsers14_shared_platoff.txt
 
 #Oearly and platoffOrdering
-nohup java xtc.lang.cpp.FilenameService -server 6015 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6015 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6015 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Oearly -platoffOrdering" -o subparsers15_early_platoff.txt
 
 #Onone and platoffOrdering
-nohup java xtc.lang.cpp.FilenameService -server 6016 typechef_files.txt &
+nohup java superc.util.FilenameService -server 6016 typechef_files.txt &
 nohup superc_linux.sh -h beaker-2.news.cs.nyu.edu -p 6016 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -S"-parserStatistics -Onone -platoffOrdering" -o subparsers16_none_platoff.txt
 
 # Generate CDFs
@@ -479,7 +479,7 @@ ls $(FONDA_DIR)/cpp_testsuite/new_interactions/*.c | xargs -L 1 typechef_run_fil
 c_torture.sh
 
 # Test SuperC's preprocessor against allyesconfig.
-nohup java xtc.lang.cpp.FilenameService -server 7000 typechef_files.txt &
+nohup java superc.util.FilenameService -server 7000 typechef_files.txt &
 nohup superc_linux.sh -c -S-E -h beaker-2 -p 7000 -s $JAVA_DEV_ROOT/data/cpp/server_list.txt -L configurations/ -o preprocessor_test_leftover.txt
 
 # Collect the results.
@@ -487,7 +487,7 @@ cat preprocessor_test.txt* | egrep "^comparison_succeeded" | wc -l
 cat preprocessor_test.txt* | egrep "^comparison_failed" | wc -l
 
 # Parse the allyesconfig version of the kernel.
-nohup java xtc.lang.cpp.FilenameService -server 7001 typechef_files.txt &
+nohup java superc.util.FilenameService -server 7001 typechef_files.txt &
 nohup superc_linux.sh -P -h beaker-2 -p 7001 -s $CPPDATA/server_list.txt -L configurations/ -o linux_torture.txt
 
 # Collect the results.

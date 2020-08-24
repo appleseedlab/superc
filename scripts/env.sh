@@ -20,7 +20,7 @@
 
 # This script sets up SuperC environment variables.
 
-JAVA_DEV_ROOT=~/work/java  # Location of xtc suite.
+JAVA_DEV_ROOT=~/src/superc  # Location of xtc suite.
 
 JAVA_ARGS="-Xms2048m -Xmx4048m -Xss128m" # JVM settings.
 
@@ -28,10 +28,10 @@ JAVA_ARGS="-Xms2048m -Xmx4048m -Xss128m" # JVM settings.
 
 PATH_SEP=:
 
-CLASSPATH=$CLASSPATH:$JAVA_DEV_ROOT/classes:$JAVA_DEV_ROOT/bin/junit.jar\
-:$JAVA_DEV_ROOT/bin/antlr.jar:$JAVA_DEV_ROOT/bin/javabdd.jar
+CLASSPATH=$CLASSPATH:$JAVA_DEV_ROOT/classes:$JAVA_DEV_ROOT/bin/junit.jar:\
+$JAVA_DEV_ROOT/bin/antlr.jar:$JAVA_DEV_ROOT/bin/javabdd.jar:/usr/share/java/org.sat4j.core.jar
 
-PATH=$PATH:$JAVA_DEV_ROOT/src/xtc/lang/cpp/scripts
+PATH=$PATH:$JAVA_DEV_ROOT/scripts
 
 #Export the environment vars.
 export JAVA_DEV_ROOT JAVA_ARGS PATH_SEP CLASSPATH PATH

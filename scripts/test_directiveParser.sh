@@ -78,9 +78,9 @@ do
     echo "Lexing, directive parsing, and testing $i"
 
     # Lex the file with SuperC's lexer
-    java xtc.lang.cpp.SuperC -silent -directiveParsing $i > $i.tmp 2>/dev/null
+    java superc.SuperC -silent -directiveParsing $i > $i.tmp 2>/dev/null
 
-    java xtc.lang.cpp.cdiff $i $i.tmp >/dev/null 2>/dev/null
+    java superc.util.cdiff $i $i.tmp >/dev/null 2>/dev/null
 
     if [ $? -ne 0 ]; then
         echo "Failed"

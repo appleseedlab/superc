@@ -35,7 +35,7 @@ do
     echo "Processing $i" 1>&2
     gcc -E $i > $tmp
 
-    java -ea xtc.lang.cpp.SuperC -silent -showAccepts $tmp 2>&1 | grep "ACCEPT"
+    java -ea superc.SuperC -silent -showAccepts $tmp 2>&1 | grep "ACCEPT"
 
     if [ $? -ne 0 ]; then
         echo $i >> $outfile

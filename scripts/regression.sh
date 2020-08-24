@@ -161,7 +161,7 @@ do
     else
 
         if [ ! -z "$gccCompare" ]; then
-            tempfilebase=$($JAVA_DEV_ROOT/src/xtc/lang/cpp/scripts/tempfile.sh -p gcmp) || exit
+            tempfilebase=$($JAVA_DEV_ROOT/scripts/tempfile.sh -p gcmp) || exit
             tempfiles=$tempfilebase
             superc=$tempfilebase.super.c
             supercE=$tempfilebase.super.E
@@ -179,11 +179,11 @@ $supercEerr_stripped $gccE $gccEerr $gccEerr_stripped $diff $differr"
             trap "rm -f -- $tempfilebase $tempfiles" EXIT
 
             echo "Testing $file"
-            java $jvmFlags xtc.lang.cpp.SuperC \
+            java $jvmFlags superc.SuperC \
                 -silent $supercArgs $file > $superc 2>$supercEerr
             $cppTool $gccArgs $superc > $supercE 2>/dev/null
             $cppTool $gccArgs $file > $gccE 2>$gccEerr
-            java xtc.lang.cpp.cdiff $gccE $supercE > $diff
+            java superc.util.cdiff $gccE $supercE > $diff
             if [ $? -ne 0 ]; then
                 cat $diff
                 echo "failed $file"
@@ -211,7 +211,7 @@ $supercEerr_stripped $gccE $gccEerr $gccEerr_stripped $diff $differr"
                 echo "intermediate files $tempfilebase*"
             fi
         elif [ ! -z "$knownCompare" ]; then
-            tempfilebase=$($JAVA_DEV_ROOT/src/xtc/lang/cpp/scripts/tempfile.sh -p gcmp) || exit
+            tempfilebase=$($JAVA_DEV_ROOT/scripts/tempfile.sh -p gcmp) || exit
             superc=$tempfilebase.super.c
             if [ -z "$saveIntermediate" ]; then
                 tempfiles="$tempfiles $superc"
@@ -222,7 +222,7 @@ $supercEerr_stripped $gccE $gccEerr $gccEerr_stripped $diff $differr"
             if [ ! -z "$makeCompare" ]; then
                 if [ ! -f $known ]; then
                     echo "Making comparison file: $known"
-                    java $jvmFlags xtc.lang.cpp.SuperC \
+                    java $jvmFlags superc.SuperC \
                         -silent $supercArgs $file > $superc
                     if [ ! -z "$interactiveMake" ]; then
                         cat $superc
@@ -251,7 +251,7 @@ $supercEerr_stripped $gccE $gccEerr $gccEerr_stripped $diff $differr"
                     echo "Testing $file against $known"
                     knownArgs=`cat $known | grep "#superc_args " | cut -c14-`
                     java $jvmFlags \
-                        xtc.lang.cpp.SuperC -silent $knownArgs $file > $superc
+                        superc.SuperC -silent $knownArgs $file > $superc
                     cat $known | grep -v "#superc_args" | diff - $superc
                     if [ $? -ne 0 ]; then
                         errors=$((errors+1))
@@ -265,9 +265,9 @@ $supercEerr_stripped $gccE $gccEerr $gccEerr_stripped $diff $differr"
                 fi
             fi
         elif [ ! -z "$allCompare" ]; then
-            tempfilebase=$($JAVA_DEV_ROOT/src/xtc/lang/cpp/scripts/tempfile.sh -p gcmp) || exit
+            tempfilebase=$($JAVA_DEV_ROOT/scripts/tempfile.sh -p gcmp) || exit
             tempfiles=$tempfilebase
-            powerset=$($JAVA_DEV_ROOT/src/xtc/lang/cpp/scripts/tempfile.sh) || exit
+            powerset=$($JAVA_DEV_ROOT/scripts/tempfile.sh) || exit
             superc=$tempfilebase.super.c
             supercE=$tempfilebase.super.E
             gccE=$tempfilebase.gcc.E
@@ -280,19 +280,19 @@ $alldiff"
             trap "rm -f -- $tempfilebase $tempfiles" EXIT
 
             # Get all combinations of configuration variables.
-            java xtc.lang.cpp.SuperC \
+            java superc.SuperC \
                 -silent -configurationVariables -preprocessor $file 2>&1 \
                 | grep "config_var" | awk '{print $2}' \
-                | python $JAVA_DEV_ROOT/src/xtc/lang/cpp/scripts/powerset.py \
+                | python $JAVA_DEV_ROOT/scripts/powerset.py \
                 > $powerset
 
             if [ $? -ne 0 ]; then
                 echo "Testing $file with none (too many configurations to test)"
-                java $jvmFlags xtc.lang.cpp.SuperC -silent $supercArgs \
+                java $jvmFlags superc.SuperC -silent $supercArgs \
                     $file > $superc 2>/dev/null
                 $cppTool $gccArgs $superc > $supercE 2>/dev/null
                 $cppTool $gccArgs $file > $gccE 2>/dev/null
-                java xtc.lang.cpp.cdiff $gccE $supercE > $diff
+                java superc.util.cdiff $gccE $supercE > $diff
                 if [ $? -ne 0 ]; then
                     cat $diff
                     echo "failed $file"
@@ -301,7 +301,7 @@ $alldiff"
                     passed=$((passed+1))
                 fi
             else
-                java $jvmFlags xtc.lang.cpp.SuperC -silent $supercArgs \
+                java $jvmFlags superc.SuperC -silent $supercArgs \
                     $file > $superc 2>/dev/null
                 cat $powerset | while read set; do
                     if [ -z "$set" ]; then
@@ -311,7 +311,7 @@ $alldiff"
                     fi
                     $cppTool $gccArgs $set $superc > $supercE 2>/dev/null
                     $cppTool $gccArgs $set $file > $gccE 2>/dev/null
-                    java xtc.lang.cpp.cdiff $gccE $supercE > $diff
+                    java superc.util.cdiff $gccE $supercE > $diff
                     if [ $? -ne 0 ]; then
                         cat $diff
                         cat $diff >> $alldiff
@@ -326,9 +326,9 @@ $alldiff"
                 fi
             fi
         elif [ ! -z "$allErrCompare" ]; then
-            tempfilebase=$($JAVA_DEV_ROOT/src/xtc/lang/cpp/scripts/tempfile.sh -p gcmp) || exit
+            tempfilebase=$($JAVA_DEV_ROOT/scripts/tempfile.sh -p gcmp) || exit
             tempfiles=$tempfilebase
-            powerset=$($JAVA_DEV_ROOT/src/xtc/lang/cpp/scripts/tempfile.sh) || exit
+            powerset=$($JAVA_DEV_ROOT/scripts/tempfile.sh) || exit
             superc=$tempfilebase.super.c
             supercE=$tempfilebase.super.E
             supercEstrip=$tempfilebase.super.E.strip
@@ -343,10 +343,10 @@ $gccEall $gccEallsorted $diff"
             trap "rm -f -- $tempfilebase $tempfiles" EXIT
 
             # Get all combinations of configuration variables.
-            java xtc.lang.cpp.SuperC \
+            java superc.SuperC \
                 -silent -configurationVariables -preprocessor $file 2>&1 \
                 | grep "config_var" | awk '{print $2}' \
-                | python $JAVA_DEV_ROOT/src/xtc/lang/cpp/scripts/powerset.py \
+                | python $JAVA_DEV_ROOT/scripts/powerset.py \
                 > $powerset
 
             if [ $? -ne 0 ]; then
@@ -354,7 +354,7 @@ $gccEall $gccEallsorted $diff"
 configuration variables to test all\ncombinations."
                 skipped=$((skipped+1))
             else
-                java $jvmFlags xtc.lang.cpp.SuperC -silent $supercArgs \
+                java $jvmFlags superc.SuperC -silent $supercArgs \
                     $file >/dev/null 2>$supercE
                 # Strip xtc "## errors" message.  And strip line
                 # numbers for now.

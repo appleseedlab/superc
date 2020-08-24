@@ -183,7 +183,7 @@ if [[ ! -z $help || (-z $file && -z $fileList && -z $host && -z $port && -z $ser
     echo ""
     echo "  `basename $0` [OPTIONS] -h host -p port"
     echo "    Get filenames from host:port.  See"
-    echo "    java xtc.lang.cpp.FilenameServer about usage."
+    echo "    java superc.util.FilenameServer about usage."
     echo ""
     echo "OPTIONS:"
     echo "  TOOLS"
@@ -247,7 +247,7 @@ fi
 
 if [ -z "$JAVA_DEV_ROOT" ]
 then
-    "Please run xtc/src/xtc/lang/cpp/scripts/env.sh before `basename $0`."
+    "Please run xtc/scripts/env.sh before `basename $0`."
 fi
 
 if [ ! -z $runtimes ]; then
@@ -315,7 +315,7 @@ if [ ! -z $serverList ]; then
     if [ ! -z $testSlaves ]; then
         for server in $servers; do
             echo "Checking $server:$remoteDir"
-            ssh $server "source $JAVA_DEV_ROOT/src/xtc/lang/cpp/scripts/env.sh; cd $remoteDir;superc_linux.sh -c -S-printSource arch/x86/kernel/acpi/realmode/regs.c" 2>&1 | grep comparison_succeeded
+            ssh $server "source $JAVA_DEV_ROOT/scripts/env.sh; cd $remoteDir;superc_linux.sh -c -S-printSource arch/x86/kernel/acpi/realmode/regs.c" 2>&1 | grep comparison_succeeded
             if [ $? -ne 0 ]; then
                 echo $retval
                 echo "$server failed."
@@ -386,7 +386,7 @@ elif [ ! -z $fileList ]; then
     done
 fi
 
-tempfilebase=$($JAVA_DEV_ROOT/src/xtc/lang/cpp/scripts/tempfile.sh -p super) || exit
+tempfilebase=$($JAVA_DEV_ROOT/scripts/tempfile.sh -p super) || exit
 tempfiles="$tempfilebase"
 header_args=$tempfilebase.headers || exit
 config_args=$tempfilebase.configs || exit
@@ -443,7 +443,7 @@ if [ -z "$servers" ]; then
             file=${filesToProcess[$i]}
             i=$i+1
         else
-            file=`java xtc.lang.cpp.FilenameService -client $host $port`
+            file=`java superc.util.FilenameService -client $host $port`
             errcode=$?
             if [[ $errcode -eq 3 ]]; then
                 echo "No more files."
@@ -474,7 +474,7 @@ if [ -z "$servers" ]; then
             if [[ ! -z "$configE" ]]; then
                 supercArgs="$givenSupercArgs -E"
             elif [[ ! -z "$configAST" ]]; then
-                supercArgs="$givenSupercArgs -configFile .config -configureExceptions \"$(java xtc.lang.cpp.GCCShunt --emit-exceptions $(superc_linux.sh -k "$config_file" | grep ^configs_all) none)\""
+                supercArgs="$givenSupercArgs -configFile .config -configureExceptions \"$(java superc.util.GCCShunt --emit-exceptions $(superc_linux.sh -k "$config_file" | grep ^configs_all) none)\""
             else
                 supercArgs="$givenSupercArgs"
             fi
@@ -501,16 +501,16 @@ if [ -z "$servers" ]; then
             elif [[ -z "$configDir" || ! -z "$writeConfigDir" ]]; then
                 # Can't override CC since it is used to emit compiler
                 # information
-                make CHECK="java xtc.lang.cpp.GCCShunt --shunt-filename $config_file --shunt-superc $header_args --shunt-kbuild --shunt-config $config_args" C=2 $obj_file
+                make CHECK="java superc.util.GCCShunt --shunt-filename $config_file --shunt-superc $header_args --shunt-kbuild --shunt-config $config_args" C=2 $obj_file
                 getConfigResult=$?
                 # if [ $getConfigResult -ne 0 ]; then
                 # # Try overriding CC instead of CHECK, since the file
                 # # may not be compiling.
-                #     make CC="java xtc.lang.cpp.GCCShunt --shunt-filename $config_file --shunt-superc $header_args --shunt-kbuild --shunt-config $config_args" C=2 $obj_file
+                #     make CC="java superc.util.GCCShunt --shunt-filename $config_file --shunt-superc $header_args --shunt-kbuild --shunt-config $config_args" C=2 $obj_file
                 #     getConfigResult=$?
                 # fi
-                # make -i -f $JAVA_DEV_ROOT/src/xtc/lang/cpp/scripts/Makefile.kcu ARCH=x86 \
-                #     CC="java xtc.lang.cpp.GCCShunt --shunt-filename $config_file --shunt-superc $header_args --shunt-kbuild --shunt-config $config_args" \
+                # make -i -f $JAVA_DEV_ROOT/scripts/Makefile.kcu ARCH=x86 \
+                #     CC="java superc.util.GCCShunt --shunt-filename $config_file --shunt-superc $header_args --shunt-kbuild --shunt-config $config_args" \
                 #     LD="echo ld" ar="echo ar" $obj_file
                 # getConfigResult=$?
                 cat $config_args
@@ -536,7 +536,7 @@ if [ -z "$servers" ]; then
                     echo "configs_all $file`cat $config_args`"
                 elif [ ! -z "$checkParser" ]; then
                     gcc -E `cat $config_args` $gccArgs $file > $gcc_E 2>/dev/null
-                    java -ea $JAVA_ARGS $jvmFlags xtc.lang.cpp.SuperC -enc-in UTF-8 -silent -showAccepts $supercArgs $gcc_E 2>&1 | tee $superc_out
+                    java -ea $JAVA_ARGS $jvmFlags superc.SuperC -enc-in UTF-8 -silent -showAccepts $supercArgs $gcc_E 2>&1 | tee $superc_out
                     cat $superc_out | grep ACCEPT
                     if [ $? -ne 0 ]; then
                         echo "grammar_failed $file"
@@ -558,7 +558,7 @@ if [ -z "$servers" ]; then
                     # handles quoted command-line arguments,
                     # preventing bash from separating them into
                     # tokens.
-                    cmd=(java -ea $JAVA_ARGS $jvmFlags xtc.lang.cpp.SuperC -enc-in UTF-8 -silent)
+                    cmd=(java -ea $JAVA_ARGS $jvmFlags superc.SuperC -enc-in UTF-8 -silent)
                     saveifs=$IFS
                     IFS='
 '
@@ -574,7 +574,7 @@ if [ -z "$servers" ]; then
                     #   echo ${cmd[cmd_i]}
                     # done
                     # exit
-                    # cmd="java -ea $JAVA_ARGS $jvmFlags xtc.lang.cpp.SuperC -enc-in UTF-8 -silent $supercArgs `cat $header_args` -include $JAVA_DEV_ROOT/data/cpp/nonbooleans.h $file"
+                    # cmd="java -ea $JAVA_ARGS $jvmFlags superc.SuperC -enc-in UTF-8 -silent $supercArgs `cat $header_args` -include $JAVA_DEV_ROOT/data/cpp/nonbooleans.h $file"
                     if [ -z $compare ]; then
                         if [ -z $outDir ]; then
                             before=`date +%s.%N`
@@ -614,7 +614,7 @@ if [ -z "$servers" ]; then
                         fi
                         gcc -E `cat $config_args` $gccArgs $superc_out > $superc_out_E
                         gcc -E `cat $config_args` $gccArgs $file > $gcc_E 2>/dev/null
-                        java xtc.lang.cpp.cdiff -s $superc_out_E $gcc_E > $superc_diff 2>&1
+                        java superc.util.cdiff -s $superc_out_E $gcc_E > $superc_diff 2>&1
                         retval=$?
 
                         cat $superc_diff
