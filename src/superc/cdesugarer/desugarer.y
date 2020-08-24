@@ -168,7 +168,7 @@
 import xtc.Constants;
 import xtc.Limits;
 
-import xtc.lang.cpp.SymbolTable.STField;
+import superc.cdesugarer.SymbolTable.STField;
 
 import xtc.tree.Attribute;
 import xtc.tree.GNode;
@@ -179,30 +179,31 @@ import xtc.tree.Visitor;
 import xtc.util.Pair;
 import java.util.Random;
 
-import xtc.lang.cpp.Syntax.Kind;
-import xtc.lang.cpp.Syntax.LanguageTag;
-import xtc.lang.cpp.Syntax.ConditionalTag;
-import xtc.lang.cpp.Syntax.DirectiveTag;
-import xtc.lang.cpp.Syntax.Layout;
-import xtc.lang.cpp.Syntax.Language;
-import xtc.lang.cpp.Syntax.Text;
-import xtc.lang.cpp.Syntax.Directive;
-import xtc.lang.cpp.Syntax.Conditional;
-import xtc.lang.cpp.Syntax.Error;
+import superc.core.Syntax;
+import superc.core.Syntax.Kind;
+import superc.core.Syntax.LanguageTag;
+import superc.core.Syntax.ConditionalTag;
+import superc.core.Syntax.DirectiveTag;
+import superc.core.Syntax.Layout;
+import superc.core.Syntax.Language;
+import superc.core.Syntax.Text;
+import superc.core.Syntax.Directive;
+import superc.core.Syntax.Conditional;
+import superc.core.Syntax.Error;
 
-import xtc.lang.cpp.Multiverse;
+import superc.cdesugarer.Multiverse;
 
-import xtc.lang.cpp.Declarator;
-import xtc.lang.cpp.Declarator.EmptyDeclarator;
-import xtc.lang.cpp.Declarator.SimpleDeclarator;
-import xtc.lang.cpp.Declarator.PointerDeclarator;
-import xtc.lang.cpp.Declarator.QualifiedPointerDeclarator;
-import xtc.lang.cpp.Declarator.PointerAbstractDeclarator;
-import xtc.lang.cpp.Declarator.QualifiedPointerAbstractDeclarator;
-import xtc.lang.cpp.Declarator.ArrayDeclarator;
-import xtc.lang.cpp.Declarator.ArrayAbstractDeclarator;
-import xtc.lang.cpp.Declarator.FunctionDeclarator;
-import xtc.lang.cpp.Declarator.ParameterListDeclarator;
+import superc.cdesugarer.Declarator;
+import superc.cdesugarer.Declarator.EmptyDeclarator;
+import superc.cdesugarer.Declarator.SimpleDeclarator;
+import superc.cdesugarer.Declarator.PointerDeclarator;
+import superc.cdesugarer.Declarator.QualifiedPointerDeclarator;
+import superc.cdesugarer.Declarator.PointerAbstractDeclarator;
+import superc.cdesugarer.Declarator.QualifiedPointerAbstractDeclarator;
+import superc.cdesugarer.Declarator.ArrayDeclarator;
+import superc.cdesugarer.Declarator.ArrayAbstractDeclarator;
+import superc.cdesugarer.Declarator.FunctionDeclarator;
+import superc.cdesugarer.Declarator.ParameterListDeclarator;
 
 import xtc.type.AliasT;
 import xtc.type.ArrayT;
@@ -238,11 +239,16 @@ import xtc.type.VoidT;
 import xtc.util.SingletonIterator;
 import xtc.util.Utilities;
 
-import xtc.lang.cpp.Multiverse.Element;
-import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
-import xtc.lang.cpp.SymbolTable.Entry;
+import superc.cdesugarer.Multiverse.Element;
+import superc.cdesugarer.SymbolTable.Entry;
 
-import xtc.lang.cpp.ForkMergeParser.StackFrame;
+import superc.core.PresenceConditionManager;
+import superc.core.PresenceConditionManager.PresenceCondition;
+
+import superc.core.Clauses;
+
+import superc.core.ForkMergeParser;
+import superc.core.ForkMergeParser.StackFrame;
 
 import java.lang.StringBuilder;
 
@@ -7422,7 +7428,7 @@ private static Language getident(Object o) {
 
 // ---------- Specifiers
 
-private static String SPECS = "xtc.lang.cpp.Specifiers";
+private static String SPECS = "superc.core.Specifiers";
 
 private static class Specifiers {
   /** Presence condition. */
@@ -8059,9 +8065,9 @@ protected static C cOps = new C();
 
 // ---------- Declarators
 
-/* private static String DECL = "xtc.lang.cpp.Declarator"; */
+/* private static String DECL = "superc.core.Declarator"; */
 
-/* private static String NAME = "xtc.lang.cpp.Name"; */
+/* private static String NAME = "superc.core.Name"; */
 
 /* private static void setDecl(Object n, Type type) { */
 /*   ((Node) n).setProperty(DECL, type); */

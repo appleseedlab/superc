@@ -1,4 +1,4 @@
-package xtc.lang.cpp;
+package superc.cdesugarer;
 import java.util.LinkedList;
 import java.util.List;
 import xtc.type.Type;

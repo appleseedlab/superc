@@ -1,4 +1,4 @@
-package xtc.lang.cpp;
+package superc.cdesugarer;
 
 import xtc.type.Type;
 import xtc.type.VariableT;

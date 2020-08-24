@@ -1,25 +1,25 @@
-package xtc.lang.cpp;
+package superc.cdesugarer;
 
-import xtc.lang.cpp.Multiverse;
+import superc.cdesugarer.Multiverse;
 
-import xtc.lang.cpp.Multiverse.Element;
+import superc.cdesugarer.Multiverse.Element;
 
-import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
+import superc.core.PresenceConditionManager.PresenceCondition;
 
-import xtc.lang.cpp.SymbolTable.Entry;
+import superc.cdesugarer.SymbolTable.Entry;
 
-import xtc.lang.cpp.Declarator;
-import xtc.lang.cpp.Declarator.EmptyDeclarator;
-import xtc.lang.cpp.Declarator.ParenDeclarator;
-import xtc.lang.cpp.Declarator.SimpleDeclarator;
-import xtc.lang.cpp.Declarator.PointerDeclarator;
-import xtc.lang.cpp.Declarator.QualifiedPointerDeclarator;
-import xtc.lang.cpp.Declarator.PointerAbstractDeclarator;
-import xtc.lang.cpp.Declarator.QualifiedPointerAbstractDeclarator;
-import xtc.lang.cpp.Declarator.ArrayDeclarator;
-import xtc.lang.cpp.Declarator.ArrayAbstractDeclarator;
-import xtc.lang.cpp.Declarator.FunctionDeclarator;
-import xtc.lang.cpp.Declarator.ParameterListDeclarator;
+import superc.cdesugarer.Declarator;
+import superc.cdesugarer.Declarator.EmptyDeclarator;
+import superc.cdesugarer.Declarator.ParenDeclarator;
+import superc.cdesugarer.Declarator.SimpleDeclarator;
+import superc.cdesugarer.Declarator.PointerDeclarator;
+import superc.cdesugarer.Declarator.QualifiedPointerDeclarator;
+import superc.cdesugarer.Declarator.PointerAbstractDeclarator;
+import superc.cdesugarer.Declarator.QualifiedPointerAbstractDeclarator;
+import superc.cdesugarer.Declarator.ArrayDeclarator;
+import superc.cdesugarer.Declarator.ArrayAbstractDeclarator;
+import superc.cdesugarer.Declarator.FunctionDeclarator;
+import superc.cdesugarer.Declarator.ParameterListDeclarator;
 
 import xtc.type.ErrorT;
 import xtc.type.Type;

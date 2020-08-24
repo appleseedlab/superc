@@ -1,11 +1,11 @@
-package xtc.lang.cpp;
+package superc.cdesugarer;
 
 import java.lang.StringBuilder;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
 
-import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
+import superc.core.PresenceConditionManager.PresenceCondition;
 
 /**
  * This is a multiverse, which stores a set of data tagged by presence

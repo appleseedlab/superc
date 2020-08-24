@@ -16,7 +16,7 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc.cdesugarer;
 
 import xtc.type.Type;
 import xtc.type.FunctionT;
