@@ -44,10 +44,13 @@ PACKAGES = \
 	xtc.type \
 	xtc.parser \
 	xtc.lang \
-	# xtc.lang.cpp \
 	xtc.lang.jeannie \
 	xtc.lang.blink \
-	xtc.lang.blink.agent
+	xtc.lang.blink.agent \
+	superc.core \
+	superc.cparser \
+	superc.cdesugarer \
+	superc
 
 #***************************************************************************
 #
@@ -157,7 +160,7 @@ printenv :
 
 configure :
 	$(MAKE) -C $(SOURCE_DIR)/xtc configure
-	# $(MAKE) -C $(SOURCE_DIR)/xtc/lang/cpp configure
+	$(MAKE) -C $(SOURCE_DIR)/superc configure
 
 clean   : $(CLEAN)
 %.clean :
@@ -225,7 +228,7 @@ ifdef JAVA_DEV_ROOT
 	$(RM) $(SOURCE_DIR)/xtc/lang/jeannie/JeannieParser.java
 	$(RM) $(SOURCE_DIR)/xtc/lang/jeannie/PreJeannieParser.java
 	$(RM) $(SOURCE_DIR)/xtc/lang/blink/CommandParser.java
-	# $(MAKE) -C $(SOURCE_DIR)/xtc/lang/cpp clobber-parsers
+	$(MAKE) -C $(SOURCE_DIR)/superc clobber
 endif
 
 jars    : classes
@@ -383,7 +386,7 @@ stats   :
 		>> $(SOURCE_LIST)
 	@$(FIND) $(SOURCE_DIR)/xtc/lang -name *.java -maxdepth 1 -print \
 		>> $(SOURCE_LIST)
-	@$(FIND) $(SOURCE_DIR)/xtc/lang/cpp -name *.java -maxdepth 1 -print \
+	@$(FIND) $(SOURCE_DIR)/superc -name *.java -maxdepth 1 -print \
 		>> $(SOURCE_LIST)
 	@$(FIND) $(SOURCE_DIR)/xtc/lang/jeannie -name *.java -maxdepth 1 -print \
 		>> $(SOURCE_LIST)
@@ -459,7 +462,7 @@ check-jeannie: pre-check
 	$(RMDIR) $(FONDA_DIR)/jeannie_testsuite/tmp
 
 check-cpp: pre-check
-	$(JAVA_DEV_ROOT)/src/xtc/lang/cpp/scripts/regression.sh -a \
+	bash $(JAVA_DEV_ROOT)/scripts/regression.sh -a \
 		-C "$(CPP) $(CPPFLAGS)" \
 		-S"-E -I $(FONDA_DIR)/cpp_testsuite/cpp/include1 \
 					-I $(FONDA_DIR)/cpp_testsuite/cpp/include2 \
@@ -470,14 +473,14 @@ check-cpp: pre-check
 		$(FONDA_DIR)/cpp_testsuite/cpp/*.c \
 		$(FONDA_DIR)/cpp_testsuite/preprocessor/*.c \
 		$(FONDA_DIR)/cpp_testsuite/new_interactions/*.c
-	# $(JAVA_DEV_ROOT)/src/xtc/lang/cpp/scripts/regression.sh -k .ast \
+	# $(JAVA_DEV_ROOT)/scripts/regression.sh -k .ast \
 	# 	-C "$(CPP) $(CPPFLAGS)" \
 	# 	$(FONDA_DIR)/cpp_testsuite/grammar/*.c \
 	# 	$(FONDA_DIR)/cpp_testsuite/parser/*.c
-	$(JAVA_DEV_ROOT)/src/xtc/lang/cpp/scripts/regression.sh \
+	bash $(JAVA_DEV_ROOT)/scripts/regression.sh \
 		-C "$(CPP) $(CPPFLAGS)" \
 		-a -S-E $(FONDA_DIR)/cpp_testsuite/new_interactions/*.c
-	$(JAVA_DEV_ROOT)/src/xtc/lang/cpp/scripts/regression.sh -a -S-printSource \
+	bash $(JAVA_DEV_ROOT)/src/scripts/regression.sh -a -S-printSource \
 		-C "$(CPP) $(CPPFLAGS)" \
 		$(FONDA_DIR)/cpp_testsuite/grammar/*.c \
 		$(FONDA_DIR)/cpp_testsuite/parser/*.c \
