@@ -39,7 +39,7 @@ public class GenerateValuesClass {
     BufferedReader inputStream = null;
     PrintWriter outputStream = null;
 
-    if (args.length != 2) {
+    if (args.length != 3) {
       System.err.println("USAGE: GenerateValuesClass outPackageName outClassName"
                          + " parseTablesClassName");
       System.exit(1);
@@ -75,6 +75,7 @@ public class GenerateValuesClass {
 " */\n" +
 "package " + outPackageName + ";\n" + 
 "\n" +  
+"import superc.core.SemanticValues;\n" +  
 "import superc.core.ForkMergeParser.Subparser;\n" +  
 "import xtc.tree.GNode;\n" +
 "import xtc.util.Pair;" +

@@ -16,7 +16,7 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc.cparser;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,22 +29,25 @@ import java.util.Set;
 
 import xtc.tree.Location;
 
-import xtc.lang.cpp.Syntax.Kind;
-import xtc.lang.cpp.Syntax.LanguageTag;
-import xtc.lang.cpp.Syntax.ConditionalTag;
-import xtc.lang.cpp.Syntax.DirectiveTag;
-import xtc.lang.cpp.Syntax.Layout;
-import xtc.lang.cpp.Syntax.Language;
-import xtc.lang.cpp.Syntax.Text;
-import xtc.lang.cpp.Syntax.Directive;
-import xtc.lang.cpp.Syntax.Conditional;
+import superc.core.Syntax;
+import superc.core.Syntax.Kind;
+import superc.core.Syntax.LanguageTag;
+import superc.core.Syntax.ConditionalTag;
+import superc.core.Syntax.DirectiveTag;
+import superc.core.Syntax.Layout;
+import superc.core.Syntax.Language;
+import superc.core.Syntax.Text;
+import superc.core.Syntax.Directive;
+import superc.core.Syntax.Conditional;
 
 import xtc.type.Type;
 
-import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
+import superc.core.ParsingContext;
 
-import xtc.lang.cpp.ForkMergeParser.OrderedSyntax;
-import xtc.lang.cpp.ForkMergeParser.Lookahead;
+import superc.core.PresenceConditionManager.PresenceCondition;
+
+import superc.core.ForkMergeParser.OrderedSyntax;
+import superc.core.ForkMergeParser.Lookahead;
 
 /**
  * This class maintains just enough type context for parsing.

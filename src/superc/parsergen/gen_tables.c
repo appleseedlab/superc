@@ -98,12 +98,14 @@ int main() {
   printf(" * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,\n");
   printf(" * USA.\n");
   printf(" */\n");
-  printf("package xtc.lang.cpp;\n");
+  printf("package superc.cparser;\n");
+  printf("\n");
+  printf("import superc.core.ParseTables;\n");
   printf("\n");
 
   printf("public class %s extends ParseTables {\n", str(CLASS_NAME));
 
-  printf("  protected %s() {\n", str(CLASS_NAME));
+  printf("  public %s() {\n", str(CLASS_NAME));
   printf("    super(\n");
 # define constructor_entry(x)  do { printf("          %d, // %s\n", x, #x); } while (0)
   constructor_entry(YYFINAL);

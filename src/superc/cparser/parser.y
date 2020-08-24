@@ -167,7 +167,7 @@
 import xtc.Constants;
 import xtc.Limits;
 
-import xtc.lang.cpp.CContext.SymbolTable.STField;
+import superc.cparser.CContext.SymbolTable.STField;
 
 import xtc.tree.Attribute;
 import xtc.tree.GNode;
@@ -177,16 +177,17 @@ import xtc.tree.Visitor;
 
 import xtc.util.Pair;
 
-import xtc.lang.cpp.Syntax.Kind;
-import xtc.lang.cpp.Syntax.LanguageTag;
-import xtc.lang.cpp.Syntax.ConditionalTag;
-import xtc.lang.cpp.Syntax.DirectiveTag;
-import xtc.lang.cpp.Syntax.Layout;
-import xtc.lang.cpp.Syntax.Language;
-import xtc.lang.cpp.Syntax.Text;
-import xtc.lang.cpp.Syntax.Directive;
-import xtc.lang.cpp.Syntax.Conditional;
-import xtc.lang.cpp.Syntax.Error;
+import superc.core.Syntax;
+import superc.core.Syntax.Kind;
+import superc.core.Syntax.LanguageTag;
+import superc.core.Syntax.ConditionalTag;
+import superc.core.Syntax.DirectiveTag;
+import superc.core.Syntax.Layout;
+import superc.core.Syntax.Language;
+import superc.core.Syntax.Text;
+import superc.core.Syntax.Directive;
+import superc.core.Syntax.Conditional;
+import superc.core.Syntax.Error;
 
 import xtc.type.AliasT;
 import xtc.type.ArrayT;
@@ -222,9 +223,13 @@ import xtc.util.SymbolTable.Scope;
 import xtc.util.SingletonIterator;
 import xtc.util.Utilities;
 
-import xtc.lang.cpp.PresenceConditionManager.PresenceCondition;
+import superc.core.PresenceConditionManager;
+import superc.core.PresenceConditionManager.PresenceCondition;
 
-import xtc.lang.cpp.ForkMergeParser.StackFrame;
+import superc.core.Clauses;
+
+import superc.core.ForkMergeParser;
+import superc.core.ForkMergeParser.StackFrame;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -2802,7 +2807,7 @@ private static Language getident(Object o) {
 
 // ---------- Specifiers
 
-private static String SPECS = "xtc.lang.cpp.Specifiers";
+private static String SPECS = "superc.cparser.Specifiers";
 
 private static class Specifiers {
   /** Presence condition. */
@@ -3284,9 +3289,9 @@ private void checkNotParameter(Node node, String kind) {
 
 // ---------- Declarators
 
-/* private static String DECL = "xtc.lang.cpp.Declarator"; */
+/* private static String DECL = "superc.cparser.Declarator"; */
 
-/* private static String NAME = "xtc.lang.cpp.Name"; */
+/* private static String NAME = "superc.cparser.Name"; */
 
 /* private static void setDecl(Object n, Type type) { */
 /*   ((Node) n).setProperty(DECL, type); */

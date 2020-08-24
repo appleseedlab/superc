@@ -65,15 +65,16 @@
 
 
 #ifndef LANGUAGE_TAGS // Generate the lexer specification.
-package xtc.lang.cpp;
+package superc.cparser;
 
 import xtc.tree.Location;
 
-import xtc.lang.cpp.Syntax.Language;
-import xtc.lang.cpp.Syntax.PreprocessorTag;
-import xtc.lang.cpp.Syntax.Text;
-import xtc.lang.cpp.Syntax.Layout;
-import xtc.lang.cpp.Syntax.EOF;
+import superc.core.Syntax;
+import superc.core.Syntax.Language;
+import superc.core.Syntax.PreprocessorTag;
+import superc.core.Syntax.Text;
+import superc.core.Syntax.Layout;
+import superc.core.Syntax.EOF;
 
 %%
 
@@ -180,13 +181,13 @@ whitespace=({horizontal_white})+|({v_tab}|{c_return})+|{continuation}
 
 
 #else // Generate the CTag enumeration.
-package xtc.lang.cpp;
+package superc.cparser;
 
-import xtc.lang.cpp.Syntax.Layout;
-import xtc.lang.cpp.Syntax.PreprocessorTag;
-import xtc.lang.cpp.Syntax.Language;
+import superc.core.Syntax.Layout;
+import superc.core.Syntax.PreprocessorTag;
+import superc.core.Syntax.Language;
 
-public enum CTag implements xtc.lang.cpp.Syntax.LanguageTag {
+public enum CTag implements superc.core.Syntax.LanguageTag {
 #endif
 
 LANGUAGE(AUTO,"auto")

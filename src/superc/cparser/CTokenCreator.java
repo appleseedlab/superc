@@ -16,14 +16,14 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.lang.cpp;
+package superc.cparser;
 
 import java.io.StringReader;
 import java.io.IOException;
 
-import xtc.lang.cpp.Syntax.Kind;
-import xtc.lang.cpp.Syntax.Language;
-import xtc.lang.cpp.Syntax.Text;
+import superc.core.Syntax.Kind;
+import superc.core.Syntax.Language;
+import superc.core.Syntax.Text;
 
 /**
  * A token creator implementation for C.

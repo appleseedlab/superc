@@ -2626,7 +2626,7 @@ public class ForkMergeParser {
   }
     
   /** A lookahead token. */
-  static class Lookahead {
+  public static class Lookahead {
     /** The token. */
     public OrderedSyntax token;
     

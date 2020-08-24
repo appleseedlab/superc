@@ -40,7 +40,7 @@ public class GenerateActionsClass {
     BufferedReader inputStream = null;
     PrintWriter outputStream = null;
 
-    if (args.length < 2) {
+    if (args.length < 3) {
       System.err.println("USAGE: GenerateValuesClass outPackageName outClassName"
                          + " parseTablesClassName [all]");
       System.err.println("\n" +
@@ -86,6 +86,7 @@ public class GenerateActionsClass {
 " */\n" +
 "package " + outPackageName + ";\n" + 
 "\n" +
+"import superc.core.SemanticActions;\n" +  
 "import superc.core.ForkMergeParser.Subparser;\n" +  
 "\n");
 

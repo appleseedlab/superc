@@ -42,7 +42,7 @@ import org.sat4j.minisat.SolverFactory;
  * @author Paul Gazzillo
  * @version $Revision: 1.10 $
  */
-class Clauses implements Iterable<ArrayList<Integer>> {
+public class Clauses implements Iterable<ArrayList<Integer>> {
   private ArrayList<String> variables;
   private Map<String, Integer> varmap;
   private ArrayList<ArrayList<Integer>> clauses;
