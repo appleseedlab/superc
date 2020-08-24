@@ -23,7 +23,7 @@
  * @author Paul Gazzillo
  * @version $Revision: 1.10 $
  */
-module xtc.lang.cpp.Symbol(Symbol);
+module superc.expression.Symbol(Symbol);
 
 modify Symbol;
 

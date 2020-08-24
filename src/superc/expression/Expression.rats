@@ -24,10 +24,10 @@
  * @author Paul Gazzillo
  * @version $Revision: 1.9 $
  */
-module xtc.lang.cpp.Expression(Constant,
-                               Identifier,
-                               Symbol,
-                               Spacing);
+module superc.expression.Expression(Constant,
+                                    Identifier,
+                                    Symbol,
+                                    Spacing);
 
 import Constant;
 import Identifier;

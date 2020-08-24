@@ -23,7 +23,7 @@
  * @author Paul Gazzillo
  * @version $Revision: 1.10 $
  */
-module xtc.lang.cpp.Identifier(Reserved, Spacing, Symbol);
+module superc.expression.Identifier(Reserved, Spacing, Symbol);
 
 import Reserved;
 import Spacing;

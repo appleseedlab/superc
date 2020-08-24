@@ -25,20 +25,20 @@
  * @author Paul Gazzillo
  * @version $Revision: 1.7 $
  */
-module xtc.lang.cpp.Condition;
+module superc.expression.Condition;
 
-instantiate xtc.lang.CConstant(xtc.lang.cpp.Spacing);
-instantiate xtc.lang.cpp.Constant(xtc.lang.CConstant);
-instantiate xtc.util.Symbol(xtc.lang.cpp.Spacing);
-instantiate xtc.lang.cpp.Symbol(xtc.util.Symbol);
-instantiate xtc.lang.cpp.Identifier(xtc.lang.cpp.Reserved,
-                                    xtc.lang.cpp.Spacing,
-                                    xtc.lang.cpp.Symbol);
-instantiate xtc.lang.cpp.Spacing();
+instantiate xtc.lang.CConstant(superc.expression.Spacing);
+instantiate superc.expression.Constant(xtc.lang.CConstant);
+instantiate xtc.util.Symbol(superc.expression.Spacing);
+instantiate superc.expression.Symbol(xtc.util.Symbol);
+instantiate superc.expression.Identifier(superc.expression.Reserved,
+                                    superc.expression.Spacing,
+                                    superc.expression.Symbol);
+instantiate superc.expression.Spacing();
 
-modify xtc.lang.cpp.Expression(xtc.lang.cpp.Constant,
-                               xtc.lang.cpp.Identifier,
-                               xtc.lang.cpp.Symbol,
-                               xtc.lang.cpp.Spacing);
+modify superc.expression.Expression(superc.expression.Constant,
+                               superc.expression.Identifier,
+                               superc.expression.Symbol,
+                               superc.expression.Spacing);
 
 option withLocation, constant, flatten, main(ConstantExpression);

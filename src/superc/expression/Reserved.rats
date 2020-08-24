@@ -23,7 +23,7 @@
  * @author Paul Gazzillo
  * @version $Revision: 1.11 $
  */
-module xtc.lang.cpp.Reserved;
+module superc.expression.Reserved;
 
 body {
   static {
