@@ -482,7 +482,7 @@ check-cpp: pre-check
 	bash $(JAVA_DEV_ROOT)/scripts/regression.sh \
 		-C "$(CPP) $(CPPFLAGS)" \
 		-a -S-E $(FONDA_DIR)/cpp_testsuite/new_interactions/*.c
-	bash $(JAVA_DEV_ROOT)/src/scripts/regression.sh -a -S-printSource \
+	bash $(JAVA_DEV_ROOT)/scripts/regression.sh -a -S-printSource \
 		-C "$(CPP) $(CPPFLAGS)" \
 		$(FONDA_DIR)/cpp_testsuite/grammar/*.c \
 		$(FONDA_DIR)/cpp_testsuite/parser/*.c \
