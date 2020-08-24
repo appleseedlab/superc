@@ -8,6 +8,6 @@ import java.io.Reader;
  * lexing a given file and by HeaderFileManager to handle include
  * files.
  */
-interface LexerCreator {
+public interface LexerCreator {
   public Lexer newLexer(Reader in);
 }

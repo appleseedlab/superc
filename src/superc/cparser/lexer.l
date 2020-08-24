@@ -104,6 +104,7 @@ import superc.core.Syntax.EOF;
 %eofval}
 
 %class CLexer
+%implements superc.core.Lexer
 %unicode
 %type Syntax
 

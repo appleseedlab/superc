@@ -51,6 +51,8 @@ SOURCE = \
 	CParseTables.java \
 	CTag.java \
 	CLexer.java \
+	CLexerCreator.java \
+	CTokenCreator.java \
 	CValues.java \
 	CActions.java \
 	CContext.java

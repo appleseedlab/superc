@@ -28,7 +28,7 @@ import superc.core.Syntax.Language;
  * @author Paul Gazzillo
  * @version $Revision: 1.5 $
  */
-interface TokenCreator {
+public interface TokenCreator {
 
   /**
    * Create a string literal language token.

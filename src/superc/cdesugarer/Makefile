@@ -51,6 +51,8 @@ SOURCE = \
 	CParseTables.java \
 	CTag.java \
 	CLexer.java \
+	CLexerCreator.java \
+	CTokenCreator.java \
 	CValues.java \
 	NamedFunctionT.java \
 	SymbolTable.java \
@@ -86,6 +88,12 @@ CParseTables.java: desugarer.y ../parsergen/gen_tables.c
 	$(RM) gen_c_tables
 	$(MAKE) CParseTables.class
 
+CValues.java: desugarer.y
+	../parsergen/extract_annotations.pl < desugarer.y | $(JAVA) superc.core.GenerateValuesClass superc.cdesugarer CValues superc.cdesugarer.CParseTables > CValues.java
+
+CActions.java: desugarer.y
+	../parsergen/extract_annotations.pl < desugarer.y | $(JAVA) superc.core.GenerateActionsClass superc.cdesugarer CActions superc.cdesugarer.CParseTables desugarer.action_switches desugarer.prologue desugarer.epilogue > CActions.java
+
 CTag.java: ../cparser/lexer.l
 	$(CPP) $(CPPFLAGS) -DPACKAGE_NAME=superc.cdesugarer -DLANGUAGE_TAGS - < $< | grep -v "^#" > CTag.java
 
@@ -95,11 +103,13 @@ CLexer.java: ../cparser/lexer.l
 	$(JAVA) -jar $(JAVA_DEV_ROOT)/bin/JFlex.jar lexer.l.i
 	$(RM) lexer.l.i
 
-CValues.java: desugarer.y
-	../parsergen/extract_annotations.pl < desugarer.y | $(JAVA) superc.core.GenerateValuesClass superc.cdesugarer CValues superc.cdesugarer.CParseTables > CValues.java
+CLexerCreator.java: ../cparser/CLexerCreator.java
+	# copy the c parser's lexercreator, but change the package to cdesugarer
+	sed 's/superc.cparser/superc.cdesugarer/' ../cparser/CLexerCreator.java > CLexerCreator.java
 
-CActions.java: desugarer.y
-	../parsergen/extract_annotations.pl < desugarer.y | $(JAVA) superc.core.GenerateActionsClass superc.cdesugarer CActions superc.cdesugarer.CParseTables desugarer.action_switches desugarer.prologue desugarer.epilogue > CActions.java
+CTokenCreator.java: ../cparser/CTokenCreator.java
+	# copy the c parser's tokencreator, but change the package to cdesugarer
+	sed 's/superc.cparser/superc.cdesugarer/' ../cparser/CTokenCreator.java > CTokenCreator.java
 
 clobber:
 	rm -f CParseTables.java CTag.java CLexer.java CValues.java CActions.java desugarer.action_switches desugarer.bison_content desugarer.epilogue desugarer.prologue desugarer.tab.c
