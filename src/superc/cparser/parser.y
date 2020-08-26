@@ -908,13 +908,19 @@ StructDeclarationList: /** list, complete **/
         {
           ((Node) value).setProperty(SPECS, new Specifiers());
         }
-        | StructDeclarationList StructDeclaration {
+        | StructDeclarationList StructDeclarationExtension {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
         }
         ;
+
+StructDeclarationExtension:  /** passthrough, complete **/  // ADDED
+        StructDeclaration
+        | __EXTENSION__ StructDeclaration
+        ;
+
 
 StructDeclaration: /** complete **/
         StructDeclaringList SEMICOLON
