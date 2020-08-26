@@ -1438,6 +1438,9 @@ IterationStatement:  /** complete **/
         | DO Statement WHILE LPAREN Expression RPAREN SEMICOLON
         | FOR LPAREN ExpressionOpt SEMICOLON ExpressionOpt SEMICOLON
                 ExpressionOpt RPAREN Statement
+        // n1570 6.8.5 Iteration statements allows for a declaration in the initializer of a for loop
+        | FOR LPAREN Declaration ExpressionOpt SEMICOLON
+                ExpressionOpt RPAREN Statement
         ;
 
 JumpStatement:  /** passthrough, complete **/
