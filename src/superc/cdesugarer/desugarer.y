@@ -1088,32 +1088,36 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
-          System.err.println("TODO: DeclarationDeclaringList (1)");
-          System.exit(1);
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
+          // add the int type by default
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 6);
+          Multiverse<TypeBuilder> inttbmv
+            = new Multiverse<TypeBuilder>(new TypeBuilder(NumberT.INT),
+                                          subparser.getPresenceCondition());
+          types = types.product(inttbmv, DesugaringOperators.TBCONCAT);  // don't destruct prior types, since it is a semantic value
+          inttbmv.destruct();
+          
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<String> initializers = new Multiverse<String>("", subparser.getPresenceCondition());
+          Multiverse<String> initializers = (Multiverse<String>) getTransformationValue(subparser, 1);
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
           declaringlist.add(new DeclaringListValue(types, declarators, initializers));
           setTransformationValue(value, declaringlist);
         }
         | TypeQualifierList IdentifierDeclarator
         {
+          // legacy type checking
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
-          System.err.println("TODO: DeclarationDeclaringList (3)");
-          System.exit(1);
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 6);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<String> initializers = new Multiverse<String>("", subparser.getPresenceCondition());
+          Multiverse<String> initializers = (Multiverse<String>) getTransformationValue(subparser, 1);
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
           declaringlist.add(new DeclaringListValue(types, declarators, initializers));
           setTransformationValue(value, declaringlist);
@@ -1161,10 +1165,9 @@ DeclaringList:  /** nomerge **/
         }
         | DeclaringList COMMA AttributeSpecifierListOpt Declarator
         {
+          // legacy type checking
           // reuses saved base type
           bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
-          System.err.println("TODO: DeclaringList (3)");
-          System.exit(1);
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
           // TODO: hoist initiazliers around the entire InitializedDeclaration
