@@ -338,6 +338,58 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   }
 
   /**
+   * The function signature for combining two individual elements of a
+   * Multiverse, where they may be of different types.
+   */
+  @FunctionalInterface
+  interface Joiner<T, U, R> {
+    /**
+     * A function that combines two elements of the Multiverse's data.
+     * This is used to abstract away the cartesian product.
+     *
+     * @param left The left operand.
+     * @param right The right operand.
+     */
+    R product(T left, U right);
+  }
+
+  /**
+   * This function takes the cartesian product of this Multiverse with
+   * another, given an operator to combine individuals elements.
+   *
+   * @param other The other Multiverse.
+   * @param op The operator to use to combine individual elements of
+   * the Multiverse
+   * @return A new instance of Multiverse holding the cartesian
+   * product of the two Multiverses.
+   */
+  public <U, R> Multiverse<R> join(Multiverse<U> other, Joiner<T, U, R> op) {
+    if (this.isEmpty()) {
+      throw new IllegalStateException("trying to take cartesian product of empty multiverse");
+    } else if (other.isEmpty()) {
+      throw new IllegalStateException("trying to take cartesian product of empty multiverse");
+    } else {
+      Multiverse<R> newmv = new Multiverse<R>();
+      /* The computes the following new set, where '*' is the operator:
+           newmv = { ( data1 * data2, cond1 and cond2 )
+                     for (data1, cond1) in this and (data2, cond2) in other } */
+      for (Element<T> elem1 : this) {
+        for (Element<U> elem2 : other) {
+          PresenceCondition condition = elem1.getCondition().and(elem2.getCondition());
+          if (! condition.isFalse()) {
+            R data = op.product(elem1.getData(), elem2.getData());
+            newmv.add(data, condition);
+            condition.addRef();
+          }
+          condition.delRef();
+        }
+      }
+      
+      return newmv;
+    }
+  }
+
+  /**
    * This function is the same as the cartesian product, except that
    * it also takes the product of the complement of each multiverse
    * with each element of the other multiverse.  The complement is
