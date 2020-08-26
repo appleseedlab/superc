@@ -2910,15 +2910,17 @@ TypeName: /** nomerge **/
         }
         ;
 
-InitializerOpt: /** nomerge **/ // ExpressionValue
+InitializerOpt: /** nomerge **/ // Multiverse<Initializer>
         /* nothing */
         {
+          // EmpytInitializer
           todoReminder("initializers need to have expressionvalue since they need to be typechecked InitializerOpt (1)");
           Multiverse<String> emptyInit = new Multiverse<String>("", subparser.getPresenceCondition());
           setTransformationValue(value, emptyInit);
         }
         | ASSIGN DesignatedInitializer
         {
+          // AssignmentInitializer
           todoReminder("initializers need to have expressionvalue since they need to be typechecked InitializerOpt (2)");
           // TODO: syntax
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -2930,18 +2932,17 @@ InitializerOpt: /** nomerge **/ // ExpressionValue
 DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */ // ExpressionValue
         Initializer
         {
+          // pass through
           todoReminder("initializers need to have expressionvalue since they need to be typechecked DesignatedInitializer (1)");
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<String> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          System.err.println("TODO: unsupported semantic action DesignatedInitializer (1)");
+          System.exit(1);
         }
         | Designation Initializer
         {
-          todoReminder("initializers need to have expressionvalue since they need to be typechecked DesignatedInitializer (2)");
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // DesignatedInitializer
+          todoReminder("create an AST hiearchy, like declarator, for the various kinds of initializers DesignatedInitializer (2)");
+          System.err.println("TODO: unsupported semantic action DesignatedInitializer (2)");
+          System.exit(1);
         }
         ;
 
@@ -2950,47 +2951,50 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */ // ExpressionValu
         | AssignmentExpression
         ;*/
 
-Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists // ExpressionValue
+Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists // Multiverse<Initializer>
         LBRACE MatchedInitializerList RBRACE
         {
-          todoReminder("initializers need to have expressionvalue since they need to be typechecked Initializer (1)");
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // InitializerList
+          System.err.println("TODO: unsupported semantic action Initializer (1)");
+          System.exit(1);
         }
         | LBRACE MatchedInitializerList DesignatedInitializer RBRACE
         {
-          todoReminder("initializers need to have expressionvalue since they need to be typechecked Initializer (2)");
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 4), getNodeAt(subparser, 3), getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // InitializerList
+          System.err.println("TODO: unsupported semantic action Initializer (2)");
+          System.exit(1);
         }
         | AssignmentExpression
         {
-          todoReminder("initializers need to have expressionvalue since they need to be typechecked Initializer (3)");
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Node child = getNodeAt(subparser, 1);
-          Multiverse<String> product = getProductOfSomeChildren(pc, child);
-          setTransformationValue(value, product);
+          // ExpressionInitializer
+          System.err.println("TODO: unsupported semantic action Initializer (3)");
+          System.exit(1);
         }
         ;
 
-InitializerList:  /** nomerge **/ //modified so that COMMAS are on the right
+InitializerList:  /** nomerge **/ //modified so that COMMAS are on the right  // Multiverse<InitializerList>
         MatchedInitializerList
         {
+          // pass through
           System.err.println("WARNING: unsupported semantic action: InitializerList");
           System.exit(1);
         }
         | MatchedInitializerList DesignatedInitializer
         {
+          // InitializerList
           System.err.println("WARNING: unsupported semantic action: InitializerList");
           System.exit(1);
         }
         ;
 
-MatchedInitializerList:  /** list, nomerge **/
+MatchedInitializerList:  /** list, nomerge **/  // Multiverse<InitializerList>
+        /* empty */
+        {
+          // InitializerList
+        }
         | MatchedInitializerList DesignatedInitializer COMMA
         {
+          // InitializerList
           System.err.println("WARNING: unsupported semantic action: MatchedInitializerList");
           System.exit(1);
           Multiverse<String> s = new Multiverse<String>("", subparser.getPresenceCondition());
@@ -2998,9 +3002,10 @@ MatchedInitializerList:  /** list, nomerge **/
         }
         ;
 
-Designation:   /* ADDED */
+Designation:   /* ADDED */  // Multiverse<Initializer>
         DesignatorList ASSIGN
         {
+          // DesignatorList
           System.err.println("WARNING: unsupported semantic action: Designation");
           System.exit(1);
         }
@@ -3016,14 +3021,16 @@ Designation:   /* ADDED */
         }
         ;
 
-DesignatorList:  /** list, nomerge **/  /* ADDED */
+DesignatorList:  /** list, nomerge **/  /* ADDED */  // Multiverse<DesignatorList>
         Designator
         {
+          // DesignatorList
           System.err.println("WARNING: unsupported semantic action: DesignatorList");
           System.exit(1);
         }
         | DesignatorList Designator
         {
+          // DesignatorList
           System.err.println("WARNING: unsupported semantic action: DesignatorList");
           System.exit(1);
         }
