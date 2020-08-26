@@ -3952,7 +3952,7 @@ IterationStatement:  /** complete **/
         }
         | DO Statement WHILE LPAREN Expression RPAREN SEMICOLON
         {
-          todoReminder("check the type of the conditional expression IterationStatement (1)");
+          todoReminder("check the type of the conditional expression IterationStatement (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
 
@@ -3976,9 +3976,32 @@ IterationStatement:  /** complete **/
         | FOR LPAREN ExpressionOpt SEMICOLON ExpressionOpt SEMICOLON
                 ExpressionOpt RPAREN Statement
         {
+          todoReminder("check the type of the conditional expression IterationStatement (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          System.err.println("WARNING: unsupported semantic action: IterationStatement (6)");
-          System.exit(1);
+          ExpressionValue initval = (ExpressionValue) getTransformationValue(subparser, 7);
+          ExpressionValue testval = (ExpressionValue) getTransformationValue(subparser, 5);
+          ExpressionValue updateval = (ExpressionValue) getTransformationValue(subparser, 3);
+
+          Multiverse<String> formv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 9)).getTokenText(), pc);
+          Multiverse<String> lparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 8)).getTokenText(), pc);
+          Multiverse<String> initmv = initval.transformation;
+          Multiverse<String> semi1mv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 6)).getTokenText(), pc);
+          Multiverse<String> testmv = testval.transformation;
+          Multiverse<String> semi2mv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
+          Multiverse<String> updatemv = updateval.transformation;
+          Multiverse<String> rparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> stmtmv = (Multiverse<String>) getTransformationValue(subparser, 1);
+
+          setTransformationValue(value, productAll(DesugaringOperators.concatStrings,
+                                                   formv,
+                                                   lparen,
+                                                   initmv,
+                                                   semi1mv,
+                                                   testmv,
+                                                   semi2mv,
+                                                   updatemv,
+                                                   rparen,
+                                                   stmtmv));
         }
         // n1570 6.8.5 Iteration statements allows for a declaration in the initializer of a for loop
         | FOR LPAREN Declaration ExpressionOpt SEMICOLON
@@ -3987,9 +4010,42 @@ IterationStatement:  /** complete **/
           // TODO: use a reentrant scope to add the declaration's symbol to the for-loop's scope
           // TODO: Declaration returns a String, not a multiverse.  We need a multiverse to hoist around the entire for loop.
           // TODO: consider rewriting this to put the declaration outside the for loop.  since it's renamed, we should have conflicts, and it resolves issues with scope and semantic values
+          todoReminder("check the type of the conditional expression IterationStatement (4)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          System.err.println("WARNING: unsupported semantic action: IterationStatement (7)");
-          System.exit(1);
+          ExpressionValue testval = (ExpressionValue) getTransformationValue(subparser, 5);
+          ExpressionValue updateval = (ExpressionValue) getTransformationValue(subparser, 3);
+
+          Multiverse<String> formv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 8)).getTokenText(), pc);
+          Multiverse<String> lparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 7)).getTokenText(), pc);
+          Multiverse<String> declstring = new Multiverse<String>((String) getTransformationValue(subparser, 6), pc);
+          Multiverse<String> testmv = testval.transformation;
+          Multiverse<String> semi2mv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
+          Multiverse<String> updatemv = updateval.transformation;
+          Multiverse<String> rparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> stmtmv = (Multiverse<String>) getTransformationValue(subparser, 1);
+
+          // rewrite by moving the declaration above the for-loop.
+          // add the new declarations and the for loop to their own
+          // compound statements to avoid scoping issues and ensure
+          // each is a single statement.  this is a little hack to get
+          // around the fact that a declaration is not a multiverse,
+          // but is already just a string because of renaming.
+          Multiverse<String> lbrace = new Multiverse<String>("{", pc);
+          Multiverse<String> rbrace = new Multiverse<String>("}", pc);
+          Multiverse<String> semi1mv = new Multiverse<String>(";", pc);  // add an empty initializer expression
+          
+          setTransformationValue(value, productAll(DesugaringOperators.concatStrings,
+                                                   lbrace,
+                                                   declstring,
+                                                   formv,
+                                                   lparen,
+                                                   semi1mv,
+                                                   testmv,
+                                                   semi2mv,
+                                                   updatemv,
+                                                   rparen,
+                                                   stmtmv,
+                                                   rbrace));
         }
         ;
 
