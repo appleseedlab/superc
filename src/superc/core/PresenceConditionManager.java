@@ -79,6 +79,11 @@ public class PresenceConditionManager {
   private PresenceCondition configDomain;
 
   /**
+   * Whether to print presence conditions or not.
+   */
+  private boolean suppressConditionals;
+
+  /**
    * Create a new presence condition manager.
    */
   public PresenceConditionManager() {
@@ -121,6 +126,10 @@ public class PresenceConditionManager {
     } else {
       this.notBranches = null;
     }
+  }
+
+  public void suppressConditionals(boolean suppressConditionals) {
+    this.suppressConditionals = suppressConditionals;
   }
   
   /**
@@ -1040,12 +1049,16 @@ public class PresenceConditionManager {
       // return this.tree.toString();
       StringWriter writer = new StringWriter();
 
-      try {
-        print(writer);
-      } catch (IOException e) {
-        // An inelegant way to sidestep not being able to throw an
-        // exception from the overridden toString method.
-        throw new RuntimeException();
+      if (! suppressConditionals) {
+        try {
+          print(writer);
+        } catch (IOException e) {
+          // An inelegant way to sidestep not being able to throw an
+          // exception from the overridden toString method.
+          throw new RuntimeException();
+        }
+      } else {
+        writer.append("PRESENCE_CONDITION");
       }
 
       return writer.toString();

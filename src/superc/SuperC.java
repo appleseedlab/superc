@@ -322,8 +322,8 @@ public class SuperC extends Tool {
            "Print the parsed AST.").
       bool("printSource", "printSource", false,
            "Print the parsed AST in C source form.").
-      bool("desugarConditionals", "desugarConditionals", false,
-           "Convert preprocessor conditionals to C conditionals.").
+      bool("suppressConditionals", "suppressConditionals", false,
+           "Do not print presence conditions to save space.").
       bool("configureAllYes", "configureAllYes", false,
            "Print all tokens of the all yes configuration of the AST.").
       bool("configureAllNo", "configureAllNo", false,
@@ -601,6 +601,9 @@ public class SuperC extends Tool {
       .getConfigurationVariables(runtime.test("configurationVariables"));
     macroTable.getHeaderGuards(runtime.test("headerGuards"));
     presenceConditionManager = new PresenceConditionManager();
+    if (runtime.test("suppressConditionals")) {
+      presenceConditionManager.suppressConditionals(true);
+    }
     // if (runtime.test("checkExpressionParser")) {
     //   expressionParser = ExpressionParser.comparator(presenceConditionManager);
     // } else {
@@ -1072,7 +1075,6 @@ public class SuperC extends Tool {
                                    actions, initialParsingContext,
                                    preprocessor, presenceConditionManager);
       parser.saveLayoutTokens(runtime.test("printSource") 
-                              || runtime.test("desugarConditionals")
                               || runtime.test("configureAllYes")
                               || runtime.test("configureAllNo")
                               || runtime.getString("configFile") != null);
@@ -1200,22 +1202,6 @@ public class SuperC extends Tool {
         
         writer.flush();
       }
-
-      // if (runtime.test("desugarConditionals")) {
-      //   OutputStreamWriter writer = new OutputStreamWriter(System.out);
-      //   Desugarer desugarer = Desugarer.getInstance(presenceConditionManager);
-
-      //   System.err.println("Desugar preprocessor conditionals");
-
-      //   LinkedList<PresenceCondition> parents
-      //     = new LinkedList<PresenceCondition>();
-
-      //   desugarer.desugarConditionals((Node) translationUnit, writer);
-
-      //   assert(parents.size() == 0);
-        
-      //   writer.flush();
-      // }
 
       // if (runtime.test("configureAllYes") || runtime.test("configureAllNo")) {
       //   OutputStreamWriter writer = new OutputStreamWriter(System.out);
