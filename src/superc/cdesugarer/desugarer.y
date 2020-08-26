@@ -582,12 +582,14 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/  // String
 FunctionPrototype:  /** nomerge **/
         IdentifierDeclarator
         {
+          // legacy type checking code
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
-          System.err.println("ERROR: unsupported semantic action: FunctionPrototype");
-          System.exit(1);
-          // TODO: handle the case when there is no type spec, i.e.,
-          // it defaults to int, so just create a new
-          // typebuildermultiverse with one int inside under the current presence condition
+
+          // functions without a type-specifier default to int
+          setTransformationValue(value,
+                                 new FunctionPrototypeValue(new Multiverse<TypeBuilder>(new TypeBuilder(NumberT.INT),
+                                                                                        subparser.getPresenceCondition()),
+                                                            (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
         }
         | DeclarationSpecifier     IdentifierDeclarator
         {
@@ -627,34 +629,34 @@ FunctionPrototype:  /** nomerge **/
         }
         |                          OldFunctionDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
+          System.err.println("WARNING: unsupported semantic action: FunctionPrototype (6)");
           System.exit(1);
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
         }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
+          System.err.println("WARNING: unsupported semantic action: FunctionPrototype (7)");
           System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
+          System.err.println("WARNING: unsupported semantic action: FunctionPrototype (8)");
           System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
+          System.err.println("WARNING: unsupported semantic action: FunctionPrototype (9)");
           System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: FunctionPrototype");
+          System.err.println("WARNING: unsupported semantic action: FunctionPrototype (10)");
           System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
