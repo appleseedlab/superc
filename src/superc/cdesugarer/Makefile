@@ -61,7 +61,7 @@ SOURCE = \
 	TypeBuilder.java \
 	Declarator.java \
 	Declaration.java \
-	DesugaringOperators.java \
+	DesugarOps.java \
 	CContext.java
 
 JNI_SOURCE =

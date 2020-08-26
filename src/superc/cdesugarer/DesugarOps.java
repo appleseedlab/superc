@@ -33,9 +33,9 @@ import java.util.LinkedList;
  * holds static fields and methods and is not meant to be
  * instantiated.
  */
-class DesugaringOperators {
+class DesugarOps {
 
-  private DesugaringOperators() { }
+  private DesugarOps() { }
 
   /**
    * A generic transformer that takes an object of some type and
