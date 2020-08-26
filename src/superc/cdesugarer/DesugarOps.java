@@ -21,6 +21,12 @@ import superc.cdesugarer.Declarator.ArrayAbstractDeclarator;
 import superc.cdesugarer.Declarator.FunctionDeclarator;
 import superc.cdesugarer.Declarator.ParameterListDeclarator;
 
+import superc.cdesugarer.Initializer;
+import superc.cdesugarer.Initializer.AssignInitializer;
+import superc.cdesugarer.Initializer.DesignatedInitializer;
+import superc.cdesugarer.Initializer.Designation;
+import superc.cdesugarer.Initializer.ExpressionInitializer;
+
 import xtc.type.ErrorT;
 import xtc.type.Type;
 
@@ -191,7 +197,7 @@ class DesugarOps {
     };
 
   /*****************************************************************************
-   ********* Multiverse operators for declarations
+   ********* Multiverse operators for Declarations
    *****************************************************************************/
 
   /**
@@ -206,6 +212,34 @@ class DesugarOps {
    */
   public final static Multiverse.Operator<List<Declaration>> DECLARATIONLISTCONCAT = (list1, list2) -> {
     return concatLists(list1, list2);
+  };
+
+  /*****************************************************************************
+   ********* Multiverse operators for Initializers
+   *****************************************************************************/
+
+  /**
+   * Create assignment initializers
+   */
+  public final static Multiverse.Transformer<Initializer, Initializer> toAssignInitializer
+    = new Multiverse.Transformer<Initializer, Initializer>() {
+        Initializer transform(Initializer from) {
+          return new AssignInitializer(from);
+        }
+      };
+
+  /**
+   * Transform an initializer into a designatedinitializer
+   */
+  public final static Multiverse.Operator<Initializer> toDesignatedInitializer = (designation, initializer) -> {
+    return new DesignatedInitializer((Designation) designation, initializer);
+  };
+
+  /**
+   * Join a Type and a String into an ExpressionInitializer.
+   */
+  public final static Multiverse.Joiner<Type, String, ExpressionInitializer> joinExpressionInitializer = (type, expression) -> {
+    return new ExpressionInitializer(type, expression);
   };
 
   /*****************************************************************************
