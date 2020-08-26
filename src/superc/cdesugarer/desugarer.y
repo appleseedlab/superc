@@ -205,6 +205,12 @@ import superc.cdesugarer.Declarator.ArrayAbstractDeclarator;
 import superc.cdesugarer.Declarator.FunctionDeclarator;
 import superc.cdesugarer.Declarator.ParameterListDeclarator;
 
+import superc.cdesugarer.Initializer;
+import superc.cdesugarer.Initializer.EmptyInitializer;
+import superc.cdesugarer.Initializer.AssignInitializer;
+import superc.cdesugarer.Initializer.DesignatedInitializer;
+import superc.cdesugarer.Initializer.Designation;
+
 import xtc.type.AliasT;
 import xtc.type.ArrayT;
 import xtc.type.BooleanT;
@@ -922,20 +928,22 @@ Declaration:  /** complete **/  // String
            * necessary for source-level analysis.
            */
 
+          todoReminder("typecheck initializers");
+
           // loop over each element of the declaration list
         	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
           for (DeclaringListValue declaringlistvalue : declaringlistvalues) {
             // unpack type specifier, declarators, and initializers from the transformation value
             Multiverse<TypeBuilder> typebuildermv = declaringlistvalue.typebuilder;
             Multiverse<Declarator> declaratormv = declaringlistvalue.declarator;
-            Multiverse<String> initializermv = declaringlistvalue.initializer;
+            Multiverse<Initializer> initializermv = declaringlistvalue.initializer;
 
             // TODO: use typebuilder/declarator to reclassify the
             // tokens as typedef/ident in parsing context
 
             for (Element<TypeBuilder> typebuilder : typebuildermv) {
               PresenceCondition typebuilderCond = subparser.getPresenceCondition().and(typebuilder.getCondition());
-              for (Element<String> initializer : initializermv) {
+              for (Element<Initializer> initializer : initializermv) {
                 // TODO: optimization opportunity, share multiple
                 // initialiers with one renaming (harder for globals)
                 PresenceCondition initializerCond = typebuilderCond.and(initializer.getCondition());
@@ -988,7 +996,7 @@ Declaration:  /** complete **/  // String
                         scope.put(originalName, type, entry.getCondition());
                     
                         entrysb.append(renamedDeclaration.toString());
-                        entrysb.append(initializer.getData());
+                        entrysb.append(initializer.getData().toString());
                         entrysb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
                         recordRenaming(renaming, originalName);
 
@@ -1029,7 +1037,7 @@ Declaration:  /** complete **/  // String
                             } else {
                               // emit the same declaration, since it's legal to redeclare globals to a compatible type
                               entrysb.append(renamedDeclaration.toString());
-                              entrysb.append(initializer.getData());
+                              entrysb.append(initializer.getData().toString());
                               entrysb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
                               System.err.println(String.format("INFO: \"%s\" is being redeclared in global scope to compatible type", originalName));
                             }
@@ -1101,7 +1109,7 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
           
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<String> initializers = (Multiverse<String>) getTransformationValue(subparser, 1);
+          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
           declaringlist.add(new DeclaringListValue(types, declarators, initializers));
           setTransformationValue(value, declaringlist);
@@ -1117,7 +1125,7 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 6);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<String> initializers = (Multiverse<String>) getTransformationValue(subparser, 1);
+          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
           declaringlist.add(new DeclaringListValue(types, declarators, initializers));
           setTransformationValue(value, declaringlist);
@@ -1145,7 +1153,7 @@ DeclaringList:  /** nomerge **/
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 5);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 4);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<String> initializers = (Multiverse<String>) getTransformationValue(subparser, 1);
+          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
           declaringlist.add(new DeclaringListValue(types, declarators, initializers));
           setTransformationValue(value, declaringlist);
@@ -1158,7 +1166,7 @@ DeclaringList:  /** nomerge **/
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 5);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 4);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<String> initializers = (Multiverse<String>) getTransformationValue(subparser, 1);
+          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
           declaringlist.add(new DeclaringListValue(types, declarators, initializers));
           setTransformationValue(value, declaringlist);
@@ -1184,7 +1192,7 @@ DeclaringList:  /** nomerge **/
           // a new one
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<String> initializers = (Multiverse<String>) getTransformationValue(subparser, 1);
+          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
           declaringlist.add(new DeclaringListValue(types, declarators, initializers));
           setTransformationValue(value, declaringlist);
         }
@@ -2913,36 +2921,31 @@ TypeName: /** nomerge **/
 InitializerOpt: /** nomerge **/ // Multiverse<Initializer>
         /* nothing */
         {
-          // EmpytInitializer
-          todoReminder("initializers need to have expressionvalue since they need to be typechecked InitializerOpt (1)");
-          Multiverse<String> emptyInit = new Multiverse<String>("", subparser.getPresenceCondition());
-          setTransformationValue(value, emptyInit);
+          // EmptyInitializer
+          setTransformationValue(value, new Multiverse<Initializer>(new EmptyInitializer(),
+                                                                    subparser.getPresenceCondition()));
         }
         | ASSIGN DesignatedInitializer
         {
           // AssignmentInitializer
-          todoReminder("initializers need to have expressionvalue since they need to be typechecked InitializerOpt (2)");
-          // TODO: syntax
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, DesugarOps.toAssignInitializer.transform(initializers));
         }
         ;
 
-DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */ // ExpressionValue
+DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */ // Multiverse<Initializer>
         Initializer
         {
           // pass through
-          todoReminder("initializers need to have expressionvalue since they need to be typechecked DesignatedInitializer (1)");
-          System.err.println("TODO: unsupported semantic action DesignatedInitializer (1)");
-          System.exit(1);
+          todoReminder("typecheck initializers DesignatedInitializer (1)");
+          setTransformationValue(value, (Multiverse<Initializer>) getTransformationValue(subparser, 1));
         }
         | Designation Initializer
         {
           // DesignatedInitializer
-          todoReminder("create an AST hiearchy, like declarator, for the various kinds of initializers DesignatedInitializer (2)");
-          System.err.println("TODO: unsupported semantic action DesignatedInitializer (2)");
-          System.exit(1);
+          Multiverse<Initializer> designations = (Multiverse<Initializer>) getTransformationValue(subparser, 2);
+          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, designations.product(initializers, DesugarOps.toDesignatedInitializer));
         }
         ;
 
@@ -2967,8 +2970,8 @@ Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists // M
         | AssignmentExpression
         {
           // ExpressionInitializer
-          System.err.println("TODO: unsupported semantic action Initializer (3)");
-          System.exit(1);
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+          setTransformationValue(value, exprval.type.join(exprval.transformation, DesugarOps.joinExpressionInitializer));
         }
         ;
 
@@ -2976,13 +2979,13 @@ InitializerList:  /** nomerge **/ //modified so that COMMAS are on the right  //
         MatchedInitializerList
         {
           // pass through
-          System.err.println("WARNING: unsupported semantic action: InitializerList");
+          System.err.println("WARNING: unsupported semantic action: InitializerList (1)");
           System.exit(1);
         }
         | MatchedInitializerList DesignatedInitializer
         {
           // InitializerList
-          System.err.println("WARNING: unsupported semantic action: InitializerList");
+          System.err.println("WARNING: unsupported semantic action: InitializerList (2)");
           System.exit(1);
         }
         ;
@@ -2991,32 +2994,32 @@ MatchedInitializerList:  /** list, nomerge **/  // Multiverse<InitializerList>
         /* empty */
         {
           // InitializerList
+          System.err.println("WARNING: unsupported semantic action: MatchedInitializerList (1)");
+          System.exit(1);
         }
         | MatchedInitializerList DesignatedInitializer COMMA
         {
           // InitializerList
-          System.err.println("WARNING: unsupported semantic action: MatchedInitializerList");
+          System.err.println("WARNING: unsupported semantic action: MatchedInitializerList (2)");
           System.exit(1);
-          Multiverse<String> s = new Multiverse<String>("", subparser.getPresenceCondition());
-          setTransformationValue(value, s);
         }
         ;
 
-Designation:   /* ADDED */  // Multiverse<Initializer>
+Designation:   /* ADDED */  // Multiverse<Designation>
         DesignatorList ASSIGN
         {
           // DesignatorList
-          System.err.println("WARNING: unsupported semantic action: Designation");
+          System.err.println("WARNING: unsupported semantic action: Designation (1)");
           System.exit(1);
         }
         | ObsoleteArrayDesignation
         {
-          System.err.println("WARNING: unsupported semantic action: Designation");
+          System.err.println("WARNING: unsupported semantic action: Designation (2)");
           System.exit(1);
         }
         | ObsoleteFieldDesignation
         {
-          System.err.println("WARNING: unsupported semantic action: Designation");
+          System.err.println("WARNING: unsupported semantic action: Designation (3)");
           System.exit(1);
         }
         ;
@@ -3025,13 +3028,13 @@ DesignatorList:  /** list, nomerge **/  /* ADDED */  // Multiverse<DesignatorLis
         Designator
         {
           // DesignatorList
-          System.err.println("WARNING: unsupported semantic action: DesignatorList");
+          System.err.println("WARNING: unsupported semantic action: DesignatorList (1)");
           System.exit(1);
         }
         | DesignatorList Designator
         {
           // DesignatorList
-          System.err.println("WARNING: unsupported semantic action: DesignatorList");
+          System.err.println("WARNING: unsupported semantic action: DesignatorList (2)");
           System.exit(1);
         }
         ;
@@ -3039,22 +3042,22 @@ DesignatorList:  /** list, nomerge **/  /* ADDED */  // Multiverse<DesignatorLis
 Designator:   /* ADDED */
         LBRACK ConstantExpression RBRACK
         {
-          System.err.println("WARNING: unsupported semantic action: Designator");
+          System.err.println("WARNING: unsupported semantic action: Designator (1)");
           System.exit(1);
         }
         | LBRACK ConstantExpression ELLIPSIS ConstantExpression RBRACK
         {
-          System.err.println("WARNING: unsupported semantic action: Designator");
+          System.err.println("WARNING: unsupported semantic action: Designator (2)");
           System.exit(1);
         }
         | DOT IDENTIFIER //IDENTIFIER
         {
-          System.err.println("WARNING: unsupported semantic action: Designator");
+          System.err.println("WARNING: unsupported semantic action: Designator (3)");
           System.exit(1);
         }
         | DOT TYPEDEFname // ADDED hack to get around using typedef names as struct fields
         {
-          System.err.println("WARNING: unsupported semantic action: Designator");
+          System.err.println("WARNING: unsupported semantic action: Designator (4)");
           System.exit(1);
         }
         ;
@@ -3545,6 +3548,7 @@ ArrayAbstractDeclarator: /** nomerge **/
 
           // get each combination of the existing array abstract declarators and the new constant expressions
           // TODO: is there a way to do this with product?  harder because not combining the same types
+          // TODO: replace using a Joiner
           Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
           for (Element<Declarator> declarator : arrayabstractdeclarator) {
             PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
@@ -6320,7 +6324,7 @@ private static class DeclaringListValue {
   public final Multiverse<Declarator> declarator;
 
   /** The initializer. */
-  public Multiverse<String> initializer;
+  public Multiverse<Initializer> initializer;
 
   /** 
    * This constructor creates a new instance.
@@ -6330,7 +6334,7 @@ private static class DeclaringListValue {
    */
   private DeclaringListValue(Multiverse<TypeBuilder> typebuilder,
                              Multiverse<Declarator> declarator,
-                             Multiverse<String> initializer) {
+                             Multiverse<Initializer> initializer) {
     this.typebuilder = typebuilder;
     this.declarator = declarator;
     this.initializer = initializer;
