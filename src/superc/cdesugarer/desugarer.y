@@ -5052,27 +5052,75 @@ RelationalExpression:  /** passthrough, nomerge **/ // ExpressionValue
         }
         | RelationalExpression LT ShiftExpression
         {
-          System.err.println("TODO: RelationalExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck RelationalExpression (2)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         | RelationalExpression GT ShiftExpression
         {
-          System.err.println("TODO: RelationalExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck RelationalExpression (3)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         | RelationalExpression LE ShiftExpression
         {
-          System.err.println("TODO: RelationalExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck RelationalExpression (4)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         | RelationalExpression GE ShiftExpression
         {
-          System.err.println("TODO: RelationalExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck RelationalExpression (5)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         ;
 
@@ -5083,15 +5131,39 @@ EqualityExpression:  /** passthrough, nomerge **/  // ExpressionValue
         }
         | EqualityExpression EQ RelationalExpression
         {
-          System.err.println("TODO: EqualityExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck EqualityExpression (2)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         | EqualityExpression NE RelationalExpression
         {
-          System.err.println("TODO: EqualityExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck EqualityExpression (3)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         ;
 
@@ -5102,9 +5174,21 @@ AndExpression:  /** passthrough, nomerge **/  // ExpressionValue
         }
         | AndExpression AND EqualityExpression
         {
-          System.err.println("TODO: AndExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck AndExpression (2)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         ;
 
@@ -5115,9 +5199,21 @@ ExclusiveOrExpression:  /** passthrough, nomerge **/  // ExpressionValue
         }
         | ExclusiveOrExpression XOR AndExpression
         {
-          System.err.println("TODO: ExclusiveOrExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck ExclusiveOrExpression (2)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         ;
 
@@ -5128,9 +5224,21 @@ InclusiveOrExpression:  /** passthrough, nomerge **/  // ExpressionValue
         }
         | InclusiveOrExpression PIPE ExclusiveOrExpression
         {
-          System.err.println("TODO: InclusiveOrExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck InclusiveOrExpression (2)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         ;
 
@@ -5141,9 +5249,21 @@ LogicalAndExpression:  /** passthrough, nomerge **/  // ExpressionValue
         }
         | LogicalAndExpression ANDAND InclusiveOrExpression
         {
-          System.err.println("TODO: LogicalAndExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck LogicalAndExpression (2)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         ;
 
@@ -5154,9 +5274,21 @@ LogicalORExpression:  /** passthrough, nomerge **/ // ExpressionValue
         }
         | LogicalORExpression OROR LogicalAndExpression
         {
-          System.err.println("TODO: LogicalORExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck LogicalORExpression (2)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       leftmv,
+                                                                       opmv,
+                                                                       rightmv),
+                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          opmv.destruct();
         }
         ;
 
@@ -5168,9 +5300,27 @@ ConditionalExpression:  /** passthrough, nomerge **/  // ExpressionValue
         | LogicalORExpression QUESTION Expression COLON
                 ConditionalExpression
         {
-          System.err.println("TODO: ConditionalExpression");
-          System.exit(1);
-          // TODO: check for valid types
+          todoReminder("typecheck ConditionalExpression (2)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue condval = (ExpressionValue) getTransformationValue(subparser, 5);
+          ExpressionValue ifval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue elseval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> condmv = condval.transformation;
+          Multiverse<String> quesmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
+          Multiverse<String> ifmv = ifval.transformation;
+          Multiverse<String> colonmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
+          Multiverse<String> elsemv = elseval.transformation;
+
+          // check that condval is a condition type
+          setTransformationValue(value, new ExpressionValue(productAll(DesugaringOperators.concatStrings,
+                                                                       condmv,
+                                                                       quesmv,
+                                                                       ifmv,
+                                                                       colonmv,
+                                                                       elsemv),
+                                                            ifval.type));  // TODO: this is a placeholder for the real type
+          quesmv.destruct(); colonmv.destruct();
         }
         | LogicalORExpression QUESTION COLON  // ADDED gcc innomerge conditional
                 ConditionalExpression
