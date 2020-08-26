@@ -60,6 +60,7 @@ SOURCE = \
 	Multiverse.java \
 	TypeBuilder.java \
 	Declarator.java \
+	Initializer.java \
 	Declaration.java \
 	DesugarOps.java \
 	CContext.java
