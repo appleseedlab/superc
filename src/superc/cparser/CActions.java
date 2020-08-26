@@ -817,19 +817,12 @@ public class CActions implements SemanticActions {
         }
     break;
 
-  case 233:
-    { BindEnum(subparser); }
-    break;
-
   case 235:
     { BindEnum(subparser); }
     break;
 
-  case 253:
-    {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-        }
+  case 237:
+    { BindEnum(subparser); }
     break;
 
   case 255:
@@ -867,18 +860,25 @@ public class CActions implements SemanticActions {
         }
     break;
 
-  case 267:
+  case 265:
+    {
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
+        }
+    break;
+
+  case 269:
     { BindVar(subparser); }
     break;
 
-  case 324:
+  case 326:
     {
           /* setDecl(value, new PointerT(getDecl(getNodeAt(subparser, 1)))); */
           /* copyName(subparser, value, 1); */
         }
     break;
 
-  case 325:
+  case 327:
     {
           /* Specifiers spec = getSpecsAt(subparser, 2); */
           /* Type baseType = getDecl(getNodeAt(subparser, 1));; */
@@ -888,74 +888,74 @@ public class CActions implements SemanticActions {
         }
     break;
 
-  case 330:
+  case 332:
     {
           /* copyDeclName(subparser, value, 2); */
         }
     break;
 
-  case 332:
+  case 334:
     { EnterScope(subparser); }
     break;
 
-  case 333:
+  case 335:
     { ExitReentrantScope(subparser); }
     break;
 
-  case 336:
+  case 338:
     { /* copyDeclName(subparser, value, 1); */ }
     break;
 
-  case 337:
+  case 339:
     { /* copyDeclName(subparser, value, 2); */ }
     break;
 
-  case 338:
+  case 340:
     {
           /* setDecl(value, lastSeenType(subparser)); */
           /* setName(value, getStringAt(subparser, 1)); */
         }
     break;
 
-  case 342:
+  case 344:
     { EnterScope(subparser); }
     break;
 
-  case 343:
+  case 345:
     { ExitReentrantScope(subparser); }
     break;
 
-  case 354:
+  case 356:
     {
           /* setDecl(value, new ArrayT(getDecl(getNodeAt(subparser, 1)))); */
           /* copyName(subparser, value, 1); */
         }
     break;
 
-  case 355:
+  case 357:
     {
           /* setDecl(value, new ArrayT(getDecl())); */
           /* copyName(subparser, value, 1); */
         }
     break;
 
-  case 420:
+  case 423:
     { useIdent(subparser, getNodeAt(subparser, 1)); }
     break;
 
-  case 422:
+  case 425:
     { EnterScope(subparser); }
     break;
 
-  case 423:
+  case 426:
     { ExitScope(subparser); }
     break;
 
-  case 434:
+  case 437:
     { callFunction(subparser, getNodeAt(subparser, 3), null); }
     break;
 
-  case 435:
+  case 438:
     { callFunction(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 2)); }
     break;
 
