@@ -5685,11 +5685,13 @@ AttributeListOpt:   // ADDED
 AttributeList:  /** list, nomerge **/  // ADDED
         Word AttributeExpressionOpt
         {
+          String word = ((Syntax) getNodeAt(subparser, 2).get(0)).getTokenText();
           System.err.println("WARNING: unsupported semantic action: AttributeList");
           System.exit(1);
         }
         | AttributeList COMMA Word AttributeExpressionOpt
         {
+          String word = ((Syntax) getNodeAt(subparser, 2).get(0)).getTokenText();
           System.err.println("WARNING: unsupported semantic action: AttributeList");
           System.exit(1);
         }
@@ -5716,399 +5718,267 @@ AttributeExpressionOpt:   // ADDED
 Word:  // ADDED  // Syntax
         IDENTIFIER
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | AUTO
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | DOUBLE
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | INT
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | STRUCT
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | BREAK
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | ELSE
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | LONG
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | SWITCH
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | CASE
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | ENUM
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | REGISTER
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | TYPEDEF
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | CHAR
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | EXTERN
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | RETURN
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | UNION
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | CONST
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | FLOAT
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | SHORT
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | UNSIGNED
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | CONTINUE
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | FOR
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | SIGNED
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | VOID
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | DEFAULT
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | GOTO
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | SIZEOF
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | VOLATILE
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | DO
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | IF
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | STATIC
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | WHILE
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | ASMSYM
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | _BOOL
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | _COMPLEX
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | RESTRICT
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __ALIGNOF
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __ALIGNOF__
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | ASM
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __ASM
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __ASM__
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __ATTRIBUTE
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __ATTRIBUTE__
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __BUILTIN_OFFSETOF
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __BUILTIN_TYPES_COMPATIBLE_P
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __BUILTIN_VA_ARG
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __BUILTIN_VA_LIST
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __COMPLEX__
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __CONST
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __CONST__
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __EXTENSION__
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | INLINE
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __INLINE
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __INLINE__
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __LABEL__
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __RESTRICT
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __RESTRICT__
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __SIGNED
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __SIGNED__
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __THREAD
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | TYPEOF
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __TYPEOF
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __TYPEOF__
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __VOLATILE
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         | __VOLATILE__
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          // get token from parent
         }
         ;
 
@@ -6210,13 +6080,14 @@ Assemblyoperands:  /** list, nomerge **/  // ADDED
         ;
 
 Assemblyoperand:  /** nomerge **/  // ADDED
-                             StringLiteralList LPAREN Expression RPAREN
+        StringLiteralList LPAREN Expression RPAREN
         {
           System.err.println("WARNING: unsupported semantic action: Assemblyoperand");
           System.exit(1);
         }
         | LBRACK Word RBRACK StringLiteralList LPAREN Expression RPAREN
         {
+          String word = ((Syntax) getNodeAt(subparser, 6).get(0)).getTokenText();
           System.err.println("WARNING: unsupported semantic action: Assemblyoperand");
           System.exit(1);
         }
