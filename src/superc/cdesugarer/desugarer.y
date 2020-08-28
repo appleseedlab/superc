@@ -6694,17 +6694,23 @@ private String emitStatement(Multiverse<String> allStatementConfigs, PresenceCon
     sb.append("\n{");
   }
   for (Multiverse.Element<String> statement : allStatementConfigs) {
-    if (! statement.getCondition().isTrue()) {
-      // don't bother using an if the statement applies to all configurations
-      sb.append("\nif (");
-      sb.append(condToCVar(statement.getCondition().and(pc)));
-      sb.append(") {\n");
+    PresenceCondition combinedCond = statement.getCondition().and(pc);
+    if (! combinedCond.isFalse()) {
+      // don't print at all if an infeasible configuration
+      if (! combinedCond.isTrue()) {
+        // don't print the C conditionals if condition is for all configurations
+        sb.append("\nif (");
+        sb.append(condToCVar(combinedCond));
+        sb.append(") {\n");
+      }
+      sb.append(statement.getData());
+      if (! combinedCond.isTrue()) {
+        // don't print the C conditionals if condition is for all configurations
+        sb.append("\n}");
+      }
+      sb.append("\n");
     }
-    sb.append(statement.getData());
-    if (! statement.getCondition().isTrue()) {
-      sb.append("\n}");
-    }
-    sb.append("\n");
+    combinedCond.delRef();
   }
   if (allStatementConfigs.size() > 1) {
     sb.append("\n}");
