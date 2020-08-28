@@ -56,14 +56,14 @@ SOURCE = \
 	CValues.java \
 	NamedFunctionT.java \
 	SymbolTable.java \
-	CActions.java \
 	Multiverse.java \
 	TypeBuilder.java \
 	Declarator.java \
 	Initializer.java \
 	Declaration.java \
 	DesugarOps.java \
-	CContext.java
+	CContext.java \
+	CActions.java
 
 JNI_SOURCE =
 
