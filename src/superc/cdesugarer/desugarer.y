@@ -6477,7 +6477,7 @@ public static void todoReminder(String msg) {
 }
 
 /**
- * Get the semantic value for the transformation.  The caller is
+ * Get the semantic value of a non-static-choice node.  The caller is
  * responsible for casting the value into the correct type according
  * to its child nodes.
  *
@@ -6489,7 +6489,7 @@ private Object getTransformationValue(Subparser subparser, int component) {
 }
 
 /**
- * Get the semantic value for the transformation.  The caller is
+ * Get the semantic value of a non-static-choice node.  The caller is
  * responsible for casting the value into the correct type according
  * to its child nodes.
  *
@@ -6505,18 +6505,185 @@ private Object getTransformationValue(Object node) {
 }
 
 /**
- * Produces the string used when a compile-time error needs to be
- * represented at runtime.
+ * Get the semantic value for node that has a "complete" annotation
+ * where the semantic value is a multiverse.  The complete annotation
+ * means the child node may be a static conditional, so create a new
+ * multiverse that concatenates the multiverse values from all
+ * children of the static conditional.
  *
- * @param msg The message.
- * @returns A snippet of C code representing the compile-time error.
+ * @param subparser The subparser containing the semantic multiverse stack.
+ * @param component The index into the semantic multiverse stack.
+ * @param pc The presence condition of the semantic action.
+ * @returns A multiverse of all semantic values of the given node.
  */
-private String emitError(String msg) {
-  return String.format("__static_type_error(\"%s\")", msg);
+private <T> Multiverse<T> getCompleteNodeMultiverseValue(Subparser subparser, int component, PresenceCondition pc) {
+  return getCompleteNodeMultiverseValue(getNodeAt(subparser, component), pc);
+}
+
+/**
+ * Get a new multiverse for the semantic value of the node.  If the
+ * given node is a static choice node, the resulting multiverse is the
+ * combination of all the static conditional's children's semantic
+ * values, filtered by their branches static condition.  The caller is
+ * responsible for destructing the resulting multiverse.
+ *
+ * @param node The AST node holding the semantic multiverse.
+ * @param pc The presence condition of the semantic action.
+ * @return A new multiverse containing the semantic values for all configurations.
+ */
+private <T> Multiverse<T> getCompleteNodeMultiverseValue(Node node, PresenceCondition pc) {
+  Multiverse<Node> nodemv = staticCondToMultiverse(node, pc);
+  Multiverse<T> resultmv = new Multiverse<T>();
+
+  // loop through each node, get its multiverse and add to the
+  // resultmv.  update each node's multiverse elements with the static
+  // conditional branch's presence condition using filter.
+  for (Element<Node> elem : nodemv) {
+    Multiverse<T> nodevaluemv = (Multiverse<T>) ((Node) elem.getData()).getProperty(TRANSFORMATION);
+    Multiverse<T> filtered = nodevaluemv.filter(elem.getCondition());
+    resultmv.addAll(filtered);
+    filtered.destruct();
+  }
+  nodemv.destruct();
+  
+  // it should not be possible to have an empty multiverse, as long as
+  // the pc correponds to the current subparsers's pc.
+  assert ! resultmv.isEmpty();
+
+  Multiverse<T> filtered = resultmv.filter(pc);
+  resultmv.destruct();
+    
+  assert ! filtered.isEmpty();
+
+  return filtered;
+}
+
+/**
+ * Get the semantic value for node that has a "complete" annotation
+ * where the semantic value is a multiverse.  The complete annotation
+ * means the child node may be a static conditional, so create a new
+ * multiverse that concatenates the multiverse values from all
+ * children of the static conditional.
+ *
+ * @param subparser The subparser containing the semantic multiverse stack.
+ * @param component The index into the semantic multiverse stack.
+ * @param pc The presence condition of the semantic action.
+ * @returns A multiverse of all semantic values of the given node.
+ */
+private <T> Multiverse<T> getCompleteNodeSingleValue(Subparser subparser, int component, PresenceCondition pc) {
+  return getCompleteNodeSingleValue(getNodeAt(subparser, component), pc);
+}
+
+/**
+ * Get a new multiverse for the semantic value of the node.  If the
+ * given node is a static choice node, the resulting multiverse is the
+ * combination of all the static conditional's children's semantic
+ * values, filtered by their branches static condition.  The caller is
+ * responsible for destructing the resulting multiverse.
+ *
+ * @param node The AST node holding the semantic multiverse.
+ * @param pc The presence condition of the semantic action.
+ * @return A new multiverse containing the semantic values for all configurations.
+ */
+private <T> Multiverse<T> getCompleteNodeSingleValue(Node node, PresenceCondition pc) {
+  Multiverse<Node> nodemv = staticCondToMultiverse(node, pc);
+  Multiverse<T> resultmv = new Multiverse<T>();
+
+  // loop through each node, get its multiverse and add to the
+  // resultmv.  update each node's multiverse elements with the static
+  // conditional branch's presence condition using filter.
+  for (Element<Node> elem : nodemv) {
+    resultmv.add((T) ((Node) elem.getData()).getProperty(TRANSFORMATION),
+                 elem.getCondition());
+  }
+  nodemv.destruct();
+  
+  // it should not be possible to have an empty multiverse, as long as
+  // the pc correponds to the current subparsers's pc.
+  assert ! resultmv.isEmpty();
+
+  Multiverse<T> filtered = resultmv.filter(pc);
+  resultmv.destruct();
+    
+  assert ! filtered.isEmpty();
+
+  return filtered;
+}
+
+/**
+ * Get the semantic value for node that has a "complete" annotation
+ * where the semantic value is a list of multiverses.  The complete
+ * annotation means the child node may be a static conditional, so
+ * create a new list that concatenates the multiverse values from all
+ * children of the static conditional, filtering out infeasible
+ * elements along the way.
+ *
+ * @param subparser The subparser containing the semantic multiverse stack.
+ * @param component The index into the semantic multiverse stack.
+ * @param pc The presence condition of the semantic action.
+ * @returns A list of all semantic values of the given node.
+ */
+private <T> List<Multiverse<T>> getCompleteNodeListValue(Subparser subparser, int component, PresenceCondition pc) {
+  return getCompleteNodeListValue(getNodeAt(subparser, component), pc);
+}
+
+/**
+ * Get the semantic value for node that has a "complete" annotation
+ * where the semantic value is a list of multiverses.  The complete
+ * annotation means the child node may be a static conditional, so
+ * create a new list that concatenates the multiverse values from all
+ * children of the static conditional, filtering out infeasible
+ * elements along the way.
+ *
+ * @param node The AST node holding the semantic multiverse.
+ * @param pc The presence condition of the semantic action.
+ * @return A new list containing the semantic values for all configurations.
+ */
+private <T> List<Multiverse<T>> getCompleteNodeListValue(Node node, PresenceCondition pc) {
+  Multiverse<Node> nodemv = staticCondToMultiverse(node, pc);
+  List<Multiverse<T>> resultlist = new LinkedList<Multiverse<T>>();
+
+  // loop through each node, get its multiverse and add to the
+  // resultmv.  update each node's multiverse elements with the static
+  // conditional branch's presence condition using filter.
+  for (Element<Node> elem : nodemv) {
+    PresenceCondition combinedCond = pc.and(elem.getCondition());
+    List<Multiverse<T>> mvlist = (List<Multiverse<T>>) ((Node) elem.getData()).getProperty(TRANSFORMATION);
+    for (Multiverse<T> mv : mvlist) {
+      Multiverse<T> filtered = mv.filter(combinedCond);
+      if (! filtered.isEmpty()) {
+        // empty multiverse, means no feasible configs.  don't add to
+        // list since empty multiverses represent an illegal state
+        // during transformation
+        resultlist.add(filtered);
+      }
+    }
+    combinedCond.delRef();
+  }
+  nodemv.destruct();
+  
+  // the resulting list can be empty, e.g., of the
+  // declarationorstatementlist is empty
+  return resultlist;
+}
+
+/**
+ * Just concatenates all strings in the multiverse.  Used for
+ * declarations and top-level nodes where multiple configurations have
+ * already been transformed by renaming declarations or surrounding
+ * statements with C conditionals
+ */
+protected String concatMultiverseStrings(Multiverse<String> value) {
+  StringBuilder valuesb = new StringBuilder();
+  for (Element<String> elem : value) {
+    valuesb.append(elem.getData());
+  }
+  return valuesb.toString();
 }
 
 /**
  * Writes if (presence condition) { } around a statement, for all configurations.
+ *
  * @param allStatementConfigs A multiverse containing all configurations of a statement.
  * @param pc The current presence condition.
  * @return A String containing the transformed statement.
