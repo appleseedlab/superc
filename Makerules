@@ -72,4 +72,4 @@ jni       : $(JNI_CLASS_FILES) $(JNI_HEADERS)
 clean     :
 	$(RM) $(ALL_CLASS_FILES) $(JARFILE) $(JNI_HEADERS)
 
-all       : classes jni rmi
+all       : classes jni

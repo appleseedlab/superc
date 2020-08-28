@@ -85,9 +85,9 @@ Builtins.java:
 	$(RM) builtins
 
 parsers:
-	$(MAKE) -C expression generate
-	$(MAKE) -C cparser generate
-	$(MAKE) -C cdesugarer generate
+	$(MAKE) -C expression generate all
+	$(MAKE) -C cparser generate all
+	$(MAKE) -C cdesugarer generate all
 
 clobber-parsers:
 	$(MAKE) -C expression clobber
