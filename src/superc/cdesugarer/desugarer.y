@@ -208,8 +208,13 @@ import superc.cdesugarer.Declarator.ParameterListDeclarator;
 import superc.cdesugarer.Initializer;
 import superc.cdesugarer.Initializer.EmptyInitializer;
 import superc.cdesugarer.Initializer.AssignInitializer;
+import superc.cdesugarer.Initializer.ExpressionInitializer;
+import superc.cdesugarer.Initializer.InitializerList;
 import superc.cdesugarer.Initializer.DesignatedInitializer;
 import superc.cdesugarer.Initializer.Designation;
+import superc.cdesugarer.Initializer.Designator;
+import superc.cdesugarer.Initializer.ArrayDesignator;
+import superc.cdesugarer.Initializer.StructUnionDesignator;
 
 import xtc.type.AliasT;
 import xtc.type.ArrayT;
@@ -2933,22 +2938,6 @@ InitializerOpt: /** nomerge **/ // Multiverse<Initializer>
         }
         ;
 
-DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */ // Multiverse<Initializer>
-        Initializer
-        {
-          // pass through
-          todoReminder("typecheck initializers DesignatedInitializer (1)");
-          setTransformationValue(value, (Multiverse<Initializer>) getTransformationValue(subparser, 1));
-        }
-        | Designation Initializer
-        {
-          // DesignatedInitializer
-          Multiverse<Initializer> designations = (Multiverse<Initializer>) getTransformationValue(subparser, 2);
-          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
-          setTransformationValue(value, designations.product(initializers, DesugarOps.toDesignatedInitializer));
-        }
-        ;
-
 /*InitializerStandard:  // ADDED gcc can have empty Initializer lists
         LBRACE InitializerList RBRACE
         | AssignmentExpression
@@ -2957,15 +2946,18 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */ // Multiverse<Ini
 Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists // Multiverse<Initializer>
         LBRACE MatchedInitializerList RBRACE
         {
-          // InitializerList
-          System.err.println("TODO: unsupported semantic action Initializer (1)");
-          System.exit(1);
+          Multiverse<List<Initializer>> lists = (Multiverse<List<Initializer>>) getTransformationValue(subparser, 2);
+          setTransformationValue(value, DesugarOps.toInitializerList.transform(lists));
         }
         | LBRACE MatchedInitializerList DesignatedInitializer RBRACE
         {
-          // InitializerList
-          System.err.println("TODO: unsupported semantic action Initializer (2)");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<List<Initializer>> lists = (Multiverse<List<Initializer>>) getTransformationValue(subparser, 3);
+          Multiverse<List<Initializer>> newelem
+            = DesugarOps.initializerListWrap.transform((Multiverse<Initializer>) getTransformationValue(subparser, 2));
+          Multiverse<List<Initializer>> cproduct = lists.complementedProduct(newelem, DesugarOps.INITIALIZERLISTCONCAT);
+          lists.destruct(); newelem.destruct();
+          setTransformationValue(value, DesugarOps.toInitializerList.transform(cproduct));
         }
         | AssignmentExpression
         {
@@ -2978,39 +2970,62 @@ Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists // M
 InitializerList:  /** nomerge **/ //modified so that COMMAS are on the right  // Multiverse<InitializerList>
         MatchedInitializerList
         {
-          // pass through
-          System.err.println("WARNING: unsupported semantic action: InitializerList (1)");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          // TODO: destruct return value from getTransformationValue
+          setTransformationMultiverse(value, (Multiverse<InitializerList>) getTransformationValue(subparser, 1));
         }
         | MatchedInitializerList DesignatedInitializer
         {
-          // InitializerList
-          System.err.println("WARNING: unsupported semantic action: InitializerList (2)");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<List<Initializer>> lists = (Multiverse<List<Initializer>>) getTransformationValue(subparser, 2);
+          Multiverse<List<Initializer>> newelem
+            = DesugarOps.initializerListWrap.transform((Multiverse<Initializer>) getTransformationValue(subparser, 1));
+          setTransformationValue(value, lists.complementedProduct(newelem, DesugarOps.INITIALIZERLISTCONCAT));
+          newelem.destruct();
         }
         ;
 
 MatchedInitializerList:  /** list, nomerge **/  // Multiverse<InitializerList>
         /* empty */
         {
-          // InitializerList
-          System.err.println("WARNING: unsupported semantic action: MatchedInitializerList (1)");
-          System.exit(1);
+          setTransformationMultiverse(value, new Multiverse<List>(new LinkedList<Initializer>(),
+                                                                  subparser.getPresenceCondition()));
         }
         | MatchedInitializerList DesignatedInitializer COMMA
         {
-          // InitializerList
-          System.err.println("WARNING: unsupported semantic action: MatchedInitializerList (2)");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<List<Initializer>> lists = (Multiverse<List<Initializer>>) getTransformationValue(subparser, 3);
+          Multiverse<List<Initializer>> newelem
+            = DesugarOps.initializerListWrap.transform((Multiverse<Initializer>) getTransformationValue(subparser, 2));
+          setTransformationValue(value, lists.complementedProduct(newelem, DesugarOps.INITIALIZERLISTCONCAT));
+          newelem.destruct();
+        }
+        ;
+
+DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */ // Multiverse<Initializer>
+        Initializer
+        {
+          // pass through
+          todoReminder("typecheck initializers DesignatedInitializer (1)");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<Initializer> mv = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
+          setTransformationMultiverse(value, mv);
+        }
+        | Designation Initializer
+        {
+          // DesignatedInitializer
+          Multiverse<Designation> designations = (Multiverse<Designation>) getTransformationValue(subparser, 2);
+          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, designations.join(initializers, DesugarOps.joinDesignatedInitializer));
         }
         ;
 
 Designation:   /* ADDED */  // Multiverse<Designation>
         DesignatorList ASSIGN
         {
-          // DesignatorList
-          System.err.println("WARNING: unsupported semantic action: Designation (1)");
-          System.exit(1);
+          // TODO: unit tests
+          Multiverse<List<Designator>> list = (Multiverse<List<Designator>>) getTransformationValue(subparser, 2);
+          setTransformationValue(value, DesugarOps.toDesignation.transform(list));
         }
         | ObsoleteArrayDesignation
         {
@@ -3024,26 +3039,32 @@ Designation:   /* ADDED */  // Multiverse<Designation>
         }
         ;
 
-DesignatorList:  /** list, nomerge **/  /* ADDED */  // Multiverse<DesignatorList>
+DesignatorList:  /** list, nomerge **/  /* ADDED */  // Multiverse<List<Designator>>
         Designator
         {
-          // DesignatorList
-          System.err.println("WARNING: unsupported semantic action: DesignatorList (1)");
-          System.exit(1);
+          // TODO: unit tests
+          Multiverse<Designator> designators = (Multiverse<Designator>) getTransformationValue(subparser, 1);
+          Multiverse<List<Designator>> newlist = DesugarOps.designatorListWrap.transform(designators);
+          setTransformationValue(value, newlist);
         }
         | DesignatorList Designator
         {
-          // DesignatorList
-          System.err.println("WARNING: unsupported semantic action: DesignatorList (2)");
-          System.exit(1);
+          // TODO: unit tests
+          Multiverse<List<Designator>> list = (Multiverse<List<Designator>>) getTransformationValue(subparser, 2);
+          Multiverse<Designator> designators = (Multiverse<Designator>) getTransformationValue(subparser, 1);
+          Multiverse<List<Designator>> newlist = DesugarOps.designatorListWrap.transform(designators);
+          setTransformationValue(value, list.complementedProduct(newlist, DesugarOps.DESIGNATORLISTCONCAT));
+          newlist.destruct();
         }
         ;
 
-Designator:   /* ADDED */
+// TODO: unit tests
+Designator:   /* ADDED */  // Multiverse<Designator>
         LBRACK ConstantExpression RBRACK
         {
-          System.err.println("WARNING: unsupported semantic action: Designator (1)");
-          System.exit(1);
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          setTransformationValue(value,
+                                 exprval.type.join(exprval.transformation, DesugarOps.joinArrayDesignator));
         }
         | LBRACK ConstantExpression ELLIPSIS ConstantExpression RBRACK
         {
@@ -3052,13 +3073,15 @@ Designator:   /* ADDED */
         }
         | DOT IDENTIFIER //IDENTIFIER
         {
-          System.err.println("WARNING: unsupported semantic action: Designator (3)");
-          System.exit(1);
+          setTransformationValue(value,
+                                 new Multiverse<Designator>(new StructUnionDesignator(((Syntax) getNodeAt(subparser, 1)).getTokenText()),
+                                                            subparser.getPresenceCondition()));
         }
         | DOT TYPEDEFname // ADDED hack to get around using typedef names as struct fields
         {
-          System.err.println("WARNING: unsupported semantic action: Designator (4)");
-          System.exit(1);
+          setTransformationValue(value,
+                                 new Multiverse<Designator>(new StructUnionDesignator(((Syntax) getNodeAt(subparser, 1)).getTokenText()),
+                                                            subparser.getPresenceCondition()));
         }
         ;
 
