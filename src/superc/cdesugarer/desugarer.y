@@ -6849,102 +6849,13 @@ protected static Multiverse<Node> staticCondToMultiverse(Node node, PresenceCond
   // eventually hit the base-case of a non-static-choice node
   assert ! allConfigs.isEmpty();
 
-/**
- * Get a multiverse of all stringbuilder transformation values from
- * node, including any under a static conditional.
- *
- * @param The node to get the stringbuilder transformation values
- *        from, which can be a static choice node or a regular node.
- * @param The presence condition of the subparser.
- * @returns A multiverse of stringbuilders that are the transformation values.
- */
-protected Multiverse<String> getAllNodeValues(Node node, PresenceCondition pc) {
-  Multiverse<String> sbmv = new Multiverse<String>();
-  Multiverse<Node> allnodes = getAllNodeConfigs(node, pc);
-  for (Multiverse.Element<Node> child : allnodes) {
-    for (Multiverse.Element<String> childsbmv : (Multiverse<String>) getTransformationValue(child.getData())) {
-      sbmv.add(childsbmv.getData(), childsbmv.getCondition().and(child.getCondition()));
-    }
-  }
-  assert ! sbmv.isEmpty();
-  
-  return sbmv;
-}
-
-/**
- * Creates the cartesian product of any number of children nodes' SBMVs.
- * @param pc A PresenceCondition.
- * @param children Nodes whose SBMVs should be combined.
- * @return An SBMV containing the product of the passed-in childrens' SBMVs.
- */
-protected Multiverse<String> getProductOfSomeChildren(PresenceCondition pc, Node...children) {
-  // NOTE: Nodes must be passed-in in the order that their SBMV stringbuilders should be concatenated.
-  Multiverse<String> sbmv
-    = new Multiverse<String>("", pc);
-  
-  Multiverse<String> temp;
-  for (Node child : children) {
-    if (child.isToken()) {
-      String tokenText = " ";
-      tokenText += child.getTokenText();
-      temp = sbmv.product(tokenText, pc, DesugarOps.concatStrings);
-      sbmv.destruct();
-      sbmv = temp;
-    } else { 
-      temp = cartesianProductWithChild(sbmv, child, pc);
-      sbmv.destruct();
-      sbmv = temp;
-    }
-  }
-  return sbmv;
-}
-
-/**
- * This is for nodes that have static choices under them where all the
- * nodes under the static choice have a String as the
- * transformation value.  This happens with top-level nodes where all
- * desugaring has already been handled by declaration and statement.
- */
-protected String concatAllStrings(Node node, PresenceCondition pc) {
-  // TODO: create a version of getAllNodeConfigs that doesn't use the
-  // presence condition, since it isn't needed to just concat the
-  // stringbuilders
-  StringBuilder valuesb = new StringBuilder();
-  Multiverse<Node> allNodes = getAllNodeConfigs(node, pc);
-  for (Element<Node> elem : allNodes) {
-    valuesb.append((String) getTransformationValue(elem.getData()));
-    // no need for presence conditions, since declaration
-    // already handles them via renaming
-  }
-  return valuesb.toString();
-}
-
-/**
- * Takes the cartesian product of the current node's SBMV with one of its children SBMVs.
- * Assumes that the child parameter is not a token.
- * @param sbmv A multiverse that possibly contains the configurations of child's siblings.
- * @param child The child of the current node.
- * @param presenceCondition The presence condition associated with the current node.
- * @return A multiverse containing all configurations of the passed-in node.
- */
-protected Multiverse<String> cartesianProductWithChild(Multiverse<String> sbmv, Node child, PresenceCondition presenceCondition) {
-  sbmv = new Multiverse<String>(sbmv); // copies the passed-in sbmv because the caller destructs it.
-  // getAllNodeConfigs traverses all nested static choice nodes until they reach a regular node
-  // and then gets all configurations of that node
-  Multiverse<String> allConfigsSBMV = getAllNodeValues(child, presenceCondition);
-
-  Multiverse<String> temp = sbmv.product(allConfigsSBMV, DesugarOps.concatStrings);
-  sbmv.destruct();
-  sbmv = temp;
   Multiverse<Node> filtered = allConfigs.filter(presenceCondition);
   allConfigs.destruct();
     
   assert ! filtered.isEmpty();
 
-  return sbmv;
   return filtered;
 }
-
 
 /*****************************************************************************
  ********* Methods to record global desugaring information.  These
@@ -8371,35 +8282,6 @@ private static Specifiers makeStructSpec(Subparser subparser,
   specs.type = type;
 
   return specs;
-}
-
-private Multiverse<Node> getNodeMultiverse(Node node, PresenceConditionManager presenceConditionManager) {
-  Multiverse<Node> mv = new Multiverse<Node>();
-
-  if (node instanceof GNode
-      && ((GNode) node).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
-    PresenceCondition childCondition = null;
-    for (Object bo : node) {
-      if (bo instanceof PresenceCondition) {
-        childCondition = (PresenceCondition) bo;
-      } else if (bo instanceof Node) {
-        Node childNode = (Node) bo;
-        mv.add(childNode, childCondition);
-      } else {
-        System.err.println("unsupported AST child type in getNodeMultiverse");
-        System.exit(1);
-      }
-    }
-  } else {
-    mv.add(node, presenceConditionManager.newTrue());
-  }
-
-  // this multiverse should not be empty, because node is not null,
-  // static choices contain nodes (from superc), or the else case is
-  // hit
-  assert ! mv.isEmpty();
-
-  return mv;
 }
 
 private Map<Integer, String> condVars = new HashMap<Integer, String>();
