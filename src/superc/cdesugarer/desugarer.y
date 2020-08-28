@@ -342,7 +342,10 @@ TranslationUnit:  /** complete **/
             System.err.println(symtab);
 
             // write the transformed C
-            writer.write(concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()).toString());
+            Multiverse<String> extdeclmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
+            String result = concatMultiverseStrings(extdeclmv); extdeclmv.destruct();
+            setTransformationValue(value, result); 
+            writer.write(result); 
             writer.write("\n");
 
             writer.flush();
@@ -355,70 +358,80 @@ TranslationUnit:  /** complete **/
 
 // ------------------------------------------------------ External definitions
 
-ExternalDeclarationList: /** list, complete **/
+ExternalDeclarationList: /** list, complete **/  // String
         /* empty */  // ADDED gcc allows empty program
         {
-          String valuesb = "";
-          setTransformationValue(value, valuesb);
+          setTransformationValue(value, "");
         }
         | ExternalDeclarationList ExternalDeclaration
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
           StringBuilder valuesb = new StringBuilder();
-          valuesb.append(concatAllStrings(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
-          valuesb.append(concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          Multiverse<String> listmv = getCompleteNodeSingleValue(subparser, 2, pc);
+          Multiverse<String> elemmv = getCompleteNodeSingleValue(subparser, 1, pc);
+          valuesb.append(concatMultiverseStrings(listmv)); listmv.destruct();
+          valuesb.append(concatMultiverseStrings(elemmv)); elemmv.destruct();
           setTransformationValue(value, valuesb.toString());
         }
         ;
 
-ExternalDeclaration:  /** complete **/
+ExternalDeclaration:  /** complete **/  // String
         FunctionDefinitionExtension
         {
-          setTransformationValue(value, concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          Multiverse<String> declmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
+          setTransformationValue(value, concatMultiverseStrings(declmv)); declmv.destruct();
         }
         | DeclarationExtension
         {
-          setTransformationValue(value, concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          Multiverse<String> declmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
+          setTransformationValue(value, concatMultiverseStrings(declmv)); declmv.destruct();
         }
         | AssemblyDefinition
         {
-          setTransformationValue(value, concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          Multiverse<String> declmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
+          setTransformationValue(value, concatMultiverseStrings(declmv)); declmv.destruct();
         }
         | EmptyDefinition
         {
-          setTransformationValue(value, concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          Multiverse<String> declmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
+          setTransformationValue(value, concatMultiverseStrings(declmv)); declmv.destruct();
         }
         ;
 
-EmptyDefinition:  /** complete **/
+EmptyDefinition:  /** complete **/  // String
         SEMICOLON
         {
           setTransformationValue(value, (String) getNodeAt(subparser, 1).getTokenText());
         }
         ;
 
-FunctionDefinitionExtension:  /** complete **/  // ADDED
+FunctionDefinitionExtension:  /** complete **/  // ADDED  // String
         FunctionDefinition
         {
-          setTransformationValue(value, concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          Multiverse<String> funcmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
+          setTransformationValue(value, concatMultiverseStrings(funcmv)); funcmv.destruct();
         }
         | __EXTENSION__ FunctionDefinition
         {
+          Multiverse<String> funcmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
+          
           StringBuilder valuesb = new StringBuilder();
           valuesb.append(getNodeAt(subparser, 2).getTokenText());
-          valuesb.append(concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          valuesb.append(concatMultiverseStrings(funcmv)); funcmv.destruct();
           setTransformationValue(value, valuesb.toString());
         }
         ;
 
 FunctionDefinition:  /** complete **/ // added scoping  // String
         FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
+        /* FunctionPrototype { ReenterScope(subparser); } LBRACE CompoundStatement { ExitScope(subparser); } RBRACE */
         {
           // similar to Declaration, but different in that this has a
           // compoundstatement, while declaration has an initializer.
           PresenceCondition pc = subparser.getPresenceCondition();
 
           String leftcurly = getNodeAt(subparser, 4).getTokenText();
-          String body = concatAllStrings(getNodeAt(subparser, 3), subparser.getPresenceCondition()).toString();
+          String body = (String) getTransformationValue(subparser, 3);
           String rightcurly = getNodeAt(subparser, 1).getTokenText();
           
           /* System.err.println("TYPE: " + typebuildermv); */
@@ -442,7 +455,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           // have a conditional underneath even though the complete
           // annotation isn't on functionprototype.  this is why we
           // are getting all nodes at this point
-          Multiverse<Node> prototypeNodemv = getAllNodeConfigs(getNodeAt(subparser, 6), subparser.getPresenceCondition());
+          Multiverse<Node> prototypeNodemv = staticCondToMultiverse(getNodeAt(subparser, 6), subparser.getPresenceCondition());
           for (Element<Node> prototypeNode : prototypeNodemv) {
             FunctionPrototypeValue prototype = (FunctionPrototypeValue) getTransformationValue(prototypeNode.getData());
             Multiverse<TypeBuilder> typebuildermv = prototype.typebuilder;
@@ -558,6 +571,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           setTransformationValue(value, sb.toString());
         }
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
+        /* | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE CompoundStatement { ExitScope(subparser); } RBRACE */
         {
           // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionDefinition");
@@ -570,18 +584,21 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
 FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/  // String
         LocalLabelDeclarationListOpt DeclarationOrStatementList
         {
-          // TODO: same as CompoundStatement
           PresenceCondition pc = subparser.getPresenceCondition();
-
-          StringBuilder valuesb = new StringBuilder();
-          valuesb.append(concatAllStrings(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
-
-          // print user-defined type declarations at top of scope
           CContext scope = ((CContext) subparser.scope);
-          valuesb.append(scope.getDeclarations(subparser.getPresenceCondition()));
 
-          valuesb.append(concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
-          if (debug) System.err.println(((CContext) subparser.scope).getSymbolTable());
+          Multiverse<String> locallabelmv = getCompleteNodeSingleValue(subparser, 2, pc);
+          Multiverse<String> declorstmtmv = getCompleteNodeSingleValue(subparser, 1, pc);
+          
+          StringBuilder valuesb = new StringBuilder();
+          valuesb.append(concatMultiverseStrings(locallabelmv)); locallabelmv.destruct();
+          // print user-defined type declarations at top of scope
+          valuesb.append(scope.getDeclarations(subparser.getPresenceCondition()));
+          // DeclarationOrStatementList already resolves
+          // configurations, so just print all the possible strings
+          // under the static conditional
+          valuesb.append(concatMultiverseStrings(declorstmtmv)); declorstmtmv.destruct();
+
           setTransformationValue(value, valuesb.toString());
         }
         ;
@@ -844,16 +861,19 @@ NestedFunctionOldPrototype:  /** nomerge **/
              parsed * /
     */
 
-DeclarationExtension:  /** complete **/  // ADDED
+DeclarationExtension:  /** complete **/  // ADDED  // String
         Declaration
         {
-          setTransformationValue(value, concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          Multiverse<String> declmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
+          setTransformationValue(value, concatMultiverseStrings(declmv)); declmv.destruct();
         }
         | __EXTENSION__ Declaration
         {
+          Multiverse<String> declmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
+          
           StringBuilder valuesb = new StringBuilder();
           valuesb.append(getNodeAt(subparser, 2).getTokenText());
-          valuesb.append(concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          valuesb.append(concatMultiverseStrings(declmv)); declmv.destruct();
           setTransformationValue(value, valuesb.toString());
         }
         ;
@@ -2289,6 +2309,9 @@ UnionSpecifier: /** nomerge **/  // ADDED attributes
           System.exit(1);
         }
         ;
+
+// TODO: use Multiverse<List<Declaration>> and wrap and concat the lists here instead
+
 /*
  * This construct returns a list of declaration multiverses, i.e., a
  * list of declarations, where each declaration may be different
@@ -2557,6 +2580,10 @@ ParameterTypeList:  /** nomerge **/  // List<Multiverse<Declaration>>
         }
         ;
 
+
+// TODO: change the semantic value to Multiverse<List<Declaration>>
+// and do the list wrapping and concatenating here
+          
 // returns a multiverse of nonconfigurable parameter lists
 ParameterList:  /** list, nomerge **/ // List<Multiverse<Declaration>>
         ParameterDeclaration
@@ -3398,6 +3425,8 @@ PostfixingFunctionDeclarator:  /** nomerge **/ // Multiverse<ParameterListDeclar
           List<Multiverse<Declaration>> parameterdeclaratorlistsmv
             = (List<Multiverse<Declaration>>) getTransformationValue(subparser,3);
 
+          // use Multiverse<List<Parameter>> for ParameterTypeListOpt
+          
           // find each combination of single-configuration parameter
           // lists.  not using a product, because it is combining two
           // different types, typebuilder and declarator.  perhaps
@@ -3661,7 +3690,7 @@ PostfixAbstractDeclarator: /** nomerge **/
 // ---------------------------------------------------------------- Statements
 
 
-// TODO: passthrough transformation value
+// These just hoist any static conditionals by turning them into multiverses, combining the node's semantic values
 /*
 use this to get one pc for all errors in the types
 PresenceCondition errorCond = typemv.getPresenceCondition(ErrorT.TYPE);
@@ -3669,38 +3698,48 @@ PresenceCondition errorCond = typemv.getPresenceCondition(ErrorT.TYPE);
 Statement:  /** complete **/  // Multiverse<String>
         LabeledStatement
         {
-          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
+          setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | CompoundStatement
         {
-	  // NOTE: calling emitStatement() here can also break switch cases.
-          PresenceCondition pc = subparser.getPresenceCondition();
-          // compound statements contain already-hoisted constructs
-          // (declarations and statements), so just wrap this in a
-          // single-element multiverse
-          Multiverse<String> valuemv
-            = new Multiverse<String>((String) getTransformationValue(subparser, 1), subparser.getPresenceCondition());
-          setTransformationValue(value, valuemv);
+          // CompoundStatement produces just a string (not a multiverse), since it's children resolve all
+          // configurations, so we only need to resolve static conditionals around the CompoundStatement.
+          setTransformationValue(value, getCompleteNodeSingleValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
+        /* | LBRACE { EnterScope(subparser); } CompoundStatement { ExitScope(subparser); } RBRACE */
+        /* { */
+        /*   PresenceCondition pc = subparser.getPresenceCondition(); */
+        /*   // CompoundStatement produces just a string (not a multiverse), since it's children resolve all */
+        /*   // configurations, so we only need to resolve static conditionals around the CompoundStatement. */
+        /*   Multiverse<String> lbrace = new Multiverse<String>(((Syntax) getNodeAt(subparser, 5)).getTokenText(), pc); */
+        /*   Multiverse<String> cmpdmv = getCompleteNodeSingleValue(getNodeAt(subparser, 3), pc); */
+        /*   Multiverse<String> rbrace = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc); */
+
+        /*   setTransformationValue(value, productAll(DesugarOps.concatStrings, */
+        /*                                            lbrace, */
+        /*                                            cmpdmv, */
+        /*                                            rbrace)); */
+        /*   lbrace.destruct(); cmpdmv.destruct(); rbrace.destruct(); */
+        /* } */
         | ExpressionStatement
         {
-          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
+          setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | SelectionStatement
         {
-          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
+          setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | IterationStatement
         {
-          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
+          setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | JumpStatement
         {
-          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
+          setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | AssemblyStatement  // ADDED
         {
-          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
+          setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         ;
 
@@ -3738,27 +3777,53 @@ LabeledStatement:  /** complete **/  // ADDED attributes
         | LBRACE DeclarationList StatementList RBRACE
         ;*/
 
-CompoundStatement:  /** complete **/  /* ADDED */
+CompoundStatement:  /** complete **/  /* ADDED */  // String
         LBRACE { EnterScope(subparser); } LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
-          System.err.println("TODO: compoundstatement maybe need to reenter scope rather than enterscope to support for loops with declarations");
           PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = ((CContext) subparser.scope);
+
+          Multiverse<String> locallabelmv = getCompleteNodeSingleValue(subparser, 4, pc);
+          Multiverse<String> declorstmtmv = getCompleteNodeSingleValue(subparser, 3, pc);
           
           StringBuilder valuesb = new StringBuilder();
           valuesb.append(getNodeAt(subparser, 6).getTokenText());
-          valuesb.append(concatAllStrings(getNodeAt(subparser, 4), subparser.getPresenceCondition()));
-
+          valuesb.append(concatMultiverseStrings(locallabelmv)); locallabelmv.destruct();
           // print user-defined type declarations at top of scope
-          CContext scope = ((CContext) subparser.scope);
           valuesb.append(scope.getDeclarations(subparser.getPresenceCondition()));
-
-          valuesb.append((String) getTransformationValue(subparser, 3));
+          // DeclarationOrStatementList already resolves
+          // configurations, so just print all the possible strings
+          // under the static conditional
+          valuesb.append(concatMultiverseStrings(declorstmtmv)); declorstmtmv.destruct();
           valuesb.append(getNodeAt(subparser, 1).getTokenText());
+
           setTransformationValue(value, valuesb.toString());
         }
         ;
 
-LocalLabelDeclarationListOpt: /** complete **/
+/* CompoundStatement:  /\** complete **\/  /\* ADDED *\/  // String */
+/*         LocalLabelDeclarationListOpt DeclarationOrStatementList */
+/*         { */
+/*           PresenceCondition pc = subparser.getPresenceCondition(); */
+/*           CContext scope = ((CContext) subparser.scope); */
+
+/*           Multiverse<String> locallabelmv = getCompleteNodeSingleValue(subparser, 2, pc); */
+/*           Multiverse<String> declorstmtmv = getCompleteNodeSingleValue(subparser, 1, pc); */
+          
+/*           StringBuilder valuesb = new StringBuilder(); */
+/*           valuesb.append(concatMultiverseStrings(locallabelmv)); locallabelmv.destruct(); */
+/*           // print user-defined type declarations at top of scope */
+/*           valuesb.append(scope.getDeclarations(subparser.getPresenceCondition())); */
+/*           // DeclarationOrStatementList already resolves */
+/*           // configurations, so just print all the possible strings */
+/*           // under the static conditional */
+/*           valuesb.append(concatMultiverseStrings(declorstmtmv)); declorstmtmv.destruct(); */
+
+/*           setTransformationValue(value, valuesb.toString()); */
+/*         } */
+/*         ; */
+
+LocalLabelDeclarationListOpt: /** complete **/ // String
         /* empty */
         {
           setTransformationValue(value, "");
@@ -3771,7 +3836,7 @@ LocalLabelDeclarationListOpt: /** complete **/
         }
         ;
 
-LocalLabelDeclarationList:  /** list, complete **/
+LocalLabelDeclarationList:  /** list, complete **/ // String
         LocalLabelDeclaration
         {
           System.err.println("implement locallabeldeclarationlist (1)");
@@ -3808,46 +3873,36 @@ LocalLabelList:  /** list, complete **/  // ADDED
         }
         ;
 
-DeclarationOrStatementList:  /** list, complete **/  /* ADDED */
+DeclarationOrStatementList:  /** list, complete **/  /* ADDED */  // String
         /* empty */
         {
           setTransformationValue(value, "");
         }
         | DeclarationOrStatementList DeclarationOrStatement
         {
-          StringBuilder valuesb = new StringBuilder();
-          valuesb.append(concatAllStrings(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
-          valuesb.append(concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
-          setTransformationValue(value, valuesb.toString());
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<String> listmv = getCompleteNodeSingleValue(subparser, 2, pc);
+          Multiverse<String> elemmv = getCompleteNodeSingleValue(subparser, 1, pc);
+          StringBuilder sb = new StringBuilder();
+          sb.append(concatMultiverseStrings(listmv));
+          sb.append(concatMultiverseStrings(elemmv));
+          setTransformationValue(value, sb.toString());
         }
         ;
 
-DeclarationOrStatement: /** complete **/  /* ADDED */
+DeclarationOrStatement: /** complete **/  /* ADDED */  // String
         DeclarationExtension
         {
-          // declarations are already hoisted, so just pass through the strinbguilder
-          setTransformationValue(value, (String) getTransformationValue(subparser, 1));
+          // declarations are already just strings, so get the multiverse of any static conditionals around them
+          Multiverse<String> decl = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
+          setTransformationValue(value, concatMultiverseStrings(decl)); decl.destruct();
         }
         | Statement
         {
-          // hoist all statements here, that declaratinorstatement is just a string
+          // statements have multiverses, so hoist any static conditionals around them by combining with the statement multiverses
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1));
-
-          /* StringBuilder allStatements = new StringBuilder(); */
-
-          /* allStatements.append("\n{"); */
-          /* for (Multiverse.Element<StringBuilder> statement : product) { */
-          /*   PresenceCondition combinedCond = statement.getCondition().and(subparser.getPresenceCondition()); */
-          /*   allStatements.append("\nif (" + */
-          /*   condToCVar(combinedCond) + */
-          /*   ") {\n" + statement.getData().toString() + "\n}\n"); */
-          /*   combinedCond.delRef(); */
-          /* } */
-          /* allStatements.append("\n}"); */
-
-          /* setTransformationValue(value, allStatements); */
-          setTransformationValue(value, emitStatement(product, pc));
+          Multiverse<String> stmt = getCompleteNodeMultiverseValue(subparser, 1, pc);
+          setTransformationValue(value, emitStatement(stmt, pc)); stmt.destruct();
         }
         | NestedFunctionDefinition
         {
@@ -3856,16 +3911,20 @@ DeclarationOrStatement: /** complete **/  /* ADDED */
         }
         ;
 
-DeclarationList:  /** list, complete **/
+DeclarationList:  /** list, complete **/  // String
         DeclarationExtension
         {
-          setTransformationValue(value, concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          Multiverse<String> valuemv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
+          setTransformationValue(value, concatMultiverseStrings(valuemv)); valuemv.destruct();
         }
         | DeclarationList DeclarationExtension
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
           StringBuilder valuesb = new StringBuilder();
-          valuesb.append(concatAllStrings(getNodeAt(subparser, 2), subparser.getPresenceCondition()));
-          valuesb.append(concatAllStrings(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          Multiverse<String> listmv = getCompleteNodeSingleValue(subparser, 2, pc);
+          Multiverse<String> declmv = getCompleteNodeSingleValue(subparser, 1, pc);
+          valuesb.append(concatMultiverseStrings(listmv)); listmv.destruct();
+          valuesb.append(concatMultiverseStrings(declmv)); declmv.destruct();
           setTransformationValue(value, valuesb.toString());
         }
         ;
