@@ -27,15 +27,25 @@ abstract class Initializer {
 
   private Initializer() { }
 
+  /** True if an empty initializer */
   boolean isEmpty() { return false; }
+
+  /** True if an assign initializer */
   boolean isAssign() { return false; }
+
+  /** True if a designated initializer */
   boolean isDesignated() { return false; }
+
+  /** True if an assignment expression initializer */
   boolean isExpression() { return false; }
   
-  /**
-   * Return the type of this initializer for use in checking against
-   * the declaration.
-   */
+  /** True if an list initializer */
+  boolean isList() { return false; }
+
+  // /**
+  //  * Return the type of this initializer for use in checking against
+  //  * the declaration.
+  //  */
   // abstract public Type getType();
 
   public String toString() {
@@ -54,11 +64,16 @@ abstract class Initializer {
     }
   }
 
-  // assign initializer:  either regular initializer or designatedinitializer
+  /**
+   * The assign initializer has an equals sign followed by an
+   * expression or list initializer.
+   */
   public static class AssignInitializer extends Initializer {
+    /** The initializer this assigns to. */
     protected final Initializer initializer;
       
     public AssignInitializer(Initializer initializer) {
+      assert initializer.isExpression() || initializer.isList();
       this.initializer = initializer;
     }
     
@@ -69,27 +84,17 @@ abstract class Initializer {
     }
   }
 
-  // a designation followed by an initializer
-  public static class DesignatedInitializer extends Initializer {
-    protected final Designation designation;
-    protected final Initializer initializer;
-
-    public DesignatedInitializer(Designation designation, Initializer initializer) {
-      this.designation = designation;
-      this.initializer = initializer;
-    }
-    
-    boolean isDesignated() { return false; }
-
-    public String toString() {
-      return String.format("%s %s", designation.toString(), initializer.toString());
-    }
-  }
-
-
-  // regular initializer: initializerlist or expressioninitializer
+  /**
+   * An expression initializer is an initializer for primitives, where
+   * they are assigned to the value of an expression.  This also holds
+   * the type of the expression to typecheck the expression against
+   * the declared type.
+   */
   public static class ExpressionInitializer extends Initializer {
+    /** The type of the expression. */
     protected final Type type;
+
+    /** The transformation of the expression. */
     protected final String expression;
 
     public ExpressionInitializer(Type type, String expression) {
@@ -97,27 +102,138 @@ abstract class Initializer {
       this.expression = expression;
     }
     
-    boolean isExpression() { return false; }
+    boolean isExpression() { return true; }
 
     public String toString() {
       return expression;
     }
   }
 
-  // // holds a list of designatedinitializers
-  // public static class InitializerList extends Initializer {
-  // }
+  /**
+   * An initializer list holds a list of other initializers between
+   * braces.  It is used to intialize an array or struct/union.  The
+   * elements of the list are one of the regular initializers (list or
+   * expression) or a designated initializer (which adds a designation
+   * before a list or exprssion).
+   */
+  public static class InitializerList extends Initializer {
+    protected final List<Initializer> list;
 
-  // // holds a list of designators, followed by an ASSIGN
-  // public static class Designation extends Initializer {
-  // }
+    public InitializerList(List<Initializer> list) {
+      this.list = list;
+    }
+    
+    /** True if an list initializer */
+    boolean isList() { return true; }
 
-  // public static abstract class Designator {
-  // }
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+      String delim = "";
+      for (Initializer initializer : list) {
+        sb.append(delim);
+        sb.append(initializer.toString());
+        delim = ", ";
+      }
+      return String.format("{ %s }", sb.toString());
+    }
+  }
 
-  // public static class ArrayDesignator extends Designator {
-  // }
+  /**
+   * A designated initializer is only found in initializer lists and
+   * is a Designation, i.e., a list of either array or struct/union
+   * designators, followed by a regular initializer (which is an
+   * expression or list of other initializers).
+   */
+  public static class DesignatedInitializer extends Initializer {
+    /** The designation portion of the initializer. */
+    protected final Designation designation;
 
-  // public static class StructUnionDesignator extends Designator {
-  // }
+    /** The regular initializer this designates. */
+    protected final Initializer initializer;
+
+    public DesignatedInitializer(Designation designation, Initializer initializer) {
+      this.designation = designation;
+      assert initializer.isExpression() || initializer.isList();
+      this.initializer = initializer;
+    }
+    
+    boolean isDesignated() { return true; }
+
+    public String toString() {
+      return String.format("%s %s", designation.toString(), initializer.toString());
+    }
+  }
+
+  /**
+   * A Designation is a list of array or struct/union designators.
+   */
+  public static class Designation {
+    /** The list of designators. */
+    protected final List<Designator> list;
+
+    public Designation(List<Designator> list) {
+      this.list = list;
+    }
+
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+      for (Designator designator : list) {
+        sb.append(designator.toString());
+      }
+      return String.format("%s =", sb.toString());
+    }
+  }
+
+  /**
+   * This is the abstract superclass of designators.
+   */
+  public static abstract class Designator {
+    /** True if an array designator. */
+    public boolean isArray() { return false; }
+
+    /** True if a struct or union designator. */
+    public boolean isStructUnion() { return false; }
+  }
+
+  /**
+   * An array designator references the index of an array in an
+   * initializer.
+   */
+  public static class ArrayDesignator extends Designator {
+    /** The type of the expression. */
+    protected final Type type;
+
+    /** The transformation of the expression. */
+    protected final String expression;
+
+    public ArrayDesignator(Type type, String expression) {
+      this.type = type;
+      this.expression = expression;
+    }
+    
+    public boolean isArray() { return true; }
+
+    public String toString() {
+      return String.format("[%s]", expression);
+    }
+  }
+
+  /**
+   * A struct/union designator references a struct/union field in an
+   * initializer.
+   */
+  public static class StructUnionDesignator extends Designator {
+    /** The identifier of the field. */
+    protected final String ident;
+
+    public StructUnionDesignator(String ident) {
+      this.ident = ident;
+    }
+      
+    public boolean isStructUnion() { return true; }
+
+    public String toString() {
+      return String.format(".%s", ident);
+    }
+  }
 }
