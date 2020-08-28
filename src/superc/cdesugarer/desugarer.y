@@ -2925,7 +2925,7 @@ InitializerOpt: /** nomerge **/ // Multiverse<Initializer>
           setTransformationValue(value, new Multiverse<Initializer>(new EmptyInitializer(),
                                                                     subparser.getPresenceCondition()));
         }
-        | ASSIGN DesignatedInitializer
+        | ASSIGN Initializer  // n1570.pdf section 6.7.9
         {
           // AssignmentInitializer
           Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);

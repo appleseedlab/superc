@@ -1120,12 +1120,7 @@ TypeName: /** complete **/
 
 InitializerOpt: /** complete **/
         /* nothing */
-        | ASSIGN DesignatedInitializer
-        ;
-
-DesignatedInitializer:/** complete, passthrough **/ /* ADDED */
-        Initializer
-        | Designation Initializer
+        | ASSIGN Initializer  // n1570.pdf section 6.7.9
         ;
 
 /*InitializerStandard:  // ADDED gcc can have empty Initializer lists
@@ -1146,6 +1141,11 @@ InitializerList:  /** complete **/ //modified so that COMMAS are on the right
 
 MatchedInitializerList:  /** list, complete **/
         | MatchedInitializerList DesignatedInitializer COMMA
+        ;
+
+DesignatedInitializer:/** complete, passthrough **/ /* ADDED */
+        Initializer
+        | Designation Initializer
         ;
 
 Designation:   /* ADDED */

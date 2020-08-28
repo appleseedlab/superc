@@ -123,277 +123,277 @@ public class CActions implements SemanticActions {
   public Object action(int production, Subparser subparser, Object value) {
     switch (production) {
   case 12:
-    { ReenterScope(subparser); }
+                           { ReenterScope(subparser); }
     break;
 
   case 13:
-    { ExitScope(subparser); }
+                                                                                         { ExitScope(subparser); }
     break;
 
   case 15:
-    { ReenterScope(subparser); }
+                               { ReenterScope(subparser); }
     break;
 
   case 16:
-    { ExitScope(subparser); }
+                                                                                                             { ExitScope(subparser); }
     break;
 
   case 19:
-    { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
+                               { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
     break;
 
   case 20:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 21:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 22:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 23:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 24:
-    { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
+                                                         { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
     break;
 
   case 25:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 26:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 27:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 28:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 29:
-    { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
+                                { bindFunDef(subparser, null, getNodeAt(subparser, 1)); }
     break;
 
   case 30:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 31:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 32:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 33:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 34:
-    { ReenterScope(subparser); }
+                                 { ReenterScope(subparser); }
     break;
 
   case 35:
-    { ExitScope(subparser); }
+                                                                                                                             { ExitScope(subparser); }
     break;
 
   case 37:
-    { ReenterScope(subparser); }
+                                     { ReenterScope(subparser); }
     break;
 
   case 38:
-    { ExitScope(subparser); }
+                                                                                                                                                 { ExitScope(subparser); }
     break;
 
   case 40:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 41:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 42:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 43:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 44:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 45:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 46:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 47:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 48:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 49:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 50:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 51:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 54:
-    { KillReentrantScope(subparser); }
+                                { KillReentrantScope(subparser); }
     break;
 
   case 56:
-    { KillReentrantScope(subparser); }
+                           { KillReentrantScope(subparser); }
     break;
 
   case 58:
-    { KillReentrantScope(subparser); }
+                        { KillReentrantScope(subparser); }
     break;
 
   case 60:
-    { KillReentrantScope(subparser); }
+                               { KillReentrantScope(subparser); }
     break;
 
   case 62:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 64:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 66:
-    {
+        {
           // reuses saved base type
           bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         }
     break;
 
   case 68:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 70:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 72:
-    {
+        {
           // reuses saved base type
           bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         }
     break;
 
   case 84:
-    {
+                     {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
@@ -401,7 +401,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 85:
-    {
+                                         {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -410,7 +410,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 86:
-    {
+                                                        {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -419,7 +419,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 87:
-    {
+                      {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
@@ -427,7 +427,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 88:
-    {
+                                          {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -436,7 +436,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 91:
-    {
+        {
           getSpecsAt(subparser, 1).add(Constants.ATT_CONSTANT);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -445,7 +445,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 92:
-    {
+        {
           getSpecsAt(subparser, 1).add(Constants.ATT_VOLATILE);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -454,7 +454,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 93:
-    {
+        {
           getSpecsAt(subparser, 1).add(Constants.ATT_RESTRICT);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -463,7 +463,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 94:
-    {
+        {
           /* TODO AttributeSpecifier */
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -472,7 +472,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 95:
-    {
+        {
           getSpecsAt(subparser, 1).add(Constants.ATT_INLINE);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -481,7 +481,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 108:
-    {
+                                         {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -490,7 +490,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 109:
-    {
+                                                 {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -499,7 +499,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 110:
-    {
+                                                         {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -508,7 +508,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 111:
-    {
+                                                  {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -517,7 +517,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 112:
-    {           /* Arithmetic or void */
+                      {           /* Arithmetic or void */
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
@@ -525,7 +525,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 113:
-    {
+                                          {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -534,7 +534,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 114:
-    {
+                                           {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -543,7 +543,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 115:
-    {
+                                           {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -552,7 +552,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 141:
-    {
+                                         {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -561,7 +561,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 142:
-    {
+                                                  {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -570,7 +570,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 143:
-    {
+                                                          {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -579,7 +579,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 144:
-    {
+                                                    {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -588,7 +588,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 145:
-    {
+                       {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
@@ -596,7 +596,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 146:
-    {
+                                           {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -605,7 +605,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 147:
-    {
+                                            {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -614,7 +614,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 148:
-    {
+                                             {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -623,87 +623,87 @@ public class CActions implements SemanticActions {
     break;
 
   case 149:
-    { getSpecsAt(subparser, 1).type = InternalT.VA_LIST; }
+                          { getSpecsAt(subparser, 1).type = InternalT.VA_LIST; }
     break;
 
   case 150:
-    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF; }
+                    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF; }
     break;
 
   case 151:
-    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN; }
+                    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN; }
     break;
 
   case 152:
-    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC; }
+                    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC; }
     break;
 
   case 153:
-    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO; }
+                    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO; }
     break;
 
   case 154:
-    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER; }
+                    { getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER; }
     break;
 
   case 155:
-    { getSpecsAt(subparser, 1).type = VoidT.TYPE; }
+                          { getSpecsAt(subparser, 1).type = VoidT.TYPE; }
     break;
 
   case 156:
-    { getSpecsAt(subparser, 1).seenChar = true; }
+                          { getSpecsAt(subparser, 1).seenChar = true; }
     break;
 
   case 157:
-    { getSpecsAt(subparser, 1).seenShort = true; }
+                          { getSpecsAt(subparser, 1).seenShort = true; }
     break;
 
   case 158:
-    { getSpecsAt(subparser, 1).seenInt = true; }
+                          { getSpecsAt(subparser, 1).seenInt = true; }
     break;
 
   case 159:
-    { getSpecsAt(subparser, 1).seenInt = true; }
+                          { getSpecsAt(subparser, 1).seenInt = true; }
     break;
 
   case 160:
-    { getSpecsAt(subparser, 1).longCount++; }
+                          { getSpecsAt(subparser, 1).longCount++; }
     break;
 
   case 161:
-    { getSpecsAt(subparser, 1).seenFloat = true; }
+                          { getSpecsAt(subparser, 1).seenFloat = true; }
     break;
 
   case 162:
-    { getSpecsAt(subparser, 1).seenDouble = true; }
+                          { getSpecsAt(subparser, 1).seenDouble = true; }
     break;
 
   case 163:
-    { getSpecsAt(subparser, 1).seenSigned = true; }
+                          { getSpecsAt(subparser, 1).seenSigned = true; }
     break;
 
   case 164:
-    { getSpecsAt(subparser, 1).seenUnsigned = true; }
+                          { getSpecsAt(subparser, 1).seenUnsigned = true; }
     break;
 
   case 165:
-    { getSpecsAt(subparser, 1).seenBool = true; }
+                          { getSpecsAt(subparser, 1).seenBool = true; }
     break;
 
   case 166:
-    { getSpecsAt(subparser, 1).seenComplex = true; }
+                          { getSpecsAt(subparser, 1).seenComplex = true; }
     break;
 
   case 175:
-    { EnterScope(subparser); }
+               { EnterScope(subparser); }
     break;
 
   case 176:
-    { ExitScope(subparser); }
+                                { ExitScope(subparser); }
     break;
 
   case 177:
-    {
+        {
           Node tag     = null;
           Node members = getNodeAt(subparser, 3);
           Node attrs   = null;
@@ -714,15 +714,15 @@ public class CActions implements SemanticActions {
     break;
 
   case 178:
-    { EnterScope(subparser); }
+                                         { EnterScope(subparser); }
     break;
 
   case 179:
-    { ExitScope(subparser); }
+                                { ExitScope(subparser); }
     break;
 
   case 180:
-    {
+        {
           Node tag     = getNodeAt(subparser, 6);
           Node members = getNodeAt(subparser, 3);
           Node attrs   = null;
@@ -733,15 +733,15 @@ public class CActions implements SemanticActions {
     break;
 
   case 182:
-    { EnterScope(subparser); }
+                                        { EnterScope(subparser); }
     break;
 
   case 183:
-    { ExitScope(subparser); }
+                                { ExitScope(subparser); }
     break;
 
   case 184:
-    {
+        {
           Node tag     = null;
           Node members = getNodeAt(subparser, 3);
           Node attrs   = getNodeAt(subparser, 6);
@@ -752,15 +752,15 @@ public class CActions implements SemanticActions {
     break;
 
   case 185:
-    { EnterScope(subparser); }
+                                                                { EnterScope(subparser); }
     break;
 
   case 186:
-    { ExitScope(subparser); }
+                                { ExitScope(subparser); }
     break;
 
   case 187:
-    {
+        {
           Node tag     = getNodeAt(subparser, 6);
           Node members = getNodeAt(subparser, 3);
           Node attrs   = getNodeAt(subparser, 7);
@@ -771,45 +771,45 @@ public class CActions implements SemanticActions {
     break;
 
   case 189:
-    { EnterScope(subparser); }
+              { EnterScope(subparser); }
     break;
 
   case 190:
-    { ExitScope(subparser); }
+                                { ExitScope(subparser); }
     break;
 
   case 192:
-    { EnterScope(subparser); }
+                                        { EnterScope(subparser); }
     break;
 
   case 193:
-    { ExitScope(subparser); }
+                                { ExitScope(subparser); }
     break;
 
   case 196:
-    { EnterScope(subparser); }
+                                       { EnterScope(subparser); }
     break;
 
   case 197:
-    { ExitScope(subparser); }
+                                { ExitScope(subparser); }
     break;
 
   case 199:
-    { EnterScope(subparser); }
+                                                               { EnterScope(subparser); }
     break;
 
   case 200:
-    { ExitScope(subparser); }
+                                { ExitScope(subparser); }
     break;
 
   case 203:
-    {
+        {
           ((Node) value).setProperty(SPECS, new Specifiers());
         }
     break;
 
   case 204:
-    {
+                                                           {
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -818,68 +818,68 @@ public class CActions implements SemanticActions {
     break;
 
   case 235:
-    { BindEnum(subparser); }
+                   { BindEnum(subparser); }
     break;
 
   case 237:
-    { BindEnum(subparser); }
+                      { BindEnum(subparser); }
     break;
 
   case 255:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 257:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 259:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 261:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 263:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 265:
-    {
+        {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 269:
-    { BindVar(subparser); }
+                  { BindVar(subparser); }
     break;
 
   case 326:
-    {
+        {
           /* setDecl(value, new PointerT(getDecl(getNodeAt(subparser, 1)))); */
           /* copyName(subparser, value, 1); */
         }
     break;
 
   case 327:
-    {
+        {
           /* Specifiers spec = getSpecsAt(subparser, 2); */
           /* Type baseType = getDecl(getNodeAt(subparser, 1));; */
           /* Type result = spec.annotateBase(new PointerT(baseType).annotate()); */
@@ -889,74 +889,74 @@ public class CActions implements SemanticActions {
     break;
 
   case 332:
-    {
+        {
           /* copyDeclName(subparser, value, 2); */
         }
     break;
 
   case 334:
-    { EnterScope(subparser); }
+               { EnterScope(subparser); }
     break;
 
   case 335:
-    { ExitReentrantScope(subparser); }
+                                                               { ExitReentrantScope(subparser); }
     break;
 
   case 338:
-    { /* copyDeclName(subparser, value, 1); */ }
+                         { /* copyDeclName(subparser, value, 1); */ }
     break;
 
   case 339:
-    { /* copyDeclName(subparser, value, 2); */ }
+                                                  { /* copyDeclName(subparser, value, 2); */ }
     break;
 
   case 340:
-    {
+        {
           /* setDecl(value, lastSeenType(subparser)); */
           /* setName(value, getStringAt(subparser, 1)); */
         }
     break;
 
   case 344:
-    { EnterScope(subparser); }
+                                         { EnterScope(subparser); }
     break;
 
   case 345:
-    { ExitReentrantScope(subparser); }
+                                                                                   { ExitReentrantScope(subparser); }
     break;
 
   case 356:
-    {
+        {
           /* setDecl(value, new ArrayT(getDecl(getNodeAt(subparser, 1)))); */
           /* copyName(subparser, value, 1); */
         }
     break;
 
   case 357:
-    {
+        {
           /* setDecl(value, new ArrayT(getDecl())); */
           /* copyName(subparser, value, 1); */
         }
     break;
 
   case 423:
-    { useIdent(subparser, getNodeAt(subparser, 1)); }
+                   { useIdent(subparser, getNodeAt(subparser, 1)); }
     break;
 
   case 425:
-    { EnterScope(subparser); }
+               { EnterScope(subparser); }
     break;
 
   case 426:
-    { ExitScope(subparser); }
+                                                            { ExitScope(subparser); }
     break;
 
   case 437:
-    { callFunction(subparser, getNodeAt(subparser, 3), null); }
+                                          { callFunction(subparser, getNodeAt(subparser, 3), null); }
     break;
 
   case 438:
-    { callFunction(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 2)); }
+                                                          { callFunction(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 2)); }
     break;
 
 
