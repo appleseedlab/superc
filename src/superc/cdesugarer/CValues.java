@@ -70,7 +70,7 @@ public class CValues implements SemanticValues {
         // Fall through
       case 98: // IdentifierList (229)
         // Fall through
-      case 106: // MatchedInitializerList (237)
+      case 105: // MatchedInitializerList (236)
         // Fall through
       case 108: // DesignatorList (239)
         // Fall through
@@ -186,7 +186,7 @@ public class CValues implements SemanticValues {
 
       case 58: // ElaboratedTypeName (189)
         // Fall through
-      case 103: // DesignatedInitializer (234)
+      case 106: // DesignatedInitializer (237)
         // Fall through
       case 163: // Constant (294)
         // Fall through
