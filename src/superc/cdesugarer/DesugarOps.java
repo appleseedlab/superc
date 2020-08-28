@@ -46,6 +46,10 @@ import java.util.LinkedList;
  * instantiated.
  */
 class DesugarOps {
+  /**
+   * Operations for C.  Used to compare types.
+   */
+  protected static C cOps = new C();
 
   private DesugarOps() { }
 
@@ -63,6 +67,8 @@ class DesugarOps {
     }
   }
   
+  // TODO: make these generic multiverse operators
+
   /**
    * Concatenates two list non-destructively.  This is used to create
    * multiverse operators that concat multiverses of lists of any
@@ -336,7 +342,7 @@ class DesugarOps {
    */
   public final static Multiverse.Operator<Type> compareTypes = (t1, t2) -> {
     Type newtype;
-    if (CActions.cOps.equal(t1, t2)) {
+    if (cOps.equal(t1, t2)) {
       // TODO: may need to pick correct type based on kind of
       // construct
       newtype = t1;

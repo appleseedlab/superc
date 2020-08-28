@@ -8282,7 +8282,7 @@ public String condToCVar(PresenceCondition cond) {
 /*  return sb.toString(); */
 /* } */
 
-protected static C cOps = new C();
+protected static C cOps = DesugarOps.cOps;
 
 
 // ---------- Declarators
