@@ -3966,7 +3966,9 @@ ExpressionStatement:  /** complete **/  // Multiverse<String>
         }
         ;
 
-SelectionStatement:  /** complete **/
+// TODO: destruct the multiverses after product
+// TODO: use emitExpression and emitStatement to avoid doing any product at all
+SelectionStatement:  /** complete **/ // Multiverse<String>
         IF LPAREN Expression RPAREN Statement
         {
           todoReminder("check the type of the conditional expression SelectionStatement (1)");
@@ -3977,7 +3979,8 @@ SelectionStatement:  /** complete **/
           Multiverse<String> lparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
           Multiverse<String> exprmv = exprval.transformation;
           Multiverse<String> rparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
-          Multiverse<String> stmtmv = (Multiverse<String>) getTransformationValue(subparser, 1);
+          Multiverse<String> stmtmv = new Multiverse<String>(emitStatement(getCompleteNodeMultiverseValue(subparser, 1, pc), pc),
+                                                             pc);
 
           setTransformationValue(value, productAll(DesugarOps.concatStrings,
                                                    ifmv,
@@ -3996,9 +3999,11 @@ SelectionStatement:  /** complete **/
           Multiverse<String> lparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 6)).getTokenText(), pc);
           Multiverse<String> exprmv = exprval.transformation;
           Multiverse<String> rparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
-          Multiverse<String> ifbranchmv = (Multiverse<String>) getTransformationValue(subparser, 3);
+          Multiverse<String> ifbranchmv = new Multiverse<String>(emitStatement(getCompleteNodeMultiverseValue(subparser, 3, pc), pc),
+                                                                 pc);
           Multiverse<String> elsemv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
-          Multiverse<String> elsebranchmv = (Multiverse<String>) getTransformationValue(subparser, 1);
+          Multiverse<String> elsebranchmv = new Multiverse<String>(emitStatement(getCompleteNodeMultiverseValue(subparser, 1, pc), pc),
+                                                                   pc);
 
           setTransformationValue(value, productAll(DesugarOps.concatStrings,
                                                    ifmv,
@@ -4015,8 +4020,8 @@ SelectionStatement:  /** complete **/
           System.exit(1);
         }
         ;
-
-IterationStatement:  /** complete **/
+// TODO: destruct the multiverses after product
+IterationStatement:  /** complete **/  // Multiverse<String>
         WHILE LPAREN Expression RPAREN Statement
         {
           todoReminder("check the type of the conditional expression IterationStatement (1)");
@@ -4027,7 +4032,7 @@ IterationStatement:  /** complete **/
           Multiverse<String> lparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
           Multiverse<String> exprmv = exprval.transformation;
           Multiverse<String> rparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
-          Multiverse<String> stmtmv = (Multiverse<String>) getTransformationValue(subparser, 1);
+          Multiverse<String> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           setTransformationValue(value, productAll(DesugarOps.concatStrings,
                                                    whilemv,
@@ -4043,7 +4048,7 @@ IterationStatement:  /** complete **/
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
 
           Multiverse<String> domv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 7)).getTokenText(), pc);
-          Multiverse<String> stmtmv = (Multiverse<String>) getTransformationValue(subparser, 6);
+          Multiverse<String> stmtmv = getCompleteNodeMultiverseValue(subparser, 6, pc);
           Multiverse<String> whilemv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 5)).getTokenText(), pc);
           Multiverse<String> lparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
           Multiverse<String> exprmv = exprval.transformation;
@@ -4076,7 +4081,7 @@ IterationStatement:  /** complete **/
           Multiverse<String> semi2mv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
           Multiverse<String> updatemv = updateval.transformation;
           Multiverse<String> rparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
-          Multiverse<String> stmtmv = (Multiverse<String>) getTransformationValue(subparser, 1);
+          Multiverse<String> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           setTransformationValue(value, productAll(DesugarOps.concatStrings,
                                                    formv,
