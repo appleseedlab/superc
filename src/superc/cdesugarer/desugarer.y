@@ -4113,7 +4113,7 @@ IterationStatement:  /** complete **/  // Multiverse<String>
           Multiverse<String> semi2mv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
           Multiverse<String> updatemv = updateval.transformation;
           Multiverse<String> rparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
-          Multiverse<String> stmtmv = (Multiverse<String>) getTransformationValue(subparser, 1);
+          Multiverse<String> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           // rewrite by moving the declaration above the for-loop.
           // add the new declarations and the for loop to their own
@@ -4140,63 +4140,63 @@ IterationStatement:  /** complete **/  // Multiverse<String>
         }
         ;
 
-JumpStatement:  /** complete **/
+JumpStatement:  /** complete **/ // Multiverse<String>
         GotoStatement
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
+          setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | ContinueStatement
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
+          setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | BreakStatement
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
+          setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         | ReturnStatement
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          setTransformationValue(value, getProductOfSomeChildren(subparser.getPresenceCondition(), getNodeAt(subparser, 1)));
+          setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
         ;
 
-GotoStatement:  /** complete **/
+GotoStatement:  /** complete **/ // Multiverse<String>
         GOTO IdentifierOrTypedefName SEMICOLON
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          System.err.println("WARNING: unsupported semantic action: GotoStatement");
-          System.exit(1);
+          String gototoken = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          String ident = ((Syntax) getNodeAt(subparser, 2).get(0)).getTokenText();
+          String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+          setTransformationValue(value, new Multiverse<String>(String.format("%s %s %s", gototoken, ident, semi),
+                                                               subparser.getPresenceCondition()));
         }
         | GOTO STAR Expression SEMICOLON  // ADDED
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          System.err.println("WARNING: unsupported semantic action: GotoStatement");
+          System.err.println("WARNING: unsupported semantic action: GotoStatement (2)");
           System.exit(1);
         }
         ;
 
-ContinueStatement:  /** complete **/
+ContinueStatement:  /** complete **/ // Multiverse<String>
         CONTINUE SEMICOLON
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          String continuetoken = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
+          String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+          setTransformationValue(value, new Multiverse<String>(String.format("%s %s", continuetoken, semi),
+                                                               subparser.getPresenceCondition()));
         }
         ;
 
-BreakStatement:  /** complete **/
+BreakStatement:  /** complete **/ // Multiverse<String>
         BREAK SEMICOLON
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> product = getProductOfSomeChildren(pc, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          setTransformationValue(value, product);
+          String breaktoken = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
+          String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+          setTransformationValue(value, new Multiverse<String>(String.format("%s %s", breaktoken, semi),
+                                                               subparser.getPresenceCondition()));
         }
         ;
 
-ReturnStatement:  /** complete **/
+ReturnStatement:  /** complete **/ // Multiverse<String>
         RETURN ExpressionOpt SEMICOLON
         {
           todoReminder("check the type of the return value");
@@ -4396,6 +4396,7 @@ VariableArgumentAccess:  /** nomerge **/  // ADDED
 
 StatementAsExpression:  /** nomerge **/  //ADDED
         LPAREN { EnterScope(subparser); } CompoundStatement { ExitScope(subparser); } RPAREN
+        /* LPAREN  LBRACE { EnterScope(subparser); } CompoundStatement { ExitScope(subparser); } RBRACE RPAREN */
         {
           System.err.println("WARNING: unsupported semantic action: StatementAsExpression");
           System.exit(1);
