@@ -2972,7 +2972,7 @@ InitializerList:  /** nomerge **/ //modified so that COMMAS are on the right  //
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           // TODO: destruct return value from getTransformationValue
-          setTransformationMultiverse(value, (Multiverse<InitializerList>) getTransformationValue(subparser, 1));
+          setTransformationValue(value, (Multiverse<InitializerList>) getTransformationValue(subparser, 1));
         }
         | MatchedInitializerList DesignatedInitializer
         {
@@ -2988,7 +2988,7 @@ InitializerList:  /** nomerge **/ //modified so that COMMAS are on the right  //
 MatchedInitializerList:  /** list, nomerge **/  // Multiverse<InitializerList>
         /* empty */
         {
-          setTransformationMultiverse(value, new Multiverse<List>(new LinkedList<Initializer>(),
+          setTransformationValue(value, new Multiverse<List>(new LinkedList<Initializer>(),
                                                                   subparser.getPresenceCondition()));
         }
         | MatchedInitializerList DesignatedInitializer COMMA
@@ -3009,7 +3009,7 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */ // Multiverse<Ini
           todoReminder("typecheck initializers DesignatedInitializer (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
           Multiverse<Initializer> mv = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
-          setTransformationMultiverse(value, mv);
+          setTransformationValue(value, mv);
         }
         | Designation Initializer
         {
