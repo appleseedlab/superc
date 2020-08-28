@@ -23,12 +23,18 @@ import superc.cdesugarer.Declarator.ParameterListDeclarator;
 
 import superc.cdesugarer.Initializer;
 import superc.cdesugarer.Initializer.AssignInitializer;
+import superc.cdesugarer.Initializer.ExpressionInitializer;
+import superc.cdesugarer.Initializer.InitializerList;
 import superc.cdesugarer.Initializer.DesignatedInitializer;
 import superc.cdesugarer.Initializer.Designation;
-import superc.cdesugarer.Initializer.ExpressionInitializer;
+import superc.cdesugarer.Initializer.Designator;
+import superc.cdesugarer.Initializer.ArrayDesignator;
+import superc.cdesugarer.Initializer.StructUnionDesignator;
 
 import xtc.type.ErrorT;
 import xtc.type.Type;
+
+import xtc.type.C;
 
 import java.util.List;
 import java.util.LinkedList;
@@ -219,7 +225,7 @@ class DesugarOps {
    *****************************************************************************/
 
   /**
-   * Create assignment initializers
+   * Create assignment initializers.
    */
   public final static Multiverse.Transformer<Initializer, Initializer> toAssignInitializer
     = new Multiverse.Transformer<Initializer, Initializer>() {
@@ -229,17 +235,74 @@ class DesugarOps {
       };
 
   /**
+   * Create designations.
+   */
+  public final static Multiverse.Transformer<List<Designator>, Designation> toDesignation
+    = new Multiverse.Transformer<List<Designator>, Designation>() {
+        Designation transform(List<Designator> from) {
+          return new Designation(from);
+        }
+      };
+
+  /**
+   * Create intializer lists.
+   */
+  public final static Multiverse.Transformer<List<Initializer>, Initializer> toInitializerList
+    = new Multiverse.Transformer<List<Initializer>, Initializer>() {
+        Initializer transform(List<Initializer> from) {
+          return new InitializerList(from);
+        }
+      };
+
+  /**
    * Transform an initializer into a designatedinitializer
    */
-  public final static Multiverse.Operator<Initializer> toDesignatedInitializer = (designation, initializer) -> {
-    return new DesignatedInitializer((Designation) designation, initializer);
+  public final static Multiverse.Joiner<Designation, Initializer, Initializer> joinDesignatedInitializer = (designation, initializer) -> {
+    return new DesignatedInitializer(designation, initializer);
   };
+
+  // TODO: make these generic
 
   /**
    * Join a Type and a String into an ExpressionInitializer.
    */
   public final static Multiverse.Joiner<Type, String, ExpressionInitializer> joinExpressionInitializer = (type, expression) -> {
     return new ExpressionInitializer(type, expression);
+  };
+
+  /**
+   * Join a Type and a String into an ArrayDesignator;
+   */
+  public final static Multiverse.Joiner<Type, String, ArrayDesignator> joinArrayDesignator = (type, expression) -> {
+    return new ArrayDesignator(type, expression);
+  };
+
+  /**
+   * A multiverse transformation to wrap a designator in a
+   * single-element list.
+   */
+  public final static Multiverse.Transformer<Initializer, List<Initializer>> initializerListWrap
+    = new ListWrapper<Initializer>();
+
+  /**
+   * Concatenate two Designator lists
+   */
+  public final static Multiverse.Operator<List<Initializer>> INITIALIZERLISTCONCAT = (list1, list2) -> {
+    return concatLists(list1, list2);
+  };
+
+  /**
+   * A multiverse transformation to wrap a designator in a
+   * single-element list.
+   */
+  public final static Multiverse.Transformer<Designator, List<Designator>> designatorListWrap
+    = new ListWrapper<Designator>();
+
+  /**
+   * Concatenate two Designator lists
+   */
+  public final static Multiverse.Operator<List<Designator>> DESIGNATORLISTCONCAT = (list1, list2) -> {
+    return concatLists(list1, list2);
   };
 
   /*****************************************************************************
