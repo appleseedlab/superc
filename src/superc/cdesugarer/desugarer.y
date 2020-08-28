@@ -6747,13 +6747,17 @@ protected static <T> Multiverse<T> productAll(Multiverse.Operator<T> op, Multive
 }
 
 /**
- * All configurations of this node are then returned in a multiverse.
- * Traverses all nested static choice nodes until non-static choice nodes are reached.
- * @param node The node to get the configurations of.
- * @param presenceCondition The presence condition associated with node.
- * @return A multiverse containing all configurations of the passed-in node.
+ * Given a node that may be a static conditional node, convert that
+ * static choice into a multiverse of nodes.  This traverses all
+ * nested static choice nodes until non-static choice nodes are
+ * reached.  A normal node is just wrapped in a single-element
+ * multiverse under the given condition.
+ * 
+ * @param node The node to convert.
+ * @param presenceCondition The condition of the calling semantic action.
+ * @return A multiverse of node.
  */
-protected static Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition presenceCondition) {
+protected static Multiverse<Node> staticCondToMultiverse(Node node, PresenceCondition presenceCondition) {
   Multiverse<Node> allConfigs = new Multiverse<Node>();
 
   if (node instanceof GNode && ((GNode) node).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
@@ -6763,12 +6767,12 @@ protected static Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition
       if (child instanceof PresenceCondition) {
         pc = (PresenceCondition)child;
       } else if (child instanceof Node) {
-        // assumes that all static choice nodes are mutually exclusive
-        Multiverse<Node> someChildren = getAllNodeConfigs((Node)child, pc);
+        // assumes that all static choice nodes are mutually exclusive and already ANDed with the subparser's pc
+        Multiverse<Node> someChildren = staticCondToMultiverse((Node)child, pc);
         allConfigs.addAll(someChildren);
         someChildren.destruct();
       } else {
-        System.err.println("unsupported AST child type in getNodeMultiverse");
+        System.err.println("unsupported AST child type in staticCondToMultiverse");
         System.exit(1);
       }
     }
@@ -6780,9 +6784,6 @@ protected static Multiverse<Node> getAllNodeConfigs(Node node, PresenceCondition
   // should not be empty (by superc), and this recursive method will
   // eventually hit the base-case of a non-static-choice node
   assert ! allConfigs.isEmpty();
-  // TODO: manage memory
-  return allConfigs;
-}
 
 /**
  * Get a multiverse of all stringbuilder transformation values from
@@ -6871,8 +6872,13 @@ protected Multiverse<String> cartesianProductWithChild(Multiverse<String> sbmv, 
   Multiverse<String> temp = sbmv.product(allConfigsSBMV, DesugarOps.concatStrings);
   sbmv.destruct();
   sbmv = temp;
+  Multiverse<Node> filtered = allConfigs.filter(presenceCondition);
+  allConfigs.destruct();
+    
+  assert ! filtered.isEmpty();
 
   return sbmv;
+  return filtered;
 }
 
 
