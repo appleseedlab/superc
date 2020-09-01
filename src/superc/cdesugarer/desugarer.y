@@ -4680,8 +4680,34 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
                     typemv.add(ErrorT.TYPE, combinedCond);
                   } else {
                     // TODO: check for correct field usage, otherwise type error
-                    System.err.println("TODO: finish DirectSelection for anonymous structs");
-                    System.exit(1);
+                    // TODO: insert field of the union inside the original struct/union
+
+                    // since we looked up a tagname, not seeing a
+                    // struct/union type likely means there's a bug
+                    assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
+                    StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
+
+                    // similarly, if we looked up a tagname, there
+                    // should be definitions with members
+                    assert null != entrytype.getMembers();
+
+                    // check that the field exist in this variation of
+                    // the struct.  TypeBuilder sets all members to
+                    // VariableT FIELD types
+                    VariableT fieldtype = (VariableT) entrytype.lookup(ident);
+                    if (fieldtype.isError()) {
+                      System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName()));
+                      typemv.add(ErrorT.TYPE, combinedCond);
+                    } else {
+                      // found a valid field and we now know its type
+                      
+                      typemv.add(fieldtype.getType(), combinedCond);
+
+                      // add the indirection using the tag (which is
+                      // the same name as the field in the combined
+                      // struct's union)
+                      identmv.add(String.format("%s", fieldtype.getName()), combinedCond);
+                    }
                   }
                   combinedCond.delRef();
                 }
