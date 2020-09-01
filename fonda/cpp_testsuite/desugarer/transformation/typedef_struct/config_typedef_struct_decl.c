@@ -1,5 +1,5 @@
 typedef 
-#if A
+#if defined(A)
 int 
 #else
 char

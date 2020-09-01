@@ -1,4 +1,4 @@
-#if A
+#if defined(A)
 typedef struct bob {
   char otherVal;
 } bob;

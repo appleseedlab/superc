@@ -1,4 +1,4 @@
-#if A
+#if defined(CONFIG_A)
 typedef int typeAlias;
 #else
 typedef char typeAlias;

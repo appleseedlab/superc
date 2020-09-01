@@ -1,4 +1,4 @@
-#if A
+#if defined(A)
 typedef struct bob {
   int val;
 
@@ -7,8 +7,8 @@ typedef struct bob {
 #endif
 
 int main(void) {
-  #if A
+#if defined(A)
   bob bobStruct;
   bobStruct.val = 1;
-  #endif
+#endif
 }

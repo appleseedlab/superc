@@ -1,4 +1,4 @@
-#if A
+#if defined(A)
 typedef int typeAlias;
 #endif
 
