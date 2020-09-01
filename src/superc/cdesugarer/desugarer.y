@@ -2031,11 +2031,9 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           // get scope to make an anonymous tag
           CContext scope = (CContext)subparser.scope;
 
-          // TODO: make a new desugaring operator that turns a
-          // List<Multiverse<Declaration>> into a
-          // Multiverse<List<Declaration>>.  use for struct specifiers
-          // and param lists
-
+          // TODO: move the list handling code into
+          // StructDeclarationList to avoid looping here
+          
           // (1) start with an empty multiverse of declaration lists
           Multiverse<List<Declaration>> listsmv
             = new Multiverse<List<Declaration>>(new LinkedList<Declaration>(), subparser.getPresenceCondition());
@@ -2090,6 +2088,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           // all of the (renamed) variations at the top of output and
           // use a union-based struct for the original struct tag.
 
+          // legacy
           Node tag     = getNodeAt(subparser, 4);
           Node members = getNodeAt(subparser, 2);
           Node attrs   = null;
@@ -2101,6 +2100,9 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           List<Multiverse<Declaration>> structfields
             = (List<Multiverse<Declaration>>) getTransformationValue(subparser, 2);
 
+          // TODO: move the list handling code into
+          // StructDeclarationList to avoid looping here
+          
           // hoist all possible combinations of struct fields
           
           // (1) start with an empty multiverse of declaration lists
@@ -2374,22 +2376,22 @@ StructDeclaration: /** nomerge **/  // returns Multiverse<Declaration>
         }
         | StructDefaultDeclaringList SEMICOLON
         {
-          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
+          System.err.println("WARNING: unsupported semantic action: StructDeclaration (2)");
           System.exit(1);
         }
         | TypeQualifierList SEMICOLON  // ADDED Declarator is optional
         {
-          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
+          System.err.println("WARNING: unsupported semantic action: StructDeclaration (3)");
           System.exit(1);
         }
         | TypeSpecifier SEMICOLON  // ADDED Declarator is optional
         {
-          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
+          System.err.println("WARNING: unsupported semantic action: StructDeclaration (4)");
           System.exit(1);
         }
         | SEMICOLON // ADDED gcc allows empty struct field in declaration
         {
-          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
+          System.err.println("WARNING: unsupported semantic action: StructDeclaration (5)");
           System.exit(1);
         }
         ;
@@ -2397,12 +2399,12 @@ StructDeclaration: /** nomerge **/  // returns Multiverse<Declaration>
 StructDefaultDeclaringList: /** list, nomerge **/        /* doesn't redeclare typedef*/
         TypeQualifierList StructIdentifierDeclarator AttributeSpecifierListOpt
         {
-          System.err.println("WARNING: unsupported semantic action: StructDefaultDeclaringList");
+          System.err.println("WARNING: unsupported semantic action: StructDefaultDeclaringList (1)");
           System.exit(1);
         }
         | StructDefaultDeclaringList COMMA StructIdentifierDeclarator AttributeSpecifierListOpt
         {
-          System.err.println("WARNING: unsupported semantic action: StructDefaultDeclaringList");
+          System.err.println("WARNING: unsupported semantic action: StructDefaultDeclaringList (2)");
           System.exit(1);
         }
         ;
@@ -2433,7 +2435,7 @@ StructDeclaringList: /** list, nomerge **/  // returns List<StructDeclaringListV
 StructDeclarator: /** nomerge **/  // returns Multiverse<Declarator>
         Declarator BitFieldSizeOpt
         {
-          System.err.println("TODO: support bitfieldsizeopt in a new StructDeclarator");
+          System.err.println("TODO: support bitfieldsizeopt in a new StructDeclarator (1)");
           setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser, 2));
         }
         | BitFieldSize
@@ -6803,6 +6805,7 @@ private String emitStatement(Multiverse<String> allStatementConfigs, PresenceCon
         sb.append(") {\n");
       }
       sb.append(statement.getData());
+      sb.append("\n");
       if (! combinedCond.isTrue()) {
         // don't print the C conditionals if condition is for all configurations
         sb.append("\n}");
