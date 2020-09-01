@@ -5785,15 +5785,16 @@ ConstantExpression: /** passthrough, nomerge **/  // ExpressionValue
         }
 	      ;
 
-AttributeSpecifierListOpt: /** nomerge **/  // ADDED
+AttributeSpecifierListOpt: /** nomerge **/  // ADDED // Multiverse<String>
         /* empty */
         {
-          System.err.println("WARNING: unsupported semantic action: AttributeSpecifierListOpt");
+          todoReminder("support AttributeSpecifierListOpt (1)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | AttributeSpecifierList
         {
-          System.err.println("WARNING: unsupported semantic action: AttributeSpecifierListOpt");
-          System.exit(1);
+          todoReminder("support AttributeSpecifierListOpt (2)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
@@ -6164,12 +6165,13 @@ AssemblyExpression:  /** nomerge **/
 AssemblyExpressionOpt:  /** nomerge **/
         /* empty */
         {
-          System.err.println("WARNING: unsupported semantic action: AssemblyExpressionOpt");
+          todoReminder("support AssemblyExpressionOpt (1)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | AssemblyExpression
         {
-          System.err.println("WARNING: unsupported semantic action: AssemblyExpressionOpt");
-          System.exit(1);
+          todoReminder("support AssemblyExpressionOpt (2)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
