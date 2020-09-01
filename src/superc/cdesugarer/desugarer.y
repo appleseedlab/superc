@@ -479,7 +479,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                 } else {
                   // otherwise loop over each existing entry check for
                   // type errors or add a new declaration
-                  Multiverse<SymbolTable.Entry> entries = scope.getCurrentScope(originalName, combinedCond);
+                  Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(originalName, combinedCond);
                   for (Element<SymbolTable.Entry> entry : entries) {
                     String renaming = freshCId(originalName);
                     Declarator renamedDeclarator = declarator.getData().rename(renaming);
@@ -995,7 +995,7 @@ Declaration:  /** complete **/  // String
                   } else {
                     // otherwise loop over each existing entry check for
                     // type errors or add a new declaration
-                    Multiverse<SymbolTable.Entry> entries = scope.getCurrentScope(originalName, combinedCond);
+                    Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(originalName, combinedCond);
                     for (Element<SymbolTable.Entry> entry : entries) {
                       String renaming = freshCId(originalName);
                       Declarator renamedDeclarator = declarator.getData().rename(renaming);
@@ -1624,7 +1624,7 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
           Multiverse<SymbolTable.Entry> entries
-            = ((CContext)subparser.scope).getAnyScope(typeName, subparser.getPresenceCondition());
+            = ((CContext)subparser.scope).getInAnyScope(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
       	  Multiverse<TypeBuilder> typedefnametbmv = DesugarOps.typedefEntriesToTypeBuilder.transform(entries);
           // combine with the existing qualifier list
@@ -1646,7 +1646,7 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
           Multiverse<SymbolTable.Entry> entries
-            = ((CContext)subparser.scope).getAnyScope(typeName, subparser.getPresenceCondition());
+            = ((CContext)subparser.scope).getInAnyScope(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
       	  Multiverse<TypeBuilder> typedefnametbmv = DesugarOps.typedefEntriesToTypeBuilder.transform(entries);
           setTransformationValue(value, typedefnametbmv);
@@ -1657,7 +1657,7 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
           Multiverse<SymbolTable.Entry> entries
-            = ((CContext)subparser.scope).getAnyScope(typeName, subparser.getPresenceCondition());
+            = ((CContext)subparser.scope).getInAnyScope(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
       	  Multiverse<TypeBuilder> typedefnametbmv = DesugarOps.typedefEntriesToTypeBuilder.transform(entries);
           // combine with the existing qualifier list
@@ -2131,7 +2131,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           CContext scope = (CContext)subparser.scope;
 
           Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
-          Multiverse<SymbolTable.Entry> entries = scope.getCurrentScope(CContext.toTagName(structTag), subparser.getPresenceCondition());
+          Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(CContext.toTagName(structTag), subparser.getPresenceCondition());
           for (Element<SymbolTable.Entry> entry : entries) {
             if (entry.getData() == SymbolTable.ERROR) {
               System.err.println(String.format("INFO: trying to use an invalid specifier: %s", structTag));
@@ -2202,7 +2202,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeBuilder
           // we can just use the renamed struct from the symtab
           
           Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
-          Multiverse<SymbolTable.Entry> entries = scope.getAnyScope(CContext.toTagName(structTag),
+          Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(CContext.toTagName(structTag),
                                                                     subparser.getPresenceCondition());
           for (Element<SymbolTable.Entry> entry : entries) {
             TypeBuilder typebuilder = new TypeBuilder();
@@ -2697,7 +2697,7 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<Declaration>
                 // the identifierdeclaration.  abstract declarators
                 // can't go in the symbol table, because there is no
                 // symbol.
-                Multiverse<SymbolTable.Entry> entries = scope.getCurrentScope(declarator.getData().getName(), combinedCond);
+                Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(declarator.getData().getName(), combinedCond);
 
                 // TODO: check for multiply-defined parameter names,
                 // which (I believe) should make the entire function
@@ -4340,7 +4340,7 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
 
           // get the renamings from the symtab
           PresenceCondition cond = subparser.getPresenceCondition().presenceConditionManager().newTrue();
-          Multiverse<SymbolTable.Entry> entries = scope.getAnyScope(originalName, cond);
+          Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(originalName, cond);
           cond.delRef();
 
           // convert the renamings to stringbuilders
@@ -4671,7 +4671,7 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
               assert tag != null;  // even anonymous structs get a name, e.g., anonymous(0)
               if (tag.startsWith("anonymous(")) {  // anonymous struct or union
                 // go through each symtab entry for this struct/union
-                Multiverse<SymbolTable.Entry> entries = scope.getAnyScope(tag, type.getCondition());
+                Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tag, type.getCondition());
                 for (Element<SymbolTable.Entry> entry : entries) {
                   PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
                   if (entry.getData() == SymbolTable.ERROR) {
@@ -4722,7 +4722,7 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
 
                 // first go through each symtab entry for the struct tag
                 String tagname = CContext.toTagName(sutype.getName());
-                Multiverse<SymbolTable.Entry> entries = scope.getAnyScope(tagname, type.getCondition());
+                Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tagname, type.getCondition());
                 for (Element<SymbolTable.Entry> entry : entries) {
                   PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
                   if (entry.getData() == SymbolTable.ERROR) {
@@ -4819,7 +4819,7 @@ IndirectSelection:  /** nomerge **/
               assert tag != null;  // even anonymous structs get a name, e.g., anonymous(0)
               if (tag.startsWith("anonymous(")) {  // anonymous struct or union
                 // go through each symtab entry for this struct/union
-                Multiverse<SymbolTable.Entry> entries = scope.getAnyScope(tag, type.getCondition());
+                Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tag, type.getCondition());
                 for (Element<SymbolTable.Entry> entry : entries) {
                   PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
                   if (entry.getData() == SymbolTable.ERROR) {
@@ -4870,7 +4870,7 @@ IndirectSelection:  /** nomerge **/
 
                 // first go through each symtab entry for the struct tag
                 String tagname = CContext.toTagName(sutype.getName());
-                Multiverse<SymbolTable.Entry> entries = scope.getAnyScope(tagname, type.getCondition());
+                Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tagname, type.getCondition());
                 for (Element<SymbolTable.Entry> entry : entries) {
                   PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
                   if (entry.getData() == SymbolTable.ERROR) {

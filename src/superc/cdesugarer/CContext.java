@@ -722,7 +722,7 @@ public class CContext implements ParsingContext {
    * @returns A new Multiverse instance containing the entries under
    * the given condition.
    */
-  public Multiverse<SymbolTable.Entry> getAnyScope(String ident, PresenceCondition cond) {
+  public Multiverse<SymbolTable.Entry> getInAnyScope(String ident, PresenceCondition cond) {
     Multiverse<SymbolTable.Entry> result = new Multiverse<SymbolTable.Entry>();
 
     if (! cond.isFalse()) {
@@ -741,7 +741,7 @@ public class CContext implements ParsingContext {
    * @returns A new Multiverse instance containing the entries under
    * the given condition, including UNDECLARED.
    */
-  public Multiverse<SymbolTable.Entry> getCurrentScope(String ident, PresenceCondition cond) {
+  public Multiverse<SymbolTable.Entry> getInCurrentScope(String ident, PresenceCondition cond) {
     return getSymbolTable().get(ident, cond);
   }
 
