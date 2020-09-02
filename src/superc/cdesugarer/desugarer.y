@@ -5825,12 +5825,12 @@ ConstantExpression: /** passthrough, nomerge **/  // ExpressionValue
 AttributeSpecifierListOpt: /** nomerge **/  // ADDED // Multiverse<String>
         /* empty */
         {
-          todoReminder("support AttributeSpecifierListOpt (1)");
+          todoReminder("support AttributeSpecifierListOpt (1), replaced with empty string now");
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | AttributeSpecifierList
         {
-          todoReminder("support AttributeSpecifierListOpt (2)");
+          todoReminder("support AttributeSpecifierListOpt (2), replaced with empty string now");
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
@@ -5838,78 +5838,81 @@ AttributeSpecifierListOpt: /** nomerge **/  // ADDED // Multiverse<String>
 AttributeSpecifierList:  /** list, nomerge **/  // ADDED
         AttributeSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: AttributeSpecifierList");
-          System.exit(1);
+          todoReminder("support AttributeSpecifierList (1), replaced with empty string now");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | AttributeSpecifierList AttributeSpecifier
         {
-          System.err.println("WARNING: unsupported semantic action: AttributeSpecifierList");
-          System.exit(1);
+          todoReminder("support AttributeSpecifierList (2), replaced with empty string now");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
 AttributeSpecifier: /** nomerge **/  // ADDED
         AttributeKeyword LPAREN LPAREN AttributeListOpt RPAREN RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: AttributeSpecifier");
-          System.exit(1);
+          String keyword = ((Syntax) getNodeAt(subparser, 6).get(0)).getTokenText();
+          todoReminder("support AttributeSpecifier, replaced with empty string now");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
 AttributeKeyword:   // ADDED
         __ATTRIBUTE
         {
-          System.err.println("WARNING: unsupported semantic action: AttributeKeyword");
-          System.exit(1);
+          // read token from parent
         }
         | __ATTRIBUTE__
         {
-          System.err.println("WARNING: unsupported semantic action: AttributeKeyword");
-          System.exit(1);
+          // read token from parent
         }
         ;
 
-AttributeListOpt:   // ADDED
+AttributeListOpt:   // ADDED  // String
         /* empty */
         {
-          System.err.println("WARNING: unsupported semantic action: AttributeListOpt");
+          todoReminder("support AttributeListOpt (1), replaced with empty string now");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | AttributeList
         {
-          System.err.println("WARNING: unsupported semantic action: AttributeListOpt");
-          System.exit(1);
+          todoReminder("support AttributeListOpt (1), replaced with empty string now");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
-AttributeList:  /** list, nomerge **/  // ADDED
+AttributeList:  /** list, nomerge **/  // ADDED  // String
         Word AttributeExpressionOpt
         {
           String word = ((Syntax) getNodeAt(subparser, 2).get(0)).getTokenText();
-          System.err.println("WARNING: unsupported semantic action: AttributeList");
-          System.exit(1);
+          todoReminder("support AttributeList (1), replaced with empty string now");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | AttributeList COMMA Word AttributeExpressionOpt
         {
           String word = ((Syntax) getNodeAt(subparser, 2).get(0)).getTokenText();
-          System.err.println("WARNING: unsupported semantic action: AttributeList");
-          System.exit(1);
+          todoReminder("support AttributeList (2), replaced with empty string now");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
-AttributeExpressionOpt:   // ADDED
+AttributeExpressionOpt:   // ADDED  // String
         /* empty */
         {
-          System.err.println("WARNING: unsupported semantic action: AttributeExpressionOpt");
+          setTransformationValue(value, "");
         }
         | LPAREN RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: AttributeExpressionOpt");
-          System.exit(1);
+          setTransformationValue(value, String.format("%s %s",
+                                                      getNodeAt(subparser, 2).getTokenText(),
+                                                      getNodeAt(subparser, 1).getTokenText()));
         }
         | LPAREN ExpressionList RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: AttributeExpressionOpt");
-          System.exit(1);
+          // TODO: need to check type of expression list to make sure
+          // it's legal and return a type error if it is.
+          todoReminder("support AttributeExpressionOpt, replaced with empty string now");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
