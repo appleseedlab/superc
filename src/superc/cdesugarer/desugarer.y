@@ -5130,15 +5130,54 @@ ExtensionExpression:  /** nomerge **/  // ExpressionValue
         }
         ;
 
-AlignofExpression:  /** nomerge **/
+AlignofExpression:  /** nomerge **/ // ExpressionValue
         Alignofkeyword LPAREN TypeName RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: AlignofExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          String keyword = (String) getTransformationValue(subparser, 4);
+          String lparen = getNodeAt(subparser, 3).getTokenText();
+          Multiverse<TypeBuilder> typebuilder
+            = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
+          String rparen = getNodeAt(subparser, 1).getTokenText();
+
+          // go through each typebuilder and either (1) construct the
+          // transformation or (2) preserve the type error.
+          Multiverse<String> valuestr = new Multiverse<String>();
+          Multiverse<Type> valuetype = new Multiverse<Type>();
+          PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
+          for (Element<TypeBuilder> tb : typebuilder) {
+            PresenceCondition combinedCond = pc.and(tb.getCondition());
+            Type tbtype = tb.getData().toType();
+
+            if (tbtype.isError()) {
+              // save the set of configurations with type errors
+              PresenceCondition newErrorCond = errorCond.or(combinedCond);
+              errorCond.delRef(); errorCond = newErrorCond;
+              newErrorCond.delRef();
+            } else {
+              // add the desugared string and type to the resulting
+              // semantic value
+              valuestr.add(String.format("%s %s %s %s", keyword, lparen, tb.getData().toString(), rparen), combinedCond);
+              valuetype.add(xtc.type.C.SIZEOF, combinedCond);
+            }
+            combinedCond.delRef();
+          }
+
+          if (! errorCond.isFalse()) {
+            valuestr.add(emitError("invalid alignof expression"), errorCond);
+            valuetype.add(ErrorT.TYPE, errorCond);
+          }
+          assert ! valuestr.isEmpty();
+          assert ! valuetype.isEmpty();
+          errorCond.delRef();
+          
+          ExpressionValue exprval = new ExpressionValue(valuestr, valuetype);
+          
+          setTransformationValue(value, exprval);
         }
         | Alignofkeyword UnaryExpression
         {
-          System.err.println("WARNING: unsupported semantic action: AlignofExpression");
+          System.err.println("WARNING: unsupported semantic action: AlignofExpression (2)");
           System.exit(1);
         }
         ;
