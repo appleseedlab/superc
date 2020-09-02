@@ -283,14 +283,7 @@ import xtc.type.VariableT;
 import xtc.type.UnitT;
 /* TUTORIAL: add any additional type classes here */
 
-import org.sat4j.core.VecInt;
-import org.sat4j.minisat.SolverFactory;
-import org.sat4j.specs.ContradictionException;
-import org.sat4j.specs.IConstr;
-import org.sat4j.specs.IProblem;
-import org.sat4j.specs.ISolver;
-import org.sat4j.specs.TimeoutException;
-import org.sat4j.tools.ModelIterator;
+import com.microsoft.z3.BoolExpr;
 
 %}
 
@@ -309,7 +302,7 @@ TranslationUnit:  /** complete **/
             // emit extern declarations for desugaring runtime.
             writer.write("extern void __static_type_error(char *msg);\n");
             writer.write("extern void __static_renaming(char *renaming, char *original);\n");
-            writer.write("extern void __static_condition_renaming(char *renaming, char *expression);\n");
+            writer.write("extern void __static_condition_renaming(char *expression, char *renaming);\n");
             writer.write("\n");
 
             // emit static initializer declaration.
@@ -318,19 +311,20 @@ TranslationUnit:  /** complete **/
             writer.write(String.format("%s;\n", static_initializer_signature));
             writer.write("\n");
             
-            // emit the static initializer definition
-            writer.write(String.format("%s {\n%s\n%s\n};\n",
-                                       static_initializer_signature,
-                                       recordedRenamings.toString(),
-                                       invalidGlobals.toString()));
-            
-            
             // writes the extern declarations for the renamed preprocessor BDDs
             System.err.println("TODO: record original presence condition strings in file as well once raw strings are collected");
             for (Integer hash : condVars.keySet()) {
               writer.write(String.format("extern const bool %s;\n", condVars.get(hash)));
             }
 
+            // emit the static initializer definition
+            writer.write(String.format("%s {\n%s\n%s\n};\n",
+                                       static_initializer_signature,
+                                       recordedRenamings.toString(),
+                                       staticConditionRenamings.toString(),
+                                       invalidGlobals.toString()));
+            
+            
             SymbolTable symtab = ((CContext) subparser.scope).getSymbolTable();
 
             // write the user-defined types at the top of the scope.
@@ -893,11 +887,13 @@ Declaration:  /** complete **/  // String
                 recordInvalidGlobalDeclaration(typebuilder.getData().getStructTag(),
                                                typebuilder.getCondition());
               } else {
+                // TODO: don't print if when it's always true
                 sb.append("if (");
                 sb.append(condToCVar(typebuilder.getCondition()));
                 sb.append(") {\n");
                 sb.append(emitError(String.format("invalid declaration of struct: %s",
                                                   typebuilder.getData().getStructTag())));
+                sb.append(";\n");
                 sb.append("}\n");
               }
             }
@@ -928,6 +924,7 @@ Declaration:  /** complete **/  // String
                 sb.append(") {\n");
                 sb.append(emitError(String.format("invalid declaration of struct: %s",
                                                   typebuilder.getData().getStructTag())));
+                sb.append(";\n");
                 sb.append("}\n");
               }
             }
@@ -986,8 +983,9 @@ Declaration:  /** complete **/  // String
                       valuesb.append("if (");
                       valuesb.append(condToCVar(combinedCond));
                       valuesb.append(") {\n");
-                      valuesb.append(emitError(String.format("invalid declaration of \"%s\" under this presence condition",
+                      valuesb.append(emitError(String.format("invalid declaration of %s under this presence condition",
                                                              originalName)));
+                      valuesb.append(";\n");
                       valuesb.append("}\n");
                     }
                   } else {
@@ -1032,6 +1030,7 @@ Declaration:  /** complete **/  // String
                           entrysb.append(") {\n");
                           entrysb.append(emitError(String.format("redeclaration of local symbol: %s",
                                                                  originalName)));
+                          entrysb.append(";\n");
                           entrysb.append("}\n");
                         } else {  // global scope
 
@@ -3950,13 +3949,14 @@ ExpressionStatement:  /** complete **/  // Multiverse<String>
               = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
 
             valuemv = productAll(DesugarOps.concatStrings, expr, semi);
+            
             // if filtering of type errors is done right, this add
             // should not violate mutual-exclusion in the multiverse
             // TODO: use dce and other optimizations to remove superfluous __static_type_error calls
             todoReminder("add emitError back to ExpressionStatement once type checking is done");
             /* valuemv.add(emitError("type error"), errorCond); */
           } else {
-            valuemv = new Multiverse<String>(emitError("type error"), errorCond);
+            valuemv = new Multiverse<String>(String.format("%s;", emitError("type error")), errorCond);
           }
           assert valuemv != null;
           System.err.println("EXPSMT: " + valuemv);
@@ -7979,21 +7979,31 @@ private static Specifiers makeStructSpec(Subparser subparser,
 }
 
 private Map<Integer, String> condVars = new HashMap<Integer, String>();
+private StringBuilder staticConditionRenamings = new StringBuilder();
 
 // TODO: record the string values of the condVars as well as the C
 // variables.  also emit the renaming from the c var to the
 // preprocessor expression it represents
 
+
+
 public String condToCVar(PresenceCondition cond) {
-  // TODO: traverse the (simplified) expression AST and convert
-  // non-boolean leaves to C variables.
-  int hash = cond.hashCode();
-  if (condVars.containsKey(hash)) {
-    return condVars.get(hash);
+  if (cond.isTrue()) {
+    return "1";
+  } else if (cond.isFalse()) {
+    return "0";
   } else {
-    String cvar = freshCId("static_condition");
-    condVars.put(hash, cvar);
-    return cvar;
+    // TODO: traverse the (simplified) expression AST and convert
+    // non-boolean leaves to C variables.
+    int key = cond.hashCode();
+    if (condVars.containsKey(key)) {
+      return condVars.get(key);
+    } else {
+      String cvar = freshCId("static_condition");
+      condVars.put(key, cvar);
+      staticConditionRenamings.append(String.format("__static_condition_renaming(\"%s\", \"%s\");\n", cvar, cond.toString()));
+      return cvar;
+    }
   }
 }
 
