@@ -141,14 +141,7 @@ import xtc.type.VariableT;
 import xtc.type.UnitT;
 /* TUTORIAL: add any additional type classes here */
 
-import org.sat4j.core.VecInt;
-import org.sat4j.minisat.SolverFactory;
-import org.sat4j.specs.ContradictionException;
-import org.sat4j.specs.IConstr;
-import org.sat4j.specs.IProblem;
-import org.sat4j.specs.ISolver;
-import org.sat4j.specs.TimeoutException;
-import org.sat4j.tools.ModelIterator;
+import com.microsoft.z3.BoolExpr;
 
 
 
@@ -183,7 +176,7 @@ public class CActions implements SemanticActions {
             // emit extern declarations for desugaring runtime.
             writer.write("extern void __static_type_error(char *msg);\n");
             writer.write("extern void __static_renaming(char *renaming, char *original);\n");
-            writer.write("extern void __static_condition_renaming(char *renaming, char *expression);\n");
+            writer.write("extern void __static_condition_renaming(char *expression, char *renaming);\n");
             writer.write("\n");
 
             // emit static initializer declaration.
@@ -192,19 +185,20 @@ public class CActions implements SemanticActions {
             writer.write(String.format("%s;\n", static_initializer_signature));
             writer.write("\n");
             
-            // emit the static initializer definition
-            writer.write(String.format("%s {\n%s\n%s\n};\n",
-                                       static_initializer_signature,
-                                       recordedRenamings.toString(),
-                                       invalidGlobals.toString()));
-            
-            
             // writes the extern declarations for the renamed preprocessor BDDs
             System.err.println("TODO: record original presence condition strings in file as well once raw strings are collected");
             for (Integer hash : condVars.keySet()) {
               writer.write(String.format("extern const bool %s;\n", condVars.get(hash)));
             }
 
+            // emit the static initializer definition
+            writer.write(String.format("%s {\n%s\n%s\n};\n",
+                                       static_initializer_signature,
+                                       recordedRenamings.toString(),
+                                       staticConditionRenamings.toString(),
+                                       invalidGlobals.toString()));
+            
+            
             SymbolTable symtab = ((CContext) subparser.scope).getSymbolTable();
 
             // write the user-defined types at the top of the scope.
@@ -814,11 +808,13 @@ public class CActions implements SemanticActions {
                 recordInvalidGlobalDeclaration(typebuilder.getData().getStructTag(),
                                                typebuilder.getCondition());
               } else {
+                // TODO: don't print if when it's always true
                 sb.append("if (");
                 sb.append(condToCVar(typebuilder.getCondition()));
                 sb.append(") {\n");
                 sb.append(emitError(String.format("invalid declaration of struct: %s",
                                                   typebuilder.getData().getStructTag())));
+                sb.append(";\n");
                 sb.append("}\n");
               }
             }
@@ -855,6 +851,7 @@ public class CActions implements SemanticActions {
                 sb.append(") {\n");
                 sb.append(emitError(String.format("invalid declaration of struct: %s",
                                                   typebuilder.getData().getStructTag())));
+                sb.append(";\n");
                 sb.append("}\n");
               }
             }
@@ -919,8 +916,9 @@ public class CActions implements SemanticActions {
                       valuesb.append("if (");
                       valuesb.append(condToCVar(combinedCond));
                       valuesb.append(") {\n");
-                      valuesb.append(emitError(String.format("invalid declaration of \"%s\" under this presence condition",
+                      valuesb.append(emitError(String.format("invalid declaration of %s under this presence condition",
                                                              originalName)));
+                      valuesb.append(";\n");
                       valuesb.append("}\n");
                     }
                   } else {
@@ -965,6 +963,7 @@ public class CActions implements SemanticActions {
                           entrysb.append(") {\n");
                           entrysb.append(emitError(String.format("redeclaration of local symbol: %s",
                                                                  originalName)));
+                          entrysb.append(";\n");
                           entrysb.append("}\n");
                         } else {  // global scope
 
@@ -4093,13 +4092,14 @@ public class CActions implements SemanticActions {
               = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
 
             valuemv = productAll(DesugarOps.concatStrings, expr, semi);
+            
             // if filtering of type errors is done right, this add
             // should not violate mutual-exclusion in the multiverse
             // TODO: use dce and other optimizations to remove superfluous __static_type_error calls
             todoReminder("add emitError back to ExpressionStatement once type checking is done");
             /* valuemv.add(emitError("type error"), errorCond); */
           } else {
-            valuemv = new Multiverse<String>(emitError("type error"), errorCond);
+            valuemv = new Multiverse<String>(String.format("%s;", emitError("type error")), errorCond);
           }
           assert valuemv != null;
           System.err.println("EXPSMT: " + valuemv);
@@ -5315,14 +5315,53 @@ public class CActions implements SemanticActions {
 
   case 455:
     {
-          System.err.println("WARNING: unsupported semantic action: AlignofExpression");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          String keyword = (String) getTransformationValue(subparser, 4);
+          String lparen = getNodeAt(subparser, 3).getTokenText();
+          Multiverse<TypeBuilder> typebuilder
+            = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
+          String rparen = getNodeAt(subparser, 1).getTokenText();
+
+          // go through each typebuilder and either (1) construct the
+          // transformation or (2) preserve the type error.
+          Multiverse<String> valuestr = new Multiverse<String>();
+          Multiverse<Type> valuetype = new Multiverse<Type>();
+          PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
+          for (Element<TypeBuilder> tb : typebuilder) {
+            PresenceCondition combinedCond = pc.and(tb.getCondition());
+            Type tbtype = tb.getData().toType();
+
+            if (tbtype.isError()) {
+              // save the set of configurations with type errors
+              PresenceCondition newErrorCond = errorCond.or(combinedCond);
+              errorCond.delRef(); errorCond = newErrorCond;
+              newErrorCond.delRef();
+            } else {
+              // add the desugared string and type to the resulting
+              // semantic value
+              valuestr.add(String.format("%s %s %s %s", keyword, lparen, tb.getData().toString(), rparen), combinedCond);
+              valuetype.add(xtc.type.C.SIZEOF, combinedCond);
+            }
+            combinedCond.delRef();
+          }
+
+          if (! errorCond.isFalse()) {
+            valuestr.add(emitError("invalid alignof expression"), errorCond);
+            valuetype.add(ErrorT.TYPE, errorCond);
+          }
+          assert ! valuestr.isEmpty();
+          assert ! valuetype.isEmpty();
+          errorCond.delRef();
+          
+          ExpressionValue exprval = new ExpressionValue(valuestr, valuetype);
+          
+          setTransformationValue(value, exprval);
         }
     break;
 
   case 456:
     {
-          System.err.println("WARNING: unsupported semantic action: AlignofExpression");
+          System.err.println("WARNING: unsupported semantic action: AlignofExpression (2)");
           System.exit(1);
         }
     break;
@@ -6011,99 +6050,102 @@ public class CActions implements SemanticActions {
 
   case 517:
     {
-          todoReminder("support AttributeSpecifierListOpt (1)");
+          todoReminder("support AttributeSpecifierListOpt (1), replaced with empty string now");
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
   case 518:
     {
-          todoReminder("support AttributeSpecifierListOpt (2)");
+          todoReminder("support AttributeSpecifierListOpt (2), replaced with empty string now");
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
   case 519:
     {
-          System.err.println("WARNING: unsupported semantic action: AttributeSpecifierList");
-          System.exit(1);
+          todoReminder("support AttributeSpecifierList (1), replaced with empty string now");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
   case 520:
     {
-          System.err.println("WARNING: unsupported semantic action: AttributeSpecifierList");
-          System.exit(1);
+          todoReminder("support AttributeSpecifierList (2), replaced with empty string now");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
   case 521:
     {
-          System.err.println("WARNING: unsupported semantic action: AttributeSpecifier");
-          System.exit(1);
+          String keyword = ((Syntax) getNodeAt(subparser, 6).get(0)).getTokenText();
+          todoReminder("support AttributeSpecifier, replaced with empty string now");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
   case 522:
     {
-          System.err.println("WARNING: unsupported semantic action: AttributeKeyword");
-          System.exit(1);
+          // read token from parent
         }
     break;
 
   case 523:
     {
-          System.err.println("WARNING: unsupported semantic action: AttributeKeyword");
-          System.exit(1);
+          // read token from parent
         }
     break;
 
   case 524:
     {
-          System.err.println("WARNING: unsupported semantic action: AttributeListOpt");
+          todoReminder("support AttributeListOpt (1), replaced with empty string now");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
   case 525:
     {
-          System.err.println("WARNING: unsupported semantic action: AttributeListOpt");
-          System.exit(1);
+          todoReminder("support AttributeListOpt (1), replaced with empty string now");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
   case 526:
     {
           String word = ((Syntax) getNodeAt(subparser, 2).get(0)).getTokenText();
-          System.err.println("WARNING: unsupported semantic action: AttributeList");
-          System.exit(1);
+          todoReminder("support AttributeList (1), replaced with empty string now");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
   case 527:
     {
           String word = ((Syntax) getNodeAt(subparser, 2).get(0)).getTokenText();
-          System.err.println("WARNING: unsupported semantic action: AttributeList");
-          System.exit(1);
+          todoReminder("support AttributeList (2), replaced with empty string now");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
   case 528:
     {
-          System.err.println("WARNING: unsupported semantic action: AttributeExpressionOpt");
+          setTransformationValue(value, "");
         }
     break;
 
   case 529:
     {
-          System.err.println("WARNING: unsupported semantic action: AttributeExpressionOpt");
-          System.exit(1);
+          setTransformationValue(value, String.format("%s %s",
+                                                      getNodeAt(subparser, 2).getTokenText(),
+                                                      getNodeAt(subparser, 1).getTokenText()));
         }
     break;
 
   case 530:
     {
-          System.err.println("WARNING: unsupported semantic action: AttributeExpressionOpt");
-          System.exit(1);
+          // TODO: need to check type of expression list to make sure
+          // it's legal and return a type error if it is.
+          todoReminder("support AttributeExpressionOpt, replaced with empty string now");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
@@ -7197,42 +7239,6 @@ private String emitStatement(Multiverse<String> allStatementConfigs, PresenceCon
   return sb.toString();
 }
 
-/* /\** */
-/*  * Writes nested ternary expressions to preserve configurations of an expression. */
-/*  * */
-/*  * @param allStatementConfigs A multiverse containing all configurations of a statement. */
-/*  * @param pc The current presence condition. */
-/*  * @return A String containing the transformed statement. */
-/*  *\/ */
-/* private String emitExpression(Multiverse<String> allStatementConfigs, PresenceCondition pc) { */
-/*   StringBuilder sb = new StringBuilder(); */
-/*   if (allStatementConfigs.size() > 1) { */
-/*     sb.append("\n("); */
-/*   } */
-/*   for (Multiverse.Element<String> statement : allStatementConfigs) { */
-/*     PresenceCondition combinedCond = statement.getCondition().and(pc); */
-/*     if (! combinedCond.isFalse()) { */
-/*       // don't print at all if an infeasible configuration */
-/*       if (! combinedCond.isTrue()) { */
-/*         // don't print the C conditionals if condition is for all configurations */
-/*         sb.append("\nif ("); */
-/*         sb.append(condToCVar(combinedCond)); */
-/*         sb.append(") {\n"); */
-/*       } */
-/*       sb.append(statement.getData()); */
-/*       if (! combinedCond.isTrue()) { */
-/*         // don't print the C conditionals if condition is for all configurations */
-/*         sb.append("\n}"); */
-/*       } */
-/*       sb.append("\n"); */
-/*     } */
-/*     combinedCond.delRef(); */
-/*   } */
-/*   if (allStatementConfigs.size() > 1) { */
-/*     sb.append("\n)"); */
-/*   } */
-/*   return sb.toString(); */
-/* } */
 
 /**
  * Produces the string used when a compile-time error needs to be
@@ -8408,21 +8414,31 @@ private static Specifiers makeStructSpec(Subparser subparser,
 }
 
 private Map<Integer, String> condVars = new HashMap<Integer, String>();
+private StringBuilder staticConditionRenamings = new StringBuilder();
 
 // TODO: record the string values of the condVars as well as the C
 // variables.  also emit the renaming from the c var to the
 // preprocessor expression it represents
 
+
+
 public String condToCVar(PresenceCondition cond) {
-  // TODO: traverse the (simplified) expression AST and convert
-  // non-boolean leaves to C variables.
-  int hash = cond.hashCode();
-  if (condVars.containsKey(hash)) {
-    return condVars.get(hash);
+  if (cond.isTrue()) {
+    return "1";
+  } else if (cond.isFalse()) {
+    return "0";
   } else {
-    String cvar = freshCId("static_condition");
-    condVars.put(hash, cvar);
-    return cvar;
+    // TODO: traverse the (simplified) expression AST and convert
+    // non-boolean leaves to C variables.
+    int key = cond.hashCode();
+    if (condVars.containsKey(key)) {
+      return condVars.get(key);
+    } else {
+      String cvar = freshCId("static_condition");
+      condVars.put(key, cvar);
+      staticConditionRenamings.append(String.format("__static_condition_renaming(\"%s\", \"%s\");\n", cvar, cond.toString()));
+      return cvar;
+    }
   }
 }
 
