@@ -166,7 +166,9 @@ public class ConditionEvaluator {
     Node tree = parser.parse(expression);
     BDD bdd = evaluate(tree);
     BoolExpr expr = evaluatez3(tree);
-    return presenceConditionManager.newCondition(bdd, tree, expr);
+    PresenceCondition pc = presenceConditionManager.newCondition(bdd, tree, expr);
+    pc.simplify();
+    return pc;
   }
 
   /**

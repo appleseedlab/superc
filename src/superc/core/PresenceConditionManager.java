@@ -766,7 +766,7 @@ public class PresenceConditionManager {
         notexpr = (BoolExpr) ctx.mkNot(this.expr).simplify();
       } else {
         nottree = GNode.create("LogicalNegationExpression", this.tree);
-        this.simplify();
+        // this.simplify();
         notexpr = ctx.mkNot(this.expr);
       }
       return new PresenceCondition(bdd.not(), nottree, notexpr);
@@ -785,8 +785,8 @@ public class PresenceConditionManager {
       } else if (c.isFalse()) {
         return new PresenceCondition(false);
       } else {
-        this.simplify();
-        c.simplify();
+        // this.simplify();
+        // c.simplify();
         return new PresenceCondition(bdd.and(c.bdd),
                                      GNode.create("LogicalAndExpression", this.tree, c.tree),
                                      ctx.mkAnd(this.expr, c.expr));
@@ -822,8 +822,8 @@ public class PresenceConditionManager {
       } else if (c.isTrue()) {
         return new PresenceCondition(true);
       } else {
-        this.simplify();
-        c.simplify();
+        // this.simplify();
+        // c.simplify();
         return new PresenceCondition(bdd.or(c.bdd),
                                      GNode.create("LogicalOrExpression", this.tree, c.tree),
                                      ctx.mkOr(this.expr, c.expr));
@@ -967,6 +967,7 @@ public class PresenceConditionManager {
      * @throws IOException Because it uses a Writer.
      */
     public void print(Writer writer) throws IOException {
+      
       printz3(expr, writer);
       // printBDD(bdd, writer);
     }
@@ -978,6 +979,10 @@ public class PresenceConditionManager {
      * @throws IOException Because it uses a Writer.
      */
     public void printz3(BoolExpr expr, Writer writer) throws IOException {
+      // boolean save = useContextSimplify;
+      // useContextSimplify = false;
+      // this.simplify();
+      // useContextSimplify = save;
       writer.write(expr.toString());
     }
 
