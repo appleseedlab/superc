@@ -39,7 +39,12 @@ import xtc.tree.GNode;
 
 import net.sf.javabdd.BDDFactory;
 import net.sf.javabdd.BDD;
-  
+
+import com.microsoft.z3.Context;
+import com.microsoft.z3.BoolExpr;
+import com.microsoft.z3.Tactic;
+import com.microsoft.z3.Goal;
+import com.microsoft.z3.ApplyResult;
 
 /** Presence condition manager.  It abstracts away the nitty-gritty of
   * using BDDs.
@@ -51,6 +56,9 @@ public class PresenceConditionManager {
 
   /** The BDD factory. */
   private BDDFactory B;
+
+  /** The z3 context. */
+  Context ctx;
 
   /** The variable name manager. */
   private Variables vars;
@@ -88,6 +96,9 @@ public class PresenceConditionManager {
    */
   public PresenceConditionManager() {
     this.B = BDDFactory.init(5000000, 50000);
+    HashMap<String, String> cfg = new HashMap<String, String>();
+    cfg.put("model", "true");
+    this.ctx = new Context(cfg);
     this.vars = new Variables(B);
     this.stack = new LinkedList<PresenceCondition>();
     this.global = newTrue();
@@ -103,6 +114,7 @@ public class PresenceConditionManager {
    */
   public PresenceConditionManager(PresenceConditionManager presenceConditionManager) {
     this.B = presenceConditionManager.B;
+    this.ctx = presenceConditionManager.ctx;
     this.vars = presenceConditionManager.vars;
     
     this.stack = new LinkedList<PresenceCondition>();
@@ -365,8 +377,8 @@ public class PresenceConditionManager {
    * representation of the expression.  This is used by
    * ConditionEvaluator to construct a presence condition.
    */
-  public PresenceCondition newCondition(BDD bdd, Node tree) {
-    return new PresenceCondition(bdd, tree);
+  public PresenceCondition newCondition(BDD bdd, Node tree, BoolExpr expr) {
+    return new PresenceCondition(bdd, tree, expr);
   }
 
   /**
@@ -402,7 +414,8 @@ public class PresenceConditionManager {
   public PresenceCondition getVariable(String name) {
     // get variable gives a new bdd, which presence condition expects
     return new PresenceCondition(getVariableManager().getVariable(name),
-                                 GNode.create("PrimaryIdentifier", name));
+                                 GNode.create("PrimaryIdentifier", name),
+                                 ctx.mkBoolConst(name));
   }
 
   /**
@@ -414,7 +427,8 @@ public class PresenceConditionManager {
   public PresenceCondition getDefinedVariable(String name) {
     // get defined variable gives a new bdd, which presence condition expects
     return new PresenceCondition(getVariableManager().getDefinedVariable(name),
-                                 GNode.create("DefinedExpression", GNode.create("PrimaryIdentifier", name)));
+                                 GNode.create("DefinedExpression", GNode.create("PrimaryIdentifier", name)),
+                                 ctx.mkBoolConst(getVariableManager().createDefinedVariable(name)));
   }
 
   /**
@@ -447,16 +461,24 @@ public class PresenceConditionManager {
     return stack.size();
   }
 
-  // TODO: don't expose the BDDs outside presence condition manager
   /**
-   * The BDD factory used to create BDDs.  This is needed for directly
-   * manipulating BDDs outside of the PresenceConditionManager, because all BDDs
-   * that share variables need to be created from the same factory.
+   * The BDD factory used to create BDDs.  This is used by
+   * ConditionEvaluator.
    *
    * @return The BDD factory.
    */
   public BDDFactory getBDDFactory() {
     return B;
+  }
+
+  /**
+   * The z3 context factory used to create z3 expressions.  This is
+   * used by ConditionEvaluator.
+   *
+   * @return The z3 context.
+   */
+  public Context getZ3Context() {
+    return ctx;
   }
 
   // /**
@@ -688,6 +710,12 @@ public class PresenceConditionManager {
     /** The tree representation of this expression. */
     private Node tree;
 
+    /** The z3 expression representation of this expression. */
+    private BoolExpr expr;
+
+    /** Whether simplification was already run or not. */
+    private boolean isSimplified = false;
+
     /**
      * The number of references to the presence condition, used to
      * automatically destroy the BDD object.
@@ -697,16 +725,20 @@ public class PresenceConditionManager {
     /** Creates a new PresenceCondition out of the given bdd.  Make sure the bdd
       * is not shared by anyone else.
       */
-    private PresenceCondition(BDD bdd, Node tree) {
+    private PresenceCondition(BDD bdd, Node tree, BoolExpr expr) {
       this.bdd = bdd;
       this.refs = 1;
       this.tree = tree;
+      this.expr = expr;
+      // this.simplify();
     }
     
     private PresenceCondition(boolean value) {
       this.bdd = value ? B.one() : B.zero();
       this.refs = 1;
       this.tree = value ? oneNode : zeroNode;
+      this.expr = value ? ctx.mkTrue() : ctx.mkFalse();
+      this.isSimplified = true;
     }
     
     public boolean isTrue() {
@@ -720,16 +752,24 @@ public class PresenceConditionManager {
     public boolean isNotFalse() {
       return ! isFalse();
     }
+
+    // TODO: z3 simplify
+    // ApplyResult ar = applyTactic(ctx, ctx.mkTactic("simplify"), goal);
     
     /** Return the negated presence condition. */
     public PresenceCondition not() {
       GNode nottree;
+      BoolExpr notexpr;
       if (this.tree.getName().equals("LogicalNegationExpression")) {
         nottree = (GNode) this.tree.get(0);
+        // TODO: just remove the negation
+        notexpr = (BoolExpr) ctx.mkNot(this.expr).simplify();
       } else {
         nottree = GNode.create("LogicalNegationExpression", this.tree);
+        this.simplify();
+        notexpr = ctx.mkNot(this.expr);
       }
-      return new PresenceCondition(bdd.not(), nottree);
+      return new PresenceCondition(bdd.not(), nottree, notexpr);
     }
     
     /** Return this presence condition and c.  Free any intermediate bdds. */
@@ -745,7 +785,11 @@ public class PresenceConditionManager {
       } else if (c.isFalse()) {
         return new PresenceCondition(false);
       } else {
-        return new PresenceCondition(bdd.and(c.bdd), GNode.create("LogicalAndExpression", this.tree, c.tree));
+        this.simplify();
+        c.simplify();
+        return new PresenceCondition(bdd.and(c.bdd),
+                                     GNode.create("LogicalAndExpression", this.tree, c.tree),
+                                     ctx.mkAnd(this.expr, c.expr));
       }
     }
 
@@ -778,7 +822,11 @@ public class PresenceConditionManager {
       } else if (c.isTrue()) {
         return new PresenceCondition(true);
       } else {
-        return new PresenceCondition(bdd.or(c.bdd), GNode.create("LogicalOrExpression", this.tree, c.tree));
+        this.simplify();
+        c.simplify();
+        return new PresenceCondition(bdd.or(c.bdd),
+                                     GNode.create("LogicalOrExpression", this.tree, c.tree),
+                                     ctx.mkOr(this.expr, c.expr));
       }
     }
 
@@ -853,7 +901,41 @@ public class PresenceConditionManager {
         }
       }
     }
+
+    public boolean useContextSimplify = true;
+    public String nameContextSimplify = "ctx-simplify";  // better than "simplify" alone
+    // public String nameContextSimplify = "ctx-solver-simplify";  // best simplification, but very slow due to calls to solver
     
+    protected void simplify() {
+      if (! isSimplified) {
+        isSimplified = true;
+        if (isFalse()) {
+          this.expr = ctx.mkFalse();
+        } else if (isTrue()) {
+          this.expr = ctx.mkTrue();
+        } else {
+          if (useContextSimplify) {
+            this.expr = contextsimplify(expr);
+          }
+          this.expr = (BoolExpr) expr.simplify();
+        }
+      }
+    }
+
+    protected BoolExpr contextsimplify(BoolExpr expr) {
+      Goal goal = ctx.mkGoal(true, false, false);
+      goal.add(expr);
+      Tactic tactic = ctx.mkTactic(nameContextSimplify);
+      ApplyResult ar = tactic.apply(goal);
+
+      if (ar.getNumSubgoals() != 1) {
+        throw new AssertionError("expected only one subgoal from z3 tactic");
+      }
+
+      Goal result = ar.getSubgoals()[0];
+      return result.AsBoolExpr();
+    }
+
     // TODO: don't expose the BDDs outside presence condition manager
     /**
      * Get the raw BDD backing this presence condition.
@@ -865,14 +947,38 @@ public class PresenceConditionManager {
     }
 
     /**
-     * Print the BDD to a writer.
+     * Get the expression tree representation of this presence condition.
+     */
+    public Node tree() {
+      return tree;
+    }
+    
+    /**
+     * Get the z3 expression representation of this presence condition.
+     */
+    public BoolExpr z3() {
+      return expr;
+    }
+    
+    /**
+     * Print the BDD expression to a writer.
      *
-     * @param bdd The BDD.
      * @param writer The writer.
      * @throws IOException Because it uses a Writer.
      */
     public void print(Writer writer) throws IOException {
-      printBDD(bdd, writer);
+      printz3(expr, writer);
+      // printBDD(bdd, writer);
+    }
+
+    /**
+     * Print the presence condition using z3 to a writer.
+     *
+     * @param writer The writer.
+     * @throws IOException Because it uses a Writer.
+     */
+    public void printz3(BoolExpr expr, Writer writer) throws IOException {
+      writer.write(expr.toString());
     }
 
     // /**
