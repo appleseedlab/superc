@@ -114,8 +114,6 @@ import superc.cdesugarer.SymbolTable.Entry;
 import superc.core.PresenceConditionManager;
 import superc.core.PresenceConditionManager.PresenceCondition;
 
-import superc.core.Clauses;
-
 import superc.core.ForkMergeParser;
 import superc.core.ForkMergeParser.StackFrame;
 
@@ -174,7 +172,7 @@ public class CActions implements SemanticActions {
   public Object action(int production, Subparser subparser, Object value) {
     switch (production) {
   case 2:
-        {
+    {
           try {
             OutputStreamWriter writer = new OutputStreamWriter(System.out);
 
@@ -231,13 +229,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 3:
-        {
+    {
           setTransformationValue(value, "");
         }
     break;
 
   case 4:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           StringBuilder valuesb = new StringBuilder();
           Multiverse<String> listmv = getCompleteNodeSingleValue(subparser, 2, pc);
@@ -249,48 +247,48 @@ public class CActions implements SemanticActions {
     break;
 
   case 5:
-        {
+    {
           Multiverse<String> declmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
           setTransformationValue(value, concatMultiverseStrings(declmv)); declmv.destruct();
         }
     break;
 
   case 6:
-        {
+    {
           Multiverse<String> declmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
           setTransformationValue(value, concatMultiverseStrings(declmv)); declmv.destruct();
         }
     break;
 
   case 7:
-        {
+    {
           Multiverse<String> declmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
           setTransformationValue(value, concatMultiverseStrings(declmv)); declmv.destruct();
         }
     break;
 
   case 8:
-        {
+    {
           Multiverse<String> declmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
           setTransformationValue(value, concatMultiverseStrings(declmv)); declmv.destruct();
         }
     break;
 
   case 9:
-        {
+    {
           setTransformationValue(value, (String) getNodeAt(subparser, 1).getTokenText());
         }
     break;
 
   case 10:
-        {
+    {
           Multiverse<String> funcmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
           setTransformationValue(value, concatMultiverseStrings(funcmv)); funcmv.destruct();
         }
     break;
 
   case 11:
-        {
+    {
           Multiverse<String> funcmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
           
           StringBuilder valuesb = new StringBuilder();
@@ -301,15 +299,15 @@ public class CActions implements SemanticActions {
     break;
 
   case 12:
-                          { ReenterScope(subparser); }
+    { ReenterScope(subparser); }
     break;
 
   case 13:
-                                                                                        { ExitScope(subparser); }
+    { ExitScope(subparser); }
     break;
 
   case 14:
-        {
+    {
           // similar to Declaration, but different in that this has a
           // compoundstatement, while declaration has an initializer.
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -363,7 +361,7 @@ public class CActions implements SemanticActions {
                 } else {
                   // otherwise loop over each existing entry check for
                   // type errors or add a new declaration
-                  Multiverse<SymbolTable.Entry> entries = scope.getCurrentScope(originalName, combinedCond);
+                  Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(originalName, combinedCond);
                   for (Element<SymbolTable.Entry> entry : entries) {
                     String renaming = freshCId(originalName);
                     Declarator renamedDeclarator = declarator.getData().rename(renaming);
@@ -457,15 +455,15 @@ public class CActions implements SemanticActions {
     break;
 
   case 15:
-                               { ReenterScope(subparser); }
+    { ReenterScope(subparser); }
     break;
 
   case 16:
-                                                                                                             { ExitScope(subparser); }
+    { ExitScope(subparser); }
     break;
 
   case 17:
-        {
+    {
           // TODO
           System.err.println("WARNING: unsupported semantic action: FunctionDefinition");
           System.exit(1);
@@ -473,7 +471,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 18:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = ((CContext) subparser.scope);
 
@@ -494,7 +492,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 19:
-        {
+    {
           // legacy type checking code
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
 
@@ -507,7 +505,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 20:
-        {
+    {
           // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
@@ -518,7 +516,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 21:
-        {
+    {
           // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
@@ -529,7 +527,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 22:
-        {
+    {
           // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
@@ -540,7 +538,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 23:
-        {
+    {
           // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
@@ -551,7 +549,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 24:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype (6)");
           System.exit(1);
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
@@ -559,7 +557,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 25:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype (7)");
           System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -568,7 +566,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 26:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype (8)");
           System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -577,7 +575,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 27:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype (9)");
           System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -586,7 +584,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 28:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: FunctionPrototype (10)");
           System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
@@ -595,7 +593,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 29:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: FunctionOldPrototype");
           System.exit(1);
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
@@ -603,7 +601,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 30:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: FunctionOldPrototype");
@@ -612,7 +610,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 31:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: FunctionOldPrototype");
@@ -621,7 +619,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 32:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: FunctionOldPrototype");
@@ -630,7 +628,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 33:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: FunctionOldPrototype");
@@ -639,15 +637,15 @@ public class CActions implements SemanticActions {
     break;
 
   case 34:
-                                { ReenterScope(subparser); }
+    { ReenterScope(subparser); }
     break;
 
   case 35:
-                                                                                                                            { ExitScope(subparser); }
+    { ExitScope(subparser); }
     break;
 
   case 36:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
           System.exit(1);
@@ -655,15 +653,15 @@ public class CActions implements SemanticActions {
     break;
 
   case 37:
-                                     { ReenterScope(subparser); }
+    { ReenterScope(subparser); }
     break;
 
   case 38:
-                                                                                                                                                 { ExitScope(subparser); }
+    { ExitScope(subparser); }
     break;
 
   case 39:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
           System.exit(1);
@@ -671,7 +669,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 40:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
@@ -680,7 +678,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 41:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
@@ -689,7 +687,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 42:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
@@ -698,7 +696,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 43:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
@@ -707,7 +705,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 44:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
@@ -716,7 +714,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 45:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
@@ -725,7 +723,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 46:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
@@ -734,7 +732,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 47:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
@@ -743,7 +741,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 48:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
@@ -752,7 +750,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 49:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
@@ -761,7 +759,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 50:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
@@ -770,7 +768,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 51:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("WARNING: unsupported semantic action: NestedFunctionDefinition");
@@ -779,14 +777,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 52:
-        {
+    {
           Multiverse<String> declmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
           setTransformationValue(value, concatMultiverseStrings(declmv)); declmv.destruct();
         }
     break;
 
   case 53:
-        {
+    {
           Multiverse<String> declmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
           
           StringBuilder valuesb = new StringBuilder();
@@ -797,11 +795,11 @@ public class CActions implements SemanticActions {
     break;
 
   case 54:
-                                { KillReentrantScope(subparser); }
+    { KillReentrantScope(subparser); }
     break;
 
   case 55:
-        {
+    {
         	Multiverse<TypeBuilder> structtypesmv
             = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 3);
         	StringBuilder sb = new StringBuilder();  // the desugared output
@@ -833,11 +831,11 @@ public class CActions implements SemanticActions {
     break;
 
   case 56:
-                           { KillReentrantScope(subparser); }
+    { KillReentrantScope(subparser); }
     break;
 
   case 57:
-        {
+    {
         	Multiverse<TypeBuilder> structtypesmv
             = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 3);
         	StringBuilder sb = new StringBuilder();  // the desugared output
@@ -869,11 +867,11 @@ public class CActions implements SemanticActions {
     break;
 
   case 58:
-                        { KillReentrantScope(subparser); }
+    { KillReentrantScope(subparser); }
     break;
 
   case 59:
-        {
+    {
           CContext scope = ((CContext) subparser.scope);
         	StringBuilder valuesb = new StringBuilder();  // the desugared output
 
@@ -928,7 +926,7 @@ public class CActions implements SemanticActions {
                   } else {
                     // otherwise loop over each existing entry check for
                     // type errors or add a new declaration
-                    Multiverse<SymbolTable.Entry> entries = scope.getCurrentScope(originalName, combinedCond);
+                    Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(originalName, combinedCond);
                     for (Element<SymbolTable.Entry> entry : entries) {
                       String renaming = freshCId(originalName);
                       Declarator renamedDeclarator = declarator.getData().rename(renaming);
@@ -1042,25 +1040,25 @@ public class CActions implements SemanticActions {
     break;
 
   case 60:
-                               { KillReentrantScope(subparser); }
+    { KillReentrantScope(subparser); }
     break;
 
   case 61:
-        {
+    {
           System.err.println("TODO: Declaration (4)");
           System.exit(1);
         }
     break;
 
   case 62:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
         }
     break;
 
   case 63:
-        {
+    {
           // add the int type by default
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 6);
           Multiverse<TypeBuilder> inttbmv
@@ -1079,7 +1077,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 64:
-        {
+    {
           // legacy type checking
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
@@ -1087,7 +1085,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 65:
-        {
+    {
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 6);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
@@ -1099,7 +1097,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 66:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList (5)");
           System.exit(1);
           // reuses saved base type
@@ -1108,14 +1106,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 67:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: DefaultDeclaringList (6)");
           System.exit(1);
         }
     break;
 
   case 68:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));  // TODO: use new bindIdent to find typedefname
 
@@ -1130,7 +1128,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 69:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));  // TODO: use new bindIdent to find typedefname
 
@@ -1145,7 +1143,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 70:
-        {
+    {
           // legacy type checking
           // reuses saved base type
           bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
@@ -1153,7 +1151,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 71:
-        {
+    {
           // TODO: hoist initiazliers around the entire InitializedDeclaration
           List<DeclaringListValue> declaringlist = (List<DeclaringListValue>) getTransformationValue(subparser, 8);
           // there must be at least one element in the DeclaringList
@@ -1175,42 +1173,42 @@ public class CActions implements SemanticActions {
     break;
 
   case 72:
-                                {
+    {
 	  			Multiverse<TypeBuilder> decl = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
 	  			setTransformationValue(value, decl);
 				}
     break;
 
   case 73:
-                                {
+    {
           Multiverse<TypeBuilder> t = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
         	setTransformationValue(value,t);
 				}
     break;
 
   case 74:
-                                {
+    {
           Multiverse<TypeBuilder> t = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
         	setTransformationValue(value,t);
 				}
     break;
 
   case 75:
-        {
+    {
 					System.err.println("Unsupported grammar DeclarationSpecifier-VarArg"); // TODO
           System.exit(1);
 				}
     break;
 
   case 76:
-        {
+    {
 					System.err.println("Unsupported grammar DeclarationSpecifier-TypeofDeclSpec"); // TODO
           System.exit(1);
 				}
     break;
 
   case 77:
-                                {
+    {
           // TODO: are there any issues with sharing references to the same type builder object?
           Multiverse<TypeBuilder> t = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
         	setTransformationValue(value,t);
@@ -1218,34 +1216,34 @@ public class CActions implements SemanticActions {
     break;
 
   case 78:
-                                {
+    {
           Multiverse<TypeBuilder> t = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
         	setTransformationValue(value,t);
 				}
     break;
 
   case 79:
-                                {
+    {
 					setTransformationValue(value,(Multiverse<TypeBuilder>) getTransformationValue(subparser,1));
 				}
     break;
 
   case 80:
-                                {
+    {
 					System.err.println("Unsupported grammar TypeSpecifier-VarArg"); // TODO
           System.exit(1);
 				}
     break;
 
   case 81:
-                                {
+    {
 					System.err.println("Unsupported grammar TypeSpecifier-Typeof"); // TODO
 					System.exit(1);
 				}
     break;
 
   case 82:
-        {
+    {
       	  Multiverse<TypeBuilder> storage = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
       	  setTransformationValue(value, storage);
       	  updateSpecs(subparser,
@@ -1255,7 +1253,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 83:
-        {
+    {
       	  Multiverse<TypeBuilder> qualList = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
       	  Multiverse<TypeBuilder> storage = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
       	  Multiverse<TypeBuilder> tb = qualList.product(storage, DesugarOps.TBCONCAT);
@@ -1268,7 +1266,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 84:
-        {
+    {
       	  Multiverse<TypeBuilder> qualList = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
       	  Multiverse<TypeBuilder> qual = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
       	  Multiverse<TypeBuilder> tb = qualList.product(qual, DesugarOps.TBCONCAT);
@@ -1281,7 +1279,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 85:
-        {
+    {
       	  Multiverse<TypeBuilder> qual = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
       	  setTransformationValue(value, qual);
     	    updateSpecs(subparser,
@@ -1291,7 +1289,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 86:
-        {
+    {
       	  Multiverse<TypeBuilder> qualList = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
       	  Multiverse<TypeBuilder> qual = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
       	  Multiverse<TypeBuilder> tb = qualList.product(qual, DesugarOps.TBCONCAT);
@@ -1304,21 +1302,21 @@ public class CActions implements SemanticActions {
     break;
 
   case 87:
-        {
+    {
           Multiverse<TypeBuilder> qual = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
           setTransformationValue(value, qual);
         }
     break;
 
   case 88:
-        {
+    {
           Multiverse<TypeBuilder> storage = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
           setTransformationValue(value, storage);
         }
     break;
 
   case 89:
-        {
+    {
           Multiverse<TypeBuilder> qual = new Multiverse<TypeBuilder>(new TypeBuilder("const"), subparser.getPresenceCondition());
           setTransformationValue(value, qual);
           updateSpecs(subparser,
@@ -1328,7 +1326,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 90:
-        {
+    {
           Multiverse<TypeBuilder> qual = new Multiverse<TypeBuilder>(new TypeBuilder("volatile"), subparser.getPresenceCondition());
           setTransformationValue(value, qual);
           updateSpecs(subparser,
@@ -1338,7 +1336,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 91:
-        {
+    {
           Multiverse<TypeBuilder> qual = new Multiverse<TypeBuilder>(new TypeBuilder("restrict"), subparser.getPresenceCondition());
           setTransformationValue(value, qual);
           updateSpecs(subparser,
@@ -1348,7 +1346,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 92:
-        {
+    {
           System.err.println("Unsupported grammar TypeQualifier-Attribute"); // TODO
           System.exit(1);
           updateSpecs(subparser,
@@ -1358,7 +1356,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 93:
-        {
+    {
           Multiverse<TypeBuilder> qual = new Multiverse<TypeBuilder>(new TypeBuilder("inline"), subparser.getPresenceCondition());
           setTransformationValue(value, qual);
           updateSpecs(subparser,
@@ -1368,73 +1366,73 @@ public class CActions implements SemanticActions {
     break;
 
   case 94:
-        {
+    {
         }
     break;
 
   case 95:
-        {
+    {
         }
     break;
 
   case 96:
-        {
+    {
         }
     break;
 
   case 97:
-        {
+    {
         }
     break;
 
   case 98:
-        {
+    {
         }
     break;
 
   case 99:
-        {
+    {
         }
     break;
 
   case 100:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: RestrictQualifier");
           System.exit(1);
         }
     break;
 
   case 101:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: RestrictQualifier");
           System.exit(1);
         }
     break;
 
   case 102:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: RestrictQualifier");
           System.exit(1);
         }
     break;
 
   case 103:
-        {
+    {
         }
     break;
 
   case 104:
-        {
+    {
         }
     break;
 
   case 105:
-        {
+    {
         }
     break;
 
   case 106:
-        {
+    {
         Multiverse<TypeBuilder> basicTypeSpecifier = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
         Multiverse<TypeBuilder> storageClass = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
 
@@ -1450,7 +1448,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 107:
-                                                 {
+    {
 	        Multiverse<TypeBuilder> qualList = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> basicTypeName = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
 
@@ -1466,7 +1464,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 108:
-        {
+    {
  	        Multiverse<TypeBuilder> decl = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> qual = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
 
@@ -1482,7 +1480,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 109:
-        {
+    {
 	        Multiverse<TypeBuilder> basicDeclSpecifier = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> basicTypeName = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
 
@@ -1498,7 +1496,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 110:
-        {
+    {
           // TUTORIAL: a semantic action that sets the semantic value
           // to a new typebuilder by adding a property derived from
           // the child semantic value(s)
@@ -1512,7 +1510,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 111:
-              {
+    {
           Multiverse<TypeBuilder> qualList = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> basicTypeName = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
 
@@ -1527,7 +1525,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 112:
-              {
+    {
           Multiverse<TypeBuilder> basicTypeSpecifier = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> qual = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
 
@@ -1542,7 +1540,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 113:
-        {
+    {
           // get the semantic values of each child
           Multiverse<TypeBuilder> basicTypeSpecifier = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> basicTypeName = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
@@ -1559,7 +1557,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 114:
-        {
+    {
           // TODO: unit test this action
           Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
@@ -1568,7 +1566,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 115:
-        {
+    {
           // TODO: unit test this action
           Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
@@ -1577,7 +1575,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 116:
-        {
+    {
           // TODO: unit test this action
           Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
@@ -1586,14 +1584,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 117:
-        {
+    {
         	setTransformationValue(value,
             (Multiverse<TypeBuilder>) getTransformationValue(subparser,1));
         }
     break;
 
   case 118:
-        {
+    {
           // TODO: unit test this action
           Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
@@ -1602,7 +1600,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 119:
-        {
+    {
           // TODO: unit test this action
           Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
@@ -1611,7 +1609,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 120:
-        {
+    {
       	  Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
           setTransformationValue(value, tb.product(tb1, DesugarOps.TBCONCAT));
@@ -1619,13 +1617,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 121:
-        {
+    {
           // TODO: needs a unit test
           Multiverse<TypeBuilder> qualtbmv = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
           Multiverse<SymbolTable.Entry> entries
-            = ((CContext)subparser.scope).getAnyScope(typeName, subparser.getPresenceCondition());
+            = ((CContext)subparser.scope).getInAnyScope(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
       	  Multiverse<TypeBuilder> typedefnametbmv = DesugarOps.typedefEntriesToTypeBuilder.transform(entries);
           // combine with the existing qualifier list
@@ -1636,7 +1634,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 122:
-        {
+    {
           Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
           setTransformationValue(value, tb.product(tb1, DesugarOps.TBCONCAT));
@@ -1644,11 +1642,11 @@ public class CActions implements SemanticActions {
     break;
 
   case 123:
-        {
+    {
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
           Multiverse<SymbolTable.Entry> entries
-            = ((CContext)subparser.scope).getAnyScope(typeName, subparser.getPresenceCondition());
+            = ((CContext)subparser.scope).getInAnyScope(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
       	  Multiverse<TypeBuilder> typedefnametbmv = DesugarOps.typedefEntriesToTypeBuilder.transform(entries);
           setTransformationValue(value, typedefnametbmv);
@@ -1656,12 +1654,12 @@ public class CActions implements SemanticActions {
     break;
 
   case 124:
-        {
+    {
           Multiverse<TypeBuilder> qualtbmv = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
           Multiverse<SymbolTable.Entry> entries
-            = ((CContext)subparser.scope).getAnyScope(typeName, subparser.getPresenceCondition());
+            = ((CContext)subparser.scope).getInAnyScope(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
       	  Multiverse<TypeBuilder> typedefnametbmv = DesugarOps.typedefEntriesToTypeBuilder.transform(entries);
           // combine with the existing qualifier list
@@ -1672,7 +1670,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 125:
-        {
+    {
           Multiverse<TypeBuilder> tb = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<TypeBuilder> tb1 = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
           setTransformationValue(value, tb.product(tb1, DesugarOps.TBCONCAT));
@@ -1680,98 +1678,98 @@ public class CActions implements SemanticActions {
     break;
 
   case 126:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: TypeofDeclarationSpecifier");
           System.exit(1);
         }
     break;
 
   case 127:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: TypeofDeclarationSpecifier");
           System.exit(1);
         }
     break;
 
   case 128:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: TypeofDeclarationSpecifier");
           System.exit(1);
         }
     break;
 
   case 129:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: TypeofDeclarationSpecifier");
           System.exit(1);
         }
     break;
 
   case 130:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: TypeofTypeSpecifier");
           System.exit(1);
         }
     break;
 
   case 131:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: TypeofTypeSpecifier");
           System.exit(1);
         }
     break;
 
   case 132:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: TypeofTypeSpecifier");
           System.exit(1);
         }
     break;
 
   case 133:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: TypeofTypeSpecifier");
           System.exit(1);
         }
     break;
 
   case 134:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Typeofspecifier");
           System.exit(1);
         }
     break;
 
   case 135:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Typeofspecifier");
           System.exit(1);
         }
     break;
 
   case 136:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Typeofkeyword");
           System.exit(1);
         }
     break;
 
   case 137:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Typeofkeyword");
           System.exit(1);
         }
     break;
 
   case 138:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Typeofkeyword");
           System.exit(1);
         }
     break;
 
   case 139:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: VarArgDeclarationSpecifier");
           System.exit(1);
           updateSpecs(subparser,
@@ -1782,7 +1780,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 140:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: VarArgDeclarationSpecifier");
           System.exit(1);
           updateSpecs(subparser,
@@ -1793,7 +1791,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 141:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: VarArgDeclarationSpecifier");
           System.exit(1);
           updateSpecs(subparser,
@@ -1804,7 +1802,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 142:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: VarArgDeclarationSpecifier");
           System.exit(1);
           updateSpecs(subparser,
@@ -1815,7 +1813,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 143:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: VarArgTypeSpecifier");
           System.exit(1);
           updateSpecs(subparser,
@@ -1825,7 +1823,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 144:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: VarArgTypeSpecifier");
           System.exit(1);
           updateSpecs(subparser,
@@ -1836,7 +1834,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 145:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: VarArgTypeSpecifier");
           System.exit(1);
           updateSpecs(subparser,
@@ -1847,7 +1845,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 146:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: VarArgTypeSpecifier");
           System.exit(1);
           updateSpecs(subparser,
@@ -1858,7 +1856,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 147:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: VarArgTypeName");
           System.exit(1);
           getSpecsAt(subparser, 1).type = InternalT.VA_LIST;
@@ -1866,7 +1864,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 148:
-        {
+    {
           String storageName = getNodeAt(subparser, 1).getTokenText();
           Multiverse<TypeBuilder> storage = new Multiverse<TypeBuilder>(new TypeBuilder(storageName), subparser.getPresenceCondition());
           setTransformationValue(value, storage);
@@ -1875,7 +1873,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 149:
-        {
+    {
           String storageName = getNodeAt(subparser, 1).getTokenText();
           Multiverse<TypeBuilder> storage = new Multiverse<TypeBuilder>(new TypeBuilder(storageName), subparser.getPresenceCondition());
           setTransformationValue(value, storage);
@@ -1884,7 +1882,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 150:
-        {
+    {
           String storageName = getNodeAt(subparser, 1).getTokenText();
           Multiverse<TypeBuilder> storage = new Multiverse<TypeBuilder>(new TypeBuilder(storageName), subparser.getPresenceCondition());
           setTransformationValue(value, storage);
@@ -1893,7 +1891,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 151:
-        {
+    {
           String storageName = getNodeAt(subparser, 1).getTokenText();
           Multiverse<TypeBuilder> storage = new Multiverse<TypeBuilder>(new TypeBuilder(storageName), subparser.getPresenceCondition());
           setTransformationValue(value, storage);
@@ -1902,7 +1900,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 152:
-        {
+    {
           String storageName = getNodeAt(subparser, 1).getTokenText();
           Multiverse<TypeBuilder> storage = new Multiverse<TypeBuilder>(new TypeBuilder(storageName), subparser.getPresenceCondition());
           setTransformationValue(value, storage);
@@ -1911,7 +1909,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 153:
-        {
+    {
           Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(VoidT.TYPE), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
           	  getSpecsAt(subparser, 1).type = VoidT.TYPE;
@@ -1920,7 +1918,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 154:
-        {
+    {
           Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(NumberT.CHAR), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
           	  getSpecsAt(subparser, 1).seenChar = true;
@@ -1928,7 +1926,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 155:
-        {
+    {
           Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(NumberT.SHORT), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
           	  getSpecsAt(subparser, 1).seenShort = true;
@@ -1936,7 +1934,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 156:
-        {
+    {
           // See xtc.type.* for the class hiearchy for types
           Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(NumberT.INT), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
@@ -1945,7 +1943,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 157:
-        {
+    {
           Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(NumberT.__INT128), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
                 	  getSpecsAt(subparser, 1).seenInt = true;
@@ -1953,7 +1951,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 158:
-        {
+    {
           // See xtc.type.* for the class hiearchy for types
           Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(NumberT.LONG), subparser.getPresenceCondition());
       	  setTransformationValue(value, tb);
@@ -1962,7 +1960,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 159:
-        {
+    {
           Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(NumberT.FLOAT), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
                     getSpecsAt(subparser, 1).seenFloat = true;
@@ -1970,7 +1968,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 160:
-        {
+    {
           Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(NumberT.DOUBLE), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
           	  getSpecsAt(subparser, 1).seenDouble = true;
@@ -1978,7 +1976,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 161:
-        {
+    {
           Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder("signed"), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
           	  getSpecsAt(subparser, 1).seenSigned = true;
@@ -1986,7 +1984,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 162:
-        {
+    {
           Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder("unsigned"), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
           getSpecsAt(subparser, 1).seenUnsigned = true;
@@ -1994,7 +1992,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 163:
-        {
+    {
           Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder(BooleanT.TYPE), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
           	  getSpecsAt(subparser, 1).seenBool = true;
@@ -2002,7 +2000,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 164:
-        {
+    {
           Multiverse<TypeBuilder> tb = new Multiverse<TypeBuilder>(new TypeBuilder("complex"), subparser.getPresenceCondition());
           setTransformationValue(value, tb);
           getSpecsAt(subparser, 1).seenComplex = true;
@@ -2010,58 +2008,58 @@ public class CActions implements SemanticActions {
     break;
 
   case 165:
-        {
+    {
 	  System.err.println("TODO: use token");
 	}
     break;
 
   case 166:
-        {
+    {
 	  System.err.println("TODO: use token");
 	}
     break;
 
   case 167:
-        {
+    {
 	  System.err.println("TODO: use token");
 	}
     break;
 
   case 168:
-        {
+    {
 	  System.err.println("TODO: use token");
 	}
     break;
 
   case 169:
-        {
+    {
 	  System.err.println("TODO: use token");
 	}
     break;
 
   case 170:
-        {
+    {
         	setTransformationValue(value,
             (Multiverse<TypeBuilder>) getTransformationValue(subparser,1));
         }
     break;
 
   case 171:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: ElaboratedTypeName");
           System.exit(1);
         }
     break;
 
   case 172:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: ElaboratedTypeName");
           System.exit(1);
         }
     break;
 
   case 173:
-        {
+    {
           // legacy type checking
           Node tag     = null;
           Node members = getNodeAt(subparser, 2);
@@ -2080,11 +2078,9 @@ public class CActions implements SemanticActions {
           // get scope to make an anonymous tag
           CContext scope = (CContext)subparser.scope;
 
-          // TODO: make a new desugaring operator that turns a
-          // List<Multiverse<Declaration>> into a
-          // Multiverse<List<Declaration>>.  use for struct specifiers
-          // and param lists
-
+          // TODO: move the list handling code into
+          // StructDeclarationList to avoid looping here
+          
           // (1) start with an empty multiverse of declaration lists
           Multiverse<List<Declaration>> listsmv
             = new Multiverse<List<Declaration>>(new LinkedList<Declaration>(), subparser.getPresenceCondition());
@@ -2133,7 +2129,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 174:
-        {
+    {
 
           // for tagged structs, always replace it with a reference to
           // the original tag name.  save each configuration of the
@@ -2141,6 +2137,7 @@ public class CActions implements SemanticActions {
           // all of the (renamed) variations at the top of output and
           // use a union-based struct for the original struct tag.
 
+          // legacy
           Node tag     = getNodeAt(subparser, 4);
           Node members = getNodeAt(subparser, 2);
           Node attrs   = null;
@@ -2152,6 +2149,9 @@ public class CActions implements SemanticActions {
           List<Multiverse<Declaration>> structfields
             = (List<Multiverse<Declaration>>) getTransformationValue(subparser, 2);
 
+          // TODO: move the list handling code into
+          // StructDeclarationList to avoid looping here
+          
           // hoist all possible combinations of struct fields
           
           // (1) start with an empty multiverse of declaration lists
@@ -2180,7 +2180,7 @@ public class CActions implements SemanticActions {
           CContext scope = (CContext)subparser.scope;
 
           Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
-          Multiverse<SymbolTable.Entry> entries = scope.getCurrentScope(CContext.toTagName(structTag), subparser.getPresenceCondition());
+          Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(CContext.toTagName(structTag), subparser.getPresenceCondition());
           for (Element<SymbolTable.Entry> entry : entries) {
             if (entry.getData() == SymbolTable.ERROR) {
               System.err.println(String.format("INFO: trying to use an invalid specifier: %s", structTag));
@@ -2239,7 +2239,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 175:
-        {
+    {
           // get scope to make an anonymous tag
           CContext scope = (CContext)subparser.scope;
 
@@ -2253,7 +2253,7 @@ public class CActions implements SemanticActions {
           // we can just use the renamed struct from the symtab
           
           Multiverse<TypeBuilder> valuemv = new Multiverse<TypeBuilder>();
-          Multiverse<SymbolTable.Entry> entries = scope.getAnyScope(CContext.toTagName(structTag),
+          Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(CContext.toTagName(structTag),
                                                                     subparser.getPresenceCondition());
           for (Element<SymbolTable.Entry> entry : entries) {
             TypeBuilder typebuilder = new TypeBuilder();
@@ -2288,15 +2288,15 @@ public class CActions implements SemanticActions {
     break;
 
   case 176:
-                                        { EnterScope(subparser); }
+    { EnterScope(subparser); }
     break;
 
   case 177:
-                                { ExitScope(subparser); }
+    { ExitScope(subparser); }
     break;
 
   case 178:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: StructSpecifier (4)");
           System.exit(1);
           Node tag     = null;
@@ -2309,15 +2309,15 @@ public class CActions implements SemanticActions {
     break;
 
   case 179:
-                                                                { EnterScope(subparser); }
+    { EnterScope(subparser); }
     break;
 
   case 180:
-                                { ExitScope(subparser); }
+    { ExitScope(subparser); }
     break;
 
   case 181:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: StructSpecifier (5)");
           System.exit(1);
           Node tag     = getNodeAt(subparser, 6);
@@ -2330,88 +2330,88 @@ public class CActions implements SemanticActions {
     break;
 
   case 182:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: StructSpecifier (6)");
           System.exit(1);
         }
     break;
 
   case 183:
-              { EnterScope(subparser); }
+    { EnterScope(subparser); }
     break;
 
   case 184:
-                                { ExitScope(subparser); }
+    { ExitScope(subparser); }
     break;
 
   case 185:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: UnionSpecifier");
           System.exit(1);
         }
     break;
 
   case 186:
-                                        { EnterScope(subparser); }
+    { EnterScope(subparser); }
     break;
 
   case 187:
-                                { ExitScope(subparser); }
+    { ExitScope(subparser); }
     break;
 
   case 188:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: UnionSpecifier");
           System.exit(1);
         }
     break;
 
   case 189:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: UnionSpecifier");
           System.exit(1);
         }
     break;
 
   case 190:
-                                       { EnterScope(subparser); }
+    { EnterScope(subparser); }
     break;
 
   case 191:
-                                { ExitScope(subparser); }
+    { ExitScope(subparser); }
     break;
 
   case 192:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: UnionSpecifier");
           System.exit(1);
         }
     break;
 
   case 193:
-                                                               { EnterScope(subparser); }
+    { EnterScope(subparser); }
     break;
 
   case 194:
-                                { ExitScope(subparser); }
+    { ExitScope(subparser); }
     break;
 
   case 195:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: UnionSpecifier");
           System.exit(1);
         }
     break;
 
   case 196:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: UnionSpecifier");
           System.exit(1);
         }
     break;
 
   case 197:
-        {
+    {
           ((Node) value).setProperty(SPECS, new Specifiers()); // legacy type checking
 
           setTransformationValue(value, new LinkedList<Multiverse<Declaration>>());
@@ -2419,7 +2419,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 198:
-                                                  {
+    {
           //legacy type checking
           updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
@@ -2436,7 +2436,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 199:
-        {
+    {
           // TODO: implement like Declaration, except return a
           // multiverse of declarations instead of strings
           
@@ -2469,49 +2469,49 @@ public class CActions implements SemanticActions {
     break;
 
   case 200:
-        {
-          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
+    {
+          System.err.println("WARNING: unsupported semantic action: StructDeclaration (2)");
           System.exit(1);
         }
     break;
 
   case 201:
-        {
-          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
+    {
+          System.err.println("WARNING: unsupported semantic action: StructDeclaration (3)");
           System.exit(1);
         }
     break;
 
   case 202:
-        {
-          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
+    {
+          System.err.println("WARNING: unsupported semantic action: StructDeclaration (4)");
           System.exit(1);
         }
     break;
 
   case 203:
-        {
-          System.err.println("WARNING: unsupported semantic action: StructDeclaration");
+    {
+          System.err.println("WARNING: unsupported semantic action: StructDeclaration (5)");
           System.exit(1);
         }
     break;
 
   case 204:
-        {
-          System.err.println("WARNING: unsupported semantic action: StructDefaultDeclaringList");
+    {
+          System.err.println("WARNING: unsupported semantic action: StructDefaultDeclaringList (1)");
           System.exit(1);
         }
     break;
 
   case 205:
-        {
-          System.err.println("WARNING: unsupported semantic action: StructDefaultDeclaringList");
+    {
+          System.err.println("WARNING: unsupported semantic action: StructDefaultDeclaringList (2)");
           System.exit(1);
         }
     break;
 
   case 206:
-        {
+    {
           List<StructDeclaringListValue> declaringlist = new LinkedList<StructDeclaringListValue>();
           Multiverse<TypeBuilder> typebuilders = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 3);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 2);
@@ -2522,7 +2522,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 207:
-        {
+    {
           List<StructDeclaringListValue> declaringlist = (List<StructDeclaringListValue>) getTransformationValue(subparser, 4);
           assert declaringlist.size() > 0;
           Multiverse<TypeBuilder> typebuilders = declaringlist.get(0).typebuilder;
@@ -2534,168 +2534,168 @@ public class CActions implements SemanticActions {
     break;
 
   case 208:
-        {
-          System.err.println("TODO: support bitfieldsizeopt in a new StructDeclarator");
+    {
+          System.err.println("TODO: support bitfieldsizeopt in a new StructDeclarator (1)");
           setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser, 2));
         }
     break;
 
   case 209:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: StructDeclarator (2)");
           System.exit(1);
         }
     break;
 
   case 210:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: StructIdentifierDeclarator");
           System.exit(1);
         }
     break;
 
   case 211:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: StructIdentifierDeclarator");
           System.exit(1);
         }
     break;
 
   case 213:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: BitFieldSizeOpt");
           System.exit(1);
         }
     break;
 
   case 214:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: BitFieldSize");
           System.exit(1);
         }
     break;
 
   case 215:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
           System.exit(1);
         }
     break;
 
   case 216:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
           System.exit(1);
         }
     break;
 
   case 217:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
           System.exit(1);
         }
     break;
 
   case 218:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
           System.exit(1);
         }
     break;
 
   case 219:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
           System.exit(1);
         }
     break;
 
   case 220:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
           System.exit(1);
         }
     break;
 
   case 221:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
           System.exit(1);
         }
     break;
 
   case 222:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
           System.exit(1);
         }
     break;
 
   case 223:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
           System.exit(1);
         }
     break;
 
   case 224:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: EnumSpecifier");
           System.exit(1);
         }
     break;
 
   case 225:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: EnumeratorList");
           System.exit(1);
         }
     break;
 
   case 226:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: EnumeratorList");
           System.exit(1);
         }
     break;
 
   case 227:
-                   { BindEnum(subparser); }
+    { BindEnum(subparser); }
     break;
 
   case 228:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Enumerator");
           System.exit(1);
         }
     break;
 
   case 229:
-                      { BindEnum(subparser); }
+    { BindEnum(subparser); }
     break;
 
   case 230:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Enumerator");
           System.exit(1);
         }
     break;
 
   case 232:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: EnumeratorValueOpt");
           System.exit(1);
         }
     break;
 
   case 233:
-        {
+    {
           setTransformationValue(value, (List<Multiverse<Declaration>>) getTransformationValue(subparser,1));
         }
     break;
 
   case 234:
-        {
+    {
           List<Multiverse<Declaration>> paramlist
             = (List<Multiverse<Declaration>>) getTransformationValue(subparser,3);
           System.err.println("TODO: support variadic parameter lists");  // add a special parameterdeclarationvalue to the list
@@ -2704,7 +2704,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 235:
-        {
+    {
           // create a new list
           List<Multiverse<Declaration>> parameters
             = new LinkedList<Multiverse<Declaration>>();
@@ -2716,7 +2716,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 236:
-        {
+    {
           // add to the existing parameter list.  this reuse of a
           // semantic value may be an issue if static conditionals are
           // permitted under parameterlists
@@ -2730,7 +2730,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 237:
-        {
+    {
           ParameterDeclarationValue declarationvalue = (ParameterDeclarationValue) getTransformationValue(subparser,1);
 
           CContext scope = (CContext)subparser.scope;
@@ -2765,7 +2765,7 @@ public class CActions implements SemanticActions {
                 // the identifierdeclaration.  abstract declarators
                 // can't go in the symbol table, because there is no
                 // symbol.
-                Multiverse<SymbolTable.Entry> entries = scope.getCurrentScope(declarator.getData().getName(), combinedCond);
+                Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(declarator.getData().getName(), combinedCond);
 
                 // TODO: check for multiply-defined parameter names,
                 // which (I believe) should make the entire function
@@ -2805,7 +2805,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 238:
-        {
+    {
           // TODO: needs a unit test
           ParameterDeclarationValue declarationvalue = (ParameterDeclarationValue) getTransformationValue(subparser,1);
           
@@ -2838,14 +2838,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 239:
-        {
+    {
           System.err.println("TODO: reimplement parameterabstractdeclaration (1)");
           System.exit(1);
         }
     break;
 
   case 240:
-        {
+    {
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -2853,14 +2853,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 241:
-        {
+    {
           System.err.println("TODO: reimplement parameterabstractdeclaration (3)");
           System.exit(1);
         }
     break;
 
   case 242:
-        {
+    {
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -2868,7 +2868,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 243:
-        {
+    {
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
           Multiverse<Declarator> declarators = new Multiverse<Declarator>(new EmptyDeclarator(), subparser.getPresenceCondition());
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -2876,7 +2876,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 244:
-        {
+    {
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -2884,14 +2884,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 245:
-        {
+    {
           System.err.println("TODO: reimplement parameterabstractdeclaration (7)");
           System.exit(1);
         }
     break;
 
   case 246:
-        {
+    {
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 2);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -2899,14 +2899,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 247:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 248:
-        {
+    {
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 4);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
@@ -2915,14 +2915,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 249:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 250:
-        {
+    {
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 4);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
@@ -2931,14 +2931,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 251:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 252:
-        {
+    {
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 4);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
@@ -2947,14 +2947,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 253:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 254:
-        {
+    {
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 4);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
@@ -2963,14 +2963,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 255:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 256:
-        {
+    {
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 4);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
@@ -2979,14 +2979,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 257:
-        {
+    {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
     break;
 
   case 258:
-        {
+    {
           Multiverse<TypeBuilder> types = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 4);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
@@ -2995,21 +2995,21 @@ public class CActions implements SemanticActions {
     break;
 
   case 259:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: IdentifierList");
           System.exit(1);
         }
     break;
 
   case 260:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: IdentifierList");
           System.exit(1);
         }
     break;
 
   case 261:
-       {
+    {
          System.err.println("WARNING: unsupported semantic action: Identifier");
          System.exit(1);
          BindVar(subparser);
@@ -3017,47 +3017,47 @@ public class CActions implements SemanticActions {
     break;
 
   case 262:
-        {
+    {
           // get token text from the parent
         }
     break;
 
   case 263:
-        {
+    {
           // get token text from the parent
         }
     break;
 
   case 264:
-        {
+    {
           Multiverse<TypeBuilder> type = (Multiverse<TypeBuilder>) getTransformationValue(subparser, 1);
           setTransformationValue(value, type);
         }
     break;
 
   case 265:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: TypeName");
           System.exit(1);
         }
     break;
 
   case 266:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: TypeName");
           System.exit(1);
         }
     break;
 
   case 267:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: TypeName");
           System.exit(1);
         }
     break;
 
   case 268:
-        {
+    {
           // EmptyInitializer
           setTransformationValue(value, new Multiverse<Initializer>(new EmptyInitializer(),
                                                                     subparser.getPresenceCondition()));
@@ -3065,7 +3065,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 269:
-        {
+    {
           // AssignmentInitializer
           Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
           setTransformationValue(value, DesugarOps.toAssignInitializer.transform(initializers));
@@ -3073,14 +3073,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 270:
-        {
+    {
           Multiverse<List<Initializer>> lists = (Multiverse<List<Initializer>>) getTransformationValue(subparser, 2);
           setTransformationValue(value, DesugarOps.toInitializerList.transform(lists));
         }
     break;
 
   case 271:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           Multiverse<List<Initializer>> lists = (Multiverse<List<Initializer>>) getTransformationValue(subparser, 3);
           Multiverse<List<Initializer>> newelem
@@ -3092,7 +3092,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 272:
-        {
+    {
           // ExpressionInitializer
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
           setTransformationValue(value, exprval.type.join(exprval.transformation, DesugarOps.joinExpressionInitializer));
@@ -3100,7 +3100,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 273:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           // TODO: destruct return value from getTransformationValue
           setTransformationValue(value, (Multiverse<InitializerList>) getTransformationValue(subparser, 1));
@@ -3108,7 +3108,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 274:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           Multiverse<List<Initializer>> lists = (Multiverse<List<Initializer>>) getTransformationValue(subparser, 2);
           Multiverse<List<Initializer>> newelem
@@ -3119,14 +3119,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 275:
-        {
+    {
           setTransformationValue(value, new Multiverse<List>(new LinkedList<Initializer>(),
                                                                   subparser.getPresenceCondition()));
         }
     break;
 
   case 276:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           Multiverse<List<Initializer>> lists = (Multiverse<List<Initializer>>) getTransformationValue(subparser, 3);
           Multiverse<List<Initializer>> newelem
@@ -3137,7 +3137,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 277:
-        {
+    {
           // pass through
           todoReminder("typecheck initializers DesignatedInitializer (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -3147,7 +3147,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 278:
-        {
+    {
           // DesignatedInitializer
           Multiverse<Designation> designations = (Multiverse<Designation>) getTransformationValue(subparser, 2);
           Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
@@ -3156,7 +3156,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 279:
-        {
+    {
           // TODO: unit tests
           Multiverse<List<Designator>> list = (Multiverse<List<Designator>>) getTransformationValue(subparser, 2);
           setTransformationValue(value, DesugarOps.toDesignation.transform(list));
@@ -3164,21 +3164,21 @@ public class CActions implements SemanticActions {
     break;
 
   case 280:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Designation (2)");
           System.exit(1);
         }
     break;
 
   case 281:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Designation (3)");
           System.exit(1);
         }
     break;
 
   case 282:
-        {
+    {
           // TODO: unit tests
           Multiverse<Designator> designators = (Multiverse<Designator>) getTransformationValue(subparser, 1);
           Multiverse<List<Designator>> newlist = DesugarOps.designatorListWrap.transform(designators);
@@ -3187,7 +3187,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 283:
-        {
+    {
           // TODO: unit tests
           Multiverse<List<Designator>> list = (Multiverse<List<Designator>>) getTransformationValue(subparser, 2);
           Multiverse<Designator> designators = (Multiverse<Designator>) getTransformationValue(subparser, 1);
@@ -3198,7 +3198,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 284:
-        {
+    {
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
           setTransformationValue(value,
                                  exprval.type.join(exprval.transformation, DesugarOps.joinArrayDesignator));
@@ -3206,14 +3206,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 285:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Designator (2)");
           System.exit(1);
         }
     break;
 
   case 286:
-        {
+    {
           setTransformationValue(value,
                                  new Multiverse<Designator>(new StructUnionDesignator(((Syntax) getNodeAt(subparser, 1)).getTokenText()),
                                                             subparser.getPresenceCondition()));
@@ -3221,7 +3221,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 287:
-        {
+    {
           setTransformationValue(value,
                                  new Multiverse<Designator>(new StructUnionDesignator(((Syntax) getNodeAt(subparser, 1)).getTokenText()),
                                                             subparser.getPresenceCondition()));
@@ -3229,58 +3229,58 @@ public class CActions implements SemanticActions {
     break;
 
   case 288:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: ObsoleteArrayDesignation");
           System.exit(1);
         }
     break;
 
   case 289:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: ObsoleteArrayDesignation");
           System.exit(1);
         }
     break;
 
   case 290:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: ObsoleteFieldDesignation");
           System.exit(1);
         }
     break;
 
   case 291:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
     break;
 
   case 292:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
     break;
 
   case 293:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
       	}
     break;
 
   case 294:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
     break;
 
   case 295:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
     break;
 
   case 296:
-        {
+    {
           System.err.println("TODO: do we need to expand all possible typedef names here? parametertypedefdeclarator");
           Multiverse<Declarator> valuemv = new Multiverse<Declarator>(new SimpleDeclarator(getStringAt(subparser, 1)), subparser.getPresenceCondition());
           setTransformationValue(value, valuemv);;
@@ -3288,7 +3288,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 297:
-        {
+    {
           Multiverse<Declarator> declarators = new Multiverse<Declarator>(new SimpleDeclarator(getStringAt(subparser, 2)),
                                                                           subparser.getPresenceCondition());
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
@@ -3301,19 +3301,19 @@ public class CActions implements SemanticActions {
     break;
 
   case 298:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
     break;
 
   case 299:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
     break;
 
   case 300:
-        {
+    {
           // TODO: do we need to conjoin with subparser.getPresenceCondition() in all these declarators?
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugarOps.toPointerDeclarator.transform(declarators);
@@ -3325,7 +3325,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 301:
-        {
+    {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
@@ -3338,13 +3338,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 302:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
         }
     break;
 
   case 303:
-        {
+    {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesugarOps.createCompoundDeclarator);
@@ -3357,13 +3357,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 304:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
     break;
 
   case 305:
-        {
+    {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<Declarator> valuemv = DesugarOps.toPointerDeclarator.transform(declarators);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
@@ -3374,7 +3374,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 306:
-        {
+    {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,4);
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,2);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
@@ -3387,7 +3387,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 307:
-        {
+    {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugarOps.toPointerDeclarator.transform(declarators);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
@@ -3398,7 +3398,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 308:
-        {
+    {
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,2);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
@@ -3411,13 +3411,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 309:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
         }
     break;
 
   case 310:
-        {
+    {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesugarOps.createCompoundDeclarator);
@@ -3430,7 +3430,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 311:
-        {
+    {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesugarOps.createCompoundDeclarator);
@@ -3443,43 +3443,43 @@ public class CActions implements SemanticActions {
     break;
 
   case 312:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
     break;
 
   case 313:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
         }
     break;
 
   case 314:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
     break;
 
   case 315:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
       	}
     break;
 
   case 316:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
       	}
     break;
 
   case 317:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
       	}
     break;
 
   case 318:
-        {
+    {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugarOps.toPointerDeclarator.transform(declarators);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
@@ -3490,7 +3490,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 319:
-        {
+    {
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,2);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
@@ -3503,25 +3503,25 @@ public class CActions implements SemanticActions {
     break;
 
   case 320:
-        {
+    {
           setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
     break;
 
   case 321:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
     break;
 
   case 322:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
     break;
 
   case 323:
-        {
+    {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesugarOps.createCompoundDeclarator);
@@ -3534,13 +3534,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 324:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
         }
     break;
 
   case 325:
-        {
+    {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<Declarator> parameters = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = declarators.product(parameters, DesugarOps.createCompoundDeclarator);
@@ -3553,15 +3553,15 @@ public class CActions implements SemanticActions {
     break;
 
   case 326:
-               { EnterScope(subparser); }
+    { EnterScope(subparser); }
     break;
 
   case 327:
-                                                               { ExitReentrantScope(subparser); }
+    { ExitReentrantScope(subparser); }
     break;
 
   case 328:
-        {
+    {
           // TODO: account for parameterdeclarationvalue that is the ellipsis
           List<Multiverse<Declaration>> parameterdeclaratorlistsmv
             = (List<Multiverse<Declaration>>) getTransformationValue(subparser,3);
@@ -3604,7 +3604,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 329:
-        {
+    {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
           Multiverse<Declarator> arrayabstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = declarators.product(arrayabstractdeclarators, DesugarOps.createCompoundDeclarator);
@@ -3617,19 +3617,19 @@ public class CActions implements SemanticActions {
     break;
 
   case 330:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
       	}
     break;
 
   case 331:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
       	}
     break;
 
   case 332:
-        {
+    {
           Multiverse<Declarator> valuemv
             = new Multiverse<Declarator>(new SimpleDeclarator(getStringAt(subparser, 1)), subparser.getPresenceCondition());
           setTransformationValue(value, valuemv);;
@@ -3637,99 +3637,99 @@ public class CActions implements SemanticActions {
     break;
 
   case 333:
-        {
+    {
           System.err.println("OldFunctionDecl not supported");
           System.exit(1);
         }
     break;
 
   case 334:
-        {
+    {
           System.err.println("OldFunctionDecl not supported");
           System.exit(1);
         }
     break;
 
   case 335:
-        {
+    {
           System.err.println("OldFunctionDecl not supported");
           System.exit(1);
         }
     break;
 
   case 336:
-                                         { EnterScope(subparser); }
+    { EnterScope(subparser); }
     break;
 
   case 337:
-                                                                                   { ExitReentrantScope(subparser); }
+    { ExitReentrantScope(subparser); }
     break;
 
   case 338:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: PostfixOldFunctionDeclarator");
           System.exit(1);
         }
     break;
 
   case 339:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: PostfixOldFunctionDeclarator");
           System.exit(1);
         }
     break;
 
   case 340:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: PostfixOldFunctionDeclarator");
           System.exit(1);
         }
     break;
 
   case 341:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
     break;
 
   case 342:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
     break;
 
   case 343:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
     break;
 
   case 344:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
       	}
     break;
 
   case 345:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
         }
     break;
 
   case 346:
-        {
+    {
           setTransformationValue(value, new LinkedList<Multiverse<Declaration>>());
         }
     break;
 
   case 347:
-        {
+    {
           setTransformationValue(value, (List<Multiverse<Declaration>>) getTransformationValue(subparser,1));
         }
     break;
 
   case 348:
-        {
+    {
           String expression = "";
           Multiverse<Declarator> valuemv
             = new Multiverse<Declarator>(new ArrayAbstractDeclarator(expression), subparser.getPresenceCondition());
@@ -3738,7 +3738,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 349:
-        {
+    {
           todoReminder("check expression in ArrayAbstractDeclarator (2)");
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
           
@@ -3752,7 +3752,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 350:
-              {
+    {
           todoReminder("check expression in ArrayAbstractDeclarator (2)");
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
 
@@ -3785,7 +3785,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 351:
-        {
+    {
           Multiverse<Declarator> valuemv
             = new Multiverse<Declarator>(new PointerAbstractDeclarator(), subparser.getPresenceCondition());
           setTransformationValue(value, valuemv);
@@ -3793,7 +3793,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 352:
-        {
+    {
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugarOps.toQualifiedPointerAbstractDeclarator.transform(qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
@@ -3804,7 +3804,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 353:
-        {
+    {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugarOps.toPointerDeclarator.transform(declarators);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
@@ -3815,7 +3815,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 354:
-        {
+    {
           Multiverse<TypeBuilder> qualifierlists = (Multiverse<TypeBuilder>) getTransformationValue(subparser,2);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
@@ -3828,25 +3828,25 @@ public class CActions implements SemanticActions {
     break;
 
   case 355:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
         }
     break;
 
   case 356:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
         }
     break;
 
   case 357:
-        {
+    {
       	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
         }
     break;
 
   case 358:
-        {
+    {
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
           Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesugarOps.createCompoundDeclarator);
@@ -3859,13 +3859,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 359:
-        {
+    {
           setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
     break;
 
   case 360:
-        {
+    {
           // CompoundStatement produces just a string (not a multiverse), since it's children resolve all
           // configurations, so we only need to resolve static conditionals around the CompoundStatement.
           setTransformationValue(value, getCompleteNodeSingleValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
@@ -3873,37 +3873,37 @@ public class CActions implements SemanticActions {
     break;
 
   case 361:
-        {
+    {
           setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
     break;
 
   case 362:
-        {
+    {
           setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
     break;
 
   case 363:
-        {
+    {
           setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
     break;
 
   case 364:
-        {
+    {
           setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
     break;
 
   case 365:
-        {
+    {
           setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
     break;
 
   case 366:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
@@ -3911,7 +3911,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 367:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
@@ -3919,7 +3919,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 368:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
@@ -3927,7 +3927,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 369:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("WARNING: unsupported semantic action: LabeledStatement");
           System.exit(1);
@@ -3935,15 +3935,15 @@ public class CActions implements SemanticActions {
     break;
 
   case 370:
-               { EnterScope(subparser); }
+    { EnterScope(subparser); }
     break;
 
   case 371:
-                                                                                                  { ExitScope(subparser); }
+    { ExitScope(subparser); }
     break;
 
   case 372:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = ((CContext) subparser.scope);
 
@@ -3966,13 +3966,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 373:
-        {
+    {
           setTransformationValue(value, "");
         }
     break;
 
   case 374:
-        {
+    {
           System.err.println("implement locallabeldeclarationlistopt (2)");
           // do hoisting here, return a stringbuilder, not a multiverse
           System.exit(1);
@@ -3980,21 +3980,21 @@ public class CActions implements SemanticActions {
     break;
 
   case 375:
-        {
+    {
           System.err.println("implement locallabeldeclarationlist (1)");
           System.exit(1);
         }
     break;
 
   case 376:
-        {
+    {
           System.err.println("implement locallabeldeclarationlist (2)");
           System.exit(1);
         }
     break;
 
   case 377:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("WARNING: unsupported semantic action: LocalLabelDeclaration");
           System.exit(1);
@@ -4002,7 +4002,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 378:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("WARNING: unsupported semantic action: LocalLabelList");
           System.exit(1);
@@ -4010,7 +4010,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 379:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("WARNING: unsupported semantic action: LocalLabelList");
           System.exit(1);
@@ -4018,13 +4018,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 380:
-        {
+    {
           setTransformationValue(value, "");
         }
     break;
 
   case 381:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           Multiverse<String> listmv = getCompleteNodeSingleValue(subparser, 2, pc);
           Multiverse<String> elemmv = getCompleteNodeSingleValue(subparser, 1, pc);
@@ -4036,7 +4036,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 382:
-        {
+    {
           // declarations are already just strings, so get the multiverse of any static conditionals around them
           Multiverse<String> decl = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
           setTransformationValue(value, concatMultiverseStrings(decl)); decl.destruct();
@@ -4044,7 +4044,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 383:
-        {
+    {
           // statements have multiverses, so hoist any static conditionals around them by combining with the statement multiverses
           PresenceCondition pc = subparser.getPresenceCondition();
           Multiverse<String> stmt = getCompleteNodeMultiverseValue(subparser, 1, pc);
@@ -4053,21 +4053,21 @@ public class CActions implements SemanticActions {
     break;
 
   case 384:
-        {
+    {
           System.err.println("nestedfunctiondefinition not implemented yet");
           System.exit(1);
         }
     break;
 
   case 385:
-        {
+    {
           Multiverse<String> valuemv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
           setTransformationValue(value, concatMultiverseStrings(valuemv)); valuemv.destruct();
         }
     break;
 
   case 386:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           StringBuilder valuesb = new StringBuilder();
           Multiverse<String> listmv = getCompleteNodeSingleValue(subparser, 2, pc);
@@ -4079,7 +4079,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 387:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
           Multiverse<Type> exprtype = exprval.type;
@@ -4110,7 +4110,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 388:
-        {
+    {
           todoReminder("check the type of the conditional expression SelectionStatement (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -4132,7 +4132,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 389:
-        {
+    {
           todoReminder("check the type of the conditional expression SelectionStatement (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 5);
@@ -4159,14 +4159,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 390:
-        {
+    {
           System.err.println("TODO: switch statement");
           System.exit(1);
         }
     break;
 
   case 391:
-        {
+    {
           todoReminder("check the type of the conditional expression IterationStatement (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -4187,7 +4187,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 392:
-        {
+    {
           todoReminder("check the type of the conditional expression IterationStatement (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -4212,7 +4212,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 393:
-        {
+    {
           todoReminder("check the type of the conditional expression IterationStatement (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue initval = (ExpressionValue) getTransformationValue(subparser, 7);
@@ -4243,7 +4243,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 394:
-        {
+    {
           // TODO: use a reentrant scope to add the declaration's symbol to the for-loop's scope
           // TODO: Declaration returns a String, not a multiverse.  We need a multiverse to hoist around the entire for loop.
           // TODO: consider rewriting this to put the declaration outside the for loop.  since it's renamed, we should have conflicts, and it resolves issues with scope and semantic values
@@ -4287,31 +4287,31 @@ public class CActions implements SemanticActions {
     break;
 
   case 395:
-        {
+    {
           setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
     break;
 
   case 396:
-        {
+    {
           setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
     break;
 
   case 397:
-        {
+    {
           setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
     break;
 
   case 398:
-        {
+    {
           setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
     break;
 
   case 399:
-        {
+    {
           String gototoken = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
           String ident = ((Syntax) getNodeAt(subparser, 2).get(0)).getTokenText();
           String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
@@ -4321,7 +4321,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 400:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("WARNING: unsupported semantic action: GotoStatement (2)");
           System.exit(1);
@@ -4329,7 +4329,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 401:
-        {
+    {
           String continuetoken = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
           String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
           setTransformationValue(value, new Multiverse<String>(String.format("%s %s", continuetoken, semi),
@@ -4338,7 +4338,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 402:
-        {
+    {
           String breaktoken = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
           String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
           setTransformationValue(value, new Multiverse<String>(String.format("%s %s", breaktoken, semi),
@@ -4347,7 +4347,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 403:
-        {
+    {
           todoReminder("check the type of the return value");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
@@ -4364,7 +4364,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 404:
-        {
+    {
           setTransformationValue(value,
                                  new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
                                                      NumberT.FLOAT, subparser.getPresenceCondition()));
@@ -4372,7 +4372,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 405:
-        {
+    {
           setTransformationValue(value,
                                  new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
                                                      NumberT.INT, subparser.getPresenceCondition()));
@@ -4382,7 +4382,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 406:
-        {
+    {
           setTransformationValue(value,
                                  new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
                                                      NumberT.INT, subparser.getPresenceCondition()));
@@ -4390,7 +4390,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 407:
-        {
+    {
           setTransformationValue(value,
                                  new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
                                                      NumberT.INT, subparser.getPresenceCondition()));
@@ -4398,7 +4398,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 408:
-        {
+    {
           setTransformationValue(value,
                                  new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
                                                      NumberT.CHAR, subparser.getPresenceCondition()));
@@ -4406,13 +4406,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 409:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 410:
-        {
+    {
           StringBuilder valuesb = new StringBuilder();
           valuesb.append((String) getTransformationValue(subparser, 2));
           valuesb.append(((Syntax) getNodeAt(subparser, 1)).getTokenText());
@@ -4421,7 +4421,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 411:
-        {
+    {
           // TODO: CAnalyzer distinguishes between wide and non-wide characters
           // TODO: use a fixed-size array instead of a pointer to char
           setTransformationValue(value,
@@ -4432,25 +4432,25 @@ public class CActions implements SemanticActions {
     break;
 
   case 412:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 413:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 414:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 415:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
 
@@ -4468,21 +4468,19 @@ public class CActions implements SemanticActions {
     break;
 
   case 416:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 417:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 418:
-        {
-          useIdent(subparser, getNodeAt(subparser, 1));  // legacy type checking
-          
+    {
           String originalName = ((Node)getNodeAt(subparser, 1)).getTokenText();
           //Multiverse<String> sbmv = new Multiverse<String>();
           //sbmv.add(new Element<String>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
@@ -4491,7 +4489,7 @@ public class CActions implements SemanticActions {
 
           // get the renamings from the symtab
           PresenceCondition cond = subparser.getPresenceCondition().presenceConditionManager().newTrue();
-          Multiverse<SymbolTable.Entry> entries = scope.getAnyScope(originalName, cond);
+          Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(originalName, cond);
           cond.delRef();
 
           // convert the renamings to stringbuilders
@@ -4540,77 +4538,77 @@ public class CActions implements SemanticActions {
     break;
 
   case 419:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: VariableArgumentAccess");
           System.exit(1);
         }
     break;
 
   case 420:
-               { EnterScope(subparser); }
+    { EnterScope(subparser); }
     break;
 
   case 421:
-                                                            { ExitScope(subparser); }
+    { ExitScope(subparser); }
     break;
 
   case 422:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: StatementAsExpression");
           System.exit(1);
         }
     break;
 
   case 423:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 424:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 425:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 426:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 427:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 428:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 429:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 430:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 431:
-        {
+    {
           // TODO: check that expression is numeric, check that postfixexpression is array, and get arrays types
           System.err.println("TODO: Subscript");
           System.exit(1);
@@ -4618,7 +4616,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 432:
-        {
+    {
           todoReminder("typecheck functioncall (1)");
           // type check by making sure the postfixexpression type is a
           // function, has no params, and setting the return value to
@@ -4640,7 +4638,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 433:
-        {
+    {
           // type check by making sure the postfixexpression type is a
           // function, that each type of the expressionlist matches
           // each type of the function types's list, and setting the
@@ -4816,7 +4814,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 434:
-        {
+    {
           ExpressionValue postfixval = (ExpressionValue) getTransformationValue(subparser, 3);
 
           Multiverse<String> postfixmv = postfixval.transformation;
@@ -4839,7 +4837,7 @@ public class CActions implements SemanticActions {
               assert tag != null;  // even anonymous structs get a name, e.g., anonymous(0)
               if (tag.startsWith("anonymous(")) {  // anonymous struct or union
                 // go through each symtab entry for this struct/union
-                Multiverse<SymbolTable.Entry> entries = scope.getAnyScope(tag, type.getCondition());
+                Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tag, type.getCondition());
                 for (Element<SymbolTable.Entry> entry : entries) {
                   PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
                   if (entry.getData() == SymbolTable.ERROR) {
@@ -4850,8 +4848,34 @@ public class CActions implements SemanticActions {
                     typemv.add(ErrorT.TYPE, combinedCond);
                   } else {
                     // TODO: check for correct field usage, otherwise type error
-                    System.err.println("TODO: finish DirectSelection for anonymous structs");
-                    System.exit(1);
+                    // TODO: insert field of the union inside the original struct/union
+
+                    // since we looked up a tagname, not seeing a
+                    // struct/union type likely means there's a bug
+                    assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
+                    StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
+
+                    // similarly, if we looked up a tagname, there
+                    // should be definitions with members
+                    assert null != entrytype.getMembers();
+
+                    // check that the field exist in this variation of
+                    // the struct.  TypeBuilder sets all members to
+                    // VariableT FIELD types
+                    VariableT fieldtype = (VariableT) entrytype.lookup(ident);
+                    if (fieldtype.isError()) {
+                      System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName()));
+                      typemv.add(ErrorT.TYPE, combinedCond);
+                    } else {
+                      // found a valid field and we now know its type
+                      
+                      typemv.add(fieldtype.getType(), combinedCond);
+
+                      // add the indirection using the tag (which is
+                      // the same name as the field in the combined
+                      // struct's union)
+                      identmv.add(String.format("%s", fieldtype.getName()), combinedCond);
+                    }
                   }
                   combinedCond.delRef();
                 }
@@ -4864,7 +4888,7 @@ public class CActions implements SemanticActions {
 
                 // first go through each symtab entry for the struct tag
                 String tagname = CContext.toTagName(sutype.getName());
-                Multiverse<SymbolTable.Entry> entries = scope.getAnyScope(tagname, type.getCondition());
+                Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tagname, type.getCondition());
                 for (Element<SymbolTable.Entry> entry : entries) {
                   PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
                   if (entry.getData() == SymbolTable.ERROR) {
@@ -4931,19 +4955,154 @@ public class CActions implements SemanticActions {
     break;
 
   case 435:
-        {
-          System.err.println("TODO: IndirectSelection");
-          System.exit(1);
+    {
           // TODO: need to cast PostfixExpression to the union field
           // of the configurable struct declaration.  this means we
           // need to know the type of postfixexpression
-          System.err.println("TODO: rename according to struct fields");
+
           // TODO: check that postfix expression is a pointer to a struct and that the identifier is one of its fields
+
+          ExpressionValue postfixval = (ExpressionValue) getTransformationValue(subparser, 3);
+
+          Multiverse<String> postfixmv = postfixval.transformation;
+          Multiverse<String> arrowmv
+            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(),
+                                            subparser.getPresenceCondition());
+          String ident = ((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText();
+
+          // go through each type and see which have a field with this
+          // name and collect the resulting type
+          Multiverse<Type> postfixtype = postfixval.type;
+          Multiverse<Type> typemv = new Multiverse<Type>();  // resulting type
+          Multiverse<String> identmv = new Multiverse<String>();  // desugaring
+          CContext scope = ((CContext) subparser.scope);
+          for (Element<Type> type : postfixtype) {
+            // check that the postfix type is a struct or union
+            if (type.getData().isStruct() || type.getData().isUnion()) {
+              StructOrUnionT sutype = (StructT) type.getData();
+              String tag = sutype.getName();
+              assert tag != null;  // even anonymous structs get a name, e.g., anonymous(0)
+              if (tag.startsWith("anonymous(")) {  // anonymous struct or union
+                // go through each symtab entry for this struct/union
+                Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tag, type.getCondition());
+                for (Element<SymbolTable.Entry> entry : entries) {
+                  PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
+                  if (entry.getData() == SymbolTable.ERROR) {
+                    // TODO: type error
+                    typemv.add(ErrorT.TYPE, combinedCond);
+                  } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                    // TODO: type error, symbol not declared in this presence condition
+                    typemv.add(ErrorT.TYPE, combinedCond);
+                  } else {
+                    // TODO: check for correct field usage, otherwise type error
+                    // TODO: insert field of the union inside the original struct/union
+
+                    // since we looked up a tagname, not seeing a
+                    // struct/union type likely means there's a bug
+                    assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
+                    StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
+
+                    // similarly, if we looked up a tagname, there
+                    // should be definitions with members
+                    assert null != entrytype.getMembers();
+
+                    // check that the field exist in this variation of
+                    // the struct.  TypeBuilder sets all members to
+                    // VariableT FIELD types
+                    VariableT fieldtype = (VariableT) entrytype.lookup(ident);
+                    if (fieldtype.isError()) {
+                      System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName()));
+                      typemv.add(ErrorT.TYPE, combinedCond);
+                    } else {
+                      // found a valid field and we now know its type
+                      
+                      typemv.add(fieldtype.getType(), combinedCond);
+
+                      // add the indirection using the tag (which is
+                      // the same name as the field in the combined
+                      // struct's union)
+                      identmv.add(String.format("%s", fieldtype.getName()), combinedCond);
+                    }
+                  }
+                  combinedCond.delRef();
+                }
+                entries.destruct();
+              } else {  // tagged struct or union
+                // tagged structs work by using the original name for
+                // a struct that is the union of all variations, so we
+                // need to replace the field with level of indirection
+                // into this union.
+
+                // first go through each symtab entry for the struct tag
+                String tagname = CContext.toTagName(sutype.getName());
+                Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tagname, type.getCondition());
+                for (Element<SymbolTable.Entry> entry : entries) {
+                  PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
+                  if (entry.getData() == SymbolTable.ERROR) {
+                    // TODO: type error
+                    typemv.add(ErrorT.TYPE, combinedCond);
+                  } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                    // TODO: type error, symbol not declared in this presence condition
+                    typemv.add(ErrorT.TYPE, combinedCond);
+                  } else {
+                    // TODO: check for correct field usage, otherwise type error
+                    // TODO: insert field of the union inside the original struct/union
+
+                    // since we looked up a tagname, not seeing a
+                    // struct/union type likely means there's a bug
+                    assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
+                    StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
+
+                    // similarly, if we looked up a tagname, there
+                    // should be definitions with members
+                    assert null != entrytype.getMembers();
+
+                    // check that the field exist in this variation of
+                    // the struct.  TypeBuilder sets all members to
+                    // VariableT FIELD types
+                    VariableT fieldtype = (VariableT) entrytype.lookup(ident);
+                    if (fieldtype.isError()) {
+                      System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName()));
+                      typemv.add(ErrorT.TYPE, combinedCond);
+                    } else {
+                      // found a valid field and we now know its type
+                      
+                      typemv.add(fieldtype.getType(), combinedCond);
+
+                      // add the indirection using the tag (which is
+                      // the same name as the field in the combined
+                      // struct's union)
+                      identmv.add(String.format("%s.%s", entrytype.getName(), fieldtype.getName()), combinedCond);
+                    }
+                  }
+                  combinedCond.delRef();
+                }
+              }
+            } else {
+              // TODO: not a struct or union, type error
+              typemv.add(ErrorT.TYPE, type.getCondition());
+            }
+          }
+          
+          assert ! typemv.isEmpty();
+
+          System.err.println("typemv " + typemv);
+          System.err.println("identmv " + identmv);
+
+          todoReminder("check for all type errors or else the product for indirectselect will fail because of a product of an empty multiverse");
+          Multiverse<String> valuemv = productAll(DesugarOps.concatStrings, postfixmv, arrowmv, identmv);
+          arrowmv.destruct(); identmv.destruct();  // postfixmv is from child, so don't destruct
+          // valuemv shouldn't need to filtered for error conditions,
+          // because identmv only has those configurations that were
+          // correctly typed
+
+          System.err.println("valuemv " + valuemv);
+          setTransformationValue(value, new ExpressionValue(valuemv, typemv));
         }
     break;
 
   case 436:
-        {
+    {
           todoReminder("typecheck Increment");
           // TODO: check that postfixexpression is a number or pointer (see CAnalyzer)
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -4960,7 +5119,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 437:
-        {
+    {
           todoReminder("typecheck Decrement");
           // TODO: check that postfixexpression is a number or pointer (see CAnalyzer)
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -4977,14 +5136,14 @@ public class CActions implements SemanticActions {
     break;
 
   case 438:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: CompoundLiteral");
           System.exit(1);
         }
     break;
 
   case 439:
-        {
+    {
           // create a new list
           List<ExpressionValue> exprlist = new LinkedList<ExpressionValue>();
           ExpressionValue exprval
@@ -4995,7 +5154,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 440:
-        {
+    {
           // add to the existing expression list.  this reuse of a
           // semantic value may be an issue if static conditionals are
           // permitted under expressionlists
@@ -5009,13 +5168,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 441:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 442:
-        {
+    {
           todoReminder("typecheck unaryexpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
@@ -5032,7 +5191,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 443:
-        {
+    {
           todoReminder("typecheck unaryexpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
@@ -5049,7 +5208,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 444:
-        {
+    {
           // TODO: need to look at the unaryoperator to determine whether it's the correct type usage
           todoReminder("typecheck unaryexpression (4)");
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -5067,7 +5226,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 445:
-        {
+    {
           todoReminder("typecheck unaryexpression (5)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
@@ -5084,63 +5243,63 @@ public class CActions implements SemanticActions {
     break;
 
   case 446:
-        {
+    {
           System.err.println("WARNING: unsupported unaryexpression (6)");
           System.exit(1);
         }
     break;
 
   case 447:
-        {
+    {
           todoReminder("typecheck unaryexpression (7)");
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 448:
-        {
+    {
           todoReminder("typecheck unaryexpression (8)");
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 449:
-        {
+    {
           todoReminder("typecheck unaryexpression (9)");
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 450:
-        {
+    {
           todoReminder("typecheck unaryexpression (10)");
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 451:
-        {
+    {
           todoReminder("typecheck unaryexpression (11)");
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 452:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: TypeCompatibilityExpression");
           System.exit(1);
         }
     break;
 
   case 453:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: OffsetofExpression");
           System.exit(1);
         }
     break;
 
   case 454:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
           
@@ -5155,95 +5314,95 @@ public class CActions implements SemanticActions {
     break;
 
   case 455:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AlignofExpression");
           System.exit(1);
         }
     break;
 
   case 456:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AlignofExpression");
           System.exit(1);
         }
     break;
 
   case 457:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 458:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 459:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: LabelAddressExpression");
           System.exit(1);
         }
     break;
 
   case 460:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 461:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 462:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 463:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 464:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 465:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 466:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 467:
-        {
+    {
           System.err.println("TODO: CastExpression (2) type checking");
           System.exit(1);
         }
     break;
 
   case 468:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 469:
-        {
+    {
           todoReminder("typecheck MultiplicativeExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5263,7 +5422,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 470:
-        {
+    {
           todoReminder("typecheck MultiplicativeExpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5283,7 +5442,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 471:
-        {
+    {
           todoReminder("typecheck MultiplicativeExpression (4)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5303,13 +5462,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 472:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 473:
-        {
+    {
           todoReminder("typecheck AdditiveExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5329,7 +5488,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 474:
-        {
+    {
           todoReminder("typecheck AdditiveExpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5349,13 +5508,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 475:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 476:
-        {
+    {
           todoReminder("typecheck ShiftExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5375,7 +5534,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 477:
-        {
+    {
           todoReminder("typecheck ShiftExpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5395,13 +5554,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 478:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 479:
-        {
+    {
           todoReminder("typecheck RelationalExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5421,7 +5580,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 480:
-        {
+    {
           todoReminder("typecheck RelationalExpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5441,7 +5600,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 481:
-        {
+    {
           todoReminder("typecheck RelationalExpression (4)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5461,7 +5620,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 482:
-        {
+    {
           todoReminder("typecheck RelationalExpression (5)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5481,13 +5640,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 483:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 484:
-        {
+    {
           todoReminder("typecheck EqualityExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5507,7 +5666,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 485:
-        {
+    {
           todoReminder("typecheck EqualityExpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5527,13 +5686,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 486:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 487:
-        {
+    {
           todoReminder("typecheck AndExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5553,13 +5712,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 488:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 489:
-        {
+    {
           todoReminder("typecheck ExclusiveOrExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5579,13 +5738,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 490:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 491:
-        {
+    {
           todoReminder("typecheck InclusiveOrExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5605,13 +5764,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 492:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 493:
-        {
+    {
           todoReminder("typecheck LogicalAndExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5631,13 +5790,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 494:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 495:
-        {
+    {
           todoReminder("typecheck LogicalORExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5657,13 +5816,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 496:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 497:
-        {
+    {
           todoReminder("typecheck ConditionalExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue condval = (ExpressionValue) getTransformationValue(subparser, 5);
@@ -5689,7 +5848,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 498:
-        {
+    {
           System.err.println("TODO: ConditionalExpression");
           System.exit(1);
           // TODO: check for valid types
@@ -5697,13 +5856,13 @@ public class CActions implements SemanticActions {
     break;
 
   case 499:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 500:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
 
           ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
@@ -5752,73 +5911,73 @@ public class CActions implements SemanticActions {
     break;
 
   case 501:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 502:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 503:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 504:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 505:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 506:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 507:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 508:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 509:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 510:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 511:
-        {
+    {
           setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
         }
     break;
 
   case 512:
-        {
+    {
           PresenceCondition pc = subparser.getPresenceCondition();
           setTransformationValue(value, new ExpressionValue("",
                                                             UnitT.TYPE,
@@ -5827,92 +5986,93 @@ public class CActions implements SemanticActions {
     break;
 
   case 513:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 514:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 515:
-        {
+    {
           System.err.println("TODO: Expression (2)");
         }
     break;
 
   case 516:
-        {
+    {
           setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
         }
     break;
 
   case 517:
-        {
-          System.err.println("WARNING: unsupported semantic action: AttributeSpecifierListOpt");
+    {
+          todoReminder("support AttributeSpecifierListOpt (1)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
   case 518:
-        {
-          System.err.println("WARNING: unsupported semantic action: AttributeSpecifierListOpt");
-          System.exit(1);
+    {
+          todoReminder("support AttributeSpecifierListOpt (2)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
   case 519:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AttributeSpecifierList");
           System.exit(1);
         }
     break;
 
   case 520:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AttributeSpecifierList");
           System.exit(1);
         }
     break;
 
   case 521:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AttributeSpecifier");
           System.exit(1);
         }
     break;
 
   case 522:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AttributeKeyword");
           System.exit(1);
         }
     break;
 
   case 523:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AttributeKeyword");
           System.exit(1);
         }
     break;
 
   case 524:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AttributeListOpt");
         }
     break;
 
   case 525:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AttributeListOpt");
           System.exit(1);
         }
     break;
 
   case 526:
-        {
+    {
           String word = ((Syntax) getNodeAt(subparser, 2).get(0)).getTokenText();
           System.err.println("WARNING: unsupported semantic action: AttributeList");
           System.exit(1);
@@ -5920,7 +6080,7 @@ public class CActions implements SemanticActions {
     break;
 
   case 527:
-        {
+    {
           String word = ((Syntax) getNodeAt(subparser, 2).get(0)).getTokenText();
           System.err.println("WARNING: unsupported semantic action: AttributeList");
           System.exit(1);
@@ -5928,533 +6088,534 @@ public class CActions implements SemanticActions {
     break;
 
   case 528:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AttributeExpressionOpt");
         }
     break;
 
   case 529:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AttributeExpressionOpt");
           System.exit(1);
         }
     break;
 
   case 530:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AttributeExpressionOpt");
           System.exit(1);
         }
     break;
 
   case 531:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 532:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 533:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 534:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 535:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 536:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 537:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 538:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 539:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 540:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 541:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 542:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 543:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 544:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 545:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 546:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 547:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 548:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 549:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 550:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 551:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 552:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 553:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 554:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 555:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 556:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 557:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 558:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 559:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 560:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 561:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 562:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 563:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 564:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 565:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 566:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 567:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 568:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 569:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 570:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 571:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 572:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 573:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 574:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 575:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 576:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 577:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 578:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 579:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 580:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 581:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 582:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 583:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 584:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 585:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 586:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 587:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 588:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 589:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 590:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 591:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 592:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 593:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 594:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 595:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 596:
-        {
+    {
           // get token from parent
         }
     break;
 
   case 597:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AssemblyDefinition");
           System.exit(1);
         }
     break;
 
   case 598:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AssemblyExpression");
           System.exit(1);
         }
     break;
 
   case 599:
-        {
-          System.err.println("WARNING: unsupported semantic action: AssemblyExpressionOpt");
+    {
+          todoReminder("support AssemblyExpressionOpt (1)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
   case 600:
-        {
-          System.err.println("WARNING: unsupported semantic action: AssemblyExpressionOpt");
-          System.exit(1);
+    {
+          todoReminder("support AssemblyExpressionOpt (2)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
   case 601:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AssemblyStatement");
           System.exit(1);
         }
     break;
 
   case 602:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AssemblyStatement");
           System.exit(1);
         }
     break;
 
   case 603:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AssemblyStatement");
           System.exit(1);
         }
     break;
 
   case 604:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Assemblyargument");
           System.exit(1);
         }
     break;
 
   case 605:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Assemblyargument");
           System.exit(1);
         }
     break;
 
   case 606:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Assemblyargument");
           System.exit(1);
         }
     break;
 
   case 607:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Assemblyargument");
           System.exit(1);
         }
     break;
 
   case 608:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AssemblyoperandsOpt");
         }
     break;
 
   case 609:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AssemblyoperandsOpt");
           System.exit(1);
         }
     break;
 
   case 610:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Assemblyoperands");
           System.exit(1);
         }
     break;
 
   case 611:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Assemblyoperands");
           System.exit(1);
         }
     break;
 
   case 612:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Assemblyoperand");
           System.exit(1);
         }
     break;
 
   case 613:
-        {
+    {
           String word = ((Syntax) getNodeAt(subparser, 6).get(0)).getTokenText();
           System.err.println("WARNING: unsupported semantic action: Assemblyoperand");
           System.exit(1);
@@ -6462,69 +6623,69 @@ public class CActions implements SemanticActions {
     break;
 
   case 614:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AssemblyclobbersOpt");
         }
     break;
 
   case 615:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AssemblyclobbersOpt");
           System.exit(1);
         }
     break;
 
   case 616:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Assemblyclobbers");
           System.exit(1);
         }
     break;
 
   case 617:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: Assemblyclobbers");
           System.exit(1);
         }
     break;
 
   case 618:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AssemblyGotoargument");
           System.exit(1);
         }
     break;
 
   case 619:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AssemblyJumpLabels");
           System.exit(1);
         }
     break;
 
   case 620:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AssemblyJumpLabels");
           System.exit(1);
         }
     break;
 
   case 621:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AsmKeyword");
           System.exit(1);
         }
     break;
 
   case 622:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AsmKeyword");
           System.exit(1);
         }
     break;
 
   case 623:
-        {
+    {
           System.err.println("WARNING: unsupported semantic action: AsmKeyword");
           System.exit(1);
         }
@@ -7021,6 +7182,7 @@ private String emitStatement(Multiverse<String> allStatementConfigs, PresenceCon
         sb.append(") {\n");
       }
       sb.append(statement.getData());
+      sb.append("\n");
       if (! combinedCond.isTrue()) {
         // don't print the C conditionals if condition is for all configurations
         sb.append("\n}");
@@ -7209,30 +7371,6 @@ private static boolean showErrors = false;
 /** Turn on debugging messages. */
 private static boolean debug = false;
 
-/** Turn on checkers. */
-private static boolean enableCheckers = false;
-
-/** Turn on checkers. */
-private static List<String> extraConstraints = null;
-
-/** Turn on function analysis. */
-private static boolean enableFunctionAnalysis = false;
-
-/** A symbol table for analysis. */
-private SymbolTable functionTable;
-
-/** Turn on kconfig feature model clauses. */
-private boolean hasClauses = false;
-
-/** The clauses for the kconfig feature model. */
-private Clauses featureClauses = null;
-
-/** The kconfig feature model solver. */
-private ISolver featureSolver;
-
-/** The assumptions of the feature model, i.e., non-arch config vars. */
-private VecInt modelAssumptions;
-
 /**
  * Turn language statistics collection on.  Default is off.
  *
@@ -7258,85 +7396,6 @@ public void showErrors(boolean b) {
  */
 public void debug(boolean b) {
   debug = b;
-}
-
-/**
- * Enable checkers.
- *
- * @param b Enable checkers if true.
- */
-public void enableCheckers(boolean b) {
-  this.enableCheckers(b, null);
-}
-
-/**
- * Enable checkers.
- *
- * @param b Enable checkers if true.
- * @param extraConstraints Extra constraints to SAT solver.
- */
-public void enableCheckers(boolean b, List<String> extraConstraints) {
-  this.enableCheckers = b;
-  if (null == extraConstraints) {
-    // avoid having to check for null
-    extraConstraints = new ArrayList<String>();
-  }
-  this.extraConstraints = extraConstraints;
-}
-
-/**
- * Enable function analysis.
- */
-public void enableFunctionAnalysis() {
-  this.enableFunctionAnalysis = true;
-  this.functionTable = new SymbolTable();
-}
-
-/**
- * Add kconfig feature model clauses.
- *
- * @param clauses The clauses.
- */
-public void addClauses(Clauses clauses, int[] assumptions) {
-  if (null != assumptions) {
-    this.modelAssumptions = new VecInt(assumptions);
-  } else {
-    this.modelAssumptions = new VecInt(new int[0]);
-  }
-
-  if (null != clauses) {
-    this.hasClauses = true;
-    this.featureClauses = clauses;
-    this.featureSolver = SolverFactory.newDefault();
-    this.featureSolver.newVar(clauses.getNumVars());
-    this.featureSolver.setExpectedNumberOfClauses(clauses.size());
-
-    try {
-      for (List<Integer> clause : clauses) {
-        int[] cint = new int[clause.size()];
-        int i = 0;
-        for (Integer val : clause) {
-          cint[i++] = val;
-        }
-        this.featureSolver.addClause(new VecInt(cint));
-      }
-    } catch (ContradictionException e) {
-      e.printStackTrace();
-      System.exit(1);
-    }
-  } else {
-    this.hasClauses = false;
-    this.featureClauses = null;
-  }
-}
-
-/**
- * Get the checker symbol table.
- *
- * @return The checker symbol table.
- */
-public SymbolTable getFunctionTable() {
-  return this.functionTable;
 }
 
 /**
@@ -7793,243 +7852,6 @@ public void BindEnum(Subparser subparser) {
   // Bind variable name.
   scope.getSymbolTable().setbool(ident, STField.IDENT, true, presenceCondition);
   /* scope.bind(ident, false, presenceCondition); */
-}
-
-public void useIdent(Subparser subparser, Node ident) {
-  CContext scope = (CContext) subparser.scope;
-  String name = ident.getTokenText();
-
-  if (debug) {
-    System.err.println("use: " + name);
-  }
-  if (enableCheckers) {
-    PresenceCondition identPresenceCond = scope.symbolPresenceCond(name, STField.IDENT);
-    if (null != identPresenceCond && ! identPresenceCond.isFalse()) {
-      PresenceCondition not = identPresenceCond.not();
-      PresenceCondition andnot = subparser.getPresenceCondition().and(not);
-      /* not.delRef(); */
-      if (! andnot.isFalse()) {
-        boolean satWithKconfig = true;
-        boolean contradiction = false;
-        int[] model = null;
-        // check andnot against kconfig feature model
-        if (this.hasClauses) {
-          // use double negation to get andnot in cnf form
-          PresenceCondition notandnot = andnot.not();
-          /* System.err.println(notandnot); */
-          List allsat = (List) notandnot.getBDD().allsat();
-          ArrayList<ArrayList<Integer>> bugClauses =
-            new ArrayList<ArrayList<Integer>>();
-
-          for (Object o : allsat) {
-            byte[] sat = (byte[]) o;
-            ArrayList<Integer> clause = new ArrayList<Integer>();
-            for (int i = 0; i < sat.length; i++) {
-              // convert to solver's varnum
-              // look up i in variable manager
-              // if varname exists in clauses, then add to clause
-              int sign = 1;
-
-              switch (sat[i]) {
-              case 1:
-                // negate again
-                sign = -1;
-              case 0:
-                String varname = notandnot.presenceConditionManager().getVariableManager().getName(i);
-                if (varname.startsWith("(defined ")) {
-                  varname = varname.substring(9, varname.length() - 1);
-                  /* System.err.println(varname); */
-                  if (this.featureClauses.getVarmap().containsKey(varname)) {
-                    int var = this.featureClauses.getVarmap().get(varname);
-                    var = sign * var;
-                    clause.add(var);
-                  }
-                }
-                break;
-              }
-            }
-            if (clause.size() > 0) {
-              /* System.err.println(clause); */
-              bugClauses.add(clause);
-            }
-          }
-
-          // add extra constraints
-          for (String extraConstraint : extraConstraints) {
-            this.featureClauses.addClauses(extraConstraint);
-          }
-          // remove them to avoid adding them again the next check
-          extraConstraints.clear();
-
-          try {
-            ISolver featureSolver = SolverFactory.newDefault();
-            featureSolver.newVar(this.featureClauses.getNumVars());
-            /* featureSolver.setExpectedNumberOfClauses(this.featureClauses.size() + bugClauses.size()); */
-
-            for (List<Integer> clause : this.featureClauses) {
-              int[] cint = new int[clause.size()];
-              int i = 0;
-              for (Integer val : clause) {
-                cint[i++] = val;
-              }
-              featureSolver.addClause(new VecInt(cint));
-            }
-
-            for (List<Integer> clause : bugClauses) {
-              int[] cint = new int[clause.size()];
-              int i = 0;
-              for (Integer val : clause) {
-                cint[i++] = val;
-              }
-              IConstr curConstr =
-                featureSolver.addClause(new VecInt(cint));
-            }
-
-            ISolver bugSolver = SolverFactory.newDefault();
-            bugSolver.newVar(this.featureClauses.getNumVars());
-            bugSolver.setExpectedNumberOfClauses(bugClauses.size());
-
-            for (List<Integer> clause : bugClauses) {
-              int[] cint = new int[clause.size()];
-              int i = 0;
-              for (Integer val : clause) {
-                cint[i++] = val;
-              }
-              IConstr curConstr =
-                bugSolver.addClause(new VecInt(cint));
-            }
-
-            IProblem simpleProblem = new ModelIterator(bugSolver);
-            boolean satWithoutKconfig = simpleProblem.isSatisfiable();
-
-            /* IProblem problem = featureSolver; */
-            IProblem problem = new ModelIterator(featureSolver);
-            if (problem.isSatisfiable(modelAssumptions)) {
-              satWithKconfig = true;
-              if (debug) {
-                System.err.println("computing model");
-              }
-              model = problem.model();
-            } else {
-              satWithKconfig = false;
-              if (satWithoutKconfig) {
-                System.err.print("invalid config invalidated by kconfig ");
-              } else {
-                System.err.print("invalid config invalidated by bug clauses alone ");
-              }
-              System.err.println(name + " at " + ident.getLocation());
-            }
-          } catch (ContradictionException e) {
-            contradiction = true;
-          } catch (TimeoutException e) {
-            e.printStackTrace();
-            /*           System.exit(1); */
-          }
-          notandnot.delRef();
-        }
-        if (contradiction) {
-          System.err.print("invalid config invalidated by contradiction " + name + " at " + ident.getLocation());
-        } else if (satWithKconfig) {
-          /* PresenceCondition sat = andnot.satOne(); */
-          if (null != scope.symbolPresenceCond(name, STField.GLOBAL_FUNDEF) || null != scope.symbolPresenceCond(name, STField.STATIC_FUNDEF)) {
-            System.err.println("found for function def");
-          }
-          System.err.println("found invalid configuration on "
-                             + name + " at " + ident.getLocation());
-          /* System.err.println("config " + andnot); */
-          /* System.err.println("identPresenceCond: " + identPresenceCond); */
-          /* /\* System.err.println("undefined under " + not); *\/ */
-          /* /\* System.err.println("used under      " + subparser.getPresenceCondition()); *\/ */
-          /* if (this.showExample) { */
-          if (true) {
-            if (null != model) {
-              System.err.print("model: ");
-              String delim = "[";
-              for (int i = 0; i < model.length; i++) {
-                if (model[i] > 0) {
-                  System.err.print(delim + featureClauses.getVarName(model[i]));
-                  delim = ",";
-                }
-              }
-              System.err.println("]");
-            }
-          }
-          /* sat.delRef(); */
-        }
-      } else {
-        if (debug) {
-          System.err.println("valid function call " + name + " at " + ident.getLocation());
-          /* System.err.println("not: " + not); */
-          /* System.err.println("subparser.getPresenceCondition() " + subparser.getPresenceCondition()); */
-        }
-      }
-      not.delRef();
-      andnot.delRef();
-
-      /* PresenceCondition and = subparser.getPresenceCondition().and(identPresenceCond); */
-      /* if (and.isFalse()) { */
-      /*   System.err.println("found infeasible configuration on " + name + " at " + ident.getLocation() + " defined in " + identPresenceCond); */
-      /* } */
-      /* and.delRef(); */
-
-      // update configurations the identifier is used in
-      scope.getSymbolTable().setbool(name, STField.USED, true, subparser.getPresenceCondition());
-    } else {
-      if (debug) {
-        System.err.println("not an identifier in any config " + name + " at " + ident.getLocation());
-      }
-    }
-  }
-}
-
-public void callFunction(Subparser subparser, Node fun, Node parms) {
-  if (fun.getName().equals("PrimaryIdentifier") && enableFunctionAnalysis) {
-    /* CContext scope = (CContext) subparser.scope; */
-    /* String name = ((Language<?>) fun.get(0)).getTokenText(); */
-    /* scope.getSymbolTable().setbool(name, STField.FUNCALL, true, subparser.getPresenceCondition()); */
-    String name = ((Language<?>) fun.get(0)).getTokenText();
-    functionTable.setbool(name, STField.FUNCALL, true, subparser.getPresenceCondition());
-    return;
-  }
-
-  // TODO do later
-  if (true) {
-    return;
-  }
-
-  String name = ((Syntax) fun.get(0)).getTokenText();
-  CContext scope = (CContext) subparser.scope;
-
-  if (debug) {
-    System.err.println("function call: " + name);
-  }
-  if (enableCheckers) {
-    PresenceCondition funPresenceCond = scope.symbolPresenceCond(name, STField.GLOBAL_FUNDEF).or(scope.symbolPresenceCond(name, STField.STATIC_FUNDEF));
-    if (null != funPresenceCond && ! funPresenceCond.isFalse()) {
-      PresenceCondition not = funPresenceCond.not();
-      PresenceCondition andnot = subparser.getPresenceCondition().and(not);
-      not.delRef();
-      if (! andnot.isFalse()) {
-        /* PresenceCondition sat = andnot.satOne(); */
-        /* System.err.println("found invalid configuration on function call " + name + " at " + fun.getLocation() + " config " + sat);        sat.delRef(); */
-      }
-      andnot.delRef();
-
-      PresenceCondition and = subparser.getPresenceCondition().and(funPresenceCond);
-      if (and.isFalse()) {
-        System.err.println("found infeasible configuration on function call " + name + " at " + fun.getLocation() + " defined in " + funPresenceCond);
-      }
-      and.delRef();
-
-      // update configurations the function is used in
-      scope.getSymbolTable().setbool(name, STField.USED, true, subparser.getPresenceCondition());
-    } else {
-      if (debug) {
-        System.err.println("checker error: " + name + " not a function in any configuration");
-      }
-    }
-    funPresenceCond.delRef();
-  }
 }
 
 public void EnterScope(Subparser subparser) {
