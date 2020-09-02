@@ -6858,6 +6858,18 @@ private String emitStatement(Multiverse<String> allStatementConfigs, PresenceCon
   return sb.toString();
 }
 
+
+/**
+ * Produces the string used when a compile-time error needs to be
+ * represented at runtime.
+ *
+ * @param msg The message.
+ * @returns A snippet of C code representing the compile-time error.
+ */
+private String emitError(String msg) {
+  return String.format("__static_type_error(\"%s\")", msg);
+}
+
 /*****************************************************************************
  ********* Multiverse handlers for Nodes
  *****************************************************************************/
