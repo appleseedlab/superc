@@ -208,7 +208,9 @@ public class SugarC extends Tool {
            "Show all forks and merges.").
       bool("showLookaheads", "showLookaheads", false,
            "Show lookaheads on each parse loop (warning: very voluminous "
-           + "output!)")
+           + "output!)").
+      bool("suppressConditionals", "suppressConditionals", false,
+           "Don't print static conditionals.")
       ;
   }
   
@@ -368,6 +370,7 @@ public class SugarC extends Tool {
     // macros and includes.
     macroTable = new MacroTable(tokenCreator);
     presenceConditionManager = new PresenceConditionManager();
+    presenceConditionManager.suppressConditionals(runtime.test("suppressConditionals"));
     expressionParser = ExpressionParser.fromRats();
     conditionEvaluator = new ConditionEvaluator(expressionParser,
                                                 presenceConditionManager,
