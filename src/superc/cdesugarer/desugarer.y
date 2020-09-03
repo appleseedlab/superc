@@ -331,7 +331,7 @@ TranslationUnit:  /** complete **/
             CContext scope = ((CContext) subparser.scope);
             writer.write(scope.getDeclarations(subparser.getPresenceCondition()));
 
-            System.err.println(symtab);
+            if (debug) System.err.println(symtab);
 
             // write the transformed C
             Multiverse<String> extdeclmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
