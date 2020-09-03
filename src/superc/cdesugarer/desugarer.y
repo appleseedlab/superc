@@ -428,6 +428,8 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           // annotation isn't on functionprototype.  this is why we
           // are getting all nodes at this point
           Multiverse<Node> prototypeNodemv = staticCondToMultiverse(getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          // produce a multiverse of strings for the body to use
+          Multiverse<String> prototypestrmv = new Multiverse<String>();
           for (Element<Node> prototypeNode : prototypeNodemv) {
             FunctionPrototypeValue prototype = (FunctionPrototypeValue) getTransformationValue(prototypeNode.getData());
             Multiverse<TypeSpecifier> typespecifiermv = prototype.typespecifier;
@@ -477,6 +479,8 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                       // update the symbol table for this presence condition
                       scope.put(originalName, type, entry.getCondition());
 
+                      prototypestrmv.add(renamedDeclaration.toString(), entry.getCondition());
+
                       // add the forward declaration to the scope to
                       // facilitate matching of signatures for linking
                       StringBuilder forward = new StringBuilder();
@@ -523,27 +527,27 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
             /* typespecifiermv.destruct(); */
             /* declaratormv.destruct(); */
           } // end of check for invalid typespecifier
+          // prototypestrmv may be empty if none are valid types
           if (debug) System.err.println(scope.getSymbolTable());
-          prototypeNodemv.destruct();          
+          prototypeNodemv.destruct();
+
+          // change the semantic value of functionprototype to be the multiverse of strings
+          setTransformationValue(getNodeAt(subparser, 1), prototypestrmv);
+          System.err.println("PROTOTYPESTRMV " + prototypestrmv);
           
-          // reenter function local scope
-          ReenterScope(subparser);
-        } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
+        /*   // reenter function local scope */
+        /*   ReenterScope(subparser); */
+        /* } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE */
+        } CompoundStatement
         /* FunctionPrototype { ReenterScope(subparser); } LBRACE CompoundStatement { ExitScope(subparser); } RBRACE */
         {
           // similar to Declaration, but different in that this has a
           // compoundstatement, while declaration has an initializer.
           PresenceCondition pc = subparser.getPresenceCondition();
 
-          String leftcurly = getNodeAt(subparser, 4).getTokenText();
-          String body = (String) getTransformationValue(subparser, 3);
-          String rightcurly = getNodeAt(subparser, 1).getTokenText();
-          
-          /* System.err.println("TYPE: " + typespecifiermv); */
-          /* System.err.println("DECLARATOR: " + declaratormv); */
-
-          // add all variations of the function declaration to the symtab
-          CContext scope = (CContext)subparser.scope;
+          Multiverse<String> prototypestrmv = (Multiverse<String>) getTransformationValue(getNodeAt(subparser, 3));
+          System.err.println("PROTOTYPESTRMV2 " + prototypestrmv);
+          Multiverse<String> bodymv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
 
           // declarations, including function definitions, should
           // appear unconditionally in the desugared output, since
@@ -560,79 +564,17 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           // have a conditional underneath even though the complete
           // annotation isn't on functionprototype.  this is why we
           // are getting all nodes at this point
-          Multiverse<Node> prototypeNodemv = staticCondToMultiverse(getNodeAt(subparser, 6), subparser.getPresenceCondition());
-          for (Element<Node> prototypeNode : prototypeNodemv) {
-            FunctionPrototypeValue prototype = (FunctionPrototypeValue) getTransformationValue(prototypeNode.getData());
-            Multiverse<TypeSpecifier> typespecifiermv = prototype.typespecifier;
-            Multiverse<Declarator> declaratormv = prototype.declarator;
+          for (Element<String> prototypestr : prototypestrmv) {
+            sb.append(prototypestr.getData());
+            sb.append(" {\n");
+            sb.append(emitStatement(bodymv, prototypestr.getCondition()));
+            sb.append("\n}\n");
+          }
+          bodymv.destruct();
 
-            assert scope.isGlobal(); // function definitions should be global.  nested functions have a separate subgrammar.
-          
-            for (Element<TypeSpecifier> typespecifier : typespecifiermv) {
-              PresenceCondition typespecifierCond = prototypeNode.getCondition().and(typespecifier.getCondition());
-              for (Element<Declarator> declarator : declaratormv) {
-                PresenceCondition combinedCond = typespecifierCond.and(declarator.getCondition());
-                String originalName = declarator.getData().getName();
-                Declaration originalDeclaration = new Declaration(typespecifier.getData(), declarator.getData());
-
-                if (originalDeclaration.hasTypeError()) {
-                  // handled by action after functionprototype
-                } else {
-                  // otherwise loop over each existing entry check for
-                  // type errors or add a new declaration
-                  Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(originalName, combinedCond);
-                  for (Element<SymbolTable.Entry> entry : entries) {
-                    if (entry.getData() == SymbolTable.ERROR) {
-                      // handled by action after functionprototype
-                    } else if (entry.getData() == SymbolTable.UNDECLARED) {
-                      // handled by action after functionprototype
-                    } else {
-                      if (entry.getData().getType() instanceof NamedFunctionT) {  // there is no Type.isFunctionOrMethod()
-                        NamedFunctionT ftype = (NamedFunctionT) entry.getData().getType();
-                        String renaming = ftype.getName();
-                        Declarator renamedDeclarator = declarator.getData().rename(renaming);
-                        Declaration renamedDeclaration = new Declaration(typespecifier.getData(),
-                                                                         renamedDeclarator);
-
-                        // renamedDeclaration must be a FunctionT because
-                        // that is created by a FunctionDeclarator
-                        Type declarationType = renamedDeclaration.getType();
-                        FunctionT tabletype = ftype.toFunctionT();
-
-                        // already declared entries
-                        if (cOps.equal(declarationType, tabletype)) {
-                          sb.append(renamedDeclaration.toString());
-                          sb.append(" ");
-                          sb.append(leftcurly);
-                          sb.append("\n");
-                          sb.append(body);
-                          sb.append("\n");
-                          sb.append(rightcurly);
-                          sb.append("\n");
-                        } else {
-                          // handled by action after functionprototype
-                        }
-                      } else { // existing entry is a function type
-                          // handled by action after functionprototype
-                      }  // end of check for existing function type
-                    }  // end test of symtab entry type
-                    sb.append("\n"); // TODO: pass results through a pretty printer or ultimately preserve input file formatting
-                  } // end loop over symtab entries
-                }
-              
-                combinedCond.delRef();
-              } // end of loop over declarators
-              typespecifierCond.delRef();
-            } // end of loop over typespecifiers
-            // TODO: improve memory usage by destructing these.
-            // challenge is that they are shared by nodes.
-            /* typespecifiermv.destruct(); */
-            /* declaratormv.destruct(); */
-          } // end of check for invalid typespecifier
-          if (debug) System.err.println(scope.getSymbolTable());
-          prototypeNodemv.destruct();          
           setTransformationValue(value, sb.toString());
         }
+        /* | FunctionOldPrototype CompoundStatement */
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         /* | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE CompoundStatement { ExitScope(subparser); } RBRACE */
         {
@@ -641,7 +583,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           System.exit(1);
         }
         ;
-
+/* FunctionCompoundStatement is now only for old prototypes. */
 /* Functions have their own compound statement because of the need for
    reentering scope. */
 FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/  // String
