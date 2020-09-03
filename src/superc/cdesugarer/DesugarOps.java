@@ -213,6 +213,43 @@ class DesugarOps {
       }
     };
 
+  public static String createStructDefinitionTransformation(String renamedtag, List<Declaration> members) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("struct ");
+    sb.append(renamedtag);
+    sb.append(" {\n");
+    System.err.println("TODO: check that all members have different names, don't have type errors themselves, and rename selfrefs");
+    for (Declaration declaration : members) {
+      if (declaration.hasTypeError()) {
+        return "";
+      } else {
+        sb.append(declaration.toString());
+        sb.append(";\n");
+      }
+      // TODO: use Variable.newBitfield()
+    }
+    sb.append("}\n");
+    return sb.toString();
+  }
+
+  public static Type createStructDefinitionType(String renamedtag, List<Declaration> members) {
+    System.err.println("TODO: check that all members have different names, don't have type errors themselves, and rename selfrefs");
+    List<VariableT> memberlist = new LinkedList<VariableT>();
+    for (Declaration declaration : members) {
+      if (declaration.hasTypeError()) {
+        return ErrorT.TYPE;
+      } else {
+        VariableT member = VariableT.newField(declaration.getType(),
+                                              declaration.getName());
+        memberlist.add(member);
+      }
+      // TODO: use Variable.newBitfield()
+    }
+
+    return new StructT(renamedtag, memberlist);
+  }
+  
+
   /*****************************************************************************
    ********* Multiverse operators for Declarations
    *****************************************************************************/
