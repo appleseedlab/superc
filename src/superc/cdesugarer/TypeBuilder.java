@@ -10,6 +10,7 @@ import xtc.type.UnitT;
 import xtc.type.AliasT;
 import xtc.type.StructT;
 import xtc.type.VariableT;
+import xtc.type.InternalT;
 import xtc.Constants;
 
 /**
@@ -22,8 +23,9 @@ public class TypeBuilder {
 	       isInline, isSigned, isUnsigned, isTypedef}
     final int NUM_QUALS = 12;
     enum FOUND_TYPE {seenVoid, seenInt, seenLong, seenLongLong, seenChar, seenShort, seenFloat,
-                     seenDouble, seenComplex, seenTypedefType, seenStructReference, seenStructDefinition}
-    final int NUM_TYPES = 12;
+                     seenDouble, seenComplex, seenTypedefType, seenStructReference, seenStructDefinition,
+                     seenVarArg}
+    final int NUM_TYPES = 13;
     // note: these can appear in any order (in the source file), and they will be initialized to false                                                                        /*boolean isAuto;
   boolean qualifiers[] = new boolean[NUM_QUALS];
   boolean foundTypes[] = new boolean[NUM_TYPES];
@@ -118,6 +120,9 @@ public class TypeBuilder {
       }
       sb.append("}");
     }
+    if (foundTypes[FOUND_TYPE.seenVarArg.ordinal()]) {
+      sb.append("__builtin_va_list");
+    }
 	sb.append(attributesToString());
 
 	return sb.toString();
@@ -189,8 +194,9 @@ public class TypeBuilder {
     }
     else if (foundTypes[FOUND_TYPE.seenStructDefinition.ordinal()]) {
       type = this.structType;
-    }
-    else{
+    } else if (foundTypes[FOUND_TYPE.seenVarArg.ordinal()]) {
+      type = InternalT.VA_LIST;
+    } else{
 	    System.err.println("ERROR: unsupported type found");
 	    System.exit(1);
     }
