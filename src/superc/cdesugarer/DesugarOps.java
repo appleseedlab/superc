@@ -163,7 +163,17 @@ class DesugarOps {
    */
   public final static Multiverse.Transformer<List<Declaration>, ParameterListDeclarator> toParameterList = new Multiverse.Transformer<List<Declaration>, ParameterListDeclarator>() {
       ParameterListDeclarator transform(List<Declaration> from) {
-        return new ParameterListDeclarator(from);
+        return new ParameterListDeclarator(from, false);
+      }
+    };
+
+  /**
+   * A multiverse transformation to turn a list of Declarations
+   * into a ParameterListDeclarator that have variable arguments.
+   */
+  public final static Multiverse.Transformer<List<Declaration>, ParameterListDeclarator> toVarArgsParameterList = new Multiverse.Transformer<List<Declaration>, ParameterListDeclarator>() {
+      ParameterListDeclarator transform(List<Declaration> from) {
+        return new ParameterListDeclarator(from, true);
       }
     };
 
@@ -267,6 +277,25 @@ class DesugarOps {
   public final static Multiverse.Operator<List<Declaration>> DECLARATIONLISTCONCAT = (list1, list2) -> {
     return concatLists(list1, list2);
   };
+
+  /**
+   * Combine a TypeSpecifier and Declarator into a Declaration.
+   */
+  public final static Multiverse.Joiner<TypeSpecifier, Declarator, Declaration> joinDeclaration = (typespecifier, declarator) -> {
+    return new Declaration(typespecifier, declarator);
+  };
+
+  /**
+   * Convert a declaration into a string.  This is used for typename,
+   * so any renaming has been done already in the typespec and the
+   * declarator is abstract.
+   */
+  public final static Multiverse.Transformer<Declaration, String> typenameToString
+    = new Multiverse.Transformer<Declaration, String>() {
+        String transform(Declaration from) {
+          return from.toString();
+        }
+      };
 
   /*****************************************************************************
    ********* Multiverse operators for Initializers

@@ -2682,17 +2682,18 @@ EnumeratorValueOpt: /** nomerge **/
         }
         ;
 
-ParameterTypeList:  /** nomerge **/  // List<Multiverse<Declaration>>
+ParameterTypeList:  /** nomerge **/  // ParameterTypeListValue which contains List<Multiverse<Declaration>>
         ParameterList
         {
-          setTransformationValue(value, (List<Multiverse<Declaration>>) getTransformationValue(subparser,1));
+          List<Multiverse<Declaration>> paramlist
+            = (List<Multiverse<Declaration>>) getTransformationValue(subparser,1);
+          setTransformationValue(value, new ParameterTypeListValue(paramlist, false));
         }
         | ParameterList COMMA ELLIPSIS
         {
           List<Multiverse<Declaration>> paramlist
             = (List<Multiverse<Declaration>>) getTransformationValue(subparser,3);
-          System.err.println("TODO: support variadic parameter lists");  // add a special parameterdeclarationvalue to the list
-          setTransformationValue(value, paramlist);
+          setTransformationValue(value, new ParameterTypeListValue(paramlist, true));
         }
         ;
 
@@ -3538,8 +3539,10 @@ PostfixingFunctionDeclarator:  /** nomerge **/ // Multiverse<ParameterListDeclar
         LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN
         {
           // TODO: account for parameterdeclarationvalue that is the ellipsis
-          List<Multiverse<Declaration>> parameterdeclaratorlistsmv
-            = (List<Multiverse<Declaration>>) getTransformationValue(subparser,3);
+          ParameterTypeListValue parametertypelist
+            = (ParameterTypeListValue) getTransformationValue(subparser,3);
+          List<Multiverse<Declaration>> parameterdeclaratorlistsmv = parametertypelist.list;
+          boolean varargs = parametertypelist.varargs;
 
           // use Multiverse<List<Parameter>> for ParameterTypeListOpt
           
@@ -3571,7 +3574,12 @@ PostfixingFunctionDeclarator:  /** nomerge **/ // Multiverse<ParameterListDeclar
           // (4) transform the resulting List<Declaration>
           // into a ParameterListDeclarator, so that it can be used in
           // the Declarator AST
-          Multiverse<ParameterListDeclarator> paramlistmv = DesugarOps.toParameterList.transform(parametersmv);
+          Multiverse<ParameterListDeclarator> paramlistmv;
+          if (varargs) {
+            paramlistmv = DesugarOps.toVarArgsParameterList.transform(parametersmv);
+          } else {
+            paramlistmv = DesugarOps.toParameterList.transform(parametersmv);
+          }
           parametersmv.destruct();
           // no need to filter, since we started parametersmv with the subparser pc
           setTransformationValue(value, paramlistmv);
@@ -3675,14 +3683,14 @@ PostfixingAbstractDeclarator: /**  nomerge **/
         }
         ;
 
-ParameterTypeListOpt: /** nomerge **/  // List<Multiverse<Declaration>>
+ParameterTypeListOpt: /** nomerge **/  // ParameterTypeListValue which contains List<Multiverse<Declaration>>
         /* empty */
         {
-          setTransformationValue(value, new LinkedList<Multiverse<Declaration>>());
+          setTransformationValue(value, new ParameterTypeListValue(new LinkedList<Multiverse<Declaration>>(), false));
         }
         | ParameterTypeList
         {
-          setTransformationValue(value, (List<Multiverse<Declaration>>) getTransformationValue(subparser,1));
+          setTransformationValue(value, (ParameterTypeListValue) getTransformationValue(subparser,1));
         }
         ;
 
@@ -6700,6 +6708,24 @@ private static class StructDeclaringListValue {
     this.declarator = declarator;
   }
 }
+
+/**
+ * This semantic value holds a parameter list so it can preserve
+ * whether there was a variable number of arguments or not.
+ */
+private static class ParameterTypeListValue {
+  /** The parameter list. */
+  public final List<Multiverse<Declaration>> list;
+
+  /** Whether the list has variable arguments or not. */
+  public final boolean varargs;
+
+  public ParameterTypeListValue(List<Multiverse<Declaration>> list, boolean varargs) {
+    this.list = list;
+    this.varargs = varargs;
+  }
+}
+
 
 /**
  * This is the semantic value for expressions.  It contains one

@@ -498,16 +498,15 @@ abstract class Declarator {
 
     public Type getType(Type returnType) {
       List<Type> paramtypes = new LinkedList<Type>();
-      boolean varargs = false;  // TODO: handle varargs here
       for (Declaration param : parameters.parameters) {
         paramtypes.add(param.getType());
       }
 
       if (declarator.isSimpleDeclarator()) {
-        return new FunctionT(returnType, paramtypes, varargs);
+        return new FunctionT(returnType, paramtypes, parameters.varargs);
       } else if (declarator.isPointerDeclarator()) {
         // the pointer declarators creator a function pointer
-        return declarator.getType(new FunctionT(returnType, paramtypes, varargs));
+        return declarator.getType(new FunctionT(returnType, paramtypes, parameters.varargs));
       } else {
         throw new AssertionError("function declarator should either be simple or pointer");
       }
@@ -530,8 +529,12 @@ abstract class Declarator {
     /** The list of parameters. */
     protected final List<Declaration> parameters;
 
-    public ParameterListDeclarator(List<Declaration> parameters) {
+    /** Whether this list has variable arguments or not. */
+    protected final boolean varargs;
+
+    public ParameterListDeclarator(List<Declaration> parameters, boolean varargs) {
       this.parameters = parameters;
+      this.varargs = varargs;
     }
 
     public String getName() {
