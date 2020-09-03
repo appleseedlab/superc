@@ -241,10 +241,10 @@ abstract class Declarator {
     protected final Declarator declarator;
 
     /** Qualifiers of this pointer. */
-    protected final TypeBuilder qualifiers;
+    protected final TypeSpecifier qualifiers;
 
     public QualifiedPointerDeclarator(Declarator declarator,
-                                      TypeBuilder qualifiers) {
+                                      TypeSpecifier qualifiers) {
       this.declarator = declarator;
       this.qualifiers = qualifiers;
     }
@@ -259,12 +259,14 @@ abstract class Declarator {
 
     public Type getType(Type type) {
       System.err.println("TODO: check correctness of qualified pointer declarator type");
-      Type qualifiedtype = qualifiers.combine(new TypeBuilder(type)).toType();
+      TypeSpecifier newts = new TypeSpecifier(qualifiers);
+      newts.setType(type);
+      Type qualifiedtype = newts.getType();
       return declarator.getType(new PointerT(qualifiedtype));
     }
 
     public boolean hasTypeError() {
-      return qualifiers.hasTypeError() || declarator.hasTypeError();
+      return qualifiers.getType().isError() || declarator.hasTypeError();
     }
   
     @Override
@@ -311,7 +313,7 @@ abstract class Declarator {
     }
   }
 
-  // note this uses TypeBuilder, not a Multiverse, so the action needs to hoist, because TypeQualifiers returns a Multiverse
+  // note this uses TypeSpecifier, not a Multiverse, so the action needs to hoist, because TypeQualifiers returns a Multiverse
   /**
    * A qualified pointer declarator without an explicit declarator
    * that it points to.  It has no declarator field, because it is an
@@ -319,9 +321,9 @@ abstract class Declarator {
    */
   public static class QualifiedPointerAbstractDeclarator extends Declarator {
     /** Qualifiers, if any, of this pointer. */
-    protected final TypeBuilder qualifiers;
+    protected final TypeSpecifier qualifiers;
 
-    public QualifiedPointerAbstractDeclarator(TypeBuilder qualifiers) {
+    public QualifiedPointerAbstractDeclarator(TypeSpecifier qualifiers) {
       this.qualifiers = qualifiers;
     }
 
@@ -335,12 +337,14 @@ abstract class Declarator {
     }
 
     public Type getType(Type type) {
-      Type qualifiedtype = qualifiers.combine(new TypeBuilder(type)).toType();
+      TypeSpecifier newts = new TypeSpecifier(qualifiers);
+      newts.setType(type);
+      Type qualifiedtype = newts.getType();
       return new PointerT(qualifiedtype);
     }
 
     public boolean hasTypeError() {
-      return qualifiers.hasTypeError();
+      return qualifiers.getType().isError();
     }
   
     @Override

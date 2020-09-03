@@ -31,8 +31,10 @@ import superc.cdesugarer.Initializer.Designator;
 import superc.cdesugarer.Initializer.ArrayDesignator;
 import superc.cdesugarer.Initializer.StructUnionDesignator;
 
-import xtc.type.ErrorT;
 import xtc.type.Type;
+import xtc.type.VariableT;
+import xtc.type.StructT;
+import xtc.type.ErrorT;
 
 import xtc.type.C;
 
@@ -101,12 +103,12 @@ class DesugarOps {
   /**
    * Create a multiverse of qualified pointer declarators.  This is not
    * a multiverse operator, because it combines two different types,
-   * TypeBuilder and Declarator.
+   * TypeSpecifier and Declarator.
    */
-  public final static Multiverse<Declarator> createQualifiedPointerDeclarator(Multiverse<Declarator> declarators, Multiverse<TypeBuilder> qualifierlists) {
+  public final static Multiverse<Declarator> createQualifiedPointerDeclarator(Multiverse<Declarator> declarators, Multiverse<TypeSpecifier> qualifierlists) {
     Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
 
-    for (Element<TypeBuilder> qualifierlist : qualifierlists) {
+    for (Element<TypeSpecifier> qualifierlist : qualifierlists) {
       for (Element<Declarator> declarator : declarators) {
         PresenceCondition combinedCond = qualifierlist.getCondition().and(declarator.getCondition());
         valuemv.add(new QualifiedPointerDeclarator(declarator.getData(),
@@ -140,8 +142,8 @@ class DesugarOps {
   /**
    * Create qualified pointer declarators.
    */
-  public final static Multiverse.Transformer<TypeBuilder, Declarator> toQualifiedPointerAbstractDeclarator = new Multiverse.Transformer<TypeBuilder, Declarator>() {
-      Declarator transform(TypeBuilder from) {
+  public final static Multiverse.Transformer<TypeSpecifier, Declarator> toQualifiedPointerAbstractDeclarator = new Multiverse.Transformer<TypeSpecifier, Declarator>() {
+      Declarator transform(TypeSpecifier from) {
         return new QualifiedPointerAbstractDeclarator(from);
       }
     };
@@ -166,34 +168,36 @@ class DesugarOps {
     };
 
   /*****************************************************************************
-   ********* Multiverse operators for TypeBuilders
+   ********* Multiverse operators for TypeSpecifiers
    *****************************************************************************/
 
-  public final static Multiverse.Operator<TypeBuilder> TBCONCAT = (tb1, tb2) -> {
-    return tb1.combine(tb2);
+  // TODO: make a product that copies the first ts, then looks at each boolean of the second and calls the appropriate specifiers.visit function or tries to set the type (which may fail).  also need an error state on the type specifier.
+
+  public final static Multiverse.Operator<TypeSpecifier> specifierProduct = (ts1, ts2) -> {
+    TypeSpecifier newts = new TypeSpecifier(ts1);
+    newts.visit(ts2);
+    return newts;
   };
 
   /**
    * A multiverse transformation to turn a symtab entries for a
-   * typedefname into a multiverse of typebuilders.
+   * typedefname into a multiverse of typespecifiers.
    */
-  public final static Multiverse.Transformer<SymbolTable.Entry, TypeBuilder> typedefEntriesToTypeBuilder = new Multiverse.Transformer<SymbolTable.Entry, TypeBuilder>() {
-      TypeBuilder transform(SymbolTable.Entry from) {
-        // TODO: improve TypeBuilder's interface
-        TypeBuilder tbunit = new TypeBuilder();
+  public final static Multiverse.Transformer<SymbolTable.Entry, TypeSpecifier> typedefEntriesToTypeSpecifier = new Multiverse.Transformer<SymbolTable.Entry, TypeSpecifier>() {
+      TypeSpecifier transform(SymbolTable.Entry from) {
+        TypeSpecifier ts = new TypeSpecifier();
         if (from == SymbolTable.ERROR) {
           System.err.println("INFO: use of typedefname with invalid declaration");
           // TODO: needs a unit test
-          tbunit.setTypeError();
+          ts.setError();
         } else if (from == SymbolTable.UNDECLARED) {
           System.err.println("INFO: use of undeclared typedefname");
           // TODO: needs a unit test
-          tbunit.setTypeError();
+          ts.setError();
         } else {
-          System.err.println("TODO: check that type is actually alias " + from.getType().isAlias());
           if (! from.getType().isAlias()) {
             System.err.println("INFO: typedefname is not declared as alias type");
-            tbunit.setTypeError();
+            ts.setError();
             // TODO: double-check that the parser already handles
             // this case, although it seems like the parser is
             // already handling this
@@ -201,10 +205,11 @@ class DesugarOps {
             // TODO: use the new symtab for reclassifying
             // typedefname tokens
           } else {
-            tbunit.setTypedef(from.getType().toAlias());
+            ts.setType(from.getType().toAlias());
+            ts.addTransformation(from.getType().toAlias().getName());
           }
         }
-        return tbunit;
+        return ts;
       }
     };
 
@@ -341,6 +346,7 @@ class DesugarOps {
    * compatible.
    */
   public final static Multiverse.Operator<Type> compareTypes = (t1, t2) -> {
+    // TODO: see CAnalyzer, e.g., additiveexpression, etc
     Type newtype;
     if (cOps.equal(t1, t2)) {
       // TODO: may need to pick correct type based on kind of
