@@ -54,25 +54,25 @@ public class CValues implements SemanticValues {
     switch (id - 131) {
       case 0: // ExternalDeclarationList (131)
         // Fall through
-      case 33: // DeclarationQualifierList (164)
+      case 32: // DeclarationQualifierList (163)
         // Fall through
-      case 34: // TypeQualifierList (165)
+      case 33: // TypeQualifierList (164)
         // Fall through
-      case 73: // StructDeclarationList (204)
+      case 72: // StructDeclarationList (203)
         // Fall through
-      case 75: // StructDefaultDeclaringList (206)
+      case 74: // StructDefaultDeclaringList (205)
         // Fall through
-      case 76: // StructDeclaringList (207)
+      case 75: // StructDeclaringList (206)
         // Fall through
-      case 82: // EnumeratorList (213)
+      case 81: // EnumeratorList (212)
         // Fall through
-      case 88: // ParameterList (219)
+      case 87: // ParameterList (218)
         // Fall through
-      case 98: // IdentifierList (229)
+      case 97: // IdentifierList (228)
         // Fall through
-      case 105: // MatchedInitializerList (236)
+      case 104: // MatchedInitializerList (235)
         // Fall through
-      case 108: // DesignatorList (239)
+      case 107: // DesignatorList (238)
         // Fall through
       case 149: // LocalLabelDeclarationList (280)
         // Fall through
@@ -101,7 +101,7 @@ public class CValues implements SemanticValues {
         // Fall through
       case 7: // $@3 (138)
         // Fall through
-      case 8: // $@4 (139)
+      case 12: // $@4 (143)
         // Fall through
       case 13: // $@5 (144)
         // Fall through
@@ -109,7 +109,7 @@ public class CValues implements SemanticValues {
         // Fall through
       case 15: // $@7 (146)
         // Fall through
-      case 16: // $@8 (147)
+      case 20: // $@8 (151)
         // Fall through
       case 21: // $@9 (152)
         // Fall through
@@ -117,15 +117,15 @@ public class CValues implements SemanticValues {
         // Fall through
       case 23: // $@11 (154)
         // Fall through
-      case 24: // $@12 (155)
+      case 25: // $@12 (156)
         // Fall through
       case 26: // $@13 (157)
         // Fall through
       case 27: // $@14 (158)
         // Fall through
-      case 28: // $@15 (159)
+      case 29: // $@15 (160)
         // Fall through
-      case 30: // $@16 (161)
+      case 59: // $@16 (190)
         // Fall through
       case 60: // $@17 (191)
         // Fall through
@@ -133,7 +133,7 @@ public class CValues implements SemanticValues {
         // Fall through
       case 62: // $@19 (193)
         // Fall through
-      case 63: // $@20 (194)
+      case 64: // $@20 (195)
         // Fall through
       case 65: // $@21 (196)
         // Fall through
@@ -149,11 +149,11 @@ public class CValues implements SemanticValues {
         // Fall through
       case 71: // $@27 (202)
         // Fall through
-      case 72: // $@28 (203)
+      case 83: // $@28 (214)
         // Fall through
       case 84: // $@29 (215)
         // Fall through
-      case 85: // $@30 (216)
+      case 91: // $@30 (222)
         // Fall through
       case 92: // $@31 (223)
         // Fall through
@@ -165,28 +165,26 @@ public class CValues implements SemanticValues {
         // Fall through
       case 96: // $@35 (227)
         // Fall through
-      case 97: // $@36 (228)
+      case 127: // $@36 (258)
         // Fall through
       case 128: // $@37 (259)
         // Fall through
-      case 129: // $@38 (260)
+      case 134: // $@38 (265)
         // Fall through
       case 135: // $@39 (266)
         // Fall through
-      case 136: // $@40 (267)
+      case 145: // $@40 (276)
         // Fall through
       case 146: // $@41 (277)
         // Fall through
-      case 147: // $@42 (278)
+      case 170: // $@42 (301)
         // Fall through
-      case 170: // $@43 (301)
-        // Fall through
-      case 171: // $@44 (302)
+      case 171: // $@43 (302)
         return ValueType.ACTION;
 
-      case 58: // ElaboratedTypeName (189)
+      case 57: // ElaboratedTypeName (188)
         // Fall through
-      case 106: // DesignatedInitializer (237)
+      case 105: // DesignatedInitializer (236)
         // Fall through
       case 163: // Constant (294)
         // Fall through
@@ -247,17 +245,17 @@ public class CValues implements SemanticValues {
       // Fall through
     case 135: // FunctionDefinition
       // Fall through
-    case 143: // NestedFunctionDefinition
+    case 142: // NestedFunctionDefinition
       // Fall through
-    case 274: // Statement
+    case 273: // Statement
       // Fall through
-    case 275: // LabeledStatement
+    case 274: // LabeledStatement
       // Fall through
-    case 276: // CompoundStatement
+    case 275: // CompoundStatement
       // Fall through
-    case 150: // DeclarationExtension
+    case 149: // DeclarationExtension
       // Fall through
-    case 151: // Declaration
+    case 150: // Declaration
       // Fall through
     case 279: // LocalLabelDeclarationListOpt
       // Fall through
@@ -297,7 +295,7 @@ public class CValues implements SemanticValues {
 
   public boolean changeName(int id) {
     switch(id) {
-    case 140: // FunctionCompoundStatement
+    case 139: // FunctionCompoundStatement
       return true;
 
     default:
@@ -307,7 +305,7 @@ public class CValues implements SemanticValues {
 
   public String newName(int id) {
     switch(id) {
-    case 140: // FunctionCompoundStatement
+    case 139: // FunctionCompoundStatement
       return "CompoundStatement";
 
     default:

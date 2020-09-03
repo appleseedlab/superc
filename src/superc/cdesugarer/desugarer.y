@@ -2135,7 +2135,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifi
             scope.put(structTag,
                        tb.getType(),
                        declarationlist.getCondition());
-            System.err.println("STRUCTTYPE: " + tb.getType());
+            /* System.err.println("STRUCTTYPE: " + tb.getType()); */
             // declared as this type
           }
           // should be non-empty, since we start with a single entry multiverse containing an empty list
@@ -4658,6 +4658,9 @@ FunctionCall:  /** nomerge **/
             // parameter list
             for (Element<Type> postfixelem : postfixexprval.type) {
               // check that postfix expression is a function type
+              /* System.err.println("FUNTYPE: " + postfixelem.getData()); */
+              /* System.err.println("isnamedfunt: " + (postfixelem.getData() instanceof NamedFunctionT)); */
+              /* System.err.println("isfunt: " + (postfixelem.getData() instanceof FunctionT)); */
               if (postfixelem.getData() instanceof NamedFunctionT) {
                 FunctionT functiontype = ((NamedFunctionT) postfixelem.getData()).toFunctionT();
                 List<Type> formals = functiontype.getParameters();
