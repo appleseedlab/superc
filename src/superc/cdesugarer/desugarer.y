@@ -3892,17 +3892,57 @@ LabeledStatement:  /** complete **/  // ADDED attributes
         | LBRACE DeclarationList StatementList RBRACE
         ;*/
 
+/* CompoundStatement:  /\** complete **\/  /\* ADDED *\/  // String */
+/*         LBRACE { EnterScope(subparser); } LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE */
+/*         { */
+/*           PresenceCondition pc = subparser.getPresenceCondition(); */
+/*           CContext scope = ((CContext) subparser.scope); */
+
+/*           Multiverse<String> locallabelmv = getCompleteNodeSingleValue(subparser, 4, pc); */
+/*           Multiverse<String> declorstmtmv = getCompleteNodeSingleValue(subparser, 3, pc); */
+          
+/*           StringBuilder valuesb = new StringBuilder(); */
+/*           valuesb.append(getNodeAt(subparser, 6).getTokenText()); */
+/*           valuesb.append(concatMultiverseStrings(locallabelmv)); locallabelmv.destruct(); */
+/*           // print user-defined type declarations at top of scope */
+/*           valuesb.append(scope.getDeclarations(subparser.getPresenceCondition())); */
+/*           // DeclarationOrStatementList already resolves */
+/*           // configurations, so just print all the possible strings */
+/*           // under the static conditional */
+/*           valuesb.append(concatMultiverseStrings(declorstmtmv)); declorstmtmv.destruct(); */
+/*           valuesb.append(getNodeAt(subparser, 1).getTokenText()); */
+
+/*           setTransformationValue(value, valuesb.toString()); */
+/*         } */
+/*         ; */
+
 CompoundStatement:  /** complete **/  /* ADDED */  // String
-        LBRACE { EnterScope(subparser); } LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
+        LBRACE { ReenterScope(subparser); } CompoundStatementBody { ExitScope(subparser); } RBRACE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = ((CContext) subparser.scope);
 
-          Multiverse<String> locallabelmv = getCompleteNodeSingleValue(subparser, 4, pc);
-          Multiverse<String> declorstmtmv = getCompleteNodeSingleValue(subparser, 3, pc);
+          String body = (String) getTransformationValue(subparser, 3);
           
           StringBuilder valuesb = new StringBuilder();
-          valuesb.append(getNodeAt(subparser, 6).getTokenText());
+          valuesb.append(getNodeAt(subparser, 5).getTokenText());
+          valuesb.append(body);
+          valuesb.append(getNodeAt(subparser, 1).getTokenText());
+
+          setTransformationValue(value, valuesb.toString());
+        }
+        ;
+
+CompoundStatementBody:  /** nomerge **/  /* ADDED */  // String
+        LocalLabelDeclarationListOpt DeclarationOrStatementList
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = ((CContext) subparser.scope);
+
+          Multiverse<String> locallabelmv = getCompleteNodeSingleValue(subparser, 2, pc);
+          Multiverse<String> declorstmtmv = getCompleteNodeSingleValue(subparser, 1, pc);
+          
+          StringBuilder valuesb = new StringBuilder();
           valuesb.append(concatMultiverseStrings(locallabelmv)); locallabelmv.destruct();
           // print user-defined type declarations at top of scope
           valuesb.append(scope.getDeclarations(subparser.getPresenceCondition()));
@@ -3910,7 +3950,6 @@ CompoundStatement:  /** complete **/  /* ADDED */  // String
           // configurations, so just print all the possible strings
           // under the static conditional
           valuesb.append(concatMultiverseStrings(declorstmtmv)); declorstmtmv.destruct();
-          valuesb.append(getNodeAt(subparser, 1).getTokenText());
 
           setTransformationValue(value, valuesb.toString());
         }
