@@ -1019,11 +1019,22 @@ Declaration:  /** complete **/  // String
                       StringBuilder entrysb = new StringBuilder();
 
                       Type declarationType = renamedDeclaration.getType();
-                      Type type = renamedDeclaration.typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF)
-                        ? new AliasT(renaming, declarationType)
-                        : (scope.isGlobal()
-                           ? VariableT.newGlobal(declarationType, renaming)
-                           : VariableT.newLocal(declarationType, renaming));
+                      Type type;
+                      if (renamedDeclaration.typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF)) {
+                        type = new AliasT(renaming, declarationType);
+                      } else if (declarationType.isFunction()) {
+                        type = new NamedFunctionT(declarationType.toFunction().getResult(),
+                                                  renaming,
+                                                  declarationType.toFunction().getParameters(),
+                                                  declarationType.toFunction().isVarArgs());
+                      } else {
+                        if (scope.isGlobal()) {
+                          type = VariableT.newGlobal(declarationType, renaming);
+                        } else {
+                          type = VariableT.newLocal(declarationType, renaming);
+                        }
+                      }
+                      assert null != type;
 
                       if (entry.getData() == SymbolTable.ERROR) {
                         // ERROR entry
