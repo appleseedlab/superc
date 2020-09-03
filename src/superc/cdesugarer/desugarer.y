@@ -6352,16 +6352,16 @@ Word:  // ADDED  // Syntax
 AssemblyDefinition:  /** nomerge **/
         AssemblyExpression SEMICOLON
         {
-          System.err.println("WARNING: unsupported semantic action: AssemblyDefinition");
-          System.exit(1);
+          todoReminder("support AssemblyDefinition (1)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
 AssemblyExpression:  /** nomerge **/
         AsmKeyword LPAREN StringLiteralList RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: AssemblyExpression");
-          System.exit(1);
+          todoReminder("support AssemblyExpression (1)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
@@ -6382,145 +6382,134 @@ AssemblyStatement:   /** nomerge **/ // ADDED
         AsmKeyword LPAREN Assemblyargument RPAREN SEMICOLON
         /* gcc>=4.5 */
         {
-          System.err.println("WARNING: unsupported semantic action: AssemblyStatement");
-          System.exit(1);
+          todoReminder("support AssemblyStatement (1)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | AsmKeyword GOTO LPAREN AssemblyGotoargument RPAREN SEMICOLON
         {
-          System.err.println("WARNING: unsupported semantic action: AssemblyStatement");
-          System.exit(1);
+          todoReminder("support AssemblyStatement (2)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | AsmKeyword TypeQualifier LPAREN Assemblyargument RPAREN SEMICOLON
         {
-          System.err.println("WARNING: unsupported semantic action: AssemblyStatement");
-          System.exit(1);
+          todoReminder("support AssemblyStatement (3)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
 Assemblyargument:  /** nomerge **/  // ADDED
         StringLiteralList COLON AssemblyoperandsOpt COLON AssemblyoperandsOpt COLON Assemblyclobbers
         {
-          System.err.println("WARNING: unsupported semantic action: Assemblyargument");
-          System.exit(1);
+          todoReminder("support AssemblyArgument (1)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | StringLiteralList COLON AssemblyoperandsOpt COLON AssemblyoperandsOpt
         {
-          System.err.println("WARNING: unsupported semantic action: Assemblyargument");
-          System.exit(1);
+          todoReminder("support AssemblyArgument (2)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | StringLiteralList COLON AssemblyoperandsOpt
         {
-          System.err.println("WARNING: unsupported semantic action: Assemblyargument");
-          System.exit(1);
+          todoReminder("support AssemblyArgument (3)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | StringLiteralList
         {
-          System.err.println("WARNING: unsupported semantic action: Assemblyargument");
-          System.exit(1);
+          todoReminder("support AssemblyArgument (4)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
 AssemblyoperandsOpt:  /** nomerge **/  // ADDED
         /* empty */
         {
-          System.err.println("WARNING: unsupported semantic action: AssemblyoperandsOpt");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | Assemblyoperands
         {
-          System.err.println("WARNING: unsupported semantic action: AssemblyoperandsOpt");
-          System.exit(1);
+          todoReminder("support AssemblyoperandsOpt (2)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
 Assemblyoperands:  /** list, nomerge **/  // ADDED
         Assemblyoperand
         {
-          System.err.println("WARNING: unsupported semantic action: Assemblyoperands");
-          System.exit(1);
+          todoReminder("support Assemblyoperands (1)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | Assemblyoperands COMMA Assemblyoperand
         {
-          System.err.println("WARNING: unsupported semantic action: Assemblyoperands");
-          System.exit(1);
+          todoReminder("support Assemblyoperands (2)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
 Assemblyoperand:  /** nomerge **/  // ADDED
         StringLiteralList LPAREN Expression RPAREN
         {
-          System.err.println("WARNING: unsupported semantic action: Assemblyoperand");
-          System.exit(1);
+          todoReminder("support Assemblyoperand (1)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | LBRACK Word RBRACK StringLiteralList LPAREN Expression RPAREN
         {
           String word = ((Syntax) getNodeAt(subparser, 6).get(0)).getTokenText();
-          System.err.println("WARNING: unsupported semantic action: Assemblyoperand");
-          System.exit(1);
+          todoReminder("support Assemblyoperand (2)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
 AssemblyclobbersOpt:  /** nomerge **/ // ADDED
         /* empty */
         {
-          System.err.println("WARNING: unsupported semantic action: AssemblyclobbersOpt");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | Assemblyclobbers
         {
-          System.err.println("WARNING: unsupported semantic action: AssemblyclobbersOpt");
-          System.exit(1);
+          todoReminder("support Assemblyclobbersopt (2)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
 Assemblyclobbers:  /** nomerge **/  // ADDED
         StringLiteralList
         {
-          System.err.println("WARNING: unsupported semantic action: Assemblyclobbers");
-          System.exit(1);
+          todoReminder("support StringLiteralList (1)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | Assemblyclobbers COMMA StringLiteralList
         {
-          System.err.println("WARNING: unsupported semantic action: Assemblyclobbers");
-          System.exit(1);
+          todoReminder("support StringLiteralList (2)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
 AssemblyGotoargument:  /** nomerge **/ // ADDED
         StringLiteralList COLON AssemblyoperandsOpt COLON AssemblyoperandsOpt COLON AssemblyclobbersOpt COLON AssemblyJumpLabels
         {
-          System.err.println("WARNING: unsupported semantic action: AssemblyGotoargument");
-          System.exit(1);
+          todoReminder("support AssemblyGotoargument (1)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
 AssemblyJumpLabels:  /** nomerge **/ // ADDED
         Identifier
         {
-          System.err.println("WARNING: unsupported semantic action: AssemblyJumpLabels");
-          System.exit(1);
+          todoReminder("support AssemblyJumpLabels (1)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         | AssemblyJumpLabels COMMA Identifier
         {
-          System.err.println("WARNING: unsupported semantic action: AssemblyJumpLabels");
-          System.exit(1);
+          todoReminder("support AssemblyJumpLabels (2)");
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
         ;
 
+// No actions necessary, since the token will be retrieved by the parent.
 AsmKeyword:   // ADDED
         ASM
-        {
-          System.err.println("WARNING: unsupported semantic action: AsmKeyword");
-          System.exit(1);
-        }
         | __ASM
-        {
-          System.err.println("WARNING: unsupported semantic action: AsmKeyword");
-          System.exit(1);
-        }
         | __ASM__
-        {
-          System.err.println("WARNING: unsupported semantic action: AsmKeyword");
-          System.exit(1);
-        }
         ;
 
 %%
