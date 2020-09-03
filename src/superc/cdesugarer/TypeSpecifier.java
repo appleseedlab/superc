@@ -89,79 +89,76 @@ class TypeSpecifier {
    * @returns Type The xtc type.
    */
   public Type getType() {
+    Type discovered_type;
     // Fill in the resulting type.
-    if (null != type) {
-      // Nothing to do.
-
+    if (null != this.type) {
+      discovered_type = this.type;
     } else if (seenBool) {
-      type = BooleanT.TYPE;
+      discovered_type = BooleanT.TYPE;
     } else if (seenChar) {
       if (seenUnsigned) {
-        type = NumberT.U_CHAR;
+        discovered_type = NumberT.U_CHAR;
       } else if (seenSigned) {
-        type = NumberT.S_CHAR;
+        discovered_type = NumberT.S_CHAR;
       } else {
-        type = NumberT.CHAR;
+        discovered_type = NumberT.CHAR;
       }
     } else if (seenShort) {
       if (seenUnsigned) {
-        type = NumberT.U_SHORT;
+        discovered_type = NumberT.U_SHORT;
       } else {
-        type = NumberT.SHORT;
+        discovered_type = NumberT.SHORT;
       }
     } else if (seenFloat) {
       if (seenComplex) {
-        type = NumberT.FLOAT_COMPLEX;
+        discovered_type = NumberT.FLOAT_COMPLEX;
       } else {
-        type = NumberT.FLOAT;
+        discovered_type = NumberT.FLOAT;
       }
     } else if (seenDouble) {
       if (0 < longCount) {
         if (seenComplex) {
-          type = NumberT.LONG_DOUBLE_COMPLEX;
+          discovered_type = NumberT.LONG_DOUBLE_COMPLEX;
         } else {
-          type = NumberT.LONG_DOUBLE;
+          discovered_type = NumberT.LONG_DOUBLE;
         }
       } else {
         if (seenComplex) {
-          type = NumberT.DOUBLE_COMPLEX;
+          discovered_type = NumberT.DOUBLE_COMPLEX;
         } else {
-          type = NumberT.DOUBLE;
+          discovered_type = NumberT.DOUBLE;
         }
       }
     } else if (1 == longCount) {
       if (seenUnsigned) {
-        type = NumberT.U_LONG;
+        discovered_type = NumberT.U_LONG;
       } else {
-        type = NumberT.LONG;
+        discovered_type = NumberT.LONG;
       }
     } else if (1 < longCount) {
       if (seenUnsigned) {
-        type = NumberT.U_LONG_LONG;
+        discovered_type = NumberT.U_LONG_LONG;
       } else {
-        type = NumberT.LONG_LONG;
+        discovered_type = NumberT.LONG_LONG;
       }
     } else if (seenUnsigned) {
-      type = NumberT.U_INT;
+      discovered_type = NumberT.U_INT;
     } else if (seenSigned) {
-      type = NumberT.S_INT;
+      discovered_type = NumberT.S_INT;
     } else if (seenInt) {
-      type = NumberT.INT;
+      discovered_type = NumberT.INT;
     } else {
-      type = C.IMPLICIT;
+      discovered_type = C.IMPLICIT;
     }
 
     // Annotate the type.
-    if ((! type.hasError()) && (null != attributes)) {
-      type = type.annotate().attribute(attributes);
+    if ((! discovered_type.hasError()) && (null != attributes)) {
+      discovered_type = discovered_type.annotate().attribute(attributes);
     }
 
     // TODO: do i need to do full annotation (i.e., typedef, inline, thread?)
 
-    // Seal the type.
-    type.seal();
-
-    return type;
+    return discovered_type;
   }
 
   /**
@@ -204,9 +201,7 @@ class TypeSpecifier {
     // static
     // typedef
     if (null != other.storage) {
-      if (null != this.storage) {
-        
-      } else {
+      if (! testStorageClass()) {
         this.storage = other.storage;
       }
     }
@@ -264,7 +259,9 @@ class TypeSpecifier {
 
     if (other.seenComplex) {
       this.visitComplex();
-    }    
+    }
+
+    this.transformation.append(other.transformation);
   }
 
   /**
