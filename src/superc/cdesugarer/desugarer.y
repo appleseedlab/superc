@@ -5187,23 +5187,40 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
         }
         | SIZEOF UnaryExpression
         {
-          todoReminder("typecheck unaryexpression (5)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
 
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> exprmv = exprval.transformation;
 
+          todoReminder("typecheck unaryexpression (5)");
+          Multiverse<Type> type = new Multiverse<Type>(C.SIZEOF, pc);
+
           setTransformationValue(value,
                                  new ExpressionValue(productAll(DesugarOps.concatStrings,
                                                                 opmv,
                                                                 exprmv),
-                                                     exprval.type));  // TODO: placeholder until type checking
+                                                     type));
         }
         | SIZEOF LPAREN TypeName RPAREN
         {
-          System.err.println("WARNING: unsupported unaryexpression (6)");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          String prefix = String.format("%s %s",
+                                        ((Syntax) getNodeAt(subparser, 4)).getTokenText(),
+                                        ((Syntax) getNodeAt(subparser, 3)).getTokenText());
+          Multiverse<Declaration> typename = (Multiverse<Declaration>) getTransformationValue(subparser, 2);
+          String suffix = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+
+          // convert to string and append tokens
+          Multiverse<String> typenamestr = DesugarOps.typenameToString.transform(typename);
+          Multiverse<String> prepended = typenamestr.prependScalar(prefix, DesugarOps.concatStrings);
+          Multiverse<String> appended = prepended.appendScalar(suffix, DesugarOps.concatStrings);
+          typenamestr.destruct(); prepended.destruct();
+          
+          todoReminder("typecheck unaryexpression (6)");
+          Multiverse<Type> type = new Multiverse<Type>(C.SIZEOF, pc);
+
+          setTransformationValue(value, new ExpressionValue(appended, type));
         }
         | LabelAddressExpression  // ADDED
         {
