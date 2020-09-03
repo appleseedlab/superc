@@ -415,7 +415,120 @@ FunctionDefinitionExtension:  /** complete **/  // ADDED  // String
         ;
 
 FunctionDefinition:  /** complete **/ // added scoping  // String
-        FunctionPrototype { ReenterScope(subparser); } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
+        FunctionPrototype
+        {
+          // add function to symtab before processing body, since it
+          // may be recursive
+          
+          // add all variations of the function declaration to the symtab
+          CContext scope = (CContext)subparser.scope;
+
+          // TODO: investigate why the function prototype can still
+          // have a conditional underneath even though the complete
+          // annotation isn't on functionprototype.  this is why we
+          // are getting all nodes at this point
+          Multiverse<Node> prototypeNodemv = staticCondToMultiverse(getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          for (Element<Node> prototypeNode : prototypeNodemv) {
+            FunctionPrototypeValue prototype = (FunctionPrototypeValue) getTransformationValue(prototypeNode.getData());
+            Multiverse<TypeSpecifier> typespecifiermv = prototype.typespecifier;
+            Multiverse<Declarator> declaratormv = prototype.declarator;
+
+            assert scope.isGlobal(); // function definitions should be global.  nested functions have a separate subgrammar.
+          
+            for (Element<TypeSpecifier> typespecifier : typespecifiermv) {
+              PresenceCondition typespecifierCond = prototypeNode.getCondition().and(typespecifier.getCondition());
+              for (Element<Declarator> declarator : declaratormv) {
+                PresenceCondition combinedCond = typespecifierCond.and(declarator.getCondition());
+                String originalName = declarator.getData().getName();
+                Declaration originalDeclaration = new Declaration(typespecifier.getData(), declarator.getData());
+
+                if (originalDeclaration.hasTypeError()) {
+                  // if type is invalid, put an error entry, emit a call
+                  // to the type error function
+                  scope.putError(originalName, combinedCond);
+                  recordInvalidGlobalDeclaration(originalName, combinedCond);
+                  System.err.println(String.format("INFO: \"%s\" has an invalid type specifier", originalName));
+                } else {
+                  // otherwise loop over each existing entry check for
+                  // type errors or add a new declaration
+                  Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(originalName, combinedCond);
+                  for (Element<SymbolTable.Entry> entry : entries) {
+                    String renaming = freshCId(originalName);
+                    Declarator renamedDeclarator = declarator.getData().rename(renaming);
+                    Declaration renamedDeclaration = new Declaration(typespecifier.getData(),
+                                                                     renamedDeclarator);
+
+                    // renamedDeclaration must be a FunctionT because
+                    // that is created by a FunctionDeclarator
+                    Type declarationType = renamedDeclaration.getType();
+                    Type type = new NamedFunctionT(declarationType.toFunction().getResult(),
+                                                   renaming,
+                                                   declarationType.toFunction().getParameters(),
+                                                   declarationType.toFunction().isVarArgs());
+                    
+                    if (entry.getData() == SymbolTable.ERROR) {
+                      // ERROR entry
+                      System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
+                    } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                      // UNDECLARED entry
+
+                      todoReminder("multiplex functions to so that each can have its own function name");
+
+                      // update the symbol table for this presence condition
+                      scope.put(originalName, type, entry.getCondition());
+
+                      // add the forward declaration to the scope to
+                      // facilitate matching of signatures for linking
+                      StringBuilder forward = new StringBuilder();
+                      forward.append(renamedDeclaration.toString());
+                      forward.append(";\n");
+                      scope.addDeclaration(forward.toString());
+                      forward = null;
+                      
+                      recordRenaming(renaming, originalName);
+
+                    } else {
+                      if (entry.getData().getType() instanceof NamedFunctionT) {  // there is no Type.isFunctionOrMethod()
+                        FunctionT newtype = ((NamedFunctionT) type).toFunctionT();
+                        FunctionT previoustype = ((NamedFunctionT) entry.getData().getType()).toFunctionT();
+
+                        // TODO: make sure a function is only defined
+                        // once, although it can be declared multiple
+                        // times.
+                    
+                        // already declared entries
+                        if (cOps.equal(newtype, previoustype)) {
+                          System.err.println("TODO: distinguish between previous declaration vs definition.");
+                          System.err.println(String.format("INFO: %s is being redeclared in global scope to compatible type", originalName));
+                        } else {
+                          scope.putError(originalName, entry.getCondition());
+                          recordInvalidGlobalDeclaration(originalName, entry.getCondition());
+                          // emit the same declaration, since it's legal to redeclare globals to a compatible type
+                        }
+                      } else { // existing entry is a function type
+                        scope.putError(originalName, entry.getCondition());
+                        recordInvalidGlobalDeclaration(originalName, entry.getCondition());
+                        System.err.println(String.format("INFO: attempted to redeclare \"%s\" as function instead of non-function", originalName));
+                      }  // end of check for existing function type
+                    }  // end test of symtab entry type
+                  } // end loop over symtab entries
+                }
+              
+                combinedCond.delRef();
+              } // end of loop over declarators
+              typespecifierCond.delRef();
+            } // end of loop over typespecifiers
+            // TODO: improve memory usage by destructing these.
+            // challenge is that they are shared by nodes.
+            /* typespecifiermv.destruct(); */
+            /* declaratormv.destruct(); */
+          } // end of check for invalid typespecifier
+          if (debug) System.err.println(scope.getSymbolTable());
+          prototypeNodemv.destruct();          
+          
+          // reenter function local scope
+          ReenterScope(subparser);
+        } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
         /* FunctionPrototype { ReenterScope(subparser); } LBRACE CompoundStatement { ExitScope(subparser); } RBRACE */
         {
           // similar to Declaration, but different in that this has a
@@ -426,7 +539,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           String body = (String) getTransformationValue(subparser, 3);
           String rightcurly = getNodeAt(subparser, 1).getTokenText();
           
-          /* System.err.println("TYPE: " + typebuildermv); */
+          /* System.err.println("TYPE: " + typespecifiermv); */
           /* System.err.println("DECLARATOR: " + declaratormv); */
 
           // add all variations of the function declaration to the symtab
@@ -450,99 +563,57 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           Multiverse<Node> prototypeNodemv = staticCondToMultiverse(getNodeAt(subparser, 6), subparser.getPresenceCondition());
           for (Element<Node> prototypeNode : prototypeNodemv) {
             FunctionPrototypeValue prototype = (FunctionPrototypeValue) getTransformationValue(prototypeNode.getData());
-            Multiverse<TypeBuilder> typebuildermv = prototype.typebuilder;
+            Multiverse<TypeSpecifier> typespecifiermv = prototype.typespecifier;
             Multiverse<Declarator> declaratormv = prototype.declarator;
 
             assert scope.isGlobal(); // function definitions should be global.  nested functions have a separate subgrammar.
           
-            for (Element<TypeBuilder> typebuilder : typebuildermv) {
-              PresenceCondition typebuilderCond = prototypeNode.getCondition().and(typebuilder.getCondition());
+            for (Element<TypeSpecifier> typespecifier : typespecifiermv) {
+              PresenceCondition typespecifierCond = prototypeNode.getCondition().and(typespecifier.getCondition());
               for (Element<Declarator> declarator : declaratormv) {
-                PresenceCondition combinedCond = typebuilderCond.and(declarator.getCondition());
+                PresenceCondition combinedCond = typespecifierCond.and(declarator.getCondition());
                 String originalName = declarator.getData().getName();
-                Declaration originalDeclaration = new Declaration(typebuilder.getData(), declarator.getData());
+                Declaration originalDeclaration = new Declaration(typespecifier.getData(), declarator.getData());
 
                 if (originalDeclaration.hasTypeError()) {
-                  // if type is invalid, put an error entry, emit a call
-                  // to the type error function
-                  scope.putError(originalName, combinedCond);
-                  recordInvalidGlobalDeclaration(originalName, combinedCond);
-                  System.err.println(String.format("INFO: \"%s\" has an invalid type specifier", originalName));
+                  // handled by action after functionprototype
                 } else {
                   // otherwise loop over each existing entry check for
                   // type errors or add a new declaration
                   Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(originalName, combinedCond);
                   for (Element<SymbolTable.Entry> entry : entries) {
-                    String renaming = freshCId(originalName);
-                    Declarator renamedDeclarator = declarator.getData().rename(renaming);
-                    Declaration renamedDeclaration = new Declaration(typebuilder.getData(),
-                                                                     renamedDeclarator);
-
-                    // renamedDeclaration must be a FunctionT because
-                    // that is created by a FunctionDeclarator
-                    Type declarationType = renamedDeclaration.getType();
-                    Type type = new NamedFunctionT(declarationType.toFunction().getResult(),
-                                                   renaming,
-                                                   declarationType.toFunction().getParameters(),
-                                                   declarationType.toFunction().isVarArgs());
-                    
                     if (entry.getData() == SymbolTable.ERROR) {
-                      // ERROR entry
-                      System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
+                      // handled by action after functionprototype
                     } else if (entry.getData() == SymbolTable.UNDECLARED) {
-                      // UNDECLARED entry
-
-                      // update the symbol table for this presence condition
-                      scope.put(originalName, type, entry.getCondition());
-
-                      // add the forward declaration to the scope to
-                      // facilitate matching of signatures for linking
-                      StringBuilder forward = new StringBuilder();
-                      forward.append(renamedDeclaration.toString());
-                      forward.append(";\n");
-                      scope.addDeclaration(forward.toString());
-                      forward = null;
-                      
-                      sb.append(renamedDeclaration.toString());
-                      sb.append(" ");
-                      sb.append(leftcurly);
-                      sb.append("\n");
-                      sb.append(body);
-                      sb.append("\n");
-                      sb.append(rightcurly);
-                      sb.append("\n");
-                      recordRenaming(renaming, originalName);
-
+                      // handled by action after functionprototype
                     } else {
                       if (entry.getData().getType() instanceof NamedFunctionT) {  // there is no Type.isFunctionOrMethod()
-                        FunctionT newtype = ((NamedFunctionT) type).toFunctionT();
-                        FunctionT previoustype = ((NamedFunctionT) entry.getData().getType()).toFunctionT();
+                        NamedFunctionT ftype = (NamedFunctionT) entry.getData().getType();
+                        String renaming = ftype.getName();
+                        Declarator renamedDeclarator = declarator.getData().rename(renaming);
+                        Declaration renamedDeclaration = new Declaration(typespecifier.getData(),
+                                                                         renamedDeclarator);
 
-                        // TODO: make sure a function is only defined
-                        // once, although it can be declared multiple
-                        // times.
-                    
+                        // renamedDeclaration must be a FunctionT because
+                        // that is created by a FunctionDeclarator
+                        Type declarationType = renamedDeclaration.getType();
+                        FunctionT tabletype = ftype.toFunctionT();
+
                         // already declared entries
-                        if (cOps.equal(newtype, previoustype)) {
-                          System.err.println("TODO: distinguish between previous declaration vs definition.");
+                        if (cOps.equal(declarationType, tabletype)) {
                           sb.append(renamedDeclaration.toString());
                           sb.append(" ");
-                          sb.append(getNodeAt(subparser, 4).getTokenText());
+                          sb.append(leftcurly);
                           sb.append("\n");
-                          sb.append((String) getTransformationValue(subparser, 3));
+                          sb.append(body);
                           sb.append("\n");
-                          sb.append(getNodeAt(subparser, 1).getTokenText());
+                          sb.append(rightcurly);
                           sb.append("\n");
-                          System.err.println(String.format("INFO: %s is being redeclared in global scope to compatible type", originalName));
                         } else {
-                          scope.putError(originalName, entry.getCondition());
-                          recordInvalidGlobalDeclaration(originalName, entry.getCondition());
-                          // emit the same declaration, since it's legal to redeclare globals to a compatible type
+                          // handled by action after functionprototype
                         }
                       } else { // existing entry is a function type
-                        scope.putError(originalName, entry.getCondition());
-                        recordInvalidGlobalDeclaration(originalName, entry.getCondition());
-                        System.err.println(String.format("INFO: attempted to redeclare \"%s\" as function instead of non-function", originalName));
+                          // handled by action after functionprototype
                       }  // end of check for existing function type
                     }  // end test of symtab entry type
                     sb.append("\n"); // TODO: pass results through a pretty printer or ultimately preserve input file formatting
@@ -551,13 +622,13 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
               
                 combinedCond.delRef();
               } // end of loop over declarators
-              typebuilderCond.delRef();
-            } // end of loop over typebuilders
+              typespecifierCond.delRef();
+            } // end of loop over typespecifiers
             // TODO: improve memory usage by destructing these.
             // challenge is that they are shared by nodes.
-            /* typebuildermv.destruct(); */
+            /* typespecifiermv.destruct(); */
             /* declaratormv.destruct(); */
-          } // end of check for invalid typebuilder
+          } // end of check for invalid typespecifier
           if (debug) System.err.println(scope.getSymbolTable());
           prototypeNodemv.destruct();          
           setTransformationValue(value, sb.toString());
