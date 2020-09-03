@@ -30,11 +30,11 @@ From the root of the xtc source tree, run the following:
 
 ## Running the SuperC parser
 
-    java xtc.lang.cpp.SuperC -silent -printAST file_to_transform.c
+    java superc.SuperC -silent -printAST file_to_transform.c
 
 ## Running the SuperC desugarer
 
-    java xtc.lang.cpp.SugarC file_to_desugarer.c > desugared_file.c
+    java superc.SugarC file_to_desugarer.c > desugared_file.c
 
 ## Testing SuperC's parser
 
