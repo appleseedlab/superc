@@ -2997,26 +2997,38 @@ IdentifierOrTypedefName: /** nomerge **/
         }
         ;
 
-TypeName: /** nomerge **/
+// This construct is used in places like casts, where you can specify
+// the type spec and the abstract declarator (pointers, arrays, etc).
+// So we use a declaration class, which holds both a typespec and a
+// declarator.
+TypeName: /** nomerge **/  // Multiverse<Declaration>
         TypeSpecifier
         {
           Multiverse<TypeSpecifier> type = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
-          setTransformationValue(value, type);
+          Multiverse<Declarator> declarator
+            = (Multiverse<Declarator>) new Multiverse<Declarator>(new EmptyDeclarator(), subparser.getPresenceCondition());
+          setTransformationValue(value, type.join(declarator, DesugarOps.joinDeclaration));
+          declarator.destruct();
         }
         | TypeSpecifier AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: TypeName");
-          System.exit(1);
+          Multiverse<TypeSpecifier> type = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          Multiverse<Declarator> declarator = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, type.join(declarator, DesugarOps.joinDeclaration));
         }
         | TypeQualifierList
         {
-          System.err.println("WARNING: unsupported semantic action: TypeName");
-          System.exit(1);
+          Multiverse<TypeSpecifier> type = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          Multiverse<Declarator> declarator
+            = (Multiverse<Declarator>) new Multiverse<Declarator>(new EmptyDeclarator(), subparser.getPresenceCondition());
+          setTransformationValue(value, type.join(declarator, DesugarOps.joinDeclaration));
+          declarator.destruct();
         }
         | TypeQualifierList AbstractDeclarator
         {
-          System.err.println("WARNING: unsupported semantic action: TypeName");
-          System.exit(1);
+          Multiverse<TypeSpecifier> type = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          Multiverse<Declarator> declarator = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, type.join(declarator, DesugarOps.joinDeclaration));
         }
         ;
 
