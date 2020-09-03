@@ -843,7 +843,11 @@ public class CContext implements ParsingContext {
    * @param sb The string builder of the declaration to add.
    */
   public void addDeclaration(String sb) {
-    this.declarations.append(sb);
+    CContext scope = this;
+    
+    while (scope.reentrant) scope = scope.parent;
+    
+    scope.declarations.append(sb);
   }
 
   /**
