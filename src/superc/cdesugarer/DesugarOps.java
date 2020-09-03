@@ -1,10 +1,21 @@
 package superc.cdesugarer;
 
-import superc.cdesugarer.Multiverse;
+import java.util.List;
+import java.util.LinkedList;
 
-import superc.cdesugarer.Multiverse.Element;
+import xtc.type.C;
+import xtc.type.Type;
+import xtc.type.VariableT;
+import xtc.type.StructT;
+import xtc.type.UnionT;
+import xtc.type.ErrorT;
+
+import superc.core.Syntax;
 
 import superc.core.PresenceConditionManager.PresenceCondition;
+
+import superc.cdesugarer.Multiverse;
+import superc.cdesugarer.Multiverse.Element;
 
 import superc.cdesugarer.SymbolTable.Entry;
 
@@ -31,15 +42,6 @@ import superc.cdesugarer.Initializer.Designator;
 import superc.cdesugarer.Initializer.ArrayDesignator;
 import superc.cdesugarer.Initializer.StructUnionDesignator;
 
-import xtc.type.Type;
-import xtc.type.VariableT;
-import xtc.type.StructT;
-import xtc.type.ErrorT;
-
-import xtc.type.C;
-
-import java.util.List;
-import java.util.LinkedList;
 
 /**
  * These operators are used for cartesian products and transformations
@@ -223,9 +225,10 @@ class DesugarOps {
       }
     };
 
-  public static String createStructDefinitionTransformation(String renamedtag, List<Declaration> members) {
+  public static String createStructOrUnionDefTransformation(Syntax keyword, String renamedtag, List<Declaration> members) {
     StringBuilder sb = new StringBuilder();
-    sb.append("struct ");
+    sb.append(keyword.getTokenText());
+    sb.append(" ");
     sb.append(renamedtag);
     sb.append(" {\n");
     System.err.println("TODO: check that all members have different names, don't have type errors themselves, and rename selfrefs");
@@ -242,7 +245,7 @@ class DesugarOps {
     return sb.toString();
   }
 
-  public static Type createStructDefinitionType(String renamedtag, List<Declaration> members) {
+  public static Type createStructOrUnionDefType(Syntax keyword, String renamedtag, List<Declaration> members) {
     System.err.println("TODO: check that all members have different names, don't have type errors themselves, and rename selfrefs");
     List<VariableT> memberlist = new LinkedList<VariableT>();
     for (Declaration declaration : members) {
@@ -256,10 +259,25 @@ class DesugarOps {
       // TODO: use Variable.newBitfield()
     }
 
-    return new StructT(renamedtag, memberlist);
+    if (keyword.getTokenText().equals("struct")) {
+      return new StructT(renamedtag, memberlist);
+    } else if (keyword.getTokenText().equals("union")) {
+      return new UnionT(renamedtag, memberlist);
+    } else {
+      throw new AssertionError("unexpected keyword to createStructOrUnionDefType");
+    }
   }
   
-
+  public static Type createStructOrUnionRefType(Syntax keyword, String renamedtag) {
+    if (keyword.getTokenText().equals("struct")) {
+      return new StructT(renamedtag);
+    } else if (keyword.getTokenText().equals("union")) {
+      return new UnionT(renamedtag);
+    } else {
+      throw new AssertionError("unexpected keyword to createStructOrUnionRefType");
+    }
+  }
+  
   /*****************************************************************************
    ********* Multiverse operators for Declarations
    *****************************************************************************/

@@ -2044,16 +2044,21 @@ ComplexKeyword:
         ;
 
 ElaboratedTypeName: /** passthrough, nomerge **/
-        StructSpecifier
+        StructOrUnionSpecifier
         {
         	setTransformationValue(value,
             (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
         }
-        | UnionSpecifier
-        {
-          System.err.println("ERROR: unsupported semantic action: ElaboratedTypeName");
-          System.exit(1);
-        }
+        /* StructSpecifier */
+        /* { */
+        /* 	setTransformationValue(value, */
+        /*     (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1)); */
+        /* } */
+        /* | UnionSpecifier */
+        /* { */
+        /*   System.err.println("ERROR: unsupported semantic action: ElaboratedTypeName"); */
+        /*   System.exit(1); */
+        /* } */
         | EnumSpecifier
         {
           System.err.println("ERROR: unsupported semantic action: ElaboratedTypeName");
@@ -2071,8 +2076,8 @@ ElaboratedTypeName: /** passthrough, nomerge **/
 // transformation notes:
 //   we can either take all combinations of declaration lists and make a new, renamed type spec
 //   or we can combine all fields into a single struct, renaming the fields
-StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifier>
-        STRUCT LBRACE StructDeclarationList RBRACE
+StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifier>
+        StructOrUnionKeyword LBRACE StructDeclarationList RBRACE
         {
           // TODO: check whether a struct is being declared in a parameter list, which is a wraning.
           
@@ -2084,8 +2089,9 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifi
                       makeStructSpec(subparser, tag, members, attrs),
                       value);
 
+          Syntax keyword = (Syntax) getNodeAt(subparser, 4).get(0);
           List<Multiverse<Declaration>> structfields
-            = (List<Multiverse<Declaration>>) getTransformationValue(subparser,2);
+            = (List<Multiverse<Declaration>>) getTransformationValue(subparser, 2);
 
           // for anonymous structs, just take every combination and
           // make new declaration for it.  since there is no tag,
@@ -2125,8 +2131,9 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifi
             // no need to rename anonymous structs, since the tag is
             // not emitted
             TypeSpecifier tb = new TypeSpecifier();
-            tb.setType(DesugarOps.createStructDefinitionType(structTag, declarationlist.getData()));
-            tb.addTransformation(DesugarOps.createStructDefinitionTransformation("",  // anon structs have no tag
+            tb.setType(DesugarOps.createStructOrUnionDefType(keyword, structTag, declarationlist.getData()));
+            tb.addTransformation(DesugarOps.createStructOrUnionDefTransformation(keyword,
+                                                                                 "",  // anon structs have no tag
                                                                                  declarationlist.getData()));
             valuemv.add(tb, declarationlist.getCondition());
 
@@ -2143,7 +2150,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifi
           
         	setTransformationValue(value, valuemv);
         }
-        | STRUCT IdentifierOrTypedefName LBRACE StructDeclarationList RBRACE
+        | StructOrUnionKeyword IdentifierOrTypedefName LBRACE StructDeclarationList RBRACE
         {
 
           // for tagged structs, always replace it with a reference to
@@ -2160,6 +2167,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifi
                       makeStructSpec(subparser, tag, members, attrs),
                       value);
 
+          Syntax keyword = (Syntax) getNodeAt(subparser, 5).get(0);
           String structTag = ((Syntax) getNodeAt(subparser, 4).get(0)).getTokenText();
           List<Multiverse<Declaration>> structfields
             = (List<Multiverse<Declaration>>) getTransformationValue(subparser, 2);
@@ -2211,8 +2219,9 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifi
                 PresenceCondition combinedCond = entry.getCondition().and(declarationlist.getCondition());
 
                 TypeSpecifier typespecifier = new TypeSpecifier();
-                typespecifier.setType(DesugarOps.createStructDefinitionType(renamedTag, declarationlist.getData()));
-                typespecifier.addTransformation(DesugarOps.createStructDefinitionTransformation(renamedTag,
+                typespecifier.setType(DesugarOps.createStructOrUnionDefType(keyword, renamedTag, declarationlist.getData()));
+                typespecifier.addTransformation(DesugarOps.createStructOrUnionDefTransformation(keyword,
+                                                                                                renamedTag,
                                                                                                 declarationlist.getData()));
                 if (! typespecifier.getType().isError()) {
                   scope.put(CContext.toTagName(structTag),
@@ -2232,7 +2241,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifi
                 // we will print all struct defs at the top of the scope in
                 // the output
                 TypeSpecifier reftypespecifier = new TypeSpecifier();
-                reftypespecifier.setType(new StructT(structTag));
+                reftypespecifier.setType(DesugarOps.createStructOrUnionRefType(keyword, structTag));
                 reftypespecifier.addTransformation(String.format("struct %s", structTag));
                 valuemv.add(reftypespecifier, combinedCond);
               }
@@ -2252,11 +2261,12 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifi
 
           setTransformationValue(value, valuemv);
         }
-        | STRUCT IdentifierOrTypedefName
+        | StructOrUnionKeyword IdentifierOrTypedefName
         {
           // get scope to make an anonymous tag
           CContext scope = (CContext)subparser.scope;
 
+          Syntax keyword = (Syntax) getNodeAt(subparser, 2).get(0);
           String structTag = ((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText();
 
           // global structs are handled by compositing every (renamed)
@@ -2277,14 +2287,14 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifi
             } else if (entry.getData() == SymbolTable.UNDECLARED) {
               System.err.println(String.format("TODO: local structs must be defined before being used, unless it's a pointer to a struct: %s", structTag));
               /* typespecifier.setType(ErrorT.TYPE); */
-              typespecifier.setType(new StructT(structTag));
+              typespecifier.setType(DesugarOps.createStructOrUnionRefType(keyword, structTag));
               typespecifier.addTransformation(String.format("struct %s", structTag));
             } else {
               assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
               if (entry.getData().getType().isStruct()) {
                 // just use the original tag name, since we will use a
                 // union type for it
-                typespecifier.setType(new StructT(structTag));
+                typespecifier.setType(DesugarOps.createStructOrUnionRefType(keyword, structTag));
                 typespecifier.addTransformation(String.format("struct %s", structTag));
                 /* typespecifier.setStructReference(structTag, */
                 /*                                entry.getData().getType().toStruct().getName()); */
@@ -2301,7 +2311,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifi
           assert ! valuemv.isEmpty();
           setTransformationValue(value, valuemv);
         }
-        | STRUCT AttributeSpecifierList { EnterScope(subparser); } LBRACE
+        | StructOrUnionKeyword AttributeSpecifierList { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
@@ -2314,7 +2324,7 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifi
                       makeStructSpec(subparser, tag, members, attrs),
                       value);
         }
-        | STRUCT AttributeSpecifierList IdentifierOrTypedefName { EnterScope(subparser); } LBRACE
+        | StructOrUnionKeyword AttributeSpecifierList IdentifierOrTypedefName { EnterScope(subparser); } LBRACE
           StructDeclarationList { ExitScope(subparser); }
         RBRACE
         {
@@ -2327,57 +2337,63 @@ StructSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifi
                       makeStructSpec(subparser, tag, members, attrs),
                       value);
         }
-        | STRUCT AttributeSpecifierList IdentifierOrTypedefName
+        | StructOrUnionKeyword AttributeSpecifierList IdentifierOrTypedefName
         {
           System.err.println("ERROR: unsupported semantic action: StructSpecifier (6)");
           System.exit(1);
         }
         ;
 
-UnionSpecifier: /** nomerge **/  // ADDED attributes
-        UNION { EnterScope(subparser); } LBRACE
-          StructDeclarationList { ExitScope(subparser); }
-        RBRACE
-        {
-          System.err.println("ERROR: unsupported semantic action: UnionSpecifier");
-          System.exit(1);
-        }
-        | UNION IdentifierOrTypedefName { EnterScope(subparser); } LBRACE
-          StructDeclarationList { ExitScope(subparser); }
-        RBRACE
-        {
-          System.err.println("ERROR: unsupported semantic action: UnionSpecifier");
-          System.exit(1);
-        }
-        | UNION IdentifierOrTypedefName
-        {
-          System.err.println("ERROR: unsupported semantic action: UnionSpecifier");
-          System.exit(1);
-        }
-        | UNION AttributeSpecifierList { EnterScope(subparser); } LBRACE
-          StructDeclarationList { ExitScope(subparser); }
-        RBRACE
-        {
-          System.err.println("ERROR: unsupported semantic action: UnionSpecifier");
-          System.exit(1);
-        }
-        | UNION AttributeSpecifierList IdentifierOrTypedefName { EnterScope(subparser); } LBRACE
-          StructDeclarationList { ExitScope(subparser); }
-        RBRACE
-        {
-          System.err.println("ERROR: unsupported semantic action: UnionSpecifier");
-          System.exit(1);
-        }
-        /* { */
-        /*    updateSpecs(subparser,
-                          makeStruct()); */
-        /* } */
-        | UNION AttributeSpecifierList IdentifierOrTypedefName
-        {
-          System.err.println("ERROR: unsupported semantic action: UnionSpecifier");
-          System.exit(1);
-        }
+// no actions needed, bcause parent action gets token from node
+StructOrUnionKeyword:
+          STRUCT
+        | UNION
         ;
+
+/* UnionSpecifier: /\** nomerge **\/  // ADDED attributes */
+/*         UNION { EnterScope(subparser); } LBRACE */
+/*           StructDeclarationList { ExitScope(subparser); } */
+/*         RBRACE */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: UnionSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | UNION IdentifierOrTypedefName { EnterScope(subparser); } LBRACE */
+/*           StructDeclarationList { ExitScope(subparser); } */
+/*         RBRACE */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: UnionSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | UNION IdentifierOrTypedefName */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: UnionSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | UNION AttributeSpecifierList { EnterScope(subparser); } LBRACE */
+/*           StructDeclarationList { ExitScope(subparser); } */
+/*         RBRACE */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: UnionSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | UNION AttributeSpecifierList IdentifierOrTypedefName { EnterScope(subparser); } LBRACE */
+/*           StructDeclarationList { ExitScope(subparser); } */
+/*         RBRACE */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: UnionSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         /\* { *\/ */
+/*         /\*    updateSpecs(subparser, */
+/*                           makeStruct()); *\/ */
+/*         /\* } *\/ */
+/*         | UNION AttributeSpecifierList IdentifierOrTypedefName */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: UnionSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         ; */
 
 // TODO: use Multiverse<List<Declaration>> and wrap and concat the lists here instead
 
