@@ -338,6 +338,51 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   }
 
   /**
+   *  Syntactic sugar for productScalar(scalar, op, true);
+   */
+  public Multiverse<T> prependScalar(T scalar, Operator<T> op) {
+    return productScalar(scalar, op, true);
+  }
+
+  /**
+   *  Syntactic sugar for productScalar(scalar, op, false);
+   */
+  public Multiverse<T> appendScalar(T scalar, Operator<T> op) {
+    return productScalar(scalar, op, false);
+  }
+
+  /**
+   * This function takes the product of a scalar with this multiverse.
+   * It is used, for instance, to preprend/append a string to every
+   * element of the multiverse.
+   *
+   * @param scalar The scalar to prepend/append.
+   * @param op The operator to use to combine individual elements of
+   * the Multiverse
+   * @param prefix Prepend the scalar if true, append if false.
+   * @return A new instance of Multiverse holding the cartesian
+   * product of the two Multiverses.
+   */
+  public Multiverse<T> productScalar(T scalar, Operator<T> op, boolean prefix) {
+    if (this.isEmpty()) {
+      throw new IllegalStateException("trying to take cartesian product of empty multiverse");
+    } else {
+      Multiverse<T> newmv = new Multiverse<T>();
+      for (Element<T> elem : this) {
+        T product;
+        if (prefix) {
+          product = op.product(scalar, elem.getData());
+        } else {
+          product = op.product(elem.getData(), scalar);
+        }
+        newmv.add(product, elem.getCondition());
+      }
+      
+      return newmv;
+    }
+  }
+
+  /**
    * The function signature for combining two individual elements of a
    * Multiverse, where they may be of different types.
    */
