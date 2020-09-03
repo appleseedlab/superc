@@ -322,7 +322,7 @@ public class SuperC extends Tool {
            "Print the parsed AST.").
       bool("printSource", "printSource", false,
            "Print the parsed AST in C source form.").
-      bool("suppressConditionals", "suppressConditionals", false,
+      bool("suppressConditions", "suppressConditions", false,
            "Do not print presence conditions to save space.").
       bool("configureAllYes", "configureAllYes", false,
            "Print all tokens of the all yes configuration of the AST.").
@@ -601,8 +601,8 @@ public class SuperC extends Tool {
       .getConfigurationVariables(runtime.test("configurationVariables"));
     macroTable.getHeaderGuards(runtime.test("headerGuards"));
     presenceConditionManager = new PresenceConditionManager();
-    if (runtime.test("suppressConditionals")) {
-      presenceConditionManager.suppressConditionals(true);
+    if (runtime.test("suppressConditions")) {
+      presenceConditionManager.suppressConditions(true);
     }
     // if (runtime.test("checkExpressionParser")) {
     //   expressionParser = ExpressionParser.comparator(presenceConditionManager);
