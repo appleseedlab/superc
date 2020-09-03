@@ -859,12 +859,14 @@ public class CContext implements ParsingContext {
     StringBuilder sb = new StringBuilder();
 
     // emit the user-defined type declarations, which are renamed
-    sb.append(this.declarations);
+    CContext scope = this;
+    while (scope.reentrant) scope = scope.parent;
+    sb.append(scope.declarations);
     sb.append("\n");
 
     // replace the original struct declaration with a struct
     // containing of union containing each user-defined struct
-    SymbolTable symtab = getSymbolTable();
+    SymbolTable symtab = scope.getSymbolTable();
     for (String symbol : symtab) {
       if (isInNameSpace(symbol, "tag")) {
         String tag = fromNameSpace(symbol);
