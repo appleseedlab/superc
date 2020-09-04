@@ -393,6 +393,9 @@ public abstract class Tool {
     // Process the command line arguments and print tool name.
     int index = runtime.process(args);
 
+    // Prepare for processing the files.
+    prepare();
+
     if ((! runtime.hasValue("optionSilent")) ||
         (! runtime.test("optionSilent"))) {
       runtime.console().p(getName()).p(", v. ").p(getVersion()).p(", ").
@@ -405,9 +408,6 @@ public abstract class Tool {
     if (index >= args.length && ! diagnose) {
       runtime.error("no file names specified");
     }
-
-    // Prepare for processing the files.
-    prepare();
 
     // Print diagnostics.
     if (diagnose) diagnose();
