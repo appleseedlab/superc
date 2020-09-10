@@ -165,6 +165,26 @@
 //%token DCOLON
 
 %{
+import java.lang.StringBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.LinkedList;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Random;
+
+import java.io.File;
+import java.io.Reader;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.StringReader;
+import java.io.OutputStreamWriter;
+import java.io.IOException;
+
+import java.math.BigInteger;
+
 import xtc.Constants;
 import xtc.Limits;
 
@@ -177,7 +197,6 @@ import xtc.tree.Node;
 import xtc.tree.Visitor;
 
 import xtc.util.Pair;
-import java.util.Random;
 
 import superc.core.Syntax;
 import superc.core.Syntax.Kind;
@@ -258,23 +277,6 @@ import superc.core.PresenceConditionManager.PresenceCondition;
 
 import superc.core.ForkMergeParser;
 import superc.core.ForkMergeParser.StackFrame;
-
-import java.lang.StringBuilder;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.HashMap;
-
-import java.io.File;
-import java.io.Reader;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.StringReader;
-import java.io.OutputStreamWriter;
-import java.io.IOException;
 
 import xtc.type.Type;
 import xtc.type.NumberT;
