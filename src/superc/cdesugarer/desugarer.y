@@ -4995,8 +4995,23 @@ Subscript:  /** nomerge **/
         PostfixExpression LBRACK Expression RBRACK
         {
           // TODO: check that expression is numeric, check that postfixexpression is array, and get arrays types
-          System.err.println("TODO: Subscript");
-          System.exit(1);
+          todoReminder("typecheck Subscript");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue postfixexprval = (ExpressionValue) getTransformationValue(subparser, 4);
+          String lbrack = (String) getNodeAt(subparser, 3).getTokenText();
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          String rbrack = (String) getNodeAt(subparser, 1).getTokenText();
+
+          Multiverse<String> prepended = exprval.transformation.prependScalar(lbrack, DesugarOps.concatStrings);
+          Multiverse<String> appended = prepended.appendScalar(rbrack, DesugarOps.concatStrings);
+          Multiverse<String> transformationmv = postfixexprval.transformation.product(appended, DesugarOps.concatStrings);
+          prepended.destruct(); appended.destruct();
+          
+          // TODO: postfix expression should be a pointer type
+          // TODO: type should be whatever postfix expression points to
+
+          setTransformationValue(value, new ExpressionValue(transformationmv,
+                                                            postfixexprval.type));  // TODO: placeholder until type checking
         }
         ;
 
