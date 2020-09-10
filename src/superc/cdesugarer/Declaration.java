@@ -35,6 +35,14 @@ class Declaration {
     return this.declarator.getName();
   }
 
+  /**
+   * Returns true if the declaration has a name.  Struct fields can
+   * have declarations with no name.
+   */
+  public boolean hasName() {
+    return this.declarator.hasName();
+  }
+
   /*
    * Gets the type that this declaration defines.  This is meant to be
    * used by the desugaring to wrap the type with the renaming using

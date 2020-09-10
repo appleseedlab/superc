@@ -252,8 +252,14 @@ class DesugarOps {
       if (declaration.hasTypeError()) {
         return ErrorT.TYPE;
       } else {
-        VariableT member = VariableT.newField(declaration.getType(),
-                                              declaration.getName());
+        VariableT member;
+        if (declaration.hasName()) {
+          member = VariableT.newField(declaration.getType(),
+                                      declaration.getName());
+        } else {
+          member = VariableT.newField(declaration.getType(),
+                                      null);
+        }
         memberlist.add(member);
       }
       // TODO: use Variable.newBitfield()

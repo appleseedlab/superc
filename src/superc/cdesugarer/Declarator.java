@@ -37,6 +37,11 @@ abstract class Declarator {
   abstract public String getName();
 
   /**
+   * Returns true if the declarator has a name.
+   */
+  abstract public boolean hasName();
+
+  /**
    * Create a new declarator with the new name.  Abstract declarators
    * do not have a name.
    */
@@ -99,6 +104,10 @@ abstract class Declarator {
       throw new IllegalStateException("abstract declarators have no name");
     }
 
+    public boolean hasName() {
+      return false;
+    }
+    
     public Declarator rename(String newName) {
       throw new IllegalStateException("abstract declarators have no name");
     }
@@ -140,6 +149,10 @@ abstract class Declarator {
       return declarator.getName();
     }
 
+    public boolean hasName() {
+      return declarator.hasName();
+    }
+    
     public Declarator rename(String newName) {
       return declarator.rename(newName);
     }
@@ -176,6 +189,10 @@ abstract class Declarator {
       return name;
     }
 
+    public boolean hasName() {
+      return true;
+    }
+    
     public Declarator rename(String newName) {
       return new SimpleDeclarator(newName);
     }
@@ -212,6 +229,10 @@ abstract class Declarator {
       return declarator.getName();
     }
 
+    public boolean hasName() {
+      return declarator.hasName();
+    }
+    
     public Declarator rename(String newName) {
       return new PointerDeclarator(declarator.rename(newName));
     }
@@ -253,6 +274,10 @@ abstract class Declarator {
       return declarator.getName();
     }
 
+    public boolean hasName() {
+      return declarator.hasName();
+    }
+    
     public Declarator rename(String newName) {
       return new QualifiedPointerDeclarator(declarator.rename(newName), qualifiers);
     }
@@ -291,6 +316,10 @@ abstract class Declarator {
       throw new IllegalStateException("abstract declarators have no name");
     }
 
+    public boolean hasName() {
+      return false;
+    }
+    
     public Declarator rename(String newName) {
       // nothing to rename and its immutable, so return this class.
       return this;
@@ -331,6 +360,10 @@ abstract class Declarator {
       throw new IllegalStateException("abstract declarators have no name");
     }
 
+    public boolean hasName() {
+      return false;
+    }
+    
     public Declarator rename(String newName) {
       // nothing to rename and its immutable, so return this class.
       return this;
@@ -376,6 +409,10 @@ abstract class Declarator {
       return declarator.getName();
     }
 
+    public boolean hasName() {
+      return declarator.hasName();
+    }
+    
     public Declarator rename(String newName) {
       return new ArrayDeclarator(declarator.rename(newName),
                                  (ArrayAbstractDeclarator) arrayabstractdeclarator.rename(newName));
@@ -449,6 +486,10 @@ abstract class Declarator {
       throw new IllegalStateException("abstract declarators have no name");
     }
 
+    public boolean hasName() {
+      return false;
+    }
+    
     public Declarator rename(String newName) {
       // no need to copy since it's immutable.
       return this;
@@ -489,6 +530,10 @@ abstract class Declarator {
       return declarator.getName();
     }
 
+    public boolean hasName() {
+      return declarator.hasName();
+    }
+    
     public Declarator rename(String newName) {
       // parameters don't affect the name of the declarator, so just
       // use the original parameters
@@ -541,6 +586,10 @@ abstract class Declarator {
       throw new IllegalStateException("parameters don't affect the name of the function");
     }
 
+    public boolean hasName() {
+      return false;
+    }
+    
     public Declarator rename(String newName) {
       throw new IllegalStateException("parameters don't affect the name of the function");
     }
