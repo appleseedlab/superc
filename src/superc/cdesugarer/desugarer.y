@@ -5831,8 +5831,28 @@ CastExpression:  /** passthrough, nomerge **/  // ExpressionValue
         }
         | LPAREN TypeName RPAREN CastExpression
         {
-          System.err.println("TODO: CastExpression (2) type checking");
-          System.exit(1);
+          // TODO compare the expression's type against the type name
+          // to rule out invalid casts.
+          todoReminder("check the legality of the cast");
+
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          String prefix = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          Multiverse<Declaration> typename = (Multiverse<Declaration>) getTransformationValue(subparser, 3);
+          String suffix = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
+          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+
+          Multiverse<String> typenamestr = DesugarOps.typenameToString.transform(typename);
+          Multiverse<String> prepended = typenamestr.prependScalar(prefix, DesugarOps.concatStrings);
+          Multiverse<String> appended = prepended.appendScalar(suffix, DesugarOps.concatStrings);
+          typenamestr.destruct(); prepended.destruct();
+
+          Multiverse<String> transformationmv = appended.product(exprval.transformation, DesugarOps.concatStrings);
+          appended.destruct();
+
+          Multiverse<Type> typemv = DesugarOps.typenameToType.transform(typename);
+
+          setTransformationValue(value, new ExpressionValue(transformationmv, typemv));
         }
         ;
 
