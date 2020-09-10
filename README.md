@@ -40,7 +40,7 @@ From the root of the xtc source tree, run the following:
 
 Preprocessing the headers only needs to be done once:
 
-    bash scripts/preprocess_system_headers.sh "~/src/preprocessed_sysdirs/"
+    bash scripts/preprocess_system_headers.sh ~/src/preprocessed_sysdirs/
     
 Use the headers with SuperC/SugarC like this:
 
