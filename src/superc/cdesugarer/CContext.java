@@ -48,6 +48,7 @@ import superc.core.Syntax.Conditional;
 
 import xtc.type.Type;
 import xtc.type.StructT;
+import xtc.type.UnionT;
 import xtc.type.C;
 
 import superc.core.ParsingContext;
@@ -879,10 +880,19 @@ public class CContext implements ParsingContext {
           } else if (entry.getData() == SymbolTable.UNDECLARED) {
             sb.append(" // no declaration\n");
           } else {
-            StructT type = entry.getData().getType().toStruct();
-            String renamedTag = type.getName();
-            sb.append(String.format("struct %s %s;", renamedTag, renamedTag));
-            sb.append("\n");
+            if (entry.getData().getType().isStruct()) {
+              StructT type = entry.getData().getType().toStruct();
+              String renamedTag = type.getName();
+              sb.append(String.format("struct %s %s;", renamedTag, renamedTag));
+              sb.append("\n");
+            } else if (entry.getData().getType().isUnion()) {
+              UnionT type = entry.getData().getType().toUnion();
+              String renamedTag = type.getName();
+              sb.append(String.format("union %s %s;", renamedTag, renamedTag));
+              sb.append("\n");
+            } else {
+              throw new IllegalStateException("unknown type in CContext.getDeclarations");
+            }
           }
         }
         sb.append("};\n};\n\n");
