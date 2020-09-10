@@ -310,6 +310,17 @@ class DesugarOps {
   };
 
   /**
+   * Convert a type specifier into a declaration with an empty
+   * declarator.  This is used for struct declarations.
+   */
+  public final static Multiverse.Transformer<TypeSpecifier, Declaration> typespecToDeclaration
+    = new Multiverse.Transformer<TypeSpecifier, Declaration>() {
+        Declaration transform(TypeSpecifier from) {
+          return new Declaration(from, new EmptyDeclarator());
+        }
+      };
+
+  /**
    * Convert a declaration into a string.  This is used for typename,
    * so any renaming has been done already in the typespec and the
    * declarator is abstract.
@@ -318,6 +329,16 @@ class DesugarOps {
     = new Multiverse.Transformer<Declaration, String>() {
         String transform(Declaration from) {
           return from.toString();
+        }
+      };
+
+  /**
+   * Convert a declaration into a type.  This is used for typename.
+   */
+  public final static Multiverse.Transformer<Declaration, Type> typenameToType
+    = new Multiverse.Transformer<Declaration, Type>() {
+        Type transform(Declaration from) {
+          return from.getType();
         }
       };
 
