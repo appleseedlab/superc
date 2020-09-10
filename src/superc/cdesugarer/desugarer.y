@@ -476,7 +476,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                     } else if (entry.getData() == SymbolTable.UNDECLARED) {
                       // UNDECLARED entry
 
-                      todoReminder("multiplex functions to so that each can have its own function name");
+                      todoReminder("multiplex functions to so that each can have its own function name.  try using function pointers as a kind of vtable.");
 
                       // update the symbol table for this presence condition
                       scope.put(originalName, type, entry.getCondition());
@@ -547,6 +547,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           // compoundstatement, while declaration has an initializer.
           PresenceCondition pc = subparser.getPresenceCondition();
 
+          todoReminder("handle type errors in function prototype");
           Multiverse<String> prototypestrmv = (Multiverse<String>) getTransformationValue(getNodeAt(subparser, 3));
           System.err.println("PROTOTYPESTRMV2 " + prototypestrmv);
           Multiverse<String> bodymv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
@@ -1114,6 +1115,7 @@ Declaration:  /** complete **/  // String
                         valuesb.append(entrysb.toString());
                       }
                     } // end loop over symtab entries
+                    entries.destruct();
                   }
               
                   combinedCond.delRef();
@@ -2079,7 +2081,7 @@ ElaboratedTypeName: /** passthrough, nomerge **/
 //   we can either take all combinations of declaration lists and make a new, renamed type spec
 //   or we can combine all fields into a single struct, renaming the fields
 StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifier>
-        StructOrUnionKeyword LBRACE StructDeclarationList RBRACE
+        StructOrUnionKeyword AttributeSpecifierListOpt LBRACE StructDeclarationList RBRACE
         {
           // TODO: check whether a struct is being declared in a parameter list, which is a wraning.
           
@@ -2091,7 +2093,8 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
                       makeStructSpec(subparser, tag, members, attrs),
                       value);
 
-          Syntax keyword = (Syntax) getNodeAt(subparser, 4).get(0);
+          Syntax keyword = (Syntax) getNodeAt(subparser, 5).get(0);
+          // TODO: add attributes to type spec
           List<Multiverse<Declaration>> structfields
             = (List<Multiverse<Declaration>>) getTransformationValue(subparser, 2);
 
@@ -2104,7 +2107,7 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
 
           // TODO: move the list handling code into
           // StructDeclarationList to avoid looping here
-          
+
           // (1) start with an empty multiverse of declaration lists
           Multiverse<List<Declaration>> listsmv
             = new Multiverse<List<Declaration>>(new LinkedList<Declaration>(), subparser.getPresenceCondition());
@@ -2152,7 +2155,7 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
           
         	setTransformationValue(value, valuemv);
         }
-        | StructOrUnionKeyword IdentifierOrTypedefName LBRACE StructDeclarationList RBRACE
+        | StructOrUnionKeyword AttributeSpecifierListOpt IdentifierOrTypedefName LBRACE StructDeclarationList RBRACE
         {
 
           // for tagged structs, always replace it with a reference to
@@ -2169,7 +2172,8 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
                       makeStructSpec(subparser, tag, members, attrs),
                       value);
 
-          Syntax keyword = (Syntax) getNodeAt(subparser, 5).get(0);
+          Syntax keyword = (Syntax) getNodeAt(subparser, 6).get(0);
+          // TODO: add attributes to type spec
           String structTag = ((Syntax) getNodeAt(subparser, 4).get(0)).getTokenText();
           List<Multiverse<Declaration>> structfields
             = (List<Multiverse<Declaration>>) getTransformationValue(subparser, 2);
@@ -2263,12 +2267,13 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
 
           setTransformationValue(value, valuemv);
         }
-        | StructOrUnionKeyword IdentifierOrTypedefName
+        | StructOrUnionKeyword AttributeSpecifierListOpt IdentifierOrTypedefName
         {
           // get scope to make an anonymous tag
           CContext scope = (CContext)subparser.scope;
 
-          Syntax keyword = (Syntax) getNodeAt(subparser, 2).get(0);
+          Syntax keyword = (Syntax) getNodeAt(subparser, 3).get(0);
+          // TODO: add attributes to type spec
           String structTag = ((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText();
 
           // global structs are handled by compositing every (renamed)
@@ -2313,37 +2318,37 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
           assert ! valuemv.isEmpty();
           setTransformationValue(value, valuemv);
         }
-        | StructOrUnionKeyword AttributeSpecifierList { EnterScope(subparser); } LBRACE
-          StructDeclarationList { ExitScope(subparser); }
-        RBRACE
-        {
-          System.err.println("ERROR: unsupported semantic action: StructSpecifier (4)");
-          System.exit(1);
-          Node tag     = null;
-          Node members = getNodeAt(subparser, 3);
-          Node attrs   = getNodeAt(subparser, 6);
-          updateSpecs(subparser,
-                      makeStructSpec(subparser, tag, members, attrs),
-                      value);
-        }
-        | StructOrUnionKeyword AttributeSpecifierList IdentifierOrTypedefName { EnterScope(subparser); } LBRACE
-          StructDeclarationList { ExitScope(subparser); }
-        RBRACE
-        {
-          System.err.println("ERROR: unsupported semantic action: StructSpecifier (5)");
-          System.exit(1);
-          Node tag     = getNodeAt(subparser, 6);
-          Node members = getNodeAt(subparser, 3);
-          Node attrs   = getNodeAt(subparser, 7);
-          updateSpecs(subparser,
-                      makeStructSpec(subparser, tag, members, attrs),
-                      value);
-        }
-        | StructOrUnionKeyword AttributeSpecifierList IdentifierOrTypedefName
-        {
-          System.err.println("ERROR: unsupported semantic action: StructSpecifier (6)");
-          System.exit(1);
-        }
+        /* | StructOrUnionKeyword AttributeSpecifierList { EnterScope(subparser); } LBRACE */
+        /*   StructDeclarationList { ExitScope(subparser); } */
+        /* RBRACE */
+        /* { */
+        /*   System.err.println("ERROR: unsupported semantic action: StructSpecifier (4)"); */
+        /*   System.exit(1); */
+        /*   Node tag     = null; */
+        /*   Node members = getNodeAt(subparser, 3); */
+        /*   Node attrs   = getNodeAt(subparser, 6); */
+        /*   updateSpecs(subparser, */
+        /*               makeStructSpec(subparser, tag, members, attrs), */
+        /*               value); */
+        /* } */
+        /* | StructOrUnionKeyword AttributeSpecifierList IdentifierOrTypedefName { EnterScope(subparser); } LBRACE */
+        /*   StructDeclarationList { ExitScope(subparser); } */
+        /* RBRACE */
+        /* { */
+        /*   System.err.println("ERROR: unsupported semantic action: StructSpecifier (5)"); */
+        /*   System.exit(1); */
+        /*   Node tag     = getNodeAt(subparser, 6); */
+        /*   Node members = getNodeAt(subparser, 3); */
+        /*   Node attrs   = getNodeAt(subparser, 7); */
+        /*   updateSpecs(subparser, */
+        /*               makeStructSpec(subparser, tag, members, attrs), */
+        /*               value); */
+        /* } */
+        /* | StructOrUnionKeyword AttributeSpecifierList IdentifierOrTypedefName */
+        /* { */
+        /*   System.err.println("ERROR: unsupported semantic action: StructSpecifier (6)"); */
+        /*   System.exit(1); */
+        /* } */
         ;
 
 // no actions needed, bcause parent action gets token from node
