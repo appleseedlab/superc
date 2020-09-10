@@ -2065,8 +2065,8 @@ ElaboratedTypeName: /** passthrough, nomerge **/
         /* } */
         | EnumSpecifier
         {
-          System.err.println("ERROR: unsupported semantic action: ElaboratedTypeName");
-          System.exit(1);
+        	setTransformationValue(value,
+            (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
         }
         ;
 
@@ -2565,56 +2565,449 @@ BitFieldSize: /** nomerge **/
         }
         ;
 
-EnumSpecifier: /** nomerge **/  /* ADDED attributes */
-        ENUM LBRACE EnumeratorList RBRACE
+/* EnumSpecifier: /\** nomerge **\/  /\* ADDED attributes *\/ */
+/*         ENUM LBRACE EnumeratorList RBRACE */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: EnumSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | ENUM IdentifierOrTypedefName LBRACE EnumeratorList RBRACE */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: EnumSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | ENUM IdentifierOrTypedefName */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: EnumSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | ENUM LBRACE EnumeratorList COMMA RBRACE /\* ADDED gcc extra comma *\/ */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: EnumSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | ENUM IdentifierOrTypedefName LBRACE EnumeratorList COMMA RBRACE /\* ADDED gcc extra comma *\/ */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: EnumSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | ENUM AttributeSpecifierList LBRACE EnumeratorList RBRACE */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: EnumSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | ENUM AttributeSpecifierList IdentifierOrTypedefName LBRACE EnumeratorList RBRACE */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: EnumSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | ENUM AttributeSpecifierList IdentifierOrTypedefName */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: EnumSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | ENUM AttributeSpecifierList LBRACE EnumeratorList COMMA RBRACE /\* ADDED gcc extra comma *\/ */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: EnumSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | ENUM AttributeSpecifierList IdentifierOrTypedefName LBRACE EnumeratorList COMMA RBRACE /\* ADDED gcc extra comma *\/ */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: EnumSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         ; */
+
+/* EnumSpecifier: /\** nomerge **\/  /\* ADDED attributes *\/ */
+/*         ENUM EnumSpecifierList */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: EnumSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | ENUM IdentifierOrTypedefName EnumSpecifierList */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: EnumSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | ENUM IdentifierOrTypedefName */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: EnumSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | ENUM AttributeSpecifierList EnumSpecifierList */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: EnumSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | ENUM AttributeSpecifierList IdentifierOrTypedefName EnumSpecifierList */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: EnumSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         | ENUM AttributeSpecifierList IdentifierOrTypedefName */
+/*         { */
+/*           System.err.println("ERROR: unsupported semantic action: EnumSpecifier"); */
+/*           System.exit(1); */
+/*         } */
+/*         ; */
+
+EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpecifier>
+        ENUM AttributeSpecifierListOpt EnumSpecifierList
         {
-          System.err.println("ERROR: unsupported semantic action: EnumSpecifier");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          String keyword = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          Multiverse<String> attrs = (Multiverse<String>) getTransformationValue(subparser, 2);
+          // TODO: add attributes to type spec
+          List<EnumeratorValue> list = (List<EnumeratorValue>) getTransformationValue(subparser, 1);
+
+          String enumTag = freshName("anonymous");
+
+          // get every possible version of the enum list. optimization
+          // opportunity: combine all enumerators into a single enum
+          // list.  this needs to be done carefully, since programs
+          // may make assumptions about the values assigned to
+          // enumerators.
+
+          /* // currently, since static conditionals are not permitted */
+          /* // inside of enums, and since we don't support enum values */
+          /* // yet, the list of enumerator values has not static */
+          /* // conditionals inside of it. */
+          /* Multiverse<List<Declaration>> listmv */
+          /*   = new Multiverse<List<Declaration>>(new LinkedList<Declaration>(), */
+          /*                                       subparser.getPresenceCondition()); */
+
+          CContext scope = (CContext)subparser.scope;
+
+          // a simplified desuguaring of an enumeration that just
+          // declares the enumerators as const numeral variables and
+          // uses a numeral for the enumeration specifier itself.  in
+          // the future, use the EnumT and EnumeratorT types and
+          // desugar to the enum construct.
+
+          todoReminder("support gcc's enums larger than ISO C's int");
+          
+          // TODO: set the type of each enumerator based on the size
+          // of its enumerator value.  see
+          // xtc.type.CAnalyzer.visitEnumerationTypeDefinition and xtc.type.Enumerator for more info
+          BigInteger lastval = BigInteger.ONE.negate();
+          PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
+          for (EnumeratorValue ratorval : list) {
+            BigInteger ratorvalue;  // the initialized value of the rator, if any
+            // TODO: get the ratorvalue from the expression, if
+            // possible, otherwise, use increment by one from the last
+            // value
+            ratorvalue = lastval.add(BigInteger.ONE);
+            lastval = ratorvalue;
+            
+            Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(ratorval.name, pc);
+            for (Element<SymbolTable.Entry> entry : entries) {
+              PresenceCondition combinedCond = pc.and(entry.getCondition());
+              if (entry.getData() == SymbolTable.ERROR) {
+                // this is already an error
+                PresenceCondition new_errorCond = errorCond.or(combinedCond);
+                errorCond.delRef(); errorCond = new_errorCond;
+                System.err.println(String.format("INFO: enumerator \"%s\" is being redeclared in an existing invalid configuration",
+                                                 ratorval.name));
+              } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                // create a new constant int declaration of the enumerator
+                TypeSpecifier ratortb = new TypeSpecifier();
+                /* Type ratortype = cOps.fit(ratorvalue); */  // TODO: support gcc's non-ISO large enumerators
+                Type ratortype = NumberT.INT;
+                ratortb.visitConstantQualifier();
+                ratortb.setType(ratortype);
+                ratortb.addTransformation("const");
+                ratortb.addTransformation(ratortype.toString());
+
+                String renaming = freshCId(ratorval.name);
+                Declaration renamedDeclaration = new Declaration(ratortb,
+                                                                 new SimpleDeclarator(renaming));
+
+                Type tableType;
+                if (scope.isGlobal()) {
+                  tableType = VariableT.newGlobal(renamedDeclaration.getType(),
+                                                  renamedDeclaration.getName());
+                } else {
+                  tableType = VariableT.newLocal(renamedDeclaration.getType(),
+                                                 renamedDeclaration.getName());
+                }
+
+                scope.put(ratorval.name, tableType, pc);
+                scope.addDeclaration(String.format("%s = %s /* enumerator */;\n", renamedDeclaration.toString(), lastval));
+              } else {
+                PresenceCondition new_errorCond = errorCond.or(combinedCond);
+                errorCond.delRef(); errorCond = new_errorCond;
+                System.err.println(String.format("redeclaration of enumerator \"%s\"",
+                                                 ratorval.name));
+                scope.putError(ratorval.name, pc);
+              }
+              combinedCond.delRef();
+            }
+            entries.destruct();
+          }
+
+          // if any one enumerator has a type error, then the entire
+          // enumeration and its configuration is a type error.
+          PresenceCondition validType = pc.andNot(errorCond);
+
+          // TODO: check that enum values are within Limits and the
+          // find the type of the enumeration that fits all enumerator
+          // values
+          /* Type enumtype = cOps.fit(maxval); */
+          Type enumtype = NumberT.INT;  // use ISO C use of int, although gcc allows larger ints
+          TypeSpecifier tb = new TypeSpecifier();
+          tb.setType(enumtype);
+          tb.addTransformation(enumtype.toString());
+          tb.addTransformation(String.format(" /* enum %s */", enumTag));
+
+          TypeSpecifier tberror = new TypeSpecifier();
+          tberror.setType(ErrorT.TYPE);
+
+          Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>();
+          valuemv.add(tb, validType);
+          valuemv.add(tberror, errorCond);
+          validType.delRef(); errorCond.delRef();
+
+          setTransformationValue(value, valuemv);
+          
+
+          // the code below is creating the actual EnumT, which is
+          // just a wrapper for a numeral type
+          
+          /* transformation.append(keyword); */
+          /* transformation.append(" {\n"); */
+          
+          /* // TODO: set the type of each enumerator based on the size */
+          /* // of its enumerator value.  see */
+          /* // xtc.type.CAnalyzer.visitEnumerationTypeDefinition and xtc.type.Enumerator for more info */
+          /* BigInteger lastval = BigInteger.ONE.negate(); */
+          /* List<EnumeratorT> enumerators = new LinkedList<EnumeratorT>(); */
+          /* for (EnumeratorValue ratorval : list) { */
+          /*   BigInteger ratorvalue;  // the initialized value of the rator, if any */
+          /*   // TODO: get the ratorvalue from the expression, if */
+          /*   // possible, otherwise, use increment by one from the last */
+          /*   // value */
+          /*   ratorvalue = lastval.add(BigInteger.ONE); */
+          /*   lastval = ratorvalue; */
+          /*   EnumeratorT type = new EnumeratorT(cOps.fit(ratorvalue), ratorval.name, ratorvalue); */
+
+          /*   transformation.append(ratorval.name); */
+          /*   transformation.append(", "); */
+          /* } */
+          /* transformation.append("\n}\n"); */
+
+          /* // TODO: check that enum values are within Limits and the */
+          /* // find the type of the enumeration that fits all enumerator */
+          /* // values */
+          /* TypeSpecifier tb = new TypeSpecifier(); */
+          /* tb.setType(new EnumT(cOps.fit(lastval), enumTag, enumerators)); */
+          /* tb.addTransformation(transformation.toString()); */
+
+          /* setTransformationValue(value, */
+          /*                        new Multiverse<TypeSpecifier>(tb, subparser.getPresenceCondition())); */
         }
-        | ENUM IdentifierOrTypedefName LBRACE EnumeratorList RBRACE
+        | ENUM AttributeSpecifierListOpt IdentifierOrTypedefName EnumSpecifierList
         {
-          System.err.println("ERROR: unsupported semantic action: EnumSpecifier");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          String keyword = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          Multiverse<String> attrs = (Multiverse<String>) getTransformationValue(subparser, 3);
+          String enumTag = ((Syntax) getNodeAt(subparser, 2).get(0)).getTokenText();
+          // TODO: add attributes to type spec
+          List<EnumeratorValue> list = (List<EnumeratorValue>) getTransformationValue(subparser, 1);
+
+
+          // get every possible version of the enum list. optimization
+          // opportunity: combine all enumerators into a single enum
+          // list.  this needs to be done carefully, since programs
+          // may make assumptions about the values assigned to
+          // enumerators.
+
+          /* // currently, since static conditionals are not permitted */
+          /* // inside of enums, and since we don't support enum values */
+          /* // yet, the list of enumerator values has not static */
+          /* // conditionals inside of it. */
+          /* Multiverse<List<Declaration>> listmv */
+          /*   = new Multiverse<List<Declaration>>(new LinkedList<Declaration>(), */
+          /*                                       subparser.getPresenceCondition()); */
+
+          CContext scope = (CContext)subparser.scope;
+
+          // a simplified desuguaring of an enumeration that just
+          // declares the enumerators as const numeral variables and
+          // uses a numeral for the enumeration specifier itself.  in
+          // the future, use the EnumT and EnumeratorT types and
+          // desugar to the enum construct.
+
+          todoReminder("support gcc's enums larger than ISO C's int");
+          
+          // TODO: set the type of each enumerator based on the size
+          // of its enumerator value.  see
+          // xtc.type.CAnalyzer.visitEnumerationTypeDefinition and xtc.type.Enumerator for more info
+          BigInteger lastval = BigInteger.ONE.negate();
+          PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
+          for (EnumeratorValue ratorval : list) {
+            BigInteger ratorvalue;  // the initialized value of the rator, if any
+            // TODO: get the ratorvalue from the expression, if
+            // possible, otherwise, use increment by one from the last
+            // value
+            ratorvalue = lastval.add(BigInteger.ONE);
+            lastval = ratorvalue;
+            
+            Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(ratorval.name, pc);
+            for (Element<SymbolTable.Entry> entry : entries) {
+              PresenceCondition combinedCond = pc.and(entry.getCondition());
+              if (entry.getData() == SymbolTable.ERROR) {
+                // this is already an error
+                PresenceCondition new_errorCond = errorCond.or(combinedCond);
+                errorCond.delRef(); errorCond = new_errorCond;
+                System.err.println(String.format("INFO: enumerator \"%s\" is being redeclared in an existing invalid configuration",
+                                                 ratorval.name));
+              } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                // create a new constant int declaration of the enumerator
+                TypeSpecifier ratortb = new TypeSpecifier();
+                /* Type ratortype = cOps.fit(ratorvalue); */  // TODO: support gcc's non-ISO large enumerators
+                Type ratortype = NumberT.INT;
+                ratortb.visitConstantQualifier();
+                ratortb.setType(ratortype);
+                ratortb.addTransformation("const");
+                ratortb.addTransformation(ratortype.toString());
+
+                String renaming = freshCId(ratorval.name);
+                Declaration renamedDeclaration = new Declaration(ratortb,
+                                                                 new SimpleDeclarator(renaming));
+
+                Type tableType;
+                if (scope.isGlobal()) {
+                  tableType = VariableT.newGlobal(renamedDeclaration.getType(),
+                                                  renamedDeclaration.getName());
+                } else {
+                  tableType = VariableT.newLocal(renamedDeclaration.getType(),
+                                                 renamedDeclaration.getName());
+                }
+
+                scope.put(ratorval.name, tableType, pc);
+                scope.addDeclaration(String.format("%s = %s /* enumerator */;\n", renamedDeclaration.toString(), lastval));
+              } else {
+                PresenceCondition new_errorCond = errorCond.or(combinedCond);
+                errorCond.delRef(); errorCond = new_errorCond;
+                System.err.println(String.format("redeclaration of enumerator \"%s\"",
+                                                 ratorval.name));
+                scope.putError(ratorval.name, pc);
+              }
+              combinedCond.delRef();
+            }
+            entries.destruct();
+          }
+
+          // if any one enumerator has a type error, then the entire
+          // enumeration and its configuration is a type error.
+          PresenceCondition validType = pc.andNot(errorCond);
+
+          // TODO: check that enum values are within Limits and the
+          // find the type of the enumeration that fits all enumerator
+          // values
+          /* Type enumtype = cOps.fit(maxval); */
+          Type enumtype = NumberT.INT;  // use ISO C use of int, although gcc allows larger ints
+          TypeSpecifier tb = new TypeSpecifier();
+          tb.setType(enumtype);
+          tb.addTransformation(enumtype.toString());
+          tb.addTransformation(String.format(" /* enum %s */", enumTag));
+
+          TypeSpecifier tberror = new TypeSpecifier();
+          tberror.setType(ErrorT.TYPE);
+
+          Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>();
+          valuemv.add(tb, validType);
+          valuemv.add(tberror, errorCond);
+          validType.delRef(); errorCond.delRef();
+
+          setTransformationValue(value, valuemv);
+          
+
+          // the code below is creating the actual EnumT, which is
+          // just a wrapper for a numeral type
+          
+          /* transformation.append(keyword); */
+          /* transformation.append(" {\n"); */
+          
+          /* // TODO: set the type of each enumerator based on the size */
+          /* // of its enumerator value.  see */
+          /* // xtc.type.CAnalyzer.visitEnumerationTypeDefinition and xtc.type.Enumerator for more info */
+          /* BigInteger lastval = BigInteger.ONE.negate(); */
+          /* List<EnumeratorT> enumerators = new LinkedList<EnumeratorT>(); */
+          /* for (EnumeratorValue ratorval : list) { */
+          /*   BigInteger ratorvalue;  // the initialized value of the rator, if any */
+          /*   // TODO: get the ratorvalue from the expression, if */
+          /*   // possible, otherwise, use increment by one from the last */
+          /*   // value */
+          /*   ratorvalue = lastval.add(BigInteger.ONE); */
+          /*   lastval = ratorvalue; */
+          /*   EnumeratorT type = new EnumeratorT(cOps.fit(ratorvalue), ratorval.name, ratorvalue); */
+
+          /*   transformation.append(ratorval.name); */
+          /*   transformation.append(", "); */
+          /* } */
+          /* transformation.append("\n}\n"); */
+
+          /* // TODO: check that enum values are within Limits and the */
+          /* // find the type of the enumeration that fits all enumerator */
+          /* // values */
+          /* TypeSpecifier tb = new TypeSpecifier(); */
+          /* tb.setType(new EnumT(cOps.fit(lastval), enumTag, enumerators)); */
+          /* tb.addTransformation(transformation.toString()); */
+
+          /* setTransformationValue(value, */
+          /*                        new Multiverse<TypeSpecifier>(tb, subparser.getPresenceCondition())); */
         }
-        | ENUM IdentifierOrTypedefName
+        | ENUM AttributeSpecifierListOpt IdentifierOrTypedefName
         {
-          System.err.println("ERROR: unsupported semantic action: EnumSpecifier");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          // enum reference.
+
+          // TODO: handle attributespecifierlistopt
+          
+          // if this is a forward reference, then use the largest type
+          // possible.  this should be okay since the choice of type
+          // is implementation-defined n1570.pdf section 6.7.2.2.
+          // gcc, however, allows long long integers (see
+          // unit/enum_size.c) and CAnalyzer finds the type as the
+          // largest that fits all of the enumerators.  with
+          // -Wpedantic, gcc gives warnings that say ISO does not
+          // allow forward references and requires enum values to be
+          // int.
+
+          // if it's not a forward reference, then use the type given
+          // by the enum in the symtab
+
+          // TODO: once enum tags are in the symtab, we can mark this
+          // type as an error.  either way, the error in the
+          // definition of the enum will ensure that configuration is
+          // marked as a type error.
+
+          // TODO: check at the end of desugaring whether there are
+          // any enums or structs references that never had a
+          // definition
+
+          todoReminder("implement gcc's support of larger-than-int enumerators");
+          TypeSpecifier tb = new TypeSpecifier();
+          Type enumtype = NumberT.INT;
+          tb.setType(enumtype);
+          tb.addTransformation(enumtype.toString());
+          setTransformationValue(value, new Multiverse<>(tb, pc));
         }
-        | ENUM LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
+        ;
+
+EnumSpecifierList: /** nomerge **/  /* ADDED attributes */ // List<EnumeratorValue>
+        LBRACE EnumeratorList RBRACE
         {
-          System.err.println("ERROR: unsupported semantic action: EnumSpecifier");
-          System.exit(1);
+          setTransformationValue(value,
+                                 (List<EnumeratorValue>) getTransformationValue(subparser, 2));
         }
-        | ENUM IdentifierOrTypedefName LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
+        | LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
         {
-          System.err.println("ERROR: unsupported semantic action: EnumSpecifier");
-          System.exit(1);
-        }
-        | ENUM AttributeSpecifierList LBRACE EnumeratorList RBRACE
-        {
-          System.err.println("ERROR: unsupported semantic action: EnumSpecifier");
-          System.exit(1);
-        }
-        | ENUM AttributeSpecifierList IdentifierOrTypedefName LBRACE EnumeratorList RBRACE
-        {
-          System.err.println("ERROR: unsupported semantic action: EnumSpecifier");
-          System.exit(1);
-        }
-        | ENUM AttributeSpecifierList IdentifierOrTypedefName
-        {
-          System.err.println("ERROR: unsupported semantic action: EnumSpecifier");
-          System.exit(1);
-        }
-        | ENUM AttributeSpecifierList LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
-        {
-          System.err.println("ERROR: unsupported semantic action: EnumSpecifier");
-          System.exit(1);
-        }
-        | ENUM AttributeSpecifierList IdentifierOrTypedefName LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
-        {
-          System.err.println("ERROR: unsupported semantic action: EnumSpecifier");
-          System.exit(1);
+          setTransformationValue(value,
+                                 (List<EnumeratorValue>) getTransformationValue(subparser, 3));
         }
         ;
 
@@ -2623,36 +3016,46 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */
         | EnumeratorList COMMA IdentifierOrTypedefName EnumeratorValueOpt
         ;*/
 
-EnumeratorList:  /** list, nomerge **/  // easier to bind
+EnumeratorList:  /** list, nomerge **/  // easier to bind  // List<EnumeratorValue>
         Enumerator
         {
-          System.err.println("ERROR: unsupported semantic action: EnumeratorList");
-          System.exit(1);
+          List<EnumeratorValue> list = new LinkedList<EnumeratorValue>();
+          EnumeratorValue enumerator = (EnumeratorValue) getTransformationValue(subparser, 1);
+          list.add(enumerator);
+          setTransformationValue(value, list);
         }
         | EnumeratorList COMMA Enumerator
         {
-          System.err.println("ERROR: unsupported semantic action: EnumeratorList");
-          System.exit(1);
+          List<EnumeratorValue> list = (List<EnumeratorValue>) getTransformationValue(subparser, 3);
+          EnumeratorValue enumerator = (EnumeratorValue) getTransformationValue(subparser, 1);
+          list.add(enumerator);
+          setTransformationValue(value, list);
         }
         ;
 
-Enumerator: /** nomerge **/
+Enumerator: /** nomerge **/ // EnumeratorValue
         IDENTIFIER { BindEnum(subparser); } EnumeratorValueOpt
         {
-          System.err.println("ERROR: unsupported semantic action: Enumerator");
-          System.exit(1);
+          String name = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          // TODO: handle valueopt and add to the EnumeratorValue class
+          setTransformationValue(value, new EnumeratorValue(name));
         }
         | TYPEDEFname { BindEnum(subparser); } EnumeratorValueOpt
         {
-          System.err.println("ERROR: unsupported semantic action: Enumerator");
-          System.exit(1);
+          String name = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          // TODO: handle valueopt and add to the EnumeratorValue class
+          setTransformationValue(value, new EnumeratorValue(name));
         }
         ;
 
 EnumeratorValueOpt: /** nomerge **/
-        /* Nothing */
+        /* Empty */
+        {
+          todoReminder("create an empty enum initializer");
+        }
         | ASSIGN ConstantExpression
         {
+          todoReminder("support enum initializer values");
           System.err.println("ERROR: unsupported semantic action: EnumeratorValueOpt");
           System.exit(1);
         }
@@ -6734,6 +7137,21 @@ private static class ParameterTypeListValue {
   }
 }
 
+/**
+ * This semantic value holds the enumerator and its optional
+ * initializer.  Note that value here means semantic value and this
+ * does not represent the EnumeratorValueOpt construct.
+ */
+private static class EnumeratorValue {
+  /** The name. */
+  String name;
+
+  // TODO: add support for the enum initializer
+
+  public EnumeratorValue(String name) {
+    this.name = name;
+  }
+}
 
 /**
  * This is the semantic value for expressions.  It contains one
