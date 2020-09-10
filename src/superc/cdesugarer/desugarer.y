@@ -1282,7 +1282,7 @@ DeclarationSpecifier:  /**  nomerge **/
 				}
         ;
 
-TypeSpecifier:  /** nomerge **/
+TypeSpecifier:  /** nomerge **/ // Multiverse<TypeSpecifer>
         BasicTypeSpecifier                 /* Arithmetic or void */
 				{
           // TODO: are there any issues with sharing references to the same type builder object?
@@ -2298,7 +2298,7 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
               typespecifier.addTransformation(String.format("struct %s", structTag));
             } else {
               assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
-              if (entry.getData().getType().isStruct()) {
+              if (entry.getData().getType().isStruct() || entry.getData().getType().isUnion()) {
                 // just use the original tag name, since we will use a
                 // union type for it
                 typespecifier.setType(DesugarOps.createStructOrUnionRefType(keyword, structTag));
@@ -2476,8 +2476,9 @@ StructDeclaration: /** nomerge **/  // returns Multiverse<Declaration>
         }
         | TypeSpecifier SEMICOLON  // ADDED Declarator is optional
         {
-          System.err.println("ERROR: unsupported semantic action: StructDeclaration (4)");
-          System.exit(1);
+          Multiverse<TypeSpecifier> typespecmv = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          Multiverse<Declaration> valuemv = DesugarOps.typespecToDeclaration.transform(typespecmv);
+          setTransformationValue(value, valuemv);
         }
         | SEMICOLON // ADDED gcc allows empty struct field in declaration
         {
