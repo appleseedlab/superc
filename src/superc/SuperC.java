@@ -344,6 +344,8 @@ public class SuperC extends Tool {
            "Show all parsing actions.").
       bool("showFM", "showFM", false,
            "Show all forks and merges.").
+      bool("showHeaders", "showHeaders", false,
+           "Show header entry and exit.").
       bool("showLookaheads", "showLookaheads", false,
            "Show lookaheads on each parse loop (warning: very voluminous "
            + "output!)").
@@ -639,6 +641,7 @@ public class SuperC extends Tool {
                                           iquote, I, sysdirs,
                                           lexerCreator, tokenCreator,
                                           lexerTimer);
+      fileManager.showHeaders(runtime.test("showHeaders"));
       fileManager.collectStatistics(runtime.test("statisticsPreprocessor"));
       fileManager.showErrors(! runtime.test("hideErrors"));
       fileManager.doTiming(runtime.test("time"));
@@ -667,6 +670,7 @@ public class SuperC extends Tool {
     fileManager = new HeaderFileManager(in, file, iquote, I, sysdirs,
                                         lexerCreator, tokenCreator, lexerTimer,
                                         runtime.getString(xtc.util.Runtime.INPUT_ENCODING));
+    fileManager.showHeaders(runtime.test("showHeaders"));
     fileManager.collectStatistics(runtime.test("statisticsPreprocessor"));
     fileManager.showErrors(! runtime.test("hideErrors"));
     fileManager.doTiming(runtime.test("time"));

@@ -206,6 +206,8 @@ public class SugarC extends Tool {
            "Show all parsing actions.").
       bool("showFM", "showFM", false,
            "Show all forks and merges.").
+      bool("showHeaders", "showHeaders", false,
+           "Show header entry and exit.").
       bool("showLookaheads", "showLookaheads", false,
            "Show lookaheads on each parse loop (warning: very voluminous "
            + "output!)").
@@ -391,6 +393,7 @@ public class SugarC extends Tool {
                                           iquote, I, sysdirs,
                                           lexerCreator, tokenCreator,
                                           lexerTimer);
+      fileManager.showHeaders(runtime.test("showHeaders"));
       fileManager.showErrors(! runtime.test("hideErrors"));
 
       preprocessor = new Preprocessor(fileManager,
@@ -411,6 +414,7 @@ public class SugarC extends Tool {
     fileManager = new HeaderFileManager(in, file, iquote, I, sysdirs,
                                         lexerCreator, tokenCreator, lexerTimer,
                                         runtime.getString(xtc.util.Runtime.INPUT_ENCODING));
+      fileManager.showHeaders(runtime.test("showHeaders"));
     fileManager.showErrors(! runtime.test("hideErrors"));
 
     preprocessor = new Preprocessor(fileManager,
