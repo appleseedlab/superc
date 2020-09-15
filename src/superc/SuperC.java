@@ -214,6 +214,10 @@ public class SuperC extends Tool {
       bool("follow-set", "follow-set", false,
            "Compute the FOLLOW sets of each token in the preprocessed input.").
 
+      // // Desugarer component selection
+      // bool("desugar", "desugarer", false,
+      //      "Run the desugarer.").
+
       // Preprocessor optimizations.
       /*bool("Odedup", "optimizeDedup", false,
         "Turn off macro definition deduplication.  Not recommended " +
@@ -902,6 +906,7 @@ public class SuperC extends Tool {
 
         syntax = preprocessor.next();
       }
+    // } else if (runtime.test("desugarer")) {
     } else {
       // Run the SuperC preprocessor and parser.
       ForkMergeParser parser;

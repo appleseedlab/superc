@@ -212,7 +212,9 @@ public class SugarC extends Tool {
            "Show lookaheads on each parse loop (warning: very voluminous "
            + "output!)").
       bool("suppressConditions", "suppressConditions", false,
-           "Don't print static conditions.")
+           "Don't print static conditions.").
+      bool("macroTable", "macroTable", false,
+           "Show the macro symbol table.")
       ;
   }
   
@@ -377,6 +379,16 @@ public class SugarC extends Tool {
     conditionEvaluator = new ConditionEvaluator(expressionParser,
                                                 presenceConditionManager,
                                                 macroTable);
+    if (null != runtime.getString("restrictFreeToPrefix")) {
+      macroTable.restrictPrefix(runtime.getString("restrictFreeToPrefix"));
+      conditionEvaluator.restrictPrefix(runtime.getString("restrictFreeToPrefix"));
+    }
+
+    if (null != runtime.getString("restrictConfigToPrefix")) {
+      // let macros be free!  only restrict them when encountered in a
+      // conditional
+      conditionEvaluator.restrictPrefix(runtime.getString("restrictConfigToPrefix"));
+    }
 
     if (null != commandline) {
       Syntax syntax;
@@ -489,6 +501,11 @@ public class SugarC extends Tool {
     }
 
     result = (Node) translationUnit;
+
+    if (runtime.test("macroTable")) {
+      System.err.println("Macro Table");
+      System.err.println(macroTable);
+    }
 
     return result;
   }
