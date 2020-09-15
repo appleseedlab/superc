@@ -2675,9 +2675,11 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpeci
           PresenceCondition pc = subparser.getPresenceCondition();
           
           String keyword = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
-          Multiverse<String> attrs = (Multiverse<String>) getTransformationValue(subparser, 2);
+          Multiverse<String> attrs = this.<String>getCompleteNodeMultiverseValue(getNodeAt(subparser, 2),
+                                                                                 subparser.getPresenceCondition());
           // TODO: add attributes to type spec
-          List<EnumeratorValue> list = (List<EnumeratorValue>) getTransformationValue(subparser, 1);
+          List<Multiverse<Type>> list = this.<Type>getCompleteNodeListValue(getNodeAt(subparser, 1),
+                                                                            subparser.getPresenceCondition());
 
           String enumTag = freshName("anonymous");
 
@@ -2831,11 +2833,12 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpeci
           PresenceCondition pc = subparser.getPresenceCondition();
           
           String keyword = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
-          Multiverse<String> attrs = (Multiverse<String>) getTransformationValue(subparser, 3);
+          Multiverse<String> attrs = this.<String>getCompleteNodeMultiverseValue(getNodeAt(subparser, 3),
+                                                                                 subparser.getPresenceCondition());
           String enumTag = ((Syntax) getNodeAt(subparser, 2).get(0)).getTokenText();
           // TODO: add attributes to type spec
-          List<EnumeratorValue> list = (List<EnumeratorValue>) getTransformationValue(subparser, 1);
-
+          List<Multiverse<Type>> list = this.<Type>getCompleteNodeListValue(getNodeAt(subparser, 1),
+                                                                            subparser.getPresenceCondition());
 
           // get every possible version of the enum list. optimization
           // opportunity: combine all enumerators into a single enum
@@ -3020,16 +3023,16 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpeci
         }
         ;
 
-EnumSpecifierList: /** nomerge **/  /* ADDED attributes */ // List<EnumeratorValue>
+EnumSpecifierList: /** complete **/  /* ADDED attributes */ // List<Multiverse<Type>>
         LBRACE EnumeratorList RBRACE
         {
-          setTransformationValue(value,
-                                 (List<EnumeratorValue>) getTransformationValue(subparser, 2));
+          setTransformationValue(value, this.<Type>getCompleteNodeListValue(getNodeAt(subparser, 2),
+                                                                            subparser.getPresenceCondition()));
         }
         | LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
         {
-          setTransformationValue(value,
-                                 (List<EnumeratorValue>) getTransformationValue(subparser, 3));
+          setTransformationValue(value, this.<Type>getCompleteNodeListValue(getNodeAt(subparser, 3),
+                                                                            subparser.getPresenceCondition()));
         }
         ;
 
