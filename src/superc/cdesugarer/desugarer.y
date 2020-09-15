@@ -4678,7 +4678,7 @@ SelectionStatement:  /** complete **/ // Multiverse<String>
         {
           todoReminder("check the type of the conditional expression SelectionStatement (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 3, pc);
 
           Multiverse<String> ifmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 5)).getTokenText(), pc);
           Multiverse<String> lparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
@@ -4698,7 +4698,7 @@ SelectionStatement:  /** complete **/ // Multiverse<String>
         {
           todoReminder("check the type of the conditional expression SelectionStatement (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 5);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 5, pc);
 
           Multiverse<String> ifmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 7)).getTokenText(), pc);
           Multiverse<String> lparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 6)).getTokenText(), pc);
