@@ -38,6 +38,7 @@ import superc.cdesugarer.Initializer.ExpressionInitializer;
 import superc.cdesugarer.Initializer.InitializerList;
 import superc.cdesugarer.Initializer.DesignatedInitializer;
 import superc.cdesugarer.Initializer.Designation;
+import superc.cdesugarer.Initializer.OffsetofMemberDesignator;
 import superc.cdesugarer.Initializer.Designator;
 import superc.cdesugarer.Initializer.ArrayDesignator;
 import superc.cdesugarer.Initializer.StructUnionDesignator;
@@ -363,6 +364,23 @@ class DesugarOps {
     = new Multiverse.Transformer<List<Designator>, Designation>() {
         Designation transform(List<Designator> from) {
           return new Designation(from);
+        }
+      };
+
+  /**
+   * Join idents and designators lists to form offsetof member designators.
+   */
+  public final static Multiverse.Joiner<String, List<Designator>, OffsetofMemberDesignator> joinOffsetof = (ident, list) -> {
+    return new OffsetofMemberDesignator(ident, list);
+  };
+
+  /**
+   * Convert offsetof member designators to strings.
+   */
+  public final static Multiverse.Transformer<OffsetofMemberDesignator, String> offsetofToString
+    = new Multiverse.Transformer<OffsetofMemberDesignator, String>() {
+        String transform(OffsetofMemberDesignator from) {
+          return from.toString();
         }
       };
 

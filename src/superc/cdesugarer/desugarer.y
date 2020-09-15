@@ -231,6 +231,7 @@ import superc.cdesugarer.Initializer.ExpressionInitializer;
 import superc.cdesugarer.Initializer.InitializerList;
 import superc.cdesugarer.Initializer.DesignatedInitializer;
 import superc.cdesugarer.Initializer.Designation;
+import superc.cdesugarer.Initializer.OffsetofMemberDesignator;
 import superc.cdesugarer.Initializer.Designator;
 import superc.cdesugarer.Initializer.ArrayDesignator;
 import superc.cdesugarer.Initializer.StructUnionDesignator;
@@ -5702,11 +5703,62 @@ TypeCompatibilityExpression:  /** nomerge **/
         }
         ;
 
-OffsetofExpression:  /** nomerge **/
-        __BUILTIN_OFFSETOF LPAREN TypeName COMMA PostfixExpression RPAREN
+// per https://gcc.gnu.org/onlinedocs/gcc/Offsetof.html
+OffsetofMemberDesignator:  // Multiverse<OffsetofMemberDesignator>
+        IDENTIFIER
         {
-          System.err.println("ERROR: unsupported semantic action: OffsetofExpression");
-          System.exit(1);
+          todoReminder("typcheck offsetofmemberdesignator (1)");
+          String ident = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+          List<Designator> list = new LinkedList<Designator>();
+          setTransformationValue(value,
+                                 new Multiverse<OffsetofMemberDesignator>(new OffsetofMemberDesignator(ident, list),
+                                                                          subparser.getPresenceCondition()));
+        }
+        | IDENTIFIER DesignatorList
+        {
+          todoReminder("typcheck offsetofmemberdesignator (2)");
+          Multiverse<String> identmv
+            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(),
+                                     subparser.getPresenceCondition());
+          Multiverse<List<Designator>> listmv
+            = (Multiverse<List<Designator>>) getTransformationValue(subparser, 1);
+          setTransformationValue(value, identmv.join(listmv, DesugarOps.joinOffsetof));
+        }
+        ;
+
+OffsetofExpression:  /** nomerge **/
+        /* __BUILTIN_OFFSETOF LPAREN TypeName COMMA PostfixExpression RPAREN */
+        __BUILTIN_OFFSETOF LPAREN TypeName COMMA OffsetofMemberDesignator RPAREN
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          String prefix = String.format("%s %s",
+                                        ((Syntax) getNodeAt(subparser, 6)).getTokenText(),
+                                        ((Syntax) getNodeAt(subparser, 5)).getTokenText());
+          Multiverse<Declaration> typename = (Multiverse<Declaration>) getTransformationValue(subparser, 4);
+          String infix = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          Multiverse<OffsetofMemberDesignator> designator = (Multiverse<OffsetofMemberDesignator>) getTransformationValue(subparser, 2);
+          String suffix = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+
+          // convert to string and append tokens
+          Multiverse<String> typenamestr = DesugarOps.typenameToString.transform(typename);
+          Multiverse<String> prepended = typenamestr.prependScalar(prefix, DesugarOps.concatStrings);
+          Multiverse<String> appended = prepended.appendScalar(infix, DesugarOps.concatStrings);
+          typenamestr.destruct(); prepended.destruct();
+
+          Multiverse<String> offsetofstr = DesugarOps.offsetofToString.transform(designator);
+          System.err.println(offsetofstr);
+          Multiverse<String> offsetofappended = offsetofstr.appendScalar(suffix, DesugarOps.concatStrings);
+          
+          todoReminder("typecheck OffsetofExpression (1)");
+          // TODO: check that the expression references something in the typespec given by typename
+          Multiverse<Type> type = new Multiverse<Type>(C.SIZEOF, pc);
+
+          setTransformationValue(value,
+                                 new ExpressionValue(productAll(DesugarOps.concatStrings,
+                                                                appended,
+                                                                offsetofappended),
+                                                     type));
+          appended.destruct(); offsetofappended.destruct();
         }
         ;
 
