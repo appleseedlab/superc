@@ -4922,7 +4922,7 @@ ReturnStatement:  /** complete **/ // Multiverse<String>
 // --------------------------------------------------------------- Expressions
 
 /* CONSTANTS */
-Constant: /** passthrough, nomerge **/  // ExpressionValue
+Constant: /** nomerge **/  // ExpressionValue
         FLOATINGconstant
         {
           setTransformationValue(value,
