@@ -502,17 +502,22 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                         // TODO: make sure a function is only defined
                         // once, although it can be declared multiple
                         // times.
-                    
+
                         // already declared entries
                         if (cOps.equal(newtype, previoustype)) {
                           System.err.println("TODO: distinguish between previous declaration vs definition.");
                           System.err.println(String.format("INFO: %s is being redeclared in global scope to compatible type", originalName));
+                          String previousname = ((NamedFunctionT) entry.getData().getType()).getName();
+                          Declarator previousDeclarator = declarator.getData().rename(previousname);
+                          Declaration previousDeclaration = new Declaration(typespecifier.getData(),
+                                                                           previousDeclarator);
+                          prototypestrmv.add(previousDeclaration.toString(), entry.getCondition());
                         } else {
                           scope.putError(originalName, entry.getCondition());
                           recordInvalidGlobalDeclaration(originalName, entry.getCondition());
                           // emit the same declaration, since it's legal to redeclare globals to a compatible type
                         }
-                      } else { // existing entry is a function type
+                      } else { // existing entry is not a function type
                         scope.putError(originalName, entry.getCondition());
                         recordInvalidGlobalDeclaration(originalName, entry.getCondition());
                         System.err.println(String.format("INFO: attempted to redeclare \"%s\" as function instead of non-function", originalName));
