@@ -268,7 +268,7 @@ public class HeaderFileManager implements Iterator<Syntax> {
 
         syntax = EOI;
 
-        if (showHeaders) System.err.println(String.format("exiting header: %s", pfile.file));
+        if (showHeaders) System.err.println(String.format("exiting header(%d): %s", includes.size(), pfile.file));
         include = includes.pop();
       }
       
@@ -284,7 +284,7 @@ public class HeaderFileManager implements Iterator<Syntax> {
         syntax = computed.next();
       } else {
         syntax = Preprocessor.EMPTY;
-        if (showHeaders) System.err.println(String.format("exiting header: %s", computed.pfile.file));
+        if (showHeaders) System.err.println(String.format("exiting header(%d): %s", includes.size(), computed.pfile.file));
         include = includes.pop();
       }
       
@@ -336,7 +336,7 @@ public class HeaderFileManager implements Iterator<Syntax> {
       
       if (! guarded) {
         includes.push(include);
-        if (showHeaders) System.err.println(String.format("entering header: %s", header.file));
+        if (showHeaders) System.err.println(String.format("entering header(%d): %s", includes.size(), header.file));
         include = header;
         if (this.showHeaderChains) printHeaderChains(include.getName());
         
@@ -755,7 +755,7 @@ public class HeaderFileManager implements Iterator<Syntax> {
     include = new Computed(completed, presenceConditions, includeNext, presenceConditionManager,
                            macroTable);
 
-    if (showHeaders) System.err.println(String.format("entering header: %s", ((Computed) include).pfile.file));
+    if (showHeaders) System.err.println(String.format("entering header(%d): %s", includes.size(), ((Computed) include).pfile.file));
 
     if (statisticsCollection) {
       System.err.format("computed %s %s %d %d\n",
