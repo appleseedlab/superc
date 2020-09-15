@@ -5939,8 +5939,7 @@ AlignofExpression:  /** nomerge **/ // ExpressionValue
           PresenceCondition pc = subparser.getPresenceCondition();
           String keyword = (String) getTransformationValue(subparser, 4);
           String lparen = getNodeAt(subparser, 3).getTokenText();
-          Multiverse<TypeSpecifier> typespecifier
-            = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          Multiverse<Declaration> typenamemv = (Multiverse<Declaration>) getTransformationValue(subparser, 2);
           String rparen = getNodeAt(subparser, 1).getTokenText();
 
           // go through each typespecifier and either (1) construct the
@@ -5948,9 +5947,9 @@ AlignofExpression:  /** nomerge **/ // ExpressionValue
           Multiverse<String> valuestr = new Multiverse<String>();
           Multiverse<Type> valuetype = new Multiverse<Type>();
           PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
-          for (Element<TypeSpecifier> tb : typespecifier) {
-            PresenceCondition combinedCond = pc.and(tb.getCondition());
-            Type tbtype = tb.getData().getType();
+          for (Element<Declaration> typename : typenamemv) {
+            PresenceCondition combinedCond = pc.and(typename.getCondition());
+            Type tbtype = typename.getData().getType();
 
             if (tbtype.isError()) {
               // save the set of configurations with type errors
@@ -5960,7 +5959,7 @@ AlignofExpression:  /** nomerge **/ // ExpressionValue
             } else {
               // add the desugared string and type to the resulting
               // semantic value
-              valuestr.add(String.format("%s %s %s %s", keyword, lparen, tb.getData().toString(), rparen), combinedCond);
+              valuestr.add(String.format("%s %s %s %s", keyword, lparen, typename.getData().toString(), rparen), combinedCond);
               valuetype.add(xtc.type.C.SIZEOF, combinedCond);
             }
             combinedCond.delRef();
