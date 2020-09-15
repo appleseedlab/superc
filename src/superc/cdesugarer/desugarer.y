@@ -4642,7 +4642,7 @@ ExpressionStatement:  /** complete **/  // Multiverse<String>
         ExpressionOpt SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
           Multiverse<Type> exprtype = exprval.type;
           PresenceCondition errorCond = exprtype.getConditionOf(ErrorT.TYPE);
           System.err.println("EXPTYP: " + exprtype);
@@ -4731,7 +4731,7 @@ IterationStatement:  /** complete **/  // Multiverse<String>
         {
           todoReminder("check the type of the conditional expression IterationStatement (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 3, pc);
 
           Multiverse<String> whilemv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 5)).getTokenText(), pc);
           Multiverse<String> lparenmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
@@ -4750,7 +4750,7 @@ IterationStatement:  /** complete **/  // Multiverse<String>
         {
           todoReminder("check the type of the conditional expression IterationStatement (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 3, pc);
 
           Multiverse<String> domv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 7)).getTokenText(), pc);
           Multiverse<String> stmtmv = getCompleteNodeMultiverseValue(subparser, 6, pc);
@@ -4774,9 +4774,9 @@ IterationStatement:  /** complete **/  // Multiverse<String>
         {
           todoReminder("check the type of the conditional expression IterationStatement (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue initval = (ExpressionValue) getTransformationValue(subparser, 7);
-          ExpressionValue testval = (ExpressionValue) getTransformationValue(subparser, 5);
-          ExpressionValue updateval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue initval = getCompleteNodeExpressionValue(subparser, 7, pc);
+          ExpressionValue testval = getCompleteNodeExpressionValue(subparser, 5, pc);
+          ExpressionValue updateval = getCompleteNodeExpressionValue(subparser, 3, pc);
 
           Multiverse<String> formv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 9)).getTokenText(), pc);
           Multiverse<String> lparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 8)).getTokenText(), pc);
@@ -4808,8 +4808,8 @@ IterationStatement:  /** complete **/  // Multiverse<String>
           // TODO: consider rewriting this to put the declaration outside the for loop.  since it's renamed, we should have conflicts, and it resolves issues with scope and semantic values
           todoReminder("check the type of the conditional expression IterationStatement (4)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue testval = (ExpressionValue) getTransformationValue(subparser, 5);
-          ExpressionValue updateval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue testval = getCompleteNodeExpressionValue(subparser, 5, pc);
+          ExpressionValue updateval = getCompleteNodeExpressionValue(subparser, 3, pc);
 
           Multiverse<String> formv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 8)).getTokenText(), pc);
           Multiverse<String> lparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 7)).getTokenText(), pc);
@@ -4906,7 +4906,7 @@ ReturnStatement:  /** complete **/ // Multiverse<String>
         {
           todoReminder("check the type of the return value");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
 
           Multiverse<String> returnmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 3)).getTokenText(), pc);
           Multiverse<String> exprmv = exprval.transformation;
