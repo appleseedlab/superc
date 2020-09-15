@@ -5534,126 +5534,134 @@ IndirectSelection:  /** nomerge **/
           Multiverse<String> identmv = new Multiverse<String>();  // desugaring
           CContext scope = ((CContext) subparser.scope);
           for (Element<Type> type : postfixtype) {
-            // check that the postfix type is a struct or union
-            if (type.getData().isStruct() || type.getData().isUnion()) {
-              StructOrUnionT sutype = (StructT) type.getData();
-              String tag = sutype.getName();
-              assert tag != null;  // even anonymous structs get a name, e.g., anonymous(0)
-              if (tag.startsWith("anonymous(")) {  // anonymous struct or union
-                // go through each symtab entry for this struct/union
-                Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tag, type.getCondition());
-                for (Element<SymbolTable.Entry> entry : entries) {
-                  PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
-                  if (entry.getData() == SymbolTable.ERROR) {
-                    // TODO: type error
-                    typemv.add(ErrorT.TYPE, combinedCond);
-                  } else if (entry.getData() == SymbolTable.UNDECLARED) {
-                    // TODO: type error, symbol not declared in this presence condition
-                    typemv.add(ErrorT.TYPE, combinedCond);
-                  } else {
-                    // TODO: check for correct field usage, otherwise type error
-                    // TODO: insert field of the union inside the original struct/union
-
-                    // since we looked up a tagname, not seeing a
-                    // struct/union type likely means there's a bug
-                    assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
-                    StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
-
-                    // similarly, if we looked up a tagname, there
-                    // should be definitions with members
-                    assert null != entrytype.getMembers();
-
-                    // check that the field exist in this variation of
-                    // the struct.  TypeSpecifier sets all members to
-                    // VariableT FIELD types
-                    VariableT fieldtype = (VariableT) entrytype.lookup(ident);
-                    if (fieldtype.isError()) {
-                      System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName()));
+            // check that the postfix type is a pointer
+            if (type.getData().isPointer()) {
+              // check that the pointer is to a struct or union
+              if (type.getData().toPointer().getType().isStruct() || type.getData().toPointer().getType().isUnion()) {
+                StructOrUnionT sutype = (StructOrUnionT) type.getData().toPointer().getType();
+                String tag = sutype.getName();
+                assert tag != null;  // even anonymous structs get a name, e.g., anonymous(0)
+                if (tag.startsWith("anonymous(")) {  // anonymous struct or union
+                  // go through each symtab entry for this struct/union
+                  Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tag, type.getCondition());
+                  for (Element<SymbolTable.Entry> entry : entries) {
+                    PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
+                    if (entry.getData() == SymbolTable.ERROR) {
+                      // TODO: type error
+                      typemv.add(ErrorT.TYPE, combinedCond);
+                    } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                      // TODO: type error, symbol not declared in this presence condition
                       typemv.add(ErrorT.TYPE, combinedCond);
                     } else {
-                      // found a valid field and we now know its type
+                      // TODO: check for correct field usage, otherwise type error
+                      // TODO: insert field of the union inside the original struct/union
+
+                      // since we looked up a tagname, not seeing a
+                      // struct/union type likely means there's a bug
+                      assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
+                      StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
+
+                      // similarly, if we looked up a tagname, there
+                      // should be definitions with members
+                      assert null != entrytype.getMembers();
+
+                      // check that the field exist in this variation of
+                      // the struct.  TypeSpecifier sets all members to
+                      // VariableT FIELD types
+                      VariableT fieldtype = (VariableT) entrytype.lookup(ident);
+                      if (fieldtype.isError()) {
+                        System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName()));
+                        typemv.add(ErrorT.TYPE, combinedCond);
+                      } else {
+                        // found a valid field and we now know its type
                       
-                      typemv.add(fieldtype.getType(), combinedCond);
+                        typemv.add(fieldtype.getType(), combinedCond);
 
-                      // add the indirection using the tag (which is
-                      // the same name as the field in the combined
-                      // struct's union)
-                      identmv.add(String.format("%s", fieldtype.getName()), combinedCond);
+                        // add the indirection using the tag (which is
+                        // the same name as the field in the combined
+                        // struct's union)
+                        identmv.add(String.format("%s", fieldtype.getName()), combinedCond);
+                      }
                     }
+                    combinedCond.delRef();
                   }
-                  combinedCond.delRef();
-                }
-                entries.destruct();
-              } else {  // tagged struct or union
-                // tagged structs work by using the original name for
-                // a struct that is the union of all variations, so we
-                // need to replace the field with level of indirection
-                // into this union.
+                  entries.destruct();
+                } else {  // tagged struct or union
+                  // tagged structs work by using the original name for
+                  // a struct that is the union of all variations, so we
+                  // need to replace the field with level of indirection
+                  // into this union.
 
-                // first go through each symtab entry for the struct tag
-                String tagname = CContext.toTagName(sutype.getName());
-                Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tagname, type.getCondition());
-                for (Element<SymbolTable.Entry> entry : entries) {
-                  PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
-                  if (entry.getData() == SymbolTable.ERROR) {
-                    // TODO: type error
-                    typemv.add(ErrorT.TYPE, combinedCond);
-                  } else if (entry.getData() == SymbolTable.UNDECLARED) {
-                    // TODO: type error, symbol not declared in this presence condition
-                    typemv.add(ErrorT.TYPE, combinedCond);
-                  } else {
-                    // TODO: check for correct field usage, otherwise type error
-                    // TODO: insert field of the union inside the original struct/union
-
-                    // since we looked up a tagname, not seeing a
-                    // struct/union type likely means there's a bug
-                    assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
-                    StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
-
-                    // similarly, if we looked up a tagname, there
-                    // should be definitions with members
-                    assert null != entrytype.getMembers();
-
-                    // check that the field exist in this variation of
-                    // the struct.  TypeSpecifier sets all members to
-                    // VariableT FIELD types
-                    VariableT fieldtype = (VariableT) entrytype.lookup(ident);
-                    if (fieldtype.isError()) {
-                      System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName()));
+                  // first go through each symtab entry for the struct tag
+                  String tagname = CContext.toTagName(sutype.getName());
+                  Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tagname, type.getCondition());
+                  for (Element<SymbolTable.Entry> entry : entries) {
+                    PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
+                    if (entry.getData() == SymbolTable.ERROR) {
+                      // TODO: type error
+                      typemv.add(ErrorT.TYPE, combinedCond);
+                    } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                      // TODO: type error, symbol not declared in this presence condition
                       typemv.add(ErrorT.TYPE, combinedCond);
                     } else {
-                      // found a valid field and we now know its type
-                      
-                      typemv.add(fieldtype.getType(), combinedCond);
+                      // TODO: check for correct field usage, otherwise type error
+                      // TODO: insert field of the union inside the original struct/union
 
-                      // add the indirection using the tag (which is
-                      // the same name as the field in the combined
-                      // struct's union)
-                      identmv.add(String.format("%s.%s", entrytype.getName(), fieldtype.getName()), combinedCond);
+                      // since we looked up a tagname, not seeing a
+                      // struct/union type likely means there's a bug
+                      assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
+                      StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
+
+                      // similarly, if we looked up a tagname, there
+                      // should be definitions with members
+                      assert null != entrytype.getMembers();
+
+                      // check that the field exist in this variation of
+                      // the struct.  TypeSpecifier sets all members to
+                      // VariableT FIELD types
+                      VariableT fieldtype = (VariableT) entrytype.lookup(ident);
+                      if (fieldtype.isError()) {
+                        System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName()));
+                        typemv.add(ErrorT.TYPE, combinedCond);
+                      } else {
+                        // found a valid field and we now know its type
+                      
+                        typemv.add(fieldtype.getType(), combinedCond);
+
+                        // add the indirection using the tag (which is
+                        // the same name as the field in the combined
+                        // struct's union)
+                        identmv.add(String.format("%s.%s", entrytype.getName(), fieldtype.getName()), combinedCond);
+                      }
                     }
+                    combinedCond.delRef();
                   }
-                  combinedCond.delRef();
                 }
+              } else {
+                // TODO: not a struct or union, type error
+                typemv.add(ErrorT.TYPE, type.getCondition());
               }
             } else {
-              // TODO: not a struct or union, type error
+              // TODO: not a pointer, type error
               typemv.add(ErrorT.TYPE, type.getCondition());
             }
           }
           
           assert ! typemv.isEmpty();
 
-          System.err.println("typemv " + typemv);
-          System.err.println("identmv " + identmv);
+          /* System.err.println("typemv " + typemv); */
+          /* System.err.println("identmv " + identmv); */
 
           todoReminder("check for all type errors or else the product for indirectselect will fail because of a product of an empty multiverse");
-          Multiverse<String> valuemv = productAll(DesugarOps.concatStrings, postfixmv, arrowmv, identmv);
-          arrowmv.destruct(); identmv.destruct();  // postfixmv is from child, so don't destruct
+          Multiverse<String> prepend = identmv.prependScalar(arrow, DesugarOps.concatStrings);
+          Multiverse<String> valuemv = productAll(DesugarOps.concatStrings, postfixmv, prepend, identmv);
+          identmv.destruct(); prepend.destruct();
+
           // valuemv shouldn't need to filtered for error conditions,
           // because identmv only has those configurations that were
           // correctly typed
 
-          System.err.println("valuemv " + valuemv);
+          /* System.err.println("valuemv " + valuemv); */
           setTransformationValue(value, new ExpressionValue(valuemv, typemv));
         }
         ;
