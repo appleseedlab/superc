@@ -2433,9 +2433,9 @@ StructDeclarationList: /** list, nomerge **/  // List<Multiverse<Declaration>>
 
           List<Multiverse<Declaration>> structfields
             = (LinkedList<Multiverse<Declaration>>) getTransformationValue(subparser,2);
-          Multiverse<Declaration> declarationvalue
-            = (Multiverse<Declaration>) getTransformationValue(subparser,1);
-          structfields.add(declarationvalue);
+          List<Multiverse<Declaration>> declarationvalue
+            = (List<Multiverse<Declaration>>) getTransformationValue(subparser,1);
+          structfields.addAll(declarationvalue);
           setTransformationValue(value, structfields);
         }
         ;
@@ -2450,27 +2450,29 @@ StructDeclaration: /** nomerge **/  // returns Multiverse<Declaration>
 
           // take all combinations of type specifiers and declarators
           // and produce a multiverse of declaration objects.
-          Multiverse<Declaration> resultmv = new Multiverse<Declaration>();
+          List<Multiverse<Declaration>> list = new LinkedList<Multiverse<Declaration>>();
           for (StructDeclaringListValue declaringlistvalue : declaringlistvalues) {
             // unpack type specifier, declarators, and initializers from the transformation value
             Multiverse<TypeSpecifier> typespecifiermv = declaringlistvalue.typespecifier;
             Multiverse<Declarator> declaratormv = declaringlistvalue.declarator;
             
+            Multiverse<Declaration> declarationmv = new Multiverse<Declaration>();
             for (Element<TypeSpecifier> typespecifier : typespecifiermv) {
               PresenceCondition typespecifierCond = subparser.getPresenceCondition().and(typespecifier.getCondition());
               for (Element<Declarator> declarator : declaratormv) {
                 PresenceCondition combinedCond = typespecifierCond.and(declarator.getCondition());
-                resultmv.add(new Declaration(typespecifier.getData(), declarator.getData()), combinedCond);
+                declarationmv.add(new Declaration(typespecifier.getData(), declarator.getData()), combinedCond);
                 combinedCond.delRef();
               } // end loop over declarators
               typespecifierCond.delRef();
             } // end loop over typespecifiers
+            assert ! declarationmv.isEmpty();
+            list.add(declarationmv);
           } // end loop of declaring list values
           // should be non-empty since structdeclaringlist cannot be
           // empty
-          assert ! resultmv.isEmpty();
 
-          setTransformationValue(value, resultmv);
+          setTransformationValue(value, list);
         }
         | StructDefaultDeclaringList SEMICOLON
         {
@@ -2486,7 +2488,9 @@ StructDeclaration: /** nomerge **/  // returns Multiverse<Declaration>
         {
           Multiverse<TypeSpecifier> typespecmv = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
           Multiverse<Declaration> valuemv = DesugarOps.typespecToDeclaration.transform(typespecmv);
-          setTransformationValue(value, valuemv);
+          List<Multiverse<Declaration>> list = new LinkedList<Multiverse<Declaration>>();
+          list.add(valuemv);
+          setTransformationValue(value, list);
         }
         | SEMICOLON // ADDED gcc allows empty struct field in declaration
         {
