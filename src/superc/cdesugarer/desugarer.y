@@ -1418,8 +1418,10 @@ TypeQualifier:    // const, volatile, and restrict can have underscores
         }
         | AttributeSpecifier // ADDED
         {
-          System.err.println("Unsupported grammar TypeQualifier-Attribute"); // TODO
-          System.exit(1);
+          TypeSpecifier ts = new TypeSpecifier();
+          todoReminder("collect attributes in AttributeSpecifier");
+          Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
+          setTransformationValue(value, valuemv);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
                       value);
