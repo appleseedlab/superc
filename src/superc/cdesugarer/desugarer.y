@@ -7380,22 +7380,6 @@ private static class ParameterTypeListValue {
 }
 
 /**
- * This semantic value holds the enumerator and its optional
- * initializer.  Note that value here means semantic value and this
- * does not represent the EnumeratorValueOpt construct.
- */
-private static class EnumeratorValue {
-  /** The name. */
-  String name;
-
-  // TODO: add support for the enum initializer
-
-  public EnumeratorValue(String name) {
-    this.name = name;
-  }
-}
-
-/**
  * This is the semantic value for expressions.  It contains one
  * multiverse of types and one multiverse of strings for the
  * transformation.  While algorithms over a Multiverse of (type,
