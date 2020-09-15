@@ -7530,10 +7530,10 @@ private <T> Multiverse<T> getCompleteNodeMultiverseValue(Node node, PresenceCond
 
 /**
  * Get the semantic value for node that has a "complete" annotation
- * where the semantic value is a multiverse.  The complete annotation
- * means the child node may be a static conditional, so create a new
- * multiverse that concatenates the multiverse values from all
- * children of the static conditional.
+ * where the semantic value is not a multiverse.  The complete
+ * annotation means the child node may be a static conditional, so
+ * create a new multiverse that concatenates the multiverse values
+ * from all children of the static conditional.
  *
  * @param subparser The subparser containing the semantic multiverse stack.
  * @param component The index into the semantic multiverse stack.
@@ -7635,6 +7635,63 @@ private <T> List<Multiverse<T>> getCompleteNodeListValue(Node node, PresenceCond
   // the resulting list can be empty, e.g., of the
   // declarationorstatementlist is empty
   return resultlist;
+}
+
+/**
+ * Get the semantic value for node that has a "complete" annotation
+ * where the semantic value is an expression value.  The complete
+ * annotation means the child node may be a static conditional, so
+ * create a new expression that concatenates the expression values
+ * from all children of the static conditional.
+ *
+ * @param subparser The subparser containing the semantic expression stack.
+ * @param component The index into the semantic expression stack.
+ * @param pc The presence condition of the semantic action.
+ * @returns A expression value containing all semantic values of the given node.
+ */
+private ExpressionValue getCompleteNodeExpressionValue(Subparser subparser, int component, PresenceCondition pc) {
+  return getCompleteNodeExpressionValue(getNodeAt(subparser, component), pc);
+}
+
+/**
+ * Get a new expression for the semantic value of the node.  If the
+ * given node is a static choice node, the resulting expression is the
+ * combination of all the static conditional's children's semantic
+ * values, filtered by their branches static condition.  The caller is
+ * responsible for destructing the resulting expression.
+ *
+ * @param node The AST node holding the semantic expression.
+ * @param pc The presence condition of the semantic action.
+ * @return A new expression containing the semantic values for all configurations.
+ */
+private ExpressionValue getCompleteNodeExpressionValue(Node node, PresenceCondition pc) {
+  if (node instanceof GNode && ((GNode) node).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
+    Multiverse<Node> nodemv = staticCondToMultiverse(node, pc);
+    Multiverse<String> transformation = new Multiverse<String>();
+    Multiverse<Type> type = new Multiverse<Type>();
+  
+    for (Element<Node> elem : nodemv) {
+      PresenceCondition combinedCond = pc.and(elem.getCondition());
+      ExpressionValue exprval = (ExpressionValue) ((Node) elem.getData()).getProperty(TRANSFORMATION);
+      Multiverse<String> transformation_filtered = exprval.transformation.filter(combinedCond);
+      Multiverse<Type> type_filtered = exprval.type.filter(combinedCond);
+      transformation.addAll(transformation_filtered);
+      type.addAll(type_filtered);
+      transformation_filtered.destruct(); type_filtered.destruct();
+      combinedCond.delRef();
+    }
+    nodemv.destruct();
+  
+    // it should not be possible to have an empty expression, as long as
+    // the pc correponds to the current subparsers's pc.
+    assert ! transformation.isEmpty();
+    assert ! type.isEmpty();
+
+    return new ExpressionValue(transformation, type);
+  } else {
+    // don't bother converting to a multiverse it it's not a conditional node
+    return (ExpressionValue) getTransformationValue(node);
+  }
 }
 
 /**
