@@ -5525,9 +5525,7 @@ IndirectSelection:  /** nomerge **/
           ExpressionValue postfixval = (ExpressionValue) getTransformationValue(subparser, 3);
 
           Multiverse<String> postfixmv = postfixval.transformation;
-          Multiverse<String> arrowmv
-            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(),
-                                            subparser.getPresenceCondition());
+          String arrow = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
           String ident = ((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText();
 
           // go through each type and see which have a field with this
