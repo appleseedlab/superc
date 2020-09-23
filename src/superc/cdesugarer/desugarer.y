@@ -2520,9 +2520,10 @@ StructDefaultDeclaringList: /** list, nomerge **/        /* doesn't redeclare ty
 StructDeclaringList: /** list, nomerge **/  // returns List<StructDeclaringListValue>
         TypeSpecifier StructDeclarator AttributeSpecifierListOpt
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
           List<StructDeclaringListValue> declaringlist = new LinkedList<StructDeclaringListValue>();
-          Multiverse<TypeSpecifier> typespecifiers = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 3);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 2);
+          Multiverse<TypeSpecifier> typespecifiers = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 3, pc);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc);
           System.err.println("TODO: support attribuetspecifierlistopt in StructDeclarator");
           declaringlist.add(new StructDeclaringListValue(typespecifiers, declarators));
           setTransformationValue(value, declaringlist);
@@ -3648,7 +3649,9 @@ Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists // M
         | AssignmentExpression
         {
           // ExpressionInitializer
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition());
+          /* System.err.println(exprval.type); */
+          /* System.err.println(exprval.transformation); */
           setTransformationValue(value, exprval.type.join(exprval.transformation, DesugarOps.joinExpressionInitializer));
         }
         ;
@@ -3748,7 +3751,7 @@ DesignatorList:  /** list, nomerge **/  /* ADDED */  // Multiverse<List<Designat
 Designator:   /* ADDED */  // Multiverse<Designator>
         LBRACK ConstantExpression RBRACK
         {
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
           setTransformationValue(value,
                                  exprval.type.join(exprval.transformation, DesugarOps.joinArrayDesignator));
         }
@@ -4131,8 +4134,9 @@ PostfixingFunctionDeclarator:  /** nomerge **/ // Multiverse<ParameterListDeclar
 ArrayDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator ArrayAbstractDeclarator
         {
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
-          Multiverse<Declarator> arrayabstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<Declarator> arrayabstractdeclarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = declarators.product(arrayabstractdeclarators, DesugarOps.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -4247,8 +4251,10 @@ ArrayAbstractDeclarator: /** nomerge **/
         | LBRACK ConstantExpression RBRACK
         {
           todoReminder("check expression in ArrayAbstractDeclarator (2)");
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
           Multiverse<String> arrayBounds = exprval.transformation;
+          System.err.println(arrayBounds);
+          System.err.println(getNodeAt(subparser, 2));
           Multiverse<Declarator> valuemv = DesugarOps.toAbstractArrayDeclarator.transform(arrayBounds);
           // this is getting an empty mv on filtered for /usr/include/x86_64-linux-gnu/bits/types.h in typesizes.h
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
@@ -4258,7 +4264,7 @@ ArrayAbstractDeclarator: /** nomerge **/
         | ArrayAbstractDeclarator LBRACK ConstantExpression RBRACK
 	      {
           todoReminder("check expression in ArrayAbstractDeclarator (2)");
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
 
       	  Multiverse<Declarator> arrayabstractdeclarator = (Multiverse<Declarator>) getTransformationValue(subparser,4);
           Multiverse<String> arrayBounds = exprval.transformation;
@@ -4931,9 +4937,13 @@ Constant: /** nomerge **/  // ExpressionValue
         }
         | INTEGERconstant
         {
+          /* value = GNode.create("Constant", getNodeAt(subparser, 1)); */
+          /* System.err.println(value); */
           setTransformationValue(value,
                                  new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
                                                      NumberT.INT, subparser.getPresenceCondition()));
+
+          /* System.err.println("Constant: " + value.hashCode()); */
           // TODO: check whether INT is correct here, or whether we
           // need to look at the token itself to determine long, etc.
         }
@@ -4994,20 +5004,22 @@ StringLiteralList:  /** list, nomerge **/ // ExpressionValue
 PrimaryExpression:  /** nomerge, passthrough **/ // ExpressionValue
         PrimaryIdentifier
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | Constant
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | StringLiteralList
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | LPAREN Expression RPAREN
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
+          /* System.err.println("PRIMARY: " + exprval.transformation); */
+          /* System.err.println("PRIMARY: " + exprval.type); */
 
           Multiverse<String> lparenmv
             = new Multiverse<String>(((Syntax) getNodeAt(subparser, 3)).getTokenText(), pc);
@@ -5022,11 +5034,11 @@ PrimaryExpression:  /** nomerge, passthrough **/ // ExpressionValue
         }
         | StatementAsExpression  // ADDED
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | VariableArgumentAccess  // ADDED
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         ;
 
@@ -5109,35 +5121,35 @@ StatementAsExpression:  /** nomerge **/  //ADDED
 PostfixExpression:  /** passthrough, nomerge **/ // ExpressionValue
         PrimaryExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | Subscript
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | FunctionCall
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | DirectSelection
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | IndirectSelection
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | Increment
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | Decrement
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | CompoundLiteral  /* ADDED */
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         ;
 
@@ -5147,9 +5159,9 @@ Subscript:  /** nomerge **/
           // TODO: check that expression is numeric, check that postfixexpression is array, and get arrays types
           todoReminder("typecheck Subscript");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue postfixexprval = (ExpressionValue) getTransformationValue(subparser, 4);
+          ExpressionValue postfixexprval = getCompleteNodeExpressionValue(subparser, 4, pc);
           String lbrack = (String) getNodeAt(subparser, 3).getTokenText();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
           String rbrack = (String) getNodeAt(subparser, 1).getTokenText();
 
           Multiverse<String> prepended = exprval.transformation.prependScalar(lbrack, DesugarOps.concatStrings);
@@ -5173,7 +5185,7 @@ FunctionCall:  /** nomerge **/
           // function, has no params, and setting the return value to
           // the type
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 3, pc);
 
           Multiverse<String> exprmv = exprval.transformation;
           Multiverse<String> lparen = new Multiverse<String>((String) getNodeAt(subparser, 2).getTokenText(), pc);
@@ -5193,10 +5205,10 @@ FunctionCall:  /** nomerge **/
           // each type of the function types's list, and setting the
           // return value to the type
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue postfixexprval = (ExpressionValue) getTransformationValue(subparser, 4);
+          ExpressionValue postfixexprval = getCompleteNodeExpressionValue(subparser, 4, pc);
 
-          /* System.err.println("PFTYPE: " + postfixexprval.type); */
-          /* System.err.println("PFTRAN: " + postfixexprval.transformation); */
+          System.err.println("PFTYPE: " + postfixexprval.type);
+          System.err.println("PFTRAN: " + postfixexprval.transformation);
 
           if (postfixexprval.hasValidType()) {
             /* postfixexprval.transformation; */
@@ -5217,6 +5229,8 @@ FunctionCall:  /** nomerge **/
               = new Multiverse<List<Type>>(new LinkedList<Type>(), pc);
             for (ExpressionValue listelem : exprlist) {
               // wrap each listelem's string and type in a list
+              System.err.println("LISTELEM: " + listelem.transformation);
+              System.err.println("LISTELEM: " + listelem.type);
               Multiverse<List<String>> wrapped_listelem_transformation
                 = DesugarOps.stringListWrap.transform(listelem.transformation);
               Multiverse<List<Type>> wrapped_listelem_type
@@ -5374,7 +5388,7 @@ FunctionCall:  /** nomerge **/
 DirectSelection:  /** nomerge **/  // ExpressionValue
         PostfixExpression DOT IdentifierOrTypedefName
         {
-          ExpressionValue postfixval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue postfixval = getCompleteNodeExpressionValue(subparser, 3, subparser.getPresenceCondition());
 
           Multiverse<String> postfixmv = postfixval.transformation;
           Multiverse<String> dotmv
@@ -5484,7 +5498,7 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
                       // add the indirection using the tag (which is
                       // the same name as the field in the combined
                       // struct's union)
-                      identmv.add(String.format("%s.%s", entrytype.getName(), fieldtype.getName()), combinedCond);
+                      identmv.add(String.format("%s . %s", entrytype.getName(), fieldtype.getName()), combinedCond);
                     }
                   }
                   combinedCond.delRef();
@@ -5508,7 +5522,7 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
           // because identmv only has those configurations that were
           // correctly typed
 
-          System.err.println("valuemv " + valuemv);
+          /* System.err.println("valuemv " + valuemv); */
           setTransformationValue(value, new ExpressionValue(valuemv, typemv));
         }
         ;
@@ -5522,7 +5536,7 @@ IndirectSelection:  /** nomerge **/
 
           // TODO: check that postfix expression is a pointer to a struct and that the identifier is one of its fields
 
-          ExpressionValue postfixval = (ExpressionValue) getTransformationValue(subparser, 3);
+          ExpressionValue postfixval = getCompleteNodeExpressionValue(subparser, 3, subparser.getPresenceCondition());
 
           Multiverse<String> postfixmv = postfixval.transformation;
           String arrow = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
@@ -5632,7 +5646,7 @@ IndirectSelection:  /** nomerge **/
                         // add the indirection using the tag (which is
                         // the same name as the field in the combined
                         // struct's union)
-                        identmv.add(String.format("%s.%s", entrytype.getName(), fieldtype.getName()), combinedCond);
+                        identmv.add(String.format("%s . %s", entrytype.getName(), fieldtype.getName()), combinedCond);
                       }
                     }
                     combinedCond.delRef();
@@ -5655,7 +5669,7 @@ IndirectSelection:  /** nomerge **/
 
           todoReminder("check for all type errors or else the product for indirectselect will fail because of a product of an empty multiverse");
           Multiverse<String> prepend = identmv.prependScalar(arrow, DesugarOps.concatStrings);
-          Multiverse<String> valuemv = productAll(DesugarOps.concatStrings, postfixmv, prepend, identmv);
+          Multiverse<String> valuemv = postfixmv.product(prepend, DesugarOps.concatStrings);
           identmv.destruct(); prepend.destruct();
 
           // valuemv shouldn't need to filtered for error conditions,
@@ -5673,7 +5687,7 @@ Increment:  /** nomerge **/  // ExpressionValue
           todoReminder("typecheck Increment");
           // TODO: check that postfixexpression is a number or pointer (see CAnalyzer)
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
           
           Multiverse<String> exprmv = exprval.transformation;
           Multiverse<String> opmv
@@ -5691,7 +5705,7 @@ Decrement:  /** nomerge **/  // ExpressionValue
           todoReminder("typecheck Decrement");
           // TODO: check that postfixexpression is a number or pointer (see CAnalyzer)
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
           
           Multiverse<String> exprmv = exprval.transformation;
           Multiverse<String> opmv
@@ -5717,7 +5731,7 @@ ExpressionList:  /** list, nomerge **/  // List<ExpressionValue>
           // create a new list
           List<ExpressionValue> exprlist = new LinkedList<ExpressionValue>();
           ExpressionValue exprval
-            = (ExpressionValue) getTransformationValue(subparser,1);
+            = getCompleteNodeExpressionValue(subparser,1, subparser.getPresenceCondition());
           exprlist.add(exprval);
           setTransformationValue(value, exprlist);
         }
@@ -5729,7 +5743,7 @@ ExpressionList:  /** list, nomerge **/  // List<ExpressionValue>
           List<ExpressionValue> exprlist
             = (LinkedList<ExpressionValue>) getTransformationValue(subparser,3);
           ExpressionValue exprval
-            = (ExpressionValue) getTransformationValue(subparser,1);
+            = getCompleteNodeExpressionValue(subparser,1, subparser.getPresenceCondition());
           exprlist.add(exprval);
           setTransformationValue(value, exprlist);
         }
@@ -5738,13 +5752,13 @@ ExpressionList:  /** list, nomerge **/  // List<ExpressionValue>
 UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
         PostfixExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | ICR UnaryExpression
         {
           todoReminder("typecheck unaryexpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> exprmv = exprval.transformation;
@@ -5759,7 +5773,7 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
         {
           todoReminder("typecheck unaryexpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> exprmv = exprval.transformation;
@@ -5775,7 +5789,7 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           // TODO: need to look at the unaryoperator to determine whether it's the correct type usage
           todoReminder("typecheck unaryexpression (4)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> opmv = new Multiverse<String>((String) getTransformationValue(subparser, 2), pc);
           Multiverse<String> exprmv = exprval.transformation;
@@ -5789,7 +5803,7 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
         | SIZEOF UnaryExpression
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> exprmv = exprval.transformation;
@@ -5802,6 +5816,7 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
                                                                 opmv,
                                                                 exprmv),
                                                      type));
+          opmv.destruct();
         }
         | SIZEOF LPAREN TypeName RPAREN
         {
@@ -5826,27 +5841,27 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
         | LabelAddressExpression  // ADDED
         {
           todoReminder("typecheck unaryexpression (7)");
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | AlignofExpression // ADDED
         {
           todoReminder("typecheck unaryexpression (8)");
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | ExtensionExpression // ADDED
         {
           todoReminder("typecheck unaryexpression (9)");
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | OffsetofExpression // ADDED
         {
           todoReminder("typecheck unaryexpression (10)");
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | TypeCompatibilityExpression  // ADDED
         {
           todoReminder("typecheck unaryexpression (11)");
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         ;
 
@@ -5921,7 +5936,7 @@ ExtensionExpression:  /** nomerge **/  // ExpressionValue
         __EXTENSION__ CastExpression
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
           
           Multiverse<String> extmv
             = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6033,7 +6048,7 @@ Unaryoperator:  // String
 CastExpression:  /** passthrough, nomerge **/  // ExpressionValue
         UnaryExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | LPAREN TypeName RPAREN CastExpression
         {
@@ -6046,7 +6061,7 @@ CastExpression:  /** passthrough, nomerge **/  // ExpressionValue
           String prefix = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
           Multiverse<Declaration> typename = (Multiverse<Declaration>) getTransformationValue(subparser, 3);
           String suffix = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
-          ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> typenamestr = DesugarOps.typenameToString.transform(typename);
           Multiverse<String> prepended = typenamestr.prependScalar(prefix, DesugarOps.concatStrings);
@@ -6065,7 +6080,7 @@ CastExpression:  /** passthrough, nomerge **/  // ExpressionValue
 
 
           /* PresenceCondition pc = subparser.getPresenceCondition(); */
-          /* ExpressionValue exprval = (ExpressionValue) getTransformationValue(subparser, 2); */
+          /* ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2); */
 
           /* Multiverse<String> lparenmv */
           /*   = new Multiverse<String>(((Syntax) getNodeAt(subparser, 3)).getTokenText(), pc); */
@@ -6081,14 +6096,14 @@ CastExpression:  /** passthrough, nomerge **/  // ExpressionValue
 MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
         CastExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | MultiplicativeExpression STAR CastExpression
         {
           todoReminder("typecheck MultiplicativeExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6105,8 +6120,8 @@ MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
         {
           todoReminder("typecheck MultiplicativeExpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6123,8 +6138,8 @@ MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
         {
           todoReminder("typecheck MultiplicativeExpression (4)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6142,14 +6157,14 @@ MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
 AdditiveExpression:  /** passthrough, nomerge **/  // ExpressionValue
         MultiplicativeExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | AdditiveExpression PLUS MultiplicativeExpression
         {
           todoReminder("typecheck AdditiveExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6166,8 +6181,8 @@ AdditiveExpression:  /** passthrough, nomerge **/  // ExpressionValue
         {
           todoReminder("typecheck AdditiveExpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6185,14 +6200,14 @@ AdditiveExpression:  /** passthrough, nomerge **/  // ExpressionValue
 ShiftExpression:  /** passthrough, nomerge **/  // ExpressionValue
         AdditiveExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | ShiftExpression LS AdditiveExpression
         {
           todoReminder("typecheck ShiftExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6209,8 +6224,8 @@ ShiftExpression:  /** passthrough, nomerge **/  // ExpressionValue
         {
           todoReminder("typecheck ShiftExpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6228,14 +6243,14 @@ ShiftExpression:  /** passthrough, nomerge **/  // ExpressionValue
 RelationalExpression:  /** passthrough, nomerge **/ // ExpressionValue
         ShiftExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | RelationalExpression LT ShiftExpression
         {
           todoReminder("typecheck RelationalExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6252,8 +6267,8 @@ RelationalExpression:  /** passthrough, nomerge **/ // ExpressionValue
         {
           todoReminder("typecheck RelationalExpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6270,8 +6285,8 @@ RelationalExpression:  /** passthrough, nomerge **/ // ExpressionValue
         {
           todoReminder("typecheck RelationalExpression (4)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6288,8 +6303,8 @@ RelationalExpression:  /** passthrough, nomerge **/ // ExpressionValue
         {
           todoReminder("typecheck RelationalExpression (5)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6307,14 +6322,14 @@ RelationalExpression:  /** passthrough, nomerge **/ // ExpressionValue
 EqualityExpression:  /** passthrough, nomerge **/  // ExpressionValue
         RelationalExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | EqualityExpression EQ RelationalExpression
         {
           todoReminder("typecheck EqualityExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6331,8 +6346,8 @@ EqualityExpression:  /** passthrough, nomerge **/  // ExpressionValue
         {
           todoReminder("typecheck EqualityExpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6350,14 +6365,14 @@ EqualityExpression:  /** passthrough, nomerge **/  // ExpressionValue
 AndExpression:  /** passthrough, nomerge **/  // ExpressionValue
         EqualityExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | AndExpression AND EqualityExpression
         {
           todoReminder("typecheck AndExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6375,14 +6390,14 @@ AndExpression:  /** passthrough, nomerge **/  // ExpressionValue
 ExclusiveOrExpression:  /** passthrough, nomerge **/  // ExpressionValue
         AndExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | ExclusiveOrExpression XOR AndExpression
         {
           todoReminder("typecheck ExclusiveOrExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6400,14 +6415,14 @@ ExclusiveOrExpression:  /** passthrough, nomerge **/  // ExpressionValue
 InclusiveOrExpression:  /** passthrough, nomerge **/  // ExpressionValue
         ExclusiveOrExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | InclusiveOrExpression PIPE ExclusiveOrExpression
         {
           todoReminder("typecheck InclusiveOrExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6425,14 +6440,14 @@ InclusiveOrExpression:  /** passthrough, nomerge **/  // ExpressionValue
 LogicalAndExpression:  /** passthrough, nomerge **/  // ExpressionValue
         InclusiveOrExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | LogicalAndExpression ANDAND InclusiveOrExpression
         {
           todoReminder("typecheck LogicalAndExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6450,14 +6465,14 @@ LogicalAndExpression:  /** passthrough, nomerge **/  // ExpressionValue
 LogicalORExpression:  /** passthrough, nomerge **/ // ExpressionValue
         LogicalAndExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | LogicalORExpression OROR LogicalAndExpression
         {
           todoReminder("typecheck LogicalORExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
@@ -6475,16 +6490,16 @@ LogicalORExpression:  /** passthrough, nomerge **/ // ExpressionValue
 ConditionalExpression:  /** passthrough, nomerge **/  // ExpressionValue
         LogicalORExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | LogicalORExpression QUESTION Expression COLON
                 ConditionalExpression
         {
           todoReminder("typecheck ConditionalExpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue condval = (ExpressionValue) getTransformationValue(subparser, 5);
-          ExpressionValue ifval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue elseval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue condval = getCompleteNodeExpressionValue(subparser, 5, pc);
+          ExpressionValue ifval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue elseval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> condmv = condval.transformation;
           Multiverse<String> quesmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
@@ -6514,19 +6529,24 @@ ConditionalExpression:  /** passthrough, nomerge **/  // ExpressionValue
 AssignmentExpression:  /** passthrough, nomerge **/  // ExpressionValue
         ConditionalExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | UnaryExpression AssignmentOperator AssignmentExpression
         {
           PresenceCondition pc = subparser.getPresenceCondition();
 
-          ExpressionValue leftval = (ExpressionValue) getTransformationValue(subparser, 3);
-          ExpressionValue rightval = (ExpressionValue) getTransformationValue(subparser, 1);
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> expr = leftval.transformation;
-          Multiverse<String> op
-            = new Multiverse<String>((String) getTransformationValue(subparser, 2), pc);
+          Multiverse<String> op = this.<String>getCompleteNodeSingleValue(subparser, 2, pc);
+          /* Multiverse<String> op */
+          /*   = new Multiverse<String>((String) getTransformationValue(subparser, 2), pc); */
           Multiverse<String> assign = rightval.transformation;
+          System.err.println(expr);
+          System.err.println(op);
+          System.err.println(assign);
+          System.err.println(getNodeAt(subparser, 1));
 
           // type-checking
           Multiverse<Type> exprtype = leftval.type;
@@ -6558,8 +6578,8 @@ AssignmentExpression:  /** passthrough, nomerge **/  // ExpressionValue
           // doesn't work for parts of the language without a type,
           // like operators.
 
-          System.err.println("assignvalue: " + valuemv);
-          System.err.println("assigntype: " + typemv);
+          /* System.err.println("assignvalue: " + valuemv); */
+          /* System.err.println("assigntype: " + typemv); */
 
           op.destruct(); product.destruct(); errorCond.delRef(); typesafeCond.delRef();
           
@@ -6624,14 +6644,14 @@ ExpressionOpt:  /** passthrough, nomerge **/ // ExpressionValue
         }
         | Expression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         ;
 
 Expression:  /** passthrough, nomerge **/  // ExpressionValue
         AssignmentExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, this.<ExpressionValue>getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | Expression COMMA AssignmentExpression
         {
