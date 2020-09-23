@@ -496,6 +496,17 @@ class DesugarOps {
     = new ListWrapper<String>();
 
   /**
+   * A multiverse transformation to turn a list of strings into a
+   * concatenated list of strings.
+   */
+  public final static Multiverse.Transformer<List<String>, String> stringListMerge
+    = new Multiverse.Transformer<List<String>, String>() {
+        String transform(List<String> from) {
+          return String.join("\n", from);
+        }
+      };
+
+  /**
    * A multiverse transformation to wrap a type into a single-element
    * list.
    */
