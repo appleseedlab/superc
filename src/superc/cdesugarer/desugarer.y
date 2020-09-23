@@ -4371,6 +4371,10 @@ Statement:  /** complete **/  // Multiverse<String>
         {
           setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
+        /* | SwitchLabeledStatement */
+        /* { */
+        /*   setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition())); */
+        /* } */
         | CompoundStatement
         {
           // CompoundStatement produces just a string (not a multiverse), since it's children resolve all
@@ -4414,30 +4418,79 @@ Statement:  /** complete **/  // Multiverse<String>
         }
         ;
 
-LabeledStatement:  /** complete **/  // ADDED attributes
+LabeledStatement:  /** complete **/  // ADDED attributes  // Multiverse<String>
         IdentifierOrTypedefName COLON AttributeSpecifierListOpt Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("ERROR: unsupported semantic action: LabeledStatement");
           System.exit(1);
         }
-        | CASE ConstantExpression COLON Statement
+        ;
+
+// convert statements to if statements
+SwitchLabeledStatement:  /** complete **/  // Multiverse<String>
+        CASE ConstantExpression COLON CompoundStatementBody
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          System.err.println("ERROR: unsupported semantic action: LabeledStatement");
+          String casestr = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 3, subparser.getPresenceCondition());
+          String colonstr = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
+          /* Multiverse<String> stmt = getCompleteNodeMultiverseValue(subparser, 1, pc); */
+
+          /* String stmtstr = emitStatement(stmt, pc); stmt.destruct(); */
+          String stmtstr = (String) getTransformationValue(subparser, 1);
+          String colon_stmt = String.format("%s %s", colonstr, stmtstr);
+          Multiverse<String> appended = exprval.transformation.appendScalar(colon_stmt, DesugarOps.concatStrings);
+          Multiverse<String> valuemv = appended.prependScalar(casestr, DesugarOps.concatStrings);
+          appended.destruct();
+
+          todoReminder("check that expression in SwitchLabeledStatement is an int");
+
+          setTransformationValue(value, valuemv);
+        }
+        | CASE ConstantExpression ELLIPSIS ConstantExpression COLON CompoundStatementBody  // ADDED case range
+        {
+          todoReminder("check that case expression is int");
+          PresenceCondition pc = subparser.getPresenceCondition();
+          System.err.println("ERROR: unsupported semantic action: SwitchLabeledStatement (2)");
           System.exit(1);
         }
-        | CASE ConstantExpression ELLIPSIS ConstantExpression COLON Statement  // ADDED case range
+        | DEFAULT COLON CompoundStatementBody
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          System.err.println("ERROR: unsupported semantic action: LabeledStatement");
-          System.exit(1);
+          String defaultstr = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          String colonstr = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
+          /* Multiverse<String> stmt = getCompleteNodeMultiverseValue(subparser, 1, pc); */
+
+          /* String stmtstr = emitStatement(stmt, pc); stmt.destruct(); */
+          String stmtstr = (String) getTransformationValue(subparser, 1);
+          String valuestr = String.format("%s %s %s", defaultstr, colonstr, stmtstr);
+          Multiverse<String> valuemv = new Multiverse<String>(valuestr, pc);
+
+          todoReminder("check that expression in SwitchLabeledStatement is an int");
+
+          setTransformationValue(value, valuemv);
         }
-        | DEFAULT COLON Statement
+        ;
+
+SwitchLabeledStatementList:  /** list, nomerge **/  // Multiverse<List<String>>
+        SwitchLabeledStatement
+        {
+          Multiverse<String> stmtmv = (Multiverse<String>) getTransformationValue(subparser, 1);
+          Multiverse<List<String>> list = DesugarOps.stringListWrap.transform(stmtmv);
+          setTransformationValue(value, list);
+        }
+        | SwitchLabeledStatementList SwitchLabeledStatement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          System.err.println("ERROR: unsupported semantic action: LabeledStatement");
-          System.exit(1);
+          Multiverse<List<String>> list = (Multiverse<List<String>>) getTransformationValue(subparser, 2);
+          Multiverse<List<String>> elem
+            = DesugarOps.stringListWrap.transform((Multiverse<String>) this.<String>getCompleteNodeMultiverseValue(subparser, 1, pc));
+          System.err.println("LIST: " + list);
+          System.err.println("ELEM: " + elem);
+          Multiverse<List<String>> cproduct = list.complementedProduct(elem, DesugarOps.STRINGLISTCONCAT);
+          list.destruct(); elem.destruct();
+          setTransformationValue(value, cproduct);
         }
         ;
 
@@ -4725,10 +4778,34 @@ SelectionStatement:  /** complete **/ // Multiverse<String>
                                                    elsemv,
                                                    elsebranchmv));
         }
-        | SWITCH LPAREN Expression RPAREN Statement
+        | SWITCH LPAREN Expression RPAREN LBRACE SwitchLabeledStatementList RBRACE
         {
-          System.err.println("TODO: switch statement");
-          System.exit(1);
+          // n1570 6.8.4.2 for switch statements
+
+          // n1570 labeled statement, 6.8.1, case and default are only to be used under switch statements
+
+          String switchstr = ((Syntax) getNodeAt(subparser, 7)).getTokenText();
+          String lparen = ((Syntax) getNodeAt(subparser, 6)).getTokenText();
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 5, subparser.getPresenceCondition());
+          String rparen = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          String lbrace = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          Multiverse<List<String>> body = (Multiverse<List<String>>) getTransformationValue(subparser, 2);
+          String rbrace = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+
+          todoReminder("check that switch statement expression should be an int");
+
+          String prefix = String.format("%s %s", switchstr, lparen);
+          Multiverse<String> prepended = exprval.transformation.prependScalar(prefix, DesugarOps.concatStrings);
+          String suffix = String.format("%s %s", rparen, lbrace);
+          Multiverse<String> appended = prepended.appendScalar(suffix, DesugarOps.concatStrings);
+          prepended.destruct();
+          Multiverse<String> bodymv = DesugarOps.stringListMerge.transform(body);
+          Multiverse<String> product = appended.product(bodymv, DesugarOps.concatStrings);
+          appended.destruct();
+          Multiverse<String> valuemv = product.appendScalar(rbrace, DesugarOps.concatStrings);
+          product.destruct();
+
+          setTransformationValue(value, valuemv);
         }
         ;
 // TODO: destruct the multiverses after product
