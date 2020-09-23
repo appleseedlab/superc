@@ -185,6 +185,32 @@ abstract class Initializer {
   }
 
   /**
+   * This designator is specifically for gcc's OffsetofMemberDesignator.
+   */
+  public static class OffsetofMemberDesignator {
+    /** The offsetof member identifier. */
+    protected String ident;
+    
+    /** The list of designators, if any. */
+    protected final List<Designator> list;
+
+    public OffsetofMemberDesignator(String ident, List<Designator> list) {
+      this.ident = ident;
+      this.list = list;
+    }
+
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+      sb.append(ident);
+      sb.append(" ");
+      for (Designator designator : list) {
+        sb.append(designator.toString());
+      }
+      return String.format("%s", sb.toString());
+    }
+  }
+
+  /**
    * This is the abstract superclass of designators.
    */
   public static abstract class Designator {

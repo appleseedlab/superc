@@ -214,6 +214,10 @@ public class SuperC extends Tool {
       bool("follow-set", "follow-set", false,
            "Compute the FOLLOW sets of each token in the preprocessed input.").
 
+      // // Desugarer component selection
+      // bool("desugar", "desugarer", false,
+      //      "Run the desugarer.").
+
       // Preprocessor optimizations.
       /*bool("Odedup", "optimizeDedup", false,
         "Turn off macro definition deduplication.  Not recommended " +
@@ -322,7 +326,7 @@ public class SuperC extends Tool {
            "Print the parsed AST.").
       bool("printSource", "printSource", false,
            "Print the parsed AST in C source form.").
-      bool("suppressConditionals", "suppressConditionals", false,
+      bool("suppressConditions", "suppressConditions", false,
            "Do not print presence conditions to save space.").
       bool("configureAllYes", "configureAllYes", false,
            "Print all tokens of the all yes configuration of the AST.").
@@ -344,6 +348,8 @@ public class SuperC extends Tool {
            "Show all parsing actions.").
       bool("showFM", "showFM", false,
            "Show all forks and merges.").
+      bool("showHeaders", "showHeaders", false,
+           "Show header entry and exit.").
       bool("showLookaheads", "showLookaheads", false,
            "Show lookaheads on each parse loop (warning: very voluminous "
            + "output!)").
@@ -601,8 +607,8 @@ public class SuperC extends Tool {
       .getConfigurationVariables(runtime.test("configurationVariables"));
     macroTable.getHeaderGuards(runtime.test("headerGuards"));
     presenceConditionManager = new PresenceConditionManager();
-    if (runtime.test("suppressConditionals")) {
-      presenceConditionManager.suppressConditionals(true);
+    if (runtime.test("suppressConditions")) {
+      presenceConditionManager.suppressConditions(true);
     }
     // if (runtime.test("checkExpressionParser")) {
     //   expressionParser = ExpressionParser.comparator(presenceConditionManager);
@@ -639,6 +645,7 @@ public class SuperC extends Tool {
                                           iquote, I, sysdirs,
                                           lexerCreator, tokenCreator,
                                           lexerTimer);
+      fileManager.showHeaders(runtime.test("showHeaders"));
       fileManager.collectStatistics(runtime.test("statisticsPreprocessor"));
       fileManager.showErrors(! runtime.test("hideErrors"));
       fileManager.doTiming(runtime.test("time"));
@@ -667,6 +674,7 @@ public class SuperC extends Tool {
     fileManager = new HeaderFileManager(in, file, iquote, I, sysdirs,
                                         lexerCreator, tokenCreator, lexerTimer,
                                         runtime.getString(xtc.util.Runtime.INPUT_ENCODING));
+    fileManager.showHeaders(runtime.test("showHeaders"));
     fileManager.collectStatistics(runtime.test("statisticsPreprocessor"));
     fileManager.showErrors(! runtime.test("hideErrors"));
     fileManager.doTiming(runtime.test("time"));
@@ -898,6 +906,7 @@ public class SuperC extends Tool {
 
         syntax = preprocessor.next();
       }
+    // } else if (runtime.test("desugarer")) {
     } else {
       // Run the SuperC preprocessor and parser.
       ForkMergeParser parser;

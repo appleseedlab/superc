@@ -1,10 +1,21 @@
 package superc.cdesugarer;
 
-import superc.cdesugarer.Multiverse;
+import java.util.List;
+import java.util.LinkedList;
 
-import superc.cdesugarer.Multiverse.Element;
+import xtc.type.C;
+import xtc.type.Type;
+import xtc.type.VariableT;
+import xtc.type.StructT;
+import xtc.type.UnionT;
+import xtc.type.ErrorT;
+
+import superc.core.Syntax;
 
 import superc.core.PresenceConditionManager.PresenceCondition;
+
+import superc.cdesugarer.Multiverse;
+import superc.cdesugarer.Multiverse.Element;
 
 import superc.cdesugarer.SymbolTable.Entry;
 
@@ -27,17 +38,11 @@ import superc.cdesugarer.Initializer.ExpressionInitializer;
 import superc.cdesugarer.Initializer.InitializerList;
 import superc.cdesugarer.Initializer.DesignatedInitializer;
 import superc.cdesugarer.Initializer.Designation;
+import superc.cdesugarer.Initializer.OffsetofMemberDesignator;
 import superc.cdesugarer.Initializer.Designator;
 import superc.cdesugarer.Initializer.ArrayDesignator;
 import superc.cdesugarer.Initializer.StructUnionDesignator;
 
-import xtc.type.ErrorT;
-import xtc.type.Type;
-
-import xtc.type.C;
-
-import java.util.List;
-import java.util.LinkedList;
 
 /**
  * These operators are used for cartesian products and transformations
@@ -101,12 +106,12 @@ class DesugarOps {
   /**
    * Create a multiverse of qualified pointer declarators.  This is not
    * a multiverse operator, because it combines two different types,
-   * TypeBuilder and Declarator.
+   * TypeSpecifier and Declarator.
    */
-  public final static Multiverse<Declarator> createQualifiedPointerDeclarator(Multiverse<Declarator> declarators, Multiverse<TypeBuilder> qualifierlists) {
+  public final static Multiverse<Declarator> createQualifiedPointerDeclarator(Multiverse<Declarator> declarators, Multiverse<TypeSpecifier> qualifierlists) {
     Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
 
-    for (Element<TypeBuilder> qualifierlist : qualifierlists) {
+    for (Element<TypeSpecifier> qualifierlist : qualifierlists) {
       for (Element<Declarator> declarator : declarators) {
         PresenceCondition combinedCond = qualifierlist.getCondition().and(declarator.getCondition());
         valuemv.add(new QualifiedPointerDeclarator(declarator.getData(),
@@ -140,8 +145,8 @@ class DesugarOps {
   /**
    * Create qualified pointer declarators.
    */
-  public final static Multiverse.Transformer<TypeBuilder, Declarator> toQualifiedPointerAbstractDeclarator = new Multiverse.Transformer<TypeBuilder, Declarator>() {
-      Declarator transform(TypeBuilder from) {
+  public final static Multiverse.Transformer<TypeSpecifier, Declarator> toQualifiedPointerAbstractDeclarator = new Multiverse.Transformer<TypeSpecifier, Declarator>() {
+      Declarator transform(TypeSpecifier from) {
         return new QualifiedPointerAbstractDeclarator(from);
       }
     };
@@ -161,39 +166,51 @@ class DesugarOps {
    */
   public final static Multiverse.Transformer<List<Declaration>, ParameterListDeclarator> toParameterList = new Multiverse.Transformer<List<Declaration>, ParameterListDeclarator>() {
       ParameterListDeclarator transform(List<Declaration> from) {
-        return new ParameterListDeclarator(from);
+        return new ParameterListDeclarator(from, false);
+      }
+    };
+
+  /**
+   * A multiverse transformation to turn a list of Declarations
+   * into a ParameterListDeclarator that have variable arguments.
+   */
+  public final static Multiverse.Transformer<List<Declaration>, ParameterListDeclarator> toVarArgsParameterList = new Multiverse.Transformer<List<Declaration>, ParameterListDeclarator>() {
+      ParameterListDeclarator transform(List<Declaration> from) {
+        return new ParameterListDeclarator(from, true);
       }
     };
 
   /*****************************************************************************
-   ********* Multiverse operators for TypeBuilders
+   ********* Multiverse operators for TypeSpecifiers
    *****************************************************************************/
 
-  public final static Multiverse.Operator<TypeBuilder> TBCONCAT = (tb1, tb2) -> {
-    return tb1.combine(tb2);
+  // TODO: make a product that copies the first ts, then looks at each boolean of the second and calls the appropriate specifiers.visit function or tries to set the type (which may fail).  also need an error state on the type specifier.
+
+  public final static Multiverse.Operator<TypeSpecifier> specifierProduct = (ts1, ts2) -> {
+    TypeSpecifier newts = new TypeSpecifier(ts1);
+    newts.visit(ts2);
+    return newts;
   };
 
   /**
    * A multiverse transformation to turn a symtab entries for a
-   * typedefname into a multiverse of typebuilders.
+   * typedefname into a multiverse of typespecifiers.
    */
-  public final static Multiverse.Transformer<SymbolTable.Entry, TypeBuilder> typedefEntriesToTypeBuilder = new Multiverse.Transformer<SymbolTable.Entry, TypeBuilder>() {
-      TypeBuilder transform(SymbolTable.Entry from) {
-        // TODO: improve TypeBuilder's interface
-        TypeBuilder tbunit = new TypeBuilder();
+  public final static Multiverse.Transformer<SymbolTable.Entry, TypeSpecifier> typedefEntriesToTypeSpecifier = new Multiverse.Transformer<SymbolTable.Entry, TypeSpecifier>() {
+      TypeSpecifier transform(SymbolTable.Entry from) {
+        TypeSpecifier ts = new TypeSpecifier();
         if (from == SymbolTable.ERROR) {
           System.err.println("INFO: use of typedefname with invalid declaration");
           // TODO: needs a unit test
-          tbunit.setTypeError();
+          ts.setError();
         } else if (from == SymbolTable.UNDECLARED) {
           System.err.println("INFO: use of undeclared typedefname");
           // TODO: needs a unit test
-          tbunit.setTypeError();
+          ts.setError();
         } else {
-          System.err.println("TODO: check that type is actually alias " + from.getType().isAlias());
           if (! from.getType().isAlias()) {
             System.err.println("INFO: typedefname is not declared as alias type");
-            tbunit.setTypeError();
+            ts.setError();
             // TODO: double-check that the parser already handles
             // this case, although it seems like the parser is
             // already handling this
@@ -201,13 +218,73 @@ class DesugarOps {
             // TODO: use the new symtab for reclassifying
             // typedefname tokens
           } else {
-            tbunit.setTypedef(from.getType().toAlias());
+            ts.setType(from.getType().toAlias());
+            ts.addTransformation(from.getType().toAlias().getName());
           }
         }
-        return tbunit;
+        return ts;
       }
     };
 
+  public static String createStructOrUnionDefTransformation(Syntax keyword, String renamedtag, List<Declaration> members) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(keyword.getTokenText());
+    sb.append(" ");
+    sb.append(renamedtag);
+    sb.append(" {\n");
+    System.err.println("TODO: check that all members have different names, don't have type errors themselves, and rename selfrefs");
+    for (Declaration declaration : members) {
+      if (declaration.hasTypeError()) {
+        return "";
+      } else {
+        sb.append(declaration.toString());
+        sb.append(";\n");
+      }
+      // TODO: use Variable.newBitfield()
+    }
+    sb.append("}\n");
+    return sb.toString();
+  }
+
+  public static Type createStructOrUnionDefType(Syntax keyword, String renamedtag, List<Declaration> members) {
+    System.err.println("TODO: check that all members have different names, don't have type errors themselves, and rename selfrefs");
+    List<VariableT> memberlist = new LinkedList<VariableT>();
+    for (Declaration declaration : members) {
+      if (declaration.hasTypeError()) {
+        return ErrorT.TYPE;
+      } else {
+        VariableT member;
+        if (declaration.hasName()) {
+          member = VariableT.newField(declaration.getType(),
+                                      declaration.getName());
+        } else {
+          member = VariableT.newField(declaration.getType(),
+                                      null);
+        }
+        memberlist.add(member);
+      }
+      // TODO: use Variable.newBitfield()
+    }
+
+    if (keyword.getTokenText().equals("struct")) {
+      return new StructT(renamedtag, memberlist);
+    } else if (keyword.getTokenText().equals("union")) {
+      return new UnionT(renamedtag, memberlist);
+    } else {
+      throw new AssertionError("unexpected keyword to createStructOrUnionDefType");
+    }
+  }
+  
+  public static Type createStructOrUnionRefType(Syntax keyword, String renamedtag) {
+    if (keyword.getTokenText().equals("struct")) {
+      return new StructT(renamedtag);
+    } else if (keyword.getTokenText().equals("union")) {
+      return new UnionT(renamedtag);
+    } else {
+      throw new AssertionError("unexpected keyword to createStructOrUnionRefType");
+    }
+  }
+  
   /*****************************************************************************
    ********* Multiverse operators for Declarations
    *****************************************************************************/
@@ -225,6 +302,46 @@ class DesugarOps {
   public final static Multiverse.Operator<List<Declaration>> DECLARATIONLISTCONCAT = (list1, list2) -> {
     return concatLists(list1, list2);
   };
+
+  /**
+   * Combine a TypeSpecifier and Declarator into a Declaration.
+   */
+  public final static Multiverse.Joiner<TypeSpecifier, Declarator, Declaration> joinDeclaration = (typespecifier, declarator) -> {
+    return new Declaration(typespecifier, declarator);
+  };
+
+  /**
+   * Convert a type specifier into a declaration with an empty
+   * declarator.  This is used for struct declarations.
+   */
+  public final static Multiverse.Transformer<TypeSpecifier, Declaration> typespecToDeclaration
+    = new Multiverse.Transformer<TypeSpecifier, Declaration>() {
+        Declaration transform(TypeSpecifier from) {
+          return new Declaration(from, new EmptyDeclarator());
+        }
+      };
+
+  /**
+   * Convert a declaration into a string.  This is used for typename,
+   * so any renaming has been done already in the typespec and the
+   * declarator is abstract.
+   */
+  public final static Multiverse.Transformer<Declaration, String> typenameToString
+    = new Multiverse.Transformer<Declaration, String>() {
+        String transform(Declaration from) {
+          return from.toString();
+        }
+      };
+
+  /**
+   * Convert a declaration into a type.  This is used for typename.
+   */
+  public final static Multiverse.Transformer<Declaration, Type> typenameToType
+    = new Multiverse.Transformer<Declaration, Type>() {
+        Type transform(Declaration from) {
+          return from.getType();
+        }
+      };
 
   /*****************************************************************************
    ********* Multiverse operators for Initializers
@@ -247,6 +364,23 @@ class DesugarOps {
     = new Multiverse.Transformer<List<Designator>, Designation>() {
         Designation transform(List<Designator> from) {
           return new Designation(from);
+        }
+      };
+
+  /**
+   * Join idents and designators lists to form offsetof member designators.
+   */
+  public final static Multiverse.Joiner<String, List<Designator>, OffsetofMemberDesignator> joinOffsetof = (ident, list) -> {
+    return new OffsetofMemberDesignator(ident, list);
+  };
+
+  /**
+   * Convert offsetof member designators to strings.
+   */
+  public final static Multiverse.Transformer<OffsetofMemberDesignator, String> offsetofToString
+    = new Multiverse.Transformer<OffsetofMemberDesignator, String>() {
+        String transform(OffsetofMemberDesignator from) {
+          return from.toString();
         }
       };
 
@@ -341,6 +475,7 @@ class DesugarOps {
    * compatible.
    */
   public final static Multiverse.Operator<Type> compareTypes = (t1, t2) -> {
+    // TODO: see CAnalyzer, e.g., additiveexpression, etc
     Type newtype;
     if (cOps.equal(t1, t2)) {
       // TODO: may need to pick correct type based on kind of
@@ -359,6 +494,17 @@ class DesugarOps {
    */
   public final static Multiverse.Transformer<String, List<String>> stringListWrap
     = new ListWrapper<String>();
+
+  /**
+   * A multiverse transformation to turn a list of strings into a
+   * concatenated list of strings.
+   */
+  public final static Multiverse.Transformer<List<String>, String> stringListMerge
+    = new Multiverse.Transformer<List<String>, String>() {
+        String transform(List<String> from) {
+          return String.join("\n", from);
+        }
+      };
 
   /**
    * A multiverse transformation to wrap a type into a single-element

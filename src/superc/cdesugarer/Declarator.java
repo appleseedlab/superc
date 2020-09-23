@@ -37,6 +37,11 @@ abstract class Declarator {
   abstract public String getName();
 
   /**
+   * Returns true if the declarator has a name.
+   */
+  abstract public boolean hasName();
+
+  /**
    * Create a new declarator with the new name.  Abstract declarators
    * do not have a name.
    */
@@ -99,6 +104,10 @@ abstract class Declarator {
       throw new IllegalStateException("abstract declarators have no name");
     }
 
+    public boolean hasName() {
+      return false;
+    }
+    
     public Declarator rename(String newName) {
       throw new IllegalStateException("abstract declarators have no name");
     }
@@ -140,6 +149,10 @@ abstract class Declarator {
       return declarator.getName();
     }
 
+    public boolean hasName() {
+      return declarator.hasName();
+    }
+    
     public Declarator rename(String newName) {
       return declarator.rename(newName);
     }
@@ -176,6 +189,10 @@ abstract class Declarator {
       return name;
     }
 
+    public boolean hasName() {
+      return true;
+    }
+    
     public Declarator rename(String newName) {
       return new SimpleDeclarator(newName);
     }
@@ -212,6 +229,10 @@ abstract class Declarator {
       return declarator.getName();
     }
 
+    public boolean hasName() {
+      return declarator.hasName();
+    }
+    
     public Declarator rename(String newName) {
       return new PointerDeclarator(declarator.rename(newName));
     }
@@ -241,10 +262,10 @@ abstract class Declarator {
     protected final Declarator declarator;
 
     /** Qualifiers of this pointer. */
-    protected final TypeBuilder qualifiers;
+    protected final TypeSpecifier qualifiers;
 
     public QualifiedPointerDeclarator(Declarator declarator,
-                                      TypeBuilder qualifiers) {
+                                      TypeSpecifier qualifiers) {
       this.declarator = declarator;
       this.qualifiers = qualifiers;
     }
@@ -253,18 +274,24 @@ abstract class Declarator {
       return declarator.getName();
     }
 
+    public boolean hasName() {
+      return declarator.hasName();
+    }
+    
     public Declarator rename(String newName) {
       return new QualifiedPointerDeclarator(declarator.rename(newName), qualifiers);
     }
 
     public Type getType(Type type) {
       System.err.println("TODO: check correctness of qualified pointer declarator type");
-      Type qualifiedtype = qualifiers.combine(new TypeBuilder(type)).toType();
+      TypeSpecifier newts = new TypeSpecifier(qualifiers);
+      newts.setType(type);
+      Type qualifiedtype = newts.getType();
       return declarator.getType(new PointerT(qualifiedtype));
     }
 
     public boolean hasTypeError() {
-      return qualifiers.hasTypeError() || declarator.hasTypeError();
+      return qualifiers.getType().isError() || declarator.hasTypeError();
     }
   
     @Override
@@ -289,6 +316,10 @@ abstract class Declarator {
       throw new IllegalStateException("abstract declarators have no name");
     }
 
+    public boolean hasName() {
+      return false;
+    }
+    
     public Declarator rename(String newName) {
       // nothing to rename and its immutable, so return this class.
       return this;
@@ -311,7 +342,7 @@ abstract class Declarator {
     }
   }
 
-  // note this uses TypeBuilder, not a Multiverse, so the action needs to hoist, because TypeQualifiers returns a Multiverse
+  // note this uses TypeSpecifier, not a Multiverse, so the action needs to hoist, because TypeQualifiers returns a Multiverse
   /**
    * A qualified pointer declarator without an explicit declarator
    * that it points to.  It has no declarator field, because it is an
@@ -319,9 +350,9 @@ abstract class Declarator {
    */
   public static class QualifiedPointerAbstractDeclarator extends Declarator {
     /** Qualifiers, if any, of this pointer. */
-    protected final TypeBuilder qualifiers;
+    protected final TypeSpecifier qualifiers;
 
-    public QualifiedPointerAbstractDeclarator(TypeBuilder qualifiers) {
+    public QualifiedPointerAbstractDeclarator(TypeSpecifier qualifiers) {
       this.qualifiers = qualifiers;
     }
 
@@ -329,18 +360,24 @@ abstract class Declarator {
       throw new IllegalStateException("abstract declarators have no name");
     }
 
+    public boolean hasName() {
+      return false;
+    }
+    
     public Declarator rename(String newName) {
       // nothing to rename and its immutable, so return this class.
       return this;
     }
 
     public Type getType(Type type) {
-      Type qualifiedtype = qualifiers.combine(new TypeBuilder(type)).toType();
+      TypeSpecifier newts = new TypeSpecifier(qualifiers);
+      newts.setType(type);
+      Type qualifiedtype = newts.getType();
       return new PointerT(qualifiedtype);
     }
 
     public boolean hasTypeError() {
-      return qualifiers.hasTypeError();
+      return qualifiers.getType().isError();
     }
   
     @Override
@@ -372,6 +409,10 @@ abstract class Declarator {
       return declarator.getName();
     }
 
+    public boolean hasName() {
+      return declarator.hasName();
+    }
+    
     public Declarator rename(String newName) {
       return new ArrayDeclarator(declarator.rename(newName),
                                  (ArrayAbstractDeclarator) arrayabstractdeclarator.rename(newName));
@@ -445,6 +486,10 @@ abstract class Declarator {
       throw new IllegalStateException("abstract declarators have no name");
     }
 
+    public boolean hasName() {
+      return false;
+    }
+    
     public Declarator rename(String newName) {
       // no need to copy since it's immutable.
       return this;
@@ -485,6 +530,10 @@ abstract class Declarator {
       return declarator.getName();
     }
 
+    public boolean hasName() {
+      return declarator.hasName();
+    }
+    
     public Declarator rename(String newName) {
       // parameters don't affect the name of the declarator, so just
       // use the original parameters
@@ -494,16 +543,15 @@ abstract class Declarator {
 
     public Type getType(Type returnType) {
       List<Type> paramtypes = new LinkedList<Type>();
-      boolean varargs = false;  // TODO: handle varargs here
       for (Declaration param : parameters.parameters) {
         paramtypes.add(param.getType());
       }
 
       if (declarator.isSimpleDeclarator()) {
-        return new FunctionT(returnType, paramtypes, varargs);
+        return new FunctionT(returnType, paramtypes, parameters.varargs);
       } else if (declarator.isPointerDeclarator()) {
         // the pointer declarators creator a function pointer
-        return declarator.getType(new FunctionT(returnType, paramtypes, varargs));
+        return declarator.getType(new FunctionT(returnType, paramtypes, parameters.varargs));
       } else {
         throw new AssertionError("function declarator should either be simple or pointer");
       }
@@ -526,14 +574,22 @@ abstract class Declarator {
     /** The list of parameters. */
     protected final List<Declaration> parameters;
 
-    public ParameterListDeclarator(List<Declaration> parameters) {
+    /** Whether this list has variable arguments or not. */
+    protected final boolean varargs;
+
+    public ParameterListDeclarator(List<Declaration> parameters, boolean varargs) {
       this.parameters = parameters;
+      this.varargs = varargs;
     }
 
     public String getName() {
       throw new IllegalStateException("parameters don't affect the name of the function");
     }
 
+    public boolean hasName() {
+      return false;
+    }
+    
     public Declarator rename(String newName) {
       throw new IllegalStateException("parameters don't affect the name of the function");
     }
@@ -562,6 +618,10 @@ abstract class Declarator {
         sb.append(delim);
         sb.append(param.toString());
         delim = ", ";
+      }
+      if (varargs) {
+        sb.append(delim);
+        sb.append(" ... ");
       }
       sb.append(")");
       return sb.toString();

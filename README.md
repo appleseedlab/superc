@@ -30,11 +30,21 @@ From the root of the xtc source tree, run the following:
 
 ## Running the SuperC parser
 
-    java xtc.lang.cpp.SuperC -silent -printAST file_to_transform.c
+    java superc.SuperC -silent -printAST file_to_transform.c
 
 ## Running the SuperC desugarer
 
-    java xtc.lang.cpp.SugarC file_to_desugarer.c > desugared_file.c
+    java superc.SugarC file_to_desugarer.c > desugared_file.c
+
+## Using preprocessed headers
+
+Preprocessing the headers only needs to be done once:
+
+    bash scripts/preprocess_system_headers.sh ~/src/preprocessed_sysdirs/
+    
+Use the headers with SuperC/SugarC like this:
+
+    java superc.SugarC $(cat ~/src/preprocessed_sysdirs/supercargs.txt) helloworld.c
 
 ## Testing SuperC's parser
 

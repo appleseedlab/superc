@@ -89,7 +89,7 @@ public class PresenceConditionManager {
   /**
    * Whether to print presence conditions or not.
    */
-  private boolean suppressConditionals;
+  private boolean suppressConditions;
 
   /**
    * Create a new presence condition manager.
@@ -140,8 +140,8 @@ public class PresenceConditionManager {
     }
   }
 
-  public void suppressConditionals(boolean suppressConditionals) {
-    this.suppressConditionals = suppressConditionals;
+  public void suppressConditions(boolean suppressConditions) {
+    this.suppressConditions = suppressConditions;
   }
   
   /**
@@ -1160,7 +1160,7 @@ public class PresenceConditionManager {
       // return this.tree.toString();
       StringWriter writer = new StringWriter();
 
-      if (! suppressConditionals) {
+      if (! suppressConditions) {
         try {
           print(writer);
         } catch (IOException e) {

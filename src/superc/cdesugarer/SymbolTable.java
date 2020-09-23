@@ -364,7 +364,7 @@ public class SymbolTable implements Iterable<String> {
     }
 
     // System.err.println(String.format("after put: %s -> %s", ident, map.get(ident)));
-    System.err.println(toString());
+    // System.err.println(toString());
   }
 
   /**

@@ -57,7 +57,7 @@ SOURCE = \
 	NamedFunctionT.java \
 	SymbolTable.java \
 	Multiverse.java \
-	TypeBuilder.java \
+	TypeSpecifier.java \
 	Declarator.java \
 	Initializer.java \
 	Declaration.java \

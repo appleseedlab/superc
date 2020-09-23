@@ -101,6 +101,9 @@ public class HeaderFileManager implements Iterator<Syntax> {
   /** Whether the output statistics. */
   private boolean statisticsCollection = false;
 
+  /** Show header entry and exit. */
+  private boolean showHeaders = false;
+
   /** Show errors. */
   private boolean showErrors = true;
 
@@ -167,6 +170,15 @@ public class HeaderFileManager implements Iterator<Syntax> {
    */
   public void collectStatistics(boolean b) {
     statisticsCollection = b;
+  }
+
+  /**
+   * Show headers.  Default is off.
+   *
+   * @param b True is on.
+   */
+  public void showHeaders(boolean b) {
+    showHeaders = b;
   }
 
   /**
@@ -256,6 +268,7 @@ public class HeaderFileManager implements Iterator<Syntax> {
 
         syntax = EOI;
 
+        if (showHeaders) System.err.println(String.format("exiting header(%d): %s", includes.size(), pfile.file));
         include = includes.pop();
       }
       
@@ -271,6 +284,7 @@ public class HeaderFileManager implements Iterator<Syntax> {
         syntax = computed.next();
       } else {
         syntax = Preprocessor.EMPTY;
+        if (showHeaders) System.err.println(String.format("exiting header(%d): %s", includes.size(), computed.pfile.file));
         include = includes.pop();
       }
       
@@ -322,6 +336,7 @@ public class HeaderFileManager implements Iterator<Syntax> {
       
       if (! guarded) {
         includes.push(include);
+        if (showHeaders) System.err.println(String.format("entering header(%d): %s", includes.size(), header.file));
         include = header;
         if (this.showHeaderChains) printHeaderChains(include.getName());
         
@@ -740,6 +755,7 @@ public class HeaderFileManager implements Iterator<Syntax> {
     include = new Computed(completed, presenceConditions, includeNext, presenceConditionManager,
                            macroTable);
 
+    if (showHeaders) System.err.println(String.format("entering header(%d): %s", includes.size(), ((Computed) include).pfile.file));
 
     if (statisticsCollection) {
       System.err.format("computed %s %s %d %d\n",

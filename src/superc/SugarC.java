@@ -82,6 +82,11 @@ import xtc.tree.Location;
 
 import xtc.Constants;
 
+import xtc.type.Type;
+import xtc.type.NumberT;
+import xtc.type.PointerT;
+import xtc.type.VariableT;
+
 import xtc.util.Tool;
 import xtc.util.Pair;
 
@@ -206,9 +211,15 @@ public class SugarC extends Tool {
            "Show all parsing actions.").
       bool("showFM", "showFM", false,
            "Show all forks and merges.").
+      bool("showHeaders", "showHeaders", false,
+           "Show header entry and exit.").
       bool("showLookaheads", "showLookaheads", false,
            "Show lookaheads on each parse loop (warning: very voluminous "
-           + "output!)")
+           + "output!)").
+      bool("suppressConditions", "suppressConditions", false,
+           "Don't print static conditions.").
+      bool("macroTable", "macroTable", false,
+           "Show the macro symbol table.")
       ;
   }
   
@@ -368,10 +379,21 @@ public class SugarC extends Tool {
     // macros and includes.
     macroTable = new MacroTable(tokenCreator);
     presenceConditionManager = new PresenceConditionManager();
+    presenceConditionManager.suppressConditions(runtime.test("suppressConditions"));
     expressionParser = ExpressionParser.fromRats();
     conditionEvaluator = new ConditionEvaluator(expressionParser,
                                                 presenceConditionManager,
                                                 macroTable);
+    if (null != runtime.getString("restrictFreeToPrefix")) {
+      macroTable.restrictPrefix(runtime.getString("restrictFreeToPrefix"));
+      conditionEvaluator.restrictPrefix(runtime.getString("restrictFreeToPrefix"));
+    }
+
+    if (null != runtime.getString("restrictConfigToPrefix")) {
+      // let macros be free!  only restrict them when encountered in a
+      // conditional
+      conditionEvaluator.restrictPrefix(runtime.getString("restrictConfigToPrefix"));
+    }
 
     if (null != commandline) {
       Syntax syntax;
@@ -388,6 +410,7 @@ public class SugarC extends Tool {
                                           iquote, I, sysdirs,
                                           lexerCreator, tokenCreator,
                                           lexerTimer);
+      fileManager.showHeaders(runtime.test("showHeaders"));
       fileManager.showErrors(! runtime.test("hideErrors"));
 
       preprocessor = new Preprocessor(fileManager,
@@ -408,6 +431,7 @@ public class SugarC extends Tool {
     fileManager = new HeaderFileManager(in, file, iquote, I, sysdirs,
                                         lexerCreator, tokenCreator, lexerTimer,
                                         runtime.getString(xtc.util.Runtime.INPUT_ENCODING));
+      fileManager.showHeaders(runtime.test("showHeaders"));
     fileManager.showErrors(! runtime.test("hideErrors"));
 
     preprocessor = new Preprocessor(fileManager,
@@ -435,6 +459,18 @@ public class SugarC extends Tool {
     CActions actions = CActions.getInstance();
 
     CContext initialParsingContext = new CContext();
+
+    // add gcc builtin's
+    Type stringType = new PointerT(NumberT.CHAR);
+    initialParsingContext.put("__PRETTY_FUNCTION__",
+                              VariableT.newGlobal(stringType, "__PRETTY_FUNCTION__"),
+                              presenceConditionManager.newTrue());
+    initialParsingContext.put("__FUNCTION__",
+                              VariableT.newGlobal(stringType, "__FUNCTION__"),
+                              presenceConditionManager.newTrue());
+    initialParsingContext.put("__func__",
+                              VariableT.newGlobal(stringType, "__func__"),
+                              presenceConditionManager.newTrue());
 
     parser = new ForkMergeParser(CParseTables.getInstance(), semanticValues,
                                  actions, initialParsingContext,
@@ -482,6 +518,11 @@ public class SugarC extends Tool {
     }
 
     result = (Node) translationUnit;
+
+    if (runtime.test("macroTable")) {
+      System.err.println("Macro Table");
+      System.err.println(macroTable);
+    }
 
     return result;
   }
