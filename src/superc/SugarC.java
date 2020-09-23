@@ -82,6 +82,11 @@ import xtc.tree.Location;
 
 import xtc.Constants;
 
+import xtc.type.Type;
+import xtc.type.NumberT;
+import xtc.type.PointerT;
+import xtc.type.VariableT;
+
 import xtc.util.Tool;
 import xtc.util.Pair;
 
@@ -454,6 +459,18 @@ public class SugarC extends Tool {
     CActions actions = CActions.getInstance();
 
     CContext initialParsingContext = new CContext();
+
+    // add gcc builtin's
+    Type stringType = new PointerT(NumberT.CHAR);
+    initialParsingContext.put("__PRETTY_FUNCTION__",
+                              VariableT.newGlobal(stringType, "__PRETTY_FUNCTION__"),
+                              presenceConditionManager.newTrue());
+    initialParsingContext.put("__FUNCTION__",
+                              VariableT.newGlobal(stringType, "__FUNCTION__"),
+                              presenceConditionManager.newTrue());
+    initialParsingContext.put("__func__",
+                              VariableT.newGlobal(stringType, "__func__"),
+                              presenceConditionManager.newTrue());
 
     parser = new ForkMergeParser(CParseTables.getInstance(), semanticValues,
                                  actions, initialParsingContext,
