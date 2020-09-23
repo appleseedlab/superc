@@ -138,6 +138,10 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
       assert complement == null;
     }
 
+    // if (null != this.complement) {
+    //   this.complement.delRef();
+    // }
+
     for (Element<T> elem : contents) {
       elem.destruct();
     }
@@ -314,8 +318,10 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
   public Multiverse<T> product(Multiverse<T> other, Operator<T> op) {
     if (this.isEmpty()) {
       throw new IllegalStateException("trying to take cartesian product of empty multiverse");
+      // return new Multiverse<T>();
     } else if (other.isEmpty()) {
       throw new IllegalStateException("trying to take cartesian product of empty multiverse");
+      // return new Multiverse<T>();
     } else {
       Multiverse<T> newmv = new Multiverse<T>();
       /* The computes the following new set, where '*' is the operator:
