@@ -48,7 +48,7 @@ public class CValues implements SemanticValues {
     return value;
   }
   public ValueType getValueType(int id) {
-    if (0 <= id && id < 131 || 340 < id) {
+    if (0 <= id && id < 131 || 343 < id) {
       return ValueType.NODE;
     }
     switch (id - 131) {
@@ -74,25 +74,27 @@ public class CValues implements SemanticValues {
         // Fall through
       case 96: // DesignatorList (227)
         // Fall through
-      case 138: // LocalLabelDeclarationList (269)
+      case 134: // SwitchLabeledStatementList (265)
         // Fall through
-      case 140: // LocalLabelList (271)
+      case 140: // LocalLabelDeclarationList (271)
         // Fall through
-      case 141: // DeclarationOrStatementList (272)
+      case 142: // LocalLabelList (273)
         // Fall through
-      case 143: // DeclarationList (274)
+      case 143: // DeclarationOrStatementList (274)
         // Fall through
-      case 153: // StringLiteralListString (284)
+      case 145: // DeclarationList (276)
         // Fall through
-      case 154: // StringLiteralList (285)
+      case 155: // StringLiteralListString (286)
         // Fall through
-      case 169: // ExpressionList (300)
+      case 156: // StringLiteralList (287)
         // Fall through
-      case 196: // AttributeSpecifierList (327)
+      case 171: // ExpressionList (302)
         // Fall through
-      case 200: // AttributeList (331)
+      case 199: // AttributeSpecifierList (330)
         // Fall through
-      case 209: // Assemblyoperands (340)
+      case 203: // AttributeList (334)
+        // Fall through
+      case 212: // Assemblyoperands (343)
         return ValueType.LIST;
 
       case 5: // $@1 (136)
@@ -149,58 +151,56 @@ public class CValues implements SemanticValues {
         // Fall through
       case 124: // $@27 (255)
         // Fall through
-      case 134: // $@28 (265)
+      case 136: // $@28 (267)
         // Fall through
-      case 135: // $@29 (266)
+      case 137: // $@29 (268)
         // Fall through
-      case 159: // $@30 (290)
+      case 161: // $@30 (292)
         // Fall through
-      case 160: // $@31 (291)
+      case 162: // $@31 (293)
         return ValueType.ACTION;
 
       case 57: // ElaboratedTypeName (188)
         // Fall through
       case 94: // DesignatedInitializer (225)
         // Fall through
-      case 152: // Constant (283)
+      case 157: // PrimaryExpression (288)
         // Fall through
-      case 155: // PrimaryExpression (286)
+      case 163: // PostfixExpression (294)
         // Fall through
-      case 161: // PostfixExpression (292)
+      case 172: // UnaryExpression (303)
         // Fall through
-      case 170: // UnaryExpression (301)
+      case 181: // CastExpression (312)
         // Fall through
-      case 178: // CastExpression (309)
+      case 182: // MultiplicativeExpression (313)
         // Fall through
-      case 179: // MultiplicativeExpression (310)
+      case 183: // AdditiveExpression (314)
         // Fall through
-      case 180: // AdditiveExpression (311)
+      case 184: // ShiftExpression (315)
         // Fall through
-      case 181: // ShiftExpression (312)
+      case 185: // RelationalExpression (316)
         // Fall through
-      case 182: // RelationalExpression (313)
+      case 186: // EqualityExpression (317)
         // Fall through
-      case 183: // EqualityExpression (314)
+      case 187: // AndExpression (318)
         // Fall through
-      case 184: // AndExpression (315)
+      case 188: // ExclusiveOrExpression (319)
         // Fall through
-      case 185: // ExclusiveOrExpression (316)
+      case 189: // InclusiveOrExpression (320)
         // Fall through
-      case 186: // InclusiveOrExpression (317)
+      case 190: // LogicalAndExpression (321)
         // Fall through
-      case 187: // LogicalAndExpression (318)
+      case 191: // LogicalORExpression (322)
         // Fall through
-      case 188: // LogicalORExpression (319)
+      case 192: // ConditionalExpression (323)
         // Fall through
-      case 189: // ConditionalExpression (320)
+      case 193: // AssignmentExpression (324)
         // Fall through
-      case 190: // AssignmentExpression (321)
+      case 195: // ExpressionOpt (326)
         // Fall through
-      case 192: // ExpressionOpt (323)
+      case 196: // Expression (327)
         // Fall through
-      case 193: // Expression (324)
-        // Fall through
-      case 194: // ConstantExpression (325)
+      case 197: // ConstantExpression (328)
         return ValueType.PASS_THROUGH;
 
       default:
@@ -225,43 +225,51 @@ public class CValues implements SemanticValues {
       // Fall through
     case 263: // LabeledStatement
       // Fall through
-    case 264: // CompoundStatement
+    case 200: // EnumSpecifierList
       // Fall through
-    case 268: // LocalLabelDeclarationListOpt
+    case 264: // SwitchLabeledStatement
       // Fall through
-    case 269: // LocalLabelDeclarationList
+    case 201: // EnumeratorList
+      // Fall through
+    case 202: // Enumerator
+      // Fall through
+    case 266: // CompoundStatement
       // Fall through
     case 142: // NestedFunctionDefinition
       // Fall through
-    case 270: // LocalLabelDeclaration
+    case 270: // LocalLabelDeclarationListOpt
       // Fall through
-    case 271: // LocalLabelList
+    case 271: // LocalLabelDeclarationList
       // Fall through
-    case 272: // DeclarationOrStatementList
+    case 272: // LocalLabelDeclaration
       // Fall through
-    case 273: // DeclarationOrStatement
+    case 273: // LocalLabelList
       // Fall through
-    case 274: // DeclarationList
+    case 274: // DeclarationOrStatementList
       // Fall through
-    case 275: // ExpressionStatement
+    case 275: // DeclarationOrStatement
       // Fall through
-    case 276: // SelectionStatement
+    case 276: // DeclarationList
       // Fall through
     case 149: // DeclarationExtension
       // Fall through
-    case 277: // IterationStatement
+    case 277: // ExpressionStatement
       // Fall through
     case 150: // Declaration
       // Fall through
-    case 278: // JumpStatement
+    case 278: // SelectionStatement
       // Fall through
-    case 279: // GotoStatement
+    case 279: // IterationStatement
       // Fall through
-    case 280: // ContinueStatement
+    case 280: // JumpStatement
       // Fall through
-    case 281: // BreakStatement
+    case 281: // GotoStatement
       // Fall through
-    case 282: // ReturnStatement
+    case 282: // ContinueStatement
+      // Fall through
+    case 283: // BreakStatement
+      // Fall through
+    case 284: // ReturnStatement
       return true;
 
     default:
