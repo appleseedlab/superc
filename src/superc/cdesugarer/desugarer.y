@@ -5190,8 +5190,22 @@ StatementAsExpression:  /** nomerge **/  //ADDED
         LPAREN { EnterScope(subparser); } CompoundStatement { ExitScope(subparser); } RPAREN
         /* LPAREN  LBRACE { EnterScope(subparser); } CompoundStatement { ExitScope(subparser); } RBRACE RPAREN */
         {
-          System.err.println("ERROR: unsupported semantic action: StatementAsExpression");
-          System.exit(1);
+          // TODO: unit test this construct
+          todoReminder("get last expression's type from compound statement in StatementAsExpression");
+
+          PresenceCondition pc = subparser.getPresenceCondition();
+          String lparen = ((Syntax) getNodeAt(subparser, 5)).getTokenText();
+          Multiverse<String> compoundmv = getCompleteNodeSingleValue(subparser, 3, pc);
+          String rparen = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+
+          Multiverse<String> prepended = compoundmv.prependScalar(lparen, DesugarOps.concatStrings);
+          Multiverse<String> valuemv = prepended.appendScalar(rparen, DesugarOps.concatStrings);
+          prepended.destruct();
+
+          Multiverse<Type> typemv = new Multiverse<Type>(NumberT.INT, pc);
+
+          setTransformationValue(value, new ExpressionValue(valuemv,
+                                                            typemv));  // TODO: placeholder; get type from compoundstatement
         }
         ;
 
