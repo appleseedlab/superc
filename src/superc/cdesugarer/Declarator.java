@@ -619,6 +619,10 @@ abstract class Declarator {
         sb.append(param.toString());
         delim = ", ";
       }
+      if (varargs) {
+        sb.append(delim);
+        sb.append(" ... ");
+      }
       sb.append(")");
       return sb.toString();
     }
