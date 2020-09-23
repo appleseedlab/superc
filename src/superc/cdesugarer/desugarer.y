@@ -6765,14 +6765,29 @@ Expression:  /** passthrough, nomerge **/  // ExpressionValue
         }
         | Expression COMMA AssignmentExpression
         {
-          System.err.println("TODO: Expression (2)");
+          // n1570, 6.5.17. left operand is a void expression; result
+          // has right operand's type (and value).
+
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          String comma = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
+          ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
+
+          Multiverse<String> leftmv = leftval.transformation;
+          Multiverse<String> appended = leftmv.appendScalar(comma, DesugarOps.concatStrings);
+          Multiverse<String> rightmv = rightval.transformation;
+
+          Multiverse<String> transformationmv = appended.product(rightmv, DesugarOps.concatStrings);
+          appended.destruct();
+
+          setTransformationValue(value, new ExpressionValue(transformationmv, rightval.type));
         }
         ;
 
 ConstantExpression: /** passthrough, nomerge **/  // ExpressionValue
         ConditionalExpression
         {
-          setTransformationValue(value, (ExpressionValue) getTransformationValue(subparser, 1));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
 	      ;
 
