@@ -143,6 +143,15 @@ factories : $(FACTORY)
 %.factory :
 	$(MAKE) -C $* factories
 
+superc    :
+	$(MAKE) -C src/superc parsers
+	$(MAKE) -C src/superc/expression
+	$(MAKE) -C src/superc/core
+	$(MAKE) -C src/superc/cparser
+	$(MAKE) -C src/superc/cdesugarer
+	$(MAKE) -C src/superc/util
+	$(MAKE) -C src/superc
+
 printenv :
 	@echo "=============================================================================="
 	@echo "OSTYPE        = $(OSTYPE)"
