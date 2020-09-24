@@ -2679,42 +2679,130 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpeci
           Multiverse<String> attrs = this.<String>getCompleteNodeMultiverseValue(getNodeAt(subparser, 2),
                                                                                  subparser.getPresenceCondition());
           // TODO: add attributes to type spec
-          List<Multiverse<Type>> list = this.<Type>getCompleteNodeListValue(getNodeAt(subparser, 1),
-                                                                            subparser.getPresenceCondition());
+          List<Multiverse<EnumeratorValue>> list = this.<EnumeratorValue>getCompleteNodeListValue(getNodeAt(subparser, 1),
+                                                                                                  subparser.getPresenceCondition());
 
           String enumTag = freshName("anonymous");
 
-          // get every possible version of the enum list. optimization
-          // opportunity: combine all enumerators into a single enum
-          // list.  this needs to be done carefully, since programs
-          // may make assumptions about the values assigned to
-          // enumerators.
-
-          /* // currently, since static conditionals are not permitted */
-          /* // inside of enums, and since we don't support enum values */
-          /* // yet, the list of enumerator values has not static */
-          /* // conditionals inside of it. */
-          /* Multiverse<List<Declaration>> listmv */
-          /*   = new Multiverse<List<Declaration>>(new LinkedList<Declaration>(), */
-          /*                                       subparser.getPresenceCondition()); */
-
           CContext scope = (CContext)subparser.scope;
+          Multiverse<List<EnumeratorValue>> ratorlistmv
+            = new Multiverse<List<EnumeratorValue>>(new LinkedList<EnumeratorValue>(), pc);
+          for (Multiverse<EnumeratorValue> rator : list) {
+            Multiverse<List<EnumeratorValue>> wrappedrator = DesugarOps.enumeratorValueWrap.transform(rator);
+            Multiverse<List<EnumeratorValue>> newratorlistmv = ratorlistmv.complementedProduct(wrappedrator, DesugarOps.ENUMERATORLISTCONCAT);
+            wrappedrator.destruct(); ratorlistmv.destruct();
+            ratorlistmv = newratorlistmv;
+          }
 
-          // a simplified desuguaring of an enumeration that just
-          // declares the enumerators as const numeral variables and
-          // uses a numeral for the enumeration specifier itself.  in
-          // the future, use the EnumT and EnumeratorT types and
-          // desugar to the enum construct.
+          BigInteger lastval = BigInteger.ONE.negate();
+          PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
+          Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
+          for (Element<List<EnumeratorValue>> ratorlist : ratorlistmv) {
+            boolean hasError = false;
+            List<EnumeratorT> enumeratorlist = new LinkedList<EnumeratorT>();
+            StringBuilder transformation = new StringBuilder();
+            for (EnumeratorValue ratorval : ratorlist.getData()) {
+              String ratorname = ratorval.name;
+              transformation.append(ratorname);
+
+              BigInteger enumeratorval;
+              if (ratorval.hasValue()) {
+                transformation.append(" = ");
+                // enumerator has an explicitly specified value;
+                if (ratorval.type.isNumber()) {
+                  transformation.append(ratorval.getTransformation());
+                  // enumeratorval = ;
+                } else {
+                  hasError = true;
+                  // no need to set enumeratorval
+                  break;
+                }
+              } else {
+                // enumerator does not have an explicitly specified value;
+                // enumeratorval = lastval.add(BigInteger.ONE);
+              }
+              enumeratorval = lastval.add(BigInteger.ONE); // temp until getting val from explicit specification
+              lastval = enumeratorval;
+
+              // TODO: get biggest type (gcc) instead of ISO standard of int
+              enumeratorlist.add(new EnumeratorT(NumberT.INT, ratorname, enumeratorval));
+              transformation.append(",\n");
+              
+              todoReminder("check that enumerators are not being redefined");
+              
+              /* Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(name, pc); */
+              /* Multiverse<Type> typemv = new Multiverse<Type>(); */
+              /* for (Element<SymbolTable.Entry> entry : entries) { */
+              /*   PresenceCondition combinedCond = pc.and(entry.getCondition()); */
+              /*   if (entry.getData() == SymbolTable.ERROR) { */
+              /*     // this is already an error */
+              /*     System.err.println(String.format("INFO: enumerator \"%s\" is being redeclared in an existing invalid configuration", */
+              /*                                      name)); */
+              /*     typemv.add(ErrorT.TYPE, combinedCond); */
+              /*   } else if (entry.getData() == SymbolTable.UNDECLARED) { */
+              /*     // create a new constant int declaration of the enumerator */
+              /*     TypeSpecifier ratortb = new TypeSpecifier(); */
+              /*     /\* Type ratortype = cOps.fit(ratorvalue); *\/  // TODO: support gcc's non-ISO large enumerators */
+              /*     Type ratortype = NumberT.INT; */
+              /*     ratortb.visitConstantQualifier(); */
+              /*     ratortb.setType(ratortype); */
+              /*     ratortb.addTransformation("const"); */
+              /*     ratortb.addTransformation(ratortype.toString()); */
+
+              /*     String renaming = freshCId(name); */
+              /*     Declaration renamedDeclaration = new Declaration(ratortb, */
+              /*                                                      new SimpleDeclarator(renaming)); */
+
+              /*     Type tableType; */
+              /*     if (scope.isGlobal()) { */
+              /*       tableType = VariableT.newGlobal(renamedDeclaration.getType(), */
+              /*                                       renamedDeclaration.getName()); */
+              /*     } else { */
+              /*       tableType = VariableT.newLocal(renamedDeclaration.getType(), */
+              /*                                      renamedDeclaration.getName()); */
+              /*     } */
+
+              /*     scope.put(name, tableType, pc); */
+              /*     /\* scope.addDeclaration(String.format("%s = %s /\\* enumerator *\\/;\n", renamedDeclaration.toString(), lastval)); *\/ */
+              /*     /\* scope.addDeclaration(String.format("%s /\\* enumerator *\\/;\n", renamedDeclaration.toString())); *\/ */
+              /*     scope.addDeclaration(String.format("enum { %s } /\* enumerator *\/;\n", renamedDeclaration.getName())); */
+              /*     typemv.add(ratortype, combinedCond); */
+              /*   } else { */
+              /*     System.err.println(String.format("redeclaration of enumerator \"%s\"", */
+              /*                                      name)); */
+              /*     scope.putError(name, pc); */
+              /*     typemv.add(ErrorT.TYPE, combinedCond); */
+              /*   } */
+              /*   combinedCond.delRef(); */
+              /* } */
+              /* assert ! typemv.isEmpty(); */
+            }  // end ratorlist
+
+            TypeSpecifier typespec = new TypeSpecifier();
+            if (hasError) {
+              typespec.setType(ErrorT.TYPE);
+            } else {
+              // TODO: get largest type for enum (gcc), instead of ISO standard of int
+              Type enumtype = NumberT.INT;
+              typespec.setType(new EnumT(enumtype, enumTag, enumeratorlist));
+            }
+            typespec.addTransformation(keyword);
+            typespec.addTransformation(" {\n");
+            typespec.addTransformation(transformation.toString());
+            typespec.addTransformation("}\n");
+            typespecmv.add(typespec, ratorlist.getCondition());
+          } // end ratorlistmv
+          assert ! typespecmv.isEmpty();
 
           todoReminder("support gcc's enums larger than ISO C's int");
-          
           // TODO: check whether the list of enums are all errors ornot
 
+                    
+          setTransformationValue(value, typespecmv);
+          
           // TODO: set the type of each enumerator based on the size
           // of its enumerator value.  see
           // xtc.type.CAnalyzer.visitEnumerationTypeDefinition and xtc.type.Enumerator for more info
-          BigInteger lastval = BigInteger.ONE.negate();
-          PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
           /* for (EnumeratorValue ratorval : list) { */
           /*   BigInteger ratorvalue;  // the initialized value of the rator, if any */
           /*   // TODO: get the ratorvalue from the expression, if */
@@ -2769,29 +2857,29 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpeci
           /*   entries.destruct(); */
           /* } */
 
-          // if any one enumerator has a type error, then the entire
-          // enumeration and its configuration is a type error.
-          PresenceCondition validType = pc.andNot(errorCond);
+          /* // if any one enumerator has a type error, then the entire */
+          /* // enumeration and its configuration is a type error. */
+          /* PresenceCondition validType = pc.andNot(errorCond); */
 
-          // TODO: check that enum values are within Limits and the
-          // find the type of the enumeration that fits all enumerator
-          // values
-          /* Type enumtype = cOps.fit(maxval); */
-          Type enumtype = NumberT.INT;  // use ISO C use of int, although gcc allows larger ints
-          TypeSpecifier tb = new TypeSpecifier();
-          tb.setType(enumtype);
-          tb.addTransformation(enumtype.toString());
-          tb.addTransformation(String.format(" /* enum %s */", enumTag));
+          /* // TODO: check that enum values are within Limits and the */
+          /* // find the type of the enumeration that fits all enumerator */
+          /* // values */
+          /* /\* Type enumtype = cOps.fit(maxval); *\/ */
+          /* Type enumtype = NumberT.INT;  // use ISO C use of int, although gcc allows larger ints */
+          /* TypeSpecifier tb = new TypeSpecifier(); */
+          /* tb.setType(enumtype); */
+          /* tb.addTransformation(enumtype.toString()); */
+          /* tb.addTransformation(String.format(" /\* enum %s *\/", enumTag)); */
 
-          TypeSpecifier tberror = new TypeSpecifier();
-          tberror.setType(ErrorT.TYPE);
+          /* TypeSpecifier tberror = new TypeSpecifier(); */
+          /* tberror.setType(ErrorT.TYPE); */
 
-          Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>();
-          valuemv.add(tb, validType);
-          valuemv.add(tberror, errorCond);
-          validType.delRef(); errorCond.delRef();
+          /* Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>(); */
+          /* valuemv.add(tb, validType); */
+          /* valuemv.add(tberror, errorCond); */
+          /* validType.delRef(); errorCond.delRef(); */
 
-          setTransformationValue(value, valuemv);
+          /* setTransformationValue(value, valuemv); */
           
 
           // the code below is creating the actual EnumT, which is
@@ -2838,153 +2926,248 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpeci
                                                                                  subparser.getPresenceCondition());
           String enumTag = ((Syntax) getNodeAt(subparser, 2).get(0)).getTokenText();
           // TODO: add attributes to type spec
-          List<Multiverse<Type>> list = this.<Type>getCompleteNodeListValue(getNodeAt(subparser, 1),
-                                                                            subparser.getPresenceCondition());
-
-          // get every possible version of the enum list. optimization
-          // opportunity: combine all enumerators into a single enum
-          // list.  this needs to be done carefully, since programs
-          // may make assumptions about the values assigned to
-          // enumerators.
-
-          /* // currently, since static conditionals are not permitted */
-          /* // inside of enums, and since we don't support enum values */
-          /* // yet, the list of enumerator values has not static */
-          /* // conditionals inside of it. */
-          /* Multiverse<List<Declaration>> listmv */
-          /*   = new Multiverse<List<Declaration>>(new LinkedList<Declaration>(), */
-          /*                                       subparser.getPresenceCondition()); */
+          List<Multiverse<EnumeratorValue>> list = this.<EnumeratorValue>getCompleteNodeListValue(getNodeAt(subparser, 1),
+                                                                                                  subparser.getPresenceCondition());
 
           CContext scope = (CContext)subparser.scope;
+          Multiverse<List<EnumeratorValue>> ratorlistmv
+            = new Multiverse<List<EnumeratorValue>>(new LinkedList<EnumeratorValue>(), pc);
+          for (Multiverse<EnumeratorValue> rator : list) {
+            Multiverse<List<EnumeratorValue>> wrappedrator = DesugarOps.enumeratorValueWrap.transform(rator);
+            Multiverse<List<EnumeratorValue>> newratorlistmv = ratorlistmv.complementedProduct(wrappedrator, DesugarOps.ENUMERATORLISTCONCAT);
+            wrappedrator.destruct(); ratorlistmv.destruct();
+            ratorlistmv = newratorlistmv;
+          }
 
-          // a simplified desuguaring of an enumeration that just
-          // declares the enumerators as const numeral variables and
-          // uses a numeral for the enumeration specifier itself.  in
-          // the future, use the EnumT and EnumeratorT types and
-          // desugar to the enum construct.
-
-          todoReminder("support gcc's enums larger than ISO C's int");
-
-          // TODO: check whether the list of enums are all errors ornot
-
-          // TODO: set the type of each enumerator based on the size
-          // of its enumerator value.  see
-          // xtc.type.CAnalyzer.visitEnumerationTypeDefinition and xtc.type.Enumerator for more info
           BigInteger lastval = BigInteger.ONE.negate();
           PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
-          /* for (EnumeratorValue ratorval : list) { */
-          /*   BigInteger ratorvalue;  // the initialized value of the rator, if any */
-          /*   // TODO: get the ratorvalue from the expression, if */
-          /*   // possible, otherwise, use increment by one from the last */
-          /*   // value */
-          /*   ratorvalue = lastval.add(BigInteger.ONE); */
-          /*   lastval = ratorvalue; */
-            
-          /*   Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(ratorval.name, pc); */
-          /*   for (Element<SymbolTable.Entry> entry : entries) { */
-          /*     PresenceCondition combinedCond = pc.and(entry.getCondition()); */
-          /*     if (entry.getData() == SymbolTable.ERROR) { */
-          /*       // this is already an error */
-          /*       PresenceCondition new_errorCond = errorCond.or(combinedCond); */
-          /*       errorCond.delRef(); errorCond = new_errorCond; */
-          /*       System.err.println(String.format("INFO: enumerator \"%s\" is being redeclared in an existing invalid configuration", */
-          /*                                        ratorval.name)); */
-          /*     } else if (entry.getData() == SymbolTable.UNDECLARED) { */
-          /*       // create a new constant int declaration of the enumerator */
-          /*       TypeSpecifier ratortb = new TypeSpecifier(); */
-          /*       /\* Type ratortype = cOps.fit(ratorvalue); *\/  // TODO: support gcc's non-ISO large enumerators */
-          /*       Type ratortype = NumberT.INT; */
-          /*       ratortb.visitConstantQualifier(); */
-          /*       ratortb.setType(ratortype); */
-          /*       ratortb.addTransformation("const"); */
-          /*       ratortb.addTransformation(ratortype.toString()); */
+          Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
+          for (Element<List<EnumeratorValue>> ratorlist : ratorlistmv) {
+            boolean hasError = false;
+            List<EnumeratorT> enumeratorlist = new LinkedList<EnumeratorT>();
+            StringBuilder transformation = new StringBuilder();
+            for (EnumeratorValue ratorval : ratorlist.getData()) {
+              String ratorname = ratorval.name;
+              transformation.append(ratorname);
 
-          /*       String renaming = freshCId(ratorval.name); */
-          /*       Declaration renamedDeclaration = new Declaration(ratortb, */
-          /*                                                        new SimpleDeclarator(renaming)); */
+              BigInteger enumeratorval;
+              if (ratorval.hasValue()) {
+                transformation.append(" = ");
+                // enumerator has an explicitly specified value;
+                if (ratorval.type.isNumber()) {
+                  transformation.append(ratorval.getTransformation());
+                  // enumeratorval = ;
+                } else {
+                  hasError = true;
+                  // no need to set enumeratorval
+                  break;
+                }
+              } else {
+                // enumerator does not have an explicitly specified value;
+                // enumeratorval = lastval.add(BigInteger.ONE);
+              }
+              enumeratorval = lastval.add(BigInteger.ONE); // temp until getting val from explicit specification
+              lastval = enumeratorval;
 
-          /*       Type tableType; */
-          /*       if (scope.isGlobal()) { */
-          /*         tableType = VariableT.newGlobal(renamedDeclaration.getType(), */
-          /*                                         renamedDeclaration.getName()); */
-          /*       } else { */
-          /*         tableType = VariableT.newLocal(renamedDeclaration.getType(), */
-          /*                                        renamedDeclaration.getName()); */
-          /*       } */
+              // TODO: get biggest type (gcc) instead of ISO standard of int
+              enumeratorlist.add(new EnumeratorT(NumberT.INT, ratorname, enumeratorval));
+              transformation.append(",\n");
+              
+              todoReminder("check that enumerators are not being redefined");
+              
+              /* Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(name, pc); */
+              /* Multiverse<Type> typemv = new Multiverse<Type>(); */
+              /* for (Element<SymbolTable.Entry> entry : entries) { */
+              /*   PresenceCondition combinedCond = pc.and(entry.getCondition()); */
+              /*   if (entry.getData() == SymbolTable.ERROR) { */
+              /*     // this is already an error */
+              /*     System.err.println(String.format("INFO: enumerator \"%s\" is being redeclared in an existing invalid configuration", */
+              /*                                      name)); */
+              /*     typemv.add(ErrorT.TYPE, combinedCond); */
+              /*   } else if (entry.getData() == SymbolTable.UNDECLARED) { */
+              /*     // create a new constant int declaration of the enumerator */
+              /*     TypeSpecifier ratortb = new TypeSpecifier(); */
+              /*     /\* Type ratortype = cOps.fit(ratorvalue); *\/  // TODO: support gcc's non-ISO large enumerators */
+              /*     Type ratortype = NumberT.INT; */
+              /*     ratortb.visitConstantQualifier(); */
+              /*     ratortb.setType(ratortype); */
+              /*     ratortb.addTransformation("const"); */
+              /*     ratortb.addTransformation(ratortype.toString()); */
 
-          /*       scope.put(ratorval.name, tableType, pc); */
-          /*       scope.addDeclaration(String.format("%s = %s /\* enumerator *\/;\n", renamedDeclaration.toString(), lastval)); */
-          /*     } else { */
-          /*       PresenceCondition new_errorCond = errorCond.or(combinedCond); */
-          /*       errorCond.delRef(); errorCond = new_errorCond; */
-          /*       System.err.println(String.format("redeclaration of enumerator \"%s\"", */
-          /*                                        ratorval.name)); */
-          /*       scope.putError(ratorval.name, pc); */
-          /*     } */
-          /*     combinedCond.delRef(); */
-          /*   } */
-          /*   entries.destruct(); */
-          /* } */
+              /*     String renaming = freshCId(name); */
+              /*     Declaration renamedDeclaration = new Declaration(ratortb, */
+              /*                                                      new SimpleDeclarator(renaming)); */
 
-          // if any one enumerator has a type error, then the entire
-          // enumeration and its configuration is a type error.
-          PresenceCondition validType = pc.andNot(errorCond);
+              /*     Type tableType; */
+              /*     if (scope.isGlobal()) { */
+              /*       tableType = VariableT.newGlobal(renamedDeclaration.getType(), */
+              /*                                       renamedDeclaration.getName()); */
+              /*     } else { */
+              /*       tableType = VariableT.newLocal(renamedDeclaration.getType(), */
+              /*                                      renamedDeclaration.getName()); */
+              /*     } */
 
-          // TODO: check that enum values are within Limits and the
-          // find the type of the enumeration that fits all enumerator
-          // values
-          /* Type enumtype = cOps.fit(maxval); */
-          Type enumtype = NumberT.INT;  // use ISO C use of int, although gcc allows larger ints
-          TypeSpecifier tb = new TypeSpecifier();
-          tb.setType(enumtype);
-          tb.addTransformation(enumtype.toString());
-          tb.addTransformation(String.format(" /* enum %s */", enumTag));
+              /*     scope.put(name, tableType, pc); */
+              /*     /\* scope.addDeclaration(String.format("%s = %s /\\* enumerator *\\/;\n", renamedDeclaration.toString(), lastval)); *\/ */
+              /*     /\* scope.addDeclaration(String.format("%s /\\* enumerator *\\/;\n", renamedDeclaration.toString())); *\/ */
+              /*     scope.addDeclaration(String.format("enum { %s } /\* enumerator *\/;\n", renamedDeclaration.getName())); */
+              /*     typemv.add(ratortype, combinedCond); */
+              /*   } else { */
+              /*     System.err.println(String.format("redeclaration of enumerator \"%s\"", */
+              /*                                      name)); */
+              /*     scope.putError(name, pc); */
+              /*     typemv.add(ErrorT.TYPE, combinedCond); */
+              /*   } */
+              /*   combinedCond.delRef(); */
+              /* } */
+              /* assert ! typemv.isEmpty(); */
+            }  // end ratorlist
 
-          TypeSpecifier tberror = new TypeSpecifier();
-          tberror.setType(ErrorT.TYPE);
+            TypeSpecifier typespec = new TypeSpecifier();
+            if (hasError) {
+              typespec.setType(ErrorT.TYPE);
+            } else {
+              // TODO: get largest type for enum (gcc), instead of ISO standard of int
+              Type enumtype = NumberT.INT;
+              typespec.setType(new EnumT(enumtype, enumTag, enumeratorlist));
+            }
+            typespec.addTransformation(keyword);
+            typespec.addTransformation(" ");
+            typespec.addTransformation(enumTag);
+            typespec.addTransformation(" {\n");
+            typespec.addTransformation(transformation.toString());
+            typespec.addTransformation("}\n");
+            typespecmv.add(typespec, ratorlist.getCondition());
+          } // end ratorlistmv
+          assert ! typespecmv.isEmpty();
 
-          Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>();
-          valuemv.add(tb, validType);
-          valuemv.add(tberror, errorCond);
-          validType.delRef(); errorCond.delRef();
+          todoReminder("support gcc's enums larger than ISO C's int");
+          // TODO: check whether the list of enums are all errors ornot
+                    
+          setTransformationValue(value, typespecmv);
 
-          setTransformationValue(value, valuemv);
-          
+          todoReminder("add the enum tag to the symtab");
 
-          // the code below is creating the actual EnumT, which is
-          // just a wrapper for a numeral type
-          
-          /* transformation.append(keyword); */
-          /* transformation.append(" {\n"); */
-          
+          /* // TODO: check whether the list of enums are all errors ornot */
+
           /* // TODO: set the type of each enumerator based on the size */
           /* // of its enumerator value.  see */
           /* // xtc.type.CAnalyzer.visitEnumerationTypeDefinition and xtc.type.Enumerator for more info */
           /* BigInteger lastval = BigInteger.ONE.negate(); */
-          /* List<EnumeratorT> enumerators = new LinkedList<EnumeratorT>(); */
-          /* for (EnumeratorValue ratorval : list) { */
-          /*   BigInteger ratorvalue;  // the initialized value of the rator, if any */
-          /*   // TODO: get the ratorvalue from the expression, if */
-          /*   // possible, otherwise, use increment by one from the last */
-          /*   // value */
-          /*   ratorvalue = lastval.add(BigInteger.ONE); */
-          /*   lastval = ratorvalue; */
-          /*   EnumeratorT type = new EnumeratorT(cOps.fit(ratorvalue), ratorval.name, ratorvalue); */
+          /* PresenceCondition errorCond = pc.presenceConditionManager().newFalse(); */
+          /* /\* for (EnumeratorValue ratorval : list) { *\/ */
+          /* /\*   BigInteger ratorvalue;  // the initialized value of the rator, if any *\/ */
+          /* /\*   // TODO: get the ratorvalue from the expression, if *\/ */
+          /* /\*   // possible, otherwise, use increment by one from the last *\/ */
+          /* /\*   // value *\/ */
+          /* /\*   ratorvalue = lastval.add(BigInteger.ONE); *\/ */
+          /* /\*   lastval = ratorvalue; *\/ */
+            
+          /* /\*   Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(ratorval.name, pc); *\/ */
+          /* /\*   for (Element<SymbolTable.Entry> entry : entries) { *\/ */
+          /* /\*     PresenceCondition combinedCond = pc.and(entry.getCondition()); *\/ */
+          /* /\*     if (entry.getData() == SymbolTable.ERROR) { *\/ */
+          /* /\*       // this is already an error *\/ */
+          /* /\*       PresenceCondition new_errorCond = errorCond.or(combinedCond); *\/ */
+          /* /\*       errorCond.delRef(); errorCond = new_errorCond; *\/ */
+          /* /\*       System.err.println(String.format("INFO: enumerator \"%s\" is being redeclared in an existing invalid configuration", *\/ */
+          /* /\*                                        ratorval.name)); *\/ */
+          /* /\*     } else if (entry.getData() == SymbolTable.UNDECLARED) { *\/ */
+          /* /\*       // create a new constant int declaration of the enumerator *\/ */
+          /* /\*       TypeSpecifier ratortb = new TypeSpecifier(); *\/ */
+          /* /\*       /\\* Type ratortype = cOps.fit(ratorvalue); *\\/  // TODO: support gcc's non-ISO large enumerators *\/ */
+          /* /\*       Type ratortype = NumberT.INT; *\/ */
+          /* /\*       ratortb.visitConstantQualifier(); *\/ */
+          /* /\*       ratortb.setType(ratortype); *\/ */
+          /* /\*       ratortb.addTransformation("const"); *\/ */
+          /* /\*       ratortb.addTransformation(ratortype.toString()); *\/ */
 
-          /*   transformation.append(ratorval.name); */
-          /*   transformation.append(", "); */
-          /* } */
-          /* transformation.append("\n}\n"); */
+          /* /\*       String renaming = freshCId(ratorval.name); *\/ */
+          /* /\*       Declaration renamedDeclaration = new Declaration(ratortb, *\/ */
+          /* /\*                                                        new SimpleDeclarator(renaming)); *\/ */
+
+          /* /\*       Type tableType; *\/ */
+          /* /\*       if (scope.isGlobal()) { *\/ */
+          /* /\*         tableType = VariableT.newGlobal(renamedDeclaration.getType(), *\/ */
+          /* /\*                                         renamedDeclaration.getName()); *\/ */
+          /* /\*       } else { *\/ */
+          /* /\*         tableType = VariableT.newLocal(renamedDeclaration.getType(), *\/ */
+          /* /\*                                        renamedDeclaration.getName()); *\/ */
+          /* /\*       } *\/ */
+
+          /* /\*       scope.put(ratorval.name, tableType, pc); *\/ */
+          /* /\*       scope.addDeclaration(String.format("%s = %s /\\* enumerator *\\/;\n", renamedDeclaration.toString(), lastval)); *\/ */
+          /* /\*     } else { *\/ */
+          /* /\*       PresenceCondition new_errorCond = errorCond.or(combinedCond); *\/ */
+          /* /\*       errorCond.delRef(); errorCond = new_errorCond; *\/ */
+          /* /\*       System.err.println(String.format("redeclaration of enumerator \"%s\"", *\/ */
+          /* /\*                                        ratorval.name)); *\/ */
+          /* /\*       scope.putError(ratorval.name, pc); *\/ */
+          /* /\*     } *\/ */
+          /* /\*     combinedCond.delRef(); *\/ */
+          /* /\*   } *\/ */
+          /* /\*   entries.destruct(); *\/ */
+          /* /\* } *\/ */
+
+          /* // if any one enumerator has a type error, then the entire */
+          /* // enumeration and its configuration is a type error. */
+          /* PresenceCondition validType = pc.andNot(errorCond); */
 
           /* // TODO: check that enum values are within Limits and the */
           /* // find the type of the enumeration that fits all enumerator */
           /* // values */
+          /* /\* Type enumtype = cOps.fit(maxval); *\/ */
+          /* Type enumtype = NumberT.INT;  // use ISO C use of int, although gcc allows larger ints */
           /* TypeSpecifier tb = new TypeSpecifier(); */
-          /* tb.setType(new EnumT(cOps.fit(lastval), enumTag, enumerators)); */
-          /* tb.addTransformation(transformation.toString()); */
+          /* tb.setType(enumtype); */
+          /* tb.addTransformation(enumtype.toString()); */
+          /* tb.addTransformation(String.format(" /\* enum %s *\/", enumTag)); */
 
-          /* setTransformationValue(value, */
-          /*                        new Multiverse<TypeSpecifier>(tb, subparser.getPresenceCondition())); */
+          /* TypeSpecifier tberror = new TypeSpecifier(); */
+          /* tberror.setType(ErrorT.TYPE); */
+
+          /* Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>(); */
+          /* valuemv.add(tb, validType); */
+          /* valuemv.add(tberror, errorCond); */
+          /* validType.delRef(); errorCond.delRef(); */
+
+          /* setTransformationValue(value, valuemv); */
+          
+
+          /* // the code below is creating the actual EnumT, which is */
+          /* // just a wrapper for a numeral type */
+          
+          /* /\* transformation.append(keyword); *\/ */
+          /* /\* transformation.append(" {\n"); *\/ */
+          
+          /* /\* // TODO: set the type of each enumerator based on the size *\/ */
+          /* /\* // of its enumerator value.  see *\/ */
+          /* /\* // xtc.type.CAnalyzer.visitEnumerationTypeDefinition and xtc.type.Enumerator for more info *\/ */
+          /* /\* BigInteger lastval = BigInteger.ONE.negate(); *\/ */
+          /* /\* List<EnumeratorT> enumerators = new LinkedList<EnumeratorT>(); *\/ */
+          /* /\* for (EnumeratorValue ratorval : list) { *\/ */
+          /* /\*   BigInteger ratorvalue;  // the initialized value of the rator, if any *\/ */
+          /* /\*   // TODO: get the ratorvalue from the expression, if *\/ */
+          /* /\*   // possible, otherwise, use increment by one from the last *\/ */
+          /* /\*   // value *\/ */
+          /* /\*   ratorvalue = lastval.add(BigInteger.ONE); *\/ */
+          /* /\*   lastval = ratorvalue; *\/ */
+          /* /\*   EnumeratorT type = new EnumeratorT(cOps.fit(ratorvalue), ratorval.name, ratorvalue); *\/ */
+
+          /* /\*   transformation.append(ratorval.name); *\/ */
+          /* /\*   transformation.append(", "); *\/ */
+          /* /\* } *\/ */
+          /* /\* transformation.append("\n}\n"); *\/ */
+
+          /* /\* // TODO: check that enum values are within Limits and the *\/ */
+          /* /\* // find the type of the enumeration that fits all enumerator *\/ */
+          /* /\* // values *\/ */
+          /* /\* TypeSpecifier tb = new TypeSpecifier(); *\/ */
+          /* /\* tb.setType(new EnumT(cOps.fit(lastval), enumTag, enumerators)); *\/ */
+          /* /\* tb.addTransformation(transformation.toString()); *\/ */
+
+          /* /\* setTransformationValue(value, *\/ */
+          /* /\*                        new Multiverse<TypeSpecifier>(tb, subparser.getPresenceCondition())); *\/ */
         }
         | ENUM AttributeSpecifierListOpt IdentifierOrTypedefName
         {
@@ -3024,16 +3207,16 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpeci
         }
         ;
 
-EnumSpecifierList: /** complete **/  /* ADDED attributes */ // List<Multiverse<Type>>
+EnumSpecifierList: /** complete **/  /* ADDED attributes */ // List<Multiverse<EnumeratorValue>>
         LBRACE EnumeratorList RBRACE
         {
-          setTransformationValue(value, this.<Type>getCompleteNodeListValue(getNodeAt(subparser, 2),
-                                                                            subparser.getPresenceCondition()));
+          setTransformationValue(value, this.<EnumeratorValue>getCompleteNodeListValue(getNodeAt(subparser, 2),
+                                                                                       subparser.getPresenceCondition()));
         }
         | LBRACE EnumeratorList COMMA RBRACE /* ADDED gcc extra comma */
         {
-          setTransformationValue(value, this.<Type>getCompleteNodeListValue(getNodeAt(subparser, 3),
-                                                                            subparser.getPresenceCondition()));
+          setTransformationValue(value, this.<EnumeratorValue>getCompleteNodeListValue(getNodeAt(subparser, 3),
+                                                                                       subparser.getPresenceCondition()));
         }
         ;
 
@@ -3042,146 +3225,114 @@ EnumSpecifierList: /** complete **/  /* ADDED attributes */ // List<Multiverse<T
         | EnumeratorList COMMA IdentifierOrTypedefName EnumeratorValueOpt
         ;*/
 
-EnumeratorList:  /** list, complete **/  // easier to bind  // List<Multiverse<Type>>
+EnumeratorList:  /** list, complete **/  // easier to bind  // List<Multiverse<EnumeratorValue>>
         Enumerator
         {
-          List<Multiverse<Type>> list = new LinkedList<Multiverse<Type>>();
-          Multiverse<Type> enumerator
-            = (Multiverse<Type>) this.<Type>getCompleteNodeMultiverseValue(subparser, 1, subparser.getPresenceCondition());
+          List<Multiverse<EnumeratorValue>> list = new LinkedList<Multiverse<EnumeratorValue>>();
+          Multiverse<EnumeratorValue> enumerator
+            = (Multiverse<EnumeratorValue>) this.<EnumeratorValue>getCompleteNodeMultiverseValue(subparser,
+                                                                                                 1,
+                                                                                                 subparser.getPresenceCondition());
           list.add(enumerator);
           setTransformationValue(value, list);
         }
         | EnumeratorList COMMA Enumerator
         {
-          List<Multiverse<Type>> list = this.<Type>getCompleteNodeListValue(getNodeAt(subparser, 3),
-                                                                            subparser.getPresenceCondition());
-          Multiverse<Type> enumerator
-            = (Multiverse<Type>) this.<Type>getCompleteNodeMultiverseValue(subparser, 1, subparser.getPresenceCondition());
+          List<Multiverse<EnumeratorValue>> list = this.<EnumeratorValue>getCompleteNodeListValue(getNodeAt(subparser, 3),
+                                                                                                  subparser.getPresenceCondition());
+          Multiverse<EnumeratorValue> enumerator
+            = (Multiverse<EnumeratorValue>) this.<EnumeratorValue>getCompleteNodeMultiverseValue(subparser,
+                                                                                                 1,
+                                                                                                 subparser.getPresenceCondition());
           list.add(enumerator);
           setTransformationValue(value, list);
         }
         ;
 
-Enumerator: /** complete **/ // Multiverse<Type>
+Enumerator: /** complete **/ // Multiverse<EnumeratorValue>
         IDENTIFIER { BindEnum(subparser); } EnumeratorValueOpt
         {
-          // TODO: keep track of last enum's value in order to assign enum constants
-          PresenceCondition pc = subparser.getPresenceCondition();
-          CContext scope = (CContext)subparser.scope;
-
-          System.err.println(getNodeAt(subparser, 3));
+          todoReminder("add enumerators to symtab to avoid type errors in enumerator values");
           String name = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
-          // TODO: handle valueopt and add to the EnumeratorValue class
-
-          Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(name, pc);
-          Multiverse<Type> typemv = new Multiverse<Type>();
-          for (Element<SymbolTable.Entry> entry : entries) {
-            PresenceCondition combinedCond = pc.and(entry.getCondition());
-            if (entry.getData() == SymbolTable.ERROR) {
-              // this is already an error
-              System.err.println(String.format("INFO: enumerator \"%s\" is being redeclared in an existing invalid configuration",
-                                               name));
-              typemv.add(ErrorT.TYPE, combinedCond);
-            } else if (entry.getData() == SymbolTable.UNDECLARED) {
-              // create a new constant int declaration of the enumerator
-              TypeSpecifier ratortb = new TypeSpecifier();
-              /* Type ratortype = cOps.fit(ratorvalue); */  // TODO: support gcc's non-ISO large enumerators
-              Type ratortype = NumberT.INT;
-              ratortb.visitConstantQualifier();
-              ratortb.setType(ratortype);
-              ratortb.addTransformation("const");
-              ratortb.addTransformation(ratortype.toString());
-
-              String renaming = freshCId(name);
-              Declaration renamedDeclaration = new Declaration(ratortb,
-                                                               new SimpleDeclarator(renaming));
-
-              Type tableType;
-              if (scope.isGlobal()) {
-                tableType = VariableT.newGlobal(renamedDeclaration.getType(),
-                                                renamedDeclaration.getName());
-              } else {
-                tableType = VariableT.newLocal(renamedDeclaration.getType(),
-                                               renamedDeclaration.getName());
-              }
-
-              scope.put(name, tableType, pc);
-              /* scope.addDeclaration(String.format("%s = %s /\* enumerator *\/;\n", renamedDeclaration.toString(), lastval)); */
-              scope.addDeclaration(String.format("%s /* enumerator */;\n", renamedDeclaration.toString()));
-              typemv.add(ratortype, combinedCond);
-            } else {
-              System.err.println(String.format("redeclaration of enumerator \"%s\"",
-                                               name));
-              scope.putError(name, pc);
-              typemv.add(ErrorT.TYPE, combinedCond);
-            }
-            combinedCond.delRef();
+          Multiverse<EnumeratorValValue> val = (Multiverse<EnumeratorValValue>) getTransformationValue(subparser, 1);
+          Multiverse<EnumeratorValue> enumeratorvaluemv = new Multiverse<EnumeratorValue>();
+          for (Element<EnumeratorValValue> elem : val) {
+            enumeratorvaluemv.add(new EnumeratorValue(name, elem.getData()), elem.getCondition());
           }
-          assert ! typemv.isEmpty();
+          assert ! enumeratorvaluemv.isEmpty();
+
+          setTransformationValue(value, enumeratorvaluemv);
           
-          entries.destruct();
+          /* // TODO: keep track of last enum's value in order to assign enum constants */
+          /* PresenceCondition pc = subparser.getPresenceCondition(); */
+          /* CContext scope = (CContext)subparser.scope; */
+
+          /* System.err.println(getNodeAt(subparser, 3)); */
+          /* String name = ((Syntax) getNodeAt(subparser, 3)).getTokenText(); */
+          /* // TODO: handle valueopt and add to the EnumeratorValue class */
+
+          /* Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(name, pc); */
+          /* Multiverse<Type> typemv = new Multiverse<Type>(); */
+          /* for (Element<SymbolTable.Entry> entry : entries) { */
+          /*   PresenceCondition combinedCond = pc.and(entry.getCondition()); */
+          /*   if (entry.getData() == SymbolTable.ERROR) { */
+          /*     // this is already an error */
+          /*     System.err.println(String.format("INFO: enumerator \"%s\" is being redeclared in an existing invalid configuration", */
+          /*                                      name)); */
+          /*     typemv.add(ErrorT.TYPE, combinedCond); */
+          /*   } else if (entry.getData() == SymbolTable.UNDECLARED) { */
+          /*     // create a new constant int declaration of the enumerator */
+          /*     TypeSpecifier ratortb = new TypeSpecifier(); */
+          /*     /\* Type ratortype = cOps.fit(ratorvalue); *\/  // TODO: support gcc's non-ISO large enumerators */
+          /*     Type ratortype = NumberT.INT; */
+          /*     ratortb.visitConstantQualifier(); */
+          /*     ratortb.setType(ratortype); */
+          /*     ratortb.addTransformation("const"); */
+          /*     ratortb.addTransformation(ratortype.toString()); */
+
+          /*     String renaming = freshCId(name); */
+          /*     Declaration renamedDeclaration = new Declaration(ratortb, */
+          /*                                                      new SimpleDeclarator(renaming)); */
+
+          /*     Type tableType; */
+          /*     if (scope.isGlobal()) { */
+          /*       tableType = VariableT.newGlobal(renamedDeclaration.getType(), */
+          /*                                       renamedDeclaration.getName()); */
+          /*     } else { */
+          /*       tableType = VariableT.newLocal(renamedDeclaration.getType(), */
+          /*                                      renamedDeclaration.getName()); */
+          /*     } */
+
+          /*     scope.put(name, tableType, pc); */
+          /*     /\* scope.addDeclaration(String.format("%s = %s /\\* enumerator *\\/;\n", renamedDeclaration.toString(), lastval)); *\/ */
+          /*     /\* scope.addDeclaration(String.format("%s /\\* enumerator *\\/;\n", renamedDeclaration.toString())); *\/ */
+          /*     scope.addDeclaration(String.format("enum { %s } /\* enumerator *\/;\n", renamedDeclaration.getName())); */
+          /*     typemv.add(ratortype, combinedCond); */
+          /*   } else { */
+          /*     System.err.println(String.format("redeclaration of enumerator \"%s\"", */
+          /*                                      name)); */
+          /*     scope.putError(name, pc); */
+          /*     typemv.add(ErrorT.TYPE, combinedCond); */
+          /*   } */
+          /*   combinedCond.delRef(); */
+          /* } */
+          /* assert ! typemv.isEmpty(); */
           
-          setTransformationValue(value, typemv);
+          /* entries.destruct(); */
+          
+          /* setTransformationValue(value, typemv); */
         }
         | TYPEDEFname  { BindEnum(subparser); } EnumeratorValueOpt
         {
-          // TODO: keep track of last enum's value in order to assign enum constants
-          PresenceCondition pc = subparser.getPresenceCondition();
-          CContext scope = (CContext)subparser.scope;
-
-          System.err.println(getNodeAt(subparser, 3));
           String name = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
-          // TODO: handle valueopt and add to the EnumeratorValue class
-
-          Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(name, pc);
-          Multiverse<Type> typemv = new Multiverse<Type>();
-          for (Element<SymbolTable.Entry> entry : entries) {
-            PresenceCondition combinedCond = pc.and(entry.getCondition());
-            if (entry.getData() == SymbolTable.ERROR) {
-              // this is already an error
-              System.err.println(String.format("INFO: enumerator \"%s\" is being redeclared in an existing invalid configuration",
-                                               name));
-              typemv.add(ErrorT.TYPE, combinedCond);
-            } else if (entry.getData() == SymbolTable.UNDECLARED) {
-              // create a new constant int declaration of the enumerator
-              TypeSpecifier ratortb = new TypeSpecifier();
-              /* Type ratortype = cOps.fit(ratorvalue); */  // TODO: support gcc's non-ISO large enumerators
-              Type ratortype = NumberT.INT;
-              ratortb.visitConstantQualifier();
-              ratortb.setType(ratortype);
-              ratortb.addTransformation("const");
-              ratortb.addTransformation(ratortype.toString());
-
-              String renaming = freshCId(name);
-              Declaration renamedDeclaration = new Declaration(ratortb,
-                                                               new SimpleDeclarator(renaming));
-
-              Type tableType;
-              if (scope.isGlobal()) {
-                tableType = VariableT.newGlobal(renamedDeclaration.getType(),
-                                                renamedDeclaration.getName());
-              } else {
-                tableType = VariableT.newLocal(renamedDeclaration.getType(),
-                                               renamedDeclaration.getName());
-              }
-
-              scope.put(name, tableType, pc);
-              /* scope.addDeclaration(String.format("%s = %s /\* enumerator *\/;\n", renamedDeclaration.toString(), lastval)); */
-              scope.addDeclaration(String.format("%s /* enumerator */;\n", renamedDeclaration.toString()));
-              typemv.add(ratortype, combinedCond);
-            } else {
-              System.err.println(String.format("redeclaration of enumerator \"%s\"",
-                                               name));
-              scope.putError(name, pc);
-              typemv.add(ErrorT.TYPE, combinedCond);
-            }
-            combinedCond.delRef();
+          Multiverse<EnumeratorValValue> val = (Multiverse<EnumeratorValValue>) getTransformationValue(subparser, 1);
+          Multiverse<EnumeratorValue> enumeratorvaluemv = new Multiverse<EnumeratorValue>();
+          for (Element<EnumeratorValValue> elem : val) {
+            enumeratorvaluemv.add(new EnumeratorValue(name, elem.getData()), elem.getCondition());
           }
-          assert ! typemv.isEmpty();
+          assert ! enumeratorvaluemv.isEmpty();
           
-          entries.destruct();
-          
-          setTransformationValue(value, typemv);
+          setTransformationValue(value, enumeratorvaluemv);
         }
         ;
 
@@ -3200,16 +3351,35 @@ Enumerator: /** complete **/ // Multiverse<Type>
 /*         } */
 /*         ; */
 
-EnumeratorValueOpt: /** nomerge **/
+EnumeratorValueOpt: /** nomerge **/  // Multiverse<EnumeratorValValue>
         /* Empty */
         {
-          todoReminder("create an empty enum initializer");
+          
+          setTransformationValue(value, new Multiverse<EnumeratorValValue>(new EnumeratorValValue(), subparser.getPresenceCondition()));
         }
         | ASSIGN ConstantExpression
         {
-          todoReminder("support enum initializer values");
-          /* System.err.println("ERROR: unsupported semantic action: EnumeratorValueOpt"); */
-          /* System.exit(1); */
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
+          Multiverse<EnumeratorValValue> evmv = new Multiverse<EnumeratorValValue>();
+          if (exprval.hasValidType()) {
+            for (Element<String> transformation : exprval.transformation) {
+              PresenceCondition combinedCond = pc.and(transformation.getCondition());
+              if (combinedCond.isNotFalse()) {
+                Multiverse<Type> filtered = exprval.type.filter(combinedCond);
+                assert filtered.size() == 1;  // desugarer should only have one type for each expression transformation
+                evmv.add(new EnumeratorValValue(transformation.getData(), filtered.get(0).getData()), combinedCond);
+              }
+              combinedCond.delRef();
+            }
+            if (evmv.isEmpty()) {
+              todoReminder("double-check whether enumerator value can have empty mv due to type errors in the pc");
+            }
+            assert ! evmv.isEmpty();
+          } else {  // expression mv is all type errors
+            evmv.add(new EnumeratorValValue(null, ErrorT.TYPE), pc);
+          }
+          setTransformationValue(value, evmv);
         }
         ;
 
@@ -7578,6 +7748,79 @@ private static class ExpressionValue {
       }
     }
     return true;
+  }
+}
+
+/**
+ * Semantic value for an enumerator.
+ */
+protected static class EnumeratorValue extends EnumeratorValValue {
+  /** The name of the enumerator. */
+  public final String name;
+
+  public EnumeratorValue(String name, EnumeratorValValue val) {
+    super(val);
+    this.name = name;
+  }
+}
+
+/**
+ * Semantic value For an enumerator's value.
+ */
+private static class EnumeratorValValue {
+  /** True when there is value set. */
+  boolean hasValue;
+
+  /** The value of the expression, if set. */
+  String transformation;
+
+  /** The type of the expression, if set. */
+  Type type;
+
+  protected EnumeratorValValue(boolean hasValue, String transformation, Type type) {
+    this.hasValue = hasValue;
+    this.transformation = transformation;
+    this.type = type;
+  }
+
+  public EnumeratorValValue() {
+    this(false, null, null);
+  }
+
+  public EnumeratorValValue(String transformation, Type type) {
+    this(true, transformation, type);
+  }
+
+  protected EnumeratorValValue(EnumeratorValValue other) {
+    this.hasValue = other.hasValue;
+    this.transformation = other.transformation;
+    this.type = other.type;
+  }
+
+  public boolean hasValue() { return hasValue; }
+
+  /**
+   * Gets the value, if any, otherwise throws an illegal state
+   * exception.
+   */
+  public String getTransformation() {
+    if (this.hasValue()) {
+      return this.transformation;
+    } else {
+      throw new AssertionError("trying to get value from empty enumerator value");
+    }
+  }
+
+  /**
+   * Gets the type, if any, otherwise throws an illegal state
+   * exception.
+   */
+  public Type getType() {
+    if (this.hasValue()) {
+      return this.type;
+    } else {
+      throw new AssertionError("trying to get value from empty enumerator value");
+    }
   }
 }
 
