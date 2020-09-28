@@ -43,6 +43,8 @@ import superc.cdesugarer.Initializer.Designator;
 import superc.cdesugarer.Initializer.ArrayDesignator;
 import superc.cdesugarer.Initializer.StructUnionDesignator;
 
+import superc.cdesugarer.CActions.EnumeratorValue;
+
 
 /**
  * These operators are used for cartesian products and transformations
@@ -343,6 +345,24 @@ class DesugarOps {
         }
       };
 
+  /*****************************************************************************
+   ********* Multiverse operators for Enumerations
+   *****************************************************************************/
+
+  /**
+   * A multiverse transformation to wrap an enumerator value
+   * declarator into a single-element list.
+   */
+  public final static Multiverse.Transformer<EnumeratorValue, List<EnumeratorValue>> enumeratorValueWrap
+    = new ListWrapper<EnumeratorValue>();
+  
+  /**
+   * Concatenate two EnumeratorValue lists
+   */
+  public final static Multiverse.Operator<List<EnumeratorValue>> ENUMERATORLISTCONCAT = (list1, list2) -> {
+    return concatLists(list1, list2);
+  };
+  
   /*****************************************************************************
    ********* Multiverse operators for Initializers
    *****************************************************************************/
