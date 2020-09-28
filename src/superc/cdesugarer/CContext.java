@@ -890,6 +890,11 @@ public class CContext implements ParsingContext {
               String renamedTag = type.getName();
               sb.append(String.format("union %s %s;", renamedTag, renamedTag));
               sb.append("\n");
+            } else if (entry.getData().getType().isEnum()) {
+              sb.append(" // enums have no namespace\n");
+              // no need to create an indirection for enums, since
+              // enumerators are not fields but are just added to the
+              // scope
             } else {
               throw new IllegalStateException("unknown type in CContext.getDeclarations");
             }

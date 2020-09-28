@@ -2773,20 +2773,48 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpeci
           Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
           
           if (enumeratorlist.size() > 0 && validCond.isNotFalse()) {
-            String renaming = freshCId(enumTag);
-            TypeSpecifier typespec = new TypeSpecifier();
-            // TODO: get largest type for enum (gcc), instead of ISO standard of int
-            Type enumtype = NumberT.INT;
-            typespec.setType(new EnumT(enumtype, renaming, enumeratorlist));
+            Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(enumTag, validCond);
+            for (Element<SymbolTable.Entry> entry : entries) {
+              PresenceCondition combinedCond = validCond.and(entry.getCondition());
+              if (combinedCond.isNotFalse()) {
+                if (entry.getData() == SymbolTable.ERROR) {
+                  System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid configuration", enumTag));
+                  TypeSpecifier typespec = new TypeSpecifier();
+                  typespec.setType(ErrorT.TYPE);
+                  typespecmv.add(typespec, combinedCond);
+                } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                  // add to symtab
+                  String renaming = freshCId(enumTag);
+                  // TODO: get largest type for enum (gcc), instead of ISO standard of int
+                  Type enumbasetype = NumberT.INT;
+                  Type enumtype = new EnumT(enumbasetype, renaming, enumeratorlist);
+                  scope.put(CContext.toTagName(enumTag), enumtype, combinedCond);
 
-            typespec.addTransformation(keyword);
-            typespec.addTransformation(" ");
-            typespec.addTransformation(renaming);
-            typespec.addTransformation(" {\n");
-            typespec.addTransformation(transformation.toString());
-            typespec.addTransformation("}\n");
+                  // create typespec for semantic value
+                  TypeSpecifier typespec = new TypeSpecifier();
+                  typespec.setType(enumtype);
+                  typespec.addTransformation(keyword);
+                  typespec.addTransformation(" ");
+                  typespec.addTransformation(renaming);
+                  typespecmv.add(typespec, combinedCond);
 
-            typespecmv.add(typespec, validCond);
+                  // desugar to top of scope
+                  scope.addDeclaration(keyword);
+                  scope.addDeclaration(" ");
+                  scope.addDeclaration(renaming);
+                  scope.addDeclaration(" {\n");
+                  scope.addDeclaration(transformation.toString());
+                  scope.addDeclaration("};\n");
+                } else {  // previously-declared
+                  System.err.println(String.format("INFO: \"%s\" is being redefined in the same configuration", enumTag));
+                  TypeSpecifier typespec = new TypeSpecifier();
+                  typespec.setType(ErrorT.TYPE);
+                  typespecmv.add(typespec, combinedCond);
+                }
+              }
+              combinedCond.delRef();
+            }
+            
             validCond.delRef();
           }
 
@@ -2795,6 +2823,7 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpeci
             typespecifier.setType(ErrorT.TYPE);
             typespecmv.add(typespecifier, errorCond);
             errorCond.delRef();
+            scope.putError(enumTag, errorCond);
           }
 
           assert ! typespecmv.isEmpty();
@@ -2844,7 +2873,7 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpeci
 
           todoReminder("implement gcc's support of larger-than-int enumerators");
 
-          todoReminder("update forward reference with definition's type, if needed");
+          todoReminder("expand to all versions of the enum");
 
           todoReminder("add enum type to symtab");
           
