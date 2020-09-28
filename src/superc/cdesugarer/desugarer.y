@@ -188,7 +188,7 @@ import java.math.BigInteger;
 import xtc.Constants;
 import xtc.Limits;
 
-import superc.cdesugarer.SymbolTable.STField;
+import superc.cdesugarer.OldSymbolTable.STField;
 
 import xtc.tree.Attribute;
 import xtc.tree.GNode;
@@ -328,7 +328,7 @@ TranslationUnit:  /** complete **/
                                        invalidGlobals.toString()));
             
             
-            SymbolTable symtab = ((CContext) subparser.scope).getSymbolTable();
+            SymbolTable<Type> symtab = ((CContext) subparser.scope).getSymbolTable();
 
             // write the user-defined types at the top of the scope.
             CContext scope = ((CContext) subparser.scope);
@@ -456,8 +456,8 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                 } else {
                   // otherwise loop over each existing entry check for
                   // type errors or add a new declaration
-                  Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(originalName, combinedCond);
-                  for (Element<SymbolTable.Entry> entry : entries) {
+                  Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, combinedCond);
+                  for (Element<SymbolTable.Entry<Type>> entry : entries) {
                     String renaming = freshCId(originalName);
                     Declarator renamedDeclarator = declarator.getData().rename(renaming);
                     Declaration renamedDeclaration = new Declaration(typespecifier.getData(),
@@ -471,10 +471,10 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                                                    declarationType.toFunction().getParameters(),
                                                    declarationType.toFunction().isVarArgs());
                     
-                    if (entry.getData() == SymbolTable.ERROR) {
+                    if (entry.getData().isError()) {
                       // ERROR entry
                       System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
-                    } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                    } else if (entry.getData().isUndeclared()) {
                       // UNDECLARED entry
 
                       todoReminder("multiplex functions to so that each can have its own function name.  try using function pointers as a kind of vtable.");
@@ -495,9 +495,9 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                       recordRenaming(renaming, originalName);
 
                     } else {
-                      if (entry.getData().getType() instanceof NamedFunctionT) {  // there is no Type.isFunctionOrMethod()
+                      if (entry.getData().getValue() instanceof NamedFunctionT) {  // there is no Type.isFunctionOrMethod()
                         FunctionT newtype = ((NamedFunctionT) type).toFunctionT();
-                        FunctionT previoustype = ((NamedFunctionT) entry.getData().getType()).toFunctionT();
+                        FunctionT previoustype = ((NamedFunctionT) entry.getData().getValue()).toFunctionT();
 
                         // TODO: make sure a function is only defined
                         // once, although it can be declared multiple
@@ -507,7 +507,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                         if (cOps.equal(newtype, previoustype)) {
                           System.err.println("TODO: distinguish between previous declaration vs definition.");
                           System.err.println(String.format("INFO: %s is being redeclared in global scope to compatible type", originalName));
-                          String previousname = ((NamedFunctionT) entry.getData().getType()).getName();
+                          String previousname = ((NamedFunctionT) entry.getData().getValue()).getName();
                           Declarator previousDeclarator = declarator.getData().rename(previousname);
                           Declaration previousDeclaration = new Declaration(typespecifier.getData(),
                                                                            previousDeclarator);
@@ -1021,8 +1021,8 @@ Declaration:  /** complete **/  // String
                         } else {
                           // otherwise loop over each existing entry check for
                           // type errors or add a new declaration
-                          Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(originalName, combinedCond);
-                          for (Element<SymbolTable.Entry> entry : entries) {
+                          Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, combinedCond);
+                          for (Element<SymbolTable.Entry<Type>> entry : entries) {
                             String renaming = freshCId(originalName);
                             Declarator renamedDeclarator = declarator.getData().rename(renaming);
                             Declaration renamedDeclaration = new Declaration(typespecifier.getData(),
@@ -1048,11 +1048,11 @@ Declaration:  /** complete **/  // String
                             }
                             assert null != type;
 
-                            if (entry.getData() == SymbolTable.ERROR) {
+                            if (entry.getData().isError()) {
                               // ERROR entry
                               System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
 
-                            } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                            } else if (entry.getData().isUndeclared()) {
                               // UNDECLARED entry
                               // update the symbol table for this presence condition
                               scope.put(originalName, type, entry.getCondition());
@@ -1077,17 +1077,17 @@ Declaration:  /** complete **/  // String
 
                                 // declarations only set VariableT or AliasT
                                 boolean sameTypeKind
-                                  = entry.getData().getType().isVariable() && type.isVariable()
-                                  ||  entry.getData().getType().isAlias() && type.isAlias();
+                                  = entry.getData().getValue().isVariable() && type.isVariable()
+                                  ||  entry.getData().getValue().isAlias() && type.isAlias();
 
                                 // check compatibility of types
                                 if (sameTypeKind) {
                                   boolean compatibleTypes = false;
                                   if (type.isVariable()) {
-                                    compatibleTypes = cOps.equal(entry.getData().getType().toVariable().getType(),
+                                    compatibleTypes = cOps.equal(entry.getData().getValue().toVariable().getType(),
                                                                  type.toVariable().getType());
                                   } else if (type.isAlias()) {
-                                    compatibleTypes = cOps.equal(entry.getData().getType().toAlias().getType(),
+                                    compatibleTypes = cOps.equal(entry.getData().getValue().toAlias().getType(),
                                                                  type.toAlias().getType());
                                   } else {
                                     throw new AssertionError("should not be possible given sameTypeKind");
@@ -1674,7 +1674,7 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
           Multiverse<TypeSpecifier> qualtbmv = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
-          Multiverse<SymbolTable.Entry> entries
+          Multiverse<SymbolTable.Entry<Type>> entries
             = ((CContext)subparser.scope).getInAnyScope(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
       	  Multiverse<TypeSpecifier> typedefnametbmv = DesugarOps.typedefEntriesToTypeSpecifier.transform(entries);
@@ -1696,7 +1696,7 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
       	{
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
-          Multiverse<SymbolTable.Entry> entries
+          Multiverse<SymbolTable.Entry<Type>> entries
             = ((CContext)subparser.scope).getInAnyScope(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
       	  Multiverse<TypeSpecifier> typedefnametbmv = DesugarOps.typedefEntriesToTypeSpecifier.transform(entries);
@@ -1707,7 +1707,7 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
           Multiverse<TypeSpecifier> qualtbmv = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
-          Multiverse<SymbolTable.Entry> entries
+          Multiverse<SymbolTable.Entry<Type>> entries
             = ((CContext)subparser.scope).getInAnyScope(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
       	  Multiverse<TypeSpecifier> typedefnametbmv = DesugarOps.typedefEntriesToTypeSpecifier.transform(entries);
@@ -2222,16 +2222,16 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
           CContext scope = (CContext)subparser.scope;
 
           Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>();
-          Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(CContext.toTagName(structTag), subparser.getPresenceCondition());
-          for (Element<SymbolTable.Entry> entry : entries) {
-            if (entry.getData() == SymbolTable.ERROR) {
+          Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(CContext.toTagName(structTag), subparser.getPresenceCondition());
+          for (Element<SymbolTable.Entry<Type>> entry : entries) {
+            if (entry.getData().isError()) {
               System.err.println(String.format("INFO: trying to use an invalid specifier: %s", structTag));
               TypeSpecifier typespecifier = new TypeSpecifier();
               typespecifier.setType(ErrorT.TYPE);
               valuemv.add(typespecifier, entry.getCondition());
               // no need to add to symtab since this config is
               // already an error
-            } else if (entry.getData() == SymbolTable.UNDECLARED) {
+            } else if (entry.getData().isUndeclared()) {
               // create a multiverse of struct types
               for (Element<List<Declaration>> declarationlist : listsmv) {
                 String renamedTag = freshCId(structTag);
@@ -2297,27 +2297,27 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
           // we can just use the renamed struct from the symtab
           
           Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>();
-          Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(CContext.toTagName(structTag),
+          Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(CContext.toTagName(structTag),
                                                                     subparser.getPresenceCondition());
-          for (Element<SymbolTable.Entry> entry : entries) {
+          for (Element<SymbolTable.Entry<Type>> entry : entries) {
             TypeSpecifier typespecifier = new TypeSpecifier();
-            if (entry.getData() == SymbolTable.ERROR) {
+            if (entry.getData().isError()) {
               System.err.println(String.format("INFO: trying to use an invalid specifier: %s", structTag));
               typespecifier.setType(ErrorT.TYPE);
-            } else if (entry.getData() == SymbolTable.UNDECLARED) {
+            } else if (entry.getData().isUndeclared()) {
               System.err.println(String.format("TODO: local structs must be defined before being used, unless it's a pointer to a struct: %s", structTag));
               /* typespecifier.setType(ErrorT.TYPE); */
               typespecifier.setType(DesugarOps.createStructOrUnionRefType(keyword, structTag));
               typespecifier.addTransformation(String.format("struct %s", structTag));
             } else {
-              assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
-              if (entry.getData().getType().isStruct() || entry.getData().getType().isUnion()) {
+              assert entry.getData().getValue().isStruct() || entry.getData().getValue().isUnion();
+              if (entry.getData().getValue().isStruct() || entry.getData().getValue().isUnion()) {
                 // just use the original tag name, since we will use a
                 // union type for it
                 typespecifier.setType(DesugarOps.createStructOrUnionRefType(keyword, structTag));
                 typespecifier.addTransformation(String.format("struct %s", structTag));
                 /* typespecifier.setStructReference(structTag, */
-                /*                                entry.getData().getType().toStruct().getName()); */
+                /*                                entry.getData().getValue().toStruct().getName()); */
               } else {
                 System.err.println("TODO: expected a struct type in the tag namespace.  this is either a bug or due to mishandling of union types.");
                 System.exit(1);
@@ -2773,16 +2773,16 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpeci
           Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
           
           if (enumeratorlist.size() > 0 && validCond.isNotFalse()) {
-            Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(enumTag, validCond);
-            for (Element<SymbolTable.Entry> entry : entries) {
+            Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(enumTag, validCond);
+            for (Element<SymbolTable.Entry<Type>> entry : entries) {
               PresenceCondition combinedCond = validCond.and(entry.getCondition());
               if (combinedCond.isNotFalse()) {
-                if (entry.getData() == SymbolTable.ERROR) {
+                if (entry.getData().isError()) {
                   System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid configuration", enumTag));
                   TypeSpecifier typespec = new TypeSpecifier();
                   typespec.setType(ErrorT.TYPE);
                   typespecmv.add(typespec, combinedCond);
-                } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                } else if (entry.getData().isUndeclared()) {
                   // add to symtab
                   String renaming = freshCId(enumTag);
                   // TODO: get largest type for enum (gcc), instead of ISO standard of int
@@ -2944,16 +2944,16 @@ Enumerator: /** complete **/ // Multiverse<EnumeratorValue>
           for (Element<EnumeratorValValue> elem : val) {
             PresenceCondition valcond = subparser.getPresenceCondition().and(elem.getCondition());
 
-            Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(name, valcond);
-            for (Element<SymbolTable.Entry> entry : entries) {
+            Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(name, valcond);
+            for (Element<SymbolTable.Entry<Type>> entry : entries) {
               String renaming = freshCId(name);
               PresenceCondition combinedCond = valcond.and(entry.getCondition());
-              if (entry.getData() == SymbolTable.ERROR) {
+              if (entry.getData().isError()) {
                 // this is already an error
                 System.err.println(String.format("INFO: enumerator \"%s\" is being redeclared in an existing invalid configuration",
                                                  name));
                 enumeratorvaluemv.add(new EnumeratorValue(name, renaming, ErrorT.TYPE), combinedCond);
-              } else if (entry.getData() == SymbolTable.UNDECLARED) {
+              } else if (entry.getData().isUndeclared()) {
                 // create a new constant int declaration of the enumerator
                 TypeSpecifier ratortb = new TypeSpecifier();
                 /* Type ratortype = cOps.fit(ratorvalue); */  // TODO: support gcc's non-ISO large enumerators
@@ -3004,16 +3004,16 @@ Enumerator: /** complete **/ // Multiverse<EnumeratorValue>
           for (Element<EnumeratorValValue> elem : val) {
             PresenceCondition valcond = subparser.getPresenceCondition().and(elem.getCondition());
 
-            Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(name, valcond);
-            for (Element<SymbolTable.Entry> entry : entries) {
+            Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(name, valcond);
+            for (Element<SymbolTable.Entry<Type>> entry : entries) {
               String renaming = freshCId(name);
               PresenceCondition combinedCond = valcond.and(entry.getCondition());
-              if (entry.getData() == SymbolTable.ERROR) {
+              if (entry.getData().isError()) {
                 // this is already an error
                 System.err.println(String.format("INFO: enumerator \"%s\" is being redeclared in an existing invalid configuration",
                                                  name));
                 enumeratorvaluemv.add(new EnumeratorValue(name, renaming, ErrorT.TYPE), combinedCond);
-              } else if (entry.getData() == SymbolTable.UNDECLARED) {
+              } else if (entry.getData().isUndeclared()) {
                 // create a new constant int declaration of the enumerator
                 TypeSpecifier ratortb = new TypeSpecifier();
                 /* Type ratortype = cOps.fit(ratorvalue); */  // TODO: support gcc's non-ISO large enumerators
@@ -3232,18 +3232,18 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<Declaration>
                 // the identifierdeclaration.  abstract declarators
                 // can't go in the symbol table, because there is no
                 // symbol.
-                Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(declarator.getData().getName(), combinedCond);
+                Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(declarator.getData().getName(), combinedCond);
 
                 // TODO: check for multiply-defined parameter names,
                 // which (I believe) should make the entire function
                 // declarator invalid.
 
-                for (Element<SymbolTable.Entry> entry : entries) {
-                  if (entry.getData() == SymbolTable.ERROR) {
+                for (Element<SymbolTable.Entry<Type>> entry : entries) {
+                  if (entry.getData().isError()) {
                     System.err.println("INFO: invalid parameter declaration for function");
                     System.err.println("TODO: any invalid parameter declarations should cause the entire function declaration to be invalid under that condition");
                     scope.putError(declarator.getData().getName(), combinedCond);
-                  } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                  } else if (entry.getData().isUndeclared()) {
                     // get the type and add it to the symtab
                     Type type = VariableT.newParam(renamedDeclaration.getType(),
                                                    renamedDeclaration.getName());
@@ -5019,7 +5019,7 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
 
           // get the renamings from the symtab
           PresenceCondition cond = subparser.getPresenceCondition().presenceConditionManager().newTrue();
-          Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(originalName, cond);
+          Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(originalName, cond);
           cond.delRef();
 
           // convert the renamings to stringbuilders
@@ -5028,32 +5028,32 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
           // any presence conditions with an error can be omitted from
           // the desugaring.  instead, this information is preserved
           // in the type value for use by the statement.
-          for (Element<SymbolTable.Entry> entry : entries) {
-            if (entry.getData() == SymbolTable.ERROR) {
+          for (Element<SymbolTable.Entry<Type>> entry : entries) {
+            if (entry.getData().isError()) {
               System.err.println(String.format("type error: use of symbol with invalid declaration: %s", originalName));
               typemv.add(ErrorT.TYPE, entry.getCondition());
-            } else if (entry.getData() == SymbolTable.UNDECLARED) {
+            } else if (entry.getData().isUndeclared()) {
               System.err.println(String.format("type error: use of undeclared symbol: %s", originalName));
               typemv.add(ErrorT.TYPE, entry.getCondition());
             } else {
               // TODO: add type checking.  may need to tag the resulting
               // stringbuilder with the type to handle this
 
-              if (entry.getData().getType().isVariable()) {
+              if (entry.getData().getValue().isVariable()) {
                 String result  // use the renamed symbol
-                  = String.format(" %s ", entry.getData().getType().toVariable().getName());
+                  = String.format(" %s ", entry.getData().getValue().toVariable().getName());
                 sbmv.add(result, entry.getCondition());
-                typemv.add(entry.getData().getType().toVariable().getType(), entry.getCondition());
-              } else if (entry.getData().getType() instanceof NamedFunctionT) {
+                typemv.add(entry.getData().getValue().toVariable().getType(), entry.getCondition());
+              } else if (entry.getData().getValue() instanceof NamedFunctionT) {
                 String result  // use the renamed symbol
-                  = String.format(" %s ", ((NamedFunctionT) entry.getData().getType()).getName());
+                  = String.format(" %s ", ((NamedFunctionT) entry.getData().getValue()).getName());
                 sbmv.add(result, entry.getCondition());
-                typemv.add(((NamedFunctionT) entry.getData().getType()), entry.getCondition());
-              } else if (entry.getData().getType() instanceof EnumeratorT) {
+                typemv.add(((NamedFunctionT) entry.getData().getValue()), entry.getCondition());
+              } else if (entry.getData().getValue() instanceof EnumeratorT) {
                 String result  // use the renamed symbol
-                  = String.format(" %s ", entry.getData().getType().toEnumerator().getName());
+                  = String.format(" %s ", entry.getData().getValue().toEnumerator().getName());
                 sbmv.add(result, entry.getCondition());
-                typemv.add(entry.getData().getType().toEnumerator().getType(), entry.getCondition());
+                typemv.add(entry.getData().getValue().toEnumerator().getType(), entry.getCondition());
               } else {
                 System.err.println(String.format("type error: use of symbol other than variable, function, or enumerator: %s", originalName));
                 typemv.add(ErrorT.TYPE, entry.getCondition());
@@ -5414,13 +5414,13 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
               assert tag != null;  // even anonymous structs get a name, e.g., anonymous(0)
               if (tag.startsWith("anonymous(")) {  // anonymous struct or union
                 // go through each symtab entry for this struct/union
-                Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tag, type.getCondition());
-                for (Element<SymbolTable.Entry> entry : entries) {
+                Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(tag, type.getCondition());
+                for (Element<SymbolTable.Entry<Type>> entry : entries) {
                   PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
-                  if (entry.getData() == SymbolTable.ERROR) {
+                  if (entry.getData().isError()) {
                     // TODO: type error
                     typemv.add(ErrorT.TYPE, combinedCond);
-                  } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                  } else if (entry.getData().isUndeclared()) {
                     // TODO: type error, symbol not declared in this presence condition
                     typemv.add(ErrorT.TYPE, combinedCond);
                   } else {
@@ -5429,8 +5429,8 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
 
                     // since we looked up a tagname, not seeing a
                     // struct/union type likely means there's a bug
-                    assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
-                    StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
+                    assert entry.getData().getValue().isStruct() || entry.getData().getValue().isUnion();
+                    StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getValue();
 
                     // similarly, if we looked up a tagname, there
                     // should be definitions with members
@@ -5465,13 +5465,13 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
 
                 // first go through each symtab entry for the struct tag
                 String tagname = CContext.toTagName(sutype.getName());
-                Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tagname, type.getCondition());
-                for (Element<SymbolTable.Entry> entry : entries) {
+                Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(tagname, type.getCondition());
+                for (Element<SymbolTable.Entry<Type>> entry : entries) {
                   PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
-                  if (entry.getData() == SymbolTable.ERROR) {
+                  if (entry.getData().isError()) {
                     // TODO: type error
                     typemv.add(ErrorT.TYPE, combinedCond);
-                  } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                  } else if (entry.getData().isUndeclared()) {
                     // TODO: type error, symbol not declared in this presence condition
                     typemv.add(ErrorT.TYPE, combinedCond);
                   } else {
@@ -5480,8 +5480,8 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
 
                     // since we looked up a tagname, not seeing a
                     // struct/union type likely means there's a bug
-                    assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
-                    StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
+                    assert entry.getData().getValue().isStruct() || entry.getData().getValue().isUnion();
+                    StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getValue();
 
                     // similarly, if we looked up a tagname, there
                     // should be definitions with members
@@ -5562,13 +5562,13 @@ IndirectSelection:  /** nomerge **/
                 assert tag != null;  // even anonymous structs get a name, e.g., anonymous(0)
                 if (tag.startsWith("anonymous(")) {  // anonymous struct or union
                   // go through each symtab entry for this struct/union
-                  Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tag, type.getCondition());
-                  for (Element<SymbolTable.Entry> entry : entries) {
+                  Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(tag, type.getCondition());
+                  for (Element<SymbolTable.Entry<Type>> entry : entries) {
                     PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
-                    if (entry.getData() == SymbolTable.ERROR) {
+                    if (entry.getData().isError()) {
                       // TODO: type error
                       typemv.add(ErrorT.TYPE, combinedCond);
-                    } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                    } else if (entry.getData().isUndeclared()) {
                       // TODO: type error, symbol not declared in this presence condition
                       typemv.add(ErrorT.TYPE, combinedCond);
                     } else {
@@ -5577,8 +5577,8 @@ IndirectSelection:  /** nomerge **/
 
                       // since we looked up a tagname, not seeing a
                       // struct/union type likely means there's a bug
-                      assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
-                      StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
+                      assert entry.getData().getValue().isStruct() || entry.getData().getValue().isUnion();
+                      StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getValue();
 
                       // similarly, if we looked up a tagname, there
                       // should be definitions with members
@@ -5613,13 +5613,13 @@ IndirectSelection:  /** nomerge **/
 
                   // first go through each symtab entry for the struct tag
                   String tagname = CContext.toTagName(sutype.getName());
-                  Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tagname, type.getCondition());
-                  for (Element<SymbolTable.Entry> entry : entries) {
+                  Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(tagname, type.getCondition());
+                  for (Element<SymbolTable.Entry<Type>> entry : entries) {
                     PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
-                    if (entry.getData() == SymbolTable.ERROR) {
+                    if (entry.getData().isError()) {
                       // TODO: type error
                       typemv.add(ErrorT.TYPE, combinedCond);
-                    } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                    } else if (entry.getData().isUndeclared()) {
                       // TODO: type error, symbol not declared in this presence condition
                       typemv.add(ErrorT.TYPE, combinedCond);
                     } else {
@@ -5628,8 +5628,8 @@ IndirectSelection:  /** nomerge **/
 
                       // since we looked up a tagname, not seeing a
                       // struct/union type likely means there's a bug
-                      assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
-                      StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
+                      assert entry.getData().getValue().isStruct() || entry.getData().getValue().isUnion();
+                      StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getValue();
 
                       // similarly, if we looked up a tagname, there
                       // should be definitions with members
@@ -8291,14 +8291,14 @@ public void bindIdent(Subparser subparser, Node typespec, Node declarator, STFie
     System.err.println("def: " + ident.getTokenText() + " " + alsoSet);
   }
   STField field = typedef ? STField.TYPEDEF : STField.IDENT;
-  scope.getSymbolTable().setbool(ident.getTokenText(), field, true, presenceCondition);
+  scope.getOldSymbolTable().setbool(ident.getTokenText(), field, true, presenceCondition);
   if (null != alsoSet) {
-    scope.getSymbolTable().setbool(ident.getTokenText(), alsoSet, true, presenceCondition);
+    scope.getOldSymbolTable().setbool(ident.getTokenText(), alsoSet, true, presenceCondition);
   }
   /* if (typedef) { */
-  /*   scope.getSymbolTable().setbool(ident.getTokenText(), STField.TYPEDEF, true, presenceCondition); */
+  /*   scope.getOldSymbolTable().setbool(ident.getTokenText(), STField.TYPEDEF, true, presenceCondition); */
   /* } else { */
-  /*   scope.getSymbolTable().setbool(ident.getTokenText(), STField.IDENT, true, presenceCondition); */
+  /*   scope.getOldSymbolTable().setbool(ident.getTokenText(), STField.IDENT, true, presenceCondition); */
   /* } */
   /* scope.bind(ident.getTokenText(), typedef, presenceCondition); */
 }
@@ -8517,7 +8517,7 @@ public void BindVar(Subparser subparser) {
   Language<?> ident = getident(b);
 
   // Bind variable name.
-  scope.getSymbolTable().setbool(ident.getTokenText(), STField.IDENT, true, presenceCondition);
+  scope.getOldSymbolTable().setbool(ident.getTokenText(), STField.IDENT, true, presenceCondition);
   /* scope.bind(ident.getTokenText(), false, presenceCondition); */
 }
 
@@ -8532,7 +8532,7 @@ public void BindEnum(Subparser subparser) {
   String ident = getident(b).getTokenText();
 
   // Bind variable name.
-  scope.getSymbolTable().setbool(ident, STField.IDENT, true, presenceCondition);
+  scope.getOldSymbolTable().setbool(ident, STField.IDENT, true, presenceCondition);
   /* scope.bind(ident, false, presenceCondition); */
 }
 

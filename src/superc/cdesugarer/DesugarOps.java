@@ -198,19 +198,19 @@ class DesugarOps {
    * A multiverse transformation to turn a symtab entries for a
    * typedefname into a multiverse of typespecifiers.
    */
-  public final static Multiverse.Transformer<SymbolTable.Entry, TypeSpecifier> typedefEntriesToTypeSpecifier = new Multiverse.Transformer<SymbolTable.Entry, TypeSpecifier>() {
-      TypeSpecifier transform(SymbolTable.Entry from) {
+  public final static Multiverse.Transformer<SymbolTable.Entry<Type>, TypeSpecifier> typedefEntriesToTypeSpecifier = new Multiverse.Transformer<SymbolTable.Entry<Type>, TypeSpecifier>() {
+      TypeSpecifier transform(SymbolTable.Entry<Type> from) {
         TypeSpecifier ts = new TypeSpecifier();
-        if (from == SymbolTable.ERROR) {
+        if (from.isError()) {
           System.err.println("INFO: use of typedefname with invalid declaration");
           // TODO: needs a unit test
           ts.setError();
-        } else if (from == SymbolTable.UNDECLARED) {
+        } else if (from.isUndeclared()) {
           System.err.println("INFO: use of undeclared typedefname");
           // TODO: needs a unit test
           ts.setError();
         } else {
-          if (! from.getType().isAlias()) {
+          if (! from.getValue().isAlias()) {
             System.err.println("INFO: typedefname is not declared as alias type");
             ts.setError();
             // TODO: double-check that the parser already handles
@@ -220,8 +220,8 @@ class DesugarOps {
             // TODO: use the new symtab for reclassifying
             // typedefname tokens
           } else {
-            ts.setType(from.getType().toAlias());
-            ts.addTransformation(from.getType().toAlias().getName());
+            ts.setType(from.getValue().toAlias());
+            ts.addTransformation(from.getValue().toAlias().getName());
           }
         }
         return ts;
