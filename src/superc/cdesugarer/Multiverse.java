@@ -576,10 +576,15 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
 
     sb.append("Multiverse(");
     sb.append("\n");
-    for (Element<T> elem : this.contents) {
-      sb.append("  ");
-      sb.append(elem);
-      sb.append("\n");
+    if (null == this.contents) {
+      assert isEmpty();
+      sb.append("  EMPTY\n");
+    } else {
+      for (Element<T> elem : this.contents) {
+        sb.append("  ");
+        sb.append(elem);
+        sb.append("\n");
+      }
     }
     sb.append("  COMPLEMENT: ");
     if (null == complement) {
