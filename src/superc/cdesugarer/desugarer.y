@@ -562,7 +562,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           PresenceCondition pc = subparser.getPresenceCondition();
 
           todoReminder("handle type errors in function prototype");
-          Multiverse<String> prototypestrmv = (Multiverse<String>) getTransformationValue(getNodeAt(subparser, 3));
+          Multiverse<String> prototypestrmv = (Multiverse<String>) this.<String>getCompleteNodeMultiverseValue(subparser, 3, pc);
           System.err.println("PROTOTYPESTRMV2 " + prototypestrmv);
           Multiverse<String> bodymv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
 
