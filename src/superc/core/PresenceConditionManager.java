@@ -968,8 +968,8 @@ public class PresenceConditionManager {
      */
     public void print(Writer writer) throws IOException {
       
-      printz3(expr, writer);
-      // printBDD(bdd, writer);
+      // printz3(expr, writer);
+      printBDD(bdd, writer);
     }
 
     /**
