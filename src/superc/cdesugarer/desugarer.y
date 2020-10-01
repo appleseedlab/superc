@@ -645,38 +645,46 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationSpecifier     IdentifierDeclarator
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
           // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
 
-          setTransformationValue(value, new FunctionPrototypeValue((Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2),
+          setTransformationValue(value, new FunctionPrototypeValue(this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc),
                                                                    (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
         }
         | TypeSpecifier            IdentifierDeclarator
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
           // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
 
-          setTransformationValue(value, new FunctionPrototypeValue((Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2),
+          setTransformationValue(value, new FunctionPrototypeValue(this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc),
                                                                    (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
           // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
 
-          setTransformationValue(value, new FunctionPrototypeValue((Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2),
+          setTransformationValue(value, new FunctionPrototypeValue(this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc),
                                                                    (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
         }
         | TypeQualifierList        IdentifierDeclarator
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
           // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
 
-          setTransformationValue(value, new FunctionPrototypeValue((Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2),
+          setTransformationValue(value, new FunctionPrototypeValue(this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc),
                                                                    (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
         }
         |                          OldFunctionDeclarator
@@ -905,8 +913,10 @@ DeclarationExtension:  /** complete **/  // ADDED  // String
 Declaration:  /** complete **/  // String
         SUEDeclarationSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+
         	Multiverse<TypeSpecifier> structtypesmv
-            = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 3);
+            = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 3, pc);
         	StringBuilder sb = new StringBuilder();  // the desugared output
 
           for (Element<TypeSpecifier> typespecifier : structtypesmv) {
@@ -938,8 +948,10 @@ Declaration:  /** complete **/  // String
         }
         | SUETypeSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+
         	Multiverse<TypeSpecifier> structtypesmv
-            = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 3);
+            = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 3, pc);
         	StringBuilder sb = new StringBuilder();  // the desugared output
 
           for (Element<TypeSpecifier> typespecifier : structtypesmv) {
@@ -1173,8 +1185,10 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+
           // add the int type by default
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 6);
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 6, pc);
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitInt();
           ts.addTransformation("int");
@@ -1198,7 +1212,9 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 6);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 6, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
           Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
@@ -1226,7 +1242,9 @@ DeclaringList:  /** nomerge **/
           saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));  // TODO: use new bindIdent to find typedefname
 
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 5);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 5, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 4);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
           Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
@@ -1239,7 +1257,9 @@ DeclaringList:  /** nomerge **/
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));  // TODO: use new bindIdent to find typedefname
 
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 5);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 5, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 4);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
           Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
@@ -1278,59 +1298,81 @@ DeclaringList:  /** nomerge **/
 DeclarationSpecifier:  /**  nomerge **/
         BasicDeclarationSpecifier        /* Arithmetic or void */
 				{
-	  			Multiverse<TypeSpecifier> decl = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+	  			Multiverse<TypeSpecifier> decl = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 	  			setTransformationValue(value, decl);
 				}
         | SUEDeclarationSpecifier          /* struct/union/enum */
 				{
-          Multiverse<TypeSpecifier> t = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> t = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
         	setTransformationValue(value,t);
 				}
         | TypedefDeclarationSpecifier      /* typedef*/
 				{
-          Multiverse<TypeSpecifier> t = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> t = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
         	setTransformationValue(value,t);
 				}
         | VarArgDeclarationSpecifier  // ADDED
         {
-					setTransformationValue(value,(Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+					setTransformationValue(value,this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
 				}
         | TypeofDeclarationSpecifier // ADDED
         {
-					setTransformationValue(value,(Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+					setTransformationValue(value,this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
 				}
         ;
 
-TypeSpecifier:  /** nomerge **/ // Multiverse<TypeSpecifer>
+TypeSpecifier:  /** complete **/ // Multiverse<TypeSpecifer>
         BasicTypeSpecifier                 /* Arithmetic or void */
 				{
           // TODO: are there any issues with sharing references to the same type builder object?
-          Multiverse<TypeSpecifier> t = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> t = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
         	setTransformationValue(value,t);
 				}
         | SUETypeSpecifier                 /* Struct/Union/Enum */
 				{
-          Multiverse<TypeSpecifier> t = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> t = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
         	setTransformationValue(value,t);
 				}
 				| TypedefTypeSpecifier             /* Typedef */
 				{
-					setTransformationValue(value,(Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+					setTransformationValue(value,this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
 				}
         | VarArgTypeSpecifier  // ADDED
 				{
-					setTransformationValue(value,(Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+					setTransformationValue(value,this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
 				}
         | TypeofTypeSpecifier // ADDED
 				{
-					setTransformationValue(value,(Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+					setTransformationValue(value,this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
 				}
         ;
 
-DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage class */
+DeclarationQualifierList:  /** list, complete **/  /* const/volatile, AND storage class */
         StorageClass
       	{
-      	  Multiverse<TypeSpecifier> storage = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+      	  Multiverse<TypeSpecifier> storage = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
       	  setTransformationValue(value, storage);
       	  updateSpecs(subparser,
           getSpecsAt(subparser, 1),
@@ -1338,8 +1380,10 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
       	}
       	| TypeQualifierList StorageClass
       	{
-      	  Multiverse<TypeSpecifier> qualList = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-      	  Multiverse<TypeSpecifier> storage = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+      	  Multiverse<TypeSpecifier> qualList = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+      	  Multiverse<TypeSpecifier> storage = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
       	  Multiverse<TypeSpecifier> tb = qualList.product(storage, DesugarOps.specifierProduct);
       	  setTransformationValue(value, tb);
       	  updateSpecs(subparser,
@@ -1349,8 +1393,10 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
       	}
         | DeclarationQualifierList DeclarationQualifier
       	{
-      	  Multiverse<TypeSpecifier> qualList = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-      	  Multiverse<TypeSpecifier> qual = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+      	  Multiverse<TypeSpecifier> qualList = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+      	  Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
       	  Multiverse<TypeSpecifier> tb = qualList.product(qual, DesugarOps.specifierProduct);
       	  setTransformationValue(value, tb);
       	  updateSpecs(subparser,
@@ -1360,10 +1406,12 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
       	}
         ;
 
-TypeQualifierList:  /** list, nomerge **/
+TypeQualifierList:  /** list, complete **/
         TypeQualifier
       	{
-      	  Multiverse<TypeSpecifier> qual = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+      	  Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
       	  setTransformationValue(value, qual);
     	    updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -1371,8 +1419,10 @@ TypeQualifierList:  /** list, nomerge **/
       	}
         | TypeQualifierList TypeQualifier
       	{
-      	  Multiverse<TypeSpecifier> qualList = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-      	  Multiverse<TypeSpecifier> qual = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+      	  Multiverse<TypeSpecifier> qualList = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+      	  Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
       	  Multiverse<TypeSpecifier> tb = qualList.product(qual, DesugarOps.specifierProduct);
       	  setTransformationValue(value, tb);
       	  updateSpecs(subparser,
@@ -1385,12 +1435,16 @@ TypeQualifierList:  /** list, nomerge **/
 DeclarationQualifier:
         TypeQualifier                  /* const or volatile */
         {
-          Multiverse<TypeSpecifier> qual = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, qual);
         }
         | StorageClass
         {
-          Multiverse<TypeSpecifier> storage = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> storage = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, storage);
         }
         ;
@@ -1508,24 +1562,28 @@ FunctionSpecifier:  // ADDED
         }
         ;
 
-BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or void*/
+BasicDeclarationSpecifier: /** complete **/      /*StorageClass+Arithmetic or void*/
         BasicTypeSpecifier  StorageClass
         {
-        Multiverse<TypeSpecifier> basicTypeSpecifier = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-        Multiverse<TypeSpecifier> storageClass = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
 
-        // combine the partial type specs
-        Multiverse<TypeSpecifier> tb = basicTypeSpecifier.product(storageClass, DesugarOps.specifierProduct);
+          Multiverse<TypeSpecifier> basicTypeSpecifier = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> storageClass = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 
-        setTransformationValue(value, tb);
-	      updateSpecs(subparser,
+          // combine the partial type specs
+          Multiverse<TypeSpecifier> tb = basicTypeSpecifier.product(storageClass, DesugarOps.specifierProduct);
+
+          setTransformationValue(value, tb);
+          updateSpecs(subparser,
                     getSpecsAt(subparser, 2),
                     getSpecsAt(subparser, 1),
                     value);
         }
         | DeclarationQualifierList BasicTypeName {
-	        Multiverse<TypeSpecifier> qualList = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> basicTypeName = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+	        Multiverse<TypeSpecifier> qualList = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> basicTypeName = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           // combine the partial type specs
           Multiverse<TypeSpecifier> tb = qualList.product(basicTypeName, DesugarOps.specifierProduct);
@@ -1538,8 +1596,10 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
         }
         | BasicDeclarationSpecifier DeclarationQualifier
         {
- 	        Multiverse<TypeSpecifier> decl = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> qual = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+ 	        Multiverse<TypeSpecifier> decl = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           // combine the partial type specs
           Multiverse<TypeSpecifier> tb = decl.product(qual, DesugarOps.specifierProduct);
@@ -1552,8 +1612,10 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
         }
         | BasicDeclarationSpecifier BasicTypeName
         {
-	        Multiverse<TypeSpecifier> basicDeclSpecifier = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> basicTypeName = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+	        Multiverse<TypeSpecifier> basicDeclSpecifier = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> basicTypeName = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           // combine the partial type specs
           Multiverse<TypeSpecifier> tb = basicDeclSpecifier.product(basicTypeName, DesugarOps.specifierProduct);
@@ -1566,13 +1628,15 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
         }
         ;
 
-BasicTypeSpecifier: /**  nomerge **/  // Multiverse<TypeSpecifier>
+BasicTypeSpecifier: /**  complete **/  // Multiverse<TypeSpecifier>
         BasicTypeName           /* Arithmetic or void */
         {
           // TUTORIAL: a semantic action that sets the semantic value
           // to a new typespecifier by adding a property derived from
           // the child semantic value(s)
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -1581,8 +1645,10 @@ BasicTypeSpecifier: /**  nomerge **/  // Multiverse<TypeSpecifier>
         }
         | TypeQualifierList BasicTypeName
 	      {
-          Multiverse<TypeSpecifier> qualList = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> basicTypeName = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> qualList = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> basicTypeName = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           Multiverse<TypeSpecifier> tb = qualList.product(basicTypeName, DesugarOps.specifierProduct);
 
@@ -1594,8 +1660,10 @@ BasicTypeSpecifier: /**  nomerge **/  // Multiverse<TypeSpecifier>
         }
         | BasicTypeSpecifier TypeQualifier
 	      {
-          Multiverse<TypeSpecifier> basicTypeSpecifier = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> qual = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> basicTypeSpecifier = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           Multiverse<TypeSpecifier> tb = basicTypeSpecifier.product(qual, DesugarOps.specifierProduct);
 
@@ -1608,8 +1676,10 @@ BasicTypeSpecifier: /**  nomerge **/  // Multiverse<TypeSpecifier>
         | BasicTypeSpecifier BasicTypeName
         {
           // get the semantic values of each child
-          Multiverse<TypeSpecifier> basicTypeSpecifier = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> basicTypeName = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> basicTypeSpecifier = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> basicTypeName = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           // combine the partial type specs
           Multiverse<TypeSpecifier> tb = basicTypeSpecifier.product(basicTypeName, DesugarOps.specifierProduct);
@@ -1622,64 +1692,81 @@ BasicTypeSpecifier: /**  nomerge **/  // Multiverse<TypeSpecifier>
         }
         ;
 
-SUEDeclarationSpecifier: /** nomerge **/          /* StorageClass + struct/union/enum */   // Multiverse<TypeSpecifier>
+SUEDeclarationSpecifier: /** complete **/          /* StorageClass + struct/union/enum */   // Multiverse<TypeSpecifier>
         SUETypeSpecifier StorageClass
         {
           // TODO: unit test this action
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | DeclarationQualifierList ElaboratedTypeName
         {
           // TODO: unit test this action
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          System.err.println(getNodeAt(subparser, 2));
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | SUEDeclarationSpecifier DeclarationQualifier
         {
           // TODO: unit test this action
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         ;
 
-SUETypeSpecifier: /** nomerge **/
+SUETypeSpecifier: /** complete **/
         ElaboratedTypeName              /* struct/union/enum */
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+
         	setTransformationValue(value,
-            (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+            this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         | TypeQualifierList ElaboratedTypeName
         {
           // TODO: unit test this action
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | SUETypeSpecifier TypeQualifier
         {
           // TODO: unit test this action
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         ;
 
 
-TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef types */
+TypedefDeclarationSpecifier: /** complete **/       /*Storage Class + typedef types */
         TypedefTypeSpecifier StorageClass
       	{
-      	  Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+      	  Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | DeclarationQualifierList TYPEDEFname
         {
           // TODO: needs a unit test
-          Multiverse<TypeSpecifier> qualtbmv = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> qualtbmv = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
           Multiverse<SymbolTable.Entry<Type>> entries
@@ -1693,13 +1780,15 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
         }
         | TypedefDeclarationSpecifier DeclarationQualifier
       	{
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         ;
 
-TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
+TypedefTypeSpecifier: /** complete **/              /* typedef types */
         TYPEDEFname
       	{
       	  String typeName = getStringAt(subparser, 1);
@@ -1712,7 +1801,9 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
         }
         | TypeQualifierList TYPEDEFname
       	{
-          Multiverse<TypeSpecifier> qualtbmv = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> qualtbmv = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
           Multiverse<SymbolTable.Entry<Type>> entries
@@ -1726,13 +1817,15 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
       	}
         | TypedefTypeSpecifier TypeQualifier
         {
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         ;
 
-TypeofDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or void*/
+TypeofDeclarationSpecifier: /** complete **/      /*StorageClass+Arithmetic or void*/
         TypeofTypeSpecifier  StorageClass
         {
           System.err.println("ERROR: unsupported semantic action: TypeofDeclarationSpecifier");
@@ -1755,7 +1848,7 @@ TypeofDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or vo
         }
         ;
 
-TypeofTypeSpecifier: /** nomerge **/  // ADDED
+TypeofTypeSpecifier: /** complete **/  // ADDED
         Typeofspecifier
         {
           System.err.println("ERROR: unsupported semantic action: TypeofTypeSpecifier");
@@ -1778,7 +1871,7 @@ TypeofTypeSpecifier: /** nomerge **/  // ADDED
         }
         ;
 
-Typeofspecifier: /** nomerge **/  // ADDED
+Typeofspecifier: /** complete **/  // ADDED
         Typeofkeyword LPAREN TypeName RPAREN
         {
           System.err.println("ERROR: unsupported semantic action: Typeofspecifier");
@@ -1791,7 +1884,7 @@ Typeofspecifier: /** nomerge **/  // ADDED
         }
         ;
 
-Typeofkeyword: /** nomerge **/  // ADDED
+Typeofkeyword: /** complete **/  // ADDED
         TYPEOF
         {
           System.err.println("ERROR: unsupported semantic action: Typeofkeyword");
@@ -1812,26 +1905,34 @@ Typeofkeyword: /** nomerge **/  // ADDED
 VarArgDeclarationSpecifier:      /*StorageClass+Arithmetic or void*/
         VarArgTypeSpecifier StorageClass
         {
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | DeclarationQualifierList VarArgTypeName
         {
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | VarArgDeclarationSpecifier DeclarationQualifier
         {
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | VarArgDeclarationSpecifier VarArgTypeName
         {
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         ;
@@ -1839,24 +1940,32 @@ VarArgDeclarationSpecifier:      /*StorageClass+Arithmetic or void*/
 VarArgTypeSpecifier:
         VarArgTypeName
         {
-					setTransformationValue(value,(Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+					setTransformationValue(value,this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         | TypeQualifierList VarArgTypeName
         {
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | VarArgTypeSpecifier TypeQualifier
         {
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | VarArgTypeSpecifier VarArgTypeName
         {
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         ;
@@ -2068,16 +2177,16 @@ ComplexKeyword:
         | __COMPLEX__
         ;
 
-ElaboratedTypeName: /** passthrough, nomerge **/
+ElaboratedTypeName: /** complete **/
         StructOrUnionSpecifier
         {
-        	setTransformationValue(value,
-            (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+        	setTransformationValue(value, this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         /* StructSpecifier */
         /* { */
         /* 	setTransformationValue(value, */
-        /*     (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1)); */
+        /*     this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser,1)); */
         /* } */
         /* | UnionSpecifier */
         /* { */
@@ -2086,8 +2195,8 @@ ElaboratedTypeName: /** passthrough, nomerge **/
         /* } */
         | EnumSpecifier
         {
-        	setTransformationValue(value,
-            (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+        	setTransformationValue(value, this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         ;
 
@@ -2105,7 +2214,7 @@ ElaboratedTypeName: /** passthrough, nomerge **/
 //     have the same tag name, so just add it to the symtab referring to
 //     itself
 // TODO: check whether a struct is being declared in a parameter list, which is a wraning.
-StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifier>
+StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<TypeSpecifier>
         STRUCT AttributeSpecifierListOpt LBRACE StructDeclarationList RBRACE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -2268,7 +2377,7 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
         }
         ;
 
-/* UnionSpecifier: /\** nomerge **\/  // ADDED attributes */
+/* UnionSpecifier: /\** complete **\/  // ADDED attributes */
 /*         UNION { EnterScope(subparser); } LBRACE */
 /*           StructDeclarationList { ExitScope(subparser); } */
 /*         RBRACE */
@@ -2388,7 +2497,9 @@ StructDeclaration: /** complete **/  // returns List<Multiverse<Declaration>>
         }
         | TypeSpecifier SEMICOLON  // ADDED Declarator is optional
         {
-          Multiverse<TypeSpecifier> typespecmv = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> typespecmv = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declaration> valuemv = DesugarOps.typespecToDeclaration.transform(typespecmv);
           List<Multiverse<Declaration>> list = new LinkedList<Multiverse<Declaration>>();
           list.add(valuemv);
@@ -2401,7 +2512,7 @@ StructDeclaration: /** complete **/  // returns List<Multiverse<Declaration>>
         }
         ;
 
-StructDefaultDeclaringList: /** list, nomerge **/        /* doesn't redeclare typedef*/
+StructDefaultDeclaringList: /** list, complete **/        /* doesn't redeclare typedef*/
         TypeQualifierList StructIdentifierDeclarator AttributeSpecifierListOpt
         {
           System.err.println("ERROR: unsupported semantic action: StructDefaultDeclaringList (1)");
@@ -2414,7 +2525,7 @@ StructDefaultDeclaringList: /** list, nomerge **/        /* doesn't redeclare ty
         }
         ;
 
-StructDeclaringList: /** list, nomerge **/  // returns List<StructDeclaringListValue>
+StructDeclaringList: /** list, complete **/  // returns List<StructDeclaringListValue>
         TypeSpecifier StructDeclarator AttributeSpecifierListOpt
         {
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -2438,7 +2549,7 @@ StructDeclaringList: /** list, nomerge **/  // returns List<StructDeclaringListV
         ;
 
 
-StructDeclarator: /** nomerge **/  // returns Multiverse<Declarator>
+StructDeclarator: /** complete **/  // returns Multiverse<Declarator>
         Declarator BitFieldSizeOpt
         {
           System.err.println("TODO: support bitfieldsizeopt in a new StructDeclarator (1)");
@@ -2567,7 +2678,7 @@ BitFieldSize: /** nomerge **/
 /*         } */
 /*         ; */
 
-EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpecifier>
+EnumSpecifier: /** complete **/  /* ADDED attributes */   // Multiverse<TypeSpecifier>
         ENUM AttributeSpecifierListOpt EnumSpecifierList
         {
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -3292,7 +3403,9 @@ ParameterAbstractDeclaration: // ParameterDeclarationValue
         }
         | DeclarationSpecifier AbstractDeclarator
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
@@ -3303,19 +3416,25 @@ ParameterAbstractDeclaration: // ParameterDeclarationValue
         }
         | DeclarationQualifierList AbstractDeclarator
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | TypeSpecifier
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> declarators = new Multiverse<Declarator>(new EmptyDeclarator(), subparser.getPresenceCondition());
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | TypeSpecifier AbstractDeclarator
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
@@ -3326,7 +3445,9 @@ ParameterAbstractDeclaration: // ParameterDeclarationValue
         }
         | TypeQualifierList AbstractDeclarator
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
@@ -3343,7 +3464,9 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 4);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -3354,7 +3477,9 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 4);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -3365,7 +3490,9 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 4);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -3376,7 +3503,9 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 4);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -3387,7 +3516,9 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 4);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -3398,7 +3529,9 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 4);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -3449,7 +3582,9 @@ IdentifierOrTypedefName: /** nomerge **/
 TypeName: /** nomerge **/  // Multiverse<Declaration>
         TypeSpecifier
         {
-          Multiverse<TypeSpecifier> type = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> type = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> declarator
             = (Multiverse<Declarator>) new Multiverse<Declarator>(new EmptyDeclarator(), subparser.getPresenceCondition());
           setTransformationValue(value, type.join(declarator, DesugarOps.joinDeclaration));
@@ -3457,13 +3592,17 @@ TypeName: /** nomerge **/  // Multiverse<Declaration>
         }
         | TypeSpecifier AbstractDeclarator
         {
-          Multiverse<TypeSpecifier> type = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> type = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarator = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
           setTransformationValue(value, type.join(declarator, DesugarOps.joinDeclaration));
         }
         | TypeQualifierList
         {
-          Multiverse<TypeSpecifier> type = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> type = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> declarator
             = (Multiverse<Declarator>) new Multiverse<Declarator>(new EmptyDeclarator(), subparser.getPresenceCondition());
           setTransformationValue(value, type.join(declarator, DesugarOps.joinDeclaration));
@@ -3471,7 +3610,9 @@ TypeName: /** nomerge **/  // Multiverse<Declaration>
         }
         | TypeQualifierList AbstractDeclarator
         {
-          Multiverse<TypeSpecifier> type = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> type = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarator = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
           setTransformationValue(value, type.join(declarator, DesugarOps.joinDeclaration));
         }
@@ -3735,8 +3876,10 @@ CleanTypedefDeclarator: /** nomerge **/
         }
         | STAR TypeQualifierList ParameterTypedefDeclarator
       	{
+          PresenceCondition pc = subparser.getPresenceCondition();
+
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
-          Multiverse<TypeSpecifier> qualifierlists = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1);
+          Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3784,8 +3927,10 @@ ParenTypedefDeclarator:  /** nomerge **/
       	| STAR TypeQualifierList
       	LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
       	{
+          PresenceCondition pc = subparser.getPresenceCondition();
+
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,4);
-          Multiverse<TypeSpecifier> qualifierlists = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,2);
+          Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3804,7 +3949,9 @@ ParenTypedefDeclarator:  /** nomerge **/
         }
         | STAR TypeQualifierList ParenTypedefDeclarator
       	{
-          Multiverse<TypeSpecifier> qualifierlists = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
@@ -3889,7 +4036,9 @@ UnaryIdentifierDeclarator: /** nomerge **/
       	}
         | STAR TypeQualifierList IdentifierDeclarator
       	{
-          Multiverse<TypeSpecifier> qualifierlists = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
@@ -4170,7 +4319,9 @@ UnaryAbstractDeclarator: /** nomerge **/
         }
         | STAR TypeQualifierList
         {
-          Multiverse<TypeSpecifier> qualifierlists = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = DesugarOps.toQualifiedPointerAbstractDeclarator.transform(qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -4188,7 +4339,9 @@ UnaryAbstractDeclarator: /** nomerge **/
         }
         | STAR TypeQualifierList AbstractDeclarator
         {
-          Multiverse<TypeSpecifier> qualifierlists = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
