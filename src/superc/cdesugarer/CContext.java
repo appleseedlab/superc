@@ -76,6 +76,62 @@ public class CContext implements ParsingContext {
   /** The symbol table for this parsing context. */
   protected SymbolTable<Type> symtab;
 
+  /** Lookaside tables for struct/union fields. */
+  protected TagLookasideTable taglookasidetable;
+
+  /** Renamed enumerators for enums. */
+  protected Map<String, List<String>> enumsymlist;
+
+  public TagLookasideTable getTagLookasideTable() {
+    return taglookasidetable;
+  }
+
+  /**
+   * This class manages the symbol tables for struct/union fields.
+   * This allows structs to have multiply-defined fields without
+   * having to hoist the static conditions around the entire struct
+   * definition.
+   */
+  protected static class TagLookasideTable {
+    protected Map<String, SymbolTable<Type>> lookaside;
+
+    public TagLookasideTable() {
+      this.lookaside = new HashMap<String, SymbolTable<Type>>();
+    }
+
+    /**
+     * Get the field symbol table for the given (renamed) struct or
+     * union tag.
+     */
+    public SymbolTable<Type> getTable(String tag) {
+      if (! lookaside.containsKey(tag)) {
+        lookaside.put(tag, new SymbolTable<Type>());
+      }
+      return lookaside.get(tag);
+    }
+
+    /**
+     * Add a reference to each symbol table in the lookaside table.
+     * This is for presence condition memory management.
+     */
+    public TagLookasideTable addRef() {
+      for (SymbolTable<Type> elem : lookaside.values()) {
+        elem.addRef();
+      }
+      return this;
+    }
+
+    /**
+     * Delete a reference from each symbol table in the lookaside
+     * table.  This is for presence condition memory management.
+     */
+    public void delRef() {
+      for (SymbolTable<Type> elem : lookaside.values()) {
+        elem.delRef();
+      }
+    }
+  }
+  
   /** The old symbol table. */
   protected OldSymbolTable oldsymtab;
 
@@ -123,7 +179,7 @@ public class CContext implements ParsingContext {
 
   /** Create a new initial C parsing contex. */
   public CContext() {
-    this(new SymbolTable<Type>(), new OldSymbolTable(), null);
+    this(new SymbolTable<Type>(), new TagLookasideTable(), new OldSymbolTable(), null);
   }
 
   /**
@@ -132,8 +188,9 @@ public class CContext implements ParsingContext {
    * @param symtab The symbol table for this parsing context and scope.
    * @param parent The parent parsing context and scope.
    */
-  public CContext(SymbolTable<Type> symtab, OldSymbolTable oldsymtab, CContext parent) {
+  public CContext(SymbolTable<Type> symtab, TagLookasideTable taglookasidetable, OldSymbolTable oldsymtab, CContext parent) {
     this.symtab = symtab;
+    this.taglookasidetable = taglookasidetable;
     this.oldsymtab = oldsymtab;
     this.parent = parent;
 
@@ -158,6 +215,7 @@ public class CContext implements ParsingContext {
    */
   public CContext(CContext scope) {
     this.symtab = scope.symtab.addRef();
+    this.taglookasidetable = scope.taglookasidetable.addRef();
     this.oldsymtab = scope.oldsymtab.addRef();
 
     if (scope.parent != null) {
@@ -451,6 +509,7 @@ public class CContext implements ParsingContext {
       return false;
     } else if (s.symtab == t.symtab) {
       assert s.oldsymtab == t.oldsymtab;
+      assert s.taglookasidetable == t.taglookasidetable;
       return true;
     } else if (s.reentrant != t.reentrant) {
       return false;
@@ -464,6 +523,7 @@ public class CContext implements ParsingContext {
 
     if (this.symtab == scope.symtab) {
       assert oldsymtab == scope.oldsymtab;
+      assert taglookasidetable == scope.taglookasidetable;
       return this;
     } else {
       // symtab.addAll(scope.symtab);
@@ -481,6 +541,7 @@ public class CContext implements ParsingContext {
   /** Free BDDs in the symbol table and those of the parent scopes. */
   public void free() {
     symtab.delRef();
+    // taglookasidetable.delRef();  // trace issue with this
     oldsymtab.delRef();
 
     if (null != parent) {
@@ -630,12 +691,14 @@ public class CContext implements ParsingContext {
     while (scope.reentrant) {
       scope.symtab.delRef();
       scope.symtab = null;
+      scope.taglookasidetable.delRef();
+      scope.taglookasidetable = null;
       scope.oldsymtab.delRef();
       scope.oldsymtab = null;
       scope = scope.parent;
     }
 
-    scope = new CContext(new SymbolTable<Type>(), new OldSymbolTable(), new CContext(scope));
+    scope = new CContext(new SymbolTable<Type>(), new TagLookasideTable(), new OldSymbolTable(), new CContext(scope));
 
     return scope;
   }
@@ -655,6 +718,8 @@ public class CContext implements ParsingContext {
     while (scope.reentrant) {
       scope.symtab.delRef();
       scope.symtab = null;
+      scope.taglookasidetable.delRef();
+      scope.taglookasidetable = null;
       scope.oldsymtab.delRef();
       scope.oldsymtab = null;
       scope = scope.parent;
@@ -662,6 +727,8 @@ public class CContext implements ParsingContext {
 
     scope.symtab.delRef();
     scope.symtab = null;
+    scope.taglookasidetable.delRef();
+    scope.taglookasidetable = null;
     scope.oldsymtab.delRef();
     scope.oldsymtab = null;
     scope = scope.parent;
@@ -684,6 +751,8 @@ public class CContext implements ParsingContext {
     while (scope.reentrant) {
       scope.symtab.delRef();
       scope.symtab = null;
+      scope.taglookasidetable.delRef();
+      scope.taglookasidetable = null;
       scope.oldsymtab.delRef();
       scope.oldsymtab = null;
       scope = scope.parent;
@@ -733,6 +802,8 @@ public class CContext implements ParsingContext {
     while (scope.reentrant) {
       scope.symtab.delRef();
       scope.symtab = null;
+      scope.taglookasidetable.delRef();
+      scope.taglookasidetable = null;
       scope.oldsymtab.delRef();
       scope.oldsymtab = null;
       scope = scope.parent;
