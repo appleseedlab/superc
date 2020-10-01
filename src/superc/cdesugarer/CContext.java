@@ -93,7 +93,7 @@ public class CContext implements ParsingContext {
   protected Map<String, String> forwardtagrefs;
 
   /** Renamed enumerators for enums. */
-  protected Map<String, List<String>> enumsymlist;
+  protected Map<String, List<String>> enumeratorlists;
   
   /** The old symbol table. */
   protected OldSymbolTable oldsymtab;
@@ -145,6 +145,7 @@ public class CContext implements ParsingContext {
     this(new SymbolTable<Type>(),
          new HashMap<String, SymbolTable<Type>>(),
          new HashMap<String, String>(),
+         new HashMap<String, List<String>>(),
          new OldSymbolTable(), null);
   }
 
@@ -157,11 +158,13 @@ public class CContext implements ParsingContext {
   public CContext(SymbolTable<Type> symtab,
                   Map<String, SymbolTable<Type>> taglookasidetable,
                   Map<String, String> forwardtagrefs,
+                  Map<String, List<String>> enumeratorlists,
                   OldSymbolTable oldsymtab,
                   CContext parent) {
     this.symtab = symtab;
     this.taglookasidetable = taglookasidetable;
     this.forwardtagrefs = forwardtagrefs;
+    this.enumeratorlists = enumeratorlists;
     this.oldsymtab = oldsymtab;
     this.parent = parent;
 
@@ -188,6 +191,7 @@ public class CContext implements ParsingContext {
     this.symtab = scope.symtab.addRef();
     this.taglookasidetable = scope.taglookasidetable; for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.addRef(); }
     this.forwardtagrefs = scope.forwardtagrefs;
+    this.enumeratorlists = scope.enumeratorlists;
     this.oldsymtab = scope.oldsymtab.addRef();
 
     if (scope.parent != null) {
@@ -483,6 +487,7 @@ public class CContext implements ParsingContext {
       assert s.oldsymtab == t.oldsymtab;
       assert s.taglookasidetable == t.taglookasidetable;
       assert s.forwardtagrefs == t.forwardtagrefs;
+      assert s.enumeratorlists == t.enumeratorlists;
       return true;
     } else if (s.reentrant != t.reentrant) {
       return false;
@@ -498,6 +503,7 @@ public class CContext implements ParsingContext {
       assert oldsymtab == scope.oldsymtab;
       assert taglookasidetable == scope.taglookasidetable;
       assert forwardtagrefs == scope.forwardtagrefs;
+      assert enumeratorlists == scope.enumeratorlists;
       return this;
     } else {
       // symtab.addAll(scope.symtab);
@@ -668,6 +674,7 @@ public class CContext implements ParsingContext {
       for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.delRef(); }
       scope.taglookasidetable = null;
       scope.forwardtagrefs = null;
+      scope.enumeratorlists = null;
       scope.oldsymtab.delRef();
       scope.oldsymtab = null;
       scope = scope.parent;
@@ -676,6 +683,7 @@ public class CContext implements ParsingContext {
     scope = new CContext(new SymbolTable<Type>(),
                          new HashMap<String, SymbolTable<Type>>(),
                          new HashMap<String, String>(),
+                         new HashMap<String, List<String>>(),
                          new OldSymbolTable(),
                          new CContext(scope));
 
@@ -700,6 +708,7 @@ public class CContext implements ParsingContext {
       for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.delRef(); }
       scope.taglookasidetable = null;
       scope.forwardtagrefs = null;
+      scope.enumeratorlists = null;
       scope.oldsymtab.delRef();
       scope.oldsymtab = null;
       scope = scope.parent;
@@ -710,6 +719,7 @@ public class CContext implements ParsingContext {
     for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.delRef(); }
     scope.taglookasidetable = null;
     scope.forwardtagrefs = null;
+    scope.enumeratorlists = null;
     scope.oldsymtab.delRef();
     scope.oldsymtab = null;
     scope = scope.parent;
@@ -735,6 +745,7 @@ public class CContext implements ParsingContext {
       for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.delRef(); }
       scope.taglookasidetable = null;
       scope.forwardtagrefs = null;
+      scope.enumeratorlists = null;
       scope.oldsymtab.delRef();
       scope.oldsymtab = null;
       scope = scope.parent;
@@ -787,6 +798,7 @@ public class CContext implements ParsingContext {
       for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.delRef(); }
       scope.taglookasidetable = null;
       scope.forwardtagrefs = null;
+      scope.enumeratorlists = null;
       scope.oldsymtab.delRef();
       scope.oldsymtab = null;
       scope = scope.parent;
@@ -1001,6 +1013,21 @@ public class CContext implements ParsingContext {
   }
 
   /**
+   * Add a new (renamed) enumerator to the given enum tag.
+   */
+  public void putEnumerator(String enumTag, String enumerator) {
+    CContext scope = this;
+    
+    while (scope.reentrant) scope = scope.parent;
+
+    if (! scope.enumeratorlists.containsKey(enumTag)) {
+      scope.enumeratorlists.put(enumTag, new LinkedList<String>());
+    }
+
+    scope.enumeratorlists.get(enumTag).add(enumerator);
+  }
+
+  /**
    * Add to the declarations to be put at the top of the scope.
    *
    * @param sb The string builder of the declaration to add.
@@ -1059,6 +1086,19 @@ public class CContext implements ParsingContext {
         }
       }
       sb.append("};\n};\n\n");
+    }
+
+    // create an enum for each enum specifier
+    for (String tag : scope.enumeratorlists.keySet()) {
+      List<String> enumeratorlist = scope.enumeratorlists.get(tag);
+      sb.append("enum ");
+      sb.append(tag);
+      sb.append(" {\n");
+      for (String enumerator : enumeratorlist) {
+        sb.append(enumerator);
+        sb.append(",\n");
+      }
+      sb.append("};\n");
     }
     
     return sb.toString();
