@@ -2127,7 +2127,7 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
           // (1) add each field to the lookaside table and construct the transformation
 
           // get the field table for the current tag, which should be empty
-          SymbolTable<Type> tagtab = scope.getTagLookasideTable().getTable(renamedTag);
+          SymbolTable<Type> tagtab = scope.addLookasideTable(renamedTag);
 
           // prepare the desugared output of this struct
           StringBuilder transformation = new StringBuilder();
@@ -2261,7 +2261,7 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
           // (1) add each field to the lookaside table and construct the transformation
 
           // get the field table for the current tag, which should be empty
-          SymbolTable<Type> tagtab = scope.getTagLookasideTable().getTable(renamedTag);
+          SymbolTable<Type> tagtab = scope.addLookasideTable(renamedTag);
 
           // prepare the desugared output of this struct
           StringBuilder transformation = new StringBuilder();
@@ -2417,7 +2417,7 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
               // the struct it references.
               todoReminder("make a call to rename to record the forward tag mapping.  also record tag name renamings with separate function, since it's a separate namespace");
               String forwardTagRefName = freshCId("forward_tag_reference");
-              Type forwardStructRef = DesugarOps.createStructOrUnionRefType(keyword, forwardTagRefName);
+              Type forwardStructRef = new StructT(forwardTagRefName);
               typespecifier.setType(forwardStructRef);
               typespecifier.addTransformation(String.format("%s %s", keyword, forwardTagRefName));
 
@@ -2428,8 +2428,10 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
               // make an indirect reference to the forward referenced
               // struct/union field.  see the direct and indirect
               // selection constructs for more info.
-              Type referencedStruct = DesugarOps.createStructOrUnionRefType(keyword, structTag);
-              scope.put(CContext.toTagRefName(forwardTagRefName), referencedStruct, entry.getCondition());
+              scope.putForwardTagReference(forwardTagRefName, structTag);
+              System.err.println("PUT: " + forwardTagRefName + " " + structTag);
+              /* Type referencedStruct = DesugarOps.createStructOrUnionRefType(keyword, structTag); */
+              /* scope.put(CContext.toTagRefName(forwardTagRefName), referencedStruct, entry.getCondition()); */
             } else {  // is a declared entry
               if (entry.getData().getValue().isStruct() && keyword.getTokenText().equals("struct")
                   || entry.getData().getValue().isUnion() && keyword.getTokenText().equals("union")) {
