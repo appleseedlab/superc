@@ -43,6 +43,14 @@ class Declaration {
     return this.declarator.hasName();
   }
 
+  /**
+   * Renames the declaration.  If the declarator is abstract, that
+   * object will cause an illegal state exception.
+   */
+  public Declaration rename(String renaming) {
+    return new Declaration(this.typespecifier, this.declarator.rename(renaming));
+  }
+
   /*
    * Gets the type that this declaration defines.  This is meant to be
    * used by the desugaring to wrap the type with the renaming using
