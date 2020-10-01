@@ -429,6 +429,8 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
         {
           // add function to symtab before processing body, since it
           // may be recursive
+
+          PresenceCondition pc = subparser.getPresenceCondition();
           
           // add all variations of the function declaration to the symtab
           CContext scope = (CContext)subparser.scope;
@@ -437,9 +439,11 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           // have a conditional underneath even though the complete
           // annotation isn't on functionprototype.  this is why we
           // are getting all nodes at this point
-          Multiverse<Node> prototypeNodemv = staticCondToMultiverse(getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          Multiverse<Node> prototypeNodemv = staticCondToMultiverse(getNodeAt(subparser, 1), pc);
           // produce a multiverse of strings for the body to use
           Multiverse<String> prototypestrmv = new Multiverse<String>();
+          // collect the set of configurations that have valid function prototypes
+          PresenceCondition validCond = pc.presenceConditionManager().newFalse();
           for (Element<Node> prototypeNode : prototypeNodemv) {
             FunctionPrototypeValue prototype = (FunctionPrototypeValue) getTransformationValue(prototypeNode.getData());
             Multiverse<TypeSpecifier> typespecifiermv = prototype.typespecifier;
@@ -491,6 +495,9 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
 
                       prototypestrmv.add(renamedDeclaration.toString(), entry.getCondition());
 
+                      PresenceCondition newValidCond = validCond.or(entry.getCondition());
+                      validCond.delRef(); validCond = newValidCond;
+
                       // add the forward declaration to the scope to
                       // facilitate matching of signatures for linking
                       StringBuilder forward = new StringBuilder();
@@ -519,6 +526,9 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                           Declaration previousDeclaration = new Declaration(typespecifier.getData(),
                                                                            previousDeclarator);
                           prototypestrmv.add(previousDeclaration.toString(), entry.getCondition());
+
+                          PresenceCondition newValidCond = validCond.or(entry.getCondition());
+                          validCond.delRef(); validCond = newValidCond;
                         } else {
                           scope.putError(originalName, entry.getCondition());
                           recordInvalidGlobalDeclaration(originalName, entry.getCondition());
@@ -546,9 +556,19 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           if (debug) System.err.println(scope.getSymbolTable());
           prototypeNodemv.destruct();
 
+          if (validCond.isFalse()) {
+            System.err.println("INFO: no valid configuration for this definitions of %s");
+          } else {
+            if (prototypestrmv.isEmpty()) {
+              throw new AssertionError("prototypestrmv should not be empty if validConds is not false");
+            }
+          }
+
           // change the semantic value of functionprototype to be the multiverse of strings
           setTransformationValue(getNodeAt(subparser, 1), prototypestrmv);
           System.err.println("PROTOTYPESTRMV " + prototypestrmv);
+          System.err.println(validCond);
+          System.err.println(getNodeAt(subparser, 1));
           
         /*   // reenter function local scope */
         /*   ReenterScope(subparser); */
@@ -5524,6 +5544,8 @@ FunctionCall:  /** nomerge **/
 DirectSelection:  /** nomerge **/  // ExpressionValue
         PostfixExpression DOT IdentifierOrTypedefName
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+
           todoReminder("correctly handle anonymous union direct selection");
           ExpressionValue postfixval = getCompleteNodeExpressionValue(subparser, 3, subparser.getPresenceCondition());
 
@@ -5544,6 +5566,7 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
           Multiverse<Type> typemv = new Multiverse<Type>();  // resulting type
           Multiverse<String> identmv = new Multiverse<String>();  // desugaring
           CContext scope = ((CContext) subparser.scope);
+          boolean hasValidType = false;
           for (Element<Type> type : postfixtype) {
             // check that the postfix type is a struct or union
             Type resolvedType = type.getData().resolve();  // unwrap any typedef aliasing
@@ -5604,6 +5627,7 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
                           typemv.add(fieldtype.getType(), fieldentry.getCondition());
                           String indirectaccess = String.format("%s . %s", renamedTag, fieldtype.getName());
                           identmv.add(indirectaccess, fieldentry.getCondition());
+                          hasValidType = true;
                         }
                       }
                     } else {  // is not a struct/union type
@@ -5633,6 +5657,7 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
                     VariableT fieldtype = fieldentry.getData().getValue().toVariable();  // these are stored as VariableT
                     typemv.add(fieldtype.getType(), fieldentry.getCondition());
                     identmv.add(fieldtype.getName(), fieldentry.getCondition());
+                    hasValidType = true;
                   }
                 }
               }
@@ -5749,21 +5774,27 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
           System.err.println("typemv " + typemv);
           System.err.println("identmv " + identmv);
 
-          todoReminder("check for all type errors or else the product for directselect will fail because of a product of an empty multiverse");
-          Multiverse<String> valuemv = productAll(DesugarOps.concatStrings, postfixmv, dotmv, identmv);
-          dotmv.destruct(); identmv.destruct();  // postfixmv is from child, so don't destruct
-          // valuemv shouldn't need to filtered for error conditions,
-          // because identmv only has those configurations that were
-          // correctly typed
+          if (hasValidType) {
+            Multiverse<String> valuemv = productAll(DesugarOps.concatStrings, postfixmv, dotmv, identmv);
+            dotmv.destruct(); identmv.destruct();  // postfixmv is from child, so don't destruct
+            // valuemv shouldn't need to filtered for error conditions,
+            // because identmv only has those configurations that were
+            // correctly typed
 
-          /* System.err.println("valuemv " + valuemv); */
-          setTransformationValue(value, new ExpressionValue(valuemv, typemv));
+            /* System.err.println("valuemv " + valuemv); */
+            setTransformationValue(value, new ExpressionValue(valuemv, typemv));
+          } else {
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in indirect expression"),
+                                                              ErrorT.TYPE,
+                                                              pc));
+          }
         }
         ;
 
 IndirectSelection:  /** nomerge **/
         PostfixExpression ARROW IdentifierOrTypedefName
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
           // TODO: need to cast PostfixExpression to the union field
           // of the configurable struct declaration.  this means we
           // need to know the type of postfixexpression
@@ -5782,6 +5813,7 @@ IndirectSelection:  /** nomerge **/
           Multiverse<Type> typemv = new Multiverse<Type>();  // resulting type
           Multiverse<String> identmv = new Multiverse<String>();  // desugaring
           CContext scope = ((CContext) subparser.scope);
+          boolean hasValidType = false;
           for (Element<Type> type : postfixtype) {
             // check that the postfix type is a pointer to a struct/union
             Type resolvedType = type.getData().resolve();  // unwrap any typedef aliasing
@@ -5841,6 +5873,7 @@ IndirectSelection:  /** nomerge **/
                           typemv.add(fieldtype.getType(), fieldentry.getCondition());
                           String indirectaccess = String.format("%s . %s", renamedTag, fieldtype.getName());
                           identmv.add(indirectaccess, fieldentry.getCondition());
+                          hasValidType = true;
                         }
                       }
                     } else {  // is not a struct/union type
@@ -5870,6 +5903,7 @@ IndirectSelection:  /** nomerge **/
                     VariableT fieldtype = fieldentry.getData().getValue().toVariable();  // these are stored as VariableT
                     typemv.add(fieldtype.getType(), fieldentry.getCondition());
                     identmv.add(fieldtype.getName(), fieldentry.getCondition());
+                    hasValidType = true;
                   }
                 }
               }
@@ -5979,20 +6013,21 @@ IndirectSelection:  /** nomerge **/
           
           assert ! typemv.isEmpty();
 
-          /* System.err.println("typemv " + typemv); */
-          /* System.err.println("identmv " + identmv); */
+          System.err.println("typemv " + typemv);
+          System.err.println("identmv " + identmv);
 
-          todoReminder("check for all type errors or else the product for indirectselect will fail because of a product of an empty multiverse");
-          Multiverse<String> prepend = identmv.prependScalar(arrow, DesugarOps.concatStrings);
-          Multiverse<String> valuemv = postfixmv.product(prepend, DesugarOps.concatStrings);
-          identmv.destruct(); prepend.destruct();
-
-          // valuemv shouldn't need to filtered for error conditions,
-          // because identmv only has those configurations that were
-          // correctly typed
-
-          /* System.err.println("valuemv " + valuemv); */
-          setTransformationValue(value, new ExpressionValue(valuemv, typemv));
+          if (hasValidType) {
+            Multiverse<String> prepend = identmv.prependScalar(arrow, DesugarOps.concatStrings);
+            Multiverse<String> valuemv = postfixmv.product(prepend, DesugarOps.concatStrings);
+            identmv.destruct(); prepend.destruct();
+            
+            /* System.err.println("valuemv " + valuemv); */
+            setTransformationValue(value, new ExpressionValue(valuemv, typemv));
+          } else {
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in indirect expression"),
+                                                              ErrorT.TYPE,
+                                                              pc));
+          }
         }
         ;
 
@@ -6120,11 +6155,19 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> opmv = new Multiverse<String>((String) getTransformationValue(subparser, 2), pc);
           Multiverse<String> exprmv = exprval.transformation;
 
-          setTransformationValue(value,
-                                 new ExpressionValue(productAll(DesugarOps.concatStrings,
-                                                                opmv,
-                                                                exprmv),
-                                                     exprval.type));  // TODO: placeholder until type checking
+          Multiverse<String> transformationmv;
+          Multiverse<Type> typemv;
+          if (exprval.hasValidType()) {
+            setTransformationValue(value,
+                                   new ExpressionValue(productAll(DesugarOps.concatStrings,
+                                                                  opmv,
+                                                                  exprmv),
+                                                       exprval.type));  // TODO: placeholder until type checking
+          } else {
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in unary operation"),
+                                                              ErrorT.TYPE,
+                                                              pc));
+          }
         }
         | SIZEOF UnaryExpression
         {
@@ -6864,52 +6907,61 @@ AssignmentExpression:  /** passthrough, nomerge **/  // ExpressionValue
           ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
           ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
-          Multiverse<String> expr = leftval.transformation;
-          Multiverse<String> op = this.<String>getCompleteNodeSingleValue(subparser, 2, pc);
-          /* Multiverse<String> op */
-          /*   = new Multiverse<String>((String) getTransformationValue(subparser, 2), pc); */
-          Multiverse<String> assign = rightval.transformation;
-          System.err.println(expr);
-          System.err.println(op);
-          System.err.println(assign);
-          System.err.println(getNodeAt(subparser, 1));
+          if (leftval.hasValidType() && rightval.hasValidType()) {
 
-          // type-checking
-          Multiverse<Type> exprtype = leftval.type;
-          Multiverse<Type> assigntype = rightval.type;
-          System.err.println("exprtype: " + exprtype);
-          System.err.println("assigntype: " + assigntype);
-          todoReminder("check types in assignment expression");
-          /* Multiverse<Type> producttype = productAll(DesugarOps.compareTypes, exprtype, assigntype); */
-          Multiverse<Type> producttype = exprtype;
-          System.err.println("TODO: deduplicate ErrorT");
-          System.err.println("TODO: allow type coercion");
-          Multiverse<Type> typemv = producttype;
-          /* Multiverse<Type> typemv = producttype.deduplicate(ErrorT.TYPE); */
-          /* producttype.destruct(); */
+            Multiverse<String> expr = leftval.transformation;
+            Multiverse<String> op = this.<String>getCompleteNodeSingleValue(subparser, 2, pc);
+            /* Multiverse<String> op */
+            /*   = new Multiverse<String>((String) getTransformationValue(subparser, 2), pc); */
+            Multiverse<String> assign = rightval.transformation;
+            System.err.println(expr);
+            System.err.println(op);
+            System.err.println(assign);
+            System.err.println(getNodeAt(subparser, 1));
 
-          // filter out configurations with type errors
-          PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
-          Multiverse<String> product = productAll(DesugarOps.concatStrings, expr, op, assign);
-          PresenceCondition typesafeCond = errorCond.not();
+            // type-checking
+            Multiverse<Type> exprtype = leftval.type;
+            Multiverse<Type> assigntype = rightval.type;
+            System.err.println("exprtype: " + exprtype);
+            System.err.println("assigntype: " + assigntype);
+            todoReminder("check types in assignment expression");
+            /* Multiverse<Type> producttype = productAll(DesugarOps.compareTypes, exprtype, assigntype); */
+            Multiverse<Type> producttype = exprtype;
+            System.err.println("TODO: deduplicate ErrorT");
+            System.err.println("TODO: allow type coercion");
 
-          todoReminder("TODO: always filter out expressions with type errors so that expressionstatement can convert it to a runtime error.");
-          /* Multiverse<String> valuemv = product.filter(typesafeCond); */
-          Multiverse<String> valuemv = new Multiverse<String>(product);
+            Multiverse<Type> typemv = producttype;
+            /* Multiverse<Type> typemv = producttype.deduplicate(ErrorT.TYPE); */
+            /* producttype.destruct(); */
 
-          // TODO: need to check for all type errors anywhere that is
-          // getting a type.  perhaps use a single value,
-          // ExpressionValue that holds two multiverses (instead of
-          // trying to combine them in one multiverse element, which
-          // doesn't work for parts of the language without a type,
-          // like operators.
+            // filter out configurations with type errors
+            PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
+            Multiverse<String> product = productAll(DesugarOps.concatStrings, expr, op, assign);
+            PresenceCondition typesafeCond = errorCond.not();
 
-          /* System.err.println("assignvalue: " + valuemv); */
-          /* System.err.println("assigntype: " + typemv); */
+            todoReminder("TODO: always filter out expressions with type errors so that expressionstatement can convert it to a runtime error.");
+            /* Multiverse<String> valuemv = product.filter(typesafeCond); */
+            Multiverse<String> valuemv = new Multiverse<String>(product);
 
-          op.destruct(); product.destruct(); errorCond.delRef(); typesafeCond.delRef();
+            // TODO: need to check for all type errors anywhere that is
+            // getting a type.  perhaps use a single value,
+            // ExpressionValue that holds two multiverses (instead of
+            // trying to combine them in one multiverse element, which
+            // doesn't work for parts of the language without a type,
+            // like operators.
+
+            /* System.err.println("assignvalue: " + valuemv); */
+            /* System.err.println("assigntype: " + typemv); */
           
-          setTransformationValue(value, new ExpressionValue(valuemv, typemv));
+            setTransformationValue(value, new ExpressionValue(valuemv, typemv));
+
+            op.destruct(); product.destruct(); errorCond.delRef(); typesafeCond.delRef();
+            
+          } else {  // no valid types
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in assignment expression"),
+                                                              ErrorT.TYPE,
+                                                              pc));
+          }
         }
         ;
 
