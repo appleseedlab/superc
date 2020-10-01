@@ -2106,12 +2106,12 @@ ElaboratedTypeName: /** passthrough, nomerge **/
 //     itself
 // TODO: check whether a struct is being declared in a parameter list, which is a wraning.
 StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifier>
-        StructOrUnionKeyword AttributeSpecifierListOpt LBRACE StructDeclarationList RBRACE
+        STRUCT AttributeSpecifierListOpt LBRACE StructDeclarationList RBRACE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = (CContext)subparser.scope;
           
-          Syntax keyword = (Syntax) getNodeAt(subparser, 5).get(0);
+          Syntax keyword = (Syntax) getNodeAt(subparser, 5);
           // TODO: add attributes to type spec
           List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
 
@@ -2124,14 +2124,14 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
 
           setTransformationValue(value, valuemv);
         }
-        | StructOrUnionKeyword AttributeSpecifierListOpt IdentifierOrTypedefName LBRACE StructDeclarationList RBRACE
+        | STRUCT AttributeSpecifierListOpt IDENTIFIER LBRACE StructDeclarationList RBRACE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = (CContext)subparser.scope;
 
-          Syntax keyword = (Syntax) getNodeAt(subparser, 6).get(0);
+          Syntax keyword = (Syntax) getNodeAt(subparser, 6);
           // TODO: add attributes to type spec
-          String structTag = ((Syntax) getNodeAt(subparser, 4).get(0)).getTokenText();
+          String structTag = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
           List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
 
           // get the renaming of the tag
@@ -2142,25 +2142,130 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
 
           setTransformationValue(value, valuemv);
         }
-        | StructOrUnionKeyword AttributeSpecifierListOpt IdentifierOrTypedefName
+        | STRUCT AttributeSpecifierListOpt TYPEDEFname LBRACE StructDeclarationList RBRACE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = (CContext)subparser.scope;
 
-          Syntax keyword = (Syntax) getNodeAt(subparser, 3).get(0);
+          Syntax keyword = (Syntax) getNodeAt(subparser, 6);
           // TODO: add attributes to type spec
-          String structTag = ((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText();
+          String structTag = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
+
+          // get the renaming of the tag
+          String renamedTag = freshCId(structTag);
+          
+          Multiverse<TypeSpecifier> valuemv
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+
+          setTransformationValue(value, valuemv);
+        }
+        | STRUCT AttributeSpecifierListOpt IDENTIFIER
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = (CContext)subparser.scope;
+
+          Syntax keyword = (Syntax) getNodeAt(subparser, 3);
+          // TODO: add attributes to type spec
+          String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
 
           Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator);
 
           setTransformationValue(value, valuemv);
         }
-        ;
+        | STRUCT AttributeSpecifierListOpt TYPEDEFname
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = (CContext)subparser.scope;
 
-// no actions needed, bcause parent action gets token from node
-StructOrUnionKeyword:
-          STRUCT
-        | UNION
+          Syntax keyword = (Syntax) getNodeAt(subparser, 3);
+          // TODO: add attributes to type spec
+          String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+
+          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator);
+
+          setTransformationValue(value, valuemv);
+        }
+        | UNION AttributeSpecifierListOpt LBRACE StructDeclarationList RBRACE
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = (CContext)subparser.scope;
+          
+          Syntax keyword = (Syntax) getNodeAt(subparser, 5);
+          // TODO: add attributes to type spec
+          List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
+
+          String structTag = freshCId("anonymous_tag");
+          
+          String renamedTag = structTag;
+          
+          Multiverse<TypeSpecifier> valuemv
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+
+          setTransformationValue(value, valuemv);
+        }
+        | UNION AttributeSpecifierListOpt IDENTIFIER LBRACE StructDeclarationList RBRACE
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = (CContext)subparser.scope;
+
+          Syntax keyword = (Syntax) getNodeAt(subparser, 6);
+          // TODO: add attributes to type spec
+          String structTag = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
+
+          // get the renaming of the tag
+          String renamedTag = freshCId(structTag);
+          
+          Multiverse<TypeSpecifier> valuemv
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+
+          setTransformationValue(value, valuemv);
+        }
+        | UNION AttributeSpecifierListOpt TYPEDEFname LBRACE StructDeclarationList RBRACE
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = (CContext)subparser.scope;
+
+          Syntax keyword = (Syntax) getNodeAt(subparser, 6);
+          // TODO: add attributes to type spec
+          String structTag = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
+
+          // get the renaming of the tag
+          String renamedTag = freshCId(structTag);
+          
+          Multiverse<TypeSpecifier> valuemv
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+
+          setTransformationValue(value, valuemv);
+        }
+        | UNION AttributeSpecifierListOpt IDENTIFIER
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = (CContext)subparser.scope;
+
+          Syntax keyword = (Syntax) getNodeAt(subparser, 3);
+          // TODO: add attributes to type spec
+          String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+
+          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator);
+
+          setTransformationValue(value, valuemv);
+        }
+        | UNION AttributeSpecifierListOpt TYPEDEFname
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = (CContext)subparser.scope;
+
+          Syntax keyword = (Syntax) getNodeAt(subparser, 3);
+          // TODO: add attributes to type spec
+          String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+
+          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator);
+
+          setTransformationValue(value, valuemv);
+        }
         ;
 
 /* UnionSpecifier: /\** nomerge **\/  // ADDED attributes */
