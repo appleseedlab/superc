@@ -580,35 +580,67 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           // compoundstatement, while declaration has an initializer.
           PresenceCondition pc = subparser.getPresenceCondition();
 
-          todoReminder("handle type errors in function prototype");
-          Multiverse<String> prototypestrmv = (Multiverse<String>) this.<String>getCompleteNodeMultiverseValue(subparser, 3, pc);
-          System.err.println("PROTOTYPESTRMV2 " + prototypestrmv);
-          Multiverse<String> bodymv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
+          System.err.println(getNodeAt(subparser, 3));
 
-          // declarations, including function definitions, should
-          // appear unconditionally in the desugared output, since
-          // renaming handles different configurations.  so add all
-          // resulting definitions to a single element multiverse
-          // under the true condition.
-          StringBuilder sb = new StringBuilder();
+          // the function prototype can be empty if all prototypes in
+          // that set of configurations all have type errors
+          // (redeclarations, invalid types in parameters, etc).  this
+          // means that we can't use the regular
+          // getCompleteNodeMultiverseValue, which assumes all
+          // children are non-empty.
 
-          // TODO: optimization: dedeuplicate functions that have the
-          // same type.  this type deduplication maybe also be useful
-          // for typechecking to find a single type eror.
+          Multiverse<Node> prototypenodemv = staticCondToMultiverse(getNodeAt(subparser, 3), pc);
+          Multiverse<String> resultmv = new Multiverse<String>();
 
-          // TODO: investigate why the function prototype can still
-          // have a conditional underneath even though the complete
-          // annotation isn't on functionprototype.  this is why we
-          // are getting all nodes at this point
-          for (Element<String> prototypestr : prototypestrmv) {
-            sb.append(prototypestr.getData());
-            sb.append(" {\n");
-            sb.append(emitStatement(bodymv, prototypestr.getCondition()));
-            sb.append("\n}\n");
+          // loop through each node, get its multiverse and add to the
+          // resultmv.  update each node's multiverse elements with the static
+          // conditional branch's presence condition using filter.
+          for (Element<Node> elem : prototypenodemv) {
+            Multiverse<String> nodevaluemv = (Multiverse<String>) getTransformationValue((Node) elem.getData());
+            if (! nodevaluemv.isEmpty()) {
+              Multiverse<String> filtered = nodevaluemv.filter(elem.getCondition());
+              resultmv.addAll(filtered);
+              filtered.destruct();
+            }
           }
-          bodymv.destruct();
+          prototypenodemv.destruct();
 
+          StringBuilder sb = new StringBuilder();
+          if (! resultmv.isEmpty()) {
+            Multiverse<String> prototypestrmv = resultmv.filter(pc);
+            resultmv.destruct();
+    
+            System.err.println("PROTOTYPESTRMV2 " + prototypestrmv);
+            Multiverse<String> bodymv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
+
+            // declarations, including function definitions, should
+            // appear unconditionally in the desugared output, since
+            // renaming handles different configurations.  so add all
+            // resulting definitions to a single element multiverse
+            // under the true condition.
+
+            // TODO: optimization: dedeuplicate functions that have the
+            // same type.  this type deduplication maybe also be useful
+            // for typechecking to find a single type eror.
+
+            // TODO: investigate why the function prototype can still
+            // have a conditional underneath even though the complete
+            // annotation isn't on functionprototype.  this is why we
+            // are getting all nodes at this point
+            for (Element<String> prototypestr : prototypestrmv) {
+              sb.append(prototypestr.getData());
+              sb.append(" {\n");
+              sb.append(emitStatement(bodymv, prototypestr.getCondition()));
+              sb.append("\n}\n");
+            }
+            bodymv.destruct();
+          } else {
+            // the prototype can be empty if there are type errors.
+            sb.append("/* no function due to type errors in the function prototype */\n");
+          }
+          
           setTransformationValue(value, sb.toString());
+          
         }
         /* | FunctionOldPrototype CompoundStatement */
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
