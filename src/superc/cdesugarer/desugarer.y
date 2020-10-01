@@ -298,43 +298,50 @@ TranslationUnit:  /** complete **/
           try {
             OutputStreamWriter writer = new OutputStreamWriter(System.out);
 
-            // emit headers
-            writer.write("#include <stdbool.h>\n");
-            writer.write("\n");
+            // since TranslationUnit itself is complete, static
+            // conditionals may be around it as well, so ensure the
+            // prologue is only emitted once
+            if (! wrotePrologue) {
+              wrotePrologue = true;
 
-            // emit extern declarations for desugaring runtime.
-            writer.write("extern void __static_type_error(char *msg);\n");
-            writer.write("extern void __static_renaming(char *renaming, char *original);\n");
-            writer.write("extern void __static_condition_renaming(char *expression, char *renaming);\n");
-            writer.write("\n");
+              // emit headers
+              writer.write("#include <stdbool.h>\n");
+              writer.write("\n");
 
-            // emit static initializer declaration.
-            String static_initializer_name = freshCId("static_initializer");
-            String static_initializer_signature = String.format("void %s()", static_initializer_name);
-            writer.write(String.format("%s;\n", static_initializer_signature));
-            writer.write("\n");
+              // emit extern declarations for desugaring runtime.
+              writer.write("extern void __static_type_error(char *msg);\n");
+              writer.write("extern void __static_renaming(char *renaming, char *original);\n");
+              writer.write("extern void __static_condition_renaming(char *expression, char *renaming);\n");
+              writer.write("\n");
+
+              // emit static initializer declaration.
+              String static_initializer_name = freshCId("static_initializer");
+              String static_initializer_signature = String.format("void %s()", static_initializer_name);
+              writer.write(String.format("%s;\n", static_initializer_signature));
+              writer.write("\n");
             
-            // writes the extern declarations for the renamed preprocessor BDDs
-            System.err.println("TODO: record original presence condition strings in file as well once raw strings are collected");
-            for (Integer hash : condVars.keySet()) {
-              writer.write(String.format("extern const bool %s;\n", condVars.get(hash)));
+              // writes the extern declarations for the renamed preprocessor BDDs
+              System.err.println("TODO: record original presence condition strings in file as well once raw strings are collected");
+              for (Integer hash : condVars.keySet()) {
+                writer.write(String.format("extern const bool %s;\n", condVars.get(hash)));
+              }
+
+              // emit the static initializer definition
+              writer.write(String.format("%s {\n%s\n%s\n};\n",
+                                         static_initializer_signature,
+                                         recordedRenamings.toString(),
+                                         staticConditionRenamings.toString(),
+                                         invalidGlobals.toString()));
+            
+            
+              SymbolTable<Type> symtab = ((CContext) subparser.scope).getSymbolTable();
+
+              // write the user-defined types at the top of the scope.
+              CContext scope = ((CContext) subparser.scope);
+              writer.write(scope.getDeclarations(subparser.getPresenceCondition()));
+
+              /* if (debug) System.err.println(symtab); */
             }
-
-            // emit the static initializer definition
-            writer.write(String.format("%s {\n%s\n%s\n};\n",
-                                       static_initializer_signature,
-                                       recordedRenamings.toString(),
-                                       staticConditionRenamings.toString(),
-                                       invalidGlobals.toString()));
-            
-            
-            SymbolTable<Type> symtab = ((CContext) subparser.scope).getSymbolTable();
-
-            // write the user-defined types at the top of the scope.
-            CContext scope = ((CContext) subparser.scope);
-            writer.write(scope.getDeclarations(subparser.getPresenceCondition()));
-
-            if (debug) System.err.println(symtab);
 
             // write the transformed C
             Multiverse<String> extdeclmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
@@ -353,7 +360,8 @@ TranslationUnit:  /** complete **/
 
 // ------------------------------------------------------ External definitions
 
-ExternalDeclarationList: /** list, complete **/  // String
+/* ExternalDeclarationList: /\** list, complete **\/  // String */
+ExternalDeclarationList: /** complete **/  // String
         /* empty */  // ADDED gcc allows empty program
         {
           setTransformationValue(value, "");
@@ -7326,6 +7334,8 @@ AsmKeyword:   // ADDED
 
 %%
 
+boolean wrotePrologue = false;
+        
 // TUTORIAL: this section of the grammar gets copied into the
 // resulting parser, specifically the CActions.java class
 
