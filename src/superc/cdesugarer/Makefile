@@ -55,6 +55,7 @@ SOURCE = \
 	CTokenCreator.java \
 	CValues.java \
 	NamedFunctionT.java \
+	OldSymbolTable.java \
 	SymbolTable.java \
 	Multiverse.java \
 	TypeSpecifier.java \

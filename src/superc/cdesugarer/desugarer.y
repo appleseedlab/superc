@@ -188,7 +188,7 @@ import java.math.BigInteger;
 import xtc.Constants;
 import xtc.Limits;
 
-import superc.cdesugarer.SymbolTable.STField;
+import superc.cdesugarer.OldSymbolTable.STField;
 
 import xtc.tree.Attribute;
 import xtc.tree.GNode;
@@ -298,43 +298,50 @@ TranslationUnit:  /** complete **/
           try {
             OutputStreamWriter writer = new OutputStreamWriter(System.out);
 
-            // emit headers
-            writer.write("#include <stdbool.h>\n");
-            writer.write("\n");
+            // since TranslationUnit itself is complete, static
+            // conditionals may be around it as well, so ensure the
+            // prologue is only emitted once
+            if (! wrotePrologue) {
+              wrotePrologue = true;
 
-            // emit extern declarations for desugaring runtime.
-            writer.write("extern void __static_type_error(char *msg);\n");
-            writer.write("extern void __static_renaming(char *renaming, char *original);\n");
-            writer.write("extern void __static_condition_renaming(char *expression, char *renaming);\n");
-            writer.write("\n");
+              // emit headers
+              writer.write("#include <stdbool.h>\n");
+              writer.write("\n");
 
-            // emit static initializer declaration.
-            String static_initializer_name = freshCId("static_initializer");
-            String static_initializer_signature = String.format("void %s()", static_initializer_name);
-            writer.write(String.format("%s;\n", static_initializer_signature));
-            writer.write("\n");
+              // emit extern declarations for desugaring runtime.
+              writer.write("extern void __static_type_error(char *msg);\n");
+              writer.write("extern void __static_renaming(char *renaming, char *original);\n");
+              writer.write("extern void __static_condition_renaming(char *expression, char *renaming);\n");
+              writer.write("\n");
+
+              // emit static initializer declaration.
+              String static_initializer_name = freshCId("static_initializer");
+              String static_initializer_signature = String.format("void %s()", static_initializer_name);
+              writer.write(String.format("%s;\n", static_initializer_signature));
+              writer.write("\n");
             
-            // writes the extern declarations for the renamed preprocessor BDDs
-            System.err.println("TODO: record original presence condition strings in file as well once raw strings are collected");
-            for (Integer hash : condVars.keySet()) {
-              writer.write(String.format("extern const bool %s;\n", condVars.get(hash)));
+              // writes the extern declarations for the renamed preprocessor BDDs
+              System.err.println("TODO: record original presence condition strings in file as well once raw strings are collected");
+              for (Integer hash : condVars.keySet()) {
+                writer.write(String.format("extern const bool %s;\n", condVars.get(hash)));
+              }
+
+              // emit the static initializer definition
+              writer.write(String.format("%s {\n%s\n%s\n};\n",
+                                         static_initializer_signature,
+                                         recordedRenamings.toString(),
+                                         staticConditionRenamings.toString(),
+                                         invalidGlobals.toString()));
+            
+            
+              SymbolTable<Type> symtab = ((CContext) subparser.scope).getSymbolTable();
+
+              // write the user-defined types at the top of the scope.
+              CContext scope = ((CContext) subparser.scope);
+              writer.write(scope.getDeclarations(subparser.getPresenceCondition()));
+
+              /* if (debug) System.err.println(symtab); */
             }
-
-            // emit the static initializer definition
-            writer.write(String.format("%s {\n%s\n%s\n};\n",
-                                       static_initializer_signature,
-                                       recordedRenamings.toString(),
-                                       staticConditionRenamings.toString(),
-                                       invalidGlobals.toString()));
-            
-            
-            SymbolTable symtab = ((CContext) subparser.scope).getSymbolTable();
-
-            // write the user-defined types at the top of the scope.
-            CContext scope = ((CContext) subparser.scope);
-            writer.write(scope.getDeclarations(subparser.getPresenceCondition()));
-
-            if (debug) System.err.println(symtab);
 
             // write the transformed C
             Multiverse<String> extdeclmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
@@ -353,7 +360,8 @@ TranslationUnit:  /** complete **/
 
 // ------------------------------------------------------ External definitions
 
-ExternalDeclarationList: /** list, complete **/  // String
+/* ExternalDeclarationList: /\** list, complete **\/  // String */
+ExternalDeclarationList: /** complete **/  // String
         /* empty */  // ADDED gcc allows empty program
         {
           setTransformationValue(value, "");
@@ -456,8 +464,8 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                 } else {
                   // otherwise loop over each existing entry check for
                   // type errors or add a new declaration
-                  Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(originalName, combinedCond);
-                  for (Element<SymbolTable.Entry> entry : entries) {
+                  Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, combinedCond);
+                  for (Element<SymbolTable.Entry<Type>> entry : entries) {
                     String renaming = freshCId(originalName);
                     Declarator renamedDeclarator = declarator.getData().rename(renaming);
                     Declaration renamedDeclaration = new Declaration(typespecifier.getData(),
@@ -471,10 +479,10 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                                                    declarationType.toFunction().getParameters(),
                                                    declarationType.toFunction().isVarArgs());
                     
-                    if (entry.getData() == SymbolTable.ERROR) {
+                    if (entry.getData().isError()) {
                       // ERROR entry
                       System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
-                    } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                    } else if (entry.getData().isUndeclared()) {
                       // UNDECLARED entry
 
                       todoReminder("multiplex functions to so that each can have its own function name.  try using function pointers as a kind of vtable.");
@@ -495,9 +503,9 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                       recordRenaming(renaming, originalName);
 
                     } else {
-                      if (entry.getData().getType() instanceof NamedFunctionT) {  // there is no Type.isFunctionOrMethod()
+                      if (entry.getData().getValue() instanceof NamedFunctionT) {  // there is no Type.isFunctionOrMethod()
                         FunctionT newtype = ((NamedFunctionT) type).toFunctionT();
-                        FunctionT previoustype = ((NamedFunctionT) entry.getData().getType()).toFunctionT();
+                        FunctionT previoustype = ((NamedFunctionT) entry.getData().getValue()).toFunctionT();
 
                         // TODO: make sure a function is only defined
                         // once, although it can be declared multiple
@@ -507,7 +515,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                         if (cOps.equal(newtype, previoustype)) {
                           System.err.println("TODO: distinguish between previous declaration vs definition.");
                           System.err.println(String.format("INFO: %s is being redeclared in global scope to compatible type", originalName));
-                          String previousname = ((NamedFunctionT) entry.getData().getType()).getName();
+                          String previousname = ((NamedFunctionT) entry.getData().getValue()).getName();
                           Declarator previousDeclarator = declarator.getData().rename(previousname);
                           Declaration previousDeclaration = new Declaration(typespecifier.getData(),
                                                                            previousDeclarator);
@@ -554,7 +562,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           PresenceCondition pc = subparser.getPresenceCondition();
 
           todoReminder("handle type errors in function prototype");
-          Multiverse<String> prototypestrmv = (Multiverse<String>) getTransformationValue(getNodeAt(subparser, 3));
+          Multiverse<String> prototypestrmv = (Multiverse<String>) this.<String>getCompleteNodeMultiverseValue(subparser, 3, pc);
           System.err.println("PROTOTYPESTRMV2 " + prototypestrmv);
           Multiverse<String> bodymv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
 
@@ -637,38 +645,46 @@ FunctionPrototype:  /** nomerge **/
         }
         | DeclarationSpecifier     IdentifierDeclarator
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
           // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
 
-          setTransformationValue(value, new FunctionPrototypeValue((Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2),
+          setTransformationValue(value, new FunctionPrototypeValue(this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc),
                                                                    (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
         }
         | TypeSpecifier            IdentifierDeclarator
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
           // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
 
-          setTransformationValue(value, new FunctionPrototypeValue((Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2),
+          setTransformationValue(value, new FunctionPrototypeValue(this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc),
                                                                    (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
           // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
 
-          setTransformationValue(value, new FunctionPrototypeValue((Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2),
+          setTransformationValue(value, new FunctionPrototypeValue(this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc),
                                                                    (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
         }
         | TypeQualifierList        IdentifierDeclarator
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
           // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
 
-          setTransformationValue(value, new FunctionPrototypeValue((Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2),
+          setTransformationValue(value, new FunctionPrototypeValue(this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc),
                                                                    (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
         }
         |                          OldFunctionDeclarator
@@ -897,8 +913,10 @@ DeclarationExtension:  /** complete **/  // ADDED  // String
 Declaration:  /** complete **/  // String
         SUEDeclarationSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+
         	Multiverse<TypeSpecifier> structtypesmv
-            = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 3);
+            = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 3, pc);
         	StringBuilder sb = new StringBuilder();  // the desugared output
 
           for (Element<TypeSpecifier> typespecifier : structtypesmv) {
@@ -930,8 +948,10 @@ Declaration:  /** complete **/  // String
         }
         | SUETypeSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+
         	Multiverse<TypeSpecifier> structtypesmv
-            = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 3);
+            = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 3, pc);
         	StringBuilder sb = new StringBuilder();  // the desugared output
 
           for (Element<TypeSpecifier> typespecifier : structtypesmv) {
@@ -1021,8 +1041,8 @@ Declaration:  /** complete **/  // String
                         } else {
                           // otherwise loop over each existing entry check for
                           // type errors or add a new declaration
-                          Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(originalName, combinedCond);
-                          for (Element<SymbolTable.Entry> entry : entries) {
+                          Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, combinedCond);
+                          for (Element<SymbolTable.Entry<Type>> entry : entries) {
                             String renaming = freshCId(originalName);
                             Declarator renamedDeclarator = declarator.getData().rename(renaming);
                             Declaration renamedDeclaration = new Declaration(typespecifier.getData(),
@@ -1048,11 +1068,11 @@ Declaration:  /** complete **/  // String
                             }
                             assert null != type;
 
-                            if (entry.getData() == SymbolTable.ERROR) {
+                            if (entry.getData().isError()) {
                               // ERROR entry
                               System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
 
-                            } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                            } else if (entry.getData().isUndeclared()) {
                               // UNDECLARED entry
                               // update the symbol table for this presence condition
                               scope.put(originalName, type, entry.getCondition());
@@ -1077,17 +1097,17 @@ Declaration:  /** complete **/  // String
 
                                 // declarations only set VariableT or AliasT
                                 boolean sameTypeKind
-                                  = entry.getData().getType().isVariable() && type.isVariable()
-                                  ||  entry.getData().getType().isAlias() && type.isAlias();
+                                  = entry.getData().getValue().isVariable() && type.isVariable()
+                                  ||  entry.getData().getValue().isAlias() && type.isAlias();
 
                                 // check compatibility of types
                                 if (sameTypeKind) {
                                   boolean compatibleTypes = false;
                                   if (type.isVariable()) {
-                                    compatibleTypes = cOps.equal(entry.getData().getType().toVariable().getType(),
+                                    compatibleTypes = cOps.equal(entry.getData().getValue().toVariable().getType(),
                                                                  type.toVariable().getType());
                                   } else if (type.isAlias()) {
-                                    compatibleTypes = cOps.equal(entry.getData().getType().toAlias().getType(),
+                                    compatibleTypes = cOps.equal(entry.getData().getValue().toAlias().getType(),
                                                                  type.toAlias().getType());
                                   } else {
                                     throw new AssertionError("should not be possible given sameTypeKind");
@@ -1165,8 +1185,10 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+
           // add the int type by default
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 6);
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 6, pc);
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitInt();
           ts.addTransformation("int");
@@ -1190,7 +1212,9 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 6);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 6, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
           Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
@@ -1218,7 +1242,9 @@ DeclaringList:  /** nomerge **/
           saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));  // TODO: use new bindIdent to find typedefname
 
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 5);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 5, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 4);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
           Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
@@ -1231,7 +1257,9 @@ DeclaringList:  /** nomerge **/
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));  // TODO: use new bindIdent to find typedefname
 
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 5);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 5, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 4);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
           Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
@@ -1270,59 +1298,81 @@ DeclaringList:  /** nomerge **/
 DeclarationSpecifier:  /**  nomerge **/
         BasicDeclarationSpecifier        /* Arithmetic or void */
 				{
-	  			Multiverse<TypeSpecifier> decl = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+	  			Multiverse<TypeSpecifier> decl = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 	  			setTransformationValue(value, decl);
 				}
         | SUEDeclarationSpecifier          /* struct/union/enum */
 				{
-          Multiverse<TypeSpecifier> t = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> t = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
         	setTransformationValue(value,t);
 				}
         | TypedefDeclarationSpecifier      /* typedef*/
 				{
-          Multiverse<TypeSpecifier> t = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> t = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
         	setTransformationValue(value,t);
 				}
         | VarArgDeclarationSpecifier  // ADDED
         {
-					setTransformationValue(value,(Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+					setTransformationValue(value,this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
 				}
         | TypeofDeclarationSpecifier // ADDED
         {
-					setTransformationValue(value,(Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+					setTransformationValue(value,this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
 				}
         ;
 
-TypeSpecifier:  /** nomerge **/ // Multiverse<TypeSpecifer>
+TypeSpecifier:  /** complete **/ // Multiverse<TypeSpecifer>
         BasicTypeSpecifier                 /* Arithmetic or void */
 				{
           // TODO: are there any issues with sharing references to the same type builder object?
-          Multiverse<TypeSpecifier> t = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> t = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
         	setTransformationValue(value,t);
 				}
         | SUETypeSpecifier                 /* Struct/Union/Enum */
 				{
-          Multiverse<TypeSpecifier> t = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> t = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
         	setTransformationValue(value,t);
 				}
 				| TypedefTypeSpecifier             /* Typedef */
 				{
-					setTransformationValue(value,(Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+					setTransformationValue(value,this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
 				}
         | VarArgTypeSpecifier  // ADDED
 				{
-					setTransformationValue(value,(Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+					setTransformationValue(value,this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
 				}
         | TypeofTypeSpecifier // ADDED
 				{
-					setTransformationValue(value,(Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+					setTransformationValue(value,this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
 				}
         ;
 
-DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage class */
+DeclarationQualifierList:  /** list, complete **/  /* const/volatile, AND storage class */
         StorageClass
       	{
-      	  Multiverse<TypeSpecifier> storage = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+      	  Multiverse<TypeSpecifier> storage = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
       	  setTransformationValue(value, storage);
       	  updateSpecs(subparser,
           getSpecsAt(subparser, 1),
@@ -1330,8 +1380,10 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
       	}
       	| TypeQualifierList StorageClass
       	{
-      	  Multiverse<TypeSpecifier> qualList = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-      	  Multiverse<TypeSpecifier> storage = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+      	  Multiverse<TypeSpecifier> qualList = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+      	  Multiverse<TypeSpecifier> storage = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
       	  Multiverse<TypeSpecifier> tb = qualList.product(storage, DesugarOps.specifierProduct);
       	  setTransformationValue(value, tb);
       	  updateSpecs(subparser,
@@ -1341,8 +1393,10 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
       	}
         | DeclarationQualifierList DeclarationQualifier
       	{
-      	  Multiverse<TypeSpecifier> qualList = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-      	  Multiverse<TypeSpecifier> qual = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+      	  Multiverse<TypeSpecifier> qualList = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+      	  Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
       	  Multiverse<TypeSpecifier> tb = qualList.product(qual, DesugarOps.specifierProduct);
       	  setTransformationValue(value, tb);
       	  updateSpecs(subparser,
@@ -1352,10 +1406,12 @@ DeclarationQualifierList:  /** list, nomerge **/  /* const/volatile, AND storage
       	}
         ;
 
-TypeQualifierList:  /** list, nomerge **/
+TypeQualifierList:  /** list, complete **/
         TypeQualifier
       	{
-      	  Multiverse<TypeSpecifier> qual = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+      	  Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
       	  setTransformationValue(value, qual);
     	    updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -1363,8 +1419,10 @@ TypeQualifierList:  /** list, nomerge **/
       	}
         | TypeQualifierList TypeQualifier
       	{
-      	  Multiverse<TypeSpecifier> qualList = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-      	  Multiverse<TypeSpecifier> qual = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+      	  Multiverse<TypeSpecifier> qualList = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+      	  Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
       	  Multiverse<TypeSpecifier> tb = qualList.product(qual, DesugarOps.specifierProduct);
       	  setTransformationValue(value, tb);
       	  updateSpecs(subparser,
@@ -1377,12 +1435,16 @@ TypeQualifierList:  /** list, nomerge **/
 DeclarationQualifier:
         TypeQualifier                  /* const or volatile */
         {
-          Multiverse<TypeSpecifier> qual = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, qual);
         }
         | StorageClass
         {
-          Multiverse<TypeSpecifier> storage = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> storage = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, storage);
         }
         ;
@@ -1500,24 +1562,28 @@ FunctionSpecifier:  // ADDED
         }
         ;
 
-BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or void*/
+BasicDeclarationSpecifier: /** complete **/      /*StorageClass+Arithmetic or void*/
         BasicTypeSpecifier  StorageClass
         {
-        Multiverse<TypeSpecifier> basicTypeSpecifier = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-        Multiverse<TypeSpecifier> storageClass = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
 
-        // combine the partial type specs
-        Multiverse<TypeSpecifier> tb = basicTypeSpecifier.product(storageClass, DesugarOps.specifierProduct);
+          Multiverse<TypeSpecifier> basicTypeSpecifier = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> storageClass = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 
-        setTransformationValue(value, tb);
-	      updateSpecs(subparser,
+          // combine the partial type specs
+          Multiverse<TypeSpecifier> tb = basicTypeSpecifier.product(storageClass, DesugarOps.specifierProduct);
+
+          setTransformationValue(value, tb);
+          updateSpecs(subparser,
                     getSpecsAt(subparser, 2),
                     getSpecsAt(subparser, 1),
                     value);
         }
         | DeclarationQualifierList BasicTypeName {
-	        Multiverse<TypeSpecifier> qualList = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> basicTypeName = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+	        Multiverse<TypeSpecifier> qualList = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> basicTypeName = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           // combine the partial type specs
           Multiverse<TypeSpecifier> tb = qualList.product(basicTypeName, DesugarOps.specifierProduct);
@@ -1530,8 +1596,10 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
         }
         | BasicDeclarationSpecifier DeclarationQualifier
         {
- 	        Multiverse<TypeSpecifier> decl = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> qual = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+ 	        Multiverse<TypeSpecifier> decl = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           // combine the partial type specs
           Multiverse<TypeSpecifier> tb = decl.product(qual, DesugarOps.specifierProduct);
@@ -1544,8 +1612,10 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
         }
         | BasicDeclarationSpecifier BasicTypeName
         {
-	        Multiverse<TypeSpecifier> basicDeclSpecifier = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> basicTypeName = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+	        Multiverse<TypeSpecifier> basicDeclSpecifier = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> basicTypeName = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           // combine the partial type specs
           Multiverse<TypeSpecifier> tb = basicDeclSpecifier.product(basicTypeName, DesugarOps.specifierProduct);
@@ -1558,13 +1628,15 @@ BasicDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or voi
         }
         ;
 
-BasicTypeSpecifier: /**  nomerge **/  // Multiverse<TypeSpecifier>
+BasicTypeSpecifier: /**  complete **/  // Multiverse<TypeSpecifier>
         BasicTypeName           /* Arithmetic or void */
         {
           // TUTORIAL: a semantic action that sets the semantic value
           // to a new typespecifier by adding a property derived from
           // the child semantic value(s)
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb);
           updateSpecs(subparser,
                       getSpecsAt(subparser, 1),
@@ -1573,8 +1645,10 @@ BasicTypeSpecifier: /**  nomerge **/  // Multiverse<TypeSpecifier>
         }
         | TypeQualifierList BasicTypeName
 	      {
-          Multiverse<TypeSpecifier> qualList = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> basicTypeName = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> qualList = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> basicTypeName = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           Multiverse<TypeSpecifier> tb = qualList.product(basicTypeName, DesugarOps.specifierProduct);
 
@@ -1586,8 +1660,10 @@ BasicTypeSpecifier: /**  nomerge **/  // Multiverse<TypeSpecifier>
         }
         | BasicTypeSpecifier TypeQualifier
 	      {
-          Multiverse<TypeSpecifier> basicTypeSpecifier = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> qual = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> basicTypeSpecifier = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           Multiverse<TypeSpecifier> tb = basicTypeSpecifier.product(qual, DesugarOps.specifierProduct);
 
@@ -1600,8 +1676,10 @@ BasicTypeSpecifier: /**  nomerge **/  // Multiverse<TypeSpecifier>
         | BasicTypeSpecifier BasicTypeName
         {
           // get the semantic values of each child
-          Multiverse<TypeSpecifier> basicTypeSpecifier = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> basicTypeName = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> basicTypeSpecifier = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> basicTypeName = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           // combine the partial type specs
           Multiverse<TypeSpecifier> tb = basicTypeSpecifier.product(basicTypeName, DesugarOps.specifierProduct);
@@ -1614,67 +1692,84 @@ BasicTypeSpecifier: /**  nomerge **/  // Multiverse<TypeSpecifier>
         }
         ;
 
-SUEDeclarationSpecifier: /** nomerge **/          /* StorageClass + struct/union/enum */   // Multiverse<TypeSpecifier>
+SUEDeclarationSpecifier: /** complete **/          /* StorageClass + struct/union/enum */   // Multiverse<TypeSpecifier>
         SUETypeSpecifier StorageClass
         {
           // TODO: unit test this action
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | DeclarationQualifierList ElaboratedTypeName
         {
           // TODO: unit test this action
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          System.err.println(getNodeAt(subparser, 2));
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | SUEDeclarationSpecifier DeclarationQualifier
         {
           // TODO: unit test this action
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         ;
 
-SUETypeSpecifier: /** nomerge **/
+SUETypeSpecifier: /** complete **/
         ElaboratedTypeName              /* struct/union/enum */
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+
         	setTransformationValue(value,
-            (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+            this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         | TypeQualifierList ElaboratedTypeName
         {
           // TODO: unit test this action
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | SUETypeSpecifier TypeQualifier
         {
           // TODO: unit test this action
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         ;
 
 
-TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef types */
+TypedefDeclarationSpecifier: /** complete **/       /*Storage Class + typedef types */
         TypedefTypeSpecifier StorageClass
       	{
-      	  Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+      	  Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | DeclarationQualifierList TYPEDEFname
         {
           // TODO: needs a unit test
-          Multiverse<TypeSpecifier> qualtbmv = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> qualtbmv = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
-          Multiverse<SymbolTable.Entry> entries
+          Multiverse<SymbolTable.Entry<Type>> entries
             = ((CContext)subparser.scope).getInAnyScope(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
       	  Multiverse<TypeSpecifier> typedefnametbmv = DesugarOps.typedefEntriesToTypeSpecifier.transform(entries);
@@ -1685,18 +1780,20 @@ TypedefDeclarationSpecifier: /** nomerge **/       /*Storage Class + typedef typ
         }
         | TypedefDeclarationSpecifier DeclarationQualifier
       	{
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         ;
 
-TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
+TypedefTypeSpecifier: /** complete **/              /* typedef types */
         TYPEDEFname
       	{
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
-          Multiverse<SymbolTable.Entry> entries
+          Multiverse<SymbolTable.Entry<Type>> entries
             = ((CContext)subparser.scope).getInAnyScope(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
       	  Multiverse<TypeSpecifier> typedefnametbmv = DesugarOps.typedefEntriesToTypeSpecifier.transform(entries);
@@ -1704,10 +1801,12 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
         }
         | TypeQualifierList TYPEDEFname
       	{
-          Multiverse<TypeSpecifier> qualtbmv = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> qualtbmv = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
-          Multiverse<SymbolTable.Entry> entries
+          Multiverse<SymbolTable.Entry<Type>> entries
             = ((CContext)subparser.scope).getInAnyScope(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
       	  Multiverse<TypeSpecifier> typedefnametbmv = DesugarOps.typedefEntriesToTypeSpecifier.transform(entries);
@@ -1718,13 +1817,15 @@ TypedefTypeSpecifier: /** nomerge **/              /* typedef types */
       	}
         | TypedefTypeSpecifier TypeQualifier
         {
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         ;
 
-TypeofDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or void*/
+TypeofDeclarationSpecifier: /** complete **/      /*StorageClass+Arithmetic or void*/
         TypeofTypeSpecifier  StorageClass
         {
           System.err.println("ERROR: unsupported semantic action: TypeofDeclarationSpecifier");
@@ -1747,7 +1848,7 @@ TypeofDeclarationSpecifier: /** nomerge **/      /*StorageClass+Arithmetic or vo
         }
         ;
 
-TypeofTypeSpecifier: /** nomerge **/  // ADDED
+TypeofTypeSpecifier: /** complete **/  // ADDED
         Typeofspecifier
         {
           System.err.println("ERROR: unsupported semantic action: TypeofTypeSpecifier");
@@ -1770,7 +1871,7 @@ TypeofTypeSpecifier: /** nomerge **/  // ADDED
         }
         ;
 
-Typeofspecifier: /** nomerge **/  // ADDED
+Typeofspecifier: /** complete **/  // ADDED
         Typeofkeyword LPAREN TypeName RPAREN
         {
           System.err.println("ERROR: unsupported semantic action: Typeofspecifier");
@@ -1783,7 +1884,7 @@ Typeofspecifier: /** nomerge **/  // ADDED
         }
         ;
 
-Typeofkeyword: /** nomerge **/  // ADDED
+Typeofkeyword: /** complete **/  // ADDED
         TYPEOF
         {
           System.err.println("ERROR: unsupported semantic action: Typeofkeyword");
@@ -1804,26 +1905,34 @@ Typeofkeyword: /** nomerge **/  // ADDED
 VarArgDeclarationSpecifier:      /*StorageClass+Arithmetic or void*/
         VarArgTypeSpecifier StorageClass
         {
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | DeclarationQualifierList VarArgTypeName
         {
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | VarArgDeclarationSpecifier DeclarationQualifier
         {
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | VarArgDeclarationSpecifier VarArgTypeName
         {
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         ;
@@ -1831,24 +1940,32 @@ VarArgDeclarationSpecifier:      /*StorageClass+Arithmetic or void*/
 VarArgTypeSpecifier:
         VarArgTypeName
         {
-					setTransformationValue(value,(Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+					setTransformationValue(value,this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         | TypeQualifierList VarArgTypeName
         {
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | VarArgTypeSpecifier TypeQualifier
         {
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         | VarArgTypeSpecifier VarArgTypeName
         {
-          Multiverse<TypeSpecifier> tb = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
-          Multiverse<TypeSpecifier> tb1 = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
         }
         ;
@@ -2060,16 +2177,16 @@ ComplexKeyword:
         | __COMPLEX__
         ;
 
-ElaboratedTypeName: /** passthrough, nomerge **/
+ElaboratedTypeName: /** complete **/
         StructOrUnionSpecifier
         {
-        	setTransformationValue(value,
-            (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+        	setTransformationValue(value, this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         /* StructSpecifier */
         /* { */
         /* 	setTransformationValue(value, */
-        /*     (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1)); */
+        /*     this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser,1)); */
         /* } */
         /* | UnionSpecifier */
         /* { */
@@ -2078,8 +2195,8 @@ ElaboratedTypeName: /** passthrough, nomerge **/
         /* } */
         | EnumSpecifier
         {
-        	setTransformationValue(value,
-            (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+        	setTransformationValue(value, this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         ;
 
@@ -2091,286 +2208,176 @@ ElaboratedTypeName: /** passthrough, nomerge **/
  * Multiverse<TypeSpecifier>.
  */
 // transformation notes:
-//   we can either take all combinations of declaration lists and make a new, renamed type spec
-//   or we can combine all fields into a single struct, renaming the fields
-StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifier>
-        StructOrUnionKeyword AttributeSpecifierListOpt LBRACE StructDeclarationList RBRACE
+//   - we can either take all combinations of declaration lists and make a new, renamed type spec
+//   - or we can combine all fields into a single struct, renaming the fields
+//   - for anonymous structs, there should be way for another struct to
+//     have the same tag name, so just add it to the symtab referring to
+//     itself
+// TODO: check whether a struct is being declared in a parameter list, which is a wraning.
+StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<TypeSpecifier>
+        STRUCT AttributeSpecifierListOpt LBRACE StructDeclarationList RBRACE
         {
-          // TODO: check whether a struct is being declared in a parameter list, which is a wraning.
-          
-          // legacy type checking
-          Node tag     = null;
-          Node members = getNodeAt(subparser, 2);
-          Node attrs   = null;
-          updateSpecs(subparser,
-                      makeStructSpec(subparser, tag, members, attrs),
-                      value);
-
-          Syntax keyword = (Syntax) getNodeAt(subparser, 5).get(0);
-          // TODO: add attributes to type spec
-          List<Multiverse<Declaration>> structfields
-            = (List<Multiverse<Declaration>>) getTransformationValue(subparser, 2);
-
-          // for anonymous structs, just take every combination and
-          // make new declaration for it.  since there is no tag,
-          // there is no way to reference this struct type again.
-
-          // get scope to make an anonymous tag
+          PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = (CContext)subparser.scope;
-
-          // TODO: move the list handling code into
-          // StructDeclarationList to avoid looping here
-
-          // (1) start with an empty multiverse of declaration lists
-          Multiverse<List<Declaration>> listsmv
-            = new Multiverse<List<Declaration>>(new LinkedList<Declaration>(), subparser.getPresenceCondition());
-          // (2) go through each declaration multiverse
-          for (Multiverse<Declaration> structfield : structfields) {
-            // (3) turn each declaration into a single-element list
-            Multiverse<List<Declaration>> wrappeddeclarationmv = DesugarOps.declarationListWrap.transform(structfield);
-            // (4) make a new multiverse of declaration form the
-            // product of the previous with the single-element
-            // declaration lists from (3), allowing for missing
-            // declarations in some configurations
-            // with complementedProduct
-            Multiverse<List<Declaration>> newlistsmv
-              = listsmv.complementedProduct(wrappeddeclarationmv, DesugarOps.DECLARATIONLISTCONCAT);
-            wrappeddeclarationmv.destruct();
-            listsmv.destruct();
-            listsmv = newlistsmv;
-          }
-
-          // create a multiverse of struct types
-          Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>();
-          for (Element<List<Declaration>> declarationlist : listsmv) {
-            // give it an anonymous tag name (CAnalyzer)
-            String structTag = freshName("anonymous");
-
-            // no need to rename anonymous structs, since the tag is
-            // not emitted
-            TypeSpecifier tb = new TypeSpecifier();
-            tb.setType(DesugarOps.createStructOrUnionDefType(keyword, structTag, declarationlist.getData()));
-            tb.addTransformation(DesugarOps.createStructOrUnionDefTransformation(keyword,
-                                                                                 "",  // anon structs have no tag
-                                                                                 declarationlist.getData()));
-            valuemv.add(tb, declarationlist.getCondition());
-
-            System.err.println("TODO: check if tb has an error before entering in symtab.");
-            // use separate, global symtab for structs
-            scope.put(structTag,
-                       tb.getType(),
-                       declarationlist.getCondition());
-            /* System.err.println("STRUCTTYPE: " + tb.getType()); */
-            // declared as this type
-          }
-          // should be non-empty, since we start with a single entry multiverse containing an empty list
-          assert ! valuemv.isEmpty();
           
-        	setTransformationValue(value, valuemv);
-        }
-        | StructOrUnionKeyword AttributeSpecifierListOpt IdentifierOrTypedefName LBRACE StructDeclarationList RBRACE
-        {
-
-          // for tagged structs, always replace it with a reference to
-          // the original tag name.  save each configuration of the
-          // struct in the global namespace, so that we can later emit
-          // all of the (renamed) variations at the top of output and
-          // use a union-based struct for the original struct tag.
-
-          // legacy
-          Node tag     = getNodeAt(subparser, 4);
-          Node members = getNodeAt(subparser, 2);
-          Node attrs   = null;
-          updateSpecs(subparser,
-                      makeStructSpec(subparser, tag, members, attrs),
-                      value);
-
-          Syntax keyword = (Syntax) getNodeAt(subparser, 6).get(0);
+          Syntax keyword = (Syntax) getNodeAt(subparser, 5);
           // TODO: add attributes to type spec
-          String structTag = ((Syntax) getNodeAt(subparser, 4).get(0)).getTokenText();
-          List<Multiverse<Declaration>> structfields
-            = (List<Multiverse<Declaration>>) getTransformationValue(subparser, 2);
+          List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
 
-          // TODO: move the list handling code into
-          // StructDeclarationList to avoid looping here
+          String structTag = freshCId("anonymous_tag");
           
-          // hoist all possible combinations of struct fields
+          String renamedTag = structTag;
           
-          // (1) start with an empty multiverse of declaration lists
-          Multiverse<List<Declaration>> listsmv
-            = new Multiverse<List<Declaration>>(new LinkedList<Declaration>(), subparser.getPresenceCondition());
-          // (2) go through each declaration multiverse
-          for (Multiverse<Declaration> structfield : structfields) {
-            // (3) turn each declaration into a single-element list
-            Multiverse<List<Declaration>> wrappeddeclarationmv = DesugarOps.declarationListWrap.transform(structfield);
-            // (4) make a new multiverse of declaration form the
-            // product of the previous with the single-element
-            // declaration lists from (3), allowing for missing
-            // declarations in some configurations
-            // with complementedProduct
-            Multiverse<List<Declaration>> newlistsmv
-              = listsmv.complementedProduct(wrappeddeclarationmv, DesugarOps.DECLARATIONLISTCONCAT);
-            wrappeddeclarationmv.destruct();
-            listsmv.destruct();
-            listsmv = newlistsmv;
-          }
-          // listsmv contains a multiverse of declaration lists
-
-          // TODO: track when a struct is being redeclared in some
-          // configuration, which should be possible from the symtab
-          
-          CContext scope = (CContext)subparser.scope;
-
-          Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>();
-          Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(CContext.toTagName(structTag), subparser.getPresenceCondition());
-          for (Element<SymbolTable.Entry> entry : entries) {
-            if (entry.getData() == SymbolTable.ERROR) {
-              System.err.println(String.format("INFO: trying to use an invalid specifier: %s", structTag));
-              TypeSpecifier typespecifier = new TypeSpecifier();
-              typespecifier.setType(ErrorT.TYPE);
-              valuemv.add(typespecifier, entry.getCondition());
-              // no need to add to symtab since this config is
-              // already an error
-            } else if (entry.getData() == SymbolTable.UNDECLARED) {
-              // create a multiverse of struct types
-              for (Element<List<Declaration>> declarationlist : listsmv) {
-                String renamedTag = freshCId(structTag);
-                PresenceCondition combinedCond = entry.getCondition().and(declarationlist.getCondition());
-
-                TypeSpecifier typespecifier = new TypeSpecifier();
-                typespecifier.setType(DesugarOps.createStructOrUnionDefType(keyword, renamedTag, declarationlist.getData()));
-                typespecifier.addTransformation(DesugarOps.createStructOrUnionDefTransformation(keyword,
-                                                                                                renamedTag,
-                                                                                                declarationlist.getData()));
-                if (! typespecifier.getType().isError()) {
-                  scope.put(CContext.toTagName(structTag),
-                            typespecifier.getType(),
-                            combinedCond);
-                  StringBuilder sb = new StringBuilder();
-                  sb.append(typespecifier.toString());
-                  // TODO: syntax list
-                  sb.append(";\n");
-                  scope.addDeclaration(sb.toString());
-                  todoReminder("record struct renamings as well");
-                } else {
-                  scope.putError(CContext.toTagName(structTag), combinedCond);
-                }
-                
-                // just use a struct ref for the transformation value, since
-                // we will print all struct defs at the top of the scope in
-                // the output
-                TypeSpecifier reftypespecifier = new TypeSpecifier();
-                reftypespecifier.setType(DesugarOps.createStructOrUnionRefType(keyword, structTag));
-                reftypespecifier.addTransformation(String.format("struct %s", structTag));
-                valuemv.add(reftypespecifier, combinedCond);
-              }
-            } else {
-              System.err.println(String.format("INFO: trying redefine a struct: %s", structTag));
-              TypeSpecifier typespecifier = new TypeSpecifier();
-              typespecifier.setType(ErrorT.TYPE);
-              valuemv.add(typespecifier, entry.getCondition());
-
-              // this configuration has a type error entry
-              scope.putError(CContext.toTagName(structTag), entry.getCondition());
-            }
-          }
-          // should not be empty because symtab.get is not supposed
-          // to be empty
-          assert ! valuemv.isEmpty();
+          Multiverse<TypeSpecifier> valuemv
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
 
           setTransformationValue(value, valuemv);
         }
-        | StructOrUnionKeyword AttributeSpecifierListOpt IdentifierOrTypedefName
+        | STRUCT AttributeSpecifierListOpt IDENTIFIER LBRACE StructDeclarationList RBRACE
         {
-          // get scope to make an anonymous tag
+          PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = (CContext)subparser.scope;
 
-          Syntax keyword = (Syntax) getNodeAt(subparser, 3).get(0);
+          Syntax keyword = (Syntax) getNodeAt(subparser, 6);
           // TODO: add attributes to type spec
-          String structTag = ((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText();
+          String structTag = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
 
-          // global structs are handled by compositing every (renamed)
-          // field, so their renaming entry should just be the
-          // original name
-
-          // forward references are not allowed in local scope, so
-          // we can just use the renamed struct from the symtab
+          // get the renaming of the tag
+          String renamedTag = freshCId(structTag);
           
-          Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>();
-          Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(CContext.toTagName(structTag),
-                                                                    subparser.getPresenceCondition());
-          for (Element<SymbolTable.Entry> entry : entries) {
-            TypeSpecifier typespecifier = new TypeSpecifier();
-            if (entry.getData() == SymbolTable.ERROR) {
-              System.err.println(String.format("INFO: trying to use an invalid specifier: %s", structTag));
-              typespecifier.setType(ErrorT.TYPE);
-            } else if (entry.getData() == SymbolTable.UNDECLARED) {
-              System.err.println(String.format("TODO: local structs must be defined before being used, unless it's a pointer to a struct: %s", structTag));
-              /* typespecifier.setType(ErrorT.TYPE); */
-              typespecifier.setType(DesugarOps.createStructOrUnionRefType(keyword, structTag));
-              typespecifier.addTransformation(String.format("struct %s", structTag));
-            } else {
-              assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
-              if (entry.getData().getType().isStruct() || entry.getData().getType().isUnion()) {
-                // just use the original tag name, since we will use a
-                // union type for it
-                typespecifier.setType(DesugarOps.createStructOrUnionRefType(keyword, structTag));
-                typespecifier.addTransformation(String.format("struct %s", structTag));
-                /* typespecifier.setStructReference(structTag, */
-                /*                                entry.getData().getType().toStruct().getName()); */
-              } else {
-                System.err.println("TODO: expected a struct type in the tag namespace.  this is either a bug or due to mishandling of union types.");
-                System.exit(1);
-                typespecifier.setType(ErrorT.TYPE);
-              }
-            }
-            valuemv.add(typespecifier, entry.getCondition());
-          }
-          // should not be empty because symtab.get is not supposed
-          // to be empty
-          assert ! valuemv.isEmpty();
+          Multiverse<TypeSpecifier> valuemv
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+
           setTransformationValue(value, valuemv);
         }
-        /* | StructOrUnionKeyword AttributeSpecifierList { EnterScope(subparser); } LBRACE */
-        /*   StructDeclarationList { ExitScope(subparser); } */
-        /* RBRACE */
-        /* { */
-        /*   System.err.println("ERROR: unsupported semantic action: StructSpecifier (4)"); */
-        /*   System.exit(1); */
-        /*   Node tag     = null; */
-        /*   Node members = getNodeAt(subparser, 3); */
-        /*   Node attrs   = getNodeAt(subparser, 6); */
-        /*   updateSpecs(subparser, */
-        /*               makeStructSpec(subparser, tag, members, attrs), */
-        /*               value); */
-        /* } */
-        /* | StructOrUnionKeyword AttributeSpecifierList IdentifierOrTypedefName { EnterScope(subparser); } LBRACE */
-        /*   StructDeclarationList { ExitScope(subparser); } */
-        /* RBRACE */
-        /* { */
-        /*   System.err.println("ERROR: unsupported semantic action: StructSpecifier (5)"); */
-        /*   System.exit(1); */
-        /*   Node tag     = getNodeAt(subparser, 6); */
-        /*   Node members = getNodeAt(subparser, 3); */
-        /*   Node attrs   = getNodeAt(subparser, 7); */
-        /*   updateSpecs(subparser, */
-        /*               makeStructSpec(subparser, tag, members, attrs), */
-        /*               value); */
-        /* } */
-        /* | StructOrUnionKeyword AttributeSpecifierList IdentifierOrTypedefName */
-        /* { */
-        /*   System.err.println("ERROR: unsupported semantic action: StructSpecifier (6)"); */
-        /*   System.exit(1); */
-        /* } */
+        | STRUCT AttributeSpecifierListOpt TYPEDEFname LBRACE StructDeclarationList RBRACE
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = (CContext)subparser.scope;
+
+          Syntax keyword = (Syntax) getNodeAt(subparser, 6);
+          // TODO: add attributes to type spec
+          String structTag = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
+
+          // get the renaming of the tag
+          String renamedTag = freshCId(structTag);
+          
+          Multiverse<TypeSpecifier> valuemv
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+
+          setTransformationValue(value, valuemv);
+        }
+        | STRUCT AttributeSpecifierListOpt IDENTIFIER
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = (CContext)subparser.scope;
+
+          Syntax keyword = (Syntax) getNodeAt(subparser, 3);
+          // TODO: add attributes to type spec
+          String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+
+          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator);
+
+          setTransformationValue(value, valuemv);
+        }
+        | STRUCT AttributeSpecifierListOpt TYPEDEFname
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = (CContext)subparser.scope;
+
+          Syntax keyword = (Syntax) getNodeAt(subparser, 3);
+          // TODO: add attributes to type spec
+          String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+
+          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator);
+
+          setTransformationValue(value, valuemv);
+        }
+        | UNION AttributeSpecifierListOpt LBRACE StructDeclarationList RBRACE
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = (CContext)subparser.scope;
+          
+          Syntax keyword = (Syntax) getNodeAt(subparser, 5);
+          // TODO: add attributes to type spec
+          List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
+
+          String structTag = freshCId("anonymous_tag");
+          
+          String renamedTag = structTag;
+          
+          Multiverse<TypeSpecifier> valuemv
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+
+          setTransformationValue(value, valuemv);
+        }
+        | UNION AttributeSpecifierListOpt IDENTIFIER LBRACE StructDeclarationList RBRACE
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = (CContext)subparser.scope;
+
+          Syntax keyword = (Syntax) getNodeAt(subparser, 6);
+          // TODO: add attributes to type spec
+          String structTag = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
+
+          // get the renaming of the tag
+          String renamedTag = freshCId(structTag);
+          
+          Multiverse<TypeSpecifier> valuemv
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+
+          setTransformationValue(value, valuemv);
+        }
+        | UNION AttributeSpecifierListOpt TYPEDEFname LBRACE StructDeclarationList RBRACE
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = (CContext)subparser.scope;
+
+          Syntax keyword = (Syntax) getNodeAt(subparser, 6);
+          // TODO: add attributes to type spec
+          String structTag = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
+
+          // get the renaming of the tag
+          String renamedTag = freshCId(structTag);
+          
+          Multiverse<TypeSpecifier> valuemv
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+
+          setTransformationValue(value, valuemv);
+        }
+        | UNION AttributeSpecifierListOpt IDENTIFIER
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = (CContext)subparser.scope;
+
+          Syntax keyword = (Syntax) getNodeAt(subparser, 3);
+          // TODO: add attributes to type spec
+          String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+
+          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator);
+
+          setTransformationValue(value, valuemv);
+        }
+        | UNION AttributeSpecifierListOpt TYPEDEFname
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = (CContext)subparser.scope;
+
+          Syntax keyword = (Syntax) getNodeAt(subparser, 3);
+          // TODO: add attributes to type spec
+          String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+
+          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator);
+
+          setTransformationValue(value, valuemv);
+        }
         ;
 
-// no actions needed, bcause parent action gets token from node
-StructOrUnionKeyword:
-          STRUCT
-        | UNION
-        ;
-
-/* UnionSpecifier: /\** nomerge **\/  // ADDED attributes */
+/* UnionSpecifier: /\** complete **\/  // ADDED attributes */
 /*         UNION { EnterScope(subparser); } LBRACE */
 /*           StructDeclarationList { ExitScope(subparser); } */
 /*         RBRACE */
@@ -2422,7 +2429,7 @@ StructOrUnionKeyword:
  * list of declarations, where each declaration may be different
  * depending on the configuration.
  */
-StructDeclarationList: /** list, nomerge **/  // List<Multiverse<Declaration>>
+StructDeclarationList: /** list, complete **/  // List<Multiverse<Declaration>>
         /* StructDeclaration */ /* ADDED gcc empty struct */
         {
           ((Node) value).setProperty(SPECS, new Specifiers()); // legacy type checking
@@ -2436,16 +2443,15 @@ StructDeclarationList: /** list, nomerge **/  // List<Multiverse<Declaration>>
                       getSpecsAt(subparser, 1),
                       value);
 
-          List<Multiverse<Declaration>> structfields
-            = (LinkedList<Multiverse<Declaration>>) getTransformationValue(subparser,2);
-          List<Multiverse<Declaration>> declarationvalue
-            = (List<Multiverse<Declaration>>) getTransformationValue(subparser,1);
-          structfields.addAll(declarationvalue);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
+          List<Multiverse<Declaration>> declarationvalues = this.<Declaration>getCompleteNodeListValue(subparser, 1, pc);
+          structfields.addAll(declarationvalues);
           setTransformationValue(value, structfields);
         }
         ;
 
-StructDeclaration: /** nomerge **/  // returns Multiverse<Declaration>
+StructDeclaration: /** complete **/  // returns List<Multiverse<Declaration>>
         StructDeclaringList SEMICOLON
         {
           // TODO: implement like Declaration, except return a
@@ -2491,7 +2497,9 @@ StructDeclaration: /** nomerge **/  // returns Multiverse<Declaration>
         }
         | TypeSpecifier SEMICOLON  // ADDED Declarator is optional
         {
-          Multiverse<TypeSpecifier> typespecmv = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> typespecmv = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declaration> valuemv = DesugarOps.typespecToDeclaration.transform(typespecmv);
           List<Multiverse<Declaration>> list = new LinkedList<Multiverse<Declaration>>();
           list.add(valuemv);
@@ -2504,7 +2512,7 @@ StructDeclaration: /** nomerge **/  // returns Multiverse<Declaration>
         }
         ;
 
-StructDefaultDeclaringList: /** list, nomerge **/        /* doesn't redeclare typedef*/
+StructDefaultDeclaringList: /** list, complete **/        /* doesn't redeclare typedef*/
         TypeQualifierList StructIdentifierDeclarator AttributeSpecifierListOpt
         {
           System.err.println("ERROR: unsupported semantic action: StructDefaultDeclaringList (1)");
@@ -2517,7 +2525,7 @@ StructDefaultDeclaringList: /** list, nomerge **/        /* doesn't redeclare ty
         }
         ;
 
-StructDeclaringList: /** list, nomerge **/  // returns List<StructDeclaringListValue>
+StructDeclaringList: /** list, complete **/  // returns List<StructDeclaringListValue>
         TypeSpecifier StructDeclarator AttributeSpecifierListOpt
         {
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -2541,7 +2549,7 @@ StructDeclaringList: /** list, nomerge **/  // returns List<StructDeclaringListV
         ;
 
 
-StructDeclarator: /** nomerge **/  // returns Multiverse<Declarator>
+StructDeclarator: /** complete **/  // returns Multiverse<Declarator>
         Declarator BitFieldSizeOpt
         {
           System.err.println("TODO: support bitfieldsizeopt in a new StructDeclarator (1)");
@@ -2670,7 +2678,7 @@ BitFieldSize: /** nomerge **/
 /*         } */
 /*         ; */
 
-EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpecifier>
+EnumSpecifier: /** complete **/  /* ADDED attributes */   // Multiverse<TypeSpecifier>
         ENUM AttributeSpecifierListOpt EnumSpecifierList
         {
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -2681,15 +2689,12 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpeci
           // TODO: add attributes to type spec
           List<Multiverse<EnumeratorValue>> list = this.<EnumeratorValue>getCompleteNodeListValue(getNodeAt(subparser, 1),
                                                                                                   subparser.getPresenceCondition());
-
-          String enumTag = freshName("anonymous");
+          String enumTag = freshCId("anonymous_tag");
 
           CContext scope = (CContext)subparser.scope;
 
           PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
           PresenceCondition validCond = pc.presenceConditionManager().newFalse();
-          List<EnumeratorT> enumeratorlist = new LinkedList<EnumeratorT>();
-          StringBuilder transformation = new StringBuilder();
           for (Multiverse<EnumeratorValue> ratormv : list) {
             for (Element<EnumeratorValue> rator : ratormv) {
               if (rator.getData().getType().isError()) {
@@ -2698,36 +2703,38 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpeci
               } else {
                 PresenceCondition newvalidCond = validCond.or(rator.getCondition());
                 validCond.delRef(); validCond = newvalidCond;
-                enumeratorlist.add(rator.getData().getType().toEnumerator());
-                transformation.append(rator.getData().getTransformation());
-                transformation.append(",\n");
+                scope.putEnumerator(enumTag, rator.getData().getTransformation());
+                // enumeratorlist.add(rator.getData().getType().toEnumerator());  // no longer storing enumerators with enum type
               }
             }  // end ratormv
           } // end list
 
           Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
-          
-          if (enumeratorlist.size() > 0 && validCond.isNotFalse()) {
+
+          if (validCond.isNotFalse()) {
             TypeSpecifier typespec = new TypeSpecifier();
             // TODO: get largest type for enum (gcc), instead of ISO standard of int
-            Type enumtype = NumberT.INT;
-            typespec.setType(new EnumT(enumtype, enumTag, enumeratorlist));
+            Type enumreftype = new EnumT(enumTag);
+            typespec.setType(enumreftype);
 
             typespec.addTransformation(keyword);
-            typespec.addTransformation(" {\n");
-            typespec.addTransformation(transformation.toString());
-            typespec.addTransformation("}\n");
+            typespec.addTransformation(" ");
+            typespec.addTransformation(enumTag);
 
             typespecmv.add(typespec, validCond);
-            validCond.delRef();
+
+            /* scope.put(CContext.toTagName(enumTag), enumreftype, validCond); */
           }
+          validCond.delRef();
 
           if (errorCond.isNotFalse()) {
             TypeSpecifier typespecifier = new TypeSpecifier();
             typespecifier.setType(ErrorT.TYPE);
             typespecmv.add(typespecifier, errorCond);
-            errorCond.delRef();
+
+            /* scope.putError(CContext.toTagName(enumTag), errorCond); */
           }
+          errorCond.delRef();
 
           assert ! typespecmv.isEmpty();
 
@@ -2741,6 +2748,8 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpeci
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           
+          todoReminder("type check enumerator value.   not allowed to use same int.");
+
           String keyword = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
           Multiverse<String> attrs = this.<String>getCompleteNodeMultiverseValue(getNodeAt(subparser, 3),
                                                                                  subparser.getPresenceCondition());
@@ -2753,8 +2762,6 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpeci
 
           PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
           PresenceCondition validCond = pc.presenceConditionManager().newFalse();
-          List<EnumeratorT> enumeratorlist = new LinkedList<EnumeratorT>();
-          StringBuilder transformation = new StringBuilder();
           for (Multiverse<EnumeratorValue> ratormv : list) {
             for (Element<EnumeratorValue> rator : ratormv) {
               if (rator.getData().getType().isError()) {
@@ -2763,130 +2770,213 @@ EnumSpecifier: /** nomerge **/  /* ADDED attributes */   // Multiverse<TypeSpeci
               } else {
                 PresenceCondition newvalidCond = validCond.or(rator.getCondition());
                 validCond.delRef(); validCond = newvalidCond;
-                enumeratorlist.add(rator.getData().getType().toEnumerator());
-                transformation.append(rator.getData().getTransformation());
-                transformation.append(",\n");
+                scope.putEnumerator(enumTag, rator.getData().getTransformation());
+                // enumeratorlist.add(rator.getData().getType().toEnumerator());  // no longer storing enumerators with enum type
               }
             }  // end ratormv
           } // end list
 
           Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
-          
-          if (enumeratorlist.size() > 0 && validCond.isNotFalse()) {
-            Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(enumTag, validCond);
-            for (Element<SymbolTable.Entry> entry : entries) {
-              PresenceCondition combinedCond = validCond.and(entry.getCondition());
-              if (combinedCond.isNotFalse()) {
-                if (entry.getData() == SymbolTable.ERROR) {
-                  System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid configuration", enumTag));
-                  TypeSpecifier typespec = new TypeSpecifier();
-                  typespec.setType(ErrorT.TYPE);
-                  typespecmv.add(typespec, combinedCond);
-                } else if (entry.getData() == SymbolTable.UNDECLARED) {
-                  // add to symtab
-                  String renaming = freshCId(enumTag);
-                  // TODO: get largest type for enum (gcc), instead of ISO standard of int
-                  Type enumbasetype = NumberT.INT;
-                  Type enumtype = new EnumT(enumbasetype, renaming, enumeratorlist);
-                  scope.put(CContext.toTagName(enumTag), enumtype, combinedCond);
 
-                  // create typespec for semantic value
-                  TypeSpecifier typespec = new TypeSpecifier();
-                  typespec.setType(enumtype);
-                  typespec.addTransformation(keyword);
-                  typespec.addTransformation(" ");
-                  typespec.addTransformation(renaming);
-                  typespecmv.add(typespec, combinedCond);
+          if (validCond.isNotFalse()) {
+            TypeSpecifier typespec = new TypeSpecifier();
+            // TODO: get largest type for enum (gcc), instead of ISO standard of int
+            Type enumreftype = new EnumT(enumTag);
+            typespec.setType(enumreftype);
 
-                  // desugar to top of scope
-                  scope.addDeclaration(keyword);
-                  scope.addDeclaration(" ");
-                  scope.addDeclaration(renaming);
-                  scope.addDeclaration(" {\n");
-                  scope.addDeclaration(transformation.toString());
-                  scope.addDeclaration("};\n");
-                } else {  // previously-declared
-                  System.err.println(String.format("INFO: \"%s\" is being redefined in the same configuration", enumTag));
-                  TypeSpecifier typespec = new TypeSpecifier();
-                  typespec.setType(ErrorT.TYPE);
-                  typespecmv.add(typespec, combinedCond);
-                }
-              }
-              combinedCond.delRef();
-            }
-            
-            validCond.delRef();
+            typespec.addTransformation(keyword);
+            typespec.addTransformation(" ");
+            typespec.addTransformation(enumTag);
+
+            typespecmv.add(typespec, validCond);
+
+            /* scope.put(CContext.toTagName(enumTag), enumreftype, validCond); */
           }
+          validCond.delRef();
 
           if (errorCond.isNotFalse()) {
             TypeSpecifier typespecifier = new TypeSpecifier();
             typespecifier.setType(ErrorT.TYPE);
             typespecmv.add(typespecifier, errorCond);
-            errorCond.delRef();
-            scope.putError(enumTag, errorCond);
+
+            /* scope.putError(CContext.toTagName(enumTag), errorCond); */
           }
+          errorCond.delRef();
 
           assert ! typespecmv.isEmpty();
 
           todoReminder("support gcc's enums larger than ISO C's int");
           // TODO: check whether the list of enums are all errors ornot
                     
-          todoReminder("add the enum tag to the symtab, or just update the type in the symtab");
-
           setTransformationValue(value, typespecmv);
 
+          /* CContext scope = (CContext)subparser.scope; */
+
+          /* PresenceCondition errorCond = pc.presenceConditionManager().newFalse(); */
+          /* PresenceCondition validCond = pc.presenceConditionManager().newFalse(); */
+
+
+          /* // add enumerators to the originally-named enum tag's list of enumerators */
+          /* // update the enumerator */
+          /* // if the enum is new, then make a new entry  */
+          
+
+          /* StringBuilder transformation = new StringBuilder(); */
+          /* for (Multiverse<EnumeratorValue> ratormv : list) { */
+          /*   for (Element<EnumeratorValue> rator : ratormv) { */
+          /*     if (rator.getData().getType().isError()) { */
+          /*       PresenceCondition newerrorCond = errorCond.or(rator.getCondition()); */
+          /*       errorCond.delRef(); errorCond = newerrorCond; */
+          /*     } else { */
+          /*       PresenceCondition newvalidCond = validCond.or(rator.getCondition()); */
+          /*       validCond.delRef(); validCond = newvalidCond; */
+          /*       enumeratorlist.add(rator.getData().getType().toEnumerator()); */
+          /*       transformation.append(rator.getData().getTransformation()); */
+          /*       transformation.append(",\n"); */
+          /*     } */
+          /*   }  // end ratormv */
+          /* } // end list */
+
+          /* Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>(); */
+          
+          /* if (enumeratorlist.size() > 0 && validCond.isNotFalse()) { */
+          /*   Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(enumTag, validCond); */
+          /*   for (Element<SymbolTable.Entry<Type>> entry : entries) { */
+          /*     PresenceCondition combinedCond = validCond.and(entry.getCondition()); */
+          /*     if (combinedCond.isNotFalse()) { */
+          /*       if (entry.getData().isError()) { */
+          /*         System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid configuration", enumTag)); */
+          /*         TypeSpecifier typespec = new TypeSpecifier(); */
+          /*         typespec.setType(ErrorT.TYPE); */
+          /*         typespecmv.add(typespec, combinedCond); */
+          /*       } else if (entry.getData().isUndeclared()) { */
+          /*         // add to symtab */
+          /*         String renaming = freshCId(enumTag); */
+          /*         // TODO: get largest type for enum (gcc), instead of ISO standard of int */
+          /*         Type enumbasetype = NumberT.INT; */
+          /*         Type enumtype = new EnumT(enumbasetype, renaming, enumeratorlist); */
+          /*         scope.put(CContext.toTagName(enumTag), enumtype, combinedCond); */
+
+          /*         // create an enum reference for the typespec */
+          /*         // semantic value */
+          /*         TypeSpecifier typespec = new TypeSpecifier(); */
+          /*         typespec.setType(enumtype); */
+          /*         typespec.addTransformation(keyword); */
+          /*         typespec.addTransformation(" "); */
+          /*         typespec.addTransformation(renaming); */
+          /*         typespecmv.add(typespec, combinedCond); */
+
+          /*         // desugar to top of scope */
+          /*         scope.addDeclaration(keyword); */
+          /*         scope.addDeclaration(" "); */
+          /*         scope.addDeclaration(renaming); */
+          /*         scope.addDeclaration(" {\n"); */
+          /*         scope.addDeclaration(transformation.toString()); */
+          /*         scope.addDeclaration("};\n"); */
+          /*       } else {  // previously-declared */
+          /*         System.err.println(String.format("INFO: \"%s\" is being redefined in the same configuration", enumTag)); */
+          /*         TypeSpecifier typespec = new TypeSpecifier(); */
+          /*         typespec.setType(ErrorT.TYPE); */
+          /*         typespecmv.add(typespec, combinedCond); */
+          /*       } */
+          /*     } */
+          /*     combinedCond.delRef(); */
+          /*   } */
+            
+          /*   validCond.delRef(); */
+          /* } */
+
+          /* if (errorCond.isNotFalse()) { */
+          /*   TypeSpecifier typespecifier = new TypeSpecifier(); */
+          /*   typespecifier.setType(ErrorT.TYPE); */
+          /*   typespecmv.add(typespecifier, errorCond); */
+          /*   errorCond.delRef(); */
+          /*   scope.putError(enumTag, errorCond); */
+          /* } */
+
+          /* assert ! typespecmv.isEmpty(); */
+
+          /* todoReminder("support gcc's enums larger than ISO C's int"); */
+          /* // TODO: check whether the list of enums are all errors ornot */
+                    
+          /* todoReminder("add the enum tag to the symtab, or just update the type in the symtab"); */
+
+          /* setTransformationValue(value, typespecmv); */
         }
         | ENUM AttributeSpecifierListOpt IdentifierOrTypedefName
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          // enum reference.
-
-          // TODO: handle attributespecifierlistopt
           
-          // if this is a forward reference, then use the largest type
-          // possible.  this should be okay since the choice of type
-          // is implementation-defined n1570.pdf section 6.7.2.2.
-          // gcc, however, allows long long integers (see
-          // unit/enum_size.c) and CAnalyzer finds the type as the
-          // largest that fits all of the enumerators.  with
-          // -Wpedantic, gcc gives warnings that say ISO does not
-          // allow forward references and requires enum values to be
-          // int.
-
-          // if it's not a forward reference, then use the type given
-          // by the enum in the symtab
-
-          // TODO: once enum tags are in the symtab, we can mark this
-          // type as an error.  either way, the error in the
-          // definition of the enum will ensure that configuration is
-          // marked as a type error.
-
-          // TODO: check at the end of desugaring whether there are
-          // any enums or structs references that never had a
-          // definition
-
           String keyword = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
           Multiverse<String> attrs = this.<String>getCompleteNodeMultiverseValue(getNodeAt(subparser, 2),
                                                                                  subparser.getPresenceCondition());
           String enumTag = ((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText();
           // TODO: add attributes to type spec
 
-          todoReminder("implement gcc's support of larger-than-int enumerators");
+          Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
 
-          todoReminder("expand to all versions of the enum");
+          TypeSpecifier typespec = new TypeSpecifier();
+          // TODO: get largest type for enum (gcc), instead of ISO standard of int
+          Type enumreftype = new EnumT(enumTag);
+          typespec.setType(enumreftype);
 
-          todoReminder("add enum type to symtab");
+          typespec.addTransformation(keyword);
+          typespec.addTransformation(" ");
+          typespec.addTransformation(enumTag);
+
+          typespecmv.add(typespec, pc);
           
-          String renaming = freshCId(enumTag);
+          setTransformationValue(value, typespecmv);
 
-          TypeSpecifier tb = new TypeSpecifier();
-          Type enumbasetype = NumberT.INT;
-          Type enumtype = new EnumT(renaming);
-          tb.setType(enumtype);
-          tb.addTransformation(keyword);
-          tb.addTransformation(" ");
-          tb.addTransformation(renaming);
-          setTransformationValue(value, new Multiverse<TypeSpecifier>(tb, pc));
+          /* PresenceCondition pc = subparser.getPresenceCondition(); */
+          /* // enum reference. */
+
+          /* // TODO: handle attributespecifierlistopt */
+          
+          /* // if this is a forward reference, then use the largest type */
+          /* // possible.  this should be okay since the choice of type */
+          /* // is implementation-defined n1570.pdf section 6.7.2.2. */
+          /* // gcc, however, allows long long integers (see */
+          /* // unit/enum_size.c) and CAnalyzer finds the type as the */
+          /* // largest that fits all of the enumerators.  with */
+          /* // -Wpedantic, gcc gives warnings that say ISO does not */
+          /* // allow forward references and requires enum values to be */
+          /* // int. */
+
+          /* // if it's not a forward reference, then use the type given */
+          /* // by the enum in the symtab */
+
+          /* // TODO: once enum tags are in the symtab, we can mark this */
+          /* // type as an error.  either way, the error in the */
+          /* // definition of the enum will ensure that configuration is */
+          /* // marked as a type error. */
+
+          /* // TODO: check at the end of desugaring whether there are */
+          /* // any enums or structs references that never had a */
+          /* // definition */
+
+          /* String keyword = ((Syntax) getNodeAt(subparser, 3)).getTokenText(); */
+          /* Multiverse<String> attrs = this.<String>getCompleteNodeMultiverseValue(getNodeAt(subparser, 2), */
+          /*                                                                        subparser.getPresenceCondition()); */
+          /* String enumTag = ((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText(); */
+          /* // TODO: add attributes to type spec */
+
+          /* todoReminder("implement gcc's support of larger-than-int enumerators"); */
+
+          /* todoReminder("expand to all versions of the enum"); */
+
+          /* todoReminder("add enum type to symtab"); */
+          
+          /* String renaming = freshCId(enumTag); */
+
+          /* TypeSpecifier tb = new TypeSpecifier(); */
+          /* Type enumbasetype = NumberT.INT; */
+          /* Type enumtype = new EnumT(renaming); */
+          /* tb.setType(enumtype); */
+          /* tb.addTransformation(keyword); */
+          /* tb.addTransformation(" "); */
+          /* tb.addTransformation(renaming); */
+          /* setTransformationValue(value, new Multiverse<TypeSpecifier>(tb, pc)); */
         }
         ;
 
@@ -2936,7 +3026,6 @@ Enumerator: /** complete **/ // Multiverse<EnumeratorValue>
         IDENTIFIER { BindEnum(subparser); } EnumeratorValueOpt
         {
           todoReminder("record enum type errors in the global or local scope");
-          todoReminder("type check enumerator value.   not allowed to use same int.");
           CContext scope = ((CContext) subparser.scope);
           String name = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
           Multiverse<EnumeratorValValue> val = (Multiverse<EnumeratorValValue>) getTransformationValue(subparser, 1);
@@ -2944,16 +3033,16 @@ Enumerator: /** complete **/ // Multiverse<EnumeratorValue>
           for (Element<EnumeratorValValue> elem : val) {
             PresenceCondition valcond = subparser.getPresenceCondition().and(elem.getCondition());
 
-            Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(name, valcond);
-            for (Element<SymbolTable.Entry> entry : entries) {
+            Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(name, valcond);
+            for (Element<SymbolTable.Entry<Type>> entry : entries) {
               String renaming = freshCId(name);
               PresenceCondition combinedCond = valcond.and(entry.getCondition());
-              if (entry.getData() == SymbolTable.ERROR) {
+              if (entry.getData().isError()) {
                 // this is already an error
                 System.err.println(String.format("INFO: enumerator \"%s\" is being redeclared in an existing invalid configuration",
                                                  name));
                 enumeratorvaluemv.add(new EnumeratorValue(name, renaming, ErrorT.TYPE), combinedCond);
-              } else if (entry.getData() == SymbolTable.UNDECLARED) {
+              } else if (entry.getData().isUndeclared()) {
                 // create a new constant int declaration of the enumerator
                 TypeSpecifier ratortb = new TypeSpecifier();
                 /* Type ratortype = cOps.fit(ratorvalue); */  // TODO: support gcc's non-ISO large enumerators
@@ -2962,7 +3051,7 @@ Enumerator: /** complete **/ // Multiverse<EnumeratorValue>
                 // multiverse of last values in the list of
                 // enumerators.
                 Type ratorbasetype = NumberT.INT;
-                Type ratortype = new EnumeratorT(ratorbasetype, renaming, BigInteger.ONE);
+                Type ratortype = new EnumeratorT(ratorbasetype, renaming, BigInteger.ONE);  // TODO: use real values if needed
                 ratortb.setType(ratortype);
                 // the type specifier has no transformation value,
                 // because enumerators have no explicit type
@@ -3004,16 +3093,16 @@ Enumerator: /** complete **/ // Multiverse<EnumeratorValue>
           for (Element<EnumeratorValValue> elem : val) {
             PresenceCondition valcond = subparser.getPresenceCondition().and(elem.getCondition());
 
-            Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(name, valcond);
-            for (Element<SymbolTable.Entry> entry : entries) {
+            Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(name, valcond);
+            for (Element<SymbolTable.Entry<Type>> entry : entries) {
               String renaming = freshCId(name);
               PresenceCondition combinedCond = valcond.and(entry.getCondition());
-              if (entry.getData() == SymbolTable.ERROR) {
+              if (entry.getData().isError()) {
                 // this is already an error
                 System.err.println(String.format("INFO: enumerator \"%s\" is being redeclared in an existing invalid configuration",
                                                  name));
                 enumeratorvaluemv.add(new EnumeratorValue(name, renaming, ErrorT.TYPE), combinedCond);
-              } else if (entry.getData() == SymbolTable.UNDECLARED) {
+              } else if (entry.getData().isUndeclared()) {
                 // create a new constant int declaration of the enumerator
                 TypeSpecifier ratortb = new TypeSpecifier();
                 /* Type ratortype = cOps.fit(ratorvalue); */  // TODO: support gcc's non-ISO large enumerators
@@ -3232,18 +3321,18 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<Declaration>
                 // the identifierdeclaration.  abstract declarators
                 // can't go in the symbol table, because there is no
                 // symbol.
-                Multiverse<SymbolTable.Entry> entries = scope.getInCurrentScope(declarator.getData().getName(), combinedCond);
+                Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(declarator.getData().getName(), combinedCond);
 
                 // TODO: check for multiply-defined parameter names,
                 // which (I believe) should make the entire function
                 // declarator invalid.
 
-                for (Element<SymbolTable.Entry> entry : entries) {
-                  if (entry.getData() == SymbolTable.ERROR) {
+                for (Element<SymbolTable.Entry<Type>> entry : entries) {
+                  if (entry.getData().isError()) {
                     System.err.println("INFO: invalid parameter declaration for function");
                     System.err.println("TODO: any invalid parameter declarations should cause the entire function declaration to be invalid under that condition");
                     scope.putError(declarator.getData().getName(), combinedCond);
-                  } else if (entry.getData() == SymbolTable.UNDECLARED) {
+                  } else if (entry.getData().isUndeclared()) {
                     // get the type and add it to the symtab
                     Type type = VariableT.newParam(renamedDeclaration.getType(),
                                                    renamedDeclaration.getName());
@@ -3314,7 +3403,9 @@ ParameterAbstractDeclaration: // ParameterDeclarationValue
         }
         | DeclarationSpecifier AbstractDeclarator
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
@@ -3325,19 +3416,25 @@ ParameterAbstractDeclaration: // ParameterDeclarationValue
         }
         | DeclarationQualifierList AbstractDeclarator
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | TypeSpecifier
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> declarators = new Multiverse<Declarator>(new EmptyDeclarator(), subparser.getPresenceCondition());
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | TypeSpecifier AbstractDeclarator
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
@@ -3348,7 +3445,9 @@ ParameterAbstractDeclaration: // ParameterDeclarationValue
         }
         | TypeQualifierList AbstractDeclarator
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
@@ -3365,7 +3464,9 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 4);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -3376,7 +3477,9 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 4);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -3387,7 +3490,9 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 4);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -3398,7 +3503,9 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 4);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -3409,7 +3516,9 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 4);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -3420,7 +3529,9 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         } AttributeSpecifierListOpt
         {
-          Multiverse<TypeSpecifier> types = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 4);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
@@ -3471,7 +3582,9 @@ IdentifierOrTypedefName: /** nomerge **/
 TypeName: /** nomerge **/  // Multiverse<Declaration>
         TypeSpecifier
         {
-          Multiverse<TypeSpecifier> type = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> type = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> declarator
             = (Multiverse<Declarator>) new Multiverse<Declarator>(new EmptyDeclarator(), subparser.getPresenceCondition());
           setTransformationValue(value, type.join(declarator, DesugarOps.joinDeclaration));
@@ -3479,13 +3592,17 @@ TypeName: /** nomerge **/  // Multiverse<Declaration>
         }
         | TypeSpecifier AbstractDeclarator
         {
-          Multiverse<TypeSpecifier> type = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> type = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarator = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
           setTransformationValue(value, type.join(declarator, DesugarOps.joinDeclaration));
         }
         | TypeQualifierList
         {
-          Multiverse<TypeSpecifier> type = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> type = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> declarator
             = (Multiverse<Declarator>) new Multiverse<Declarator>(new EmptyDeclarator(), subparser.getPresenceCondition());
           setTransformationValue(value, type.join(declarator, DesugarOps.joinDeclaration));
@@ -3493,7 +3610,9 @@ TypeName: /** nomerge **/  // Multiverse<Declaration>
         }
         | TypeQualifierList AbstractDeclarator
         {
-          Multiverse<TypeSpecifier> type = (Multiverse<TypeSpecifier>) getTransformationValue(subparser, 2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> type = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarator = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
           setTransformationValue(value, type.join(declarator, DesugarOps.joinDeclaration));
         }
@@ -3757,8 +3876,10 @@ CleanTypedefDeclarator: /** nomerge **/
         }
         | STAR TypeQualifierList ParameterTypedefDeclarator
       	{
+          PresenceCondition pc = subparser.getPresenceCondition();
+
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
-          Multiverse<TypeSpecifier> qualifierlists = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1);
+          Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3806,8 +3927,10 @@ ParenTypedefDeclarator:  /** nomerge **/
       	| STAR TypeQualifierList
       	LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
       	{
+          PresenceCondition pc = subparser.getPresenceCondition();
+
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,4);
-          Multiverse<TypeSpecifier> qualifierlists = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,2);
+          Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3826,7 +3949,9 @@ ParenTypedefDeclarator:  /** nomerge **/
         }
         | STAR TypeQualifierList ParenTypedefDeclarator
       	{
-          Multiverse<TypeSpecifier> qualifierlists = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
@@ -3911,7 +4036,9 @@ UnaryIdentifierDeclarator: /** nomerge **/
       	}
         | STAR TypeQualifierList IdentifierDeclarator
       	{
-          Multiverse<TypeSpecifier> qualifierlists = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
@@ -4192,7 +4319,9 @@ UnaryAbstractDeclarator: /** nomerge **/
         }
         | STAR TypeQualifierList
         {
-          Multiverse<TypeSpecifier> qualifierlists = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = DesugarOps.toQualifiedPointerAbstractDeclarator.transform(qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -4210,7 +4339,9 @@ UnaryAbstractDeclarator: /** nomerge **/
         }
         | STAR TypeQualifierList AbstractDeclarator
         {
-          Multiverse<TypeSpecifier> qualifierlists = (Multiverse<TypeSpecifier>) getTransformationValue(subparser,2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
@@ -5019,7 +5150,7 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
 
           // get the renamings from the symtab
           PresenceCondition cond = subparser.getPresenceCondition().presenceConditionManager().newTrue();
-          Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(originalName, cond);
+          Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(originalName, cond);
           cond.delRef();
 
           // convert the renamings to stringbuilders
@@ -5028,32 +5159,32 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
           // any presence conditions with an error can be omitted from
           // the desugaring.  instead, this information is preserved
           // in the type value for use by the statement.
-          for (Element<SymbolTable.Entry> entry : entries) {
-            if (entry.getData() == SymbolTable.ERROR) {
+          for (Element<SymbolTable.Entry<Type>> entry : entries) {
+            if (entry.getData().isError()) {
               System.err.println(String.format("type error: use of symbol with invalid declaration: %s", originalName));
               typemv.add(ErrorT.TYPE, entry.getCondition());
-            } else if (entry.getData() == SymbolTable.UNDECLARED) {
+            } else if (entry.getData().isUndeclared()) {
               System.err.println(String.format("type error: use of undeclared symbol: %s", originalName));
               typemv.add(ErrorT.TYPE, entry.getCondition());
             } else {
               // TODO: add type checking.  may need to tag the resulting
               // stringbuilder with the type to handle this
 
-              if (entry.getData().getType().isVariable()) {
+              if (entry.getData().getValue().isVariable()) {
                 String result  // use the renamed symbol
-                  = String.format(" %s ", entry.getData().getType().toVariable().getName());
+                  = String.format(" %s ", entry.getData().getValue().toVariable().getName());
                 sbmv.add(result, entry.getCondition());
-                typemv.add(entry.getData().getType().toVariable().getType(), entry.getCondition());
-              } else if (entry.getData().getType() instanceof NamedFunctionT) {
+                typemv.add(entry.getData().getValue().toVariable().getType(), entry.getCondition());
+              } else if (entry.getData().getValue() instanceof NamedFunctionT) {
                 String result  // use the renamed symbol
-                  = String.format(" %s ", ((NamedFunctionT) entry.getData().getType()).getName());
+                  = String.format(" %s ", ((NamedFunctionT) entry.getData().getValue()).getName());
                 sbmv.add(result, entry.getCondition());
-                typemv.add(((NamedFunctionT) entry.getData().getType()), entry.getCondition());
-              } else if (entry.getData().getType() instanceof EnumeratorT) {
+                typemv.add(((NamedFunctionT) entry.getData().getValue()), entry.getCondition());
+              } else if (entry.getData().getValue() instanceof EnumeratorT) {
                 String result  // use the renamed symbol
-                  = String.format(" %s ", entry.getData().getType().toEnumerator().getName());
+                  = String.format(" %s ", entry.getData().getValue().toEnumerator().getName());
                 sbmv.add(result, entry.getCondition());
-                typemv.add(entry.getData().getType().toEnumerator().getType(), entry.getCondition());
+                typemv.add(entry.getData().getValue().toEnumerator().getType(), entry.getCondition());
               } else {
                 System.err.println(String.format("type error: use of symbol other than variable, function, or enumerator: %s", originalName));
                 typemv.add(ErrorT.TYPE, entry.getCondition());
@@ -5392,6 +5523,7 @@ FunctionCall:  /** nomerge **/
 DirectSelection:  /** nomerge **/  // ExpressionValue
         PostfixExpression DOT IdentifierOrTypedefName
         {
+          todoReminder("correctly handle anonymous union direct selection");
           ExpressionValue postfixval = getCompleteNodeExpressionValue(subparser, 3, subparser.getPresenceCondition());
 
           Multiverse<String> postfixmv = postfixval.transformation;
@@ -5399,6 +5531,11 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
             = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(),
                                             subparser.getPresenceCondition());
           String ident = ((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText();
+
+          // get each struct type
+          // check whether its a forward reference or not
+          // for regular structs, look up the fieldname in the lookaside table, and expand all possible renamings
+          // for forward reference structs, go the actual struct, find its renamings, and find the field names in the lookaside table (these must be defined by now, per C's forward reference rules)
 
           // go through each type and see which have a field with this
           // name and collect the resulting type
@@ -5408,111 +5545,203 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
           CContext scope = ((CContext) subparser.scope);
           for (Element<Type> type : postfixtype) {
             // check that the postfix type is a struct or union
-            if (type.getData().isStruct() || type.getData().isUnion()) {
-              StructOrUnionT sutype = (StructT) type.getData();
+            Type resolvedType = type.getData().resolve();  // unwrap any typedef aliasing
+            if (resolvedType.isStruct() || resolvedType.isUnion()) {
+              StructOrUnionT sutype = resolvedType.toStructOrUnion();
               String tag = sutype.getName();
-              assert tag != null;  // even anonymous structs get a name, e.g., anonymous(0)
-              if (tag.startsWith("anonymous(")) {  // anonymous struct or union
-                // go through each symtab entry for this struct/union
-                Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tag, type.getCondition());
-                for (Element<SymbolTable.Entry> entry : entries) {
-                  PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
-                  if (entry.getData() == SymbolTable.ERROR) {
-                    // TODO: type error
-                    typemv.add(ErrorT.TYPE, combinedCond);
-                  } else if (entry.getData() == SymbolTable.UNDECLARED) {
-                    // TODO: type error, symbol not declared in this presence condition
-                    typemv.add(ErrorT.TYPE, combinedCond);
-                  } else {
-                    // TODO: check for correct field usage, otherwise type error
-                    // TODO: insert field of the union inside the original struct/union
+              assert tag != null;  // even anonymous structs get a name
 
-                    // since we looked up a tagname, not seeing a
-                    // struct/union type likely means there's a bug
-                    assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
-                    StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
+              // the struct type specifier ensures that the type is
+              // already entered in the symbol table, so we can assume
+              // it's there and in the lookaside table.
+              
+              // the ref will either be to a renamed tag or to a forward reference
+              if (tag.startsWith("__forward_tag_reference_")) {
+                // TODO: is there a safer way to check for this?
 
-                    // similarly, if we looked up a tagname, there
-                    // should be definitions with members
-                    assert null != entrytype.getMembers();
+                System.err.println("GET: " + tag);
+                String originalTag = scope.getForwardTagReferenceAnyScope(tag);
+                System.err.println("GET: " + originalTag);
 
-                    // check that the field exist in this variation of
-                    // the struct.  TypeSpecifier sets all members to
-                    // VariableT FIELD types
-                    VariableT fieldtype = (VariableT) entrytype.lookup(ident);
-                    if (fieldtype.isError()) {
-                      System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName()));
-                      typemv.add(ErrorT.TYPE, combinedCond);
-                    } else {
-                      // found a valid field and we now know its type
+
+                System.err.println("originalTag: " + originalTag);
+
+                Multiverse<SymbolTable.Entry<Type>> originalTagEntries
+                  = scope.getInAnyScope(CContext.toTagName(originalTag), type.getCondition());
+
+                // add an indirect reference to the real struct via the forward-referenced struct
+                for (Element<SymbolTable.Entry<Type>> tagentry : originalTagEntries) {
+                  if (tagentry.getData().isError()) {
+                    System.err.println("INFO: type error, access to undeclared struct/union field");
+                    typemv.add(ErrorT.TYPE, tagentry.getCondition());
+                  } else if (tagentry.getData().isUndeclared()) {
+                    // no declaration in this configuration
+                    System.err.println(String.format("INFO: type error, access to undeclared struct/union %s", originalTag));
+                    typemv.add(ErrorT.TYPE, tagentry.getCondition());
+                  } else {  // the struct/union is defined under this configuration
+                    Type renamedStruct = tagentry.getData().getValue();
+
+                    if (renamedStruct.isStruct() || renamedStruct.isUnion()) {
+                      // get the referenced type's renaming
+                      String renamedTag = renamedStruct.toStructOrUnion().getName();
                       
-                      typemv.add(fieldtype.getType(), combinedCond);
+                      // check the lookaside table for the renamings of the struct field
+                      SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(renamedTag);
 
-                      // add the indirection using the tag (which is
-                      // the same name as the field in the combined
-                      // struct's union)
-                      identmv.add(String.format("%s", fieldtype.getName()), combinedCond);
-                    }
+                      // renamed the field according to the tag lookaside
+                      // table, or produce an error if that configuration is
+                      // missing the field.  expand to all possible
+                      // variations of the field.
+                      Multiverse<SymbolTable.Entry<Type>> fieldentries = tagtab.get(ident, tagentry.getCondition());
+                      for (Element<SymbolTable.Entry<Type>> fieldentry : fieldentries) {
+                        if (fieldentry.getData().isError()) {
+                          typemv.add(ErrorT.TYPE, fieldentry.getCondition());
+                        } else if (fieldentry.getData().isUndeclared()) {
+                          typemv.add(ErrorT.TYPE, fieldentry.getCondition());
+                        } else {  // declared
+                          VariableT fieldtype = fieldentry.getData().getValue().toVariable();  // these are stored as VariableT
+                          typemv.add(fieldtype.getType(), fieldentry.getCondition());
+                          String indirectaccess = String.format("%s . %s", renamedTag, fieldtype.getName());
+                          identmv.add(indirectaccess, fieldentry.getCondition());
+                        }
+                      }
+                    } else {  // is not a struct/union type
+                      System.err.println(String.format("INFO: type error, DirectSelect on non-struct/union tag %s", originalTag));
+                      typemv.add(ErrorT.TYPE, tagentry.getCondition());
+                    }  // finished check for struct/union type
+                  } // finished looking at the entry
+                }  // finished going over the original tag's renamings
+                
+              } else {  // a renamed tag, rather than a forward reference tag
+                // as long as the struct type specifiers are correct,
+                // this should always refer to a known (renamed)
+                // struct tag.
+                SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(tag);
+
+                // renamed the field according to the tag lookaside
+                // table, or produce an error if that configuration is
+                // missing the field.  expand to all possible
+                // variations of the field.
+                Multiverse<SymbolTable.Entry<Type>> fieldentries = tagtab.get(ident, type.getCondition());
+                for (Element<SymbolTable.Entry<Type>> fieldentry : fieldentries) {
+                  if (fieldentry.getData().isError()) {
+                    typemv.add(ErrorT.TYPE, fieldentry.getCondition());
+                  } else if (fieldentry.getData().isUndeclared()) {
+                    typemv.add(ErrorT.TYPE, fieldentry.getCondition());
+                  } else {  // declared
+                    VariableT fieldtype = fieldentry.getData().getValue().toVariable();  // these are stored as VariableT
+                    typemv.add(fieldtype.getType(), fieldentry.getCondition());
+                    identmv.add(fieldtype.getName(), fieldentry.getCondition());
                   }
-                  combinedCond.delRef();
-                }
-                entries.destruct();
-              } else {  // tagged struct or union
-                // tagged structs work by using the original name for
-                // a struct that is the union of all variations, so we
-                // need to replace the field with level of indirection
-                // into this union.
-
-                // first go through each symtab entry for the struct tag
-                String tagname = CContext.toTagName(sutype.getName());
-                Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tagname, type.getCondition());
-                for (Element<SymbolTable.Entry> entry : entries) {
-                  PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
-                  if (entry.getData() == SymbolTable.ERROR) {
-                    // TODO: type error
-                    typemv.add(ErrorT.TYPE, combinedCond);
-                  } else if (entry.getData() == SymbolTable.UNDECLARED) {
-                    // TODO: type error, symbol not declared in this presence condition
-                    typemv.add(ErrorT.TYPE, combinedCond);
-                  } else {
-                    // TODO: check for correct field usage, otherwise type error
-                    // TODO: insert field of the union inside the original struct/union
-
-                    // since we looked up a tagname, not seeing a
-                    // struct/union type likely means there's a bug
-                    assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
-                    StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
-
-                    // similarly, if we looked up a tagname, there
-                    // should be definitions with members
-                    assert null != entrytype.getMembers();
-
-                    // check that the field exist in this variation of
-                    // the struct.  TypeSpecifier sets all members to
-                    // VariableT FIELD types
-                    VariableT fieldtype = (VariableT) entrytype.lookup(ident);
-                    if (fieldtype.isError()) {
-                      System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName()));
-                      typemv.add(ErrorT.TYPE, combinedCond);
-                    } else {
-                      // found a valid field and we now know its type
-                      
-                      typemv.add(fieldtype.getType(), combinedCond);
-
-                      // add the indirection using the tag (which is
-                      // the same name as the field in the combined
-                      // struct's union)
-                      identmv.add(String.format("%s . %s", entrytype.getName(), fieldtype.getName()), combinedCond);
-                    }
-                  }
-                  combinedCond.delRef();
                 }
               }
             } else {
-              // TODO: not a struct or union, type error
+              System.err.println("INFO: type error, not a struct/union type in DirectSelection");
               typemv.add(ErrorT.TYPE, type.getCondition());
             }
           }
+              
+          /*     if (tag.startsWith("anonymous(")) {  // anonymous struct or union */
+          /*       // go through each symtab entry for this struct/union */
+          /*       Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(tag, type.getCondition()); */
+          /*       for (Element<SymbolTable.Entry<Type>> entry : entries) { */
+          /*         PresenceCondition combinedCond = type.getCondition().and(entry.getCondition()); */
+          /*         if (entry.getData().isError()) { */
+          /*           // TODO: type error */
+          /*           typemv.add(ErrorT.TYPE, combinedCond); */
+          /*         } else if (entry.getData().isUndeclared()) { */
+          /*           // TODO: type error, symbol not declared in this presence condition */
+          /*           typemv.add(ErrorT.TYPE, combinedCond); */
+          /*         } else { */
+          /*           // TODO: check for correct field usage, otherwise type error */
+          /*           // TODO: insert field of the union inside the original struct/union */
+
+          /*           // since we looked up a tagname, not seeing a */
+          /*           // struct/union type likely means there's a bug */
+          /*           assert entry.getData().getValue().isStruct() || entry.getData().getValue().isUnion(); */
+          /*           StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getValue(); */
+
+          /*           // similarly, if we looked up a tagname, there */
+          /*           // should be definitions with members */
+          /*           assert null != entrytype.getMembers(); */
+
+          /*           // check that the field exist in this variation of */
+          /*           // the struct.  TypeSpecifier sets all members to */
+          /*           // VariableT FIELD types */
+          /*           VariableT fieldtype = (VariableT) entrytype.lookup(ident); */
+          /*           if (fieldtype.isError()) { */
+          /*             System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName())); */
+          /*             typemv.add(ErrorT.TYPE, combinedCond); */
+          /*           } else { */
+          /*             // found a valid field and we now know its type */
+                      
+          /*             typemv.add(fieldtype.getType(), combinedCond); */
+
+          /*             // add the indirection using the tag (which is */
+          /*             // the same name as the field in the combined */
+          /*             // struct's union) */
+          /*             identmv.add(String.format("%s", fieldtype.getName()), combinedCond); */
+          /*           } */
+          /*         } */
+          /*         combinedCond.delRef(); */
+          /*       } */
+          /*       entries.destruct(); */
+          /*     } else {  // tagged struct or union */
+          /*       // tagged structs work by using the original name for */
+          /*       // a struct that is the union of all variations, so we */
+          /*       // need to replace the field with level of indirection */
+          /*       // into this union. */
+
+          /*       // first go through each symtab entry for the struct tag */
+          /*       String tagname = CContext.toTagName(sutype.getName()); */
+          /*       Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(tagname, type.getCondition()); */
+          /*       for (Element<SymbolTable.Entry<Type>> entry : entries) { */
+          /*         PresenceCondition combinedCond = type.getCondition().and(entry.getCondition()); */
+          /*         if (entry.getData().isError()) { */
+          /*           // TODO: type error */
+          /*           typemv.add(ErrorT.TYPE, combinedCond); */
+          /*         } else if (entry.getData().isUndeclared()) { */
+          /*           // TODO: type error, symbol not declared in this presence condition */
+          /*           typemv.add(ErrorT.TYPE, combinedCond); */
+          /*         } else { */
+          /*           // TODO: check for correct field usage, otherwise type error */
+          /*           // TODO: insert field of the union inside the original struct/union */
+
+          /*           // since we looked up a tagname, not seeing a */
+          /*           // struct/union type likely means there's a bug */
+          /*           assert entry.getData().getValue().isStruct() || entry.getData().getValue().isUnion(); */
+          /*           StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getValue(); */
+
+          /*           // similarly, if we looked up a tagname, there */
+          /*           // should be definitions with members */
+          /*           assert null != entrytype.getMembers(); */
+
+          /*           // check that the field exist in this variation of */
+          /*           // the struct.  TypeSpecifier sets all members to */
+          /*           // VariableT FIELD types */
+          /*           VariableT fieldtype = (VariableT) entrytype.lookup(ident); */
+          /*           if (fieldtype.isError()) { */
+          /*             System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName())); */
+          /*             typemv.add(ErrorT.TYPE, combinedCond); */
+          /*           } else { */
+          /*             // found a valid field and we now know its type */
+                      
+          /*             typemv.add(fieldtype.getType(), combinedCond); */
+
+          /*             // add the indirection using the tag (which is */
+          /*             // the same name as the field in the combined */
+          /*             // struct's union) */
+          /*             identmv.add(String.format("%s . %s", entrytype.getName(), fieldtype.getName()), combinedCond); */
+          /*           } */
+          /*         } */
+          /*         combinedCond.delRef(); */
+          /*       } */
+          /*     } */
+          /*   } else { */
+          /*     // TODO: not a struct or union, type error */
+          /*     typemv.add(ErrorT.TYPE, type.getCondition()); */
+          /*   } */
+          /* } */
           
           assert ! typemv.isEmpty();
 
@@ -5553,113 +5782,194 @@ IndirectSelection:  /** nomerge **/
           Multiverse<String> identmv = new Multiverse<String>();  // desugaring
           CContext scope = ((CContext) subparser.scope);
           for (Element<Type> type : postfixtype) {
-            // check that the postfix type is a pointer
-            if (type.getData().isPointer()) {
-              // check that the pointer is to a struct or union
-              if (type.getData().toPointer().getType().isStruct() || type.getData().toPointer().getType().isUnion()) {
-                StructOrUnionT sutype = (StructOrUnionT) type.getData().toPointer().getType();
-                String tag = sutype.getName();
-                assert tag != null;  // even anonymous structs get a name, e.g., anonymous(0)
-                if (tag.startsWith("anonymous(")) {  // anonymous struct or union
-                  // go through each symtab entry for this struct/union
-                  Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tag, type.getCondition());
-                  for (Element<SymbolTable.Entry> entry : entries) {
-                    PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
-                    if (entry.getData() == SymbolTable.ERROR) {
-                      // TODO: type error
-                      typemv.add(ErrorT.TYPE, combinedCond);
-                    } else if (entry.getData() == SymbolTable.UNDECLARED) {
-                      // TODO: type error, symbol not declared in this presence condition
-                      typemv.add(ErrorT.TYPE, combinedCond);
-                    } else {
-                      // TODO: check for correct field usage, otherwise type error
-                      // TODO: insert field of the union inside the original struct/union
+            // check that the postfix type is a pointer to a struct/union
+            Type resolvedType = type.getData().resolve();  // unwrap any typedef aliasing
+            if (resolvedType.isPointer()
+                && (resolvedType.toPointer().getType().isStruct()
+                    || resolvedType.toPointer().getType().isUnion())) {
+              StructOrUnionT sutype = resolvedType.toPointer().getType().toStructOrUnion();
+              String tag = sutype.getName();
+              assert tag != null;  // even anonymous structs get a name, e.g., anonymous(0)
 
-                      // since we looked up a tagname, not seeing a
-                      // struct/union type likely means there's a bug
-                      assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
-                      StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
+              // below is the same as directselection
+              
+              // the ref will either be to a renamed tag or to a forward reference
+              if (tag.startsWith("__forward_tag_reference_")) {
+                // TODO: is there a safer way to check for this?
 
-                      // similarly, if we looked up a tagname, there
-                      // should be definitions with members
-                      assert null != entrytype.getMembers();
+                System.err.println("GET: " + tag);
+                String originalTag = scope.getForwardTagReferenceAnyScope(tag);
+                System.err.println("GET: " + originalTag);
 
-                      // check that the field exist in this variation of
-                      // the struct.  TypeSpecifier sets all members to
-                      // VariableT FIELD types
-                      VariableT fieldtype = (VariableT) entrytype.lookup(ident);
-                      if (fieldtype.isError()) {
-                        System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName()));
-                        typemv.add(ErrorT.TYPE, combinedCond);
-                      } else {
-                        // found a valid field and we now know its type
+                System.err.println("originalTag: " + originalTag);
+
+                Multiverse<SymbolTable.Entry<Type>> originalTagEntries
+                  = scope.getInAnyScope(CContext.toTagName(originalTag), type.getCondition());
+
+                // add an indirect reference to the real struct via the forward-referenced struct
+                for (Element<SymbolTable.Entry<Type>> tagentry : originalTagEntries) {
+                  if (tagentry.getData().isError()) {
+                    System.err.println("INFO: type error, access to undeclared struct/union field");
+                    typemv.add(ErrorT.TYPE, tagentry.getCondition());
+                  } else if (tagentry.getData().isUndeclared()) {
+                    // no declaration in this configuration
+                    System.err.println(String.format("INFO: type error, access to undeclared struct/union %s", originalTag));
+                    typemv.add(ErrorT.TYPE, tagentry.getCondition());
+                  } else {  // the struct/union is defined under this configuration
+                    Type renamedStruct = tagentry.getData().getValue();
+
+                    if (renamedStruct.isStruct() || renamedStruct.isUnion()) {
+                      // get the referenced type's renaming
+                      String renamedTag = renamedStruct.toStructOrUnion().getName();
                       
-                        typemv.add(fieldtype.getType(), combinedCond);
+                      // check the lookaside table for the renamings of the struct field
+                      SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(renamedTag);
 
-                        // add the indirection using the tag (which is
-                        // the same name as the field in the combined
-                        // struct's union)
-                        identmv.add(String.format("%s", fieldtype.getName()), combinedCond);
+                      // renamed the field according to the tag lookaside
+                      // table, or produce an error if that configuration is
+                      // missing the field.  expand to all possible
+                      // variations of the field.
+                      Multiverse<SymbolTable.Entry<Type>> fieldentries = tagtab.get(ident, tagentry.getCondition());
+                      for (Element<SymbolTable.Entry<Type>> fieldentry : fieldentries) {
+                        if (fieldentry.getData().isError()) {
+                          typemv.add(ErrorT.TYPE, fieldentry.getCondition());
+                        } else if (fieldentry.getData().isUndeclared()) {
+                          typemv.add(ErrorT.TYPE, fieldentry.getCondition());
+                        } else {  // declared
+                          VariableT fieldtype = fieldentry.getData().getValue().toVariable();  // these are stored as VariableT
+                          typemv.add(fieldtype.getType(), fieldentry.getCondition());
+                          String indirectaccess = String.format("%s . %s", renamedTag, fieldtype.getName());
+                          identmv.add(indirectaccess, fieldentry.getCondition());
+                        }
                       }
-                    }
-                    combinedCond.delRef();
-                  }
-                  entries.destruct();
-                } else {  // tagged struct or union
-                  // tagged structs work by using the original name for
-                  // a struct that is the union of all variations, so we
-                  // need to replace the field with level of indirection
-                  // into this union.
+                    } else {  // is not a struct/union type
+                      System.err.println(String.format("INFO: type error, IndirectSelect on non-struct/union tag %s", originalTag));
+                      typemv.add(ErrorT.TYPE, tagentry.getCondition());
+                    }  // finished check for struct/union type
+                  } // finished looking at the entry
+                }  // finished going over the original tag's renamings
+                
+              } else {  // a renamed tag, rather than a forward reference tag
+                // as long as the struct type specifiers are correct,
+                // this should always refer to a known (renamed)
+                // struct tag.
+                SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(tag);
 
-                  // first go through each symtab entry for the struct tag
-                  String tagname = CContext.toTagName(sutype.getName());
-                  Multiverse<SymbolTable.Entry> entries = scope.getInAnyScope(tagname, type.getCondition());
-                  for (Element<SymbolTable.Entry> entry : entries) {
-                    PresenceCondition combinedCond = type.getCondition().and(entry.getCondition());
-                    if (entry.getData() == SymbolTable.ERROR) {
-                      // TODO: type error
-                      typemv.add(ErrorT.TYPE, combinedCond);
-                    } else if (entry.getData() == SymbolTable.UNDECLARED) {
-                      // TODO: type error, symbol not declared in this presence condition
-                      typemv.add(ErrorT.TYPE, combinedCond);
-                    } else {
-                      // TODO: check for correct field usage, otherwise type error
-                      // TODO: insert field of the union inside the original struct/union
-
-                      // since we looked up a tagname, not seeing a
-                      // struct/union type likely means there's a bug
-                      assert entry.getData().getType().isStruct() || entry.getData().getType().isUnion();
-                      StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getType();
-
-                      // similarly, if we looked up a tagname, there
-                      // should be definitions with members
-                      assert null != entrytype.getMembers();
-
-                      // check that the field exist in this variation of
-                      // the struct.  TypeSpecifier sets all members to
-                      // VariableT FIELD types
-                      VariableT fieldtype = (VariableT) entrytype.lookup(ident);
-                      if (fieldtype.isError()) {
-                        System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName()));
-                        typemv.add(ErrorT.TYPE, combinedCond);
-                      } else {
-                        // found a valid field and we now know its type
-                      
-                        typemv.add(fieldtype.getType(), combinedCond);
-
-                        // add the indirection using the tag (which is
-                        // the same name as the field in the combined
-                        // struct's union)
-                        identmv.add(String.format("%s . %s", entrytype.getName(), fieldtype.getName()), combinedCond);
-                      }
-                    }
-                    combinedCond.delRef();
+                // renamed the field according to the tag lookaside
+                // table, or produce an error if that configuration is
+                // missing the field.  expand to all possible
+                // variations of the field.
+                Multiverse<SymbolTable.Entry<Type>> fieldentries = tagtab.get(ident, type.getCondition());
+                for (Element<SymbolTable.Entry<Type>> fieldentry : fieldentries) {
+                  if (fieldentry.getData().isError()) {
+                    typemv.add(ErrorT.TYPE, fieldentry.getCondition());
+                  } else if (fieldentry.getData().isUndeclared()) {
+                    typemv.add(ErrorT.TYPE, fieldentry.getCondition());
+                  } else {  // declared
+                    VariableT fieldtype = fieldentry.getData().getValue().toVariable();  // these are stored as VariableT
+                    typemv.add(fieldtype.getType(), fieldentry.getCondition());
+                    identmv.add(fieldtype.getName(), fieldentry.getCondition());
                   }
                 }
-              } else {
-                // TODO: not a struct or union, type error
-                typemv.add(ErrorT.TYPE, type.getCondition());
               }
+
+              /* if (tag.startsWith("anonymous(")) {  // anonymous struct or union */
+              /*   // go through each symtab entry for this struct/union */
+              /*   Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(tag, type.getCondition()); */
+              /*   for (Element<SymbolTable.Entry<Type>> entry : entries) { */
+              /*     PresenceCondition combinedCond = type.getCondition().and(entry.getCondition()); */
+              /*     if (entry.getData().isError()) { */
+              /*       // TODO: type error */
+              /*       typemv.add(ErrorT.TYPE, combinedCond); */
+              /*     } else if (entry.getData().isUndeclared()) { */
+              /*       // TODO: type error, symbol not declared in this presence condition */
+              /*       typemv.add(ErrorT.TYPE, combinedCond); */
+              /*     } else { */
+              /*       // TODO: check for correct field usage, otherwise type error */
+              /*       // TODO: insert field of the union inside the original struct/union */
+
+              /*       // since we looked up a tagname, not seeing a */
+              /*       // struct/union type likely means there's a bug */
+              /*       assert entry.getData().getValue().isStruct() || entry.getData().getValue().isUnion(); */
+              /*       StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getValue(); */
+
+              /*       // similarly, if we looked up a tagname, there */
+              /*       // should be definitions with members */
+              /*       assert null != entrytype.getMembers(); */
+
+              /*       // check that the field exist in this variation of */
+              /*       // the struct.  TypeSpecifier sets all members to */
+              /*       // VariableT FIELD types */
+              /*       VariableT fieldtype = (VariableT) entrytype.lookup(ident); */
+              /*       if (fieldtype.isError()) { */
+              /*         System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName())); */
+              /*         typemv.add(ErrorT.TYPE, combinedCond); */
+              /*       } else { */
+              /*         // found a valid field and we now know its type */
+
+              /*         typemv.add(fieldtype.getType(), combinedCond); */
+
+              /*         // add the indirection using the tag (which is */
+              /*         // the same name as the field in the combined */
+              /*         // struct's union) */
+              /*         identmv.add(String.format("%s", fieldtype.getName()), combinedCond); */
+              /*       } */
+              /*     } */
+              /*     combinedCond.delRef(); */
+              /*   } */
+              /*   entries.destruct(); */
+              /* } else {  // tagged struct or union */
+              /*   // tagged structs work by using the original name for */
+              /*   // a struct that is the union of all variations, so we */
+              /*   // need to replace the field with level of indirection */
+              /*   // into this union. */
+
+              /*   // first go through each symtab entry for the struct tag */
+              /*   String tagname = CContext.toTagName(sutype.getName()); */
+              /*   Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(tagname, type.getCondition()); */
+              /*   for (Element<SymbolTable.Entry<Type>> entry : entries) { */
+              /*     PresenceCondition combinedCond = type.getCondition().and(entry.getCondition()); */
+              /*     if (entry.getData().isError()) { */
+              /*       // TODO: type error */
+              /*       typemv.add(ErrorT.TYPE, combinedCond); */
+              /*     } else if (entry.getData().isUndeclared()) { */
+              /*       // TODO: type error, symbol not declared in this presence condition */
+              /*       typemv.add(ErrorT.TYPE, combinedCond); */
+              /*     } else { */
+              /*       // TODO: check for correct field usage, otherwise type error */
+              /*       // TODO: insert field of the union inside the original struct/union */
+
+              /*       // since we looked up a tagname, not seeing a */
+              /*       // struct/union type likely means there's a bug */
+              /*       assert entry.getData().getValue().isStruct() || entry.getData().getValue().isUnion(); */
+              /*       StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getValue(); */
+
+              /*       // similarly, if we looked up a tagname, there */
+              /*       // should be definitions with members */
+              /*       assert null != entrytype.getMembers(); */
+
+              /*       // check that the field exist in this variation of */
+              /*       // the struct.  TypeSpecifier sets all members to */
+              /*       // VariableT FIELD types */
+              /*       VariableT fieldtype = (VariableT) entrytype.lookup(ident); */
+              /*       if (fieldtype.isError()) { */
+              /*         System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName())); */
+              /*         typemv.add(ErrorT.TYPE, combinedCond); */
+              /*       } else { */
+              /*         // found a valid field and we now know its type */
+
+              /*         typemv.add(fieldtype.getType(), combinedCond); */
+
+              /*         // add the indirection using the tag (which is */
+              /*         // the same name as the field in the combined */
+              /*         // struct's union) */
+              /*         identmv.add(String.format("%s . %s", entrytype.getName(), fieldtype.getName()), combinedCond); */
+              /*       } */
+              /*     } */
+              /*     combinedCond.delRef(); */
+              /*   } */
+              /* } */
+              
             } else {
               // TODO: not a pointer, type error
               typemv.add(ErrorT.TYPE, type.getCondition());
@@ -7214,79 +7524,98 @@ AsmKeyword:   // ADDED
 
 %%
 
+boolean wrotePrologue = false;
+        
 // TUTORIAL: this section of the grammar gets copied into the
 // resulting parser, specifically the CActions.java class
 
+public static class FreshIDCreator {
 
+  /** The fresh name count. */
+  protected int freshNameCount;
 
-/***************************************************************************
-**** The following naming and namespacing functionality is taken
-**** directly from xtc.util.SymbolTable.
-***************************************************************************/
+  /** The fresh identifier count. */
+  protected int freshIdCount;
 
-/** The fresh name count. */
-protected int freshNameCount = 0;
+  public FreshIDCreator() {
+    this(0, 0);
+  }
+  
+  public FreshIDCreator(int freshNameCount, int freshIdCount) {
+    this.freshNameCount = freshNameCount;
+    this.freshIdCount = freshIdCount;
+  }
 
-/** The fresh identifier count. */
-protected int freshIdCount = 0;
+  /***************************************************************************
+   **** The following naming and namespacing functionality is taken
+   **** directly from xtc.util.SymbolTable.
+   ***************************************************************************/
 
-/**
-* Create a fresh name.  The returned name has
-* "<code>anonymous</code>" as it base name.
-*
-* @see #freshName(String)
-* 
-* @return A fresh name.
-*/
-public String freshName() {
- return freshName("anonymous");
+  /**
+   * Create a fresh name.  The returned name has
+   * "<code>anonymous</code>" as it base name.
+   *
+   * @see #freshName(String)
+   * 
+   * @return A fresh name.
+   */
+  public String freshName() {
+    return freshName("anonymous");
+  }
+
+  /**
+   * Create a fresh name incorporating the specified base name.  The
+   * returned name is of the form
+   * <code><i>name</i>(<i>count</i>)</code>.
+   *
+   * @param base The base name.
+   * @return The corresponding fresh name.
+   */
+  public String freshName(String base) {
+    StringBuilder buf = new StringBuilder();
+    buf.append(base);
+    buf.append(Constants.START_OPAQUE);
+    buf.append(freshNameCount++);
+    buf.append(Constants.END_OPAQUE);
+    return buf.toString();
+  }
+
+  /**
+   * Create a fresh C identifier.  The returned identifier has
+   * "<code>tmp</code>" as its base name.
+   *
+   * @see #freshCId(String)
+   *
+   * @return A fresh C identifier.
+   */
+  public String freshCId() {
+    return freshCId("tmp");
+  }
+
+  /**
+   * Create a fresh C identifier incorporating the specified base
+   * name.  The returned name is of the form
+   * <code>__<i>name</i>_<i>count</i></code>.
+   *
+   * @param base The base name.
+   * @return The corresponding fresh C identifier.
+   */
+  public String freshCId(String base) {
+    StringBuilder buf = new StringBuilder();
+    buf.append("__");
+    buf.append(base);
+    buf.append('_');
+    buf.append(freshIdCount++);
+    return buf.toString();
+  }
 }
 
-/**
-* Create a fresh name incorporating the specified base name.  The
-* returned name is of the form
-* <code><i>name</i>(<i>count</i>)</code>.
-*
-* @param base The base name.
-* @return The corresponding fresh name.
-*/
-public String freshName(String base) {
-  StringBuilder buf = new StringBuilder();
-  buf.append(base);
-  buf.append(Constants.START_OPAQUE);
-  buf.append(freshNameCount++);
-  buf.append(Constants.END_OPAQUE);
-  return buf.toString();
-}
+FreshIDCreator freshIdCreator = new FreshIDCreator();
 
-/**
- * Create a fresh C identifier.  The returned identifier has
- * "<code>tmp</code>" as its base name.
- *
- * @see #freshCId(String)
- *
- * @return A fresh C identifier.
- */
-public String freshCId() {
-  return freshCId("tmp");
-}
-
-/**
- * Create a fresh C identifier incorporating the specified base
- * name.  The returned name is of the form
- * <code>__<i>name</i>_<i>count</i></code>.
- *
- * @param base The base name.
- * @return The corresponding fresh C identifier.
- */
 public String freshCId(String base) {
-  StringBuilder buf = new StringBuilder();
-  buf.append("__");
-  buf.append(base);
-  buf.append('_');
-  buf.append(freshIdCount++);
-  return buf.toString();
+  return freshIdCreator.freshCId(base);
 }
+
 
 /*****************************************************************************
  ********* Methods for Transformation Values
@@ -8291,14 +8620,14 @@ public void bindIdent(Subparser subparser, Node typespec, Node declarator, STFie
     System.err.println("def: " + ident.getTokenText() + " " + alsoSet);
   }
   STField field = typedef ? STField.TYPEDEF : STField.IDENT;
-  scope.getSymbolTable().setbool(ident.getTokenText(), field, true, presenceCondition);
+  scope.getOldSymbolTable().setbool(ident.getTokenText(), field, true, presenceCondition);
   if (null != alsoSet) {
-    scope.getSymbolTable().setbool(ident.getTokenText(), alsoSet, true, presenceCondition);
+    scope.getOldSymbolTable().setbool(ident.getTokenText(), alsoSet, true, presenceCondition);
   }
   /* if (typedef) { */
-  /*   scope.getSymbolTable().setbool(ident.getTokenText(), STField.TYPEDEF, true, presenceCondition); */
+  /*   scope.getOldSymbolTable().setbool(ident.getTokenText(), STField.TYPEDEF, true, presenceCondition); */
   /* } else { */
-  /*   scope.getSymbolTable().setbool(ident.getTokenText(), STField.IDENT, true, presenceCondition); */
+  /*   scope.getOldSymbolTable().setbool(ident.getTokenText(), STField.IDENT, true, presenceCondition); */
   /* } */
   /* scope.bind(ident.getTokenText(), typedef, presenceCondition); */
 }
@@ -8517,7 +8846,7 @@ public void BindVar(Subparser subparser) {
   Language<?> ident = getident(b);
 
   // Bind variable name.
-  scope.getSymbolTable().setbool(ident.getTokenText(), STField.IDENT, true, presenceCondition);
+  scope.getOldSymbolTable().setbool(ident.getTokenText(), STField.IDENT, true, presenceCondition);
   /* scope.bind(ident.getTokenText(), false, presenceCondition); */
 }
 
@@ -8532,7 +8861,7 @@ public void BindEnum(Subparser subparser) {
   String ident = getident(b).getTokenText();
 
   // Bind variable name.
-  scope.getSymbolTable().setbool(ident, STField.IDENT, true, presenceCondition);
+  scope.getOldSymbolTable().setbool(ident, STField.IDENT, true, presenceCondition);
   /* scope.bind(ident, false, presenceCondition); */
 }
 

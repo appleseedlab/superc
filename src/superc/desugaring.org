@@ -1,0 +1,437 @@
+#+TITLE:     SugarC Technical Report
+#+AUTHOR:    Paul Gazzillo
+#+EMAIL:     paul@pgazz.com
+#+LANGUAGE:  en
+#+LaTeX_CLASS: article
+#+LaTeX_HEADER: \pdfmapfile{/home/neilsen/texmf/fonts/map/dvips/libertine/libertine.map}
+#+LaTeX_HEADER: \usepackage[ttscale=.875]{libertine}
+#+LaTeX_HEADER: \usepackage{sectsty}
+#+LaTeX_HEADER: \sectionfont{\normalfont\scshape}
+#+LaTeX_HEADER: \subsectionfont{\normalfont\itshape}
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+OPTIONS: H:2 num:nil toc:nil \n:nil @:t ::t |:t ^:{} _:{} *:t TeX:t LaTeX:t
+#+STARTUP: showall
+#+REVEAL_THEME: night
+
+
+* Overview
+
+* SugarC
+
+* Data structures
+
+** Multiverse
+
+like lots of prior work, going back to garrido, erwig, kastner, superc/kmax, etc.
+
+** Symtab
+
+specially-designed for type-checking.  has invariants that ensure
+there is ever only one type for any given configuration and that the
+undeclared state of the symbol is explicit.
+
+compare with typechef
+
+* Desugaring operators
+
+** Multiverse
+
+- cartesian product and join (for scalars)
+- complemented product (for lists)
+- transform (to convert and wrap data types)
+
+** Scalars (concatenation)
+- Use a cartesian product to get all a multiverse of all possible
+  concatenations.  If two elements are in mutually exclusive
+  configurations, then the concatenation is not possible, and so is
+  not part of the resulting multiverse.
+
+- Example: if statements, concatting each multiverse of transformed strings
+
+*** product vs join
+
+- a product is a binary operation on values of the same type
+- a join allows taking the product of different types, e.g., for constructs a new statically-typed AST node
+- join example: designated initializers
+
+*** uses
+
+- strings
+- types
+- declarator ASTs (typebuilder)
+- specifier ASTs (declarator)
+- initializer ASTs (initializer)
+
+** Lists
+- Use complemented product to get a multiverse of all possible lists,
+  because not all multiverses of lists need to have all elements of
+  the list
+
+- To add a new element to a list, it is first transformed into a
+  multiverse of single element lists, then the complemented product
+  with the existing multiverse of lists.
+
+- Examples: initializer lists, parameter lists, struct fields
+
+
+* Desugaring semantic values
+
+** Type specifiers
+
+collect type specifiers
+
+subtypes: primitive, struct, union, typedef, enum
+
+struct type specifiers use declarations for its struct field declarations
+
+** Declarators
+
+declarator AST
+
+subtypes: (qualified) (abstract) pointer, function, arrayabstract, parameters
+
+** Declarations
+
+combines a type specifier and a declarator
+
+provides methods to get the complete type (typespec plus declarator), gett the name (if any), and rename it
+
+*** Declaringlist
+
+declaringlists have a special value that combines the typespec multiverse with a list of declarator/initializer pair multiverses
+
+** Function definitions
+
+a declaration combined with a (compound statement) statement.  produces a plain string.
+
+*** Functionprototype
+
+the functionprototype, like declaringlists, is a special value that combines two multiverses, a typebuilder multiverse and a declarator multiverse.  this is then combined with all possible statements to produce seprate (renamed) versions of the function.
+
+** Expressions
+
+an expression is a pair of two multiverses, one for the type, and one for the transformation value
+
+** Statements
+
+statements do not have type information, so they are just a multiverse of strings
+
+the statement/declaration list then wraps the statements with C conditionals
+
+** TranslationUnit/ExternalDeclarationList
+
+these are just strings, since all static conditional all resolved by the child constructs
+
+
+* Desugaring algorithms
+
+** setTransformationValue
+
+- Sets the current semantic action's value.
+- Type depends on the construct.  higher constructs, declarations, statements, and functions are just strings
+- Constructs within the higher ones are multiverses
+- Multiverse type depends construct (see desugaring semantic values)
+
+** getTransformationValue
+
+- Used by semantic actions to get value from child node
+- Only used when the child cannot have a static conditional surrounding it
+
+** getCompleteNodeMultiverseValue
+
+- Used to get the semantic value from a child where the child may have static conditionals
+- Used when the child's semantic value /is/ a multiverse
+- Appends the semantic values of all children together into a single multiverse
+- This is used when a child has a multiverse as its semantic value and may also be surrounded by a static conditional.
+
+** getCompleteNodeSingleValue
+
+- Used to get the semantic value from a child where the child may have static conditionals
+- Used when the child's semantic value is /not/ multiverse
+- Appends the semantic values of all children together into a single multiverse
+- Compared to getCompleteNodeMultiverseValue, This is used when higher constructs have child node's who's values are not multiverses, but may still be surrounded by a static conditional.
+
+** emitStatement
+
+- This combines a multiverse a strings into a single string, where C conditionals are inserted to distinguish the different configurations represented by the multiverse.
+
+** concatMultiverseStrings
+
+- This combines a multiverse a strings into a single string without inserting C conditionals.  This is used for declarations, which use renaming and not C conditionals to preserve differences between configurations.
+
+** Master example
+this should have
+- struct
+- declarations
+- typedef
+- a function (configurable or not)
+- a control statement
+- an assignment expression
+- a few other unary/binary expressions
+
+** Expression
+
+*** Assignment
+
+*** Struct/union selection (direct/indirect)
+
+*** Primaryidentifier
+
+this is one of the main sources of implicit static conditional
+
+** Statements
+
+*** Compound statements
+
+scope
+
+*** Control statements (if, for, while)
+
+*** Switch statements
+
+can't work the same as other control statements, because you can't just wrap a labeled (case) statement with a conditional and the select statement work the same way
+
+** Declarators
+
+** Type specifiers
+
+** Declarations
+
+*** DeclaringList
+
+*** Declaration itself
+
+** Function definitions
+
+*** Function prototype
+
+*** Definition itself
+
+** Translationunit/ExternalDeclarationList
+
+in addition to printing out the transformation string values from the child constructs, translationunit also
+- emits extern declarations for static conditions (desugared versions of the presence conditions)
+- emits the global scope's declarations at the top of the scope (to deal with forward references to user-defined types)
+- emits a global initializer function that has
+  - the renamings
+  - global type errors
+  - global value initializers
+
+* The tag namespace
+
+The tag namespace has three main issues:
+
+    1. Forward references allow referring to tag before they are defined, which means that we can't determine in single-pass whether declaration with the reference needs to be duplicated
+    2. The contents of structs/unions may themselves be multipy-declared
+    3. The same tag may be defined multiple times in difference configurations
+
+The solution is two-fold:
+
+    1. Use indirection to support forward references
+    2. Use a special tag namespace that provides a separate symbol table for each struct/union (enums don't define a namespace, so only the support for multiple definitions is needed for them.)
+
+
+* Optimizations
+
+** Merging of multiple structs with the same tag
+
+This is the case where a struct of the same tag is declared by
+multiple constructs (as opposed to have configurable fields of a
+single struct consruct).
+
+The problem is that any reference to the struct has to expand to all
+names.
+
+This is solved by replacing the original struct name with a union of
+all the different configurations of the struct.
+
+#+BEGIN_SRC 
+#ifdef A
+struct s {
+  int x;
+}
+#else
+struct s {
+  char y;
+}
+#endif
+
+//becomes
+struct __s_0 {
+  int x;
+}
+struct __s_1 {
+  char y;
+}
+struct s {
+  union {
+    struct __s_0 __s_0;
+    struct __s_1 __s_1;
+  }
+}
+#+END_SRC
+
+** Merging of many variations of the struct field declarations
+
+This is the case where a single struct constructs has #ifdefs around
+its field declarations.
+
+The problem is that it creates manhy variations of the entire struct
+and any symbol declared as this struct to have to duplicate its
+declaration.
+
+The solution is to produce a single struct with all struct fields
+declared (and renamed to avoid clashes).  Then the symbol need not be
+duplicated.  Usages of the struct either need to be duplicated (under
+static conditions) or expanded to set all variations of the same
+field. The latter is feasible if we consider setting fields for other
+configurations to be safe, because those fields should be used anyway.
+
+** Deduplication of declarations and function definitions.
+
+If a configuration-dependent declaration has the same type then don't
+bother adding a new symbol table entry.
+
+Similarly, for function definitions, don't by creating multiple
+definitions of the same function.  Instead, collect all function
+declarators first, deduplicate the same way as done for declarations,
+then generate all combinations of function declaration and body.  The
+body, being a compound statement, is already resolved to a
+non-configurable string by wrapping differing bodies with C
+conditionals.
+
+Additionally, if there is only variation of the symbol, there is no
+need to rename it.  At the global scope, this is useful for ensuring
+correct linking behavior, without synchronizing the renaming across
+files.
+
+** Unioning of types
+
+For declarators, compute the union of all configurations.  For
+globals, use a tertiary conditional expression to distinguish between
+initializers.
+
+** Merging initializers
+
+For initializers that are expressions, but not array/struct
+initializers, we can merge them using inline conditional expressions.
+
+* Linking
+** Problem
+The linker uses these to match function callers/callees and global
+variables.  Renaming breaks this linking behavior.
+
+** Analysis
+
+If a function has a different signature, then there is no way to
+compile both using the same name.
+
+** General solution
+
+In general, all compilation units need to be aware of the renamings of
+all other compilation units to ensure that it uses the same renamings
+under the same configurations.
+
+** Optimization
+
+1. If there is no difference in function signature there is no need to
+   duplicate or rename global symbols.
+
+2. If there are different function signatures, we might able to avoid
+   renaming by defining the function to take variable arguments, or
+   perhaps a union of the parameters, and a union of the return
+   values.
+
+Taking the union of each parameter and of each return value should
+actually work, because the linker does no type checking.  The only
+issue is making sure uses/calls of the function are okay.  The
+parameter list arguments may not be the right length.  We could
+perhaps solve this by variable arguments perhaps.
+
+** Unioning functions the same way we do structs
+
+For functions allow multiple definitions, rename them, but then keep
+the original function around as a multiplexer that takes a union for
+each parameter type.  Like struct, need to derference the right
+parameter for each configuration (and add phony parameters).
+
+We would need to do the same trick of creating new function
+declarations (not definitions) and putting them at the top of the
+scope, as well as the multiplexer function there as well.
+
+Within the function definition, we need to either cast parameters, or
+use the dereference.
+
+
+** Resovling global symbols
+
+Each transformed compilation unit has a listing of symbol renamings
+(variables, typedefs, functions, struct/union tags).
+
+For header file inclusion, these renamings should happen in the same
+way.  Without the same decls, we may have to look at function
+signatures to match the renamings.
+
+For callers, we need to add another layer of indirection that defines
+the caller's function name in terms of the callee's name (name clashes
+will be a problem, so we may also want to have a global counter for
+names as well!)
+
+Similarly, for global static conditionals, we need to assign provide
+assignments that match up the multiple uses of the symbols across
+compilation units (one needs to be set as input and the rest assigned
+to that input value).
+
+
+* Global static initialization and linking
+
+** __static_initializer_N()
+
+A special static_initializer() needs to be defined for each
+compilation units to hold
+- The renamings from that file
+- The renamings of preprocessor conditions to __static_condition_N
+- Global type errors
+
+** Runtime
+
+In order to support desugared global values, type errors, static
+conditions as runtime variables, and the effects linking, we need to
+generate a compilation unit to link against that defines the real main
+of the program, __static_main(), which ultimate calls the renamed
+versions of main() after performing initialization.
+
+The linker should allow specifying a different main method name.
+
+This runtime also needs to define the following methods:
+- __static_type_error(char *msg);
+- __static_renaming(char *renaming, char *original);
+- __static_condition_renaming(char *renaming, char *expression);
+
+** premain initialization with __static_main()
+
+During main, all __static_initializer_N() methods need to be called.
+
+** Setting __static_condition_N variables in __static_main()
+
+Also during or before main, the program needs to declare the
+__static_conditional_N variables, which are extern in each compilation
+unit.  The program needs to read in the values of these configuration
+option settings from the user.
+
+** Resolving __static_condition_N variables across compilation units
+
+Because compilation units will likely use the same configuration
+options, the __static_main() should deduplicate these by reading in
+only those that represent unique options, and assigning the rest of
+the variables to those read from input.
+
+** Resolving external function names
+
+Because compilation units use their own renamings for each external
+function, the runtime compilation unit can also add definitions for
+renamed external references to functions that pass through to the
+definition of the function.  This is facilitated by (1) looking at the
+renamings in each __static_initializer_N() function as well as the
+forward function declarations for each renamed function.

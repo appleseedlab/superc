@@ -74,7 +74,29 @@ public class CContext implements ParsingContext {
   protected static boolean DEBUG = false;
 
   /** The symbol table for this parsing context. */
-  protected SymbolTable symtab;
+  protected SymbolTable<Type> symtab;
+
+  /**
+   * Lookaside tables for struct/union fields.  This field manages the
+   * symbol tables for struct/union fields.  This allows structs to
+   * have multiply-defined fields without having to hoist the static
+   * conditions around the entire struct definition.
+   */
+  protected Map<String, SymbolTable<Type>> taglookasidetable;
+
+  /**
+   * The forward tag reference accounts for forward references of
+   * struct/union, when in a single pass, we won't know yet how many
+   * configurations of the struct/union there will be.  See
+   * getDeclarations to see how the forward reference is handled.
+   */
+  protected Map<String, String> forwardtagrefs;
+
+  /** Renamed enumerators for enums. */
+  protected Map<String, List<String>> enumeratorlists;
+  
+  /** The old symbol table. */
+  protected OldSymbolTable oldsymtab;
 
   /**
    * Declarations to put at the top of the scope.  This is used to
@@ -120,7 +142,11 @@ public class CContext implements ParsingContext {
 
   /** Create a new initial C parsing contex. */
   public CContext() {
-    this(new SymbolTable(), null);
+    this(new SymbolTable<Type>(),
+         new HashMap<String, SymbolTable<Type>>(),
+         new HashMap<String, String>(),
+         new HashMap<String, List<String>>(),
+         new OldSymbolTable(), null);
   }
 
   /**
@@ -129,8 +155,17 @@ public class CContext implements ParsingContext {
    * @param symtab The symbol table for this parsing context and scope.
    * @param parent The parent parsing context and scope.
    */
-  public CContext(SymbolTable symtab, CContext parent) {
+  public CContext(SymbolTable<Type> symtab,
+                  Map<String, SymbolTable<Type>> taglookasidetable,
+                  Map<String, String> forwardtagrefs,
+                  Map<String, List<String>> enumeratorlists,
+                  OldSymbolTable oldsymtab,
+                  CContext parent) {
     this.symtab = symtab;
+    this.taglookasidetable = taglookasidetable;
+    this.forwardtagrefs = forwardtagrefs;
+    this.enumeratorlists = enumeratorlists;
+    this.oldsymtab = oldsymtab;
     this.parent = parent;
 
     this.reentrant = false;
@@ -154,6 +189,10 @@ public class CContext implements ParsingContext {
    */
   public CContext(CContext scope) {
     this.symtab = scope.symtab.addRef();
+    this.taglookasidetable = scope.taglookasidetable; for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.addRef(); }
+    this.forwardtagrefs = scope.forwardtagrefs;
+    this.enumeratorlists = scope.enumeratorlists;
+    this.oldsymtab = scope.oldsymtab.addRef();
 
     if (scope.parent != null) {
       this.parent = new CContext(scope.parent);
@@ -204,9 +243,9 @@ public class CContext implements ParsingContext {
           // if ( scope.symtab.map.containsKey(ident)
           //      && scope.symtab.map.get(ident).typedefCond != null
           //      ) {
-          if ( scope.symtab.bools.containsKey(ident)
-               && scope.symtab.bools.get(ident).containsKey(SymbolTable.STField.TYPEDEF)
-               && ! scope.symtab.bools.get(ident).get(SymbolTable.STField.TYPEDEF).trueCond.isFalse()
+          if ( scope.oldsymtab.bools.containsKey(ident)
+               && scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF)
+               && ! scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.isFalse()
                ) {
 
             // The identifier has a typedef entry some presence
@@ -309,9 +348,9 @@ public class CContext implements ParsingContext {
       // if ( scope.symtab.map.containsKey(ident)
       //      && scope.symtab.map.get(ident).typedefCond != null
       //      ) {
-      if (scope.symtab.bools.containsKey(ident)
-          && scope.symtab.bools.get(ident).containsKey(SymbolTable.STField.TYPEDEF)
-          && ! scope.symtab.bools.get(ident).get(SymbolTable.STField.TYPEDEF).trueCond.isFalse()) {
+      if (scope.oldsymtab.bools.containsKey(ident)
+          && scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF)
+          && ! scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.isFalse()) {
         break;
       }
 
@@ -328,20 +367,20 @@ public class CContext implements ParsingContext {
 
       while (scope.reentrant) scope = scope.parent;
 
-      if (scope.symtab.bools.containsKey(ident) &&
-          (scope.symtab.bools.get(ident).containsKey(SymbolTable.STField.TYPEDEF)
-           || scope.symtab.bools.get(ident).containsKey(SymbolTable.STField.IDENT))) {
+      if (scope.oldsymtab.bools.containsKey(ident) &&
+          (scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF)
+           || scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.IDENT))) {
         // Set the flags for typedef (2) and var (1).
         int flags = 0;
-        if (scope.symtab.bools.get(ident).containsKey(SymbolTable.STField.TYPEDEF) &&
-            ! scope.symtab.bools.get(ident).get(SymbolTable.STField.TYPEDEF).trueCond.isFalse()) {
-          PresenceCondition and = scope.symtab.bools.get(ident).get(SymbolTable.STField.TYPEDEF).trueCond.and(presenceCondition);
+        if (scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF) &&
+            ! scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.isFalse()) {
+          PresenceCondition and = scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.and(presenceCondition);
           if (! and.isFalse()) flags |= 2;
           and.delRef();
         }
-        if (scope.symtab.bools.get(ident).containsKey(SymbolTable.STField.IDENT) &&
-            ! scope.symtab.bools.get(ident).get(SymbolTable.STField.IDENT).trueCond.isFalse()) {
-          PresenceCondition and = scope.symtab.bools.get(ident).get(SymbolTable.STField.IDENT).trueCond.and(presenceCondition);
+        if (scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.IDENT) &&
+            ! scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.IDENT).trueCond.isFalse()) {
+          PresenceCondition and = scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.IDENT).trueCond.and(presenceCondition);
           if (! and.isFalse()) flags |= 1;
           and.delRef();
         }
@@ -445,6 +484,10 @@ public class CContext implements ParsingContext {
     } else if ((null == s) || (null == t)) {
       return false;
     } else if (s.symtab == t.symtab) {
+      assert s.oldsymtab == t.oldsymtab;
+      assert s.taglookasidetable == t.taglookasidetable;
+      assert s.forwardtagrefs == t.forwardtagrefs;
+      assert s.enumeratorlists == t.enumeratorlists;
       return true;
     } else if (s.reentrant != t.reentrant) {
       return false;
@@ -457,10 +500,14 @@ public class CContext implements ParsingContext {
     CContext scope = (CContext) other;
 
     if (this.symtab == scope.symtab) {
+      assert oldsymtab == scope.oldsymtab;
+      assert taglookasidetable == scope.taglookasidetable;
+      assert forwardtagrefs == scope.forwardtagrefs;
+      assert enumeratorlists == scope.enumeratorlists;
       return this;
     } else {
       // symtab.addAll(scope.symtab);
-      symtab.copyBools(scope.symtab);
+      oldsymtab.copyBools(scope.oldsymtab);
 
       if (null != parent) {
         return parent.merge(scope.parent);
@@ -474,6 +521,8 @@ public class CContext implements ParsingContext {
   /** Free BDDs in the symbol table and those of the parent scopes. */
   public void free() {
     symtab.delRef();
+    // taglookasidetable.delRef();  // trace issue with this
+    oldsymtab.delRef();
 
     if (null != parent) {
       parent.free();
@@ -485,11 +534,23 @@ public class CContext implements ParsingContext {
    *
    * @return The context's symbol table.
    */
-  public SymbolTable getSymbolTable() {
+  public SymbolTable<Type> getSymbolTable() {
     CContext scope = this;
     while (scope.reentrant) scope = scope.parent;
 
     return scope.symtab;
+  }
+
+  /**
+   * Get a reference to the context's old symbol table.
+   *
+   * @return The context's old symbol table.
+   */
+  public OldSymbolTable getOldSymbolTable() {
+    CContext scope = this;
+    while (scope.reentrant) scope = scope.parent;
+
+    return scope.oldsymtab;
   }
 
   // /**
@@ -529,9 +590,9 @@ public class CContext implements ParsingContext {
 
       while (scope.reentrant) scope = scope.parent;
 
-      if (scope.symtab.bools.containsKey(ident) &&
-          scope.symtab.bools.get(ident).containsKey(SymbolTable.STField.TYPEDEF)) {
-        PresenceCondition and = scope.symtab.bools.get(ident).get(SymbolTable.STField.TYPEDEF).trueCond.and(presenceCondition);
+      if (scope.oldsymtab.bools.containsKey(ident) &&
+          scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF)) {
+        PresenceCondition and = scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.and(presenceCondition);
 
         if (! and.isFalse()) {
           return and;
@@ -572,7 +633,7 @@ public class CContext implements ParsingContext {
    * @param ident The identifier.
    * @param presenceCondition The current presence condition.
    */
-  public PresenceCondition symbolPresenceCond(String ident, SymbolTable.STField field) {
+  public PresenceCondition symbolPresenceCond(String ident, OldSymbolTable.STField field) {
     CContext scope;
 
     scope = this;
@@ -581,9 +642,9 @@ public class CContext implements ParsingContext {
 
       while (scope.reentrant) scope = scope.parent;
 
-      if (scope.symtab.bools.containsKey(ident) &&
-          scope.symtab.bools.get(ident).containsKey(field)) {
-        return scope.symtab.bools.get(ident).get(field).trueCond;
+      if (scope.oldsymtab.bools.containsKey(ident) &&
+          scope.oldsymtab.bools.get(ident).containsKey(field)) {
+        return scope.oldsymtab.bools.get(ident).get(field).trueCond;
       }
 
       if (null == scope.parent) {
@@ -610,10 +671,21 @@ public class CContext implements ParsingContext {
     while (scope.reentrant) {
       scope.symtab.delRef();
       scope.symtab = null;
+      for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.delRef(); }
+      scope.taglookasidetable = null;
+      scope.forwardtagrefs = null;
+      scope.enumeratorlists = null;
+      scope.oldsymtab.delRef();
+      scope.oldsymtab = null;
       scope = scope.parent;
     }
 
-    scope = new CContext(new SymbolTable(), new CContext(scope));
+    scope = new CContext(new SymbolTable<Type>(),
+                         new HashMap<String, SymbolTable<Type>>(),
+                         new HashMap<String, String>(),
+                         new HashMap<String, List<String>>(),
+                         new OldSymbolTable(),
+                         new CContext(scope));
 
     return scope;
   }
@@ -633,11 +705,23 @@ public class CContext implements ParsingContext {
     while (scope.reentrant) {
       scope.symtab.delRef();
       scope.symtab = null;
+      for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.delRef(); }
+      scope.taglookasidetable = null;
+      scope.forwardtagrefs = null;
+      scope.enumeratorlists = null;
+      scope.oldsymtab.delRef();
+      scope.oldsymtab = null;
       scope = scope.parent;
     }
 
     scope.symtab.delRef();
     scope.symtab = null;
+    for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.delRef(); }
+    scope.taglookasidetable = null;
+    scope.forwardtagrefs = null;
+    scope.enumeratorlists = null;
+    scope.oldsymtab.delRef();
+    scope.oldsymtab = null;
     scope = scope.parent;
 
     return scope;
@@ -658,6 +742,12 @@ public class CContext implements ParsingContext {
     while (scope.reentrant) {
       scope.symtab.delRef();
       scope.symtab = null;
+      for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.delRef(); }
+      scope.taglookasidetable = null;
+      scope.forwardtagrefs = null;
+      scope.enumeratorlists = null;
+      scope.oldsymtab.delRef();
+      scope.oldsymtab = null;
       scope = scope.parent;
     }
 
@@ -705,6 +795,12 @@ public class CContext implements ParsingContext {
     while (scope.reentrant) {
       scope.symtab.delRef();
       scope.symtab = null;
+      for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.delRef(); }
+      scope.taglookasidetable = null;
+      scope.forwardtagrefs = null;
+      scope.enumeratorlists = null;
+      scope.oldsymtab.delRef();
+      scope.oldsymtab = null;
       scope = scope.parent;
     }
 
@@ -723,8 +819,8 @@ public class CContext implements ParsingContext {
    * @returns A new Multiverse instance containing the entries under
    * the given condition.
    */
-  public Multiverse<SymbolTable.Entry> getInAnyScope(String ident, PresenceCondition cond) {
-    Multiverse<SymbolTable.Entry> result = new Multiverse<SymbolTable.Entry>();
+  public Multiverse<SymbolTable.Entry<Type>> getInAnyScope(String ident, PresenceCondition cond) {
+    Multiverse<SymbolTable.Entry<Type>> result = new Multiverse<SymbolTable.Entry<Type>>();
 
     if (! cond.isFalse()) {
       get(result, this, ident, cond);
@@ -742,7 +838,7 @@ public class CContext implements ParsingContext {
    * @returns A new Multiverse instance containing the entries under
    * the given condition, including UNDECLARED.
    */
-  public Multiverse<SymbolTable.Entry> getInCurrentScope(String ident, PresenceCondition cond) {
+  public Multiverse<SymbolTable.Entry<Type>> getInCurrentScope(String ident, PresenceCondition cond) {
     return getSymbolTable().get(ident, cond);
   }
 
@@ -795,8 +891,9 @@ public class CContext implements ParsingContext {
    * @param ident The identifier to look up.
    * @param cond The current presence condition.
    */
-  private void get(Multiverse<SymbolTable.Entry> result, CContext scope, String ident, PresenceCondition cond) {
-    Multiverse<SymbolTable.Entry> local = scope.getSymbolTable().get(ident, cond);
+  private void get(Multiverse<SymbolTable.Entry<Type>> result, CContext scope, String ident, PresenceCondition cond) {
+    SymbolTable<Type> symtab = scope.getSymbolTable();
+    Multiverse<SymbolTable.Entry<Type>> local = symtab.get(ident, cond);
     // add any declarations to the result, and continue looking in
     // the parent if this scope has any undeclared presence
     // condition.
@@ -804,8 +901,8 @@ public class CContext implements ParsingContext {
 
     // if undefinedCondition remains null, it means there was no
     // presence condition under which the identifier is undeclared.
-    for (Element<SymbolTable.Entry> entry : local) {
-      if (SymbolTable.UNDECLARED == entry.getData()) {
+    for (Element<SymbolTable.Entry<Type>> entry : local) {
+      if (entry.getData().isUndeclared()) {
         if (null != undefinedCondition) {
           System.err.println("FATAL: there should only one entry for UNDECLARED");
           System.exit(1);
@@ -825,17 +922,109 @@ public class CContext implements ParsingContext {
     if (null != undefinedCondition) {
       if (null != scope.parent) {
         // continue search in the global scope
-        get(result, scope.parent, ident, undefinedCondition);
+        get(result, scope.parent, ident, undefinedCondition);  // TODO: can we move scope past reentrant? does it matter?
         undefinedCondition.delRef();
       } else {
         // we've reached the global scope, so add the remaining
         // condition as an UNDECLARED entry.
-        result.add(SymbolTable.UNDECLARED, undefinedCondition);
+        result.add(symtab.getUndeclared(), undefinedCondition);
         undefinedCondition.delRef();
       }
     }
 
     if (DEBUG) System.err.println(String.format("context.get: %s -> %s", ident, result));
+  }
+
+  /**
+   * Add a new tag lookaside table.
+   */
+  public SymbolTable<Type> addLookasideTable(String tag) {
+    CContext scope = this;
+    while (scope.reentrant) scope = scope.parent;
+    if (scope.taglookasidetable.containsKey(tag)) {
+      throw new AssertionError("the type checker should never be adding duplicate struct tags");
+    }
+    SymbolTable<Type> tagtab = new SymbolTable<Type>();
+    scope.taglookasidetable.put(tag, tagtab);
+    return tagtab;
+  }
+
+  /**
+   * Get the lookaside table, following parent scopes as needed.
+   */
+  public SymbolTable<Type> getLookasideTableAnyScope(String tag) {
+    if (this.reentrant) {
+      if (null != this.parent) {
+        return this.parent.getLookasideTableAnyScope(tag);
+      } else {
+        throw new AssertionError("reentrant scopes should always have a parent");
+      }
+    } else {
+      // not a reentrant scope.  look for the tag
+      if (taglookasidetable.containsKey(tag)) {
+        return taglookasidetable.get(tag);
+      } else {
+        if (null != this.parent) {
+          return this.parent.getLookasideTableAnyScope(tag);
+        } else {
+          throw new AssertionError("the type checker should always be using a defined struct tag name");
+        }
+      }
+    }
+  }
+
+  /**
+   * Add new forward reference to a tag.
+   */
+  public void putForwardTagReference(String forwardTag, String referencedTag) {
+    CContext scope = this;
+    
+    while (scope.reentrant) scope = scope.parent;
+
+    if (scope.forwardtagrefs.containsKey(forwardTag)) {
+      throw new AssertionError("invariant violation: forward tag refs should never get remapped");
+    }
+    
+    scope.forwardtagrefs.put(forwardTag, referencedTag);
+  }
+
+  /**
+   * Get a forward reference to a tag.
+   */
+  public String getForwardTagReferenceAnyScope(String forwardTag) {
+    if (this.reentrant) {
+      if (null != this.parent) {
+        return this.parent.getForwardTagReferenceAnyScope(forwardTag);
+      } else {
+        throw new AssertionError("reentrant scopes should always have a parent");
+      }
+    } else {
+      // not a reentrant scope.  look for the tag
+      if (forwardtagrefs.containsKey(forwardTag)) {
+        return forwardtagrefs.get(forwardTag);
+      } else {
+        if (null != this.parent) {
+          return this.parent.getForwardTagReferenceAnyScope(forwardTag);
+        } else {
+          throw new AssertionError("the type checker should always be using a defined struct tag name");
+        }
+      }
+    }
+  }
+
+  /**
+   * Add a new (renamed) enumerator to the given enum tag.
+   */
+  public void putEnumerator(String enumTag, String enumerator) {
+    CContext scope = this;
+    
+    while (scope.reentrant) scope = scope.parent;
+
+    if (! scope.enumeratorlists.containsKey(enumTag)) {
+      scope.enumeratorlists.put(enumTag, new LinkedList<String>());
+    }
+
+    scope.enumeratorlists.get(enumTag).add(enumerator);
   }
 
   /**
@@ -865,43 +1054,51 @@ public class CContext implements ParsingContext {
     sb.append(scope.declarations);
     sb.append("\n");
 
-    // replace the original struct declaration with a struct
-    // containing of union containing each user-defined struct
-    SymbolTable symtab = scope.getSymbolTable();
-    for (String symbol : symtab) {
-      if (isInNameSpace(symbol, "tag")) {
-        String tag = fromNameSpace(symbol);
-        sb.append(String.format("struct %s {", tag));
-        sb.append(" // generated union of struct variations");
-        sb.append("\nunion {\n");
-        for (Element<SymbolTable.Entry> entry : symtab.get(symbol, presenceCondition)) {
-          if (entry.getData() == SymbolTable.ERROR) {
-            sb.append(" // error entry\n");
-          } else if (entry.getData() == SymbolTable.UNDECLARED) {
-            sb.append(" // no declaration\n");
+    // create a struct for each forward tag reference that is a union
+    // containing each configuration of the struct.
+    SymbolTable<Type> symtab = scope.getSymbolTable();
+    for (String tag : forwardtagrefs.keySet()) {
+      sb.append(String.format("struct %s {", tag));
+      sb.append(" // generated union of struct variations");
+      sb.append("\nunion {\n");
+      String originalTag = forwardtagrefs.get(tag);
+      Multiverse<SymbolTable.Entry<Type>> originalTagEntries
+        = symtab.get(CContext.toTagName(originalTag), presenceCondition);
+      for (Element<SymbolTable.Entry<Type>> tagentry : originalTagEntries) {
+        if (tagentry.getData().isError()) {
+          // error tagentry
+        } else if (tagentry.getData().isUndeclared()) {
+          // no declaration in this configuration
+        } else {
+          if (tagentry.getData().getValue().isStruct()) {
+            StructT type = tagentry.getData().getValue().toStruct();
+            String renamedTag = type.getName();
+            sb.append(String.format("struct %s %s;", renamedTag, renamedTag));
+            sb.append("\n");
+          } else if (tagentry.getData().getValue().isUnion()) {
+            UnionT type = tagentry.getData().getValue().toUnion();
+            String renamedTag = type.getName();
+            sb.append(String.format("union %s %s;", renamedTag, renamedTag));
+            sb.append("\n");
           } else {
-            if (entry.getData().getType().isStruct()) {
-              StructT type = entry.getData().getType().toStruct();
-              String renamedTag = type.getName();
-              sb.append(String.format("struct %s %s;", renamedTag, renamedTag));
-              sb.append("\n");
-            } else if (entry.getData().getType().isUnion()) {
-              UnionT type = entry.getData().getType().toUnion();
-              String renamedTag = type.getName();
-              sb.append(String.format("union %s %s;", renamedTag, renamedTag));
-              sb.append("\n");
-            } else if (entry.getData().getType().isEnum()) {
-              sb.append(" // enums have no namespace\n");
-              // no need to create an indirection for enums, since
-              // enumerators are not fields but are just added to the
-              // scope
-            } else {
-              throw new IllegalStateException("unknown type in CContext.getDeclarations");
-            }
+            throw new IllegalStateException("invariant violation: type should only be struct or union");
           }
         }
-        sb.append("};\n};\n\n");
       }
+      sb.append("};\n};\n\n");
+    }
+
+    // create an enum for each enum specifier
+    for (String tag : scope.enumeratorlists.keySet()) {
+      List<String> enumeratorlist = scope.enumeratorlists.get(tag);
+      sb.append("enum ");
+      sb.append(tag);
+      sb.append(" {\n");
+      for (String enumerator : enumeratorlist) {
+        sb.append(enumerator);
+        sb.append(",\n");
+      }
+      sb.append("};\n");
     }
     
     return sb.toString();
@@ -964,6 +1161,18 @@ public class CContext implements ParsingContext {
       throw new IllegalArgumentException("Not a mangled symbol '"+symbol+"'");
     }
   }
+
+  // /**
+  //  * Convert the specified C struct, union, or enum tag into a symbol
+  //  * table name.  This is used for forward references to struct/union
+  //  * tags.
+  //  *
+  //  * @param tag The tag.
+  //  * @return The corresponding symbol table name.
+  //  */
+  // public static String toTagRefName(String tagref) {
+  //   return toNameSpace(tagref, "tagref");
+  // }
 
   /**
    * Convert the specified C struct, union, or enum tag into a symbol

@@ -43,7 +43,6 @@ import superc.core.Syntax.Text;
 import superc.core.Syntax.Directive;
 import superc.core.Syntax.Conditional;
 
-import xtc.type.Type;
 import xtc.type.UnitT;
 
 import superc.cdesugarer.Multiverse.Element;
@@ -57,57 +56,77 @@ import superc.core.ForkMergeParser.Lookahead;
 /**
  * The symbol table that stores a scope's symbol bindings.
  */
-public class SymbolTable implements Iterable<String> {
+public class SymbolTable<T> implements Iterable<String> {
 
-  public static final Entry UNDECLARED = new Entry(null) {
-      public Type getType() {
-        throw new UnsupportedOperationException("the undeclared symbol table entry has no type");
-      }
+  private Error<T> ERROR = new Error<T>();
 
-      public String toString() {
-        return "<UNDECLARED>";
-      }
-    };
-    
-  public static final Entry ERROR = new Entry(null) {
-      public Type getType() {
-        throw new UnsupportedOperationException("the error symbol table entry has no type");
-      }
+  private Undeclared<T> UNDECLARED = new Undeclared<T>();
 
-      public String toString() {
-        return "<ERROR>";
-      }
-    };
-    
   /**
-   * A symbol table entry that holds a type.
+   * Get the UNDECLARED entry, which is used by the scope to lookup a
+   * symbol in all scopes.
    */
-  public static class Entry {
-    // TODO: make this abstract and have type for VALID entries, have an error message for other kinds
+  public Entry<T> getUndeclared() { return UNDECLARED; }
+
+  public static abstract class Entry<U> {
+    /** True if an error entry. */
+    public boolean isError() { return false; }
+
+    /** True if an undeclared entry. */
+    public boolean isUndeclared() { return false; }
+
+    /** True if a declared entry. */
+    public boolean isDeclared() { return false; }
 
     /**
-     * The type under a given set of configurations.  This type should
-     * be a VariableT, AliasT, or NamedFunctionT, all of which store
-     * the renaming of the symbol.
+     * Get the value if the entry has one.
      */
-    protected final Type type;
+    public abstract U getValue();
+  }
 
-    /** Create a new symbol table entry. */
-    public Entry(Type type) {
-      this.type = type;
-    }
+  protected static class Error<U> extends Entry<U> {
+    protected Error() { }
 
-    /**
-     * Get the type field.
-     *
-     * @returns The type field.
-     */
-    public Type getType() {
-      return type;
+    public boolean isError() { return true; }
+
+    public U getValue() {
+      throw new UnsupportedOperationException("the error symbol table entry has no type");
     }
 
     public String toString() {
-      return String.format("(TYPE=%s)", getType().toString());
+      return "<ERROR>";
+    }
+  }
+
+  protected static class Undeclared<U> extends Entry<U> {
+    private Undeclared() { }
+
+    public boolean isUndeclared() { return true; }
+
+    public U getValue() {
+      throw new UnsupportedOperationException("the undeclared symbol table entry has no type");
+    }
+    
+    public String toString() {
+      return "<UNDECLARED>";
+    }
+  }
+
+  public static class Declared<U> extends Entry<U> {
+    protected final U value;
+    
+    public Declared(U value) {
+      this.value = value;
+    }
+    
+    public boolean isDeclared() { return true; }
+
+    public U getValue() {
+      return this.value;
+    }
+    
+    public String toString() {
+      return String.format("(VALUE=%s)", this.value.toString());
     }
   }
 
@@ -115,7 +134,7 @@ public class SymbolTable implements Iterable<String> {
    * The symbol table's core data structure that maps symbols to a
    * multiverse of types.
    */
-  protected HashMap<String, Multiverse<Entry>> map;
+  protected HashMap<String, Multiverse<Entry<T>>> map;
 
   /** The reference count for cleaning up the table BDDs */
   public int refs;
@@ -125,14 +144,13 @@ public class SymbolTable implements Iterable<String> {
    */
   public SymbolTable() {
     this.refs = 1;
-    this.map = new HashMap<String, Multiverse<Entry>>();
-    this.bools = new HashMap<String, EnumMap<STField, ConditionedBool>>();
+    this.map = new HashMap<String, Multiverse<Entry<T>>>();
   }
 
   /**
    * Update the number of references to this symbol table.
    */
-  public SymbolTable addRef() {
+  public SymbolTable<T> addRef() {
     refs++;
 
     return this;
@@ -146,14 +164,7 @@ public class SymbolTable implements Iterable<String> {
     refs--;
       
     if (0 == refs) {  //clean up symbol table
-      for (String name : this.bools.keySet()) {
-        for (STField field : this.bools.get(name).keySet()) {
-          ConditionedBool cb = this.bools.get(name).get(field);
-          cb.trueCond.delRef();
-        }
-      }
-
-      for (Multiverse<Entry> m : map.values()) {
+      for (Multiverse<Entry<T>> m : map.values()) {
         m.destruct();
       }
     }
@@ -170,12 +181,12 @@ public class SymbolTable implements Iterable<String> {
    * the given condition.  If the symbol was never seen before, it
    * returns a Multiverse that contains only the UNDECLARED entry.
    */
-  public Multiverse<Entry> get(String ident, PresenceCondition cond) {
-    Multiverse<Entry> newmv;
+  public Multiverse<Entry<T>> get(String ident, PresenceCondition cond) {
+    Multiverse<Entry<T>> newmv;
     if (! this.map.containsKey(ident)) {
       // Create a new multiverse for the symbol that has only the
       // UNDECLARED entry under the True condition
-      newmv = new Multiverse<Entry>();
+      newmv = new Multiverse<Entry<T>>();
 
       PresenceCondition trueCond = cond.presenceConditionManager().newTrue();
       newmv.add(UNDECLARED, trueCond);
@@ -185,7 +196,7 @@ public class SymbolTable implements Iterable<String> {
       newmv.add(ERROR, falseCond);
       falseCond.delRef();
       
-      Multiverse<Entry> filtered = newmv.filter(cond);
+      Multiverse<Entry<T>> filtered = newmv.filter(cond);
       newmv.destruct();
       return filtered;
     } else {
@@ -209,12 +220,12 @@ public class SymbolTable implements Iterable<String> {
    * @param putCond The presence condition under which to update the
    * table.
    */
-  protected void put(String ident, SymbolTable.Entry putEntry, PresenceCondition putCond) {
+  protected void put(String ident, SymbolTable.Entry<T> putEntry, PresenceCondition putCond) {
     if (! putCond.isFalse()) {
       if (! this.map.containsKey(ident)) {
         // Create a new multiverse for the symbol that has only the
         // UNDECLARED entry under the True condition
-        Multiverse<Entry> newmv = new Multiverse<Entry>();
+        Multiverse<Entry<T>> newmv = new Multiverse<Entry<T>>();
 
         PresenceCondition trueCond = putCond.presenceConditionManager().newTrue();
         newmv.add(UNDECLARED, trueCond);
@@ -230,8 +241,8 @@ public class SymbolTable implements Iterable<String> {
       // TODO: include way to check for invalid type redeclaration and
       // convert it to a type error
 
-      Multiverse<Entry> oldmv = this.map.get(ident);
-      Multiverse<Entry> newmv = new Multiverse<Entry>();
+      Multiverse<Entry<T>> oldmv = this.map.get(ident);
+      Multiverse<Entry<T>> newmv = new Multiverse<Entry<T>>();
 
       /* lifetime for presence conditions */ {
         PresenceCondition undeclaredCond = null;
@@ -239,7 +250,7 @@ public class SymbolTable implements Iterable<String> {
         PresenceCondition notPutCond = putCond.not();
         PresenceCondition collectErrors = putCond.presenceConditionManager().newFalse();
 
-        for (Element<Entry> entry : oldmv) {
+        for (Element<Entry<T>> entry : oldmv) {
           if (UNDECLARED == entry.getData()) {
             if (null != undeclaredCond) {
               throw new AssertionError("there should only be one UNDECLARED entry in the symbol table");
@@ -333,12 +344,12 @@ public class SymbolTable implements Iterable<String> {
         PresenceCondition union = putCond.presenceConditionManager().newFalse();
 
         // has redundant checks
-        for (Element<Entry> entry_i : newmv) {
+        for (Element<Entry<T>> entry_i : newmv) {
           PresenceCondition newUnion = union.or(entry_i.getCondition());
           union.delRef();
           union = newUnion;
           
-          for (Element<Entry> entry_j : newmv) {
+          for (Element<Entry<T>> entry_j : newmv) {
             if (entry_i != entry_j) {
               if (! entry_i.getCondition().isMutuallyExclusive(entry_j.getCondition())) {
                 throw new AssertionError("symbol table invariant violation: entries should be in mutually-exclusive configurations");
@@ -371,11 +382,11 @@ public class SymbolTable implements Iterable<String> {
    * Add a new symbol table entry for the given identifier.
    *
    * @param ident The identifier to enter.
-   * @param type The type.
+   * @param type The value.
    * @param putCond The presence condition.
    */
-  public void put(String ident, Type type, PresenceCondition putCond) {
-    Entry entry = new Entry(type);
+  public void put(String ident, T value, PresenceCondition putCond) {
+    Entry<T> entry = new Declared<T>(value);
     put(ident, entry, putCond);
   }
 
@@ -445,125 +456,6 @@ public class SymbolTable implements Iterable<String> {
     
     return sb.toString();
   }
-  
-  /*******************************************************************
-   ***** The fields below are the original symbol table implementation
-   ***** that only tracks the kind of symbol in order to support C's
-   ***** context-sensitive parsing.
-   *******************************************************************/
-
-  public enum STField {
-    TYPEDEF, IDENT, INIT, USED, VAR, GLOBAL_FUNDEF, STATIC_FUNDEF, FUNCALL,
-  }
-
-  /**
-   * Simple symbol table tracking kind of symbol.
-   */
-  public HashMap<String, EnumMap<STField, ConditionedBool>> bools;
-
-  /**
-   * Set the presence condition of the boolean value of the given
-   * field.
-   *
-   * @param name The name of the symbol.
-   * @param field The field of the symbol table entry to update.
-   * @param value The boolean value to set.
-   * @param condition The condition of the boolean value.
-   */
-  public void setbool(String name,
-                      STField field,
-                      boolean value,
-                      PresenceCondition condition) {
-    if (! bools.containsKey(name)) {
-      // create a new symbol table entry
-      bools.put(name, new EnumMap<STField, ConditionedBool>(STField.class));
-    }
-
-    if (! bools.get(name).containsKey(field)) {
-      // create a new field for the symbol table entry
-      PresenceCondition trueCond;
-      if (value) {
-        trueCond = condition.addRef();
-      } else {
-        trueCond = condition.not();
-      }
-      bools.get(name).put(field, new ConditionedBool(trueCond));
-    } else {
-      // update the existing field's presence conditions
-      ConditionedBool cb = bools.get(name).get(field);
-      if (value) {
-        PresenceCondition union = cb.trueCond.or(condition);
-        cb.trueCond.delRef();
-        cb.trueCond = union;
-      } else {
-        PresenceCondition not = condition.not();
-        PresenceCondition union = cb.trueCond.and(not);
-        cb.trueCond.delRef();
-        cb.trueCond = union;
-        not.delRef();
-      }
-    }
-  }
-
-  /**
-   * Get all names given a field.
-   *
-   * @param field The given field.
-   * @return A list of names.
-   */
-  public Set<String> getNames(STField field) {
-    Set<String> a = new HashSet<String>();
-
-    for (String s : bools.keySet()) {
-      if (bools.get(s).containsKey(field)) {
-        a.add(s);
-      }
-    }
-
-    return a;
-  }
-
-  /**
-   * Get the presence condition of a given name and field
-   * combination.
-   *
-   * @param name The symbol name.
-   * @param field The symbol field.
-   * @return The presence condition.
-   */
-  public PresenceCondition getPresenceCond(String name,
-                                           STField field) {
-    if (bools.containsKey(name) &&
-        bools.get(name).containsKey(field)) {
-      return bools.get(name).get(field).trueCond;
-    }
-    return null;
-  }
-
-  public void copyBools(SymbolTable symtab) {
-    for (String name : symtab.bools.keySet()) {
-      for (STField field : symtab.bools.get(name).keySet()) {
-        this.setbool(name, field, true, symtab.bools.get(name).get(field).trueCond);
-      }
-    }
-  }
-
-  /**
-   * A boolean that maintain a boolean expression for when the
-   * variable can be true.
-   */
-  protected static class ConditionedBool {
-    /** The presence condition when true. */
-    public PresenceCondition trueCond;
-
-    /** Create a new entry.
-     *
-     * @param trueCond Condition when true.
-     */
-    public ConditionedBool(PresenceCondition trueCond) {
-      this.trueCond = trueCond;
-    }
-  }
 
   public static void main(String args[]) {
     PresenceConditionManager presenceConditionManager = new PresenceConditionManager();
@@ -572,7 +464,7 @@ public class SymbolTable implements Iterable<String> {
     PresenceCondition C = presenceConditionManager.getVariable("C");
     PresenceCondition and = A.and(B);
     PresenceCondition or = and.or(C);
-    SymbolTable symtab = new SymbolTable();
+    SymbolTable<xtc.type.Type> symtab = new SymbolTable<xtc.type.Type>();
     System.err.println(symtab);
     symtab.put("x", UnitT.TYPE, or);
     System.err.println(symtab);
