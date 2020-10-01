@@ -967,46 +967,58 @@ public class CContext implements ParsingContext {
     sb.append(scope.declarations);
     sb.append("\n");
 
-    System.err.println("TODO: emit the tag definitions");
-
-    // // replace the original struct declaration with a struct
-    // // containing of union containing each user-defined struct
-    // SymbolTable<Type> symtab = scope.getSymbolTable();
-    // for (String symbol : symtab) {
-    //   if (isInNameSpace(symbol, "tag")) {
-    //     String tag = fromNameSpace(symbol);
-    //     sb.append(String.format("struct %s {", tag));
-    //     sb.append(" // generated union of struct variations");
-    //     sb.append("\nunion {\n");
-    //     for (Element<SymbolTable.Entry<Type>> entry : symtab.get(symbol, presenceCondition)) {
-    //       if (entry.getData() == SymbolTable.ERROR) {
-    //         sb.append(" // error entry\n");
-    //       } else if (entry.getData() == SymbolTable.UNDECLARED) {
-    //         sb.append(" // no declaration\n");
-    //       } else {
-    //         if (entry.getData().getType().isStruct()) {
-    //           StructT type = entry.getData().getType().toStruct();
-    //           String renamedTag = type.getName();
-    //           sb.append(String.format("struct %s %s;", renamedTag, renamedTag));
-    //           sb.append("\n");
-    //         } else if (entry.getData().getType().isUnion()) {
-    //           UnionT type = entry.getData().getType().toUnion();
-    //           String renamedTag = type.getName();
-    //           sb.append(String.format("union %s %s;", renamedTag, renamedTag));
-    //           sb.append("\n");
-    //         } else if (entry.getData().getType().isEnum()) {
-    //           sb.append(" // enums have no namespace\n");
-    //           // no need to create an indirection for enums, since
-    //           // enumerators are not fields but are just added to the
-    //           // scope
-    //         } else {
-    //           throw new IllegalStateException("unknown type in CContext.getDeclarations");
-    //         }
-    //       }
-    //     }
-    //     sb.append("};\n};\n\n");
-    //   }
-    // }
+    // create a struct for each forward tag reference that is a union
+    // containing each configuration of the struct.
+    SymbolTable<Type> symtab = scope.getSymbolTable();
+    for (String symbol : symtab) {
+      if (isInNameSpace(symbol, "tagref")) {
+        String tag = fromNameSpace(symbol);
+        sb.append(String.format("struct %s {", tag));
+        sb.append(" // generated union of struct variations");
+        sb.append("\nunion {\n");
+        for (Element<SymbolTable.Entry<Type>> entry : symtab.get(symbol, presenceCondition)) {
+          if (entry.getData().isError()) {
+            // error entry
+          } else if (entry.getData().isUndeclared()) {
+            // no declaration in this configuration
+          } else {
+            // the forward reference is to the original name, so
+            // lookup that tag in the symtab to find its renamings.
+            // the original name should be in the current scope.
+            // otherwise, it wouldn't have been a forward reference.
+            if (entry.getData().getValue().isStruct() || entry.getData().getValue().isUnion()) {
+              String originalTag = entry.getData().getValue().getName();
+              Multiverse<SymbolTable.Entry<Type>> originalTagEntries
+                = symtab.get(CContext.toTagName(originalTag), entry.getCondition());
+              for (Element<SymbolTable.Entry<Type>> tagentry : originalTagEntries) {
+                if (tagentry.getData().isError()) {
+                  // error tagentry
+                } else if (tagentry.getData().isUndeclared()) {
+                  // no declaration in this configuration
+                } else {
+                  if (tagentry.getData().getValue().isStruct()) {
+                    StructT type = tagentry.getData().getValue().toStruct();
+                    String renamedTag = type.getName();
+                    sb.append(String.format("struct %s %s;", renamedTag, renamedTag));
+                    sb.append("\n");
+                  } else if (tagentry.getData().getValue().isUnion()) {
+                    UnionT type = tagentry.getData().getValue().toUnion();
+                    String renamedTag = type.getName();
+                    sb.append(String.format("union %s %s;", renamedTag, renamedTag));
+                    sb.append("\n");
+                  } else {
+                    throw new IllegalStateException("invariant violation: type should only be struct or union");
+                  }
+                }
+              }
+            } else {
+              throw new AssertionError("invariant violation: forward reference should only be to struct or union types.");
+            }
+          }
+        }
+        sb.append("};\n};\n\n");
+      }
+    }
     
     return sb.toString();
   }
@@ -1067,6 +1079,18 @@ public class CContext implements ParsingContext {
     } else {
       throw new IllegalArgumentException("Not a mangled symbol '"+symbol+"'");
     }
+  }
+
+  /**
+   * Convert the specified C struct, union, or enum tag into a symbol
+   * table name.  This is used for forward references to struct/union
+   * tags.
+   *
+   * @param tag The tag.
+   * @return The corresponding symbol table name.
+   */
+  public static String toTagRefName(String tagref) {
+    return toNameSpace(tagref, "tagref");
   }
 
   /**
