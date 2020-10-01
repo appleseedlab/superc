@@ -2109,14 +2109,6 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
           
           // TODO: check whether a struct is being declared in a parameter list, which is a wraning.
           
-          // legacy type checking
-          Node tag     = null;
-          Node members = getNodeAt(subparser, 2);
-          Node attrs   = null;
-          updateSpecs(subparser,
-                      makeStructSpec(subparser, tag, members, attrs),
-                      value);
-
           Syntax keyword = (Syntax) getNodeAt(subparser, 5).get(0);
           // TODO: add attributes to type spec
           List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
@@ -2139,14 +2131,6 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = (CContext)subparser.scope;
-
-          // legacy
-          Node tag     = getNodeAt(subparser, 4);
-          Node members = getNodeAt(subparser, 2);
-          Node attrs   = null;
-          updateSpecs(subparser,
-                      makeStructSpec(subparser, tag, members, attrs),
-                      value);
 
           Syntax keyword = (Syntax) getNodeAt(subparser, 6).get(0);
           // TODO: add attributes to type spec
@@ -2174,37 +2158,6 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
 
           setTransformationValue(value, valuemv);
         }
-        /* | StructOrUnionKeyword AttributeSpecifierList { EnterScope(subparser); } LBRACE */
-        /*   StructDeclarationList { ExitScope(subparser); } */
-        /* RBRACE */
-        /* { */
-        /*   System.err.println("ERROR: unsupported semantic action: StructSpecifier (4)"); */
-        /*   System.exit(1); */
-        /*   Node tag     = null; */
-        /*   Node members = getNodeAt(subparser, 3); */
-        /*   Node attrs   = getNodeAt(subparser, 6); */
-        /*   updateSpecs(subparser, */
-        /*               makeStructSpec(subparser, tag, members, attrs), */
-        /*               value); */
-        /* } */
-        /* | StructOrUnionKeyword AttributeSpecifierList IdentifierOrTypedefName { EnterScope(subparser); } LBRACE */
-        /*   StructDeclarationList { ExitScope(subparser); } */
-        /* RBRACE */
-        /* { */
-        /*   System.err.println("ERROR: unsupported semantic action: StructSpecifier (5)"); */
-        /*   System.exit(1); */
-        /*   Node tag     = getNodeAt(subparser, 6); */
-        /*   Node members = getNodeAt(subparser, 3); */
-        /*   Node attrs   = getNodeAt(subparser, 7); */
-        /*   updateSpecs(subparser, */
-        /*               makeStructSpec(subparser, tag, members, attrs), */
-        /*               value); */
-        /* } */
-        /* | StructOrUnionKeyword AttributeSpecifierList IdentifierOrTypedefName */
-        /* { */
-        /*   System.err.println("ERROR: unsupported semantic action: StructSpecifier (6)"); */
-        /*   System.exit(1); */
-        /* } */
         ;
 
 // no actions needed, bcause parent action gets token from node
