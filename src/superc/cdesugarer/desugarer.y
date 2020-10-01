@@ -2144,9 +2144,26 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
             for (Element<Declaration> structfield : structfieldmv) {
               PresenceCondition combinedCond = pc.and(structfield.getCondition());
               if (combinedCond.isNotFalse()) {
-                String fieldName = structfield.getData().getName();
 
-                todoReminder("handle anonymous fields inside struct/union");
+                // if the struct field has no name, then there is no
+                // possibilty of a name clash.  we just give it a new
+                // name so that it can be stored in the lookaside
+                // table.
+                String fieldName;
+                Declaration renamedDeclaration;
+                String renamedField;
+                if (structfield.getData().hasName()) {
+                  fieldName = structfield.getData().getName();
+                  renamedField = freshCId(fieldName);
+                  renamedDeclaration = structfield.getData().rename(renamedField);
+                } else {
+                  fieldName = freshCId("anonymous_field");
+                  renamedField = fieldName;
+                  renamedDeclaration = structfield.getData();
+                }
+                assert null != fieldName;
+                assert null != renamedField;
+                assert null != renamedDeclaration;
 
                 System.err.println("FIELDNAME " + fieldName);
                 System.err.println("FJKLDSLKJFDS " + tagtab);
@@ -2170,8 +2187,6 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
                       errorCond.delRef(); errorCond = newerrorCond;
 
                     } else if (entry.getData().isUndeclared()) {
-                      String renamedField = freshCId(fieldName);
-                      Declaration renamedDeclaration = structfield.getData().rename(renamedField);
                       Type fieldType = VariableT.newField(renamedDeclaration.getType(), renamedField);
 
                       // add the type containing the renaming to the struct tag's symtab
@@ -2278,9 +2293,26 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
             for (Element<Declaration> structfield : structfieldmv) {
               PresenceCondition combinedCond = pc.and(structfield.getCondition());
               if (combinedCond.isNotFalse()) {
-                String fieldName = structfield.getData().getName();
 
-                todoReminder("handle anonymous fields inside struct/union");
+                // if the struct field has no name, then there is no
+                // possibilty of a name clash.  we just give it a new
+                // name so that it can be stored in the lookaside
+                // table.
+                String fieldName;
+                Declaration renamedDeclaration;
+                String renamedField;
+                if (structfield.getData().hasName()) {
+                  fieldName = structfield.getData().getName();
+                  renamedField = freshCId(fieldName);
+                  renamedDeclaration = structfield.getData().rename(renamedField);
+                } else {
+                  fieldName = freshCId("anonymous_field");
+                  renamedField = fieldName;
+                  renamedDeclaration = structfield.getData();
+                }
+                assert null != fieldName;
+                assert null != renamedField;
+                assert null != renamedDeclaration;
 
                 System.err.println("FIELDNAME " + fieldName);
                 System.err.println("FJKLDSLKJFDS " + tagtab);
@@ -2304,8 +2336,6 @@ StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<Type
                       errorCond.delRef(); errorCond = newerrorCond;
 
                     } else if (entry.getData().isUndeclared()) {
-                      String renamedField = freshCId(fieldName);
-                      Declaration renamedDeclaration = structfield.getData().rename(renamedField);
                       Type fieldType = VariableT.newField(renamedDeclaration.getType(), renamedField);
 
                       // add the type containing the renaming to the struct tag's symtab
