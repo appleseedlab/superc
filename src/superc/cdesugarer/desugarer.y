@@ -6052,15 +6052,26 @@ ExpressionList:  /** list, nomerge **/  // List<ExpressionValue>
         }
         | ExpressionList COMMA AssignmentExpression
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
           // add to the existing expression list.  this reuse of a
           // semantic value may be an issue if static conditionals are
           // permitted under expressionlists
-          List<ExpressionValue> exprlist
-            = (LinkedList<ExpressionValue>) getTransformationValue(subparser,3);
+          List<ExpressionValue> exprlist = getCompleteNodeExpressionListValue(subparser, 3, pc);
           ExpressionValue exprval
             = getCompleteNodeExpressionValue(subparser,1, subparser.getPresenceCondition());
           exprlist.add(exprval);
           setTransformationValue(value, exprlist);
+
+          /* // add to the existing expression list.  this reuse of a */
+          /* // semantic value may be an issue if static conditionals are */
+          /* // permitted under expressionlists */
+          /* List<ExpressionValue> exprlist */
+          /*   = (LinkedList<ExpressionValue>) getTransformationValue(subparser,3); */
+          /* ExpressionValue exprval */
+          /*   = getCompleteNodeExpressionValue(subparser,1, subparser.getPresenceCondition()); */
+          /* exprlist.add(exprval); */
+          /* setTransformationValue(value, exprlist); */
         }
         ;
 
@@ -8090,6 +8101,65 @@ private <T> List<Multiverse<T>> getCompleteNodeListValue(Node node, PresenceCond
         // during transformation
         resultlist.add(filtered);
       }
+    }
+    combinedCond.delRef();
+  }
+  nodemv.destruct();
+  
+  // the resulting list can be empty, e.g., of the
+  // declarationorstatementlist is empty
+  return resultlist;
+}
+
+/**
+ * Get the semantic value for node that has a "complete" annotation
+ * where the semantic value is a list of multiverses.  The complete
+ * annotation means the child node may be a static conditional, so
+ * create a new list that concatenates the multiverse values from all
+ * children of the static conditional, filtering out infeasible
+ * elements along the way.
+ *
+ * @param subparser The subparser containing the semantic multiverse stack.
+ * @param component The index into the semantic multiverse stack.
+ * @param pc The presence condition of the semantic action.
+ * @returns A list of all semantic values of the given node.
+ */
+private List<ExpressionValue> getCompleteNodeExpressionListValue(Subparser subparser, int component, PresenceCondition pc) {
+  return getCompleteNodeExpressionListValue(getNodeAt(subparser, component), pc);
+}
+
+/**
+ * Get the semantic value for node that has a "complete" annotation
+ * where the semantic value is a list of multiverses.  The complete
+ * annotation means the child node may be a static conditional, so
+ * create a new list that concatenates the multiverse values from all
+ * children of the static conditional, filtering out infeasible
+ * elements along the way.
+ *
+ * @param node The AST node holding the semantic multiverse.
+ * @param pc The presence condition of the semantic action.
+ * @return A new list containing the semantic values for all configurations.
+ */
+private List<ExpressionValue> getCompleteNodeExpressionListValue(Node node, PresenceCondition pc) {
+  Multiverse<Node> nodemv = staticCondToMultiverse(node, pc);
+  List<ExpressionValue> resultlist = new LinkedList<ExpressionValue>();
+
+  // loop through each node, get its multiverse and add to the
+  // resultmv.  update each node's multiverse elements with the static
+  // conditional branch's presence condition using filter.
+  for (Element<Node> elem : nodemv) {
+    PresenceCondition combinedCond = pc.and(elem.getCondition());
+    List<ExpressionValue> mvlist = (List<ExpressionValue>) ((Node) elem.getData()).getProperty(TRANSFORMATION);
+    for (ExpressionValue exprval : mvlist) {
+      resultlist.add(exprval);
+      /* Multiverse<String> filtered_transformation = exprval.transformation.filter(combinedCond); */
+      /* Multiverse<Type> filtered_type = exprval.type.filter(combinedCond); */
+      /* if (! filtered_transformation.isEmpty() && ! filtered_type.isEmpty()) { */
+      /*   // empty multiverse, means no feasible configs.  don't add to */
+      /*   // list since empty multiverses represent an illegal state */
+      /*   // during transformation */
+      /*   resultlist.add(new ExpressionValue(filtered_transformation, filtered_type)); */
+      /* } */
     }
     combinedCond.delRef();
   }
