@@ -6208,8 +6208,6 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> opmv = new Multiverse<String>((String) getTransformationValue(subparser, 2), pc);
           Multiverse<String> exprmv = exprval.transformation;
 
-          Multiverse<String> transformationmv;
-          Multiverse<Type> typemv;
           if (exprval.hasValidType()) {
             setTransformationValue(value,
                                    new ExpressionValue(productAll(DesugarOps.concatStrings,
@@ -6531,11 +6529,17 @@ MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> rightmv = rightval.transformation;
 
-          setTransformationValue(value, new ExpressionValue(productAll(DesugarOps.concatStrings,
-                                                                       leftmv,
-                                                                       opmv,
-                                                                       rightmv),
-                                                            leftval.type));  // TODO: this is a placeholder for the real type
+          if (leftval.hasValidType() && rightval.hasValidType()) {
+            setTransformationValue(value, new ExpressionValue(productAll(DesugarOps.concatStrings,
+                                                                         leftmv,
+                                                                         opmv,
+                                                                         rightmv),
+                                                              leftval.type));  // TODO: this is a placeholder for the real type
+          } else {
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in multiplicative expression"),
+                                                              ErrorT.TYPE,
+                                                              pc));
+          }
           opmv.destruct();
         }
         | MultiplicativeExpression DIV CastExpression
