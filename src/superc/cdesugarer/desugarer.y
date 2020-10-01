@@ -4492,12 +4492,33 @@ Statement:  /** complete **/  // Multiverse<String>
         ;
 
 LabeledStatement:  /** complete **/  // ADDED attributes  // Multiverse<String>
-        IdentifierOrTypedefName COLON AttributeSpecifierListOpt Statement
+        IDENTIFIER COLON AttributeSpecifierListOpt Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          System.err.println("ERROR: unsupported semantic action: LabeledStatement");
-          System.exit(1);
+
+          String ident = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          String colon = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          String prefix = String.format("%s %s", ident, colon);
+          // TODO: save attributes
+          Multiverse<String> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
+          Multiverse<String> prepended = stmtmv.prependScalar(prefix, DesugarOps.concatStrings);
+
+          setTransformationValue(value, prepended);
         }
+        | TYPEDEFname COLON AttributeSpecifierListOpt Statement
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          String ident = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          String colon = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          String prefix = String.format("%s %s", ident, colon);
+          // TODO: save attributes
+          Multiverse<String> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
+          Multiverse<String> prepended = stmtmv.prependScalar(prefix, DesugarOps.concatStrings);
+
+          setTransformationValue(value, prepended);
+        }
+
         ;
 
 // convert statements to if statements
