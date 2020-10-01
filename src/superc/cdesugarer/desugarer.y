@@ -7630,76 +7630,93 @@ boolean wrotePrologue = false;
 // TUTORIAL: this section of the grammar gets copied into the
 // resulting parser, specifically the CActions.java class
 
+public static class FreshIDCreator {
 
+  /** The fresh name count. */
+  protected int freshNameCount;
 
-/***************************************************************************
-**** The following naming and namespacing functionality is taken
-**** directly from xtc.util.SymbolTable.
-***************************************************************************/
+  /** The fresh identifier count. */
+  protected int freshIdCount;
 
-/** The fresh name count. */
-protected int freshNameCount = 0;
+  public FreshIDCreator() {
+    this(0, 0);
+  }
+  
+  public FreshIDCreator(int freshNameCount, int freshIdCount) {
+    this.freshNameCount = freshNameCount;
+    this.freshIdCount = freshIdCount;
+  }
 
-/** The fresh identifier count. */
-protected int freshIdCount = 0;
+  /***************************************************************************
+   **** The following naming and namespacing functionality is taken
+   **** directly from xtc.util.SymbolTable.
+   ***************************************************************************/
 
-/**
-* Create a fresh name.  The returned name has
-* "<code>anonymous</code>" as it base name.
-*
-* @see #freshName(String)
-* 
-* @return A fresh name.
-*/
-public String freshName() {
- return freshName("anonymous");
+  /**
+   * Create a fresh name.  The returned name has
+   * "<code>anonymous</code>" as it base name.
+   *
+   * @see #freshName(String)
+   * 
+   * @return A fresh name.
+   */
+  public String freshName() {
+    return freshName("anonymous");
+  }
+
+  /**
+   * Create a fresh name incorporating the specified base name.  The
+   * returned name is of the form
+   * <code><i>name</i>(<i>count</i>)</code>.
+   *
+   * @param base The base name.
+   * @return The corresponding fresh name.
+   */
+  public String freshName(String base) {
+    StringBuilder buf = new StringBuilder();
+    buf.append(base);
+    buf.append(Constants.START_OPAQUE);
+    buf.append(freshNameCount++);
+    buf.append(Constants.END_OPAQUE);
+    return buf.toString();
+  }
+
+  /**
+   * Create a fresh C identifier.  The returned identifier has
+   * "<code>tmp</code>" as its base name.
+   *
+   * @see #freshCId(String)
+   *
+   * @return A fresh C identifier.
+   */
+  public String freshCId() {
+    return freshCId("tmp");
+  }
+
+  /**
+   * Create a fresh C identifier incorporating the specified base
+   * name.  The returned name is of the form
+   * <code>__<i>name</i>_<i>count</i></code>.
+   *
+   * @param base The base name.
+   * @return The corresponding fresh C identifier.
+   */
+  public String freshCId(String base) {
+    StringBuilder buf = new StringBuilder();
+    buf.append("__");
+    buf.append(base);
+    buf.append('_');
+    buf.append(freshIdCount++);
+    return buf.toString();
+  }
 }
 
-/**
-* Create a fresh name incorporating the specified base name.  The
-* returned name is of the form
-* <code><i>name</i>(<i>count</i>)</code>.
-*
-* @param base The base name.
-* @return The corresponding fresh name.
-*/
-public String freshName(String base) {
-  StringBuilder buf = new StringBuilder();
-  buf.append(base);
-  buf.append(Constants.START_OPAQUE);
-  buf.append(freshNameCount++);
-  buf.append(Constants.END_OPAQUE);
-  return buf.toString();
-}
+FreshIDCreator freshIdCreator = new FreshIDCreator();
 
-/**
- * Create a fresh C identifier.  The returned identifier has
- * "<code>tmp</code>" as its base name.
- *
- * @see #freshCId(String)
- *
- * @return A fresh C identifier.
- */
-public String freshCId() {
-  return freshCId("tmp");
-}
-
-/**
- * Create a fresh C identifier incorporating the specified base
- * name.  The returned name is of the form
- * <code>__<i>name</i>_<i>count</i></code>.
- *
- * @param base The base name.
- * @return The corresponding fresh C identifier.
- */
 public String freshCId(String base) {
-  StringBuilder buf = new StringBuilder();
-  buf.append("__");
-  buf.append(base);
-  buf.append('_');
-  buf.append(freshIdCount++);
-  return buf.toString();
+  return freshIdCreator.freshCId(base);
 }
+
 
 /*****************************************************************************
  ********* Methods for Transformation Values

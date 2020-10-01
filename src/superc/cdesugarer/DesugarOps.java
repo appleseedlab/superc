@@ -17,6 +17,7 @@ import superc.core.PresenceConditionManager.PresenceCondition;
 import superc.cdesugarer.Multiverse;
 import superc.cdesugarer.Multiverse.Element;
 
+import superc.cdesugarer.SymbolTable;
 import superc.cdesugarer.SymbolTable.Entry;
 
 import superc.cdesugarer.Declarator;
@@ -43,7 +44,11 @@ import superc.cdesugarer.Initializer.Designator;
 import superc.cdesugarer.Initializer.ArrayDesignator;
 import superc.cdesugarer.Initializer.StructUnionDesignator;
 
+import superc.cdesugarer.Declaration;
+
 import superc.cdesugarer.CActions.EnumeratorValue;
+
+import superc.cdesugarer.CActions.FreshIDCreator;
 
 
 /**
@@ -285,6 +290,166 @@ class DesugarOps {
     } else {
       throw new AssertionError("unexpected keyword to createStructOrUnionRefType");
     }
+  }
+
+  public static Multiverse<TypeSpecifier> processStructDefinition(Syntax keyword,
+                                                                  String structTag,
+                                                                  String renamedTag,
+                                                                  List<Multiverse<Declaration>> structfields,
+                                                                  PresenceCondition pc,
+                                                                  CContext scope,
+                                                                  FreshIDCreator freshIdCreator) {
+    // (1) add each field to the lookaside table and construct the transformation
+
+    // get the field table for the current tag, which should be empty
+    SymbolTable<Type> tagtab = scope.addLookasideTable(renamedTag);
+
+    // prepare the desugared output of this struct
+    StringBuilder transformation = new StringBuilder();
+    transformation.append(keyword);
+    transformation.append(" ");
+    transformation.append(renamedTag);
+    transformation.append(" {\n");
+
+    // track presence conditions of valid and invalid declarations
+    PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
+    for (Multiverse<Declaration> structfieldmv : structfields) {
+      System.err.println("TAGATGA: " + tagtab);
+      for (Element<Declaration> structfield : structfieldmv) {
+        PresenceCondition combinedCond = pc.and(structfield.getCondition());
+        if (combinedCond.isNotFalse()) {
+
+          // if the struct field has no name, then there is no
+          // possibilty of a name clash.  we just give it a new
+          // name so that it can be stored in the lookaside
+          // table.
+          String fieldName;
+          Declaration renamedDeclaration;
+          String renamedField;
+          if (structfield.getData().hasName()) {
+            fieldName = structfield.getData().getName();
+            renamedField = freshIdCreator.freshCId(fieldName);
+            renamedDeclaration = structfield.getData().rename(renamedField);
+          } else {
+            fieldName = freshIdCreator.freshCId("anonymous_field");
+            renamedField = fieldName;
+            renamedDeclaration = structfield.getData();
+          }
+          assert null != fieldName;
+          assert null != renamedField;
+          assert null != renamedDeclaration;
+
+          System.err.println("FIELDNAME " + fieldName);
+          System.err.println("FJKLDSLKJFDS " + tagtab);
+              
+          if (structfield.getData().hasTypeError()) {
+            System.err.println("WTF : " + fieldName);
+            tagtab.putError(fieldName, combinedCond);
+
+            PresenceCondition newerrorCond = errorCond.or(combinedCond);
+            errorCond.delRef(); errorCond = newerrorCond;
+          } else { // declaration has no type error
+            Multiverse<SymbolTable.Entry<Type>> entries = tagtab.get(fieldName, combinedCond);
+            System.err.println("MVMVMVMV: " + entries);
+            System.err.println(combinedCond);
+            for (Element<SymbolTable.Entry<Type>> entry : entries) {
+              if (entry.getData().isError()) {
+                // already an error, just emit a message
+                System.err.println(String.format("INFO: redeclaring struct field %s in an already invalid configuration", fieldName));
+
+                PresenceCondition newerrorCond = errorCond.or(entry.getCondition());
+                errorCond.delRef(); errorCond = newerrorCond;
+
+              } else if (entry.getData().isUndeclared()) {
+                Type fieldType = VariableT.newField(renamedDeclaration.getType(), renamedField);
+
+                // add the type containing the renaming to the struct tag's symtab
+                tagtab.put(fieldName, fieldType, entry.getCondition());
+                System.err.println("tagtab.put: " + fieldName);
+                System.err.println("tagtab.put: " + fieldType);
+                System.err.println("tagtab.put: " + entry.getCondition());
+                // save the text of the desugared field
+                transformation.append(renamedDeclaration.toString());
+                transformation.append(";\n");
+
+              } else {  // is already declared
+                // emit a message
+                System.err.println(String.format("INFO: type error on redeclaration of struct field %s", fieldName));
+                tagtab.putError(fieldName, entry.getCondition());
+
+                PresenceCondition newerrorCond = errorCond.or(entry.getCondition());
+                errorCond.delRef(); errorCond = newerrorCond;
+              }  // check existing field entry
+            }  // loop over each existing entry for the field
+          }  // check for struct declaration type error
+        }  // combinedCond is not false
+        combinedCond.delRef();
+      }
+    }
+    transformation.append("};\n");
+
+    // add the combined struct declaration to the top of the scope
+    scope.addDeclaration(transformation.toString());
+
+    // (2) add the struct to the regular symtab and prepare the resulting semantic value for the typespec
+
+    Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>();
+
+    // add the error conditions as an error typespec
+    if (errorCond.isNotFalse()) {
+      TypeSpecifier typespecifier = new TypeSpecifier();
+      typespecifier.setType(ErrorT.TYPE);
+      valuemv.add(typespecifier, errorCond);
+
+      // update the symtab for this configuration to reflect the type errors
+      scope.putError(CContext.toTagName(structTag), errorCond);
+    }
+          
+    // get the existing entries for this struct under the valid conditions
+    PresenceCondition validCond = pc.andNot(errorCond);
+    if (validCond.isNotFalse()) {
+      Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(CContext.toTagName(structTag), validCond);
+      for (Element<SymbolTable.Entry<Type>> entry : entries) {
+        if (entry.getData().isError()) {
+          System.err.println(String.format("INFO: redefinition of tag under already-invalid configuration: %s", structTag));
+          TypeSpecifier typespecifier = new TypeSpecifier();
+          typespecifier.setType(ErrorT.TYPE);
+          valuemv.add(typespecifier, entry.getCondition());
+          // no need to add to symtab since this config is already an error
+
+        } else if (entry.getData().isUndeclared()) {
+          // set the type to be a reference to the renamed struct/union tag
+          TypeSpecifier typespecifier = new TypeSpecifier();
+          Type structRefType = DesugarOps.createStructOrUnionRefType(keyword, renamedTag);
+          typespecifier.setType(structRefType);
+          typespecifier.addTransformation(String.format("%s %s", keyword, renamedTag));
+          valuemv.add(typespecifier, entry.getCondition());
+              
+          // add the reference to the renamed struct to the symtab
+          scope.put(CContext.toTagName(structTag),
+                    typespecifier.getType(),
+                    entry.getCondition());
+
+        } else {  // is a declared entry
+          assert entry.getData().isDeclared();
+          System.err.println(String.format("INFO: trying redefine a struct: %s", structTag));
+          TypeSpecifier typespecifier = new TypeSpecifier();
+          typespecifier.setType(ErrorT.TYPE);
+          valuemv.add(typespecifier, entry.getCondition());
+
+          // this configuration has a type error entry
+          scope.putError(CContext.toTagName(structTag), entry.getCondition());
+        }
+      }
+    }
+          
+    errorCond.delRef(); validCond.delRef();
+
+    CActions.todoReminder("check to see if something needs to be done for empty struct/union");
+
+    assert ! valuemv.isEmpty();
+
+    return valuemv;
   }
   
   /*****************************************************************************
