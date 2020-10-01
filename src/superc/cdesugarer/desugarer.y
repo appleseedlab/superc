@@ -2472,7 +2472,7 @@ StructOrUnionKeyword:
  * list of declarations, where each declaration may be different
  * depending on the configuration.
  */
-StructDeclarationList: /** list, nomerge **/  // List<Multiverse<Declaration>>
+StructDeclarationList: /** list, complete **/  // List<Multiverse<Declaration>>
         /* StructDeclaration */ /* ADDED gcc empty struct */
         {
           ((Node) value).setProperty(SPECS, new Specifiers()); // legacy type checking
@@ -2486,16 +2486,15 @@ StructDeclarationList: /** list, nomerge **/  // List<Multiverse<Declaration>>
                       getSpecsAt(subparser, 1),
                       value);
 
-          List<Multiverse<Declaration>> structfields
-            = (LinkedList<Multiverse<Declaration>>) getTransformationValue(subparser,2);
-          List<Multiverse<Declaration>> declarationvalue
-            = (List<Multiverse<Declaration>>) getTransformationValue(subparser,1);
-          structfields.addAll(declarationvalue);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
+          List<Multiverse<Declaration>> declarationvalues = this.<Declaration>getCompleteNodeListValue(subparser, 1, pc);
+          structfields.addAll(declarationvalues);
           setTransformationValue(value, structfields);
         }
         ;
 
-StructDeclaration: /** nomerge **/  // returns Multiverse<Declaration>
+StructDeclaration: /** complete **/  // returns List<Multiverse<Declaration>>
         StructDeclaringList SEMICOLON
         {
           // TODO: implement like Declaration, except return a
