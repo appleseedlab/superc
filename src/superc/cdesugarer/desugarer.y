@@ -5280,8 +5280,30 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
 VariableArgumentAccess:  /** nomerge **/  // ADDED
         __BUILTIN_VA_ARG LPAREN AssignmentExpression COMMA TypeName RPAREN
         {
-          System.err.println("ERROR: unsupported semantic action: VariableArgumentAccess");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          String prefix = String.format("%s %s",
+                                        ((Syntax) getNodeAt(subparser, 6)).getTokenText(),
+                                        ((Syntax) getNodeAt(subparser, 5)).getTokenText());
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 4, pc);
+          String infix = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          Multiverse<Declaration> typename = (Multiverse<Declaration>) getTransformationValue(subparser, 2);
+          String suffix = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+
+          // convert to string and append tokens
+          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<String> prepended = exprmv.prependScalar(prefix, DesugarOps.concatStrings);
+          Multiverse<String> expr_appended = prepended.appendScalar(infix, DesugarOps.concatStrings);
+          
+          Multiverse<String> typenamestr = DesugarOps.typenameToString.transform(typename);
+          Multiverse<String> typename_appended = typenamestr.appendScalar(suffix, DesugarOps.concatStrings);
+          Multiverse<String> transformationmv = expr_appended.product(typename_appended, DesugarOps.concatStrings);
+          typename_appended.destruct(); typenamestr.destruct(); expr_appended.destruct(); prepended.destruct();
+
+          Multiverse<Type> typemv = DesugarOps.typenameToType.transform(typename);
+
+          todoReminder("typecheck VariableArgumentAccess (1)");
+
+          setTransformationValue(value, new ExpressionValue(transformationmv, typemv));
         }
         ;
 
