@@ -2099,27 +2099,24 @@ ElaboratedTypeName: /** passthrough, nomerge **/
  * Multiverse<TypeSpecifier>.
  */
 // transformation notes:
-//   we can either take all combinations of declaration lists and make a new, renamed type spec
-//   or we can combine all fields into a single struct, renaming the fields
+//   - we can either take all combinations of declaration lists and make a new, renamed type spec
+//   - or we can combine all fields into a single struct, renaming the fields
+//   - for anonymous structs, there should be way for another struct to
+//     have the same tag name, so just add it to the symtab referring to
+//     itself
+// TODO: check whether a struct is being declared in a parameter list, which is a wraning.
 StructOrUnionSpecifier: /** nomerge **/  // ADDED attributes  // Multiverse<TypeSpecifier>
         StructOrUnionKeyword AttributeSpecifierListOpt LBRACE StructDeclarationList RBRACE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = (CContext)subparser.scope;
           
-          // TODO: check whether a struct is being declared in a parameter list, which is a wraning.
-          
           Syntax keyword = (Syntax) getNodeAt(subparser, 5).get(0);
           // TODO: add attributes to type spec
           List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
 
-          // anonymous structs have no name, but make a new one for
-          // use as in ref type
           String structTag = freshCId("anonymous_tag");
           
-          // for anonymous structs, there should be way for another
-          // struct to have the same tag name, so just add it to the
-          // symtab referring to itself
           String renamedTag = structTag;
           
           Multiverse<TypeSpecifier> valuemv
