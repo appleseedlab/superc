@@ -360,8 +360,7 @@ TranslationUnit:  /** complete **/
 
 // ------------------------------------------------------ External definitions
 
-/* ExternalDeclarationList: /\** list, complete **\/  // String */
-ExternalDeclarationList: /** complete **/  // String
+ExternalDeclarationList: /** list, complete **/  // String
         /* empty */  // ADDED gcc allows empty program
         {
           setTransformationValue(value, "");
