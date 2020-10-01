@@ -292,6 +292,9 @@ class DesugarOps {
     }
   }
 
+  /**
+   * Create the semantic value for a struct definition.
+   */
   public static Multiverse<TypeSpecifier> processStructDefinition(Syntax keyword,
                                                                   String structTag,
                                                                   String renamedTag,
@@ -451,6 +454,67 @@ class DesugarOps {
 
     return valuemv;
   }
+
+  /**
+   * Create the semantic value for a struct definition.
+   */
+  public static Multiverse<TypeSpecifier> processStructReference(Syntax keyword,
+                                                                 String structTag,
+                                                                 PresenceCondition pc,
+                                                                 CContext scope,
+                                                                 FreshIDCreator freshIdCreator) {
+    Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>();
+    Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(CContext.toTagName(structTag), pc);
+    System.err.println("WHY : " + entries);
+    for (Element<SymbolTable.Entry<Type>> entry : entries) {
+      TypeSpecifier typespecifier = new TypeSpecifier();
+      if (entry.getData().isError()) {
+        System.err.println(String.format("INFO: trying to use an invalid specifier: %s", structTag));
+        typespecifier.setType(ErrorT.TYPE);
+      } else if (entry.getData().isUndeclared()) {
+        // create a forward reference tag, which will later be
+        // defined to a union of all possible configurations of
+        // the struct it references.
+        CActions.todoReminder("make a call to rename to record the forward tag mapping.  also record tag name renamings with separate function, since it's a separate namespace");
+        String forwardTagRefName = freshIdCreator.freshCId("forward_tag_reference");
+        Type forwardStructRef = new StructT(forwardTagRefName);
+        typespecifier.setType(forwardStructRef);
+        typespecifier.addTransformation(String.format("%s %s", keyword, forwardTagRefName));
+
+        // add a symtab entry that maps the new forward
+        // reference tag to the original tagname of the
+        // struct/union that was referenced.  this will be used
+        // to typecheck field selections, and add extra code to
+        // make an indirect reference to the forward referenced
+        // struct/union field.  see the direct and indirect
+        // selection constructs for more info.
+        scope.putForwardTagReference(forwardTagRefName, structTag);
+        System.err.println("PUT: " + forwardTagRefName + " " + structTag);
+        /* Type referencedStruct = DesugarOps.createStructOrUnionRefType(keyword, structTag); */
+        /* scope.put(CContext.toTagRefName(forwardTagRefName), referencedStruct, entry.getCondition()); */
+      } else {  // is a declared entry
+        if (entry.getData().getValue().isStruct() && keyword.getTokenText().equals("struct")
+            || entry.getData().getValue().isUnion() && keyword.getTokenText().equals("union")) {
+          // valid reference to existing struct/union, so
+          // nothing to do with the symtab.  create a type
+          // specifier that refers to the renamed struct/union.
+          typespecifier.setType(entry.getData().getValue());
+          typespecifier.addTransformation(String.format("%s %s", keyword, entry.getData().getValue().toStructOrUnion().getName()));
+          System.err.println("LSLSLSLSLS " + structTag);
+        } else {  // tag type is not a struct/union or is an enum
+          System.err.println(String.format("INFO: type error on tag reference, not using same struct/union/enum keyword",
+                                           structTag));
+          typespecifier.setType(ErrorT.TYPE);
+        }
+      }  // end checking a symtab entry
+      valuemv.add(typespecifier, entry.getCondition());
+    }  // end loop over existing symtab entries
+    // should not be empty because symtab.get is not supposed
+    // to be empty
+    assert ! valuemv.isEmpty();
+
+    return valuemv;
+  }  
   
   /*****************************************************************************
    ********* Multiverse operators for Declarations
