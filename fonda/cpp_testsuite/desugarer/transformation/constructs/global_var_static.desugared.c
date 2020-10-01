@@ -1,18 +1,26 @@
-extern int A_config_C1;
-extern int A_config_defined_C2;
+#include <stdbool.h>
 
-// rename static vars, since no external linkage
-#ifdef A
-static int x;
-#else
-static char x;
-#endif
+extern void __static_type_error(char *msg);
+extern void __static_renaming(char *renaming, char *original);
+extern void __static_condition_renaming(char *expression, char *renaming);
 
-int main() {
-  if (A_config_defined_C2) {
-    x++;
-  }
-  if (!A_config_defined_C2) {
-    x++;
-  }
+void __static_initializer_2();
+
+void __static_initializer_2() {
+__static_renaming("__x_0", "x");
+__static_renaming("__main_1", "main");
+
+
+};
+int  __main_1 ();
+
+static char  __x_0;
+int  __main_1 () {
+{
+ __x_0  ++ ;
+
 }
+
+
+}
+

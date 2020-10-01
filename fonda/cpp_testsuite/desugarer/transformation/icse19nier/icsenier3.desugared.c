@@ -1,16 +1,49 @@
-extern bool CONFIG_SMP; /* originally a macro */
+#include <stdbool.h>
 
-// will need to check for conflicts across compilation units or do renaming across compilation units
-extern void cpu_load_update_active(int this_rq);
+extern void __static_type_error(char *msg);
+extern void __static_renaming(char *renaming, char *original);
+extern void __static_condition_renaming(char *expression, char *renaming);
 
-// static function needs no external linkage
-static void cpu_load_update_active_R1(int this_rq) { }
+void __static_initializer_5();
 
-int main() {
-  if (CONFIG_SMP) {
-    cpu_load_update_active();
-  }
-  if (! CONFIG_SMP) {
-    cpu_load_update_active_R1();
-  }
+extern const bool __static_condition_4;
+void __static_initializer_5() {
+__static_renaming("__cpu_load_update_active_2", "cpu_load_update_active");
+__static_renaming("__cpu_load_update_active_3", "cpu_load_update_active");
+
+__static_condition_renaming("__static_condition_4", "(not |(defined CONFIG_SMP)|)");
+
+};
+static inline void  __cpu_load_update_active_2 (int  __this_rq_1);
+
+extern void  __cpu_load_update_active_3 (int  __this_rq_0);
+
+#include <stdbool.h>
+
+extern void __static_type_error(char *msg);
+extern void __static_renaming(char *renaming, char *original);
+extern void __static_condition_renaming(char *expression, char *renaming);
+
+void __static_initializer_6();
+
+extern const bool __static_condition_4;
+void __static_initializer_6() {
+__static_renaming("__cpu_load_update_active_2", "cpu_load_update_active");
+__static_renaming("__cpu_load_update_active_3", "cpu_load_update_active");
+
+__static_condition_renaming("__static_condition_4", "(not |(defined CONFIG_SMP)|)");
+
+};
+static inline void  __cpu_load_update_active_2 (int  __this_rq_1);
+
+extern void  __cpu_load_update_active_3 (int  __this_rq_0);
+static inline void  __cpu_load_update_active_2 (int  __this_rq_1) {
+
+if (__static_condition_4) {
+{
 }
+
+}
+
+}
+

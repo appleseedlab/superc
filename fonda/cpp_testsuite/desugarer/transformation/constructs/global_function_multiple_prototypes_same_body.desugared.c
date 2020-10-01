@@ -1,10 +1,34 @@
-// TODO: need to deal with external linkage, for now using largest bitwidth since linkers don't care
-int x() {
-  return 1;
+#include <stdbool.h>
+
+extern void __static_type_error(char *msg);
+extern void __static_renaming(char *renaming, char *original);
+extern void __static_condition_renaming(char *expression, char *renaming);
+
+void __static_initializer_2();
+
+void __static_initializer_2() {
+__static_renaming("__x_0", "x");
+__static_renaming("__main_1", "main");
+
+
+};
+char  __x_0 ();
+int  __main_1 ();
+
+char  __x_0 () {
+{
+return 1 ;
+
 }
 
 
-int main() {
-  // TODO: may create two branches, one for each call and cast the result
-  x();
 }
+int  __main_1 () {
+{
+ __x_0  ( ) ;
+
+}
+
+
+}
+

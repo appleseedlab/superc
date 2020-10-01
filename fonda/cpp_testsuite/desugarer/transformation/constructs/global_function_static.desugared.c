@@ -1,30 +1,34 @@
-extern int _Cjkifd_A;
-extern int _DfIf3K_A_defined;
+#include <stdbool.h>
 
-static int _Fkc8DF_x() {
-  return 1;
+extern void __static_type_error(char *msg);
+extern void __static_renaming(char *renaming, char *original);
+extern void __static_condition_renaming(char *expression, char *renaming);
+
+void __static_initializer_2();
+
+void __static_initializer_2() {
+__static_renaming("__x_0", "x");
+__static_renaming("__main_1", "main");
+
+
+};
+static char  __x_0 ();
+int  __main_1 ();
+
+static char  __x_0 () {
+{
+return 2 ;
+
 }
 
-static char _F8dDjJ_x() {
-  return 'c';
+
+}
+int  __main_1 () {
+{
+ __x_0  ( ) ;
+
 }
 
-// for function pointers need to just allow the forced cast
-static int x() {
-  if (_DfIf3K_A_defined) {
-    return _Fkc8DF_x();  // also need to account for whether there is a return value
-  }
-  if (!_DfIf3K_A_defined) {
-    return _F8dDjJ_x();
-  }
+
 }
 
-int main() {
-  // can either expand to multiplexer or to the 
-  if (A_config_defined_C2) {
-    _Fkc8DF_x();
-  }
-  if (!A_config_defined_C2) {
-    _F8dDjJ_x();
-  }
-}
