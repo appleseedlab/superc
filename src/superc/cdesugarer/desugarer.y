@@ -3770,12 +3770,14 @@ Designator:   /* ADDED */  // Multiverse<Designator>
         }
         | DOT IDENTIFIER //IDENTIFIER
         {
+          todoReminder("replace the designator with the renamed struct field");
           setTransformationValue(value,
                                  new Multiverse<Designator>(new StructUnionDesignator(((Syntax) getNodeAt(subparser, 1)).getTokenText()),
                                                             subparser.getPresenceCondition()));
         }
         | DOT TYPEDEFname // ADDED hack to get around using typedef names as struct fields
         {
+          todoReminder("replace the designator with the renamed struct field");
           setTransformationValue(value,
                                  new Multiverse<Designator>(new StructUnionDesignator(((Syntax) getNodeAt(subparser, 1)).getTokenText()),
                                                             subparser.getPresenceCondition()));

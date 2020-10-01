@@ -234,6 +234,74 @@ The solution is two-fold:
 
 * Optimizations
 
+** Lists of multiverses
+
+There are several constructs that contain lists, structs/unions,
+enums, function parameters.  When these contain static conditionals,
+the number of possible configurations of the constructs grows
+exponentially with the number of static choices.
+
+The naive desugaring is to take all combinations of these lists, which
+is done with the help of the complementedProduct in multiverse.  To be
+efficient on real-world code, places where all combinations of lists
+are taken with the complementedProduct need to be replaced.
+
+Doing this replacement is harder than a simple syntactic
+transformation of all combinations.  Rather, it requires reasoning
+about the semantic equivalenace between the original construct and a
+replacement construct that supports the static choices without
+resorting to muliple copies of the construct.
+
+*** structs/unions
+
+foward references are particularly tricky, since a variable may be
+declared to be a struct type (or a pointer to one) that hasn't been
+defined yet.  in single-pass desugarer, it's not possible to know
+whether this struct is configurable or not.  we solve this by creating
+a special forward refernce struct that contains a union of all the
+struct's configurations.  then when desugaring field selections, we
+insert the selection of the forward reference struct first.
+
+for struct definitions, avoiding hoisting around the list is possible
+by renaming and adding all configurations of all fields in a single
+struct.  then, when there is a field selection, the desugarer replaces
+the field name with all the configurations of that field name.
+
+this makes any code that uses pointer arithmetic not semantically
+equivalent, though this is probably undefined behavior (TODO: check
+the C standard).
+
+this approach may also pose issues for initializers, but these are not
+yet supported.  if the program analysis client is not interested in
+concrete values or shapes of structs, then initializer values could
+also be irrelevant.
+
+*** enums
+
+enums are simpler, because they do not create a namespace.
+enumerators are stored in the local scope.
+
+combining all enumerators into a single enum will not work in general,
+however, in particular because of an enum cannot have duplicate values
+for enumerators, which is possible with configurable code.
+
+the current solution is to ignore enumerator values, which is valid as
+long as the program analysis client is not trying to reason about the
+concrete values of enumerators.  systems code may use explicit
+enumerator values for file formats, e.g., where the actual value does
+matter, at least in terms of the file format.
+
+*** function parameters
+
+there are two potential solutions
+1. make a new parameter for every configuration of the original
+   parameter.  the difficulty here is that the order of parameters
+   changes, so any function calls need to update this as well.
+2. combine the parameter types into a union type.  function calls also
+   need to change to use the right union field, but the order is
+   preserved.  this might help with preserving linking behavior.
+
+
 ** Merging of multiple structs with the same tag
 
 This is the case where a struct of the same tag is declared by
