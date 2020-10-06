@@ -4,28 +4,27 @@ extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
 
-void __static_initializer_2();
+void __static_initializer_5();
 
-void __static_initializer_2() {
-__static_renaming("__main_1", "main");
+void __static_initializer_5() {
+__static_renaming("__main_4", "main");
 
 
 };
-struct __list_0 {
-int  data;
-struct list  (* next);
-}
- ;
-int  __main_1 ();
+struct __list_1 {
+int  __data_2;
+struct __forward_tag_reference_0  (* __next_3);
+};
+int  __main_4 ();
 
-struct list { // generated union of struct variations
+struct __forward_tag_reference_0 { // generated union of struct variations
 union {
-struct __list_0 __list_0;
+struct __list_1 __list_1;
 };
 };
 
-struct list ;
-int  __main_1 () {
+struct __list_1 ;
+int  __main_4 () {
 {
 }
 

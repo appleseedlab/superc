@@ -59,7 +59,7 @@ declarators/PASS_paren                        BC generated
 declarators/PASS_valid_array_with_init        BC generated
 struct/tagged                                 BC generated
 struct/selfref                                BC generated
-struct/nested_anonymous                       SuperC Failed
+struct/nested_anonymous                       BC failed
 struct/redef                                  BC generated
 struct/tagnamespace                           BC generated
 struct/struct_init                            BC generated
@@ -71,15 +71,15 @@ compound/primitive_function2                  BC generated
 compound/pointer_struct1                      BC failed
 compound/primitive_pointer1                   BC generated
 compound/array_function1                      BC generated
-compound/pointer_pointer2                     SuperC Failed
+compound/pointer_pointer2                     BC generated
 compound/pointer_pointer1                     BC generated
 compound/pointer_struct2                      BC generated
 compound/primitive_struct2                    BC generated
 compound/primitive_array1                     BC failed
 compound/struct_function2                     BC generated
-compound/struct_struct1                       SuperC Failed
+compound/struct_struct1                       BC generated
 compound/pointer_function1                    BC failed
-compound/struct_function1                     SuperC Failed
+compound/struct_function1                     BC generated
 compound/primitive_array2                     BC generated
 compound/struct_struct2                       BC generated
 compound/array_struct1                        BC generated
@@ -98,7 +98,7 @@ compound/pointer_array2                       BC generated
 unit:File                                    Status
 ---------                                    ------
 ./struct_local_illegal                       BC generated
-./struct_nested                              BC failed
+./struct_nested                              BC generated
 ./conditionalexpression                      BC generated
 ./enum_size                                  BC generated
 ./function_parameters_empty                  BC generated
@@ -108,8 +108,8 @@ unit:File                                    Status
 ./struct_local_legal                         BC generated
 ./if_statement_configurable3                 BC generated
 ./global_redeclarations                      BC generated
-./struct_configurable_cross_and_forward_ref  SuperC Failed
-./variable_partially_defined                 SuperC Failed
+./struct_configurable_cross_and_forward_ref  BC generated
+./variable_partially_defined                 BC generated
 ./enum_constant_expression1                  BC generated
 ./enum_enumerators                           BC generated
 ./typedefname_and_variable_declarations      SuperC Failed
@@ -128,7 +128,7 @@ unit:File                                    Status
 ./statement_configurable                     BC generated
 ./typedefname_partially_defined              SuperC Failed
 ./declarators                                BC generated
-./struct_configurable_main                   SuperC Failed
+./struct_configurable_main                   BC generated
 ./struct_crossref_local                      BC generated
 ./if_statement_configurable1                 BC generated
 ./function_parameters_empty_configurable     BC generated
@@ -136,7 +136,7 @@ unit:File                                    Status
 ./forloop                                    BC generated
 ./struct_simple                              BC generated
 ./struct_desugar_test                        BC failed
-./struct_global_forward_reference_desugar    BC failed
+./struct_global_forward_reference_desugar    BC generated
 ./struct_nested_anonymous                    BC generated
 ./enum_constant_expression2                  BC generated
 ./enum_configurable                          BC failed
@@ -152,7 +152,7 @@ unit:File                                    Status
 ./function_pointer                           BC generated
 ./struct_forward_scope                       BC generated
 ./desugarer_test                             BC generated
-./enum                                       BC failed
+./enum                                       BC generated
 ./initializers                               BC failed
 ./designated_initializer                     BC failed
 ./typedef_local_declaration                  BC generated
@@ -166,7 +166,7 @@ unit:File                                    Status
 ./struct_union_enum                          BC failed
 ./jump_statement                             BC failed
 ./single                                     BC generated
-./switch                                     BC failed
+./switch                                     BC generated
 ./struct_configurable                        BC generated
 ./offsetof                                   BC failed
 transformation:File                                                         Status
@@ -175,17 +175,17 @@ functions/main                                                              BC g
 functions/function_declaration                                              BC generated
 functions/function_call_non_void                                            BC generated
 functions/config_identifier                                                 SuperC Failed
-functions/config_return_type                                                SuperC Failed
+functions/config_return_type                                                BC failed
 functions/int_main                                                          BC generated
 functions/void_main                                                         BC generated
-functions/config_implicit_function_call                                     SuperC Failed
+functions/config_implicit_function_call                                     BC generated
 functions/function_pointer                                                  BC generated
-functions/config_parameters                                                 SuperC Failed
+functions/config_parameters                                                 BC generated
 functions/config_main_body                                                  BC generated
 functions/config_explicit_function_call                                     BC generated
 functions/function_call_void                                                BC generated
 functions/single                                                            BC generated
-functions/config_multiply_defined_parameter                                 SuperC Failed
+functions/config_multiply_defined_parameter                                 BC generated
 constructs/extern_var_multiply-defined_primitive.autodesugar                BC generated
 constructs/local_var_multiply-defined_primitive.autodesugar                 BC generated
 constructs/types_global_function_multiply-defined.autodesugar               SuperC Failed
@@ -196,10 +196,10 @@ constructs/types_global_function_multiple_prototypes_same_body.autodesugar  Supe
 constructs/extern_function_multiply-defined.autodesugar                     BC generated
 constructs/types_global_function_multiply-defined_pointer                   BC generated
 constructs/extern_var_multiply-defined_primitive                            BC generated
-constructs/types_primitive_and_compound.autodesugar                         SuperC Failed
+constructs/types_primitive_and_compound.autodesugar                         BC generated
 constructs/types_extern_function_multiply-defined.autodesugar               BC failed
 constructs/types_global_function_multiply-defined                           BC failed
-constructs/types_primitive_and_compound                                     SuperC Failed
+constructs/types_primitive_and_compound                                     BC generated
 constructs/local_var_multiply-defined_primitive                             BC generated
 constructs/global_function_multiple_prototypes_same_body                    BC generated
 constructs/global_function_static.autodesugar                               BC generated
@@ -233,17 +233,17 @@ declaringlists/some_init                                                    BC g
 declaringlists/undeclared                                                   BC generated
 declaringlists/single                                                       BC generated
 declaringlists/error                                                        BC failed
-union/config_union_expressions                                              SuperC Failed
+union/config_union_expressions                                              BC generated
 union/union                                                                 BC generated
-union/union_use                                                             SuperC Failed
+union/union_use                                                             BC generated
 union/config_partially_defined_fields2                                      SuperC Failed
-union/config_union_decl                                                     SuperC Failed
+union/config_union_decl                                                     BC generated
 union/config_partially_defined_fields1                                      SuperC Failed
 union/config_partially_defined_union                                        SuperC Failed
 enum/enum_typedef                                                           BC generated
 enum/enum_decl                                                              BC generated
-enum/config_enum                                                            BC generated
-enum/config_enum_field                                                      BC generated
+enum/config_enum                                                            BC failed
+enum/config_enum_field                                                      BC failed
 enum/enum                                                                   BC generated
 enum/config_typedef_enum                                                    BC generated
 ifelsewhile/if_with_braces                                                  BC generated
@@ -257,13 +257,13 @@ ifelsewhile/if_else_no_braces                                               BC g
 ifelsewhile/implicit_config_if                                              BC generated
 icse19nier/icsenier2.desugared1                                             SuperC Failed
 icse19nier/icsenier1                                                        BC generated
-icse19nier/icsenier2                                                        SuperC Failed
+icse19nier/icsenier2                                                        BC generated
 icse19nier/icsenier2.desugared2                                             SuperC Failed
 icse19nier/icsenier3                                                        BC generated
 typedef_struct/typedef_struct_no_main                                       BC generated
-typedef_struct/typedef_struct                                               SuperC Failed
+typedef_struct/typedef_struct                                               BC generated
 typedef_struct/config_struct                                                BC generated
-typedef_struct/config_field_typedef                                         SuperC Failed
+typedef_struct/config_field_typedef                                         BC generated
 typedef_struct/config_typedef_struct_decl                                   BC generated
 typedef_struct/config_typedef_field                                         BC generated
 typedef_struct/config_partially_defined_struct_field                        SuperC Failed
@@ -275,7 +275,7 @@ misc/canonical                                                              BC g
 misc/main                                                                   BC generated
 misc/twovariables.autodesugar                                               SuperC Failed
 misc/inside                                                                 BC generated
-misc/decl                                                                   BC generated
+misc/decl                                                                   BC failed
 misc/twovariables                                                           SuperC Failed
 misc/bob                                                                    SuperC Failed
 misc/canonical_example                                                      BC generated
@@ -285,7 +285,7 @@ misc/type                                                                   BC g
 misc/regular_conditional                                                    BC generated
 expressions/variable_arithmetic_assignment                                  BC generated
 expressions/array_variable_decl                                             BC generated
-expressions/config_variable_arithmetic_assignment                           BC failed
+expressions/config_variable_arithmetic_assignment                           BC generated
 expressions/minimal_global_car_decl                                         BC generated
 expressions/variable_address                                                BC generated
 expressions/arrays                                                          BC generated
@@ -305,7 +305,7 @@ expressions/config_array_decl                                               BC g
 expressions/config_var_address                                              BC generated
 expressions/config_prefix                                                   BC generated
 expressions/expressions                                                     BC generated
-expressions/config_long_variable_arithmetic_ops                             BC failed
+expressions/config_long_variable_arithmetic_ops                             BC generated
 expressions/prefix                                                          BC generated
 expressions/constant_arithmetic_assignment                                  BC generated
 expressions/postfix                                                         BC generated
@@ -317,7 +317,7 @@ phasar/linear_constant/call_01                                              BC g
 phasar/linear_constant/basic_03                                             BC generated
 phasar/linear_constant/basic_04_resugared                                   BC generated
 phasar/linear_constant/basic_01                                             BC generated
-phasar/linear_constant/twovariables.desugared_resugared                     BC failed
+phasar/linear_constant/twovariables.desugared_resugared                     BC generated
 phasar/linear_constant/recursion_01                                         BC generated
 phasar/linear_constant/basic_01_resugared                                   BC generated
 phasar/linear_constant/basic_02                                             BC generated
