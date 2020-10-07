@@ -18,6 +18,8 @@
  */
 package xtc.type;
 
+import java.lang.Thread;
+
 /**
  * A floating point type.
  *

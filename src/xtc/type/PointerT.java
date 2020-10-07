@@ -19,6 +19,7 @@
 package xtc.type;
 
 import java.io.IOException;
+import xtc.tree.Attribute;
 
 /**
  * A pointer type.
@@ -45,6 +46,8 @@ public class PointerT extends DerivedT {
    */
   public PointerT(Type type) {
     this.type = type;
+    for (Attribute a : type.attributes())
+	addAttribute(a);
   }
 
   /**

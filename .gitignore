@@ -1,2 +1,6 @@
 rats.log rats.sum xtc.log xtc.sum source-list.txt
 *~
+allTests.out
+*.desugared.c
+*.desugared.bc
+*.Log

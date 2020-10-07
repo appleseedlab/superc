@@ -51,6 +51,8 @@ public abstract class NumberT extends Type {
      * signed ints.  (Whatever.)
      */
     INT,
+    /** A 128-bit int. */
+    __INT128,
     /** A signed int. */
     S_INT,
     /** An unsigned int. */
@@ -100,6 +102,9 @@ public abstract class NumberT extends Type {
   /** The canonical int type. */
   public static final IntegerT INT = new IntegerT(Kind.INT);
 
+  /** The canonical __int128 type. */
+  public static final IntegerT __INT128 = new IntegerT(Kind.__INT128);
+
   /** The canonical signed int type. */
   public static final IntegerT S_INT = new IntegerT(Kind.S_INT);
 
@@ -145,6 +150,7 @@ public abstract class NumberT extends Type {
     SHORT.seal();
     U_SHORT.seal();
     INT.seal();
+    __INT128.seal();
     S_INT.seal();
     U_INT.seal();
     LONG.seal();
@@ -278,6 +284,8 @@ public abstract class NumberT extends Type {
       return "unsigned short";
     case INT:
       return "int";
+    case __INT128:
+      return "__int128";
     case S_INT:
       return "signed int";
     case U_INT:

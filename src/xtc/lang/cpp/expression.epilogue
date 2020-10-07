@@ -1,7 +1,0 @@
-
-
-  public void CheckDefined(Subparser subparser) {
-    if (! "defined".equals(subparser.stack.get(2).value.toString())) {
-      subparser.lookahead.setError();
-    }
-  }

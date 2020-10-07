@@ -1,0 +1,486 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage[colorlinks,urlcolor=black,citecolor=black,linkcolor=black]{hyperref}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\algrenewcommand{\algorithmiccomment}[1]{$\triangleright$ #1}
+\usepackage{verbatim}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{colortbl}
+\usepackage{rotating}
+%\usepackage[normalem]{ulem}
+\usepackage{listings}
+\lstset{
+  language=C,
+  tabsize=8,
+  numbers=left,
+  captionpos=b,
+  basicstyle=\scriptsize\ttfamily,
+  numberstyle=\tiny\rmfamily,
+  commentstyle=\scriptsize\ttfamily,
+  breaklines=true,
+  numbersep=5pt,
+  columns=fullflexible
+}
+
+\newcommand{\SuperC}{{\textsf{Su\-perC}}}
+\newcommand{\rats}{\textit{Rats!}}
+
+\begin{document}
+
+\title{The \SuperC{} Technical Manual}
+
+\maketitle
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Usage}
+
+(This version of the manual has not yet been updated to reflect the
+new 2020 class structure.)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Environment}
+
+SuperC requires three environment variables to run properly: (1)
+\verb"JAVA_DEV_ROOT" should be set to the root of the \verb"xtc"
+source tree.  (2) the \verb"PATH" should include
+\verb"$JAVA_DEV_ROOT/xtc/lang/cpp/scripts/"; this directory contains
+scripts to run and test \SuperC{}.  (3) \verb"JAVA_ARGS" should be set
+to increase the heap and stack sizes.  The scripts directory contains
+a script \verb"env.sh" that sets these and \verb"xtc"'s
+\verb"CLASSPATH".
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Executables}
+
+\begin{description}
+\item[\texttt{java xtc.lang.cpp.SuperC}] - The
+  configuration-preserving C parser, preprocessor, and lexer.
+
+\item[\texttt{java xtc.lang.cpp.cdiff}] - C-token diff utility that
+  uses SuperC's lexer and directiveParser.
+
+\item[\texttt{java xtc.lang.cpp.FilenameService}] - provides a
+  centralized distributor of filenames for distributed processing by
+  \verb"superc_linux.sh".
+\end{description}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Core Scripts}
+
+\begin{description}
+\item[\texttt{data.sh}] - has the commented commands for all summary
+  data used in the \SuperC{} paper.  It is not meant to be executed.
+
+\item[\texttt{superc\_linux.sh}] - runs \SuperC{} on linux and
+  provides other facilities related to testing \SuperC{} on linux,
+  e.g., extracting header paths and comparing output to the Linux
+  allyesconfig.
+
+\item[\texttt{regression.sh}] - runs regression tests.  It is used by
+  \verb"xtc"'s \verb"make check-cpp" target to regression test
+  \SuperC{}.
+
+\item[\texttt{typechef\_test.sh} and \texttt{typechef\_run\_file.sh}]
+  - runs \SuperC{} and TypeChef on TypeChef's constrained kernel.
+
+\item[\texttt{dynamic\_analysis.sh}] - summarizes the output of
+  \texttt{-preprocessorStatistics} and \texttt{-languageStatistics}.
+
+
+\end{description}
+
+All of \SuperC{}'s scripts can be found in
+\verb"$JAVA_DEV_ROOT/src/xtc/lang/cpp/scripts/".
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Instrumentation}
+
+\SuperC{} and its scripts can report detailed statistics and analyses
+of compilation units.  All instrumentation reports data as rows of
+space-delimited columns.  The first column in each row is a keyword
+identifying the type of data, e.g., \verb"define" for a macro
+definition or \verb"max_subparsers" for the maximum subparsers used.
+The format of each type of data is list in the following subsections.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The \texttt{-preprocessorStatistics} Flag}
+
+Preprocessor statistics are output when the \verb"-preprocessorStatistics"
+flag is turned on.  Below is the format of the data output.
+
+\begin{description}
+\item[\texttt{define name fun|var location ndefs}] - will be output every
+  time a macro definition is encountered.  \verb"ndefs" is the number of
+  macros definitions in the conditional symbol table \emph{after}
+  evaluating the definition.
+\item[\texttt{undef name location ndefs}] - for every \verb"#undef". \verb"ndefs" is the
+  number of definitions \emph{after} evaluating the undef.
+\item[\texttt{object name location depth ndefs nused}] - for every
+  object-like macro invocation.  \verb"depth" is the macro invocation
+  nesting level.  \verb"ndefs" is the number of definitions, but \verb"nused" is
+  the actual number of definitions expanded.  \verb"ndefs" is always
+  greater than or equal to \verb"nused".  \verb"nused" is less when some macro
+  definitions are trimmed.
+\item[\texttt{function nargs name location depth ndefs nused}] - for every
+  function-like macro invocation.  \verb"nargs" is the number of arguments
+  passed to this function-like macro invocation.  \verb"depth", \verb"ndefs",
+  and \verb"nused" are the same as for object-like macros.
+\item[\texttt{hoist\_function name location depth nhoisted}] - every function-like
+  macro is hoisted before invoking, even if their is only one
+  resulting function.  \verb"nhoisted" shows how many function-like macro
+  invocations resulted from hoisting.
+\item[\texttt{paste token|conditional token|conditional location
+    nhoisted nvalid}] - a token-pasting.  Each argument's type, token
+  or conditional, is indicated.  \verb"nhoisted" is the number of
+  token-paste operations resulting from the hoisting and \verb"nvalid"
+  is the number of valid pastes out of the hoisted ones.
+\item[\texttt{stringify token|conditional location nhoisted}] - a
+  token-pasting.  The argument's type, token or conditional, is
+  indicated.  \verb"nhoisted" is the number of stringification operations
+  resulting from the hoisting.
+\item[\texttt{include name resolved location (un)guarded system|user
+    normal|next}] \texttt{single|computed depth} - a header include.
+  Indicates given header name, header name resolved by the
+  preprocessor, location of the directive, whether it was guarded,
+  whether it was a system (\verb"<...>") or user header
+  (\verb'"..."'), whether it was a gcc-specific \verb"#include_next"
+  directive, whether it was from a computed header or not, and how
+  many headers deep we are after entering this header.
+\item[\texttt{computed location normal|next depth nhoisted}] - a computed
+  include, indicating how many headers deep after performing the
+  include, and the number of hoisted include directives.  Not all
+  hoisted headers must be valid, so \verb"end_computed" will summarize how
+  many actual headers were included.
+\item[\texttt{end\_computed location nvalid}] - after a computed include has
+  finished, this reports how many valid headers were hoisted.
+\item[\texttt{conditional if|ifdef|ifndef|elif|else location
+  boolean|nonboolean depth nhoisted}] - a start or next conditional
+  directive. \verb"nonboolean" is emitted when the expression contains at
+  least one non-boolean subexpression \verb"nhoisted" is the number of
+  expressions resulting from multiply-defined macros in its
+  expression.
+\item[\texttt{endif location breadth}] - an endif, its location, and that
+  number of branches in the conditional it is ending.
+\item[\texttt{line|error\_directive|warning|pragma location}] - a line, error, warning,
+  or pragma directive and its location.
+\end{description}
+
+In all cases, \verb"location" has the following format:
+
+\begin{quote}
+\verb"file:line:col[:macro]"
+\end{quote}
+
+where \verb"macro" is present only when the preprocessor usage occurs
+inside of a macro expansion, e.g., nested macro expansion.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The \texttt{-parserStatistics} Flag}
+
+Parser statistics are output when the \verb"-parserStatistics" flag is
+turned on.  Below is the format of the data output.
+
+\begin{description}
+\item[\texttt{iterations n}] - the number of iterations of the main parsing
+  loop.
+\item[\texttt{subparsers size iterations}] - this shows how many \verb"iterations"
+  of the FMLR parsing loop had \verb"size" subparsers.
+\item[\texttt{max\_subparsers size}] - this shows the maximum number of
+  subparsers.
+\item[\texttt{killswitch\_subparsers size}] - when -killswitch is used and
+  the naive parser reaches the limit, this reports how many subparsers
+  there were before killing the parser.
+\item[\texttt{follow n}] - the number of times \verb"follow()" was called.
+\item[\texttt{dag\_nodes n}] - the number of DAG nodes from the
+  parser.  This represents the actual spaced used by the parser output
+  in terms of nodes in memory.
+\item[\texttt{dag\_nodes\_shared n}] - the number of DAG nodes that
+  have more than one edge leading to it.
+\item[\texttt{empty\_conditionals total with\_empty}]
+\item[\texttt{lazy\_forks total with\_lazy}]
+\end{description}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The \texttt{-languageStatistics} Flag}
+
+Language statistics are output when the \verb"-languageStatistics" flag is
+turned on.  Below is the format of the data output.
+
+\begin{description}
+\item[\texttt{c\_construct name location}] - emitted every time a C
+  statement or declaration is reduced.
+\item[\texttt{typedef name location}] - emitted every time there a typedef
+  name is bound.
+\item[\texttt{typedef\_ambiguity name location}] - emitted every time a
+  subparser encounters a name that is both a typedef name and a
+  variable name in the same parsing context.
+\item[*\texttt{conditional\_inside name location}] - emitted every
+  time a C statement or declaration contains a conditional when it is
+  reduced.  *Requires patching the parser (see
+  Section~\ref{section:patching}).
+\end{description}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Patching the Parser to Report Embedded Conditionals}
+\label{section:patching}
+
+\SuperC{} can also report conditionals that are embedded in
+declarations and statements when using \texttt{-languageStatistics}.
+\SuperC{} is shipped with a patch that add extra fields to stack
+frames and modifies the algorithm to track the conditionals and
+generate output.  The patch can be applied in the \SuperC{} source
+directory \verb"$JAVA_DEV_ROOT/src/xtc/lang/cpp/":
+
+\begin{quote}
+\begin{verbatim}
+patch < instrument_embedded_conditionals.patch 
+\end{verbatim}
+\end{quote}
+
+The patch can be reversed like this:
+
+\begin{quote}
+\begin{verbatim}
+patch -R < instrument_embedded_conditionals.patch 
+\end{verbatim}
+\end{quote}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Other \SuperC{} Flags}
+
+\subsubsection{\texttt{-configurationVariables}}
+\begin{description}
+\item[\texttt{config\_var name}] - reports a configuration variable name
+\end{description}
+
+\subsubsection{\texttt{-headGuards}}
+\begin{description}
+\item[\texttt{header\_guard name}] - reports a header guard name
+\end{description}
+
+\subsubsection{\texttt{-size}}
+\begin{description}
+\item[\texttt{size bytes}] - reports the total compilation unit size in bytes
+\end{description}
+
+\subsubsection{\texttt{-time}}
+\begin{description}
+\item[\texttt{performance\_breakdown file parsing preprocessing
+    lexing}] - reports the latencies in seconds of the file broken
+  down by lexing alone, preprocessing plus lexing, and parsing plus
+  preprocessing and lexing.
+\end{description}
+
+\subsubsection{\texttt{-killswitch}}
+\begin{description}
+\item[\texttt{killswitch subparsers}] - reports the number of
+  subparsers reached if the killswitch is triggered
+\end{description}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The \texttt{superc\_linux.sh} Script}
+
+\begin{description}
+\item[\texttt{configs\_superc gcc-args}] - with \verb"-e", the gcc
+  arguments for header include paths and the \verb"KBUILD_NAME"
+  macros.
+\item[\texttt{configs\_all gcc-args}] - with \verb"-k", the gcc
+  arguments for header include paths and all configuration variables.
+\item[\texttt{grammar\_succeeded file}] - with \verb"-P", for when the
+  preprocessed version of the file was parsed successfully.
+\item[\texttt{grammar\_failed file}] - with \verb"-P", for when the
+  preprocessed version of the file was not parsed successfully.
+\item[\texttt{performance file time}] - with \verb"-r", the running
+  time in seconds of processing the file.
+\item[\texttt{performance\_raw file before after}] - with \verb"-r",
+  the start and end times in seconds of processing the file.  Output
+  when the program \verb"bc" is not available to calculate the running
+  time.
+\item[\texttt{comparison\_succeeded file}] - with \verb"-c", for when
+  the output of \SuperC{}, preprocessed, matches the tokens of the
+  preprocessed original file.
+\item[\texttt{comparison\_succeeded file}] - with \verb"-c", for when
+  the output of \SuperC{}, preprocessed, does not match the tokens of
+  the preprocessed original file.
+\item[\texttt{comparison\_error file}] - with \verb"-c", when cdiff
+  returned another error, meaning the test needs to be run again.
+\item[\texttt{excluded file msg}] - When a file was skipped either
+  because its configuration information was not found in the currently
+  configured kernel or, with \verb"-w", its configuration was already
+  written out to disk.
+\end{description}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The \texttt{typechef\_test.sh} Script}
+
+\begin{description}
+\item[\texttt{performance file seconds}] - reports the latency in
+  seconds of the file, including JVM startup.
+\end{description}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The \texttt{dynamic\_analysis.sh} Script}
+
+\begin{description}
+\item[\texttt{summary\_definitions n in\_conditional nobject
+    nfunction}] - the number of macro definitions, the number inside
+  of conditionals, and the number that are object-like and
+  function-like.
+\item[\texttt{summary\_redefinitions n}] - the number of define directives that overrode the configuration of an existing definitions.
+\item[\texttt{summary\_invocations n trimmed nobject nfunction}] - The
+  number of macro invocations.  trimmed is the number of invocations
+  where at least one definition was trimmed.
+\item[\texttt{summary\_hoisted\_functions n}] - the number of
+  function-like invocations that required conditionals to be hoisted
+  around them.
+\item[\texttt{summary\_nested\_invocations n}] - the number of macro
+  invocations nested in other macro invocations.
+\item[\texttt{summary\_paste n hoisted conditional\_arg}] - the number
+  of token-asting operations.  hoisted is the number of paste
+  operations with conditionals requiring hoisting.  conditional\_arg
+  is the number of operations with a conditional argument (which
+  should be the same as hoisted unless the conditional has only one
+  branch and it's the same as the operation's presence condition).
+\item[\texttt{summary\_stringify n hoisted conditional\_arg}] - the
+  number of stringification operations.
+\item[\texttt{summary\_include n computed hoisted valid\_hoisted}] -
+  the number of file includes.  computed is the number of computed
+  includes.  hoisted is the number of computed includes requiring
+  hoisted.  valid\_hoisted is the number of computed includes with
+  more than one valid resulting header file.
+\item[\texttt{summary\_reinclude n}] - the number of includes that
+  reinclude a previously-included header.
+\item[\texttt{summary\_conditionals n nonboolean}] - the number of
+  static conditionals (including all branches and endif).  nonboolean
+  is the number of if and elif conditional directives with nonboolean
+  subpexpressions in their expression.  maxdepth is the maximum
+  nesting depth of conditionals, considering file inclusion.  hoisted
+  is the number of if and elif conditionals directives whose
+  expressions required hoisting of conditionals due to
+  multiply-defined macros.
+\item[\texttt{summary\_error\_directives n}] - the number of error
+  directives.
+\item[\texttt{summary\_c\_statement\_and\_declarations n
+    with\_conditionals}] - the number of C statements and
+  declarations, including external declarations.  with\_conditionals
+  is the number of those constructs having embedded conditionals.
+\item[\texttt{summary\_typedefs n}] - the number of typedef
+  declarations.
+\item[\texttt{summary\_typedef\_ambiguities n}] - the number of
+  typedef names ambiguously-defined as an identifier.
+\end{description}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Implementing Languages}
+
+\subsection{Overview}
+
+The preprocessor and the parser are language-independent.  To use them
+for a specific language, they need the following:
+
+\begin{enumerate}
+\item A token specification, e.g., \verb"c.l" for \SuperC{}.  This
+  specifies the token name and regular expression for each token.  It
+  also provides information to the preprocessor, specifically, which
+  tokens are the comma, parentheses, hash mark, double hash mark, and
+  ellipsis, and also which tokens can be used as macro names.  The
+  header file \verb"token.h" provides preprocessor macros that make
+  specifying tokens easy.
+\item A grammar specification, e.g., \verb"c.y" for \SuperC{}.  This
+  is a Bison grammar file annotated with AST-building instructions.
+  \verb"xtc.lang.cpp.ActionsGenerator" will automatically generate an
+  implementation of \verb"Actions.java" which provides the parser with
+  AST-building information, e.g., \verb"CActionsBase.java".
+  \verb"getValue()" must be implemented in a subclass of the generated
+  class to tell the parser how to create semantic values, e.g.,
+  \verb"CActions.java".
+\item A token creator, e.g., \verb"CTokenCreator.java" for \SuperC{}.
+  This provides the preprocessor with language-dependent methods to
+  create new tokens and paste tokens.  \verb"TokenCreator.java"
+  defines the interface.
+\item (optional) An implementation of any semantic actions defined
+  with the \verb"action" annotation in the grammar specification.
+  \verb"xtc.lang.cpp.ActionsGenerator" will generate an abstract
+  method for each action, e.g., in \verb"CActionsBase.java", that
+  should be implemented in a subclass, e.g., \verb"CActions.java".
+\item (optional) An implementation of the parsing context and its
+  reclassification and merge methods.  The parsing context needs to
+  implement the \verb"Actions.Context" interface, e.g.,
+  \verb"CParsingContext.java"
+\end{enumerate}
+
+\subsection{Declarative AST Generation}
+
+SuperC supports declarative AST generation.  The Bison grammar is
+annotated with special comments next to a production's name that tell
+SuperC's parser how to build the AST node.  The annotations must
+appear right after the production's name between \verb'/**' and
+\verb'**/' comment markers in a comma-delimited list.  Here are the
+supported annotations and what they do:
+\begin{description}
+\item[list] flattens left-recursive lists into the same level.
+\item[layout] is used for punctuation.  Its semantic value is null
+  unless source is being preserved.
+\item[void] always makes semantic value null.
+\item[name(\textit{NodeName})] uses \textit{NodeName} for the AST
+  node's name instead of the production's symol.
+\item[passthrough] uses the child's semantic value for a production
+  with only one child.  This flattens long chains of nested
+  productions in, for example, C's expression grammar.
+\item[action] makes the production a semantic action.  The production
+  should be empty.
+\item[complete] identifies a complete syntactic units.  Only these
+  productions can go under conditional nodes.
+\end{description}
+Here is an example from the C grammar that defines external
+declarations.
+\begin{quote}
+\begin{verbatim}
+ExternalDeclaration:  /** passthrough, complete **/
+        FunctionDefinitionExtension
+        | DeclarationExtension
+        | AssemblyDefinition
+        | EmptyDefinition
+        ;
+\end{verbatim}
+\end{quote}
+Because of \textbf{passthrough}, the semantic value of this production
+is taken from the child node, e.g.,
+\verb'FunctionDefinitionExtension'.  Since this syntactic unit is
+\verb'complete', it may appear directly under a conditional node.
+
+\textbf{list}, \textbf{layout}, \textbf{void}, \textbf{passthrough},
+and \textbf{action} are mutually-exclusive.  \textbf{complete} and
+\textbf{name} can be added to any symbol.  \textbf{layout} is the only
+annotation that can be used on tokens.
+
+here are examples where each node declaration is used.
+
+\subsection{Grammar Files and Semantic Actions}
+
+SuperC's parser generator can extract java code from the bison grammar
+file's prologue, epilogue, and inline semantic actions in and after
+productions.  All semantic actions have access to a \texttt{subparser}
+variable that is a reference to the current subparser reducing the
+production, and therefore its stack and parsing context.  Semantic
+actions can also set or modify the \texttt{value} variable.  The
+contents of the value variable is the automatically-generated AST node
+described in Declarative AST Generation above.
+
+\end{document}

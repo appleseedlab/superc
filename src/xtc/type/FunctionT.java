@@ -19,7 +19,7 @@
 package xtc.type;
 
 import java.util.List;
-
+import java.util.LinkedList;
 /**
  * A function type.  Note that a C function with an old-style
  * declarator must be annotated with the {@link
@@ -38,7 +38,7 @@ public class FunctionT extends FunctionOrMethodT {
    * @param result The result type.
    */
   public FunctionT(Type result) {
-    super(null, result, null, null, false, null);
+    super(null, result, null, new LinkedList<Type>(), false, null);
   }
 
   /**

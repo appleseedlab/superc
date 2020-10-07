@@ -102,8 +102,7 @@ SOURCE = \
 	C.java \
 	CFactory.java \
 	TypePrinter.java \
-	SourcePrinter.java
-
+	SourcePrinter.java 
 JNI_SOURCE =
 
 JAR_EXTRAS = 

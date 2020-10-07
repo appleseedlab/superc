@@ -35,7 +35,7 @@ import java.math.BigInteger;
  * <code>__WCHAR_TYPE__</code> preprocessor macros are defined.
  *
  * @author Robert Grimm
- * @version $Revision: 1.44 $
+ * @version $Revision$
  */
 public class Limits {
 
@@ -45,23 +45,23 @@ public class Limits {
   // --------------------------------------------------------------------------
 
   /** The name and version of the operating system. */
-  public static final String OS = "Mac OS X 10.7.3";
+  public static final String OS = "Linux 5.3.0-64-generic";
 
   /** The processor architecture. */
-  public static final String ARCH = "x86_64";
+  public static final String ARCH = "amd64";
 
   /** The flag for the ELF object format. */
-  public static final boolean IS_ELF = false;
+  public static final boolean IS_ELF = true;
 
   /** The name of the C compiler. */
   public static final String COMPILER_NAME = "gcc";
 
   /** The C compiler version. */
   public static final String COMPILER_VERSION =
-    "4.2.1 (Based on Apple Inc. build 5658) (LLVM build 2336.9.00)";
+    "9.2.1 20191008";
 
   /** The major C compiler version. */
-  public static final int COMPILER_VERSION_MAJOR = 4;
+  public static final int COMPILER_VERSION_MAJOR = 9;
 
   /** The minor C compiler version. */
   public static final int COMPILER_VERSION_MINOR = 2;
