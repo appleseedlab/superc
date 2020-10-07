@@ -1045,12 +1045,18 @@ Declaration:  /** complete **/  // String
           String valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
           
           setTransformationValue(value, valuestring);
-
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
-          System.err.println("TODO: Declaration (4)");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          CContext scope = ((CContext) subparser.scope);
+
+        	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
+          String semi = getNodeAt(subparser, 1).getTokenText();
+
+          String valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
+          
+          setTransformationValue(value, valuestring);
         }
         ;
 
