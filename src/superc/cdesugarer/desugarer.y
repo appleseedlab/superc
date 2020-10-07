@@ -6781,13 +6781,13 @@ AssignmentExpression:  /** passthrough, nomerge **/  // ExpressionValue
             // type-checking
             Multiverse<Type> exprtype = leftval.type;
             Multiverse<Type> assigntype = rightval.type;
-            System.err.println("exprtype: " + exprtype);
-            System.err.println("assigntype: " + assigntype);
+            /* System.err.println("exprtype: " + exprtype); */
+            /* System.err.println("assigntype: " + assigntype); */
             todoReminder("check types in assignment expression");
-            /* Multiverse<Type> producttype = productAll(DesugarOps.compareTypes, exprtype, assigntype); */
-            Multiverse<Type> producttype = exprtype;
-            System.err.println("TODO: deduplicate ErrorT");
-            System.err.println("TODO: allow type coercion");
+            Multiverse<Type> producttype = productAll(DesugarOps.compareTypes, exprtype, assigntype);
+            /* System.err.println("producttype: " + producttype); */
+            /* System.err.println("TODO: deduplicate ErrorT"); */
+            /* System.err.println("TODO: allow type coercion"); */
 
             Multiverse<Type> typemv = producttype;
             /* Multiverse<Type> typemv = producttype.deduplicate(ErrorT.TYPE); */
@@ -6795,26 +6795,26 @@ AssignmentExpression:  /** passthrough, nomerge **/  // ExpressionValue
 
             // filter out configurations with type errors
             PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
-            Multiverse<String> product = productAll(DesugarOps.concatStrings, expr, op, assign);
             PresenceCondition typesafeCond = errorCond.not();
 
-            todoReminder("TODO: always filter out expressions with type errors so that expressionstatement can convert it to a runtime error.");
-            /* Multiverse<String> valuemv = product.filter(typesafeCond); */
-            Multiverse<String> valuemv = new Multiverse<String>(product);
-
-            // TODO: need to check for all type errors anywhere that is
-            // getting a type.  perhaps use a single value,
-            // ExpressionValue that holds two multiverses (instead of
-            // trying to combine them in one multiverse element, which
-            // doesn't work for parts of the language without a type,
-            // like operators.
-
-            /* System.err.println("assignvalue: " + valuemv); */
-            /* System.err.println("assigntype: " + typemv); */
+            // carefully take the product of each combinations of the
+            // left side, operator, right side to check for infeasible
+            // combinations.
+            Multiverse<String> valuemv;
+            Multiverse<String> suffix = expr.product(op, DesugarOps.concatStrings); op.destruct();
+            if (suffix.size() > 0) {
+              Multiverse<String> product = suffix.product(assign, DesugarOps.concatStrings); suffix.destruct();
+              if (product.size() > 0) {
+                valuemv = product.filter(typesafeCond); product.destruct();
+              } else {
+                valuemv = product;
+              }
+            } else {
+              valuemv = suffix;
+            }
+            errorCond.delRef(); typesafeCond.delRef();
           
             setTransformationValue(value, new ExpressionValue(valuemv, typemv));
-
-            op.destruct(); product.destruct(); errorCond.delRef(); typesafeCond.delRef();
             
           } else {  // no valid types
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in assignment expression"),
