@@ -12,7 +12,7 @@ int main(void) {
 
   usedUnion.integer = 1;
 
-  usedUnion.char = 'h';
+  usedUnion.character = 'h';
 
   return 0;
 }

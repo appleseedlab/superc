@@ -15,5 +15,3 @@ int main() {
 
 
 struct bob { int x; };
-
-struct bob ( int x; }

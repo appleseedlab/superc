@@ -4,9 +4,9 @@ int main(void) {
   if (
 
       #if A
-        x == 2;
+        x == 2
       #else
-        x == 3;
+        x == 3
       #endif
 
      ) {
