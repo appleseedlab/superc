@@ -1,3 +1,3 @@
 enum E {
-        A, B, A;
+        A, B, A,
 };
