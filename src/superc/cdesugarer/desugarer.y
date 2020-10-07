@@ -1036,8 +1036,11 @@ Declaration:  /** complete **/  // String
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = ((CContext) subparser.scope);
-        	StringBuilder valuesb = new StringBuilder();  // the desugared output
+
+        	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
+          String semi = getNodeAt(subparser, 1).getTokenText();
 
           /*
            * to desugar declarations, we need to iterate over all
@@ -1050,8 +1053,9 @@ Declaration:  /** complete **/  // String
 
           todoReminder("typecheck initializers");
 
+          StringBuilder valuesb = new StringBuilder();  // the desugared output
+
           // loop over each element of the declaration list
-        	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
           for (DeclaringListValue declaringlistvalue : declaringlistvalues) {
             // unpack type specifier, declarators, and initializers from the transformation value
             Multiverse<TypeSpecifier> typespecifiermv = declaringlistvalue.typespecifier;
@@ -1062,7 +1066,7 @@ Declaration:  /** complete **/  // String
             // tokens as typedef/ident in parsing context
 
             for (Element<TypeSpecifier> typespecifier : typespecifiermv) {
-              PresenceCondition typespecifierCond = subparser.getPresenceCondition().and(typespecifier.getCondition());
+              PresenceCondition typespecifierCond = pc.and(typespecifier.getCondition());
               if (typespecifierCond.isNotFalse()) {
                 for (Element<Initializer> initializer : initializermv) {
                   // TODO: optimization opportunity, share multiple
@@ -1129,10 +1133,10 @@ Declaration:  /** complete **/  // String
                               // UNDECLARED entry
                               // update the symbol table for this presence condition
                               scope.put(originalName, type, entry.getCondition());
-                    
+
                               entrysb.append(renamedDeclaration.toString());
                               entrysb.append(initializer.getData().toString());
-                              entrysb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
+                              entrysb.append(semi);  // semi-colon
                               recordRenaming(renaming, originalName);
 
                             } else {  // already declared entries
@@ -1165,7 +1169,7 @@ Declaration:  /** complete **/  // String
                                   } else {
                                     throw new AssertionError("should not be possible given sameTypeKind");
                                   }
-                            
+
                                   if (! compatibleTypes) {
                                     // not allowed to redeclare globals to a different type
                                     scope.putError(originalName, entry.getCondition());
@@ -1174,7 +1178,7 @@ Declaration:  /** complete **/  // String
                                     // emit the same declaration, since it's legal to redeclare globals to a compatible type
                                     entrysb.append(renamedDeclaration.toString());
                                     entrysb.append(initializer.getData().toString());
-                                    entrysb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
+                                    entrysb.append(semi);  // semi-colon
                                     System.err.println(String.format("INFO: \"%s\" is being redeclared in global scope to compatible type", originalName));
                                   }
 
@@ -1215,10 +1219,13 @@ Declaration:  /** complete **/  // String
             /* declaratormv.destruct(); */
             /* initializermv.destruct(); */
           } // end loop over declaringlistvalues
-          
-          if (debug) System.err.println(scope.getSymbolTable());
 
-          setTransformationValue(value, valuesb.toString());
+          if (debug) System.err.println(scope.getSymbolTable());
+          
+          String valuestring = valuesb.toString();
+          
+          setTransformationValue(value, valuestring);
+
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
