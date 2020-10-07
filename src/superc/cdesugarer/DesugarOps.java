@@ -8,6 +8,7 @@ import xtc.type.Type;
 import xtc.type.VariableT;
 import xtc.type.StructT;
 import xtc.type.UnionT;
+import xtc.type.EnumT;
 import xtc.type.ErrorT;
 
 import superc.core.Syntax;
@@ -514,7 +515,85 @@ class DesugarOps {
     assert ! valuemv.isEmpty();
 
     return valuemv;
-  }  
+  }
+
+  /**
+   * Create the semantic value for an enum def.
+   */
+  public static Multiverse<TypeSpecifier> processEnumDefinition(String keyword,
+                                                                String enumTag,
+                                                                List<Multiverse<EnumeratorValue>> list,
+                                                                PresenceCondition pc,
+                                                                CContext scope) {
+    CActions.todoReminder("type check enumerator value.   not allowed to use same int.");
+    PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
+    PresenceCondition validCond = pc.presenceConditionManager().newFalse();
+    for (Multiverse<EnumeratorValue> ratormv : list) {
+      for (Element<EnumeratorValue> rator : ratormv) {
+        if (rator.getData().getType().isError()) {
+          PresenceCondition newerrorCond = errorCond.or(rator.getCondition());
+          errorCond.delRef(); errorCond = newerrorCond;
+        } else {
+          PresenceCondition newvalidCond = validCond.or(rator.getCondition());
+          validCond.delRef(); validCond = newvalidCond;
+          scope.putEnumerator(enumTag, rator.getData().getTransformation());
+          // enumeratorlist.add(rator.getData().getType().toEnumerator());  // no longer storing enumerators with enum type
+        }
+      }  // end ratormv
+    } // end list
+
+    Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
+
+    if (validCond.isNotFalse()) {
+      TypeSpecifier typespec = new TypeSpecifier();
+      // TODO: get largest type for enum (gcc), instead of ISO standard of int
+      Type enumreftype = new EnumT(enumTag);
+      typespec.setType(enumreftype);
+
+      typespec.addTransformation(keyword);
+      typespec.addTransformation(" ");
+      typespec.addTransformation(enumTag);
+
+      typespecmv.add(typespec, validCond);
+
+      /* scope.put(CContext.toTagName(enumTag), enumreftype, validCond); */
+    }
+    validCond.delRef();
+
+    if (errorCond.isNotFalse()) {
+      TypeSpecifier typespecifier = new TypeSpecifier();
+      typespecifier.setType(ErrorT.TYPE);
+      typespecmv.add(typespecifier, errorCond);
+
+      /* scope.putError(CContext.toTagName(enumTag), errorCond); */
+    }
+    errorCond.delRef();
+
+    assert ! typespecmv.isEmpty();
+
+    CActions.todoReminder("support gcc's enums larger than ISO C's int");
+
+    return typespecmv;
+  }
+  
+  public static Multiverse<TypeSpecifier> processEnumReference(String keyword,
+                                                              String enumTag,
+                                                              PresenceCondition pc) {
+    Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
+
+    TypeSpecifier typespec = new TypeSpecifier();
+    // TODO: get largest type for enum (gcc), instead of ISO standard of int
+    Type enumreftype = new EnumT(enumTag);
+    typespec.setType(enumreftype);
+
+    typespec.addTransformation(keyword);
+    typespec.addTransformation(" ");
+    typespec.addTransformation(enumTag);
+
+    typespecmv.add(typespec, pc);
+          
+    return typespecmv;
+  }
   
   /*****************************************************************************
    ********* Multiverse operators for Declarations
