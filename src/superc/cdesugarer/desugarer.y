@@ -566,9 +566,9 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
 
           // change the semantic value of functionprototype to be the multiverse of strings
           setTransformationValue(getNodeAt(subparser, 1), prototypestrmv);
-          System.err.println("PROTOTYPESTRMV " + prototypestrmv);
-          System.err.println(validCond);
-          System.err.println(getNodeAt(subparser, 1));
+          /* System.err.println("PROTOTYPESTRMV " + prototypestrmv); */
+          /* System.err.println(validCond); */
+          /* System.err.println(getNodeAt(subparser, 1)); */
           
         /*   // reenter function local scope */
         /*   ReenterScope(subparser); */
@@ -580,7 +580,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           // compoundstatement, while declaration has an initializer.
           PresenceCondition pc = subparser.getPresenceCondition();
 
-          System.err.println(getNodeAt(subparser, 3));
+          /* System.err.println(getNodeAt(subparser, 3)); */
 
           // the function prototype can be empty if all prototypes in
           // that set of configurations all have type errors
@@ -1613,7 +1613,7 @@ SUEDeclarationSpecifier: /** complete **/          /* StorageClass + struct/unio
           // TODO: unit test this action
           PresenceCondition pc = subparser.getPresenceCondition();
 
-          System.err.println(getNodeAt(subparser, 2));
+          /* System.err.println(getNodeAt(subparser, 2)); */
           Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
@@ -4084,8 +4084,8 @@ ArrayAbstractDeclarator: /** nomerge **/
           todoReminder("check expression in ArrayAbstractDeclarator (2)");
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
           Multiverse<String> arrayBounds = exprval.transformation;
-          System.err.println(arrayBounds);
-          System.err.println(getNodeAt(subparser, 2));
+          /* System.err.println(arrayBounds); */
+          /* System.err.println(getNodeAt(subparser, 2)); */
           Multiverse<Declarator> valuemv = DesugarOps.toAbstractArrayDeclarator.transform(arrayBounds);
           // this is getting an empty mv on filtered for /usr/include/x86_64-linux-gnu/bits/types.h in typesizes.h
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
@@ -6767,10 +6767,10 @@ AssignmentExpression:  /** passthrough, nomerge **/  // ExpressionValue
             /* Multiverse<String> op */
             /*   = new Multiverse<String>((String) getTransformationValue(subparser, 2), pc); */
             Multiverse<String> assign = rightval.transformation;
-            System.err.println(expr);
-            System.err.println(op);
-            System.err.println(assign);
-            System.err.println(getNodeAt(subparser, 1));
+            /* System.err.println(expr); */
+            /* System.err.println(op); */
+            /* System.err.println(assign); */
+            /* System.err.println(getNodeAt(subparser, 1)); */
 
             // type-checking
             Multiverse<Type> exprtype = leftval.type;

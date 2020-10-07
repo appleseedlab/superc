@@ -218,6 +218,14 @@ in addition to printing out the transformation string values from the child cons
   - global type errors
   - global value initializers
 
+* Actions
+
+TBD
+
+Refactoring
+- Keep instance state (globals, freshid number, etc) in a single class.
+- Collect complex semantic actions in a single class (perhaps the same as the instance state)
+
 * The tag namespace
 
 The tag namespace has three main issues:
