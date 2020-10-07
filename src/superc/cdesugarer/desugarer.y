@@ -1267,7 +1267,16 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         {
           PresenceCondition pc = subparser.getPresenceCondition();
 
+          // add the int type by default
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 6, pc);
+          TypeSpecifier ts = new TypeSpecifier();
+          ts.visitInt();
+          ts.addTransformation("int");
+          Multiverse<TypeSpecifier> inttbmv
+            = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
+          types = types.product(inttbmv, DesugarOps.specifierProduct);  // don't destruct prior types, since it is a semantic value
+          inttbmv.destruct();
+          
           Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 5, pc);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
           Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
