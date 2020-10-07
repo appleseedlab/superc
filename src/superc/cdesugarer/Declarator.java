@@ -552,6 +552,12 @@ abstract class Declarator {
       } else if (declarator.isPointerDeclarator()) {
         // the pointer declarators creator a function pointer
         return declarator.getType(new FunctionT(returnType, paramtypes, parameters.varargs));
+      } else if (declarator.isPointerDeclarator()
+                 || declarator.isQualifiedPointerDeclarator()
+                 || declarator.isPointerAbstractDeclarator()
+                 || declarator.isQualifiedPointerAbstractDeclarator()) {
+        // the pointer declarators creator a function pointer
+        return declarator.getType(new FunctionT(returnType, paramtypes, parameters.varargs));
       } else {
         throw new AssertionError("function declarator should either be simple or pointer");
       }
