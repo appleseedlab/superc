@@ -683,6 +683,8 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/  // String
 FunctionPrototype:  /** nomerge **/
         IdentifierDeclarator
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
           // legacy type checking code
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
 
@@ -692,7 +694,7 @@ FunctionPrototype:  /** nomerge **/
           ts.addTransformation("int");
           setTransformationValue(value,
                                  new FunctionPrototypeValue(new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition()),
-                                                            (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
+                                                            this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc)));
         }
         | DeclarationSpecifier     IdentifierDeclarator
         {
@@ -703,7 +705,7 @@ FunctionPrototype:  /** nomerge **/
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
 
           setTransformationValue(value, new FunctionPrototypeValue(this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc),
-                                                                   (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
+                                                                   this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc)));
         }
         | TypeSpecifier            IdentifierDeclarator
         {
@@ -714,7 +716,7 @@ FunctionPrototype:  /** nomerge **/
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
 
           setTransformationValue(value, new FunctionPrototypeValue(this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc),
-                                                                   (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
+                                                                   this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc)));
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
@@ -725,7 +727,7 @@ FunctionPrototype:  /** nomerge **/
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
 
           setTransformationValue(value, new FunctionPrototypeValue(this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc),
-                                                                   (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
+                                                                   this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc)));
         }
         | TypeQualifierList        IdentifierDeclarator
         {
@@ -736,7 +738,7 @@ FunctionPrototype:  /** nomerge **/
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
 
           setTransformationValue(value, new FunctionPrototypeValue(this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc),
-                                                                   (Multiverse<Declarator>) getTransformationValue(subparser, 1)));
+                                                                   this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc)));
         }
         |                          OldFunctionDeclarator
         {
@@ -1248,7 +1250,7 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
           types = types.product(inttbmv, DesugarOps.specifierProduct);  // don't destruct prior types, since it is a semantic value
           inttbmv.destruct();
           
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 5, pc);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
           Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
@@ -1266,7 +1268,7 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 6, pc);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 5, pc);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
           Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
@@ -1296,7 +1298,7 @@ DeclaringList:  /** nomerge **/
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 5, pc);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 4);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 4, pc);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
           Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
@@ -1311,7 +1313,7 @@ DeclaringList:  /** nomerge **/
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 5, pc);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 4);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 4, pc);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
           Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
@@ -1325,6 +1327,8 @@ DeclaringList:  /** nomerge **/
           bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
           // TODO: hoist initiazliers around the entire InitializedDeclaration
           List<DeclaringListValue> declaringlist = (List<DeclaringListValue>) getTransformationValue(subparser, 8);
           // there must be at least one element in the DeclaringList
@@ -1337,7 +1341,7 @@ DeclaringList:  /** nomerge **/
           // the rest of the action is the same as its other
           // productions, except we add to the list instead of making
           // a new one
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 5);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 5, pc);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
           Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
           declaringlist.add(new DeclaringListValue(types, declarators, initializers));
@@ -2580,6 +2584,7 @@ StructDeclaringList: /** list, complete **/  // returns List<StructDeclaringList
         TypeSpecifier StructDeclarator AttributeSpecifierListOpt
         {
           PresenceCondition pc = subparser.getPresenceCondition();
+
           List<StructDeclaringListValue> declaringlist = new LinkedList<StructDeclaringListValue>();
           Multiverse<TypeSpecifier> typespecifiers = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 3, pc);
           Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc);
@@ -2589,10 +2594,12 @@ StructDeclaringList: /** list, complete **/  // returns List<StructDeclaringList
         }
         | StructDeclaringList COMMA StructDeclarator AttributeSpecifierListOpt
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
           List<StructDeclaringListValue> declaringlist = (List<StructDeclaringListValue>) getTransformationValue(subparser, 4);
           assert declaringlist.size() > 0;
           Multiverse<TypeSpecifier> typespecifiers = declaringlist.get(0).typespecifier;
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 2);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc);
           System.err.println("TODO: support attribuetspecifierlistopt in StructDeclarator");
           declaringlist.add(new StructDeclaringListValue(typespecifiers, declarators));
           setTransformationValue(value, declaringlist);
@@ -2603,8 +2610,10 @@ StructDeclaringList: /** list, complete **/  // returns List<StructDeclaringList
 StructDeclarator: /** complete **/  // returns Multiverse<Declarator>
         Declarator BitFieldSizeOpt
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
           System.err.println("TODO: support bitfieldsizeopt in a new StructDeclarator (1)");
-          setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser, 2));
+          setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc));
         }
         | BitFieldSize
         {
@@ -3284,7 +3293,7 @@ ParameterAbstractDeclaration: // ParameterDeclarationValue
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | DeclarationQualifierList
@@ -3297,7 +3306,7 @@ ParameterAbstractDeclaration: // ParameterDeclarationValue
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | TypeSpecifier
@@ -3313,7 +3322,7 @@ ParameterAbstractDeclaration: // ParameterDeclarationValue
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         | TypeQualifierList
@@ -3326,7 +3335,7 @@ ParameterAbstractDeclaration: // ParameterDeclarationValue
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
         ;
@@ -3345,7 +3354,7 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 3, pc);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
@@ -3358,7 +3367,7 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 3, pc);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
@@ -3371,7 +3380,7 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 3, pc);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
@@ -3384,7 +3393,7 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 3, pc);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
@@ -3397,7 +3406,7 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 3, pc);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
@@ -3410,7 +3419,7 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 4, pc);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser, 3);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 3, pc);
           // TODO: save attributes
           setTransformationValue(value, new ParameterDeclarationValue(types, declarators));
         }
@@ -3473,7 +3482,7 @@ TypeName: /** nomerge **/  // Multiverse<Declaration>
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> type = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
-          Multiverse<Declarator> declarator = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
+          Multiverse<Declarator> declarator = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, type.join(declarator, DesugarOps.joinDeclaration));
         }
         | TypeQualifierList
@@ -3491,7 +3500,7 @@ TypeName: /** nomerge **/  // Multiverse<Declaration>
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> type = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
-          Multiverse<Declarator> declarator = (Multiverse<Declarator>) getTransformationValue(subparser, 1);
+          Multiverse<Declarator> declarator = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, type.join(declarator, DesugarOps.joinDeclaration));
         }
         ;
@@ -3686,29 +3695,39 @@ ObsoleteFieldDesignation: /** nomerge **/  /* ADDED */
 Declarator:  /** nomerge**/
         TypedefDeclarator
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         | IdentifierDeclarator
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         ;
 
 TypedefDeclarator:  /**  nomerge **/  // ADDED
         TypedefDeclaratorMain //AssemblyExpressionOpt AttributeSpecifierListOpt
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
       	}
         ;
 
 TypedefDeclaratorMain:  /**  nomerge **/
         ParenTypedefDeclarator  /* would be ambiguous as Parameter*/
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         | ParameterTypedefDeclarator   /* not ambiguous as param*/
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         ;
 
@@ -3721,9 +3740,11 @@ ParameterTypedefDeclarator: /** nomerge **/
         }
         | TYPEDEFname PostfixingAbstractDeclarator
       	{
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
           Multiverse<Declarator> declarators = new Multiverse<Declarator>(new SimpleDeclarator(getStringAt(subparser, 2)),
                                                                           subparser.getPresenceCondition());
-          Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          Multiverse<Declarator> abstractdeclarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesugarOps.createCompoundDeclarator);
           declarators.destruct();  // safe to destruct because not added as transformation value
           /* abstractdeclarators.destruct(); */
@@ -3732,7 +3753,9 @@ ParameterTypedefDeclarator: /** nomerge **/
         }
         | CleanTypedefDeclarator
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         ;
 
@@ -3742,12 +3765,16 @@ ParameterTypedefDeclarator: /** nomerge **/
 CleanTypedefDeclarator: /** nomerge **/
         CleanPostfixTypedefDeclarator
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         | STAR ParameterTypedefDeclarator
       	{
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
           // TODO: do we need to conjoin with subparser.getPresenceCondition() in all these declarators?
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = DesugarOps.toPointerDeclarator.transform(declarators);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3758,7 +3785,7 @@ CleanTypedefDeclarator: /** nomerge **/
       	{
           PresenceCondition pc = subparser.getPresenceCondition();
 
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
@@ -3772,12 +3799,16 @@ CleanTypedefDeclarator: /** nomerge **/
 CleanPostfixTypedefDeclarator: /** nomerge **/
         LPAREN CleanTypedefDeclarator RPAREN
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc));
         }
         | LPAREN CleanTypedefDeclarator RPAREN PostfixingAbstractDeclarator
         {
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
-          Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 3, pc);
+          Multiverse<Declarator> abstractdeclarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesugarOps.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3793,11 +3824,15 @@ CleanPostfixTypedefDeclarator: /** nomerge **/
 ParenTypedefDeclarator:  /** nomerge **/
         ParenPostfixTypedefDeclarator
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         | STAR LPAREN SimpleParenTypedefDeclarator RPAREN /* redundant paren */
       	{
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> valuemv = DesugarOps.toPointerDeclarator.transform(declarators);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3809,7 +3844,7 @@ ParenTypedefDeclarator:  /** nomerge **/
       	{
           PresenceCondition pc = subparser.getPresenceCondition();
 
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,4);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 4, pc);
           Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
@@ -3820,7 +3855,9 @@ ParenTypedefDeclarator:  /** nomerge **/
         }
         | STAR ParenTypedefDeclarator
       	{
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = DesugarOps.toPointerDeclarator.transform(declarators);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3832,7 +3869,7 @@ ParenTypedefDeclarator:  /** nomerge **/
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3845,12 +3882,16 @@ ParenTypedefDeclarator:  /** nomerge **/
 ParenPostfixTypedefDeclarator: /** nomerge **/ /* redundant paren to left of tname*/
         LPAREN ParenTypedefDeclarator RPAREN
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc));
         }
         | LPAREN SimpleParenTypedefDeclarator PostfixingAbstractDeclarator RPAREN /* redundant paren */
       	{
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
-          Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 3, pc);
+          Multiverse<Declarator> abstractdeclarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesugarOps.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3860,8 +3901,10 @@ ParenPostfixTypedefDeclarator: /** nomerge **/ /* redundant paren to left of tna
         }
         | LPAREN ParenTypedefDeclarator RPAREN PostfixingAbstractDeclarator
       	{
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
-          Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 3, pc);
+          Multiverse<Declarator> abstractdeclarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesugarOps.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3874,40 +3917,54 @@ ParenPostfixTypedefDeclarator: /** nomerge **/ /* redundant paren to left of tna
 SimpleParenTypedefDeclarator: /** nomerge **/
         TYPEDEFname
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         | LPAREN SimpleParenTypedefDeclarator RPAREN
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc));
         }
         ;
 
 IdentifierDeclarator:  /**  nomerge **/
         IdentifierDeclaratorMain //AssemblyExpressionOpt AttributeSpecifierListOpt
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         ;
 
 IdentifierDeclaratorMain:  /** nomerge **/
         UnaryIdentifierDeclarator
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
       	}
         | ParenIdentifierDeclarator
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
       	}
         ;
 
 UnaryIdentifierDeclarator: /** nomerge **/
         PostfixIdentifierDeclarator
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
       	}
         | STAR IdentifierDeclarator
         {
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = DesugarOps.toPointerDeclarator.transform(declarators);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3919,7 +3976,7 @@ UnaryIdentifierDeclarator: /** nomerge **/
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3932,20 +3989,28 @@ UnaryIdentifierDeclarator: /** nomerge **/
 PostfixIdentifierDeclarator: /** nomerge **/
         FunctionDeclarator
         {
-          setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         | ArrayDeclarator
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         | AttributedDeclarator
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         | LPAREN UnaryIdentifierDeclarator RPAREN PostfixingAbstractDeclarator
       	{
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
-          Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 3, pc);
+          Multiverse<Declarator> abstractdeclarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesugarOps.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -3958,15 +4023,19 @@ PostfixIdentifierDeclarator: /** nomerge **/
 AttributedDeclarator: /** nomerge **/
         LPAREN UnaryIdentifierDeclarator RPAREN
         {
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc));
         }
         ;
 
 FunctionDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator PostfixingFunctionDeclarator
         {
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,2);
-          Multiverse<Declarator> parameters = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<Declarator> parameters = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = declarators.product(parameters, DesugarOps.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -4031,6 +4100,7 @@ ArrayDeclarator:  /** nomerge **/
         ParenIdentifierDeclarator ArrayAbstractDeclarator
         {
           PresenceCondition pc = subparser.getPresenceCondition();
+
           Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declarator> arrayabstractdeclarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = declarators.product(arrayabstractdeclarators, DesugarOps.createCompoundDeclarator);
@@ -4045,11 +4115,15 @@ ArrayDeclarator:  /** nomerge **/
 ParenIdentifierDeclarator:  /** nomerge **/
         SimpleDeclarator
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
       	}
         | LPAREN ParenIdentifierDeclarator RPAREN
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc));
       	}
         ;
 
@@ -4101,27 +4175,37 @@ PostfixOldFunctionDeclarator: /** nomerge **/
 AbstractDeclarator: /** nomerge **/
         UnaryAbstractDeclarator
         {
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         | PostfixAbstractDeclarator
         {
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         | PostfixingAbstractDeclarator
         {
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         ;
 
 PostfixingAbstractDeclarator: /**  nomerge **/
         ArrayAbstractDeclarator
       	{
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
       	}
         /* | LPAREN { EnterScope(subparser); } ParameterTypeListOpt { ExitReentrantScope(subparser); } RPAREN */
         | PostfixingFunctionDeclarator
         {
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,1));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         ;
 
@@ -4159,10 +4243,12 @@ ArrayAbstractDeclarator: /** nomerge **/
 	      }
         | ArrayAbstractDeclarator LBRACK ConstantExpression RBRACK
 	      {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
           todoReminder("check expression in ArrayAbstractDeclarator (2)");
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
 
-      	  Multiverse<Declarator> arrayabstractdeclarator = (Multiverse<Declarator>) getTransformationValue(subparser,4);
+      	  Multiverse<Declarator> arrayabstractdeclarator = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 4, pc);
           Multiverse<String> arrayBounds = exprval.transformation;
 
           // get each combination of the existing array abstract declarators and the new constant expressions
@@ -4210,7 +4296,9 @@ UnaryAbstractDeclarator: /** nomerge **/
         }
         | STAR AbstractDeclarator
         {
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = DesugarOps.toPointerDeclarator.transform(declarators);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -4222,7 +4310,7 @@ UnaryAbstractDeclarator: /** nomerge **/
           PresenceCondition pc = subparser.getPresenceCondition();
 
           Multiverse<TypeSpecifier> qualifierlists = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = DesugarOps.createQualifiedPointerDeclarator(declarators, qualifierlists);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
@@ -4235,20 +4323,28 @@ UnaryAbstractDeclarator: /** nomerge **/
 PostfixAbstractDeclarator: /** nomerge **/
         LPAREN UnaryAbstractDeclarator RPAREN
         {
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc));
         } 
         | LPAREN PostfixAbstractDeclarator RPAREN
         {
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc));
         } 
         | LPAREN PostfixingAbstractDeclarator RPAREN
         {
-      	  setTransformationValue(value, (Multiverse<Declarator>) getTransformationValue(subparser,2));
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc));
         } 
         | LPAREN UnaryAbstractDeclarator RPAREN PostfixingAbstractDeclarator
         {
-          Multiverse<Declarator> declarators = (Multiverse<Declarator>) getTransformationValue(subparser,3);
-          Multiverse<Declarator> abstractdeclarators = (Multiverse<Declarator>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 3, pc);
+          Multiverse<Declarator> abstractdeclarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> valuemv = declarators.product(abstractdeclarators, DesugarOps.createCompoundDeclarator);
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
