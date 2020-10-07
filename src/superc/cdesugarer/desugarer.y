@@ -1286,15 +1286,30 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         }
         | DefaultDeclaringList COMMA AttributeSpecifierListOpt IdentifierDeclarator
         {
-          System.err.println("ERROR: unsupported semantic action: DefaultDeclaringList (5)");
-          System.exit(1);
           // reuses saved base type
           bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
         }
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
-          System.err.println("ERROR: unsupported semantic action: DefaultDeclaringList (6)");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          // TODO: hoist initiazliers around the entire InitializedDeclaration
+          List<DeclaringListValue> declaringlist = (List<DeclaringListValue>) getTransformationValue(subparser, 8);
+          // there must be at least one element in the DeclaringList
+          // according to the grammar
+          assert declaringlist.size() > 0;
+          // each element is given the same typespecifiermultiverse, so
+          // we can take it from the first element, which is
+          // guaranteed to be there.
+          Multiverse<TypeSpecifier> types = declaringlist.get(0).typespecifier;
+          // the rest of the action is the same as its other
+          // productions, except we add to the list instead of making
+          // a new one
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 5, pc);
+          // TODO: just represent assembly and attributes as strings that get pass with the declaration object
+          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
+          declaringlist.add(new DeclaringListValue(types, declarators, initializers));
+          setTransformationValue(value, declaringlist);
         }
         ;
 
