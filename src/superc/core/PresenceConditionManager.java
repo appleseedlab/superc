@@ -40,7 +40,10 @@ import xtc.tree.GNode;
 import net.sf.javabdd.BDDFactory;
 import net.sf.javabdd.BDD;
 
+import com.microsoft.z3.enumerations.Z3_ast_print_mode;
+
 import com.microsoft.z3.Context;
+import com.microsoft.z3.Solver;
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Tactic;
 import com.microsoft.z3.Goal;
@@ -99,6 +102,7 @@ public class PresenceConditionManager {
     HashMap<String, String> cfg = new HashMap<String, String>();
     cfg.put("model", "true");
     this.ctx = new Context(cfg);
+    this.ctx.setPrintMode(Z3_ast_print_mode.Z3_PRINT_SMTLIB2_COMPLIANT);
     this.vars = new Variables(B);
     this.stack = new LinkedList<PresenceCondition>();
     this.global = newTrue();
@@ -968,8 +972,8 @@ public class PresenceConditionManager {
      */
     public void print(Writer writer) throws IOException {
       
-      // printz3(expr, writer);
-      printBDD(bdd, writer);
+      printz3(expr, writer);
+      // printBDD(bdd, writer);
     }
 
     /**
@@ -983,7 +987,12 @@ public class PresenceConditionManager {
       // useContextSimplify = false;
       // this.simplify();
       // useContextSimplify = save;
-      writer.write(expr.toString());
+
+      // writer.write(expr.toString());
+
+      Solver solver = getZ3Context().mkSimpleSolver();
+      solver.add(expr);
+      writer.write(solver.toString().replace("\n", ""));
     }
 
     // /**
