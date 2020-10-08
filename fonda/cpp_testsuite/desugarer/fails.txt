@@ -1,0 +1,60 @@
+configurable/PASS_impossibleTypedef           SuperC failed - works normally, but fails with: superc.SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= -restrictFreeToPrefix CONFIG_
+configurable/PASS_impossibleTypedef2          SuperC failed - works normally, but fails with: superc.SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= -restrictFreeToPrefix CONFIG_
+functions/PASS_void_abstract_functions        BC failed
+functions/PASS_invalid_type_function          BC failed
+examples/undeclared_identifer                 SuperC failed - No valid configurations
+examples/PASS_invalid_qualifiers              BC failed
+examples/PASS_invalid_signed_unsigned         BC failed
+examples/PASS_noIdentifier                    SuperC failed - No valid configurations
+examples/test_struct_prohibit_initializer     SuperC failed - No valid configurations
+examples/PASS_seentypes                       BC failed
+examples/PASS_invalid_long                    BC failed
+declarators/PASS_void_typedef                 BC failed
+declarators/PASS_invalid_typedefs             SuperC failed - No valid configurations
+declarators/invalid_typedef                   BC failed
+declarators/invalid_Array_Pointer             SuperC failed - No valid configurations
+struct/nested_anonymous                       BC failed
+struct/no_nested_redef                        SuperC failed - No valid configurations
+struct/struct_global_forward_reference        BC failed
+compound/pointer_struct1                      BC failed
+compound/primitive_array1                     BC failed
+compound/primitive_function1                  BC failed
+compound/primitive_struct1                    BC failed
+./typedefname_and_variable_declarations      SuperC failed - has a valid config -DA 
+./struct_undef_cast                          BC failed
+./struct_global_local                        BC failed
+./struct_crossref_global                     BC failed
+./enum_repeated_enumerators                  SuperC failed - No valid configurations
+./function_parameters_configurable           SuperC failed - works normally, but fails	with: superc .SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= -restrictFreeToPrefix CONFIG_ 
+./typedefname_partially_defined              SuperC failed - works normally, but fails	with: superc .SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= -restrictFreeToPrefix CONFIG_
+./struct_desugar_test                        BC failed
+./enum_configurable                          BC failed
+./configurable_array                         BC failed
+./struct_global_forward_reference_illegal    BC failed
+./initializers                               BC failed
+./designated_initializer                     BC failed
+./struct_union_enum                          BC failed
+./jump_statement                             BC failed
+./offsetof                                   BC failed
+functions/config_identifier                                                 BC failed
+functions/config_return_type                                                BC failed
+constructs/types_global_function_multiply-defined                           BC failed
+constructs/types_extern_var_partially-defined                               SuperC failed - works normally but has runtime error with: superc .SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= -restrictFreeToPrefix CONFIG_
+constructs/types_global_function_multiple_prototypes_same_body              SuperC failed - works normally but has runtime error with: superc .SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= -restrictFreeToPrefix CONFIG_
+constructs/types_extern_function_multiply-defined                           BC failed
+declaringlists/error_conditional                                            BC failed
+declaringlists/error_global                                                 BC failed
+declaringlists/error                                                        BC failed
+union/config_partially_defined_union                                        BC failed
+enum/config_enum                                                            BC failed
+enum/config_enum_field                                                      BC failed
+typedef_struct/config_partially_defined_struct_field                        SuperC failed - works normally, but fails	with: superc .SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= -restrictFreeToPrefix CONFIG_
+misc/singlevariable                                                         BC failed
+misc/decl                                                                   BC failed
+misc/twovariables                                                           BC failed
+misc/twovariablesdifferent                                                  BC failed
+phasar/secure_memory/memory1                                                BC failed
+phasar/secure_memory/memory1_resugared                                      BC failed
+phasar/secure_memory/memory1_2                                              BC failed
+phasar/secure_memory/memory1_2_resugared_decls_added                        BC failed
+phasar/secure_memory/memory1_2_resugared                                    BC failed
