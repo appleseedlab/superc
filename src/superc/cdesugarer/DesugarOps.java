@@ -480,7 +480,7 @@ class DesugarOps {
         String forwardTagRefName = freshIdCreator.freshCId("forward_tag_reference");
         Type forwardStructRef = new StructT(forwardTagRefName);
         typespecifier.setType(forwardStructRef);
-        typespecifier.addTransformation(String.format("%s %s", keyword, forwardTagRefName));
+        typespecifier.addTransformation(String.format("struct %s", forwardTagRefName));
 
         // add a symtab entry that maps the new forward
         // reference tag to the original tagname of the
