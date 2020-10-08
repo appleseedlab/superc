@@ -6,8 +6,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_7();
 
-extern const bool __static_condition_6;
 extern const bool __static_condition_5;
+extern const bool __static_condition_6;
 void __static_initializer_7() {
 __static_renaming("__imajor_0", "imajor");
 __static_renaming("__iminor_1", "iminor");
