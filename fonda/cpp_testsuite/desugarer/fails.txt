@@ -1,60 +1,60 @@
 configurable/PASS_impossibleTypedef           SuperC failed - works normally, but fails with: superc.SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= -restrictFreeToPrefix CONFIG_
 configurable/PASS_impossibleTypedef2          SuperC failed - works normally, but fails with: superc.SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= -restrictFreeToPrefix CONFIG_
-functions/PASS_void_abstract_functions        BC failed
-functions/PASS_invalid_type_function          BC failed
+functions/PASS_void_abstract_functions        BC failed - "void  (* __fwo_1 (void  , void  ));" is generated, can't have void, void as params 
+functions/PASS_invalid_type_function          BC failed - "void __x_0;" generated, can't have var of type void
 examples/undeclared_identifer                 SuperC failed - No valid configurations
-examples/PASS_invalid_qualifiers              BC failed
-examples/PASS_invalid_signed_unsigned         BC failed
+examples/PASS_invalid_qualifiers              BC failed - although a_1 - h_8 are incalid they are all still represented in the code as invalid types
+examples/PASS_invalid_signed_unsigned         BC failed - producing code for unsigned/signed floats and doubles
 examples/PASS_noIdentifier                    SuperC failed - No valid configurations
 examples/test_struct_prohibit_initializer     SuperC failed - No valid configurations
-examples/PASS_seentypes                       BC failed
-examples/PASS_invalid_long                    BC failed
-declarators/PASS_void_typedef                 BC failed
+examples/PASS_seentypes                       BC failed - int float and float short being generated as types
+examples/PASS_invalid_long                    BC failed - produced code for long long double, long float, long long long
+declarators/PASS_void_typedef                 BC failed - outputting code (void typedef) __x_2 which is invalid
 declarators/PASS_invalid_typedefs             SuperC failed - No valid configurations
-declarators/invalid_typedef                   BC failed
+declarators/invalid_typedef                   BC failed - generates "typedef long long long"
 declarators/invalid_Array_Pointer             SuperC failed - No valid configurations
-struct/nested_anonymous                       BC failed
+struct/nested_anonymous                       BC failed - I'm honestly not sure what was generated here. There is some very strange code where we are generating structs of unions for nested refereces. We're also seeing type errors where they don't exist in the original code.
 struct/no_nested_redef                        SuperC failed - No valid configurations
-struct/struct_global_forward_reference        BC failed
-compound/pointer_struct1                      BC failed
-compound/primitive_array1                     BC failed
-compound/primitive_function1                  BC failed
-compound/primitive_struct1                    BC failed
+struct/struct_global_forward_reference        BC failed - forward reference used while not declared
+compound/pointer_struct1                      BC failed - dereferencing a struct this way isn't allowed
+compound/primitive_array1                     BC failed - attempt to increment character array
+compound/primitive_function1                  BC failed - attempt to increment a function
+compound/primitive_struct1                    BC failed - attempt to increment a struct
 ./typedefname_and_variable_declarations      SuperC failed - has a valid config -DA 
-./struct_undef_cast                          BC failed
-./struct_global_local                        BC failed
-./struct_crossref_global                     BC failed
+./struct_undef_cast                          BC failed - can't direct cast struct to struct
+./struct_global_local                        BC failed - __main_3 defined 3 times
+./struct_crossref_global                     BC failed - forward reference used while not declared
 ./enum_repeated_enumerators                  SuperC failed - No valid configurations
 ./function_parameters_configurable           SuperC failed - works normally, but fails	with: superc .SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= -restrictFreeToPrefix CONFIG_ 
 ./typedefname_partially_defined              SuperC failed - works normally, but fails	with: superc .SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= -restrictFreeToPrefix CONFIG_
-./struct_desugar_test                        BC failed
-./enum_configurable                          BC failed
-./configurable_array                         BC failed
-./struct_global_forward_reference_illegal    BC failed
-./initializers                               BC failed
-./designated_initializer                     BC failed
-./struct_union_enum                          BC failed
-./jump_statement                             BC failed
-./offsetof                                   BC failed
-functions/config_identifier                                                 BC failed
-functions/config_return_type                                                BC failed
-constructs/types_global_function_multiply-defined                           BC failed
+./struct_desugar_test                        BC failed - attempt to return void from int main
+./enum_configurable                          BC failed - can't assign default value by extern const, base code isn't viable
+./configurable_array                         BC failed - can't use var in array spec, base code isn't viable
+./struct_global_forward_reference_illegal    BC failed - forward reference used while not declared
+./initializers                               BC failed - attempt to init array with constant int, base code isn't viable
+./designated_initializer                     BC failed - struct instance initializer doesn't work the same way after transformation
+./struct_union_enum                          BC failed - forward references
+./jump_statement                             BC failed - base code isn't viable
+./offsetof                                   BC failed - member in struct access isn't renamed, has z should be __z_9
+functions/config_identifier                                                 BC failed - attempt to use a_1 when a_1 is only defined as a param in a different function.
+functions/config_return_type                                                BC failed - main defined with int and void, but attempts a void and int return in both resulting in 2 errors
+constructs/types_global_function_multiply-defined                           BC failed - __x_1 defined with an int param but called with void (called twice, one with void one without)
 constructs/types_extern_var_partially-defined                               SuperC failed - works normally but has runtime error with: superc .SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= -restrictFreeToPrefix CONFIG_
 constructs/types_global_function_multiple_prototypes_same_body              SuperC failed - works normally but has runtime error with: superc .SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= -restrictFreeToPrefix CONFIG_
-constructs/types_extern_function_multiply-defined                           BC failed
-declaringlists/error_conditional                                            BC failed
-declaringlists/error_global                                                 BC failed
-declaringlists/error                                                        BC failed
-union/config_partially_defined_union                                        BC failed
-enum/config_enum                                                            BC failed
-enum/config_enum_field                                                      BC failed
+constructs/types_extern_function_multiply-defined                           BC failed - function defined wtih an int param, called void
+declaringlists/error_conditional                                            BC failed - attempted type char char, base code isn't viable
+declaringlists/error_global                                                 BC failed - attempted type int int, base code isn't viable
+declaringlists/error                                                        BC failed - attempted char char, base code isn't viable
+union/config_partially_defined_union                                        BC failed - tried to use forward_tag_reference_6 as a union, but it is a struct
+enum/config_enum                                                            BC failed - base code is invalid, enum letter apple should probably enum someLetters apple
+enum/config_enum_field                                                      BC failed - base code is invalid, enum letter apple should probably enum someLetters apple
 typedef_struct/config_partially_defined_struct_field                        SuperC failed - works normally, but fails	with: superc .SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= -restrictFreeToPrefix CONFIG_
-misc/singlevariable                                                         BC failed
-misc/decl                                                                   BC failed
-misc/twovariables                                                           BC failed
-misc/twovariablesdifferent                                                  BC failed
-phasar/secure_memory/memory1                                                BC failed
-phasar/secure_memory/memory1_resugared                                      BC failed
-phasar/secure_memory/memory1_2                                              BC failed
-phasar/secure_memory/memory1_2_resugared_decls_added                        BC failed
-phasar/secure_memory/memory1_2_resugared                                    BC failed
+misc/singlevariable                                                         BC failed - static_condition_7 used but never defined
+misc/decl                                                                   BC failed - static_condition_3 used but never defined
+misc/twovariables                                                           BC failed - static_condition_9 used but never defined
+misc/twovariablesdifferent                                                  BC failed - static_condition_16 used but never defined
+phasar/secure_memory/memory1                                                BC failed - attempting to return void from an unsigned int function && attempt to assign void value to char *
+phasar/secure_memory/memory1_resugared                                      BC failed - attempting to return void from an unsigned int function && attempt to assign void value to char *
+phasar/secure_memory/memory1_2                                              BC failed - attempting to return void from an unsigned int function && attempt to assign void value to char *
+phasar/secure_memory/memory1_2_resugared_decls_added                        BC failed - attempt to call 3 parameter function with 2 parameters, __CRYPTO_free_6
+phasar/secure_memory/memory1_2_resugared                                    BC failed - attempting to return void from an unsigned int function && attempt to assign void value to char *
