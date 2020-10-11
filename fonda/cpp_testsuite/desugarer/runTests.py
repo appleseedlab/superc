@@ -43,8 +43,8 @@ def main():
                         os.system( 'java superc.SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= -restrictFreeToPrefix CONFIG_ ' + inclusionList + ' ' + curDir + '/' + dirFiles + ' > ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c 2> ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.Log')
                         sumTOut = os.path.relpath(curDir, os.getcwd()+'/'+folderName) + '/' + dirFiles[:len(dirFiles) - 2]
                         if os.path.getsize(curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c') <= 32:
-                            os.system('rm ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c')
-                            sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'SuperC Failed\n')
+                            #os.system('rm ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c')
+                            sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'SuperC failed\n')
                         else:
                             os.system('clang -emit-llvm -c ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c')
                             if os.path.exists(os.getcwd() + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.bc'):
