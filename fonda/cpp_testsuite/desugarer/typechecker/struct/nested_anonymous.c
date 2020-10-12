@@ -16,8 +16,7 @@ int main() {
 
   struct list *current = &head;
   while (0 != current) {
-    struct contents data = current->data;
-    printf("data: %c\n", data.p);
+    printf("data: %c\n", current->data.p);
     current = current->next;
   }
   
