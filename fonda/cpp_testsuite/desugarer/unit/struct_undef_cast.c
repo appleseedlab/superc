@@ -5,6 +5,12 @@ struct s2 {
   struct s1 *next;
 };
 
+struct s1 {
+  int data;
+  struct s1 *next;
+};
+
 int main() {
-  return ((struct s2) x).data;
+  /* return ((struct s2) x).data; */
 }
+
