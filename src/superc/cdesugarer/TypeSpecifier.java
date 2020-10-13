@@ -23,13 +23,15 @@ import xtc.type.ErrorT;
 
 import xtc.Constants;
 
+import superc.core.Syntax;
+
 /**
  * A C type specifier.  Adapted from xtc.lang.CAnalyzer.Specifiers.
  * The visitors are instead semantic actions in the parser.
  */
 class TypeSpecifier {
   /** The transformation of this specifier. */
-  StringBuilder transformation;
+  List<Syntax> transformation;
   
   /** The type, if any. */
   protected Type type;
@@ -60,12 +62,12 @@ class TypeSpecifier {
 
   /* Create a new, empty TypeSpecifier */
   public TypeSpecifier() {
-    this.transformation = new StringBuilder();
+    this.transformation = new LinkedList<Syntax>();
   }
 
   /** The copy constructor. */
   public TypeSpecifier(TypeSpecifier ts) {
-    this.transformation = new StringBuilder(ts.transformation);
+    this.transformation = new LinkedList<Syntax>(ts.transformation);
     this.type = ts.type;
     this.storage = ts.storage;
     this.threadlocal = ts.threadlocal;
@@ -171,13 +173,21 @@ class TypeSpecifier {
     if (getType().isError()) {
       throw new IllegalStateException("error type specifiers have no desugaring transformation.");
     } else {
-      return transformation.toString();
+      StringBuilder sb = new StringBuilder();
+      for (Syntax token : transformation) {
+        sb.append(token.getTokenText());
+        sb.append(" ");
+      }
+      return sb.toString();
     }
   }
 
-  public void addTransformation(String str) {
-    transformation.append(str);
-    transformation.append(" ");
+  public void addTransformation(Syntax token) {
+    transformation.add(token);
+  }
+
+  public List<Syntax> getTokens() {
+    return new LinkedList<Syntax>(transformation);
   }
 
   /**
@@ -261,7 +271,7 @@ class TypeSpecifier {
       this.visitComplex();
     }
 
-    this.transformation.append(other.transformation);
+    this.transformation.addAll(other.transformation);
   }
 
   /**

@@ -691,7 +691,7 @@ FunctionPrototype:  /** nomerge **/
           // functions without a type-specifier default to int
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitInt();
-          ts.addTransformation("int");
+          ts.addTransformation(new Language<CTag>(CTag.INT));
           setTransformationValue(value,
                                  new FunctionPrototypeValue(new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition()),
                                                             this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc)));
@@ -1077,7 +1077,7 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 6, pc);
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitInt();
-          ts.addTransformation("int");
+          ts.addTransformation(new Language<CTag>(CTag.INT));
           Multiverse<TypeSpecifier> inttbmv
             = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           types = types.product(inttbmv, DesugarOps.specifierProduct);  // don't destruct prior types, since it is a semantic value
@@ -1104,7 +1104,7 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 6, pc);
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitInt();
-          ts.addTransformation("int");
+          ts.addTransformation(new Language<CTag>(CTag.INT));
           Multiverse<TypeSpecifier> inttbmv
             = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           types = types.product(inttbmv, DesugarOps.specifierProduct);  // don't destruct prior types, since it is a semantic value
@@ -1366,7 +1366,7 @@ TypeQualifier:    // const, volatile, and restrict can have underscores
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitConstantQualifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)));
           Multiverse<TypeSpecifier> qual = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, qual);
           updateSpecs(subparser,
@@ -1377,7 +1377,7 @@ TypeQualifier:    // const, volatile, and restrict can have underscores
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitVolatileQualifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)));
           Multiverse<TypeSpecifier> qual = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, qual);
           updateSpecs(subparser,
@@ -1388,7 +1388,7 @@ TypeQualifier:    // const, volatile, and restrict can have underscores
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitRestrictQualifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)));
           Multiverse<TypeSpecifier> qual = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, qual);
           updateSpecs(subparser,
@@ -1409,7 +1409,7 @@ TypeQualifier:    // const, volatile, and restrict can have underscores
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitFunctionSpecifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)));
           Multiverse<TypeSpecifier> qual = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, qual);
           updateSpecs(subparser,
@@ -1887,7 +1887,7 @@ VarArgTypeName:  // ADDED
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitVarArgListSpecifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> tb = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, tb);
         }
@@ -1900,7 +1900,7 @@ StorageClass:
           String storageName = getNodeAt(subparser, 1).getTokenText();
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitTypedefSpecifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> storage = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, storage);
           getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF;
@@ -1910,7 +1910,7 @@ StorageClass:
           String storageName = getNodeAt(subparser, 1).getTokenText();
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitExternSpecifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> storage = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, storage);
           getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN;
@@ -1920,7 +1920,7 @@ StorageClass:
           String storageName = getNodeAt(subparser, 1).getTokenText();
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitStaticSpecifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> storage = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, storage);
           getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC;
@@ -1930,7 +1930,7 @@ StorageClass:
           String storageName = getNodeAt(subparser, 1).getTokenText();
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitAutoSpecifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> storage = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, storage);
           getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO;
@@ -1940,7 +1940,7 @@ StorageClass:
           String storageName = getNodeAt(subparser, 1).getTokenText();
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitRegisterSpecifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> storage = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, storage);
           getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER;
@@ -1953,7 +1953,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitVoidTypeSpecifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -1964,7 +1964,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitChar();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -1974,7 +1974,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitShort();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -1984,7 +1984,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitInt();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -1995,7 +1995,7 @@ BasicTypeName:
           // TODO: support int128 in typespecifier
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitInt();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -2006,7 +2006,7 @@ BasicTypeName:
           // See xtc.type.* for the class hiearchy for types
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitLong();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -2016,7 +2016,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitFloat();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -2026,7 +2026,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitDouble();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -2036,7 +2036,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitSigned();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -2046,7 +2046,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitUnsigned();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -2056,7 +2056,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitBool();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -2066,7 +2066,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitComplex();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -2600,7 +2600,7 @@ EnumSpecifier: /** complete **/  /* ADDED attributes */   // Multiverse<TypeSpec
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           
-          String keyword = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          Syntax keyword = ((Syntax) getNodeAt(subparser, 3));
           Multiverse<String> attrs = this.<String>getCompleteNodeMultiverseValue(getNodeAt(subparser, 2),
                                                                                  subparser.getPresenceCondition());
           // TODO: add attributes to type spec
@@ -2635,8 +2635,7 @@ EnumSpecifier: /** complete **/  /* ADDED attributes */   // Multiverse<TypeSpec
             typespec.setType(enumreftype);
 
             typespec.addTransformation(keyword);
-            typespec.addTransformation(" ");
-            typespec.addTransformation(enumTag);
+            typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, enumTag));
 
             typespecmv.add(typespec, validCond);
 
@@ -2665,7 +2664,7 @@ EnumSpecifier: /** complete **/  /* ADDED attributes */   // Multiverse<TypeSpec
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = (CContext)subparser.scope;
           
-          String keyword = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          Syntax keyword = ((Syntax) getNodeAt(subparser, 4));
           Multiverse<String> attrs = this.<String>getCompleteNodeMultiverseValue(getNodeAt(subparser, 3),
                                                                                  subparser.getPresenceCondition());
           String enumTag = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
@@ -2682,7 +2681,7 @@ EnumSpecifier: /** complete **/  /* ADDED attributes */   // Multiverse<TypeSpec
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = (CContext)subparser.scope;
           
-          String keyword = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          Syntax keyword = ((Syntax) getNodeAt(subparser, 4));
           Multiverse<String> attrs = this.<String>getCompleteNodeMultiverseValue(getNodeAt(subparser, 3),
                                                                                  subparser.getPresenceCondition());
           String enumTag = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
@@ -2698,7 +2697,7 @@ EnumSpecifier: /** complete **/  /* ADDED attributes */   // Multiverse<TypeSpec
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           
-          String keyword = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          Syntax keyword = ((Syntax) getNodeAt(subparser, 3));
           Multiverse<String> attrs = this.<String>getCompleteNodeMultiverseValue(getNodeAt(subparser, 2),
                                                                                  subparser.getPresenceCondition());
           String enumTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
@@ -2712,7 +2711,7 @@ EnumSpecifier: /** complete **/  /* ADDED attributes */   // Multiverse<TypeSpec
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           
-          String keyword = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          Syntax keyword = ((Syntax) getNodeAt(subparser, 3));
           Multiverse<String> attrs = this.<String>getCompleteNodeMultiverseValue(getNodeAt(subparser, 2),
                                                                                  subparser.getPresenceCondition());
           String enumTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
@@ -6947,7 +6946,7 @@ AttributeSpecifierList:  /** list, nomerge **/  // ADDED
 AttributeSpecifier: /** nomerge **/  // ADDED
         AttributeKeyword LPAREN LPAREN AttributeListOpt RPAREN RPAREN
         {
-          String keyword = ((Syntax) getNodeAt(subparser, 6).get(0)).getTokenText();
+          Syntax keyword = ((Syntax) getNodeAt(subparser, 6).get(0));
           todoReminder("support AttributeSpecifier, replaced with empty string now");
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }

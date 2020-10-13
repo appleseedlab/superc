@@ -1,8 +1,14 @@
 package superc.cdesugarer;
 
+import java.util.List;
+import java.util.LinkedList;
+
 import xtc.type.Type;
 import xtc.type.VariableT;
 import xtc.type.AliasT;
+
+import superc.core.Syntax;
+
 
 /**
  * This class represents a single-configuration declaration and is
