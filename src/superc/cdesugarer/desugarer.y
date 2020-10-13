@@ -292,75 +292,18 @@ import com.microsoft.z3.BoolExpr;
 
 %%
 
-TranslationUnit:  /** complete **/
+TranslationUnit:  /** complete **/  // String
         ExternalDeclarationList
         {
-          try {
-            OutputStreamWriter writer = new OutputStreamWriter(System.out);
-
-            // since TranslationUnit itself is complete, static
-            // conditionals may be around it as well, so ensure the
-            // prologue is only emitted once
-            if (! wrotePrologue) {
-              wrotePrologue = true;
-
-              // emit headers
-              writer.write("#include <stdbool.h>\n");
-              writer.write("\n");
-
-              // emit extern declarations for desugaring runtime.
-              writer.write("extern void __static_type_error(char *msg);\n");
-              writer.write("extern void __static_renaming(char *renaming, char *original);\n");
-              writer.write("extern void __static_condition_renaming(char *expression, char *renaming);\n");
-              writer.write("\n");
-
-              // emit static initializer declaration.
-              String static_initializer_name = freshCId("static_initializer");
-              String static_initializer_signature = String.format("void %s()", static_initializer_name);
-              writer.write(String.format("%s;\n", static_initializer_signature));
-              writer.write("\n");
-            
-              // writes the extern declarations for the renamed preprocessor BDDs
-              System.err.println("TODO: record original presence condition strings in file as well once raw strings are collected");
-              for (Integer hash : condVars.keySet()) {
-                writer.write(String.format("extern const bool %s;\n", condVars.get(hash)));
-              }
-
-              // emit the static initializer definition
-              writer.write(String.format("%s {\n%s\n%s\n};\n",
-                                         static_initializer_signature,
-                                         recordedRenamings.toString(),
-                                         staticConditionRenamings.toString(),
-                                         invalidGlobals.toString()));
-            
-            
-              SymbolTable<Type> symtab = ((CContext) subparser.scope).getSymbolTable();
-
-              // write the user-defined types at the top of the scope.
-              CContext scope = ((CContext) subparser.scope);
-              writer.write(scope.getDeclarations(subparser.getPresenceCondition()));
-
-              /* if (debug) System.err.println(symtab); */
-            }
-
-            // write the transformed C
-            Multiverse<String> extdeclmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
-            String result = concatMultiverseStrings(extdeclmv); extdeclmv.destruct();
-            setTransformationValue(value, result); 
-            writer.write(result); 
-            writer.write("\n");
-
-            writer.flush();
-          } catch(IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-          }
+          Multiverse<String> extdeclmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
+          String result = concatMultiverseStrings(extdeclmv); extdeclmv.destruct();
+          setTransformationValue(value, result); 
         }
         ;
 
 // ------------------------------------------------------ External definitions
 
-ExternalDeclarationList: /** list, complete **/  // String
+ExternalDeclarationList: /** complete **/  // String
         /* empty */  // ADDED gcc allows empty program
         {
           setTransformationValue(value, "");
@@ -435,6 +378,8 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           // add all variations of the function declaration to the symtab
           CContext scope = (CContext)subparser.scope;
 
+          todoReminder("don't permit extern prototypes to have a definition");
+
           // TODO: investigate why the function prototype can still
           // have a conditional underneath even though the complete
           // annotation isn't on functionprototype.  this is why we
@@ -469,10 +414,29 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                   // type errors or add a new declaration
                   Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, combinedCond);
                   for (Element<SymbolTable.Entry<Type>> entry : entries) {
+
+                    // the renamed declaration is used to get the type entry in the symtab
                     String renaming = freshCId(originalName);
                     Declarator renamedDeclarator = declarator.getData().rename(renaming);
-                    Declaration renamedDeclaration = new Declaration(typespecifier.getData(),
-                                                                     renamedDeclarator);
+                    Declaration renamedDeclaration = new Declaration(typespecifier.getData(), renamedDeclarator);
+                    
+                    // the renamed function is static to enable linking the original function name
+                    if (Constants.ATT_STORAGE_EXTERN == typespecifier.getData().getStorageClass()
+                        || Constants.ATT_STORAGE_AUTO == typespecifier.getData().getStorageClass()
+                        || Constants.ATT_STORAGE_REGISTER == typespecifier.getData().getStorageClass()
+                        || Constants.ATT_STORAGE_TYPEDEF == typespecifier.getData().getStorageClass()) {
+                      todoReminder("check that function definitions don't have an auto, extern, register, or typedef storage class and produce a type error if so");
+                      System.exit(1);
+                    }
+
+                    // make all renamed declarations static until project-wide, configuration-aware linking is possible
+                    String desugaredDeclaration;
+                    if (hasGlobalLinkage(typespecifier.getData())) {
+                      desugaredDeclaration = makeStaticDeclaration(typespecifier.getData(), renamedDeclarator);
+                    } else {
+                      desugaredDeclaration = renamedDeclaration.toString();
+                    }
+                    assert null != desugaredDeclaration;
 
                     // renamedDeclaration must be a FunctionT because
                     // that is created by a FunctionDeclarator
@@ -493,18 +457,31 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                       // update the symbol table for this presence condition
                       scope.put(originalName, type, entry.getCondition());
 
-                      prototypestrmv.add(renamedDeclaration.toString(), entry.getCondition());
+                      // record the global/extern declaration using the original name for later use in handling linking
+                      if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                        externalLinkage.put(originalName, originalDeclaration, entry.getCondition());
+                      }
+
+                      // emit the renamed function as static to use the original name for linking when possible
+                      /* prototypestrmv.add(renamedDeclaration.toString(), entry.getCondition()); */
+                      prototypestrmv.add(desugaredDeclaration, entry.getCondition());
 
                       PresenceCondition newValidCond = validCond.or(entry.getCondition());
                       validCond.delRef(); validCond = newValidCond;
 
-                      // add the forward declaration to the scope to
-                      // facilitate matching of signatures for linking
-                      StringBuilder forward = new StringBuilder();
-                      forward.append(renamedDeclaration.toString());
-                      forward.append(";\n");
-                      scope.addDeclaration(forward.toString());
-                      forward = null;
+                      // shouldn't need to add forward decl, since if
+                      // the function had a decl before, that will do
+                      // the renaming.  if the function is missing a
+                      // decl before def, then the function is
+                      // implicitly declared to be () -> int
+                      
+                      /* // add the forward declaration to the scope to */
+                      /* // facilitate matching of signatures for linking */
+                      /* StringBuilder forward = new StringBuilder(); */
+                      /* forward.append(renamedDeclaration.toString()); */
+                      /* forward.append(";\n"); */
+                      /* scope.addDeclaration(forward.toString()); */
+                      /* forward = null; */
                       
                       recordRenaming(renaming, originalName);
 
@@ -525,18 +502,27 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                           Declarator previousDeclarator = declarator.getData().rename(previousname);
                           Declaration previousDeclaration = new Declaration(typespecifier.getData(),
                                                                            previousDeclarator);
-                          prototypestrmv.add(previousDeclaration.toString(), entry.getCondition());
+                          // emit the renamed function as static to use the original name for linking when possible
+                          /* prototypestrmv.add(previousDeclaration.toString(), entry.getCondition()); */
+                          prototypestrmv.add(desugaredDeclaration, entry.getCondition());
 
                           PresenceCondition newValidCond = validCond.or(entry.getCondition());
                           validCond.delRef(); validCond = newValidCond;
                         } else {
                           scope.putError(originalName, entry.getCondition());
                           recordInvalidGlobalDeclaration(originalName, entry.getCondition());
-                          // emit the same declaration, since it's legal to redeclare globals to a compatible type
+                          // record the global/extern declaration using the original name for later use in handling linking
+                          if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                            externalLinkage.putError(originalName, entry.getCondition());
+                          }
                         }
                       } else { // existing entry is not a function type
                         scope.putError(originalName, entry.getCondition());
                         recordInvalidGlobalDeclaration(originalName, entry.getCondition());
+                        // record the global/extern declaration using the original name for later use in handling linking
+                        if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                          externalLinkage.putError(originalName, entry.getCondition());
+                        }
                         System.err.println(String.format("INFO: attempted to redeclare \"%s\" as function instead of non-function", originalName));
                       }  // end of check for existing function type
                     }  // end test of symtab entry type
@@ -691,7 +677,7 @@ FunctionPrototype:  /** nomerge **/
           // functions without a type-specifier default to int
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitInt();
-          ts.addTransformation("int");
+          ts.addTransformation(new Language<CTag>(CTag.INT));
           setTransformationValue(value,
                                  new FunctionPrototypeValue(new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition()),
                                                             this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc)));
@@ -1077,7 +1063,7 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 6, pc);
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitInt();
-          ts.addTransformation("int");
+          ts.addTransformation(new Language<CTag>(CTag.INT));
           Multiverse<TypeSpecifier> inttbmv
             = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           types = types.product(inttbmv, DesugarOps.specifierProduct);  // don't destruct prior types, since it is a semantic value
@@ -1104,7 +1090,7 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 6, pc);
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitInt();
-          ts.addTransformation("int");
+          ts.addTransformation(new Language<CTag>(CTag.INT));
           Multiverse<TypeSpecifier> inttbmv
             = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           types = types.product(inttbmv, DesugarOps.specifierProduct);  // don't destruct prior types, since it is a semantic value
@@ -1366,7 +1352,7 @@ TypeQualifier:    // const, volatile, and restrict can have underscores
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitConstantQualifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)));
           Multiverse<TypeSpecifier> qual = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, qual);
           updateSpecs(subparser,
@@ -1377,7 +1363,7 @@ TypeQualifier:    // const, volatile, and restrict can have underscores
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitVolatileQualifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)));
           Multiverse<TypeSpecifier> qual = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, qual);
           updateSpecs(subparser,
@@ -1388,7 +1374,7 @@ TypeQualifier:    // const, volatile, and restrict can have underscores
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitRestrictQualifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)));
           Multiverse<TypeSpecifier> qual = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, qual);
           updateSpecs(subparser,
@@ -1409,7 +1395,7 @@ TypeQualifier:    // const, volatile, and restrict can have underscores
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitFunctionSpecifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)));
           Multiverse<TypeSpecifier> qual = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, qual);
           updateSpecs(subparser,
@@ -1887,7 +1873,7 @@ VarArgTypeName:  // ADDED
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitVarArgListSpecifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> tb = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, tb);
         }
@@ -1900,7 +1886,7 @@ StorageClass:
           String storageName = getNodeAt(subparser, 1).getTokenText();
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitTypedefSpecifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> storage = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, storage);
           getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_TYPEDEF;
@@ -1910,7 +1896,7 @@ StorageClass:
           String storageName = getNodeAt(subparser, 1).getTokenText();
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitExternSpecifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> storage = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, storage);
           getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_EXTERN;
@@ -1920,7 +1906,7 @@ StorageClass:
           String storageName = getNodeAt(subparser, 1).getTokenText();
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitStaticSpecifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> storage = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, storage);
           getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_STATIC;
@@ -1930,7 +1916,7 @@ StorageClass:
           String storageName = getNodeAt(subparser, 1).getTokenText();
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitAutoSpecifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> storage = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, storage);
           getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_AUTO;
@@ -1940,7 +1926,7 @@ StorageClass:
           String storageName = getNodeAt(subparser, 1).getTokenText();
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitRegisterSpecifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> storage = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, storage);
           getSpecsAt(subparser, 1).storage = Constants.ATT_STORAGE_REGISTER;
@@ -1953,7 +1939,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitVoidTypeSpecifier();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -1964,7 +1950,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitChar();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -1974,7 +1960,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitShort();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -1984,7 +1970,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitInt();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -1995,7 +1981,7 @@ BasicTypeName:
           // TODO: support int128 in typespecifier
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitInt();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -2006,7 +1992,7 @@ BasicTypeName:
           // See xtc.type.* for the class hiearchy for types
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitLong();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -2016,7 +2002,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitFloat();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -2026,7 +2012,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitDouble();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -2036,7 +2022,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitSigned();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -2046,7 +2032,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitUnsigned();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -2056,7 +2042,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitBool();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -2066,7 +2052,7 @@ BasicTypeName:
         {
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitComplex();
-          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText());
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1).get(0)));
           Multiverse<TypeSpecifier> type = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           setTransformationValue(value, type);
 
@@ -2600,7 +2586,7 @@ EnumSpecifier: /** complete **/  /* ADDED attributes */   // Multiverse<TypeSpec
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           
-          String keyword = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          Syntax keyword = ((Syntax) getNodeAt(subparser, 3));
           Multiverse<String> attrs = this.<String>getCompleteNodeMultiverseValue(getNodeAt(subparser, 2),
                                                                                  subparser.getPresenceCondition());
           // TODO: add attributes to type spec
@@ -2635,8 +2621,7 @@ EnumSpecifier: /** complete **/  /* ADDED attributes */   // Multiverse<TypeSpec
             typespec.setType(enumreftype);
 
             typespec.addTransformation(keyword);
-            typespec.addTransformation(" ");
-            typespec.addTransformation(enumTag);
+            typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, enumTag));
 
             typespecmv.add(typespec, validCond);
 
@@ -2665,7 +2650,7 @@ EnumSpecifier: /** complete **/  /* ADDED attributes */   // Multiverse<TypeSpec
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = (CContext)subparser.scope;
           
-          String keyword = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          Syntax keyword = ((Syntax) getNodeAt(subparser, 4));
           Multiverse<String> attrs = this.<String>getCompleteNodeMultiverseValue(getNodeAt(subparser, 3),
                                                                                  subparser.getPresenceCondition());
           String enumTag = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
@@ -2682,7 +2667,7 @@ EnumSpecifier: /** complete **/  /* ADDED attributes */   // Multiverse<TypeSpec
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = (CContext)subparser.scope;
           
-          String keyword = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          Syntax keyword = ((Syntax) getNodeAt(subparser, 4));
           Multiverse<String> attrs = this.<String>getCompleteNodeMultiverseValue(getNodeAt(subparser, 3),
                                                                                  subparser.getPresenceCondition());
           String enumTag = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
@@ -2698,7 +2683,7 @@ EnumSpecifier: /** complete **/  /* ADDED attributes */   // Multiverse<TypeSpec
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           
-          String keyword = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          Syntax keyword = ((Syntax) getNodeAt(subparser, 3));
           Multiverse<String> attrs = this.<String>getCompleteNodeMultiverseValue(getNodeAt(subparser, 2),
                                                                                  subparser.getPresenceCondition());
           String enumTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
@@ -2712,7 +2697,7 @@ EnumSpecifier: /** complete **/  /* ADDED attributes */   // Multiverse<TypeSpec
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           
-          String keyword = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          Syntax keyword = ((Syntax) getNodeAt(subparser, 3));
           Multiverse<String> attrs = this.<String>getCompleteNodeMultiverseValue(getNodeAt(subparser, 2),
                                                                                  subparser.getPresenceCondition());
           String enumTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
@@ -2938,14 +2923,14 @@ EnumeratorValueOpt: /** nomerge **/  // Multiverse<EnumeratorValValue>
 ParameterTypeList:  /** nomerge **/  // ParameterTypeListValue which contains List<Multiverse<Declaration>>
         ParameterList
         {
-          List<Multiverse<Declaration>> paramlist
-            = (List<Multiverse<Declaration>>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          List<Multiverse<Declaration>> paramlist = this.<Declaration>getCompleteNodeListValue(subparser, 1, pc);
           setTransformationValue(value, new ParameterTypeListValue(paramlist, false));
         }
         | ParameterList COMMA ELLIPSIS
         {
-          List<Multiverse<Declaration>> paramlist
-            = (List<Multiverse<Declaration>>) getTransformationValue(subparser,3);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          List<Multiverse<Declaration>> paramlist = this.<Declaration>getCompleteNodeListValue(subparser, 3, pc);
           setTransformationValue(value, new ParameterTypeListValue(paramlist, true));
         }
         ;
@@ -2968,11 +2953,11 @@ ParameterList:  /** list, nomerge **/ // List<Multiverse<Declaration>>
         }
         | ParameterList COMMA ParameterDeclaration
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
           // add to the existing parameter list.  this reuse of a
           // semantic value may be an issue if static conditionals are
           // permitted under parameterlists
-          List<Multiverse<Declaration>> parameters
-            = (LinkedList<Multiverse<Declaration>>) getTransformationValue(subparser,3);
+          List<Multiverse<Declaration>> parameters = this.<Declaration>getCompleteNodeListValue(subparser, 3, pc);
           Multiverse<Declaration> declarationvalue
             = (Multiverse<Declaration>) getTransformationValue(subparser,1);
           parameters.add(declarationvalue);
@@ -6947,7 +6932,7 @@ AttributeSpecifierList:  /** list, nomerge **/  // ADDED
 AttributeSpecifier: /** nomerge **/  // ADDED
         AttributeKeyword LPAREN LPAREN AttributeListOpt RPAREN RPAREN
         {
-          String keyword = ((Syntax) getNodeAt(subparser, 6).get(0)).getTokenText();
+          Syntax keyword = ((Syntax) getNodeAt(subparser, 6).get(0));
           todoReminder("support AttributeSpecifier, replaced with empty string now");
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
@@ -7522,6 +7507,7 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                     Declarator renamedDeclarator = declarator.getData().rename(renaming);
                     Declaration renamedDeclaration = new Declaration(typespecifier.getData(),
                                                                      renamedDeclarator);
+                    Declaration originalDeclaration = new Declaration(typespecifier.getData(), declarator.getData());
 
                     StringBuilder entrysb = new StringBuilder();
 
@@ -7543,6 +7529,37 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                     }
                     assert null != type;
 
+                    // make all renamed declarations static until project-wide, configuration-aware linking is possible
+                    String desugaredDeclaration;
+                    if (type instanceof NamedFunctionT && hasExternalLinkage(typespecifier.getData())) {  // is extern
+                      todoReminder("account for void or abstract declarators in linker thunk functions");
+                      String staticPrototype = makeStaticDeclaration(typespecifier.getData(), renamedDeclarator);
+                      StringBuilder contents = new StringBuilder();
+                      contents.append(originalName);
+                      contents.append("(");
+                      String delim = "";
+                      todoReminder("do type-checking of extern function thunks");
+                      for (Type parmtype : ((NamedFunctionT) type).toFunctionT().getParameters()) {
+                        // function definitions must have named parameters, so
+                        // the parameter types should be wrapped in a
+                        // variablet type.
+                        assert parmtype.isVariable() && parmtype.toVariable().hasName();
+                        contents.append(delim);
+                        contents.append(parmtype.toVariable().getName());
+                        delim = ", ";
+                      }
+                      contents.append(")");
+                      contents.append("; /* call external thunk */\n");
+                      // replace the extern function declaration with a static, renamed function
+                      desugaredDeclaration = String.format("%s ;\n", staticPrototype);
+                      // define that function to call the originally-named extern function
+                      externFunctionThunks.append(String.format("%s {\n%s}\n", staticPrototype, contents.toString()));
+                      assert 0 == initializer.getData().toString().length();  // extern function declarations should not have an initializer
+                    } else {
+                      desugaredDeclaration = renamedDeclaration.toString();
+                    }
+                    assert null != desugaredDeclaration;
+                    
                     if (entry.getData().isError()) {
                       // ERROR entry
                       System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
@@ -7550,9 +7567,21 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                     } else if (entry.getData().isUndeclared()) {
                       // UNDECLARED entry
                       // update the symbol table for this presence condition
+
+                      // the renamed function is static to enable linking the original function name
+                      if (scope.isGlobal() && Constants.ATT_STORAGE_AUTO == typespecifier.getData().getStorageClass()) {
+                        todoReminder("check that global variables don't have auto; produce a type error");
+                        System.exit(1);
+                      }
+
                       scope.put(originalName, type, entry.getCondition());
 
-                      entrysb.append(renamedDeclaration.toString());
+                      if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                        externalLinkage.put(originalName, originalDeclaration, entry.getCondition());
+                      }
+                      
+                      /* entrysb.append(renamedDeclaration.toString()); */
+                      entrysb.append(desugaredDeclaration);
                       entrysb.append(initializer.getData().toString());
                       entrysb.append(semi);  // semi-colon
                       recordRenaming(renaming, originalName);
@@ -7592,9 +7621,13 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                             // not allowed to redeclare globals to a different type
                             scope.putError(originalName, entry.getCondition());
                             recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+                            if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                              externalLinkage.putError(originalName, entry.getCondition());
+                            }
                           } else {
                             // emit the same declaration, since it's legal to redeclare globals to a compatible type
-                            entrysb.append(renamedDeclaration.toString());
+                            /* entrysb.append(renamedDeclaration.toString()); */
+                            entrysb.append(desugaredDeclaration);
                             entrysb.append(initializer.getData().toString());
                             entrysb.append(semi);  // semi-colon
                             System.err.println(String.format("INFO: \"%s\" is being redeclared in global scope to compatible type", originalName));
@@ -7604,6 +7637,9 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                           scope.putError(originalName, entry.getCondition());
                           System.err.println(String.format("INFO: attempted to redeclare global to a different kind of type: %s", originalName));
                           recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+                          if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                            externalLinkage.putError(originalName, entry.getCondition());
+                          }
                         } // end check for variable type
                       } // end check global/local scope
                     } // end entry kind
@@ -8138,7 +8174,7 @@ private <T> Multiverse<T> getCompleteNodeSingleValue(Subparser subparser, int co
  * @param pc The presence condition of the semantic action.
  * @return A new multiverse containing the semantic values for all configurations.
  */
-private <T> Multiverse<T> getCompleteNodeSingleValue(Node node, PresenceCondition pc) {
+public <T> Multiverse<T> getCompleteNodeSingleValue(Node node, PresenceCondition pc) {
   Multiverse<Node> nodemv = staticCondToMultiverse(node, pc);
   Multiverse<T> resultmv = new Multiverse<T>();
 
@@ -8342,7 +8378,7 @@ private ExpressionValue getCompleteNodeExpressionValue(Node node, PresenceCondit
  * already been transformed by renaming declarations or surrounding
  * statements with C conditionals
  */
-protected String concatMultiverseStrings(Multiverse<String> value) {
+public String concatMultiverseStrings(Multiverse<String> value) {
   StringBuilder valuesb = new StringBuilder();
   for (Element<String> elem : value) {
     valuesb.append(elem.getData());
@@ -8517,7 +8553,14 @@ protected static Multiverse<Node> staticCondToMultiverse(Node node, PresenceCond
  ********* end of the transformation.
  *****************************************************************************/
 
+/**
+ * Variable renamings.
+ */
 private StringBuilder recordedRenamings = new StringBuilder();
+
+/**
+ * Globals with type errors.
+ */
 private StringBuilder invalidGlobals = new StringBuilder();
 
 /**
@@ -8553,6 +8596,276 @@ private void recordInvalidGlobalRedeclaration(String ident, PresenceCondition co
 private void recordRenaming(String renaming, String original) {
   recordedRenamings.append(String.format("__static_renaming(\"%s\", \"%s\");\n", renaming, original));
 }
+
+
+public String staticInitialization() {
+  StringBuilder sb = new StringBuilder();
+  
+  // emit static initializer declaration.
+  String static_initializer_name = String.format("__static_initializer_%s", unitUID);
+  String static_initializer_signature = String.format("void %s()", static_initializer_name);
+  sb.append(String.format("%s;\n", static_initializer_signature));
+  sb.append("\n");
+            
+  // writes the extern declarations for the renamed preprocessor BDDs
+  System.err.println("TODO: record original presence condition strings in file as well once raw strings are collected");
+  for (Integer hash : condVars.keySet()) {
+    sb.append(String.format("extern const bool %s;\n", condVars.get(hash)));
+  }
+
+  sb.append(String.format("%s {\n%s\n%s\n};\n",
+                          static_initializer_signature,
+                          recordedRenamings.toString(),
+                          staticConditionRenamings.toString(),
+                          invalidGlobals.toString()));
+  
+  return sb.toString();
+}
+/*****************************************************************************
+ ********* Methods to record external linking.  These will be used to
+ ********* multiplex functions and variables with external linkage.
+ ********* This will be unnecessary once configuration-aware linkage
+ ********* is collected for a whole project.
+ *****************************************************************************/
+
+/**
+ * The global symbols' declarations, using the original name.  This
+ * holds both global and extern declarations.
+ */
+private SymbolTable<Declaration> externalLinkage = new SymbolTable();
+
+/**
+ * The definitions of renamed function calls to functions.  These
+ * thunks defined the renamed functions as static and just call the
+ * originally-named function.
+ */
+private StringBuilder externFunctionThunks = new StringBuilder();
+
+/**
+ * Returns true when the type specifier's storage class indicates the
+ * symbol is either global (assuming that we are in the global scope)
+ * or extern.  This is used to collect only those symbols that have
+ * external linkage.
+ *
+ * @returns true if the symbol is global (no storage class) or extern.
+ */
+private static boolean isGlobalOrExtern(TypeSpecifier typespecifier) {
+  return hasGlobalLinkage(typespecifier) || hasExternalLinkage(typespecifier);
+}
+
+/**
+ * Returns true when the type specifier's storage class indicates the
+ * symbol is global (assuming that we are in the global scope).  This
+ * is used to collect only those symbols that have external linkage.
+ *
+ * @returns true if the symbol is global (no storage class).
+ */
+private static boolean hasGlobalLinkage(TypeSpecifier typespecifier) {
+  return
+    (Constants.ATT_STORAGE_EXTERN != typespecifier.getStorageClass()
+     && Constants.ATT_STORAGE_STATIC != typespecifier.getStorageClass()
+     && Constants.ATT_STORAGE_AUTO != typespecifier.getStorageClass()
+     && Constants.ATT_STORAGE_REGISTER != typespecifier.getStorageClass()
+     && Constants.ATT_STORAGE_TYPEDEF != typespecifier.getStorageClass());
+}
+
+/**
+ * Returns true when the type specifier's storage class indicates the
+ * symbol is extern.  This is used to collect only those symbols that
+ * have external linkage.
+ *
+ * @returns true if the symbol is extern.
+ */
+private static boolean hasExternalLinkage(TypeSpecifier typespecifier) {
+  return
+    (Constants.ATT_STORAGE_EXTERN == typespecifier.getStorageClass()
+     && Constants.ATT_STORAGE_STATIC != typespecifier.getStorageClass()
+     && Constants.ATT_STORAGE_AUTO != typespecifier.getStorageClass()
+     && Constants.ATT_STORAGE_REGISTER != typespecifier.getStorageClass()
+     && Constants.ATT_STORAGE_TYPEDEF != typespecifier.getStorageClass());
+}
+
+/**
+ * When the declaration is global or extern, produce a desugaring that
+ * just has static.
+ *
+ * @return A string containing the declaration with static added and
+ * extern removed as needed.
+ */
+protected String makeStaticDeclaration(TypeSpecifier typespecifier, Declarator declarator) {
+  StringBuilder sb = new StringBuilder();
+  sb.append("static ");
+  for (Syntax token : typespecifier.getTokens()) {
+    switch (token.kind()) {
+    case LANGUAGE:
+      switch (((Language<CTag>) token).tag()) {
+      case EXTERN:
+        // remove extern
+        break;
+      case STATIC:
+        // remove static (since we added it above)
+        break;
+      default:
+        // otherwise, keep the type specifier the same
+        sb.append(token.getTokenText());
+        sb.append(" ");
+        break;
+      }
+      break;
+    default:
+      // only need to print language tokens, not spacing, etc
+      break;
+    }
+  }
+  sb.append(declarator.toString());
+  return sb.toString();
+}
+
+/**
+ * Preserve the original function names by multiplexing the renamed
+ * functions.
+ *
+ * @returns The multiplexed function definitions.
+ */
+public String linkerThunks(CContext scope, PresenceCondition pc) {
+  if (! scope.isGlobal()) {
+    throw new AssertionError("linker thunks should only be created for the global scope");
+  }
+  
+  StringBuilder sb = new StringBuilder();
+
+  // until we can support cross-compilation unit,
+  // configuration-preserving linkage, we prohibit conflicting linkage
+  // for global symbols, i.e., combinations of extern/global or
+  // function/variable for globals is not permitted.  in the future,
+  // instead of creating thunks, we can first get a list of external
+  // symbols for a project, and then use that during desugaring to
+  // perform renamings.
+  for (String symbol : externalLinkage) {
+    Declaration onedecl = null;
+    Type onedecltype = null;
+    StringBuilder body = new StringBuilder();
+    boolean isGlobal = false;  // otherwise it's extern
+    boolean isFunction = false;  // otherwise it's a variable
+
+    Multiverse<SymbolTable.Entry<Declaration>> entries = externalLinkage.get(symbol, pc);
+    for (Element<SymbolTable.Entry<Declaration>> entry : entries) {
+      if (entry.getData().isDeclared()) {
+        boolean hasrenaming = false;
+        if (null == onedecl) {
+          onedecl = entry.getData().getValue();
+          onedecltype = onedecl.getType();
+          if (onedecltype.isFunction()) {
+            isFunction = true;
+          } else {
+            isFunction = false;
+          }
+          assert isGlobalOrExtern(onedecl.typespecifier);
+          if (! onedecl.typespecifier.contains(Constants.ATT_STORAGE_EXTERN)) {
+            isGlobal = true;
+          } else {
+            isGlobal = false;
+          }
+          hasrenaming = true;
+        } else {
+          // for now we just allow one type of the symbol to have
+          // external linkage, so check that the types match.
+          Declaration newdecl = entry.getData().getValue();
+          Type newdecltype = newdecl.getType();
+          boolean sameLinkage =
+            (isGlobal && (! newdecl.typespecifier.contains(Constants.ATT_STORAGE_EXTERN))   // both are global, or
+             ||
+             !isGlobal && (newdecl.typespecifier.contains(Constants.ATT_STORAGE_EXTERN)))  // both are not global
+            &&  // and
+            (isFunction && newdecltype.isFunction()  // both a functions, or
+             ||
+             !isFunction && newdecltype.isVariable());  // both are not functions
+            
+          if (sameLinkage && cOps.equal(newdecltype, onedecltype)) {
+            hasrenaming = true;
+          } else {
+            System.err.println(String.format("WARNING: found different types for global symbol, using the first one only:\n    - %s\n    - %s",
+                                             onedecl, newdecl));
+            todoReminder("support project-wide, configuration-aware linkage.");
+          }
+        }
+        if (hasrenaming) {
+          Multiverse<SymbolTable.Entry<Type>> renamingEntries = scope.getInCurrentScope(symbol, entry.getCondition());
+          if (1 != renamingEntries.size()) {
+            // we should be in the global scope and the symbol should
+            // only have one entry, since the externalLinkage table
+            // should only be updated with the regular symbol table
+            throw new AssertionError("the externalLinkage and regular symtab should match presence conditions");
+          }
+          Type renamedType = renamingEntries.get(0).getData().getValue();
+          renamingEntries = null;
+          if (isFunction) {
+            String renaming = ((NamedFunctionT) renamedType).getName();
+            if (isGlobal) {
+              body.append("if (");
+              body.append(condToCVar(entry.getCondition()));
+              body.append(") {\n");
+              body.append(renaming);
+              body.append("(");
+              String delim = "";
+              todoReminder("account for void or abstract declarators in linker thunk functions");
+              for (Type parmtype : onedecltype.toFunction().getParameters()) {
+                // function definitions must have named parameters, so
+                // the parameter types should be wrapped in a
+                // variablet type.
+                assert parmtype.isVariable() && parmtype.toVariable().hasName();
+                body.append(delim);
+                body.append(parmtype.toVariable().getName());
+                delim = ", ";
+              }
+              body.append(")");
+              body.append(";\n");
+              body.append("}\n");
+            } else {  // it's extern
+              // no need to do anything, since the declaration creates
+              // the definition in externFunctionThunks
+            }
+          } else {  // is a variable
+            if (isGlobal) {
+            } else {  // it's extern
+            }
+          }
+        }
+      }
+    }
+
+    if (isFunction) {
+      if (isGlobal) {
+        sb.append(onedecl.toString());
+        sb.append(" /* global linkage thunk */ {\n");
+        sb.append(body);
+        sb.append("}\n");
+      } else {  // it's extern
+        sb.append(onedecl.toString());
+        sb.append(" /* external linkage thunk */;\n");
+      }
+    } else {  // is a variable
+      if (isGlobal) {
+        todoReminder("handle global variables");
+      } else {  // it's extern
+        todoReminder("handle extern variables");
+      }
+    }
+  }
+
+
+  // emit the static function definitions that make calls to
+  // externally-defined functions.
+  sb.append(externFunctionThunks);
+
+  return sb.toString();
+}
+
+
+/*****************************************************************************
+ ********* Parameters to the actions class.
+ *****************************************************************************/
+
 /** True when statistics should be output. */
 private boolean languageStatistics = false;
 
@@ -8588,6 +8901,10 @@ public void showErrors(boolean b) {
 public void debug(boolean b) {
   debug = b;
 }
+
+/*****************************************************************************
+ ********* Helper functions for accesses semantic values.
+ *****************************************************************************/
 
 /**
  * A helper function to get the value of a node on the stack, which
@@ -9605,7 +9922,7 @@ private StringBuilder staticConditionRenamings = new StringBuilder();
 // variables.  also emit the renaming from the c var to the
 // preprocessor expression it represents
 
-
+private String unitUID = "default";
 
 public String condToCVar(PresenceCondition cond) {
   if (cond.isTrue()) {
@@ -9619,7 +9936,7 @@ public String condToCVar(PresenceCondition cond) {
     if (condVars.containsKey(key)) {
       return condVars.get(key);
     } else {
-      String cvar = freshCId("static_condition");
+      String cvar = freshCId(String.format("static_condition_%s", unitUID));
       condVars.put(key, cvar);
       staticConditionRenamings.append(String.format("__static_condition_renaming(\"%s\", \"%s\");\n", cvar, cond.toString()));
       return cvar;

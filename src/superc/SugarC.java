@@ -73,6 +73,8 @@ import superc.cdesugarer.CParseTables;
 import superc.cdesugarer.CValues;
 import superc.cdesugarer.CActions;
 import superc.cdesugarer.CContext;
+import superc.cdesugarer.SymbolTable;
+import superc.cdesugarer.Multiverse;
 import superc.cdesugarer.CLexerCreator;
 import superc.cdesugarer.CTokenCreator;
 
@@ -504,12 +506,43 @@ public class SugarC extends Tool {
 
     translationUnit = parser.parse();
 
-    if (null != translationUnit
-        && ! ((Node) translationUnit).getName().equals("TranslationUnit")) {
-      GNode tu = GNode.create("TranslationUnit");
-      tu.add(translationUnit);
-      translationUnit = tu;
+    if (null != translationUnit) {
+      Node root = (Node) translationUnit;
+      CContext scope = initialParsingContext;
+      SymbolTable<Type> symtab = scope.getSymbolTable();
+      PresenceCondition pcTrue = presenceConditionManager.newTrue();
+
+      // emit headers
+      System.out.print("#include <stdbool.h>\n");
+      System.out.print("\n");
+
+      // emit extern declarations for desugaring runtime.
+      System.out.print("extern void __static_type_error(char *msg);\n");
+      System.out.print("extern void __static_renaming(char *renaming, char *original);\n");
+      System.out.print("extern void __static_condition_renaming(char *expression, char *renaming);\n");
+      System.out.print("\n");
+
+      // emit the static initializer definition
+      System.out.print(actions.staticInitialization());
+            
+      // write the user-defined types at the top of the scope.
+      System.out.print(scope.getDeclarations(pcTrue));
+
+      // write the transformed C
+      Multiverse<String> extdeclmv = actions.getCompleteNodeSingleValue(root, pcTrue);
+      System.out.print(actions.concatMultiverseStrings(extdeclmv)); extdeclmv.destruct();
+      System.out.print("\n");
+
+      // write the multiplexer functions for linking
+      System.out.print(actions.linkerThunks(scope, pcTrue));
     }
+
+    // if (null != translationUnit
+    //     && ! ((Node) translationUnit).getName().equals("TranslationUnit")) {
+    //   GNode tu = GNode.create("TranslationUnit");
+    //   tu.add(translationUnit);
+    //   translationUnit = tu;
+    // }
 
     initialParsingContext.free();
 

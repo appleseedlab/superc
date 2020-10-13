@@ -51,6 +51,8 @@ import superc.cdesugarer.CActions.EnumeratorValue;
 
 import superc.cdesugarer.CActions.FreshIDCreator;
 
+import superc.core.Syntax.Language;
+import superc.core.Syntax.Text;
 
 /**
  * These operators are used for cartesian products and transformations
@@ -227,7 +229,7 @@ class DesugarOps {
             // typedefname tokens
           } else {
             ts.setType(from.getValue().toAlias());
-            ts.addTransformation(from.getValue().toAlias().getName());
+            ts.addTransformation(new Text<CTag>(CTag.TYPEDEFname, from.getValue().toAlias().getName()));
           }
         }
         return ts;
@@ -426,7 +428,8 @@ class DesugarOps {
           TypeSpecifier typespecifier = new TypeSpecifier();
           Type structRefType = DesugarOps.createStructOrUnionRefType(keyword, renamedTag);
           typespecifier.setType(structRefType);
-          typespecifier.addTransformation(String.format("%s %s", keyword, renamedTag));
+          typespecifier.addTransformation(keyword);
+          typespecifier.addTransformation(new Text<CTag>(CTag.IDENTIFIER, renamedTag));
           valuemv.add(typespecifier, entry.getCondition());
               
           // add the reference to the renamed struct to the symtab
@@ -480,7 +483,8 @@ class DesugarOps {
         String forwardTagRefName = freshIdCreator.freshCId("forward_tag_reference");
         Type forwardStructRef = new StructT(forwardTagRefName);
         typespecifier.setType(forwardStructRef);
-        typespecifier.addTransformation(String.format("struct %s", forwardTagRefName));
+        typespecifier.addTransformation(new Language<CTag>(CTag.STRUCT));
+        typespecifier.addTransformation(new Text<CTag>(CTag.IDENTIFIER, forwardTagRefName));
 
         // add a symtab entry that maps the new forward
         // reference tag to the original tagname of the
@@ -500,7 +504,8 @@ class DesugarOps {
           // nothing to do with the symtab.  create a type
           // specifier that refers to the renamed struct/union.
           typespecifier.setType(entry.getData().getValue());
-          typespecifier.addTransformation(String.format("%s %s", keyword, entry.getData().getValue().toStructOrUnion().getName()));
+          typespecifier.addTransformation(keyword);
+          typespecifier.addTransformation(new Text<CTag>(CTag.IDENTIFIER, entry.getData().getValue().toStructOrUnion().getName()));
           System.err.println("LSLSLSLSLS " + structTag);
         } else {  // tag type is not a struct/union or is an enum
           System.err.println(String.format("INFO: type error on tag reference, not using same struct/union/enum keyword",
@@ -520,7 +525,7 @@ class DesugarOps {
   /**
    * Create the semantic value for an enum def.
    */
-  public static Multiverse<TypeSpecifier> processEnumDefinition(String keyword,
+  public static Multiverse<TypeSpecifier> processEnumDefinition(Syntax keyword,
                                                                 String enumTag,
                                                                 List<Multiverse<EnumeratorValue>> list,
                                                                 PresenceCondition pc,
@@ -551,8 +556,7 @@ class DesugarOps {
       typespec.setType(enumreftype);
 
       typespec.addTransformation(keyword);
-      typespec.addTransformation(" ");
-      typespec.addTransformation(enumTag);
+      typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, enumTag));
 
       typespecmv.add(typespec, validCond);
 
@@ -576,7 +580,7 @@ class DesugarOps {
     return typespecmv;
   }
   
-  public static Multiverse<TypeSpecifier> processEnumReference(String keyword,
+  public static Multiverse<TypeSpecifier> processEnumReference(Syntax keyword,
                                                               String enumTag,
                                                               PresenceCondition pc) {
     Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
@@ -587,8 +591,7 @@ class DesugarOps {
     typespec.setType(enumreftype);
 
     typespec.addTransformation(keyword);
-    typespec.addTransformation(" ");
-    typespec.addTransformation(enumTag);
+    typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, enumTag));
 
     typespecmv.add(typespec, pc);
           
