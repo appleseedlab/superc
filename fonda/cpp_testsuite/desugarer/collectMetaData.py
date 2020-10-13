@@ -19,7 +19,7 @@ def main():
     os.system('rm metaData.json')
     os.system('touch metaData.json')
     metaDat = open('metaData.json', 'w')
-    js = []
+    js = {}
     for folderName in  os.listdir(os.getcwd()):
         if os.path.exists(folderName) and os.path.isdir(folderName):
             rootDir = os.getcwd() + "/" + folderName + '/'
@@ -46,12 +46,14 @@ def main():
                         fileRead = open(curDir + '/' + dirFiles)
                         for l in fileRead:
                             l = l.rstrip()
-                            inclRE = re.compile('#include <(.*)>.*')
+                            inclRE = re.compile('#( *)include( *)<(.*)>.*')
+                            ifdef = re.compile('#( *)if(|def) .*')
                             if inclRE.match(l):
                                 found = inclRE.search(l)
-                                jDat['inclusions'].append(found.group(1))
-                        jEnt = {sumTOut:jDat}
-                        js.append(jEnt)
+                                jDat['inclusions'].append(found.group(3))
+                            elif ifdef.match(l) and jDat['valid'] == False:
+                                jDat['valid'] = 'unrun configurations'
+                        js[sumTOut] = jDat
     metaDat.write(json.dumps(js, separators=(',',':'), indent=2))
     metaDat.close()
     os.system('rm *.o')

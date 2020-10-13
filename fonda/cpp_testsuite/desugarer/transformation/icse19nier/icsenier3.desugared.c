@@ -11,7 +11,7 @@ void __static_initializer_5() {
 __static_renaming("__cpu_load_update_active_2", "cpu_load_update_active");
 __static_renaming("__cpu_load_update_active_3", "cpu_load_update_active");
 
-__static_condition_renaming("__static_condition_4", "!(defined CONFIG_SMP)");
+__static_condition_renaming("__static_condition_4", "(declare-fun |(defined CONFIG_SMP)| () Bool)(assert (not |(defined CONFIG_SMP)|))");
 
 };
 static inline void  __cpu_load_update_active_2 (int  __this_rq_1);

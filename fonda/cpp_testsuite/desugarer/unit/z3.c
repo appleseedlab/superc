@@ -11,9 +11,9 @@ int main() {
   y = 'c';
 #endif
 
-#if defined(A) and defined(B)
+#if defined(A) && defined(B)
   return 1;
-#elif defined(A) or !defined(A)
+#elif defined(A) || !defined(A)
   return 0;
 #endif
 }

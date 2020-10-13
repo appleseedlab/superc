@@ -6,8 +6,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_7();
 
-extern const bool __static_condition_5;
 extern const bool __static_condition_6;
+extern const bool __static_condition_5;
 void __static_initializer_7() {
 __static_renaming("__imajor_0", "imajor");
 __static_renaming("__iminor_1", "iminor");
@@ -15,8 +15,8 @@ __static_renaming("__main_2", "main");
 __static_renaming("__i_3", "i");
 __static_renaming("__inode_4", "inode");
 
-__static_condition_renaming("__static_condition_5", "!(defined CONFIG_INPUT_MOUSEDEV_PSAUX)");
-__static_condition_renaming("__static_condition_6", "(defined CONFIG_INPUT_MOUSEDEV_PSAUX)");
+__static_condition_renaming("__static_condition_5", "(declare-fun |(defined CONFIG_INPUT_MOUSEDEV_PSAUX)| () Bool)(assert (not |(defined CONFIG_INPUT_MOUSEDEV_PSAUX)|))");
+__static_condition_renaming("__static_condition_6", "(declare-fun |(defined CONFIG_INPUT_MOUSEDEV_PSAUX)| () Bool)(assert |(defined CONFIG_INPUT_MOUSEDEV_PSAUX)|)");
 
 };
 int  __main_2 ();
