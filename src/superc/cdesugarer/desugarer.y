@@ -435,6 +435,8 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           // add all variations of the function declaration to the symtab
           CContext scope = (CContext)subparser.scope;
 
+          todoReminder("don't permit extern prototypes to have a definition");
+
           // TODO: investigate why the function prototype can still
           // have a conditional underneath even though the complete
           // annotation isn't on functionprototype.  this is why we
@@ -469,10 +471,29 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                   // type errors or add a new declaration
                   Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, combinedCond);
                   for (Element<SymbolTable.Entry<Type>> entry : entries) {
+
+                    // the renamed declaration is used to get the type entry in the symtab
                     String renaming = freshCId(originalName);
                     Declarator renamedDeclarator = declarator.getData().rename(renaming);
-                    Declaration renamedDeclaration = new Declaration(typespecifier.getData(),
-                                                                     renamedDeclarator);
+                    Declaration renamedDeclaration = new Declaration(typespecifier.getData(), renamedDeclarator);
+                    
+                    // the renamed function is static to enable linking the original function name
+                    if (Constants.ATT_STORAGE_EXTERN == typespecifier.getData().getStorageClass()
+                        || Constants.ATT_STORAGE_AUTO == typespecifier.getData().getStorageClass()
+                        || Constants.ATT_STORAGE_REGISTER == typespecifier.getData().getStorageClass()
+                        || Constants.ATT_STORAGE_TYPEDEF == typespecifier.getData().getStorageClass()) {
+                      todoReminder("check that function definitions don't have an auto, extern, register, or typedef storage class and produce a type error if so");
+                      System.exit(1);
+                    }
+
+                    // make all renamed declarations static until project-wide, configuration-aware linking is possible
+                    String desugaredDeclaration;
+                    if (hasGlobalLinkage(typespecifier.getData())) {
+                      desugaredDeclaration = makeStaticDeclaration(typespecifier.getData(), renamedDeclarator);
+                    } else {
+                      desugaredDeclaration = renamedDeclaration.toString();
+                    }
+                    assert null != desugaredDeclaration;
 
                     // renamedDeclaration must be a FunctionT because
                     // that is created by a FunctionDeclarator
@@ -493,18 +514,31 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                       // update the symbol table for this presence condition
                       scope.put(originalName, type, entry.getCondition());
 
-                      prototypestrmv.add(renamedDeclaration.toString(), entry.getCondition());
+                      // record the global/extern declaration using the original name for later use in handling linking
+                      if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                        externalLinkage.put(originalName, originalDeclaration, entry.getCondition());
+                      }
+
+                      // emit the renamed function as static to use the original name for linking when possible
+                      /* prototypestrmv.add(renamedDeclaration.toString(), entry.getCondition()); */
+                      prototypestrmv.add(desugaredDeclaration, entry.getCondition());
 
                       PresenceCondition newValidCond = validCond.or(entry.getCondition());
                       validCond.delRef(); validCond = newValidCond;
 
-                      // add the forward declaration to the scope to
-                      // facilitate matching of signatures for linking
-                      StringBuilder forward = new StringBuilder();
-                      forward.append(renamedDeclaration.toString());
-                      forward.append(";\n");
-                      scope.addDeclaration(forward.toString());
-                      forward = null;
+                      // shouldn't need to add forward decl, since if
+                      // the function had a decl before, that will do
+                      // the renaming.  if the function is missing a
+                      // decl before def, then the function is
+                      // implicitly declared to be () -> int
+                      
+                      /* // add the forward declaration to the scope to */
+                      /* // facilitate matching of signatures for linking */
+                      /* StringBuilder forward = new StringBuilder(); */
+                      /* forward.append(renamedDeclaration.toString()); */
+                      /* forward.append(";\n"); */
+                      /* scope.addDeclaration(forward.toString()); */
+                      /* forward = null; */
                       
                       recordRenaming(renaming, originalName);
 
@@ -525,18 +559,27 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                           Declarator previousDeclarator = declarator.getData().rename(previousname);
                           Declaration previousDeclaration = new Declaration(typespecifier.getData(),
                                                                            previousDeclarator);
-                          prototypestrmv.add(previousDeclaration.toString(), entry.getCondition());
+                          // emit the renamed function as static to use the original name for linking when possible
+                          /* prototypestrmv.add(previousDeclaration.toString(), entry.getCondition()); */
+                          prototypestrmv.add(desugaredDeclaration, entry.getCondition());
 
                           PresenceCondition newValidCond = validCond.or(entry.getCondition());
                           validCond.delRef(); validCond = newValidCond;
                         } else {
                           scope.putError(originalName, entry.getCondition());
                           recordInvalidGlobalDeclaration(originalName, entry.getCondition());
-                          // emit the same declaration, since it's legal to redeclare globals to a compatible type
+                          // record the global/extern declaration using the original name for later use in handling linking
+                          if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                            externalLinkage.putError(originalName, entry.getCondition());
+                          }
                         }
                       } else { // existing entry is not a function type
                         scope.putError(originalName, entry.getCondition());
                         recordInvalidGlobalDeclaration(originalName, entry.getCondition());
+                        // record the global/extern declaration using the original name for later use in handling linking
+                        if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                          externalLinkage.putError(originalName, entry.getCondition());
+                        }
                         System.err.println(String.format("INFO: attempted to redeclare \"%s\" as function instead of non-function", originalName));
                       }  // end of check for existing function type
                     }  // end test of symtab entry type
@@ -7521,6 +7564,7 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                     Declarator renamedDeclarator = declarator.getData().rename(renaming);
                     Declaration renamedDeclaration = new Declaration(typespecifier.getData(),
                                                                      renamedDeclarator);
+                    Declaration originalDeclaration = new Declaration(typespecifier.getData(), declarator.getData());
 
                     StringBuilder entrysb = new StringBuilder();
 
@@ -7542,6 +7586,36 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                     }
                     assert null != type;
 
+                    // make all renamed declarations static until project-wide, configuration-aware linking is possible
+                    String desugaredDeclaration;
+                    if (type instanceof NamedFunctionT && hasExternalLinkage(typespecifier.getData())) {  // is extern
+                      String staticPrototype = makeStaticDeclaration(typespecifier.getData(), renamedDeclarator);
+                      StringBuilder contents = new StringBuilder();
+                      contents.append(originalName);
+                      contents.append("(");
+                      String delim = "";
+                      todoReminder("do type-checking of extern function thunks");
+                      for (Type parmtype : ((NamedFunctionT) type).toFunctionT().getParameters()) {
+                        // function definitions must have named parameters, so
+                        // the parameter types should be wrapped in a
+                        // variablet type.
+                        assert parmtype.isVariable() && parmtype.toVariable().hasName();
+                        contents.append(delim);
+                        contents.append(parmtype.toVariable().getName());
+                        delim = ", ";
+                      }
+                      contents.append(")");
+                      contents.append("; /* call external thunk */\n");
+                      // replace the extern function declaration with a static, renamed function
+                      desugaredDeclaration = String.format("%s ;\n", staticPrototype);
+                      // define that function to call the originally-named extern function
+                      externFunctionThunks.append(String.format("%s {\n%s}\n", staticPrototype, contents.toString()));
+                      assert 0 == initializer.getData().toString().length();  // extern function declarations should not have an initializer
+                    } else {
+                      desugaredDeclaration = renamedDeclaration.toString();
+                    }
+                    assert null != desugaredDeclaration;
+                    
                     if (entry.getData().isError()) {
                       // ERROR entry
                       System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
@@ -7549,9 +7623,21 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                     } else if (entry.getData().isUndeclared()) {
                       // UNDECLARED entry
                       // update the symbol table for this presence condition
+
+                      // the renamed function is static to enable linking the original function name
+                      if (scope.isGlobal() && Constants.ATT_STORAGE_AUTO == typespecifier.getData().getStorageClass()) {
+                        todoReminder("check that global variables don't have auto; produce a type error");
+                        System.exit(1);
+                      }
+
                       scope.put(originalName, type, entry.getCondition());
 
-                      entrysb.append(renamedDeclaration.toString());
+                      if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                        externalLinkage.put(originalName, originalDeclaration, entry.getCondition());
+                      }
+                      
+                      /* entrysb.append(renamedDeclaration.toString()); */
+                      entrysb.append(desugaredDeclaration);
                       entrysb.append(initializer.getData().toString());
                       entrysb.append(semi);  // semi-colon
                       recordRenaming(renaming, originalName);
@@ -7591,9 +7677,13 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                             // not allowed to redeclare globals to a different type
                             scope.putError(originalName, entry.getCondition());
                             recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+                            if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                              externalLinkage.putError(originalName, entry.getCondition());
+                            }
                           } else {
                             // emit the same declaration, since it's legal to redeclare globals to a compatible type
-                            entrysb.append(renamedDeclaration.toString());
+                            /* entrysb.append(renamedDeclaration.toString()); */
+                            entrysb.append(desugaredDeclaration);
                             entrysb.append(initializer.getData().toString());
                             entrysb.append(semi);  // semi-colon
                             System.err.println(String.format("INFO: \"%s\" is being redeclared in global scope to compatible type", originalName));
@@ -7603,6 +7693,9 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                           scope.putError(originalName, entry.getCondition());
                           System.err.println(String.format("INFO: attempted to redeclare global to a different kind of type: %s", originalName));
                           recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+                          if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                            externalLinkage.putError(originalName, entry.getCondition());
+                          }
                         } // end check for variable type
                       } // end check global/local scope
                     } // end entry kind
@@ -8516,7 +8609,14 @@ protected static Multiverse<Node> staticCondToMultiverse(Node node, PresenceCond
  ********* end of the transformation.
  *****************************************************************************/
 
+/**
+ * Variable renamings.
+ */
 private StringBuilder recordedRenamings = new StringBuilder();
+
+/**
+ * Globals with type errors.
+ */
 private StringBuilder invalidGlobals = new StringBuilder();
 
 /**
@@ -8552,6 +8652,247 @@ private void recordInvalidGlobalRedeclaration(String ident, PresenceCondition co
 private void recordRenaming(String renaming, String original) {
   recordedRenamings.append(String.format("__static_renaming(\"%s\", \"%s\");\n", renaming, original));
 }
+/*****************************************************************************
+ ********* Methods to record external linking.  These will be used to
+ ********* multiplex functions and variables with external linkage.
+ ********* This will be unnecessary once configuration-aware linkage
+ ********* is collected for a whole project.
+ *****************************************************************************/
+
+/**
+ * The global symbols' declarations, using the original name.  This
+ * holds both global and extern declarations.
+ */
+private SymbolTable<Declaration> externalLinkage = new SymbolTable();
+
+/**
+ * The definitions of renamed function calls to functions.  These
+ * thunks defined the renamed functions as static and just call the
+ * originally-named function.
+ */
+private StringBuilder externFunctionThunks = new StringBuilder();
+
+/**
+ * Returns true when the type specifier's storage class indicates the
+ * symbol is either global (assuming that we are in the global scope)
+ * or extern.  This is used to collect only those symbols that have
+ * external linkage.
+ *
+ * @returns true if the symbol is global (no storage class) or extern.
+ */
+private static boolean isGlobalOrExtern(TypeSpecifier typespecifier) {
+  return hasGlobalLinkage(typespecifier) || hasExternalLinkage(typespecifier);
+}
+
+/**
+ * Returns true when the type specifier's storage class indicates the
+ * symbol is global (assuming that we are in the global scope).  This
+ * is used to collect only those symbols that have external linkage.
+ *
+ * @returns true if the symbol is global (no storage class).
+ */
+private static boolean hasGlobalLinkage(TypeSpecifier typespecifier) {
+  return
+    (Constants.ATT_STORAGE_EXTERN != typespecifier.getStorageClass()
+     && Constants.ATT_STORAGE_STATIC != typespecifier.getStorageClass()
+     && Constants.ATT_STORAGE_AUTO != typespecifier.getStorageClass()
+     && Constants.ATT_STORAGE_REGISTER != typespecifier.getStorageClass()
+     && Constants.ATT_STORAGE_TYPEDEF != typespecifier.getStorageClass());
+}
+
+/**
+ * Returns true when the type specifier's storage class indicates the
+ * symbol is extern.  This is used to collect only those symbols that
+ * have external linkage.
+ *
+ * @returns true if the symbol is extern.
+ */
+private static boolean hasExternalLinkage(TypeSpecifier typespecifier) {
+  return
+    (Constants.ATT_STORAGE_EXTERN == typespecifier.getStorageClass()
+     && Constants.ATT_STORAGE_STATIC != typespecifier.getStorageClass()
+     && Constants.ATT_STORAGE_AUTO != typespecifier.getStorageClass()
+     && Constants.ATT_STORAGE_REGISTER != typespecifier.getStorageClass()
+     && Constants.ATT_STORAGE_TYPEDEF != typespecifier.getStorageClass());
+}
+
+/**
+ * When the declaration is global or extern, produce a desugaring that
+ * just has static.
+ *
+ * @return A string containing the declaration with static added and
+ * extern removed as needed.
+ */
+protected String makeStaticDeclaration(TypeSpecifier typespecifier, Declarator declarator) {
+  StringBuilder sb = new StringBuilder();
+  sb.append("static ");
+  for (Syntax token : typespecifier.getTokens()) {
+    switch (token.kind()) {
+    case LANGUAGE:
+      switch (((Language<CTag>) token).tag()) {
+      case EXTERN:
+        // remove extern
+        break;
+      case STATIC:
+        // remove static (since we added it above)
+        break;
+      default:
+        // otherwise, keep the type specifier the same
+        sb.append(token.getTokenText());
+        sb.append(" ");
+        break;
+      }
+      break;
+    default:
+      // only need to print language tokens, not spacing, etc
+      break;
+    }
+  }
+  sb.append(declarator.toString());
+  return sb.toString();
+}
+
+/**
+ * Preserve the original function names by multiplexing the renamed
+ * functions.
+ *
+ * @returns The multiplexed function definitions.
+ */
+public String linkerThunks(CContext scope, PresenceCondition pc) {
+  if (! scope.isGlobal()) {
+    throw new AssertionError("linker thunks should only be created for the global scope");
+  }
+  
+  StringBuilder sb = new StringBuilder();
+
+  // until we can support cross-compilation unit,
+  // configuration-preserving linkage, we prohibit conflicting linkage
+  // for global symbols, i.e., combinations of extern/global or
+  // function/variable for globals is not permitted.  in the future,
+  // instead of creating thunks, we can first get a list of external
+  // symbols for a project, and then use that during desugaring to
+  // perform renamings.
+  for (String symbol : externalLinkage) {
+    Declaration onedecl = null;
+    Type onedecltype = null;
+    StringBuilder body = new StringBuilder();
+    boolean isGlobal = false;  // otherwise it's extern
+    boolean isFunction = false;  // otherwise it's a variable
+
+    Multiverse<SymbolTable.Entry<Declaration>> entries = externalLinkage.get(symbol, pc);
+    for (Element<SymbolTable.Entry<Declaration>> entry : entries) {
+      if (entry.getData().isDeclared()) {
+        boolean hasrenaming = false;
+        if (null == onedecl) {
+          onedecl = entry.getData().getValue();
+          onedecltype = onedecl.getType();
+          if (onedecltype.isFunction()) {
+            isFunction = true;
+          } else if (onedecltype.isVariable()) {
+            isFunction = false;
+          } else {
+            throw new AssertionError("unexpected kind of type");
+          }
+          assert isGlobalOrExtern(onedecl.typespecifier);
+          if (! onedecl.typespecifier.contains(Constants.ATT_STORAGE_EXTERN)) {
+            isGlobal = true;
+          } else {
+            isGlobal = false;
+          }
+          hasrenaming = true;
+        } else {
+          // for now we just allow one type of the symbol to have
+          // external linkage, so check that the types match.
+          Declaration newdecl = entry.getData().getValue();
+          Type newdecltype = newdecl.getType();
+          boolean sameLinkage =
+            (isGlobal && (! newdecl.typespecifier.contains(Constants.ATT_STORAGE_EXTERN))   // both are global, or
+             ||
+             !isGlobal && (newdecl.typespecifier.contains(Constants.ATT_STORAGE_EXTERN)))  // both are not global
+            &&  // and
+            (isFunction && newdecltype.isFunction()  // both a functions, or
+             ||
+             !isFunction && newdecltype.isVariable());  // both are not functions
+            
+          if (sameLinkage && cOps.equal(newdecltype, onedecltype)) {
+            hasrenaming = true;
+          } else {
+            System.err.println(String.format("WARNING: found different types for global symbol, using the first one only:\n    - %s\n    - %s",
+                                             onedecl, newdecl));
+            todoReminder("support project-wide, configuration-aware linkage.");
+          }
+        }
+        if (hasrenaming) {
+          Multiverse<SymbolTable.Entry<Type>> renamingEntries = scope.getInCurrentScope(symbol, entry.getCondition());
+          if (1 != renamingEntries.size()) {
+            // we should be in the global scope and the symbol should
+            // only have one entry, since the externalLinkage table
+            // should only be updated with the regular symbol table
+            throw new AssertionError("the externalLinkage and regular symtab should match presence conditions");
+          }
+          Type renamedType = renamingEntries.get(0).getData().getValue();
+          renamingEntries = null;
+          if (isFunction) {
+            String renaming = ((NamedFunctionT) renamedType).getName();
+            if (isGlobal) {
+              body.append("if (");
+              body.append(condToCVar(entry.getCondition()));
+              body.append(") {\n");
+              body.append(renaming);
+              body.append("(");
+              String delim = "";
+              for (Type parmtype : onedecltype.toFunction().getParameters()) {
+                // function definitions must have named parameters, so
+                // the parameter types should be wrapped in a
+                // variablet type.
+                assert parmtype.isVariable() && parmtype.toVariable().hasName();
+                body.append(delim);
+                body.append(parmtype.toVariable().getName());
+                delim = ", ";
+              }
+              body.append(")");
+              body.append(";\n");
+              body.append("}\n");
+            } else {  // it's extern
+              // no need to do anything, since the declaration creates
+              // the definition in externFunctionThunks
+            }
+          } else {  // is a variable
+            if (isGlobal) {
+            } else {  // it's extern
+            }
+          }
+        }
+      }
+    }
+
+    if (isFunction) {
+      if (isGlobal) {
+        sb.append(onedecl.toString());
+        sb.append(" /* global linkage thunk */ {\n");
+        sb.append(body);
+        sb.append("}\n");
+      } else {  // it's extern
+        sb.append(onedecl.toString());
+        sb.append(" /* external linkage thunk */;\n");
+      }
+    } else {  // is a variable
+      if (isGlobal) {
+        todoReminder("handle global variables");
+      } else {  // it's extern
+        todoReminder("handle extern variables");
+      }
+    }
+  }
+
+
+  // emit the static function definitions that make calls to
+  // externally-defined functions.
+  sb.append(externFunctionThunks);
+
+  return sb.toString();
+}
+
 /** True when statistics should be output. */
 private boolean languageStatistics = false;
 
