@@ -292,75 +292,18 @@ import com.microsoft.z3.BoolExpr;
 
 %%
 
-TranslationUnit:  /** complete **/
+TranslationUnit:  /** complete **/  // String
         ExternalDeclarationList
         {
-          try {
-            OutputStreamWriter writer = new OutputStreamWriter(System.out);
-
-            // since TranslationUnit itself is complete, static
-            // conditionals may be around it as well, so ensure the
-            // prologue is only emitted once
-            if (! wrotePrologue) {
-              wrotePrologue = true;
-
-              // emit headers
-              writer.write("#include <stdbool.h>\n");
-              writer.write("\n");
-
-              // emit extern declarations for desugaring runtime.
-              writer.write("extern void __static_type_error(char *msg);\n");
-              writer.write("extern void __static_renaming(char *renaming, char *original);\n");
-              writer.write("extern void __static_condition_renaming(char *expression, char *renaming);\n");
-              writer.write("\n");
-
-              // emit static initializer declaration.
-              String static_initializer_name = freshCId("static_initializer");
-              String static_initializer_signature = String.format("void %s()", static_initializer_name);
-              writer.write(String.format("%s;\n", static_initializer_signature));
-              writer.write("\n");
-            
-              // writes the extern declarations for the renamed preprocessor BDDs
-              System.err.println("TODO: record original presence condition strings in file as well once raw strings are collected");
-              for (Integer hash : condVars.keySet()) {
-                writer.write(String.format("extern const bool %s;\n", condVars.get(hash)));
-              }
-
-              // emit the static initializer definition
-              writer.write(String.format("%s {\n%s\n%s\n};\n",
-                                         static_initializer_signature,
-                                         recordedRenamings.toString(),
-                                         staticConditionRenamings.toString(),
-                                         invalidGlobals.toString()));
-            
-            
-              SymbolTable<Type> symtab = ((CContext) subparser.scope).getSymbolTable();
-
-              // write the user-defined types at the top of the scope.
-              CContext scope = ((CContext) subparser.scope);
-              writer.write(scope.getDeclarations(subparser.getPresenceCondition()));
-
-              /* if (debug) System.err.println(symtab); */
-            }
-
-            // write the transformed C
-            Multiverse<String> extdeclmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
-            String result = concatMultiverseStrings(extdeclmv); extdeclmv.destruct();
-            setTransformationValue(value, result); 
-            writer.write(result); 
-            writer.write("\n");
-
-            writer.flush();
-          } catch(IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-          }
+          Multiverse<String> extdeclmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
+          String result = concatMultiverseStrings(extdeclmv); extdeclmv.destruct();
+          setTransformationValue(value, result); 
         }
         ;
 
 // ------------------------------------------------------ External definitions
 
-ExternalDeclarationList: /** list, complete **/  // String
+ExternalDeclarationList: /** complete **/  // String
         /* empty */  // ADDED gcc allows empty program
         {
           setTransformationValue(value, "");
@@ -8230,7 +8173,7 @@ private <T> Multiverse<T> getCompleteNodeSingleValue(Subparser subparser, int co
  * @param pc The presence condition of the semantic action.
  * @return A new multiverse containing the semantic values for all configurations.
  */
-private <T> Multiverse<T> getCompleteNodeSingleValue(Node node, PresenceCondition pc) {
+public <T> Multiverse<T> getCompleteNodeSingleValue(Node node, PresenceCondition pc) {
   Multiverse<Node> nodemv = staticCondToMultiverse(node, pc);
   Multiverse<T> resultmv = new Multiverse<T>();
 
@@ -8434,7 +8377,7 @@ private ExpressionValue getCompleteNodeExpressionValue(Node node, PresenceCondit
  * already been transformed by renaming declarations or surrounding
  * statements with C conditionals
  */
-protected String concatMultiverseStrings(Multiverse<String> value) {
+public String concatMultiverseStrings(Multiverse<String> value) {
   StringBuilder valuesb = new StringBuilder();
   for (Element<String> elem : value) {
     valuesb.append(elem.getData());
@@ -8651,6 +8594,31 @@ private void recordInvalidGlobalRedeclaration(String ident, PresenceCondition co
  */
 private void recordRenaming(String renaming, String original) {
   recordedRenamings.append(String.format("__static_renaming(\"%s\", \"%s\");\n", renaming, original));
+}
+
+
+public String staticInitialization() {
+  StringBuilder sb = new StringBuilder();
+  
+  // emit static initializer declaration.
+  String static_initializer_name = String.format("__static_initializer_%s", unitUID);
+  String static_initializer_signature = String.format("void %s()", static_initializer_name);
+  sb.append(String.format("%s;\n", static_initializer_signature));
+  sb.append("\n");
+            
+  // writes the extern declarations for the renamed preprocessor BDDs
+  System.err.println("TODO: record original presence condition strings in file as well once raw strings are collected");
+  for (Integer hash : condVars.keySet()) {
+    sb.append(String.format("extern const bool %s;\n", condVars.get(hash)));
+  }
+
+  sb.append(String.format("%s {\n%s\n%s\n};\n",
+                          static_initializer_signature,
+                          recordedRenamings.toString(),
+                          staticConditionRenamings.toString(),
+                          invalidGlobals.toString()));
+  
+  return sb.toString();
 }
 /*****************************************************************************
  ********* Methods to record external linking.  These will be used to
@@ -8893,6 +8861,11 @@ public String linkerThunks(CContext scope, PresenceCondition pc) {
   return sb.toString();
 }
 
+
+/*****************************************************************************
+ ********* Parameters to the actions class.
+ *****************************************************************************/
+
 /** True when statistics should be output. */
 private boolean languageStatistics = false;
 
@@ -8928,6 +8901,10 @@ public void showErrors(boolean b) {
 public void debug(boolean b) {
   debug = b;
 }
+
+/*****************************************************************************
+ ********* Helper functions for accesses semantic values.
+ *****************************************************************************/
 
 /**
  * A helper function to get the value of a node on the stack, which
@@ -9945,7 +9922,7 @@ private StringBuilder staticConditionRenamings = new StringBuilder();
 // variables.  also emit the renaming from the c var to the
 // preprocessor expression it represents
 
-
+private String unitUID = "default";
 
 public String condToCVar(PresenceCondition cond) {
   if (cond.isTrue()) {
@@ -9959,7 +9936,7 @@ public String condToCVar(PresenceCondition cond) {
     if (condVars.containsKey(key)) {
       return condVars.get(key);
     } else {
-      String cvar = freshCId("static_condition");
+      String cvar = freshCId(String.format("static_condition_%s", unitUID));
       condVars.put(key, cvar);
       staticConditionRenamings.append(String.format("__static_condition_renaming(\"%s\", \"%s\");\n", cvar, cond.toString()));
       return cvar;
