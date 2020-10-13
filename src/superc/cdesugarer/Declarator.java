@@ -11,6 +11,7 @@ import xtc.type.VoidT;
 import xtc.type.PointerT;
 import xtc.type.ArrayT;
 import xtc.type.FunctionT;
+import xtc.type.VariableT;
 
 /**
  * The superclass of all C declarator constructs.
@@ -544,7 +545,14 @@ abstract class Declarator {
     public Type getType(Type returnType) {
       List<Type> paramtypes = new LinkedList<Type>();
       for (Declaration param : parameters.parameters) {
-        paramtypes.add(param.getType());
+        String name;
+        if (param.hasName()) {
+          name = param.getName();
+        } else {
+          // xtc allows null to mean no name
+          name = null;
+        }
+        paramtypes.add(VariableT.newParam(param.getType(), name));
       }
 
       if (declarator.isSimpleDeclarator()) {
