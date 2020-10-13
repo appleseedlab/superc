@@ -7532,6 +7532,7 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                     // make all renamed declarations static until project-wide, configuration-aware linking is possible
                     String desugaredDeclaration;
                     if (type instanceof NamedFunctionT && hasExternalLinkage(typespecifier.getData())) {  // is extern
+                      todoReminder("account for void or abstract declarators in linker thunk functions");
                       String staticPrototype = makeStaticDeclaration(typespecifier.getData(), renamedDeclarator);
                       StringBuilder contents = new StringBuilder();
                       contents.append(originalName);
@@ -8756,10 +8757,8 @@ public String linkerThunks(CContext scope, PresenceCondition pc) {
           onedecltype = onedecl.getType();
           if (onedecltype.isFunction()) {
             isFunction = true;
-          } else if (onedecltype.isVariable()) {
-            isFunction = false;
           } else {
-            throw new AssertionError("unexpected kind of type");
+            isFunction = false;
           }
           assert isGlobalOrExtern(onedecl.typespecifier);
           if (! onedecl.typespecifier.contains(Constants.ATT_STORAGE_EXTERN)) {
@@ -8809,6 +8808,7 @@ public String linkerThunks(CContext scope, PresenceCondition pc) {
               body.append(renaming);
               body.append("(");
               String delim = "";
+              todoReminder("account for void or abstract declarators in linker thunk functions");
               for (Type parmtype : onedecltype.toFunction().getParameters()) {
                 // function definitions must have named parameters, so
                 // the parameter types should be wrapped in a
