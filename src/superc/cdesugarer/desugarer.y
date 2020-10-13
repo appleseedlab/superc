@@ -2923,14 +2923,14 @@ EnumeratorValueOpt: /** nomerge **/  // Multiverse<EnumeratorValValue>
 ParameterTypeList:  /** nomerge **/  // ParameterTypeListValue which contains List<Multiverse<Declaration>>
         ParameterList
         {
-          List<Multiverse<Declaration>> paramlist
-            = (List<Multiverse<Declaration>>) getTransformationValue(subparser,1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          List<Multiverse<Declaration>> paramlist = this.<Declaration>getCompleteNodeListValue(subparser, 1, pc);
           setTransformationValue(value, new ParameterTypeListValue(paramlist, false));
         }
         | ParameterList COMMA ELLIPSIS
         {
-          List<Multiverse<Declaration>> paramlist
-            = (List<Multiverse<Declaration>>) getTransformationValue(subparser,3);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          List<Multiverse<Declaration>> paramlist = this.<Declaration>getCompleteNodeListValue(subparser, 3, pc);
           setTransformationValue(value, new ParameterTypeListValue(paramlist, true));
         }
         ;
@@ -2953,11 +2953,11 @@ ParameterList:  /** list, nomerge **/ // List<Multiverse<Declaration>>
         }
         | ParameterList COMMA ParameterDeclaration
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
           // add to the existing parameter list.  this reuse of a
           // semantic value may be an issue if static conditionals are
           // permitted under parameterlists
-          List<Multiverse<Declaration>> parameters
-            = (LinkedList<Multiverse<Declaration>>) getTransformationValue(subparser,3);
+          List<Multiverse<Declaration>> parameters = this.<Declaration>getCompleteNodeListValue(subparser, 3, pc);
           Multiverse<Declaration> declarationvalue
             = (Multiverse<Declaration>) getTransformationValue(subparser,1);
           parameters.add(declarationvalue);
