@@ -48,157 +48,155 @@ public class CValues implements SemanticValues {
     return value;
   }
   public ValueType getValueType(int id) {
-    if (0 <= id && id < 131 || 342 < id) {
+    if (0 <= id && id < 136 || 342 < id) {
       return ValueType.NODE;
     }
-    switch (id - 131) {
-      case 0: // ExternalDeclarationList (131)
+    switch (id - 136) {
+      case 27: // DeclarationQualifierList (163)
         // Fall through
-      case 32: // DeclarationQualifierList (163)
+      case 28: // TypeQualifierList (164)
         // Fall through
-      case 33: // TypeQualifierList (164)
+      case 54: // StructDeclarationList (190)
         // Fall through
-      case 59: // StructDeclarationList (190)
+      case 56: // StructDefaultDeclaringList (192)
         // Fall through
-      case 61: // StructDefaultDeclaringList (192)
+      case 57: // StructDeclaringList (193)
         // Fall through
-      case 62: // StructDeclaringList (193)
+      case 64: // EnumeratorList (200)
         // Fall through
-      case 69: // EnumeratorList (200)
+      case 70: // ParameterList (206)
         // Fall through
-      case 75: // ParameterList (206)
+      case 80: // IdentifierList (216)
         // Fall through
-      case 85: // IdentifierList (216)
+      case 87: // MatchedInitializerList (223)
         // Fall through
-      case 92: // MatchedInitializerList (223)
+      case 90: // DesignatorList (226)
         // Fall through
-      case 95: // DesignatorList (226)
+      case 128: // SwitchLabeledStatementList (264)
         // Fall through
-      case 133: // SwitchLabeledStatementList (264)
+      case 134: // LocalLabelDeclarationList (270)
         // Fall through
-      case 139: // LocalLabelDeclarationList (270)
+      case 136: // LocalLabelList (272)
         // Fall through
-      case 141: // LocalLabelList (272)
+      case 137: // DeclarationOrStatementList (273)
         // Fall through
-      case 142: // DeclarationOrStatementList (273)
+      case 139: // DeclarationList (275)
         // Fall through
-      case 144: // DeclarationList (275)
+      case 149: // StringLiteralListString (285)
         // Fall through
-      case 154: // StringLiteralListString (285)
+      case 150: // StringLiteralList (286)
         // Fall through
-      case 155: // StringLiteralList (286)
+      case 165: // ExpressionList (301)
         // Fall through
-      case 170: // ExpressionList (301)
+      case 193: // AttributeSpecifierList (329)
         // Fall through
-      case 198: // AttributeSpecifierList (329)
+      case 197: // AttributeList (333)
         // Fall through
-      case 202: // AttributeList (333)
-        // Fall through
-      case 211: // Assemblyoperands (342)
+      case 206: // Assemblyoperands (342)
         return ValueType.LIST;
 
-      case 5: // $@1 (136)
+      case 0: // $@1 (136)
         // Fall through
-      case 6: // $@2 (137)
+      case 1: // $@2 (137)
         // Fall through
-      case 7: // $@3 (138)
+      case 2: // $@3 (138)
         // Fall through
-      case 12: // $@4 (143)
+      case 7: // $@4 (143)
         // Fall through
-      case 13: // $@5 (144)
+      case 8: // $@5 (144)
         // Fall through
-      case 14: // $@6 (145)
+      case 9: // $@6 (145)
         // Fall through
-      case 15: // $@7 (146)
+      case 10: // $@7 (146)
         // Fall through
-      case 20: // $@8 (151)
+      case 15: // $@8 (151)
         // Fall through
-      case 21: // $@9 (152)
+      case 16: // $@9 (152)
         // Fall through
-      case 22: // $@10 (153)
+      case 17: // $@10 (153)
         // Fall through
-      case 23: // $@11 (154)
+      case 18: // $@11 (154)
         // Fall through
-      case 25: // $@12 (156)
+      case 20: // $@12 (156)
         // Fall through
-      case 26: // $@13 (157)
+      case 21: // $@13 (157)
         // Fall through
-      case 27: // $@14 (158)
+      case 22: // $@14 (158)
         // Fall through
-      case 29: // $@15 (160)
+      case 24: // $@15 (160)
         // Fall through
-      case 71: // $@16 (202)
+      case 66: // $@16 (202)
         // Fall through
-      case 72: // $@17 (203)
+      case 67: // $@17 (203)
         // Fall through
-      case 79: // $@18 (210)
+      case 74: // $@18 (210)
         // Fall through
-      case 80: // $@19 (211)
+      case 75: // $@19 (211)
         // Fall through
-      case 81: // $@20 (212)
+      case 76: // $@20 (212)
         // Fall through
-      case 82: // $@21 (213)
+      case 77: // $@21 (213)
         // Fall through
-      case 83: // $@22 (214)
+      case 78: // $@22 (214)
         // Fall through
-      case 84: // $@23 (215)
+      case 79: // $@23 (215)
         // Fall through
-      case 115: // $@24 (246)
+      case 110: // $@24 (246)
         // Fall through
-      case 116: // $@25 (247)
+      case 111: // $@25 (247)
         // Fall through
-      case 122: // $@26 (253)
+      case 117: // $@26 (253)
         // Fall through
-      case 123: // $@27 (254)
+      case 118: // $@27 (254)
         // Fall through
-      case 135: // $@28 (266)
+      case 130: // $@28 (266)
         // Fall through
-      case 136: // $@29 (267)
+      case 131: // $@29 (267)
         // Fall through
-      case 160: // $@30 (291)
+      case 155: // $@30 (291)
         // Fall through
-      case 161: // $@31 (292)
+      case 156: // $@31 (292)
         return ValueType.ACTION;
 
-      case 93: // DesignatedInitializer (224)
+      case 88: // DesignatedInitializer (224)
         // Fall through
-      case 156: // PrimaryExpression (287)
+      case 151: // PrimaryExpression (287)
         // Fall through
-      case 162: // PostfixExpression (293)
+      case 157: // PostfixExpression (293)
         // Fall through
-      case 171: // UnaryExpression (302)
+      case 166: // UnaryExpression (302)
         // Fall through
-      case 180: // CastExpression (311)
+      case 175: // CastExpression (311)
         // Fall through
-      case 181: // MultiplicativeExpression (312)
+      case 176: // MultiplicativeExpression (312)
         // Fall through
-      case 182: // AdditiveExpression (313)
+      case 177: // AdditiveExpression (313)
         // Fall through
-      case 183: // ShiftExpression (314)
+      case 178: // ShiftExpression (314)
         // Fall through
-      case 184: // RelationalExpression (315)
+      case 179: // RelationalExpression (315)
         // Fall through
-      case 185: // EqualityExpression (316)
+      case 180: // EqualityExpression (316)
         // Fall through
-      case 186: // AndExpression (317)
+      case 181: // AndExpression (317)
         // Fall through
-      case 187: // ExclusiveOrExpression (318)
+      case 182: // ExclusiveOrExpression (318)
         // Fall through
-      case 188: // InclusiveOrExpression (319)
+      case 183: // InclusiveOrExpression (319)
         // Fall through
-      case 189: // LogicalAndExpression (320)
+      case 184: // LogicalAndExpression (320)
         // Fall through
-      case 190: // LogicalORExpression (321)
+      case 185: // LogicalORExpression (321)
         // Fall through
-      case 191: // ConditionalExpression (322)
+      case 186: // ConditionalExpression (322)
         // Fall through
-      case 192: // AssignmentExpression (323)
+      case 187: // AssignmentExpression (323)
         // Fall through
-      case 194: // ExpressionOpt (325)
+      case 189: // ExpressionOpt (325)
         // Fall through
-      case 195: // Expression (326)
+      case 190: // Expression (326)
         // Fall through
-      case 196: // ConstantExpression (327)
+      case 191: // ConstantExpression (327)
         return ValueType.PASS_THROUGH;
 
       default:
