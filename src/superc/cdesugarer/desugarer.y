@@ -303,7 +303,8 @@ TranslationUnit:  /** complete **/  // String
 
 // ------------------------------------------------------ External definitions
 
-ExternalDeclarationList: /** complete **/  // String
+/* annotate this as a list to improve performance when generating the ast */
+ExternalDeclarationList: /** list, complete **/  // String
         /* empty */  // ADDED gcc allows empty program
         {
           setTransformationValue(value, "");
