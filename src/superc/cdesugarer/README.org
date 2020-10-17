@@ -17,6 +17,14 @@
 
 * Overview
 
+** conceptual novelty (semantics preservation instead of syntactic transform)
+- representing type errors at runtime
+- representing static values as runtime inputs
+- handling forward references properly
+- linking behavior
+- efficiency?
+- z3?
+
 * SugarC
 
 * Data structures
