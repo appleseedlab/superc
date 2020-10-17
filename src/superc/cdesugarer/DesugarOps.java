@@ -320,7 +320,7 @@ class DesugarOps {
     // track presence conditions of valid and invalid declarations
     PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
     for (Multiverse<Declaration> structfieldmv : structfields) {
-      System.err.println("TAGATGA: " + tagtab);
+      // System.err.println("TAGATGA: " + tagtab);
       for (Element<Declaration> structfield : structfieldmv) {
         PresenceCondition combinedCond = pc.and(structfield.getCondition());
         if (combinedCond.isNotFalse()) {
@@ -345,19 +345,19 @@ class DesugarOps {
           assert null != renamedField;
           assert null != renamedDeclaration;
 
-          System.err.println("FIELDNAME " + fieldName);
-          System.err.println("FJKLDSLKJFDS " + tagtab);
+          // System.err.println("FIELDNAME " + fieldName);
+          // System.err.println("FJKLDSLKJFDS " + tagtab);
               
           if (structfield.getData().hasTypeError()) {
-            System.err.println("WTF : " + fieldName);
+            // System.err.println("WTF : " + fieldName);
             tagtab.putError(fieldName, combinedCond);
 
             PresenceCondition newerrorCond = errorCond.or(combinedCond);
             errorCond.delRef(); errorCond = newerrorCond;
           } else { // declaration has no type error
             Multiverse<SymbolTable.Entry<Type>> entries = tagtab.get(fieldName, combinedCond);
-            System.err.println("MVMVMVMV: " + entries);
-            System.err.println(combinedCond);
+            // System.err.println("MVMVMVMV: " + entries);
+            // System.err.println(combinedCond);
             for (Element<SymbolTable.Entry<Type>> entry : entries) {
               if (entry.getData().isError()) {
                 // already an error, just emit a message
@@ -371,9 +371,9 @@ class DesugarOps {
 
                 // add the type containing the renaming to the struct tag's symtab
                 tagtab.put(fieldName, fieldType, entry.getCondition());
-                System.err.println("tagtab.put: " + fieldName);
-                System.err.println("tagtab.put: " + fieldType);
-                System.err.println("tagtab.put: " + entry.getCondition());
+                // System.err.println("tagtab.put: " + fieldName);
+                // System.err.println("tagtab.put: " + fieldType);
+                // System.err.println("tagtab.put: " + entry.getCondition());
                 // save the text of the desugared field
                 transformation.append(renamedDeclaration.toString());
                 transformation.append(";\n");
@@ -469,7 +469,7 @@ class DesugarOps {
                                                                  FreshIDCreator freshIdCreator) {
     Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>();
     Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(CContext.toTagName(structTag), pc);
-    System.err.println("WHY : " + entries);
+    // System.err.println("WHY : " + entries);
     for (Element<SymbolTable.Entry<Type>> entry : entries) {
       TypeSpecifier typespecifier = new TypeSpecifier();
       if (entry.getData().isError()) {
@@ -494,7 +494,7 @@ class DesugarOps {
         // struct/union field.  see the direct and indirect
         // selection constructs for more info.
         scope.putForwardTagReference(forwardTagRefName, structTag);
-        System.err.println("PUT: " + forwardTagRefName + " " + structTag);
+        // System.err.println("PUT: " + forwardTagRefName + " " + structTag);
         /* Type referencedStruct = DesugarOps.createStructOrUnionRefType(keyword, structTag); */
         /* scope.put(CContext.toTagRefName(forwardTagRefName), referencedStruct, entry.getCondition()); */
       } else {  // is a declared entry
@@ -506,7 +506,7 @@ class DesugarOps {
           typespecifier.setType(entry.getData().getValue());
           typespecifier.addTransformation(keyword);
           typespecifier.addTransformation(new Text<CTag>(CTag.IDENTIFIER, entry.getData().getValue().toStructOrUnion().getName()));
-          System.err.println("LSLSLSLSLS " + structTag);
+          // System.err.println("LSLSLSLSLS " + structTag);
         } else {  // tag type is not a struct/union or is an enum
           System.err.println(String.format("INFO: type error on tag reference, not using same struct/union/enum keyword",
                                            structTag));

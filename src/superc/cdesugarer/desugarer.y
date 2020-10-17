@@ -597,7 +597,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
             Multiverse<String> prototypestrmv = resultmv.filter(pc);
             resultmv.destruct();
     
-            System.err.println("PROTOTYPESTRMV2 " + prototypestrmv);
+            /* System.err.println("PROTOTYPESTRMV2 " + prototypestrmv); */
             Multiverse<String> bodymv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
 
             // declarations, including function definitions, should
@@ -4076,7 +4076,7 @@ ArrayAbstractDeclarator: /** nomerge **/
           todoReminder("check expression in ArrayAbstractDeclarator (2)");
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
           Multiverse<String> arrayBounds = exprval.transformation;
-          /* System.err.println(arrayBounds); */
+          System.err.println(arrayBounds);
           /* System.err.println(getNodeAt(subparser, 2)); */
           Multiverse<Declarator> valuemv = DesugarOps.toAbstractArrayDeclarator.transform(arrayBounds);
           // this is getting an empty mv on filtered for /usr/include/x86_64-linux-gnu/bits/types.h in typesizes.h
@@ -4346,8 +4346,8 @@ SwitchLabeledStatementList:  /** list, nomerge **/  // Multiverse<List<String>>
           Multiverse<List<String>> list = (Multiverse<List<String>>) getTransformationValue(subparser, 2);
           Multiverse<List<String>> elem
             = DesugarOps.stringListWrap.transform((Multiverse<String>) this.<String>getCompleteNodeMultiverseValue(subparser, 1, pc));
-          System.err.println("LIST: " + list);
-          System.err.println("ELEM: " + elem);
+          /* System.err.println("LIST: " + list); */
+          /* System.err.println("ELEM: " + elem); */
           Multiverse<List<String>> cproduct = list.complementedProduct(elem, DesugarOps.STRINGLISTCONCAT);
           list.destruct(); elem.destruct();
           setTransformationValue(value, cproduct);
@@ -4564,7 +4564,7 @@ ExpressionStatement:  /** complete **/  // Multiverse<String>
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
           Multiverse<Type> exprtype = exprval.type;
           PresenceCondition errorCond = exprtype.getConditionOf(ErrorT.TYPE);
-          System.err.println("EXPTYP: " + exprtype);
+          /* System.err.println("EXPTYP: " + exprtype); */
 
           Multiverse<String> valuemv;
           if (! exprval.isAlwaysError()) {
@@ -4583,7 +4583,7 @@ ExpressionStatement:  /** complete **/  // Multiverse<String>
             valuemv = new Multiverse<String>(String.format("%s;", emitError("type error")), errorCond);
           }
           assert valuemv != null;
-          System.err.println("EXPSMT: " + valuemv);
+          /* System.err.println("EXPSMT: " + valuemv); */
           
           errorCond.delRef();
           setTransformationValue(value, valuemv);
@@ -5036,8 +5036,8 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
           assert ! sbmv.isEmpty();
           entries.destruct();
 
-          System.err.println(sbmv);
-          System.err.println(typemv);
+          /* System.err.println(sbmv); */
+          /* System.err.println(typemv); */
 
           setTransformationValue(value, new ExpressionValue(sbmv, typemv));
         }  /* We cannot use a typedef name as a variable */
@@ -5166,8 +5166,8 @@ Subscript:  /** nomerge **/
           }
           assert ! typemv.isEmpty();
 
-          System.err.println("SUBSCRIPTBEFORE: " + postfixexprval.type);
-          System.err.println("SUBSCRIPTAFTER: " + typemv);
+          /* System.err.println("SUBSCRIPTBEFORE: " + postfixexprval.type); */
+          /* System.err.println("SUBSCRIPTAFTER: " + typemv); */
 
           setTransformationValue(value, new ExpressionValue(transformationmv,
                                                             typemv));  // TODO: placeholder until type checking
@@ -5204,8 +5204,8 @@ FunctionCall:  /** nomerge **/
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue postfixexprval = getCompleteNodeExpressionValue(subparser, 4, pc);
 
-          System.err.println("PFTYPE: " + postfixexprval.type);
-          System.err.println("PFTRAN: " + postfixexprval.transformation);
+          /* System.err.println("PFTYPE: " + postfixexprval.type); */
+          /* System.err.println("PFTRAN: " + postfixexprval.transformation); */
 
           if (postfixexprval.hasValidType()) {
             /* postfixexprval.transformation; */
@@ -5226,8 +5226,8 @@ FunctionCall:  /** nomerge **/
               = new Multiverse<List<Type>>(new LinkedList<Type>(), pc);
             for (ExpressionValue listelem : exprlist) {
               // wrap each listelem's string and type in a list
-              System.err.println("LISTELEM: " + listelem.transformation);
-              System.err.println("LISTELEM: " + listelem.type);
+              /* System.err.println("LISTELEM: " + listelem.transformation); */
+              /* System.err.println("LISTELEM: " + listelem.type); */
               Multiverse<List<String>> wrapped_listelem_transformation
                 = DesugarOps.stringListWrap.transform(listelem.transformation);
               Multiverse<List<Type>> wrapped_listelem_type
@@ -5246,8 +5246,8 @@ FunctionCall:  /** nomerge **/
               exprlisttypemv.destruct(); exprlisttypemv = new_exprlisttypemv;
             }
 
-            System.err.println("EXPRLISTMV: " + exprlistmv);
-            System.err.println("EXPRLISTTYPEMV: " + exprlisttypemv);
+            /* System.err.println("EXPRLISTMV: " + exprlistmv); */
+            /* System.err.println("EXPRLISTTYPEMV: " + exprlisttypemv); */
 
             // typecheck each combination of postfix expression and
             // parameter list.
@@ -5336,8 +5336,8 @@ FunctionCall:  /** nomerge **/
             Multiverse<List<String>> filtered_exprlistmv = exprlistmv.filter(validTypes);
             errorCond.delRef(); validTypes.delRef();
             
-            System.err.println("filtered1: " + filtered_postfixexpr);
-            System.err.println("filtered2: " + filtered_exprlistmv);
+            /* System.err.println("filtered1: " + filtered_postfixexpr); */
+            /* System.err.println("filtered2: " + filtered_exprlistmv); */
 
             if (filtered_postfixexpr.isEmpty() || filtered_exprlistmv.isEmpty()) {
               // if either is empty, there is nothing left to
@@ -5368,8 +5368,8 @@ FunctionCall:  /** nomerge **/
               filtered_exprlistmv.destruct();
             }
 
-            System.err.println("FCALLTYPE: " + typemv);
-            System.err.println("FCALLERRVALS: " + valuemv);
+            /* System.err.println("FCALLTYPE: " + typemv); */
+            /* System.err.println("FCALLERRVALS: " + valuemv); */
             
             setTransformationValue(value, new ExpressionValue(valuemv, typemv));
           } else { // types of postfixexprval are all errors
@@ -5612,8 +5612,8 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
           
           assert ! typemv.isEmpty();
 
-          System.err.println("typemv " + typemv);
-          System.err.println("identmv " + identmv);
+          /* System.err.println("typemv " + typemv); */
+          /* System.err.println("identmv " + identmv); */
 
           if (hasValidType) {
             Multiverse<String> valuemv = productAll(DesugarOps.concatStrings, postfixmv, dotmv, identmv);
@@ -5854,8 +5854,8 @@ IndirectSelection:  /** nomerge **/
           
           assert ! typemv.isEmpty();
 
-          System.err.println("typemv " + typemv);
-          System.err.println("identmv " + identmv);
+          /* System.err.println("typemv " + typemv); */
+          /* System.err.println("identmv " + identmv); */
 
           if (hasValidType) {
             Multiverse<String> prepend = identmv.prependScalar(arrow, DesugarOps.concatStrings);
