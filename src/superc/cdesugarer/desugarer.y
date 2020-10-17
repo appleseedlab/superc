@@ -4569,10 +4569,9 @@ ExpressionStatement:  /** complete **/  // Multiverse<String>
           Multiverse<String> valuemv;
           if (! exprval.isAlwaysError()) {
             Multiverse<String> expr = exprval.transformation;
-            Multiverse<String> semi
-              = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
+            String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
 
-            valuemv = productAll(DesugarOps.concatStrings, expr, semi);
+            valuemv = expr.appendScalar(semi, DesugarOps.concatStrings);
             
             // if filtering of type errors is done right, this add
             // should not violate mutual-exclusion in the multiverse
