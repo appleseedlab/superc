@@ -7974,6 +7974,26 @@ private static class ExpressionValue {
     }
     return true;
   }
+
+  /**
+   * Get the presence condition under which the type is valid, given
+   * the current presence condition.
+   *
+   * @returns A new presence condition.
+   */
+  public PresenceCondition validTypeCondition(PresenceCondition pc) {
+    PresenceCondition validCond = pc.presenceConditionManager().newFalse();
+    for (Element<Type> elem : type) {
+      System.err.println("ELEM: " + elem.getData());
+      if (! elem.getData().isError()) {
+        PresenceCondition newValidCond = validCond.or(elem.getCondition());
+        validCond.delRef(); validCond = newValidCond;
+      }
+    }
+    PresenceCondition result = pc.and(validCond);
+    validCond.delRef();
+    return result;
+  }
 }
 
 /**
