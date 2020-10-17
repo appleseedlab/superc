@@ -4717,30 +4717,48 @@ IterationStatement:  /** complete **/  // Multiverse<String>
         {
           todoReminder("check the type of the conditional expression IterationStatement (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
+          String forkeyword = ((Syntax) getNodeAt(subparser, 9)).getTokenText();
+          String lparen = ((Syntax) getNodeAt(subparser, 8)).getTokenText();
           ExpressionValue initval = getCompleteNodeExpressionValue(subparser, 7, pc);
+          String semi1 = ((Syntax) getNodeAt(subparser, 6)).getTokenText();
           ExpressionValue testval = getCompleteNodeExpressionValue(subparser, 5, pc);
+          String semi2 = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
           ExpressionValue updateval = getCompleteNodeExpressionValue(subparser, 3, pc);
+          String rparen = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
 
-          Multiverse<String> formv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 9)).getTokenText(), pc);
-          Multiverse<String> lparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 8)).getTokenText(), pc);
-          Multiverse<String> initmv = initval.transformation;
-          Multiverse<String> semi1mv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 6)).getTokenText(), pc);
-          Multiverse<String> testmv = testval.transformation;
-          Multiverse<String> semi2mv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
-          Multiverse<String> updatemv = updateval.transformation;
-          Multiverse<String> rparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
-          Multiverse<String> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
 
-          setTransformationValue(value, productAll(DesugarOps.concatStrings,
-                                                   formv,
-                                                   lparen,
-                                                   initmv,
-                                                   semi1mv,
-                                                   testmv,
-                                                   semi2mv,
-                                                   updatemv,
-                                                   rparen,
-                                                   stmtmv));
+          if (initval.hasValidType() && testval.hasValidType() && updateval.hasValidType()) {
+            PresenceCondition cond1 = initval.validTypeCondition(pc);
+            PresenceCondition cond2 = cond1.and(testval.validTypeCondition(pc)); cond1.delRef();
+            PresenceCondition validcond = cond2.and(updateval.validTypeCondition(pc)); cond2.delRef();
+
+            if (validcond.isNotFalse()) {
+              Multiverse<String> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
+
+              Multiverse<String> initmv = initval.transformation;
+              Multiverse<String> testmv = testval.transformation;
+              Multiverse<String> updatemv = updateval.transformation;
+
+          
+              String forlparen = String.format("%s %s",
+                                               ((Syntax) getNodeAt(subparser, 9)).getTokenText(),
+                                               ((Syntax) getNodeAt(subparser, 8)).getTokenText());
+
+              Multiverse<String> mv1 = initmv.prependScalar(forlparen, DesugarOps.concatStrings);
+              Multiverse<String> mv2 = mv1.appendScalar(semi1, DesugarOps.concatStrings); mv1.destruct();
+              Multiverse<String> mv3 = mv2.product(testmv, DesugarOps.concatStrings); mv2.destruct();
+              Multiverse<String> mv4 = mv3.appendScalar(semi2, DesugarOps.concatStrings); mv3.destruct();
+              Multiverse<String> mv5 = mv4.product(updatemv, DesugarOps.concatStrings); mv4.destruct();
+              Multiverse<String> mv6 = mv5.appendScalar(rparen, DesugarOps.concatStrings); mv5.destruct();
+              Multiverse<String> valuemv = mv6.product(stmtmv, DesugarOps.concatStrings); mv6.destruct();
+
+              setTransformationValue(value, valuemv);
+            } else {
+              setTransformationValue(value, new Multiverse<String>(emitError("no valid type in iterationstatement (3)"), pc));
+            }
+          } else {
+            setTransformationValue(value, new Multiverse<String>(emitError("no valid type in iterationstatement (3)"), pc));
+          }
         }
         // n1570 6.8.5 Iteration statements allows for a declaration in the initializer of a for loop
         | FOR LPAREN Declaration ExpressionOpt SEMICOLON
