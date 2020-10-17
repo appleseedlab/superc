@@ -10,7 +10,7 @@ enum someLetters {
 #endif
 
 int main(void) {
-  enum letter apple;
+  enum someLetters apple;
   apple = a;
 
   return 0;

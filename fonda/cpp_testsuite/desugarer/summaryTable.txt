@@ -1,339 +1,336 @@
-typechecker:File                              Status
-----------------                              ------
-configurable/PASS_basic_type                  BC generated
-configurable/PASS_basic_pointer_array         BC generated
-configurable/PASS_basic_typedef               BC generated
-configurable/PASS_basic_pointers              BC generated
-configurable/declList                         BC generated
-configurable/PASS_impossibleTypedef           SuperC failed
-configurable/PASS_basic_decl                  BC generated
-configurable/PASS_basic_init                  BC generated
-configurable/PASS_mutuallyExclusiveTypedefs   BC generated
-configurable/PASS_impossibleTypedef2          SuperC failed
-configurable/PASS_basic_statement             BC generated
-functions/PASS_multipleConfigs                BC generated
-functions/PASS_configParam                    BC generated
-functions/PASS_conditionalParams              BC generated
-functions/PASS_basicFunctions                 BC generated
-functions/PASS_valid_type_function            BC generated
-functions/PASS_void_abstract_functions        BC failed
-functions/function_pointer                    BC generated
-functions/PASS_typedefParams                  BC generated
-functions/PASS_invalid_type_function          BC failed
-functions/PASS_abstractParam                  BC generated
-examples/test_struct                          BC generated
-examples/PASS_partial_redeclaration1          BC generated
-examples/scope_partial_declaration2           BC generated
-examples/undeclared_identifer                 SuperC failed
-examples/PASS_partial_redeclaration2          BC generated
-examples/PASS_global_redef_invalid            BC generated
-examples/malloc_const_void_ptr                BC generated
-examples/PASS_valid_signed_unsigned           BC generated
-examples/volatile_abstract_declarator         BC generated
-examples/PASS_valid_long                      BC generated
-examples/typedef_stdio                        BC generated
-examples/PASS_missing_types_valid_qualifiers  BC generated
-examples/PASS_invalid_qualifiers              BC failed
-examples/PASS_staticint                       BC generated
-examples/PASS_invalid_signed_unsigned         BC failed
-examples/PASS_no_redeclaration                BC generated
-examples/PASS_noIdentifier                    SuperC failed
-examples/PASS_invalid_duplicate_qualifiers    BC generated
-examples/PASS_valid_qualifiers                BC generated
-examples/scope_partial_declaration1           BC generated
-examples/PASS_global_redef_valid              BC generated
-examples/test_struct_prohibit_initializer     SuperC failed
-examples/PASS_valid_complex                   BC generated
-examples/PASS_seentypes                       BC failed
-examples/PASS_valid_duplicate_qualifiers      BC generated
-examples/PASS_invalid_long                    BC failed
-examples/typedef                              BC generated
-examples/typedefname_with_qualifer            BC generated
-declarators/PASS_valid_typedef_ident          BC generated
-declarators/PASS_void_typedef                 BC failed
-declarators/PASS_invalid_typedefs             SuperC failed
-declarators/PASS_valid_typedef                BC generated
-declarators/PASS_valid_Array_Pointer          BC generated
-declarators/PASS_valid_decl_quals             BC generated
-declarators/PASS_valid_array_implicit_length  BC generated
-declarators/invalid_typedef                   BC failed
-declarators/invalid_Array_Pointer             SuperC failed
-declarators/PASS_paren                        BC generated
-declarators/PASS_valid_array_with_init        BC generated
-struct/tagged                                 BC generated
-struct/selfref                                BC generated
-struct/nested_anonymous                       BC failed
-struct/redef                                  BC generated
-struct/tagnamespace                           BC generated
-struct/struct_init                            BC generated
-struct/no_nested_redef                        SuperC failed
-struct/struct_global_forward_reference        BC failed
-struct/nested                                 BC generated
-struct/anonymous                              BC generated
-compound/primitive_function2                  BC generated
-compound/pointer_struct1                      BC failed
-compound/primitive_pointer1                   BC generated
-compound/array_function1                      BC generated
-compound/pointer_pointer2                     BC generated
-compound/pointer_pointer1                     BC generated
-compound/pointer_struct2                      BC generated
-compound/primitive_struct2                    BC generated
-compound/primitive_array1                     BC failed
-compound/struct_function2                     BC generated
-compound/struct_struct1                       BC generated
-compound/pointer_function1                    BC generated
-compound/struct_function1                     BC generated
-compound/primitive_array2                     BC generated
-compound/struct_struct2                       BC generated
-compound/array_struct1                        BC generated
-compound/array_function2                      BC generated
-compound/pointer_array1                       BC generated
-compound/array_struct2                        BC generated
-compound/array_array1                         BC generated
-compound/primitive_function1                  BC failed
-compound/primitive_pointer2                   BC generated
-compound/function_function1                   BC generated
-compound/primitive_primitive1                 BC generated
-compound/primitive_struct1                    BC failed
-compound/function_function2                   BC generated
-compound/pointer_function2                    BC generated
-compound/pointer_array2                       BC generated
-unit:File                                    Status
----------                                    ------
-./struct_local_illegal                       BC generated
-./struct_nested                              BC generated
-./conditionalexpression                      BC generated
-./enum_size                                  BC generated
-./function_parameters_empty                  BC generated
-./z3                                         BC generated
-./if_statement                               BC generated
-./sizeof                                     BC generated
-./struct_local_legal                         BC generated
-./if_statement_configurable3                 BC generated
-./global_redeclarations                      BC generated
-./struct_configurable_cross_and_forward_ref  BC generated
-./variable_partially_defined                 BC generated
-./enum_constant_expression1                  BC generated
-./enum_enumerators                           BC generated
-./typedefname_and_variable_declarations      SuperC failed
-./abstractpointerdeclarator                  BC generated
-./struct_undef_cast                          BC failed
-./parendeclarator                            BC generated
-./function_parameters                        BC generated
-./struct_global_local                        BC failed
-./struct_crossref_global2                    BC generated
-./enum_forward_ref                           BC generated
-./qualifiedpointer                           BC generated
-./struct_crossref_global                     BC failed
-./begin_decls                                BC generated
-./enum_repeated_enumerators                  SuperC failed
-./function_parameters_configurable           SuperC failed
-./statement_configurable                     BC generated
-./typedefname_partially_defined              SuperC failed
-./declarators                                BC generated
-./struct_configurable_main                   BC generated
-./struct_crossref_local                      BC generated
-./if_statement_configurable1                 BC generated
-./function_parameters_empty_configurable     BC generated
-./redeclare_structs                          BC generated
-./forloop                                    BC generated
-./struct_simple                              BC generated
-./struct_desugar_test                        BC failed
-./struct_global_forward_reference_desugar    BC generated
-./struct_nested_anonymous                    BC generated
-./enum_constant_expression2                  BC generated
-./enum_configurable                          BC failed
-./if_statement_configurable2                 BC generated
-./forloopdecl                                BC generated
-./struct_global_forward_reference            BC generated
-./configurable_array                         BC failed
-./enum_libbb                                 BC generated
-./struct_global_forward_reference_illegal    BC failed
-./struct_multiply_defined_ifdeftoif          BC generated
-./struct_selfref_local                       BC generated
-./struct_selfref                             BC generated
-./function_pointer                           BC generated
-./struct_forward_scope                       BC generated
-./desugarer_test                             BC generated
-./enum_tag                                   BC generated
-./enum_error                                 BC generated
-./enum                                       BC generated
-./initializers                               BC failed
-./designated_initializer                     BC failed
-./typedef_local_declaration                  BC generated
-./struct_multiply_defined                    BC generated
-./local_redeclarations                       BC generated
-./declaringlist                              BC generated
-./struct_configurable_tls1                   BC generated
-./size_t                                     BC generated
-./typedef                                    BC generated
-./struct_global_forward_reference_ifdeftoif  BC generated
-./struct_union_enum                          BC failed
-./jump_statement                             BC failed
-./single                                     BC generated
-./switch                                     BC generated
-./struct_configurable                        BC generated
-./offsetof                                   BC failed
-transformation:File                                                         Status
--------------------                                                         ------
-functions/main                                                              BC generated
-functions/function_declaration                                              BC generated
-functions/function_call_non_void                                            BC generated
-functions/config_identifier                                                 BC failed
-functions/config_return_type                                                BC failed
-functions/int_main                                                          BC generated
-functions/void_main                                                         BC generated
-functions/config_implicit_function_call                                     BC generated
-functions/function_pointer                                                  BC generated
-functions/config_parameters                                                 BC generated
-functions/config_main_body                                                  BC generated
-functions/config_explicit_function_call                                     BC generated
-functions/function_call_void                                                BC generated
-functions/single                                                            BC generated
-functions/config_multiply_defined_parameter                                 BC generated
-constructs/extern_var_multiply-defined_primitive.autodesugar                BC generated
-constructs/local_var_multiply-defined_primitive.autodesugar                 BC generated
-constructs/types_global_function_multiply-defined.autodesugar               SuperC failed
-constructs/types_multiple_scopes.autodesugar                                BC generated
-constructs/types_multiple_scopes                                            BC generated
-constructs/global_function_multiply-defined.autodesugar                     BC generated
-constructs/types_global_function_multiple_prototypes_same_body.autodesugar  SuperC failed
-constructs/extern_function_multiply-defined.autodesugar                     BC generated
-constructs/types_global_function_multiply-defined_pointer                   BC generated
-constructs/extern_var_multiply-defined_primitive                            BC generated
-constructs/types_primitive_and_compound.autodesugar                         BC generated
-constructs/types_extern_function_multiply-defined.autodesugar               BC failed
-constructs/types_global_function_multiply-defined                           BC failed
-constructs/types_primitive_and_compound                                     BC generated
-constructs/local_var_multiply-defined_primitive                             BC generated
-constructs/global_function_multiple_prototypes_same_body                    BC generated
-constructs/global_function_static.autodesugar                               BC generated
-constructs/extern_function_multiply-defined                                 BC generated
-constructs/global_function_multiple_prototypes_same_body.autodesugar        BC generated
-constructs/types_function_and_extern_primitive                              BC generated
-constructs/static_function_multiple_prototypes_same_body                    BC generated
-constructs/types_global_function_multiply-defined_pointer.autodesugar       BC generated
-constructs/types_extern_var_partially-defined                               SuperC failed
-constructs/global_var_static                                                BC generated
-constructs/global_var_static2                                               BC generated
-constructs/types_global_function_multiple_prototypes_same_body              SuperC failed
-constructs/global_function_static                                           BC generated
-constructs/global_var_static.autodesugar                                    BC generated
-constructs/global_function_multiply-defined                                 BC generated
-constructs/struct_multiply_defined                                          BC generated
-constructs/types_extern_function_multiply-defined                           BC failed
-constructs/types_extern_var_partially-defined.autodesugar                   BC generated
-declaringlists/main                                                         BC generated
-declaringlists/all_init                                                     BC generated
-declaringlists/no_init                                                      BC generated
-declaringlists/config_some_init                                             BC generated
-declaringlists/config_no_init                                               BC generated
-declaringlists/error_conditional                                            BC failed
-declaringlists/variable_expr                                                BC generated
-declaringlists/config_const_conditional_error                               BC generated
-declaringlists/config_const                                                 BC generated
-declaringlists/error_global                                                 BC failed
-declaringlists/one_init                                                     BC generated
-declaringlists/some_init                                                    BC generated
-declaringlists/undeclared                                                   BC generated
-declaringlists/single                                                       BC generated
-declaringlists/error                                                        BC failed
-union/config_union_expressions                                              BC generated
-union/union                                                                 BC generated
-union/union_use                                                             BC generated
-union/config_partially_defined_fields2                                      BC generated
-union/config_union_decl                                                     BC generated
-union/config_partially_defined_fields1                                      BC generated
-union/config_partially_defined_union                                        BC failed
-enum/enum_typedef                                                           BC generated
-enum/enum_decl                                                              BC generated
-enum/config_enum                                                            BC failed
-enum/config_enum_field                                                      BC failed
-enum/enum                                                                   BC generated
-enum/config_typedef_enum                                                    BC generated
-ifelsewhile/if_with_braces                                                  BC generated
-ifelsewhile/while_with_braces                                               BC generated
-ifelsewhile/if_no_braces                                                    BC generated
-ifelsewhile/do_while                                                        BC generated
-ifelsewhile/if_else_with_braces                                             BC generated
-ifelsewhile/while_no_braces                                                 BC generated
-ifelsewhile/explicit_config_if                                              BC generated
-ifelsewhile/if_else_no_braces                                               BC generated
-ifelsewhile/implicit_config_if                                              BC generated
-icse19nier/icsenier2.desugared1                                             SuperC failed
-icse19nier/icsenier1                                                        BC generated
-icse19nier/icsenier2                                                        BC generated
-icse19nier/icsenier2.desugared2                                             SuperC failed
-icse19nier/icsenier3                                                        BC generated
-typedef_struct/typedef_struct_no_main                                       BC generated
-typedef_struct/typedef_struct                                               BC generated
-typedef_struct/config_struct                                                BC generated
-typedef_struct/config_field_typedef                                         BC generated
-typedef_struct/config_typedef_struct_decl                                   BC generated
-typedef_struct/config_typedef_field                                         BC generated
-typedef_struct/config_partially_defined_struct_field                        SuperC failed
-typedef_struct/config_typedef                                               BC generated
-typedef_struct/config_partially_defined_struct                              BC generated
-typedef_struct/typedef_struct_decl                                          BC generated
-misc/singlevariable                                                         BC failed
-misc/canonical                                                              BC generated
-misc/main                                                                   BC generated
-misc/twovariables.autodesugar                                               SuperC failed
-misc/inside                                                                 BC generated
-misc/decl                                                                   BC failed
-misc/twovariables                                                           BC failed
-misc/bob                                                                    BC generated
-misc/canonical_example                                                      BC generated
-misc/twovariablesdifferent                                                  BC failed
-misc/test                                                                   BC generated
-misc/type                                                                   BC generated
-misc/regular_conditional                                                    BC generated
-expressions/variable_arithmetic_assignment                                  BC generated
-expressions/array_variable_decl                                             BC generated
-expressions/config_variable_arithmetic_assignment                           BC generated
-expressions/minimal_global_car_decl                                         BC generated
-expressions/variable_address                                                BC generated
-expressions/arrays                                                          BC generated
-expressions/array_decl                                                      BC generated
-expressions/config_short_constant_arithmetic_ops                            BC generated
-expressions/config_postfix                                                  BC generated
-expressions/short_constant_arithmetic_ops                                   BC generated
-expressions/icr_decr                                                        BC generated
-expressions/array_expr_decl                                                 BC generated
-expressions/short_variable_arithmetic_ops                                   BC generated
-expressions/config_long_constant_arithmetic_ops                             BC generated
-expressions/long_variable_arithmetic_ops                                    BC generated
-expressions/array_assignment                                                BC generated
-expressions/config_constant_arithmetic_assignment                           BC generated
-expressions/config_short_variable_arithmetic_ops                            BC generated
-expressions/config_array_decl                                               BC generated
-expressions/config_var_address                                              BC generated
-expressions/config_prefix                                                   BC generated
-expressions/expressions                                                     BC generated
-expressions/config_long_variable_arithmetic_ops                             BC generated
-expressions/prefix                                                          BC generated
-expressions/constant_arithmetic_assignment                                  BC generated
-expressions/postfix                                                         BC generated
-expressions/long_constant_arithmetic_ops                                    BC generated
-expressions/config_arr_assignment                                           BC generated
-phasar/linear_constant/basic_03_resugared                                   BC generated
-phasar/linear_constant/loop_01                                              BC generated
-phasar/linear_constant/call_01                                              BC generated
-phasar/linear_constant/basic_03                                             BC generated
-phasar/linear_constant/basic_04_resugared                                   BC generated
-phasar/linear_constant/basic_01                                             BC generated
-phasar/linear_constant/twovariables.desugared_resugared                     BC generated
-phasar/linear_constant/recursion_01                                         BC generated
-phasar/linear_constant/basic_01_resugared                                   BC generated
-phasar/linear_constant/basic_02                                             BC generated
-phasar/linear_constant/loop_01_resugared                                    BC generated
-phasar/linear_constant/recursion_01_resugared                               BC generated
-phasar/linear_constant/call_01_resugared                                    BC generated
-phasar/linear_constant/basic_02_resugared                                   BC generated
-phasar/linear_constant/basic_04                                             BC generated
-phasar/secure_memory/memory1                                                BC failed
-phasar/secure_memory/memory1_resugared                                      BC failed
-phasar/secure_memory/memory1_2                                              BC failed
-phasar/secure_memory/memory1_resugared_decls_added                          BC generated
-phasar/secure_memory/memory1_2_resugared_decls_added                        BC failed
-phasar/secure_memory/memory1_2_resugared                                    BC failed
+File                                                                                       Status
+----                                                                                       ------
+typechecker/configurable/PASS_basic_type                                                   BC generated
+typechecker/configurable/PASS_basic_pointer_array                                          BC failed
+typechecker/configurable/PASS_basic_typedef                                                BC generated
+typechecker/configurable/PASS_basic_pointers                                               BC generated
+typechecker/configurable/declList                                                          BC generated
+typechecker/configurable/PASS_impossibleTypedef                                            BC generated
+typechecker/configurable/PASS_basic_decl                                                   BC generated
+typechecker/configurable/PASS_basic_init                                                   BC generated
+typechecker/configurable/PASS_mutuallyExclusiveTypedefs                                    BC generated
+typechecker/configurable/PASS_impossibleTypedef2                                           BC generated
+typechecker/configurable/PASS_basic_statement                                              BC generated
+typechecker/functions/PASS_multipleConfigs                                                 SuperC failed
+typechecker/functions/PASS_multipleConfigs                                                 BC failed
+typechecker/functions/PASS_configParam                                                     BC generated
+typechecker/functions/PASS_conditionalParams                                               BC generated
+typechecker/functions/PASS_basicFunctions                                                  BC generated
+typechecker/functions/PASS_valid_type_function                                             BC generated
+typechecker/functions/PASS_void_abstract_functions                                         File isn't valid
+typechecker/functions/function_pointer                                                     BC generated
+typechecker/functions/PASS_typedefParams                                                   BC generated
+typechecker/functions/PASS_invalid_type_function                                           File isn't valid
+typechecker/functions/PASS_abstractParam                                                   BC generated
+typechecker/examples/test_struct                                                           BC generated
+typechecker/examples/PASS_partial_redeclaration1                                           BC generated
+typechecker/examples/scope_partial_declaration2                                            BC generated
+typechecker/examples/undeclared_identifer                                                  File isn't valid
+typechecker/examples/PASS_partial_redeclaration2                                           BC generated
+typechecker/examples/PASS_global_redef_invalid                                             BC generated
+typechecker/examples/malloc_const_void_ptr                                                 BC generated
+typechecker/examples/PASS_valid_signed_unsigned                                            BC generated
+typechecker/examples/volatile_abstract_declarator                                          BC generated
+typechecker/examples/PASS_valid_long                                                       BC generated
+typechecker/examples/typedef_stdio                                                         BC generated
+typechecker/examples/PASS_missing_types_valid_qualifiers                                   BC generated
+typechecker/examples/PASS_invalid_qualifiers                                               File isn't valid
+typechecker/examples/PASS_staticint                                                        BC generated
+typechecker/examples/PASS_invalid_signed_unsigned                                          File isn't valid
+typechecker/examples/PASS_no_redeclaration                                                 BC generated
+typechecker/examples/PASS_noIdentifier                                                     File isn't valid
+typechecker/examples/PASS_invalid_duplicate_qualifiers                                     File isn't valid
+typechecker/examples/PASS_valid_qualifiers                                                 BC generated
+typechecker/examples/scope_partial_declaration1                                            BC generated
+typechecker/examples/PASS_global_redef_valid                                               BC generated
+typechecker/examples/test_struct_prohibit_initializer                                      File isn't valid
+typechecker/examples/PASS_valid_complex                                                    BC generated
+typechecker/examples/PASS_seentypes                                                        File isn't valid
+typechecker/examples/PASS_valid_duplicate_qualifiers                                       BC generated
+typechecker/examples/PASS_invalid_long                                                     File isn't valid
+typechecker/examples/typedef                                                               BC generated
+typechecker/examples/typedefname_with_qualifer                                             BC generated
+typechecker/declarators/PASS_valid_typedef_ident                                           BC generated
+typechecker/declarators/PASS_void_typedef                                                  File isn't valid
+typechecker/declarators/PASS_invalid_typedefs                                              File isn't valid
+typechecker/declarators/PASS_valid_typedef                                                 BC generated
+typechecker/declarators/PASS_valid_Array_Pointer                                           BC generated
+typechecker/declarators/PASS_valid_decl_quals                                              BC generated
+typechecker/declarators/PASS_valid_array_implicit_length                                   BC generated
+typechecker/declarators/invalid_typedef                                                    File isn't valid
+typechecker/declarators/invalid_Array_Pointer                                              File isn't valid
+typechecker/declarators/PASS_paren                                                         BC generated
+typechecker/declarators/PASS_valid_array_with_init                                         BC generated
+typechecker/struct/tagged                                                                  BC generated
+typechecker/struct/selfref                                                                 BC generated
+typechecker/struct/nested_anonymous                                                        BC generated
+typechecker/struct/redef                                                                   BC generated
+typechecker/struct/tagnamespace                                                            BC generated
+typechecker/struct/struct_init                                                             BC generated
+typechecker/struct/no_nested_redef                                                         File isn't valid
+typechecker/struct/struct_global_forward_reference                                         File isn't valid
+typechecker/struct/nested                                                                  File isn't valid
+typechecker/struct/anonymous                                                               BC generated
+typechecker/compound/primitive_function2                                                   BC generated
+typechecker/compound/pointer_struct1                                                       File isn't valid
+typechecker/compound/primitive_pointer1                                                    BC generated
+typechecker/compound/array_function1                                                       BC failed
+typechecker/compound/pointer_pointer2                                                      BC generated
+typechecker/compound/pointer_pointer1                                                      BC generated
+typechecker/compound/pointer_struct2                                                       BC generated
+typechecker/compound/primitive_struct2                                                     BC generated
+typechecker/compound/primitive_array1                                                      File isn't valid
+typechecker/compound/struct_function2                                                      BC generated
+typechecker/compound/struct_struct1                                                        File isn't valid
+typechecker/compound/pointer_function1                                                     BC generated
+typechecker/compound/struct_function1                                                      BC generated
+typechecker/compound/primitive_array2                                                      BC generated
+typechecker/compound/struct_struct2                                                        BC generated
+typechecker/compound/array_struct1                                                         File isn't valid
+typechecker/compound/array_function2                                                       BC generated
+typechecker/compound/pointer_array1                                                        File isn't valid
+typechecker/compound/array_struct2                                                         BC generated
+typechecker/compound/array_array1                                                          BC generated
+typechecker/compound/primitive_function1                                                   BC failed
+typechecker/compound/primitive_pointer2                                                    BC failed
+typechecker/compound/function_function1                                                    BC generated
+typechecker/compound/primitive_primitive1                                                  BC generated
+typechecker/compound/primitive_struct1                                                     File isn't valid
+typechecker/compound/function_function2                                                    BC generated
+typechecker/compound/pointer_function2                                                     BC generated
+typechecker/compound/pointer_array2                                                        BC generated
+unit/struct_local_illegal                                                                  File isn't valid
+unit/struct_nested                                                                         BC generated
+unit/conditionalexpression                                                                 BC generated
+unit/enum_size                                                                             File isn't valid
+unit/function_parameters_empty                                                             BC generated
+unit/z3                                                                                    BC generated
+unit/if_statement                                                                          BC generated
+unit/sizeof                                                                                BC generated
+unit/struct_local_legal                                                                    BC generated
+unit/if_statement_configurable3                                                            BC generated
+unit/global_redeclarations                                                                 File isn't valid
+unit/struct_configurable_cross_and_forward_ref                                             BC generated
+unit/variable_partially_defined                                                            BC failed
+unit/enum_constant_expression1                                                             File isn't valid
+unit/enum_enumerators                                                                      BC generated
+unit/typedefname_and_variable_declarations                                                 BC generated
+unit/abstractpointerdeclarator                                                             BC generated
+unit/struct_undef_cast                                                                     BC generated
+unit/parendeclarator                                                                       BC generated
+unit/function_parameters                                                                   BC generated
+unit/struct_global_local                                                                   File isn't valid
+unit/struct_crossref_global2                                                               BC generated
+unit/enum_forward_ref                                                                      File isn't valid
+unit/qualifiedpointer                                                                      BC generated
+unit/struct_crossref_global                                                                File isn't valid
+unit/begin_decls                                                                           BC generated
+unit/enum_repeated_enumerators                                                             File isn't valid
+unit/function_parameters_configurable                                                      File isn't valid
+unit/statement_configurable                                                                BC generated
+unit/typedefname_partially_defined                                                         BC failed
+unit/declarators                                                                           BC generated
+unit/struct_configurable_main                                                              BC generated
+unit/struct_crossref_local                                                                 BC generated
+unit/if_statement_configurable1                                                            BC generated
+unit/function_parameters_empty_configurable                                                BC generated
+unit/redeclare_structs                                                                     File isn't valid
+unit/forloop                                                                               BC generated
+unit/struct_simple                                                                         BC generated
+unit/struct_desugar_test                                                                   BC failed
+unit/struct_global_forward_reference_desugar                                               BC generated
+unit/struct_nested_anonymous                                                               BC generated
+unit/enum_constant_expression2                                                             File isn't valid
+unit/enum_configurable                                                                     File isn't valid
+unit/if_statement_configurable2                                                            BC generated
+unit/forloopdecl                                                                           BC generated
+unit/struct_global_forward_reference                                                       BC generated
+unit/configurable_array                                                                    File isn't valid
+unit/enum_libbb                                                                            BC generated
+unit/struct_global_forward_reference_illegal                                               File isn't valid
+unit/struct_multiply_defined_ifdeftoif                                                     File isn't valid
+unit/struct_selfref_local                                                                  BC generated
+unit/struct_selfref                                                                        BC generated
+unit/function_pointer                                                                      BC generated
+unit/struct_forward_scope                                                                  BC generated
+unit/desugarer_test                                                                        BC generated
+unit/enum_tag                                                                              BC generated
+unit/enum_error                                                                            BC generated
+unit/enum                                                                                  BC generated
+unit/initializers                                                                          File isn't valid
+unit/designated_initializer                                                                BC failed
+unit/typedef_local_declaration                                                             BC generated
+unit/struct_multiply_defined                                                               BC generated
+unit/local_redeclarations                                                                  BC generated
+unit/declaringlist                                                                         BC generated
+unit/struct_configurable_tls1                                                              BC generated
+unit/size_t                                                                                BC generated
+unit/typedef                                                                               BC generated
+unit/struct_global_forward_reference_ifdeftoif                                             File isn't valid
+unit/struct_union_enum                                                                     File isn't valid
+unit/jump_statement                                                                        File isn't valid
+unit/single                                                                                BC generated
+unit/switch                                                                                BC generated
+unit/struct_configurable                                                                   BC generated
+unit/offsetof                                                                              BC failed
+transformation/functions/main                                                              BC generated
+transformation/functions/function_declaration                                              BC generated
+transformation/functions/function_call_non_void                                            BC generated
+transformation/functions/config_identifier                                                 BC failed
+transformation/functions/config_return_type                                                BC failed
+transformation/functions/int_main                                                          BC generated
+transformation/functions/void_main                                                         BC generated
+transformation/functions/config_implicit_function_call                                     BC generated
+transformation/functions/function_pointer                                                  BC generated
+transformation/functions/config_parameters                                                 BC generated
+transformation/functions/config_main_body                                                  BC generated
+transformation/functions/config_explicit_function_call                                     BC generated
+transformation/functions/function_call_void                                                BC generated
+transformation/functions/single                                                            BC generated
+transformation/functions/config_multiply_defined_parameter                                 BC generated
+transformation/constructs/extern_var_multiply-defined_primitive.autodesugar                File isn't valid
+transformation/constructs/local_var_multiply-defined_primitive.autodesugar                 File isn't valid
+transformation/constructs/types_global_function_multiply-defined.autodesugar               File isn't valid
+transformation/constructs/types_multiple_scopes.autodesugar                                File isn't valid
+transformation/constructs/types_multiple_scopes                                            BC generated
+transformation/constructs/global_function_multiply-defined.autodesugar                     File isn't valid
+transformation/constructs/types_global_function_multiple_prototypes_same_body.autodesugar  File isn't valid
+transformation/constructs/extern_function_multiply-defined.autodesugar                     File isn't valid
+transformation/constructs/types_global_function_multiply-defined_pointer                   BC generated
+transformation/constructs/extern_var_multiply-defined_primitive                            BC generated
+transformation/constructs/types_primitive_and_compound.autodesugar                         File isn't valid
+transformation/constructs/types_extern_function_multiply-defined.autodesugar               File isn't valid
+transformation/constructs/types_global_function_multiply-defined                           File isn't valid
+transformation/constructs/types_primitive_and_compound                                     BC generated
+transformation/constructs/local_var_multiply-defined_primitive                             BC generated
+transformation/constructs/global_function_multiple_prototypes_same_body                    BC generated
+transformation/constructs/global_function_static.autodesugar                               File isn't valid
+transformation/constructs/extern_function_multiply-defined                                 BC generated
+transformation/constructs/global_function_multiple_prototypes_same_body.autodesugar        File isn't valid
+transformation/constructs/types_function_and_extern_primitive                              BC generated
+transformation/constructs/static_function_multiple_prototypes_same_body                    BC generated
+transformation/constructs/types_global_function_multiply-defined_pointer.autodesugar       File isn't valid
+transformation/constructs/types_extern_var_partially-defined                               BC generated
+transformation/constructs/global_var_static                                                BC generated
+transformation/constructs/global_var_static2                                               BC generated
+transformation/constructs/types_global_function_multiple_prototypes_same_body              File isn't valid
+transformation/constructs/global_function_static                                           BC generated
+transformation/constructs/global_var_static.autodesugar                                    File isn't valid
+transformation/constructs/global_function_multiply-defined                                 BC generated
+transformation/constructs/struct_multiply_defined                                          BC generated
+transformation/constructs/types_extern_function_multiply-defined                           BC failed
+transformation/constructs/types_extern_var_partially-defined.autodesugar                   File isn't valid
+transformation/declaringlists/main                                                         BC generated
+transformation/declaringlists/all_init                                                     BC generated
+transformation/declaringlists/no_init                                                      BC generated
+transformation/declaringlists/config_some_init                                             BC generated
+transformation/declaringlists/config_no_init                                               BC generated
+transformation/declaringlists/error_conditional                                            BC failed
+transformation/declaringlists/variable_expr                                                BC generated
+transformation/declaringlists/config_const_conditional_error                               File isn't valid
+transformation/declaringlists/config_const                                                 BC generated
+transformation/declaringlists/error_global                                                 File isn't valid
+transformation/declaringlists/one_init                                                     BC generated
+transformation/declaringlists/some_init                                                    BC generated
+transformation/declaringlists/undeclared                                                   BC generated
+transformation/declaringlists/single                                                       BC generated
+transformation/declaringlists/error                                                        File isn't valid
+transformation/union/config_union_expressions                                              BC generated
+transformation/union/union                                                                 BC generated
+transformation/union/union_use                                                             BC generated
+transformation/union/config_partially_defined_fields2                                      File isn't valid
+transformation/union/config_union_decl                                                     BC generated
+transformation/union/config_partially_defined_fields1                                      BC generated
+transformation/union/config_partially_defined_union                                        BC generated
+transformation/enum/enum_typedef                                                           BC generated
+transformation/enum/enum_decl                                                              BC generated
+transformation/enum/config_enum                                                            BC generated
+transformation/enum/config_enum_field                                                      File isn't valid
+transformation/enum/enum                                                                   BC generated
+transformation/enum/config_typedef_enum                                                    BC generated
+transformation/ifelsewhile/if_with_braces                                                  BC generated
+transformation/ifelsewhile/while_with_braces                                               BC generated
+transformation/ifelsewhile/if_no_braces                                                    BC generated
+transformation/ifelsewhile/do_while                                                        BC generated
+transformation/ifelsewhile/if_else_with_braces                                             BC generated
+transformation/ifelsewhile/while_no_braces                                                 BC generated
+transformation/ifelsewhile/explicit_config_if                                              BC generated
+transformation/ifelsewhile/if_else_no_braces                                               BC generated
+transformation/ifelsewhile/implicit_config_if                                              BC generated
+transformation/icse19nier/icsenier2.desugared1                                             File isn't valid
+transformation/icse19nier/icsenier1                                                        BC generated
+transformation/icse19nier/icsenier2                                                        BC generated
+transformation/icse19nier/icsenier2.desugared2                                             File isn't valid
+transformation/icse19nier/icsenier3                                                        BC generated
+transformation/typedef_struct/typedef_struct_no_main                                       BC generated
+transformation/typedef_struct/typedef_struct                                               BC generated
+transformation/typedef_struct/config_struct                                                BC generated
+transformation/typedef_struct/config_field_typedef                                         BC generated
+transformation/typedef_struct/config_typedef_struct_decl                                   BC generated
+transformation/typedef_struct/config_typedef_field                                         BC generated
+transformation/typedef_struct/config_partially_defined_struct_field                        BC generated
+transformation/typedef_struct/config_typedef                                               BC generated
+transformation/typedef_struct/config_partially_defined_struct                              BC generated
+transformation/typedef_struct/typedef_struct_decl                                          BC generated
+transformation/misc/singlevariable                                                         BC failed
+transformation/misc/canonical                                                              BC failed
+transformation/misc/main                                                                   BC generated
+transformation/misc/twovariables.autodesugar                                               File isn't valid
+transformation/misc/inside                                                                 BC generated
+transformation/misc/decl                                                                   BC failed
+transformation/misc/twovariables                                                           BC failed
+transformation/misc/bob                                                                    BC generated
+transformation/misc/canonical_example                                                      BC failed
+transformation/misc/twovariablesdifferent                                                  BC failed
+transformation/misc/test                                                                   BC generated
+transformation/misc/type                                                                   BC generated
+transformation/misc/regular_conditional                                                    BC generated
+transformation/expressions/variable_arithmetic_assignment                                  BC generated
+transformation/expressions/array_variable_decl                                             BC generated
+transformation/expressions/config_variable_arithmetic_assignment                           BC generated
+transformation/expressions/minimal_global_car_decl                                         BC generated
+transformation/expressions/variable_address                                                BC generated
+transformation/expressions/arrays                                                          BC generated
+transformation/expressions/array_decl                                                      BC generated
+transformation/expressions/config_short_constant_arithmetic_ops                            BC generated
+transformation/expressions/config_postfix                                                  BC generated
+transformation/expressions/short_constant_arithmetic_ops                                   BC generated
+transformation/expressions/icr_decr                                                        BC generated
+transformation/expressions/array_expr_decl                                                 BC generated
+transformation/expressions/short_variable_arithmetic_ops                                   BC generated
+transformation/expressions/config_long_constant_arithmetic_ops                             BC generated
+transformation/expressions/long_variable_arithmetic_ops                                    BC generated
+transformation/expressions/array_assignment                                                BC generated
+transformation/expressions/config_constant_arithmetic_assignment                           BC generated
+transformation/expressions/config_short_variable_arithmetic_ops                            BC generated
+transformation/expressions/config_array_decl                                               BC generated
+transformation/expressions/config_var_address                                              BC generated
+transformation/expressions/config_prefix                                                   BC generated
+transformation/expressions/expressions                                                     BC generated
+transformation/expressions/config_long_variable_arithmetic_ops                             BC generated
+transformation/expressions/prefix                                                          BC generated
+transformation/expressions/constant_arithmetic_assignment                                  BC generated
+transformation/expressions/postfix                                                         BC generated
+transformation/expressions/long_constant_arithmetic_ops                                    BC generated
+transformation/expressions/config_arr_assignment                                           BC generated
+transformation/phasar/linear_constant/basic_03_resugared                                   BC generated
+transformation/phasar/linear_constant/loop_01                                              BC generated
+transformation/phasar/linear_constant/call_01                                              BC generated
+transformation/phasar/linear_constant/basic_03                                             BC generated
+transformation/phasar/linear_constant/basic_04_resugared                                   BC generated
+transformation/phasar/linear_constant/basic_01                                             BC generated
+transformation/phasar/linear_constant/twovariables.desugared_resugared                     BC generated
+transformation/phasar/linear_constant/recursion_01                                         BC generated
+transformation/phasar/linear_constant/basic_01_resugared                                   BC generated
+transformation/phasar/linear_constant/basic_02                                             BC generated
+transformation/phasar/linear_constant/loop_01_resugared                                    BC generated
+transformation/phasar/linear_constant/recursion_01_resugared                               BC generated
+transformation/phasar/linear_constant/call_01_resugared                                    BC generated
+transformation/phasar/linear_constant/basic_02_resugared                                   BC generated
+transformation/phasar/linear_constant/basic_04                                             BC generated
+transformation/phasar/secure_memory/memory1                                                BC failed
+transformation/phasar/secure_memory/memory1_resugared                                      BC failed
+transformation/phasar/secure_memory/memory1_2                                              BC failed
+transformation/phasar/secure_memory/memory1_resugared_decls_added                          BC generated
+transformation/phasar/secure_memory/memory1_2_resugared_decls_added                        File isn't valid
+transformation/phasar/secure_memory/memory1_2_resugared                                    File isn't valid

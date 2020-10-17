@@ -19,7 +19,7 @@
   },
   "transformation/typedef_struct/config_partially_defined_struct_field.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"transformation/typedef_struct/config_partially_defined_struct_field.c:7:3: error: unknown type name \u2018typeAlias\u2019\n   typeAlias val;\n   ^~~~~~~~~\n",
     "stdOut":""
   },
@@ -177,7 +177,7 @@
   },
   "typechecker/configurable/PASS_impossibleTypedef.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"typechecker/configurable/PASS_impossibleTypedef.c: In function \u2018main\u2019:\ntypechecker/configurable/PASS_impossibleTypedef.c:7:3: error: unknown type name \u2018a\u2019\n   a x;\n   ^\n",
     "stdOut":""
   },
@@ -245,13 +245,13 @@
   },
   "transformation/constructs/types_global_function_multiply-defined.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":false,
     "stdErr":"transformation/constructs/types_global_function_multiply-defined.c: In function \u2018main\u2019:\ntransformation/constructs/types_global_function_multiply-defined.c:16:3: error: too few arguments to function \u2018x\u2019\n   x();\n   ^\ntransformation/constructs/types_global_function_multiply-defined.c:7:6: note: declared here\n char x(int y) {\n      ^\n",
     "stdOut":""
   },
   "unit/typedefname_partially_defined.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"unit/typedefname_partially_defined.c: In function \u2018main\u2019:\nunit/typedefname_partially_defined.c:12:9: error: unknown type name \u2018a\u2019\n   const a a;\n         ^\n",
     "stdOut":""
   },
@@ -305,7 +305,7 @@
   },
   "transformation/union/config_partially_defined_fields1.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"transformation/union/config_partially_defined_fields1.c: In function \u2018main\u2019:\ntransformation/union/config_partially_defined_fields1.c:18:12: error: \u2018union intCharFloat\u2019 has no member named \u2018character\u2019\n   usedUnion.character = 'h';\n            ^\n",
     "stdOut":""
   },
@@ -351,7 +351,7 @@
   },
   "transformation/icse19nier/icsenier2.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"transformation/icse19nier/icsenier2.c: In function \u2018main\u2019:\ntransformation/icse19nier/icsenier2.c:10:6: error: \u2018struct t\u2019 has no member named \u2018i_reserved_quota\u2019\n   var.i_reserved_quota = 1;\n      ^\n",
     "stdOut":""
   },
@@ -489,7 +489,7 @@
   },
   "unit/configurable_array.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":false,
     "stdErr":"unit/configurable_array.c:7:5: error: variably modified \u2018y\u2019 at file scope\n int y[][x];\n     ^\nunit/configurable_array.c:7:5: warning: array \u2018y\u2019 assumed to have one element\n",
     "stdOut":""
   },
@@ -553,7 +553,7 @@
   },
   "typechecker/compound/primitive_function1.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"typechecker/compound/primitive_function1.c: In function \u2018main\u2019:\ntypechecker/compound/primitive_function1.c:10:4: error: lvalue required as increment operand\n   x++;\n    ^~\n",
     "stdOut":""
   },
@@ -595,7 +595,7 @@
   },
   "transformation/constructs/types_extern_function_multiply-defined.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"transformation/constructs/types_extern_function_multiply-defined.c: In function \u2018main\u2019:\ntransformation/constructs/types_extern_function_multiply-defined.c:8:3: error: too few arguments to function \u2018x\u2019\n   x();\n   ^\ntransformation/constructs/types_extern_function_multiply-defined.c:4:14: note: declared here\n extern float x(int);\n              ^\n",
     "stdOut":""
   },
@@ -779,7 +779,7 @@
   },
   "unit/struct_union_enum.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":false,
     "stdErr":"unit/struct_union_enum.c:4:19: error: field \u2018sa\u2019 has incomplete type\n   struct sockaddr sa;\n                   ^~\nunit/struct_union_enum.c:5:22: error: field \u2018sin\u2019 has incomplete type\n   struct sockaddr_in sin;\n                      ^~~\nunit/struct_union_enum.c: In function \u2018main\u2019:\nunit/struct_union_enum.c:13:3: error: request for member \u2018u\u2019 in something not a structure or union\n   __builtin_offsetof(int, u);\n   ^~~~~~~~~~~~~~~~~~\n",
     "stdOut":""
   },
@@ -841,7 +841,7 @@
   },
   "typechecker/compound/pointer_function1.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"typechecker/compound/pointer_function1.c: In function \u2018main\u2019:\ntypechecker/compound/pointer_function1.c:12:5: error: lvalue required as left operand of assignment\n   x = &num;\n     ^\n",
     "stdOut":""
   },
@@ -901,7 +901,7 @@
   },
   "transformation/declaringlists/error_conditional.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"transformation/declaringlists/error_conditional.c: In function \u2018main\u2019:\ntransformation/declaringlists/error_conditional.c:5:8: error: two or more data types in declaration specifiers\n   char char x;\n        ^~~~\n",
     "stdOut":""
   },
@@ -973,7 +973,7 @@
   },
   "typechecker/compound/array_function1.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"typechecker/compound/array_function1.c: In function \u2018main\u2019:\ntypechecker/compound/array_function1.c:10:4: error: subscripted value is neither array nor pointer nor vector\n   x[2];\n    ^\n",
     "stdOut":""
   },
@@ -1109,7 +1109,7 @@
   },
   "transformation/union/config_union_expressions.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"transformation/union/config_union_expressions.c: In function \u2018main\u2019:\ntransformation/union/config_union_expressions.c:17:12: error: \u2018union intCharFloat\u2019 has no member named \u2018character\u2019\n   usedUnion.character = 'h';\n            ^\ntransformation/union/config_union_expressions.c:23:36: error: \u2018union intCharFloat\u2019 has no member named \u2018character\u2019\n   y = usedUnion.integer + usedUnion.character;\n                                    ^\ntransformation/union/config_union_expressions.c:32:22: error: \u2018union intCharFloat\u2019 has no member named \u2018character\u2019\n   char ch = usedUnion.character;\n                      ^\n",
     "stdOut":""
   },
@@ -1201,7 +1201,7 @@
   },
   "transformation/constructs/types_primitive_and_compound.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"transformation/constructs/types_primitive_and_compound.c: In function \u2018main\u2019:\ntransformation/constructs/types_primitive_and_compound.c:13:6: error: request for member \u2018x\u2019 in something not a structure or union\n   var.x = 1;\n      ^\n",
     "stdOut":""
   },
@@ -1219,7 +1219,7 @@
   },
   "typechecker/compound/function_function1.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"typechecker/compound/function_function1.c: In function \u2018main\u2019:\ntypechecker/compound/function_function1.c:12:3: error: too many arguments to function \u2018x\u2019\n   x(3.2, 4.0);\n   ^\ntypechecker/compound/function_function1.c:6:6: note: declared here\n char x(int y) {\n      ^\n",
     "stdOut":""
   },
@@ -1315,7 +1315,7 @@
   },
   "unit/typedefname_and_variable_declarations.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"unit/typedefname_and_variable_declarations.c: In function \u2018main\u2019:\nunit/typedefname_and_variable_declarations.c:8:5: error: expected \u2018;\u2019 before \u2018a\u2019\n   a a;\n     ^\nunit/typedefname_and_variable_declarations.c: In function \u2018f\u2019:\nunit/typedefname_and_variable_declarations.c:12:11: error: expected \u2018=\u2019, \u2018,\u2019, \u2018;\u2019, \u2018asm\u2019 or \u2018__attribute__\u2019 before \u2018a\u2019\n   const a a;\n           ^\n",
     "stdOut":""
   },
@@ -1665,7 +1665,7 @@
   },
   "transformation/enum/config_enum.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"transformation/enum/config_enum.c: In function \u2018main\u2019:\ntransformation/enum/config_enum.c:14:11: error: \u2018a\u2019 undeclared (first use in this function)\n   apple = a;\n           ^\ntransformation/enum/config_enum.c:14:11: note: each undeclared identifier is reported only once for each function it appears in\n",
     "stdOut":""
   },
@@ -1695,13 +1695,13 @@
   },
   "transformation/constructs/types_global_function_multiple_prototypes_same_body.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":false,
     "stdErr":"transformation/constructs/types_global_function_multiple_prototypes_same_body.c: In function \u2018x\u2019:\ntransformation/constructs/types_global_function_multiple_prototypes_same_body.c:14:11: error: \u2018y\u2019 undeclared (first use in this function)\n   b = b + y;\n           ^\ntransformation/constructs/types_global_function_multiple_prototypes_same_body.c:14:11: note: each undeclared identifier is reported only once for each function it appears in\n",
     "stdOut":""
   },
   "transformation/declaringlists/error_global.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":false,
     "stdErr":"transformation/declaringlists/error_global.c:1:5: error: two or more data types in declaration specifiers\n int int j;\n     ^~~\n",
     "stdOut":""
   },
@@ -1859,7 +1859,7 @@
   },
   "transformation/constructs/types_extern_var_partially-defined.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"transformation/constructs/types_extern_var_partially-defined.c: In function \u2018main\u2019:\ntransformation/constructs/types_extern_var_partially-defined.c:7:3: error: \u2018x\u2019 undeclared (first use in this function)\n   x++;\n   ^\ntransformation/constructs/types_extern_var_partially-defined.c:7:3: note: each undeclared identifier is reported only once for each function it appears in\n",
     "stdOut":""
   },
@@ -1871,7 +1871,7 @@
   },
   "typechecker/compound/struct_function1.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"typechecker/compound/struct_function1.c: In function \u2018main\u2019:\ntypechecker/compound/struct_function1.c:10:4: error: request for member \u2018a\u2019 in something not a structure or union\n   x.a;\n    ^\n",
     "stdOut":""
   },
@@ -1895,7 +1895,7 @@
   },
   "transformation/union/config_partially_defined_union.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"transformation/union/config_partially_defined_union.c: In function \u2018main\u2019:\ntransformation/union/config_partially_defined_union.c:10:22: error: storage size of \u2018usedUnion\u2019 isn\u2019t known\n   union intCharFloat usedUnion;\n                      ^~~~~~~~~\n",
     "stdOut":""
   },
@@ -1979,7 +1979,7 @@
   },
   "typechecker/configurable/PASS_impossibleTypedef2.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"typechecker/configurable/PASS_impossibleTypedef2.c: In function \u2018main\u2019:\ntypechecker/configurable/PASS_impossibleTypedef2.c:8:3: error: unknown type name \u2018a\u2019\n   a x;\n   ^\n",
     "stdOut":""
   },
@@ -1997,7 +1997,7 @@
   },
   "unit/variable_partially_defined.c":{
     "inclusions":[],
-    "valid":"unrun configurations",
+    "valid":true,
     "stdErr":"unit/variable_partially_defined.c: In function \u2018main\u2019:\nunit/variable_partially_defined.c:12:3: error: \u2018a\u2019 undeclared (first use in this function)\n   a;\n   ^\nunit/variable_partially_defined.c:12:3: note: each undeclared identifier is reported only once for each function it appears in\n",
     "stdOut":""
   },
