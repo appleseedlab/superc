@@ -192,6 +192,8 @@ public class SugarC extends Tool {
            + "configuration variables, but keep them free in the macro table").
       word("restrictFreeToPrefix", "restrictFreeToPrefix", false,
            "Restricts free macros to those that have the given prefix").
+      bool("singleConfigSysheaders", "singleConfigSysheaders", false,
+           "Disables configuration-awareness inside of system headers.").
 
       // Subparser explosion kill switch.
       word("killswitch", "killswitch", false,
@@ -437,6 +439,8 @@ public class SugarC extends Tool {
                                       tokenCreator);
       ((Preprocessor) preprocessor)
         .showErrors(! runtime.test("hideErrors"));
+      ((Preprocessor) preprocessor)
+        .singleConfigurationSysheaders(runtime.test("singleConfigSysheaders"));
 
       do {
         syntax = preprocessor.next();
@@ -448,7 +452,7 @@ public class SugarC extends Tool {
     fileManager = new HeaderFileManager(in, file, iquote, I, sysdirs,
                                         lexerCreator, tokenCreator, lexerTimer,
                                         runtime.getString(xtc.util.Runtime.INPUT_ENCODING));
-      fileManager.showHeaders(runtime.test("showHeaders"));
+    fileManager.showHeaders(runtime.test("showHeaders"));
     fileManager.showErrors(! runtime.test("hideErrors"));
 
     preprocessor = new Preprocessor(fileManager,
@@ -459,6 +463,8 @@ public class SugarC extends Tool {
     
     ((Preprocessor) preprocessor)
       .showErrors(! runtime.test("hideErrors"));
+    ((Preprocessor) preprocessor)
+      .singleConfigurationSysheaders(runtime.test("singleConfigSysheaders"));
 
     // Run SuperC.
 

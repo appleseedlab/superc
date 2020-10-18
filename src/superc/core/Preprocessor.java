@@ -203,6 +203,9 @@ public class Preprocessor implements Iterator<Syntax> {
   /** Whether to emit errors to stderr. */
   private boolean showErrors = false;
 
+  /** Whether to disable configuration-awareness in system headers. */
+  private boolean singleConfigurationSysheaders = false;
+
   /**
    * The stack of macro presenceConditions.  Used to keep track of
    * nested macro expansions and for backing up in the input.
@@ -317,6 +320,34 @@ public class Preprocessor implements Iterator<Syntax> {
   public void showErrors(boolean b) {
     showErrors = b;
   }
+
+  /**
+   * Disable configuration-awareness in system headers.
+   *
+   * @param b True is on.
+   */
+  public void singleConfigurationSysheaders(boolean b) {
+    singleConfigurationSysheaders = b;
+  }
+
+  protected boolean configurationAwarenessOff = false;
+
+  protected void disableConfigurationAwareness() {
+    evaluator.restrictPrefix("0(){}THISSTRINGSHOULDNEVERBEAPREFIXTOAMACRO");
+    macroTable.restrictPrefix("0(){}THISSTRINGSHOULDNEVERBEAPREFIXTOAMACRO");
+    configurationAwarenessOff = true;
+  }
+
+  protected void enableConfigurationAwareness() {
+    evaluator.restrictPrefix(null);
+    macroTable.restrictPrefix(null);
+    configurationAwarenessOff = false;
+  }
+
+  protected boolean isConfigurationAwarenessOff() {
+    return configurationAwarenessOff;
+  }
+
   
   /**
    * This class scans the input tokens, expanding macros and
@@ -1672,6 +1703,17 @@ public class Preprocessor implements Iterator<Syntax> {
         = fileManager.includeHeader(headerName, sysHeader, includeNext,
                                     presenceConditionManager, macroTable);
 
+      // System.err.println(singleConfigurationSysheaders);
+      // System.err.println(fileManager.inSystemHeader());
+      // System.err.println(sysHeader);
+      // System.err.println(! isConfigurationAwarenessOff());
+
+      if (singleConfigurationSysheaders
+          && fileManager.inSystemHeader()
+          && ! isConfigurationAwarenessOff()) {
+        disableConfigurationAwareness();
+      }
+
       return linemarker;
     }
   }
@@ -2217,6 +2259,15 @@ public class Preprocessor implements Iterator<Syntax> {
    * @param s The number of tokens after the directive name.
    */
   private Syntax lineMarker(Directive directive, int s) {
+
+    // check whether the directive is an end of include
+    if (singleConfigurationSysheaders
+        && directive.testFlag(EOI)
+        && ! fileManager.inSystemHeader()
+        && isConfigurationAwarenessOff()) {
+     enableConfigurationAwareness();
+    }
+    
     return EMPTY;
   }
   
