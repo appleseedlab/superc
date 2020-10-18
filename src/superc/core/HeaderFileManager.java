@@ -1262,6 +1262,41 @@ public class HeaderFileManager implements Iterator<Syntax> {
   }
 
   /**
+   * Check whether a given include is a system include.
+   */
+  protected boolean isSystemheader(Include include) {
+    if (include.isPFile()) {
+      return ((PFile) include).system;
+    } else if (include.isComputed()) {
+      return ((Computed) include).pfile.system;
+    } else {
+      throw new AssertionError("unexpected include type");
+    }
+  }
+
+  
+  /**
+   * Check whether we are in a system header.
+   *
+   * return True if we are.
+   */
+  public boolean inSystemHeader() {
+    if (isSystemheader(this.include)) {
+      return true;
+    }
+    
+    if (this.includes.size() > 0) {
+      for (Include include : this.includes) {
+        if (isSystemheader(include)) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  }
+
+  /**
    * Return the total size of the main file and headers.
    *
    * @return The total size.
