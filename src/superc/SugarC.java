@@ -167,7 +167,9 @@ public class SugarC extends Tool {
       word("I", "I", true,
            "Add a directory to the header file search path.").
       word("isystem", "isystem", true,
-           "Add a system directory to the header file search path.").
+           "Add a system directory to search before standard system header paths.").
+      word("idirafter", "idirafter", true,
+           "Add a system directory to search after the standard system header paths.").
       word("iquote", "iquote", true,
            "Add a quote directory to the header file search path.").
       bool("nostdinc", "nostdinc", false,
@@ -253,13 +255,26 @@ public class SugarC extends Tool {
     // ""                     ""     ""   ""     ""
     //                               <>   <>     <>
     //                                    marked system headers 
+
+    // per https://gcc.gnu.org/onlinedocs/gcc/Directory-Options.html the order of sysheaders is isystem standard idirafter
+    for (Object o : runtime.getList("isystem")) {
+      if (o instanceof String) {
+        String s;
+        
+        s = (String) o;
+        if (sysdirs.indexOf(s) < 0) {
+          sysdirs.add(s);
+        }
+      }
+    }
+
     if (!runtime.test("nostdinc")) {
       for (int i = 0; i < Builtins.sysdirs.length; i++) {
         sysdirs.add(Builtins.sysdirs[i]);
       }
     }
     
-    for (Object o : runtime.getList("isystem")) {
+    for (Object o : runtime.getList("idirafter")) {
       if (o instanceof String) {
         String s;
         
