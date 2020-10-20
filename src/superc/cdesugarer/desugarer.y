@@ -223,6 +223,7 @@ import superc.cdesugarer.Declarator.ArrayDeclarator;
 import superc.cdesugarer.Declarator.ArrayAbstractDeclarator;
 import superc.cdesugarer.Declarator.FunctionDeclarator;
 import superc.cdesugarer.Declarator.ParameterListDeclarator;
+import superc.cdesugarer.Declarator.BitFieldSizeDeclarator;
 
 import superc.cdesugarer.Initializer;
 import superc.cdesugarer.Initializer.EmptyInitializer;
@@ -2455,14 +2456,22 @@ StructDeclarator: /** complete **/  // returns Multiverse<Declarator>
         Declarator BitFieldSizeOpt
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          
-          System.err.println("TODO: support bitfieldsizeopt in a new StructDeclarator (1)");
-          setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc));
+
+          Multiverse<Declarator> bitfieldsize = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
+          Multiverse<Declarator> declarator = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc);
+
+          if (bitfieldsize.size() == 1 && bitfieldsize.get(0).getData().isEmptyDeclarator()) {
+            // if there's no bitfieldsize, there should just be a multiverse of size one with an empty declarator
+            setTransformationValue(value, declarator);
+          } else {
+            setTransformationValue(value, declarator.join(bitfieldsize, DesugarOps.joinBitFieldSize));
+          }
         }
         | BitFieldSize
         {
-          System.err.println("ERROR: unsupported semantic action: StructDeclarator (2)");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          // pass along the bitfieldsize declarator by itself
+          setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         ;
 
@@ -2479,20 +2488,54 @@ StructIdentifierDeclarator: /** nomerge **/
         }
         ;
 
-BitFieldSizeOpt: /** nomerge **/
+BitFieldSizeOpt: /** nomerge **/  // Multiverse<Declarator>, single, empty declarator means no bitfieldsize
         /* nothing */
+        {
+          setTransformationValue(value, new Multiverse<Declarator>(new EmptyDeclarator(), subparser.getPresenceCondition()));
+        }
         | BitFieldSize
         {
-          System.err.println("ERROR: unsupported semantic action: BitFieldSizeOpt");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          // pass along the bitfieldsize declarator by itself
+          setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
         ;
 
-BitFieldSize: /** nomerge **/
+BitFieldSize: /** nomerge **/  // Multiverse<Declarator>
         COLON ConstantExpression
         {
-          System.err.println("ERROR: unsupported semantic action: BitFieldSize");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          String colon = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
+
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+          PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
+          todoReminder("check that the bitfieldsize is a constant");
+          for (Element<String> transformation : exprval.transformation) {
+            PresenceCondition combinedCond = pc.and(transformation.getCondition());
+            if (combinedCond.isNotFalse()) {
+              Multiverse<Type> filtered = exprval.type.filter(combinedCond);
+              assert filtered.size() == 1;  // desugarer should only have one type for each expression transformation
+              if (filtered.get(0).getData().isNumber()) {
+                valuemv.add(new BitFieldSizeDeclarator(transformation.getData(), filtered.get(0).getData()), combinedCond);
+              } else {
+                PresenceCondition newErrorCond = errorCond.or(combinedCond);
+                errorCond.delRef(); errorCond = newErrorCond;
+              }
+              filtered.destruct();
+            }
+            combinedCond.delRef();
+          }
+          
+          if (errorCond.isNotFalse()) {
+            valuemv.add(new BitFieldSizeDeclarator(String.format("%s;", emitError("type error in BitFieldSize")),
+                                                   ErrorT.TYPE),
+                        errorCond);
+          }
+          assert null != valuemv;
+          errorCond.delRef();
+
+          setTransformationValue(value, valuemv);
         }
         ;
 
@@ -2907,6 +2950,7 @@ EnumeratorValueOpt: /** nomerge **/  // Multiverse<EnumeratorValValue>
                 Multiverse<Type> filtered = exprval.type.filter(combinedCond);
                 assert filtered.size() == 1;  // desugarer should only have one type for each expression transformation
                 evmv.add(new EnumeratorValValue(transformation.getData(), filtered.get(0).getData()), combinedCond);
+                filtered.destruct();
               }
               combinedCond.delRef();
             }
