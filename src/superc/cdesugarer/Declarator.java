@@ -93,6 +93,12 @@ abstract class Declarator {
   /** Returns true if this is a ArrayAbstractDeclarator object. */
   public boolean isArrayAbstractDeclarator() { return false; }
 
+  /** Returns true if this is a BitFieldSizeDeclarator object. */
+  public boolean isBitFieldSizeDeclarator() { return false; }
+
+  /** Returns true if this is a NamedBitFieldSizeDeclarator object. */
+  public boolean isNamedBitFieldSizeDeclarator() { return false; }
+
   /**
    * This empty declarator is used for abstract declarators that only
    * have a type.
@@ -639,6 +645,96 @@ abstract class Declarator {
       }
       sb.append(")");
       return sb.toString();
+    }
+  }
+
+  /**
+   * A BitFieldSize declarator contains a struct bit field size.
+   */
+  public static class BitFieldSizeDeclarator extends Declarator {
+    /** The bit field size. */
+    protected final String expression;
+
+    /** The type of the expression. */
+    protected final Type type;
+
+    public BitFieldSizeDeclarator(String expression, Type type) {
+      this.expression = expression;
+      this.type = type;
+    }
+
+    public String getName() {
+      throw new IllegalStateException("abstract declarators have no name");
+    }
+
+    public boolean hasName() {
+      return false;
+    }
+    
+    public Declarator rename(String newName) {
+      throw new IllegalStateException("abstract declarators have no name");
+    }
+
+    public Type getType(Type returnType) {
+      return type;
+    }
+
+    public boolean hasTypeError() {
+      return type.isError();
+    }
+  
+    @Override
+    public boolean isBitFieldSizeDeclarator() { return true; }
+
+    public String toString() {
+      return expression;
+    }
+  }
+
+  /**
+   * A BitFieldSize declarator contains a struct bit field size.
+   */
+  public static class NamedBitFieldSizeDeclarator extends Declarator {
+    /** The declarator of the bit field size. */
+    protected final Declarator declarator;
+    
+    /** The bit field size. */
+    protected final BitFieldSizeDeclarator bitfieldsize;
+
+    public NamedBitFieldSizeDeclarator(Declarator declarator, BitFieldSizeDeclarator bitfieldsize) {
+      this.declarator = declarator;
+      this.bitfieldsize = bitfieldsize;
+    }
+
+    public String getName() {
+      return this.declarator.getName();
+    }
+
+    public boolean hasName() {
+      return this.declarator.hasName();
+    }
+    
+    public Declarator rename(String newName) {
+      return this.declarator.rename(newName);
+    }
+
+    public Type getType(Type returnType) {
+      if (this.bitfieldsize.type.isError()) {
+        return this.bitfieldsize.type;
+      } else {
+        return this.declarator.getType(returnType);
+      }
+    }
+
+    public boolean hasTypeError() {
+      return this.declarator.hasTypeError() || this.bitfieldsize.type.isError();
+    }
+  
+    @Override
+    public boolean isNamedBitFieldSizeDeclarator() { return true; }
+
+    public String toString() {
+      return String.format("%s : %s", this.declarator.toString(), this.bitfieldsize.expression);
     }
   }
 }
