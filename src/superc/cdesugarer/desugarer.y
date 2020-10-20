@@ -4120,7 +4120,6 @@ ArrayAbstractDeclarator: /** nomerge **/
           todoReminder("check expression in ArrayAbstractDeclarator (2)");
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
           Multiverse<String> arrayBounds = exprval.transformation;
-          System.err.println(arrayBounds);
           /* System.err.println(getNodeAt(subparser, 2)); */
           Multiverse<Declarator> valuemv = DesugarOps.toAbstractArrayDeclarator.transform(arrayBounds);
           // this is getting an empty mv on filtered for /usr/include/x86_64-linux-gnu/bits/types.h in typesizes.h
@@ -5019,16 +5018,20 @@ PrimaryExpression:  /** nomerge, passthrough **/ // ExpressionValue
           /* System.err.println("PRIMARY: " + exprval.transformation); */
           /* System.err.println("PRIMARY: " + exprval.type); */
 
-          Multiverse<String> lparenmv
-            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 3)).getTokenText(), pc);
-          Multiverse<String> exprmv = exprval.transformation;
-          Multiverse<String> rparenmv
-            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
+          if (exprval.hasValidType()) {
+            String lparen = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+            Multiverse<String> exprmv = exprval.transformation;
+            String rparen = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
 
-          setTransformationValue(value,
-                                 new ExpressionValue(productAll(DesugarOps.concatStrings, lparenmv, exprmv, rparenmv),
-                                                     exprval.type));
-          lparenmv.destruct(); rparenmv.destruct();
+            Multiverse<String> prepended = exprmv.appendScalar(lparen, DesugarOps.concatStrings);
+            Multiverse<String> appended = prepended.appendScalar(rparen, DesugarOps.concatStrings); prepended.destruct();
+
+            setTransformationValue(value, new ExpressionValue(appended, exprval.type));
+          } else {
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type for the primary expression"),
+                                                              ErrorT.TYPE,
+                                                              pc));
+          }
         }
         | StatementAsExpression  // ADDED
         {
