@@ -129,6 +129,15 @@ public class ConditionEvaluator {
   }
 
   /**
+   * Get the current macro prefix restriction.
+   *
+   * @return The macro prefix restriction or null if none.
+   */
+  public String getRestrictPrefix() {
+    return restrictPrefix;
+  }
+
+  /**
    * Create a new condition evaluator.
    *
    * @param presenceConditionManager Manages presence conditions.

@@ -331,16 +331,20 @@ public class Preprocessor implements Iterator<Syntax> {
   }
 
   protected boolean configurationAwarenessOff = false;
+  protected String holdEvaluatorRestrictPrefix = null;
+  protected String holdMacroTableRestrictPrefix = null;
 
   protected void disableConfigurationAwareness() {
+    holdMacroTableRestrictPrefix = macroTable.getRestrictPrefix();
+    holdEvaluatorRestrictPrefix = evaluator.getRestrictPrefix();
     evaluator.restrictPrefix("0(){}THISSTRINGSHOULDNEVERBEAPREFIXTOAMACRO");
     macroTable.restrictPrefix("0(){}THISSTRINGSHOULDNEVERBEAPREFIXTOAMACRO");
     configurationAwarenessOff = true;
   }
 
   protected void enableConfigurationAwareness() {
-    evaluator.restrictPrefix(null);
-    macroTable.restrictPrefix(null);
+    evaluator.restrictPrefix(holdEvaluatorRestrictPrefix);
+    macroTable.restrictPrefix(holdMacroTableRestrictPrefix);
     configurationAwarenessOff = false;
   }
 
