@@ -5975,8 +5975,34 @@ Decrement:  /** nomerge **/  // ExpressionValue
 CompoundLiteral:  /** nomerge **/  /* ADDED */
         LPAREN TypeName RPAREN LBRACE InitializerList RBRACE
         {
-          System.err.println("ERROR: unsupported semantic action: CompoundLiteral");
-          System.exit(1);
+          // TODO compare the expression's type against the type name
+          // to rule out invalid casts.
+          todoReminder("check the legality of the cast and the initializer list types");
+
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          String lparen = ((Syntax) getNodeAt(subparser, 6)).getTokenText();
+          Multiverse<Declaration> typename = (Multiverse<Declaration>) getTransformationValue(subparser, 5);
+          String rparen = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          String lbrace = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          Multiverse<List<Initializer>> initializerlist = (Multiverse<List<Initializer>>) getTransformationValue(subparser, 2);
+          String rbrace = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+
+          Multiverse<String> typenamestr = DesugarOps.typenameToString.transform(typename);
+          Multiverse<String> mv1 = typenamestr.prependScalar(lparen, DesugarOps.concatStrings); typenamestr.destruct();
+          Multiverse<String> mv2 = mv1.appendScalar(rparen, DesugarOps.concatStrings); mv1.destruct();
+          Multiverse<String> mv3 = mv2.appendScalar(lbrace, DesugarOps.concatStrings); mv2.destruct();
+          Multiverse<Initializer> initializerlistmv
+            = DesugarOps.toInitializerList.transform(initializerlist);
+          Multiverse<String> initializerliststr
+            = DesugarOps.initializerToString.transform(initializerlistmv);  initializerlistmv.destruct();
+          Multiverse<String> mv4
+            = mv3.product(initializerliststr, DesugarOps.concatStrings); initializerliststr.destruct(); mv3.destruct();
+          Multiverse<String> transformationmv = mv4.appendScalar(rbrace, DesugarOps.concatStrings); mv4.destruct();
+
+          Multiverse<Type> typemv = DesugarOps.typenameToType.transform(typename);
+
+          setTransformationValue(value, new ExpressionValue(transformationmv, typemv));
         }
         ;
 
