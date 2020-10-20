@@ -33,6 +33,8 @@ import superc.cdesugarer.Declarator.ArrayDeclarator;
 import superc.cdesugarer.Declarator.ArrayAbstractDeclarator;
 import superc.cdesugarer.Declarator.FunctionDeclarator;
 import superc.cdesugarer.Declarator.ParameterListDeclarator;
+import superc.cdesugarer.Declarator.BitFieldSizeDeclarator;
+import superc.cdesugarer.Declarator.NamedBitFieldSizeDeclarator;
 
 import superc.cdesugarer.Initializer;
 import superc.cdesugarer.Initializer.AssignInitializer;
@@ -190,6 +192,17 @@ class DesugarOps {
       }
     };
 
+  /**
+   * Add a bitfield size to a Declarator.
+   */
+  public final static Multiverse.Joiner<Declarator, Declarator, NamedBitFieldSizeDeclarator> joinBitFieldSize = (declarator, bitfieldsize) -> {
+    if (bitfieldsize.isBitFieldSizeDeclarator()) {
+      return new NamedBitFieldSizeDeclarator(declarator, (BitFieldSizeDeclarator) bitfieldsize);
+    } else {
+      throw new AssertionError("unexpected declarator declarator type in joinBitFieldSize");
+    }
+  };
+  
   /*****************************************************************************
    ********* Multiverse operators for TypeSpecifiers
    *****************************************************************************/
@@ -316,6 +329,8 @@ class DesugarOps {
     transformation.append(" ");
     transformation.append(renamedTag);
     transformation.append(" {\n");
+
+    CActions.todoReminder("account for bitfieldsize alone as a struct field with no name.");
 
     // track presence conditions of valid and invalid declarations
     PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
@@ -722,6 +737,16 @@ class DesugarOps {
     = new Multiverse.Transformer<List<Initializer>, Initializer>() {
         Initializer transform(List<Initializer> from) {
           return new InitializerList(from);
+        }
+      };
+
+  /**
+   * Convert initializer to string.
+   */
+  public final static Multiverse.Transformer<Initializer, String> initializerToString
+    = new Multiverse.Transformer<Initializer, String>() {
+        String transform(Initializer from) {
+          return from.toString();
         }
       };
 

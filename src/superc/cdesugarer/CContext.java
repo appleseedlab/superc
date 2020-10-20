@@ -1151,6 +1151,7 @@ public class CContext implements ParsingContext {
     // create a struct for each forward tag reference that is a union
     // containing each configuration of the struct.
     SymbolTable<Type> symtab = scope.getSymbolTable();
+    CActions.todoReminder("account for bitfield sizes in forward refs");
     for (String tag : forwardtagrefs.keySet()) {
       sb.append(String.format("struct %s {", tag));
       sb.append(" // generated union of struct variations");
