@@ -443,6 +443,10 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                     // renamedDeclaration must be a FunctionT because
                     // that is created by a FunctionDeclarator
                     Type declarationType = renamedDeclaration.getType();
+                    if (! declarationType.isFunction()) {
+                      System.err.println(String.format("FATAL: unexpected type in function prototype: %s %s", declarationType, renaming));
+                      System.exit(1);
+                    }
                     Type type = new NamedFunctionT(declarationType.toFunction().getResult(),
                                                    renaming,
                                                    declarationType.toFunction().getParameters(),
