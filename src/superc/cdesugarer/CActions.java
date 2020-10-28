@@ -81,6 +81,7 @@ import superc.cdesugarer.Declarator.ArrayDeclarator;
 import superc.cdesugarer.Declarator.ArrayAbstractDeclarator;
 import superc.cdesugarer.Declarator.FunctionDeclarator;
 import superc.cdesugarer.Declarator.ParameterListDeclarator;
+import superc.cdesugarer.Declarator.BitFieldSizeDeclarator;
 
 import superc.cdesugarer.Initializer;
 import superc.cdesugarer.Initializer.EmptyInitializer;
@@ -318,6 +319,10 @@ public class CActions implements SemanticActions {
                     // renamedDeclaration must be a FunctionT because
                     // that is created by a FunctionDeclarator
                     Type declarationType = renamedDeclaration.getType();
+                    if (! declarationType.isFunction()) {
+                      System.err.println(String.format("FATAL: unexpected type in function prototype: %s %s", declarationType, renaming));
+                      System.exit(1);
+                    }
                     Type type = new NamedFunctionT(declarationType.toFunction().getResult(),
                                                    renaming,
                                                    declarationType.toFunction().getParameters(),
@@ -2435,16 +2440,24 @@ public class CActions implements SemanticActions {
   case 192:
     {
           PresenceCondition pc = subparser.getPresenceCondition();
-          
-          System.err.println("TODO: support bitfieldsizeopt in a new StructDeclarator (1)");
-          setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc));
+
+          Multiverse<Declarator> bitfieldsize = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
+          Multiverse<Declarator> declarator = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc);
+
+          if (bitfieldsize.size() == 1 && bitfieldsize.get(0).getData().isEmptyDeclarator()) {
+            // if there's no bitfieldsize, there should just be a multiverse of size one with an empty declarator
+            setTransformationValue(value, declarator);
+          } else {
+            setTransformationValue(value, declarator.join(bitfieldsize, DesugarOps.joinBitFieldSize));
+          }
         }
     break;
 
   case 193:
     {
-          System.err.println("ERROR: unsupported semantic action: StructDeclarator (2)");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          // pass along the bitfieldsize declarator by itself
+          setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
     break;
 
@@ -2462,17 +2475,54 @@ public class CActions implements SemanticActions {
         }
     break;
 
+  case 196:
+    {
+          setTransformationValue(value, new Multiverse<Declarator>(new EmptyDeclarator(), subparser.getPresenceCondition()));
+        }
+    break;
+
   case 197:
     {
-          System.err.println("ERROR: unsupported semantic action: BitFieldSizeOpt");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          // pass along the bitfieldsize declarator by itself
+          setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
     break;
 
   case 198:
     {
-          System.err.println("ERROR: unsupported semantic action: BitFieldSize");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          String colon = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
+
+          Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
+          PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
+          todoReminder("check that the bitfieldsize is a constant");
+          for (Element<String> transformation : exprval.transformation) {
+            PresenceCondition combinedCond = pc.and(transformation.getCondition());
+            if (combinedCond.isNotFalse()) {
+              Multiverse<Type> filtered = exprval.type.filter(combinedCond);
+              assert filtered.size() == 1;  // desugarer should only have one type for each expression transformation
+              if (filtered.get(0).getData().isNumber()) {
+                valuemv.add(new BitFieldSizeDeclarator(transformation.getData(), filtered.get(0).getData()), combinedCond);
+              } else {
+                PresenceCondition newErrorCond = errorCond.or(combinedCond);
+                errorCond.delRef(); errorCond = newErrorCond;
+              }
+              filtered.destruct();
+            }
+            combinedCond.delRef();
+          }
+          
+          if (errorCond.isNotFalse()) {
+            valuemv.add(new BitFieldSizeDeclarator(String.format("%s;", emitError("type error in BitFieldSize")),
+                                                   ErrorT.TYPE),
+                        errorCond);
+          }
+          assert null != valuemv;
+          errorCond.delRef();
+
+          setTransformationValue(value, valuemv);
         }
     break;
 
@@ -2800,6 +2850,7 @@ public class CActions implements SemanticActions {
                 Multiverse<Type> filtered = exprval.type.filter(combinedCond);
                 assert filtered.size() == 1;  // desugarer should only have one type for each expression transformation
                 evmv.add(new EnumeratorValValue(transformation.getData(), filtered.get(0).getData()), combinedCond);
+                filtered.destruct();
               }
               combinedCond.delRef();
             }
@@ -4002,7 +4053,6 @@ public class CActions implements SemanticActions {
           todoReminder("check expression in ArrayAbstractDeclarator (2)");
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
           Multiverse<String> arrayBounds = exprval.transformation;
-          System.err.println(arrayBounds);
           /* System.err.println(getNodeAt(subparser, 2)); */
           Multiverse<Declarator> valuemv = DesugarOps.toAbstractArrayDeclarator.transform(arrayBounds);
           // this is getting an empty mv on filtered for /usr/include/x86_64-linux-gnu/bits/types.h in typesizes.h
@@ -4861,16 +4911,20 @@ public class CActions implements SemanticActions {
           /* System.err.println("PRIMARY: " + exprval.transformation); */
           /* System.err.println("PRIMARY: " + exprval.type); */
 
-          Multiverse<String> lparenmv
-            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 3)).getTokenText(), pc);
-          Multiverse<String> exprmv = exprval.transformation;
-          Multiverse<String> rparenmv
-            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
+          if (exprval.hasValidType()) {
+            String lparen = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+            Multiverse<String> exprmv = exprval.transformation;
+            String rparen = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
 
-          setTransformationValue(value,
-                                 new ExpressionValue(productAll(DesugarOps.concatStrings, lparenmv, exprmv, rparenmv),
-                                                     exprval.type));
-          lparenmv.destruct(); rparenmv.destruct();
+            Multiverse<String> prepended = exprmv.appendScalar(lparen, DesugarOps.concatStrings);
+            Multiverse<String> appended = prepended.appendScalar(rparen, DesugarOps.concatStrings); prepended.destruct();
+
+            setTransformationValue(value, new ExpressionValue(appended, exprval.type));
+          } else {
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type for the primary expression"),
+                                                              ErrorT.TYPE,
+                                                              pc));
+          }
         }
     break;
 
@@ -5830,8 +5884,34 @@ public class CActions implements SemanticActions {
 
   case 423:
     {
-          System.err.println("ERROR: unsupported semantic action: CompoundLiteral");
-          System.exit(1);
+          // TODO compare the expression's type against the type name
+          // to rule out invalid casts.
+          todoReminder("check the legality of the cast and the initializer list types");
+
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          String lparen = ((Syntax) getNodeAt(subparser, 6)).getTokenText();
+          Multiverse<Declaration> typename = (Multiverse<Declaration>) getTransformationValue(subparser, 5);
+          String rparen = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          String lbrace = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          Multiverse<List<Initializer>> initializerlist = (Multiverse<List<Initializer>>) getTransformationValue(subparser, 2);
+          String rbrace = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+
+          Multiverse<String> typenamestr = DesugarOps.typenameToString.transform(typename);
+          Multiverse<String> mv1 = typenamestr.prependScalar(lparen, DesugarOps.concatStrings); typenamestr.destruct();
+          Multiverse<String> mv2 = mv1.appendScalar(rparen, DesugarOps.concatStrings); mv1.destruct();
+          Multiverse<String> mv3 = mv2.appendScalar(lbrace, DesugarOps.concatStrings); mv2.destruct();
+          Multiverse<Initializer> initializerlistmv
+            = DesugarOps.toInitializerList.transform(initializerlist);
+          Multiverse<String> initializerliststr
+            = DesugarOps.initializerToString.transform(initializerlistmv);  initializerlistmv.destruct();
+          Multiverse<String> mv4
+            = mv3.product(initializerliststr, DesugarOps.concatStrings); initializerliststr.destruct(); mv3.destruct();
+          Multiverse<String> transformationmv = mv4.appendScalar(rbrace, DesugarOps.concatStrings); mv4.destruct();
+
+          Multiverse<Type> typemv = DesugarOps.typenameToType.transform(typename);
+
+          setTransformationValue(value, new ExpressionValue(transformationmv, typemv));
         }
     break;
 
@@ -8614,15 +8694,6 @@ private String emitStatement(Multiverse<String> allStatementConfigs, PresenceCon
  */
 private String emitError(String msg) {
   return String.format("__static_type_error(\"%s\")", msg);
-}
-
-/**
- * Emit a conditional statement.
- */
-private String emitError(String msg, PresenceCondition condition) {
-  return String.format("if (%s) { %s; }\n",
-                       condToCVar(condition),
-                       emitError(msg));
 }
 
 /*****************************************************************************
