@@ -4339,9 +4339,9 @@ SwitchLabeledStatement:  /** complete **/  // Multiverse<String>
         CASE ConstantExpression COLON CompoundStatementBody
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          String casestr = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          String casestr = "case";  // hacky fix for unexpected conditionals around the case keyword
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 3, subparser.getPresenceCondition());
-          String colonstr = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
+          String colonstr = ":";  // hacky fix for unexpected conditionals around the colon
           /* Multiverse<String> stmt = getCompleteNodeMultiverseValue(subparser, 1, pc); */
 
           /* String stmtstr = emitStatement(stmt, pc); stmt.destruct(); */
@@ -8044,7 +8044,7 @@ private static class ExpressionValue {
   public boolean isAlwaysError() {
     // return true unless we find one type that isn't an error
     for (Element<Type> elem : type) {
-      System.err.println("ELEM: " + elem.getData());
+      /* System.err.println("ELEM: " + elem.getData()); */
       if (! elem.getData().isError()) {
         return false;
       }
@@ -8061,7 +8061,7 @@ private static class ExpressionValue {
   public PresenceCondition validTypeCondition(PresenceCondition pc) {
     PresenceCondition validCond = pc.presenceConditionManager().newFalse();
     for (Element<Type> elem : type) {
-      System.err.println("ELEM: " + elem.getData());
+      /* System.err.println("ELEM: " + elem.getData()); */
       if (! elem.getData().isError()) {
         PresenceCondition newValidCond = validCond.or(elem.getCondition());
         validCond.delRef(); validCond = newValidCond;
