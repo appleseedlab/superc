@@ -206,6 +206,10 @@ public class SugarC extends Tool {
            "Pass preprocessor error tokens to the parser.  Makes for more "
            + "specific presence conditions.").
 
+      // Desugaring features
+      bool("linkerThunks", "linkerThunks", false,
+           "Emit thunks for single-configuration linking (experimental).").
+      
       // Output and debugging
       bool("printAST", "printAST", false,
            "Print the parsed AST.").
@@ -554,8 +558,10 @@ public class SugarC extends Tool {
       System.out.print(actions.concatMultiverseStrings(extdeclmv)); extdeclmv.destruct();
       System.out.print("\n");
 
-      // write the multiplexer functions for linking
-      System.out.print(actions.linkerThunks(scope, pcTrue));
+      if (runtime.test("linkerThunks")) {
+        // write the multiplexer functions for linking
+        System.out.print(actions.linkerThunks(scope, pcTrue));
+      }
     }
 
     // if (null != translationUnit
