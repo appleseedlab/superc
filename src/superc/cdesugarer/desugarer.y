@@ -5027,7 +5027,7 @@ PrimaryExpression:  /** nomerge, passthrough **/ // ExpressionValue
             Multiverse<String> exprmv = exprval.transformation;
             String rparen = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
 
-            Multiverse<String> prepended = exprmv.appendScalar(lparen, DesugarOps.concatStrings);
+            Multiverse<String> prepended = exprmv.prependScalar(lparen, DesugarOps.concatStrings);
             Multiverse<String> appended = prepended.appendScalar(rparen, DesugarOps.concatStrings); prepended.destruct();
 
             setTransformationValue(value, new ExpressionValue(appended, exprval.type));
