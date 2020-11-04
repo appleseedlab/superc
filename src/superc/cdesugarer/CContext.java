@@ -1154,6 +1154,20 @@ public class CContext implements ParsingContext {
     // emit the user-defined type declarations, which are renamed
     CContext scope = this;
     while (scope.reentrant) scope = scope.parent;
+
+    // create an enum for each enum specifier
+    for (String tag : scope.enumeratorlists.keySet()) {
+      List<String> enumeratorlist = scope.enumeratorlists.get(tag);
+      sb.append("enum ");
+      sb.append(tag);
+      sb.append(" {\n");
+      for (String enumerator : enumeratorlist) {
+        sb.append(enumerator);
+        sb.append(",\n");
+      }
+      sb.append("};\n");
+    }
+    
     sb.append(scope.declarations);
     sb.append("\n");
 
@@ -1192,19 +1206,6 @@ public class CContext implements ParsingContext {
       sb.append("};\n};\n\n");
     }
 
-    // create an enum for each enum specifier
-    for (String tag : scope.enumeratorlists.keySet()) {
-      List<String> enumeratorlist = scope.enumeratorlists.get(tag);
-      sb.append("enum ");
-      sb.append(tag);
-      sb.append(" {\n");
-      for (String enumerator : enumeratorlist) {
-        sb.append(enumerator);
-        sb.append(",\n");
-      }
-      sb.append("};\n");
-    }
-    
     return sb.toString();
   }
 
