@@ -48,6 +48,8 @@ abstract class Initializer {
   //  */
   // abstract public Type getType();
 
+  abstract public boolean hasValidType();
+
   public String toString() {
     throw new AssertionError("Initializer subclass has not implemented toString yet");
   }
@@ -58,6 +60,10 @@ abstract class Initializer {
     public EmptyInitializer() { }
     
     boolean isEmpty() { return true; }
+
+    public boolean hasValidType() {
+      return true;
+    }
 
     public String toString() {
       return "";
@@ -78,6 +84,10 @@ abstract class Initializer {
     }
     
     boolean isAssign() { return true; }
+
+    public boolean hasValidType() {
+      return initializer.hasValidType();
+    }
 
     public String toString() {
       return String.format("= %s", initializer.toString());
@@ -104,6 +114,10 @@ abstract class Initializer {
     
     boolean isExpression() { return true; }
 
+    public boolean hasValidType() {
+      return ! type.isError();
+    }
+
     public String toString() {
       return expression;
     }
@@ -125,6 +139,17 @@ abstract class Initializer {
     
     /** True if an list initializer */
     boolean isList() { return true; }
+
+    public boolean hasValidType() {
+      // all the initializers in the list need to be valid types for
+      // the initializer list to have a valid type
+      for (Initializer initializer : list) {
+        if (! initializer.hasValidType()) {
+          return false;
+        }
+      }
+      return true;
+    }
 
     public String toString() {
       StringBuilder sb = new StringBuilder();
@@ -158,6 +183,10 @@ abstract class Initializer {
     }
     
     boolean isDesignated() { return true; }
+
+    public boolean hasValidType() {
+      return initializer.hasValidType();
+    }
 
     public String toString() {
       return String.format("%s %s", designation.toString(), initializer.toString());

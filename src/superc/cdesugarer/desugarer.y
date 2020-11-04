@@ -7742,7 +7742,8 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
 
                 // get xtc type from type and declarator
 
-                if (typespecifier.getData().getType().isError()) {
+                if (typespecifier.getData().getType().isError()
+                    || ! initializer.getData().hasValidType()) {
                   // if type is invalid, put an error entry, emit a call
                   // to the type error function
                   scope.putError(originalName, combinedCond);
