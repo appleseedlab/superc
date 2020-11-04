@@ -6149,7 +6149,7 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
-          Multiverse<String> opmv = new Multiverse<String>((String) getTransformationValue(subparser, 2), pc);
+          Multiverse<String> opmv = this.<String>getCompleteNodeSingleValue(subparser, 2, pc);
           Multiverse<String> exprmv = exprval.transformation;
 
           if (exprval.hasValidType()) {
