@@ -8013,6 +8013,11 @@ private static class ExpressionValue {
   /** The transformation. */
   public final Multiverse<String> transformation;
 
+  /**
+   * The cached valid type condition.
+   */
+  protected PresenceCondition validTypeCondition = null;
+
   public ExpressionValue(Multiverse<String> transformation, Multiverse<Type> type) {
     this.transformation = transformation;
     this.type = type;
@@ -8053,21 +8058,63 @@ private static class ExpressionValue {
   }
 
   /**
+   * Get only those transformation from a valid type under the given
+   * presence condition.
+   *
+   * @param pc The current presence condition.
+   * @return A new multiverse containing only valid transformations.
+   */
+  public Multiverse<String> validTransformations(PresenceCondition pc) {
+    PresenceCondition validpc = this.validTypeCondition(pc);
+    Multiverse<String> validmv = transformation.filter(validpc);
+    validpc.delRef();
+    return validmv;
+  }
+  
+  /**
+   * Get only the valid types under the given presence condition.
+   *
+   * @param pc The current presence condition.
+   * @return A new multiverse containing only valid types.
+   */
+  public Multiverse<Type> validTypes(PresenceCondition pc) {
+    PresenceCondition validpc = this.validTypeCondition(pc);
+    Multiverse<Type> validmv = type.filter(validpc);
+    validpc.delRef();
+    return validmv;
+  }
+  
+  /**
    * Get the presence condition under which the type is valid, given
    * the current presence condition.
    *
    * @returns A new presence condition.
    */
   public PresenceCondition validTypeCondition(PresenceCondition pc) {
-    PresenceCondition validCond = pc.presenceConditionManager().newFalse();
-    for (Element<Type> elem : type) {
-      /* System.err.println("ELEM: " + elem.getData()); */
-      if (! elem.getData().isError()) {
-        PresenceCondition newValidCond = validCond.or(elem.getCondition());
-        validCond.delRef(); validCond = newValidCond;
+    if (null == validTypeCondition) {
+      PresenceCondition validCond = pc.presenceConditionManager().newFalse();
+      for (Element<Type> elem : type) {
+        /* System.err.println("ELEM: " + elem.getData()); */
+        if (! elem.getData().isError()) {
+          PresenceCondition newValidCond = validCond.or(elem.getCondition());
+          validCond.delRef(); validCond = newValidCond;
+        }
       }
+      validTypeCondition = validCond;
     }
-    PresenceCondition result = pc.and(validCond);
+    return pc.and(validTypeCondition);
+  }
+  
+  /**
+   * Get the presence condition under which the type is invalid, i.e.,
+   * an error or undeclared, given the current presence condition.
+   *
+   * @param pc The current presence condition.
+   * @returns A new presence condition.
+   */
+  public PresenceCondition invalidTypeCondition(PresenceCondition pc) {
+    PresenceCondition validCond = validTypeCondition(pc.presenceConditionManager().newTrue());
+    PresenceCondition result = pc.andNot(validCond);
     validCond.delRef();
     return result;
   }
