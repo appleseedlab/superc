@@ -1077,6 +1077,38 @@ public class CContext implements ParsingContext {
   }
 
   /**
+   * Get the forward reference to a struct tag.  Check each scope and
+   * return the associated forward reference.  Otherwise, return null.
+   *
+   * @param The original name of a tag.
+   * @returns null If no forward tag exists for the given tag.
+   */
+  public String getForwardTagForTag(String tag) {
+    if (this.reentrant) {
+      if (null != this.parent) {
+        return this.parent.getForwardTagForTag(tag);
+      } else {
+        throw new AssertionError("reentrant scopes should always have a parent");
+      }
+    } else {
+      // not a reentrant scope.  look for the tag
+      if (forwardtagrefs.containsValue(tag)) {
+        return forwardtagrefs.getKey(tag);
+      } else {
+        if (null != this.parent) {
+          return this.parent.getForwardTagForTag(tag);
+        } else {
+          return null;
+        }
+      }
+    }
+  }
+
+  public boolean hasForwardTagForTag(String tag) {
+    return null != getForwardTagForTag(tag);
+  }
+  
+  /**
    * Add new forward reference to a tag.
    */
   public void putForwardTagReference(String forwardTag, String referencedTag) {

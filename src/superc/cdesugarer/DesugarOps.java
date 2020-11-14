@@ -52,6 +52,7 @@ import superc.cdesugarer.Declaration;
 import superc.cdesugarer.CActions.EnumeratorValue;
 
 import superc.cdesugarer.CActions.FreshIDCreator;
+import superc.cdesugarer.CActions.StructOrUnionTypeCreator;
 
 import superc.core.Syntax.Language;
 import superc.core.Syntax.Text;
@@ -249,65 +250,6 @@ class DesugarOps {
       }
     };
 
-  public static String createStructOrUnionDefTransformation(Syntax keyword, String renamedtag, List<Declaration> members) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(keyword.getTokenText());
-    sb.append(" ");
-    sb.append(renamedtag);
-    sb.append(" {\n");
-    System.err.println("TODO: check that all members have different names, don't have type errors themselves, and rename selfrefs");
-    for (Declaration declaration : members) {
-      if (declaration.hasTypeError()) {
-        return "";
-      } else {
-        sb.append(declaration.toString());
-        sb.append(";\n");
-      }
-      // TODO: use Variable.newBitfield()
-    }
-    sb.append("}\n");
-    return sb.toString();
-  }
-
-  public static Type createStructOrUnionDefType(Syntax keyword, String renamedtag, List<Declaration> members) {
-    System.err.println("TODO: check that all members have different names, don't have type errors themselves, and rename selfrefs");
-    List<VariableT> memberlist = new LinkedList<VariableT>();
-    for (Declaration declaration : members) {
-      if (declaration.hasTypeError()) {
-        return ErrorT.TYPE;
-      } else {
-        VariableT member;
-        if (declaration.hasName()) {
-          member = VariableT.newField(declaration.getType(),
-                                      declaration.getName());
-        } else {
-          member = VariableT.newField(declaration.getType(),
-                                      null);
-        }
-        memberlist.add(member);
-      }
-      // TODO: use Variable.newBitfield()
-    }
-
-    if (keyword.getTokenText().equals("struct")) {
-      return new StructT(renamedtag, memberlist);
-    } else if (keyword.getTokenText().equals("union")) {
-      return new UnionT(renamedtag, memberlist);
-    } else {
-      throw new AssertionError("unexpected keyword to createStructOrUnionDefType");
-    }
-  }
-  
-  public static Type createStructOrUnionRefType(Syntax keyword, String renamedtag) {
-    if (keyword.getTokenText().equals("struct")) {
-      return new StructT(renamedtag);
-    } else if (keyword.getTokenText().equals("union")) {
-      return new UnionT(renamedtag);
-    } else {
-      throw new AssertionError("unexpected keyword to createStructOrUnionRefType");
-    }
-  }
-
   /**
    * Create the semantic value for a struct definition.
    */
@@ -317,7 +259,8 @@ class DesugarOps {
                                                                   List<Multiverse<Declaration>> structfields,
                                                                   PresenceCondition pc,
                                                                   CContext scope,
-                                                                  FreshIDCreator freshIdCreator) {
+                                                                  FreshIDCreator freshIdCreator,
+                                                                  StructOrUnionTypeCreator suTypeCreator) {
     // (1) add each field to the lookaside table and construct the transformation
 
     // get the field table for the current tag, which should be empty
@@ -441,7 +384,7 @@ class DesugarOps {
         } else if (entry.getData().isUndeclared()) {
           // set the type to be a reference to the renamed struct/union tag
           TypeSpecifier typespecifier = new TypeSpecifier();
-          Type structRefType = DesugarOps.createStructOrUnionRefType(keyword, renamedTag);
+          Type structRefType = suTypeCreator.create(keyword, renamedTag);
           typespecifier.setType(structRefType);
           typespecifier.addTransformation(keyword);
           typespecifier.addTransformation(new Text<CTag>(CTag.IDENTIFIER, renamedTag));
@@ -475,13 +418,14 @@ class DesugarOps {
   }
 
   /**
-   * Create the semantic value for a struct definition.
+   * Create the semantic value for a struct reference.
    */
   public static Multiverse<TypeSpecifier> processStructReference(Syntax keyword,
                                                                  String structTag,
                                                                  PresenceCondition pc,
                                                                  CContext scope,
-                                                                 FreshIDCreator freshIdCreator) {
+                                                                 FreshIDCreator freshIdCreator,
+                                                                 StructOrUnionTypeCreator suTypeCreator) {
     Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>();
     Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(CContext.toTagName(structTag), pc);
     // System.err.println("WHY : " + entries);
@@ -495,8 +439,17 @@ class DesugarOps {
         // defined to a union of all possible configurations of
         // the struct it references.
         CActions.todoReminder("make a call to rename to record the forward tag mapping.  also record tag name renamings with separate function, since it's a separate namespace");
-        String forwardTagRefName = freshIdCreator.freshCId("forward_tag_reference");
-        Type forwardStructRef = new StructT(forwardTagRefName);
+        String forwardTagRefName;
+        
+        if (scope.hasForwardTagForTag(structTag)) {
+          forwardTagRefName = scope.getForwardTagForTag(structTag);
+        } else {
+          forwardTagRefName = freshIdCreator.freshCId("forward_tag_reference");
+          scope.putForwardTagReference(forwardTagRefName, structTag);
+        }
+        assert null != forwardTagRefName;
+        
+        Type forwardStructRef = suTypeCreator.createStruct(forwardTagRefName);
         typespecifier.setType(forwardStructRef);
         typespecifier.addTransformation(new Language<CTag>(CTag.STRUCT));
         typespecifier.addTransformation(new Text<CTag>(CTag.IDENTIFIER, forwardTagRefName));
@@ -508,7 +461,6 @@ class DesugarOps {
         // make an indirect reference to the forward referenced
         // struct/union field.  see the direct and indirect
         // selection constructs for more info.
-        scope.putForwardTagReference(forwardTagRefName, structTag);
         // System.err.println("PUT: " + forwardTagRefName + " " + structTag);
         /* Type referencedStruct = DesugarOps.createStructOrUnionRefType(keyword, structTag); */
         /* scope.put(CContext.toTagRefName(forwardTagRefName), referencedStruct, entry.getCondition()); */
@@ -833,6 +785,8 @@ class DesugarOps {
   public final static Multiverse.Operator<Type> compareTypes = (t1, t2) -> {
     // TODO: see CAnalyzer, e.g., additiveexpression, etc
     Type newtype;
+    // System.err.println("COMPARE: " + t1 + " " + t2);
+    // System.err.println("EQUALS:  " + t1.equals(t2));
     if (cOps.equal(t1, t2)) {
       // TODO: may need to pick correct type based on kind of
       // construct

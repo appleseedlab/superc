@@ -2133,7 +2133,7 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           String renamedTag = structTag;
           
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2151,7 +2151,7 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           String renamedTag = freshCId(structTag);
           
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2169,7 +2169,7 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           String renamedTag = freshCId(structTag);
           
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2182,7 +2182,7 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           // TODO: add attributes to type spec
           String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
 
-          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator);
+          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2195,7 +2195,7 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           // TODO: add attributes to type spec
           String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
 
-          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator);
+          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2213,7 +2213,7 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           String renamedTag = structTag;
           
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2231,7 +2231,7 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           String renamedTag = freshCId(structTag);
           
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2249,7 +2249,7 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           String renamedTag = freshCId(structTag);
           
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2262,7 +2262,7 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           // TODO: add attributes to type spec
           String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
 
-          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator);
+          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2275,7 +2275,7 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           // TODO: add attributes to type spec
           String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
 
-          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator);
+          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -8031,6 +8031,54 @@ FreshIDCreator freshIdCreator = new FreshIDCreator();
 public String freshCId(String base) {
   return freshIdCreator.freshCId(base);
 }
+
+/**
+ * This class manages the struct and union types, since xtc's type
+ * system uses a nonce to distinguish tagged types of the same name.
+ * This class caches existing tag types to ensure type equivalence.
+ */
+public static class StructOrUnionTypeCreator {
+  /** Maps tag to type. */
+  Map <String, Type> typeCache;
+  
+  public StructOrUnionTypeCreator() {
+    typeCache = new HashMap<String, Type>();
+  }
+
+  public Type create(Syntax keyword, String tag) {
+    return create(keyword.getTokenText(), tag);
+  }
+
+  public Type createStruct(String tag) {
+    return create("struct", tag);
+  }
+
+  public Type createUnion(String tag) {
+    return create("union", tag);
+  }
+
+  public Type create(String keyword, String tag) {
+    if (typeCache.containsKey(tag)) {
+      // this does not validate that the previous type matches the
+      // current keyword (struct/union)
+      return typeCache.get(tag);
+    } else {
+      Type newType;
+      if (keyword.equals("struct")) {
+        newType = new StructT(tag);
+      } else if (keyword.equals("union")) {
+        newType = new UnionT(tag);
+      } else {
+        throw new AssertionError("unexpected keyword to createStructOrUnionRefType");
+      }
+      assert null != newType;
+      typeCache.put(tag, newType);
+      return newType;
+    }
+  }
+}
+
+StructOrUnionTypeCreator suTypeCreator = new StructOrUnionTypeCreator();
 
 
 /*****************************************************************************
