@@ -2138,7 +2138,7 @@ public class CActions implements SemanticActions {
           String renamedTag = structTag;
           
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2158,7 +2158,7 @@ public class CActions implements SemanticActions {
           String renamedTag = freshCId(structTag);
           
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2178,7 +2178,7 @@ public class CActions implements SemanticActions {
           String renamedTag = freshCId(structTag);
           
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2193,7 +2193,7 @@ public class CActions implements SemanticActions {
           // TODO: add attributes to type spec
           String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
 
-          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator);
+          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2208,7 +2208,7 @@ public class CActions implements SemanticActions {
           // TODO: add attributes to type spec
           String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
 
-          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator);
+          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2228,7 +2228,7 @@ public class CActions implements SemanticActions {
           String renamedTag = structTag;
           
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2248,7 +2248,7 @@ public class CActions implements SemanticActions {
           String renamedTag = freshCId(structTag);
           
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2268,7 +2268,7 @@ public class CActions implements SemanticActions {
           String renamedTag = freshCId(structTag);
           
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator);
+            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2283,7 +2283,7 @@ public class CActions implements SemanticActions {
           // TODO: add attributes to type spec
           String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
 
-          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator);
+          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2298,7 +2298,7 @@ public class CActions implements SemanticActions {
           // TODO: add attributes to type spec
           String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
 
-          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator);
+          Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -4508,6 +4508,7 @@ public class CActions implements SemanticActions {
             todoReminder("add emitError back to ExpressionStatement once type checking is done");
             /* valuemv.add(emitError("type error"), errorCond); */
           } else {
+            /* System.err.println("type error: ExpressionStatement found no valid expressions"); */
             valuemv = new Multiverse<String>(String.format("%s;", emitError("type error")), errorCond);
           }
           assert valuemv != null;
@@ -4992,7 +4993,7 @@ public class CActions implements SemanticActions {
           CContext scope = (CContext) subparser.scope;
 
           // get the renamings from the symtab
-          PresenceCondition cond = subparser.getPresenceCondition().presenceConditionManager().newTrue();
+          PresenceCondition cond = subparser.getPresenceCondition();
           Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(originalName, cond);
           cond.delRef();
 
@@ -5002,6 +5003,7 @@ public class CActions implements SemanticActions {
           // any presence conditions with an error can be omitted from
           // the desugaring.  instead, this information is preserved
           // in the type value for use by the statement.
+          /* System.err.println("IDENT: " + entries); */
           for (Element<SymbolTable.Entry<Type>> entry : entries) {
             if (entry.getData().isError()) {
               System.err.println(String.format("type error: use of symbol with invalid declaration: %s", originalName));
@@ -5022,7 +5024,7 @@ public class CActions implements SemanticActions {
                 String result  // use the renamed symbol
                   = String.format(" %s ", ((NamedFunctionT) entry.getData().getValue()).getName());
                 sbmv.add(result, entry.getCondition());
-                typemv.add(((NamedFunctionT) entry.getData().getValue()), entry.getCondition());
+                typemv.add(((NamedFunctionT) entry.getData().getValue()).toFunctionT(), entry.getCondition());
               } else if (entry.getData().getValue() instanceof EnumeratorT) {
                 String result  // use the renamed symbol
                   = String.format(" %s ", entry.getData().getValue().toEnumerator().getName());
@@ -5212,8 +5214,14 @@ public class CActions implements SemanticActions {
             String appendstr = String.format("%s %s", lparen, rparen);
             Multiverse<String> valuemv = exprmv.appendScalar(appendstr, DesugarOps.concatStrings);
 
+            // the resulting type of the function call is the return value
+            Multiverse<Type> returntype = DesugarOps.getReturnType.transform(exprval.type);
+
+            /* System.err.println("EXPRTYPE: " + exprval.type); */
+            /* System.err.println("RETURNTYPE: " + returntype); */
+
             setTransformationValue(value, new ExpressionValue(valuemv,
-                                                              exprval.type)); // TODO: placeholder for real type
+                                                              returntype)); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in function call"),
@@ -6972,7 +6980,7 @@ public class CActions implements SemanticActions {
             /* System.err.println("exprtype: " + exprtype); */
             /* System.err.println("assigntype: " + assigntype); */
             todoReminder("check types in assignment expression");
-            Multiverse<Type> producttype = productAll(DesugarOps.compareTypes, exprtype, assigntype);
+            Multiverse<Type> producttype = exprtype.product(assigntype, DesugarOps.compareTypes);
             /* System.err.println("producttype: " + producttype); */
             /* System.err.println("TODO: deduplicate ErrorT"); */
             /* System.err.println("TODO: allow type coercion"); */
@@ -8138,6 +8146,54 @@ FreshIDCreator freshIdCreator = new FreshIDCreator();
 public String freshCId(String base) {
   return freshIdCreator.freshCId(base);
 }
+
+/**
+ * This class manages the struct and union types, since xtc's type
+ * system uses a nonce to distinguish tagged types of the same name.
+ * This class caches existing tag types to ensure type equivalence.
+ */
+public static class StructOrUnionTypeCreator {
+  /** Maps tag to type. */
+  Map <String, Type> typeCache;
+  
+  public StructOrUnionTypeCreator() {
+    typeCache = new HashMap<String, Type>();
+  }
+
+  public Type create(Syntax keyword, String tag) {
+    return create(keyword.getTokenText(), tag);
+  }
+
+  public Type createStruct(String tag) {
+    return create("struct", tag);
+  }
+
+  public Type createUnion(String tag) {
+    return create("union", tag);
+  }
+
+  public Type create(String keyword, String tag) {
+    if (typeCache.containsKey(tag)) {
+      // this does not validate that the previous type matches the
+      // current keyword (struct/union)
+      return typeCache.get(tag);
+    } else {
+      Type newType;
+      if (keyword.equals("struct")) {
+        newType = new StructT(tag);
+      } else if (keyword.equals("union")) {
+        newType = new UnionT(tag);
+      } else {
+        throw new AssertionError("unexpected keyword to createStructOrUnionRefType");
+      }
+      assert null != newType;
+      typeCache.put(tag, newType);
+      return newType;
+    }
+  }
+}
+
+StructOrUnionTypeCreator suTypeCreator = new StructOrUnionTypeCreator();
 
 
 /*****************************************************************************
