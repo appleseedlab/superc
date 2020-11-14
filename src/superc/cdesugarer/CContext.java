@@ -97,7 +97,7 @@ public class CContext implements ParsingContext {
    * configurations of the struct/union there will be.  See
    * getDeclarations to see how the forward reference is handled.
    */
-  protected Map<String, String> forwardtagrefs;
+  protected BiMap<String, String> forwardtagrefs;
 
   /** Renamed enumerators for enums. */
   protected Map<String, List<String>> enumeratorlists;
@@ -151,7 +151,7 @@ public class CContext implements ParsingContext {
   public CContext() {
     this(new SymbolTable<Type>(),
          new HashMap<String, SymbolTable<Type>>(),
-         new HashMap<String, String>(),
+         new BiMap<String, String>(),
          new HashMap<String, List<String>>(),
          new OldSymbolTable(), null);
   }
@@ -164,7 +164,7 @@ public class CContext implements ParsingContext {
    */
   public CContext(SymbolTable<Type> symtab,
                   Map<String, SymbolTable<Type>> taglookasidetable,
-                  Map<String, String> forwardtagrefs,
+                  BiMap<String, String> forwardtagrefs,
                   Map<String, List<String>> enumeratorlists,
                   OldSymbolTable oldsymtab,
                   CContext parent) {
@@ -785,7 +785,7 @@ public class CContext implements ParsingContext {
 
     scope = new CContext(new SymbolTable<Type>(),
                          new HashMap<String, SymbolTable<Type>>(),
-                         new HashMap<String, String>(),
+                         new BiMap<String, String>(),
                          new HashMap<String, List<String>>(),
                          new OldSymbolTable(),
                          new CContext(scope));
@@ -1104,7 +1104,7 @@ public class CContext implements ParsingContext {
     } else {
       // not a reentrant scope.  look for the tag
       if (forwardtagrefs.containsKey(forwardTag)) {
-        return forwardtagrefs.get(forwardTag);
+        return forwardtagrefs.getValue(forwardTag);
       } else {
         if (null != this.parent) {
           return this.parent.getForwardTagReferenceAnyScope(forwardTag);
@@ -1179,7 +1179,7 @@ public class CContext implements ParsingContext {
       sb.append(String.format("struct %s {", tag));
       sb.append(" // generated union of struct variations");
       sb.append("\nunion {\n");
-      String originalTag = forwardtagrefs.get(tag);
+      String originalTag = forwardtagrefs.getValue(tag);
       Multiverse<SymbolTable.Entry<Type>> originalTagEntries
         = symtab.get(CContext.toTagName(originalTag), presenceCondition);
       for (Element<SymbolTable.Entry<Type>> tagentry : originalTagEntries) {
@@ -1298,5 +1298,44 @@ public class CContext implements ParsingContext {
    */
   public static String toLabelName(String id) {
     return toNameSpace(id, "label");
+  }
+
+  protected static class BiMap<T, U> {
+    Map<T, U> map1;
+    Map<U, T> map2;
+    
+    public BiMap() {
+      map1 = new HashMap<T, U>();
+      map2 = new HashMap<U, T>();
+    }
+
+    public boolean containsKey(T key) {
+      return map1.containsKey(key);
+    }
+
+    public boolean containsValue(U value) {
+      return map2.containsKey(value);
+    }
+
+    public Set<T> keySet() {
+      return map1.keySet();
+    }
+
+    public Set<U> valueSet() {
+      return map2.keySet();
+    }
+
+    public U getValue(T key) {
+      return map1.get(key);
+    }
+
+    public T getKey(U value) {
+      return map2.get(value);
+    }
+
+    public void put(T key, U value) {
+      map1.put(key, value);
+      map2.put(value, key);
+    }
   }
 }
