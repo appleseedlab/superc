@@ -4841,25 +4841,25 @@ IterationStatement:  /** complete **/  // Multiverse<String>
           }
         }
         // n1570 6.8.5 Iteration statements allows for a declaration in the initializer of a for loop
-        | FOR LPAREN Declaration ExpressionOpt SEMICOLON
-                ExpressionOpt RPAREN Statement
+        | FOR LPAREN { EnterScope(subparser); } Declaration ExpressionOpt SEMICOLON
+                ExpressionOpt RPAREN Statement { ExitScope(subparser); }
         {
           // TODO: use a reentrant scope to add the declaration's symbol to the for-loop's scope
           // TODO: Declaration returns a String, not a multiverse.  We need a multiverse to hoist around the entire for loop.
           // TODO: consider rewriting this to put the declaration outside the for loop.  since it's renamed, we should have conflicts, and it resolves issues with scope and semantic values
           todoReminder("check the type of the conditional expression IterationStatement (4)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue testval = getCompleteNodeExpressionValue(subparser, 5, pc);
-          ExpressionValue updateval = getCompleteNodeExpressionValue(subparser, 3, pc);
 
-          Multiverse<String> formv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 8)).getTokenText(), pc);
-          Multiverse<String> lparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 7)).getTokenText(), pc);
-          Multiverse<String> declstring = new Multiverse<String>((String) getTransformationValue(subparser, 6), pc);
+          Multiverse<String> formv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 10)).getTokenText(), pc);
+          Multiverse<String> lparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 9)).getTokenText(), pc);
+          Multiverse<String> declstring = new Multiverse<String>((String) getTransformationValue(subparser, 7), pc);
+          ExpressionValue testval = getCompleteNodeExpressionValue(subparser, 6, pc);
           Multiverse<String> testmv = testval.transformation;
-          Multiverse<String> semi2mv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 4)).getTokenText(), pc);
+          Multiverse<String> semi2mv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 5)).getTokenText(), pc);
+          ExpressionValue updateval = getCompleteNodeExpressionValue(subparser, 4, pc);
           Multiverse<String> updatemv = updateval.transformation;
-          Multiverse<String> rparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
-          Multiverse<String> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
+          Multiverse<String> rparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 3)).getTokenText(), pc);
+          Multiverse<String> stmtmv = getCompleteNodeMultiverseValue(subparser, 2, pc);
 
           // rewrite by moving the declaration above the for-loop.
           // add the new declarations and the for loop to their own
