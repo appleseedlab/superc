@@ -687,7 +687,7 @@ abstract class Declarator {
     public boolean isBitFieldSizeDeclarator() { return true; }
 
     public String toString() {
-      return expression;
+      return String.format(": %s", expression);
     }
   }
 

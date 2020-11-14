@@ -4508,7 +4508,7 @@ public class CActions implements SemanticActions {
             todoReminder("add emitError back to ExpressionStatement once type checking is done");
             /* valuemv.add(emitError("type error"), errorCond); */
           } else {
-            /* System.err.println("type error: ExpressionStatement found no valid expressions"); */
+            System.err.println("type error: ExpressionStatement found no valid expressions");
             valuemv = new Multiverse<String>(String.format("%s;", emitError("type error")), errorCond);
           }
           assert valuemv != null;
