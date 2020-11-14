@@ -5130,7 +5130,7 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
                 String result  // use the renamed symbol
                   = String.format(" %s ", ((NamedFunctionT) entry.getData().getValue()).getName());
                 sbmv.add(result, entry.getCondition());
-                typemv.add(((NamedFunctionT) entry.getData().getValue()), entry.getCondition());
+                typemv.add(((NamedFunctionT) entry.getData().getValue()).toFunctionT(), entry.getCondition());
               } else if (entry.getData().getValue() instanceof EnumeratorT) {
                 String result  // use the renamed symbol
                   = String.format(" %s ", entry.getData().getValue().toEnumerator().getName());
@@ -5304,8 +5304,10 @@ FunctionCall:  /** nomerge **/
             String appendstr = String.format("%s %s", lparen, rparen);
             Multiverse<String> valuemv = exprmv.appendScalar(appendstr, DesugarOps.concatStrings);
 
+            // the resulting type of the function call is the return value
+            Multiverse<Type> returntype = DesugarOps.getReturnType.transform(exprval.type);
             setTransformationValue(value, new ExpressionValue(valuemv,
-                                                              exprval.type)); // TODO: placeholder for real type
+                                                              returntype)); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in function call"),

@@ -845,6 +845,25 @@ class DesugarOps {
   };
 
   /**
+   * Get the return type from a function type.  This will return an
+   * error type when the type is not a function type.
+   */
+  public final static Multiverse.Transformer<Type, Type> getReturnType
+    = new Multiverse.Transformer<Type, Type>() {
+        Type transform(Type ftype) {
+          System.err.println("FTYPE: " + ftype);
+          System.err.println("FTYPE: " + ftype.isFunction());
+          System.err.println("FTYPE: " + ftype.getClass());
+          if (ftype.isFunction()) {
+            return ftype.toFunction().getResult();
+          // } else if () {
+          } else {
+            return ErrorT.TYPE;
+          }
+        }
+      };
+
+  /**
    * A multiverse transformation to wrap string into a single-element
    * list.
    */
