@@ -4626,6 +4626,7 @@ ExpressionStatement:  /** complete **/  // Multiverse<String>
             todoReminder("add emitError back to ExpressionStatement once type checking is done");
             /* valuemv.add(emitError("type error"), errorCond); */
           } else {
+            System.err.println("type error: ExpressionStatement found no valid expressions");
             valuemv = new Multiverse<String>(String.format("%s;", emitError("type error")), errorCond);
           }
           assert valuemv != null;
@@ -5110,6 +5111,7 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
           // any presence conditions with an error can be omitted from
           // the desugaring.  instead, this information is preserved
           // in the type value for use by the statement.
+          /* System.err.println("IDENT: " + entries); */
           for (Element<SymbolTable.Entry<Type>> entry : entries) {
             if (entry.getData().isError()) {
               System.err.println(String.format("type error: use of symbol with invalid declaration: %s", originalName));
@@ -5306,6 +5308,10 @@ FunctionCall:  /** nomerge **/
 
             // the resulting type of the function call is the return value
             Multiverse<Type> returntype = DesugarOps.getReturnType.transform(exprval.type);
+
+            /* System.err.println("EXPRTYPE: " + exprval.type); */
+            /* System.err.println("RETURNTYPE: " + returntype); */
+
             setTransformationValue(value, new ExpressionValue(valuemv,
                                                               returntype)); // TODO: placeholder for real type
                                                               
@@ -7030,7 +7036,7 @@ AssignmentExpression:  /** passthrough, nomerge **/  // ExpressionValue
             /* System.err.println("exprtype: " + exprtype); */
             /* System.err.println("assigntype: " + assigntype); */
             todoReminder("check types in assignment expression");
-            Multiverse<Type> producttype = productAll(DesugarOps.compareTypes, exprtype, assigntype);
+            Multiverse<Type> producttype = exprtype.product(assigntype, DesugarOps.compareTypes);
             /* System.err.println("producttype: " + producttype); */
             /* System.err.println("TODO: deduplicate ErrorT"); */
             /* System.err.println("TODO: allow type coercion"); */
