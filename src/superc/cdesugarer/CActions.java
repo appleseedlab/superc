@@ -5217,6 +5217,7 @@ public class CActions implements SemanticActions {
           String lparen = getNodeAt(subparser, 2).getTokenText();
           String rparen = getNodeAt(subparser, 1).getTokenText();
 
+
           if (exprval.hasValidType()) {
             String appendstr = String.format("%s %s", lparen, rparen);
             Multiverse<String> valuemv = exprmv.appendScalar(appendstr, DesugarOps.concatStrings);
@@ -5224,8 +5225,8 @@ public class CActions implements SemanticActions {
             // the resulting type of the function call is the return value
             Multiverse<Type> returntype = DesugarOps.getReturnType.transform(exprval.type);
 
-            System.err.println("EXPRTYPE: " + exprval.type);
-            System.err.println("RETURNTYPE: " + returntype);
+            /* System.err.println("EXPRTYPE: " + exprval.type); */
+            /* System.err.println("RETURNTYPE: " + returntype); */
 
             setTransformationValue(value, new ExpressionValue(valuemv,
                                                               returntype)); // TODO: placeholder for real type
@@ -5274,8 +5275,8 @@ public class CActions implements SemanticActions {
                 break;
               }
               // wrap each listelem's string and type in a list
-              System.err.println("LISTELEM: " + listelem.transformation);
-              System.err.println("LISTELEM: " + listelem.type);
+              /* System.err.println("LISTELEM: " + listelem.transformation); */
+              /* System.err.println("LISTELEM: " + listelem.type); */
               Multiverse<List<String>> wrapped_listelem_transformation
                 = DesugarOps.stringListWrap.transform(listelem.transformation);
               Multiverse<List<Type>> wrapped_listelem_type
@@ -5296,8 +5297,8 @@ public class CActions implements SemanticActions {
 
             if (! hasinvalidparameter) {
 
-              System.err.println("EXPRLISTMV: " + exprlistmv);
-              System.err.println("EXPRLISTTYPEMV: " + exprlisttypemv);
+              /* System.err.println("EXPRLISTMV: " + exprlistmv); */
+              /* System.err.println("EXPRLISTTYPEMV: " + exprlisttypemv); */
 
               // typecheck each combination of postfix expression and
               // parameter list.
@@ -5311,9 +5312,9 @@ public class CActions implements SemanticActions {
               // parameter list
               for (Element<Type> postfixelem : postfixexprval.type) {
                 // check that postfix expression is a function type
-                System.err.println("FUNTYPE: " + postfixelem.getData());
-                System.err.println("isnamedfunt: " + (postfixelem.getData() instanceof NamedFunctionT));
-                System.err.println("isfunt: " + (postfixelem.getData() instanceof FunctionT));
+                /* System.err.println("FUNTYPE: " + postfixelem.getData()); */
+                /* System.err.println("isnamedfunt: " + (postfixelem.getData() instanceof NamedFunctionT)); */
+                /* System.err.println("isfunt: " + (postfixelem.getData() instanceof FunctionT)); */
                 if (postfixelem.getData().isFunction()) {
                   FunctionT functiontype = postfixelem.getData().toFunction();
                   List<Type> formals = functiontype.getParameters();
@@ -5418,8 +5419,8 @@ public class CActions implements SemanticActions {
                 filtered_exprlistmv.destruct();
               }
 
-              System.err.println("FCALLTYPE: " + typemv);
-              System.err.println("FCALLERRVALS: " + valuemv);
+              /* System.err.println("FCALLTYPE: " + typemv); */
+              /* System.err.println("FCALLERRVALS: " + valuemv); */
             
               setTransformationValue(value, new ExpressionValue(valuemv, typemv));
             } else {
@@ -7934,10 +7935,16 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                       }
                       contents.append(")");
                       contents.append("; /* call external thunk */\n");
-                      // replace the extern function declaration with a static, renamed function
-                      desugaredDeclaration = String.format("%s ;\n", staticPrototype);
-                      // define that function to call the originally-named extern function
-                      externFunctionThunks.append(String.format("%s {\n%s}\n", staticPrototype, contents.toString()));
+                      if (true) {
+                        // disabling the thunks for now, pending
+                        // configuration-aware linking support
+                        desugaredDeclaration = String.format("%s ;\n", renamedDeclarator);
+                      } else {
+                        // replace the extern function declaration with a static, renamed function
+                        desugaredDeclaration = String.format("%s ;\n", staticPrototype);
+                        // define that function to call the originally-named extern function
+                        externFunctionThunks.append(String.format("%s {\n%s}\n", staticPrototype, contents.toString()));
+                      }
                       assert 0 == initializer.getData().toString().length();  // extern function declarations should not have an initializer
                     } else {
                       desugaredDeclaration = renamedDeclaration.toString();
