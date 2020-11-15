@@ -7818,10 +7818,16 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                       }
                       contents.append(")");
                       contents.append("; /* call external thunk */\n");
-                      // replace the extern function declaration with a static, renamed function
-                      desugaredDeclaration = String.format("%s ;\n", staticPrototype);
-                      // define that function to call the originally-named extern function
-                      externFunctionThunks.append(String.format("%s {\n%s}\n", staticPrototype, contents.toString()));
+                      if (true) {
+                        // disabling the thunks for now, pending
+                        // configuration-aware linking support
+                        desugaredDeclaration = String.format("%s ;\n", renamedDeclarator);
+                      } else {
+                        // replace the extern function declaration with a static, renamed function
+                        desugaredDeclaration = String.format("%s ;\n", staticPrototype);
+                        // define that function to call the originally-named extern function
+                        externFunctionThunks.append(String.format("%s {\n%s}\n", staticPrototype, contents.toString()));
+                      }
                       assert 0 == initializer.getData().toString().length();  // extern function declarations should not have an initializer
                     } else {
                       desugaredDeclaration = renamedDeclaration.toString();
