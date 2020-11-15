@@ -5217,7 +5217,6 @@ public class CActions implements SemanticActions {
           String lparen = getNodeAt(subparser, 2).getTokenText();
           String rparen = getNodeAt(subparser, 1).getTokenText();
 
-
           if (exprval.hasValidType()) {
             String appendstr = String.format("%s %s", lparen, rparen);
             Multiverse<String> valuemv = exprmv.appendScalar(appendstr, DesugarOps.concatStrings);
@@ -5225,8 +5224,8 @@ public class CActions implements SemanticActions {
             // the resulting type of the function call is the return value
             Multiverse<Type> returntype = DesugarOps.getReturnType.transform(exprval.type);
 
-            /* System.err.println("EXPRTYPE: " + exprval.type); */
-            /* System.err.println("RETURNTYPE: " + returntype); */
+            System.err.println("EXPRTYPE: " + exprval.type);
+            System.err.println("RETURNTYPE: " + returntype);
 
             setTransformationValue(value, new ExpressionValue(valuemv,
                                                               returntype)); // TODO: placeholder for real type
@@ -5275,8 +5274,8 @@ public class CActions implements SemanticActions {
                 break;
               }
               // wrap each listelem's string and type in a list
-              /* System.err.println("LISTELEM: " + listelem.transformation); */
-              /* System.err.println("LISTELEM: " + listelem.type); */
+              System.err.println("LISTELEM: " + listelem.transformation);
+              System.err.println("LISTELEM: " + listelem.type);
               Multiverse<List<String>> wrapped_listelem_transformation
                 = DesugarOps.stringListWrap.transform(listelem.transformation);
               Multiverse<List<Type>> wrapped_listelem_type
@@ -5297,8 +5296,8 @@ public class CActions implements SemanticActions {
 
             if (! hasinvalidparameter) {
 
-              /* System.err.println("EXPRLISTMV: " + exprlistmv); */
-              /* System.err.println("EXPRLISTTYPEMV: " + exprlisttypemv); */
+              System.err.println("EXPRLISTMV: " + exprlistmv);
+              System.err.println("EXPRLISTTYPEMV: " + exprlisttypemv);
 
               // typecheck each combination of postfix expression and
               // parameter list.
@@ -5312,11 +5311,11 @@ public class CActions implements SemanticActions {
               // parameter list
               for (Element<Type> postfixelem : postfixexprval.type) {
                 // check that postfix expression is a function type
-                /* System.err.println("FUNTYPE: " + postfixelem.getData()); */
-                /* System.err.println("isnamedfunt: " + (postfixelem.getData() instanceof NamedFunctionT)); */
-                /* System.err.println("isfunt: " + (postfixelem.getData() instanceof FunctionT)); */
-                if (postfixelem.getData() instanceof NamedFunctionT) {
-                  FunctionT functiontype = ((NamedFunctionT) postfixelem.getData()).toFunctionT();
+                System.err.println("FUNTYPE: " + postfixelem.getData());
+                System.err.println("isnamedfunt: " + (postfixelem.getData() instanceof NamedFunctionT));
+                System.err.println("isfunt: " + (postfixelem.getData() instanceof FunctionT));
+                if (postfixelem.getData().isFunction()) {
+                  FunctionT functiontype = postfixelem.getData().toFunction();
                   List<Type> formals = functiontype.getParameters();
                   for (Element<List<Type>> exprlisttype : exprlisttypemv) {
                     PresenceCondition combinedCond = postfixelem.getCondition().and(exprlisttype.getCondition());
@@ -5419,8 +5418,8 @@ public class CActions implements SemanticActions {
                 filtered_exprlistmv.destruct();
               }
 
-              /* System.err.println("FCALLTYPE: " + typemv); */
-              /* System.err.println("FCALLERRVALS: " + valuemv); */
+              System.err.println("FCALLTYPE: " + typemv);
+              System.err.println("FCALLERRVALS: " + valuemv);
             
               setTransformationValue(value, new ExpressionValue(valuemv, typemv));
             } else {
@@ -6987,8 +6986,8 @@ public class CActions implements SemanticActions {
             Multiverse<Type> assigntype = rightval.type;
             /* System.err.println("exprtype: " + exprtype); */
             /* System.err.println("assigntype: " + assigntype); */
-            todoReminder("check types in assignment expression");
-            Multiverse<Type> producttype = exprtype.product(assigntype, DesugarOps.compareTypes);
+            /* Multiverse<Type> producttype = exprtype.product(assigntype, DesugarOps.compareTypes); */
+            Multiverse<Type> producttype = DesugarOps.checkAssignmentType(exprtype, assigntype, op, pc, false);
             /* System.err.println("producttype: " + producttype); */
             /* System.err.println("TODO: deduplicate ErrorT"); */
             /* System.err.println("TODO: allow type coercion"); */
