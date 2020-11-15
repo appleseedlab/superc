@@ -5397,8 +5397,8 @@ FunctionCall:  /** nomerge **/
                 /* System.err.println("FUNTYPE: " + postfixelem.getData()); */
                 /* System.err.println("isnamedfunt: " + (postfixelem.getData() instanceof NamedFunctionT)); */
                 /* System.err.println("isfunt: " + (postfixelem.getData() instanceof FunctionT)); */
-                if (postfixelem.getData() instanceof NamedFunctionT) {
-                  FunctionT functiontype = ((NamedFunctionT) postfixelem.getData()).toFunctionT();
+                if (postfixelem.getData().isFunction()) {
+                  FunctionT functiontype = postfixelem.getData().toFunction();
                   List<Type> formals = functiontype.getParameters();
                   for (Element<List<Type>> exprlisttype : exprlisttypemv) {
                     PresenceCondition combinedCond = postfixelem.getCondition().and(exprlisttype.getCondition());
