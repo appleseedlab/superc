@@ -9,6 +9,8 @@ import xtc.type.VariableT;
 import xtc.type.StructT;
 import xtc.type.UnionT;
 import xtc.type.EnumT;
+import xtc.type.NumberT;
+import xtc.type.PointerT;
 import xtc.type.ErrorT;
 
 import superc.core.Syntax;
@@ -797,6 +799,189 @@ class DesugarOps {
     }
     return newtype;
   };
+
+  /**
+   * Check the type of an assignment.
+   */
+  public final static Multiverse<Type> checkAssignmentType(Multiverse<Type> left, Multiverse<Type> right,
+                                                           Multiverse<String> opmv, PresenceCondition pc,
+                                                           boolean init) {
+    Multiverse<Type> resultmv = new Multiverse<Type>();
+
+    boolean pedantic = false;
+    for (Element<Type> leftelem : left) {
+      PresenceCondition leftcond = leftelem.getCondition().and(pc);
+      for (Element<Type> rightelem : right) {
+        PresenceCondition rightcond = rightelem.getCondition().and(leftcond);
+        for (Element<String> opelem : opmv) {
+          PresenceCondition elemCond = opelem.getCondition().and(rightcond);
+          if (elemCond.isNotFalse()) {
+            Type t1 = leftelem.getData();
+            Type t2 = rightelem.getData();
+            String op = opelem.getData();
+            
+            if (t1.hasError() || t2.hasError()) {
+              resultmv.add(ErrorT.TYPE, elemCond);
+              continue;
+            }
+
+            final Type r1 = t1.resolve();
+            final Type r2 = cOps.pointerize(t2);
+            Type result   = null;
+
+            if (r2.isVoid()) {
+              System.err.println("type error: void value not ignored as it ought to be");
+              resultmv.add(ErrorT.TYPE, elemCond);
+              continue;
+            }
+
+            switch (r1.tag()) {
+            case BOOLEAN: {
+              // Booleans can be assigned from scalar operands.
+              if (cOps.isScalar(r2)) {
+                result = r1;
+              }
+            } break;
+
+            case INTEGER: {
+              // Integers can be assigned from scalar operands, but call for a
+              // warning then the operand is a pointer.
+              if (cOps.isArithmetic(r2)) {
+                result = r1;
+              } else if (r2.isPointer()) {
+                if (pedantic) {
+                  System.err.println("type error: " + op + " makes integer from pointer without a cast");
+                  result = ErrorT.TYPE;
+                } else {
+                  // GCC extension.
+                  System.err.println("type warning: " + op+" makes integer from pointer without a cast");
+                  result = r1;
+                }
+              }
+            } break;
+
+            case FLOAT: {
+              // Floats can be assigned from other arithmetic types.
+              if (cOps.isArithmetic(r2)) {
+                result = r1;
+              }
+            } break;
+
+            case STRUCT:
+            case UNION: {
+              // A struct or union can only be assigned from another struct or
+              // union of compatible type.
+              if (cOps.equal(r1, r2)) {
+                result = r1;
+              }
+            } break;
+
+            case ARRAY: {
+              // An array can only be assigned in an initializer and only if
+              // the left-hand type is a (wide) C string and the right-hand
+              // type is a matching C string constant.
+              if (init) {
+                if (cOps.isString(r1) && t2.hasConstant()) {
+                  if (cOps.isString(t2)) {
+                    result = r1;
+                  } else if (cOps.isWideString(t2)) {
+                    System.err.println("type error: " + "char-array initialized from wide string");
+                    result = ErrorT.TYPE;
+                  }
+
+                } else if (cOps.isWideString(r1) && t2.hasConstant()) {
+                  if (cOps.isString(t2)) {
+                    System.err.println("type error: " + "wchar_t-array initialized from non-wide string");
+                    result = ErrorT.TYPE;
+                  } else if (cOps.isWideString(t2)) {
+                    result = r1;
+                  }
+                }
+              }
+            } break;
+
+            case POINTER: {
+              if (r2.isPointer()) {
+                final Type pt1  = r1.toPointer().getType(); // PointedTo, PTResolved
+                final Type pt2  = r2.toPointer().getType();
+
+                final Type ptr1 = pt1.resolve();
+                final Type ptr2 = pt2.resolve();
+
+                if (cOps.equal(ptr1, ptr2) || ptr1.isVoid() || ptr2.isVoid()) {
+                  if (cOps.hasQualifiers(pt1, pt2) || cOps.isStringLiteral(t2)) {
+                    result = r1;
+
+                  } else if (pedantic) {
+                    System.err.println("type error: " + op + " discards qualifiers from pointer target " +
+                                  "type");
+                    result = ErrorT.TYPE;
+
+                  } else {
+                    System.err.println("type warning: " + op + " discards qualifiers from pointer target " +
+                                    "type");
+                    result = r1;
+                  }
+
+                } else if (ptr1.isNumber() && ptr2.isNumber() &&
+                           NumberT.equalIgnoringSign(ptr1.toNumber().getKind(),
+                                                     ptr2.toNumber().getKind())) {
+                  // Note: We don't need to consider booleans here because all
+                  // booleans are unsigned.
+                  if (pedantic) {
+                    System.err.println("type error: " + "pointer targets in "+op+" differ in signedness");
+                    result = ErrorT.TYPE;
+                  } else {
+                    // GCC extension.
+                    System.err.println("type warning: " + "pointer targets in "+op+" differ in signedness");
+                    result = r1;
+                  }
+
+                } else if (pedantic) {
+                  System.err.println("type error: " + "incompatible pointer types in " + op);
+                  result = ErrorT.TYPE;
+
+                } else {
+                  // GCC extension.
+                  System.err.println("type warning: " + "incompatible pointer types in " + op);
+                  result = r1;
+                }
+
+              } else if (t2.hasConstant() && t2.getConstant().isNull()) {
+                result = r1;
+
+              } else if (cOps.isIntegral(t2)) {
+                if (pedantic) {
+                  System.err.println("type error: " + op + " makes pointer from integer without a cast");
+                  result = ErrorT.TYPE;
+                } else {
+                  // GCC extension.
+                  System.err.println("type warning: " + op + " makes pointer from integer without a cast");
+                  result = r1;
+                }
+              }
+            } break;
+
+            default:
+              if (r1.isInternal() && r2.isInternal() &&
+                  r1.toInternal().getName().equals(r2.toInternal().getName())) {
+                result = r1;
+              }
+            }
+            
+            resultmv.add(result, elemCond);
+          }
+          elemCond.delRef();
+        }
+        rightcond.delRef();
+      }
+      leftcond.delRef();
+    }
+
+    assert ! resultmv.isEmpty();
+
+    return resultmv;
+  }
 
   /**
    * Get the return type from a function type.  This will return an

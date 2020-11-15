@@ -7035,8 +7035,8 @@ AssignmentExpression:  /** passthrough, nomerge **/  // ExpressionValue
             Multiverse<Type> assigntype = rightval.type;
             /* System.err.println("exprtype: " + exprtype); */
             /* System.err.println("assigntype: " + assigntype); */
-            todoReminder("check types in assignment expression");
-            Multiverse<Type> producttype = exprtype.product(assigntype, DesugarOps.compareTypes);
+            /* Multiverse<Type> producttype = exprtype.product(assigntype, DesugarOps.compareTypes); */
+            Multiverse<Type> producttype = DesugarOps.checkAssignmentType(exprtype, assigntype, op, pc, false);
             /* System.err.println("producttype: " + producttype); */
             /* System.err.println("TODO: deduplicate ErrorT"); */
             /* System.err.println("TODO: allow type coercion"); */
