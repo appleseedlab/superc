@@ -287,6 +287,12 @@ public class CActions implements SemanticActions {
                   scope.putError(originalName, combinedCond);
                   recordInvalidGlobalDeclaration(originalName, combinedCond);
                   System.err.println(String.format("INFO: \"%s\" has an invalid type specifier", originalName));
+                } else if (! originalDeclaration.getType().isFunction()) {
+                  // if type is not a function type, put an error entry, emit a call
+                  // to the type error function
+                  scope.putError(originalName, combinedCond);
+                  recordInvalidGlobalDeclaration(originalName, combinedCond);
+                  System.err.println(String.format("INFO: \"%s\" non-function type specifier in function prototype.  this can happen when, e.g., header guards make typedefs conditional.", originalName));
                 } else {
                   // otherwise loop over each existing entry check for
                   // type errors or add a new declaration
@@ -297,7 +303,7 @@ public class CActions implements SemanticActions {
                     String renaming = freshCId(originalName);
                     Declarator renamedDeclarator = declarator.getData().rename(renaming);
                     Declaration renamedDeclaration = new Declaration(typespecifier.getData(), renamedDeclarator);
-                    
+
                     // the renamed function is static to enable linking the original function name
                     if (Constants.ATT_STORAGE_EXTERN == typespecifier.getData().getStorageClass()
                         || Constants.ATT_STORAGE_AUTO == typespecifier.getData().getStorageClass()
@@ -310,7 +316,13 @@ public class CActions implements SemanticActions {
                     // make all renamed declarations static until project-wide, configuration-aware linking is possible
                     String desugaredDeclaration;
                     if (hasGlobalLinkage(typespecifier.getData())) {
-                      desugaredDeclaration = makeStaticDeclaration(typespecifier.getData(), renamedDeclarator);
+                      // disabling the thunks for now, pending
+                      // configuration-aware linking support
+                      if (true) {
+                        desugaredDeclaration = renamedDeclaration.toString();
+                      } else {
+                        desugaredDeclaration = makeStaticDeclaration(typespecifier.getData(), renamedDeclarator);
+                      }
                     } else {
                       desugaredDeclaration = renamedDeclaration.toString();
                     }
@@ -319,6 +331,7 @@ public class CActions implements SemanticActions {
                     // renamedDeclaration must be a FunctionT because
                     // that is created by a FunctionDeclarator
                     Type declarationType = renamedDeclaration.getType();
+
                     if (! declarationType.isFunction()) {
                       System.err.println(String.format("FATAL: unexpected type in function prototype: %s %s", declarationType, renaming));
                       System.exit(1);
@@ -5003,7 +5016,6 @@ public class CActions implements SemanticActions {
           // get the renamings from the symtab
           PresenceCondition cond = subparser.getPresenceCondition();
           Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(originalName, cond);
-          cond.delRef();
 
           // convert the renamings to stringbuilders
           Multiverse<String> sbmv = new Multiverse<String>();
@@ -7916,9 +7928,10 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
 
                     // make all renamed declarations static until project-wide, configuration-aware linking is possible
                     String desugaredDeclaration;
-                    if (type instanceof NamedFunctionT && hasExternalLinkage(typespecifier.getData())) {  // is extern
+                    // disabling the thunks for now, pending
+                    // configuration-aware linking support
+                    if (false && type instanceof NamedFunctionT && hasExternalLinkage(typespecifier.getData())) {  // is extern
                       todoReminder("account for void or abstract declarators in linker thunk functions");
-                      String staticPrototype = makeStaticDeclaration(typespecifier.getData(), renamedDeclarator);
                       StringBuilder contents = new StringBuilder();
                       contents.append(originalName);
                       contents.append("(");
@@ -7935,16 +7948,11 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                       }
                       contents.append(")");
                       contents.append("; /* call external thunk */\n");
-                      if (true) {
-                        // disabling the thunks for now, pending
-                        // configuration-aware linking support
-                        desugaredDeclaration = String.format("%s ;\n", renamedDeclarator);
-                      } else {
-                        // replace the extern function declaration with a static, renamed function
-                        desugaredDeclaration = String.format("%s ;\n", staticPrototype);
-                        // define that function to call the originally-named extern function
-                        externFunctionThunks.append(String.format("%s {\n%s}\n", staticPrototype, contents.toString()));
-                      }
+                      String staticPrototype = makeStaticDeclaration(typespecifier.getData(), renamedDeclarator);
+                      // replace the extern function declaration with a static, renamed function
+                      desugaredDeclaration = String.format("%s ;\n", staticPrototype);
+                      // define that function to call the originally-named extern function
+                      externFunctionThunks.append(String.format("%s {\n%s}\n", staticPrototype, contents.toString()));
                       assert 0 == initializer.getData().toString().length();  // extern function declarations should not have an initializer
                     } else {
                       desugaredDeclaration = renamedDeclaration.toString();
