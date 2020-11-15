@@ -5116,7 +5116,6 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
           // get the renamings from the symtab
           PresenceCondition cond = subparser.getPresenceCondition();
           Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(originalName, cond);
-          cond.delRef();
 
           // convert the renamings to stringbuilders
           Multiverse<String> sbmv = new Multiverse<String>();
