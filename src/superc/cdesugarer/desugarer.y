@@ -411,6 +411,12 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                   scope.putError(originalName, combinedCond);
                   recordInvalidGlobalDeclaration(originalName, combinedCond);
                   System.err.println(String.format("INFO: \"%s\" has an invalid type specifier", originalName));
+                } else if (! originalDeclaration.getType().isFunction()) {
+                  // if type is not a function type, put an error entry, emit a call
+                  // to the type error function
+                  scope.putError(originalName, combinedCond);
+                  recordInvalidGlobalDeclaration(originalName, combinedCond);
+                  System.err.println(String.format("INFO: \"%s\" non-function type specifier in function prototype.  this can happen when, e.g., header guards make typedefs conditional.", originalName));
                 } else {
                   // otherwise loop over each existing entry check for
                   // type errors or add a new declaration
