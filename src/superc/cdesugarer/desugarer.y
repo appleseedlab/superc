@@ -427,7 +427,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                     String renaming = freshCId(originalName);
                     Declarator renamedDeclarator = declarator.getData().rename(renaming);
                     Declaration renamedDeclaration = new Declaration(typespecifier.getData(), renamedDeclarator);
-                    
+
                     // the renamed function is static to enable linking the original function name
                     if (Constants.ATT_STORAGE_EXTERN == typespecifier.getData().getStorageClass()
                         || Constants.ATT_STORAGE_AUTO == typespecifier.getData().getStorageClass()
@@ -440,7 +440,13 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                     // make all renamed declarations static until project-wide, configuration-aware linking is possible
                     String desugaredDeclaration;
                     if (hasGlobalLinkage(typespecifier.getData())) {
-                      desugaredDeclaration = makeStaticDeclaration(typespecifier.getData(), renamedDeclarator);
+                      // disabling the thunks for now, pending
+                      // configuration-aware linking support
+                      if (true) {
+                        desugaredDeclaration = renamedDeclaration.toString();
+                      } else {
+                        desugaredDeclaration = makeStaticDeclaration(typespecifier.getData(), renamedDeclarator);
+                      }
                     } else {
                       desugaredDeclaration = renamedDeclaration.toString();
                     }
@@ -449,6 +455,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
                     // renamedDeclaration must be a FunctionT because
                     // that is created by a FunctionDeclarator
                     Type declarationType = renamedDeclaration.getType();
+
                     if (! declarationType.isFunction()) {
                       System.err.println(String.format("FATAL: unexpected type in function prototype: %s %s", declarationType, renaming));
                       System.exit(1);
@@ -7807,7 +7814,6 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                     String desugaredDeclaration;
                     if (type instanceof NamedFunctionT && hasExternalLinkage(typespecifier.getData())) {  // is extern
                       todoReminder("account for void or abstract declarators in linker thunk functions");
-                      String staticPrototype = makeStaticDeclaration(typespecifier.getData(), renamedDeclarator);
                       StringBuilder contents = new StringBuilder();
                       contents.append(originalName);
                       contents.append("(");
@@ -7829,6 +7835,7 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                         // configuration-aware linking support
                         desugaredDeclaration = String.format("%s ;\n", renamedDeclarator);
                       } else {
+                        String staticPrototype = makeStaticDeclaration(typespecifier.getData(), renamedDeclarator);
                         // replace the extern function declaration with a static, renamed function
                         desugaredDeclaration = String.format("%s ;\n", staticPrototype);
                         // define that function to call the originally-named extern function
