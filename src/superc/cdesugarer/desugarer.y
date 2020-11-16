@@ -6999,14 +6999,20 @@ ConditionalExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> colonmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> elsemv = elseval.transformation;
 
-          // check that condval is a condition type
-          setTransformationValue(value, new ExpressionValue(productAll(DesugarOps.concatStrings,
-                                                                       condmv,
-                                                                       quesmv,
-                                                                       ifmv,
-                                                                       colonmv,
-                                                                       elsemv),
-                                                            ifval.type));  // TODO: this is a placeholder for the real type
+          if (condval.hasValidType() && ifval.hasValidType() && elseval.hasValidType()) {
+            // check that condval is a condition type
+            setTransformationValue(value, new ExpressionValue(productAll(DesugarOps.concatStrings,
+                                                                         condmv,
+                                                                         quesmv,
+                                                                         ifmv,
+                                                                         colonmv,
+                                                                         elsemv),
+                                                              ifval.type));  // TODO: this is a placeholder for the real type
+          } else {
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in conditionalexpression expression"),
+                                                              ErrorT.TYPE,
+                                                              pc));
+          }
           quesmv.destruct(); colonmv.destruct();
         }
         | LogicalORExpression QUESTION COLON  // ADDED gcc innomerge conditional
