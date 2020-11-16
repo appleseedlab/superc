@@ -5272,30 +5272,36 @@ Subscript:  /** nomerge **/
           Multiverse<String> transformationmv = postfixexprval.transformation.product(appended, DesugarOps.concatStrings);
           prepended.destruct(); appended.destruct();
 
-          Multiverse<Type> typemv = new Multiverse<Type>();
-          for (Element<Type> elem : postfixexprval.type) {
-            if (elem.getData().isError()) {
-              typemv.add(elem.getData(), elem.getCondition());
-            } else {
-              // postfix expression should be a pointer or array type
-              if (elem.getData().isPointer()) {
-                // type should be whatever type the pointer point to
-                typemv.add(elem.getData().toPointer().getType(), elem.getCondition());
-              } else if (elem.getData().isArray()) {
-                // type should be whatever type the array points to
-                typemv.add(elem.getData().toArray().getType(), elem.getCondition());
+          if (postfixexprval.hasValidType() && exprval.hasValidType()) {
+            Multiverse<Type> typemv = new Multiverse<Type>();
+            for (Element<Type> elem : postfixexprval.type) {
+              if (elem.getData().isError()) {
+                typemv.add(elem.getData(), elem.getCondition());
               } else {
-                typemv.add(ErrorT.TYPE, elem.getCondition());
+                // postfix expression should be a pointer or array type
+                if (elem.getData().isPointer()) {
+                  // type should be whatever type the pointer point to
+                  typemv.add(elem.getData().toPointer().getType(), elem.getCondition());
+                } else if (elem.getData().isArray()) {
+                  // type should be whatever type the array points to
+                  typemv.add(elem.getData().toArray().getType(), elem.getCondition());
+                } else {
+                  typemv.add(ErrorT.TYPE, elem.getCondition());
+                }
               }
             }
+            assert ! typemv.isEmpty();
+
+            /* System.err.println("SUBSCRIPTBEFORE: " + postfixexprval.type); */
+            /* System.err.println("SUBSCRIPTAFTER: " + typemv); */
+
+            setTransformationValue(value, new ExpressionValue(transformationmv,
+                                                              typemv));  // TODO: placeholder until type checking
+          } else {
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in subscript expression"),
+                                                              ErrorT.TYPE,
+                                                              pc));
           }
-          assert ! typemv.isEmpty();
-
-          /* System.err.println("SUBSCRIPTBEFORE: " + postfixexprval.type); */
-          /* System.err.println("SUBSCRIPTAFTER: " + typemv); */
-
-          setTransformationValue(value, new ExpressionValue(transformationmv,
-                                                            typemv));  // TODO: placeholder until type checking
         }
         ;
 
