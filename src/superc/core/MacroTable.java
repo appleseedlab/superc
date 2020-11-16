@@ -125,6 +125,15 @@ public class MacroTable {
     }
   }
   
+  /**
+   * Get the current macro prefix restriction.
+   *
+   * @return The macro prefix restriction or null if none.
+   */
+  public String getRestrictPrefix() {
+    return prefix;
+  }
+
   /** Define a macro under a given presenceCondition.  This function will
    * ensure that all conditions are disjoint and that there are no more
    * than one of each unique definition.

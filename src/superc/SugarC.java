@@ -73,6 +73,8 @@ import superc.cdesugarer.CParseTables;
 import superc.cdesugarer.CValues;
 import superc.cdesugarer.CActions;
 import superc.cdesugarer.CContext;
+import superc.cdesugarer.SymbolTable;
+import superc.cdesugarer.Multiverse;
 import superc.cdesugarer.CLexerCreator;
 import superc.cdesugarer.CTokenCreator;
 
@@ -165,7 +167,9 @@ public class SugarC extends Tool {
       word("I", "I", true,
            "Add a directory to the header file search path.").
       word("isystem", "isystem", true,
-           "Add a system directory to the header file search path.").
+           "Add a system directory to search before standard system header paths.").
+      word("idirafter", "idirafter", true,
+           "Add a system directory to search after the standard system header paths.").
       word("iquote", "iquote", true,
            "Add a quote directory to the header file search path.").
       bool("nostdinc", "nostdinc", false,
@@ -188,6 +192,8 @@ public class SugarC extends Tool {
            + "configuration variables, but keep them free in the macro table").
       word("restrictFreeToPrefix", "restrictFreeToPrefix", false,
            "Restricts free macros to those that have the given prefix").
+      bool("singleConfigSysheaders", "singleConfigSysheaders", false,
+           "Disables configuration-awareness inside of system headers.").
 
       // Subparser explosion kill switch.
       word("killswitch", "killswitch", false,
@@ -200,6 +206,10 @@ public class SugarC extends Tool {
            "Pass preprocessor error tokens to the parser.  Makes for more "
            + "specific presence conditions.").
 
+      // Desugaring features
+      bool("linkerThunks", "linkerThunks", false,
+           "Emit thunks for single-configuration linking (experimental).").
+      
       // Output and debugging
       bool("printAST", "printAST", false,
            "Print the parsed AST.").
@@ -251,13 +261,26 @@ public class SugarC extends Tool {
     // ""                     ""     ""   ""     ""
     //                               <>   <>     <>
     //                                    marked system headers 
+
+    // per https://gcc.gnu.org/onlinedocs/gcc/Directory-Options.html the order of sysheaders is isystem standard idirafter
+    for (Object o : runtime.getList("isystem")) {
+      if (o instanceof String) {
+        String s;
+        
+        s = (String) o;
+        if (sysdirs.indexOf(s) < 0) {
+          sysdirs.add(s);
+        }
+      }
+    }
+
     if (!runtime.test("nostdinc")) {
       for (int i = 0; i < Builtins.sysdirs.length; i++) {
         sysdirs.add(Builtins.sysdirs[i]);
       }
     }
     
-    for (Object o : runtime.getList("isystem")) {
+    for (Object o : runtime.getList("idirafter")) {
       if (o instanceof String) {
         String s;
         
@@ -420,6 +443,8 @@ public class SugarC extends Tool {
                                       tokenCreator);
       ((Preprocessor) preprocessor)
         .showErrors(! runtime.test("hideErrors"));
+      ((Preprocessor) preprocessor)
+        .singleConfigurationSysheaders(runtime.test("singleConfigSysheaders"));
 
       do {
         syntax = preprocessor.next();
@@ -431,7 +456,7 @@ public class SugarC extends Tool {
     fileManager = new HeaderFileManager(in, file, iquote, I, sysdirs,
                                         lexerCreator, tokenCreator, lexerTimer,
                                         runtime.getString(xtc.util.Runtime.INPUT_ENCODING));
-      fileManager.showHeaders(runtime.test("showHeaders"));
+    fileManager.showHeaders(runtime.test("showHeaders"));
     fileManager.showErrors(! runtime.test("hideErrors"));
 
     preprocessor = new Preprocessor(fileManager,
@@ -442,6 +467,8 @@ public class SugarC extends Tool {
     
     ((Preprocessor) preprocessor)
       .showErrors(! runtime.test("hideErrors"));
+    ((Preprocessor) preprocessor)
+      .singleConfigurationSysheaders(runtime.test("singleConfigSysheaders"));
 
     // Run SuperC.
 
@@ -504,12 +531,45 @@ public class SugarC extends Tool {
 
     translationUnit = parser.parse();
 
-    if (null != translationUnit
-        && ! ((Node) translationUnit).getName().equals("TranslationUnit")) {
-      GNode tu = GNode.create("TranslationUnit");
-      tu.add(translationUnit);
-      translationUnit = tu;
+    if (null != translationUnit) {
+      Node root = (Node) translationUnit;
+      CContext scope = initialParsingContext;
+      SymbolTable<Type> symtab = scope.getSymbolTable();
+      PresenceCondition pcTrue = presenceConditionManager.newTrue();
+
+      // emit headers
+      System.out.print("#include <stdbool.h>\n");
+      System.out.print("\n");
+
+      // emit extern declarations for desugaring runtime.
+      System.out.print("extern void __static_type_error(char *msg);\n");
+      System.out.print("extern void __static_renaming(char *renaming, char *original);\n");
+      System.out.print("extern void __static_condition_renaming(char *expression, char *renaming);\n");
+      System.out.print("\n");
+
+      // emit the static initializer definition
+      System.out.print(actions.staticInitialization());
+            
+      // write the user-defined types at the top of the scope.
+      System.out.print(scope.getDeclarations(pcTrue));
+
+      // write the transformed C
+      Multiverse<String> extdeclmv = actions.getCompleteNodeSingleValue(root, pcTrue);
+      System.out.print(actions.concatMultiverseStrings(extdeclmv)); extdeclmv.destruct();
+      System.out.print("\n");
+
+      if (runtime.test("linkerThunks")) {
+        // write the multiplexer functions for linking
+        System.out.print(actions.linkerThunks(scope, pcTrue));
+      }
     }
+
+    // if (null != translationUnit
+    //     && ! ((Node) translationUnit).getName().equals("TranslationUnit")) {
+    //   GNode tu = GNode.create("TranslationUnit");
+    //   tu.add(translationUnit);
+    //   translationUnit = tu;
+    // }
 
     initialParsingContext.free();
 

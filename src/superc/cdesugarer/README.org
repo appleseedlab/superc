@@ -17,6 +17,14 @@
 
 * Overview
 
+** conceptual novelty (semantics preservation instead of syntactic transform)
+- representing type errors at runtime
+- representing static values as runtime inputs
+- handling forward references properly
+- linking behavior
+- efficiency?
+- z3?
+
 * SugarC
 
 * Data structures
@@ -394,7 +402,9 @@ For initializers that are expressions, but not array/struct
 initializers, we can merge them using inline conditional expressions.
 
 * Linking
+
 ** Problem
+
 The linker uses these to match function callers/callees and global
 variables.  Renaming breaks this linking behavior.
 
@@ -412,7 +422,7 @@ under the same configurations.
 ** Optimization
 
 1. If there is no difference in function signature there is no need to
-   duplicate or rename global symbols.
+   duplicate or rename global symbols. 
 
 2. If there are different function signatures, we might able to avoid
    renaming by defining the function to take variable arguments, or
@@ -459,8 +469,103 @@ assignments that match up the multiple uses of the symbols across
 compilation units (one needs to be set as input and the rest assigned
 to that input value).
 
+** Linkage combinations
 
-* Global static initialization and linking
+There are seven possible combinations of linkage for multiply-defined C functions:
+
+- global only: multiplex the function (need to choose one type, until configuration-aware linking is ready)
+
+#+BEGIN_SRC 
+  returntype original(parm1type parm1, ...) {
+  if (__static_condition_1) {
+  return __original_2(parm1, ...);
+  }
+  if (__static_condition_3) {
+  return __original_4(parm1, ...);
+  }
+  }
+#+END_SRC
+
+- static only: no multiplexing necessary, since the callers are all in
+  the compilation unit and are already renamed
+
+- extern only: remove extern from the renamings; add a wrapper that
+  connects the renaming to the original name (need to choose one type,
+  until configuration-aware linking is ready)
+
+#+BEGIN_SRC 
+  returntype_without_extern __original_1(parm1type parm1, ...) {
+  return original(parm1, ...);
+  }
+
+  returntype_without_extern __original_2(parm1type parm1, ...) {
+  return original(parm1, ...);
+  }
+#+END_SRC
+
+- global/static: this is the same as global, except that static versions do not get called in the multiplexer
+
+- global/extern: this is impossible without configuration-aware linking, because it requires having conflicting declarations of the same symbol as both extern and not extern
+
+- static/extern: this is the same as extern, except that the static versions do not a get a definition that calls the original (since they should be defined already).
+
+- global/static/extern: this is impossible because global/extern is not possible without configuration-aware linking
+
+
+** Notes
+
+Note that void functions should not call return.
+
+Note that ellipsis actually mean variadic arguments in C, but here we
+just mean any other arguments in the type (including variadics).
+
+
+** Combined combinations
+
+- static: do nothing
+
+- global/static/extern, global/extern: not possible yet
+
+- global, global/static:
+
+  returntype original(parm1type parm1, ...) {
+  if (__static_condition_1) {
+  return __original_2(parm1, ...);
+  }
+  if (__static_condition_3) {
+  return __original_4(parm1, ...);
+  }
+  }
+
+- static/extern, extern: 
+
+  returntype_without_extern __original_1(parm1type parm1, ...) {
+  return original(parm1, ...);
+  }
+
+  returntype_without_extern __original_2(parm1type parm1, ...) {
+  return original(parm1, ...);
+  }
+
+** Solution scheme without link resolution
+
+- Make all renamed functions static (need a different scheme for configuration-aware linking), removing extern
+- Use thunks that multiplex the variations
+
+** configuration-aware link resolver
+
+for cases where multiple compilation units declare the same symbol in different configurations, we need configuration-aware link resolution.
+
+** TODO: function vs non-function combinations
+
+** TODO: use a thunk for global values
+
+when there is an extern version of a global, it gets turned into extern functions for setters and getters
+
+any global decls of variables need to be turned into getter and setter functions that multiplex all renamings of the global.
+
+
+* Global static initialization and linking (old info)
 
 ** __static_initializer_N()
 

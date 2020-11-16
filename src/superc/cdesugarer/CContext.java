@@ -73,6 +73,13 @@ public class CContext implements ParsingContext {
   /** Output bindings and scope changes. */
   protected static boolean DEBUG = false;
 
+  /**
+   * Use the desugarer's symbol table to make token reclassfication
+   * decisions for typedef names.  When false, it using the previous
+   * symbol table from the C parser.
+   */
+  protected final static boolean USE_DESUGARER_SYMTAB_FOR_RECLASSIFICATION = false;
+
   /** The symbol table for this parsing context. */
   protected SymbolTable<Type> symtab;
 
@@ -90,7 +97,7 @@ public class CContext implements ParsingContext {
    * configurations of the struct/union there will be.  See
    * getDeclarations to see how the forward reference is handled.
    */
-  protected Map<String, String> forwardtagrefs;
+  protected BiMap<String, String> forwardtagrefs;
 
   /** Renamed enumerators for enums. */
   protected Map<String, List<String>> enumeratorlists;
@@ -144,7 +151,7 @@ public class CContext implements ParsingContext {
   public CContext() {
     this(new SymbolTable<Type>(),
          new HashMap<String, SymbolTable<Type>>(),
-         new HashMap<String, String>(),
+         new BiMap<String, String>(),
          new HashMap<String, List<String>>(),
          new OldSymbolTable(), null);
   }
@@ -157,7 +164,7 @@ public class CContext implements ParsingContext {
    */
   public CContext(SymbolTable<Type> symtab,
                   Map<String, SymbolTable<Type>> taglookasidetable,
-                  Map<String, String> forwardtagrefs,
+                  BiMap<String, String> forwardtagrefs,
                   Map<String, List<String>> enumeratorlists,
                   OldSymbolTable oldsymtab,
                   CContext parent) {
@@ -227,120 +234,181 @@ public class CContext implements ParsingContext {
 
   // get around capture of ? to CTag warning
   public boolean shouldReclassify(Collection<Lookahead> set) {
-    // If there is any lookahead token that has some presence
-    // condition where it is declared to be a typedef name, i.e.,
-    // AliasT, then the parser needs to call reclassify (return true).
-    for (Lookahead n : set) {
-      if (isIdentifier(n.token.syntax)) {
-        String ident = n.token.syntax.getTokenText();
-        PresenceCondition pc = n.presenceCondition;
-        Multiverse<SymbolTable.Entry<Type>> entries = this.getInAnyScope(ident, pc);
-        for (Element<SymbolTable.Entry<Type>> entry : entries) {
-          if (entry.getData().isDeclared()
-              && entry.getData().getValue().isAlias()) {
-            return true;
+    if (USE_DESUGARER_SYMTAB_FOR_RECLASSIFICATION) {
+      // If there is any lookahead token that has some presence
+      // condition where it is declared to be a typedef name, i.e.,
+      // AliasT, then the parser needs to call reclassify (return true).
+      for (Lookahead n : set) {
+        if (isIdentifier(n.token.syntax)) {
+          String ident = n.token.syntax.getTokenText();
+          PresenceCondition pc = n.presenceCondition;
+          Multiverse<SymbolTable.Entry<Type>> entries = this.getInAnyScope(ident, pc);
+          for (Element<SymbolTable.Entry<Type>> entry : entries) {
+            if (entry.getData().isDeclared()
+                && entry.getData().getValue().isAlias()) {
+              return true;
+            }
           }
         }
       }
+
+      return false;
+    } else {
+      // TODO: use the new symboltable to do this
+      // Check whether any tokens need reclassification, i.e. they are
+      // an identifier and have an entry in the symbol.
+      for (Lookahead n : set) {
+        if (isIdentifier(n.token.syntax)) {
+          String ident = n.token.syntax.getTokenText();
+
+          // Check the stack of symbol tables for a typedef entry.
+          CContext scope = this;
+          while (true) {
+            while (scope.reentrant) scope = scope.parent;
+
+            if ( scope.oldsymtab.bools.containsKey(ident)
+                 && scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF)
+                 && ! scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.isFalse()
+                 ) {
+
+              // if ( scope.oldsymtab.bools.containsKey(ident)
+              //      && scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF)
+              //      && ! scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.isFalse()
+              //      ) {
+
+              // The identifier has a typedef entry some presence
+              // condition in the symbol table.  Therefore the parser
+              // needs to call reclassify.
+
+              return true;
+            }
+
+            if (null == scope.parent) {
+              break;
+            }
+
+            scope = scope.parent;
+          }
+        }
+      }
+
+      return false;
     }
-
-    return false;
-
-    
-    // // TODO: use the new symboltable to do this
-    // // Check whether any tokens need reclassification, i.e. they are
-    // // an identifier and have an entry in the symbol.
-    // for (Lookahead n : set) {
-    //   if (isIdentifier(n.token.syntax)) {
-    //     String ident = n.token.syntax.getTokenText();
-
-    //     // Check the stack of symbol tables for a typedef entry.
-    //     CContext scope = this;
-    //     while (true) {
-    //       while (scope.reentrant) scope = scope.parent;
-
-    //       if ( scope.oldsymtab.bools.containsKey(ident)
-    //            && scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF)
-    //            && ! scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.isFalse()
-    //            ) {
-
-    //       // if ( scope.oldsymtab.bools.containsKey(ident)
-    //       //      && scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF)
-    //       //      && ! scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.isFalse()
-    //       //      ) {
-
-    //         // The identifier has a typedef entry some presence
-    //         // condition in the symbol table.  Therefore the parser
-    //         // needs to call reclassify.
-
-    //         return true;
-    //       }
-
-    //       if (null == scope.parent) {
-    //         break;
-    //       }
-
-    //       scope = scope.parent;
-    //     }
-    //   }
-    // }
-
-    // return false;
   }
 
   // get around capture of ? to CTag warning
   public Collection<Lookahead> reclassify(Collection<Lookahead> set) {
-    Collection<Lookahead> newTokens = null;
-    for (Lookahead n : set) {
-      if (isIdentifier(n.token.syntax)) {
-        String ident = n.token.syntax.getTokenText();
-        PresenceCondition pc = n.presenceCondition;
+    if (USE_DESUGARER_SYMTAB_FOR_RECLASSIFICATION) {
+      Collection<Lookahead> newTokens = null;
+      for (Lookahead n : set) {
+        if (isIdentifier(n.token.syntax)) {
+          String ident = n.token.syntax.getTokenText();
+          PresenceCondition pc = n.presenceCondition;
 
-        // determine the conditions of a typedef declaration and just a regular ident
-        Multiverse<SymbolTable.Entry<Type>> entries = this.getInAnyScope(ident, pc);
-        PresenceCondition typedefCond = pc.presenceConditionManager().newFalse();
-        PresenceCondition identCond = pc.presenceConditionManager().newFalse();
-        for (Element<SymbolTable.Entry<Type>> entry : entries) {
-          if (entry.getData().isDeclared()
-              && entry.getData().getValue().isAlias()) {
-            PresenceCondition newtypedefCond = typedefCond.or(entry.getCondition());
-            typedefCond.delRef(); typedefCond = newtypedefCond;
-          } else {
-            // not a typedef in this configuration
-            PresenceCondition newidentCond = identCond.or(entry.getCondition());
-            identCond.delRef(); identCond = newidentCond;
+          // determine the conditions of a typedef declaration and just a regular ident
+          Multiverse<SymbolTable.Entry<Type>> entries = this.getInAnyScope(ident, pc);
+          PresenceCondition typedefCond = pc.presenceConditionManager().newFalse();
+          PresenceCondition identCond = pc.presenceConditionManager().newFalse();
+          for (Element<SymbolTable.Entry<Type>> entry : entries) {
+            if (entry.getData().isDeclared()
+                && entry.getData().getValue().isAlias()) {
+              PresenceCondition newtypedefCond = typedefCond.or(entry.getCondition());
+              typedefCond.delRef(); typedefCond = newtypedefCond;
+            } else {
+              // not a typedef in this configuration
+              PresenceCondition newidentCond = identCond.or(entry.getCondition());
+              identCond.delRef(); identCond = newidentCond;
+            }
           }
+
+
+          if (typedefCond.isNotFalse()) {
+            // the n token will become the typedef token, and we'll add
+            // a new identifier token if needed.
+            if (identCond.isNotFalse()) {
+              // A typedef ambiguity.  Find the presence condition for both
+              // the variable entry and for the typedef entry.  Reclassify
+              // the current token as a typedef name and update its presence
+              // condition.  Then add a new token for the variable entry.
+
+              // update the presence condition of the typedef entry
+              n.presenceCondition.delRef();
+              n.presenceCondition = typedefCond; typedefCond.addRef();
+
+              // Add a new token for the variable entry.
+              PresenceCondition varPresenceCondition = typedefCond.not();
+              Lookahead identifier = new Lookahead(n.token, identCond); identCond.addRef();
+              if (null == newTokens) {
+                newTokens = new LinkedList<Lookahead>();
+              }
+              newTokens.add(identifier);
+            
+            } else {
+              // do nothing when there's no ident condition, which means
+              // n.presenceCondition should already be equal to
+              // typedefCond at this point, given the behavior of the
+              // loop that computes it above.
+            }
+
+            // A typedef name.  Reclassify the token replacing the
+            // IDENTIFIER token with a TYPEDEFname token.
+            Language<CTag> newToken = new Text<CTag>(CTag.TYPEDEFname,
+                                                     n.token.syntax.getTokenText());
+
+            // Copy the location.
+            newToken.setLocation(n.token.syntax.getLocation());
+
+            // Copy the ordering wrapper for the token.
+            n.token = n.token.copy(newToken);
+          
+          } else {
+            // no configurations are a typedef, so do nothing
+          }
+          typedefCond.delRef();
+          identCond.delRef();
+        }
+      }
+
+      return newTokens;
+    } else {
+      // TODO: use the new symboltable to do this
+      // Reclassify any tokens that are typedef names and also create a
+      // new token when there is a typedef/var ambiguity so the FMLR
+      // parser will fork.
+      Collection<Lookahead> newTokens = null;
+      for (Lookahead n : set) {
+        // Get the symbol table entry for the token.
+        trit isTypedef = trit.FALSE;
+        if (isIdentifier(n.token.syntax)) {
+          isTypedef = isType(n.token.syntax.getTokenText(),
+                             n.presenceCondition, n.token.syntax.getLocation());
         }
 
+        // TODO: do a lookup and check in which configurations it's an
+        // alias type
 
-        if (typedefCond.isNotFalse()) {
-          // the n token will become the typedef token, and we'll add
-          // a new identifier token if needed.
-          if (identCond.isNotFalse()) {
-            // A typedef ambiguity.  Find the presence condition for both
-            // the variable entry and for the typedef entry.  Reclassify
-            // the current token as a typedef name and update its presence
-            // condition.  Then add a new token for the variable entry.
+        switch (isTypedef) {
+        case TRUEFALSE:
+          // A typedef ambiguity.  Find the presence condition for both
+          // the variable entry and for the typedef entry.  Reclassify
+          // the current token as a typedef name and update its presence
+          // condition.  Then add a new token for the variable entry.
+          PresenceCondition typedefPresenceCondition
+            = this.typedefPresenceCondition(n.token.syntax.getTokenText(), n.presenceCondition);
+          n.presenceCondition.delRef();
+          n.presenceCondition = typedefPresenceCondition;
 
-            // update the presence condition of the typedef entry
-            n.presenceCondition.delRef();
-            n.presenceCondition = typedefCond; typedefCond.addRef();
-
-            // Add a new token for the variable entry.
-            PresenceCondition varPresenceCondition = typedefCond.not();
-            Lookahead identifier = new Lookahead(n.token, identCond); identCond.addRef();
-            if (null == newTokens) {
-              newTokens = new LinkedList<Lookahead>();
-            }
-            newTokens.add(identifier);
-            
-          } else {
-            // do nothing when there's no ident condition, which means
-            // n.presenceCondition should already be equal to
-            // typedefCond at this point, given the behavior of the
-            // loop that computes it above.
+          // Add a new token for the variable entry.
+          PresenceCondition varPresenceCondition = typedefPresenceCondition.not();
+          Lookahead identifier = new Lookahead(n.token, varPresenceCondition);
+          if (null == newTokens) {
+            newTokens = new LinkedList<Lookahead>();
           }
+          newTokens.add(identifier);
 
+          // Fall through to reclassify the token as a TYPEDEFname.
+
+        case TRUE:
           // A typedef name.  Reclassify the token replacing the
           // IDENTIFIER token with a TYPEDEFname token.
           Language<CTag> newToken = new Text<CTag>(CTag.TYPEDEFname,
@@ -351,214 +419,155 @@ public class CContext implements ParsingContext {
 
           // Copy the ordering wrapper for the token.
           n.token = n.token.copy(newToken);
-          
-        } else {
-          // no configurations are a typedef, so do nothing
+          break;
+
+        case FALSE:
+          // No reclassification necessary.
+          break;
         }
-        typedefCond.delRef();
-        identCond.delRef();
       }
+
+      return newTokens;
     }
-
-    return newTokens;
-
-    
-    // // TODO: use the new symboltable to do this
-    // // Reclassify any tokens that are typedef names and also create a
-    // // new token when there is a typedef/var ambiguity so the FMLR
-    // // parser will fork.
-    // Collection<Lookahead> newTokens = null;
-    // for (Lookahead n : set) {
-    //   // Get the symbol table entry for the token.
-    //   trit isTypedef = trit.FALSE;
-    //   if (isIdentifier(n.token.syntax)) {
-    //     isTypedef = isType(n.token.syntax.getTokenText(),
-    //                        n.presenceCondition, n.token.syntax.getLocation());
-    //   }
-
-    //   // TODO: do a lookup and check in which configurations it's an
-    //   // alias type
-
-    //   switch (isTypedef) {
-    //   case TRUEFALSE:
-    //     // A typedef ambiguity.  Find the presence condition for both
-    //     // the variable entry and for the typedef entry.  Reclassify
-    //     // the current token as a typedef name and update its presence
-    //     // condition.  Then add a new token for the variable entry.
-    //     PresenceCondition typedefPresenceCondition
-    //       = this.typedefPresenceCondition(n.token.syntax.getTokenText(), n.presenceCondition);
-    //     n.presenceCondition.delRef();
-    //     n.presenceCondition = typedefPresenceCondition;
-
-    //     // Add a new token for the variable entry.
-    //     PresenceCondition varPresenceCondition = typedefPresenceCondition.not();
-    //     Lookahead identifier = new Lookahead(n.token, varPresenceCondition);
-    //     if (null == newTokens) {
-    //       newTokens = new LinkedList<Lookahead>();
-    //     }
-    //     newTokens.add(identifier);
-
-    //     // Fall through to reclassify the token as a TYPEDEFname.
-
-    //   case TRUE:
-    //     // A typedef name.  Reclassify the token replacing the
-    //     // IDENTIFIER token with a TYPEDEFname token.
-    //     Language<CTag> newToken = new Text<CTag>(CTag.TYPEDEFname,
-    //                                              n.token.syntax.getTokenText());
-
-    //     // Copy the location.
-    //     newToken.setLocation(n.token.syntax.getLocation());
-
-    //     // Copy the ordering wrapper for the token.
-    //     n.token = n.token.copy(newToken);
-    //     break;
-
-    //   case FALSE:
-    //     // No reclassification necessary.
-    //     break;
-    //   }
-    // }
-
-    // return newTokens;
   }
 
-  // /**
-  //  * This method determines whether an identifier is a typedef name,
-  //  * var name, or both by inspecting the symbol table in this scope
-  //  * and any parent scopes.  (Legacy type checking).
-  //  *
-  //  * @param ident The identifier.
-  //  * @param presenceCondition The presence condition.
-  //  */
-  // public trit isType(String ident, PresenceCondition presenceCondition,
-  //                    Location location) {
-  //   CContext scope;
+  /**
+   * This method determines whether an identifier is a typedef name,
+   * var name, or both by inspecting the symbol table in this scope
+   * and any parent scopes.  (Legacy type checking).
+   *
+   * @param ident The identifier.
+   * @param presenceCondition The presence condition.
+   */
+  public trit isType(String ident, PresenceCondition presenceCondition,
+                     Location location) {
+    CContext scope;
 
-  //   scope = this;
+    scope = this;
 
-  //   while (true) {
-  //     while (scope.reentrant) scope = scope.parent;
+    while (true) {
+      while (scope.reentrant) scope = scope.parent;
 
-  //     // if ( scope.symtab.map.containsKey(ident)
-  //     //      && scope.symtab.map.get(ident).typedefCond != null
-  //     //      ) {
-  //     if (scope.oldsymtab.bools.containsKey(ident)
-  //         && scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF)
-  //         && ! scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.isFalse()) {
-  //       break;
-  //     }
+      // if ( scope.symtab.map.containsKey(ident)
+      //      && scope.symtab.map.get(ident).typedefCond != null
+      //      ) {
+      if (scope.oldsymtab.bools.containsKey(ident)
+          && scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF)
+          && ! scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.isFalse()) {
+        break;
+      }
 
-  //     if (null == scope.parent) {
-  //       return trit.FALSE;
-  //     }
+      if (null == scope.parent) {
+        return trit.FALSE;
+      }
 
-  //     scope = scope.parent;
-  //   }
+      scope = scope.parent;
+    }
 
-  //   scope = this;
+    scope = this;
 
-  //   do {  //find the symbol in local scope or parent scope
+    do {  //find the symbol in local scope or parent scope
 
-  //     while (scope.reentrant) scope = scope.parent;
+      while (scope.reentrant) scope = scope.parent;
 
-  //     if (scope.oldsymtab.bools.containsKey(ident) &&
-  //         (scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF)
-  //          || scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.IDENT))) {
-  //       // Set the flags for typedef (2) and var (1).
-  //       int flags = 0;
-  //       if (scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF) &&
-  //           ! scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.isFalse()) {
-  //         PresenceCondition and = scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.and(presenceCondition);
-  //         if (! and.isFalse()) flags |= 2;
-  //         and.delRef();
-  //       }
-  //       if (scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.IDENT) &&
-  //           ! scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.IDENT).trueCond.isFalse()) {
-  //         PresenceCondition and = scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.IDENT).trueCond.and(presenceCondition);
-  //         if (! and.isFalse()) flags |= 1;
-  //         and.delRef();
-  //       }
-  //       switch (flags) {
-  //       case 3:
-  //         if (DEBUG) System.err.println("isType: " + ident
-  //                                       + " true/false in " /*+ presenceCondition*/);
-  //         if (languageStatistics) {
-  //           System.err.println(String.format("typedef_ambiguity %s %s",
-  //                                            ident, location));
-  //         }
-  //         return trit.TRUEFALSE;
+      if (scope.oldsymtab.bools.containsKey(ident) &&
+          (scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF)
+           || scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.IDENT))) {
+        // Set the flags for typedef (2) and var (1).
+        int flags = 0;
+        if (scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF) &&
+            ! scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.isFalse()) {
+          PresenceCondition and = scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.and(presenceCondition);
+          if (! and.isFalse()) flags |= 2;
+          and.delRef();
+        }
+        if (scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.IDENT) &&
+            ! scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.IDENT).trueCond.isFalse()) {
+          PresenceCondition and = scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.IDENT).trueCond.and(presenceCondition);
+          if (! and.isFalse()) flags |= 1;
+          and.delRef();
+        }
+        switch (flags) {
+        case 3:
+          if (DEBUG) System.err.println("isType: " + ident
+                                        + " true/false in " /*+ presenceCondition*/);
+          if (languageStatistics) {
+            System.err.println(String.format("typedef_ambiguity %s %s",
+                                             ident, location));
+          }
+          return trit.TRUEFALSE;
 
-  //       case 2:
-  //         if (DEBUG) System.err.println("isType: " + ident
-  //                                       + " true in " /*+ presenceCondition*/);
-  //         return trit.TRUE;
+        case 2:
+          if (DEBUG) System.err.println("isType: " + ident
+                                        + " true in " /*+ presenceCondition*/);
+          return trit.TRUE;
 
-  //       case 1:
-  //         if (DEBUG) System.err.println("isType: " + ident
-  //                                       + " false in " /*+ presenceCondition*/);
-  //         return trit.FALSE;
-  //       }
-  //     }
+        case 1:
+          if (DEBUG) System.err.println("isType: " + ident
+                                        + " false in " /*+ presenceCondition*/);
+          return trit.FALSE;
+        }
+      }
 
-  //     // if (scope.symtab.map.containsKey(ident)) {
-  //     //   TypedefVarEntry e = scope.symtab.map.get(ident);
+      // if (scope.symtab.map.containsKey(ident)) {
+      //   TypedefVarEntry e = scope.symtab.map.get(ident);
 
-  //     //   // Set the flags for typedef (2) and var (1).
-  //     //   int flags = 0;
-  //     //   if (null != e.typedefCond) {
-  //     //     PresenceCondition and;
+      //   // Set the flags for typedef (2) and var (1).
+      //   int flags = 0;
+      //   if (null != e.typedefCond) {
+      //     PresenceCondition and;
 
-  //     //     and = e.typedefCond.and(presenceCondition);
-  //     //     if (! and.isFalse()) {
-  //     //       flags |= 2;
-  //     //     }
-  //     //     and.delRef();
-  //     //   }
+      //     and = e.typedefCond.and(presenceCondition);
+      //     if (! and.isFalse()) {
+      //       flags |= 2;
+      //     }
+      //     and.delRef();
+      //   }
 
-  //     //   if (null != e.varCond) {
-  //     //     PresenceCondition and;
+      //   if (null != e.varCond) {
+      //     PresenceCondition and;
 
-  //     //     and = e.varCond.and(presenceCondition);
-  //     //     if (! and.isFalse()) {
-  //     //       flags |= 1;
-  //     //     }
-  //     //     and.delRef();
-  //     //   }
+      //     and = e.varCond.and(presenceCondition);
+      //     if (! and.isFalse()) {
+      //       flags |= 1;
+      //     }
+      //     and.delRef();
+      //   }
 
-  //     //   switch (flags) {
-  //     //   case 3:
-  //     //     if (DEBUG) System.err.println("isType: " + ident
-  //     //                                   + " true/false in " /*+ presenceCondition*/);
-  //     //     if (languageStatistics) {
-  //     //       System.err.println(String.format("typedef_ambiguity %s %s",
-  //     //                                        ident, location));
-  //     //     }
-  //     //     return trit.TRUEFALSE;
+      //   switch (flags) {
+      //   case 3:
+      //     if (DEBUG) System.err.println("isType: " + ident
+      //                                   + " true/false in " /*+ presenceCondition*/);
+      //     if (languageStatistics) {
+      //       System.err.println(String.format("typedef_ambiguity %s %s",
+      //                                        ident, location));
+      //     }
+      //     return trit.TRUEFALSE;
 
-  //     //   case 2:
-  //     //     if (DEBUG) System.err.println("isType: " + ident
-  //     //                                   + " true in " /*+ presenceCondition*/);
-  //     //     return trit.TRUE;
+      //   case 2:
+      //     if (DEBUG) System.err.println("isType: " + ident
+      //                                   + " true in " /*+ presenceCondition*/);
+      //     return trit.TRUE;
 
-  //     //   case 1:
-  //     //     if (DEBUG) System.err.println("isType: " + ident
-  //     //                                   + " false in " /*+ presenceCondition*/);
-  //     //     return trit.FALSE;
-  //     //   }
-  //     // }
+      //   case 1:
+      //     if (DEBUG) System.err.println("isType: " + ident
+      //                                   + " false in " /*+ presenceCondition*/);
+      //     return trit.FALSE;
+      //   }
+      // }
 
-  //     if (null == scope.parent) {
-  //       break;
-  //     }
+      if (null == scope.parent) {
+        break;
+      }
 
-  //     scope = scope.parent;
-  //   } while (true);
+      scope = scope.parent;
+    } while (true);
 
-  //   if (DEBUG) System.err.println("isType: " + ident
-  //                                 + " false in " /*+ presenceCondition*/);
+    if (DEBUG) System.err.println("isType: " + ident
+                                  + " false in " /*+ presenceCondition*/);
 
-  //   return trit.FALSE;
-  // }
+    return trit.FALSE;
+  }
 
   public boolean mayMerge(ParsingContext other) {
     if (! (other instanceof CContext)) return false;
@@ -668,87 +677,87 @@ public class CContext implements ParsingContext {
   //   scope.symtab.add(ident, typedef, presenceCondition);
   // }
 
-  // /**
-  //  * Return the presence condition under which an identifier is a
-  //  * typedef name.  (Legacy type checking).
-  //  *
-  //  * @param ident The identifier.
-  //  * @param presenceCondition The current presence condition.
-  //  */
-  // public PresenceCondition typedefPresenceCondition(String ident, PresenceCondition presenceCondition) {
-  //   CContext scope;
+  /**
+   * Return the presence condition under which an identifier is a
+   * typedef name.  (Legacy type checking).
+   *
+   * @param ident The identifier.
+   * @param presenceCondition The current presence condition.
+   */
+  public PresenceCondition typedefPresenceCondition(String ident, PresenceCondition presenceCondition) {
+    CContext scope;
 
-  //   scope = this;
+    scope = this;
 
-  //   do {  //find the symbol in local scope or parent scope
+    do {  //find the symbol in local scope or parent scope
 
-  //     while (scope.reentrant) scope = scope.parent;
+      while (scope.reentrant) scope = scope.parent;
 
-  //     if (scope.oldsymtab.bools.containsKey(ident) &&
-  //         scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF)) {
-  //       PresenceCondition and = scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.and(presenceCondition);
+      if (scope.oldsymtab.bools.containsKey(ident) &&
+          scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF)) {
+        PresenceCondition and = scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.and(presenceCondition);
 
-  //       if (! and.isFalse()) {
-  //         return and;
-  //       }
+        if (! and.isFalse()) {
+          return and;
+        }
 
-  //       and.delRef();
-  //     }
+        and.delRef();
+      }
 
-  //     // if (scope.symtab.map.containsKey(ident)) {
-  //     //   TypedefVarEntry e;
-  //     //   boolean typedef;
-  //     //   boolean var;
-  //     //   PresenceCondition and;
+      // if (scope.symtab.map.containsKey(ident)) {
+      //   TypedefVarEntry e;
+      //   boolean typedef;
+      //   boolean var;
+      //   PresenceCondition and;
 
-  //     //   e = scope.symtab.map.get(ident);
+      //   e = scope.symtab.map.get(ident);
 
-  //     //   and = e.typedefCond.and(presenceCondition);
+      //   and = e.typedefCond.and(presenceCondition);
 
-  //     //   if (! and.isFalse()) {
-  //     //     return and;
-  //     //   }
-  //     //   and.delRef();
-  //     // }
+      //   if (! and.isFalse()) {
+      //     return and;
+      //   }
+      //   and.delRef();
+      // }
 
-  //     if (null == scope.parent) {
-  //       break;
-  //     }
-  //     scope = scope.parent;
-  //   } while (true);
+      if (null == scope.parent) {
+        break;
+      }
+      scope = scope.parent;
+    } while (true);
 
-  //   return null;
-  // }
+    return null;
+  }
 
-  // /**
-  //  * Return the presence condition under which an identifier is a
-  //  * typedef name.  (Legacy type checking).
-  //  *
-  //  * @param ident The identifier.
-  //  * @param presenceCondition The current presence condition.
-  //  */
-  // public PresenceCondition symbolPresenceCond(String ident, OldSymbolTable.STField field) {
-  //   CContext scope;
+  /**
+   * Return the presence condition under which an identifier is a
+   * typedef name.  (Legacy type checking).
+   *
+   * @param ident The identifier.
+   * @param presenceCondition The current presence condition.
+   */
+  public PresenceCondition symbolPresenceCond(String ident, OldSymbolTable.STField field) {
+    CContext scope;
 
-  //   scope = this;
+    scope = this;
 
-  //   do {  //find the symbol in local scope or parent scope
+    do {  //find the symbol in local scope or parent scope
 
-  //     while (scope.reentrant) scope = scope.parent;
+      while (scope.reentrant) scope = scope.parent;
 
-  //     if (scope.oldsymtab.bools.containsKey(ident) &&
-  //         scope.oldsymtab.bools.get(ident).containsKey(field)) {
-  //       return scope.oldsymtab.bools.get(ident).get(field).trueCond;
-  //     }
+      if (scope.oldsymtab.bools.containsKey(ident) &&
+          scope.oldsymtab.bools.get(ident).containsKey(field)) {
+        return scope.oldsymtab.bools.get(ident).get(field).trueCond;
+      }
 
-  //     if (null == scope.parent) {
-  //       break;
-  //     }
-  //     scope = scope.parent;
-  //   } while (true);
+      if (null == scope.parent) {
+        break;
+      }
+      scope = scope.parent;
+    } while (true);
 
-  //   return null;
-  // }
+    return null;
+  }
 
   /**
    * Enter a new scope.
@@ -776,7 +785,7 @@ public class CContext implements ParsingContext {
 
     scope = new CContext(new SymbolTable<Type>(),
                          new HashMap<String, SymbolTable<Type>>(),
-                         new HashMap<String, String>(),
+                         new BiMap<String, String>(),
                          new HashMap<String, List<String>>(),
                          new OldSymbolTable(),
                          new CContext(scope));
@@ -1068,6 +1077,38 @@ public class CContext implements ParsingContext {
   }
 
   /**
+   * Get the forward reference to a struct tag.  Check each scope and
+   * return the associated forward reference.  Otherwise, return null.
+   *
+   * @param The original name of a tag.
+   * @returns null If no forward tag exists for the given tag.
+   */
+  public String getForwardTagForTag(String tag) {
+    if (this.reentrant) {
+      if (null != this.parent) {
+        return this.parent.getForwardTagForTag(tag);
+      } else {
+        throw new AssertionError("reentrant scopes should always have a parent");
+      }
+    } else {
+      // not a reentrant scope.  look for the tag
+      if (forwardtagrefs.containsValue(tag)) {
+        return forwardtagrefs.getKey(tag);
+      } else {
+        if (null != this.parent) {
+          return this.parent.getForwardTagForTag(tag);
+        } else {
+          return null;
+        }
+      }
+    }
+  }
+
+  public boolean hasForwardTagForTag(String tag) {
+    return null != getForwardTagForTag(tag);
+  }
+  
+  /**
    * Add new forward reference to a tag.
    */
   public void putForwardTagReference(String forwardTag, String referencedTag) {
@@ -1095,7 +1136,7 @@ public class CContext implements ParsingContext {
     } else {
       // not a reentrant scope.  look for the tag
       if (forwardtagrefs.containsKey(forwardTag)) {
-        return forwardtagrefs.get(forwardTag);
+        return forwardtagrefs.getValue(forwardTag);
       } else {
         if (null != this.parent) {
           return this.parent.getForwardTagReferenceAnyScope(forwardTag);
@@ -1145,17 +1186,32 @@ public class CContext implements ParsingContext {
     // emit the user-defined type declarations, which are renamed
     CContext scope = this;
     while (scope.reentrant) scope = scope.parent;
+
+    // create an enum for each enum specifier
+    for (String tag : scope.enumeratorlists.keySet()) {
+      List<String> enumeratorlist = scope.enumeratorlists.get(tag);
+      sb.append("enum ");
+      sb.append(tag);
+      sb.append(" {\n");
+      for (String enumerator : enumeratorlist) {
+        sb.append(enumerator);
+        sb.append(",\n");
+      }
+      sb.append("};\n");
+    }
+    
     sb.append(scope.declarations);
     sb.append("\n");
 
     // create a struct for each forward tag reference that is a union
     // containing each configuration of the struct.
     SymbolTable<Type> symtab = scope.getSymbolTable();
+    CActions.todoReminder("account for bitfield sizes in forward refs");
     for (String tag : forwardtagrefs.keySet()) {
       sb.append(String.format("struct %s {", tag));
       sb.append(" // generated union of struct variations");
       sb.append("\nunion {\n");
-      String originalTag = forwardtagrefs.get(tag);
+      String originalTag = forwardtagrefs.getValue(tag);
       Multiverse<SymbolTable.Entry<Type>> originalTagEntries
         = symtab.get(CContext.toTagName(originalTag), presenceCondition);
       for (Element<SymbolTable.Entry<Type>> tagentry : originalTagEntries) {
@@ -1182,19 +1238,6 @@ public class CContext implements ParsingContext {
       sb.append("};\n};\n\n");
     }
 
-    // create an enum for each enum specifier
-    for (String tag : scope.enumeratorlists.keySet()) {
-      List<String> enumeratorlist = scope.enumeratorlists.get(tag);
-      sb.append("enum ");
-      sb.append(tag);
-      sb.append(" {\n");
-      for (String enumerator : enumeratorlist) {
-        sb.append(enumerator);
-        sb.append(",\n");
-      }
-      sb.append("};\n");
-    }
-    
     return sb.toString();
   }
 
@@ -1287,5 +1330,44 @@ public class CContext implements ParsingContext {
    */
   public static String toLabelName(String id) {
     return toNameSpace(id, "label");
+  }
+
+  protected static class BiMap<T, U> {
+    Map<T, U> map1;
+    Map<U, T> map2;
+    
+    public BiMap() {
+      map1 = new HashMap<T, U>();
+      map2 = new HashMap<U, T>();
+    }
+
+    public boolean containsKey(T key) {
+      return map1.containsKey(key);
+    }
+
+    public boolean containsValue(U value) {
+      return map2.containsKey(value);
+    }
+
+    public Set<T> keySet() {
+      return map1.keySet();
+    }
+
+    public Set<U> valueSet() {
+      return map2.keySet();
+    }
+
+    public U getValue(T key) {
+      return map1.get(key);
+    }
+
+    public T getKey(U value) {
+      return map2.get(value);
+    }
+
+    public void put(T key, U value) {
+      map1.put(key, value);
+      map2.put(value, key);
+    }
   }
 }

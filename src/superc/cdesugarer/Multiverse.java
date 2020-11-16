@@ -4,6 +4,8 @@ import java.lang.StringBuilder;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.HashMap;
 
 import superc.core.PresenceConditionManager.PresenceCondition;
 
@@ -545,6 +547,38 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
       condition.delRef();
     }
     return newmv;
+  }
+
+  /**
+   * Deduplicate the contents of the multiverse.  This does not mutate
+   * the object but returns a new one.  It uses the objects "hashCode"
+   * function to check for equality.
+   *
+   * @returns A deduplicated version of the multiverse.
+   */
+  public Multiverse<T> deduplicate() {
+    // loop for through object in the multiverse and either add it or
+    // update an existing element's presence condition.
+
+    Map<T, PresenceCondition> dedupmap = new HashMap<T, PresenceCondition>();
+
+    for (Element<T> elem : this) {
+      if (dedupmap.containsKey(elem.getData())) {
+        PresenceCondition oldCond = dedupmap.get(elem.getData());
+        dedupmap.put(elem.getData(), oldCond.or(elem.getCondition())); oldCond.delRef();
+      } else {
+        dedupmap.put(elem.getData(), elem.getCondition().addRef());
+      }
+    }
+
+    // create a new multiverse out of the list (data, pc) pairs from the hash map
+    Multiverse<T> mv = new Multiverse<T>();
+
+    for (T key : dedupmap.keySet()) {
+      mv.add(key, dedupmap.get(key));
+    }
+
+    return mv;
   }
 
   /**

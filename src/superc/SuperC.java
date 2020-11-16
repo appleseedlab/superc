@@ -199,6 +199,8 @@ public class SuperC extends Tool {
            + "configuration variables, but keep them free in the macro table").
       word("restrictFreeToPrefix", "restrictFreeToPrefix", false,
            "Restricts free macros to those that have the given prefix").
+      bool("singleConfigSysheaders", "singleConfigSysheaders", false,
+           "Disables configuration-awareness inside of system headers.").
 
       // SuperC component selection.
       bool("E", "E", false,
@@ -659,6 +661,8 @@ public class SuperC extends Tool {
         .collectStatistics(runtime.test("statisticsPreprocessor"));
       ((Preprocessor) preprocessor)
         .showErrors(! runtime.test("hideErrors"));
+      ((Preprocessor) preprocessor)
+        .singleConfigurationSysheaders(runtime.test("singleConfigSysheaders"));
 
       if (runtime.test("time")) {
         preprocessor = new StreamTimer<Syntax>(preprocessor, preprocessorTimer);
@@ -699,6 +703,8 @@ public class SuperC extends Tool {
       .collectStatistics(runtime.test("statisticsPreprocessor"));
     ((Preprocessor) preprocessor)
       .showErrors(! runtime.test("hideErrors"));
+    ((Preprocessor) preprocessor)
+      .singleConfigurationSysheaders(runtime.test("singleConfigSysheaders"));
     ((Preprocessor) preprocessor)
       .showPresenceConditions(runtime.test("presenceConditions"));
     ((Preprocessor) preprocessor)

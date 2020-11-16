@@ -9,6 +9,8 @@ import xtc.type.VariableT;
 import xtc.type.StructT;
 import xtc.type.UnionT;
 import xtc.type.EnumT;
+import xtc.type.NumberT;
+import xtc.type.PointerT;
 import xtc.type.ErrorT;
 
 import superc.core.Syntax;
@@ -33,6 +35,8 @@ import superc.cdesugarer.Declarator.ArrayDeclarator;
 import superc.cdesugarer.Declarator.ArrayAbstractDeclarator;
 import superc.cdesugarer.Declarator.FunctionDeclarator;
 import superc.cdesugarer.Declarator.ParameterListDeclarator;
+import superc.cdesugarer.Declarator.BitFieldSizeDeclarator;
+import superc.cdesugarer.Declarator.NamedBitFieldSizeDeclarator;
 
 import superc.cdesugarer.Initializer;
 import superc.cdesugarer.Initializer.AssignInitializer;
@@ -50,7 +54,10 @@ import superc.cdesugarer.Declaration;
 import superc.cdesugarer.CActions.EnumeratorValue;
 
 import superc.cdesugarer.CActions.FreshIDCreator;
+import superc.cdesugarer.CActions.StructOrUnionTypeCreator;
 
+import superc.core.Syntax.Language;
+import superc.core.Syntax.Text;
 
 /**
  * These operators are used for cartesian products and transformations
@@ -188,6 +195,17 @@ class DesugarOps {
       }
     };
 
+  /**
+   * Add a bitfield size to a Declarator.
+   */
+  public final static Multiverse.Joiner<Declarator, Declarator, NamedBitFieldSizeDeclarator> joinBitFieldSize = (declarator, bitfieldsize) -> {
+    if (bitfieldsize.isBitFieldSizeDeclarator()) {
+      return new NamedBitFieldSizeDeclarator(declarator, (BitFieldSizeDeclarator) bitfieldsize);
+    } else {
+      throw new AssertionError("unexpected declarator declarator type in joinBitFieldSize");
+    }
+  };
+  
   /*****************************************************************************
    ********* Multiverse operators for TypeSpecifiers
    *****************************************************************************/
@@ -227,71 +245,12 @@ class DesugarOps {
             // typedefname tokens
           } else {
             ts.setType(from.getValue().toAlias());
-            ts.addTransformation(from.getValue().toAlias().getName());
+            ts.addTransformation(new Text<CTag>(CTag.TYPEDEFname, from.getValue().toAlias().getName()));
           }
         }
         return ts;
       }
     };
-
-  public static String createStructOrUnionDefTransformation(Syntax keyword, String renamedtag, List<Declaration> members) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(keyword.getTokenText());
-    sb.append(" ");
-    sb.append(renamedtag);
-    sb.append(" {\n");
-    System.err.println("TODO: check that all members have different names, don't have type errors themselves, and rename selfrefs");
-    for (Declaration declaration : members) {
-      if (declaration.hasTypeError()) {
-        return "";
-      } else {
-        sb.append(declaration.toString());
-        sb.append(";\n");
-      }
-      // TODO: use Variable.newBitfield()
-    }
-    sb.append("}\n");
-    return sb.toString();
-  }
-
-  public static Type createStructOrUnionDefType(Syntax keyword, String renamedtag, List<Declaration> members) {
-    System.err.println("TODO: check that all members have different names, don't have type errors themselves, and rename selfrefs");
-    List<VariableT> memberlist = new LinkedList<VariableT>();
-    for (Declaration declaration : members) {
-      if (declaration.hasTypeError()) {
-        return ErrorT.TYPE;
-      } else {
-        VariableT member;
-        if (declaration.hasName()) {
-          member = VariableT.newField(declaration.getType(),
-                                      declaration.getName());
-        } else {
-          member = VariableT.newField(declaration.getType(),
-                                      null);
-        }
-        memberlist.add(member);
-      }
-      // TODO: use Variable.newBitfield()
-    }
-
-    if (keyword.getTokenText().equals("struct")) {
-      return new StructT(renamedtag, memberlist);
-    } else if (keyword.getTokenText().equals("union")) {
-      return new UnionT(renamedtag, memberlist);
-    } else {
-      throw new AssertionError("unexpected keyword to createStructOrUnionDefType");
-    }
-  }
-  
-  public static Type createStructOrUnionRefType(Syntax keyword, String renamedtag) {
-    if (keyword.getTokenText().equals("struct")) {
-      return new StructT(renamedtag);
-    } else if (keyword.getTokenText().equals("union")) {
-      return new UnionT(renamedtag);
-    } else {
-      throw new AssertionError("unexpected keyword to createStructOrUnionRefType");
-    }
-  }
 
   /**
    * Create the semantic value for a struct definition.
@@ -302,7 +261,8 @@ class DesugarOps {
                                                                   List<Multiverse<Declaration>> structfields,
                                                                   PresenceCondition pc,
                                                                   CContext scope,
-                                                                  FreshIDCreator freshIdCreator) {
+                                                                  FreshIDCreator freshIdCreator,
+                                                                  StructOrUnionTypeCreator suTypeCreator) {
     // (1) add each field to the lookaside table and construct the transformation
 
     // get the field table for the current tag, which should be empty
@@ -315,10 +275,12 @@ class DesugarOps {
     transformation.append(renamedTag);
     transformation.append(" {\n");
 
+    CActions.todoReminder("account for bitfieldsize alone as a struct field with no name.");
+
     // track presence conditions of valid and invalid declarations
     PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
     for (Multiverse<Declaration> structfieldmv : structfields) {
-      System.err.println("TAGATGA: " + tagtab);
+      // System.err.println("TAGATGA: " + tagtab);
       for (Element<Declaration> structfield : structfieldmv) {
         PresenceCondition combinedCond = pc.and(structfield.getCondition());
         if (combinedCond.isNotFalse()) {
@@ -343,19 +305,19 @@ class DesugarOps {
           assert null != renamedField;
           assert null != renamedDeclaration;
 
-          System.err.println("FIELDNAME " + fieldName);
-          System.err.println("FJKLDSLKJFDS " + tagtab);
+          // System.err.println("FIELDNAME " + fieldName);
+          // System.err.println("FJKLDSLKJFDS " + tagtab);
               
           if (structfield.getData().hasTypeError()) {
-            System.err.println("WTF : " + fieldName);
+            // System.err.println("WTF : " + fieldName);
             tagtab.putError(fieldName, combinedCond);
 
             PresenceCondition newerrorCond = errorCond.or(combinedCond);
             errorCond.delRef(); errorCond = newerrorCond;
           } else { // declaration has no type error
             Multiverse<SymbolTable.Entry<Type>> entries = tagtab.get(fieldName, combinedCond);
-            System.err.println("MVMVMVMV: " + entries);
-            System.err.println(combinedCond);
+            // System.err.println("MVMVMVMV: " + entries);
+            // System.err.println(combinedCond);
             for (Element<SymbolTable.Entry<Type>> entry : entries) {
               if (entry.getData().isError()) {
                 // already an error, just emit a message
@@ -369,9 +331,9 @@ class DesugarOps {
 
                 // add the type containing the renaming to the struct tag's symtab
                 tagtab.put(fieldName, fieldType, entry.getCondition());
-                System.err.println("tagtab.put: " + fieldName);
-                System.err.println("tagtab.put: " + fieldType);
-                System.err.println("tagtab.put: " + entry.getCondition());
+                // System.err.println("tagtab.put: " + fieldName);
+                // System.err.println("tagtab.put: " + fieldType);
+                // System.err.println("tagtab.put: " + entry.getCondition());
                 // save the text of the desugared field
                 transformation.append(renamedDeclaration.toString());
                 transformation.append(";\n");
@@ -424,9 +386,10 @@ class DesugarOps {
         } else if (entry.getData().isUndeclared()) {
           // set the type to be a reference to the renamed struct/union tag
           TypeSpecifier typespecifier = new TypeSpecifier();
-          Type structRefType = DesugarOps.createStructOrUnionRefType(keyword, renamedTag);
+          Type structRefType = suTypeCreator.create(keyword, renamedTag);
           typespecifier.setType(structRefType);
-          typespecifier.addTransformation(String.format("%s %s", keyword, renamedTag));
+          typespecifier.addTransformation(keyword);
+          typespecifier.addTransformation(new Text<CTag>(CTag.IDENTIFIER, renamedTag));
           valuemv.add(typespecifier, entry.getCondition());
               
           // add the reference to the renamed struct to the symtab
@@ -457,16 +420,17 @@ class DesugarOps {
   }
 
   /**
-   * Create the semantic value for a struct definition.
+   * Create the semantic value for a struct reference.
    */
   public static Multiverse<TypeSpecifier> processStructReference(Syntax keyword,
                                                                  String structTag,
                                                                  PresenceCondition pc,
                                                                  CContext scope,
-                                                                 FreshIDCreator freshIdCreator) {
+                                                                 FreshIDCreator freshIdCreator,
+                                                                 StructOrUnionTypeCreator suTypeCreator) {
     Multiverse<TypeSpecifier> valuemv = new Multiverse<TypeSpecifier>();
     Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(CContext.toTagName(structTag), pc);
-    System.err.println("WHY : " + entries);
+    // System.err.println("WHY : " + entries);
     for (Element<SymbolTable.Entry<Type>> entry : entries) {
       TypeSpecifier typespecifier = new TypeSpecifier();
       if (entry.getData().isError()) {
@@ -477,10 +441,20 @@ class DesugarOps {
         // defined to a union of all possible configurations of
         // the struct it references.
         CActions.todoReminder("make a call to rename to record the forward tag mapping.  also record tag name renamings with separate function, since it's a separate namespace");
-        String forwardTagRefName = freshIdCreator.freshCId("forward_tag_reference");
-        Type forwardStructRef = new StructT(forwardTagRefName);
+        String forwardTagRefName;
+        
+        if (scope.hasForwardTagForTag(structTag)) {
+          forwardTagRefName = scope.getForwardTagForTag(structTag);
+        } else {
+          forwardTagRefName = freshIdCreator.freshCId("forward_tag_reference");
+          scope.putForwardTagReference(forwardTagRefName, structTag);
+        }
+        assert null != forwardTagRefName;
+        
+        Type forwardStructRef = suTypeCreator.createStruct(forwardTagRefName);
         typespecifier.setType(forwardStructRef);
-        typespecifier.addTransformation(String.format("%s %s", keyword, forwardTagRefName));
+        typespecifier.addTransformation(new Language<CTag>(CTag.STRUCT));
+        typespecifier.addTransformation(new Text<CTag>(CTag.IDENTIFIER, forwardTagRefName));
 
         // add a symtab entry that maps the new forward
         // reference tag to the original tagname of the
@@ -489,8 +463,7 @@ class DesugarOps {
         // make an indirect reference to the forward referenced
         // struct/union field.  see the direct and indirect
         // selection constructs for more info.
-        scope.putForwardTagReference(forwardTagRefName, structTag);
-        System.err.println("PUT: " + forwardTagRefName + " " + structTag);
+        // System.err.println("PUT: " + forwardTagRefName + " " + structTag);
         /* Type referencedStruct = DesugarOps.createStructOrUnionRefType(keyword, structTag); */
         /* scope.put(CContext.toTagRefName(forwardTagRefName), referencedStruct, entry.getCondition()); */
       } else {  // is a declared entry
@@ -500,8 +473,9 @@ class DesugarOps {
           // nothing to do with the symtab.  create a type
           // specifier that refers to the renamed struct/union.
           typespecifier.setType(entry.getData().getValue());
-          typespecifier.addTransformation(String.format("%s %s", keyword, entry.getData().getValue().toStructOrUnion().getName()));
-          System.err.println("LSLSLSLSLS " + structTag);
+          typespecifier.addTransformation(keyword);
+          typespecifier.addTransformation(new Text<CTag>(CTag.IDENTIFIER, entry.getData().getValue().toStructOrUnion().getName()));
+          // System.err.println("LSLSLSLSLS " + structTag);
         } else {  // tag type is not a struct/union or is an enum
           System.err.println(String.format("INFO: type error on tag reference, not using same struct/union/enum keyword",
                                            structTag));
@@ -520,7 +494,7 @@ class DesugarOps {
   /**
    * Create the semantic value for an enum def.
    */
-  public static Multiverse<TypeSpecifier> processEnumDefinition(String keyword,
+  public static Multiverse<TypeSpecifier> processEnumDefinition(Syntax keyword,
                                                                 String enumTag,
                                                                 List<Multiverse<EnumeratorValue>> list,
                                                                 PresenceCondition pc,
@@ -551,8 +525,7 @@ class DesugarOps {
       typespec.setType(enumreftype);
 
       typespec.addTransformation(keyword);
-      typespec.addTransformation(" ");
-      typespec.addTransformation(enumTag);
+      typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, enumTag));
 
       typespecmv.add(typespec, validCond);
 
@@ -576,7 +549,7 @@ class DesugarOps {
     return typespecmv;
   }
   
-  public static Multiverse<TypeSpecifier> processEnumReference(String keyword,
+  public static Multiverse<TypeSpecifier> processEnumReference(Syntax keyword,
                                                               String enumTag,
                                                               PresenceCondition pc) {
     Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
@@ -587,8 +560,7 @@ class DesugarOps {
     typespec.setType(enumreftype);
 
     typespec.addTransformation(keyword);
-    typespec.addTransformation(" ");
-    typespec.addTransformation(enumTag);
+    typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, enumTag));
 
     typespecmv.add(typespec, pc);
           
@@ -723,6 +695,16 @@ class DesugarOps {
       };
 
   /**
+   * Convert initializer to string.
+   */
+  public final static Multiverse.Transformer<Initializer, String> initializerToString
+    = new Multiverse.Transformer<Initializer, String>() {
+        String transform(Initializer from) {
+          return from.toString();
+        }
+      };
+
+  /**
    * Transform an initializer into a designatedinitializer
    */
   public final static Multiverse.Joiner<Designation, Initializer, Initializer> joinDesignatedInitializer = (designation, initializer) -> {
@@ -805,6 +787,8 @@ class DesugarOps {
   public final static Multiverse.Operator<Type> compareTypes = (t1, t2) -> {
     // TODO: see CAnalyzer, e.g., additiveexpression, etc
     Type newtype;
+    // System.err.println("COMPARE: " + t1 + " " + t2);
+    // System.err.println("EQUALS:  " + t1.equals(t2));
     if (cOps.equal(t1, t2)) {
       // TODO: may need to pick correct type based on kind of
       // construct
@@ -815,6 +799,208 @@ class DesugarOps {
     }
     return newtype;
   };
+
+  /**
+   * Check the type of an assignment.
+   */
+  public final static Multiverse<Type> checkAssignmentType(Multiverse<Type> left, Multiverse<Type> right,
+                                                           Multiverse<String> opmv, PresenceCondition pc,
+                                                           boolean init) {
+    Multiverse<Type> resultmv = new Multiverse<Type>();
+
+    boolean pedantic = false;
+    for (Element<Type> leftelem : left) {
+      PresenceCondition leftcond = leftelem.getCondition().and(pc);
+      for (Element<Type> rightelem : right) {
+        PresenceCondition rightcond = rightelem.getCondition().and(leftcond);
+        for (Element<String> opelem : opmv) {
+          PresenceCondition elemCond = opelem.getCondition().and(rightcond);
+          if (elemCond.isNotFalse()) {
+            Type t1 = leftelem.getData();
+            Type t2 = rightelem.getData();
+            String op = opelem.getData();
+            
+            if (t1.hasError() || t2.hasError()) {
+              resultmv.add(ErrorT.TYPE, elemCond);
+              continue;
+            }
+
+            final Type r1 = t1.resolve();
+            final Type r2 = cOps.pointerize(t2);
+            Type result   = null;
+
+            if (r2.isVoid()) {
+              System.err.println("type error: void value not ignored as it ought to be");
+              resultmv.add(ErrorT.TYPE, elemCond);
+              continue;
+            }
+
+            switch (r1.tag()) {
+            case BOOLEAN: {
+              // Booleans can be assigned from scalar operands.
+              if (cOps.isScalar(r2)) {
+                result = r1;
+              }
+            } break;
+
+            case INTEGER: {
+              // Integers can be assigned from scalar operands, but call for a
+              // warning then the operand is a pointer.
+              if (cOps.isArithmetic(r2)) {
+                result = r1;
+              } else if (r2.isPointer()) {
+                if (pedantic) {
+                  System.err.println("type error: " + op + " makes integer from pointer without a cast");
+                  result = ErrorT.TYPE;
+                } else {
+                  // GCC extension.
+                  System.err.println("type warning: " + op+" makes integer from pointer without a cast");
+                  result = r1;
+                }
+              }
+            } break;
+
+            case FLOAT: {
+              // Floats can be assigned from other arithmetic types.
+              if (cOps.isArithmetic(r2)) {
+                result = r1;
+              }
+            } break;
+
+            case STRUCT:
+            case UNION: {
+              // A struct or union can only be assigned from another struct or
+              // union of compatible type.
+              if (cOps.equal(r1, r2)) {
+                result = r1;
+              }
+            } break;
+
+            case ARRAY: {
+              // An array can only be assigned in an initializer and only if
+              // the left-hand type is a (wide) C string and the right-hand
+              // type is a matching C string constant.
+              if (init) {
+                if (cOps.isString(r1) && t2.hasConstant()) {
+                  if (cOps.isString(t2)) {
+                    result = r1;
+                  } else if (cOps.isWideString(t2)) {
+                    System.err.println("type error: " + "char-array initialized from wide string");
+                    result = ErrorT.TYPE;
+                  }
+
+                } else if (cOps.isWideString(r1) && t2.hasConstant()) {
+                  if (cOps.isString(t2)) {
+                    System.err.println("type error: " + "wchar_t-array initialized from non-wide string");
+                    result = ErrorT.TYPE;
+                  } else if (cOps.isWideString(t2)) {
+                    result = r1;
+                  }
+                }
+              }
+            } break;
+
+            case POINTER: {
+              if (r2.isPointer()) {
+                final Type pt1  = r1.toPointer().getType(); // PointedTo, PTResolved
+                final Type pt2  = r2.toPointer().getType();
+
+                final Type ptr1 = pt1.resolve();
+                final Type ptr2 = pt2.resolve();
+
+                if (cOps.equal(ptr1, ptr2) || ptr1.isVoid() || ptr2.isVoid()) {
+                  if (cOps.hasQualifiers(pt1, pt2) || cOps.isStringLiteral(t2)) {
+                    result = r1;
+
+                  } else if (pedantic) {
+                    System.err.println("type error: " + op + " discards qualifiers from pointer target " +
+                                  "type");
+                    result = ErrorT.TYPE;
+
+                  } else {
+                    System.err.println("type warning: " + op + " discards qualifiers from pointer target " +
+                                    "type");
+                    result = r1;
+                  }
+
+                } else if (ptr1.isNumber() && ptr2.isNumber() &&
+                           NumberT.equalIgnoringSign(ptr1.toNumber().getKind(),
+                                                     ptr2.toNumber().getKind())) {
+                  // Note: We don't need to consider booleans here because all
+                  // booleans are unsigned.
+                  if (pedantic) {
+                    System.err.println("type error: " + "pointer targets in "+op+" differ in signedness");
+                    result = ErrorT.TYPE;
+                  } else {
+                    // GCC extension.
+                    System.err.println("type warning: " + "pointer targets in "+op+" differ in signedness");
+                    result = r1;
+                  }
+
+                } else if (pedantic) {
+                  System.err.println("type error: " + "incompatible pointer types in " + op);
+                  result = ErrorT.TYPE;
+
+                } else {
+                  // GCC extension.
+                  System.err.println("type warning: " + "incompatible pointer types in " + op);
+                  result = r1;
+                }
+
+              } else if (t2.hasConstant() && t2.getConstant().isNull()) {
+                result = r1;
+
+              } else if (cOps.isIntegral(t2)) {
+                if (pedantic) {
+                  System.err.println("type error: " + op + " makes pointer from integer without a cast");
+                  result = ErrorT.TYPE;
+                } else {
+                  // GCC extension.
+                  System.err.println("type warning: " + op + " makes pointer from integer without a cast");
+                  result = r1;
+                }
+              }
+            } break;
+
+            default:
+              if (r1.isInternal() && r2.isInternal() &&
+                  r1.toInternal().getName().equals(r2.toInternal().getName())) {
+                result = r1;
+              }
+            }
+            
+            resultmv.add(result, elemCond);
+          }
+          elemCond.delRef();
+        }
+        rightcond.delRef();
+      }
+      leftcond.delRef();
+    }
+
+    assert ! resultmv.isEmpty();
+
+    return resultmv;
+  }
+
+  /**
+   * Get the return type from a function type.  This will return an
+   * error type when the type is not a function type.
+   */
+  public final static Multiverse.Transformer<Type, Type> getReturnType
+    = new Multiverse.Transformer<Type, Type>() {
+        Type transform(Type ftype) {
+          System.err.println("FTYPE: " + ftype);
+          System.err.println("FTYPE: " + ftype.isFunction());
+          System.err.println("FTYPE: " + ftype.getClass());
+          if (ftype.isFunction()) {
+            return ftype.toFunction().getResult();
+          // } else if () {
+          } else {
+            return ErrorT.TYPE;
+          }
+        }
+      };
 
   /**
    * A multiverse transformation to wrap string into a single-element
