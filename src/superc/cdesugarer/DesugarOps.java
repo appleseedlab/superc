@@ -101,6 +101,16 @@ class DesugarOps {
     return newlist;
   }
 
+  /**
+   * Convert Syntax to String.
+   */
+  public final static Multiverse.Transformer<Syntax, String> syntaxToString = new Multiverse.Transformer<Syntax, String>() {
+      String transform(Syntax from) {
+        return from.getTokenText();
+      }
+    };
+  
+
   /*****************************************************************************
    ********* Multiverse operators for Declarators
    *****************************************************************************/
@@ -983,6 +993,41 @@ class DesugarOps {
     return resultmv;
   }
 
+  /**
+   * Check the type of a unary operator.
+   */
+  public final static Multiverse.Joiner<Type, Syntax, Type> checkUnaryOp = (type, op) -> {
+    switch (op.kind()) {
+    case LANGUAGE:
+      switch (((Language<CTag>) op).tag()) {
+      case STAR:
+        Type resolvedType = type.resolve();  // unwrap any typedef aliasing
+        if (resolvedType.isPointer()) {
+          return resolvedType.toPointer().getType();
+        } else {
+          return ErrorT.TYPE;
+        }
+        // should be unreachable
+
+      case PLUS:
+        // fall-through
+      case MINUS:
+        // fall-through
+      case NEGATE:
+        // fall-through
+      case AND:
+        // fall-through
+      case NOT:
+        // TDDO: check types of other operators
+        return type;
+      default:
+      throw new AssertionError("unexpected unary op token");
+      }
+      default:
+      throw new AssertionError("unary op should always be a language token");
+    }
+  };
+  
   /**
    * Get the return type from a function type.  This will return an
    * error type when the type is not a function type.
