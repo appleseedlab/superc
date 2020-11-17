@@ -5484,6 +5484,7 @@ public class CActions implements SemanticActions {
           for (Element<Type> type : postfixtype) {
             // check that the postfix type is a struct or union
             Type resolvedType = type.getData().resolve();  // unwrap any typedef aliasing
+            /* System.err.println("UNWRAPPED TYPE: " + resolvedType); */
             if (resolvedType.isStruct() || resolvedType.isUnion()) {
               StructOrUnionT sutype = resolvedType.toStructOrUnion();
               String tag = sutype.getName();
@@ -5698,7 +5699,7 @@ public class CActions implements SemanticActions {
             /* System.err.println("valuemv " + valuemv); */
             setTransformationValue(value, new ExpressionValue(valuemv, typemv));
           } else {
-            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in indirect expression"),
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in direct expression"),
                                                               ErrorT.TYPE,
                                                               pc));
           }
@@ -6094,15 +6095,15 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
-          Multiverse<String> opmv = this.<String>getCompleteNodeSingleValue(subparser, 2, pc);
-          Multiverse<String> exprmv = exprval.transformation;
-
+          Multiverse<Syntax> opmv = this.<Syntax>getCompleteNodeSingleValue(subparser, 2, pc);
           if (exprval.hasValidType()) {
+            Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
+            Multiverse<String> resultmv = opstr.product(exprval.transformation, DesugarOps.concatStrings);
+            Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
+            
             setTransformationValue(value,
-                                   new ExpressionValue(productAll(DesugarOps.concatStrings,
-                                                                  opmv,
-                                                                  exprmv),
-                                                       exprval.type));  // TODO: placeholder until type checking
+                                   new ExpressionValue(resultmv,
+                                                       typemv));  // TODO: placeholder until type checking
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in unary operation"),
                                                               ErrorT.TYPE,
@@ -6340,37 +6341,37 @@ public class CActions implements SemanticActions {
 
   case 449:
     {
-          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)));
         }
     break;
 
   case 450:
     {
-          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)));
         }
     break;
 
   case 451:
     {
-          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)));
         }
     break;
 
   case 452:
     {
-          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)));
         }
     break;
 
   case 453:
     {
-          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)));
         }
     break;
 
   case 454:
     {
-          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)));
         }
     break;
 
