@@ -822,11 +822,12 @@ FunctionOldPrototype:  /** nomerge **/
    or it gets a conflict.  gcc seems to behave this way too since it
    yields a parsing error. */
 NestedFunctionDefinition:  /** complete **/ // added scoping
-        NestedFunctionPrototype { ReenterScope(subparser); } LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
+        NestedFunctionPrototype
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition");
           System.exit(1);
+        } CompoundStatement {
         }
         | NestedFunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE LocalLabelDeclarationListOpt DeclarationOrStatementList { ExitScope(subparser); } RBRACE
         {
@@ -839,59 +840,74 @@ NestedFunctionDefinition:  /** complete **/ // added scoping
 NestedFunctionPrototype:  /** nomerge **/
           DeclarationSpecifier     IdentifierDeclarator
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition");
-          System.exit(1);
+
+          setTransformationValue(value, new FunctionPrototypeValue(this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc),
+                                                                   this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc)));
         }
         | TypeSpecifier            IdentifierDeclarator
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition");
-          System.exit(1);
+
+          setTransformationValue(value, new FunctionPrototypeValue(this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc),
+                                                                   this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc)));
         }
         | DeclarationQualifierList IdentifierDeclarator
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition");
-          System.exit(1);
+
+          setTransformationValue(value, new FunctionPrototypeValue(this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc),
+                                                                   this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc)));
         }
         | TypeQualifierList        IdentifierDeclarator
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          // legacy type checking code
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition");
-          System.exit(1);
-        }
 
+          setTransformationValue(value, new FunctionPrototypeValue(this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc),
+                                                                   this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc)));
+        }
         | DeclarationSpecifier     OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition");
+          System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition(5)");
           System.exit(1);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition");
+          System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition(6)");
           System.exit(1);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition");
+          System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition(7)");
           System.exit(1);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition");
+          System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition(8)");
           System.exit(1);
         }
         ;
@@ -901,28 +917,28 @@ NestedFunctionOldPrototype:  /** nomerge **/
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition");
+          System.err.println("ERROR: unsupported semantic action: NestedFunctionOldPrototype");
           System.exit(1);
         }
         | TypeSpecifier            OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition");
+          System.err.println("ERROR: unsupported semantic action: NestedFunctionOldPrototype");
           System.exit(1);
         }
         | DeclarationQualifierList OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition");
+          System.err.println("ERROR: unsupported semantic action: NestedFunctionOldPrototype");
           System.exit(1);
         }
         | TypeQualifierList        OldFunctionDeclarator
         {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
-          System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition");
+          System.err.println("ERROR: unsupported semantic action: NestedFunctionOldPrototype");
           System.exit(1);
         }
         ;

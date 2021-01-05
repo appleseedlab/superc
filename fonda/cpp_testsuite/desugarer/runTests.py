@@ -47,7 +47,7 @@ def main():
                     if os.path.exists(curDir + '/' + dirFiles) and os.path.isdir(curDir + '/' + dirFiles):
                         dirList.append(curDir + '/' + dirFiles)
                         print (curDir + '/' + dirFiles)
-                    elif (dirFiles.endswith('.c') and not dirFiles.endswith('desugared.c')) and realFile not in ranFiles:
+                    elif (dirFiles.endswith('.c') and not dirFiles.endswith('desugared.c')) and realFile not in ranFiles and not dirFiles.endswith('expected.c'):
                         ranFiles.append(realFile)
                         sumTOut = os.path.relpath(curDir, os.getcwd()) + '/' + dirFiles[:len(dirFiles) - 2]
                         key = sumTOut + ".c"
