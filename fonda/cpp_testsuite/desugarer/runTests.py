@@ -11,11 +11,12 @@ def main():
     os.system('touch summaryTable.txt')
     sumTable = open('summaryTable.txt', 'w')
     maxC = 10
-    jF = open('metaDataGT.json')
+    #jF = open('metaDataGT.json')
+    jF = open('metaData.json')
     js = json.load(jF)
     jF.close()
     for folderName in  os.listdir(os.getcwd()):
-        if os.path.exists(folderName) and os.path.isdir(folderName):
+        if os.path.exists(folderName) and os.path.isdir(folderName) and "v2Func" not in folderName:
             rootDir = os.getcwd() + "/" + folderName + '/'
             
             inclusionDirList = [rootDir]
