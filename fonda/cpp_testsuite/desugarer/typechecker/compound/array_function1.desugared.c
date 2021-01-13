@@ -38,7 +38,7 @@ int  __main_4 () {
 
 {
 if (__static_condition_default_2) {
- __x_1  [ 2 ] ;
+__static_type_error("invalid subscript access") ;
 
 }
 
