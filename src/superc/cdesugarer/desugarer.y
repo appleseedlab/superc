@@ -6209,7 +6209,7 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
             Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
             Multiverse<String> resultmv = opstr.product(exprval.transformation, DesugarOps.concatStrings);
             Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
-            
+
             setTransformationValue(value,
                                    new ExpressionValue(resultmv,
                                                        typemv));  // TODO: placeholder until type checking

@@ -6125,7 +6125,8 @@ public class CActions implements SemanticActions {
             Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
             Multiverse<String> resultmv = opstr.product(exprval.transformation, DesugarOps.concatStrings);
             Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
-            
+
+            //if syntax is a & we need to return a pointer instead
             setTransformationValue(value,
                                    new ExpressionValue(resultmv,
                                                        typemv));  // TODO: placeholder until type checking
