@@ -791,6 +791,21 @@ class DesugarOps {
   };
 
   /**
+   * Concatenate operator for strings.x unless there is an error
+   */
+  public final static Multiverse.Operator<String> concatStringsPropError = (sb1, sb2) -> {
+    StringBuilder newsb = new StringBuilder();
+    if (sb1.toString().startsWith("__static_type_error("))
+      return sb1.toString();
+    if (sb2.toString().startsWith("__static_type_error("))
+      return sb2.toString();
+    newsb.append(sb1);
+    newsb.append(" ");
+    newsb.append(sb2);
+    return newsb.toString();
+  };
+  
+  /**
    * Product of two types.  Results in an ErrorT if they aren't
    * compatible.
    */
