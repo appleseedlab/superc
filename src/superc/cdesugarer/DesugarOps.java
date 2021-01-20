@@ -900,6 +900,10 @@ class DesugarOps {
               if (cOps.equal(r1, r2)) {
                 result = r1;
               }
+              else {
+                System.err.println("type error: " + op + " makes invalid assignment to struct/union type");
+                result = ErrorT.TYPE;
+              }
             } break;
 
             case ARRAY: {

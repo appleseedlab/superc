@@ -4532,7 +4532,8 @@ public class CActions implements SemanticActions {
             // should not violate mutual-exclusion in the multiverse
             // TODO: use dce and other optimizations to remove superfluous __static_type_error calls
             todoReminder("add emitError back to ExpressionStatement once type checking is done");
-            /* valuemv.add(emitError("type error"), errorCond); */
+            valuemv.add(emitError("type error"), errorCond);
+            
           } else {
             System.err.println("type error: ExpressionStatement found no valid expressions");
             valuemv = new Multiverse<String>(String.format("%s;", emitError("type error")), errorCond);
@@ -5199,44 +5200,39 @@ public class CActions implements SemanticActions {
 
           Multiverse<String> prepended = exprval.transformation.prependScalar(lbrack, DesugarOps.concatStringsPropError);
           Multiverse<String> appended = prepended.appendScalar(rbrack, DesugarOps.concatStringsPropError);
+          Multiverse<String> transformationmv = postfixexprval.transformation.product(appended, DesugarOps.concatStrings);
+          prepended.destruct(); appended.destruct();
           
           if (postfixexprval.hasValidType() && exprval.hasValidType()) {
             Multiverse<Type> typemv = new Multiverse<Type>();
-            Multiverse<String> stringmv = new Multiverse<String>();
             for (int i = 0; i < postfixexprval.type.size(); ++i)
               {
                 Element<Type> elemT = postfixexprval.type.get(i);
                 Element<String> elemS = postfixexprval.transformation.get(i);
                 if (elemT.getData().isError()) {
                   typemv.add(elemT.getData(), elemT.getCondition());
-                  stringmv.add(elemS.getData(), elemS.getCondition());
+                  // __static_error (...) [2];
                 } else {
                   // postfix expression should be a pointer or array type
                   if (elemT.getData().isPointer()) {
                     // type should be whatever type the pointer point to
                     typemv.add(elemT.getData().toPointer().getType(), elemT.getCondition());
-                    stringmv.add(elemS.getData(), elemS.getCondition());
                   } else if (elemT.getData().isArray()) {
                     // type should be whatever type the array points to
                     typemv.add(elemT.getData().toArray().getType(), elemT.getCondition());
-                    stringmv.add(elemS.getData(), elemS.getCondition());
                   } else {
                     typemv.add(ErrorT.TYPE, elemT.getCondition());
-                    stringmv.add(emitError("invalid subscript access"), elemS.getCondition());
+                    //stringmv.add(emitError("invalid subscript access"), elemS.getCondition());
                   }
                 }
               }
-            assert ! typemv.isEmpty();
-            assert ! stringmv.isEmpty();
-            Multiverse<String> transformmv = new Multiverse<String>();
-            transformmv.addAll(stringmv.product(appended, DesugarOps.concatStringsPropError));
-            prepended.destruct(); appended.destruct();
-
             /* System.err.println("SUBSCRIPTBEFORE: " + postfixexprval.type); */
             /* System.err.println("SUBSCRIPTAFTER: " + typemv); */
-
-            setTransformationValue(value, new ExpressionValue(stringmv,
-                                                              typemv));  // TODO: placeholder until type checking
+            PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
+            PresenceCondition validTypes = errorCond.not();
+            transformationmv = transformationmv.filter(validTypes);
+            setTransformationValue(value, new ExpressionValue(transformationmv,
+                                                              typemv));
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in subscript expression"),
                                                               ErrorT.TYPE,
@@ -5536,12 +5532,10 @@ public class CActions implements SemanticActions {
                   if (tagentry.getData().isError()) {
                     System.err.println("INFO: type error, access to undeclared struct/union field");
                     typemv.add(ErrorT.TYPE, tagentry.getCondition());
-                    identmv.add(emitError("invalid field access"), tagentry.getCondition());
                   } else if (tagentry.getData().isUndeclared()) {
                     // no declaration in this configuration
                     System.err.println(String.format("INFO: type error, access to undeclared struct/union %s", originalTag));
                     typemv.add(ErrorT.TYPE, tagentry.getCondition());
-                    identmv.add(emitError("invalid field access"), tagentry.getCondition());
                   } else {  // the struct/union is defined under this configuration
                     Type renamedStruct = tagentry.getData().getValue();
 
@@ -5560,10 +5554,8 @@ public class CActions implements SemanticActions {
                       for (Element<SymbolTable.Entry<Type>> fieldentry : fieldentries) {
                         if (fieldentry.getData().isError()) {
                           typemv.add(ErrorT.TYPE, fieldentry.getCondition());
-                          identmv.add(emitError("invalid field access"), fieldentry.getCondition());
                         } else if (fieldentry.getData().isUndeclared()) {
                           typemv.add(ErrorT.TYPE, fieldentry.getCondition());
-                          identmv.add(emitError("invalid field access"), fieldentry.getCondition());
                         } else {  // declared
                           VariableT fieldtype = fieldentry.getData().getValue().toVariable();  // these are stored as VariableT
                           typemv.add(fieldtype.getType(), fieldentry.getCondition());
@@ -5575,7 +5567,6 @@ public class CActions implements SemanticActions {
                     } else {  // is not a struct/union type
                       System.err.println(String.format("INFO: type error, DirectSelect on non-struct/union tag %s", originalTag));
                       typemv.add(ErrorT.TYPE, tagentry.getCondition());
-                      identmv.add(emitError("invalid field access"), tagentry.getCondition());
                     }  // finished check for struct/union type
                   } // finished looking at the entry
                 }  // finished going over the original tag's renamings
@@ -5594,11 +5585,9 @@ public class CActions implements SemanticActions {
                 for (Element<SymbolTable.Entry<Type>> fieldentry : fieldentries) {
                   if (fieldentry.getData().isError()) {
                     typemv.add(ErrorT.TYPE, fieldentry.getCondition());
-                    identmv.add(emitError("invalid field access"), fieldentry.getCondition());
-                  } else if (fieldentry.getData().isUndeclared()) {
+                   } else if (fieldentry.getData().isUndeclared()) {
                     typemv.add(ErrorT.TYPE, fieldentry.getCondition());
-                    identmv.add(emitError("invalid field access"), fieldentry.getCondition());
-                  } else {  // declared
+                   } else {  // declared
                     VariableT fieldtype = fieldentry.getData().getValue().toVariable();  // these are stored as VariableT
                     typemv.add(fieldtype.getType(), fieldentry.getCondition());
                     identmv.add(fieldtype.getName(), fieldentry.getCondition());
@@ -5609,14 +5598,10 @@ public class CActions implements SemanticActions {
             } else {
               System.err.println("INFO: type error, not a struct/union type in DirectSelection");
               typemv.add(ErrorT.TYPE, type.getCondition());
-              identmv.add(emitError("invalid field access"), type.getCondition());
             }
           }
               
           assert ! typemv.isEmpty();
-
-          /* System.err.println("typemv " + typemv); */
-          /* System.err.println("identmv " + identmv); */
 
           if (hasValidType) {
             Multiverse<String> valuemv = productAll(DesugarOps.concatStringsPropError, postfixmv, dotmv, identmv);
@@ -5626,6 +5611,10 @@ public class CActions implements SemanticActions {
             // correctly typed
 
             /* System.err.println("valuemv " + valuemv); */
+            PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
+            PresenceCondition typesafeCond = errorCond.not();
+            valuemv = valuemv.filter(typesafeCond);
+            errorCond.delRef(); typesafeCond.delRef();
             setTransformationValue(value, new ExpressionValue(valuemv, typemv));
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in direct expression"),
@@ -6029,6 +6018,10 @@ public class CActions implements SemanticActions {
             Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
             Multiverse<String> resultmv = opstr.product(exprval.transformation, DesugarOps.concatStrings);
             Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
+
+            PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
+            PresenceCondition validTypes = errorCond.not();
+            resultmv = resultmv.filter(validTypes);
 
             setTransformationValue(value,
                                    new ExpressionValue(resultmv,
@@ -6907,7 +6900,7 @@ public class CActions implements SemanticActions {
     {
           System.err.println("TODO: ConditionalExpression");
           System.exit(1);
-          // TODO: check for valid types
+          /// TODO: check for valid types
         }
     break;
 
@@ -6923,7 +6916,6 @@ public class CActions implements SemanticActions {
 
           ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
           ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
-
           if (leftval.hasValidType() && rightval.hasValidType()) {
 
             Multiverse<String> expr = leftval.transformation;
@@ -6943,7 +6935,7 @@ public class CActions implements SemanticActions {
             /* System.err.println("assigntype: " + assigntype); */
             /* Multiverse<Type> producttype = exprtype.product(assigntype, DesugarOps.compareTypes); */
             Multiverse<Type> producttype = DesugarOps.checkAssignmentType(exprtype, assigntype, op, pc, false);
-            /* System.err.println("producttype: " + producttype); */
+            System.err.println(producttype);
             /* System.err.println("TODO: deduplicate ErrorT"); */
             /* System.err.println("TODO: allow type coercion"); */
 
@@ -6960,6 +6952,7 @@ public class CActions implements SemanticActions {
             // combinations.
             Multiverse<String> valuemv;
             Multiverse<String> suffix = expr.product(op, DesugarOps.concatStrings); op.destruct();
+            
             if (suffix.size() > 0) {
               Multiverse<String> product = suffix.product(assign, DesugarOps.concatStrings); suffix.destruct();
               if (product.size() > 0) {
@@ -6971,7 +6964,6 @@ public class CActions implements SemanticActions {
               valuemv = suffix;
             }
             errorCond.delRef(); typesafeCond.delRef();
-          
             setTransformationValue(value, new ExpressionValue(valuemv, typemv));
             
           } else {  // no valid types
@@ -8310,6 +8302,14 @@ private static class ExpressionValue {
    * The cached valid type condition.
    */
   protected PresenceCondition validTypeCondition = null;
+
+  public String toString()
+  {
+    String ret = "";
+    ret += "type:" + type.toString();
+    ret += "transform:" + transformation.toString();
+    return ret;
+  }
 
   public ExpressionValue(Multiverse<String> transformation, Multiverse<Type> type) {
     this.transformation = transformation;
