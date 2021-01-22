@@ -5571,7 +5571,7 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
           Multiverse<String> postfixmv = postfixval.transformation;
           Multiverse<String> dotmv
             = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(),
-                                            subparser.getPresenceCondition());
+                                     subparser.getPresenceCondition());
           String ident = ((Syntax) getNodeAt(subparser, 1).get(0)).getTokenText();
 
           // get each struct type
@@ -5671,9 +5671,9 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
                 for (Element<SymbolTable.Entry<Type>> fieldentry : fieldentries) {
                   if (fieldentry.getData().isError()) {
                     typemv.add(ErrorT.TYPE, fieldentry.getCondition());
-                   } else if (fieldentry.getData().isUndeclared()) {
+                  } else if (fieldentry.getData().isUndeclared()) {
                     typemv.add(ErrorT.TYPE, fieldentry.getCondition());
-                   } else {  // declared
+                  } else {  // declared
                     VariableT fieldtype = fieldentry.getData().getValue().toVariable();  // these are stored as VariableT
                     typemv.add(fieldtype.getType(), fieldentry.getCondition());
                     identmv.add(fieldtype.getName(), fieldentry.getCondition());
@@ -5690,17 +5690,18 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
           assert ! typemv.isEmpty();
 
           if (hasValidType) {
-            Multiverse<String> valuemv = productAll(DesugarOps.concatStringsPropError, postfixmv, dotmv, identmv);
-            dotmv.destruct(); identmv.destruct();  // postfixmv is from child, so don't destruct
+            Multiverse<String> valuemv = postfixmv.product(dotmv,DesugarOps.concatStrings);
+            valuemv = valuemv.product(identmv, DesugarOps.concatStrings);
+            dotmv.destruct(); identmv.destruct();
             // valuemv shouldn't need to filtered for error conditions,
             // because identmv only has those configurations that were
             // correctly typed
 
             /* System.err.println("valuemv " + valuemv); */
-            PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
+            /*           PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
             PresenceCondition typesafeCond = errorCond.not();
             valuemv = valuemv.filter(typesafeCond);
-            errorCond.delRef(); typesafeCond.delRef();
+            errorCond.delRef(); typesafeCond.delRef();*/
             setTransformationValue(value, new ExpressionValue(valuemv, typemv));
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in direct expression"),
@@ -5708,7 +5709,7 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
                                                               pc));
           }
         }
-        ;
+;
 
 IndirectSelection:  /** nomerge **/
         PostfixExpression ARROW IdentifierOrTypedefName
@@ -5953,36 +5954,54 @@ IndirectSelection:  /** nomerge **/
 Increment:  /** nomerge **/  // ExpressionValue
         PostfixExpression ICR
         {
-          todoReminder("typecheck Increment");
-          // TODO: check that postfixexpression is a number or pointer (see CAnalyzer)
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
-          
-          Multiverse<String> exprmv = exprval.transformation;
-          Multiverse<String> opmv
-            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
-          setTransformationValue(value,
-                                 new ExpressionValue(productAll(DesugarOps.concatStrings, exprmv, opmv),
-                                                     exprval.type));
-          opmv.destruct();
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
+
+          Multiverse<Syntax> opmv = new Multiverse<Syntax>((Syntax) getNodeAt(subparser, 1), pc);
+          if (exprval.hasValidType()) {
+            Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
+            Multiverse<String> resultmv = exprval.transformation.product(opstr, DesugarOps.concatStrings);
+            Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
+
+            PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
+            PresenceCondition validTypes = errorCond.not();
+            resultmv = resultmv.filter(validTypes);
+
+            setTransformationValue(value,
+                                   new ExpressionValue(resultmv,
+                                                       typemv));  // TODO: placeholder until type checking
+          } else {
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in unary operation"),
+                                                              ErrorT.TYPE,
+                                                              pc));
+          }
         }
         ;
 
 Decrement:  /** nomerge **/  // ExpressionValue
         PostfixExpression DECR
         {
-          todoReminder("typecheck Decrement");
-          // TODO: check that postfixexpression is a number or pointer (see CAnalyzer)
           PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
-          
-          Multiverse<String> exprmv = exprval.transformation;
-          Multiverse<String> opmv
-            = new Multiverse<String>(((Syntax) getNodeAt(subparser, 1)).getTokenText(), pc);
-          setTransformationValue(value,
-                                 new ExpressionValue(productAll(DesugarOps.concatStrings, exprmv, opmv),
-                                                     exprval.type));
-          opmv.destruct();
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
+
+          Multiverse<Syntax> opmv = new Multiverse<Syntax>((Syntax) getNodeAt(subparser, 1), pc);
+          if (exprval.hasValidType()) {
+            Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
+            Multiverse<String> resultmv = exprval.transformation.product(opstr, DesugarOps.concatStrings);
+            Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
+
+            PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
+            PresenceCondition validTypes = errorCond.not();
+            resultmv = resultmv.filter(validTypes);
+
+            setTransformationValue(value,
+                                   new ExpressionValue(resultmv,
+                                                       typemv));  // TODO: placeholder until type checking
+          } else {
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in unary operation"),
+                                                              ErrorT.TYPE,
+                                                              pc));
+          }
         }
         ;
 
@@ -6062,35 +6081,51 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
         }
         | ICR UnaryExpression
         {
-          todoReminder("typecheck unaryexpression (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
-          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
-          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<Syntax> opmv = new Multiverse<Syntax>((Syntax) getNodeAt(subparser, 2), pc);
+          if (exprval.hasValidType()) {
+            Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
+            Multiverse<String> resultmv = opstr.product(exprval.transformation, DesugarOps.concatStrings);
+            Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
 
-          
-          
-          setTransformationValue(value,
-                                 new ExpressionValue(productAll(DesugarOps.concatStrings,
-                                                                opmv,
-                                                                exprmv),
-                                                     exprval.type));  // TODO: placeholder until type checking
+            PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
+            PresenceCondition validTypes = errorCond.not();
+            resultmv = resultmv.filter(validTypes);
+
+            setTransformationValue(value,
+                                   new ExpressionValue(resultmv,
+                                                       typemv));  // TODO: placeholder until type checking
+          } else {
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in unary operation"),
+                                                              ErrorT.TYPE,
+                                                              pc));
+          }
         }
         | DECR UnaryExpression
         {
-          todoReminder("typecheck unaryexpression (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
-          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
-          Multiverse<String> exprmv = exprval.transformation;
+          Multiverse<Syntax> opmv = new Multiverse<Syntax>((Syntax) getNodeAt(subparser, 2), pc);
+          if (exprval.hasValidType()) {
+            Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
+            Multiverse<String> resultmv = opstr.product(exprval.transformation, DesugarOps.concatStrings);
+            Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
 
-          setTransformationValue(value,
-                                 new ExpressionValue(productAll(DesugarOps.concatStrings,
-                                                                opmv,
-                                                                exprmv),
-                                                     exprval.type));  // TODO: placeholder until type checking
+            PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
+            PresenceCondition validTypes = errorCond.not();
+            resultmv = resultmv.filter(validTypes);
+
+            setTransformationValue(value,
+                                   new ExpressionValue(resultmv,
+                                                       typemv));  // TODO: placeholder until type checking
+          } else {
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in unary operation"),
+                                                              ErrorT.TYPE,
+                                                              pc));
+          }
         }
         | Unaryoperator CastExpression
         {

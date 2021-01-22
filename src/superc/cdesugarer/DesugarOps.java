@@ -1026,16 +1026,24 @@ class DesugarOps {
       switch (((Language<CTag>) op).tag()) {
       case STAR:
         Type resolvedType = type.resolve();  // unwrap any typedef aliasing
-      if (resolvedType.isPointer()) {
-        return resolvedType.toPointer().getType();
-      } else if (resolvedType.isArray()) {
-        return resolvedType.toArray().getType();
-      }else {
-        return ErrorT.TYPE;
-      }
-        // should be unreachable
+        if (resolvedType.isPointer()) {
+          return resolvedType.toPointer().getType();
+        } else if (resolvedType.isArray()) {
+          return resolvedType.toArray().getType();
+        }else {
+          return ErrorT.TYPE;
+        }
+      // should be unreachable
       case AND:
-        return  new PointerT(type.resolve());
+      return  new PointerT(type.resolve());
+      case ICR:
+      //fall-through
+      case DECR:
+        resolvedType = type.resolve();
+        if ( resolvedType.isArray() ||
+             resolvedType.isStruct() ||
+             resolvedType.isUnion())
+          return ErrorT.TYPE;
       case PLUS:
       // fall-through
       case MINUS:
@@ -1045,6 +1053,7 @@ class DesugarOps {
       case NOT:
         // TDDO: check types of other operators
         return type;
+      
       default:
       throw new AssertionError("unexpected unary op token");
       }
