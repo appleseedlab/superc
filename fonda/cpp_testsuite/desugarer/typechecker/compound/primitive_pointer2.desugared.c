@@ -14,8 +14,8 @@ __static_renaming("__main_1", "main");
 __static_renaming("__x_2", "x");
 __static_renaming("__x_3", "x");
 
-__static_condition_renaming("__static_condition_default_4", "(declare-fun |(defined A)| () Bool)(assert |(defined A)|)");
-__static_condition_renaming("__static_condition_default_5", "(declare-fun |(defined A)| () Bool)(assert (not |(defined A)|))");
+__static_condition_renaming("__static_condition_default_4", "(defined A)");
+__static_condition_renaming("__static_condition_default_5", "!(defined A)");
 
 };
 
@@ -38,13 +38,13 @@ if (__static_condition_default_5) {
 
 }
 {
-if (__static_condition_default_4) {
-*  __x_2  ;
+if (__static_condition_default_5) {
+*  __x_3  ;
 
 }
 
-if (__static_condition_default_5) {
-*  __x_3  ;
+if (__static_condition_default_4) {
+__static_type_error("type error")
 
 }
 

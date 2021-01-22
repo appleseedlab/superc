@@ -1042,7 +1042,8 @@ class DesugarOps {
         resolvedType = type.resolve();
         if ( resolvedType.isArray() ||
              resolvedType.isStruct() ||
-             resolvedType.isUnion())
+             resolvedType.isUnion() ||
+             resolvedType.isFunction())
           return ErrorT.TYPE;
       case PLUS:
       // fall-through
