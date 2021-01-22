@@ -1001,7 +1001,8 @@ class DesugarOps {
                 result = r1;
               }
             }
-            
+            if (result == null)
+              result = ErrorT.TYPE;
             resultmv.add(result, elemCond);
           }
           elemCond.delRef();
@@ -1025,11 +1026,13 @@ class DesugarOps {
       switch (((Language<CTag>) op).tag()) {
       case STAR:
         Type resolvedType = type.resolve();  // unwrap any typedef aliasing
-        if (resolvedType.isPointer()) {
-          return resolvedType.toPointer().getType();
-        } else {
-          return ErrorT.TYPE;
-        }
+      if (resolvedType.isPointer()) {
+        return resolvedType.toPointer().getType();
+      } else if (resolvedType.isArray()) {
+        return resolvedType.toArray().getType();
+      }else {
+        return ErrorT.TYPE;
+      }
         // should be unreachable
       case AND:
         return  new PointerT(type.resolve());

@@ -5981,6 +5981,8 @@ public class CActions implements SemanticActions {
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> exprmv = exprval.transformation;
 
+          
+          
           setTransformationValue(value,
                                  new ExpressionValue(productAll(DesugarOps.concatStrings,
                                                                 opmv,
@@ -6009,7 +6011,6 @@ public class CActions implements SemanticActions {
   case 430:
     {
           // TODO: need to look at the unaryoperator to determine whether it's the correct type usage
-          todoReminder("typecheck unaryexpression (4)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
@@ -6916,8 +6917,9 @@ public class CActions implements SemanticActions {
 
           ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
           ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
+          System.err.println("l:"+ leftval.toString() + "\nr:" + rightval.toString());
           if (leftval.hasValidType() && rightval.hasValidType()) {
-
+            
             Multiverse<String> expr = leftval.transformation;
             Multiverse<String> op = this.<String>getCompleteNodeSingleValue(subparser, 2, pc);
             /* Multiverse<String> op */
