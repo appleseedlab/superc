@@ -874,8 +874,8 @@ __static_renaming("__BUFFER_SIZE_2241", "BUFFER_SIZE");
 __static_renaming("__buffer_2242", "buffer");
 __static_renaming("__i_2243", "i");
 
-__static_condition_renaming("__static_condition_default_2244", "(declare-fun |(defined CONFIG_A)| () Bool)(assert |(defined CONFIG_A)|)");
-__static_condition_renaming("__static_condition_default_2245", "(declare-fun |(defined CONFIG_A)| () Bool)(assert (not |(defined CONFIG_A)|))");
+__static_condition_renaming("__static_condition_default_2244", "(defined CONFIG_A)");
+__static_condition_renaming("__static_condition_default_2245", "!(defined CONFIG_A)");
 
 };
 enum __codecvt_result {

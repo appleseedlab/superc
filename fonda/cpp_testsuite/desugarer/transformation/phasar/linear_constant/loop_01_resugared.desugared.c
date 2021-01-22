@@ -13,8 +13,8 @@ __static_renaming("__main_0", "main");
 __static_renaming("__x_1", "x");
 __static_renaming("__i_2", "i");
 
-__static_condition_renaming("__static_condition_default_3", "(declare-fun |(defined CONFIG_A)| () Bool)(assert |(defined CONFIG_A)|)");
-__static_condition_renaming("__static_condition_default_4", "(declare-fun |(defined CONFIG_A)| () Bool)(assert (not |(defined CONFIG_A)|))");
+__static_condition_renaming("__static_condition_default_3", "(defined CONFIG_A)");
+__static_condition_renaming("__static_condition_default_4", "!(defined CONFIG_A)");
 
 };
 

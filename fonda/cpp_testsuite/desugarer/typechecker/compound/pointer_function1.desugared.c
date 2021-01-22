@@ -38,19 +38,26 @@ return  __y_1  ;
 int  __main_5 () {
 {
 
+{
 if (__static_condition_default_6) {
  __x_4  = &  __num_0  ;
 
 }
 
-{
 if (__static_condition_default_3) {
-*  __x_2  ;
+__static_type_error("type error") ;
 
 }
 
+}
+{
 if (__static_condition_default_6) {
 *  __x_4  ;
+
+}
+
+if (__static_condition_default_3) {
+__static_type_error("type error") ;
 
 }
 

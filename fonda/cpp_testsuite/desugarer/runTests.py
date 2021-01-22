@@ -11,8 +11,8 @@ def main():
     os.system('touch summaryTable.txt')
     sumTable = open('summaryTable.txt', 'w')
     maxC = 10
-    #jF = open('metaDataGT.json')
-    jF = open('metaData.json')
+    jF = open('metaDataGT.json')
+    #jF = open('metaData.json')
     js = json.load(jF)
     jF.close()
     for folderName in  os.listdir(os.getcwd()):
@@ -52,7 +52,10 @@ def main():
                         ranFiles.append(realFile)
                         sumTOut = os.path.relpath(curDir, os.getcwd()) + '/' + dirFiles[:len(dirFiles) - 2]
                         key = sumTOut + ".c"
-                        if js[key]['valid'] == False:
+
+                        if key not in js:
+                            sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'File GT not confirmed\n')
+                        elif js[key]['valid'] == False:
                             sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'File isn\'t valid\n')
                         else:
                             if len(js[key]['inclusions']) > 0:

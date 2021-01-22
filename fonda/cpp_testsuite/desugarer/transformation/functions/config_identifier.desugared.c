@@ -7,16 +7,16 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_6;
-extern const bool __static_condition_default_5;
 extern const bool __static_condition_default_7;
+extern const bool __static_condition_default_5;
 void __static_initializer_default() {
 __static_renaming("__add_3", "add");
 __static_renaming("__adder_4", "adder");
 __static_renaming("__main_8", "main");
 
-__static_condition_renaming("__static_condition_default_5", "(declare-fun A () Bool)(assert A)");
-__static_condition_renaming("__static_condition_default_6", "(declare-fun A () Bool)(assert (not A))");
-__static_condition_renaming("__static_condition_default_7", "(declare-fun A () Bool)(assert (not A))");
+__static_condition_renaming("__static_condition_default_5", "A");
+__static_condition_renaming("__static_condition_default_6", "!A");
+__static_condition_renaming("__static_condition_default_7", "!A");
 
 };
 

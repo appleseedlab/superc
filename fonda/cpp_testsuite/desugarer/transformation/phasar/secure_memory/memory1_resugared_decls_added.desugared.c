@@ -18,8 +18,8 @@ __static_renaming("__BUFFER_SIZE_14", "BUFFER_SIZE");
 __static_renaming("__buffer_15", "buffer");
 __static_renaming("__i_16", "i");
 
-__static_condition_renaming("__static_condition_default_17", "(declare-fun |(defined CONFIG_A)| () Bool)(assert |(defined CONFIG_A)|)");
-__static_condition_renaming("__static_condition_default_18", "(declare-fun |(defined CONFIG_A)| () Bool)(assert (not |(defined CONFIG_A)|))");
+__static_condition_renaming("__static_condition_default_17", "(defined CONFIG_A)");
+__static_condition_renaming("__static_condition_default_18", "!(defined CONFIG_A)");
 
 };
 

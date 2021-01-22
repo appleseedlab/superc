@@ -33,7 +33,7 @@ if (__static_condition_default_5) {
 }
 
 if (__static_condition_default_6) {
-__static_type_error("type error")
+__static_type_error("type error") ;
 
 }
 

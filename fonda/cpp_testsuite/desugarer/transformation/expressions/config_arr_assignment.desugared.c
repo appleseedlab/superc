@@ -13,8 +13,8 @@ __static_renaming("__main_0", "main");
 __static_renaming("__x_1", "x");
 __static_renaming("__arr_2", "arr");
 
-__static_condition_renaming("__static_condition_default_3", "(declare-fun A () Bool)(assert A)");
-__static_condition_renaming("__static_condition_default_4", "(declare-fun A () Bool)(assert (not A))");
+__static_condition_renaming("__static_condition_default_3", "A");
+__static_condition_renaming("__static_condition_default_4", "!A");
 
 };
 

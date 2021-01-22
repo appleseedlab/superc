@@ -12,7 +12,7 @@ __static_renaming("__a_0", "a");
 __static_renaming("__main_1", "main");
 __static_renaming("__main_2", "main");
 
-__static_condition_renaming("__static_condition_default_3", "(declare-fun |(defined A)| () Bool)(assert |(defined A)|)");
+__static_condition_renaming("__static_condition_default_3", "(defined A)");
 
 };
 typedef int  __a_0;

@@ -6,8 +6,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_7;
 extern const bool __static_condition_default_8;
+extern const bool __static_condition_default_7;
 void __static_initializer_default() {
 __static_renaming("__main_0", "main");
 __static_renaming("__x_1", "x");
@@ -17,8 +17,8 @@ __static_renaming("__expressionArr_4", "expressionArr");
 __static_renaming("__string_5", "string");
 __static_renaming("__variableLength_6", "variableLength");
 
-__static_condition_renaming("__static_condition_default_7", "(declare-fun A () Bool)(assert A)");
-__static_condition_renaming("__static_condition_default_8", "(declare-fun A () Bool)(assert (not A))");
+__static_condition_renaming("__static_condition_default_7", "A");
+__static_condition_renaming("__static_condition_default_8", "!A");
 
 };
 

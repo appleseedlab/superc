@@ -15,9 +15,9 @@ __static_renaming("__x_3", "x");
 __static_renaming("__main_4", "main");
 __static_renaming("__main_5", "main");
 
-__static_condition_renaming("__static_condition_default_2", "(declare-fun |(defined B)| () Bool)(declare-fun |(defined A)| () Bool)(assert (or (and |(defined A)| |(defined B)|) (and |(defined A)| (not |(defined B)|))))(assert |(defined B)|)");
-__static_condition_renaming("__static_condition_default_6", "(declare-fun |(defined B)| () Bool)(assert (not |(defined B)|))");
-__static_condition_renaming("__static_condition_default_7", "(declare-fun |(defined B)| () Bool)(assert |(defined B)|)");
+__static_condition_renaming("__static_condition_default_2", "(defined A) && (defined B)");
+__static_condition_renaming("__static_condition_default_6", "!(defined B)");
+__static_condition_renaming("__static_condition_default_7", "(defined B)");
 
 };
 

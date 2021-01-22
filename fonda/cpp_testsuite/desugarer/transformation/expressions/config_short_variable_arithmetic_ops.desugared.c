@@ -15,8 +15,8 @@ __static_renaming("__x_2", "x");
 __static_renaming("__y_3", "y");
 __static_renaming("__z_4", "z");
 
-__static_condition_renaming("__static_condition_default_5", "(declare-fun A () Bool)(assert A)");
-__static_condition_renaming("__static_condition_default_6", "(declare-fun A () Bool)(assert (not A))");
+__static_condition_renaming("__static_condition_default_5", "A");
+__static_condition_renaming("__static_condition_default_6", "!A");
 
 };
 

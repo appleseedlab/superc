@@ -12,8 +12,8 @@ void __static_initializer_default() {
 __static_renaming("__main_5", "main");
 __static_renaming("__main_6", "main");
 
-__static_condition_renaming("__static_condition_default_7", "(declare-fun |(defined CONFIG_A)| () Bool)(assert (not |(defined CONFIG_A)|))");
-__static_condition_renaming("__static_condition_default_8", "(declare-fun |(defined CONFIG_A)| () Bool)(assert |(defined CONFIG_A)|)");
+__static_condition_renaming("__static_condition_default_7", "!(defined CONFIG_A)");
+__static_condition_renaming("__static_condition_default_8", "(defined CONFIG_A)");
 
 };
 struct __anonymous_tag_0 {

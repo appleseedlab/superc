@@ -13,8 +13,8 @@ __static_renaming("__f_0", "f");
 __static_renaming("__f_2", "f");
 __static_renaming("__main_3", "main");
 
-__static_condition_renaming("__static_condition_default_1", "(declare-fun |(defined A)| () Bool)(assert |(defined A)|)");
-__static_condition_renaming("__static_condition_default_4", "(declare-fun |(defined A)| () Bool)(assert (not |(defined A)|))");
+__static_condition_renaming("__static_condition_default_1", "(defined A)");
+__static_condition_renaming("__static_condition_default_4", "!(defined A)");
 
 };
 

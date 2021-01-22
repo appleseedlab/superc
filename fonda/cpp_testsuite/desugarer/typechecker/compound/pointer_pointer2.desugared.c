@@ -13,8 +13,8 @@ __static_renaming("__main_2", "main");
 __static_renaming("__x_3", "x");
 __static_renaming("__x_4", "x");
 
-__static_condition_renaming("__static_condition_default_5", "(defined A)");
-__static_condition_renaming("__static_condition_default_6", "!(defined A)");
+__static_condition_renaming("__static_condition_default_5", "!(defined A)");
+__static_condition_renaming("__static_condition_default_6", "(defined A)");
 
 };
 struct __s_0 {
@@ -29,12 +29,12 @@ struct __s_0  (* __x_4);
 
 {
 if (__static_condition_default_5) {
-__static_type_error("invalid field access") ;
+( *  __x_4  ) . __field1_1 ;
 
 }
 
 if (__static_condition_default_6) {
-( *  __x_4  ) . __field1_1 ;
+__static_type_error("type error") ;
 
 }
 

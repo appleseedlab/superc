@@ -17,8 +17,8 @@ __static_renaming("__x_6", "x");
 __static_renaming("__main_9", "main");
 __static_renaming("__main_10", "main");
 
-__static_condition_renaming("__static_condition_default_11", "(declare-fun |(defined C)| () Bool)(assert (not |(defined C)|))");
-__static_condition_renaming("__static_condition_default_12", "(declare-fun |(defined C)| () Bool)(assert |(defined C)|)");
+__static_condition_renaming("__static_condition_default_11", "!(defined C)");
+__static_condition_renaming("__static_condition_default_12", "(defined C)");
 
 };
 typedef int  __y_3;

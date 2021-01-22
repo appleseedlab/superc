@@ -15,8 +15,8 @@ __static_renaming("__main_2", "main");
 __static_renaming("__i_3", "i");
 __static_renaming("__inode_4", "inode");
 
-__static_condition_renaming("__static_condition_default_5", "(declare-fun |(defined CONFIG_INPUT_MOUSEDEV_PSAUX)| () Bool)(assert (not |(defined CONFIG_INPUT_MOUSEDEV_PSAUX)|))");
-__static_condition_renaming("__static_condition_default_6", "(declare-fun |(defined CONFIG_INPUT_MOUSEDEV_PSAUX)| () Bool)(assert |(defined CONFIG_INPUT_MOUSEDEV_PSAUX)|)");
+__static_condition_renaming("__static_condition_default_5", "!(defined CONFIG_INPUT_MOUSEDEV_PSAUX)");
+__static_condition_renaming("__static_condition_default_6", "(defined CONFIG_INPUT_MOUSEDEV_PSAUX)");
 
 };
 

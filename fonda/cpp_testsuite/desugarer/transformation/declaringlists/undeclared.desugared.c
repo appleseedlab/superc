@@ -6,14 +6,14 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_2;
 extern const bool __static_condition_default_3;
+extern const bool __static_condition_default_2;
 void __static_initializer_default() {
 __static_renaming("__main_0", "main");
 __static_renaming("__x_1", "x");
 
-__static_condition_renaming("__static_condition_default_2", "(declare-fun |(defined A)| () Bool)(assert (not |(defined A)|))");
-__static_condition_renaming("__static_condition_default_3", "(declare-fun |(defined A)| () Bool)(assert |(defined A)|)");
+__static_condition_renaming("__static_condition_default_2", "!(defined A)");
+__static_condition_renaming("__static_condition_default_3", "(defined A)");
 
 };
 

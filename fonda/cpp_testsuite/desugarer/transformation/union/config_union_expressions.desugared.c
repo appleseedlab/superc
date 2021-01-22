@@ -6,10 +6,10 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_14;
 extern const bool __static_condition_default_9;
 extern const bool __static_condition_default_15;
-extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_10;
 void __static_initializer_default() {
 __static_renaming("__main_6", "main");
 __static_renaming("__usedUnion_7", "usedUnion");
@@ -20,10 +20,10 @@ __static_renaming("__y_13", "y");
 __static_renaming("__z_16", "z");
 __static_renaming("__ch_17", "ch");
 
-__static_condition_renaming("__static_condition_default_9", "(declare-fun A () Bool)(assert A)");
-__static_condition_renaming("__static_condition_default_10", "(declare-fun A () Bool)(assert (not A))");
-__static_condition_renaming("__static_condition_default_14", "(declare-fun A () Bool)(declare-fun B () Bool)(declare-fun |(defined C)| () Bool)(assert A)(assert B)(assert (or (and B (not |(defined C)|)) (and B |(defined C)|)))");
-__static_condition_renaming("__static_condition_default_15", "(declare-fun A () Bool)(declare-fun B () Bool)(declare-fun |(defined C)| () Bool)(assert (not A))(assert B)(assert (or (and B (not |(defined C)|)) (and B |(defined C)|)))");
+__static_condition_renaming("__static_condition_default_9", "A");
+__static_condition_renaming("__static_condition_default_10", "!A");
+__static_condition_renaming("__static_condition_default_14", "A && B");
+__static_condition_renaming("__static_condition_default_15", "!A && B");
 
 };
 union __intCharFloat_0 {
@@ -54,11 +54,18 @@ if (__static_condition_default_10) {
 }
 
 }
+{
 if (__static_condition_default_9) {
  __usedUnion_7  . __character_2 = 'h' ;
 
 }
-int  __x_11=  __usedUnion_7  . __integer_1;
+
+if (__static_condition_default_10) {
+__static_type_error("type error") ;
+
+}
+
+}int  __x_11=  __usedUnion_7  . __integer_1;
 int  __x_12=  __usedUnion_8  . __integer_5;
 int  __y_13;
 

@@ -6,20 +6,20 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_11;
-extern const bool __static_condition_default_13;
-extern const bool __static_condition_default_24;
-extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_20;
-extern const bool __static_condition_default_23;
-extern const bool __static_condition_default_14;
+extern const bool __static_condition_default_18;
+extern const bool __static_condition_default_19;
+extern const bool __static_condition_default_15;
 extern const bool __static_condition_default_17;
 extern const bool __static_condition_default_21;
-extern const bool __static_condition_default_12;
-extern const bool __static_condition_default_18;
-extern const bool __static_condition_default_15;
+extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_22;
-extern const bool __static_condition_default_19;
+extern const bool __static_condition_default_12;
+extern const bool __static_condition_default_23;
+extern const bool __static_condition_default_24;
+extern const bool __static_condition_default_13;
+extern const bool __static_condition_default_14;
 void __static_initializer_default() {
 __static_renaming("__main_0", "main");
 __static_renaming("__x_1", "x");
@@ -33,20 +33,20 @@ __static_renaming("__v_8", "v");
 __static_renaming("__t_9", "t");
 __static_renaming("__t_10", "t");
 
-__static_condition_renaming("__static_condition_default_11", "(declare-fun B () Bool)(declare-fun A () Bool)(assert (or (and A B) (and A (not B))))");
-__static_condition_renaming("__static_condition_default_12", "(declare-fun B () Bool)(declare-fun A () Bool)(assert (not (and A B)))(assert (not (and A (not B))))");
-__static_condition_renaming("__static_condition_default_13", "(declare-fun B () Bool)(assert B)");
-__static_condition_renaming("__static_condition_default_14", "(declare-fun B () Bool)(assert (not B))");
-__static_condition_renaming("__static_condition_default_15", "(declare-fun C () Bool)(assert C)");
-__static_condition_renaming("__static_condition_default_16", "(declare-fun C () Bool)(assert (not C))");
-__static_condition_renaming("__static_condition_default_17", "(declare-fun B () Bool)(declare-fun A () Bool)(declare-fun C () Bool)(assert (or (and A B) (and A (not B))))(assert B)(assert C)");
-__static_condition_renaming("__static_condition_default_18", "(declare-fun B () Bool)(declare-fun A () Bool)(declare-fun C () Bool)(assert (or (and A B) (and A (not B))))(assert B)(assert (not C))");
-__static_condition_renaming("__static_condition_default_19", "(declare-fun B () Bool)(declare-fun A () Bool)(declare-fun C () Bool)(assert (or (and A B) (and A (not B))))(assert (not B))(assert C)");
-__static_condition_renaming("__static_condition_default_20", "(declare-fun B () Bool)(declare-fun A () Bool)(declare-fun C () Bool)(assert (or (and A B) (and A (not B))))(assert (not B))(assert (not C))");
-__static_condition_renaming("__static_condition_default_21", "(declare-fun B () Bool)(declare-fun A () Bool)(declare-fun C () Bool)(assert (not (and A B)))(assert (not (and A (not B))))(assert B)(assert C)");
-__static_condition_renaming("__static_condition_default_22", "(declare-fun B () Bool)(declare-fun A () Bool)(declare-fun C () Bool)(assert (not (and A B)))(assert (not (and A (not B))))(assert B)(assert (not C))");
-__static_condition_renaming("__static_condition_default_23", "(declare-fun B () Bool)(declare-fun A () Bool)(declare-fun C () Bool)(assert (not (and A B)))(assert (not (and A (not B))))(assert (not B))(assert C)");
-__static_condition_renaming("__static_condition_default_24", "(declare-fun B () Bool)(declare-fun A () Bool)(declare-fun C () Bool)(assert (not (and A B)))(assert (not (and A (not B))))(assert (not B))(assert (not C))");
+__static_condition_renaming("__static_condition_default_11", "A");
+__static_condition_renaming("__static_condition_default_12", "!A");
+__static_condition_renaming("__static_condition_default_13", "B");
+__static_condition_renaming("__static_condition_default_14", "!B");
+__static_condition_renaming("__static_condition_default_15", "C");
+__static_condition_renaming("__static_condition_default_16", "!C");
+__static_condition_renaming("__static_condition_default_17", "A && B && C");
+__static_condition_renaming("__static_condition_default_18", "A && B && !C");
+__static_condition_renaming("__static_condition_default_19", "A && !B && C");
+__static_condition_renaming("__static_condition_default_20", "A && !B && !C");
+__static_condition_renaming("__static_condition_default_21", "!A && B && C");
+__static_condition_renaming("__static_condition_default_22", "!A && B && !C");
+__static_condition_renaming("__static_condition_default_23", "!A && !B && C");
+__static_condition_renaming("__static_condition_default_24", "!A && !B && !C");
 
 };
 

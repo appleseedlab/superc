@@ -4646,14 +4646,13 @@ ExpressionStatement:  /** complete **/  // Multiverse<String>
           if (! exprval.isAlwaysError()) {
             Multiverse<String> expr = exprval.transformation;
             String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
-
-            valuemv = expr.appendScalar(semi, DesugarOps.concatStrings);
             
             // if filtering of type errors is done right, this add
             // should not violate mutual-exclusion in the multiverse
             // TODO: use dce and other optimizations to remove superfluous __static_type_error calls
             todoReminder("add emitError back to ExpressionStatement once type checking is done");
-            valuemv.add(emitError("type error"), errorCond);
+            expr.add(emitError("type error"), errorCond);
+            valuemv = expr.appendScalar(semi, DesugarOps.concatStrings);
             
           } else {
             System.err.println("type error: ExpressionStatement found no valid expressions");

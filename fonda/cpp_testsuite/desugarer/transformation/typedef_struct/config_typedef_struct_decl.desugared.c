@@ -14,8 +14,8 @@ __static_renaming("__typeAlias_1", "typeAlias");
 __static_renaming("__main_2", "main");
 __static_renaming("__intOrCharWrapper_6", "intOrCharWrapper");
 
-__static_condition_renaming("__static_condition_default_7", "(declare-fun |(defined A)| () Bool)(assert |(defined A)|)");
-__static_condition_renaming("__static_condition_default_8", "(declare-fun |(defined A)| () Bool)(assert (not |(defined A)|))");
+__static_condition_renaming("__static_condition_default_7", "(defined A)");
+__static_condition_renaming("__static_condition_default_8", "!(defined A)");
 
 };
 typedef int  __typeAlias_0;

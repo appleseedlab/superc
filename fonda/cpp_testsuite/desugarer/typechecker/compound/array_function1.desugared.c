@@ -13,8 +13,8 @@ __static_renaming("__x_1", "x");
 __static_renaming("__x_3", "x");
 __static_renaming("__main_4", "main");
 
-__static_condition_renaming("__static_condition_default_2", "(declare-fun |(defined A)| () Bool)(assert (not |(defined A)|))");
-__static_condition_renaming("__static_condition_default_5", "(declare-fun |(defined A)| () Bool)(assert |(defined A)|)");
+__static_condition_renaming("__static_condition_default_2", "!(defined A)");
+__static_condition_renaming("__static_condition_default_5", "(defined A)");
 
 };
 
@@ -37,13 +37,13 @@ int  __main_4 () {
 {
 
 {
-if (__static_condition_default_2) {
-__static_type_error("invalid subscript access") ;
+if (__static_condition_default_5) {
+ __x_3  [ 2 ] ;
 
 }
 
-if (__static_condition_default_5) {
- __x_3  [ 2 ] ;
+if (__static_condition_default_2) {
+__static_type_error("type error") ;
 
 }
 

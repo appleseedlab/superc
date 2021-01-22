@@ -15,7 +15,7 @@ __static_renaming("__a_3", "a");
 __static_renaming("__f_5", "f");
 __static_renaming("__a_6", "a");
 
-__static_condition_renaming("__static_condition_default_4", "(declare-fun |(defined A)| () Bool)(assert |(defined A)|)");
+__static_condition_renaming("__static_condition_default_4", "(defined A)");
 
 };
 typedef int  __a_0;
