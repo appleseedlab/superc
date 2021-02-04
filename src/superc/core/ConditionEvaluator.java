@@ -174,11 +174,25 @@ public class ConditionEvaluator {
   public PresenceCondition evaluate(Iterator<Syntax> expression) {
     Node tree = parser.parse(expression);
     BDD bdd = evaluate(tree);
-    BoolExpr expr = evaluatez3(tree);
-    PresenceCondition pc = presenceConditionManager.newCondition(bdd, tree, expr);
+    PresenceCondition pc = presenceConditionManager.newCondition(bdd, null, null);
     pc.simplify();
     return pc;
   }
+
+  // /**
+  //  * Evaluate a conditional expression.
+  //  *
+  //  * @param expression An expression iterator.
+  //  * @return A presence condition.
+  //  */
+  // public PresenceCondition evaluate(Iterator<Syntax> expression) {
+  //   Node tree = parser.parse(expression);
+  //   BDD bdd = evaluate(tree);
+  //   BoolExpr expr = evaluatez3(tree);
+  //   PresenceCondition pc = presenceConditionManager.newCondition(bdd, tree, expr);
+  //   pc.simplify();
+  //   return pc;
+  // }
 
   /**
    * Evaluate a conditional expression's AST.  This method can be used
