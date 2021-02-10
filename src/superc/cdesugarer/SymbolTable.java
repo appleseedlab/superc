@@ -236,7 +236,6 @@ public class SymbolTable<T> implements Iterable<String> {
         falseCond.delRef();
 
         this.map.put(ident, newmv);
-        System.err.println(this);
       }
 
       // TODO: include way to check for invalid type redeclaration and

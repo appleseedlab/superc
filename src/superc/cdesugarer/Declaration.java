@@ -76,8 +76,6 @@ class Declaration {
    */
   private boolean notCompatible(){
     Type t = typespecifier.getType().resolve();
-    System.err.println("---" + typespecifier.toString() + " " + declarator.toString() + "---"  
-                       + t.isVoid() + " " + typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF) + " " + declarator.isFunctionDeclarator() + " " + declarator.isPointerDeclarator());
     if ( t.isVoid() &&
          !typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF) &&
          !declarator.isFunctionDeclarator() &&

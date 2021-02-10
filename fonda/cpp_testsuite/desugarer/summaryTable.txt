@@ -49,11 +49,11 @@ typechecker/examples/PASS_valid_duplicate_qualifiers                            
 typechecker/examples/PASS_invalid_long                                                     File isn't valid
 typechecker/examples/typedef                                                               BC generated
 typechecker/examples/typedefname_with_qualifer                                             BC generated
+typechecker/declarators/PASS_valid_void_typedef                                            File GT not confirmed
 typechecker/declarators/PASS_valid_typedef_ident                                           BC generated
 typechecker/declarators/PASS_void_typedef                                                  File isn't valid
 typechecker/declarators/PASS_invalid_typedefs                                              File isn't valid
-typechecker/declarators/PASS_valid_typedef                                                 SuperC failed
-typechecker/declarators/PASS_valid_typedef                                                 BC failed
+typechecker/declarators/PASS_valid_typedef                                                 BC generated
 typechecker/declarators/PASS_valid_Array_Pointer                                           BC generated
 typechecker/declarators/PASS_valid_decl_quals                                              BC generated
 typechecker/declarators/PASS_valid_array_implicit_length                                   BC generated
@@ -62,6 +62,7 @@ typechecker/declarators/invalid_Array_Pointer                                   
 typechecker/declarators/PASS_paren                                                         BC generated
 typechecker/declarators/PASS_valid_array_with_init                                         BC generated
 typechecker/struct/tagged                                                                  BC generated
+typechecker/struct/struct_init.desugared.test                                              File GT not confirmed
 typechecker/struct/selfref                                                                 BC generated
 typechecker/struct/nested_anonymous                                                        BC generated
 typechecker/struct/redef                                                                   BC generated
@@ -351,9 +352,12 @@ transformation/phasar/linear_constant/recursion_01_resugared                    
 transformation/phasar/linear_constant/call_01_resugared                                    BC generated
 transformation/phasar/linear_constant/basic_02_resugared                                   BC generated
 transformation/phasar/linear_constant/basic_04                                             BC generated
-transformation/phasar/secure_memory/memory1                                                BC generated
-transformation/phasar/secure_memory/memory1_resugared                                      BC generated
-transformation/phasar/secure_memory/memory1_2                                              BC generated
+transformation/phasar/secure_memory/memory1                                                SuperC failed
+transformation/phasar/secure_memory/memory1                                                BC failed
+transformation/phasar/secure_memory/memory1_resugared                                      SuperC failed
+transformation/phasar/secure_memory/memory1_resugared                                      BC failed
+transformation/phasar/secure_memory/memory1_2                                              SuperC failed
+transformation/phasar/secure_memory/memory1_2                                              BC failed
 transformation/phasar/secure_memory/memory1_resugared_decls_added                          BC generated
 transformation/phasar/secure_memory/memory1_2_resugared_decls_added                        File isn't valid
 transformation/phasar/secure_memory/memory1_2_resugared                                    File isn't valid
