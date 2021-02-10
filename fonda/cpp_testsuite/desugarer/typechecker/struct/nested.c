@@ -1,3 +1,4 @@
+extern int printf ( const char * format, ... );
 struct list {
   struct contents {
   } data;

@@ -4,48 +4,49 @@ extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
 
-void __static_initializer_9();
+void __static_initializer_default();
 
-void __static_initializer_9() {
-__static_renaming("__main_5", "main");
-__static_renaming("__head_6", "head");
-__static_renaming("__tail_7", "tail");
-__static_renaming("__current_8", "current");
+void __static_initializer_default() {
+__static_renaming("__printf_1", "printf");
+__static_renaming("__main_7", "main");
+__static_renaming("__head_8", "head");
+__static_renaming("__tail_9", "tail");
+__static_renaming("__current_10", "current");
 
 
 };
-struct __contents_0 {
+struct __contents_2 {
 };
-struct __list_2 {
-struct __contents_0  __data_3;
-struct __forward_tag_reference_1  (* __next_4);
+struct __list_4 {
+struct __contents_2  __data_5;
+struct __forward_tag_reference_3  (* __next_6);
 };
-int  __main_5 ();
 
-struct __forward_tag_reference_1 { // generated union of struct variations
+struct __forward_tag_reference_3 { // generated union of struct variations
 union {
-struct __list_2 __list_2;
+struct __list_4 __list_4;
 };
 };
 
-struct __list_2 ;
-int  __main_5 () {
+extern int  __printf_1 (const char  (* __format_0),  ... );
+struct __list_4 ;
+int  __main_7 () {
 {
-struct __list_2  __head_6;
-struct __list_2  __tail_7;
+struct __list_4  __head_8;
+struct __list_4  __tail_9;
 __static_type_error("type error");
+
+ __head_8  . __next_6 = &  __tail_9  ;
 
 __static_type_error("type error");
 
-__static_type_error("type error");
+ __tail_9  . __next_6 = 0 ;
 
-__static_type_error("type error");
+struct __list_4  (* __current_10)= &  __head_8 ;
+while ( 0 !=  __current_10  ) {
+ __printf_1  ( "data: %d\n",  __current_10  -> __data_5 ) ;
 
-struct __list_2  (* __current_8)= &  __head_6 ;
-while ( 0 !=  __current_8  ) {
-__static_type_error("type error");
-
-__static_type_error("type error");
+ __current_10  =  __current_10  -> __next_6 ;
 
 }
 

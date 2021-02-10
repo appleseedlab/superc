@@ -1318,7 +1318,7 @@ DeclarationQualifierList:  /** list, complete **/  /* const/volatile, AND storag
       	  Multiverse<TypeSpecifier> qualList = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
       	  Multiverse<TypeSpecifier> storage = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
       	  Multiverse<TypeSpecifier> tb = qualList.product(storage, DesugarOps.specifierProduct);
-      	  setTransformationValue(value, tb);
+          setTransformationValue(value, tb);
       	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
@@ -1698,7 +1698,7 @@ TypedefDeclarationSpecifier: /** complete **/       /*Storage Class + typedef ty
         {
           // TODO: needs a unit test
           PresenceCondition pc = subparser.getPresenceCondition();
-
+          
           Multiverse<TypeSpecifier> qualtbmv = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
       	  String typeName = getStringAt(subparser, 1);
           // look up the typedef name
@@ -1708,6 +1708,7 @@ TypedefDeclarationSpecifier: /** complete **/       /*Storage Class + typedef ty
       	  Multiverse<TypeSpecifier> typedefnametbmv = DesugarOps.typedefEntriesToTypeSpecifier.transform(entries);
           // combine with the existing qualifier list
           Multiverse<TypeSpecifier> combinedtbmv = qualtbmv.product(typedefnametbmv, DesugarOps.specifierProduct);
+          System.err.println("L:" + qualtbmv.toString() + "\nR:" + typedefnametbmv.toString() + "\nF:" + combinedtbmv.toString());
           typedefnametbmv.destruct();
           setTransformationValue(value, combinedtbmv);
         }
@@ -1717,7 +1718,8 @@ TypedefDeclarationSpecifier: /** complete **/       /*Storage Class + typedef ty
 
           Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
-          setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
+          Multiverse<TypeSpecifier> tbF = tb.product(tb1, DesugarOps.specifierProduct);
+          setTransformationValue(value, tbF);
         }
         ;
 
@@ -7734,9 +7736,10 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                 String originalName = declarator.getData().getName();
 
                 // get xtc type from type and declarator
-
+                Declaration tempD = new Declaration(typespecifier.getData(), declarator.getData());
                 if (typespecifier.getData().getType().isError()
-                    || ! initializer.getData().hasValidType()) {
+                    || ! initializer.getData().hasValidType()
+                    || tempD.hasTypeError()) {
                   // if type is invalid, put an error entry, emit a call
                   // to the type error function
                   scope.putError(originalName, combinedCond);
@@ -7766,6 +7769,7 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
 
                     Type declarationType = renamedDeclaration.getType();
                     Type type;
+                    //System.err.println("has typedef:" + renamedDeclaration.typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF));
                     if (renamedDeclaration.typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF)) {
                       type = new AliasT(renaming, declarationType);
                     } else if (declarationType.isFunction()) {
@@ -7930,11 +7934,8 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
   } // end loop over declaringlistvalues
 
   if (debug) System.err.println(scope.getSymbolTable());
-          
   return valuesb.toString();
 }
-
-
 
 /***************************************************************************
  **** Class to create fresh ids.
@@ -9452,42 +9453,14 @@ public void bindIdent(Subparser subparser, Node typespec, Node declarator, STFie
   // the typedef keyword is the first token of the declaration.
   boolean typedef = false;
 
-  if (null != typespec) {
-    Object a = typespec;
-    while (true) {
-      if ( ! (a instanceof Syntax)) {
-        Node n = (Node) a;
-        if (n.hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
-          // When it's a conditional node, the first child is a
-          // presence condition, the second is the first AST child.
-          a = n.get(1);
-        } else {
-          a = n.get(0);
-        }
-      } else if (a instanceof Pair) {
-        a = ((Pair) a).head();
-      } else {
-        break;
-      }
-    }
-    Language t = (Language) a;
+  if (null != typespec)
+    typedef = nextRelTagIsTypedef(typespec) == 2;
 
-    if (CTag.TYPEDEF == t.tag()) {
-      // Bind a typedef name.
-      typedef = true;
-
-      if (languageStatistics) {
-        if (typedef) {
-          Location location = subparser.lookahead.token.syntax.getLocation();
-          System.err.println(String.format("typedef %s %s", ident, location));
-        }
-      }
-    } else {
-      // Binding a variable name.
-      typedef = false;
-    }
+  if (languageStatistics && typedef) {
+        Location location = subparser.lookahead.token.syntax.getLocation();
+        System.err.println(String.format("typedef %s %s", ident, location));
   }
-
+  
   if (showErrors) {
     System.err.println("bind: " + ident.getTokenText() + " " + typedef);
   }
@@ -9506,6 +9479,42 @@ public void bindIdent(Subparser subparser, Node typespec, Node declarator, STFie
   /* } */
   /* scope.bind(ident.getTokenText(), typedef, presenceCondition); */
 }
+
+int nextRelTagIsTypedef(Object a)
+{
+  if ( ! (a instanceof Syntax)) {
+    Node n = (Node) a;
+    int loc = n.hasName(ForkMergeParser.CHOICE_NODE_NAME) ? 1 : 0 ;
+    while (loc < n.size()) {
+      int status = nextRelTagIsTypedef(n.get(loc));
+      if (status == 2 || status == 0) {
+        return status;
+      }
+      ++loc;
+    }
+    return 1;
+  } else if (a instanceof Pair) {
+    int status = nextRelTagIsTypedef(((Pair)a).head());
+    if (status == 2 || status == 0) {
+        return status;
+    }
+    return nextRelTagIsTypedef(((Pair)a).tail());
+  } 
+  Language t = (Language) a;
+  
+  if (CTag.TYPEDEF == t.tag()) {
+    //binding a typedef
+    return 2;
+  } else if (CTag.VOLATILE == t.tag() || CTag.__VOLATILE == t.tag() || CTag.__VOLATILE__ == t.tag() ||
+             CTag.CONST == t.tag() || CTag.__CONST == t.tag() || CTag.__CONST__ == t.tag() ||
+             CTag.__RESTRICT == t.tag() || CTag.__RESTRICT__ == t.tag()){
+    return 1;
+  } else {
+    // Binding a variable name.
+    return 0;
+  }
+}
+
 
 private static Binding grokdeclarator(Node declarator, Type type) {
   Language ident = null;

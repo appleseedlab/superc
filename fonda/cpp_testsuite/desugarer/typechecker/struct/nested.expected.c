@@ -1,3 +1,4 @@
+external int printf ( const char * format, ... );
 struct list {
   struct contents {
   } data;
@@ -8,9 +9,9 @@ int main() {
   struct list head;
   struct list tail;
 
-  head.data = 1;
+  error();
   head.next = &tail;
-  tail.data = 2;
+  error();
   tail.next = 0;
 
   struct list *current = &head;

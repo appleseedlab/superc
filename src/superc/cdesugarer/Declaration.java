@@ -8,6 +8,7 @@ import xtc.type.VariableT;
 import xtc.type.AliasT;
 
 import superc.core.Syntax;
+import xtc.Constants;
 
 
 /**
@@ -31,7 +32,7 @@ class Declaration {
    * Returns true if the type specifier is invalid.
    */
   public boolean hasTypeError() {
-    return typespecifier.getType().isError() || declarator.hasTypeError();
+    return typespecifier.getType().isError() || declarator.hasTypeError() || notCompatible();
   }
 
   /**
@@ -68,6 +69,22 @@ class Declaration {
 
   public String toString() {
     return String.format("%s %s", typespecifier.toString(), declarator.toString());
+  }
+
+  /**
+   * Returns false if the typespecifier && declarator aren't valid
+   */
+  private boolean notCompatible(){
+    Type t = typespecifier.getType().resolve();
+    System.err.println("---" + typespecifier.toString() + " " + declarator.toString() + "---"  
+                       + t.isVoid() + " " + typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF) + " " + declarator.isFunctionDeclarator() + " " + declarator.isPointerDeclarator());
+    if ( t.isVoid() &&
+         !typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF) &&
+         !declarator.isFunctionDeclarator() &&
+         !declarator.isPointerDeclarator() &&
+         !declarator.isEmptyDeclarator())
+      return true;
+    return false;
   }
 }
 
