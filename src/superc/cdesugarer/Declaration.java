@@ -76,11 +76,16 @@ class Declaration {
    */
   private boolean notCompatible(){
     Type t = typespecifier.getType().resolve();
-    if ( t.isVoid() &&
+    if (
+        //void is only allowed if right is a function, pointer, or is abstract
+        (t.isVoid() &&
          !typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF) &&
          !declarator.isFunctionDeclarator() &&
          !declarator.isPointerDeclarator() &&
-         !declarator.isEmptyDeclarator())
+         !declarator.isEmptyDeclarator()) ||
+        //if the left is inline, right must be a function
+        (typespecifier.hasInline() && !declarator.isFunctionDeclarator())
+        )
       return true;
     return false;
   }

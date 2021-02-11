@@ -10,5 +10,6 @@ y x;
 #endif
 int main()
 {
+  x = 1;
   return -1;
 }

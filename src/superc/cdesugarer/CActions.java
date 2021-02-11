@@ -2917,6 +2917,7 @@ public class CActions implements SemanticActions {
           Multiverse<Declaration> declarationvalue
             = (Multiverse<Declaration>) getTransformationValue(subparser,1);
           parameters.add(declarationvalue);
+          System.err.println(parameters);
           setTransformationValue(value, parameters);
         }
     break;
@@ -2931,6 +2932,7 @@ public class CActions implements SemanticActions {
           Multiverse<Declaration> declarationvalue
             = (Multiverse<Declaration>) getTransformationValue(subparser,1);
           parameters.add(declarationvalue);
+          System.err.println(parameters);
           setTransformationValue(value, parameters);
         }
     break;

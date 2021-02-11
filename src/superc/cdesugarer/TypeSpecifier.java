@@ -73,16 +73,16 @@ class TypeSpecifier {
     this.threadlocal = ts.threadlocal;
     this.function = ts.function;
     if (null != ts.attributes) this.attributes = new ArrayList<Attribute>(ts.attributes);
-    this.seenSigned = seenSigned;
-    this.seenUnsigned = seenUnsigned;
-    this.seenBool = seenBool;
-    this.seenChar = seenChar;
-    this.seenShort = seenShort;
-    this.seenInt = seenInt;
-    this.longCount = longCount;
-    this.seenFloat = seenFloat;
-    this.seenDouble = seenDouble;
-    this.seenComplex = seenComplex;
+    this.seenSigned = ts.seenSigned;
+    this.seenUnsigned = ts.seenUnsigned;
+    this.seenBool = ts.seenBool;
+    this.seenChar = ts.seenChar;
+    this.seenShort = ts.seenShort;
+    this.seenInt = ts.seenInt;
+    this.longCount = ts.longCount;
+    this.seenFloat = ts.seenFloat;
+    this.seenDouble = ts.seenDouble;
+    this.seenComplex = ts.seenComplex;
   }
 
   /**
@@ -603,6 +603,8 @@ class TypeSpecifier {
         seenDouble ||
         (null != type)) {
       multipleTypes();
+    } else if (seenSigned || seenUnsigned ){
+      errorMsg("can't have signed/unsigned floating point value.");
     } else {
       seenFloat = true;
     }
@@ -614,6 +616,8 @@ class TypeSpecifier {
         seenFloat ||
         (null != type)) {
       multipleTypes();
+    } else if (seenSigned || seenUnsigned ){
+      errorMsg("can't have signed/unsigned floating point value.");
     } else {
       seenDouble = true;
     }
@@ -684,6 +688,7 @@ class TypeSpecifier {
   protected void errorMsg(String msg) {
     // TODO: tie into error reporting
     System.err.println(msg);
+    setError();
   }
 
   public void setError() {

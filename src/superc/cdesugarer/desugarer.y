@@ -3029,6 +3029,7 @@ ParameterList:  /** list, nomerge **/ // List<Multiverse<Declaration>>
           Multiverse<Declaration> declarationvalue
             = (Multiverse<Declaration>) getTransformationValue(subparser,1);
           parameters.add(declarationvalue);
+          System.err.println(parameters);
           setTransformationValue(value, parameters);
         }
         | ParameterList COMMA ParameterDeclaration
@@ -3041,6 +3042,7 @@ ParameterList:  /** list, nomerge **/ // List<Multiverse<Declaration>>
           Multiverse<Declaration> declarationvalue
             = (Multiverse<Declaration>) getTransformationValue(subparser,1);
           parameters.add(declarationvalue);
+          System.err.println(parameters);
           setTransformationValue(value, parameters);
         }
         ;
