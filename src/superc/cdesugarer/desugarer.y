@@ -3029,12 +3029,11 @@ ParameterList:  /** list, nomerge **/ // List<Multiverse<Declaration>>
           Multiverse<Declaration> declarationvalue
             = (Multiverse<Declaration>) getTransformationValue(subparser,1);
           parameters.add(declarationvalue);
-          System.err.println(parameters);
           setTransformationValue(value, parameters);
         }
         | ParameterList COMMA ParameterDeclaration
         {
-          PresenceCondition pc = subparser.getPresenceCondition();
+          PresenceCondition pc = subparser.getPresenceCondition().presenceConditionManager().newTrue();//subparser.getPresenceCondition();
           // add to the existing parameter list.  this reuse of a
           // semantic value may be an issue if static conditionals are
           // permitted under parameterlists
@@ -3042,7 +3041,6 @@ ParameterList:  /** list, nomerge **/ // List<Multiverse<Declaration>>
           Multiverse<Declaration> declarationvalue
             = (Multiverse<Declaration>) getTransformationValue(subparser,1);
           parameters.add(declarationvalue);
-          System.err.println(parameters);
           setTransformationValue(value, parameters);
         }
         ;

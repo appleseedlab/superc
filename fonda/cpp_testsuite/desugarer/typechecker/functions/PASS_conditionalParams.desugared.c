@@ -29,7 +29,7 @@ return 0 ;
 }
 
 }
-int  __foo_5 (char  __z_2) {
+int  __foo_5 (int  __x_0, char  __z_2) {
 
 if (__static_condition_default_7) {
 {

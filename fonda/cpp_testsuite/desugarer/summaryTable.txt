@@ -121,7 +121,7 @@ unit/struct_local_legal                                                         
 unit/if_statement_configurable3                                                            BC generated
 unit/global_redeclarations                                                                 File isn't valid
 unit/struct_configurable_cross_and_forward_ref                                             BC generated
-unit/variable_partially_defined                                                            BC failed
+unit/variable_partially_defined                                                            BC generated
 unit/enum_constant_expression1                                                             File isn't valid
 unit/enum_enumerators                                                                      BC generated
 unit/typedefname_and_variable_declarations                                                 BC generated
@@ -139,7 +139,7 @@ unit/begin_decls                                                                
 unit/enum_repeated_enumerators                                                             File isn't valid
 unit/function_parameters_configurable                                                      File isn't valid
 unit/statement_configurable                                                                BC generated
-unit/typedefname_partially_defined                                                         BC failed
+unit/typedefname_partially_defined                                                         BC generated
 unit/declarators                                                                           BC generated
 unit/struct_configurable_main                                                              BC generated
 unit/struct_crossref_local                                                                 BC generated
@@ -249,7 +249,7 @@ transformation/declaringlists/all_init                                          
 transformation/declaringlists/no_init                                                      BC generated
 transformation/declaringlists/config_some_init                                             BC generated
 transformation/declaringlists/config_no_init                                               BC generated
-transformation/declaringlists/error_conditional                                            BC failed
+transformation/declaringlists/error_conditional                                            BC generated
 transformation/declaringlists/variable_expr                                                BC generated
 transformation/declaringlists/config_const_conditional_error                               File isn't valid
 transformation/declaringlists/config_const                                                 BC generated
@@ -297,14 +297,14 @@ transformation/typedef_struct/config_typedef                                    
 transformation/typedef_struct/config_partially_defined_struct                              BC generated
 transformation/typedef_struct/typedef_struct_decl                                          BC generated
 transformation/misc/singlevariable                                                         BC generated
-transformation/misc/canonical                                                              BC failed
+transformation/misc/canonical                                                              BC generated
 transformation/misc/main                                                                   BC generated
 transformation/misc/twovariables.autodesugar                                               File isn't valid
 transformation/misc/inside                                                                 BC generated
 transformation/misc/decl                                                                   BC generated
 transformation/misc/twovariables                                                           BC generated
 transformation/misc/bob                                                                    BC generated
-transformation/misc/canonical_example                                                      BC failed
+transformation/misc/canonical_example                                                      BC generated
 transformation/misc/twovariablesdifferent                                                  BC generated
 transformation/misc/test                                                                   BC generated
 transformation/misc/type                                                                   BC generated

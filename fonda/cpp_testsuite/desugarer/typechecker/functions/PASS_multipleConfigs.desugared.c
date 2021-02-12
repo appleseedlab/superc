@@ -60,7 +60,7 @@ return 0 ;
 }
 
 }
-int  __foo_13 (int  __z_3, int  __w_9) {
+int  __foo_13 (int  __x_0, int  __z_3, int  __w_9) {
 
 if (__static_condition_default_18) {
 {
