@@ -1,6 +1,6 @@
-int f(char x,
+int f(char x
       #ifdef A
-      int y
+      , int y
       #endif
       ) {
   #ifdef B

@@ -791,6 +791,21 @@ class DesugarOps {
   };
 
   /**
+   * Concatenate operator for strings.x unless there is an error
+   */
+  public final static Multiverse.Operator<String> concatStringsPropError = (sb1, sb2) -> {
+    StringBuilder newsb = new StringBuilder();
+    if (sb1.toString().startsWith("__static_type_error("))
+      return sb1.toString();
+    if (sb2.toString().startsWith("__static_type_error("))
+      return sb2.toString();
+    newsb.append(sb1);
+    newsb.append(" ");
+    newsb.append(sb2);
+    return newsb.toString();
+  };
+  
+  /**
    * Product of two types.  Results in an ErrorT if they aren't
    * compatible.
    */
@@ -825,6 +840,7 @@ class DesugarOps {
         PresenceCondition rightcond = rightelem.getCondition().and(leftcond);
         for (Element<String> opelem : opmv) {
           PresenceCondition elemCond = opelem.getCondition().and(rightcond);
+          
           if (elemCond.isNotFalse()) {
             Type t1 = leftelem.getData();
             Type t2 = rightelem.getData();
@@ -834,7 +850,7 @@ class DesugarOps {
               resultmv.add(ErrorT.TYPE, elemCond);
               continue;
             }
-
+            
             final Type r1 = t1.resolve();
             final Type r2 = cOps.pointerize(t2);
             Type result   = null;
@@ -883,6 +899,10 @@ class DesugarOps {
               // union of compatible type.
               if (cOps.equal(r1, r2)) {
                 result = r1;
+              }
+              else {
+                System.err.println("type error: " + op + " makes invalid assignment to struct/union type");
+                result = ErrorT.TYPE;
               }
             } break;
 
@@ -971,14 +991,18 @@ class DesugarOps {
                 }
               }
             } break;
-
+            case FUNCTION: {
+              System.err.println("type error: " + "functions cannot be assigned to");
+              result = ErrorT.TYPE;
+              } break;
             default:
               if (r1.isInternal() && r2.isInternal() &&
                   r1.toInternal().getName().equals(r2.toInternal().getName())) {
                 result = r1;
               }
             }
-            
+            if (result == null)
+              result = ErrorT.TYPE;
             resultmv.add(result, elemCond);
           }
           elemCond.delRef();
@@ -1004,22 +1028,33 @@ class DesugarOps {
         Type resolvedType = type.resolve();  // unwrap any typedef aliasing
         if (resolvedType.isPointer()) {
           return resolvedType.toPointer().getType();
-        } else {
+        } else if (resolvedType.isArray()) {
+          return resolvedType.toArray().getType();
+        }else {
           return ErrorT.TYPE;
         }
-        // should be unreachable
-
+      // should be unreachable
+      case AND:
+      return  new PointerT(type.resolve());
+      case ICR:
+      //fall-through
+      case DECR:
+        resolvedType = type.resolve();
+        if ( resolvedType.isArray() ||
+             resolvedType.isStruct() ||
+             resolvedType.isUnion() ||
+             resolvedType.isFunction())
+          return ErrorT.TYPE;
       case PLUS:
-        // fall-through
+      // fall-through
       case MINUS:
         // fall-through
       case NEGATE:
         // fall-through
-      case AND:
-        // fall-through
       case NOT:
         // TDDO: check types of other operators
         return type;
+      
       default:
       throw new AssertionError("unexpected unary op token");
       }

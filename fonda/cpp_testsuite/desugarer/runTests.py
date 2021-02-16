@@ -12,10 +12,11 @@ def main():
     sumTable = open('summaryTable.txt', 'w')
     maxC = 10
     jF = open('metaDataGT.json')
+    #jF = open('metaData.json')
     js = json.load(jF)
     jF.close()
     for folderName in  os.listdir(os.getcwd()):
-        if os.path.exists(folderName) and os.path.isdir(folderName):
+        if os.path.exists(folderName) and os.path.isdir(folderName) and "v2Func" not in folderName:
             rootDir = os.getcwd() + "/" + folderName + '/'
             
             inclusionDirList = [rootDir]
@@ -47,11 +48,14 @@ def main():
                     if os.path.exists(curDir + '/' + dirFiles) and os.path.isdir(curDir + '/' + dirFiles):
                         dirList.append(curDir + '/' + dirFiles)
                         print (curDir + '/' + dirFiles)
-                    elif (dirFiles.endswith('.c') and not dirFiles.endswith('desugared.c')) and realFile not in ranFiles:
+                    elif (dirFiles.endswith('.c') and not dirFiles.endswith('desugared.c')) and realFile not in ranFiles and not dirFiles.endswith('expected.c'):
                         ranFiles.append(realFile)
                         sumTOut = os.path.relpath(curDir, os.getcwd()) + '/' + dirFiles[:len(dirFiles) - 2]
                         key = sumTOut + ".c"
-                        if js[key]['valid'] == False:
+
+                        if key not in js:
+                            sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'File GT not confirmed\n')
+                        elif js[key]['valid'] == False:
                             sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'File isn\'t valid\n')
                         else:
                             if len(js[key]['inclusions']) > 0:

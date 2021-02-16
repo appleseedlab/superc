@@ -251,7 +251,6 @@ public class CContext implements ParsingContext {
           }
         }
       }
-
       return false;
     } else {
       // TODO: use the new symboltable to do this
@@ -260,12 +259,11 @@ public class CContext implements ParsingContext {
       for (Lookahead n : set) {
         if (isIdentifier(n.token.syntax)) {
           String ident = n.token.syntax.getTokenText();
-
           // Check the stack of symbol tables for a typedef entry.
           CContext scope = this;
           while (true) {
             while (scope.reentrant) scope = scope.parent;
-
+            
             if ( scope.oldsymtab.bools.containsKey(ident)
                  && scope.oldsymtab.bools.get(ident).containsKey(OldSymbolTable.STField.TYPEDEF)
                  && ! scope.oldsymtab.bools.get(ident).get(OldSymbolTable.STField.TYPEDEF).trueCond.isFalse()
@@ -360,7 +358,7 @@ public class CContext implements ParsingContext {
 
             // Copy the ordering wrapper for the token.
             n.token = n.token.copy(newToken);
-          
+            
           } else {
             // no configurations are a typedef, so do nothing
           }

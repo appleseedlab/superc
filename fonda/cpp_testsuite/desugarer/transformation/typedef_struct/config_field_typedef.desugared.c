@@ -1,0 +1,53 @@
+#include <stdbool.h>
+
+extern void __static_type_error(char *msg);
+extern void __static_renaming(char *renaming, char *original);
+extern void __static_condition_renaming(char *expression, char *renaming);
+
+void __static_initializer_default();
+
+extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_10;
+void __static_initializer_default() {
+__static_renaming("__typeAlias_0", "typeAlias");
+__static_renaming("__typeAlias_1", "typeAlias");
+__static_renaming("__bob_6", "bob");
+__static_renaming("__main_7", "main");
+__static_renaming("__bobStruct_8", "bobStruct");
+
+__static_condition_renaming("__static_condition_default_9", "(defined CONFIG_A)");
+__static_condition_renaming("__static_condition_default_10", "!(defined CONFIG_A)");
+
+};
+typedef int  __typeAlias_0;
+typedef char  __typeAlias_1;
+struct __bob_2 {
+__typeAlias_0  __val_3;
+__typeAlias_1  __val_4;
+char  __otherVal_5;
+};
+typedef struct __bob_2  __bob_6;
+
+// typedef moved to top of scope
+// typedef moved to top of scope
+// typedef moved to top of scope
+int  __main_7 (void  ) {
+{
+__bob_6  __bobStruct_8;
+
+{
+if (__static_condition_default_9) {
+ __bobStruct_8  . __val_3 = 1 ;
+
+}
+
+if (__static_condition_default_10) {
+ __bobStruct_8  . __val_4 = 1 ;
+
+}
+
+}}
+
+
+}
+

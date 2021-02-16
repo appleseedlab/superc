@@ -1,13 +1,11 @@
 int main() {
   int x;
   if (x) {
-#ifdef A
-    x++;
-#endif
+    if (A)
+      x++;
   } else {
-#ifdef B
-    x--;
-#endif
+      if (B)
+        x--;
   }
   return 0;
 }
