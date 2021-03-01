@@ -1,17 +1,17 @@
 struct x_1 {
-  int a;
-  int b;
-  int c;
+  int a_2;
+  int b_3;
+  int c_4;
+  int c_5;
 };
 
-struct x_2 {
-  int a;
-  int c;
-};
-
+static int A;
 int main(void) {
 
-  struct x myFirstStruct = {1, 2};
+  struct x_1 myFirstStruct_6 = {.a_2 = 1,
+                                .b_3 = ( A ? 2 : 0),
+                                .c_4 = (!A ? 2 : 0),
+                                .c_5 = 0};
 
   return 0;
 }

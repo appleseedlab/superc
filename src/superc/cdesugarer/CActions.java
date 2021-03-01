@@ -2348,7 +2348,8 @@ public class CActions implements SemanticActions {
                       getSpecsAt(subparser, 1),
                       value);
 
-          PresenceCondition pc = subparser.getPresenceCondition();
+          PresenceCondition pc = subparser.getPresenceCondition().presenceConditionManager().newTrue();
+          //PresenceCondition pc = subparser.getPresenceCondition();
           List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
           List<Multiverse<Declaration>> declarationvalues = this.<Declaration>getCompleteNodeListValue(subparser, 1, pc);
           structfields.addAll(declarationvalues);
@@ -7951,13 +7952,18 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                       if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
                         externalLinkage.put(originalName, originalDeclaration, entry.getCondition());
                       }
-                      
                       /* entrysb.append(renamedDeclaration.toString()); */
-                      entrysb.append(desugaredDeclaration);
-                      entrysb.append(initializer.getData().toString());
-                      entrysb.append(semi);  // semi-colon
-                      recordRenaming(renaming, originalName);
-
+                      if (declarationType.isStruct() && !initializer.getData().toString().equals("")){
+                        entrysb.append(desugaredDeclaration);
+                        entrysb.append(semi + "\n");  // semi-colon
+                        entrysb.append("{\n" + initStruct(renaming, declarationType, initializer.getData(), scope, combinedCond) + "}");
+                        recordRenaming(renaming, originalName);
+                      } else {
+                        entrysb.append(desugaredDeclaration);
+                        entrysb.append(initializer.getData().toString());
+                        entrysb.append(semi);  // semi-colon
+                        recordRenaming(renaming, originalName);
+                      }
                     } else {  // already declared entries
                       if (! scope.isGlobal()) {
                         // not allowed to redeclare local symbols at all
@@ -8048,6 +8054,66 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
 
   if (debug) System.err.println(scope.getSymbolTable());
   return valuesb.toString();
+}
+
+public String initStruct(String name, Type t, Initializer i, CContext scope, PresenceCondition p)
+{
+  SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(((StructOrUnionT)t).getName());
+  Multiverse<List<Map.Entry<String,Type>>> m = tagtab.getLists(p);
+  System.err.println(tagtab);
+  System.err.println(m);
+
+  //for now, I'm making the assumption all field defs are in order, although this isn't the case.
+  //this can be solved by sort each list by it's appended number
+  
+  //SORT
+  
+  // for each list, we need to write an if statement for assigning initial values
+  // under each pc. We need a list of either expressions to assign, or designators, and
+  // go through the list assigning approprietly.
+
+  //method needs to be written...
+  List<Initializer> inits = i.getList();
+  StringBuilder entrysb = new StringBuilder();
+   
+  for (Element<List<Map.Entry<String,Type>>> e : m) {
+    entrysb.append("if (");
+    entrysb.append(condToCVar(e.getCondition()));
+    entrysb.append(") {\n");
+    //at this point we need to get each
+    int spot  = 0;
+    for (Initializer init : inits) {
+      //if designator, find comparison, assign, update spot
+      if (init.isDesignated()) {
+        int newSpot;
+        for (newSpot = 0; newSpot < e.getData().size(); ++newSpot) {
+          if (false) { //designator name is this name
+            break;
+          }
+        }
+        if (newSpot == e.getData().size()) {
+          //output type error
+          break;
+        }
+        //name . renamedVar assignInit
+        entrysb.append(name);
+        spot = newSpot + 1;
+        //else, just assign to next spot
+      } else {
+        if (spot >= e.getData().size()) {
+          //assign type error
+        } else {
+          entrysb.append(name + "." + ((VariableT)e.getData().get(spot).getValue()).getName() + " = " + init.toString() + ";\n");
+        }
+        spot++;
+      }
+    }
+    entrysb.append("}\n");
+  }
+
+
+
+  return entrysb.toString();
 }
 
 /***************************************************************************
@@ -8252,6 +8318,13 @@ private static class DeclaringListValue {
     this.typespecifier = typespecifier;
     this.declarator = declarator;
     this.initializer = initializer;
+  }
+
+  public String toString()
+  {
+    return "TypeSpec: " + typespecifier.toString() +
+      "\nDeclarator: " + declarator.toString() +
+      "\nInitializer: " + initializer.toString();
   }
 }
 

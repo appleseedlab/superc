@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.List;
 import java.util.Random;
 import java.util.Iterator;
+import java.util.AbstractMap;
 
 import xtc.tree.Location;
 
@@ -202,6 +203,53 @@ public class SymbolTable<T> implements Iterable<String> {
     } else {
       return this.map.get(ident).filter(cond);
     }
+  }
+
+  /**
+   * returns a Multiverse of a List of all elements under a presence condition
+   * 
+   */
+  public Multiverse<List<Map.Entry<String,T>>> getLists(PresenceCondition cond) {
+    Multiverse<List<Map.Entry<String,T>>> lists = new Multiverse<List<Map.Entry<String,T>>>();
+    lists.add(new LinkedList<Map.Entry<String,T>>(), cond);
+    for (Map.Entry<String,Multiverse<Entry<T>>> m : map.entrySet()) {
+      for (Element<Entry<T>> e : m.getValue()) {
+        if (e.getData().isError() || e.getData().isUndeclared()) {
+          continue;
+        }
+        //for each value, check to see if any 'and's does not result
+        //in not. If it doesn't split the list.
+        System.err.println(e.toString());
+        boolean remade;
+        do {
+          System.err.println(lists.toString());
+          remade = false;
+          for (Element<List<Map.Entry<String,T>>> el : lists) {
+            PresenceCondition p = el.getCondition().and(e.getCondition());
+            //if the presencondition is a subset, but isn't 0
+            if (el.getCondition().is(e.getCondition())) {
+              el.getData().add(new AbstractMap.SimpleImmutableEntry<String,T>(m.getKey(),e.getData().getValue()));
+            } else if (!p.isFalse()) {
+              Multiverse<List<Map.Entry<String,T>>> newLists = new Multiverse<List<Map.Entry<String,T>>>();
+              for (Element<List<Map.Entry<String,T>>> elN : lists) {
+                if (elN != el) {
+                  newLists.add(elN.getData(), elN.getCondition());
+                }
+              }
+              List<Map.Entry<String,T>> tL = new LinkedList<Map.Entry<String,T>>(el.getData());
+              newLists.add(el.getData(), p);
+              newLists.add(tL, el.getCondition().and(e.getCondition().not()));
+              lists.destruct();
+              lists = newLists;
+              remade = true;
+              p.delRef();
+              break;
+            }
+          }
+        } while (remade);
+      } 
+    }
+    return lists;
   }
 
   /**

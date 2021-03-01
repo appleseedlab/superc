@@ -49,6 +49,8 @@ abstract class Initializer {
   // abstract public Type getType();
 
   abstract public boolean hasValidType();
+  public boolean hasList() { return false; }
+  public List<Initializer> getList() { return null; }
 
   public String toString() {
     throw new AssertionError("Initializer subclass has not implemented toString yet");
@@ -92,6 +94,9 @@ abstract class Initializer {
     public String toString() {
       return String.format("= %s", initializer.toString());
     }
+
+    public boolean hasList() { return initializer.hasList(); }
+    public List<Initializer> getList() { return initializer.getList(); }
   }
 
   /**
@@ -161,6 +166,9 @@ abstract class Initializer {
       }
       return String.format("{ %s }", sb.toString());
     }
+
+    public boolean hasList() { return true; }
+    public List<Initializer> getList() { return list; }
   }
 
   /**
