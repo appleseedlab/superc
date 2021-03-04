@@ -61,8 +61,8 @@
   },
   "typechecker/examples/PASS_global_redef_valid.c":{
     "inclusions":[],
-    "valid":true,
-    "stdErr":"",
+    "valid":"unrun configurations",
+    "stdErr":"typechecker/examples/PASS_global_redef_valid.c: In function \u2018main\u2019:\ntypechecker/examples/PASS_global_redef_valid.c:13:3: error: \u2018x\u2019 undeclared (first use in this function)\n   x = 1;\n   ^\ntypechecker/examples/PASS_global_redef_valid.c:13:3: note: each undeclared identifier is reported only once for each function it appears in\n",
     "stdOut":""
   },
   "transformation/misc/twovariables.c":{
@@ -123,6 +123,12 @@
     "stdErr":"",
     "stdOut":""
   },
+  "typechecker/structInits/designators.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
   "unit/typedef.c":{
     "inclusions":[],
     "valid":true,
@@ -159,6 +165,12 @@
     "stdErr":"",
     "stdOut":""
   },
+  "typechecker/struct/array_init.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
   "unit/typedef_local_declaration.c":{
     "inclusions":[],
     "valid":true,
@@ -189,6 +201,12 @@
     ],
     "valid":false,
     "stdErr":"transformation/constructs/types_global_function_multiply-defined_pointer.autodesugar.c:2:10: fatal error: desugared_macros.h: No such file or directory\n #include \"desugared_macros.h\" // configuration macros converted to C variables\n          ^~~~~~~~~~~~~~~~~~~~\ncompilation terminated.\n",
+    "stdOut":""
+  },
+  "typechecker/structInits/struct_init.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
     "stdOut":""
   },
   "unit/enum_libbb.c":{
@@ -433,10 +451,10 @@
     "stdErr":"",
     "stdOut":""
   },
-  "typechecker/examples/PASS_invalid_signed_unsigned.c":{
+  "typechecker/examples/PASS_valid_long.c":{
     "inclusions":[],
-    "valid":false,
-    "stdErr":"typechecker/examples/PASS_invalid_signed_unsigned.c: In function \u2018main\u2019:\ntypechecker/examples/PASS_invalid_signed_unsigned.c:2:9: error: both \u2018signed\u2019 and \u2018unsigned\u2019 in declaration specifiers\n  signed unsigned int a;\n         ^~~~~~~~\ntypechecker/examples/PASS_invalid_signed_unsigned.c:3:9: error: both \u2018signed\u2019 and \u2018float\u2019 in declaration specifiers\n  signed float b;\n         ^~~~~\ntypechecker/examples/PASS_invalid_signed_unsigned.c:4:11: error: both \u2018unsigned\u2019 and \u2018float\u2019 in declaration specifiers\n  unsigned float c;\n           ^~~~~\ntypechecker/examples/PASS_invalid_signed_unsigned.c:5:9: error: both \u2018signed\u2019 and \u2018double\u2019 in declaration specifiers\n  signed double d;\n         ^~~~~~\ntypechecker/examples/PASS_invalid_signed_unsigned.c:6:11: error: both \u2018unsigned\u2019 and \u2018double\u2019 in declaration specifiers\n  unsigned double e;\n           ^~~~~~\n",
+    "valid":true,
+    "stdErr":"",
     "stdOut":""
   },
   "transformation/icse19nier/icsenier2.c":{
@@ -597,7 +615,7 @@
     "stdErr":"typechecker/examples/PASS_noIdentifier.c:1:6: error: expected identifier or \u2018(\u2019 before \u2018;\u2019 token\n int *;\n      ^\n",
     "stdOut":""
   },
-  "transformation/phasar/linear_constant/basic_03.c":{
+  "transformation/functions/config_parameters.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",
@@ -605,8 +623,8 @@
   },
   "unit/if_statement_configurable1.c":{
     "inclusions":[],
-    "valid":true,
-    "stdErr":"",
+    "valid":false,
+    "stdErr":"unit/if_statement_configurable1.c: In function \u2018main\u2019:\nunit/if_statement_configurable1.c:4:9: error: \u2018A\u2019 undeclared (first use in this function)\n     if (A)\n         ^\nunit/if_statement_configurable1.c:4:9: note: each undeclared identifier is reported only once for each function it appears in\nunit/if_statement_configurable1.c:7:11: error: \u2018B\u2019 undeclared (first use in this function)\n       if (B)\n           ^\n",
     "stdOut":""
   },
   "transformation/declaringlists/error.c":{
@@ -616,6 +634,12 @@
     "stdOut":""
   },
   "transformation/constructs/local_var_multiply-defined_primitive.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/designatorList.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",
@@ -775,6 +799,12 @@
     "stdErr":"typechecker/declarators/PASS_invalid_typedefs.c:1:1: error: multiple storage classes in declaration specifiers\n typedef extern int a;\n ^~~~~~~\ntypechecker/declarators/PASS_invalid_typedefs.c:2:1: error: multiple storage classes in declaration specifiers\n typedef register int b;\n ^~~~~~~\ntypechecker/declarators/PASS_invalid_typedefs.c:3:1: error: multiple storage classes in declaration specifiers\n static typedef int c;\n ^~~~~~\ntypechecker/declarators/PASS_invalid_typedefs.c:5:12: error: expected \u2018=\u2019, \u2018,\u2019, \u2018;\u2019, \u2018asm\u2019 or \u2018__attribute__\u2019 before \u2018d\u2019\n unsigned z d;\n            ^\ntypechecker/declarators/PASS_invalid_typedefs.c:6:10: error: expected \u2018=\u2019, \u2018,\u2019, \u2018;\u2019, \u2018asm\u2019 or \u2018__attribute__\u2019 before \u2018e\u2019\n signed z e;\n          ^\ntypechecker/declarators/PASS_invalid_typedefs.c:7:8: error: expected \u2018=\u2019, \u2018,\u2019, \u2018;\u2019, \u2018asm\u2019 or \u2018__attribute__\u2019 before \u2018f\u2019\n long z f;\n        ^\n",
     "stdOut":""
   },
+  "unit/struct_local_legal.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
   "unit/struct_union_enum.c":{
     "inclusions":[],
     "valid":"unrun configurations",
@@ -919,12 +949,10 @@
     "stdErr":"",
     "stdOut":""
   },
-  "transformation/constructs/types_global_function_multiple_prototypes_same_body.autodesugar.c":{
-    "inclusions":[
-      "stdbool.h"
-    ],
-    "valid":false,
-    "stdErr":"transformation/constructs/types_global_function_multiple_prototypes_same_body.autodesugar.c:2:10: fatal error: desugared_macros.h: No such file or directory\n #include \"desugared_macros.h\" // configuration macros converted to C variables\n          ^~~~~~~~~~~~~~~~~~~~\ncompilation terminated.\n",
+  "transformation/functions/config_explicit_function_call.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
     "stdOut":""
   },
   "typechecker/compound/pointer_struct1.c":{
@@ -945,7 +973,7 @@
     "stdErr":"",
     "stdOut":""
   },
-  "transformation/misc/canonical.c":{
+  "transformation/declaringlists/variable_expr.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",
@@ -994,6 +1022,12 @@
     "stdOut":""
   },
   "transformation/expressions/config_variable_arithmetic_assignment.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/conditionalError.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",
@@ -1085,16 +1119,30 @@
     "stdErr":"transformation/constructs/types_global_function_multiply-defined.autodesugar.c:2:10: fatal error: desugared_macros.h: No such file or directory\n #include \"desugared_macros.h\" // configuration macros converted to C variables\n          ^~~~~~~~~~~~~~~~~~~~\ncompilation terminated.\n",
     "stdOut":""
   },
+  "transformation/phasar/linear_constant/basic_03.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
   "transformation/constructs/types_extern_var_partially-defined.c":{
     "inclusions":[],
     "valid":"unrun configurations",
     "stdErr":"transformation/constructs/types_extern_var_partially-defined.c: In function \u2018main\u2019:\ntransformation/constructs/types_extern_var_partially-defined.c:7:3: error: \u2018x\u2019 undeclared (first use in this function)\n   x++;\n   ^\ntransformation/constructs/types_extern_var_partially-defined.c:7:3: note: each undeclared identifier is reported only once for each function it appears in\n",
     "stdOut":""
   },
-  "transformation/functions/config_explicit_function_call.c":{
+  "transformation/constructs/types_global_function_multiple_prototypes_same_body.autodesugar.c":{
+    "inclusions":[
+      "stdbool.h"
+    ],
+    "valid":false,
+    "stdErr":"transformation/constructs/types_global_function_multiple_prototypes_same_body.autodesugar.c:2:10: fatal error: desugared_macros.h: No such file or directory\n #include \"desugared_macros.h\" // configuration macros converted to C variables\n          ^~~~~~~~~~~~~~~~~~~~\ncompilation terminated.\n",
+    "stdOut":""
+  },
+  "typechecker/structInits/designators_doesNotExist.c":{
     "inclusions":[],
-    "valid":true,
-    "stdErr":"",
+    "valid":false,
+    "stdErr":"typechecker/structInits/designators_doesNotExist.c: In function \u2018main\u2019:\ntypechecker/structInits/designators_doesNotExist.c:12:26: error: \u2018struct x\u2019 has no member named \u2018b\u2019\n   struct x x = {.a = 1, .b = 2};\n                          ^\ntypechecker/structInits/designators_doesNotExist.c:12:30: warning: excess elements in struct initializer\n   struct x x = {.a = 1, .b = 2};\n                              ^\ntypechecker/structInits/designators_doesNotExist.c:12:30: note: (near initialization for \u2018x\u2019)\n",
     "stdOut":""
   },
   "typechecker/declarators/invalid_Array_Pointer.c":{
@@ -1127,10 +1175,10 @@
     "stdErr":"transformation/constructs/types_global_function_multiply-defined.c: In function \u2018main\u2019:\ntransformation/constructs/types_global_function_multiply-defined.c:16:3: error: too few arguments to function \u2018x\u2019\n   x();\n   ^\ntransformation/constructs/types_global_function_multiply-defined.c:7:6: note: declared here\n char x(int y) {\n      ^\n",
     "stdOut":""
   },
-  "typechecker/examples/PASS_valid_long.c":{
+  "typechecker/examples/PASS_invalid_signed_unsigned.c":{
     "inclusions":[],
-    "valid":true,
-    "stdErr":"",
+    "valid":false,
+    "stdErr":"typechecker/examples/PASS_invalid_signed_unsigned.c: In function \u2018main\u2019:\ntypechecker/examples/PASS_invalid_signed_unsigned.c:2:9: error: both \u2018signed\u2019 and \u2018unsigned\u2019 in declaration specifiers\n  signed unsigned int a;\n         ^~~~~~~~\ntypechecker/examples/PASS_invalid_signed_unsigned.c:3:9: error: both \u2018signed\u2019 and \u2018float\u2019 in declaration specifiers\n  signed float b;\n         ^~~~~\ntypechecker/examples/PASS_invalid_signed_unsigned.c:4:11: error: both \u2018unsigned\u2019 and \u2018float\u2019 in declaration specifiers\n  unsigned float c;\n           ^~~~~\ntypechecker/examples/PASS_invalid_signed_unsigned.c:5:9: error: both \u2018signed\u2019 and \u2018double\u2019 in declaration specifiers\n  signed double d;\n         ^~~~~~\ntypechecker/examples/PASS_invalid_signed_unsigned.c:6:11: error: both \u2018unsigned\u2019 and \u2018double\u2019 in declaration specifiers\n  unsigned double e;\n           ^~~~~~\n",
     "stdOut":""
   },
   "unit/parendeclarator.c":{
@@ -1145,7 +1193,19 @@
     "stdErr":"",
     "stdOut":""
   },
+  "typechecker/structInits/outOfRange.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"typechecker/structInits/outOfRange.c: In function \u2018main\u2019:\ntypechecker/structInits/outOfRange.c:11:19: warning: excess elements in struct initializer\n   struct x x = {1,2};\n                   ^\ntypechecker/structInits/outOfRange.c:11:19: note: (near initialization for \u2018x\u2019)\n",
+    "stdOut":""
+  },
   "unit/enum_enumerators.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "transformation/union/union_use.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",
@@ -1225,10 +1285,18 @@
     "stdErr":"",
     "stdOut":""
   },
-  "transformation/union/union_use.c":{
+  "typechecker/structInits/designatorMixed.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/struct/struct_init.desugared.test.c":{
+    "inclusions":[
+      "stdbool.h"
+    ],
+    "valid":false,
+    "stdErr":"typechecker/struct/struct_init.desugared.test.c: In function \u2018__main_5\u2019:\ntypechecker/struct/struct_init.desugared.test.c:26:7: error: \u2018PCA\u2019 undeclared (first use in this function)\n   if (PCA)\n       ^~~\ntypechecker/struct/struct_init.desugared.test.c:26:7: note: each undeclared identifier is reported only once for each function it appears in\ntypechecker/struct/struct_init.desugared.test.c:31:5: error: expected expression before \u2018...\u2019 token\n     ...\n     ^~~\n",
     "stdOut":""
   },
   "unit/declaringlist.c":{
@@ -1255,10 +1323,10 @@
     "stdErr":"",
     "stdOut":""
   },
-  "unit/struct_local_legal.c":{
+  "typechecker/structInits/designators_partialExist.c":{
     "inclusions":[],
-    "valid":true,
-    "stdErr":"",
+    "valid":false,
+    "stdErr":"typechecker/structInits/designators_partialExist.c: In function \u2018main\u2019:\ntypechecker/structInits/designators_partialExist.c:15:26: error: \u2018struct x\u2019 has no member named \u2018b\u2019\n   struct x x = {.a = 1, .b = 2};\n                          ^\ntypechecker/structInits/designators_partialExist.c:15:30: warning: excess elements in struct initializer\n   struct x x = {.a = 1, .b = 2};\n                              ^\ntypechecker/structInits/designators_partialExist.c:15:30: note: (near initialization for \u2018x\u2019)\n",
     "stdOut":""
   },
   "unit/offsetof.c":{
@@ -1296,7 +1364,7 @@
   "typechecker/struct/nested.c":{
     "inclusions":[],
     "valid":false,
-    "stdErr":"typechecker/struct/nested.c: In function \u2018main\u2019:\ntypechecker/struct/nested.c:11:13: error: incompatible types when assigning to type \u2018struct contents\u2019 from type \u2018int\u2019\n   head.data = 1;\n             ^\ntypechecker/struct/nested.c:13:13: error: incompatible types when assigning to type \u2018struct contents\u2019 from type \u2018int\u2019\n   tail.data = 2;\n             ^\ntypechecker/struct/nested.c:18:5: warning: implicit declaration of function \u2018printf\u2019 [-Wimplicit-function-declaration]\n     printf(\"data: %d\\n\", current->data);\n     ^~~~~~\ntypechecker/struct/nested.c:18:5: warning: incompatible implicit declaration of built-in function \u2018printf\u2019\ntypechecker/struct/nested.c:18:5: note: include \u2018<stdio.h>\u2019 or provide a declaration of \u2018printf\u2019\ntypechecker/struct/nested.c:18:20: warning: format \u2018%d\u2019 expects argument of type \u2018int\u2019, but argument 2 has type \u2018struct contents\u2019 [-Wformat=]\n     printf(\"data: %d\\n\", current->data);\n                   ~^     ~~~~~~~~~~~~~\n",
+    "stdErr":"typechecker/struct/nested.c: In function \u2018main\u2019:\ntypechecker/struct/nested.c:12:13: error: incompatible types when assigning to type \u2018struct contents\u2019 from type \u2018int\u2019\n   head.data = 1;\n             ^\ntypechecker/struct/nested.c:14:13: error: incompatible types when assigning to type \u2018struct contents\u2019 from type \u2018int\u2019\n   tail.data = 2;\n             ^\ntypechecker/struct/nested.c:19:20: warning: format \u2018%d\u2019 expects argument of type \u2018int\u2019, but argument 2 has type \u2018struct contents\u2019 [-Wformat=]\n     printf(\"data: %d\\n\", current->data);\n                   ~^     ~~~~~~~~~~~~~\n",
     "stdOut":""
   },
   "transformation/declaringlists/error_conditional.c":{
@@ -1345,7 +1413,7 @@
     "stdErr":"",
     "stdOut":""
   },
-  "transformation/declaringlists/variable_expr.c":{
+  "transformation/misc/canonical.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",
@@ -1390,6 +1458,12 @@
     "stdOut":""
   },
   "transformation/icse19nier/icsenier3.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/nestedStruct_init.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",
@@ -1541,12 +1615,6 @@
     "stdErr":"transformation/constructs/types_primitive_and_compound.autodesugar.c:2:10: fatal error: desugared_macros.h: No such file or directory\n #include \"desugared_macros.h\" // configuration macros converted to C variables\n          ^~~~~~~~~~~~~~~~~~~~\ncompilation terminated.\n",
     "stdOut":""
   },
-  "transformation/functions/config_parameters.c":{
-    "inclusions":[],
-    "valid":true,
-    "stdErr":"",
-    "stdOut":""
-  },
   "transformation/union/union.c":{
     "inclusions":[],
     "valid":true,
@@ -1681,12 +1749,6 @@
     "stdErr":"",
     "stdOut":""
   },
-  "typechecker/struct/struct_init.c":{
-    "inclusions":[],
-    "valid":true,
-    "stdErr":"",
-    "stdOut":""
-  },
   "transformation/phasar/linear_constant/basic_04.c":{
     "inclusions":[],
     "valid":true,
@@ -1810,6 +1872,12 @@
     "stdOut":""
   },
   "transformation/declaringlists/one_init.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/declarators/PASS_valid_void_typedef.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",

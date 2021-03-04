@@ -213,21 +213,21 @@ public class SymbolTable<T> implements Iterable<String> {
     Multiverse<List<Map.Entry<String,T>>> lists = new Multiverse<List<Map.Entry<String,T>>>();
     lists.add(new LinkedList<Map.Entry<String,T>>(), cond);
     for (Map.Entry<String,Multiverse<Entry<T>>> m : map.entrySet()) {
+      System.err.println(m.getValue());
       for (Element<Entry<T>> e : m.getValue()) {
-        if (e.getData().isError() || e.getData().isUndeclared()) {
+        if (e.getData().isUndeclared()) {
           continue;
         }
         //for each value, check to see if any 'and's does not result
         //in not. If it doesn't split the list.
-        System.err.println(e.toString());
         boolean remade;
         do {
-          System.err.println(lists.toString());
           remade = false;
           for (Element<List<Map.Entry<String,T>>> el : lists) {
             PresenceCondition p = el.getCondition().and(e.getCondition());
             //if the presencondition is a subset, but isn't 0
-            if (el.getCondition().is(e.getCondition())) {
+            //issue is, that we also add if e is strictly greater than.
+            if (el.getCondition().is(p)) {
               el.getData().add(new AbstractMap.SimpleImmutableEntry<String,T>(m.getKey(),e.getData().getValue()));
             } else if (!p.isFalse()) {
               Multiverse<List<Map.Entry<String,T>>> newLists = new Multiverse<List<Map.Entry<String,T>>>();

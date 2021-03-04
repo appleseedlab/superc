@@ -11,12 +11,14 @@ void __static_initializer_default() {
 
 };
 struct __anonymous_tag_0 {
+int  __a_1;
+int  __x_2;
 };
-struct __anonymous_tag_1 {
-int  __a_2;
-int  __x_3;
-int  __yy_4;
+struct __anonymous_tag_3 {
+int  __a_4;
+int  __x_5;
+int  __yy_6;
 };
 
-struct __anonymous_tag_0 ;struct __anonymous_tag_1 ;
+struct __anonymous_tag_0 ;struct __anonymous_tag_3 ;
 

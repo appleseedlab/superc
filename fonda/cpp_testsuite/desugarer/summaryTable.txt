@@ -67,9 +67,9 @@ typechecker/struct/selfref                                                      
 typechecker/struct/nested_anonymous                                                        BC generated
 typechecker/struct/redef                                                                   BC generated
 typechecker/struct/tagnamespace                                                            BC generated
-typechecker/struct/struct_init                                                             BC generated
 typechecker/struct/no_nested_redef                                                         File isn't valid
 typechecker/struct/struct_global_forward_reference                                         File isn't valid
+typechecker/struct/array_init                                                              File GT not confirmed
 typechecker/struct/nested                                                                  File isn't valid
 typechecker/struct/anonymous                                                               BC generated
 typechecker/compound/primitive_function2                                                   SuperC failed
@@ -106,6 +106,15 @@ typechecker/compound/function_function2                                         
 typechecker/compound/pointer_function2                                                     SuperC failed
 typechecker/compound/pointer_function2                                                     BC failed
 typechecker/compound/pointer_array2                                                        BC generated
+typechecker/structInits/designators                                                        BC generated
+typechecker/structInits/designatorMixed                                                    BC generated
+typechecker/structInits/nestedStruct_init                                                  BC failed
+typechecker/structInits/outOfRange                                                         BC failed
+typechecker/structInits/designators_doesNotExist                                           File isn't valid
+typechecker/structInits/struct_init                                                        BC generated
+typechecker/structInits/conditionalError                                                   BC generated
+typechecker/structInits/designatorList                                                     BC generated
+typechecker/structInits/designators_partialExist                                           BC failed
 v2Func/nestedFunction                                                                      File GT not confirmed
 v2Func/errorExpand                                                                         File GT not confirmed
 unit/struct_local_illegal                                                                  File isn't valid

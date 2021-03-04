@@ -6,28 +6,30 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_7;
-extern const bool __static_condition_default_8;
+extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_10;
 void __static_initializer_default() {
-__static_renaming("__main_5", "main");
-__static_renaming("__main_6", "main");
+__static_renaming("__main_7", "main");
+__static_renaming("__main_8", "main");
 
-__static_condition_renaming("__static_condition_default_7", "!(defined CONFIG_A)");
-__static_condition_renaming("__static_condition_default_8", "(defined CONFIG_A)");
+__static_condition_renaming("__static_condition_default_9", "!(defined CONFIG_A)");
+__static_condition_renaming("__static_condition_default_10", "(defined CONFIG_A)");
 
 };
 struct __anonymous_tag_0 {
+int  __a_1;
+int  __x_2;
 };
-struct __anonymous_tag_1 {
-int  __a_2;
-int  __x_3;
-int  __yy_4;
+struct __anonymous_tag_3 {
+int  __a_4;
+int  __x_5;
+int  __yy_6;
 };
 
-struct __anonymous_tag_0 ;struct __anonymous_tag_1 ;
-int  __main_5 () {
+struct __anonymous_tag_0 ;struct __anonymous_tag_3 ;
+int  __main_7 () {
 
-if (__static_condition_default_7) {
+if (__static_condition_default_9) {
 {
 return 0 ;
 
@@ -36,9 +38,9 @@ return 0 ;
 }
 
 }
-int  __main_6 () {
+int  __main_8 () {
 
-if (__static_condition_default_8) {
+if (__static_condition_default_10) {
 {
 return 0 ;
 

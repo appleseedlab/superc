@@ -5497,6 +5497,7 @@ public class CActions implements SemanticActions {
 
           // go through each type and see which have a field with this
           // name and collect the resulting type
+          System.err.println(postfixmv + "\n" + dotmv + " \n" + ident  + "::");
           Multiverse<Type> postfixtype = postfixval.type;
           Multiverse<Type> typemv = new Multiverse<Type>();  // resulting type
           Multiverse<String> identmv = new Multiverse<String>();  // desugaring
@@ -5528,7 +5529,7 @@ public class CActions implements SemanticActions {
 
                 Multiverse<SymbolTable.Entry<Type>> originalTagEntries
                   = scope.getInAnyScope(CContext.toTagName(originalTag), type.getCondition());
-
+                
                 // add an indirect reference to the real struct via the forward-referenced struct
                 for (Element<SymbolTable.Entry<Type>> tagentry : originalTagEntries) {
                   if (tagentry.getData().isError()) {
@@ -6954,7 +6955,6 @@ public class CActions implements SemanticActions {
 
           ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
           ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
-          System.err.println("l:"+ leftval.toString() + "\nr:" + rightval.toString());
           if (leftval.hasValidType() && rightval.hasValidType()) {
             
             Multiverse<String> expr = leftval.transformation;
@@ -6974,7 +6974,6 @@ public class CActions implements SemanticActions {
             /* System.err.println("assigntype: " + assigntype); */
             /* Multiverse<Type> producttype = exprtype.product(assigntype, DesugarOps.compareTypes); */
             Multiverse<Type> producttype = DesugarOps.checkAssignmentType(exprtype, assigntype, op, pc, false);
-            System.err.println(producttype);
             /* System.err.println("TODO: deduplicate ErrorT"); */
             /* System.err.println("TODO: allow type coercion"); */
 
@@ -8060,9 +8059,6 @@ public String initStruct(String name, Type t, Initializer i, CContext scope, Pre
 {
   SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(((StructOrUnionT)t).getName());
   Multiverse<List<Map.Entry<String,Type>>> m = tagtab.getLists(p);
-  System.err.println(tagtab);
-  System.err.println(m);
-
   //for now, I'm making the assumption all field defs are in order, although this isn't the case.
   //this can be solved by sort each list by it's appended number
   
@@ -8072,7 +8068,6 @@ public String initStruct(String name, Type t, Initializer i, CContext scope, Pre
   // under each pc. We need a list of either expressions to assign, or designators, and
   // go through the list assigning approprietly.
 
-  //method needs to be written...
   List<Initializer> inits = i.getList();
   StringBuilder entrysb = new StringBuilder();
    
@@ -8080,29 +8075,68 @@ public String initStruct(String name, Type t, Initializer i, CContext scope, Pre
     entrysb.append("if (");
     entrysb.append(condToCVar(e.getCondition()));
     entrysb.append(") {\n");
-    //at this point we need to get each
+    //lists can never have errors due to how they are built. The declaration of
+    //the struct will have an error, so the type error is already dealt with
+    
     int spot  = 0;
     for (Initializer init : inits) {
-      //if designator, find comparison, assign, update spot
       if (init.isDesignated()) {
-        int newSpot;
-        for (newSpot = 0; newSpot < e.getData().size(); ++newSpot) {
-          if (false) { //designator name is this name
+        Designation d = ((DesignatedInitializer)init).getDesignation();
+        Designator des = d.getDesignator();
+        if (des.isStructUnion()) {
+          int newSpot;
+          for (newSpot = 0; newSpot < e.getData().size(); ++newSpot) {
+            if ((((StructUnionDesignator)des).getName()).equals(e.getData().get(newSpot).getKey())) {
+              if (d.getListSize() == 1) {
+                entrysb.append(name + "." + ((VariableT)e.getData().get(newSpot).getValue()).getName()
+                               + " = " + ((DesignatedInitializer)init).getInitString() + ";\n");
+              } else {
+                //at this point, we get the direct field being accessed. If it is a struct(list) then
+                //we recursively call this, the Initializer is a new list with the first object
+                //being removed. If it is a singular value, we can just assign it.
+                Initializer in = init.getChild();
+                List<Designator> newDesList = new LinkedList<Designator>();
+                for (int k = 1; k < d.getListSize(); ++k ) {
+                  newDesList.add(d.getDesignator(k));
+                }
+                Initializer newInit = new DesignatedInitializer(new Designation(newDesList), in);
+                if (in.isList()) {
+                  initStruct( name + "." + ((VariableT)e.getData().get(newSpot).getValue()).getName(),
+                              e.getData().get(newSpot).getValue(), newInit, scope, e.getCondition());
+                } else {
+                  Multiverse<String> writes =
+                    getDesigTransforms(name + "." +
+                                       ((VariableT)e.getData().get(newSpot).getValue()).getName(),
+                                       newDesList,
+                                       e.getData().get(newSpot).getValue(),
+                                       e.getCondition(),
+                                       scope);
+                  for (Element<String> es : writes) {
+                    entrysb.append("if (");
+                    entrysb.append(condToCVar(es.getCondition()));
+                    entrysb.append(") {\n");
+                    entrysb.append(es.getData() + " = " +
+                                   ((DesignatedInitializer)init).getInitString() + ";\n");
+                    entrysb.append("}\n");
+                  }
+                }
+              }
+              break;
+            }
+          }
+          if (newSpot == e.getData().size()) {
+            entrysb.append(emitError("designator doesn't exist."));
             break;
           }
+          spot = newSpot + 1;
+          //if it is an array access
+        } else {
         }
-        if (newSpot == e.getData().size()) {
-          //output type error
-          break;
-        }
-        //name . renamedVar assignInit
-        entrysb.append(name);
-        spot = newSpot + 1;
-        //else, just assign to next spot
       } else {
         if (spot >= e.getData().size()) {
-          //assign type error
+          entrysb.append(emitError("assigning value out of struct range."));
         } else {
+          //gotta handle this differently if it's a list, in fact, recursive call.
           entrysb.append(name + "." + ((VariableT)e.getData().get(spot).getValue()).getName() + " = " + init.toString() + ";\n");
         }
         spot++;
@@ -8116,6 +8150,40 @@ public String initStruct(String name, Type t, Initializer i, CContext scope, Pre
   return entrysb.toString();
 }
 
+private Multiverse<String> getDesigTransforms(String prefix, List<Designator> l, Type t, PresenceCondition p, CContext scope) {
+  if (l.size() == 0) {
+    Multiverse<String> ret = new Multiverse<String>();
+    ret.add(prefix, p);
+    return ret;
+  }
+  Designator d = l.get(0);
+  if (d.isArray()) {
+    Multiverse<String> ret = new Multiverse<String>();
+    ret.add(prefix + d.toString(), p);
+    return ret;
+  }
+  List<Designator> newD = new LinkedList<Designator>();
+  for (int i = 1; i < l.size(); ++i) {
+    newD.add(l.get(i));
+  }
+  //using the current struct,
+  Multiverse<String> ret = new Multiverse<String>();
+  SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(((StructOrUnionT)((VariableT)t).getType()).getName());
+  Multiverse<Entry<Type>> m = tagtab.get(((StructUnionDesignator)d).getName(), p);
+  for (Element<Entry<Type>> e : m) {
+    Multiverse<String> toAdd = getDesigTransforms(prefix + "." +
+                                       ((VariableT)e.getData().getValue()).getName(),
+                                                  newD,
+                                                  e.getData().getValue(),
+                                                  e.getCondition(),
+                                                  scope);
+    for (Element<String> es : toAdd) {
+      ret.add(es);
+    }
+  }
+  return ret;
+}
+  
 /***************************************************************************
  **** Class to create fresh ids.
  ***************************************************************************/

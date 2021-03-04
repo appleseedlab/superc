@@ -51,7 +51,9 @@ abstract class Initializer {
   abstract public boolean hasValidType();
   public boolean hasList() { return false; }
   public List<Initializer> getList() { return null; }
-
+  public boolean hasChild() { return false; }
+  public Initializer getChild() { return null; }
+  
   public String toString() {
     throw new AssertionError("Initializer subclass has not implemented toString yet");
   }
@@ -97,6 +99,9 @@ abstract class Initializer {
 
     public boolean hasList() { return initializer.hasList(); }
     public List<Initializer> getList() { return initializer.getList(); }
+    public boolean hasChild() { return true; }
+  public Initializer getChild() { return initializer; }
+  
   }
 
   /**
@@ -199,6 +204,17 @@ abstract class Initializer {
     public String toString() {
       return String.format("%s %s", designation.toString(), initializer.toString());
     }
+
+    public Designation getDesignation() {
+      return designation;
+    }
+
+    public String getInitString() {
+      return initializer.toString();
+    }
+    
+    public boolean hasChild() { return true; }
+    public Initializer getChild() { return initializer; }
   }
 
   /**
@@ -219,6 +235,18 @@ abstract class Initializer {
       }
       return String.format("%s =", sb.toString());
     }
+
+    public int getListSize() {
+      return list.size();
+    }
+
+    public Designator getDesignator() {
+      return list.get(0);
+    }
+    public Designator getDesignator(int i) {
+      return list.get(i);
+    }
+    
   }
 
   /**
@@ -297,6 +325,10 @@ abstract class Initializer {
 
     public String toString() {
       return String.format(".%s", ident);
+    }
+
+    public String getName() {
+      return ident;
     }
   }
 }
