@@ -213,7 +213,6 @@ public class SymbolTable<T> implements Iterable<String> {
     Multiverse<List<Map.Entry<String,T>>> lists = new Multiverse<List<Map.Entry<String,T>>>();
     lists.add(new LinkedList<Map.Entry<String,T>>(), cond);
     for (Map.Entry<String,Multiverse<Entry<T>>> m : map.entrySet()) {
-      System.err.println(m.getValue());
       for (Element<Entry<T>> e : m.getValue()) {
         if (e.getData().isUndeclared()) {
           continue;

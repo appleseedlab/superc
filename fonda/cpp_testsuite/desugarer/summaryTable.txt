@@ -108,6 +108,7 @@ typechecker/compound/pointer_function2                                          
 typechecker/compound/pointer_array2                                                        BC generated
 typechecker/structInits/designators                                                        BC generated
 typechecker/structInits/designatorMixed                                                    BC generated
+typechecker/structInits/nestedStruct_init                                                  SuperC failed
 typechecker/structInits/nestedStruct_init                                                  BC failed
 typechecker/structInits/outOfRange                                                         BC failed
 typechecker/structInits/designators_doesNotExist                                           File isn't valid

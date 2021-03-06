@@ -8057,6 +8057,7 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
 
 public String initStruct(String name, Type t, Initializer i, CContext scope, PresenceCondition p)
 {
+  System.err.println(name + "::" + t + "::" + i.toString());
   SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(((StructOrUnionT)t).getName());
   Multiverse<List<Map.Entry<String,Type>>> m = tagtab.getLists(p);
   //for now, I'm making the assumption all field defs are in order, although this isn't the case.
@@ -8102,7 +8103,7 @@ public String initStruct(String name, Type t, Initializer i, CContext scope, Pre
                 Initializer newInit = new DesignatedInitializer(new Designation(newDesList), in);
                 if (in.isList()) {
                   initStruct( name + "." + ((VariableT)e.getData().get(newSpot).getValue()).getName(),
-                              e.getData().get(newSpot).getValue(), newInit, scope, e.getCondition());
+                              ((VariableT)e.getData().get(newSpot).getValue()).getType(), newInit, scope, e.getCondition());
                 } else {
                   Multiverse<String> writes =
                     getDesigTransforms(name + "." +
@@ -8137,7 +8138,12 @@ public String initStruct(String name, Type t, Initializer i, CContext scope, Pre
           entrysb.append(emitError("assigning value out of struct range."));
         } else {
           //gotta handle this differently if it's a list, in fact, recursive call.
-          entrysb.append(name + "." + ((VariableT)e.getData().get(spot).getValue()).getName() + " = " + init.toString() + ";\n");
+          if (init.isList()) {
+            initStruct( name + "." + ((VariableT)e.getData().get(spot).getValue()).getName(),
+                        ((VariableT)e.getData().get(spot).getValue()).getType(), init, scope, e.getCondition());
+          } else {
+            entrysb.append(name + "." + ((VariableT)e.getData().get(spot).getValue()).getName() + " = " + init.toString() + ";\n");
+          }
         }
         spot++;
       }
