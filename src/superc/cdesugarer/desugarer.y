@@ -5127,9 +5127,11 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
           for (Element<SymbolTable.Entry<Type>> entry : entries) {
             if (entry.getData().isError()) {
               System.err.println(String.format("type error: use of symbol with invalid declaration: %s", originalName));
+              sbmv.add("error",entry.getCondition());
               typemv.add(ErrorT.TYPE, entry.getCondition());
             } else if (entry.getData().isUndeclared()) {
               System.err.println(String.format("type error: use of undeclared symbol: %s", originalName));
+              sbmv.add("error",entry.getCondition());
               typemv.add(ErrorT.TYPE, entry.getCondition());
             } else {
               // TODO: add type checking.  may need to tag the resulting
