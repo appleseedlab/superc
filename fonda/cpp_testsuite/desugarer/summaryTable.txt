@@ -108,8 +108,7 @@ typechecker/compound/pointer_function2                                          
 typechecker/compound/pointer_array2                                                        BC generated
 typechecker/structInits/designators                                                        BC generated
 typechecker/structInits/designatorMixed                                                    BC generated
-typechecker/structInits/nestedStruct_init                                                  SuperC failed
-typechecker/structInits/nestedStruct_init                                                  BC failed
+typechecker/structInits/nestedStruct_init                                                  BC generated
 typechecker/structInits/outOfRange                                                         BC failed
 typechecker/structInits/designators_doesNotExist                                           File isn't valid
 typechecker/structInits/struct_init                                                        BC generated
@@ -131,7 +130,8 @@ unit/struct_local_legal                                                         
 unit/if_statement_configurable3                                                            BC generated
 unit/global_redeclarations                                                                 File isn't valid
 unit/struct_configurable_cross_and_forward_ref                                             BC generated
-unit/variable_partially_defined                                                            BC generated
+unit/variable_partially_defined                                                            SuperC failed
+unit/variable_partially_defined                                                            BC failed
 unit/enum_constant_expression1                                                             File isn't valid
 unit/enum_enumerators                                                                      BC generated
 unit/typedefname_and_variable_declarations                                                 BC generated

@@ -5044,8 +5044,10 @@ public class CActions implements SemanticActions {
             if (entry.getData().isError()) {
               System.err.println(String.format("type error: use of symbol with invalid declaration: %s", originalName));
               typemv.add(ErrorT.TYPE, entry.getCondition());
+              sbmv.add("error", entry.getCondition());
             } else if (entry.getData().isUndeclared()) {
               System.err.println(String.format("type error: use of undeclared symbol: %s", originalName));
+              sbmv.add("error", entry.getCondition());
               typemv.add(ErrorT.TYPE, entry.getCondition());
             } else {
               // TODO: add type checking.  may need to tag the resulting
@@ -5076,7 +5078,7 @@ public class CActions implements SemanticActions {
           // it and the symtab should always return a non-empty mv
           assert ! sbmv.isEmpty();
           entries.destruct();
-
+          System.err.println(sbmv + "::" + typemv);
           /* System.err.println(sbmv); */
           /* System.err.println(typemv); */
 
@@ -8057,7 +8059,6 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
 
 public String initStruct(String name, Type t, Initializer i, CContext scope, PresenceCondition p)
 {
-  System.err.println(name + "::" + t + "::" + i.toString());
   SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(((StructOrUnionT)t).getName());
   Multiverse<List<Map.Entry<String,Type>>> m = tagtab.getLists(p);
   //for now, I'm making the assumption all field defs are in order, although this isn't the case.
@@ -8102,8 +8103,8 @@ public String initStruct(String name, Type t, Initializer i, CContext scope, Pre
                 }
                 Initializer newInit = new DesignatedInitializer(new Designation(newDesList), in);
                 if (in.isList()) {
-                  initStruct( name + "." + ((VariableT)e.getData().get(newSpot).getValue()).getName(),
-                              ((VariableT)e.getData().get(newSpot).getValue()).getType(), newInit, scope, e.getCondition());
+                  entrysb.append(initStruct( name + "." + ((VariableT)e.getData().get(newSpot).getValue()).getName(),
+                                             ((VariableT)e.getData().get(newSpot).getValue()).getType(), newInit, scope, e.getCondition()));
                 } else {
                   Multiverse<String> writes =
                     getDesigTransforms(name + "." +
@@ -8139,8 +8140,8 @@ public String initStruct(String name, Type t, Initializer i, CContext scope, Pre
         } else {
           //gotta handle this differently if it's a list, in fact, recursive call.
           if (init.isList()) {
-            initStruct( name + "." + ((VariableT)e.getData().get(spot).getValue()).getName(),
-                        ((VariableT)e.getData().get(spot).getValue()).getType(), init, scope, e.getCondition());
+            entrysb.append(initStruct( name + "." + ((VariableT)e.getData().get(spot).getValue()).getName(),
+                                       ((VariableT)e.getData().get(spot).getValue()).getType(), init, scope, e.getCondition()));
           } else {
             entrysb.append(name + "." + ((VariableT)e.getData().get(spot).getValue()).getName() + " = " + init.toString() + ";\n");
           }
@@ -9743,23 +9744,32 @@ public void bindIdent(Subparser subparser, Node typespec, Node declarator, STFie
 int nextRelTagIsTypedef(Object a)
 {
   if ( ! (a instanceof Syntax)) {
+    System.err.println("not syntax:" + a);
     Node n = (Node) a;
     int loc = n.hasName(ForkMergeParser.CHOICE_NODE_NAME) ? 1 : 0 ;
     while (loc < n.size()) {
-      int status = nextRelTagIsTypedef(n.get(loc));
-      if (status == 2 || status == 0) {
-        return status;
+      if ( ! (n.get(loc) instanceof PresenceCondition)) {
+        int status = nextRelTagIsTypedef(n.get(loc));
+        if (status == 2 || status == 0) {
+          return status;
+        }
       }
       ++loc;
+      //issue here is that we always assume we aren't ever sending in
+      //a presence condition. However a pc can exist after something like
+      //the word const.
     }
     return 1;
   } else if (a instanceof Pair) {
+    System.err.println("pair:" + a);
     int status = nextRelTagIsTypedef(((Pair)a).head());
     if (status == 2 || status == 0) {
         return status;
     }
     return nextRelTagIsTypedef(((Pair)a).tail());
-  } 
+  }
+  System.err.println("other:" + a);
+    
   Language t = (Language) a;
   
   if (CTag.TYPEDEF == t.tag()) {
