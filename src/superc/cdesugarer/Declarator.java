@@ -442,6 +442,11 @@ abstract class Declarator {
       System.err.println("WARNING: do we need parentheses?");
       return String.format("(%s%s)", declarator.toString(), arrayabstractdeclarator.toString());
     }
+
+    public String toString(int len) {
+      System.err.println("WARNING: do we need parentheses?");
+      return String.format("(%s%s)", declarator.toString(), arrayabstractdeclarator.toString(len));
+    }
   }
 
   // do we ever need to know the syntax of the array's expression?  if
@@ -514,6 +519,13 @@ abstract class Declarator {
       }
       return sb.toString();
     }
+
+    public String toString(int len) {
+      StringBuilder sb = new StringBuilder();
+      sb.append(String.format("[%d]", len));
+      return sb.toString();
+    }
+
   }
 
   /**

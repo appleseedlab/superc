@@ -7954,11 +7954,24 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                         externalLinkage.put(originalName, originalDeclaration, entry.getCondition());
                       }
                       /* entrysb.append(renamedDeclaration.toString()); */
-                      if (declarationType.isStruct() && !initializer.getData().toString().equals("")){
-                        entrysb.append(desugaredDeclaration);
-                        entrysb.append(semi + "\n");  // semi-colon
-                        entrysb.append("{\n" + initStruct(renaming, declarationType, initializer.getData(), scope, combinedCond) + "}");
-                        recordRenaming(renaming, originalName);
+                      if (initializer.getData().hasList()) {
+                        if (declarationType.isStruct() || declarationType.isUnion()){
+                          entrysb.append(desugaredDeclaration);
+                          entrysb.append(semi + "\n");  // semi-colon
+                          entrysb.append("{\n" + initStruct(renaming, (StructOrUnionT)declarationType, initializer.getData(), scope, combinedCond) + "}");
+                          recordRenaming(renaming, originalName);
+                        }
+                        if (declarationType.isArray()){
+                          if (((ArrayT)declarationType).hasLength()) {
+                            entrysb.append(desugaredDeclaration);
+                          } else {
+                            //if  the length is implcit, we need to manually assign a value
+                            entrysb.append(declarationType.toString() + " " + ((ArrayDeclarator)renamedDeclarator).toString(trueInitSize(initializer.getData())));
+                          }
+                          entrysb.append(semi + "\n");  // semi-colon
+                          entrysb.append("{\n" + initArray(renaming, (ArrayT)declarationType, initializer.getData(), scope, combinedCond) + "}");
+                          recordRenaming(renaming, originalName);
+                        }
                       } else {
                         entrysb.append(desugaredDeclaration);
                         entrysb.append(initializer.getData().toString());
@@ -7977,7 +7990,7 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                         entrysb.append(";\n");
                         entrysb.append("}\n");
                       } else {  // global scope
-
+                        
                                 // declarations only set VariableT or AliasT
                         boolean sameTypeKind
                           = entry.getData().getValue().isVariable() && type.isVariable()
@@ -8057,9 +8070,11 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
   return valuesb.toString();
 }
 
-public String initStruct(String name, Type t, Initializer i, CContext scope, PresenceCondition p)
+public String initStruct(String name, StructOrUnionT t, Initializer i, CContext scope, PresenceCondition p)
 {
-  SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(((StructOrUnionT)t).getName());
+  //NOTE: All fields are presumably using . as the access method. Chagne this to . / -> depending
+  //on the context
+  SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(t.getName());
   Multiverse<List<Map.Entry<String,Type>>> m = tagtab.getLists(p);
   //for now, I'm making the assumption all field defs are in order, although this isn't the case.
   //this can be solved by sort each list by it's appended number
@@ -8089,28 +8104,49 @@ public String initStruct(String name, Type t, Initializer i, CContext scope, Pre
           int newSpot;
           for (newSpot = 0; newSpot < e.getData().size(); ++newSpot) {
             if ((((StructUnionDesignator)des).getName()).equals(e.getData().get(newSpot).getKey())) {
+              Initializer in = init.getChild();
+              //at this point, we get the direct field being accessed. If it is a struct(list) then
+              //we recursively call this, the Initializer is a new list with the first object
+              //being removed. If it is a singular value, we can just handle it the same way all
+              //individual values are handled.
               if (d.getListSize() == 1) {
-                entrysb.append(name + "." + ((VariableT)e.getData().get(newSpot).getValue()).getName()
-                               + " = " + ((DesignatedInitializer)init).getInitString() + ";\n");
+                if (in.isList()) {
+                  VariableT newT = ((VariableT)e.getData().get(newSpot).getValue());
+                  if (newT.getType().isStruct() || newT.getType().isUnion()) {
+                    entrysb.append(initStruct( name + "." + newT.getName(),
+                                               (StructOrUnionT)newT.getType(), in, scope, e.getCondition()));
+                  } else if (newT.getType().isArray()) {
+                    entrysb.append(initArray( name + "." + newT.getName(),
+                                              (ArrayT)newT.getType(), in, scope, e.getCondition()));
+                  } else {
+                    entrysb.append(emitError("A list can't be assigned to this type."));
+                  }
+                } else {
+                  entrysb.append(name + "." + ((VariableT)e.getData().get(newSpot).getValue()).getName() + " = " + ((DesignatedInitializer)init).getInitString() + ";\n");
+                }
               } else {
-                //at this point, we get the direct field being accessed. If it is a struct(list) then
-                //we recursively call this, the Initializer is a new list with the first object
-                //being removed. If it is a singular value, we can just assign it.
-                Initializer in = init.getChild();
                 List<Designator> newDesList = new LinkedList<Designator>();
                 for (int k = 1; k < d.getListSize(); ++k ) {
                   newDesList.add(d.getDesignator(k));
                 }
                 Initializer newInit = new DesignatedInitializer(new Designation(newDesList), in);
                 if (in.isList()) {
-                  entrysb.append(initStruct( name + "." + ((VariableT)e.getData().get(newSpot).getValue()).getName(),
-                                             ((VariableT)e.getData().get(newSpot).getValue()).getType(), newInit, scope, e.getCondition()));
+                  VariableT newT = ((VariableT)e.getData().get(newSpot).getValue());
+                  if (newT.getType().isStruct() || newT.getType().isUnion()) {
+                    entrysb.append(initStruct( name + "." + newT.getName(),
+                                               (StructOrUnionT)newT.getType(), newInit, scope, e.getCondition()));
+                  } else if (newT.getType().isArray()) {
+                    entrysb.append(initArray( name + "." + newT.getName(),
+                                              (ArrayT)newT.getType(), newInit, scope, e.getCondition()));
+                  } else {
+                    entrysb.append(emitError("A list can't be assigned to this type."));
+                  }
                 } else {
                   Multiverse<String> writes =
                     getDesigTransforms(name + "." +
                                        ((VariableT)e.getData().get(newSpot).getValue()).getName(),
                                        newDesList,
-                                       e.getData().get(newSpot).getValue(),
+                                       ((VariableT)e.getData().get(newSpot).getValue()).getType(),
                                        e.getCondition(),
                                        scope);
                   for (Element<String> es : writes) {
@@ -8133,6 +8169,8 @@ public String initStruct(String name, Type t, Initializer i, CContext scope, Pre
           spot = newSpot + 1;
           //if it is an array access
         } else {
+          entrysb.append(emitError("array designator on struct.") + "\n}\n");
+          return entrysb.toString();
         }
       } else {
         if (spot >= e.getData().size()) {
@@ -8140,8 +8178,16 @@ public String initStruct(String name, Type t, Initializer i, CContext scope, Pre
         } else {
           //gotta handle this differently if it's a list, in fact, recursive call.
           if (init.isList()) {
-            entrysb.append(initStruct( name + "." + ((VariableT)e.getData().get(spot).getValue()).getName(),
-                                       ((VariableT)e.getData().get(spot).getValue()).getType(), init, scope, e.getCondition()));
+            VariableT newT = ((VariableT)e.getData().get(spot).getValue());
+            if (newT.getType().isStruct() || newT.getType().isUnion()) {
+              entrysb.append(initStruct( name + "." + newT.getName(),
+                                         (StructOrUnionT)newT.getType(), init, scope, e.getCondition()));
+            } else if (newT.getType().isArray()) {
+              entrysb.append(initArray( name + "." + newT.getName(),
+                                        (ArrayT)newT.getType(), init, scope, e.getCondition()));
+            } else {
+              entrysb.append(emitError("A list can't be assigned to this type."));
+            }
           } else {
             entrysb.append(name + "." + ((VariableT)e.getData().get(spot).getValue()).getName() + " = " + init.toString() + ";\n");
           }
@@ -8157,6 +8203,87 @@ public String initStruct(String name, Type t, Initializer i, CContext scope, Pre
   return entrysb.toString();
 }
 
+public String initArray(String name, ArrayT t, Initializer i, CContext scope, PresenceCondition p)
+{
+  List<Initializer> inits = i.getList();
+  StringBuilder entrysb = new StringBuilder();
+   
+    
+  int spot  = 0;
+  for (Initializer init : inits) {
+    String accessSpot;
+    Initializer next = init;
+    if (init.isDesignated()) {
+      Designation d = ((DesignatedInitializer)init).getDesignation();
+      Designator des = d.getDesignator();
+      next = init.getChild();
+      if (des.isArray()) {
+        //currently making the assumption that expression accesses are just numbers.
+        //this isn't correct.
+        spot = new Integer(((ArrayDesignator)des).getExpression());
+      } else {
+        entrysb.append(emitError("struct designator on array.") + "\n}\n");
+        return entrysb.toString();
+      }
+
+      if (d.getListSize() > 1) {
+        Initializer in = init.getChild();
+        List<Designator> newDesList = new LinkedList<Designator>();
+        for (int k = 1; k < d.getListSize(); ++k ) {
+          newDesList.add(d.getDesignator(k));
+        }
+        Initializer newInit = new DesignatedInitializer(new Designation(newDesList), in);
+        if (in.isList()) {
+          if (t.getType().isStruct() || t.getType().isUnion()) {
+            entrysb.append(initStruct( name + "[" + Integer.toString(spot) + "]",
+                                       (StructOrUnionT)t.getType(), newInit, scope, p));
+          } else if (t.getType().isArray()) {
+            entrysb.append(initArray( name + "[" + Integer.toString(spot) + "]",
+                                      (ArrayT)t.getType(), newInit, scope, p));
+          } else {
+            entrysb.append(emitError("A list can't be assigned to this type."));
+          }
+        } else {
+          Multiverse<String> writes =
+            getDesigTransforms(name + "[" + Integer.toString(spot) + "]",
+                               newDesList,
+                               t.getType(),
+                               p,
+                               scope);
+          for (Element<String> es : writes) {
+            entrysb.append("if (");
+            entrysb.append(condToCVar(es.getCondition()));
+            entrysb.append(") {\n");
+            entrysb.append(es.getData() + " = " +
+                           ((DesignatedInitializer)init).getInitString() + ";\n");
+            entrysb.append("}\n");
+          }
+        }
+        //If this was a designation list, everything is handled, go to the next step
+        spot++;
+        continue;
+      }
+    }
+    accessSpot = "[" + Integer.toString(spot) + "]";
+    if (next.isList()) {
+      if (t.getType().isStruct() || t.getType().isUnion()) {
+        entrysb.append(initStruct( name + accessSpot,
+                                   (StructOrUnionT)t.getType(), next, scope, p));
+      } else if (t.getType().isArray()) {
+        entrysb.append(initArray( name + accessSpot,
+                                  (ArrayT)t.getType(), next, scope, p));
+      } else {
+        entrysb.append(emitError("A list can't be assigned to this type."));
+      }
+    } else {
+      entrysb.append(name + accessSpot + " = " + next.toString() + ";\n");
+    }
+    spot++;
+  }
+  return entrysb.toString();
+}
+
+
 private Multiverse<String> getDesigTransforms(String prefix, List<Designator> l, Type t, PresenceCondition p, CContext scope) {
   if (l.size() == 0) {
     Multiverse<String> ret = new Multiverse<String>();
@@ -8164,31 +8291,58 @@ private Multiverse<String> getDesigTransforms(String prefix, List<Designator> l,
     return ret;
   }
   Designator d = l.get(0);
-  if (d.isArray()) {
-    Multiverse<String> ret = new Multiverse<String>();
-    ret.add(prefix + d.toString(), p);
-    return ret;
-  }
   List<Designator> newD = new LinkedList<Designator>();
   for (int i = 1; i < l.size(); ++i) {
     newD.add(l.get(i));
   }
-  //using the current struct,
-  Multiverse<String> ret = new Multiverse<String>();
-  SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(((StructOrUnionT)((VariableT)t).getType()).getName());
-  Multiverse<Entry<Type>> m = tagtab.get(((StructUnionDesignator)d).getName(), p);
-  for (Element<Entry<Type>> e : m) {
-    Multiverse<String> toAdd = getDesigTransforms(prefix + "." +
-                                       ((VariableT)e.getData().getValue()).getName(),
-                                                  newD,
-                                                  e.getData().getValue(),
-                                                  e.getCondition(),
-                                                  scope);
-    for (Element<String> es : toAdd) {
-      ret.add(es);
+  if (d.isArray()) {
+    //making the assumption that we have a valid array here.
+    return getDesigTransforms(prefix + d.toString(), newD, ((ArrayT)t).getType(), p, scope );
+  } else {
+    //using the current struct,
+    Multiverse<String> ret = new Multiverse<String>();
+    SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(((StructOrUnionT)t).getName());
+    Multiverse<Entry<Type>> m = tagtab.get(((StructUnionDesignator)d).getName(), p);
+    for (Element<Entry<Type>> e : m) {
+      Multiverse<String> toAdd = getDesigTransforms(prefix + "." +
+                                                    ((VariableT)e.getData().getValue()).getName(),
+                                                    newD,
+                                                    ((VariableT)e.getData().getValue()).getType(),
+                                                    e.getCondition(),
+                                                    scope);
+      for (Element<String> es : toAdd) {
+        ret.add(es);
+      }
+    }
+    return ret;
+  }
+}
+
+private int trueInitSize(Initializer i) {
+  int curSize = 0;
+  int maxSize = 0;
+  List<Initializer> l = i.getList();
+  if (l == null) {
+    //shouldn't ever happen
+    return -1;
+  }
+  for (Initializer init : l) {
+    if (init.isDesignated()) {
+      Designator d = ((DesignatedInitializer)init).getDesignation().getDesignator();
+      if (!d.isArray()) {
+        //shouldn't ever happen
+        return -1;
+      }
+      //once again assuming we are just using numbers.
+      curSize = new Integer(((ArrayDesignator)d).getExpression());
+    } else {
+      curSize++;
+    }
+    if (curSize > maxSize) {
+      maxSize = curSize;
     }
   }
-  return ret;
+  return maxSize;
 }
   
 /***************************************************************************

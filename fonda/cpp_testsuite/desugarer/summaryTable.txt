@@ -56,11 +56,11 @@ typechecker/declarators/PASS_invalid_typedefs                                   
 typechecker/declarators/PASS_valid_typedef                                                 BC generated
 typechecker/declarators/PASS_valid_Array_Pointer                                           BC generated
 typechecker/declarators/PASS_valid_decl_quals                                              BC generated
-typechecker/declarators/PASS_valid_array_implicit_length                                   BC generated
+typechecker/declarators/PASS_valid_array_implicit_length                                   BC failed
 typechecker/declarators/invalid_typedef                                                    File isn't valid
 typechecker/declarators/invalid_Array_Pointer                                              File isn't valid
 typechecker/declarators/PASS_paren                                                         BC generated
-typechecker/declarators/PASS_valid_array_with_init                                         BC generated
+typechecker/declarators/PASS_valid_array_with_init                                         BC failed
 typechecker/struct/tagged                                                                  BC generated
 typechecker/struct/struct_init.desugared.test                                              File GT not confirmed
 typechecker/struct/selfref                                                                 BC generated
@@ -107,12 +107,23 @@ typechecker/compound/pointer_function2                                          
 typechecker/compound/pointer_function2                                                     BC failed
 typechecker/compound/pointer_array2                                                        BC generated
 typechecker/structInits/designators                                                        BC generated
+typechecker/structInits/listOfLists                                                        BC failed
+typechecker/structInits/listInStructDes                                                    BC generated
+typechecker/structInits/listInit                                                           BC failed
 typechecker/structInits/designatorMixed                                                    BC generated
+typechecker/structInits/listOfStructsDes                                                   BC failed
 typechecker/structInits/nestedStruct_init                                                  BC generated
+typechecker/structInits/listOfListsDesignated                                              BC failed
+typechecker/structInits/constList                                                          File GT not confirmed
+typechecker/structInits/nestedStruct_desInit                                               File GT not confirmed
 typechecker/structInits/outOfRange                                                         BC failed
+typechecker/structInits/test                                                               File GT not confirmed
 typechecker/structInits/designators_doesNotExist                                           File isn't valid
+typechecker/structInits/list_designator                                                    BC failed
 typechecker/structInits/struct_init                                                        BC generated
+typechecker/structInits/listInStruct                                                       BC generated
 typechecker/structInits/conditionalError                                                   BC generated
+typechecker/structInits/listOfStructs                                                      BC failed
 typechecker/structInits/designatorList                                                     BC generated
 typechecker/structInits/designators_partialExist                                           BC failed
 v2Func/nestedFunction                                                                      File GT not confirmed

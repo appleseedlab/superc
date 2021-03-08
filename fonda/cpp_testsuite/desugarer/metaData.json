@@ -47,13 +47,21 @@
     "stdErr":"",
     "stdOut":""
   },
+  "typechecker/struct/struct_init.desugared.test.c":{
+    "inclusions":[
+      "stdbool.h"
+    ],
+    "valid":false,
+    "stdErr":"typechecker/struct/struct_init.desugared.test.c: In function \u2018__main_5\u2019:\ntypechecker/struct/struct_init.desugared.test.c:26:7: error: \u2018PCA\u2019 undeclared (first use in this function)\n   if (PCA)\n       ^~~\ntypechecker/struct/struct_init.desugared.test.c:26:7: note: each undeclared identifier is reported only once for each function it appears in\ntypechecker/struct/struct_init.desugared.test.c:31:5: error: expected expression before \u2018...\u2019 token\n     ...\n     ^~~\n",
+    "stdOut":""
+  },
   "typechecker/functions/PASS_configParam.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",
     "stdOut":""
   },
-  "transformation/constructs/global_function_static.c":{
+  "typechecker/structInits/nestedStruct_desInit.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",
@@ -287,6 +295,12 @@
     "stdErr":"typechecker/compound/array_function1.c: In function \u2018main\u2019:\ntypechecker/compound/array_function1.c:10:4: error: subscripted value is neither array nor pointer nor vector\n   x[2];\n    ^\n",
     "stdOut":""
   },
+  "transformation/expressions/config_arr_assignment.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
   "typechecker/examples/PASS_invalid_duplicate_qualifiers.c":{
     "inclusions":[],
     "valid":false,
@@ -305,6 +319,12 @@
     "stdErr":"",
     "stdOut":""
   },
+  "transformation/constructs/global_function_static.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
   "transformation/constructs/types_primitive_and_compound.c":{
     "inclusions":[],
     "valid":"unrun configurations",
@@ -318,6 +338,12 @@
     "stdOut":""
   },
   "unit/struct_global_forward_reference_desugar.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listOfStructsDes.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",
@@ -416,6 +442,12 @@
     "stdOut":""
   },
   "transformation/declaringlists/undeclared.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listInStruct.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",
@@ -713,12 +745,6 @@
     "stdErr":"",
     "stdOut":""
   },
-  "typechecker/struct/tagnamespace.c":{
-    "inclusions":[],
-    "valid":true,
-    "stdErr":"",
-    "stdOut":""
-  },
   "typechecker/compound/primitive_function1.c":{
     "inclusions":[],
     "valid":"unrun configurations",
@@ -750,6 +776,12 @@
     "stdOut":""
   },
   "typechecker/examples/volatile_abstract_declarator.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listOfLists.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",
@@ -896,6 +928,12 @@
     "stdOut":""
   },
   "typechecker/examples/typedef_stdio.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listInStructDes.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",
@@ -1205,12 +1243,6 @@
     "stdErr":"",
     "stdOut":""
   },
-  "transformation/union/union_use.c":{
-    "inclusions":[],
-    "valid":true,
-    "stdErr":"",
-    "stdOut":""
-  },
   "unit/switch.c":{
     "inclusions":[
       "stdio.h"
@@ -1291,12 +1323,10 @@
     "stdErr":"",
     "stdOut":""
   },
-  "typechecker/struct/struct_init.desugared.test.c":{
-    "inclusions":[
-      "stdbool.h"
-    ],
-    "valid":false,
-    "stdErr":"typechecker/struct/struct_init.desugared.test.c: In function \u2018__main_5\u2019:\ntypechecker/struct/struct_init.desugared.test.c:26:7: error: \u2018PCA\u2019 undeclared (first use in this function)\n   if (PCA)\n       ^~~\ntypechecker/struct/struct_init.desugared.test.c:26:7: note: each undeclared identifier is reported only once for each function it appears in\ntypechecker/struct/struct_init.desugared.test.c:31:5: error: expected expression before \u2018...\u2019 token\n     ...\n     ^~~\n",
+  "transformation/union/union_use.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
     "stdOut":""
   },
   "unit/declaringlist.c":{
@@ -1583,6 +1613,12 @@
     "stdErr":"transformation/declaringlists/error_global.c:1:5: error: two or more data types in declaration specifiers\n int int j;\n     ^~~\n",
     "stdOut":""
   },
+  "typechecker/structInits/list_designator.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
   "transformation/typedef_struct/config_field_typedef.c":{
     "inclusions":[],
     "valid":true,
@@ -1719,6 +1755,18 @@
     "stdErr":"typechecker/configurable/PASS_impossibleTypedef.c: In function \u2018main\u2019:\ntypechecker/configurable/PASS_impossibleTypedef.c:7:3: error: unknown type name \u2018a\u2019\n   a x;\n   ^\n",
     "stdOut":""
   },
+  "typechecker/structInits/listInit.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listOfListsDesignated.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
   "typechecker/compound/pointer_function2.c":{
     "inclusions":[],
     "valid":true,
@@ -1827,10 +1875,10 @@
     "stdErr":"",
     "stdOut":""
   },
-  "unit/enum_forward_ref.c":{
+  "typechecker/structInits/listOfStructs.c":{
     "inclusions":[],
-    "valid":false,
-    "stdErr":"unit/enum_forward_ref.c:3:10: error: storage size of \u2018x\u2019 isn\u2019t known\n enum bob x;\n          ^\n",
+    "valid":true,
+    "stdErr":"",
     "stdOut":""
   },
   "v2Func/errorExpand.c":{
@@ -1975,12 +2023,24 @@
     "stdErr":"",
     "stdOut":""
   },
+  "typechecker/structInits/constList.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
   "transformation/constructs/types_extern_function_multiply-defined.autodesugar.c":{
     "inclusions":[
       "stdbool.h"
     ],
     "valid":false,
     "stdErr":"transformation/constructs/types_extern_function_multiply-defined.autodesugar.c:2:10: fatal error: desugared_macros.h: No such file or directory\n #include \"desugared_macros.h\" // configuration macros converted to C variables\n          ^~~~~~~~~~~~~~~~~~~~\ncompilation terminated.\n",
+    "stdOut":""
+  },
+  "transformation/expressions/constant_arithmetic_assignment.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
     "stdOut":""
   },
   "unit/forloop.c":{
@@ -2185,10 +2245,10 @@
     "stdErr":"",
     "stdOut":""
   },
-  "transformation/expressions/constant_arithmetic_assignment.c":{
+  "unit/enum_forward_ref.c":{
     "inclusions":[],
-    "valid":true,
-    "stdErr":"",
+    "valid":false,
+    "stdErr":"unit/enum_forward_ref.c:3:10: error: storage size of \u2018x\u2019 isn\u2019t known\n enum bob x;\n          ^\n",
     "stdOut":""
   },
   "unit/struct_selfref.c":{
@@ -2209,7 +2269,7 @@
     "stdErr":"typechecker/configurable/PASS_impossibleTypedef2.c: In function \u2018main\u2019:\ntypechecker/configurable/PASS_impossibleTypedef2.c:8:3: error: unknown type name \u2018a\u2019\n   a x;\n   ^\n",
     "stdOut":""
   },
-  "transformation/expressions/config_arr_assignment.c":{
+  "typechecker/struct/tagnamespace.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",

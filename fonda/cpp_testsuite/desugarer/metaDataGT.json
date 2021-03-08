@@ -2098,5 +2098,53 @@
     "valid":true,
     "stdErr":"",
     "stdOut":""
+  },
+  "typechecker/structInits/listOfStructsDes.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listInStruct.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listOfLists.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listInStructDes.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/list_designator.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listInit.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listOfListsDesignated.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listOfStructs.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
   }
 }

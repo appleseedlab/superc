@@ -307,6 +307,10 @@ abstract class Initializer {
     public String toString() {
       return String.format("[%s]", expression);
     }
+
+    public String getExpression() {
+      return expression;
+    }
   }
 
   /**

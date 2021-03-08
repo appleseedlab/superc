@@ -8,21 +8,19 @@ void __static_initializer_default();
 
 void __static_initializer_default() {
 __static_renaming("__main_0", "main");
-__static_renaming("__x_1", "x");
+__static_renaming("__a_1", "a");
 
 
 };
 
-int  __main_0 (void  ) {
+int  __main_0 () {
 {
-array(int) (__x_1[3]);
+array(int) (__a_1[3]);
 {
-__x_1[0] = - 2;
-__x_1[1] = 4;
-__x_1[2] = 5;
+__a_1[0] = 1;
+__a_1[1] = 2;
+__a_1[2] = 3;
 }
-return 0 ;
-
 }
 
 
