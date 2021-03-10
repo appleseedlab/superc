@@ -28,6 +28,10 @@ class Declaration {
     this.declarator = declarator;
   }
 
+  public Declarator getDeclarator() {
+    return declarator;
+  }
+
   /**
    * Returns true if the type specifier is invalid.
    */

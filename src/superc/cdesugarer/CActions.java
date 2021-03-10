@@ -944,7 +944,7 @@ public class CActions implements SemanticActions {
         	Multiverse<TypeSpecifier> structtypesmv
             = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 3, pc);
         	StringBuilder sb = new StringBuilder();  // the desugared output
-
+          
           for (Element<TypeSpecifier> typespecifier : structtypesmv) {
             if (! typespecifier.getData().getType().isError()) {
               sb.append(typespecifier.getData().toString());
@@ -2167,7 +2167,6 @@ public class CActions implements SemanticActions {
           
           Multiverse<TypeSpecifier> valuemv
             = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
-
           setTransformationValue(value, valuemv);
         }
     break;
@@ -2187,7 +2186,6 @@ public class CActions implements SemanticActions {
           
           Multiverse<TypeSpecifier> valuemv
             = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
-
           setTransformationValue(value, valuemv);
         }
     break;
@@ -2472,7 +2470,6 @@ public class CActions implements SemanticActions {
 
           Multiverse<Declarator> bitfieldsize = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> declarator = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc);
-
           if (bitfieldsize.size() == 1 && bitfieldsize.get(0).getData().isEmptyDeclarator()) {
             // if there's no bitfieldsize, there should just be a multiverse of size one with an empty declarator
             setTransformationValue(value, declarator);
@@ -2550,7 +2547,6 @@ public class CActions implements SemanticActions {
           }
           assert null != valuemv;
           errorCond.delRef();
-
           setTransformationValue(value, valuemv);
         }
     break;
@@ -7822,7 +7818,6 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
    * assembly and attribute contents, although this is not
    * necessary for source-level analysis.
    */
-
   todoReminder("typecheck initializers");
 
   StringBuilder valuesb = new StringBuilder();  // the desugared output

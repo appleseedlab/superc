@@ -1027,7 +1027,7 @@ Declaration:  /** complete **/  // String
         	Multiverse<TypeSpecifier> structtypesmv
             = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 3, pc);
         	StringBuilder sb = new StringBuilder();  // the desugared output
-
+          
           for (Element<TypeSpecifier> typespecifier : structtypesmv) {
             if (! typespecifier.getData().getType().isError()) {
               sb.append(typespecifier.getData().toString());
@@ -2165,7 +2165,6 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           
           Multiverse<TypeSpecifier> valuemv
             = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
-
           setTransformationValue(value, valuemv);
         }
         | STRUCT AttributeSpecifierListOpt IDENTIFIER LBRACE StructDeclarationList RBRACE
@@ -2183,7 +2182,6 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           
           Multiverse<TypeSpecifier> valuemv
             = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
-
           setTransformationValue(value, valuemv);
         }
         | STRUCT AttributeSpecifierListOpt TYPEDEFname LBRACE StructDeclarationList RBRACE
@@ -2495,7 +2493,6 @@ StructDeclarator: /** complete **/  // returns Multiverse<Declarator>
 
           Multiverse<Declarator> bitfieldsize = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
           Multiverse<Declarator> declarator = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 2, pc);
-
           if (bitfieldsize.size() == 1 && bitfieldsize.get(0).getData().isEmptyDeclarator()) {
             // if there's no bitfieldsize, there should just be a multiverse of size one with an empty declarator
             setTransformationValue(value, declarator);
@@ -2570,7 +2567,6 @@ BitFieldSize: /** nomerge **/  // Multiverse<Declarator>
           }
           assert null != valuemv;
           errorCond.delRef();
-
           setTransformationValue(value, valuemv);
         }
         ;
@@ -7709,7 +7705,6 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
    * assembly and attribute contents, although this is not
    * necessary for source-level analysis.
    */
-
   todoReminder("typecheck initializers");
 
   StringBuilder valuesb = new StringBuilder();  // the desugared output

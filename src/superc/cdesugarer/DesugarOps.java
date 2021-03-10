@@ -294,7 +294,7 @@ class DesugarOps {
       for (Element<Declaration> structfield : structfieldmv) {
         PresenceCondition combinedCond = pc.and(structfield.getCondition());
         if (combinedCond.isNotFalse()) {
-
+          Declarator d = structfield.getData().getDeclarator();
           // if the struct field has no name, then there is no
           // possibilty of a name clash.  we just give it a new
           // name so that it can be stored in the lookaside
@@ -302,13 +302,19 @@ class DesugarOps {
           String fieldName;
           Declaration renamedDeclaration;
           String renamedField;
-          if (structfield.getData().hasName()) {
+          if (d.hasName()) {
             fieldName = structfield.getData().getName();
             renamedField = freshIdCreator.freshCId(fieldName);
+            if (d.isNamedBitFieldSizeDeclarator()) {
+              renamedField += ((NamedBitFieldSizeDeclarator)d).getBitField();
+            }
             renamedDeclaration = structfield.getData().rename(renamedField);
           } else {
             fieldName = freshIdCreator.freshCId("anonymous_field");
             renamedField = fieldName;
+            if (d.isBitFieldSizeDeclarator()) {
+              renamedField += d.toString();
+            }
             renamedDeclaration = structfield.getData();
           }
           assert null != fieldName;

@@ -11,7 +11,7 @@ void __static_initializer_default() {
 
 };
 struct __myFirstStruct_0 {
-int  __var_1;
+int  __var_1: 5;
 };
 
 struct __myFirstStruct_0 ;

@@ -745,6 +745,8 @@ abstract class Declarator {
     @Override
     public boolean isNamedBitFieldSizeDeclarator() { return true; }
 
+    public String getBitField() { return this.bitfieldsize.toString(); }
+    
     public String toString() {
       return String.format("%s : %s", this.declarator.toString(), this.bitfieldsize.expression);
     }
