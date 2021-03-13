@@ -2406,7 +2406,16 @@ StructDeclaration: /** complete **/  // returns List<Multiverse<Declaration>>
               PresenceCondition typespecifierCond = subparser.getPresenceCondition().and(typespecifier.getCondition());
               for (Element<Declarator> declarator : declaratormv) {
                 PresenceCondition combinedCond = typespecifierCond.and(declarator.getCondition());
-                declarationmv.add(new Declaration(typespecifier.getData(), declarator.getData()), combinedCond);
+                Type t = typespecifier.getData().getType().resolve();
+                if ((t.isStruct() || t.isUnion()) &&
+                    ((StructOrUnionT)t).getName().startsWith("__forward_tag_reference_") &&
+                    !declarator.getData().isPointerDeclarator()) {
+                  TypeSpecifier ts = new TypeSpecifier();
+                  ts.setType(new ErrorT());
+                  declarationmv.add(new Declaration(ts, new EmptyDeclarator()), combinedCond);
+                } else {
+                  declarationmv.add(new Declaration(typespecifier.getData(), declarator.getData()), combinedCond);
+                }
                 combinedCond.delRef();
               } // end loop over declarators
               typespecifierCond.delRef();
@@ -8482,6 +8491,10 @@ private static class StructDeclaringListValue {
                                  Multiverse<Declarator> declarator) {
     this.typespecifier = typespecifier;
     this.declarator = declarator;
+  }
+
+  public String toString() {
+    return typespecifier.toString() + " " + declarator.toString();
   }
 }
 
