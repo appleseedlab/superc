@@ -2365,7 +2365,6 @@ public class CActions implements SemanticActions {
           // take all combinations of type specifiers and declarators
           // and produce a multiverse of declaration objects.
           List<Multiverse<Declaration>> list = new LinkedList<Multiverse<Declaration>>();
-          System.err.println(declaringlistvalues);
           for (StructDeclaringListValue declaringlistvalue : declaringlistvalues) {
             // unpack type specifier, declarators, and initializers from the transformation value
             Multiverse<TypeSpecifier> typespecifiermv = declaringlistvalue.typespecifier;
@@ -4114,10 +4113,21 @@ public class CActions implements SemanticActions {
           for (Element<Declarator> declarator : arrayabstractdeclarator) {
             PresenceCondition declaratorCond = subparser.getPresenceCondition().and(declarator.getCondition());
             for (Element<String> expression : arrayBounds) {
+              Type t = null;
+              for (Element<Type> et : exprval.type) {
+                if (et.getCondition().is(expression.getCondition())) {
+                  t = et.getData();
+                  break;
+                }
+              }
               PresenceCondition combinedCondition = declaratorCond.and(expression.getCondition());
-              valuemv.add(new ArrayAbstractDeclarator((ArrayAbstractDeclarator) declarator.getData(),
-                                                 expression.getData()),
-                     combinedCondition);
+              ArrayAbstractDeclarator a = new ArrayAbstractDeclarator((ArrayAbstractDeclarator) declarator.getData(),
+                                                                      expression.getData());
+              if (!t.hasConstant() && !t.hasAttribute(Constants.ATT_CONSTANT)) {
+                a.setTypeError(true);
+              }
+              valuemv.add(a, combinedCondition);
+              
               combinedCondition.delRef();
             }
             declaratorCond.delRef();
@@ -5084,7 +5094,6 @@ public class CActions implements SemanticActions {
           // it and the symtab should always return a non-empty mv
           assert ! sbmv.isEmpty();
           entries.destruct();
-          System.err.println(sbmv + "::" + typemv);
           /* System.err.println(sbmv); */
           /* System.err.println(typemv); */
 
@@ -5505,7 +5514,6 @@ public class CActions implements SemanticActions {
 
           // go through each type and see which have a field with this
           // name and collect the resulting type
-          System.err.println(postfixmv + "\n" + dotmv + " \n" + ident  + "::");
           Multiverse<Type> postfixtype = postfixval.type;
           Multiverse<Type> typemv = new Multiverse<Type>();  // resulting type
           Multiverse<String> identmv = new Multiverse<String>();  // desugaring

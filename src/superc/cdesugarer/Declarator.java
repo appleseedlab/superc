@@ -462,11 +462,13 @@ abstract class Declarator {
      * brackets.
      */
     protected final List<String> expressions;
-
+    protected boolean typeError;
+    
     /**
      * The initial single dimension array declarator.
      */
     public ArrayAbstractDeclarator(String expression) {
+      typeError = false;
       this.expressions = new LinkedList();
       this.expressions.add(expression);
     }
@@ -476,6 +478,7 @@ abstract class Declarator {
      */
     public ArrayAbstractDeclarator(ArrayAbstractDeclarator arraydeclarator,
                            String expression) {
+      typeError = false;
       this.expressions = new LinkedList(arraydeclarator.expressions);
       this.expressions.add(expression);
     }
@@ -489,9 +492,13 @@ abstract class Declarator {
       }
       return arrayType;
     }
-
+    
+    public void setTypeError(boolean t) {
+      typeError = t;
+    }
+    
     public boolean hasTypeError() {
-      return false;
+      return typeError;
     }
 
     public String getName() {
