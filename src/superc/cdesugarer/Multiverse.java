@@ -608,7 +608,10 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
       }
       return newmv;
     }
+    
   }
+
+  
 
   public String toString() {
     StringBuilder sb = new StringBuilder();

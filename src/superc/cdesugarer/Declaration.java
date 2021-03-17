@@ -32,6 +32,10 @@ class Declaration {
     return declarator;
   }
 
+  public TypeSpecifier getTypeSpec() {
+    return new TypeSpecifier(typespecifier);
+  }
+
   /**
    * Returns true if the type specifier is invalid.
    */

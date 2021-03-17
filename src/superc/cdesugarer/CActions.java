@@ -2419,6 +2419,11 @@ public class CActions implements SemanticActions {
 
           Multiverse<TypeSpecifier> typespecmv = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<Declaration> valuemv = DesugarOps.typespecToDeclaration.transform(typespecmv);
+          for (Element<Declaration> e : valuemv) {
+            if (!e.getData().hasName()) {
+              e.setData(new Declaration(e.getData().getTypeSpec(),new SimpleDeclarator("anon_id")));
+            }
+          }
           List<Multiverse<Declaration>> list = new LinkedList<Multiverse<Declaration>>();
           list.add(valuemv);
           setTransformationValue(value, list);
