@@ -492,6 +492,20 @@ public class SymbolTable<T> implements Iterable<String> {
   //   return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
   // }
 
+  /**
+   * returns a list of all anonymous ids that exist in the
+   * symbol table.
+   */
+  public List<String> getAnonIds() {
+    List<String> res = new LinkedList<String>();
+    for (String k : map.keySet()) {
+      if (k.startsWith("anon_id_")) {
+        res.add(k);
+      }
+    }
+    return res;
+  }
+  
   public String toString() {
     StringBuilder sb  = new StringBuilder();
 
@@ -503,6 +517,7 @@ public class SymbolTable<T> implements Iterable<String> {
     
     return sb.toString();
   }
+
 
   public static void main(String args[]) {
     PresenceConditionManager presenceConditionManager = new PresenceConditionManager();

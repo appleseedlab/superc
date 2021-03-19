@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.AbstractMap;
 
 import java.io.File;
 import java.io.Reader;
@@ -2421,7 +2422,8 @@ public class CActions implements SemanticActions {
           Multiverse<Declaration> valuemv = DesugarOps.typespecToDeclaration.transform(typespecmv);
           for (Element<Declaration> e : valuemv) {
             if (!e.getData().hasName()) {
-              e.setData(new Declaration(e.getData().getTypeSpec(),new SimpleDeclarator("anon_id")));
+              e.setData(new Declaration(e.getData().getTypeSpec(),new SimpleDeclarator(freshAnonId())));
+              
             }
           }
           List<Multiverse<Declaration>> list = new LinkedList<Multiverse<Declaration>>();
@@ -5599,25 +5601,35 @@ public class CActions implements SemanticActions {
                 // as long as the struct type specifiers are correct,
                 // this should always refer to a known (renamed)
                 // struct tag.
-                SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(tag);
 
-                // renamed the field according to the tag lookaside
-                // table, or produce an error if that configuration is
-                // missing the field.  expand to all possible
-                // variations of the field.
-                Multiverse<SymbolTable.Entry<Type>> fieldentries = tagtab.get(ident, type.getCondition());
-                for (Element<SymbolTable.Entry<Type>> fieldentry : fieldentries) {
-                  if (fieldentry.getData().isError()) {
-                    typemv.add(ErrorT.TYPE, fieldentry.getCondition());
-                  } else if (fieldentry.getData().isUndeclared()) {
-                    typemv.add(ErrorT.TYPE, fieldentry.getCondition());
-                  } else {  // declared
-                    VariableT fieldtype = fieldentry.getData().getValue().toVariable();  // these are stored as VariableT
-                    typemv.add(fieldtype.getType(), fieldentry.getCondition());
-                    identmv.add(fieldtype.getName(), fieldentry.getCondition());
-                    hasValidType = true;
+                //when here, we also need to check fields nested inside of anon structs/unions.
+                //these can't be forward references, so it only needs to be handled here.
+                PresenceCondition temp = type.getCondition();
+                Multiverse<Map.Entry<String,Type>> access = getNestedFields(tag,ident,temp,scope);
+                if (!access.isEmpty()) {
+                  for (Element<Map.Entry<String,Type>> e : access) {
+                    String fields = e.getData().getKey();
+                    if (fields.equals("")) {
+                      //more than one match was found
+                      typemv.add(ErrorT.TYPE, e.getCondition());
+                      identmv.add("", e.getCondition());
+                    } else {
+                      //found a match
+                      VariableT fieldType = ((VariableT)e.getData().getValue());
+                      typemv.add(fieldType.getType(), e.getCondition());
+                      identmv.add(e.getData().getKey(), e.getCondition());
+                      hasValidType = true;
+                    }
                   }
+                  if (!access.getComplement().and(temp).isFalse()) {
+                    typemv.add(ErrorT.TYPE, access.getComplement().and(temp));
+                    identmv.add("", access.getComplement().and(temp));
+                  }
+                } else {
+                  typemv.add(ErrorT.TYPE, temp);
+                  identmv.add("", temp);
                 }
+                temp.delRef();
               }
             } else {
               System.err.println("INFO: type error, not a struct/union type in DirectSelection");
@@ -8362,7 +8374,89 @@ private int trueInitSize(Initializer i) {
   }
   return maxSize;
 }
-  
+
+
+Multiverse<Map.Entry<String,Type>> getNestedFields(String structId, String fieldId, PresenceCondition pc, CContext scope) {
+  System.err.println(structId);
+  Multiverse<Map.Entry<String,Type>> result = new Multiverse<Map.Entry<String,Type>>();
+  SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(structId);
+  Multiverse<Entry<Type>> m = tagtab.get(fieldId, pc);
+  for (Element<Entry<Type>> e  : m) {
+    if (e.getData().isUndeclared()) {
+      continue;
+    }
+    //no checking needs to be done here since we know the multiverse returned has no
+    //violations
+    result.add(new AbstractMap.SimpleImmutableEntry<String,Type>(((VariableT)e.getData().getValue()).getName(),
+                                                                 e.getData().getValue()), e.getCondition().and(pc));
+  }
+  m.destruct();
+  //recursive call on anonymous ids
+  List<String> anonIds = tagtab.getAnonIds();
+  for (String a : anonIds) {
+    m = tagtab.get(a, pc);
+    for (Element<Entry<Type>> e : m) {
+      if (e.getData().isUndeclared()) {
+        continue;
+      }
+      PresenceCondition p = e.getCondition().and(pc);
+      VariableT v = ((VariableT)e.getData().getValue());
+      if (!v.getType().isStruct() && !v.getType().isUnion()) {
+        throw new IllegalStateException("Only structs and unions can be anonymously declared fields");
+      }
+      Multiverse<Map.Entry<String,Type>> inner = getNestedFields(((StructOrUnionT)v.getType()).getName(), fieldId, p, scope);
+      p.delRef();
+      //add anonymous id . to front of string.
+      //anonymous fields cannot be pointers
+      if (!inner.isEmpty()) {
+        for (Element<Map.Entry<String,Type>> ei : inner) {
+          ei.setData(new AbstractMap.SimpleImmutableEntry<String,Type>(((VariableT)e.getData().getValue()).getName()
+                                                                       + "." + ei.getData().getKey()
+                                                                       ,ei.getData().getValue()));
+        }
+
+        for (Element<Map.Entry<String,Type>> ei : inner) {
+          if (!result.isEmpty()) {
+            boolean remade;
+            do {
+              remade = false;
+              for (Element<Map.Entry<String,Type>> er : result) {
+                p = er.getCondition().and(ei.getCondition());
+                if (!p.isFalse() && !er.getData().getKey().equals("")) {
+                  //there is an overlap in presence conditions, which is a type error
+                  Multiverse<Map.Entry<String,Type>> newR = new Multiverse<Map.Entry<String,Type>>();
+                  for (Element<Map.Entry<String,Type>> en : result) {
+                    if (en != er) {
+                      newR.add(en);
+                    } else {
+                      newR.add(en.getData(), p);
+                      newR.add(en.getData(), er.getCondition().and(ei.getCondition().not()));
+                    }
+              
+                  }
+                  result.destruct();
+                  result = newR;
+                  remade = true;
+                  p.delRef();
+                  break;
+                }
+                p.delRef();
+              }
+            } while (remade);
+            if (!ei.getCondition().and(result.getComplement()).isFalse()) {
+              result.add(ei.getData(), ei.getCondition().and(result.getComplement()));
+            }
+          } else //result is empty, complement is 1, we can just add
+            {
+              result.add(ei);
+            }
+        }
+      }
+    }
+  }
+  return result;
+}
+
 /***************************************************************************
  **** Class to create fresh ids.
  ***************************************************************************/
@@ -8375,18 +8469,29 @@ public static class FreshIDCreator {
   /** The fresh identifier count. */
   protected int freshIdCount;
 
+  /** The fresh anon identifier count. */
+  protected int freshAnonIdCount;
+
   public FreshIDCreator() {
-    this(0, 0);
+    this(0, 0, 0);
   }
   
-  public FreshIDCreator(int freshNameCount, int freshIdCount) {
+  public FreshIDCreator(int freshNameCount, int freshIdCount, int freshAnonIdCount) {
     this.freshNameCount = freshNameCount;
     this.freshIdCount = freshIdCount;
+    this.freshAnonIdCount = freshAnonIdCount;
   }
 
   // The following naming and namespacing functionality is taken
   // directly from xtc.util.SymbolTable.
 
+  public String freshAnonId() {
+    String r = "anon_id_";
+    r += Integer.toString(freshAnonIdCount);
+    freshAnonIdCount++;
+    return r;
+  }
+  
   /**
    * Create a fresh name.  The returned name has
    * "<code>anonymous</code>" as it base name.
@@ -8450,6 +8555,10 @@ FreshIDCreator freshIdCreator = new FreshIDCreator();
 
 public String freshCId(String base) {
   return freshIdCreator.freshCId(base);
+}
+
+public String freshAnonId() {
+  return freshIdCreator.freshAnonId();
 }
 
 /**
@@ -9944,7 +10053,6 @@ int nextRelTagIsTypedef(Object a)
     }
     return nextRelTagIsTypedef(((Pair)a).tail());
   }
-  System.err.println("other:" + a);
     
   Language t = (Language) a;
   
@@ -10361,7 +10469,7 @@ private static class Specifiers {
     this.seenDouble = s.seenDouble;
     this.seenComplex = s.seenComplex;
   }
-
+  
   /**
    * Add given specs to this set of specs.  Adds in-place and returns
    * this updated specs object.
