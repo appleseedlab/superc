@@ -2389,11 +2389,15 @@ public class ForkMergeParser {
     for (int i = 0; i < yylen; i++) {
       if (conditionGranularity) {
         if (0 == i) {
-          conditionalAfter
-            = topState.conditionalAfter || topState.conditionalInside;
+          conditionalAfter = topState.conditionalAfter;
           afterSet.clear();
           afterSet.addAll(topState.afterSet);
           afterSet.addAll(topState.insideSet);
+          
+          conditionalInside = topState.conditionalInside;
+          insideSet.clear();
+          insideSet.addAll(topState.afterSet);
+          insideSet.addAll(topState.insideSet);
         } else {
           conditionalInside = conditionalInside
             || topState.conditionalAfter || topState.conditionalInside;
