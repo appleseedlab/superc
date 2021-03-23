@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.*;
 
 import superc.core.Lexer;
 import superc.core.LexerCreator;
@@ -356,7 +357,12 @@ public class SuperC extends Tool {
            "Show lookaheads on each parse loop (warning: very voluminous "
            + "output!)").
       bool("macroTable", "macroTable", false,
-           "Show the macro symbol table.")
+           "Show the macro symbol table.").
+      word("sourcelinePC", "sourcelinePC", false,
+           "Print the presence conditions for given lines. "
+           + "Takes a list of lines and ranges, e.g., \"3,5:7,8:10,15\". "
+           + "-1 represents the last line when used as the second of a range."
+           )
       ;
   }
   
@@ -720,9 +726,145 @@ public class SuperC extends Tool {
     if (runtime.test("time")) {
       preprocessor = new StreamTimer<Syntax>(preprocessor, preprocessorTimer);
     }
-      
     // Run SuperC.
-    if (runtime.test("follow-set")) {
+    if (null != runtime.getString("sourcelinePC")) {
+      //
+      // Check the input format
+      //
+      String sourcelinePCArg = runtime.getString("sourcelinePC");
+
+      // The input format is a list of 1-indexed sourceline, each is a single line or a range
+      // -1 is the special line number representing the last line to be used as second of ranges
+      // Some example input values:
+      //  5 (means 5th line)
+      //  5,8 (means 5th and 8th lines)
+      //  5:8 (means 5th to 8th lines, inclusive, i.e., the lines 5,6,7,8)
+      //  5:-1 (means lines starting from 5 until the end of the file)
+      //  1,5:6,7:7 (means the lines 1,5,6,7)
+      String singlePattern = "((\\d+)(:((\\d+)|(-1)))?)";
+      String listPattern = String.format("^%s(,%s)*$", singlePattern, singlePattern);
+      Pattern sourcelineInputPattern = Pattern.compile(listPattern);
+      Matcher m = sourcelineInputPattern.matcher(sourcelinePCArg);
+      if (!m.matches()) {
+        runtime.error("invalid sourceline argument format.");
+        runtime.exit();
+      }
+
+      //
+      // Parse the input as a list of sourceline ranges
+      //
+      class Pair<T1, T2> {
+        T1 x;
+        T2 y;
+        Pair(T1 x, T2 y) { this.x = x; this.y = y; }
+      }
+
+      List<Pair<Integer, Integer>> lineRanges = new ArrayList<>();
+      for (String lineRangeStr : sourcelinePCArg.split(",")) {
+        int start, end;
+        if (lineRangeStr.contains(":")) {
+          start = Integer.parseInt(lineRangeStr.split(":")[0]);
+          end = Integer.parseInt(lineRangeStr.split(":")[1]);
+        } else {
+            start = end = Integer.parseInt(lineRangeStr);
+        }
+        if (start > end && end != -1) {
+          runtime.error("invalid sourceline argument: malformed range with start larger than end.");
+          runtime.exit();
+        }
+        lineRanges.add(new Pair<>(start, end));
+      }
+
+      //
+      // Get list of presence conditions per sourceline range for whole file
+      //
+
+      // TODO(necip): currently, we get pc using preprocessor only, which misses some common patterns like if(IS_ENABLED(CONFIG_MACRO)). do parsing for this.
+      
+      
+      // The changing presence conditions are represented as a "presence condition" and
+      // "line number that such pc becomes effective" pair. The presence condition
+      // at the end of the list is effective until the end of the file.
+      List<Pair<Integer, PresenceCondition>> presenceConditions = new ArrayList<>();
+
+      // Keep track of the presence conditions in a stack
+      LinkedList<PresenceCondition> parents = new LinkedList<PresenceCondition>();
+      parents.push(presenceConditionManager.newTrue());
+
+      String inFileAbsPath = file.getAbsolutePath();
+      int linecount = 0;
+
+      Syntax syntax;
+      syntax = preprocessor.next();
+      while (syntax.kind() != Kind.EOF) {
+        Location syntaxLoc = syntax.getLocation();
+        if (null != syntaxLoc && inFileAbsPath.endsWith(syntaxLoc.file)) {
+          linecount = syntaxLoc.line; // will be last updated by the last line
+
+          if (syntax.kind() == Kind.CONDITIONAL) {
+            PresenceCondition pc;
+            switch(syntax.toConditional().tag()) {
+              case NEXT:
+                parents.pop();
+                pc = syntax.toConditional().presenceCondition();
+                parents.push(pc);
+                break;
+              case START:
+                pc = syntax.toConditional().presenceCondition();
+                parents.push(parents.peek().and(pc));
+                break;
+              case END:
+                parents.pop();
+                break;
+            }
+            // Check if the same line is hit (might happen when content from header is replaced due to `define` directives)
+            if (!presenceConditions.isEmpty() && presenceConditions.get(presenceConditions.size()-1).x == syntaxLoc.line) {
+              Pair<Integer, PresenceCondition> loc_pc_pair = presenceConditions.get(presenceConditions.size()-1);
+              PresenceCondition lastPc = loc_pc_pair.y;
+              loc_pc_pair.y = loc_pc_pair.y.or(parents.peek());
+            } else {
+              presenceConditions.add(new Pair<>(syntaxLoc.line, parents.peek()));
+            }
+          }
+        }
+        syntax = preprocessor.next();
+      }
+
+      //
+      // Build the presence condition for all queried range of sourcelines
+      //
+      PresenceCondition resultPc = presenceConditionManager.newTrue(); 
+      for (int i = 0; i < presenceConditions.size(); i++) {
+        int start_lineno = presenceConditions.get(i).x;
+        int end_lineno = i+1 < presenceConditions.size() ? presenceConditions.get(i+1).x : linecount;
+        
+        // TODO(necip): merge the repeating ones as it might happen because of going in/out header files (so change end lines)
+
+        PresenceCondition pc = presenceConditions.get(i).y;
+        // Following is the verbose output (possibly for debugging)
+        System.err.println(String.format("Presence condition for lines \"%d:%d\" is \"%s\"", start_lineno, end_lineno, pc.toString()));
+        
+        // Traverse each sourceline range to see if this range is to be included.
+        boolean includePc = false;
+        for (Pair<Integer, Integer> lineRange : lineRanges) {
+          int start1 = lineRange.x, end1 = lineRange.y;
+          int start2 = start_lineno, end2 = end_lineno; // this is file
+          if (Integer.max(start1, start2) <= Integer.min(end1, end2) || (end2 >= start1 && end1 == -1) ) {
+            // There is an intersection with the range, thus, take this presence condition
+            includePc = true;
+            break;
+          }
+        }
+        if (includePc) {
+          resultPc = resultPc.and(pc);
+        }
+      }
+
+      //
+      // Print the result
+      //
+      System.out.println( String.format("Sourceline presence condition: \"%s\"", resultPc.toString()));
+    } else if (runtime.test("follow-set")) {
       // Compute the follow-set of each token of the preprocessed
       // input.
 
