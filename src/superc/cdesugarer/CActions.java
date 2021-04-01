@@ -4130,7 +4130,9 @@ public class CActions implements SemanticActions {
               PresenceCondition combinedCondition = declaratorCond.and(expression.getCondition());
               ArrayAbstractDeclarator a = new ArrayAbstractDeclarator((ArrayAbstractDeclarator) declarator.getData(),
                                                                       expression.getData());
-              if (!t.hasConstant() && !t.hasAttribute(Constants.ATT_CONSTANT)) {
+              System.err.println(t.getClass());
+              if (!t.hasConstant() && !t.hasAttribute(Constants.ATT_CONSTANT) &&
+                  !t.isNumber()) {
                 a.setTypeError(true);
               }
               valuemv.add(a, combinedCondition);
@@ -4555,7 +4557,10 @@ public class CActions implements SemanticActions {
             // if filtering of type errors is done right, this add
             // should not violate mutual-exclusion in the multiverse
             // TODO: use dce and other optimizations to remove superfluous __static_type_error calls
+            // since desugarOps can't have empty multiverses we need to add error entries
+            // so here we should purge the errorCond from the string multiverse before appending
             todoReminder("add emitError back to ExpressionStatement once type checking is done");
+            expr = expr.filter(errorCond.not());
             expr.add(emitError("type error"), errorCond);
             valuemv = expr.appendScalar(semi, DesugarOps.concatStrings);
             
@@ -5752,7 +5757,8 @@ public class CActions implements SemanticActions {
                   } // finished looking at the entry
                 }  // finished going over the original tag's renamings
                 
-              } else {  // a renamed tag, rather than a forward reference tag
+              } else {
+                // a renamed tag, rather than a forward reference tag
                 // as long as the struct type specifiers are correct,
                 // this should always refer to a known (renamed)
                 // struct tag.
@@ -7854,7 +7860,7 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
    * necessary for source-level analysis.
    */
   todoReminder("typecheck initializers");
-
+  System.err.println(declaringlistvalues);
   StringBuilder valuesb = new StringBuilder();  // the desugared output
 
   // loop over each element of the declaration list
@@ -7963,7 +7969,6 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                       desugaredDeclaration = renamedDeclaration.toString();
                     }
                     assert null != desugaredDeclaration;
-                    
                     if (entry.getData().isError()) {
                       // ERROR entry
                       System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
@@ -7992,11 +7997,11 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                           recordRenaming(renaming, originalName);
                         }
                         if (declarationType.isArray()){
-                          if (((ArrayT)declarationType).hasLength()) {
+                          if (!((ArrayT)declarationType).hasLength()) {
                             entrysb.append(desugaredDeclaration);
                           } else {
                             //if  the length is implcit, we need to manually assign a value
-                            entrysb.append(declarationType.toString() + " " + ((ArrayDeclarator)renamedDeclarator).toString(trueInitSize(initializer.getData())));
+                            entrysb.append(renamedDeclaration.toString(trueInitSize(initializer.getData())));
                           }
                           entrysb.append(semi + "\n");  // semi-colon
                           entrysb.append("{\n" + initArray(renaming, (ArrayT)declarationType, initializer.getData(), scope, combinedCond) + "}");
@@ -8411,7 +8416,7 @@ Multiverse<Map.Entry<String,Type>> getNestedFields(String structId, String field
       if (!inner.isEmpty()) {
         for (Element<Map.Entry<String,Type>> ei : inner) {
           ei.setData(new AbstractMap.SimpleImmutableEntry<String,Type>(((VariableT)e.getData().getValue()).getName()
-                                                                       + "." + ei.getData().getKey()
+                                                                       + " . " + ei.getData().getKey()
                                                                        ,ei.getData().getValue()));
         }
 

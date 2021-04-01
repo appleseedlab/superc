@@ -21,13 +21,13 @@ union __anonymous_tag_6 {
 struct ____t_1_4  ____t_1_7;
 };
 struct __t_8 {
-union __anonymous_tag_6  ;
+union __anonymous_tag_6  __anon_id_0_9;
 };
 union __anonymous_tag_10 {
 struct ____s_0_1  ____s_0_11;
 };
 struct __s_12 {
-union __anonymous_tag_10  ;
+union __anonymous_tag_10  __anon_id_1_13;
 };
 
 struct __forward_tag_reference_0 { // generated union of struct variations

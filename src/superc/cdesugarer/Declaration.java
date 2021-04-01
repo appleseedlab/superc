@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import xtc.type.Type;
 import xtc.type.VariableT;
 import xtc.type.AliasT;
+import superc.cdesugarer.Declarator.ArrayDeclarator;
 
 import superc.core.Syntax;
 import xtc.Constants;
@@ -79,6 +80,10 @@ class Declaration {
     return String.format("%s %s", typespecifier.toString(), declarator.toString());
   }
 
+  public String toString(int len) {
+    return String.format("%s %s", typespecifier.toString(), ((ArrayDeclarator)declarator).toString(len));
+  }
+  
   /**
    * Returns false if the typespecifier && declarator aren't valid
    */

@@ -19,7 +19,7 @@ int  __a_1;
 struct __x_0 ;
 int  __main_2 () {
 {
-array(struct __x_0) (__b_3[5]);
+struct __x_0  (__b_3[10]);
 {
 if (1) {
 __b_3[0].__a_1 = 2;

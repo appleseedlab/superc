@@ -15,7 +15,7 @@ __static_renaming("__a_1", "a");
 
 int  __main_0 () {
 {
-array(array(array(int))) (__a_1[3]);
+int  (__a_1[5][5][5]);
 {
 if (1) {
 __a_1[0][0][0] = 1;

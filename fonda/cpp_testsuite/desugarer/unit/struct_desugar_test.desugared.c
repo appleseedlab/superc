@@ -20,7 +20,7 @@ union __anonymous_tag_4 {
 struct ____s_1_1  ____s_1_5;
 };
 struct __s_6 {
-union __anonymous_tag_4  ;
+union __anonymous_tag_4  __anon_id_0_7;
 };
 
 struct __forward_tag_reference_0 { // generated union of struct variations
@@ -36,7 +36,7 @@ struct __s_6  __x1_8;
 int  __main_9 () {
 {
 struct __s_6 ;
-__static_type_error("invalid type found in return expression");
+return  __x1_8  . __anon_id_0_7 . ____s_1_5 . __data_2 ;
 
 }
 

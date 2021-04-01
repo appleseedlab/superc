@@ -720,6 +720,10 @@ public class SuperC extends Tool {
     if (runtime.test("time")) {
       preprocessor = new StreamTimer<Syntax>(preprocessor, preprocessorTimer);
     }
+
+    if (runtime.test("newErrorHandling")) {
+      ForkMergeParser.setNewErrorHandling(true);
+    }
       
     // Run SuperC.
     if (runtime.test("follow-set")) {
@@ -733,6 +737,7 @@ public class SuperC extends Tool {
         .collectStatistics(runtime.test("statisticsLanguage"));
       CActions actions = CActions.getInstance();
       actions.collectStatistics(runtime.test("statisticsLanguage"));
+      
       ForkMergeParser parser
         = new ForkMergeParser(CParseTables.getInstance(),
                               CValues.getInstance(), actions,

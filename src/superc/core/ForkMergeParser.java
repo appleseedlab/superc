@@ -103,7 +103,7 @@ public class ForkMergeParser {
    * state with an Syntax.Error object.  The subparser will be merged
    * instead of thrown away.
    */
-  final private static boolean NEW_ERROR_HANDLING = false;
+  private static boolean NEW_ERROR_HANDLING = false;
 
   /** Save the disjunction of invalid configurations. */
   final private static boolean SAVE_ERROR_COND = false;
@@ -257,6 +257,13 @@ public class ForkMergeParser {
     if (SAVE_ERROR_COND) {
       this.invalid = presenceConditionManager.newFalse();
     }
+  }
+
+  /**
+   * assigns the given value to NEW_ERROR_HANDLING
+   */
+  public static void setNewErrorHandling(boolean b) {
+    NEW_ERROR_HANDLING = b;
   }
 
   /**

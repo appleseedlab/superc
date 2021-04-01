@@ -27,16 +27,16 @@ struct __anonymous_tag_2  __s2_8;
 struct __anonymous_tag_4  __s3_9;
 };
 struct __s_10 {
-union __anonymous_tag_6  ;
+union __anonymous_tag_6  __anon_id_0_11;
 };
 
 struct __s_10 ;
 int  __main_12 () {
 {
 struct __s_10  __t_13;
-__static_type_error("type error");
+ __t_13  . __anon_id_0_11 . __s1_7 . __x_1 = 1 ;
 
-__static_type_error("type error");
+ __t_13  . __anon_id_0_11 . __s3_9 . __y_5 = 2 ;
 
 }
 

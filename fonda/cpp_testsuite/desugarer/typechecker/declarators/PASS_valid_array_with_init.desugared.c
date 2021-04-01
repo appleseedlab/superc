@@ -15,7 +15,7 @@ __static_renaming("__x_1", "x");
 
 int  __main_0 (void  ) {
 {
-array(int) (__x_1[5]);
+int  (__x_1[5]);
 {
 __x_1[0] = 1;
 __x_1[1] = 2;
