@@ -983,7 +983,7 @@ public class CActions implements SemanticActions {
     {
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = ((CContext) subparser.scope);
-
+          
         	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
           String semi = getNodeAt(subparser, 1).getTokenText();
 
@@ -1696,7 +1696,6 @@ public class CActions implements SemanticActions {
       	  Multiverse<TypeSpecifier> typedefnametbmv = DesugarOps.typedefEntriesToTypeSpecifier.transform(entries);
           // combine with the existing qualifier list
           Multiverse<TypeSpecifier> combinedtbmv = qualtbmv.product(typedefnametbmv, DesugarOps.specifierProduct);
-          System.err.println("L:" + qualtbmv.toString() + "\nR:" + typedefnametbmv.toString() + "\nF:" + combinedtbmv.toString());
           typedefnametbmv.destruct();
           setTransformationValue(value, combinedtbmv);
         }
@@ -7860,7 +7859,6 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
    * necessary for source-level analysis.
    */
   todoReminder("typecheck initializers");
-  System.err.println(declaringlistvalues);
   StringBuilder valuesb = new StringBuilder();  // the desugared output
 
   // loop over each element of the declaration list
