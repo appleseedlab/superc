@@ -41,7 +41,7 @@ if (__static_condition_default_5) {
 
 } __y_3  ++ ;
 
-__static_type_error("type error");
+__static_type_error("type error : no valid expression");
 
 }
 

@@ -832,6 +832,20 @@ class DesugarOps {
   };
 
   /**
+   * product of two types. Returns an error if either type is an error.
+   * otherwise returns left type. This should only be temporary in binary
+   * expressions until full type checking is done.
+   */
+  public final static Multiverse.Operator<Type> propTypeError = (t1, t2) -> {
+    Type newtype;
+    newtype = t1;
+    if (t2 == ErrorT.TYPE) {
+      newtype = ErrorT.TYPE;
+    }
+    return newtype;
+  };
+
+  /**
    * Check the type of an assignment.
    */
   public final static Multiverse<Type> checkAssignmentType(Multiverse<Type> left, Multiverse<Type> right,

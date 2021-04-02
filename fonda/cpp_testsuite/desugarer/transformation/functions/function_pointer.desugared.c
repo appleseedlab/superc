@@ -16,7 +16,7 @@ __static_renaming("__fun_ptr_3", "fun_ptr");
 
 void  __fun_1 (int  __a_0) {
 {
-__static_type_error("type error");
+__static_type_error("type error : no valid expression");
 
 }
 

@@ -50,7 +50,7 @@ if (__static_condition_default_5) {
 }
 
 if (__static_condition_default_6) {
-__static_type_error("type error") ;
+ __x_2  =  __x_2  +  __z_4  -  __y_3  ;
 
 }
 
@@ -62,7 +62,7 @@ if (__static_condition_default_5) {
 }
 
 if (__static_condition_default_6) {
-__static_type_error("type error") ;
+ __x_2  =  __x_2  / 4 ;
 
 }
 

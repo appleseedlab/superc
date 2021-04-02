@@ -146,7 +146,6 @@ unit/struct_global_local                                                        
 unit/struct_crossref_global2                                                               BC generated
 unit/enum_forward_ref                                                                      File isn't valid
 unit/qualifiedpointer                                                                      BC generated
-unit/const_str_access                                                                      File GT not confirmed
 unit/struct_crossref_global                                                                File isn't valid
 unit/struct_nonpointer                                                                     File GT not confirmed
 unit/begin_decls                                                                           BC generated
@@ -173,7 +172,6 @@ unit/forloopdecl                                                                
 unit/function_configurably_defined                                                         File GT not confirmed
 unit/struct_global_forward_reference                                                       BC generated
 unit/configurable_array                                                                    File isn't valid
-unit/printf                                                                                File GT not confirmed
 unit/bitfieldsize                                                                          File GT not confirmed
 unit/enum_libbb                                                                            BC generated
 unit/struct_global_forward_reference_illegal                                               File isn't valid
@@ -200,7 +198,7 @@ unit/struct_global_forward_reference_ifdeftoif                                  
 unit/struct_union_enum                                                                     File isn't valid
 unit/jump_statement                                                                        File isn't valid
 unit/single                                                                                BC generated
-unit/switch                                                                                BC failed
+unit/switch                                                                                BC generated
 unit/struct_configurable                                                                   BC generated
 unit/offsetof                                                                              BC failed
 linking/same_type/global_only                                                              File GT not confirmed

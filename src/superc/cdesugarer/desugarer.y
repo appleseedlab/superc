@@ -1063,7 +1063,6 @@ Declaration:  /** complete **/  // String
           
         	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
           String semi = getNodeAt(subparser, 1).getTokenText();
-
           String valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
           
           setTransformationValue(value, valuestring);
@@ -3987,7 +3986,6 @@ PostfixingFunctionDeclarator:  /** nomerge **/ // Multiverse<ParameterListDeclar
             = (ParameterTypeListValue) getTransformationValue(subparser,3);
           List<Multiverse<Declaration>> parameterdeclaratorlistsmv = parametertypelist.list;
           boolean varargs = parametertypelist.varargs;
-
           // use Multiverse<List<Parameter>> for ParameterTypeListOpt
           
           // find each combination of single-configuration parameter
@@ -4680,13 +4678,15 @@ ExpressionStatement:  /** complete **/  // Multiverse<String>
             // since desugarOps can't have empty multiverses we need to add error entries
             // so here we should purge the errorCond from the string multiverse before appending
             todoReminder("add emitError back to ExpressionStatement once type checking is done");
-            expr = expr.filter(errorCond.not());
-            expr.add(emitError("type error"), errorCond);
+            if (errorCond.isNotFalse()) {
+              expr = expr.filter(errorCond.not());
+              expr.add(emitError("type error"), errorCond);
+            }
             valuemv = expr.appendScalar(semi, DesugarOps.concatStrings);
             
           } else {
             System.err.println("type error: ExpressionStatement found no valid expressions");
-            valuemv = new Multiverse<String>(String.format("%s;", emitError("type error")), errorCond);
+            valuemv = new Multiverse<String>(String.format("%s;", emitError("type error : no valid expression")), errorCond);
           }
           assert valuemv != null;
           /* System.err.println("EXPSMT: " + valuemv); */
@@ -5402,7 +5402,6 @@ FunctionCall:  /** nomerge **/
 
           /* System.err.println("PFTYPE: " + postfixexprval.type); */
           /* System.err.println("PFTRAN: " + postfixexprval.transformation); */
-
           if (postfixexprval.hasValidType()) {
             /* postfixexprval.transformation; */
             Multiverse<String> lparen
@@ -6507,7 +6506,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
                                                                          leftmv,
                                                                          opmv,
                                                                          rightmv),
-                                                              productAll(DesugarOps.compareTypes, leftval.type, rightval.type)));  // TODO: this is a placeholder for the real type
+                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in multiplicative expression"),
                                                               ErrorT.TYPE,
@@ -6531,7 +6530,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
                                                                          leftmv,
                                                                          opmv,
                                                                          rightmv),
-                                                              productAll(DesugarOps.compareTypes, leftval.type, rightval.type)));  // TODO: this is a placeholder for the real type
+                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in multiplicative expression"),
                                                               ErrorT.TYPE,
@@ -6545,7 +6544,6 @@ MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
           ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
-
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> rightmv = rightval.transformation;
@@ -6555,7 +6553,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
                                                                          leftmv,
                                                                          opmv,
                                                                          rightmv),
-                                                              productAll(DesugarOps.compareTypes, leftval.type, rightval.type)));  // TODO: this is a placeholder for the real type
+                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in multiplicative expression"),
                                                               ErrorT.TYPE,
@@ -6586,7 +6584,7 @@ AdditiveExpression:  /** passthrough, nomerge **/  // ExpressionValue
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.compareTypes, leftval.type, rightval.type))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -6610,7 +6608,7 @@ AdditiveExpression:  /** passthrough, nomerge **/  // ExpressionValue
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.compareTypes, leftval.type, rightval.type))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -8638,6 +8636,10 @@ private static class ParameterTypeListValue {
   public ParameterTypeListValue(List<Multiverse<Declaration>> list, boolean varargs) {
     this.list = list;
     this.varargs = varargs;
+  }
+
+  public String toString() {
+    return list.toString();
   }
 }
 

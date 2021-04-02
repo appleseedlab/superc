@@ -95,6 +95,7 @@ class Declaration {
          !typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF) &&
          !declarator.isFunctionDeclarator() &&
          !declarator.isPointerDeclarator() &&
+         !declarator.isPointerAbstractDeclarator() &&
          !declarator.isEmptyDeclarator()) ||
         //if the left is inline, right must be a function
         (typespecifier.hasInline() && !declarator.isFunctionDeclarator())

@@ -28,7 +28,7 @@ return 1 ;
 
 
 
-__static_type_error("invalid type found in return expression");
+return  __n_2  *  __factorial_3  (  __n_2  - 1 ) ;
 
 }
 

@@ -43,7 +43,7 @@ struct __list_3  __tail_8;
 
 struct __list_3  (* __current_9)= &  __head_7 ;
 while ( 0 !=  __current_9  ) {
-__static_type_error("type error");
+__static_type_error("type error : no valid expression");
 
  __current_9  =  __current_9  -> __next_5 ;
 

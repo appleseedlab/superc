@@ -6,13 +6,14 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_9;
-extern const bool __static_condition_default_11;
-extern const bool __static_condition_default_8;
-extern const bool __static_condition_default_10;
-extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_8;
+extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_12;
+extern const bool __static_condition_default_13;
 extern const bool __static_condition_default_2;
+extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_10;
 void __static_initializer_default() {
 __static_renaming("__a_0", "a");
 __static_renaming("__a_3", "a");
@@ -26,7 +27,8 @@ __static_condition_renaming("__static_condition_default_8", "(defined A) && !(de
 __static_condition_renaming("__static_condition_default_9", "!(defined A) && (defined B) && !(defined C)");
 __static_condition_renaming("__static_condition_default_10", "!(defined A) && !(defined B) || !(defined A) && (defined B) && (defined C) || (defined A) && !(defined B) && (defined C) || (defined A) && (defined B)");
 __static_condition_renaming("__static_condition_default_11", "(defined A) && !(defined B) && !(defined C)");
-__static_condition_renaming("__static_condition_default_12", "!(defined A) || (defined A) && !(defined B) && (defined C) || (defined A) && (defined B)");
+__static_condition_renaming("__static_condition_default_12", "!(defined A) && (defined B) && !(defined C)");
+__static_condition_renaming("__static_condition_default_13", "!(defined A) && !(defined B) || !(defined A) && (defined B) && (defined C) || (defined A) && !(defined B) && (defined C) || (defined A) && (defined B)");
 
 };
 
@@ -62,6 +64,11 @@ if (__static_condition_default_11) {
 }
 
 if (__static_condition_default_12) {
+ __x_5  = 7 *  __a_3  + 2 ;
+
+}
+
+if (__static_condition_default_13) {
 __static_type_error("type error") ;
 
 }

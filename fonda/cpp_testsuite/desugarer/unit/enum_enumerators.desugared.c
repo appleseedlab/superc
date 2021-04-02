@@ -23,7 +23,7 @@ enum E  __x_3;
 int  __nonenumerator_4= 10;
 int  __main_5 () {
 {
-__static_type_error("type error");
+__static_type_error("type error : no valid expression");
 
 }
 

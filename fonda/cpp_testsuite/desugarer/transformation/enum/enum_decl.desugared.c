@@ -25,7 +25,7 @@ enum letter ;
 int  __main_6 (void  ) {
 {
 enum letter  __apple_7;
-__static_type_error("type error");
+__static_type_error("type error : no valid expression");
 
 return 0 ;
 

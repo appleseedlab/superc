@@ -31,7 +31,7 @@ enum someLetters ;
 int  __main_11 (void  ) {
 {
 enum someLetters  __apple_12;
-__static_type_error("type error");
+__static_type_error("type error : no valid expression");
 
 return 0 ;
 

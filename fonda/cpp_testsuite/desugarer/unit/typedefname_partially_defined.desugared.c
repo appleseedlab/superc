@@ -6,12 +6,12 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_12;
-extern const bool __static_condition_default_2;
-extern const bool __static_condition_default_9;
 extern const bool __static_condition_default_11;
-extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_2;
 void __static_initializer_default() {
 __static_renaming("__a_0", "a");
 __static_renaming("__a_3", "a");

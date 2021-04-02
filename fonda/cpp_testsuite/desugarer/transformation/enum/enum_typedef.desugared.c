@@ -27,7 +27,7 @@ typedef enum letter  __letter_6;
 int  __main_7 (void  ) {
 {
 __letter_6  __apple_8;
-__static_type_error("type error");
+__static_type_error("type error : no valid expression");
 
 return 0 ;
 

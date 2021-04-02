@@ -91,97 +91,98 @@ __static_renaming("___IO_ftrylockfile_152", "_IO_ftrylockfile");
 __static_renaming("___IO_vfscanf_153", "_IO_vfscanf");
 __static_renaming("___IO_vfprintf_154", "_IO_vfprintf");
 __static_renaming("___IO_padn_155", "_IO_padn");
-__static_renaming("___IO_seekoff_156", "_IO_seekoff");
-__static_renaming("___IO_seekpos_157", "_IO_seekpos");
-__static_renaming("___IO_free_backup_area_158", "_IO_free_backup_area");
-__static_renaming("__va_list_159", "va_list");
-__static_renaming("__off_t_160", "off_t");
-__static_renaming("__ssize_t_161", "ssize_t");
-__static_renaming("__fpos_t_162", "fpos_t");
-__static_renaming("__stdin_163", "stdin");
-__static_renaming("__stdout_164", "stdout");
-__static_renaming("__stderr_165", "stderr");
-__static_renaming("__remove_167", "remove");
-__static_renaming("__rename_170", "rename");
-__static_renaming("__renameat_175", "renameat");
-__static_renaming("__tmpfile_176", "tmpfile");
-__static_renaming("__tmpnam_178", "tmpnam");
-__static_renaming("__tmpnam_r_180", "tmpnam_r");
-__static_renaming("__tempnam_183", "tempnam");
-__static_renaming("__fclose_185", "fclose");
-__static_renaming("__fflush_187", "fflush");
-__static_renaming("__fflush_unlocked_189", "fflush_unlocked");
-__static_renaming("__fopen_192", "fopen");
-__static_renaming("__freopen_196", "freopen");
-__static_renaming("__fdopen_199", "fdopen");
-__static_renaming("__fmemopen_203", "fmemopen");
-__static_renaming("__open_memstream_206", "open_memstream");
-__static_renaming("__setbuf_209", "setbuf");
-__static_renaming("__setvbuf_214", "setvbuf");
-__static_renaming("__setbuffer_218", "setbuffer");
-__static_renaming("__setlinebuf_220", "setlinebuf");
-__static_renaming("__fprintf_223", "fprintf");
-__static_renaming("__printf_225", "printf");
-__static_renaming("__sprintf_228", "sprintf");
-__static_renaming("__vfprintf_232", "vfprintf");
-__static_renaming("__vprintf_235", "vprintf");
-__static_renaming("__vsprintf_239", "vsprintf");
-__static_renaming("__snprintf_243", "snprintf");
-__static_renaming("__vsnprintf_248", "vsnprintf");
-__static_renaming("__vdprintf_252", "vdprintf");
-__static_renaming("__dprintf_255", "dprintf");
-__static_renaming("__fscanf_258", "fscanf");
-__static_renaming("__scanf_260", "scanf");
-__static_renaming("__sscanf_263", "sscanf");
-__static_renaming("__vfscanf_275", "vfscanf");
-__static_renaming("__vscanf_278", "vscanf");
-__static_renaming("__vsscanf_282", "vsscanf");
-__static_renaming("__fgetc_295", "fgetc");
-__static_renaming("__getc_297", "getc");
-__static_renaming("__getchar_298", "getchar");
-__static_renaming("__getc_unlocked_300", "getc_unlocked");
-__static_renaming("__getchar_unlocked_301", "getchar_unlocked");
-__static_renaming("__fgetc_unlocked_303", "fgetc_unlocked");
-__static_renaming("__fputc_306", "fputc");
-__static_renaming("__putc_309", "putc");
-__static_renaming("__putchar_311", "putchar");
-__static_renaming("__fputc_unlocked_314", "fputc_unlocked");
-__static_renaming("__putc_unlocked_317", "putc_unlocked");
-__static_renaming("__putchar_unlocked_319", "putchar_unlocked");
-__static_renaming("__getw_321", "getw");
-__static_renaming("__putw_324", "putw");
-__static_renaming("__fgets_328", "fgets");
-__static_renaming("____getdelim_333", "__getdelim");
-__static_renaming("__getdelim_338", "getdelim");
-__static_renaming("__getline_342", "getline");
-__static_renaming("__fputs_345", "fputs");
-__static_renaming("__puts_347", "puts");
-__static_renaming("__ungetc_350", "ungetc");
-__static_renaming("__fseek_370", "fseek");
-__static_renaming("__ftell_372", "ftell");
-__static_renaming("__rewind_374", "rewind");
-__static_renaming("__fseeko_378", "fseeko");
-__static_renaming("__ftello_380", "ftello");
-__static_renaming("__fgetpos_383", "fgetpos");
-__static_renaming("__fsetpos_386", "fsetpos");
-__static_renaming("__clearerr_388", "clearerr");
-__static_renaming("__feof_390", "feof");
-__static_renaming("__ferror_392", "ferror");
-__static_renaming("__clearerr_unlocked_394", "clearerr_unlocked");
-__static_renaming("__feof_unlocked_396", "feof_unlocked");
-__static_renaming("__ferror_unlocked_398", "ferror_unlocked");
-__static_renaming("__perror_400", "perror");
-__static_renaming("__sys_nerr_401", "sys_nerr");
-__static_renaming("__sys_errlist_402", "sys_errlist");
-__static_renaming("__fileno_404", "fileno");
-__static_renaming("__fileno_unlocked_406", "fileno_unlocked");
-__static_renaming("__popen_409", "popen");
-__static_renaming("__pclose_411", "pclose");
-__static_renaming("__ctermid_413", "ctermid");
-__static_renaming("__flockfile_415", "flockfile");
-__static_renaming("__ftrylockfile_417", "ftrylockfile");
-__static_renaming("__funlockfile_419", "funlockfile");
-__static_renaming("__decode_spi_frequency_425", "decode_spi_frequency");
+__static_renaming("___IO_sgetn_156", "_IO_sgetn");
+__static_renaming("___IO_seekoff_157", "_IO_seekoff");
+__static_renaming("___IO_seekpos_158", "_IO_seekpos");
+__static_renaming("___IO_free_backup_area_159", "_IO_free_backup_area");
+__static_renaming("__va_list_160", "va_list");
+__static_renaming("__off_t_161", "off_t");
+__static_renaming("__ssize_t_162", "ssize_t");
+__static_renaming("__fpos_t_163", "fpos_t");
+__static_renaming("__stdin_164", "stdin");
+__static_renaming("__stdout_165", "stdout");
+__static_renaming("__stderr_166", "stderr");
+__static_renaming("__remove_168", "remove");
+__static_renaming("__rename_171", "rename");
+__static_renaming("__renameat_176", "renameat");
+__static_renaming("__tmpfile_177", "tmpfile");
+__static_renaming("__tmpnam_179", "tmpnam");
+__static_renaming("__tmpnam_r_181", "tmpnam_r");
+__static_renaming("__tempnam_184", "tempnam");
+__static_renaming("__fclose_186", "fclose");
+__static_renaming("__fflush_188", "fflush");
+__static_renaming("__fflush_unlocked_190", "fflush_unlocked");
+__static_renaming("__fopen_193", "fopen");
+__static_renaming("__freopen_197", "freopen");
+__static_renaming("__fdopen_200", "fdopen");
+__static_renaming("__fmemopen_204", "fmemopen");
+__static_renaming("__open_memstream_207", "open_memstream");
+__static_renaming("__setbuf_210", "setbuf");
+__static_renaming("__setvbuf_215", "setvbuf");
+__static_renaming("__setbuffer_219", "setbuffer");
+__static_renaming("__setlinebuf_221", "setlinebuf");
+__static_renaming("__fprintf_224", "fprintf");
+__static_renaming("__printf_226", "printf");
+__static_renaming("__sprintf_229", "sprintf");
+__static_renaming("__vfprintf_233", "vfprintf");
+__static_renaming("__vprintf_236", "vprintf");
+__static_renaming("__vsprintf_240", "vsprintf");
+__static_renaming("__snprintf_244", "snprintf");
+__static_renaming("__vsnprintf_249", "vsnprintf");
+__static_renaming("__vdprintf_253", "vdprintf");
+__static_renaming("__dprintf_256", "dprintf");
+__static_renaming("__fscanf_259", "fscanf");
+__static_renaming("__scanf_261", "scanf");
+__static_renaming("__sscanf_264", "sscanf");
+__static_renaming("__vfscanf_276", "vfscanf");
+__static_renaming("__vscanf_279", "vscanf");
+__static_renaming("__vsscanf_283", "vsscanf");
+__static_renaming("__fgetc_296", "fgetc");
+__static_renaming("__getc_298", "getc");
+__static_renaming("__getchar_299", "getchar");
+__static_renaming("__getc_unlocked_301", "getc_unlocked");
+__static_renaming("__getchar_unlocked_302", "getchar_unlocked");
+__static_renaming("__fgetc_unlocked_304", "fgetc_unlocked");
+__static_renaming("__fputc_307", "fputc");
+__static_renaming("__putc_310", "putc");
+__static_renaming("__putchar_312", "putchar");
+__static_renaming("__fputc_unlocked_315", "fputc_unlocked");
+__static_renaming("__putc_unlocked_318", "putc_unlocked");
+__static_renaming("__putchar_unlocked_320", "putchar_unlocked");
+__static_renaming("__getw_322", "getw");
+__static_renaming("__putw_325", "putw");
+__static_renaming("__fgets_329", "fgets");
+__static_renaming("____getdelim_334", "__getdelim");
+__static_renaming("__getdelim_339", "getdelim");
+__static_renaming("__getline_343", "getline");
+__static_renaming("__fputs_346", "fputs");
+__static_renaming("__puts_348", "puts");
+__static_renaming("__ungetc_351", "ungetc");
+__static_renaming("__fseek_371", "fseek");
+__static_renaming("__ftell_373", "ftell");
+__static_renaming("__rewind_375", "rewind");
+__static_renaming("__fseeko_379", "fseeko");
+__static_renaming("__ftello_381", "ftello");
+__static_renaming("__fgetpos_384", "fgetpos");
+__static_renaming("__fsetpos_387", "fsetpos");
+__static_renaming("__clearerr_389", "clearerr");
+__static_renaming("__feof_391", "feof");
+__static_renaming("__ferror_393", "ferror");
+__static_renaming("__clearerr_unlocked_395", "clearerr_unlocked");
+__static_renaming("__feof_unlocked_397", "feof_unlocked");
+__static_renaming("__ferror_unlocked_399", "ferror_unlocked");
+__static_renaming("__perror_401", "perror");
+__static_renaming("__sys_nerr_402", "sys_nerr");
+__static_renaming("__sys_errlist_403", "sys_errlist");
+__static_renaming("__fileno_405", "fileno");
+__static_renaming("__fileno_unlocked_407", "fileno_unlocked");
+__static_renaming("__popen_410", "popen");
+__static_renaming("__pclose_412", "pclose");
+__static_renaming("__ctermid_414", "ctermid");
+__static_renaming("__flockfile_416", "flockfile");
+__static_renaming("__ftrylockfile_418", "ftrylockfile");
+__static_renaming("__funlockfile_420", "funlockfile");
+__static_renaming("__decode_spi_frequency_426", "decode_spi_frequency");
 
 
 };
@@ -191,10 +192,10 @@ ____codecvt_partial_84,
 ____codecvt_error_85,
 ____codecvt_noconv_86,
 };
-enum __anonymous_tag_423 {
-__SPI_FREQUENCY_20MHZ_420,
-__SPI_FREQUENCY_33MHZ_421,
-__SPI_FREQUENCY_50MHZ_422,
+enum __anonymous_tag_424 {
+__SPI_FREQUENCY_20MHZ_421,
+__SPI_FREQUENCY_33MHZ_422,
+__SPI_FREQUENCY_50MHZ_423,
 };
 typedef long unsigned int  __size_t_0;
 typedef unsigned char  ____u_char_1;
@@ -311,17 +312,17 @@ void  (* ____pad3_112);
 void  (* ____pad4_113);
 __size_t_0  ____pad5_114;
 int  ___mode_115;
-char  (___unused2_116[__static_type_error("no valid type found in expression")]);
+char  (___unused2_116[15 * sizeof ( int   ) - 4 * sizeof ( void  * ) - sizeof ( __size_t_0   )]);
 };
 typedef struct ___IO_FILE_87  ___IO_FILE_117;
 typedef ____ssize_t_49  ____io_read_fn_125 (void  (* ____cookie_122), char  (* ____buf_123), __size_t_0  ____nbytes_124);
 typedef ____ssize_t_49  ____io_write_fn_129 (void  (* ____cookie_126), const char  (* ____buf_127), __size_t_0  ____n_128);
 typedef int  ____io_seek_fn_133 (void  (* ____cookie_130), ____off64_t_25  (* ____pos_131), int  ____w_132);
 typedef int  ____io_close_fn_135 (void  (* ____cookie_134));
-typedef ____gnuc_va_list_75  __va_list_159;
-typedef ____off_t_24  __off_t_160;
-typedef ____ssize_t_49  __ssize_t_161;
-typedef ___G_fpos_t_70  __fpos_t_162;
+typedef ____gnuc_va_list_75  __va_list_160;
+typedef ____off_t_24  __off_t_161;
+typedef ____ssize_t_49  __ssize_t_162;
+typedef ___G_fpos_t_70  __fpos_t_163;
 
 struct __forward_tag_reference_78 { // generated union of struct variations
 union {
@@ -437,125 +438,126 @@ extern int  ___IO_ftrylockfile_152 (___IO_FILE_117  *);
 extern int  ___IO_vfscanf_153 (___IO_FILE_117  * __restrict , const char  * __restrict , ____gnuc_va_list_75  , int  * __restrict );
 extern int  ___IO_vfprintf_154 (___IO_FILE_117  * __restrict , const char  * __restrict , ____gnuc_va_list_75  );
 extern ____ssize_t_49  ___IO_padn_155 (___IO_FILE_117  *, int  , ____ssize_t_49  );
-extern ____off64_t_25  ___IO_seekoff_156 (___IO_FILE_117  *, ____off64_t_25  , int  , int  );
-extern ____off64_t_25  ___IO_seekpos_157 (___IO_FILE_117  *, ____off64_t_25  , int  );
-extern void  ___IO_free_backup_area_158 (___IO_FILE_117  *);
+extern __size_t_0  ___IO_sgetn_156 (___IO_FILE_117  *, void  *, __size_t_0  );
+extern ____off64_t_25  ___IO_seekoff_157 (___IO_FILE_117  *, ____off64_t_25  , int  , int  );
+extern ____off64_t_25  ___IO_seekpos_158 (___IO_FILE_117  *, ____off64_t_25  , int  );
+extern void  ___IO_free_backup_area_159 (___IO_FILE_117  *);
 // typedef moved to top of scope
 // typedef moved to top of scope
 // typedef moved to top of scope
 // typedef moved to top of scope
-extern struct ___IO_FILE_87  (* __stdin_163);
-extern struct ___IO_FILE_87  (* __stdout_164);
-extern struct ___IO_FILE_87  (* __stderr_165);
-extern int  __remove_167 (const char  (* ____filename_166));
-extern int  __rename_170 (const char  (* ____old_168), const char  (* ____new_169));
-extern int  __renameat_175 (int  ____oldfd_171, const char  (* ____old_172), int  ____newfd_173, const char  (* ____new_174));
-extern __FILE_59  (* __tmpfile_176 (void  ));
-extern char  (* __tmpnam_178 (char  (* ____s_177)));
-extern char  (* __tmpnam_r_180 (char  (* ____s_179)));
-extern char  (* __tempnam_183 (const char  (* ____dir_181), const char  (* ____pfx_182)));
-extern int  __fclose_185 (__FILE_59  (* ____stream_184));
-extern int  __fflush_187 (__FILE_59  (* ____stream_186));
-extern int  __fflush_unlocked_189 (__FILE_59  (* ____stream_188));
-extern __FILE_59  (* __fopen_192 (const char  (* __restrict  ____filename_190), const char  (* __restrict  ____modes_191)));
-extern __FILE_59  (* __freopen_196 (const char  (* __restrict  ____filename_193), const char  (* __restrict  ____modes_194), __FILE_59  (* __restrict  ____stream_195)));
-extern __FILE_59  (* __fdopen_199 (int  ____fd_197, const char  (* ____modes_198)));
-extern __FILE_59  (* __fmemopen_203 (void  (* ____s_200), __size_t_0  ____len_201, const char  (* ____modes_202)));
-extern __FILE_59  (* __open_memstream_206 (char  (* (* ____bufloc_204)), __size_t_0  (* ____sizeloc_205)));
-extern void  __setbuf_209 (__FILE_59  (* __restrict  ____stream_207), char  (* __restrict  ____buf_208));
-extern int  __setvbuf_214 (__FILE_59  (* __restrict  ____stream_210), char  (* __restrict  ____buf_211), int  ____modes_212, __size_t_0  ____n_213);
-extern void  __setbuffer_218 (__FILE_59  (* __restrict  ____stream_215), char  (* __restrict  ____buf_216), __size_t_0  ____size_217);
-extern void  __setlinebuf_220 (__FILE_59  (* ____stream_219));
-extern int  __fprintf_223 (__FILE_59  (* __restrict  ____stream_221), const char  (* __restrict  ____format_222),  ... );
-extern int  __printf_225 (const char  (* __restrict  ____format_224),  ... );
-extern int  __sprintf_228 (char  (* __restrict  ____s_226), const char  (* __restrict  ____format_227),  ... );
-extern int  __vfprintf_232 (__FILE_59  (* __restrict  ____s_229), const char  (* __restrict  ____format_230), ____gnuc_va_list_75  ____arg_231);
-extern int  __vprintf_235 (const char  (* __restrict  ____format_233), ____gnuc_va_list_75  ____arg_234);
-extern int  __vsprintf_239 (char  (* __restrict  ____s_236), const char  (* __restrict  ____format_237), ____gnuc_va_list_75  ____arg_238);
-extern int  __snprintf_243 (char  (* __restrict  ____s_240), __size_t_0  ____maxlen_241, const char  (* __restrict  ____format_242),  ... );
-extern int  __vsnprintf_248 (char  (* __restrict  ____s_244), __size_t_0  ____maxlen_245, const char  (* __restrict  ____format_246), ____gnuc_va_list_75  ____arg_247);
-extern int  __vdprintf_252 (int  ____fd_249, const char  (* __restrict  ____fmt_250), ____gnuc_va_list_75  ____arg_251);
-extern int  __dprintf_255 (int  ____fd_253, const char  (* __restrict  ____fmt_254),  ... );
-extern int  __fscanf_258 (__FILE_59  (* __restrict  ____stream_256), const char  (* __restrict  ____format_257),  ... );
-extern int  __scanf_260 (const char  (* __restrict  ____format_259),  ... );
-extern int  __sscanf_263 (const char  (* __restrict  ____s_261), const char  (* __restrict  ____format_262),  ... );
+extern struct ___IO_FILE_87  (* __stdin_164);
+extern struct ___IO_FILE_87  (* __stdout_165);
+extern struct ___IO_FILE_87  (* __stderr_166);
+extern int  __remove_168 (const char  (* ____filename_167));
+extern int  __rename_171 (const char  (* ____old_169), const char  (* ____new_170));
+extern int  __renameat_176 (int  ____oldfd_172, const char  (* ____old_173), int  ____newfd_174, const char  (* ____new_175));
+extern __FILE_59  (* __tmpfile_177 (void  ));
+extern char  (* __tmpnam_179 (char  (* ____s_178)));
+extern char  (* __tmpnam_r_181 (char  (* ____s_180)));
+extern char  (* __tempnam_184 (const char  (* ____dir_182), const char  (* ____pfx_183)));
+extern int  __fclose_186 (__FILE_59  (* ____stream_185));
+extern int  __fflush_188 (__FILE_59  (* ____stream_187));
+extern int  __fflush_unlocked_190 (__FILE_59  (* ____stream_189));
+extern __FILE_59  (* __fopen_193 (const char  (* __restrict  ____filename_191), const char  (* __restrict  ____modes_192)));
+extern __FILE_59  (* __freopen_197 (const char  (* __restrict  ____filename_194), const char  (* __restrict  ____modes_195), __FILE_59  (* __restrict  ____stream_196)));
+extern __FILE_59  (* __fdopen_200 (int  ____fd_198, const char  (* ____modes_199)));
+extern __FILE_59  (* __fmemopen_204 (void  (* ____s_201), __size_t_0  ____len_202, const char  (* ____modes_203)));
+extern __FILE_59  (* __open_memstream_207 (char  (* (* ____bufloc_205)), __size_t_0  (* ____sizeloc_206)));
+extern void  __setbuf_210 (__FILE_59  (* __restrict  ____stream_208), char  (* __restrict  ____buf_209));
+extern int  __setvbuf_215 (__FILE_59  (* __restrict  ____stream_211), char  (* __restrict  ____buf_212), int  ____modes_213, __size_t_0  ____n_214);
+extern void  __setbuffer_219 (__FILE_59  (* __restrict  ____stream_216), char  (* __restrict  ____buf_217), __size_t_0  ____size_218);
+extern void  __setlinebuf_221 (__FILE_59  (* ____stream_220));
+extern int  __fprintf_224 (__FILE_59  (* __restrict  ____stream_222), const char  (* __restrict  ____format_223),  ... );
+extern int  __printf_226 (const char  (* __restrict  ____format_225),  ... );
+extern int  __sprintf_229 (char  (* __restrict  ____s_227), const char  (* __restrict  ____format_228),  ... );
+extern int  __vfprintf_233 (__FILE_59  (* __restrict  ____s_230), const char  (* __restrict  ____format_231), ____gnuc_va_list_75  ____arg_232);
+extern int  __vprintf_236 (const char  (* __restrict  ____format_234), ____gnuc_va_list_75  ____arg_235);
+extern int  __vsprintf_240 (char  (* __restrict  ____s_237), const char  (* __restrict  ____format_238), ____gnuc_va_list_75  ____arg_239);
+extern int  __snprintf_244 (char  (* __restrict  ____s_241), __size_t_0  ____maxlen_242, const char  (* __restrict  ____format_243),  ... );
+extern int  __vsnprintf_249 (char  (* __restrict  ____s_245), __size_t_0  ____maxlen_246, const char  (* __restrict  ____format_247), ____gnuc_va_list_75  ____arg_248);
+extern int  __vdprintf_253 (int  ____fd_250, const char  (* __restrict  ____fmt_251), ____gnuc_va_list_75  ____arg_252);
+extern int  __dprintf_256 (int  ____fd_254, const char  (* __restrict  ____fmt_255),  ... );
+extern int  __fscanf_259 (__FILE_59  (* __restrict  ____stream_257), const char  (* __restrict  ____format_258),  ... );
+extern int  __scanf_261 (const char  (* __restrict  ____format_260),  ... );
+extern int  __sscanf_264 (const char  (* __restrict  ____s_262), const char  (* __restrict  ____format_263),  ... );
 
 
 
-extern int  __vfscanf_275 (__FILE_59  (* __restrict  ____s_272), const char  (* __restrict  ____format_273), ____gnuc_va_list_75  ____arg_274);
-extern int  __vscanf_278 (const char  (* __restrict  ____format_276), ____gnuc_va_list_75  ____arg_277);
-extern int  __vsscanf_282 (const char  (* __restrict  ____s_279), const char  (* __restrict  ____format_280), ____gnuc_va_list_75  ____arg_281);
+extern int  __vfscanf_276 (__FILE_59  (* __restrict  ____s_273), const char  (* __restrict  ____format_274), ____gnuc_va_list_75  ____arg_275);
+extern int  __vscanf_279 (const char  (* __restrict  ____format_277), ____gnuc_va_list_75  ____arg_278);
+extern int  __vsscanf_283 (const char  (* __restrict  ____s_280), const char  (* __restrict  ____format_281), ____gnuc_va_list_75  ____arg_282);
 
 
 
-extern int  __fgetc_295 (__FILE_59  (* ____stream_294));
-extern int  __getc_297 (__FILE_59  (* ____stream_296));
-extern int  __getchar_298 (void  );
-extern int  __getc_unlocked_300 (__FILE_59  (* ____stream_299));
-extern int  __getchar_unlocked_301 (void  );
-extern int  __fgetc_unlocked_303 (__FILE_59  (* ____stream_302));
-extern int  __fputc_306 (int  ____c_304, __FILE_59  (* ____stream_305));
-extern int  __putc_309 (int  ____c_307, __FILE_59  (* ____stream_308));
-extern int  __putchar_311 (int  ____c_310);
-extern int  __fputc_unlocked_314 (int  ____c_312, __FILE_59  (* ____stream_313));
-extern int  __putc_unlocked_317 (int  ____c_315, __FILE_59  (* ____stream_316));
-extern int  __putchar_unlocked_319 (int  ____c_318);
-extern int  __getw_321 (__FILE_59  (* ____stream_320));
-extern int  __putw_324 (int  ____w_322, __FILE_59  (* ____stream_323));
-extern char  (* __fgets_328 (char  (* __restrict  ____s_325), int  ____n_326, __FILE_59  (* __restrict  ____stream_327)));
-extern ____ssize_t_49  ____getdelim_333 (char  (* (* __restrict  ____lineptr_329)), __size_t_0  (* __restrict  ____n_330), int  ____delimiter_331, __FILE_59  (* __restrict  ____stream_332));
-extern ____ssize_t_49  __getdelim_338 (char  (* (* __restrict  ____lineptr_334)), __size_t_0  (* __restrict  ____n_335), int  ____delimiter_336, __FILE_59  (* __restrict  ____stream_337));
-extern ____ssize_t_49  __getline_342 (char  (* (* __restrict  ____lineptr_339)), __size_t_0  (* __restrict  ____n_340), __FILE_59  (* __restrict  ____stream_341));
-extern int  __fputs_345 (const char  (* __restrict  ____s_343), __FILE_59  (* __restrict  ____stream_344));
-extern int  __puts_347 (const char  (* ____s_346));
-extern int  __ungetc_350 (int  ____c_348, __FILE_59  (* ____stream_349));
-extern int  __fseek_370 (__FILE_59  (* ____stream_367), long int  ____off_368, int  ____whence_369);
-extern long int  __ftell_372 (__FILE_59  (* ____stream_371));
-extern void  __rewind_374 (__FILE_59  (* ____stream_373));
-extern int  __fseeko_378 (__FILE_59  (* ____stream_375), ____off_t_24  ____off_376, int  ____whence_377);
-extern ____off_t_24  __ftello_380 (__FILE_59  (* ____stream_379));
-extern int  __fgetpos_383 (__FILE_59  (* __restrict  ____stream_381), __fpos_t_162  (* __restrict  ____pos_382));
-extern int  __fsetpos_386 (__FILE_59  (* ____stream_384), const __fpos_t_162  (* ____pos_385));
-extern void  __clearerr_388 (__FILE_59  (* ____stream_387));
-extern int  __feof_390 (__FILE_59  (* ____stream_389));
-extern int  __ferror_392 (__FILE_59  (* ____stream_391));
-extern void  __clearerr_unlocked_394 (__FILE_59  (* ____stream_393));
-extern int  __feof_unlocked_396 (__FILE_59  (* ____stream_395));
-extern int  __ferror_unlocked_398 (__FILE_59  (* ____stream_397));
-extern void  __perror_400 (const char  (* ____s_399));
-extern int  __sys_nerr_401;
-extern const char  (* const  (__sys_errlist_402[]));
-extern int  __fileno_404 (__FILE_59  (* ____stream_403));
-extern int  __fileno_unlocked_406 (__FILE_59  (* ____stream_405));
-extern __FILE_59  (* __popen_409 (const char  (* ____command_407), const char  (* ____modes_408)));
-extern int  __pclose_411 (__FILE_59  (* ____stream_410));
-extern char  (* __ctermid_413 (char  (* ____s_412)));
-extern void  __flockfile_415 (__FILE_59  (* ____stream_414));
-extern int  __ftrylockfile_417 (__FILE_59  (* ____stream_416));
-extern void  __funlockfile_419 (__FILE_59  (* ____stream_418));
-enum __anonymous_tag_423 ;
-static void  __decode_spi_frequency_425 (unsigned int  __freq_424) {
+extern int  __fgetc_296 (__FILE_59  (* ____stream_295));
+extern int  __getc_298 (__FILE_59  (* ____stream_297));
+extern int  __getchar_299 (void  );
+extern int  __getc_unlocked_301 (__FILE_59  (* ____stream_300));
+extern int  __getchar_unlocked_302 (void  );
+extern int  __fgetc_unlocked_304 (__FILE_59  (* ____stream_303));
+extern int  __fputc_307 (int  ____c_305, __FILE_59  (* ____stream_306));
+extern int  __putc_310 (int  ____c_308, __FILE_59  (* ____stream_309));
+extern int  __putchar_312 (int  ____c_311);
+extern int  __fputc_unlocked_315 (int  ____c_313, __FILE_59  (* ____stream_314));
+extern int  __putc_unlocked_318 (int  ____c_316, __FILE_59  (* ____stream_317));
+extern int  __putchar_unlocked_320 (int  ____c_319);
+extern int  __getw_322 (__FILE_59  (* ____stream_321));
+extern int  __putw_325 (int  ____w_323, __FILE_59  (* ____stream_324));
+extern char  (* __fgets_329 (char  (* __restrict  ____s_326), int  ____n_327, __FILE_59  (* __restrict  ____stream_328)));
+extern ____ssize_t_49  ____getdelim_334 (char  (* (* __restrict  ____lineptr_330)), __size_t_0  (* __restrict  ____n_331), int  ____delimiter_332, __FILE_59  (* __restrict  ____stream_333));
+extern ____ssize_t_49  __getdelim_339 (char  (* (* __restrict  ____lineptr_335)), __size_t_0  (* __restrict  ____n_336), int  ____delimiter_337, __FILE_59  (* __restrict  ____stream_338));
+extern ____ssize_t_49  __getline_343 (char  (* (* __restrict  ____lineptr_340)), __size_t_0  (* __restrict  ____n_341), __FILE_59  (* __restrict  ____stream_342));
+extern int  __fputs_346 (const char  (* __restrict  ____s_344), __FILE_59  (* __restrict  ____stream_345));
+extern int  __puts_348 (const char  (* ____s_347));
+extern int  __ungetc_351 (int  ____c_349, __FILE_59  (* ____stream_350));
+extern int  __fseek_371 (__FILE_59  (* ____stream_368), long int  ____off_369, int  ____whence_370);
+extern long int  __ftell_373 (__FILE_59  (* ____stream_372));
+extern void  __rewind_375 (__FILE_59  (* ____stream_374));
+extern int  __fseeko_379 (__FILE_59  (* ____stream_376), ____off_t_24  ____off_377, int  ____whence_378);
+extern ____off_t_24  __ftello_381 (__FILE_59  (* ____stream_380));
+extern int  __fgetpos_384 (__FILE_59  (* __restrict  ____stream_382), __fpos_t_163  (* __restrict  ____pos_383));
+extern int  __fsetpos_387 (__FILE_59  (* ____stream_385), const __fpos_t_163  (* ____pos_386));
+extern void  __clearerr_389 (__FILE_59  (* ____stream_388));
+extern int  __feof_391 (__FILE_59  (* ____stream_390));
+extern int  __ferror_393 (__FILE_59  (* ____stream_392));
+extern void  __clearerr_unlocked_395 (__FILE_59  (* ____stream_394));
+extern int  __feof_unlocked_397 (__FILE_59  (* ____stream_396));
+extern int  __ferror_unlocked_399 (__FILE_59  (* ____stream_398));
+extern void  __perror_401 (const char  (* ____s_400));
+extern int  __sys_nerr_402;
+extern const char  (* const  (__sys_errlist_403[]));
+extern int  __fileno_405 (__FILE_59  (* ____stream_404));
+extern int  __fileno_unlocked_407 (__FILE_59  (* ____stream_406));
+extern __FILE_59  (* __popen_410 (const char  (* ____command_408), const char  (* ____modes_409)));
+extern int  __pclose_412 (__FILE_59  (* ____stream_411));
+extern char  (* __ctermid_414 (char  (* ____s_413)));
+extern void  __flockfile_416 (__FILE_59  (* ____stream_415));
+extern int  __ftrylockfile_418 (__FILE_59  (* ____stream_417));
+extern void  __funlockfile_420 (__FILE_59  (* ____stream_419));
+enum __anonymous_tag_424 ;
+static void  __decode_spi_frequency_426 (unsigned int  __freq_425) {
 {
-switch (  __freq_424  ) { case  __SPI_FREQUENCY_20MHZ_420  : 
- __printf_225  ( "20MHz" ) ;
+switch (  __freq_425  ) { case  __SPI_FREQUENCY_20MHZ_421  : 
+ __printf_226  ( "20MHz" ) ;
 
 break ;
 
 
-case  __SPI_FREQUENCY_33MHZ_421  : 
- __printf_225  ( "33MHz" ) ;
+case  __SPI_FREQUENCY_33MHZ_422  : 
+ __printf_226  ( "33MHz" ) ;
 
 break ;
 
 
-case  __SPI_FREQUENCY_50MHZ_422  : 
- __printf_225  ( "50MHz" ) ;
+case  __SPI_FREQUENCY_50MHZ_423  : 
+ __printf_226  ( "50MHz" ) ;
 
 break ;
 
 
 default : 
- __printf_225  ( "unknown<%x>MHz",  __freq_424  ) ;
+ __printf_226  ( "unknown<%x>MHz",  __freq_425  ) ;
 
  }
 
