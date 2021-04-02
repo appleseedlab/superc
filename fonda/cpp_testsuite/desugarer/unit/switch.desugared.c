@@ -311,7 +311,7 @@ void  (* ____pad3_112);
 void  (* ____pad4_113);
 __size_t_0  ____pad5_114;
 int  ___mode_115;
-char  (___unused2_116[15 * sizeof ( int   ) - 4 * sizeof ( void  * ) - sizeof ( __size_t_0   )]);
+char  (___unused2_116[__static_type_error("no valid type found in expression")]);
 };
 typedef struct ___IO_FILE_87  ___IO_FILE_117;
 typedef ____ssize_t_49  ____io_read_fn_125 (void  (* ____cookie_122), char  (* ____buf_123), __size_t_0  ____nbytes_124);

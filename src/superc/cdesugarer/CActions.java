@@ -6429,7 +6429,7 @@ public class CActions implements SemanticActions {
                                                                          leftmv,
                                                                          opmv,
                                                                          rightmv),
-                                                              leftval.type));  // TODO: this is a placeholder for the real type
+                                                              productAll(DesugarOps.compareTypes, leftval.type, rightval.type)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in multiplicative expression"),
                                                               ErrorT.TYPE,
@@ -6455,7 +6455,7 @@ public class CActions implements SemanticActions {
                                                                          leftmv,
                                                                          opmv,
                                                                          rightmv),
-                                                              leftval.type));  // TODO: this is a placeholder for the real type
+                                                              productAll(DesugarOps.compareTypes, leftval.type, rightval.type)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in multiplicative expression"),
                                                               ErrorT.TYPE,
@@ -6481,7 +6481,7 @@ public class CActions implements SemanticActions {
                                                                          leftmv,
                                                                          opmv,
                                                                          rightmv),
-                                                              leftval.type));  // TODO: this is a placeholder for the real type
+                                                              productAll(DesugarOps.compareTypes, leftval.type, rightval.type)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in multiplicative expression"),
                                                               ErrorT.TYPE,
@@ -6513,7 +6513,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              leftval.type)); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.compareTypes, leftval.type, rightval.type))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -6539,7 +6539,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              leftval.type)); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.compareTypes, leftval.type, rightval.type))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),

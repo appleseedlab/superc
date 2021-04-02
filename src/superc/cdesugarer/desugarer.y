@@ -6507,7 +6507,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
                                                                          leftmv,
                                                                          opmv,
                                                                          rightmv),
-                                                              leftval.type));  // TODO: this is a placeholder for the real type
+                                                              productAll(DesugarOps.compareTypes, leftval.type, rightval.type)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in multiplicative expression"),
                                                               ErrorT.TYPE,
@@ -6531,7 +6531,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
                                                                          leftmv,
                                                                          opmv,
                                                                          rightmv),
-                                                              leftval.type));  // TODO: this is a placeholder for the real type
+                                                              productAll(DesugarOps.compareTypes, leftval.type, rightval.type)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in multiplicative expression"),
                                                               ErrorT.TYPE,
@@ -6555,7 +6555,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
                                                                          leftmv,
                                                                          opmv,
                                                                          rightmv),
-                                                              leftval.type));  // TODO: this is a placeholder for the real type
+                                                              productAll(DesugarOps.compareTypes, leftval.type, rightval.type)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in multiplicative expression"),
                                                               ErrorT.TYPE,
@@ -6586,7 +6586,7 @@ AdditiveExpression:  /** passthrough, nomerge **/  // ExpressionValue
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              leftval.type)); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.compareTypes, leftval.type, rightval.type))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -6610,7 +6610,7 @@ AdditiveExpression:  /** passthrough, nomerge **/  // ExpressionValue
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              leftval.type)); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.compareTypes, leftval.type, rightval.type))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),

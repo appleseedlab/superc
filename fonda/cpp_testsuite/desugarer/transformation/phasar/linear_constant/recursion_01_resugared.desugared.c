@@ -39,7 +39,7 @@ return 1 ;
 
 {
 if (__static_condition_default_2) {
-return  __n_0  *  __factorial_1  (  __n_0  - 1 ) ;
+__static_type_error("invalid type found in return expression");
 
 }
 

@@ -6,19 +6,11 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_22;
-extern const bool __static_condition_default_17;
 extern const bool __static_condition_default_12;
+extern const bool __static_condition_default_13;
+extern const bool __static_condition_default_15;
 extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_11;
-extern const bool __static_condition_default_18;
-extern const bool __static_condition_default_24;
-extern const bool __static_condition_default_13;
-extern const bool __static_condition_default_19;
-extern const bool __static_condition_default_15;
-extern const bool __static_condition_default_20;
-extern const bool __static_condition_default_21;
-extern const bool __static_condition_default_23;
 extern const bool __static_condition_default_14;
 void __static_initializer_default() {
 __static_renaming("__main_0", "main");
@@ -39,14 +31,6 @@ __static_condition_renaming("__static_condition_default_13", "B");
 __static_condition_renaming("__static_condition_default_14", "!B");
 __static_condition_renaming("__static_condition_default_15", "C");
 __static_condition_renaming("__static_condition_default_16", "!C");
-__static_condition_renaming("__static_condition_default_17", "A && B && C");
-__static_condition_renaming("__static_condition_default_18", "A && B && !C");
-__static_condition_renaming("__static_condition_default_19", "A && !B && C");
-__static_condition_renaming("__static_condition_default_20", "A && !B && !C");
-__static_condition_renaming("__static_condition_default_21", "!A && B && C");
-__static_condition_renaming("__static_condition_default_22", "!A && B && !C");
-__static_condition_renaming("__static_condition_default_23", "!A && !B && C");
-__static_condition_renaming("__static_condition_default_24", "!A && !B && !C");
 
 };
 
@@ -106,49 +90,9 @@ if (__static_condition_default_16) {
 
 }
 
-}
-{
-if (__static_condition_default_17) {
- __x_1  =  __y_3  +  __z_5  -  __w_6  *  __u_7  /  __v_8  %  __t_9  ;
+}__static_type_error("type error");
 
-}
-
-if (__static_condition_default_18) {
- __x_1  =  __y_3  +  __z_5  -  __w_6  *  __u_7  /  __v_8  %  __t_10  ;
-
-}
-
-if (__static_condition_default_19) {
- __x_1  =  __y_4  +  __z_5  -  __w_6  *  __u_7  /  __v_8  %  __t_9  ;
-
-}
-
-if (__static_condition_default_20) {
- __x_1  =  __y_4  +  __z_5  -  __w_6  *  __u_7  /  __v_8  %  __t_10  ;
-
-}
-
-if (__static_condition_default_21) {
- __x_2  =  __y_3  +  __z_5  -  __w_6  *  __u_7  /  __v_8  %  __t_9  ;
-
-}
-
-if (__static_condition_default_22) {
- __x_2  =  __y_3  +  __z_5  -  __w_6  *  __u_7  /  __v_8  %  __t_10  ;
-
-}
-
-if (__static_condition_default_23) {
- __x_2  =  __y_4  +  __z_5  -  __w_6  *  __u_7  /  __v_8  %  __t_9  ;
-
-}
-
-if (__static_condition_default_24) {
- __x_2  =  __y_4  +  __z_5  -  __w_6  *  __u_7  /  __v_8  %  __t_10  ;
-
-}
-
-}return 0 ;
+return 0 ;
 
 }
 

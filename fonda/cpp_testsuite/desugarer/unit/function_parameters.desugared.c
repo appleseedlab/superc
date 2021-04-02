@@ -16,7 +16,7 @@ __static_renaming("__z_3", "z");
 int  __f_2 (char  __x_0, int  __y_1) {
 {
 int  __z_3;
- __y_1  =  __x_0  +  __y_1  ;
+__static_type_error("type error");
 
  __z_3  =  __y_1  ;
 
