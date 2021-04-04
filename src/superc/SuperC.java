@@ -831,6 +831,34 @@ public class SuperC extends Tool {
       }
 
       //
+      // Merge consecutive ranges if they share the same presence condition
+      // This is only to making the output easy to read: can be disabled to speed up.
+      //
+      List<Pair<Integer, PresenceCondition>> compactPresenceConditions = new ArrayList<>();
+      for (int i = 0; i < presenceConditions.size(); ) { // dont advance i here
+        // Make sure that the loop always continues with the newer one
+        compactPresenceConditions.add(presenceConditions.get(i));
+
+        PresenceCondition currentPc = presenceConditions.get(i).y; // here
+        
+        // advance i until a newer pc is seen
+        int j;
+        for (j = i; j < presenceConditions.size(); j++) {
+          if (!presenceConditions.get(j).y.is(currentPc)) {
+            i = j;
+            break;
+          }
+        }
+
+        // if no newer pc is seen, done
+        if (j == presenceConditions.size()) {
+          break;
+        }
+      }
+
+      presenceConditions = compactPresenceConditions;
+
+      //
       // Build the presence condition for all queried range of sourcelines
       //
       PresenceCondition resultPc = presenceConditionManager.newTrue(); 
