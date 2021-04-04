@@ -807,7 +807,7 @@ public class SuperC extends Tool {
               case NEXT:
                 parents.pop();
                 pc = syntax.toConditional().presenceCondition();
-                parents.push(pc);
+                parents.push(parents.peek().and(pc));
                 break;
               case START:
                 pc = syntax.toConditional().presenceCondition();
