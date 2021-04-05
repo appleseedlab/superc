@@ -920,6 +920,78 @@ public class PresenceConditionManager {
     }
     
     /**
+     * Get the z3 expression representation of this presence condition using
+     * the underlying bdd.
+     * @param z3ctx context to use.
+     * @return z3 expression representation of this presence condition.
+     */
+    private BoolExpr bddToZ3(Context z3ctx) {
+      List<byte[]> allsat = bdd.allsat();
+
+      List<BoolExpr> allSatExprList = new ArrayList<>();
+
+      Map<String, BoolExpr> exprMap = new HashMap<>();
+      Map<String, BoolExpr> negatedExprMap = new HashMap<>();
+
+      for (byte[] oneSat: allsat) {
+        List<BoolExpr> oneSatExprList = new ArrayList<>();
+
+        for (int i = 0; i < oneSat.length; i++) {
+          byte varVal = oneSat[i];
+
+          // if dont-care, dont add
+          if (varVal != 0 && varVal != 1) {
+            continue;
+          }
+
+          // pull or create the var expression
+          String varName = vars.getName(i);
+          BoolExpr varExpr = null;
+
+          varExpr = exprMap.get(varName);
+          if (varExpr == null) {
+            varExpr = z3ctx.mkBoolConst(varName);
+            exprMap.put(varName, varExpr);
+          }
+
+          if (varVal == 0) {
+            // negate
+            BoolExpr negatedVarExpr = negatedExprMap.get(varName);
+            if (negatedVarExpr == null) {
+              negatedVarExpr = z3ctx.mkNot(varExpr);
+              negatedExprMap.put(varName, negatedVarExpr);
+            }
+            varExpr = negatedVarExpr;
+          }
+          assert (varExpr != null);
+
+          // push the z3 symbol, i.e., conjunct
+          oneSatExprList.add(varExpr);
+        } // end of traversing one sat expr
+
+        // push the one sat expr, i.e., disjunct
+        BoolExpr oneSatExpr = (BoolExpr)z3ctx.mkAnd(oneSatExprList.toArray(new BoolExpr[oneSatExprList.size()]));
+        allSatExprList.add( oneSatExpr );        
+      }
+      BoolExpr allSatExpr = (BoolExpr)z3ctx.mkOr(allSatExprList.toArray(new BoolExpr[allSatExprList.size()]));
+      return allSatExpr;
+    }
+
+    /** 
+     * Get SMTLIB2 formatted benchmark.
+     */
+    public String toSMT2() {
+      Context z3ctx = new Context();
+      BoolExpr z3rep = bddToZ3(z3ctx);
+      Solver s = z3ctx.mkSolver();
+      s.add(z3rep);
+      String rep = s.toString();
+      z3ctx.close();
+
+      return rep;
+    }
+
+    /**
      * Print the BDD expression to a writer.
      *
      * @param writer The writer.
