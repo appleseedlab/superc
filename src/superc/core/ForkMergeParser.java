@@ -31,6 +31,7 @@ import java.util.PriorityQueue;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import xtc.tree.Node;
 import xtc.tree.GNode;
@@ -61,6 +62,9 @@ import superc.core.PresenceConditionManager.PresenceCondition;
 public class ForkMergeParser {
   /** The name of the AST conditional node. */
   public static String CHOICE_NODE_NAME = "Conditional";
+
+  /** The const variable to point to a list node. */
+  public static String LIST_PROPERTY_NAME = "ListNode";
 
   /** A different way to merge choice nodes is to flatten them instead
    * of creating a hierarchy. */
@@ -125,6 +129,16 @@ public class ForkMergeParser {
 
   /** The intitial parsing context. */
   private ParsingContext initialParsingContext;
+
+  /** flag that informs to output all productions under 
+    * conditionGranularity 
+    */
+  private boolean trackall = true;
+
+  /** flag to print production name of the second child of a 
+   * conditional node 
+   */
+  private boolean printSecondChildOfConditional = false;
 
   /** True when the language has a parsing context. */
   private boolean hasParsingContext = false;
@@ -201,6 +215,51 @@ public class ForkMergeParser {
 
   /** The productions to track for granularity. */
   private Set<String> trackedProductions;
+
+  /** The productions we want to pass through. */
+  private static Set<String> unnecessaryProductions = new HashSet<String>(Arrays.asList(
+    "start",
+    "program",
+    "input",
+    "declaration",
+    "typeDeclaration",
+    "derivedTypeDeclaration",
+    "parameterList",
+    "nonEmptyParameterList",
+    "nonTypeName",
+    "kvList",
+    "parameterList",
+    "nonEmptyParameterList",
+    "objDeclarations",
+    "optConstructorParameters",
+    "parserLocalElements",
+    "parserStates",
+    "parserStatements",
+    "selectCaseList",
+    "tupleKeysetExpression",
+    "simpleExpressionList",
+    "controlLocalDeclarations",
+    "methodPrototypes",
+    "optTypeParameters",
+    "typeParameterList",
+    "typeArgumentList",
+    "realTypeArgumentList",
+    "structFieldList",
+    "specifiedIdentifierList",
+    "identifierList",
+    "statOrDeclList",
+    "switchCases",
+    "tablePropertyList",
+    "keyElementList",
+    "actionList",
+    "entriesList",
+    "argumentList",
+    "nonEmptyArgList",
+    "expressionList",
+    "intList",
+    "intOrStrList",
+    "strList"
+    ));
 
   /** Turn condition granularity collection on. */
   private boolean conditionGranularity = false;
@@ -634,6 +693,21 @@ public class ForkMergeParser {
           // Process a multi-headed subparser.
           switch (subparser.lookahead.getAction()) {
           case REDUCE:
+            // System.err.println("reducing with size " + followSet.size());
+            // if(followSet.size() == 1)
+              // System.out.println("it is one");
+            // if (conditionGranularity) {
+            //   System.err.println(subparser.lookahead.getAction());
+            //   if (subparser.lookahead.token.syntax.kind() == Kind.CONDITIONAL
+            //       && subparser.lookahead.token.syntax.toConditional().tag()
+            //       == ConditionalTag.START) {
+            //         System.err.println(subparser.lookahead.token);
+            //         System.err.println("setting it to true1 " + subparser.lookahead.token.syntax.kind().name() + " " + subparser.lookahead.token.syntax.getTokenText());
+            //     subparser.stack.conditionalInside = true;
+            //     subparser.stack.afterSet.add(subparser.lookahead.token.
+            //                                  syntax.getLocation() + "");
+            //   }
+            // }
             // Shared reduce.
             reduce(subparser);
             seenReduce = true;
@@ -2036,7 +2110,20 @@ public class ForkMergeParser {
           subparser.presenceCondition.delRef();
           subparser.presenceCondition = or;
         }
-
+        // System.err.println("Subparser after merging: ");
+        // System.err.println(subparser.stack);
+        if(printSecondChildOfConditional) {
+          if(subparser.stack.value instanceof GNode){
+            GNode secondChild = firstNonConditionalChild((GNode)subparser.stack.value);
+            System.err.println("Second child of conditional node: " + secondChild.getName());
+            System.err.println();
+          }
+          else {
+            System.err.println("Current stack value is not of GNode type!");
+            System.err.println(subparser.stack);
+            System.err.println("");
+          }
+        }
         // // Combine the subparsers' presence conditions.
         // PresenceCondition disjunction = subparser.presenceCondition;
         // for (Subparser mergedParser : mergedParsers) {
@@ -2083,6 +2170,54 @@ public class ForkMergeParser {
     }
 
     return subset;
+  }
+  
+  /**
+   * Get the first non-choice, non-presence condition node present in the given node.
+   * 
+   * This method assumes that the given node is a conditional node or is a list node that 
+   * has only one child inside it, and that child is a conditional node. 
+   * If the given GNode is not conditional because it is a list node, it will 
+   * traverse through given node to find the first conditional node and will return
+   * the second of that conditional node.
+   * 
+   * TODO: need to figure out how to handle list nodes that have more than one child
+   * 
+   * @param node A GNode object containing a conditional node.
+   * @return the first non-conditional child (GNode) of the given object.
+   */
+  public GNode firstNonConditionalChild(GNode node) {
+
+    if(node.hasProperty(LIST_PROPERTY_NAME)){
+      System.err.println("Given node is a list node");
+      assert node.size() == 1 : "Current node is a list node, but has more than one child. Need to handle this case. Current Node: " + node;
+      while(!(node.hasName(CHOICE_NODE_NAME))) {
+        // Case where the merge function didn't add a choice node as the parent since both the left and right values were the same
+        // So the passed-in node is a list node that has conditional inside it.
+        assert node.size() > 0 : "\nTraversing the node to find a conditional node, but hit the end and couldn't find one. Current Node: " + node;
+        assert node.get(0) instanceof GNode : "Traversing down a node to find a conditional node, but next value is not a GNode. Current Node: " + node;
+        node = (GNode) node.get(0);
+      }
+    }
+
+    assert node.size() > 1 : "\nThe conditional node has less than 2 children. Expecting at least 2 children, one presence condition and one production. Node: " + node;
+    return getSecondChildOfConditional(node);
+  }
+
+  /**
+     * Get the first non-presence conditional child of the given node (second child of the node).
+     * 
+     * @param node A conditional GNode object.
+     * @return the second child of the given conditional node.
+     */
+  public GNode getSecondChildOfConditional(GNode node) {
+    // System.err.println(node);
+    assert node != null : "Given node is null";
+    assert node.hasName(CHOICE_NODE_NAME) : "\nGiven node is not conditional: " + node;
+    assert node.size() > 1 : "\nGiven conditional node has less than 2 children (expecting at least one presence condition followed by a production): " + node;
+    assert node.get(0) instanceof PresenceCondition : "\nFirst child is not a presence conditional node.\nNode: " + node + "\nFirst child: " + node.get(0);
+    assert node.get(1) instanceof GNode : "\nSecond child is not of GNode type.\nNode: " + node +"\nSecond child: " + node.get(1);
+    return (GNode)node.get(1);
   }
 
   /**
@@ -2389,11 +2524,15 @@ public class ForkMergeParser {
     for (int i = 0; i < yylen; i++) {
       if (conditionGranularity) {
         if (0 == i) {
-          conditionalAfter
-            = topState.conditionalAfter || topState.conditionalInside;
+          conditionalAfter = topState.conditionalAfter;
           afterSet.clear();
           afterSet.addAll(topState.afterSet);
           afterSet.addAll(topState.insideSet);
+          
+          conditionalInside = topState.conditionalInside;
+          insideSet.clear();
+          insideSet.addAll(topState.afterSet);
+          insideSet.addAll(topState.insideSet);
         } else {
           conditionalInside = conditionalInside
             || topState.conditionalAfter || topState.conditionalInside;
@@ -2470,6 +2609,15 @@ public class ForkMergeParser {
           ((Node) value).add(conditionalNode);
         }
       }
+      if(value instanceof GNode){
+        // We annotate the node at the value variable (that is either created in this switch case or 
+        // retrieved from values (value = ((Node) values.head()) to which existing objects inside
+        // values are appended to along with choice and presence condition node
+        ((GNode)value).setProperty(LIST_PROPERTY_NAME, null);
+      }
+      else {
+        System.err.println("\nNOTE: List value variable not a GNode! value: " + value + "\n");
+      }
       break;
     default:
       throw new UnsupportedOperationException("unsupported node type");
@@ -2490,16 +2638,24 @@ public class ForkMergeParser {
     }
 
     if (conditionGranularity
-        && conditionalInside
-        && trackedProductions.contains(nodeName)) {
+        && (conditionalInside || conditionalAfter)
+        && (trackedProductions.contains(nodeName) || trackall)) {
       // Location location = getProductionLocation(value);
       Location location = getProductionLocation(value);
 
       // Emit the marker.
+      if(conditionalInside) {
       System.err.println(String.format("conditional_inside %s %s \"%s\"",
                                        nodeName,
                                        location,
                                        joinSet(insideSet, ",")));
+      }
+      else {
+        System.err.println(String.format("conditional_after %s %s \"%s\"",
+                                        nodeName,
+                                        location,
+                                        joinSet(afterSet, ",")));
+      }
     }
 
     if (hasSemanticActions) {
@@ -3052,12 +3208,13 @@ public class ForkMergeParser {
       int flags
         = (null != this.value ? 1 : 0)
         | (null != other.value ? 2 : 0);
-
       // System.err.println("MERGE BEFORE");
       // System.err.println(this.value);
       // System.err.println(thisPresenceCondition);
       // System.err.println(other.value);
       // System.err.println(otherPresenceCondition);
+
+      // Need a flag to determine if we need to traverse the tree or not based on the current node
 
       switch (flags) {
       case 0:
@@ -3153,15 +3310,14 @@ public class ForkMergeParser {
         }
         break;
       }
-      
-      // System.err.println("MERGE AFTER");
-      // System.err.println(this.value);
+
+      // productionInsideConditional(this.value);
 
       if (this.next != null) {
         this.next.merge(thisPresenceCondition, other.next,otherPresenceCondition, dist - 1);
       }
     }
-    
+
     /**
      * Get the string representation.
      *
