@@ -44,14 +44,18 @@
 #
 #***************************************************************************
 
-PACKAGE     = superc
-PACKAGE_LOC = superc
+PACKAGE     = superc.p4parser
+PACKAGE_LOC = superc/p4parser
 
 SOURCE = \
-	BuiltinsGenerator.java \
-	SugarC.java \
-	SuperC.java \
-	SuperP4.java
+	P4ParseTables.java \
+	P4Tag.java \
+	P4Lexer.java \
+	P4LexerCreator.java \
+	P4TokenCreator.java \
+	P4Values.java \
+	P4Actions.java \
+	P4Context.java
 
 
 JNI_SOURCE =
@@ -68,33 +72,12 @@ JAR_EXTRAS =
 ifdef JAVA_DEV_ROOT
 include $(JAVA_DEV_ROOT)/Makerules
 
-.PHONY: configure parsers clobber
+.PHONY: parser clobber
 
-configure:
-	if [ -f Builtins.java ]; then $(RM) Builtins.java; fi
-	$(MAKE) BuiltinsGenerator.class
-	$(MAKE) Builtins.java
-	$(MAKE) Builtins.class
+generate:
+	$(MAKE) -f generate.make
 
-Builtins.java:
-	touch empty.c
-	$(CPP) $(CPPFLAGS) -v empty.c 2> sysdirs > /dev/null
-	$(CPP) $(CPPFLAGS) -dM empty.c > builtins 2> /dev/null
-	$(RM) empty.c
-	$(JAVA) superc.BuiltinsGenerator sysdirs builtins > Builtins.java
-	$(RM) sysdirs
-	$(RM) builtins
-
-parsers:
-	$(MAKE) -C expression generate all
-	$(MAKE) -C cparser generate all
-	$(MAKE) -C p4parser generate all
-	$(MAKE) -C cdesugarer generate all
-
-clobber-parsers:
-	$(MAKE) -C expression clobber
-	$(MAKE) -C cparser clobber
-	$(MAKE) -C p4parser clobber
-	$(MAKE) -C cdesugarer clobber
+clobber:
+	$(MAKE) -f generate.make clean
 
 endif

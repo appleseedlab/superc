@@ -282,7 +282,11 @@ public abstract class Syntax extends xtc.tree.Token {
     ELLIPSIS,
     HASH,
     DOUBLE_HASH,
-    NUMBER
+    NUMBER,
+    // Currently using those two tags in P4's lexer to mark beginning 
+    // and end of pragma statements according to the original P4 lexer logic
+    PRAGMA,
+    END_PRAGMA
   }
 
   /** The interface for language tags. */
