@@ -206,6 +206,10 @@ public class SugarC extends Tool {
            "Pass preprocessor error tokens to the parser.  Makes for more "
            + "specific presence conditions.").
 
+      // New error handling.
+      bool("newErrorHandling", "newErrorHandling", false,
+           "Use new error handling that puts errors in the AST.").
+      
       // Desugaring features
       bool("linkerThunks", "linkerThunks", false,
            "Emit thunks for single-configuration linking (experimental).").
@@ -470,8 +474,12 @@ public class SugarC extends Tool {
     ((Preprocessor) preprocessor)
       .singleConfigurationSysheaders(runtime.test("singleConfigSysheaders"));
 
+    if (runtime.test("newErrorHandling")) {
+      ForkMergeParser.setNewErrorHandling(true);
+    }
+    
     // Run SuperC.
-
+    
     // Run the SuperC preprocessor and parser.
     ForkMergeParser parser;
     Object translationUnit;
@@ -542,6 +550,9 @@ public class SugarC extends Tool {
       System.out.print("\n");
 
       // emit extern declarations for desugaring runtime.
+      if (runtime.test("newErrorHandling")) {
+        System.out.print("extern void __static_parse_error(char *msg);\n");
+      }
       System.out.print("extern void __static_type_error(char *msg);\n");
       System.out.print("extern void __static_renaming(char *renaming, char *original);\n");
       System.out.print("extern void __static_condition_renaming(char *expression, char *renaming);\n");
@@ -561,6 +572,12 @@ public class SugarC extends Tool {
       if (runtime.test("linkerThunks")) {
         // write the multiplexer functions for linking
         System.out.print(actions.linkerThunks(scope, pcTrue));
+      }
+
+
+      if (runtime.test("newErrorHandling")) {
+        System.out.print("int main () {\nif (" + actions.condToCVar(CContext.getParseErrorCond()) +
+                         ")\n{\n__static_parse_error(\"Unable to parse\");\n}\nreturn 0;\n}");
       }
     }
 

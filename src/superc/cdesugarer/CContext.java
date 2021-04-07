@@ -54,6 +54,7 @@ import xtc.type.C;
 import superc.core.ParsingContext;
 
 import superc.core.PresenceConditionManager.PresenceCondition;
+import superc.core.PresenceConditionManager;
 
 import superc.core.Clauses;
 
@@ -146,6 +147,25 @@ public class CContext implements ParsingContext {
     FALSE,
     TRUEFALSE
   }
+
+
+  private static PresenceCondition parseErrorCond;
+
+  static
+  {
+    PresenceConditionManager p = new PresenceConditionManager();
+    parseErrorCond = p.newFalse();
+  }
+
+  public static void addToParseErrorCond(PresenceCondition p) {
+    parseErrorCond = parseErrorCond.or(p);
+  }
+
+  public static PresenceCondition getParseErrorCond() {
+    return parseErrorCond;
+  }
+
+  
 
   /** Create a new initial C parsing contex. */
   public CContext() {

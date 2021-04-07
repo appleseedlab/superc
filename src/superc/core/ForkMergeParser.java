@@ -51,6 +51,7 @@ import superc.core.Syntax.Error;
 import superc.core.Syntax.ErrorType;
 
 import superc.core.PresenceConditionManager.PresenceCondition;
+import superc.cdesugarer.CContext;
 
 /**
  * This class expands macros and processes header files
@@ -1889,6 +1890,7 @@ public class ForkMergeParser {
         if (null != mergeFrame.value && ((Node )mergeFrame.value).getName().endsWith("List")) {
           GNode conditionalNode = GNode.create(CHOICE_NODE_NAME);
           conditionalNode.add(e.presenceCondition.addRef());
+          CContext.addToParseErrorCond(e.presenceCondition);
           conditionalNode.add(new Error("parsing error", true));
           ((Node) mergeFrame.value).add(conditionalNode);
         } else {
@@ -1897,6 +1899,7 @@ public class ForkMergeParser {
             conditionalNode.add(mergeParser.presenceCondition.addRef());
             conditionalNode.add(mergeFrame.value);
           }
+          CContext.addToParseErrorCond(e.presenceCondition);
           conditionalNode.add(e.presenceCondition.addRef());
           conditionalNode.add(new Error("parsing error", true));
           mergeFrame.value = conditionalNode;

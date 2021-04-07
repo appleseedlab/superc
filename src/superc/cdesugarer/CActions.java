@@ -4900,7 +4900,7 @@ public class CActions implements SemanticActions {
           todoReminder("check the type of the return value");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
-
+          System.err.println(getNodeAt(subparser, 3) + " " + exprval);
           String returnkeyword = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
           Multiverse<String> exprmv = exprval.transformation;
           String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
