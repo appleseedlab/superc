@@ -328,8 +328,8 @@ return new Layout(comment.toString(), false);
 
 #else
 TYPE_IDENTIFIER(getID("TYPE_IDENTIFIER"), null, true),
-END_PRAGMA(getID("END_PRAGMA"), null, PreprocessorTag.END_PRAGMA),
-PRAGMA(getID("PRAGMA"), null, PreprocessorTag.PRAGMA)
+END_PRAGMA(getID("END_PRAGMA"), null),
+PRAGMA(getID("PRAGMA"), "@pragma")
 ;
 
   private final int id;
