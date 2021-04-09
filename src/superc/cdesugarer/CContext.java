@@ -926,7 +926,6 @@ public class CContext implements ParsingContext {
     if (! cond.isFalse()) {
       get(result, this, ident, cond);
     }
-
     return result;
   }
 

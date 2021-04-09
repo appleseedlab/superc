@@ -266,6 +266,7 @@ import xtc.type.Type.Tag;
 import xtc.type.UnionT;
 import xtc.type.VariableT;
 import xtc.type.VoidT;
+import xtc.type.WrappedT;
 
 /* import xtc.util.SymbolTable; */
 /* import xtc.util.SymbolTable.Scope; */
@@ -4168,6 +4169,14 @@ ArrayAbstractDeclarator: /** nomerge **/
           /* System.err.println(getNodeAt(subparser, 2)); */
           Multiverse<Declarator> valuemv = DesugarOps.toAbstractArrayDeclarator.transform(arrayBounds);
           // this is getting an empty mv on filtered for /usr/include/x86_64-linux-gnu/bits/types.h in typesizes.h
+          for (Element<Declarator> e : valuemv) {
+            ArrayAbstractDeclarator a = ((ArrayAbstractDeclarator)e.getData());
+            for (Element<Type> et : exprval.type) {
+              if (e.getCondition().is(et.getCondition())) {
+                a.setTypeError(et.getData() == ErrorT.TYPE);
+              }
+            }
+          }
           Multiverse<Declarator> filtered = valuemv.filter(subparser.getPresenceCondition());
           valuemv.destruct();
           setTransformationValue(value, filtered);
@@ -4890,7 +4899,9 @@ IterationStatement:  /** complete **/  // Multiverse<String>
               Multiverse<String> mv5 = mv4.product(updatemv, DesugarOps.concatStrings); mv4.destruct();
               Multiverse<String> mv6 = mv5.appendScalar(rparen, DesugarOps.concatStrings); mv5.destruct();
               Multiverse<String> valuemv = mv6.product(stmtmv, DesugarOps.concatStrings); mv6.destruct();
-
+              valuemv = injectErrorIntoStrMv(valuemv, initval.type, "initialization type error in this presence condition");
+              valuemv = injectErrorIntoStrMv(valuemv, testval.type, "test condition type error in this presence condition");
+              valuemv = injectErrorIntoStrMv(valuemv, updateval.type, "update value type error in this presence condition");
               setTransformationValue(value, valuemv);
             } else {
               setTransformationValue(value, new Multiverse<String>(emitError("no valid type in iterationstatement (3)"), pc));
@@ -4929,19 +4940,21 @@ IterationStatement:  /** complete **/  // Multiverse<String>
           Multiverse<String> lbrace = new Multiverse<String>("{", pc);
           Multiverse<String> rbrace = new Multiverse<String>("}", pc);
           Multiverse<String> semi1mv = new Multiverse<String>(";", pc);  // add an empty initializer expression
-          
-          setTransformationValue(value, productAll(DesugarOps.concatStrings,
-                                                   lbrace,
-                                                   declstring,
-                                                   formv,
-                                                   lparen,
-                                                   semi1mv,
-                                                   testmv,
-                                                   semi2mv,
-                                                   updatemv,
-                                                   rparen,
-                                                   stmtmv,
-                                                   rbrace));
+          Multiverse<String> valuemv = productAll(DesugarOps.concatStrings,
+                                                lbrace,
+                                                declstring,
+                                                formv,
+                                                lparen,
+                                                semi1mv,
+                                                testmv,
+                                                semi2mv,
+                                                updatemv,
+                                                rparen,
+                                                stmtmv,
+                                                rbrace);
+          valuemv = injectErrorIntoStrMv(valuemv, testval.type, "test condition type error in this presence condition");
+          valuemv = injectErrorIntoStrMv(valuemv, updateval.type, "update value type error in this presence condition");
+          setTransformationValue(value, valuemv);
         }
         ;
 
@@ -5169,7 +5182,6 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
           // any presence conditions with an error can be omitted from
           // the desugaring.  instead, this information is preserved
           // in the type value for use by the statement.
-          /* System.err.println("IDENT: " + entries); */
           for (Element<SymbolTable.Entry<Type>> entry : entries) {
             if (entry.getData().isError()) {
               System.err.println(String.format("type error: use of symbol with invalid declaration: %s", originalName));
@@ -5329,13 +5341,18 @@ Subscript:  /** nomerge **/
                   typemv.add(elemT.getData(), elemT.getCondition());
                   // __static_error (...) [2];
                 } else {
+                  Type tempT = elemT.getData();
+                  while (tempT.isAnnotated() || tempT.isAlias()) {
+                    tempT = ((WrappedT)tempT).getType();
+                  }
+                  System.err.println(tempT + "::" + tempT.getClass());
                   // postfix expression should be a pointer or array type
-                  if (elemT.getData().isPointer()) {
+                  if (tempT.isPointer()) {
                     // type should be whatever type the pointer point to
-                    typemv.add(elemT.getData().toPointer().getType(), elemT.getCondition());
-                  } else if (elemT.getData().isArray()) {
+                    typemv.add(tempT.toPointer().getType(), elemT.getCondition());
+                  } else if (tempT.isArray()) {
                     // type should be whatever type the array points to
-                    typemv.add(elemT.getData().toArray().getType(), elemT.getCondition());
+                    typemv.add(tempT.toArray().getType(), elemT.getCondition());
                   } else {
                     typemv.add(ErrorT.TYPE, elemT.getCondition());
                     //stringmv.add(emitError("invalid subscript access"), elemS.getCondition());
@@ -5344,9 +5361,12 @@ Subscript:  /** nomerge **/
               }
             /* System.err.println("SUBSCRIPTBEFORE: " + postfixexprval.type); */
             /* System.err.println("SUBSCRIPTAFTER: " + typemv); */
+            typemv = typemv.filter(exprval.type.getConditionOf(ErrorT.TYPE).not());
+            typemv.add(ErrorT.TYPE, exprval.type.getConditionOf(ErrorT.TYPE));
             PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
             PresenceCondition validTypes = errorCond.not();
             transformationmv = transformationmv.filter(validTypes);
+            System.err.println(transformationmv);
             setTransformationValue(value, new ExpressionValue(transformationmv,
                                                               typemv));
           } else {
@@ -5475,8 +5495,19 @@ FunctionCall:  /** nomerge **/
                     int size1 =  formals.size();
                     int size2 = exprlisttype.getData().size();
                     int min = Math.min(size1, size2);
-
-                    if (size1 > size2) {
+                    boolean hasError = false;
+                    for (Type t : exprlisttype.getData()) {
+                      if (t == ErrorT.TYPE) {
+                        hasError = true;
+                        break;
+                      }
+                    }
+                    if (hasError) {
+                      PresenceCondition new_errorCond = errorCond.or(combinedCond);
+                      valuemv.add(emitError("A parameter expression is an error"), combinedCond);
+                      errorCond.delRef(); errorCond = new_errorCond;
+                    }
+                    else if (size1 > size2) {
                       // TODO: unit test
                       PresenceCondition new_errorCond = errorCond.or(combinedCond);
                       valuemv.add(emitError("too few arguments to function"), combinedCond);
@@ -6694,7 +6725,7 @@ RelationalExpression:  /** passthrough, nomerge **/ // ExpressionValue
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              leftval.type)); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.relOpProduct, leftval.type, rightval.type)));
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -6718,7 +6749,7 @@ RelationalExpression:  /** passthrough, nomerge **/ // ExpressionValue
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              leftval.type)); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.relOpProduct, leftval.type, rightval.type)));
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -6742,7 +6773,7 @@ RelationalExpression:  /** passthrough, nomerge **/ // ExpressionValue
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              leftval.type)); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.relOpProduct, leftval.type, rightval.type)));
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -6766,7 +6797,7 @@ RelationalExpression:  /** passthrough, nomerge **/ // ExpressionValue
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              leftval.type)); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.relOpProduct, leftval.type, rightval.type)));
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -8343,6 +8374,14 @@ Multiverse<Map.Entry<String,Type>> getNestedFields(String structId, String field
     }
   }
   return result;
+}
+
+public Multiverse<String> injectErrorIntoStrMv(Multiverse<String> mvs, Multiverse<Type> mvt, String msg) {
+  PresenceCondition ec = mvt.getConditionOf(ErrorT.TYPE);
+  Multiverse<String> newmv = mvs.filter(ec.not());
+  newmv.add(emitError(msg) + ";", ec);
+  ec.delRef();
+  return newmv;
 }
 
 /***************************************************************************
