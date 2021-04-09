@@ -571,9 +571,9 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
 
           // change the semantic value of functionprototype to be the multiverse of strings
           setTransformationValue(getNodeAt(subparser, 1), prototypestrmv);
-          /* System.err.println("PROTOTYPESTRMV " + prototypestrmv); */
-          /* System.err.println(validCond); */
-          /* System.err.println(getNodeAt(subparser, 1)); */
+          System.err.println("PROTOTYPESTRMV " + prototypestrmv);
+          System.err.println(validCond);
+          System.err.println(getNodeAt(subparser, 1));
           
         /*   // reenter function local scope */
         /*   ReenterScope(subparser); */
@@ -587,28 +587,33 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
 
           /* System.err.println(getNodeAt(subparser, 3)); */
 
-          // the function prototype can be empty if all prototypes in
-          // that set of configurations all have type errors
-          // (redeclarations, invalid types in parameters, etc).  this
-          // means that we can't use the regular
-          // getCompleteNodeMultiverseValue, which assumes all
-          // children are non-empty.
 
-          Multiverse<Node> prototypenodemv = staticCondToMultiverse(getNodeAt(subparser, 3), pc);
-          Multiverse<String> resultmv = new Multiverse<String>();
+          Multiverse<String> resultmv = (Multiverse<String>) getTransformationValue(subparser, 3);
 
-          // loop through each node, get its multiverse and add to the
-          // resultmv.  update each node's multiverse elements with the static
-          // conditional branch's presence condition using filter.
-          for (Element<Node> elem : prototypenodemv) {
-            Multiverse<String> nodevaluemv = (Multiverse<String>) getTransformationValue((Node) elem.getData());
-            if (! nodevaluemv.isEmpty()) {
-              Multiverse<String> filtered = nodevaluemv.filter(elem.getCondition());
-              resultmv.addAll(filtered);
-              filtered.destruct();
-            }
-          }
-          prototypenodemv.destruct();
+          /* // the function prototype can be empty if all prototypes in */
+          /* // that set of configurations all have type errors */
+          /* // (redeclarations, invalid types in parameters, etc).  this */
+          /* // means that we can't use the regular */
+          /* // getCompleteNodeMultiverseValue, which assumes all */
+          /* // children are non-empty. */
+
+          /* System.err.println("JKLFDSJ " + getNodeAt(subparser, 3)); */
+          /* Multiverse<Node> prototypenodemv = staticCondToMultiverse(getNodeAt(subparser, 3), pc); */
+          /* Multiverse<String> resultmv = new Multiverse<String>(); */
+
+          /* // loop through each node, get its multiverse and add to the */
+          /* // resultmv.  update each node's multiverse elements with the static */
+          /* // conditional branch's presence condition using filter. */
+          /* for (Element<Node> elem : prototypenodemv) { */
+          /*   System.err.println("ELEM: " + elem.getData()); */
+          /*   Multiverse<String> nodevaluemv = (Multiverse<String>) getTransformationValue((Node) elem.getData()); */
+          /*   if (! nodevaluemv.isEmpty()) { */
+          /*     Multiverse<String> filtered = nodevaluemv.filter(elem.getCondition()); */
+          /*     resultmv.addAll(filtered); */
+          /*     filtered.destruct(); */
+          /*   } */
+          /* } */
+          /* prototypenodemv.destruct(); */
 
           StringBuilder sb = new StringBuilder();
           if (! resultmv.isEmpty()) {
@@ -685,7 +690,7 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/  // String
    complete AST.  So if something in the prototype is configurable,
    the conditional will only be hoisted around the prototype, not the
    entire function definition. */
-FunctionPrototype:  /** nomerge **/
+FunctionPrototype:  /** complete **/
         IdentifierDeclarator
         {
           PresenceCondition pc = subparser.getPresenceCondition();
