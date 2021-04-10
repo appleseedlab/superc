@@ -7904,21 +7904,25 @@ protected String declarationAction(List<DeclaringListValue> declaringlistvalues,
                       }
                       /* entrysb.append(renamedDeclaration.toString()); */
                       if (initializer.getData().hasList()) {
-                        if (declarationType.isStruct() || declarationType.isUnion()){
+                        Type tempT = declarationType;
+                        while (tempT.isWrapped()) {
+                          tempT = ((WrappedT)tempT).getType();
+                        }
+                        if (tempT.isStruct() || tempT.isUnion()){
                           entrysb.append(desugaredDeclaration);
                           entrysb.append(semi + "\n");  // semi-colon
-                          entrysb.append("{\n" + initStruct(renaming, (StructOrUnionT)declarationType, initializer.getData(), scope, combinedCond) + "}");
+                          entrysb.append("{\n" + initStruct(renaming, (StructOrUnionT)tempT, initializer.getData(), scope, combinedCond) + "}");
                           recordRenaming(renaming, originalName);
                         }
-                        if (declarationType.isArray()){
-                          if (!((ArrayT)declarationType).hasLength()) {
+                        if (tempT.isArray()){
+                          if (!((ArrayT)tempT).hasLength()) {
                             entrysb.append(desugaredDeclaration);
                           } else {
                             //if  the length is implcit, we need to manually assign a value
                             entrysb.append(renamedDeclaration.toString(trueInitSize(initializer.getData())));
                           }
                           entrysb.append(semi + "\n");  // semi-colon
-                          entrysb.append("{\n" + initArray(renaming, (ArrayT)declarationType, initializer.getData(), scope, combinedCond) + "}");
+                          entrysb.append("{\n" + initArray(renaming, (ArrayT)tempT, initializer.getData(), scope, combinedCond) + "}");
                           recordRenaming(renaming, originalName);
                         }
                       } else {
