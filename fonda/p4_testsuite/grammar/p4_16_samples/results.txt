@@ -1,0 +1,2767 @@
+./action-bind.p4
+hereatend
+hereatend
+Name: action-bind.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./action-uses.p4
+hereatend
+hereatend
+Name: action-uses.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: empty to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./actionAnnotations.p4
+hereatend
+hereatend
+Name: actionAnnotations.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: test to type: TYPDEF
+hereatend
+./action_param.p4
+hereatend
+hereatend
+Name: action_param.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./action_param1.p4
+hereatend
+hereatend
+Name: action_param1.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./after-return.p4
+hereatend
+hereatend
+Name: after-return.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: ctrl to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: noop to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: p to type: TYPDEF
+hereatend
+./alias.p4
+hereatend
+hereatend
+Name: alias.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: H to type: IDENT
+error: parse error on "H" at ./alias.p4:25:4 --cleared
+./annotations.p4
+hereatend
+hereatend
+Name: annotations.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: EXTERN
+Setting variable: Annotated to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./apply-cf.p4
+hereatend
+hereatend
+Name: apply-cf.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: x to type: TYPDEF
+hereatend
+./apply.p4
+hereatend
+hereatend
+Name: apply.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: noargs to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: p to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: q to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: m to type: TYPDEF
+hereatend
+./array_field.p4
+hereatend
+hereatend
+Name: array_field.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: H to type: IDENT
+error: parse error on "H" at ./array_field.p4:21:14 --cleared
+./array_field1.p4
+hereatend
+hereatend
+Name: array_field1.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: H to type: IDENT
+error: parse error on "H" at ./array_field1.p4:6:14 --cleared
+./assign.p4
+hereatend
+hereatend
+Name: assign.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: h to type: IDENT
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+error: parse error on "h" at ./assign.p4:22:4 --cleared
+./bfd_offload.p4
+hereatend
+hereatend
+Name: bfd_offload.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: BFD_Offload to type: TYPDEF
+error: parse error on "{" at ./bfd_offload.p4:29:51
+./bitExtract.p4
+hereatend
+hereatend
+Name: bitExtract.p4
+hereatend
+./bool_cast.p4
+hereatend
+hereatend
+Name: bool_cast.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: SetAndFwd to type: TYPDEF
+hereatend
+./call.p4
+hereatend
+hereatend
+Name: call.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: qp to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: EXTERN
+Setting variable: Ix to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: p to type: TYPDEF
+hereatend
+./cases.p4
+hereatend
+hereatend
+Name: cases.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: ctrl to type: TYPDEF
+hereatend
+./cast-call.p4
+hereatend
+hereatend
+Name: cast-call.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: T to type: TYPDEF
+hereatend
+./cast.p4
+hereatend
+hereatend
+Name: cast.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: p to type: TYPDEF
+hereatend
+./cast_noop.p4
+hereatend
+hereatend
+Name: cast_noop.p4
+hereatend
+./complex.p4
+hereatend
+hereatend
+Name: complex.p4
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: simple to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./complex1.p4
+hereatend
+hereatend
+Name: complex1.p4
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: simple to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./complex10.p4
+hereatend
+hereatend
+Name: complex10.p4
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: simple to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./complex2.p4
+hereatend
+hereatend
+Name: complex2.p4
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: HEADER
+Setting variable: H to type: IDENT
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+error: parse error on "h" at ./complex2.p4:24:13
+./complex3.p4
+hereatend
+hereatend
+Name: complex3.p4
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: simple to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./complex4.p4
+hereatend
+hereatend
+Name: complex4.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: E to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: simple to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./complex5.p4
+hereatend
+hereatend
+Name: complex5.p4
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: simple to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./complex6.p4
+hereatend
+hereatend
+Name: complex6.p4
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: simple to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./complex9.p4
+hereatend
+hereatend
+Name: complex9.p4
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: simple to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./concat-fold.p4
+hereatend
+hereatend
+Name: concat-fold.p4
+hereatend
+./concat.p4
+hereatend
+hereatend
+Name: concat.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./const.p4
+hereatend
+hereatend
+Name: const.p4
+error: parse error on "_BB_CC_DD_EE_FF_00" at ./const.p4:19:32 --cleared
+./constStruct.p4
+hereatend
+hereatend
+Name: constStruct.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: ctrl to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./constant_folding.p4
+hereatend
+hereatend
+Name: constant_folding.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+error: parse error on ">" at ./constant_folding.p4:53:16 --| expression R_ANGLE expression problem in parser expression nonterminal
+./constants.p4
+hereatend
+hereatend
+Name: constants.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: p to type: TYPDEF
+hereatend
+./constructor_cast.p4
+hereatend
+hereatend
+Name: constructor_cast.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: E to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./constsigned.p4
+hereatend
+hereatend
+Name: constsigned.p4
+hereatend
+./copy.p4
+hereatend
+hereatend
+Name: copy.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./decl.p4
+hereatend
+hereatend
+Name: decl.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: p to type: TYPDEF
+hereatend
+./decl2.p4
+hereatend
+hereatend
+Name: decl2.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: p to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: simple to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: m to type: TYPDEF
+hereatend
+./default-control-argument.p4
+hereatend
+hereatend
+Name: default-control-argument.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: intrinsic_metadata_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: empty_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: M to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: C to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: M to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: P to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: hdr_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: meta_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: MyC to type: TYPDEF
+hereatend
+./default-package-argument.p4
+hereatend
+hereatend
+Name: default-package-argument.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: intrinsic_metadata_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: empty_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: nothing to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: M to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: C to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: M to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: P to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: hdr_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: meta_t to type: TYPDEF
+hereatend
+./default-switch.p4
+hereatend
+hereatend
+Name: default-switch.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: ctrl to type: TYPDEF
+hereatend
+./direct-action.p4
+hereatend
+hereatend
+Name: direct-action.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./direct-action1.p4
+hereatend
+hereatend
+Name: direct-action1.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./direct-call.p4
+hereatend
+hereatend
+Name: direct-call.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: d to type: TYPDEF
+hereatend
+./direct-call1.p4
+hereatend
+hereatend
+Name: direct-call1.p4
+hereatend
+./direct-call2.p4
+hereatend
+hereatend
+Name: direct-call2.p4
+hereatend
+./duplicateMethod.p4
+hereatend
+hereatend
+Name: duplicateMethod.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: packet_in to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: EXTERN
+Setting variable: Checksum to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: D to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: D to type: TYPDEF
+hereatend
+./emptyTuple.p4
+hereatend
+hereatend
+Name: emptyTuple.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: TYPEDEF
+Setting variable: emptyTuple to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: e to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./enum-folding.p4
+hereatend
+hereatend
+Name: enum-folding.p4
+hereatend
+./enum.p4
+hereatend
+hereatend
+Name: enum.p4
+name is: superc.cparser.CContext@123a439b
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+error: parse error on "v" at ./enum.p4:27:10 --cleared
+./equality.p4
+hereatend
+hereatend
+Name: equality.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: H to type: IDENT
+error: parse error on "H" at ./equality.p4:8:4 --cleared
+./ex1.p4
+hereatend
+hereatend
+Name: ex1.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: S to type: TYPDEF
+hereatend
+./exit1.p4
+hereatend
+hereatend
+Name: exit1.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: ctrl to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: noop to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: p to type: TYPDEF
+hereatend
+./exit2.p4
+hereatend
+hereatend
+Name: exit2.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: ctrl to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: noop to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: p to type: TYPDEF
+hereatend
+./exit3.p4
+hereatend
+hereatend
+Name: exit3.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: ctrl to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: noop to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: p to type: TYPDEF
+hereatend
+./exit4.p4
+hereatend
+hereatend
+Name: exit4.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: ctrl to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: noop to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: p to type: TYPDEF
+hereatend
+./exit5.p4
+hereatend
+hereatend
+Name: exit5.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: ctrl to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: noop to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: p to type: TYPDEF
+hereatend
+./expression.p4
+hereatend
+hereatend
+Name: expression.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: p to type: TYPDEF
+error: parse error on ">" at ./expression.p4:34:25
+./extern.p4
+hereatend
+hereatend
+Name: extern.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: Crc16 to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: U to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: U to type: TYPDEF
+hereatend
+./extern2.p4 --error error
+hereatend
+hereatend
+Name: extern2.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: ext to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./extern3.p4
+hereatend
+hereatend
+Name: extern3.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: ext to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: V to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./filter.p4
+hereatend
+hereatend
+Name: filter.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: packet_in to type: TYPDEF
+error: parse error on "filter" at ./filter.p4:20:15 --cleared
+./fold_match.p4
+hereatend
+hereatend
+Name: fold_match.p4
+error: parse error on "{" at ./fold_match.p4:22:9 --cleared
+./function.p4
+hereatend
+hereatend
+Name: function.p4
+name is: superc.cparser.CContext@36aa7bc2
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@36aa7bc2
+here  asdasdf: CONTROL
+Setting variable: ctr to type: TYPDEF
+name is: superc.cparser.CContext@36aa7bc2
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./generic-struct.p4
+hereatend
+hereatend
+Name: generic-struct.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: St to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: Header to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: U to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: G to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: H2 to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: H4 to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: TYPEDEF
+Setting variable: R to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: H3 to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: HEADER
+Setting variable: GH to type: IDENT
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: HEADER
+Setting variable: X to type: IDENT
+error: parse error on "GH" at ./generic-struct.p4:67:6 -- same problem as extern.p4 with >> >
+./generic.p4
+hereatend
+hereatend
+Name: generic.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: Crc16 to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: Checksum16 to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: q to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: X to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: D to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: D1 to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T1 to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: z to type: TYPDEF
+hereatend
+./generic1.p4
+hereatend
+hereatend
+Name: generic1.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: Generic to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: R to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: R to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: caller to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: s to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: PACKAGE
+Setting variable: p to type: TYPDEF
+hereatend
+./global-action.p4
+hereatend
+hereatend
+Name: global-action.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: none to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./global-action1.p4
+hereatend
+hereatend
+Name: global-action1.p4
+name is: superc.cparser.CContext@123a439b
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@123a439b
+here  asdasdf: CONTROL
+Setting variable: none to type: TYPDEF
+name is: superc.cparser.CContext@123a439b
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./hashext.p4
+hereatend
+hereatend
+Name: hashext.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: hash_function to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: O to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: O to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: HEADER
+Setting variable: h1_t to type: IDENT
+error: parse error on "h1_t" at ./hashext.p4:32:4 --cleared
+./hashext2.p4
+hereatend
+hereatend
+Name: hashext2.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: crc_poly to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: O to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: HEADER
+Setting variable: h1_t to type: IDENT
+error: parse error on "h1_t" at ./hashext2.p4:29:4 -- same problem as extern.p4
+./header.p4
+hereatend
+hereatend
+Name: header.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: my_header to type: IDENT
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: TYPEDEF
+Setting variable: Field to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: your_header to type: IDENT
+error: parse error on "your_header" at ./header.p4:32:4 --cleared
+./initializer.p4
+hereatend
+hereatend
+Name: initializer.p4
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: ingress to type: TYPDEF
+hereatend
+./inline-action.p4
+hereatend
+hereatend
+Name: inline-action.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: p to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: simple to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: m to type: TYPDEF
+hereatend
+./inline-control.p4
+hereatend
+hereatend
+Name: inline-control.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: Y to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: d to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: dproto to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./inline-control1.p4
+hereatend
+hereatend
+Name: inline-control1.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: Y to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: d to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: dproto to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./inline-function.p4
+hereatend
+hereatend
+Name: inline-function.p4
+name is: superc.cparser.CContext@36aa7bc2
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@36aa7bc2
+here  asdasdf: CONTROL
+Setting variable: ctr to type: TYPDEF
+name is: superc.cparser.CContext@36aa7bc2
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./inline-switch.p4
+hereatend
+hereatend
+Name: inline-switch.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: d to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: dproto to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./inline.p4
+hereatend
+hereatend
+Name: inline.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: p to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: simple to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: m to type: TYPDEF
+hereatend
+./intType.p4
+hereatend
+hereatend
+Name: intType.p4
+hereatend
+./issue1006.p4
+hereatend
+hereatend
+Name: issue1006.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: R to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: STRUCT
+Setting variable: foo to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: c1 to type: TYPDEF
+hereatend
+./issue1160.p4
+hereatend
+hereatend
+Name: issue1160.p4
+hereatend
+./issue1172.p4
+hereatend
+hereatend
+Name: issue1172.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: EXTERN
+Setting variable: Register to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: W to type: TYPDEF
+hereatend
+./issue1208.p4
+hereatend
+hereatend
+Name: issue1208.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: p to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: q to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: empty to type: TYPDEF
+hereatend
+./issue1301.p4
+hereatend
+hereatend
+Name: issue1301.p4
+hereatend
+./issue1334.p4
+hereatend
+hereatend
+Name: issue1334.p4
+name is: superc.cparser.CContext@123a439b
+here  asdasdf: EXTERN
+Setting variable: Overloaded to type: TYPDEF
+name is: superc.cparser.CContext@123a439b
+here  asdasdf: CONTROL
+Setting variable: d to type: TYPDEF
+name is: superc.cparser.CContext@123a439b
+here  asdasdf: CONTROL
+Setting variable: d to type: TYPDEF
+name is: superc.cparser.CContext@123a439b
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@123a439b
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@123a439b
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+name is: superc.cparser.CContext@123a439b
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue1342.p4
+hereatend
+hereatend
+Name: issue1342.p4
+name is: superc.cparser.CContext@156643d4
+Setting variable: X to type: TYPDEF
+error: parse error on ";" at ./issue1342.p4:4:13 --scope problem?
+./issue1452-1.p4
+hereatend
+hereatend
+Name: issue1452-1.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue1452.p4
+hereatend
+hereatend
+Name: issue1452.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue1466.p4
+hereatend
+hereatend
+Name: issue1466.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: hdr to type: IDENT
+error: parse error on "hdr" at ./issue1466.p4:5:16 --cleared
+./issue1544-2.p4
+hereatend
+hereatend
+Name: issue1544-2.p4
+name is: superc.cparser.CContext@36aa7bc2
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@36aa7bc2
+here  asdasdf: CONTROL
+Setting variable: ctr to type: TYPDEF
+name is: superc.cparser.CContext@36aa7bc2
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue1586.p4
+hereatend
+hereatend
+Name: issue1586.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: cIngress to type: TYPDEF
+hereatend
+./issue1595-1.p4
+hereatend
+hereatend
+Name: issue1595-1.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: empty to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue1717.p4
+hereatend
+hereatend
+Name: issue1717.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: H to type: IDENT
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: TYPE
+Setting variable: T to type: IDENT
+error: parse error on "T" at ./issue1717.p4:14:4 --cleared
+./issue1724.p4
+hereatend
+hereatend
+Name: issue1724.p4
+hereatend
+./issue1822.p4
+hereatend
+hereatend
+Name: issue1822.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: X to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: C to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: X to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: MyC to type: TYPDEF
+hereatend
+./issue1830.p4
+hereatend
+hereatend
+Name: issue1830.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: T to type: TYPDEF
+hereatend
+./issue1863.p4
+hereatend
+hereatend
+Name: issue1863.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: e to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue2019-1.p4
+hereatend
+hereatend
+Name: issue2019-1.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: C to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: V to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: E to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: Some to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: EmptyV to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: H1 to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: S to type: TYPDEF
+hereatend
+./issue2019.p4
+hereatend
+hereatend
+Name: issue2019.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: V to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: EmptyV to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: E to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: H1 to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: S to type: TYPDEF
+hereatend
+./issue2036-3.p4
+hereatend
+hereatend
+Name: issue2036-3.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: s to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./issue2037.p4
+hereatend
+hereatend
+Name: issue2037.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./issue2126.p4
+hereatend
+hereatend
+Name: issue2126.p4
+hereatend
+./issue2147-1.p4
+hereatend
+hereatend
+Name: issue2147-1.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: ingress to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue2147.p4
+hereatend
+hereatend
+Name: issue2147.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: ingress to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue2151.p4
+hereatend
+hereatend
+Name: issue2151.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: e to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue2175-1.p4
+hereatend
+hereatend
+Name: issue2175-1.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: data to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: EXTERN
+Setting variable: Virtual to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+error: parse error on "{" at ./issue2175-1.p4:29:22 --cleared
+./issue2175-2.p4
+hereatend
+hereatend
+Name: issue2175-2.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: X to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: t to type: TYPDEF
+error: parse error on "{" at ./issue2175-2.p4:7:16 --cleared
+./issue2175-3.p4
+hereatend
+hereatend
+Name: issue2175-3.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: X to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: t to type: TYPDEF
+error: parse error on "{" at ./issue2175-3.p4:7:16 --cleared
+./issue2175-4.p4
+hereatend
+hereatend
+Name: issue2175-4.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: data to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: EXTERN
+Setting variable: Virtual to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+error: parse error on "{" at ./issue2175-4.p4:31:22 --cleared
+./issue2175-5.p4
+hereatend
+hereatend
+Name: issue2175-5.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: X to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+error: parse error on "{" at ./issue2175-5.p4:23:13 --cleared
+./issue2175-6.p4
+hereatend
+hereatend
+Name: issue2175-6.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: cs to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue2175.p4
+hereatend
+hereatend
+Name: issue2175.p4
+name is: superc.cparser.CContext@36aa7bc2
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@36aa7bc2
+here  asdasdf: CONTROL
+Setting variable: e to type: TYPDEF
+name is: superc.cparser.CContext@36aa7bc2
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue2213-1.p4
+hereatend
+hereatend
+Name: issue2213-1.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: mystruct1_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: mystruct2_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: metadata_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: ingressImpl to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue2213.p4
+hereatend
+hereatend
+Name: issue2213.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: mystruct1_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: mystruct2_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: metadata_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: ingressImpl to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue2260-2.p4
+hereatend
+hereatend
+Name: issue2260-2.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: C to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: MyC to type: TYPDEF
+hereatend
+./issue2265-1.p4
+hereatend
+hereatend
+Name: issue2265-1.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./issue2265.p4
+hereatend
+hereatend
+Name: issue2265.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./issue2335-1.p4
+hereatend
+hereatend
+Name: issue2335-1.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: ingress to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: i to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue2342.p4
+hereatend
+hereatend
+Name: issue2342.p4
+hereatend
+./issue2445.p4
+hereatend
+hereatend
+Name: issue2445.p4
+hereatend
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: H to type: IDENT
+./issue2480.p4
+hereatend
+hereatend
+Name: issue2480.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: CRCPolynomial to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: IngressT to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: PACKAGE
+Setting variable: Switch to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: Ingress to type: TYPDEF
+hereatend
+./issue2599.p4
+hereatend
+hereatend
+Name: issue2599.p4
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue2630.p4
+hereatend
+hereatend
+Name: issue2630.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: C to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: Pipeline to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: H0 to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: H1 to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: Switch to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: header_t to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: MyC to type: TYPDEF
+hereatend
+./issue304-1.p4
+hereatend
+hereatend
+Name: issue304-1.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: X to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+error: parse error on "{" at ./issue304-1.p4:24:13 --cleared
+./issue304.p4
+hereatend
+hereatend
+Name: issue304.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: cs to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue313_1.p4
+hereatend
+hereatend
+Name: issue313_1.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: header_h to type: IDENT
+error: parse error on "header_h" at ./issue313_1.p4:22:4 --cleared
+./issue313_2.p4
+hereatend
+hereatend
+Name: issue313_2.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: header_h to type: IDENT
+error: parse error on "header_h" at ./issue313_2.p4:22:4 --cleared
+./issue313_3.p4
+hereatend
+hereatend
+Name: issue313_3.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: header_h to type: IDENT
+error: parse error on "header_h" at ./issue313_3.p4:22:4 --cleared
+./issue344.p4
+hereatend
+hereatend
+Name: issue344.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: C to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: cproto to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue396.p4
+hereatend
+hereatend
+Name: issue396.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: H to type: IDENT
+error: parse error on "H" at ./issue396.p4:20:4 --cleared
+./issue47.p4
+hereatend
+hereatend
+Name: issue47.p4
+hereatend
+./issue529.p4
+hereatend
+hereatend
+Name: issue529.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: h_t to type: IDENT
+error: parse error on "h_t" at ./issue529.p4:22:4  --cleared
+./issue561.p4
+hereatend
+hereatend
+Name: issue561.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: H1 to type: IDENT
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: H2 to type: IDENT
+error: parse error on "H1" at ./issue561.p4:20:4 --cleared
+./issue754.p4
+hereatend
+hereatend
+Name: issue754.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: ctrl to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./issue940.p4
+hereatend
+hereatend
+Name: issue940.p4
+name is: superc.cparser.CContext@5e265ba4
+here  asdasdf: EXTERN
+Setting variable: Checksum16 to type: TYPDEF
+name is: superc.cparser.CContext@5e265ba4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./kvanno.p4
+hereatend
+hereatend
+Name: kvanno.p4
+error: parse error on "=" at ./kvanno.p4:2:5 --cleared
+./large.p4
+hereatend
+hereatend
+Name: large.p4
+hereatend
+./line.p4
+hereatend
+hereatend
+Name: line.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: x to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: y to type: TYPDEF
+hereatend
+./list-compare.p4
+hereatend
+hereatend
+Name: list-compare.p4
+name is: superc.cparser.CContext@5e265ba4
+here  asdasdf: TYPEDEF
+Setting variable: pair to type: TYPDEF
+name is: superc.cparser.CContext@5e265ba4
+here  asdasdf: STRUCT
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@5e265ba4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@5e265ba4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+name is: superc.cparser.CContext@5e265ba4
+here  asdasdf: CONTROL
+Setting variable: test to type: TYPDEF
+hereatend
+./methodArgCast.p4
+hereatend
+hereatend
+Name: methodArgCast.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: E to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./ml-headers.p4
+hereatend
+hereatend
+Name: ml-headers.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: TYPEDEF
+Setting variable: mac_addr_t to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: TYPEDEF
+Setting variable: ipv6_addr_t to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: TYPEDEF
+Setting variable: port_t to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: HEADER
+Setting variable: ethernet_t to type: IDENT
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: HEADER
+Setting variable: ipv6_t to type: IDENT
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: HEADER
+Setting variable: tcp_t to type: IDENT
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: HEADER
+Setting variable: udp_t to type: IDENT
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: HEADER
+Setting variable: icmp6_t to type: IDENT
+error: parse error on "ethernet_t" at ./ml-headers.p4:82:4 --cleared
+./module.p4
+hereatend
+hereatend
+Name: module.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: s to type: TYPDEF
+error: parse error on "Filter" at ./module.p4:21:16 --cleared
+./named-arg.p4
+hereatend
+hereatend
+Name: named-arg.p4
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: empty to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./names.p4
+hereatend
+hereatend
+Name: names.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: p to type: TYPDEF
+hereatend
+./nested-struct.p4
+hereatend
+hereatend
+Name: nested-struct.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: Header to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: H2 to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: ctrl to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./nested-tuple.p4
+hereatend
+hereatend
+Name: nested-tuple.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: tuple_0 to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: simple to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./nested-tuple1.p4
+hereatend
+hereatend
+Name: nested-tuple1.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: D to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: simple to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./newtype1.p4
+hereatend
+hereatend
+Name: newtype1.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: TYPEDEF
+Setting variable: Narrow_t to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: TYPE
+Setting variable: Narrow to type: IDENT
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: TYPEDEF
+Setting variable: Wide_t to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: TYPE
+Setting variable: Wide to type: IDENT
+error: parse error on "Narrow" at ./newtype1.p4:6:6 --cleared
+./octal.p4
+hereatend
+hereatend
+Name: octal.p4
+hereatend
+./overwrite.p4
+hereatend
+hereatend
+Name: overwrite.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: my to type: TYPDEF
+hereatend
+./package.p4
+hereatend
+hereatend
+Name: package.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./parse.p4
+hereatend
+hereatend
+Name: parse.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: bs to type: TYPDEF
+hereatend
+./pipeline.p4
+hereatend
+hereatend
+Name: pipeline.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: pipe to type: TYPDEF
+hereatend
+./pragma-action.p4
+hereatend
+hereatend
+Name: pragma-action.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: test to type: TYPDEF
+error: parse error on "Set_dmac" at ./pragma-action.p4:25:12 --cleared
+hereatend
+hereatend
+Name: pragma-deprecated.p4
+error: parse error on "deprecated" at ./pragma-deprecated.p4:1:8 --cleared
+./pragma-pkginfo.p4
+hereatend
+hereatend
+Name: pragma-pkginfo.p4
+error: parse error on "pkginfo" at ./pragma-pkginfo.p4:1:8 --cleared
+./pragma-string.p4
+hereatend
+hereatend
+Name: pragma-string.p4
+error: parse error on "name" at ./pragma-string.p4:19:8 --cleared
+./pragmas.p4
+hereatend
+hereatend
+Name: pragmas.p4
+error: parse error on "annotest" at ./pragmas.p4:17:8 --cleared
+./precedence.p4
+hereatend
+hereatend
+Name: precedence.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: s to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: TYPEDEF
+Setting variable: Bit to type: TYPDEF
+error: parse error on ">" at ./precedence.p4:85:17 --same problem as extern with R_ANGLE_SHIFT
+./select-type.p4
+hereatend
+hereatend
+Name: select-type.p4
+error: parse error on "{" at ./select-type.p4:19:33 --cleared
+./shadow.p4
+hereatend
+hereatend
+Name: shadow.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./shadow1.p4
+hereatend
+hereatend
+Name: shadow1.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: counter to type: TYPDEF
+error: parse error on "=" at ./shadow1.p4:22:13 --cleared
+./shadow3.p4
+hereatend
+hereatend
+Name: shadow3.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: HEADER
+Setting variable: H to type: IDENT
+error: parse error on "H" at ./shadow3.p4:19:24 --cleared
+./shift_precendence.p4
+hereatend
+hereatend
+Name: shift_precendence.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: i to type: TYPDEF
+error: parse error on ">" at ./shift_precendence.p4:5:34 --problem with R_ANGLE_SHIFT
+./side_effects.p4
+hereatend
+hereatend
+Name: side_effects.p4
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: HEADER
+Setting variable: H to type: IDENT
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: my to type: TYPDEF
+error: parse error on "s" at ./side_effects.p4:28:13 --cleared
+./spec-ex01.p4
+hereatend
+hereatend
+Name: spec-ex01.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: pipe to type: TYPDEF
+hereatend
+./spec-ex03.p4
+hereatend
+hereatend
+Name: spec-ex03.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: TYPEDEF
+Setting variable: bi to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: dp to type: TYPDEF
+hereatend
+./spec-ex04.p4
+hereatend
+hereatend
+Name: spec-ex04.p4
+error: parse error on "b_1010_1010" at ./spec-ex04.p4:21:21 --cleared
+./spec-ex06.p4
+hereatend
+hereatend
+Name: spec-ex06.p4
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: p to type: TYPDEF
+hereatend
+./spec-ex08.p4
+hereatend
+hereatend
+Name: spec-ex08.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: HEADER
+Setting variable: Empty_h to type: IDENT
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: HEADER
+Setting variable: Ethernet_h to type: IDENT
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: p to type: TYPDEF
+error: parse error on "ethernetHeader" at ./spec-ex08.p4:28:19 --cleared
+./spec-ex09.p4
+hereatend
+hereatend
+Name: spec-ex09.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: Mpls_h to type: IDENT
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: p to type: TYPDEF
+error: parse error on "mpls_vec" at ./spec-ex09.p4:27:19 --cleared
+./spec-ex10.p4
+hereatend
+hereatend
+Name: spec-ex10.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: Ethernet_h to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: Ip_h to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: HEADER
+Setting variable: Tcp_h to type: IDENT
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: HEADER
+Setting variable: Udp_h to type: IDENT
+error: parse error on "Tcp_h" at ./spec-ex10.p4:22:3 --cleared
+./spec-ex12.p4
+hereatend
+hereatend
+Name: spec-ex12.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: HEADER
+Setting variable: Empty_h to type: IDENT
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: TYPEDEF
+Setting variable: u32 to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: Point to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: TYPEDEF
+Setting variable: Pt to type: TYPDEF
+error: parse error on "Empty_h" at ./spec-ex12.p4:21:8 --cleared
+./spec-ex13.p4
+hereatend
+hereatend
+Name: spec-ex13.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: TYPEDEF
+Setting variable: FourBits to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: FourStruct to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: TYPEDEF
+Setting variable: FStruct to type: TYPDEF
+hereatend
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: Empty to type: TYPDEF
+./spec-ex14.p4
+hereatend
+hereatend
+Name: spec-ex14.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: Version to type: TYPDEF
+hereatend
+./spec-ex22.p4
+hereatend
+hereatend
+Name: spec-ex22.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./spec-ex25.p4
+hereatend
+hereatend
+Name: spec-ex25.p4
+name is: superc.cparser.CContext@5e265ba4
+here  asdasdf: TYPEDEF
+Setting variable: EthernetAddress to type: TYPDEF
+name is: superc.cparser.CContext@5e265ba4
+here  asdasdf: EXTERN
+Setting variable: tbl to type: TYPDEF
+name is: superc.cparser.CContext@5e265ba4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+error: parse error on "_00_00_01" at ./spec-ex25.p4:38:19 --cleared
+./spec-ex30.p4
+hereatend
+hereatend
+Name: spec-ex30.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: HEADER
+Setting variable: A_h to type: IDENT
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: HEADER
+Setting variable: B_h to type: IDENT
+error: parse error on "A_h" at ./spec-ex30.p4:21:4 --cleared
+./spec-ex34.p4
+hereatend
+hereatend
+Name: spec-ex34.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: Checksum16 to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: D to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: D to type: TYPDEF
+hereatend
+./specIssue884.p4
+hereatend
+hereatend
+Name: specIssue884.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: EXTERN
+Setting variable: CRCPolynomial to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: EXTERN
+Setting variable: LCGMatrix to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: W to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: H to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: EXTERN
+Setting variable: Hash to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: W to type: TYPDEF
+error: parse error on "HashAlgorithm_t" at ./specIssue884.p4:19:9 --R_ANGLE_SHIFT same problem
+./specialization.p4
+hereatend
+hereatend
+Name: specialization.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: STRUCT
+Setting variable: S1 to type: TYPDEF
+hereatend
+./strength.p4
+hereatend
+hereatend
+Name: strength.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: strength to type: TYPDEF
+error: parse error on ">" at ./strength.p4:27:16 --R_ANGLE_SHIFT same problem
+./strength2.p4
+hereatend
+hereatend
+Name: strength2.p4
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: strength to type: TYPDEF
+hereatend
+./strength5.p4
+hereatend
+hereatend
+Name: strength5.p4
+error: parse error on ">" at ./strength5.p4:2:12 --R_ANGLE_SHIFT problem
+./string.p4
+hereatend
+hereatend
+Name: string.p4
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: e to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./string_anno.p4
+hereatend
+hereatend
+Name: string_anno.p4
+hereatend
+./struct.p4
+hereatend
+hereatend
+Name: struct.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: P to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: Empty to type: TYPDEF
+hereatend
+./struct1.p4
+hereatend
+hereatend
+Name: struct1.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: P to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: S to type: TYPDEF
+hereatend
+./structArg.p4
+hereatend
+hereatend
+Name: structArg.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: caller to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: none to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./struct_init-1.p4
+hereatend
+hereatend
+Name: struct_init-1.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: PortId_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: H to type: IDENT
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: metadata_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: I to type: TYPDEF
+error: parse error on "h" at ./struct_init-1.p4:13:10 --cleared
+./struct_init.p4
+hereatend
+hereatend
+Name: struct_init.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: PortId_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: metadata_t to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: I to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: M to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: C to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+Setting variable: M to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./structured-annotation.p4
+hereatend
+hereatend
+Name: structured-annotation.p4
+error: parse error on "#" at ./structured-annotation.p4:2:1 --preprocessor
+./synth-action.p4
+hereatend
+hereatend
+Name: synth-action.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: n to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./template.p4
+hereatend
+hereatend
+Name: template.p4
+name is: superc.cparser.CContext@5e265ba4
+Setting variable: T to type: TYPDEF
+hereatend
+./tuple.p4
+hereatend
+hereatend
+Name: tuple.p4
+name is: superc.cparser.CContext@5e265ba4
+here  asdasdf: TYPEDEF
+Setting variable: pair to type: TYPDEF
+name is: superc.cparser.CContext@5e265ba4
+here  asdasdf: STRUCT
+Setting variable: S to type: TYPDEF
+name is: superc.cparser.CContext@5e265ba4
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@5e265ba4
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+name is: superc.cparser.CContext@5e265ba4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./tuple0.p4
+hereatend
+hereatend
+Name: tuple0.p4
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+name is: superc.cparser.CContext@7de26db8
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./tuple1.p4
+hereatend
+hereatend
+Name: tuple1.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./tuple2.p4
+hereatend
+hereatend
+Name: tuple2.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: proto to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./tuple3.p4
+hereatend
+hereatend
+Name: tuple3.p4
+hereatend
+./two-functions.p4
+hereatend
+hereatend
+Name: two-functions.p4
+name is: superc.cparser.CContext@1175e2db
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+name is: superc.cparser.CContext@1175e2db
+here  asdasdf: CONTROL
+Setting variable: E to type: TYPDEF
+name is: superc.cparser.CContext@1175e2db
+here  asdasdf: PACKAGE
+Setting variable: top to type: TYPDEF
+hereatend
+./twoPipe.p4
+hereatend
+hereatend
+Name: twoPipe.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: packet_in to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: packet_out to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: STRUCT
+Setting variable: inControl to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: STRUCT
+Setting variable: outControl to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: IH to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: IH to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: OH to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: IMAP to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: IH to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: OH to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: OMAP to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: OH to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: Deparser to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: IH to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: OH to type: TYPDEF
+error: parse error on "Parser" at ./twoPipe.p4:39:27 --cleared
+./type-params.p4
+hereatend
+hereatend
+Name: type-params.p4
+name is: superc.cparser.CContext@cac736f
+Setting variable: T to type: TYPDEF
+name is: superc.cparser.CContext@cac736f
+Setting variable: D to type: TYPDEF
+error: parse error on "p" at ./type-params.p4:19:14 --cleared
+./type-shadow.p4
+hereatend
+hereatend
+Name: type-shadow.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: X to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: D to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+Setting variable: D to type: TYPDEF
+hereatend
+./useless-cast.p4
+hereatend
+hereatend
+Name: useless-cast.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+hereatend
+./valid.p4
+hereatend
+hereatend
+Name: valid.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: HEADER
+Setting variable: h to type: IDENT
+error: parse error on "h" at ./valid.p4:21:16 --cleared
+./version.p4
+hereatend
+hereatend
+Name: version.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: Version to type: TYPDEF
+hereatend
+./virtual.p4
+hereatend
+hereatend
+Name: virtual.p4
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: STRUCT
+Setting variable: data to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: EXTERN
+Setting variable: Virtual to type: TYPDEF
+name is: superc.cparser.CContext@156643d4
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+error: parse error on "{" at ./virtual.p4:32:22 --cleared
+./virtual2.p4
+hereatend
+hereatend
+Name: virtual2.p4
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: Virtual to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: EXTERN
+Setting variable: State to type: TYPDEF
+name is: superc.cparser.CContext@379619aa
+here  asdasdf: CONTROL
+Setting variable: c to type: TYPDEF
+error: parse error on "{" at ./virtual2.p4:29:22 --cleared
