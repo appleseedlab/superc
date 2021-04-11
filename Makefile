@@ -48,6 +48,7 @@ PACKAGES = \
 	superc.expression \
 	superc.core \
 	superc.cparser \
+	superc.p4parser \
 	superc.cdesugarer \
 	superc.util \
 	superc
@@ -148,6 +149,7 @@ superc    :
 	$(MAKE) -C src/superc/expression
 	$(MAKE) -C src/superc/core
 	$(MAKE) -C src/superc/cparser
+	$(MAKE) -C src/superc/p4parser
 	$(MAKE) -C src/superc/cdesugarer
 	$(MAKE) -C src/superc/util
 	$(MAKE) -C src/superc
