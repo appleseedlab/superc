@@ -38,8 +38,8 @@
 #define WITH_PORT_COUNTER
 #define WITH_SPGW
 
-#include "include/core.p4"
-#include "include/v1model.p4"
+#include "../global_include/core.p4"
+#include "../global_include/v1model.p4"
 #include "include/size.p4"
 #include "include/control/filtering.p4"
 #include "include/control/forwarding.p4"
