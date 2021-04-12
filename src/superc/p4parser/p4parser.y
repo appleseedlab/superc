@@ -1506,44 +1506,12 @@ private boolean findToken(Object n, P4Tag tag) {
 }
 
 public void bindFunDef(Subparser subparser, Node typespec, Node declarator) {
-//   boolean static_function;
+  if (getident(declarator).equals("ERR_PTR")) {
+    System.err.println(typespec);
+    System.err.println(declarator);
+  }
 
-//   if (getident(declarator).equals("ERR_PTR")) {
-//     System.err.println(typespec);
-//     System.err.println(declarator);
-//   }
-
-//   if (null == typespec) {
-//     // only static with static keyword
-//     static_function = false;
-//   } else if (typespec.getName().equals("DeclarationSpecifier") ||
-//              typespec.getName().equals("DeclarationQualifierList")) {
-//     // the declaration keyword can only appear in these kinds of
-//     // specifiers
-//     if (typespec.getProperty(SPECS) != null) {
-//       static_function = ((Specifiers) typespec.getProperty(SPECS)).storage ==
-//         Constants.ATT_STORAGE_STATIC;
-//     } else {
-//       // traverse subtree looking for static until checkers are finished
-//       static_function = findToken(typespec, P4Tag.STATIC);
-//     }
-//   } else {
-//     // the declaration keyword can only appear in these kinds of
-//     // specifiers
-//     if (typespec.getProperty(SPECS) != null) {
-//       static_function = ((Specifiers) typespec.getProperty(SPECS)).storage ==
-//         Constants.ATT_STORAGE_STATIC;
-//     } else {
-//       // traverse subtree looking for static until checkers are finished
-//       static_function = findToken(typespec, P4Tag.STATIC);
-//     }
-//   }
-
-//   if (static_function) {
-//     bindIdent(subparser, typespec, declarator, STField.STATIC_FUNDEF);
-//   } else {
-//     bindIdent(subparser, typespec, declarator, STField.GLOBAL_FUNDEF);
-//   }
+  bindIdent(subparser, typespec, declarator, STField.GLOBAL_FUNDEF);
 }
 
 public void bindIdent(Subparser subparser, Node typespec, Node declarator) {
