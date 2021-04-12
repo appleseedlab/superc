@@ -9,22 +9,22 @@ void __static_initializer_default();
 void __static_initializer_default() {
 __static_renaming("___CfIf3K_CONFIG_A_0", "_CfIf3K_CONFIG_A");
 __static_renaming("___Djkifd_CONFIG_A_defined_1", "_Djkifd_CONFIG_A_defined");
-__static_renaming("__main_2", "main");
-__static_renaming("__x_3", "x");
-__static_renaming("__i_4", "i");
+__static_renaming("__x_2", "x");
+__static_renaming("__i_3", "i");
+__static_renaming("__main_4", "main");
 
 
 };
 
 extern int  ___CfIf3K_CONFIG_A_0;
 extern int  ___Djkifd_CONFIG_A_defined_1;
-int  __main_2 () {
+int  __main_4 () {
 {
-int  __x_3= 0;
+int  __x_2= 0;
 if (  ___Djkifd_CONFIG_A_defined_1  ) {
-{ int  __i_4= 0;
- for ( ;  __i_4  < 10 ; ++  __i_4  ) {
-++  __x_3  ;
+{ int  __i_3= 0;
+ for ( ;  __i_3  < 10 ; ++  __i_3  ) {
+++  __x_2  ;
 
 } }
 
@@ -32,7 +32,7 @@ if (  ___Djkifd_CONFIG_A_defined_1  ) {
 
 
 
-return  __x_3  ;
+return  __x_2  ;
 
 }
 

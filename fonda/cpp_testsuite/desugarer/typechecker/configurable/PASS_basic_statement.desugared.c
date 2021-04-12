@@ -7,28 +7,28 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_2;
-extern const bool __static_condition_default_3;
+extern const bool __static_condition_default_1;
 void __static_initializer_default() {
-__static_renaming("__main_0", "main");
-__static_renaming("__a_1", "a");
+__static_renaming("__a_0", "a");
+__static_renaming("__main_3", "main");
 
-__static_condition_renaming("__static_condition_default_2", "A");
-__static_condition_renaming("__static_condition_default_3", "!A");
+__static_condition_renaming("__static_condition_default_1", "A");
+__static_condition_renaming("__static_condition_default_2", "!A");
 
 };
 
-int  __main_0 () {
+int  __main_3 () {
 {
-int  __a_1;
+int  __a_0;
 
 {
-if (__static_condition_default_2) {
- __a_1  = 0 ;
+if (__static_condition_default_1) {
+ __a_0  = 0 ;
 
 }
 
-if (__static_condition_default_3) {
- __a_1  = 1 ;
+if (__static_condition_default_2) {
+ __a_0  = 1 ;
 
 }
 

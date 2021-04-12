@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 void __static_initializer_default() {
-__static_renaming("__main_6", "main");
-__static_renaming("__apple_7", "apple");
+__static_renaming("__apple_6", "apple");
+__static_renaming("__main_7", "main");
 
 
 };
@@ -22,9 +22,9 @@ __f_5,
 };
 
 enum letter ;
-int  __main_6 (void  ) {
+int  __main_7 (void  ) {
 {
-enum letter  __apple_7;
+enum letter  __apple_6;
 __static_type_error("type error : no valid expression");
 
 return 0 ;

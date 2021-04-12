@@ -7,16 +7,16 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 void __static_initializer_default() {
-__static_renaming("__main_0", "main");
-__static_renaming("__x_1", "x");
+__static_renaming("__x_0", "x");
+__static_renaming("__main_1", "main");
 
 
 };
 
-int  __main_0 () {
+int  __main_1 () {
 {
-int  __x_1;
-if (  __x_1  ) {
+int  __x_0;
+if (  __x_0  ) {
 __static_type_error("invalid type found in if statement");
 
 }

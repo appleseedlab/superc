@@ -8,17 +8,17 @@ void __static_initializer_default();
 
 void __static_initializer_default() {
 __static_renaming("__a_0", "a");
-__static_renaming("__main_1", "main");
-__static_renaming("__a_2", "a");
+__static_renaming("__a_1", "a");
+__static_renaming("__main_2", "main");
 
 
 };
 typedef int  __a_0;
 
 // typedef moved to top of scope
-int  __main_1 () {
+int  __main_2 () {
 {
-__a_0  __a_2;
+__a_0  __a_1;
 }
 
 

@@ -8,8 +8,8 @@ void __static_initializer_default();
 
 void __static_initializer_default() {
 __static_renaming("__x_0", "x");
-__static_renaming("__y_2", "y");
-__static_renaming("__y2_3", "y2");
+__static_renaming("__y2_2", "y2");
+__static_renaming("__y_3", "y");
 __static_renaming("__z_6", "z");
 __static_renaming("__w_8", "w");
 __static_renaming("__main_9", "main");
@@ -25,10 +25,10 @@ return 0 ;
 
 
 }
-float  (* __y_2 (int  __y1_1)) {
+float  (* __y_3 (int  __y1_1)) {
 {
-float  (* __y2_3);
-return  __y2_3  ;
+float  (* __y2_2);
+return  __y2_2  ;
 
 }
 

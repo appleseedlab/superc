@@ -6,14 +6,14 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_7;
 extern const bool __static_condition_default_8;
-extern const bool __static_condition_default_9;
 void __static_initializer_default() {
-__static_renaming("__main_6", "main");
-__static_renaming("__x_7", "x");
+__static_renaming("__x_6", "x");
+__static_renaming("__main_9", "main");
 
-__static_condition_renaming("__static_condition_default_8", "(defined A)");
-__static_condition_renaming("__static_condition_default_9", "!(defined A)");
+__static_condition_renaming("__static_condition_default_7", "(defined A)");
+__static_condition_renaming("__static_condition_default_8", "!(defined A)");
 
 };
 struct __x_0 {
@@ -25,23 +25,23 @@ int  __d_5;
 };
 
 struct __x_0 ;
-int  __main_6 () {
+int  __main_9 () {
 {
-struct __x_0  __x_7;
+struct __x_0  __x_6;
 {
-if (__static_condition_default_8) {
-__x_7.__a_1 = 1;
-__x_7.__b_2 = 2;
-__x_7.__c_3 = 3;
-__x_7.__b_2 = 4;
-__x_7.__c_3 = 5;
+if (__static_condition_default_7) {
+__x_6.__a_1 = 1;
+__x_6.__b_2 = 2;
+__x_6.__c_3 = 3;
+__x_6.__b_2 = 4;
+__x_6.__c_3 = 5;
 }
-if (__static_condition_default_9) {
-__x_7.__a_1 = 1;
-__x_7.__b_2 = 2;
-__x_7.__d_4 = 3;
-__x_7.__b_2 = 4;
-__x_7.__d_4 = 5;
+if (__static_condition_default_8) {
+__x_6.__a_1 = 1;
+__x_6.__b_2 = 2;
+__x_6.__d_4 = 3;
+__x_6.__b_2 = 4;
+__x_6.__d_4 = 5;
 }
 }
 return 0 ;

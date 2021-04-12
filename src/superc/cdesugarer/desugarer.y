@@ -372,13 +372,13 @@ FunctionDefinitionExtension:  /** complete **/  // ADDED  // String
         ;
 
 FunctionDefinition:  /** complete **/ // added scoping  // String
-        FunctionPrototype
+        FunctionPrototype CompoundStatement
+        /* FunctionPrototype { ReenterScope(subparser); } LBRACE CompoundStatement { ExitScope(subparser); } RBRACE */
         {
-          // add function to symtab before processing body, since it
-          // may be recursive
-
+          // similar to Declaration, but different in that this has a
+          // compoundstatement, while declaration has an initializer.
           PresenceCondition pc = subparser.getPresenceCondition();
-          
+
           // add all variations of the function declaration to the symtab
           CContext scope = (CContext)subparser.scope;
 
@@ -388,7 +388,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           // have a conditional underneath even though the complete
           // annotation isn't on functionprototype.  this is why we
           // are getting all nodes at this point
-          Multiverse<Node> prototypeNodemv = staticCondToMultiverse(getNodeAt(subparser, 1), pc);
+          Multiverse<Node> prototypeNodemv = staticCondToMultiverse(getNodeAt(subparser, 2), pc);
           // produce a multiverse of strings for the body to use
           Multiverse<String> prototypestrmv = new Multiverse<String>();
           // collect the set of configurations that have valid function prototypes
@@ -572,49 +572,55 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           }
 
           // change the semantic value of functionprototype to be the multiverse of strings
-          setTransformationValue(getNodeAt(subparser, 1), prototypestrmv);
-          /* System.err.println("PROTOTYPESTRMV " + prototypestrmv); */
-          /* System.err.println(validCond); */
-          /* System.err.println(getNodeAt(subparser, 1)); */
+          //          setTransformationValue(getNodeAt(subparser, 1), prototypestrmv);
+          System.err.println("PROTOTYPESTRMV " + prototypestrmv);
+          System.err.println(validCond);
+          System.err.println(getNodeAt(subparser, 2));
           
-        /*   // reenter function local scope */
-        /*   ReenterScope(subparser); */
-        /* } LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE */
-        } CompoundStatement
-        /* FunctionPrototype { ReenterScope(subparser); } LBRACE CompoundStatement { ExitScope(subparser); } RBRACE */
-        {
-          // similar to Declaration, but different in that this has a
-          // compoundstatement, while declaration has an initializer.
-          PresenceCondition pc = subparser.getPresenceCondition();
 
-          /* System.err.println(getNodeAt(subparser, 3)); */
-
-          // the function prototype can be empty if all prototypes in
-          // that set of configurations all have type errors
-          // (redeclarations, invalid types in parameters, etc).  this
-          // means that we can't use the regular
-          // getCompleteNodeMultiverseValue, which assumes all
-          // children are non-empty.
-
-          Multiverse<Node> prototypenodemv = staticCondToMultiverse(getNodeAt(subparser, 3), pc);
-          Multiverse<String> resultmv = new Multiverse<String>();
-
-          // loop through each node, get its multiverse and add to the
-          // resultmv.  update each node's multiverse elements with the static
-          // conditional branch's presence condition using filter.
-          for (Element<Node> elem : prototypenodemv) {
-            Multiverse<String> nodevaluemv = (Multiverse<String>) getTransformationValue((Node) elem.getData());
-            if (! nodevaluemv.isEmpty()) {
-              Multiverse<String> filtered = nodevaluemv.filter(elem.getCondition());
-              resultmv.addAll(filtered);
-              filtered.destruct();
+          
+          Multiverse<String> resultmv = prototypestrmv;
+          /*Node n = getNodeAt(subparser, 3);
+          
+          if (n.getName().equals("Conditional")) {
+            resultmv = new Multiverse<String>();
+            for (int i = 0; i < n.size(); ++i){
+              if (n.get(i) instanceof Node) {
+                System.err.println(((Node)n.get(i)).getProperty(TRANSFORMATION));
+                resultmv.addAll((Multiverse<String>)((Node)n.get(i)).getProperty(TRANSFORMATION));
+              }
             }
-          }
-          prototypenodemv.destruct();
+          } else {
+            resultmv = (Multiverse<String>) getTransformationValue(subparser, 3);
+            }*/
+          /* // the function prototype can be empty if all prototypes in */
+          /* // that set of configurations all have type errors */
+          /* // (redeclarations, invalid types in parameters, etc).  this */
+          /* // means that we can't use the regular */
+          /* // getCompleteNodeMultiverseValue, which assumes all */
+          /* // children are non-empty. */
+
+          /* System.err.println("JKLFDSJ " + getNodeAt(subparser, 3)); */
+          /* Multiverse<Node> prototypenodemv = staticCondToMultiverse(getNodeAt(subparser, 3), pc); */
+          /* Multiverse<String> resultmv = new Multiverse<String>(); */
+
+          /* // loop through each node, get its multiverse and add to the */
+          /* // resultmv.  update each node's multiverse elements with the static */
+          /* // conditional branch's presence condition using filter. */
+          /* for (Element<Node> elem : prototypenodemv) { */
+          /*   System.err.println("ELEM: " + elem.getData()); */
+          /*   Multiverse<String> nodevaluemv = (Multiverse<String>) getTransformationValue((Node) elem.getData()); */
+          /*   if (! nodevaluemv.isEmpty()) { */
+          /*     Multiverse<String> filtered = nodevaluemv.filter(elem.getCondition()); */
+          /*     resultmv.addAll(filtered); */
+          /*     filtered.destruct(); */
+          /*   } */
+          /* } */
+          /* prototypenodemv.destruct(); */
 
           StringBuilder sb = new StringBuilder();
           if (! resultmv.isEmpty()) {
-            Multiverse<String> prototypestrmv = resultmv.filter(pc);
+            Multiverse<String> subprototypestrmv = resultmv.filter(pc);
             resultmv.destruct();
     
             /* System.err.println("PROTOTYPESTRMV2 " + prototypestrmv); */
@@ -634,7 +640,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
             // have a conditional underneath even though the complete
             // annotation isn't on functionprototype.  this is why we
             // are getting all nodes at this point
-            for (Element<String> prototypestr : prototypestrmv) {
+            for (Element<String> prototypestr : subprototypestrmv) {
               sb.append(prototypestr.getData());
               sb.append(" {\n");
               sb.append(emitStatement(bodymv, prototypestr.getCondition()));
@@ -687,7 +693,7 @@ FunctionCompoundStatement:  /** nomerge, name(CompoundStatement) **/  // String
    complete AST.  So if something in the prototype is configurable,
    the conditional will only be hoisted around the prototype, not the
    entire function definition. */
-FunctionPrototype:  /** nomerge **/
+FunctionPrototype:  /** complete **/
         IdentifierDeclarator
         {
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -5185,11 +5191,11 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
           for (Element<SymbolTable.Entry<Type>> entry : entries) {
             if (entry.getData().isError()) {
               System.err.println(String.format("type error: use of symbol with invalid declaration: %s", originalName));
+              sbmv.add("error",entry.getCondition());
               typemv.add(ErrorT.TYPE, entry.getCondition());
-              sbmv.add("error", entry.getCondition());
             } else if (entry.getData().isUndeclared()) {
               System.err.println(String.format("type error: use of undeclared symbol: %s", originalName));
-              sbmv.add("error", entry.getCondition());
+              sbmv.add("error",entry.getCondition());
               typemv.add(ErrorT.TYPE, entry.getCondition());
             } else {
               // TODO: add type checking.  may need to tag the resulting

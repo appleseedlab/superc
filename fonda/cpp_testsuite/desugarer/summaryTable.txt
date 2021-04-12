@@ -5,11 +5,13 @@ typechecker/configurable/PASS_basic_pointer_array                               
 typechecker/configurable/PASS_basic_typedef                                                BC generated
 typechecker/configurable/PASS_basic_pointers                                               BC generated
 typechecker/configurable/declList                                                          BC generated
-typechecker/configurable/PASS_impossibleTypedef                                            BC generated
+typechecker/configurable/PASS_impossibleTypedef                                            SuperC failed
+typechecker/configurable/PASS_impossibleTypedef                                            BC failed
 typechecker/configurable/PASS_basic_decl                                                   BC generated
 typechecker/configurable/PASS_basic_init                                                   BC generated
 typechecker/configurable/PASS_mutuallyExclusiveTypedefs                                    BC generated
-typechecker/configurable/PASS_impossibleTypedef2                                           BC generated
+typechecker/configurable/PASS_impossibleTypedef2                                           SuperC failed
+typechecker/configurable/PASS_impossibleTypedef2                                           BC failed
 typechecker/configurable/PASS_basic_statement                                              BC generated
 typechecker/functions/PASS_multipleConfigs                                                 BC generated
 typechecker/functions/PASS_configParam                                                     BC generated

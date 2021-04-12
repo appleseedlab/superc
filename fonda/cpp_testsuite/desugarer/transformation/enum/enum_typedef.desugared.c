@@ -8,8 +8,8 @@ void __static_initializer_default();
 
 void __static_initializer_default() {
 __static_renaming("__letter_6", "letter");
-__static_renaming("__main_7", "main");
-__static_renaming("__apple_8", "apple");
+__static_renaming("__apple_7", "apple");
+__static_renaming("__main_8", "main");
 
 
 };
@@ -24,9 +24,9 @@ __f_5,
 typedef enum letter  __letter_6;
 
 // typedef moved to top of scope
-int  __main_7 (void  ) {
+int  __main_8 (void  ) {
 {
-__letter_6  __apple_8;
+__letter_6  __apple_7;
 __static_type_error("type error : no valid expression");
 
 return 0 ;

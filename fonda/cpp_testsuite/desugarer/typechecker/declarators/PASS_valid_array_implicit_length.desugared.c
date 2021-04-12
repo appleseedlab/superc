@@ -7,19 +7,19 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 void __static_initializer_default() {
-__static_renaming("__main_0", "main");
-__static_renaming("__x_1", "x");
+__static_renaming("__x_0", "x");
+__static_renaming("__main_1", "main");
 
 
 };
 
-int  __main_0 (void  ) {
+int  __main_1 (void  ) {
 {
-int  (__x_1[]);
+int  (__x_0[]);
 {
-__x_1[0] = - 2;
-__x_1[1] = 4;
-__x_1[2] = 5;
+__x_0[0] = - 2;
+__x_0[1] = 4;
+__x_0[2] = 5;
 }
 return 0 ;
 
