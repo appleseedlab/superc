@@ -549,10 +549,13 @@ public class SugarC extends Tool {
 
       // emit the static initializer definition
       System.out.print(actions.staticInitialization());
-            
+      
       // write the user-defined types at the top of the scope.
       System.out.print(scope.getDeclarations(pcTrue));
 
+      // write patch for all params
+      System.out.print(actions.allParams());
+      
       // write the transformed C
       Multiverse<String> extdeclmv = actions.getCompleteNodeSingleValue(root, pcTrue);
       System.out.print(actions.concatMultiverseStrings(extdeclmv)); extdeclmv.destruct();

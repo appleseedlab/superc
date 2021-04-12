@@ -3139,6 +3139,7 @@ ParameterDeclaration:  /** nomerge **/  // Multiverse<Declaration>
                                                                renamedDeclarator);
 
               valuemv.add(renamedDeclaration, combinedCond);
+              allParamList.add(renamedDeclaration.toString() + ";\n");
 
               // (2) add the parameter to the symbol table
               if (typespecifier.getData().getType().isError()) {
@@ -8392,6 +8393,16 @@ public Multiverse<String> injectErrorIntoStrMv(Multiverse<String> mvs, Multivers
   newmv.add(emitError(msg) + ";", ec);
   ec.delRef();
   return newmv;
+}
+
+private static List<String> allParamList = new LinkedList<String>();
+
+public static String allParams() {
+  String x = "";
+  for (String s : allParamList) {
+    x += s;
+  }
+  return x;
 }
 
 /***************************************************************************
