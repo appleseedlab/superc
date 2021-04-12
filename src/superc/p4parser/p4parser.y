@@ -1550,8 +1550,24 @@ public void bindIdent(Subparser subparser, Node typespec, Node declarator) {
    bindIdent(subparser, typespec, declarator, null, false);
 }
 
+
+/** Another overloaded function for bindIdent to explicity specify it's a TYPDEF value
+ * 
+ * Cases like typeParameterList don't have a unique preceding value to identify
+ * the value as a typedef value. So can use this overloaded function to explicity
+ * specify that the value is a typedef.
+ */
 public void bindIdent(Subparser subparser, Node typespec, Node declarator, boolean typeVar) {
    bindIdent(subparser, typespec, declarator, null, typeVar);
+}
+
+/** Overloaded function with original parameters
+ *
+ * Original bindIdent (from cparser.y) function is modified with a new parameter,
+ * this functions overloads the modified function to behave like how it is in cparser
+ */
+public void bindIdent(Subparser subparser, Node typespec, Node declarator, STField alsoSet) {
+  bindIdent(subparser, typespec, declarator, alsoSet, false);
 }
 
 /** typespec might be null for declarations and definitions without a
