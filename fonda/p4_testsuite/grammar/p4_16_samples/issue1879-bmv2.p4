@@ -1,6 +1,6 @@
 /* -*- P4_16 -*- */
-#include <core.p4>
-#include <v1model.p4>
+#include "global_include/core.p4"
+#include "global_include/v1model.p4"
 
 
 const bit<6> TYPE_ADDR_IPV4 = 0x1;

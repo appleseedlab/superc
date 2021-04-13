@@ -1,4 +1,4 @@
-//#include <core.p4>
+//#include "global_include/core.p4"
 
 extern lpf<I> {
     lpf(I instance_count);

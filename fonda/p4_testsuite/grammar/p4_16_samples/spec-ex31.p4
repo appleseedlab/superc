@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <core.p4>
+#include "global_include/core.p4"
 
 header EthernetHeader { bit<16> etherType; }
 header IPv4           { bit<16> protocol; }

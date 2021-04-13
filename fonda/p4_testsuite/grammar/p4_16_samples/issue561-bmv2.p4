@@ -28,8 +28,8 @@ header type.  This is because as of that date the bmv2 back end code
 in `p4c-bm2-ss` code does not yet handle header_union.
 */
 
-#include <core.p4>
-#include <v1model.p4>
+#include "global_include/core.p4"
+#include "global_include/v1model.p4"
 
 typedef bit<48>  EthernetAddress;
 

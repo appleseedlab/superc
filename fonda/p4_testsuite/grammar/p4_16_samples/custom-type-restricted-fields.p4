@@ -16,8 +16,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <core.p4>
-#include <v1model.p4>
+#include "global_include/core.p4"
+#include "global_include/v1model.p4"
 
 @p4runtime_translation("com.fingerhutpress/andysp4arch/v1/EthernetAddr_t", 32)
 type bit<48>         EthernetAddr_t;

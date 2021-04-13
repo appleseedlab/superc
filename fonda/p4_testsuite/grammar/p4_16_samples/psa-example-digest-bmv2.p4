@@ -22,8 +22,8 @@ limitations under the License.
  * port.
  */
 
-#include <core.p4>
-#include "psa.p4"
+#include "global_include/core.p4"
+#include "global_include/psa.p4"
 
 enum bit<16> EthTypes {
     IPv4 = 0x0800,

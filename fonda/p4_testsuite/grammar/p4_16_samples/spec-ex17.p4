@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 
-#include <core.p4>
+#include "global_include/core.p4"
 
 struct Counters { }
 parser P<IH>(packet_in b,

@@ -1,4 +1,4 @@
-#include <core.p4>
+#include "global_include/core.p4"
 
 // Nested typdef or typedef mixed with p4-16 type are
 // supported.

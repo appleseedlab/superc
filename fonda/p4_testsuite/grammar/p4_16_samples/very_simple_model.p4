@@ -17,7 +17,7 @@ limitations under the License.
 #ifndef _SIMPLE_MODEL_P4_
 #define _SIMPLE_MODEL_P4_
 
-#include <core.p4>
+#include "global_include/core.p4"
 
 /* Various constants and structure definitions */
 /* ports are represented using 4-bit values */

@@ -1,6 +1,6 @@
 // P4 program adapted from one submitted by Andy Fingerhut (@jafingerhut) in https://github.com/p4lang/p4c/issues/2234.
-#include <core.p4>
-#include <v1model.p4>
+#include "global_include/core.p4"
+#include "global_include/v1model.p4"
 
 // EtherTypes
 const bit<16> TYPE_IPV4 = 0x800;

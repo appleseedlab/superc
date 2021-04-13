@@ -1,5 +1,5 @@
-#include<core.p4>
-#include<v1model.p4>
+#include "global_include/core.p4"
+#include "global_include/v1model.p4"
 struct H {}
 struct M {}
 parser P(packet_in pkt, out H h, inout M m, inout standard_metadata_t meta) { state start { transition accept; } }

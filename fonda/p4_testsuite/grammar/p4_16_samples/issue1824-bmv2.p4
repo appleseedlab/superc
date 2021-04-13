@@ -2,8 +2,8 @@
  * exists more than 9 error values in p4 program.
  * values should be represented as hex values. */
 
-#include <core.p4>
-#include <v1model.p4>
+#include "global_include/core.p4"
+#include "global_include/v1model.p4"
 
 header test_header {
     bit<48> dstAddr;

@@ -1,4 +1,4 @@
-#include <core.p4>
+#include "global_include/core.p4"
 
 parser Parser<IH>(out IH parsedHeaders);
 package Ingress<IH>(Parser<IH> p);

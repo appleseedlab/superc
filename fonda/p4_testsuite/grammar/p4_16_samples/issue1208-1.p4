@@ -1,4 +1,4 @@
-#include <core.p4>
+#include "global_include/core.p4"
 #include "../p4include/psa.p4"
 struct EMPTY { };
 

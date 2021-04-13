@@ -1,4 +1,4 @@
-#include <v1model.p4>
+#include "global_include/v1model.p4"
 
 control c(inout bit<32> x, inout bit<32> y) {
     action a(inout bit<32> b, inout bit<32> d) {

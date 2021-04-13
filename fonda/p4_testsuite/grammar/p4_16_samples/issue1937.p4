@@ -1,4 +1,4 @@
-#include <core.p4>
+#include "global_include/core.p4"
 
 header h1_t { bit<8> f1; bit<8> f2; }
 

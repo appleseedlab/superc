@@ -1,4 +1,4 @@
-#include <core.p4>
+#include "global_include/core.p4"
 
 const int     A = 5; // typecheck error
 const bit<16> B = 5; // works

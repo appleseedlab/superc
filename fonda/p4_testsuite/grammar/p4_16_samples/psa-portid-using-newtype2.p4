@@ -1,4 +1,4 @@
-#include "core.p4"
+#include "global_include/core.p4"
 
 // From psa.p4
 

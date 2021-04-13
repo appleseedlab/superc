@@ -1,4 +1,4 @@
-#include <core.p4>
+#include "global_include/core.p4"
 
 /* Architecture */
 control Deparser<H>(packet_out packet, in H hdr);

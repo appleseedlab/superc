@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <core.p4>
+#include "global_include/core.p4"
 
 parser parse<H>(packet_in packet, out H headers);
 package ebpfFilter<H>(parse<H> prs);

@@ -1,5 +1,5 @@
-#include <core.p4>
-#include <v1model.p4>
+#include "global_include/core.p4"
+#include "global_include/v1model.p4"
 
 enum meter_color_t { COLOR_GREEN, COLOR_RED, COLOR_YELLOW }
 

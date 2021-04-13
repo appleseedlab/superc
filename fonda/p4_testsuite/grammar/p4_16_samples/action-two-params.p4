@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <v1model.p4>
+#include "global_include/v1model.p4"
 
 typedef bit<48> mac_addr_t;
 typedef bit<32>  IPv4Address;

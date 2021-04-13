@@ -1,4 +1,4 @@
-#include <v1model.p4>
+#include "global_include/v1model.p4"
 
 struct HasBool {
     bool x;

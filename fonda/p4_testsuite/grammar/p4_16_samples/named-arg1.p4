@@ -1,4 +1,4 @@
-#include <core.p4>
+#include "global_include/core.p4"
 
 parser adder(in bit<32> y, out bit<32> x)(bit<32> add, bool ignore) {
     state start {

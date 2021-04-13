@@ -1,4 +1,4 @@
-#include <ebpf_model.p4>
+#include "global_include/ebpf_model.p4"
 
 /*
  * Define the headers the program will recognize

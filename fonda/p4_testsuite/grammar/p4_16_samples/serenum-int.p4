@@ -1,4 +1,4 @@
-#include <core.p4>
+#include "global_include/core.p4"
 
 enum int<24> EthTypes {
     IPv4 = 0x0800,

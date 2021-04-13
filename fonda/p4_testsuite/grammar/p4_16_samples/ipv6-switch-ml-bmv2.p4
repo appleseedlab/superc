@@ -20,7 +20,7 @@
 *
 */
 
-#include <v1model.p4>
+#include "global_include/v1model.p4"
 #include "ml-headers.p4"
 
 const bit<32> BMV2_V1MODEL_INSTANCE_TYPE_REPLICATION   = 5;

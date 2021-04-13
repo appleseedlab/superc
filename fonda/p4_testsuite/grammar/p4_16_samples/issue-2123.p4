@@ -15,7 +15,7 @@
 * limitations under the License.
 *
 */
-#include <v1model.p4>
+#include "global_include/v1model.p4"
 
 struct ingress_metadata_t {
     bit<12> vrf;

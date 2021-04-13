@@ -1,5 +1,5 @@
-#include <ebpf_model.p4>
-#include <core.p4>
+#include "global_include/ebpf_model.p4"
+#include "global_include/core.p4"
 
 #include "ebpf_headers.p4"
 

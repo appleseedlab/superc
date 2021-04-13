@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 // Test case for issue #199
-#include <core.p4>
+#include "global_include/core.p4"
 
 header ethernet_h {
     bit<48> dst;

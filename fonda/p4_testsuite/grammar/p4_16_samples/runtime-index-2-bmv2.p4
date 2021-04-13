@@ -16,7 +16,7 @@
 *
 */
 
-#include <v1model.p4>
+#include "global_include/v1model.p4"
 
 typedef bit<48> mac_addr_t;
 

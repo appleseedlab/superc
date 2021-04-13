@@ -1,4 +1,4 @@
-#include <core.p4>
+#include "global_include/core.p4"
 
 // Architecture
 parser P<H>(packet_in pkt, out H hdr);

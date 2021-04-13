@@ -16,7 +16,7 @@ limitations under the License.
 
 // Example Rate-Control Protocol implementation using @atomic blocks
 
-#include <core.p4>
+#include "global_include/core.p4"
 
 extern Register<T> {
     Register(bit<32> size);

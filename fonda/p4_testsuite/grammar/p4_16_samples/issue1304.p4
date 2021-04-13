@@ -1,4 +1,4 @@
-#include <v1model.p4>
+#include "global_include/v1model.p4"
 
 package Pipeline<H, M>(Parser<H,M> p, Ingress<H, M> ig, Egress<H,M> eg, Deparser<H> dp);
 

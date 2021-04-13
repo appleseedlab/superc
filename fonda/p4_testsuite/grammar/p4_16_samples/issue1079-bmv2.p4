@@ -1,5 +1,5 @@
 /* -*- Mode:C; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-#include <v1model.p4>
+#include "global_include/v1model.p4"
 
 header empty {}
 

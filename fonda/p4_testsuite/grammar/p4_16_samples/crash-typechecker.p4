@@ -1,4 +1,4 @@
-//#include <core.p4>
+//#include "global_include/core.p4"
 
 extern bit<16> get<D>(in D data);
 

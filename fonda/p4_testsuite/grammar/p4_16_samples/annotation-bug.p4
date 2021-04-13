@@ -1,4 +1,4 @@
-#include <core.p4>
+#include "global_include/core.p4"
 
 struct standard_metadata_t {}
 

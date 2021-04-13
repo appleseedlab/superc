@@ -21,7 +21,7 @@ limitations under the License.
 #ifndef _V1_MODEL_P4_
 #define _V1_MODEL_P4_
 
-#include "core.p4"
+#include "global_include/core.p4"
 
 match_kind {
     range,

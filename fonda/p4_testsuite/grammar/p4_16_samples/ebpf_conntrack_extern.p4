@@ -4,8 +4,8 @@
  * clang -O2 -include ../externs/conntrack.c -I./  -target bpf -c test.c -o test.o
  */
 
-#include <core.p4>
-#include <ebpf_model.p4>
+#include "global_include/core.p4"
+#include "global_include/ebpf_model.p4"
 
 typedef bit<48> EthernetAddress;
 typedef bit<32>     IPv4Address;

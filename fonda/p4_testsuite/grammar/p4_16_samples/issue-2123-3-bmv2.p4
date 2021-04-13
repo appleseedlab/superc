@@ -16,7 +16,7 @@
  *
  */
 
-#include <v1model.p4>
+#include "global_include/v1model.p4"
 
 header ethernet_t {
     bit<48> dstAddr;

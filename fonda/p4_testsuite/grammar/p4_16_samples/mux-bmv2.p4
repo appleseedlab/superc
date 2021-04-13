@@ -16,11 +16,11 @@ limitations under the License.
 
 // Test case for Issue #216
 
-#include <core.p4>
-#include <v1model.p4>
+#include "global_include/core.p4"
+#include "global_include/v1model.p4"
 
-#include <core.p4>
-#include <v1model.p4>
+#include "global_include/core.p4"
+#include "global_include/v1model.p4"
 
 // List of all recognized headers
 struct Headers {}

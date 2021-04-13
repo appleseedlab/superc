@@ -1,6 +1,6 @@
-#include <core.p4>
+#include "global_include/core.p4"
 #define UBPF_MODEL_VERSION 20200515
-#include <ubpf_model.p4>
+#include "global_include/ubpf_model.p4"
 
 typedef bit<48> EthernetAddress;
 typedef bit<32>     IPv4Address;

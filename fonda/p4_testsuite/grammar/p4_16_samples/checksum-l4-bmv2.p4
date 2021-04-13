@@ -27,8 +27,8 @@
  * in a RFC.
 */
 
-#include <core.p4>
-#include <v1model.p4>
+#include "global_include/core.p4"
+#include "global_include/v1model.p4"
 
 typedef bit<48>  EthernetAddress;
 typedef bit<32>  IPv4Address;

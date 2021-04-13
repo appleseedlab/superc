@@ -1,4 +1,4 @@
-#include <v1model.p4>
+#include "global_include/v1model.p4"
 
 header test_header_t {
   bit<8> value;

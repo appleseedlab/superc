@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <core.p4>
+#include "global_include/core.p4"
 #define UBPF_MODEL_VERSION 20200515
-#include <ubpf_model.p4>
+#include "global_include/ubpf_model.p4"
 
 header test_t {
     bit<16> sa;

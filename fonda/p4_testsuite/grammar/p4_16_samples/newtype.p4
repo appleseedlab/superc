@@ -1,4 +1,4 @@
-#include <core.p4>
+#include "global_include/core.p4"
 
 typedef bit<32> B32;
 type bit<32> N32;

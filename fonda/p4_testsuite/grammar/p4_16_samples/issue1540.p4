@@ -1,4 +1,4 @@
-#include <core.p4>
+#include "global_include/core.p4"
 
 control Ingress<H, M>(inout H h, inout M m);
 control IngressDeparser<H>(packet_out pkt, inout H h);

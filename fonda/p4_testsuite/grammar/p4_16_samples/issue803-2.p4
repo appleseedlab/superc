@@ -1,4 +1,4 @@
-#include <core.p4>
+#include "global_include/core.p4"
 
 // Copied from 2017-Jul-17 version of the P4_16 spec .mdk file, in the
 // section "Very Simple Switch Architecture"

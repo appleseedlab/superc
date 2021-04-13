@@ -1,4 +1,4 @@
-#include <core.p4>
+#include "global_include/core.p4"
 header h { }
 control c(out bit<32> x) {
     apply {

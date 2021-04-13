@@ -1,4 +1,4 @@
-#include <core.p4>
+#include "global_include/core.p4"
 
 // adding the inout qualifier leads to a compiler crash
 bit<8> test(inout bit<8> x) {

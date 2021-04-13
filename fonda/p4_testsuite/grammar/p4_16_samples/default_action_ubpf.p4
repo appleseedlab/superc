@@ -1,5 +1,5 @@
-#include <core.p4>
-#include <ubpf_model.p4>
+#include "global_include/core.p4"
+#include "global_include/ubpf_model.p4"
 
 header hdr_t {
     bit<32> a;

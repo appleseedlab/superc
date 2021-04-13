@@ -1,6 +1,6 @@
-#include <core.p4>
+#include "global_include/core.p4"
 #define UBPF_MODEL_VERSION 20200515
-#include <ubpf_model.p4>
+#include "global_include/ubpf_model.p4"
 
 header truncate_spec_t {
     bit<8>  bytes_to_save;

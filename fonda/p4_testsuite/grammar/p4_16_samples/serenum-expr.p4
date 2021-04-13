@@ -1,4 +1,4 @@
-#include <core.p4>
+#include "global_include/core.p4"
 
 #define PORT_SIZE 9
 #define FOO_SIZE 7

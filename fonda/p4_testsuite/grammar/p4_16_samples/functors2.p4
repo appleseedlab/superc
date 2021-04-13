@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <core.p4>
+#include "global_include/core.p4"
 
 parser p1(out bit<2> z1)(bit<2> a) {
     state start {
