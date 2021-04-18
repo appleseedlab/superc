@@ -1892,7 +1892,7 @@ public class ForkMergeParser {
           conditionalNode.add(e.presenceCondition.addRef());
           CContext.addToParseErrorCond(e.presenceCondition);
           conditionalNode.add(new Error("parsing error", true));
-          ((Node) mergeFrame.value).add(conditionalNode);
+          //((Node) mergeFrame.value).add(conditionalNode);
         } else {
           GNode conditionalNode = GNode.create(CHOICE_NODE_NAME);
           if (null != mergeFrame.value) {
@@ -1902,8 +1902,8 @@ public class ForkMergeParser {
           CContext.addToParseErrorCond(e.presenceCondition);
           conditionalNode.add(e.presenceCondition.addRef());
           conditionalNode.add(new Error("parsing error", true));
-          mergeFrame.value = conditionalNode;
-        }
+          //mergeFrame.value = conditionalNode;
+          }
 
         // OR the presence conditions.
         PresenceCondition or

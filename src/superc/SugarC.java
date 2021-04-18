@@ -207,7 +207,7 @@ public class SugarC extends Tool {
            + "specific presence conditions.").
 
       // New error handling.
-      bool("newErrorHandling", "newErrorHandling", false,
+      bool("newErrorHandling", "newErrorHandling", true,
            "Use new error handling that puts errors in the AST.").
       
       // Desugaring features
@@ -559,7 +559,7 @@ public class SugarC extends Tool {
       System.out.print("\n");
 
       // emit the static initializer definition
-      System.out.print(actions.staticInitialization());
+      System.out.print(actions.staticInitialization(runtime.test("newErrorHandling")));
             
       // write the user-defined types at the top of the scope.
       System.out.print(scope.getDeclarations(pcTrue));
@@ -574,11 +574,6 @@ public class SugarC extends Tool {
         System.out.print(actions.linkerThunks(scope, pcTrue));
       }
 
-
-      if (runtime.test("newErrorHandling")) {
-        System.out.print("int main () {\nif (" + actions.condToCVar(CContext.getParseErrorCond()) +
-                         ")\n{\n__static_parse_error(\"Unable to parse\");\n}\nreturn 0;\n}");
-      }
     }
 
     // if (null != translationUnit

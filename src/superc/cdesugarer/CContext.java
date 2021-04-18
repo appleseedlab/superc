@@ -158,6 +158,7 @@ public class CContext implements ParsingContext {
   }
 
   public static void addToParseErrorCond(PresenceCondition p) {
+    System.err.println(p);
     parseErrorCond = parseErrorCond.or(p);
   }
 

@@ -3365,8 +3365,7 @@ ParameterIdentifierDeclaration:  // ParameterDeclarationValue
 IdentifierList:  /** list, nomerge **/
         Identifier
         {
-          System.err.println("ERROR: unsupported semantic action: IdentifierList");
-          System.exit(1);
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
         | IdentifierList COMMA Identifier
         {
@@ -3378,9 +3377,66 @@ IdentifierList:  /** list, nomerge **/
 Identifier:  /** nomerge **/
        IDENTIFIER
        {
-         System.err.println("ERROR: unsupported semantic action: Identifier");
-         System.exit(1);
-         BindVar(subparser);
+         String originalName = ((Node)getNodeAt(subparser, 1)).getTokenText();
+          //Multiverse<String> sbmv = new Multiverse<String>();
+          //sbmv.add(new Element<String>(sb, subparser.getPresenceCondition().presenceConditionManager().newTrue()));
+
+          CContext scope = (CContext) subparser.scope;
+
+          // get the renamings from the symtab
+          PresenceCondition cond = subparser.getPresenceCondition();
+          Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(originalName, cond);
+
+          // convert the renamings to stringbuilders
+          Multiverse<String> sbmv = new Multiverse<String>();
+          Multiverse<Type> typemv = new Multiverse<Type>();
+          // any presence conditions with an error can be omitted from
+          // the desugaring.  instead, this information is preserved
+          // in the type value for use by the statement.
+          /* System.err.println("IDENT: " + entries); */
+          for (Element<SymbolTable.Entry<Type>> entry : entries) {
+            if (entry.getData().isError()) {
+              System.err.println(String.format("type error: use of symbol with invalid declaration: %s", originalName));
+              typemv.add(ErrorT.TYPE, entry.getCondition());
+              sbmv.add("error", entry.getCondition());
+            } else if (entry.getData().isUndeclared()) {
+              System.err.println(String.format("type error: use of undeclared symbol: %s", originalName));
+              sbmv.add("error", entry.getCondition());
+              typemv.add(ErrorT.TYPE, entry.getCondition());
+            } else {
+              // TODO: add type checking.  may need to tag the resulting
+              // stringbuilder with the type to handle this
+
+              if (entry.getData().getValue().isVariable()) {
+                String result  // use the renamed symbol
+                  = String.format(" %s ", entry.getData().getValue().toVariable().getName());
+                sbmv.add(result, entry.getCondition());
+                typemv.add(entry.getData().getValue().toVariable().getType(), entry.getCondition());
+              } else if (entry.getData().getValue() instanceof NamedFunctionT) {
+                String result  // use the renamed symbol
+                  = String.format(" %s ", ((NamedFunctionT) entry.getData().getValue()).getName());
+                sbmv.add(result, entry.getCondition());
+                typemv.add(((NamedFunctionT) entry.getData().getValue()).toFunctionT(), entry.getCondition());
+              } else if (entry.getData().getValue() instanceof EnumeratorT) {
+                String result  // use the renamed symbol
+                  = String.format(" %s ", entry.getData().getValue().toEnumerator().getName());
+                sbmv.add(result, entry.getCondition());
+                typemv.add(entry.getData().getValue().toEnumerator().getType(), entry.getCondition());
+              } else {
+                System.err.println(String.format("type error: use of symbol other than variable, function, or enumerator: %s", originalName));
+                typemv.add(ErrorT.TYPE, entry.getCondition());
+              }
+            }
+          }
+          // should be nonempty, since the above loop always adds to
+          // it and the symtab should always return a non-empty mv
+          assert ! sbmv.isEmpty();
+          entries.destruct();
+          /* System.err.println(sbmv); */
+          /* System.err.println(typemv); */
+
+          setTransformationValue(value, new ExpressionValue(sbmv, typemv));
+        
        }
        ;
 
@@ -9415,26 +9471,34 @@ private void recordRenaming(String renaming, String original) {
 }
 
 
-public String staticInitialization() {
+public String staticInitialization(boolean showParseError) {
   StringBuilder sb = new StringBuilder();
+
+  String parseErrorCond = condToCVar(CContext.getParseErrorCond());
   
   // emit static initializer declaration.
   String static_initializer_name = String.format("__static_initializer_%s", unitUID);
   String static_initializer_signature = String.format("void %s()", static_initializer_name);
   sb.append(String.format("%s;\n", static_initializer_signature));
   sb.append("\n");
-            
+  
   // writes the extern declarations for the renamed preprocessor BDDs
   System.err.println("TODO: record original presence condition strings in file as well once raw strings are collected");
   for (Integer hash : condVars.keySet()) {
     sb.append(String.format("extern const bool %s;\n", condVars.get(hash)));
   }
 
-  sb.append(String.format("%s {\n%s\n%s\n};\n",
+  sb.append(String.format("%s {\n%s\n%s\n",
                           static_initializer_signature,
                           recordedRenamings.toString(),
                           staticConditionRenamings.toString(),
                           invalidGlobals.toString()));
+  if (showParseError) {
+  sb.append("if (" + parseErrorCond +
+            ")\n{\n__static_parse_error(\"Unable to parse\");\n}\n");
+  }
+
+  sb.append("};\n");
   
   return sb.toString();
 }
