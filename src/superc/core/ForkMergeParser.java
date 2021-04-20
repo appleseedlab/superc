@@ -1886,25 +1886,8 @@ public class ForkMergeParser {
           }
         }
 
-        // Merge the semantic values.
-        if (null != mergeFrame.value && ((Node )mergeFrame.value).getName().endsWith("List")) {
-          GNode conditionalNode = GNode.create(CHOICE_NODE_NAME);
-          conditionalNode.add(e.presenceCondition.addRef());
-          CContext.addToParseErrorCond(e.presenceCondition);
-          conditionalNode.add(new Error("parsing error", true));
-          //((Node) mergeFrame.value).add(conditionalNode);
-        } else {
-          GNode conditionalNode = GNode.create(CHOICE_NODE_NAME);
-          if (null != mergeFrame.value) {
-            conditionalNode.add(mergeParser.presenceCondition.addRef());
-            conditionalNode.add(mergeFrame.value);
-          }
-          CContext.addToParseErrorCond(e.presenceCondition);
-          conditionalNode.add(e.presenceCondition.addRef());
-          conditionalNode.add(new Error("parsing error", true));
-          //mergeFrame.value = conditionalNode;
-          }
-
+        CContext.addToParseErrorCond(e.presenceCondition);
+          
         // OR the presence conditions.
         PresenceCondition or
           = mergeParser.presenceCondition.or(e.presenceCondition);
@@ -1964,7 +1947,7 @@ public class ForkMergeParser {
 
       for (int inner = 0; inner < subset.size(); inner++) {
         Subparser compareParser = subset.get(inner);
-
+        
         if (subparser == compareParser) continue;
         assert subparser.lookahead.token.order
           == compareParser.lookahead.token.order;
@@ -2477,8 +2460,11 @@ public class ForkMergeParser {
           GNode conditionalNode = GNode.create(CHOICE_NODE_NAME);
           conditionalNode.add(subparser.presenceCondition.addRef());
           conditionalNode.add(o);
+          System.err.println("---" + o);
           ((Node) value).add(conditionalNode);
         }
+        System.err.println("---2---" + value);
+          
       }
       break;
     default:

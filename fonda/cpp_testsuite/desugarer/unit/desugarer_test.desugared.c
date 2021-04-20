@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 void __static_initializer_default() {
-__static_renaming("__main_12", "main");
-__static_renaming("__t_13", "t");
+__static_renaming("__t_12", "t");
+__static_renaming("__main_13", "main");
 
 
 };
@@ -31,12 +31,12 @@ union __anonymous_tag_6  __anon_id_0_11;
 };
 
 struct __s_10 ;
-int  __main_12 () {
+int  __main_13 () {
 {
-struct __s_10  __t_13;
- __t_13  . __anon_id_0_11 . __s1_7 . __x_1 = 1 ;
+struct __s_10  __t_12;
+ __t_12  . __anon_id_0_11 . __s1_7 . __x_1 = 1 ;
 
- __t_13  . __anon_id_0_11 . __s3_9 . __y_5 = 2 ;
+ __t_12  . __anon_id_0_11 . __s3_9 . __y_5 = 2 ;
 
 }
 

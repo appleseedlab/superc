@@ -5,11 +5,13 @@ typechecker/configurable/PASS_basic_pointer_array                               
 typechecker/configurable/PASS_basic_typedef                                                BC generated
 typechecker/configurable/PASS_basic_pointers                                               BC generated
 typechecker/configurable/declList                                                          BC generated
-typechecker/configurable/PASS_impossibleTypedef                                            BC generated
+typechecker/configurable/PASS_impossibleTypedef                                            SuperC failed
+typechecker/configurable/PASS_impossibleTypedef                                            BC failed
 typechecker/configurable/PASS_basic_decl                                                   BC generated
 typechecker/configurable/PASS_basic_init                                                   BC generated
 typechecker/configurable/PASS_mutuallyExclusiveTypedefs                                    BC generated
-typechecker/configurable/PASS_impossibleTypedef2                                           BC generated
+typechecker/configurable/PASS_impossibleTypedef2                                           SuperC failed
+typechecker/configurable/PASS_impossibleTypedef2                                           BC failed
 typechecker/configurable/PASS_basic_statement                                              BC generated
 typechecker/functions/PASS_multipleConfigs                                                 BC generated
 typechecker/functions/PASS_configParam                                                     BC generated
@@ -109,6 +111,7 @@ typechecker/structInits/listOfStructsDes                                        
 typechecker/structInits/nestedStruct_init                                                  BC generated
 typechecker/structInits/listOfListsDesignated                                              BC generated
 typechecker/structInits/constList                                                          File GT not confirmed
+typechecker/structInits/alias                                                              File GT not confirmed
 typechecker/structInits/nestedStruct_desInit                                               File GT not confirmed
 typechecker/structInits/outOfRange                                                         BC failed
 typechecker/structInits/designators_doesNotExist                                           File isn't valid
@@ -119,7 +122,10 @@ typechecker/structInits/conditionalError                                        
 typechecker/structInits/listOfStructs                                                      BC generated
 typechecker/structInits/designatorList                                                     BC generated
 typechecker/structInits/designators_partialExist                                           BC failed
+v2Func/errorSubscript                                                                      File GT not confirmed
+v2Func/errorParameter                                                                      File GT not confirmed
 v2Func/nestedFunction                                                                      File GT not confirmed
+v2Func/errorForLoopCond                                                                    File GT not confirmed
 v2Func/errorExpand                                                                         File GT not confirmed
 unit/struct_local_illegal                                                                  File isn't valid
 unit/struct_nested                                                                         BC generated

@@ -207,7 +207,7 @@ public class SugarC extends Tool {
            + "specific presence conditions.").
 
       // New error handling.
-      bool("newErrorHandling", "newErrorHandling", true,
+      bool("newErrorHandling", "newErrorHandling", false,
            "Use new error handling that puts errors in the AST.").
       
       // Desugaring features
@@ -560,10 +560,10 @@ public class SugarC extends Tool {
 
       // emit the static initializer definition
       System.out.print(actions.staticInitialization(runtime.test("newErrorHandling")));
-            
+
       // write the user-defined types at the top of the scope.
       System.out.print(scope.getDeclarations(pcTrue));
-
+      
       // write the transformed C
       Multiverse<String> extdeclmv = actions.getCompleteNodeSingleValue(root, pcTrue);
       System.out.print(actions.concatMultiverseStrings(extdeclmv)); extdeclmv.destruct();

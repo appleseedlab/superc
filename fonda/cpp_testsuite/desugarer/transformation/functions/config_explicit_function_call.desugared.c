@@ -6,15 +6,15 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_2;
 extern const bool __static_condition_default_3;
-extern const bool __static_condition_default_4;
 void __static_initializer_default() {
 __static_renaming("__doNothingOne_0", "doNothingOne");
 __static_renaming("__doNothingTwo_1", "doNothingTwo");
-__static_renaming("__main_2", "main");
+__static_renaming("__main_4", "main");
 
-__static_condition_renaming("__static_condition_default_3", "A");
-__static_condition_renaming("__static_condition_default_4", "!A");
+__static_condition_renaming("__static_condition_default_2", "A");
+__static_condition_renaming("__static_condition_default_3", "!A");
 
 };
 
@@ -32,16 +32,16 @@ void  __doNothingTwo_1 () {
 
 
 }
-int  __main_2 (void  ) {
+int  __main_4 (void  ) {
 {
 
 {
-if (__static_condition_default_3) {
+if (__static_condition_default_2) {
  __doNothingOne_0  ( ) ;
 
 }
 
-if (__static_condition_default_4) {
+if (__static_condition_default_3) {
  __doNothingTwo_1  ( ) ;
 
 }

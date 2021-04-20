@@ -10,8 +10,8 @@ void __static_initializer_default() {
 __static_renaming("___CfIf3K_CONFIG_A_0", "_CfIf3K_CONFIG_A");
 __static_renaming("___Djkifd_CONFIG_A_defined_1", "_Djkifd_CONFIG_A_defined");
 __static_renaming("__factorial_3", "factorial");
-__static_renaming("__main_4", "main");
-__static_renaming("__x_5", "x");
+__static_renaming("__x_4", "x");
+__static_renaming("__main_5", "main");
 
 
 };
@@ -28,7 +28,7 @@ return 1 ;
 
 
 
-return  __n_2  *  __factorial_3  (  __n_2  - 1 ) ;
+__static_type_error("invalid type found in return expression");
 
 }
 
@@ -43,12 +43,12 @@ return  __n_2  ;
 
 
 }
-int  __main_4 () {
+int  __main_5 () {
 {
-int  __x_5= 5;
- __x_5  =  __factorial_3  (  __x_5  ) ;
+int  __x_4= 5;
+ __x_4  =  __factorial_3  (  __x_4  ) ;
 
-return  __x_5  ;
+return  __x_4  ;
 
 }
 

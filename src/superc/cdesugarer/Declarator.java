@@ -494,7 +494,6 @@ abstract class Declarator {
     }
     
     public void setTypeError(boolean t) {
-      System.err.println("-------------called here");
       typeError = t;
     }
     

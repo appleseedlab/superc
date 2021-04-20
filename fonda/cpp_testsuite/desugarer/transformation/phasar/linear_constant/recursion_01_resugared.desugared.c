@@ -6,27 +6,27 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_3;
+extern const bool __static_condition_default_1;
 extern const bool __static_condition_default_2;
 void __static_initializer_default() {
-__static_renaming("__factorial_1", "factorial");
-__static_renaming("__main_4", "main");
-__static_renaming("__x_5", "x");
+__static_renaming("__factorial_3", "factorial");
+__static_renaming("__x_4", "x");
+__static_renaming("__main_5", "main");
 
-__static_condition_renaming("__static_condition_default_2", "(defined CONFIG_A)");
-__static_condition_renaming("__static_condition_default_3", "!(defined CONFIG_A)");
+__static_condition_renaming("__static_condition_default_1", "(defined CONFIG_A)");
+__static_condition_renaming("__static_condition_default_2", "!(defined CONFIG_A)");
 
 };
 
-unsigned  __factorial_1 (unsigned  __n_0) {
+unsigned  __factorial_3 (unsigned  __n_0) {
 {
 
-if (__static_condition_default_2) {
+if (__static_condition_default_1) {
 if (  __n_0  <= 1 ) 
-if (__static_condition_default_2) {
+if (__static_condition_default_1) {
 {
 
-if (__static_condition_default_2) {
+if (__static_condition_default_1) {
 return 1 ;
 
 }
@@ -38,12 +38,12 @@ return 1 ;
 }
 
 {
-if (__static_condition_default_2) {
-return  __n_0  *  __factorial_1  (  __n_0  - 1 ) ;
+if (__static_condition_default_1) {
+__static_type_error("invalid type found in return expression");
 
 }
 
-if (__static_condition_default_3) {
+if (__static_condition_default_2) {
 return  __n_0  ;
 
 }
@@ -52,12 +52,12 @@ return  __n_0  ;
 
 
 }
-int  __main_4 () {
+int  __main_5 () {
 {
-int  __x_5= 5;
- __x_5  =  __factorial_1  (  __x_5  ) ;
+int  __x_4= 5;
+ __x_4  =  __factorial_3  (  __x_4  ) ;
 
-return  __x_5  ;
+return  __x_4  ;
 
 }
 

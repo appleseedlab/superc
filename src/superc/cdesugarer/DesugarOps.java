@@ -12,6 +12,7 @@ import xtc.type.EnumT;
 import xtc.type.NumberT;
 import xtc.type.PointerT;
 import xtc.type.ErrorT;
+import xtc.type.BooleanT;
 
 import superc.core.Syntax;
 
@@ -843,6 +844,18 @@ class DesugarOps {
       newtype = ErrorT.TYPE;
     }
     return newtype;
+  };
+
+  /**
+   * product of two relational types. Returns an error if either type is an error.
+   * otherwise returns a boolean type. This should only be temporary in binary
+   * expressions until full type checking is done.
+   */
+  public final static Multiverse.Operator<Type> relOpProduct = (t1, t2) -> {
+    if (t2 == ErrorT.TYPE || t1 == ErrorT.TYPE) {
+      return ErrorT.TYPE;
+    }
+    return BooleanT.TYPE;
   };
 
   /**

@@ -8,8 +8,8 @@ void __static_initializer_default();
 
 void __static_initializer_default() {
 __static_renaming("__bob_3", "bob");
-__static_renaming("__main_4", "main");
-__static_renaming("__bobStruct_5", "bobStruct");
+__static_renaming("__bobStruct_4", "bobStruct");
+__static_renaming("__main_5", "main");
 
 
 };
@@ -20,10 +20,10 @@ char  __otherVal_2;
 typedef struct __bob_0  __bob_3;
 
 // typedef moved to top of scope
-int  __main_4 (void  ) {
+int  __main_5 (void  ) {
 {
-__bob_3  __bobStruct_5;
- __bobStruct_5  . __val_1 = 1 ;
+__bob_3  __bobStruct_4;
+ __bobStruct_4  . __val_1 = 1 ;
 
 }
 

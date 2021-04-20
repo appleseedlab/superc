@@ -6,15 +6,15 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_9;
-extern const bool __static_condition_default_7;
+extern const bool __static_condition_default_6;
+extern const bool __static_condition_default_8;
 void __static_initializer_default() {
-__static_renaming("__main_5", "main");
-__static_renaming("__x_6", "x");
-__static_renaming("__x_8", "x");
+__static_renaming("__x_5", "x");
+__static_renaming("__x_7", "x");
+__static_renaming("__main_9", "main");
 
-__static_condition_renaming("__static_condition_default_7", "!(defined A)");
-__static_condition_renaming("__static_condition_default_9", "(defined A)");
+__static_condition_renaming("__static_condition_default_6", "!(defined A)");
+__static_condition_renaming("__static_condition_default_8", "(defined A)");
 
 };
 struct __x_0 {
@@ -26,19 +26,19 @@ int  __b_4;
 };
 
 struct __x_0 ;struct __x_2 ;
-int  __main_5 () {
+int  __main_9 () {
 {
-struct __x_0  __x_6;
+struct __x_0  __x_5;
 {
-if (__static_condition_default_7) {
-__x_6.__a_1 = 1;
+if (__static_condition_default_6) {
+__x_5.__a_1 = 1;
 __static_type_error("assigning value out of struct range.")}
 }
-struct __x_2  __x_8;
+struct __x_2  __x_7;
 {
-if (__static_condition_default_9) {
-__x_8.__a_3 = 1;
-__x_8.__b_4 = 2;
+if (__static_condition_default_8) {
+__x_7.__a_3 = 1;
+__x_7.__b_4 = 2;
 }
 }
 return 0 ;
