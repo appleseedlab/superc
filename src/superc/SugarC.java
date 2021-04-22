@@ -207,7 +207,7 @@ public class SugarC extends Tool {
            + "specific presence conditions.").
 
       // New error handling.
-      bool("newErrorHandling", "newErrorHandling", false,
+      bool("newErrorHandling", "newErrorHandling", true,
            "Use new error handling that puts errors in the AST.").
       
       // Desugaring features

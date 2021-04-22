@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
@@ -14,6 +15,10 @@ __static_renaming("__max_align_t_6", "max_align_t");
 __static_renaming("__x_7", "x");
 
 
+if (0)
+{
+__static_parse_error("Unable to parse");
+}
 };
 typedef long int  __ptrdiff_t_0;
 typedef long unsigned int  __size_t_1;

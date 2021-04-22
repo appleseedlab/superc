@@ -1,19 +1,20 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_22;
-extern const bool __static_condition_default_21;
-extern const bool __static_condition_default_10;
-extern const bool __static_condition_default_20;
-extern const bool __static_condition_default_12;
-extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_18;
+extern const bool __static_condition_default_12;
+extern const bool __static_condition_default_22;
+extern const bool __static_condition_default_20;
+extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_21;
+extern const bool __static_condition_default_16;
+extern const bool __static_condition_default_14;
 void __static_initializer_default() {
 __static_renaming("__arr_0", "arr");
 __static_renaming("__arr_1", "arr");
@@ -35,6 +36,10 @@ __static_condition_renaming("__static_condition_default_20", "!A && B && (define
 __static_condition_renaming("__static_condition_default_21", "(defined C) && !(defined D)");
 __static_condition_renaming("__static_condition_default_22", "!(defined C) || (defined C) && (defined D)");
 
+if (0)
+{
+__static_parse_error("Unable to parse");
+}
 };
 
 int  __main_23 () {

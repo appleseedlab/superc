@@ -2460,10 +2460,8 @@ public class ForkMergeParser {
           GNode conditionalNode = GNode.create(CHOICE_NODE_NAME);
           conditionalNode.add(subparser.presenceCondition.addRef());
           conditionalNode.add(o);
-          System.err.println("---" + o);
           ((Node) value).add(conditionalNode);
         }
-        System.err.println("---2---" + value);
           
       }
       break;
@@ -3077,7 +3075,11 @@ public class ForkMergeParser {
       case 3:
         // Neither are null.  Add other.value and its presence
         // condition.
-        if (this.value == other.value) {
+        if (this.value == other.value ||
+            //clause here for comparing typedef and identifiers
+            (this.value instanceof Text && other.value instanceof Text &&
+             ((Text)this.value).getTokenText().equals(((Text)other.value).getTokenText()))
+            ) {
           // Both are already pointing to the same list node.  Don't
           // create a conditional.
         } else if (FLATTEN_MERGED_CHOICE_NODES) {

@@ -1,16 +1,17 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_18;
 extern const bool __static_condition_default_15;
-extern const bool __static_condition_default_17;
 extern const bool __static_condition_default_19;
-extern const bool __static_condition_default_16;
+extern const bool __static_condition_default_17;
 void __static_initializer_default() {
 __static_renaming("__foo_10", "foo");
 __static_renaming("__foo_11", "foo");
@@ -25,6 +26,10 @@ __static_condition_renaming("__static_condition_default_17", "(defined A) && (de
 __static_condition_renaming("__static_condition_default_18", "(defined A) && (defined B) && !(defined C)");
 __static_condition_renaming("__static_condition_default_19", "(defined A) && !(defined B) && !(defined C)");
 
+if (0)
+{
+__static_parse_error("Unable to parse");
+}
 };
 
 int  __foo_10 (int  __w_7) {

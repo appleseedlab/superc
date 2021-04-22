@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
@@ -20,6 +21,10 @@ __static_renaming("__x7_9", "x7");
 __static_renaming("__x8_10", "x8");
 
 
+if (0)
+{
+__static_parse_error("Unable to parse");
+}
 };
 
 int  __x1_0;

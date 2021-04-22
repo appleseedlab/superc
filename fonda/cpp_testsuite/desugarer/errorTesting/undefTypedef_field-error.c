@@ -2,6 +2,12 @@
 typedef int x;
 #endif
 
+int aaa;
+
+#ifdef B
+typedef int y;
+#endif
+
 struct x{
     #ifdef A
   x a;

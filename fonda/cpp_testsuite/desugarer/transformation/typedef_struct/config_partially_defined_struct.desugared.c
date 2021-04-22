@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
@@ -17,6 +18,10 @@ __static_renaming("__main_7", "main");
 __static_condition_renaming("__static_condition_default_5", "(defined A)");
 __static_condition_renaming("__static_condition_default_8", "!(defined A)");
 
+if (0)
+{
+__static_parse_error("Unable to parse");
+}
 };
 struct __bob_0 {
 int  __val_1;

@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
@@ -11,6 +12,10 @@ __static_renaming("__data_2", "data");
 __static_renaming("__main_3", "main");
 
 
+if (0)
+{
+__static_parse_error("Unable to parse");
+}
 };
 struct __anonymous_tag_0 {
 char  __p_1;

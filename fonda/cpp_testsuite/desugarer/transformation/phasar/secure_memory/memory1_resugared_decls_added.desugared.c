@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
@@ -21,6 +22,10 @@ __static_renaming("__main_18", "main");
 __static_condition_renaming("__static_condition_default_16", "(defined CONFIG_A)");
 __static_condition_renaming("__static_condition_default_17", "!(defined CONFIG_A)");
 
+if (0)
+{
+__static_parse_error("Unable to parse");
+}
 };
 
 void  __OPENSSL_cleanse_2 (void  (* __ptr_0), unsigned int  __len_1);

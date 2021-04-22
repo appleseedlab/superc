@@ -274,11 +274,15 @@ public class CActions implements SemanticActions {
             Multiverse<Declarator> declaratormv = prototype.declarator;
 
             assert scope.isGlobal(); // function definitions should be global.  nested functions have a separate subgrammar.
-          
+            System.err.println("TYPE"  + typespecifiermv + "DEC" + declaratormv);
             for (Element<TypeSpecifier> typespecifier : typespecifiermv) {
               PresenceCondition typespecifierCond = prototypeNode.getCondition().and(typespecifier.getCondition());
               for (Element<Declarator> declarator : declaratormv) {
                 PresenceCondition combinedCond = typespecifierCond.and(declarator.getCondition());
+                if (combinedCond.isFalse()) {
+                  combinedCond.delRef();
+                  continue;
+                }
                 String originalName = declarator.getData().getName();
                 Declaration originalDeclaration = new Declaration(typespecifier.getData(), declarator.getData());
 

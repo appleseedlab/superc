@@ -1,18 +1,19 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_14;
 extern const bool __static_condition_default_15;
 extern const bool __static_condition_default_17;
-extern const bool __static_condition_default_8;
+extern const bool __static_condition_default_9;
 extern const bool __static_condition_default_13;
 extern const bool __static_condition_default_19;
-extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_14;
+extern const bool __static_condition_default_8;
 void __static_initializer_default() {
 __static_renaming("__usedUnion_6", "usedUnion");
 __static_renaming("__usedUnion_7", "usedUnion");
@@ -31,6 +32,10 @@ __static_condition_renaming("__static_condition_default_15", "!A && B");
 __static_condition_renaming("__static_condition_default_17", "!A && (defined C)");
 __static_condition_renaming("__static_condition_default_19", "!A && !(defined C)");
 
+if (0)
+{
+__static_parse_error("Unable to parse");
+}
 };
 union __intCharFloat_0 {
 int  __integer_1;

@@ -1,35 +1,36 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_9;
-extern const bool __static_condition_default_19;
-extern const bool __static_condition_default_26;
-extern const bool __static_condition_default_6;
-extern const bool __static_condition_default_7;
-extern const bool __static_condition_default_17;
-extern const bool __static_condition_default_22;
-extern const bool __static_condition_default_24;
-extern const bool __static_condition_default_5;
-extern const bool __static_condition_default_18;
-extern const bool __static_condition_default_21;
-extern const bool __static_condition_default_27;
-extern const bool __static_condition_default_25;
-extern const bool __static_condition_default_15;
-extern const bool __static_condition_default_4;
-extern const bool __static_condition_default_11;
-extern const bool __static_condition_default_20;
-extern const bool __static_condition_default_8;
-extern const bool __static_condition_default_16;
-extern const bool __static_condition_default_10;
 extern const bool __static_condition_default_23;
+extern const bool __static_condition_default_11;
 extern const bool __static_condition_default_12;
-extern const bool __static_condition_default_13;
+extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_26;
+extern const bool __static_condition_default_8;
+extern const bool __static_condition_default_6;
+extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_16;
+extern const bool __static_condition_default_5;
+extern const bool __static_condition_default_24;
+extern const bool __static_condition_default_20;
+extern const bool __static_condition_default_25;
+extern const bool __static_condition_default_21;
+extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_18;
+extern const bool __static_condition_default_22;
 extern const bool __static_condition_default_14;
+extern const bool __static_condition_default_17;
+extern const bool __static_condition_default_27;
+extern const bool __static_condition_default_7;
+extern const bool __static_condition_default_15;
+extern const bool __static_condition_default_19;
+extern const bool __static_condition_default_13;
 void __static_initializer_default() {
 __static_renaming("__x_0", "x");
 __static_renaming("__x_1", "x");
@@ -62,6 +63,10 @@ __static_condition_renaming("__static_condition_default_25", "A && !B");
 __static_condition_renaming("__static_condition_default_26", "!A && B");
 __static_condition_renaming("__static_condition_default_27", "!A && !B");
 
+if (0)
+{
+__static_parse_error("Unable to parse");
+}
 };
 
 int  __main_28 (void  ) {

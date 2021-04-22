@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
@@ -7,8 +8,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_3;
-extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_7;
+extern const bool __static_condition_default_4;
 void __static_initializer_default() {
 __static_renaming("__add_5", "add");
 __static_renaming("__adder_6", "adder");
@@ -18,6 +19,10 @@ __static_condition_renaming("__static_condition_default_3", "A");
 __static_condition_renaming("__static_condition_default_4", "!A");
 __static_condition_renaming("__static_condition_default_7", "!A");
 
+if (0)
+{
+__static_parse_error("Unable to parse");
+}
 };
 
 int  __add_5 (int  __a_0, int  __b_2) {

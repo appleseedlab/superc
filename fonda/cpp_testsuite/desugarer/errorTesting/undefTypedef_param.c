@@ -12,6 +12,10 @@ void foo (
   return;
 }
 
+#ifdef X
+void bob( JG PU) {return;}
+#endif
+
 int main( )
 {
   foo (1);
