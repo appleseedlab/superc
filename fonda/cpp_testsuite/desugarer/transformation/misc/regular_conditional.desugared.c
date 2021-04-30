@@ -16,10 +16,6 @@ __static_renaming("__main_2", "main");
 __static_condition_renaming("__static_condition_default_1", "(defined B)");
 __static_condition_renaming("__static_condition_default_3", "!(defined B)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __main_2 () {

@@ -20,10 +20,6 @@ __static_renaming("__i_8", "i");
 __static_renaming("__main_9", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __main_9 (void  ) {

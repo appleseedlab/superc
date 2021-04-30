@@ -12,10 +12,6 @@ __static_renaming("__x_7", "x");
 __static_renaming("__y_8", "y");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 enum joe {
 __E_5 /* = 1 */,

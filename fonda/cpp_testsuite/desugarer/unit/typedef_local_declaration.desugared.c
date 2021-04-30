@@ -14,10 +14,6 @@ __static_renaming("__x_2", "x");
 __static_renaming("__main_3", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 typedef int  __a_0;
 

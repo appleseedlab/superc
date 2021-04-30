@@ -10,10 +10,6 @@ void __static_initializer_default();
 void __static_initializer_default() {
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 struct __anonymous_tag_0 {
 int  __x_1;

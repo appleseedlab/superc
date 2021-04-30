@@ -19,10 +19,6 @@ __static_renaming("__main_6", "main");
 __static_condition_renaming("__static_condition_default_4", "!(defined CONFIG_INPUT_MOUSEDEV_PSAUX)");
 __static_condition_renaming("__static_condition_default_5", "(defined CONFIG_INPUT_MOUSEDEV_PSAUX)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 extern int  __imajor_0 (int  );

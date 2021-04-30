@@ -25,10 +25,6 @@ __static_condition_renaming("__static_condition_default_5", "(defined CONFIG_B) 
 __static_condition_renaming("__static_condition_default_6", "(defined CONFIG_B)");
 __static_condition_renaming("__static_condition_default_8", "(defined CONFIG_B)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __main_7 () {

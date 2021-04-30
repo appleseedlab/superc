@@ -32,10 +32,6 @@ __static_condition_renaming("__static_condition_default_15", "!A && B");
 __static_condition_renaming("__static_condition_default_17", "!A && (defined C)");
 __static_condition_renaming("__static_condition_default_19", "!A && !(defined C)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 union __intCharFloat_0 {
 int  __integer_1;

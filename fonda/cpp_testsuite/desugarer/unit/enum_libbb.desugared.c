@@ -10,10 +10,6 @@ void __static_initializer_default();
 void __static_initializer_default() {
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 enum __anonymous_tag_18 {
 __FILEUTILS_PRESERVE_STATUS_0 /* = 1 << 0 */,

@@ -1792,7 +1792,7 @@ public class ForkMergeParser {
    */
   private void stagedMerge(PriorityQueue<Subparser> subparsers) {
     int initialCount = subparsers.size();
-
+    
     // Merge each subset of subparsers on the same token.
     while (! subparsers.isEmpty()) {
       Subparser first = subparsers.poll();
@@ -1827,6 +1827,9 @@ public class ForkMergeParser {
 
     if (showFM && subparsers.size() < initialCount) {
       System.err.println("merged " + initialCount + " to " + subparsers.size());
+      for (Subparser s : subparsers) {
+        System.err.println(s);
+      }
     }
 
     processed.clear();
@@ -2099,6 +2102,10 @@ public class ForkMergeParser {
 
     if (showFM && processedParsers.size() > 1) {
       System.err.println("forked 1 into " + processedParsers.size() + " parsers");
+      System.err.println(subparser + "\n--into--");
+      for (Subparser s : processedParsers) {
+        System.err.println(s);
+      }
     }
 
     return processedParsers;
@@ -2617,6 +2624,10 @@ public class ForkMergeParser {
     public PresenceCondition getPresenceCondition() {
       return presenceCondition;
     }
+
+    public String toString() {
+      return "(" + presenceCondition + ", " + lookahead + ")";
+    }
   }
     
   /** A lookahead token. */
@@ -2728,6 +2739,7 @@ public class ForkMergeParser {
     public void setError() {
       this.setAction(ParsingAction.ERROR, INVALID);
     }
+
   }
 
   static class LookaheadSet extends Lookahead {

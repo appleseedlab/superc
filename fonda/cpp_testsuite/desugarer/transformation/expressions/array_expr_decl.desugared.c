@@ -12,10 +12,6 @@ __static_renaming("__expressionArr_0", "expressionArr");
 __static_renaming("__main_1", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __main_1 (void  ) {

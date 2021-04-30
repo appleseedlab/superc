@@ -12,10 +12,6 @@ __static_renaming("__bob_4", "bob");
 __static_renaming("__bob_5", "bob");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 struct __bob_0 {
 char  __otherVal_1;

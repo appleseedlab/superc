@@ -15,10 +15,6 @@ __static_renaming("__result_5", "result");
 __static_renaming("__main_6", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __adder_2 (int  __a_0, int  __b_1) {

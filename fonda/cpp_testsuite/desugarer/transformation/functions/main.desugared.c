@@ -12,10 +12,6 @@ __static_renaming("__x_2", "x");
 __static_renaming("__main_3", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __main_3 (int  __argc_0, char  (* (* __argv_1))) {

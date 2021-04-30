@@ -29,10 +29,6 @@ __static_condition_renaming("__static_condition_default_12", "!(defined A) && !(
 __static_condition_renaming("__static_condition_default_15", "!(defined C)");
 __static_condition_renaming("__static_condition_default_16", "(defined C)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 typedef int  __y_3;
 typedef int  __y_4;

@@ -16,10 +16,6 @@ __static_renaming("__e_4", "e");
 __static_renaming("__main_5", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  (* const  __a_0);

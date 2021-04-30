@@ -20,10 +20,6 @@ __static_condition_renaming("__static_condition_default_7", "(defined A) && !(de
 __static_condition_renaming("__static_condition_default_8", "!(defined A) && (defined B)");
 __static_condition_renaming("__static_condition_default_9", "!(defined A) && !(defined B)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 struct __x_0 {
 int  __a_1;

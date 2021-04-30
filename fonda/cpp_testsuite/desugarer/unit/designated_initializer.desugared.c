@@ -12,10 +12,6 @@ __static_renaming("__bob_4", "bob");
 __static_renaming("__main_5", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 struct __anonymous_tag_0 {
 int  __f_1;

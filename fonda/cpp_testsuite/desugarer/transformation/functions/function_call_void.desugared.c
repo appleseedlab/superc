@@ -12,10 +12,6 @@ __static_renaming("__doNothing_0", "doNothing");
 __static_renaming("__main_1", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 void  __doNothing_0 () {

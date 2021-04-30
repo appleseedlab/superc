@@ -13,10 +13,6 @@ __static_renaming("____free_hook_3", "__free_hook");
 __static_renaming("__main_4", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 extern void  (* ____free_hook_2) (void  (* ____ptr_0), const void  *);

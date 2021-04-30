@@ -21,10 +21,6 @@ __static_renaming("__j_9", "j");
 __static_renaming("__main_10", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 signed char  __a_0;

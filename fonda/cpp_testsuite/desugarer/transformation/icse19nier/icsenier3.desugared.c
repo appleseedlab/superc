@@ -14,10 +14,6 @@ __static_renaming("__cpu_load_update_active_3", "cpu_load_update_active");
 
 __static_condition_renaming("__static_condition_default_4", "!(defined CONFIG_SMP)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 extern void  __cpu_load_update_active_2 (int  __this_rq_0);

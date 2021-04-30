@@ -16,10 +16,6 @@ __static_renaming("__y_3", "y");
 __static_condition_renaming("__static_condition_default_0", "(defined A) && (defined B)");
 __static_condition_renaming("__static_condition_default_2", "(defined A) && !(defined B)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 long int  __x_1;

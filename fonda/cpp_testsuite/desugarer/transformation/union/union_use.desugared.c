@@ -12,10 +12,6 @@ __static_renaming("__usedUnion_4", "usedUnion");
 __static_renaming("__main_5", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 union __intCharFloat_0 {
 int  __integer_1;

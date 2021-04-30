@@ -12,10 +12,6 @@ __static_renaming("__apple_11", "apple");
 __static_renaming("__main_12", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 enum someLetters {
 __a_0,

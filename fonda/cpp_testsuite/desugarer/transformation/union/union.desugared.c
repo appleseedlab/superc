@@ -10,10 +10,6 @@ void __static_initializer_default();
 void __static_initializer_default() {
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 union __intCharFloat_0 {
 int  __integer_1;

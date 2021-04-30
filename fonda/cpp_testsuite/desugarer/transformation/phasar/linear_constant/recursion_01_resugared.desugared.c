@@ -17,10 +17,6 @@ __static_renaming("__main_5", "main");
 __static_condition_renaming("__static_condition_default_1", "(defined CONFIG_A)");
 __static_condition_renaming("__static_condition_default_2", "!(defined CONFIG_A)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 unsigned  __factorial_3 (unsigned  __n_0) {

@@ -17,10 +17,6 @@ __static_renaming("__main_9", "main");
 __static_condition_renaming("__static_condition_default_7", "(defined CONFIG_QUOTA)");
 __static_condition_renaming("__static_condition_default_8", "!(defined CONFIG_QUOTA)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 struct __t_0 {
 int  __i_inline_size_1;

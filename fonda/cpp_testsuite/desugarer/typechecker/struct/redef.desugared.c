@@ -14,10 +14,6 @@ __static_renaming("__current_8", "current");
 __static_renaming("__main_9", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 struct __anonymous_tag_0 {
 char  __p_1;

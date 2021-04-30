@@ -16,10 +16,6 @@ __static_renaming("__bob_10", "bob");
 __static_renaming("__x_11", "x");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 typedef long int  __ptrdiff_t_0;
 typedef long unsigned int  __size_t_1;

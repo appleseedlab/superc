@@ -13,10 +13,6 @@ __static_renaming("__b_1", "b");
 __static_renaming("__main_2", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __a_0;

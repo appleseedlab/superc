@@ -11,10 +11,6 @@ void __static_initializer_default() {
 __static_renaming("__g_0", "g");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __g_0 () {

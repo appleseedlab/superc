@@ -16,10 +16,6 @@ __static_renaming("__w_8", "w");
 __static_renaming("__main_9", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __x_0 () {

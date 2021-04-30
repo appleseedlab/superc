@@ -11,10 +11,6 @@ void __static_initializer_default() {
 __static_renaming("__size_t_0", "size_t");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 typedef long unsigned int  __size_t_0;
 

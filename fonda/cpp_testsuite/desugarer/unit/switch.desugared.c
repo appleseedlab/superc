@@ -186,10 +186,6 @@ __static_renaming("__funlockfile_420", "funlockfile");
 __static_renaming("__decode_spi_frequency_426", "decode_spi_frequency");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 enum __codecvt_result {
 ____codecvt_ok_83,

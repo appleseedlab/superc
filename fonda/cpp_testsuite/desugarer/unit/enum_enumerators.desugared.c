@@ -13,10 +13,6 @@ __static_renaming("__nonenumerator_4", "nonenumerator");
 __static_renaming("__main_5", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 enum E {
 __A_0,

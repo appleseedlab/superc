@@ -19,10 +19,6 @@ __static_renaming("__main_10", "main");
 __static_condition_renaming("__static_condition_default_8", "(defined CONFIG_A)");
 __static_condition_renaming("__static_condition_default_9", "!(defined CONFIG_A)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 typedef int  __typeAlias_0;
 typedef char  __typeAlias_1;

@@ -16,10 +16,6 @@ __static_renaming("__k_4", "k");
 __static_renaming("__l_5", "l");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __f_0 (int  (* (* [4][5])));

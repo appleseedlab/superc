@@ -16,10 +16,6 @@ __static_renaming("__main_8", "main");
 __static_condition_renaming("__static_condition_default_9", "!(defined CONFIG_A)");
 __static_condition_renaming("__static_condition_default_10", "(defined CONFIG_A)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 struct __anonymous_tag_0 {
 int  __a_1;

@@ -13,10 +13,6 @@ __static_renaming("__bobvar_3", "bobvar");
 __static_renaming("__main_4", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 struct __bob_0 {
 int  __x_1;

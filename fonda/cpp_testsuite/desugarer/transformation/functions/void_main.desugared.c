@@ -11,10 +11,6 @@ void __static_initializer_default() {
 __static_renaming("__main_0", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 void  __main_0 (void  ) {

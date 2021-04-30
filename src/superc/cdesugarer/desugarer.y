@@ -9552,7 +9552,7 @@ public String staticInitialization(boolean showParseError) {
                           recordedRenamings.toString(),
                           staticConditionRenamings.toString(),
                           invalidGlobals.toString()));
-  if (showParseError) {
+  if (showParseError && CContext.getParseErrorCond().isNotFalse()) {
   sb.append("if (" + parseErrorCond +
             ")\n{\n__static_parse_error(\"Unable to parse\");\n}\n");
   }

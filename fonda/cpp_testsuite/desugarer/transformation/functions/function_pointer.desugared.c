@@ -13,10 +13,6 @@ __static_renaming("__fun_ptr_2", "fun_ptr");
 __static_renaming("__main_3", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 void  __fun_1 (int  __a_0) {

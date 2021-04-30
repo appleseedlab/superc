@@ -10,10 +10,6 @@ void __static_initializer_default();
 void __static_initializer_default() {
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 enum __anonymous_tag_2 {
 __A_0 /* = 11 */,

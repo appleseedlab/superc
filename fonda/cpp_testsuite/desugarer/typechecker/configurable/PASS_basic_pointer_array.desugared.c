@@ -36,10 +36,6 @@ __static_condition_renaming("__static_condition_default_20", "!A && B && (define
 __static_condition_renaming("__static_condition_default_21", "(defined C) && !(defined D)");
 __static_condition_renaming("__static_condition_default_22", "!(defined C) || (defined C) && (defined D)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __main_23 () {

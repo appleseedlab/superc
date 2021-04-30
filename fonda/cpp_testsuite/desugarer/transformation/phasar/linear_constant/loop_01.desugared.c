@@ -15,10 +15,6 @@ __static_renaming("__i_3", "i");
 __static_renaming("__main_4", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 extern int  ___CfIf3K_CONFIG_A_0;

@@ -11,10 +11,6 @@ void __static_initializer_default() {
 __static_renaming("__x2b_0", "x2b");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  (* __x2b_0);

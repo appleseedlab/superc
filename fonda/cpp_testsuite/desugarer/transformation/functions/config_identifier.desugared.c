@@ -19,10 +19,6 @@ __static_condition_renaming("__static_condition_default_3", "A");
 __static_condition_renaming("__static_condition_default_4", "!A");
 __static_condition_renaming("__static_condition_default_7", "!A");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __add_5 (int  __a_0, int  __b_2) {

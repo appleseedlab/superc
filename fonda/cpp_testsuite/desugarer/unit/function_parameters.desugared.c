@@ -12,10 +12,6 @@ __static_renaming("__z_2", "z");
 __static_renaming("__f_3", "f");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __f_3 (char  __x_0, int  __y_1) {

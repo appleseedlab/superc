@@ -21,10 +21,6 @@ __static_renaming("__x7_9", "x7");
 __static_renaming("__x8_10", "x8");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __x1_0;

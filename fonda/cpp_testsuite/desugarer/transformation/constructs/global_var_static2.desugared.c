@@ -18,10 +18,6 @@ __static_renaming("__main_5", "main");
 __static_condition_renaming("__static_condition_default_3", "(defined A)");
 __static_condition_renaming("__static_condition_default_4", "!(defined A)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 struct __bob_6 {
 int  __x_7;

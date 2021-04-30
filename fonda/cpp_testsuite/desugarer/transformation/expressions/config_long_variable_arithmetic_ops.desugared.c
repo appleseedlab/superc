@@ -49,10 +49,6 @@ __static_condition_renaming("__static_condition_default_21", "!A && B && !C");
 __static_condition_renaming("__static_condition_default_22", "!A && !B && C");
 __static_condition_renaming("__static_condition_default_23", "!A && !B && !C");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __main_24 (void  ) {

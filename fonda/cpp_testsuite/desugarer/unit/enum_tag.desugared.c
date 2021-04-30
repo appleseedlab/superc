@@ -11,10 +11,6 @@ void __static_initializer_default() {
 __static_renaming("__bob_2", "bob");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 enum bob {
 __x_0,

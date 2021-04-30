@@ -21,10 +21,6 @@ __static_renaming("__main_8", "main");
 __static_condition_renaming("__static_condition_default_6", "A");
 __static_condition_renaming("__static_condition_default_7", "!A");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __main_8 (void  ) {

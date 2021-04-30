@@ -205,11 +205,17 @@ unit/single                                                                     
 unit/switch                                                                                BC generated
 unit/struct_configurable                                                                   BC generated
 unit/offsetof                                                                              BC failed
+errorTesting/extra_comma                                                                   File GT not confirmed
 errorTesting/undefTypedef_var                                                              File GT not confirmed
+errorTesting/missing_comma                                                                 File GT not confirmed
 errorTesting/undefTypedef_field                                                            File GT not confirmed
 errorTesting/undefTypedef_field-error                                                      File GT not confirmed
+errorTesting/tripleTypedef_param                                                           File GT not confirmed
 errorTesting/undefTypedef_param                                                            File GT not confirmed
 errorTesting/undefTypedef_return                                                           File GT not confirmed
+errorTesting/tripleTypedef_field                                                           File GT not confirmed
+errorTesting/tripleTypedef_var                                                             File GT not confirmed
+errorTesting/tripleTypedef_return                                                          File GT not confirmed
 linking/same_type/global_only                                                              File GT not confirmed
 linking/same_type/static_extern                                                            File GT not confirmed
 linking/same_type/global_static_extern                                                     File GT not confirmed

@@ -20,10 +20,6 @@ __static_condition_renaming("__static_condition_default_2", "(defined A) && (def
 __static_condition_renaming("__static_condition_default_6", "!(defined B)");
 __static_condition_renaming("__static_condition_default_7", "(defined B)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __x_0;

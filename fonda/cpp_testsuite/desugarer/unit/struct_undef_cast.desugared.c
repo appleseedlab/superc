@@ -12,10 +12,6 @@ __static_renaming("__x_1", "x");
 __static_renaming("__main_8", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 struct __s2_2 {
 int  __data_3;

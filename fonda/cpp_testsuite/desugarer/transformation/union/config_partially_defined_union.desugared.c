@@ -22,10 +22,6 @@ __static_condition_renaming("__static_condition_default_8", "!A");
 __static_condition_renaming("__static_condition_default_11", "!A");
 __static_condition_renaming("__static_condition_default_12", "A");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 union __intCharFloat_0 {
 int  __integer_1;

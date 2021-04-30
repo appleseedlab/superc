@@ -14,10 +14,6 @@ __static_renaming("__arr_2", "arr");
 __static_renaming("__main_3", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 int  __main_3 (void  ) {

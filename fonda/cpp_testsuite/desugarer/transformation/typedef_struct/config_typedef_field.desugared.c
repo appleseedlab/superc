@@ -13,10 +13,6 @@ __static_renaming("__typeAlias_1", "typeAlias");
 __static_renaming("__bob_6", "bob");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 typedef int  __typeAlias_0;
 typedef char  __typeAlias_1;

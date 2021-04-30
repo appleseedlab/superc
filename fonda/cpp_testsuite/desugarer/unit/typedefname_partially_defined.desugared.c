@@ -28,10 +28,6 @@ __static_condition_renaming("__static_condition_default_8", "!(defined A) && !(d
 __static_condition_renaming("__static_condition_default_11", "!(defined C)");
 __static_condition_renaming("__static_condition_default_12", "(defined C)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 typedef int  __a_0;
 

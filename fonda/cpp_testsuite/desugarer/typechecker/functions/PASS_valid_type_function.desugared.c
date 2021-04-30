@@ -14,10 +14,6 @@ __static_renaming("__c_2", "c");
 __static_renaming("__main_3", "main");
 
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 void  (* __a_0);

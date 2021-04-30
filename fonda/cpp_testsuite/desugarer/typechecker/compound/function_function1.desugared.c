@@ -19,10 +19,6 @@ __static_condition_renaming("__static_condition_default_2", "(defined A)");
 __static_condition_renaming("__static_condition_default_4", "!(defined A)");
 __static_condition_renaming("__static_condition_default_7", "!(defined A)");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 
 float  __x_5 (float  __a_0, float  __b_1) {

@@ -17,10 +17,6 @@ __static_renaming("__main_10", "main");
 __static_condition_renaming("__static_condition_default_8", "A");
 __static_condition_renaming("__static_condition_default_9", "!A");
 
-if (0)
-{
-__static_parse_error("Unable to parse");
-}
 };
 union __intCharFloat_0 {
 int  __integer_1;
