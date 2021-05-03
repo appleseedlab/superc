@@ -53,6 +53,7 @@ import superc.cdesugarer.Initializer.StructUnionDesignator;
 import superc.cdesugarer.Declaration;
 
 import superc.cdesugarer.CActions.EnumeratorValue;
+import superc.cdesugarer.CActions.DeclarationOrStatementValue;
 
 import superc.cdesugarer.CActions.FreshIDCreator;
 import superc.cdesugarer.CActions.StructOrUnionTypeCreator;
@@ -110,6 +111,16 @@ class DesugarOps {
         return from.getTokenText();
       }
     };
+
+  /**
+   * Convert String to DeclarationOrStatementValue
+   */
+  public final static Multiverse.Transformer<String, DeclarationOrStatementValue> StringToDSV = new Multiverse.Transformer<String, DeclarationOrStatementValue>() {
+      DeclarationOrStatementValue transform(String from) {
+        return new DeclarationOrStatementValue(from);
+      }
+    };
+
   
 
   /*****************************************************************************
