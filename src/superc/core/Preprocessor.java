@@ -240,6 +240,9 @@ public class Preprocessor implements Iterator<Syntax> {
   /** An EOF token. */
   private final Syntax EOF;
 
+  /** Last token processed. */
+  private Syntax currentToken = null;
+
   /** Create a new macro preprocessor */
   public Preprocessor(HeaderFileManager fileManager, MacroTable macroTable,
                       PresenceConditionManager presenceConditionManager,
@@ -352,12 +355,27 @@ public class Preprocessor implements Iterator<Syntax> {
     return configurationAwarenessOff;
   }
 
-  
+  /**
+   * Peek for last token processed.
+   * @return Last token processed.
+   */
+  public Syntax token() {
+    return this.currentToken;
+  }
+
   /**
    * This class scans the input tokens, expanding macros and
    * evaluating directives, and returns tokens.
    */
   public Syntax next() {
+    this.currentToken = this.__next();
+    return token();
+  }
+  /**
+   * This class scans the input tokens, expanding macros and
+   * evaluating directives, and returns tokens.
+   */
+  private Syntax __next() {
     // Get the next token from the source file or the token buffer.
     Syntax syntax = getNext();
 
