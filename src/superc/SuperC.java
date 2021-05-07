@@ -119,6 +119,203 @@ import org.json.simple.JSONObject;
  * @version $Revision: 1.130 $
  */
 public class SuperC extends Tool {
+  /**
+   * A node for tree-like representation of source code for conditional blocks
+   * defined by conditional preprocessor directives.
+   */
+  private static class ConditionalBlock {
+    /**
+     * Line number where the conditional block starts in the source code. A
+     * conditional block starts with a`#if` or `#elif` directive. Thus, the
+     * corresponding line in the source code contains one of these directives.
+     */
+    private int startLine;
+    
+    /**
+     * Line number where the conditional block ends in the source code. A conditional
+     * block ends with a `#elif` (the beginning of the next conditional block)
+     * or `#endif` directive. Thus, the corresponding line in the source code
+     * contains one of these directives.
+     */
+    private int endLine;
+
+    /**
+     * List of sub conditional block groups contained. A conditional block
+     * group is a conditional ladder (#if [#elif]* #endif), which might contain
+     * one or more conditional blocks.
+     */
+    private List<List<ConditionalBlock>> subBlocks;
+
+    /**
+     * Complete presence condition for the conditional block.
+     */
+    private PresenceCondition pc;
+
+    /**
+     * Parent conditional block.
+     */
+    private ConditionalBlock parent;
+
+    @Override
+    public String toString() {
+      // TODO: representation can possibly be optimized to have smaller output files as pcs can be shared
+      // TODO: make representation more generic instead of pythonic.
+      return String.format( "{\"StartLine\":\"%s\", \"EndLine\":\"%s\", \"PC\": \"\"\"%s\"\"\", \"Sub\": %s}", startLine, endLine, pc.toSMT2().toString(), subBlocks );
+    }
+
+    /**
+     * Read and return conditional block groups from preprocessor. Once returned,
+     * the preprocessor will be at EOF token, or at END token of a conditional
+     * block if it could not be matched with any START token.
+     * @param preprocessor The preprocessor to iterate over.
+     * @param pathToFileOfInterest The path to the file of interest.
+     * @return A list of condition block groups each represented as a list
+     * of conditional blocks.
+     */
+    public static List<List<ConditionalBlock>> getConditionalBlockGroups(Preprocessor preprocessor, String pathToFileOfInterest) {
+      return readConditionalBlockGroups(preprocessor, pathToFileOfInterest);
+    }
+
+    /**
+     * Constructor.
+     */
+    private ConditionalBlock() {
+      this.subBlocks = new ArrayList<>();
+    }
+
+    /**
+     * Check if the syntax is located within the file of interest.
+     * @param syntax A syntax instance to check for.
+     * @param pathToFileOfInterest The path to the file of interest.
+     * @return true if syntax is within the file of interest, false otherwise.
+     */
+    private static boolean isInterestingFile(Syntax syntax, String pathToFileOfInterest) {
+      return syntax != null && syntax.hasLocation() && syntax.getLocation() != null && pathToFileOfInterest.endsWith(syntax.getLocation().file);
+    }
+
+    /**
+     * Read and return a condition block. The preprocessor must be at the beginning
+     * token of the conditional block to read, i.e., START or NEXT. Once returned,
+     * the preprocessor will be at the end token of the conditional block,
+     * i.e., NEXT or END.
+     * @param preprocessor The preprocessor to iterate over.
+     * @param pathToFileOfInterest The path to the file of interest.
+     * @return A condition block.
+     */
+    private static ConditionalBlock readConditionalBlock(Preprocessor preprocessor, String pathToFileOfInterest) {
+      // Token/tag/file checks.
+      assert preprocessor != null && preprocessor.token() != null
+          && preprocessor.token().kind() == Kind.CONDITIONAL && preprocessor.token().toConditional() != null
+          && (preprocessor.token().toConditional().tag() == Syntax.ConditionalTag.START 
+              || preprocessor.token().toConditional().tag() == Syntax.ConditionalTag.NEXT);
+      assert isInterestingFile(preprocessor.token(), pathToFileOfInterest);
+
+      ConditionalBlock cb = new ConditionalBlock();
+      PresenceCondition pc = preprocessor.token().toConditional().presenceCondition();
+      cb.pc = pc;
+      int startLine = preprocessor.token().getLocation().line;
+
+      // Read any nested ConditionalBlockGroups inside, until the end of
+      // the current block.
+      cb.subBlocks = readConditionalBlockGroups(preprocessor, pathToFileOfInterest);
+
+      // Assign parents
+      for(List<ConditionalBlock> l : cb.subBlocks) {
+        for(ConditionalBlock subBlock: l) {
+          subBlock.parent = cb;
+        }
+      }
+      // Verify it is the end token of the conditional block.    
+      ConditionalTag currentTokenTag = preprocessor.token().toConditional().tag();
+      assert currentTokenTag == Syntax.ConditionalTag.NEXT || currentTokenTag == Syntax.ConditionalTag.END;
+
+      // Assign line range.
+      int endLine = preprocessor.token().getLocation().line;
+      cb.startLine = startLine;
+      cb.endLine = endLine;
+
+      // Return.
+      return cb;
+    }
+
+    /**
+     * Read and return a conditional block group. The preprocessor must be
+     * at START conditional preprocessor token of the conditional block group
+     * to read. Once returned, the preprocessor will be at the END token of
+     * the conditional block group read.
+     * 
+     * @param preprocessor The preprocessor to iterate over.
+     * @param pathToFileOfInterest The path to the file of interest.
+     * @return A condition block group represented as a list of conditional
+     * blocks. null if the condition block group is invalid, i.e., due to macro
+     * expansion from a file different than pathToFileOfInterest.
+     */
+    private static List<ConditionalBlock> readConditionalBlockGroup(Preprocessor preprocessor, String pathToFileOfInterest) {
+      // Token/tag/file checks.
+      assert preprocessor != null && preprocessor.token() != null
+          && preprocessor.token().kind() == Kind.CONDITIONAL && preprocessor.token().toConditional() != null
+          && preprocessor.token().toConditional().tag() == Syntax.ConditionalTag.START;
+      assert isInterestingFile(preprocessor.token(), pathToFileOfInterest);
+
+      List<ConditionalBlock> cbGroup = new ArrayList<>();
+      ConditionalTag currentTag = preprocessor.token().toConditional().tag();
+      
+      while (currentTag != Syntax.ConditionalTag.END) { // read until the end of the block group
+        ConditionalBlock cb = readConditionalBlock(preprocessor, pathToFileOfInterest);
+        cbGroup.add(cb);
+        currentTag = preprocessor.token().toConditional().tag();
+        assert currentTag == Syntax.ConditionalTag.NEXT || currentTag == Syntax.ConditionalTag.END;
+      }
+      assert currentTag == Syntax.ConditionalTag.END;
+
+      // If the locations of the start and the end of the conditional block
+      // group are the same, it is because macro expansion from some other
+      // file was occurred, which is not a condition block group within the
+      // file of interest.
+      if (cbGroup.get(0).startLine == cbGroup.get(0).endLine ) {
+        return null;
+      }
+      return cbGroup;
+    }
+
+    /**
+     * Read and return conditional block groups from preprocessor. Once returned,
+     * the preprocessor will be at EOF token, or at END token of a conditional
+     * block if it could not be matched with any START token.
+     * @param preprocessor The preprocessor to iterate over.
+     * @param pathToFileOfInterest The path to the file of interest.
+     * @return A list of condition block groups each represented as a list
+     * of conditional blocks.
+     */
+    private static List<List<ConditionalBlock>> readConditionalBlockGroups(Preprocessor preprocessor, String pathToFileOfInterest) {  
+      List<List<ConditionalBlock>> cbGroups = new ArrayList<>();
+      preprocessor.next();
+
+      while (preprocessor.token().kind() != Kind.EOF) {
+        if (isInterestingFile(preprocessor.token(), pathToFileOfInterest) && preprocessor.token().kind() == Kind.CONDITIONAL) {
+          ConditionalTag currentTag = preprocessor.token().toConditional().tag();
+          if (currentTag == Syntax.ConditionalTag.NEXT || currentTag == Syntax.ConditionalTag.END) {
+            // Dangling NEXT or END: end of this context, return.
+            return cbGroups;
+          } else if (currentTag == Syntax.ConditionalTag.START) {
+            // Start a new conditional block group.
+            List<ConditionalBlock> cbGroup = readConditionalBlockGroup(preprocessor, pathToFileOfInterest);
+            if (cbGroup != null) { // null means the group was a conditional macro expansion from header -- not really a cb group in the sourcefile
+              cbGroups.add(cbGroup);
+            }
+            assert preprocessor.token().toConditional().tag() == Syntax.ConditionalTag.END;
+          } else {
+            // Shouldn't be possible.
+            assert false;
+          }
+        }
+        preprocessor.next();        
+      }
+      assert preprocessor.token().kind() == Kind.EOF;
+      return cbGroups;
+    }
+  }
+
   /** The user defined include paths */
   List<String> I;
   
@@ -362,11 +559,8 @@ public class SuperC extends Tool {
       bool("macroTable", "macroTable", false,
            "Show the macro symbol table.").
       word("sourcelinePC", "sourcelinePC", false,
-            "Prints presence conditions per ranges of lines to the specified file."
-          //  "Print the presence conditions for given lines. "
-          //  + "Takes a list of lines and ranges, e.g., \"3,5:7,8:10,15\". "
-          //  + "-1 represents the last line when used as the second of a range."
-           )
+            "Prints presence conditions as a list of conditional block groups "
+            + "to the specified file.")
       ;
   }
   
@@ -732,196 +926,25 @@ public class SuperC extends Tool {
     }
     // Run SuperC.
     if (null != runtime.getString("sourcelinePC")) {
-      //
-      // Check the input format
-      //
-      String sourcelinePCArg = runtime.getString("sourcelinePC");
+      // TODO: currently, we get pc using preprocessor only, which misses some common patterns like if(IS_ENABLED(CONFIG_MACRO)).
+      String outputPath = runtime.getString("sourcelinePC");
 
-      // TODO: check if sourcelinePCArg holds a valid path to write
+      //
+      // Get presence condition tree
+      //
+      List<List<ConditionalBlock>> cbGroups = ConditionalBlock.getConditionalBlockGroups((Preprocessor)preprocessor, file.getAbsolutePath());
 
-      // Following is a left-over from earlier implementation. Instead of querying
-      // for some given range, we now print all presence conditions to be processed
-      // outside. Thus, `sourcelinePC` is now used to specify the filename for
-      // the output JSON file.
-      // // The input format is a list of 1-indexed sourceline, each is a single line or a range
-      // // -1 is the special line number representing the last line to be used as second of ranges
-      // // Some example input values:
-      // //  5 (means 5th line)
-      // //  5,8 (means 5th and 8th lines)
-      // //  5:8 (means 5th to 8th lines, inclusive, i.e., the lines 5,6,7,8)
-      // //  5:-1 (means lines starting from 5 until the end of the file)
-      // //  1,5:6,7:7 (means the lines 1,5,6,7)
-      // String singlePattern = "((\\d+)(:((\\d+)|(-1)))?)";
-      // String listPattern = String.format("^%s(,%s)*$", singlePattern, singlePattern);
-      // Pattern sourcelineInputPattern = Pattern.compile(listPattern);
-      // Matcher m = sourcelineInputPattern.matcher(sourcelinePCArg);
-      // if (!m.matches()) {
-      //   runtime.error("invalid sourceline argument format.");
-      //   runtime.exit();
-      // }
-      
-      class Pair<T1, T2> {
-        T1 x;
-        T2 y;
-        Pair(T1 x, T2 y) { this.x = x; this.y = y; }
+      //
+      // Write output
+      //
+      System.err.println("Writing the presence conditions to \"" + outputPath  + "\".");
+      try {
+        FileWriter fr = new FileWriter(outputPath);
+        fr.write(cbGroups.toString());
+        fr.close();
+      } catch(Exception e) {
+        System.err.println("Exception while writing file: " + e);
       }
-
-      // Following is a left-over from earlier implementation. Instead of querying
-      // for some given range, we now print all presence conditions to be processed
-      // outside. Thus, `sourcelinePC` is now used to specify the filename for
-      // the output JSON file.
-      // //
-      // // Parse the input as a list of sourceline ranges
-      // //
-      // List<Pair<Integer, Integer>> lineRanges = new ArrayList<>();
-      // for (String lineRangeStr : sourcelinePCArg.split(",")) {
-      //   int start, end;
-      //   if (lineRangeStr.contains(":")) {
-      //     start = Integer.parseInt(lineRangeStr.split(":")[0]);
-      //     end = Integer.parseInt(lineRangeStr.split(":")[1]);
-      //   } else {
-      //       start = end = Integer.parseInt(lineRangeStr);
-      //   }
-      //   if (start > end && end != -1) {
-      //     runtime.error("invalid sourceline argument: malformed range with start larger than end.");
-      //     runtime.exit();
-      //   }
-      //   lineRanges.add(new Pair<>(start, end));
-      // }
-
-      //
-      // Get list of presence conditions per sourceline range for whole file
-      //
-
-      // TODO(necip): currently, we get pc using preprocessor only, which misses some common patterns like if(IS_ENABLED(CONFIG_MACRO)). do parsing for this.
-      
-      
-      // The changing presence conditions are represented as a "presence condition" and
-      // "line number that such pc becomes effective" pair. The presence condition
-      // at the end of the list is effective until the end of the file.
-      List<Pair<Integer, PresenceCondition>> presenceConditions = new ArrayList<>();
-
-      // Keep track of the presence conditions in a stack
-      LinkedList<PresenceCondition> parents = new LinkedList<PresenceCondition>();
-      parents.push(presenceConditionManager.newTrue());
-
-      String inFileAbsPath = file.getAbsolutePath();
-      int linecount = 0;
-
-      Syntax syntax;
-      syntax = preprocessor.next();
-      while (syntax.kind() != Kind.EOF) {
-        Location syntaxLoc = syntax.getLocation();
-        if (null != syntaxLoc && inFileAbsPath.endsWith(syntaxLoc.file)) {
-          linecount = syntaxLoc.line; // will be last updated by the last line
-
-          if (syntax.kind() == Kind.CONDITIONAL) {
-            PresenceCondition pc;
-            switch(syntax.toConditional().tag()) {
-              case NEXT:
-                parents.pop();
-                pc = syntax.toConditional().presenceCondition();
-                parents.push(parents.peek().and(pc));
-                break;
-              case START:
-                pc = syntax.toConditional().presenceCondition();
-                parents.push(parents.peek().and(pc));
-                break;
-              case END:
-                parents.pop();
-                break;
-            }
-            // Check if the same line is hit (might happen when content from header is replaced due to `define` directives)
-            if (!presenceConditions.isEmpty() && presenceConditions.get(presenceConditions.size()-1).x == syntaxLoc.line) {
-              Pair<Integer, PresenceCondition> loc_pc_pair = presenceConditions.get(presenceConditions.size()-1);
-              PresenceCondition lastPc = loc_pc_pair.y;
-              loc_pc_pair.y = loc_pc_pair.y.or(parents.peek());
-            } else {
-              presenceConditions.add(new Pair<>(syntaxLoc.line, parents.peek()));
-            }
-          }
-        }
-        syntax = preprocessor.next();
-      }
-
-      //
-      // Merge consecutive ranges if they share the same presence condition
-      // This is only to making the output easy to read: can be disabled to speed up.
-      //
-      List<Pair<Integer, PresenceCondition>> compactPresenceConditions = new ArrayList<>();
-      for (int i = 0; i < presenceConditions.size(); ) { // dont advance i here
-        // Make sure that the loop always continues with the newer one
-        compactPresenceConditions.add(presenceConditions.get(i));
-
-        PresenceCondition currentPc = presenceConditions.get(i).y; // here
-        
-        // advance i until a newer pc is seen
-        int j;
-        for (j = i; j < presenceConditions.size(); j++) {
-          if (!presenceConditions.get(j).y.is(currentPc)) {
-            i = j;
-            break;
-          }
-        }
-
-        // if no newer pc is seen, done
-        if (j == presenceConditions.size()) {
-          break;
-        }
-      }
-
-      presenceConditions = compactPresenceConditions;
-
-      JSONObject lineRangePCMapping = new JSONObject();
-
-      //
-      // Build the presence conditions
-      //
-      // PresenceCondition resultPc = presenceConditionManager.newTrue(); 
-      for (int i = 0; i < presenceConditions.size(); i++) {
-        int start_lineno = presenceConditions.get(i).x;
-        int end_lineno = i+1 < presenceConditions.size() ? presenceConditions.get(i+1).x - 1 : linecount;
-
-        PresenceCondition pc = presenceConditions.get(i).y;
-        // Following is the verbose output (possibly for debugging)
-        boolean dontPrintTrue = true; // enable to disable printing true (1) presence conditions for possibly cleaner output
-        if (!(dontPrintTrue && pc.isTrue())) {
-          System.err.println(String.format("Presence condition for lines \"%d:%d\" is \"%s\"", start_lineno, end_lineno, pc.toString()));
-          lineRangePCMapping.put( String.format("%s:%s", start_lineno, end_lineno), pc.toSMT2().toString());
-        }
-
-        // Following is a left-over from earlier implementation. Instead of querying
-        // for some given range, we now print all presence conditions to be processed
-        // outside. Thus, `sourcelinePC` is now used to specify the filename for
-        // the output JSON file.
-        // // Traverse each sourceline range to see if this range is to be included.
-        // boolean includePc = false;
-        // for (Pair<Integer, Integer> lineRange : lineRanges) {
-        //   int start1 = lineRange.x, end1 = lineRange.y;
-        //   int start2 = start_lineno, end2 = end_lineno; // this is file
-        //   if (Integer.max(start1, start2) <= Integer.min(end1, end2) || (end2 >= start1 && end1 == -1) ) {
-        //     // There is an intersection with the range, thus, take this presence condition
-        //     includePc = true;
-        //     break;
-        //   }
-        // }
-        // if (includePc) {
-        //   resultPc = resultPc.and(pc);
-        // }
-      }
-
-      // //
-      // // Print the result
-      // //
-      // System.out.println( String.format("Sourceline presence condition: \"%s\"", resultPc.toSMT2().toString()));
-
-      //
-      // Write json
-      //
-      String outputPath = sourcelinePCArg;
-      System.err.println("\nWriting the line range - presence condition mapping to \"" + outputPath  + "\".");
-      writeJson(lineRangePCMapping, outputPath);
-
     } else if (runtime.test("follow-set")) {
       // Compute the follow-set of each token of the preprocessed
       // input.
