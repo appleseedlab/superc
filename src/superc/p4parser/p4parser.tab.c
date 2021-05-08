@@ -6134,52 +6134,36 @@ private boolean findToken(Object n, P4Tag tag) {
 }
 
 public void bindFunDef(Subparser subparser, Node typespec, Node declarator) {
-//   boolean static_function;
+  if (getident(declarator).equals("ERR_PTR")) {
+    System.err.println(typespec);
+    System.err.println(declarator);
+  }
 
-//   if (getident(declarator).equals("ERR_PTR")) {
-//     System.err.println(typespec);
-//     System.err.println(declarator);
-//   }
-
-//   if (null == typespec) {
-//     // only static with static keyword
-//     static_function = false;
-//   } else if (typespec.getName().equals("DeclarationSpecifier") ||
-//              typespec.getName().equals("DeclarationQualifierList")) {
-//     // the declaration keyword can only appear in these kinds of
-//     // specifiers
-//     if (typespec.getProperty(SPECS) != null) {
-//       static_function = ((Specifiers) typespec.getProperty(SPECS)).storage ==
-//         Constants.ATT_STORAGE_STATIC;
-//     } else {
-//       // traverse subtree looking for static until checkers are finished
-//       static_function = findToken(typespec, P4Tag.STATIC);
-//     }
-//   } else {
-//     // the declaration keyword can only appear in these kinds of
-//     // specifiers
-//     if (typespec.getProperty(SPECS) != null) {
-//       static_function = ((Specifiers) typespec.getProperty(SPECS)).storage ==
-//         Constants.ATT_STORAGE_STATIC;
-//     } else {
-//       // traverse subtree looking for static until checkers are finished
-//       static_function = findToken(typespec, P4Tag.STATIC);
-//     }
-//   }
-
-//   if (static_function) {
-//     bindIdent(subparser, typespec, declarator, STField.STATIC_FUNDEF);
-//   } else {
-//     bindIdent(subparser, typespec, declarator, STField.GLOBAL_FUNDEF);
-//   }
+  bindIdent(subparser, typespec, declarator, STField.GLOBAL_FUNDEF);
 }
 
 public void bindIdent(Subparser subparser, Node typespec, Node declarator) {
    bindIdent(subparser, typespec, declarator, null, false);
 }
 
+
+/** Another overloaded function for bindIdent to explicity specify it's a TYPDEF value
+ * 
+ * Cases like typeParameterList don't have a unique preceding value to identify
+ * the value as a typedef value. So can use this overloaded function to explicity
+ * specify that the value is a typedef.
+ */
 public void bindIdent(Subparser subparser, Node typespec, Node declarator, boolean typeVar) {
    bindIdent(subparser, typespec, declarator, null, typeVar);
+}
+
+/** Overloaded function with original parameters
+ *
+ * Original bindIdent (from cparser.y) function is modified with a new parameter,
+ * this functions overloads the modified function to behave like how it is in cparser
+ */
+public void bindIdent(Subparser subparser, Node typespec, Node declarator, STField alsoSet) {
+  bindIdent(subparser, typespec, declarator, alsoSet, false);
 }
 
 /** typespec might be null for declarations and definitions without a

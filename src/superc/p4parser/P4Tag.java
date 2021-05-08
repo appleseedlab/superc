@@ -54,8 +54,6 @@ DONTCARE(getID("DONTCARE"), "_"),
 
 IDENTIFIER(getID("IDENTIFIER"), null, true),
 INTEGER(getID("INTEGER"), null, false, PreprocessorTag.NUMBER),
-FLOATING_CONSTANT(getID("FLOATING_CONSTANT"), null, false, PreprocessorTag.NUMBER),
-PPNUM(getID("PPNUM"), null, false, PreprocessorTag.NUMBER),
 L_PAREN(getID("L_PAREN"), "(", PreprocessorTag.OPEN_PAREN),
 R_PAREN(getID("R_PAREN"), ")", PreprocessorTag.CLOSE_PAREN),
 COMMA(getID("COMMA"), ",", PreprocessorTag.COMMA),
@@ -104,10 +102,14 @@ DOT(getID("DOT"), "."),
 ASSIGN(getID("ASSIGN"), "="),
 SEMICOLON(getID("SEMICOLON"), ";"),
 AT(getID("AT"), "@"),
+
+
 STRING_LITERAL(getID("STRING_LITERAL"), null, false),
 TYPE_IDENTIFIER(getID("TYPE_IDENTIFIER"), null, true),
 END_PRAGMA(getID("END_PRAGMA"), null),
-PRAGMA(getID("PRAGMA"), "@pragma")
+PRAGMA(getID("PRAGMA"), "@pragma"),
+FLOATING_CONSTANT(getID("FLOATING_CONSTANT"), null, false, PreprocessorTag.NUMBER),
+PPNUM(getID("PPNUM"), null, false, PreprocessorTag.NUMBER)
 ;
 
   private final int id;
