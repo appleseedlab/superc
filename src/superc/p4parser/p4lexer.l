@@ -95,6 +95,9 @@ import superc.core.Syntax.EOF;
   /** The name of the file being lexed. */
   private String fileName = null;
 
+  /** To store the float number */
+  private StringBuilder float_num = null;
+
   private int saveState = 0;
 
   /** Returns the name of the file being lexed. */
@@ -105,7 +108,6 @@ import superc.core.Syntax.EOF;
 %}
 
 %eofval{
-  // System.err.println("hereatend");
   EOF syntax = new EOF();
 
   syntax.setLocation(new Location(fileName, yyline+1, yycolumn));
@@ -121,6 +123,7 @@ import superc.core.Syntax.EOF;
 %column
 
 %state COMMENT PRAGMA_LINE
+%xstate PP_FRACTION_NON_EMPTY PP_FRACTION_CAN_BE_EMPTY RANGE_DOTS RANGE_END
 
 /* Uncomment this for a lexer debugging.  See the JFlex manual. */
 // %debug
@@ -137,14 +140,10 @@ numbersReg=0[xX][0-9a-fA-F_]+|0[dD][0-9_]+|0[oO][0-7_]+|0[bB][01_]+|[0-9][0-9_]*
 numberUnparsed=[0-9]+[ws]0[xX][0-9a-fA-F_]+|[0-9]+[ws]0[dD][0-9_]+|[0-9]+[ws]0[oO][0-7_]+|[0-9]+[ws]0[bB][01_]+|[0-9]+[ws][0-9_]+
 numbers=({numbersReg}|{numberUnparsed})
 
-/* Define floating point number constants. */
-exponent_part=([eE]|[pP])[-+]?[0-9]+
-fractional_constant=([0-9]*"."[0-9]+)|([0-9]+".")
-floating_constant=(({fractional_constant}{exponent_part}?)|([0-9]+{exponent_part}))[FfLl]?
-
 /* Define a catch-all for preprocessor numbers.  These may not
 necessarily be valid P4 numeric constants, but they are valid
 preprocessor numbers. */
+exponent_part=([eE]|[pP])[-+]?[0-9]+
 preprocessing_number="."?[0-9]+([0-9a-zA-Z._]|{exponent_part})*
 
 whitespace=[ \t\r]+
@@ -237,8 +236,6 @@ LANGUAGE(DONTCARE,"_")
 
 TEXT(IDENTIFIER,{identifier},true)
 PREPROCESSOR_TEXT(INTEGER,NUMBER,{numbers},false)
-PREPROCESSOR_TEXT(FLOATING_CONSTANT,NUMBER,{floating_constant},false)
-PREPROCESSOR_TEXT(PPNUM,NUMBER,{preprocessing_number},false)
 PREPROCESSOR(L_PAREN,OPEN_PAREN,"(")
 PREPROCESSOR(R_PAREN,CLOSE_PAREN,")")
 PREPROCESSOR(COMMA,COMMA,",")
@@ -288,13 +285,7 @@ LANGUAGE(ASSIGN,"=")
 LANGUAGE(SEMICOLON,";")
 LANGUAGE(AT,"@")
 
-// LANGUAGE(PRAGMA, "@pragma")
-
-// LANGUAGE(BACKSLASH,"\\")
-
-// #define CHARACTER_CONSTANT_regex "L"?\'{c_char}+\'
 #define STRING_LITERAL_regex \"{s_char}*\"
-// TEXT(STRING_LITERAL,CHARACTER_CONSTANT_regex,false)
 TEXT(STRING_LITERAL,STRING_LITERAL_regex,false)
 
 #ifndef LANGUAGE_TAGS
@@ -326,10 +317,104 @@ return new Layout(comment.toString(), false);
 \n {comment.append(yytext()); commentnl = true;}
 }
 
+// Checks if there is only one decimal point to indicate it is a float
+// For floating points like .023e-12f and 1.23
+// If only one decimal point, we go into PP_FRACTION state. This is to
+// mitigate issues with RANGE token. Inefficient, but P4 does not
+// support floats, only the preprocessor. So won't get used a lot
+// Cannot do "."/(!(".")) since it breaks preprocessor number condition
+//  eg: .009134a..a9e+12 - breaks when "."/(!(".")) is the lookahead rule
+[0-9]*"."/([0-9]+(([eE]|[pP])[-+]?[0-9]+)?[FfLl]?) { 
+  yybegin(PP_FRACTION_NON_EMPTY); 
+  float_num = new StringBuilder(); 
+  float_num.append(yytext()); 
+}
+
+// For floating points like 12.e+7L and 5.f (no number after decimal)
+[0-9]+"."/((([eE]|[pP])[-+]?[0-9]+)?[FfLl]?) {
+  yybegin(PP_FRACTION_CAN_BE_EMPTY); 
+  float_num = new StringBuilder(); 
+  float_num.append(yytext()); 
+}
+
+// if we are in PP_FRACTION, then it means we have encountered
+// the first half of the fractional number. Now need to scan
+// the rest of the float number after the decimal
+<PP_FRACTION_NON_EMPTY> {
+  [0-9]+(([eE]|[pP])[-+]?[0-9]+)?[FfLl]? { 
+    yybegin(YYINITIAL);
+    float_num.append(yytext()); 
+    Text<P4Tag> syntax = new Text<P4Tag>(P4Tag.FLOATING_CONSTANT, float_num.toString()); 
+    syntax.setLocation(new Location(fileName, yyline+1, yycolumn)); 
+    return syntax;
+  }
+}
+<PP_FRACTION_CAN_BE_EMPTY> {
+  // (([eE]|[pP])[-+]?[0-9]+)?[FfLl]? will match an empty string, hence second rule for that
+  (([eE]|[pP])[-+]?[0-9]+)?[FfLl]? {
+    yybegin(YYINITIAL);
+    float_num.append(yytext()); 
+    Text<P4Tag> syntax = new Text<P4Tag>(P4Tag.FLOATING_CONSTANT, float_num.toString()); 
+    syntax.setLocation(new Location(fileName, yyline+1, yycolumn)); 
+    return syntax;
+  }
+  // the rule/regex to handle empty string after the intial parsing
+  // eg.: 25. - this is still a float
+  . { 
+    yybegin(YYINITIAL);
+    Text<P4Tag> syntax = new Text<P4Tag>(P4Tag.FLOATING_CONSTANT, float_num.toString()); 
+    syntax.setLocation(new Location(fileName, yyline+1, yycolumn)); 
+    return syntax;
+  }
+}
+
+// Float numbers such as 15e+12F
+([0-9]+([eE]|[pP])[-+]?[0-9]+)[FfLl]? {
+  Text<P4Tag> syntax = new Text<P4Tag>(P4Tag.FLOATING_CONSTANT, yytext()); 
+  syntax.setLocation(new Location(fileName, yyline+1, yycolumn)); 
+  return syntax;
+}
+
+// If we have two periods right after an integer, we treat this as a INT RANGE INT
+// for P4. The numbers before and after ".." are converted into INTEGER tokens, 
+// ".." is converted to RANGE token
+[0-9]+/(".."[0-9]+) { 
+  yybegin(RANGE_DOTS);
+  Text<P4Tag> syntax = new Text<P4Tag>(P4Tag.INTEGER, yytext()); 
+  syntax.setLocation(new Location(fileName, yyline+1, yycolumn)); 
+  return syntax;
+}
+
+<RANGE_DOTS> {
+  ".." {
+    yybegin(RANGE_END);
+    Language<P4Tag> syntax = new Language<P4Tag>(P4Tag.RANGE); 
+    syntax.setLocation(new Location(fileName, yyline+1, yycolumn+1));
+    return syntax;
+  }
+  <RANGE_END> {
+    [0-9]+ {
+      Text<P4Tag> syntax = new Text<P4Tag>(P4Tag.INTEGER, yytext()); 
+      syntax.setLocation(new Location(fileName, yyline+1, yycolumn)); 
+      yybegin(YYINITIAL);
+      return syntax;
+    }
+  }
+}
+
+{preprocessing_number} { 
+  Text<P4Tag> syntax = new Text<P4Tag>(P4Tag.PPNUM, yytext()); 
+  syntax.setLocation(new Location(fileName, yyline+1, yycolumn)); 
+  return syntax; 
+}
+
+
 #else
 TYPE_IDENTIFIER(getID("TYPE_IDENTIFIER"), null, true),
 END_PRAGMA(getID("END_PRAGMA"), null),
-PRAGMA(getID("PRAGMA"), "@pragma")
+PRAGMA(getID("PRAGMA"), "@pragma"),
+FLOATING_CONSTANT(getID("FLOATING_CONSTANT"), null, false, PreprocessorTag.NUMBER),
+PPNUM(getID("PPNUM"), null, false, PreprocessorTag.NUMBER)
 ;
 
   private final int id;
@@ -393,3 +478,4 @@ PRAGMA(getID("PRAGMA"), "@pragma")
 
 }
 #endif
+
