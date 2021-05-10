@@ -1962,6 +1962,7 @@ public class ForkMergeParser {
         // scopes, can be merged, e.g., same nesting level, (7) the
         // grammar node is considered complete, i.e., non-complete
         // nodes shouldn't be children of conditional nodes
+        // (8) errors should not be merged here.
         boolean sameTokenType
           = (subparser.lookahead.token.syntax.kind() == Kind.LANGUAGE
              && subparser.lookahead.token.syntax.toLanguage().tag()
@@ -1973,7 +1974,8 @@ public class ForkMergeParser {
             && (! hasParsingContext
                 || subparser.scope.mayMerge(compareParser.scope))  // (6)
             && subparser.stack.isMergeable(compareParser.stack)    // (3,4)
-            && subparser.stack != compareParser.stack) {           // (5)
+            && subparser.stack != compareParser.stack           // (5)
+            && ParsingAction.ERROR != subparser.lookahead.action ) { // (8)
           // Move subparser to merge list.
           mergedParsers.addLast(compareParser);
           subset.remove(inner);

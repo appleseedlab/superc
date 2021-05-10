@@ -4695,7 +4695,8 @@ LocalLabelList:  /** list, complete **/  // ADDED
 DeclarationOrStatementList:  /** list, complete **/  /* ADDED */  // String
         /* empty */
         {
-          setTransformationValue(value, "");
+          List<Multiverse<DeclarationOrStatementValue>> n = new LinkedList<Multiverse<DeclarationOrStatementValue>>();
+          setTransformationValue(value, n);
         }
         | DeclarationOrStatementList DeclarationOrStatement
         {
@@ -4712,6 +4713,9 @@ DeclarationOrStatement: /** complete **/  /* ADDED */  // String
         {
           // declarations are already just strings, so get the multiverse of any static conditionals around them
           Multiverse<DeclarationOrStatementValue> decl = DesugarOps.StringToDSV.transform(getCompleteNodeMultiverseValue(getNodeAt(subparser, 1),subparser.getPresenceCondition()));
+          for (Element<DeclarationOrStatementValue> e : decl) {
+            e.getData().setDecl();
+          }
           setTransformationValue(value, decl);
         }
         | Statement
@@ -4764,8 +4768,8 @@ ExpressionStatement:  /** complete **/  // Multiverse<String>
             Multiverse<String> expr = exprval.transformation;
             String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
             
-            // if filtering of type errors is done right, this add
-            // should not violate mutual-exclusion in the multiverse
+            // if filtering of type errors is done right, this add 
+           // should not violate mutual-exclusion in the multiverse
             // TODO: use dce and other optimizations to remove superfluous __static_type_error calls
             // since desugarOps can't have empty multiverses we need to add error entries
             // so here we should purge the errorCond from the string multiverse before appending
@@ -9087,6 +9091,7 @@ public static class DeclarationOrStatementValue {
   private boolean isElse;
   private boolean isDo;
   private String childAppend;
+  private boolean isDecl;
   public DeclarationOrStatementValue() {
     mainValue = "";
     childPrepend = "";
@@ -9094,6 +9099,7 @@ public static class DeclarationOrStatementValue {
     children = null;
     isElse = false;
     isDo = false;
+    isDecl = false;
   }
   public DeclarationOrStatementValue(String x) {
     mainValue = x;
@@ -9102,6 +9108,7 @@ public static class DeclarationOrStatementValue {
     children = null;
     isElse = false;
     isDo = false;
+    isDecl = false;
   }
   public void setChildrenBlock(String p, Multiverse<DeclarationOrStatementValue> c, String a) {
     List x = new LinkedList<Multiverse<DeclarationOrStatementValue>>();
@@ -9125,19 +9132,35 @@ public static class DeclarationOrStatementValue {
   public void setDo() {
     isDo = true;
   }
+
+  public void setDecl() {
+    isDecl = true;
+  }
   
-  public String getString(PresenceCondition p) {
+  public String getString(PresenceCondition p, CActions ca) {
     String ret = "";
     if (!isDo) {
-      ret = mainValue;
+      ret = mainValue + "\n";
     }
-    ret += childPrepend;
+    if (!childPrepend.equals("")) {
+      ret += childPrepend + "\n";
+    }
     if (!isElse) {
       if (children != null) {
         for (Multiverse<DeclarationOrStatementValue> m : children) {
           for (Element<DeclarationOrStatementValue> e : m) {
             if (e.getCondition().and(p).isNotFalse()) {
-              ret += e.getData().getString(e.getCondition().and(p));
+              if (e.getCondition().is(p) || e.getData().isDecl) {
+                ret += e.getData().getString(p,ca);
+              } else {
+                PresenceCondition combinedCond = e.getCondition().and(p);
+                ret += "\nif (";
+                ret += ca.condToCVar(combinedCond);
+                ret += ") {\n";
+                ret += e.getData().getString(e.getCondition().and(p), ca);
+                ret += "}\n";
+                combinedCond.delRef();
+              }
             }
           }
         }
@@ -9145,19 +9168,41 @@ public static class DeclarationOrStatementValue {
     } else {
       for (Element<DeclarationOrStatementValue> e : children.get(0)) {
         if (e.getCondition().and(p).isNotFalse()) {
-          ret += e.getData().getString(e.getCondition().and(p));
+          if (e.getCondition().is(p) || e.getData().isDecl) {
+            ret += e.getData().getString(p,ca);
+          } else {
+            PresenceCondition combinedCond = e.getCondition().and(p);
+            ret += "\nif (";
+            ret += ca.condToCVar(combinedCond);
+            ret += ") {\n";
+            ret += e.getData().getString(e.getCondition().and(p), ca);
+            ret += "}\n";
+            combinedCond.delRef();
+          }
         }
       }
       ret += "else\n";
       for (Element<DeclarationOrStatementValue> e : children.get(1)) {
         if (e.getCondition().and(p).isNotFalse()) {
-          ret += e.getData().getString(e.getCondition().and(p));
+          if (e.getCondition().is(p) || e.getData().isDecl) {
+            ret += e.getData().getString(p,ca);
+          } else {
+            PresenceCondition combinedCond = e.getCondition().and(p);
+            ret += "\nif (";
+            ret += ca.condToCVar(combinedCond);
+            ret += ") {\n";
+            ret += e.getData().getString(e.getCondition().and(p), ca);
+            ret += "}\n";
+            combinedCond.delRef();
+          }
         }
       }
     }
-    ret += childAppend;
+    if (!childAppend.equals("")) {
+      ret += childAppend + "\n";
+    }
     if (isDo) {
-      ret += mainValue;
+      ret += mainValue + "\n";
     }
     return ret;
   }
@@ -9587,7 +9632,7 @@ private String emitStatementDSV(Multiverse<DeclarationOrStatementValue> allState
         sb.append(condToCVar(combinedCond));
         sb.append(") {\n");
       }
-      sb.append(statement.getData().getString(combinedCond));
+      sb.append(statement.getData().getString(combinedCond,this));
       sb.append("\n");
       if (! combinedCond.isTrue()) {
         // don't print the C conditionals if condition is for all configurations
