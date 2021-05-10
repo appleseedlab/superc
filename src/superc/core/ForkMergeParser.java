@@ -126,6 +126,12 @@ public class ForkMergeParser {
   /** The intitial parsing context. */
   private ParsingContext initialParsingContext;
 
+  /** 
+   * Flag that informs to track all productions under 
+   * conditionGranularity 
+   */
+  private boolean trackAllProductions = false;
+
   /** True when the language has a parsing context. */
   private boolean hasParsingContext = false;
 
@@ -204,6 +210,12 @@ public class ForkMergeParser {
 
   /** Turn condition granularity collection on. */
   private boolean conditionGranularity = false;
+
+  /**
+   * Emit the conditional after-set of productions
+   * when the conditional inside-set is empty after reduction
+   */
+  private boolean emitConditionalAfterSet = false;
 
   /** Turn the subparser kill-switch on. */
   private boolean killswitch = false;
@@ -350,7 +362,7 @@ public class ForkMergeParser {
   }
 
   /**
-   * Set productions to track for conditionals.
+   * Set C productions to track for conditionals.
    *
    * @param trackedProductions The productions to track.
    */
@@ -369,6 +381,20 @@ public class ForkMergeParser {
     trackedProductions.add("FunctionOldPrototype");
     trackedProductions.add("EmptyDefinition");
     conditionGranularity = b;
+  }
+
+  /**
+   * Enable conditional tracking for all productions.
+   *
+   * @param b True means to track conditional productions.
+   * @param trackAll True means to track all productions.
+   * @param afterSetb True means to emit the conditional after-set 
+   * of productions when conditional inside-set is empty
+   */
+  public void conditionGranularity(boolean b, boolean trackAll, boolean afterSetb) {
+    conditionGranularity = b;
+    trackAllProductions = trackAll;
+    emitConditionalAfterSet = afterSetb;
   }
 
   /**
