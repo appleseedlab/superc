@@ -2062,7 +2062,6 @@ public class ForkMergeParser {
           subparser.presenceCondition.delRef();
           subparser.presenceCondition = or;
         }
-
         // // Combine the subparsers' presence conditions.
         // PresenceCondition disjunction = subparser.presenceCondition;
         // for (Subparser mergedParser : mergedParsers) {
@@ -2110,6 +2109,7 @@ public class ForkMergeParser {
 
     return subset;
   }
+
 
   /**
    * Fork subparser on a set of tokens.
@@ -2520,16 +2520,24 @@ public class ForkMergeParser {
     }
 
     if (conditionGranularity
-        && conditionalInside
-        && trackedProductions.contains(nodeName)) {
+        && (emitConditionalAfterSet || conditionalInside)
+        && (trackAllProductions || trackedProductions.contains(nodeName))) {
       // Location location = getProductionLocation(value);
       Location location = getProductionLocation(value);
 
       // Emit the marker.
+      if(conditionalInside) {
       System.err.println(String.format("conditional_inside %s %s \"%s\"",
                                        nodeName,
                                        location,
                                        joinSet(insideSet, ",")));
+      }
+      else if (emitConditionalAfterSet && conditionalAfter) {
+        System.err.println(String.format("conditional_after %s %s \"%s\"",
+                                        nodeName,
+                                        location,
+                                        joinSet(afterSet, ",")));
+      }
     }
 
     if (hasSemanticActions) {
@@ -3082,7 +3090,6 @@ public class ForkMergeParser {
       int flags
         = (null != this.value ? 1 : 0)
         | (null != other.value ? 2 : 0);
-
       // System.err.println("MERGE BEFORE");
       // System.err.println(this.value);
       // System.err.println(thisPresenceCondition);
@@ -3191,7 +3198,7 @@ public class ForkMergeParser {
         this.next.merge(thisPresenceCondition, other.next,otherPresenceCondition, dist - 1);
       }
     }
-    
+
     /**
      * Get the string representation.
      *
@@ -3288,3 +3295,4 @@ public class ForkMergeParser {
     return ret;
   }
 }
+
