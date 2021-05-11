@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Scanner;
 import java.util.Map;
 import java.util.IdentityHashMap;
 import java.util.HashSet;
@@ -159,8 +160,7 @@ public class SuperC extends Tool {
     @Override
     public String toString() {
       // TODO: representation can possibly be optimized to have smaller output files as pcs can be shared
-      // TODO: make representation more generic instead of pythonic.
-      return String.format( "{\"StartLine\":\"%s\", \"EndLine\":\"%s\", \"PC\": \"\"\"%s\"\"\", \"Sub\": %s}", startLine, endLine, pc.toSMT2().toString(), subBlocks );
+      return String.format( "{\"StartLine\": %s, \"EndLine\": %s, \"PC\": \"%s\", \"Sub\": %s}", startLine, endLine, pc.toSMT2().toString().replaceAll("\n", "\\\\n"), subBlocks);
     }
 
     /**
@@ -935,12 +935,36 @@ public class SuperC extends Tool {
       List<List<ConditionalBlock>> cbGroups = ConditionalBlock.getConditionalBlockGroups((Preprocessor)preprocessor, file.getAbsolutePath());
 
       //
+      // Wrap the presence condition tree with the dummy root
+      //
+      // Count the number of lines
+      Scanner sc = new Scanner(file);
+      int lineCount = 0;
+      while(sc.hasNextLine() ) {
+        lineCount++;
+        sc.nextLine();
+      } 
+      sc.close();
+      // Create the dummy root
+      ConditionalBlock root = new ConditionalBlock();
+      root.startLine = 0;
+      root.endLine = lineCount + 1;
+      root.subBlocks = cbGroups;
+      for(List<ConditionalBlock> cbGroup : cbGroups) {
+        for(ConditionalBlock cb : cbGroup) {
+          cb.parent = root;
+        }
+      }
+      root.pc = presenceConditionManager.newTrue();
+      root.parent = null;
+
+      //
       // Write output
       //
       System.err.println("Writing the presence conditions to \"" + outputPath  + "\".");
       try {
         FileWriter fr = new FileWriter(outputPath);
-        fr.write(cbGroups.toString());
+        fr.write(root.toString());
         fr.close();
       } catch(Exception e) {
         System.err.println("Exception while writing file: " + e);
