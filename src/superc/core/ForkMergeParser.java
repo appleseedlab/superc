@@ -126,6 +126,12 @@ public class ForkMergeParser {
   /** The intitial parsing context. */
   private ParsingContext initialParsingContext;
 
+  /** 
+   * Flag that informs to track all productions under 
+   * conditionGranularity 
+   */
+  private boolean trackAllProductions = false;
+
   /** True when the language has a parsing context. */
   private boolean hasParsingContext = false;
 
@@ -204,6 +210,12 @@ public class ForkMergeParser {
 
   /** Turn condition granularity collection on. */
   private boolean conditionGranularity = false;
+
+  /**
+   * Emit the conditional after-set of productions
+   * when the conditional inside-set is empty after reduction
+   */
+  private boolean emitConditionalAfterSet = false;
 
   /** Turn the subparser kill-switch on. */
   private boolean killswitch = false;
@@ -350,7 +362,7 @@ public class ForkMergeParser {
   }
 
   /**
-   * Set productions to track for conditionals.
+   * Set C productions to track for conditionals.
    *
    * @param trackedProductions The productions to track.
    */
@@ -369,6 +381,20 @@ public class ForkMergeParser {
     trackedProductions.add("FunctionOldPrototype");
     trackedProductions.add("EmptyDefinition");
     conditionGranularity = b;
+  }
+
+  /**
+   * Enable conditional tracking for all productions.
+   *
+   * @param b True means to track conditional productions.
+   * @param trackAll True means to track all productions.
+   * @param afterSetb True means to emit the conditional after-set 
+   * of productions when conditional inside-set is empty
+   */
+  public void conditionGranularity(boolean b, boolean trackAll, boolean afterSetb) {
+    conditionGranularity = b;
+    trackAllProductions = trackAll;
+    emitConditionalAfterSet = afterSetb;
   }
 
   /**
@@ -2036,7 +2062,6 @@ public class ForkMergeParser {
           subparser.presenceCondition.delRef();
           subparser.presenceCondition = or;
         }
-
         // // Combine the subparsers' presence conditions.
         // PresenceCondition disjunction = subparser.presenceCondition;
         // for (Subparser mergedParser : mergedParsers) {
@@ -2084,6 +2109,7 @@ public class ForkMergeParser {
 
     return subset;
   }
+
 
   /**
    * Fork subparser on a set of tokens.
@@ -2389,11 +2415,15 @@ public class ForkMergeParser {
     for (int i = 0; i < yylen; i++) {
       if (conditionGranularity) {
         if (0 == i) {
-          conditionalAfter
-            = topState.conditionalAfter || topState.conditionalInside;
+          conditionalAfter = topState.conditionalAfter;
           afterSet.clear();
           afterSet.addAll(topState.afterSet);
           afterSet.addAll(topState.insideSet);
+          
+          conditionalInside = topState.conditionalInside;
+          insideSet.clear();
+          insideSet.addAll(topState.afterSet);
+          insideSet.addAll(topState.insideSet);
         } else {
           conditionalInside = conditionalInside
             || topState.conditionalAfter || topState.conditionalInside;
@@ -2490,16 +2520,24 @@ public class ForkMergeParser {
     }
 
     if (conditionGranularity
-        && conditionalInside
-        && trackedProductions.contains(nodeName)) {
+        && (emitConditionalAfterSet || conditionalInside)
+        && (trackAllProductions || trackedProductions.contains(nodeName))) {
       // Location location = getProductionLocation(value);
       Location location = getProductionLocation(value);
 
       // Emit the marker.
+      if(conditionalInside) {
       System.err.println(String.format("conditional_inside %s %s \"%s\"",
                                        nodeName,
                                        location,
                                        joinSet(insideSet, ",")));
+      }
+      else if (emitConditionalAfterSet && conditionalAfter) {
+        System.err.println(String.format("conditional_after %s %s \"%s\"",
+                                        nodeName,
+                                        location,
+                                        joinSet(afterSet, ",")));
+      }
     }
 
     if (hasSemanticActions) {
@@ -3052,7 +3090,6 @@ public class ForkMergeParser {
       int flags
         = (null != this.value ? 1 : 0)
         | (null != other.value ? 2 : 0);
-
       // System.err.println("MERGE BEFORE");
       // System.err.println(this.value);
       // System.err.println(thisPresenceCondition);
@@ -3161,7 +3198,7 @@ public class ForkMergeParser {
         this.next.merge(thisPresenceCondition, other.next,otherPresenceCondition, dist - 1);
       }
     }
-    
+
     /**
      * Get the string representation.
      *
@@ -3258,3 +3295,4 @@ public class ForkMergeParser {
     return ret;
   }
 }
+

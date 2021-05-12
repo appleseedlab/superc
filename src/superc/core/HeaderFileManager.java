@@ -439,7 +439,7 @@ public class HeaderFileManager implements Iterator<Syntax> {
     if (guarded) {
 
       // No need to even open the header file.  It is guarded.
-
+      if(showHeaders) System.err.println("guarded header file: " + header.name);
       return true;
     }
 
