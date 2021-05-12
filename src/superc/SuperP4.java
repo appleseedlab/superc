@@ -1098,7 +1098,7 @@ public class SuperP4 extends Tool {
       parser.setEarlyShift(runtime.test("earlyShift"));
       parser.setFollowSetCaching(! runtime.test("noFollowCaching"));
       parser.collectStatistics(runtime.test("statisticsParser"));
-      parser.conditionGranularity(runtime.test("conditionGranularity"));
+      parser.conditionGranularity(runtime.test("conditionGranularity"), true, true);
       parser.showActions(runtime.test("showActions"));
       parser.showErrors(! runtime.test("hideErrors"));
       parser.showAccepts(runtime.test("showAccepts"));
