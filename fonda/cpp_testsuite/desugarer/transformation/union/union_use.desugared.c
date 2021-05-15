@@ -21,15 +21,18 @@ float  __floating_3;
 
 union __intCharFloat_0 ;
 int  __main_5 (void  ) {
+
 {
+
+
+
 union __intCharFloat_0  __usedUnion_4;
+
  __usedUnion_4  . __integer_1 = 1 ;
-
  __usedUnion_4  . __character_2 = 'h' ;
-
 return 0 ;
-
 }
+
 
 
 }

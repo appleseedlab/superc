@@ -20,10 +20,14 @@ int  __x_0;
 int  __y_1;
 int  __z_2;
 int  __main_3 () {
-{
-return 0 ;
 
+{
+
+
+
+return 0 ;
 }
+
 
 
 }

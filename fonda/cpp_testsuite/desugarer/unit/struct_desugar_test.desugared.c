@@ -35,11 +35,16 @@ struct __s_6 ;
 struct __s_6 ;
 struct __s_6  __x1_8;
 int  __main_9 () {
-{
-struct __s_6 ;
-return  __x1_8  . __anon_id_0_7 . ____s_1_5 . __data_2 ;
 
+{
+
+
+
+struct __s_6 ;
+
+return  __x1_8  . __anon_id_0_7 . ____s_1_5 . __data_2 ;
 }
+
 
 
 }

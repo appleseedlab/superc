@@ -15,18 +15,24 @@ __static_renaming("__main_1", "main");
 };
 
 int  __main_1 (void  ) {
+
 {
+
+
+
 int  __x_0= 3;
-if (  __x_0  > 2 ) {
+
+if (  __x_0  > 2 )
+
+{
+
+
+
  __x_0  = 4 ;
-
 }
-
-
-
 return 0 ;
-
 }
+
 
 
 }

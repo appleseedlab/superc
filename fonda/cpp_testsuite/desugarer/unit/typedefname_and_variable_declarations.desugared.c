@@ -28,16 +28,30 @@ typedef int  __a_0;
 // typedef moved to top of scope
 int  __a_1;
 int  __main_3 () {
+
 {
+
+
+
 __a_0  __a_2;
+
+
 }
+
 
 
 }
 int  __f_5 () {
+
 {
+
+
+
 const __a_0  __a_4;
+
+
 }
+
 
 
 }

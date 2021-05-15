@@ -21,7 +21,11 @@ __static_renaming("__main_7", "main");
 };
 
 int  __main_7 (void  ) {
+
 {
+
+
+
 char  __a_0;
 char  __b_1;
 char  __c_2;
@@ -29,9 +33,10 @@ char  __d_3;
 char  __e_4;
 char  __f_5;
 char  __g_6= 1;
-return 0 ;
 
+return 0 ;
 }
+
 
 
 }

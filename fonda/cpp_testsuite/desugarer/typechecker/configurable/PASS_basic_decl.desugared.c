@@ -18,14 +18,22 @@ __static_renaming("__main_4", "main");
 };
 
 int  __main_4 () {
-{
-int  __a_0;
-int  __b_1;
-int  (* __c_2);
-int  (* (* __c_3));
-return 0 ;
 
+{
+
+
+
+int  __a_0;
+
+int  __b_1;
+
+int  (* __c_2);
+
+int  (* (* __c_3));
+
+return 0 ;
 }
+
 
 
 }

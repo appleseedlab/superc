@@ -26,15 +26,21 @@ int  __a_3;
 int  __b_4;
 };
 
-struct __x_0 ;struct __x_2 ;
+struct __x_0 ;
+struct __x_2 ;
 int  __main_9 () {
+
 {
+
+
+
 struct __x_0  __x_5;
 {
 if (__static_condition_default_6) {
 __x_5.__a_1 = 1;
 __static_type_error("assigning value out of struct range.")}
 }
+
 struct __x_2  __x_7;
 {
 if (__static_condition_default_8) {
@@ -42,9 +48,10 @@ __x_7.__a_3 = 1;
 __x_7.__b_4 = 2;
 }
 }
-return 0 ;
 
+return 0 ;
 }
+
 
 
 }

@@ -18,24 +18,37 @@ __static_renaming("__main_3", "main");
 
 void  (* __a_0);
 void  __b_1 () {
-{
-return  ;
 
+{
+
+
+
+return  ;
 }
+
 
 
 }
 inline int  __c_2 () {
-{
-return 0 ;
 
+{
+
+
+
+return 0 ;
 }
+
 
 
 }
 int  __main_3 () {
+
 {
+
+
+
 }
+
 
 
 }

@@ -17,13 +17,20 @@ __static_renaming("__main_3", "main");
 };
 
 int  __main_3 (void  ) {
-{
-const const float  __g_0;
-const const const const const float  __i_1;
-volatile volatile volatile volatile int  __h_2;
-return 0 ;
 
+{
+
+
+
+const const float  __g_0;
+
+const const const const const float  __i_1;
+
+volatile volatile volatile volatile int  __h_2;
+
+return 0 ;
 }
+
 
 
 }

@@ -15,13 +15,17 @@ __static_renaming("__main_1", "main");
 };
 
 int  __main_1 (void  ) {
+
 {
+
+
+
 int  __x_0;
+
  __x_0  = 3 + 5 - 6 * 4 / 2 % 7 ;
-
 return 0 ;
-
 }
+
 
 
 }

@@ -15,16 +15,21 @@ __static_renaming("__main_1", "main");
 };
 
 int  __main_1 (void  ) {
+
 {
+
+
+
 int  (__x_0[]);
 {
 __x_0[0] = - 2;
 __x_0[1] = 4;
 __x_0[2] = 5;
 }
-return 0 ;
 
+return 0 ;
 }
+
 
 
 }

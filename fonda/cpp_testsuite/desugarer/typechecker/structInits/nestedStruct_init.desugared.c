@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_9;
 extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_9;
 void __static_initializer_default() {
 __static_renaming("__bee_8", "bee");
 __static_renaming("__main_11", "main");
@@ -31,7 +31,11 @@ struct __a_0  __field_7;
 struct __a_0 ;
 struct __b_5 ;
 int  __main_11 () {
+
 {
+
+
+
 struct __b_5  __bee_8;
 {
 if (1) {
@@ -46,9 +50,10 @@ __bee_8.__field_7.__c_3 = 3;
 }
 }
 }
-return 0 ;
 
+return 0 ;
 }
+
 
 
 }

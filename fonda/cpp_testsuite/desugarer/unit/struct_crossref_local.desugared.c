@@ -14,7 +14,10 @@ __static_renaming("__main_7", "main");
 };
 
 int  __main_7 () {
-{struct __s1_1 {
+
+{
+
+struct __s1_1 {
 int  __data_2;
 struct __forward_tag_reference_0  (* __next_3);
 };
@@ -29,9 +32,13 @@ struct __s2_4 __s2_4;
 };
 };
 
+
 struct __s1_1 ;
+
 struct __s2_4 ;
+
 }
+
 
 
 }

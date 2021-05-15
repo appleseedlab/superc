@@ -17,13 +17,20 @@ __static_renaming("__main_3", "main");
 };
 
 int  __main_3 (void  ) {
-{
-int  __x_0= 5;
-int  (__arr_1[3]);
-char  (__arr_2[2 +  __x_0 ]);
-return 0 ;
 
+{
+
+
+
+int  __x_0= 5;
+
+int  (__arr_1[3]);
+
+char  (__arr_2[2 +  __x_0 ]);
+
+return 0 ;
 }
+
 
 
 }

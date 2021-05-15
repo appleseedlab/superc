@@ -15,7 +15,10 @@ __static_renaming("__main_4", "main");
 };
 
 int  __main_4 () {
-{struct __s_1 {
+
+{
+
+struct __s_1 {
 int  __y_2;
 };
 
@@ -25,10 +28,15 @@ struct __s_1 __s_1;
 };
 };
 
+
 struct __forward_tag_reference_0 ;
+
 struct __s_1 ;
+
 struct __s_1  __x_3;
+
 }
+
 
 
 }

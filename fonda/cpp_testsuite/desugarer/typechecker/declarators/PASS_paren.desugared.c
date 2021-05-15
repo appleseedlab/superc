@@ -18,10 +18,14 @@ __static_renaming("__main_2", "main");
 int  __a_0;
 int  __b_1;
 int  __main_2 () {
-{
-return 0 ;
 
+{
+
+
+
+return 0 ;
 }
+
 
 
 }

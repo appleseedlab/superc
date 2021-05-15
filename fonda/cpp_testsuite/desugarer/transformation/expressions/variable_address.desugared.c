@@ -16,14 +16,19 @@ __static_renaming("__main_2", "main");
 };
 
 int  __main_2 (void  ) {
+
 {
+
+
+
 int  __x_0= 5;
+
 int  (* __y_1);
+
  __y_1  = &  __x_0  ;
-
 return 0 ;
-
 }
+
 
 
 }

@@ -23,17 +23,31 @@ __static_renaming("__main_9", "main");
 };
 
 int  __main_9 (void  ) {
+
 {
+
+
+
 static const int  __a_0;
+
 extern const char  __b_1;
+
 auto const float  __c_2;
+
 auto volatile double  __d_3;
+
 const volatile long  __e_4;
+
 static volatile long long  __f_5;
+
 extern volatile long double  __g_6;
+
 register const float  __h_7;
+
 register volatile int  __i_8;
+
 }
+
 
 
 }

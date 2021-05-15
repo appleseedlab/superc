@@ -15,15 +15,18 @@ __static_renaming("__f_3", "f");
 };
 
 int  __f_3 (char  __x_0, int  __y_1) {
+
 {
+
+
+
 int  __z_2;
+
  __y_1  =  __x_0  +  __y_1  ;
-
  __z_2  =  __y_1  ;
-
 return  __z_2  ;
-
 }
+
 
 
 }

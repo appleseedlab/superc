@@ -15,13 +15,18 @@ __static_renaming("__main_1", "main");
 };
 
 int  __main_1 (void  ) {
+
 {
+
+
+
 int  __x_0= 3;
-while (  __x_0  > 2 )  __x_0  -- ;
 
+while (  __x_0  > 2 )
+ __x_0  -- ;
 return 0 ;
-
 }
+
 
 
 }

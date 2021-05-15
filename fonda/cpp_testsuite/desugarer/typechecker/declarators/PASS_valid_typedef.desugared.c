@@ -38,16 +38,26 @@ volatile typedef __i_0  __j_5;
 // typedef moved to top of scope
 // typedef moved to top of scope
 int  __main_12 () {
-{
-__i_0  __a_6;
-__x_1  __b_7;
-__z_2  __c_8;
-__q_3  __d_9;
-__w_4  __e_10;
-__j_5  __f_11;
-return 0 ;
 
+{
+
+
+
+__i_0  __a_6;
+
+__x_1  __b_7;
+
+__z_2  __c_8;
+
+__q_3  __d_9;
+
+__w_4  __e_10;
+
+__j_5  __f_11;
+
+return 0 ;
 }
+
 
 
 }

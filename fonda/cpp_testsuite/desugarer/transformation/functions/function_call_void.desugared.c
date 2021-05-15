@@ -15,20 +15,27 @@ __static_renaming("__main_1", "main");
 };
 
 void  __doNothing_0 () {
-{
-return  ;
 
+{
+
+
+
+return  ;
 }
+
 
 
 }
 int  __main_1 (void  ) {
+
 {
+
+
+
  __doNothing_0  ( ) ;
-
 return 0 ;
-
 }
+
 
 
 }

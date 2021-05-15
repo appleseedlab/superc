@@ -18,14 +18,22 @@ __static_renaming("__main_4", "main");
 };
 
 int  __main_4 (void  ) {
-{
-int  __x_0= 2;
-char  __x_1= 3;
-int  __y_2=  __x_0 ;
-int  __y_3=  __x_1 ;
-return 0 ;
 
+{
+
+
+
+int  __x_0= 2;
+
+char  __x_1= 3;
+
+int  __y_2=  __x_0 ;
+
+int  __y_3=  __x_1 ;
+
+return 0 ;
 }
+
 
 
 }

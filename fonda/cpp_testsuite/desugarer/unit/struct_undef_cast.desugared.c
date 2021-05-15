@@ -32,8 +32,13 @@ struct __forward_tag_reference_0  __x_1;
 struct __s2_2 ;
 struct __s1_5 ;
 int  __main_8 () {
+
 {
+
+
+
 }
+
 
 
 }

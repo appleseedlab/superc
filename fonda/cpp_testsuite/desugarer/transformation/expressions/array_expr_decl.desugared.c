@@ -15,11 +15,16 @@ __static_renaming("__main_1", "main");
 };
 
 int  __main_1 (void  ) {
-{
-int  (__expressionArr_0[2 + 8]);
-return 0 ;
 
+{
+
+
+
+int  (__expressionArr_0[2 + 8]);
+
+return 0 ;
 }
+
 
 
 }

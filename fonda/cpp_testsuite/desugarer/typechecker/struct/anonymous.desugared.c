@@ -19,12 +19,15 @@ char  __p_1;
 
 struct __anonymous_tag_0  __data_2;
 int  __main_3 () {
+
 {
+
+
+
  __data_2  . __p_1 ;
-
 return 0 ;
-
 }
+
 
 
 }

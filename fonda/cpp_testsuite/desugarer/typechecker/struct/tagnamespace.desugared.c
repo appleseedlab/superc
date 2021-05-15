@@ -18,8 +18,13 @@ struct __x_0 {
 
 struct __x_0  __x_1;
 int  __main_2 () {
+
 {
+
+
+
 }
+
 
 
 }

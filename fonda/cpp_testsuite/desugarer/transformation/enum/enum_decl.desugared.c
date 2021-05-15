@@ -24,13 +24,17 @@ __f_5,
 
 enum letter ;
 int  __main_7 (void  ) {
+
 {
+
+
+
 enum letter  __apple_6;
+
 __static_type_error("type error : no valid expression");
-
 return 0 ;
-
 }
+
 
 
 }

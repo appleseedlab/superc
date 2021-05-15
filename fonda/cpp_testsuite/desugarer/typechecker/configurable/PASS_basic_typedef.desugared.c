@@ -24,10 +24,14 @@ typedef float  __a_1;
 __a_0  __x_2;
 __a_1  __x_3;
 int  __main_4 () {
-{
-return 0 ;
 
+{
+
+
+
+return 0 ;
 }
+
 
 
 }

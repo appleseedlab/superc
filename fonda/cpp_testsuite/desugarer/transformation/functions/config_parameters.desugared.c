@@ -22,10 +22,14 @@ __static_condition_renaming("__static_condition_default_4", "A");
 int  __returnOne_1 () {
 
 if (__static_condition_default_3) {
-{
-return 1 ;
 
+{
+
+
+
+return 1 ;
 }
+
 
 }
 
@@ -33,19 +37,27 @@ return 1 ;
 int  __returnOne_2 (int  __x_0) {
 
 if (__static_condition_default_4) {
-{
-return 1 ;
 
+{
+
+
+
+return 1 ;
 }
+
 
 }
 
 }
 int  __main_5 (void  ) {
-{
-return 0 ;
 
+{
+
+
+
+return 0 ;
 }
+
 
 
 }

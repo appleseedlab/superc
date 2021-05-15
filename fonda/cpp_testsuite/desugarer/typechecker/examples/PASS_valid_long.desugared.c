@@ -19,15 +19,24 @@ __static_renaming("__main_5", "main");
 };
 
 int  __main_5 (void  ) {
-{
-long  __a_0;
-long long  __b_1;
-long int  __c_2;
-long long int  __d_3;
-long double  __e_4;
-return 0 ;
 
+{
+
+
+
+long  __a_0;
+
+long long  __b_1;
+
+long int  __c_2;
+
+long long int  __d_3;
+
+long double  __e_4;
+
+return 0 ;
 }
+
 
 
 }

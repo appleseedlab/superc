@@ -24,10 +24,15 @@ __static_renaming("__main_10", "main");
 };
 
 int  __main_10 (void  ) {
+
 {
+
+
+
 char  __a_0= 2;
 char  __b_1;
 char  __g_2= 4;
+
 char  __a_3= 2;
 char  __b_4;
 char  __c_5= 6;
@@ -35,9 +40,10 @@ char  __d_6;
 char  __e_7;
 char  __f_8;
 char  __g_9= 4;
-return 0 ;
 
+return 0 ;
 }
+
 
 
 }

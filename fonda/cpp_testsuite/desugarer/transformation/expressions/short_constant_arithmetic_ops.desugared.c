@@ -15,21 +15,21 @@ __static_renaming("__main_1", "main");
 };
 
 int  __main_1 (void  ) {
+
 {
+
+
+
 int  __x_0;
+
  __x_0  = 3 + 5 ;
-
  __x_0  = 2 - 1 ;
-
  __x_0  = 6 * 4 ;
-
  __x_0  = 8 / 2 ;
-
  __x_0  = 10 % 5 ;
-
 return 0 ;
-
 }
+
 
 
 }

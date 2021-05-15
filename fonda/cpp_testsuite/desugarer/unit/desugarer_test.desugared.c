@@ -33,13 +33,17 @@ union __anonymous_tag_6  __anon_id_0_11;
 
 struct __s_10 ;
 int  __main_13 () {
+
 {
+
+
+
 struct __s_10  __t_12;
+
  __t_12  . __anon_id_0_11 . __s1_7 . __x_1 = 1 ;
-
  __t_12  . __anon_id_0_11 . __s3_9 . __y_5 = 2 ;
-
 }
+
 
 
 }

@@ -23,19 +23,32 @@ __static_renaming("__main_9", "main");
 };
 
 int  __main_9 (void  ) {
-{
-static const int  __a_0;
-extern const int  __b_1;
-auto const int  __c_2;
-auto volatile int  __d_3;
-const volatile int  __e_4;
-static volatile int  __f_5;
-extern volatile int  __g_6;
-register const int  __h_7;
-register volatile int  __i_8;
-return 0 ;
 
+{
+
+
+
+static const int  __a_0;
+
+extern const int  __b_1;
+
+auto const int  __c_2;
+
+auto volatile int  __d_3;
+
+const volatile int  __e_4;
+
+static volatile int  __f_5;
+
+extern volatile int  __g_6;
+
+register const int  __h_7;
+
+register volatile int  __i_8;
+
+return 0 ;
 }
+
 
 
 }

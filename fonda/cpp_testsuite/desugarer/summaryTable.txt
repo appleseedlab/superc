@@ -43,7 +43,8 @@ typechecker/examples/PASS_valid_qualifiers                                      
 typechecker/examples/scope_partial_declaration1                                            BC generated
 typechecker/examples/PASS_global_redef_valid                                               BC generated
 typechecker/examples/test_struct_prohibit_initializer                                      File isn't valid
-typechecker/examples/PASS_valid_complex                                                    BC generated
+typechecker/examples/PASS_valid_complex                                                    SuperC failed
+typechecker/examples/PASS_valid_complex                                                    BC failed
 typechecker/examples/PASS_seentypes                                                        File isn't valid
 typechecker/examples/PASS_valid_duplicate_qualifiers                                       BC generated
 typechecker/examples/PASS_invalid_long                                                     File isn't valid
@@ -116,7 +117,8 @@ typechecker/structInits/designators_doesNotExist                                
 typechecker/structInits/list_designator                                                    BC generated
 typechecker/structInits/struct_init                                                        BC generated
 typechecker/structInits/listInStruct                                                       BC generated
-typechecker/structInits/conditionalError                                                   BC generated
+typechecker/structInits/conditionalError                                                   SuperC failed
+typechecker/structInits/conditionalError                                                   BC failed
 typechecker/structInits/listOfStructs                                                      BC generated
 typechecker/structInits/designatorList                                                     BC generated
 typechecker/structInits/designators_partialExist                                           BC failed
@@ -138,7 +140,8 @@ unit/struct_local_legal                                                         
 unit/if_statement_configurable3                                                            BC generated
 unit/global_redeclarations                                                                 File isn't valid
 unit/struct_configurable_cross_and_forward_ref                                             BC generated
-unit/variable_partially_defined                                                            BC generated
+unit/variable_partially_defined                                                            SuperC failed
+unit/variable_partially_defined                                                            BC failed
 unit/enum_constant_expression1                                                             File isn't valid
 unit/enum_enumerators                                                                      BC generated
 unit/typedefname_and_variable_declarations                                                 BC generated
@@ -156,14 +159,17 @@ unit/begin_decls                                                                
 unit/enum_repeated_enumerators                                                             File isn't valid
 unit/function_parameters_configurable                                                      File isn't valid
 unit/statement_configurable                                                                BC generated
-unit/typedefname_partially_defined                                                         BC generated
+unit/implicit_param                                                                        File GT not confirmed
+unit/typedefname_partially_defined                                                         SuperC failed
+unit/typedefname_partially_defined                                                         BC failed
 unit/declarators                                                                           BC generated
 unit/struct_configurable_main                                                              BC generated
 unit/struct_crossref_local                                                                 BC generated
 unit/if_statement_configurable1                                                            BC generated
 unit/function_parameters_empty_configurable                                                BC generated
 unit/redeclare_structs                                                                     File isn't valid
-unit/forloop                                                                               BC generated
+unit/forloop                                                                               SuperC failed
+unit/forloop                                                                               BC failed
 unit/counter_variable                                                                      File GT not confirmed
 unit/struct_simple                                                                         BC generated
 unit/struct_desugar_test                                                                   BC generated
@@ -172,7 +178,8 @@ unit/struct_nested_anonymous                                                    
 unit/enum_constant_expression2                                                             File isn't valid
 unit/enum_configurable                                                                     File isn't valid
 unit/if_statement_configurable2                                                            BC generated
-unit/forloopdecl                                                                           BC generated
+unit/forloopdecl                                                                           SuperC failed
+unit/forloopdecl                                                                           BC failed
 unit/function_configurably_defined                                                         File GT not confirmed
 unit/struct_global_forward_reference                                                       BC generated
 unit/configurable_array                                                                    File isn't valid
@@ -202,7 +209,8 @@ unit/struct_global_forward_reference_ifdeftoif                                  
 unit/struct_union_enum                                                                     File isn't valid
 unit/jump_statement                                                                        File isn't valid
 unit/single                                                                                BC generated
-unit/switch                                                                                BC generated
+unit/switch                                                                                SuperC failed
+unit/switch                                                                                BC failed
 unit/struct_configurable                                                                   BC generated
 unit/offsetof                                                                              BC failed
 errorTesting/extra_comma                                                                   File GT not confirmed
@@ -228,8 +236,8 @@ transformation/pointer_deref1                                                   
 transformation/functions/main                                                              BC generated
 transformation/functions/function_declaration                                              BC generated
 transformation/functions/function_call_non_void                                            BC generated
-transformation/functions/config_identifier                                                 BC failed
-transformation/functions/config_return_type                                                BC failed
+transformation/functions/config_identifier                                                 BC generated
+transformation/functions/config_return_type                                                BC generated
 transformation/functions/int_main                                                          BC generated
 transformation/functions/void_main                                                         BC generated
 transformation/functions/config_implicit_function_call                                     BC generated
@@ -277,7 +285,8 @@ transformation/declaringlists/all_init                                          
 transformation/declaringlists/no_init                                                      BC generated
 transformation/declaringlists/config_some_init                                             BC generated
 transformation/declaringlists/config_no_init                                               BC generated
-transformation/declaringlists/error_conditional                                            BC generated
+transformation/declaringlists/error_conditional                                            SuperC failed
+transformation/declaringlists/error_conditional                                            BC failed
 transformation/declaringlists/variable_expr                                                BC generated
 transformation/declaringlists/config_const_conditional_error                               File isn't valid
 transformation/declaringlists/config_const                                                 BC generated
@@ -320,19 +329,22 @@ transformation/typedef_struct/config_struct                                     
 transformation/typedef_struct/config_field_typedef                                         BC generated
 transformation/typedef_struct/config_typedef_struct_decl                                   BC generated
 transformation/typedef_struct/config_typedef_field                                         BC generated
-transformation/typedef_struct/config_partially_defined_struct_field                        BC generated
+transformation/typedef_struct/config_partially_defined_struct_field                        SuperC failed
+transformation/typedef_struct/config_partially_defined_struct_field                        BC failed
 transformation/typedef_struct/config_typedef                                               BC generated
 transformation/typedef_struct/config_partially_defined_struct                              BC generated
 transformation/typedef_struct/typedef_struct_decl                                          BC generated
 transformation/misc/singlevariable                                                         BC generated
-transformation/misc/canonical                                                              BC generated
+transformation/misc/canonical                                                              SuperC failed
+transformation/misc/canonical                                                              BC failed
 transformation/misc/main                                                                   BC generated
 transformation/misc/twovariables.autodesugar                                               File isn't valid
 transformation/misc/inside                                                                 BC generated
 transformation/misc/decl                                                                   BC generated
 transformation/misc/twovariables                                                           BC generated
 transformation/misc/bob                                                                    BC generated
-transformation/misc/canonical_example                                                      BC generated
+transformation/misc/canonical_example                                                      SuperC failed
+transformation/misc/canonical_example                                                      BC failed
 transformation/misc/twovariablesdifferent                                                  BC generated
 transformation/misc/test                                                                   BC generated
 transformation/misc/type                                                                   BC generated
@@ -366,7 +378,8 @@ transformation/expressions/postfix                                              
 transformation/expressions/long_constant_arithmetic_ops                                    BC generated
 transformation/expressions/config_arr_assignment                                           BC generated
 transformation/phasar/linear_constant/basic_03_resugared                                   BC generated
-transformation/phasar/linear_constant/loop_01                                              BC generated
+transformation/phasar/linear_constant/loop_01                                              SuperC failed
+transformation/phasar/linear_constant/loop_01                                              BC failed
 transformation/phasar/linear_constant/call_01                                              BC generated
 transformation/phasar/linear_constant/basic_03                                             BC generated
 transformation/phasar/linear_constant/basic_04_resugared                                   BC generated
@@ -375,7 +388,8 @@ transformation/phasar/linear_constant/twovariables.desugared_resugared          
 transformation/phasar/linear_constant/recursion_01                                         BC generated
 transformation/phasar/linear_constant/basic_01_resugared                                   BC generated
 transformation/phasar/linear_constant/basic_02                                             BC generated
-transformation/phasar/linear_constant/loop_01_resugared                                    BC generated
+transformation/phasar/linear_constant/loop_01_resugared                                    SuperC failed
+transformation/phasar/linear_constant/loop_01_resugared                                    BC failed
 transformation/phasar/linear_constant/recursion_01_resugared                               BC generated
 transformation/phasar/linear_constant/call_01_resugared                                    BC generated
 transformation/phasar/linear_constant/basic_02_resugared                                   BC generated
@@ -386,6 +400,7 @@ transformation/phasar/secure_memory/memory1_resugared                           
 transformation/phasar/secure_memory/memory1_resugared                                      BC failed
 transformation/phasar/secure_memory/memory1_2                                              SuperC failed
 transformation/phasar/secure_memory/memory1_2                                              BC failed
-transformation/phasar/secure_memory/memory1_resugared_decls_added                          BC generated
+transformation/phasar/secure_memory/memory1_resugared_decls_added                          SuperC failed
+transformation/phasar/secure_memory/memory1_resugared_decls_added                          BC failed
 transformation/phasar/secure_memory/memory1_2_resugared_decls_added                        File isn't valid
 transformation/phasar/secure_memory/memory1_2_resugared                                    File isn't valid

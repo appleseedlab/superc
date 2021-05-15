@@ -18,9 +18,15 @@ typedef int  __a_0;
 
 // typedef moved to top of scope
 int  __main_2 () {
+
 {
+
+
+
 __a_0  __a_1;
+
 }
+
 
 
 }

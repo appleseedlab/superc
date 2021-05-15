@@ -8,13 +8,13 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_13;
+extern const bool __static_condition_default_15;
 void __static_initializer_default() {
 __static_renaming("__bob_1", "bob");
-__static_renaming("__main_15", "main");
+__static_renaming("__main_13", "main");
 
-__static_condition_renaming("__static_condition_default_13", "!(defined CONFIG_A)");
-__static_condition_renaming("__static_condition_default_14", "(defined CONFIG_A)");
+__static_condition_renaming("__static_condition_default_14", "!(defined CONFIG_A)");
+__static_condition_renaming("__static_condition_default_15", "(defined CONFIG_A)");
 
 };
 struct __T_2 {
@@ -45,21 +45,20 @@ struct __T_2 ;
 struct __X_8 ;
 struct __X_4 ;
 struct __T_10 ;
-int  __main_15 () {
-{
+int  __main_13 () {
 
 {
-if (__static_condition_default_13) {
- __bob_1  . __T_10 . __field_struct_x_12 ;
 
-}
+
 
 if (__static_condition_default_14) {
+ __bob_1  . __T_10 . __field_struct_x_12 ;
+}
+if (__static_condition_default_15) {
  __bob_1  . __T_2 . __field_t_3 ;
-
+}
 }
 
-}}
 
 
 }

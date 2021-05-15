@@ -1200,11 +1200,11 @@ public class CContext implements ParsingContext {
    */
   public String getDeclarations(PresenceCondition presenceCondition) {
     StringBuilder sb = new StringBuilder();
-
+    
     // emit the user-defined type declarations, which are renamed
     CContext scope = this;
     while (scope.reentrant) scope = scope.parent;
-
+    
     // create an enum for each enum specifier
     for (String tag : scope.enumeratorlists.keySet()) {
       List<String> enumeratorlist = scope.enumeratorlists.get(tag);
@@ -1255,7 +1255,6 @@ public class CContext implements ParsingContext {
       }
       sb.append("};\n};\n\n");
     }
-
     return sb.toString();
   }
 

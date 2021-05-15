@@ -24,10 +24,14 @@ float  (* volatile  __c_2);
 int  (* volatile  (* __d_3));
 int  (* volatile const  (* (* const  (* volatile  (* (__e_4[2]))))));
 int  __main_5 () {
-{
-return 0 ;
 
+{
+
+
+
+return 0 ;
 }
+
 
 
 }

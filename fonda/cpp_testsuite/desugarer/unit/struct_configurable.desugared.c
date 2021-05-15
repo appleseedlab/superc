@@ -21,5 +21,6 @@ int  __x_5;
 int  __yy_6;
 };
 
-struct __anonymous_tag_0 ;struct __anonymous_tag_3 ;
+struct __anonymous_tag_0 ;
+struct __anonymous_tag_3 ;
 

@@ -16,12 +16,18 @@ __static_renaming("__main_2", "main");
 };
 
 int  __main_2 () {
-{
-int  __a_0= 0;
-char  __a_1= 0;
-return 0 ;
 
+{
+
+
+
+int  __a_0= 0;
+
+char  __a_1= 0;
+
+return 0 ;
 }
+
 
 
 }

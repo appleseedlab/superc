@@ -20,26 +20,36 @@ __static_renaming("__main_5", "main");
 extern int  ___CfIf3K_CONFIG_A_0;
 extern int  ___Djkifd_CONFIG_A_defined_1;
 int  __increment_3 (int  __i_2) {
-{
-return ++  __i_2  ;
 
+{
+
+
+
+return ++  __i_2  ;
 }
+
 
 
 }
 int  __main_5 () {
+
 {
+
+
+
 int  __x_4= 99;
-if (  ___Djkifd_CONFIG_A_defined_1  ) {
+
+if (  ___Djkifd_CONFIG_A_defined_1  )
+
+{
+
+
+
  __x_4  =  __increment_3  (  __x_4  ) ;
-
 }
-
-
-
 return  __x_4  ;
-
 }
+
 
 
 }

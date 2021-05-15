@@ -7,37 +7,37 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_2;
 extern const bool __static_condition_default_3;
+extern const bool __static_condition_default_4;
 void __static_initializer_default() {
 __static_renaming("__x_0", "x");
 __static_renaming("__y_1", "y");
-__static_renaming("__main_4", "main");
+__static_renaming("__main_2", "main");
 
-__static_condition_renaming("__static_condition_default_2", "(defined CONFIG_A)");
-__static_condition_renaming("__static_condition_default_3", "!(defined CONFIG_A)");
+__static_condition_renaming("__static_condition_default_3", "(defined CONFIG_A)");
+__static_condition_renaming("__static_condition_default_4", "!(defined CONFIG_A)");
 
 };
 
-int  __main_4 () {
+int  __main_2 () {
+
 {
+
+
+
 int  __x_0;
+
 int  __y_1= 210;
 
-{
-if (__static_condition_default_2) {
- __x_0  = 42 ;
-
-}
-
 if (__static_condition_default_3) {
+ __x_0  = 42 ;
+}
+if (__static_condition_default_4) {
  __x_0  = 13 ;
-
+}
+return  __x_0  ;
 }
 
-}return  __x_0  ;
-
-}
 
 
 }

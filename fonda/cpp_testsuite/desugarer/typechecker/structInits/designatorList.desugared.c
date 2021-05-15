@@ -29,7 +29,11 @@ int  __b_5;
 struct __x_0 ;
 struct __y_3 ;
 int  __main_9 () {
+
 {
+
+
+
 struct __y_3  __a_6;
 {
 if (1) {
@@ -41,9 +45,10 @@ __a_6.__a_4.__a_2 = 2;
 }
 }
 }
-return 0 ;
 
+return 0 ;
 }
+
 
 
 }

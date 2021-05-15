@@ -19,15 +19,20 @@ typedef int  __a_0;
 
 // typedef moved to top of scope
 int  __main_3 () {
-{typedef __a_0  __a_1;
+
+{
+
+typedef __a_0  __a_1;
+
 
 // typedef moved to top of scope
+
 __a_1  __x_2;
+
  __x_2  ++ ;
-
 return 0 ;
-
 }
+
 
 
 }

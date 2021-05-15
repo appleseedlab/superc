@@ -16,21 +16,29 @@ __static_renaming("__main_3", "main");
 };
 
 void  __fun_1 (int  __a_0) {
-{
-__static_type_error("type error : no valid expression");
 
+{
+
+
+
+__static_type_error("type error : no valid expression");
 }
+
 
 
 }
 int  __main_3 () {
+
 {
+
+
+
 void  (* __fun_ptr_2) (int  )= &  __fun_1 ;
+
 ( *  __fun_ptr_2  ) ( 10 ) ;
-
 return 0 ;
-
 }
+
 
 
 }

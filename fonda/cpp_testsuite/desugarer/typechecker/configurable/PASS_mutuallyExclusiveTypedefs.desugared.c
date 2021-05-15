@@ -28,18 +28,30 @@ typedef float  __a_1;
 // typedef moved to top of scope
 // typedef moved to top of scope
 int  __main_10 () {
-{
-__a_0  __x_2;
-__a_1  __x_3;
-__a_0  __y_4;
-int  __y_5;
-__a_1  __z_6;
-__a_0  __w_7;
-__a_1  __w_8;
-char  __w_9;
-return 0 ;
 
+{
+
+
+
+__a_0  __x_2;
+
+__a_1  __x_3;
+
+__a_0  __y_4;
+
+int  __y_5;
+
+__a_1  __z_6;
+
+__a_0  __w_7;
+
+__a_1  __w_8;
+
+char  __w_9;
+
+return 0 ;
 }
+
 
 
 }

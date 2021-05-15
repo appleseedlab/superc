@@ -15,13 +15,17 @@ __static_renaming("__main_1", "main");
 };
 
 int  __main_1 () {
+
 {
+
+
+
 int  __x_0;
+
  __x_0  = 150 ;
-
 return  __x_0  ;
-
 }
+
 
 
 }

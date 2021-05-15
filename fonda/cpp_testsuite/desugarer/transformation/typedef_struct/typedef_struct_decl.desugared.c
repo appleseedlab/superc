@@ -18,16 +18,20 @@ typedef int  __intAlias_0;
 
 // typedef moved to top of scope
 int  __main_4 (void  ) {
-{struct __anonymous_tag_1 {
+
+{
+
+struct __anonymous_tag_1 {
 __intAlias_0  __x_2;
 };
 
+
 struct __anonymous_tag_1  __intWrapper_3;
+
  __intWrapper_3  . __x_2 = 2 ;
-
 return 0 ;
-
 }
+
 
 
 }

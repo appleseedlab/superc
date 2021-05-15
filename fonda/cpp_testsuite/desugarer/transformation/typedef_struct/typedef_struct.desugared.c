@@ -22,11 +22,16 @@ typedef struct __bob_0  __bob_3;
 
 // typedef moved to top of scope
 int  __main_5 (void  ) {
-{
-__bob_3  __bobStruct_4;
- __bobStruct_4  . __val_1 = 1 ;
 
+{
+
+
+
+__bob_3  __bobStruct_4;
+
+ __bobStruct_4  . __val_1 = 1 ;
 }
+
 
 
 }

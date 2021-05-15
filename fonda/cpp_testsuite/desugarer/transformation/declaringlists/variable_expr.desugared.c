@@ -20,16 +20,26 @@ __static_renaming("__main_6", "main");
 };
 
 int  __main_6 (void  ) {
-{
-int  __x_0= 2;
-char  __x_1= 4;
-int  __y_2= 3;
-int  __y_3= 5;
-int  __z_4=  __x_0  +  __y_2 ;
-int  __z_5=  __x_1  +  __y_3 ;
-return 0 ;
 
+{
+
+
+
+int  __x_0= 2;
+
+char  __x_1= 4;
+
+int  __y_2= 3;
+
+int  __y_3= 5;
+
+int  __z_4=  __x_0  +  __y_2 ;
+
+int  __z_5=  __x_1  +  __y_3 ;
+
+return 0 ;
 }
+
 
 
 }

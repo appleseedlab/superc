@@ -20,24 +20,34 @@ __static_renaming("__main_4", "main");
 extern int  ___CfIf3K_CONFIG_A_0;
 extern int  ___Djkifd_CONFIG_A_defined_1;
 int  __main_4 () {
+
 {
+
+
+
 int  __x_2;
+
 int  __y_3= 210;
-if (  ___Djkifd_CONFIG_A_defined_1  ) {
+
+if (  ___Djkifd_CONFIG_A_defined_1  )
+
+{
+
+
+
  __x_2  = 42 ;
-
 }
+else
 
- {
+{
+
+
+
  __x_2  = 13 ;
-
 }
-
-
-
 return  __x_2  ;
-
 }
+
 
 
 }

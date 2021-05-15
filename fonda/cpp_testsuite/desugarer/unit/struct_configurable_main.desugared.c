@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_10;
 extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_10;
 void __static_initializer_default() {
 __static_renaming("__main_7", "main");
 __static_renaming("__main_8", "main");
@@ -27,14 +27,19 @@ int  __x_5;
 int  __yy_6;
 };
 
-struct __anonymous_tag_0 ;struct __anonymous_tag_3 ;
+struct __anonymous_tag_0 ;
+struct __anonymous_tag_3 ;
 int  __main_7 () {
 
 if (__static_condition_default_9) {
-{
-return 0 ;
 
+{
+
+
+
+return 0 ;
 }
+
 
 }
 
@@ -42,10 +47,14 @@ return 0 ;
 int  __main_8 () {
 
 if (__static_condition_default_10) {
-{
-return 0 ;
 
+{
+
+
+
+return 0 ;
 }
+
 
 }
 

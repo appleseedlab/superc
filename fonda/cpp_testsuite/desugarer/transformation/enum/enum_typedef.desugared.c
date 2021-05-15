@@ -26,13 +26,17 @@ typedef enum letter  __letter_6;
 
 // typedef moved to top of scope
 int  __main_8 (void  ) {
+
 {
+
+
+
 __letter_6  __apple_7;
+
 __static_type_error("type error : no valid expression");
-
 return 0 ;
-
 }
+
 
 
 }

@@ -30,13 +30,17 @@ __f_10,
 enum someLetters ;
 enum someLetters ;
 int  __main_12 (void  ) {
+
 {
+
+
+
 enum someLetters  __apple_11;
+
 __static_type_error("type error : no valid expression");
-
 return 0 ;
-
 }
+
 
 
 }
