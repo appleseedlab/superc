@@ -197,7 +197,6 @@ public class SymbolTable<T> implements Iterable<String> {
       newmv.add(ERROR, falseCond);
       falseCond.delRef();
       Multiverse<Entry<T>> filtered = newmv.filter(cond);
-      System.err.println("MV" + newmv + " PC " + cond + " FILT " + filtered);newmv.destruct();
       return filtered;
     } else {
       return this.map.get(ident).filter(cond);

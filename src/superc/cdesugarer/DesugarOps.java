@@ -884,17 +884,16 @@ class DesugarOps {
         PresenceCondition rightcond = rightelem.getCondition().and(leftcond);
         for (Element<String> opelem : opmv) {
           PresenceCondition elemCond = opelem.getCondition().and(rightcond);
-          
+            
           if (elemCond.isNotFalse()) {
             Type t1 = leftelem.getData();
             Type t2 = rightelem.getData();
             String op = opelem.getData();
-            
             if (t1.hasError() || t2.hasError()) {
               resultmv.add(ErrorT.TYPE, elemCond);
               continue;
             }
-            
+
             final Type r1 = t1.resolve();
             final Type r2 = cOps.pointerize(t2);
             Type result   = null;

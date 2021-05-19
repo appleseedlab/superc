@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.List;
 
 import xtc.util.Nonce;
-
+import xtc.type.IntegerT;
 /**
  * An enumerated type.  Note that the list of members for an
  * enumerated type is the list of enumerators.
@@ -50,7 +50,7 @@ public class EnumT extends WrappedT implements Tagged {
    * @throws NullPointerException Signals a null name.
    */
   public EnumT(String name) {
-    this(null, ErrorT.TYPE, Nonce.create(), name, null);
+    this(null, new IntegerT(NumberT.Kind.INT), Nonce.create(), name, null);
   }
 
   /**

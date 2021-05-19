@@ -2816,7 +2816,7 @@ public class CActions implements SemanticActions {
                 if (elem.getData().hasValue()) {
                   /* transformation = String.format("%s = %s", renaming, elem.getData().getTransformation()); */
                   todoReminder("type check values of enumerators");
-                  transformation = String.format("%s /* = %s */", renaming, elem.getData().getTransformation());
+                  transformation = String.format("%s = %s", renaming, elem.getData().getTransformation());
                 } else {
                   transformation = renaming;
                 }
@@ -2858,8 +2858,7 @@ public class CActions implements SemanticActions {
               PresenceCondition combinedCond = valcond.and(entry.getCondition());
               if (entry.getData().isError()) {
                 // this is already an error
-                System.err.println(String.format("INFO: enumerator \"%s\" is being redeclared in an existing invalid configuration",
-                                                 name));
+                System.err.println(String.format("INFO: enumerator \"%s\" is being redeclared in an existing invalid configuration", name));
                 enumeratorvaluemv.add(new EnumeratorValue(name, renaming, ErrorT.TYPE), combinedCond);
               } else if (entry.getData().isUndeclared()) {
                 // create a new constant int declaration of the enumerator
@@ -2882,7 +2881,7 @@ public class CActions implements SemanticActions {
                 if (elem.getData().hasValue()) {
                   /* transformation = String.format("%s = %s", renaming, elem.getData().getTransformation()); */
                   todoReminder("type check values of enumerators");
-                  transformation = String.format("%s /* = %s */", renaming, elem.getData().getTransformation());
+                  transformation = String.format("%s = %s", renaming, elem.getData().getTransformation());
                 } else {
                   transformation = renaming;
                 }
@@ -7134,6 +7133,7 @@ public class CActions implements SemanticActions {
 
           ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
           ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
+
           if (leftval.hasValidType() && rightval.hasValidType()) {
             
             Multiverse<String> expr = leftval.transformation;
