@@ -3,7 +3,7 @@ const bit<16> TYPE_IPV4 = 0x800;
     const bit<16> TYPE_IPV6 = 0x900;
 #endif
 
-parser MyParser (packet_in packet) {
+parser MyParser (in bool k) {
     state start {
         transition parse_ethernet;
     }
