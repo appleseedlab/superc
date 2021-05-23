@@ -3,6 +3,8 @@ package superc.cdesugarer;
 import java.util.List;
 import java.util.LinkedList;
 
+import xtc.Constants;
+
 import xtc.type.C;
 import xtc.type.Type;
 import xtc.type.VariableT;
@@ -13,6 +15,7 @@ import xtc.type.NumberT;
 import xtc.type.PointerT;
 import xtc.type.ErrorT;
 import xtc.type.BooleanT;
+import xtc.type.IntegerT;
 
 import superc.core.Syntax;
 
@@ -850,9 +853,16 @@ class DesugarOps {
    */
   public final static Multiverse.Operator<Type> propTypeError = (t1, t2) -> {
     Type newtype;
-    newtype = t1;
+    newtype = t1.copy();
     if (t2 == ErrorT.TYPE) {
       newtype = ErrorT.TYPE;
+    }
+    if ((!t2.hasAttribute(Constants.ATT_CONSTANT) && !t2.hasConstant())) {
+      if (newtype.hasConstant()) {
+        newtype.removeConstant();
+      } else if (newtype.hasAttribute(Constants.ATT_CONSTANT)) {
+        newtype.removeAttribute(Constants.ATT_CONSTANT);
+      }
     }
     return newtype;
   };

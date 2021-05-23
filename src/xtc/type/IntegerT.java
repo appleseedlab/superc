@@ -28,6 +28,7 @@ import xtc.Limits;
  */
 public class IntegerT extends NumberT {
 
+  
   /**
    * Create a new integer type.
    *

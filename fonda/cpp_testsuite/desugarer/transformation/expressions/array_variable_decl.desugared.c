@@ -9,13 +9,12 @@ void __static_initializer_default();
 
 void __static_initializer_default() {
 __static_renaming("__x_0", "x");
-__static_renaming("__arr_1", "arr");
-__static_renaming("__main_2", "main");
+__static_renaming("__main_1", "main");
 
 
 };
 
-int  __main_2 (void  ) {
+int  __main_1 (void  ) {
 
 {
 
@@ -23,7 +22,9 @@ int  __main_2 (void  ) {
 
 int  __x_0= 5;
 
-int  (__arr_1[ __x_0 ]);
+if (1) {
+__static_type_error("invalid declaration of arr under this presence condition");
+}
 
 return 0 ;
 }

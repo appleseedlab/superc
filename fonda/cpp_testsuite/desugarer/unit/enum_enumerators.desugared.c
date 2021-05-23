@@ -28,7 +28,7 @@ int  __main_5 () {
 
 
 
-__static_type_error("type error : no valid expression");
+ __x_3  =  __nonenumerator_4  ;
 }
 
 

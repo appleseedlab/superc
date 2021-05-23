@@ -14,7 +14,7 @@ __static_renaming("__y_8", "y");
 
 };
 enum joe {
-__E_5 /* = 1 */,
+__E_5 = 1,
 __F_6,
 };
 enum bob {

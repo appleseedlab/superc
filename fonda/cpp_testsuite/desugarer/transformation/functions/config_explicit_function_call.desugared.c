@@ -49,10 +49,10 @@ int  __main_2 (void  ) {
 
 
 if (__static_condition_default_3) {
- __doNothingOne_0  ( ) ;
+ __doNothingOne_0 ( ) ;
 }
 if (__static_condition_default_4) {
- __doNothingTwo_1  ( ) ;
+ __doNothingTwo_1 ( ) ;
 }
 return 0 ;
 }

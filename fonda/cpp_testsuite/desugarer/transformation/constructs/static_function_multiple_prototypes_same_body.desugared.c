@@ -56,10 +56,10 @@ int  __main_4 () {
 
 
 if (__static_condition_default_2) {
- __x_0  ( ) ;
+ __x_0 ( ) ;
 }
 if (__static_condition_default_3) {
- __x_1  ( ) ;
+ __x_1 ( ) ;
 }
 }
 

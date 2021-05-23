@@ -33,7 +33,7 @@ int  __main_8 (void  ) {
 
 __letter_6  __apple_7;
 
-__static_type_error("type error : no valid expression");
+ __apple_7  =  __a_0  ;
 return 0 ;
 }
 

@@ -254,6 +254,8 @@ import xtc.type.InternalT;
 import xtc.type.LabelT;
 import xtc.type.NullReference;
 import xtc.type.NumberT;
+import xtc.type.IntegerT;
+import xtc.type.FloatT;
 import xtc.type.PointerT;
 import xtc.type.Reference;
 import xtc.type.StaticReference;
@@ -268,6 +270,7 @@ import xtc.type.VariableT;
 import xtc.type.VoidT;
 import xtc.type.WrappedT;
 
+ 
 /* import xtc.util.SymbolTable; */
 /* import xtc.util.SymbolTable.Scope; */
 import xtc.util.SingletonIterator;
@@ -4263,7 +4266,8 @@ ArrayAbstractDeclarator: /** nomerge **/
             ArrayAbstractDeclarator a = ((ArrayAbstractDeclarator)e.getData());
             for (Element<Type> et : exprval.type) {
               if (e.getCondition().is(et.getCondition())) {
-                a.setTypeError(et.getData() == ErrorT.TYPE);
+                a.setTypeError(et.getData() == ErrorT.TYPE || (!et.getData().hasConstant() &&
+                                                               !et.getData().hasAttribute(Constants.ATT_CONSTANT)));
               }
             }
           }
@@ -4299,8 +4303,7 @@ ArrayAbstractDeclarator: /** nomerge **/
               ArrayAbstractDeclarator a = new ArrayAbstractDeclarator((ArrayAbstractDeclarator) declarator.getData(),
                                                                       expression.getData());
               System.err.println(t.getClass());
-              if (!t.hasConstant() && !t.hasAttribute(Constants.ATT_CONSTANT) &&
-                  !t.isNumber()) {
+              if (!t.hasConstant() && !t.hasAttribute(Constants.ATT_CONSTANT)) {
                 a.setTypeError(true);
               }
               valuemv.add(a, combinedCondition);
@@ -5140,7 +5143,7 @@ Constant: /** nomerge **/  // ExpressionValue
         {
           setTransformationValue(value,
                                  new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
-                                                     NumberT.FLOAT, subparser.getPresenceCondition()));
+                                                     new FloatT(NumberT.Kind.FLOAT).attribute(Constants.ATT_CONSTANT), subparser.getPresenceCondition()));
         }
         | INTEGERconstant
         {
@@ -5148,7 +5151,7 @@ Constant: /** nomerge **/  // ExpressionValue
           /* System.err.println(value); */
           setTransformationValue(value,
                                  new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
-                                                     NumberT.INT, subparser.getPresenceCondition()));
+                                                     new IntegerT(NumberT.Kind.INT).attribute(Constants.ATT_CONSTANT), subparser.getPresenceCondition()));
 
           /* System.err.println("Constant: " + value.hashCode()); */
           // TODO: check whether INT is correct here, or whether we
@@ -5161,19 +5164,19 @@ Constant: /** nomerge **/  // ExpressionValue
         {
           setTransformationValue(value,
                                  new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
-                                                     NumberT.INT, subparser.getPresenceCondition()));
+                                                     new IntegerT(NumberT.Kind.INT).attribute(Constants.ATT_CONSTANT), subparser.getPresenceCondition()));
         }
         | HEXconstant
         {
           setTransformationValue(value,
                                  new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
-                                                     NumberT.INT, subparser.getPresenceCondition()));
+                                                     new IntegerT(NumberT.Kind.INT).attribute(Constants.ATT_CONSTANT), subparser.getPresenceCondition()));
         }
         | CHARACTERconstant
         {
           setTransformationValue(value,
                                  new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
-                                                     NumberT.CHAR, subparser.getPresenceCondition()));
+                                                     new IntegerT(NumberT.Kind.SHORT).attribute(Constants.ATT_CONSTANT), subparser.getPresenceCondition()));
         }
         ;
 
@@ -5477,21 +5480,32 @@ FunctionCall:  /** nomerge **/
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 3, pc);
 
-          Multiverse<String> exprmv = exprval.transformation;
           String lparen = getNodeAt(subparser, 2).getTokenText();
           String rparen = getNodeAt(subparser, 1).getTokenText();
 
 
           if (exprval.hasValidType()) {
             String appendstr = String.format("%s %s", lparen, rparen);
-            Multiverse<String> valuemv = exprmv.appendScalar(appendstr, DesugarOps.concatStrings);
-
+            Multiverse<String> valuemv = new Multiverse<String>();
             // the resulting type of the function call is the return value
             Multiverse<Type> returntype = DesugarOps.getReturnType.transform(exprval.type);
 
-            /* System.err.println("EXPRTYPE: " + exprval.type); */
-            /* System.err.println("RETURNTYPE: " + returntype); */
-
+            
+            for (Element<Type> et : exprval.type ) {
+              Type x = et.getData();
+              if (x.isFunction() && ((FunctionT)x).getParameters().size() == 0 ) {
+                for (Element<String> es : exprval.transformation) {
+                  if (es.getCondition().is(et.getCondition())) {
+                    valuemv.add(es.getData() + "( )",et.getCondition());
+                  }
+                }
+              } else {
+                returntype = returntype.filter(et.getCondition().not());
+                returntype.add(ErrorT.TYPE,et.getCondition());
+                valuemv.add(emitError("Parameters expected in empty function call"), et.getCondition());
+              }
+            }
+            
             setTransformationValue(value, new ExpressionValue(valuemv,
                                                               returntype)); // TODO: placeholder for real type
                                                               
@@ -8022,7 +8036,7 @@ protected Multiverse<String> declarationAction(List<DeclaringListValue> declarin
                           recordRenaming(renaming, originalName);
                         }
                         if (tempT.isArray()){
-                          if (!((ArrayT)tempT).hasLength()) {
+                          if (((ArrayT)tempT).hasLength()) {
                             entrysb.append(desugaredDeclaration);
                           } else {
                             //if  the length is implcit, we need to manually assign a value
@@ -8180,7 +8194,7 @@ public String initStruct(String name, StructOrUnionT t, Initializer i, CContext 
                     entrysb.append(initArray( name + "." + newT.getName(),
                                               (ArrayT)newT.getType(), in, scope, e.getCondition()));
                   } else {
-                    entrysb.append(emitError("A list can't be assigned to this type."));
+                    entrysb.append(emitError("A list can't be assigned to this type.") + ";\n");
                   }
                 } else {
                   entrysb.append(name + "." + ((VariableT)e.getData().get(newSpot).getValue()).getName() + " = " + ((DesignatedInitializer)init).getInitString() + ";\n");
@@ -8200,7 +8214,7 @@ public String initStruct(String name, StructOrUnionT t, Initializer i, CContext 
                     entrysb.append(initArray( name + "." + newT.getName(),
                                               (ArrayT)newT.getType(), newInit, scope, e.getCondition()));
                   } else {
-                    entrysb.append(emitError("A list can't be assigned to this type."));
+                    entrysb.append(emitError("A list can't be assigned to this type.") + ";\n");
                   }
                 } else {
                   Multiverse<String> writes =
@@ -8224,18 +8238,18 @@ public String initStruct(String name, StructOrUnionT t, Initializer i, CContext 
             }
           }
           if (newSpot == e.getData().size()) {
-            entrysb.append(emitError("designator doesn't exist."));
+            entrysb.append(emitError("designator doesn't exist.") + ";\n");
             break;
           }
           spot = newSpot + 1;
           //if it is an array access
         } else {
-          entrysb.append(emitError("array designator on struct.") + "\n}\n");
+          entrysb.append(emitError("array designator on struct.") + ";\n}\n");
           return entrysb.toString();
         }
       } else {
         if (spot >= e.getData().size()) {
-          entrysb.append(emitError("assigning value out of struct range."));
+          entrysb.append(emitError("assigning value out of struct range.") + ";\n");
         } else {
           //gotta handle this differently if it's a list, in fact, recursive call.
           if (init.isList()) {
@@ -8247,7 +8261,7 @@ public String initStruct(String name, StructOrUnionT t, Initializer i, CContext 
               entrysb.append(initArray( name + "." + newT.getName(),
                                         (ArrayT)newT.getType(), init, scope, e.getCondition()));
             } else {
-              entrysb.append(emitError("A list can't be assigned to this type."));
+              entrysb.append(emitError("A list can't be assigned to this type.") + ";\n");
             }
           } else {
             entrysb.append(name + "." + ((VariableT)e.getData().get(spot).getValue()).getName() + " = " + init.toString() + ";\n");
