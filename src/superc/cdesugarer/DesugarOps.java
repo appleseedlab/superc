@@ -450,6 +450,27 @@ class DesugarOps {
     return valuemv;
   }
 
+    /**
+   * Create the semantic value for a struct definition.
+   */
+  public static Multiverse<TypeSpecifier> processStructDefinitionMV(Syntax keyword,
+                                                                  Multiverse<Syntax> structTag,
+                                                                  CActions cact,
+                                                                  List<Multiverse<Declaration>> structfields,
+                                                                  PresenceCondition pc,
+                                                                  CContext scope,
+                                                                  FreshIDCreator freshIdCreator,
+                                                                  StructOrUnionTypeCreator suTypeCreator) {
+    Multiverse<TypeSpecifier> retmv = new Multiverse<TypeSpecifier>();
+    for (Element<Syntax> e : structTag) {
+      String tag = e.getData().getTokenText();
+      String rename = cact.freshCId(tag);
+      retmv.addAll(processStructDefinition(keyword, tag, rename, structfields, pc.and(e.getCondition()), scope, freshIdCreator, suTypeCreator));
+    }
+    return retmv;
+  }
+
+
   /**
    * Create the semantic value for a struct reference.
    */

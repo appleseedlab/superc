@@ -2104,7 +2104,7 @@ public class ForkMergeParser {
 
     if (showFM && processedParsers.size() > 1) {
       System.err.println("forked 1 into " + processedParsers.size() + " parsers");
-      System.err.println(subparser + "\n--into--");
+      System.err.println("\n--into--");
       for (Subparser s : processedParsers) {
         System.err.println(s);
       }

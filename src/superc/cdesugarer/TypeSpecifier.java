@@ -170,16 +170,16 @@ class TypeSpecifier {
    * string and cause an IllegalStateException.
    */
   public String toString() {
-    if (getType().isError()) {
-      throw new IllegalStateException("error type specifiers have no desugaring transformation.");
-    } else {
+    //if (getType().isError()) {
+    //  throw new IllegalStateException("error type specifiers have no desugaring transformation.");
+    //} else {
       StringBuilder sb = new StringBuilder();
       for (Syntax token : transformation) {
         sb.append(token.getTokenText());
         sb.append(" ");
       }
       return sb.toString();
-    }
+      //}
   }
 
   public void addTransformation(Syntax token) {
@@ -693,5 +693,7 @@ class TypeSpecifier {
 
   public void setError() {
     this.type = ErrorT.TYPE;
+    this.transformation = new LinkedList<Syntax>();
+    
   }
 }

@@ -1137,10 +1137,13 @@ public class CActions implements SemanticActions {
     {
           saveBaseType(subparser, getNodeAt(subparser, 5));
           bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));  // TODO: use new bindIdent to find typedefname
-
           PresenceCondition pc = subparser.getPresenceCondition();
-
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 5, pc);
+          if (types.isEmpty()) {
+            TypeSpecifier t = new TypeSpecifier();
+            t.setError();
+            types.add(t,pc);
+          }
           Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 4, pc);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
           Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
@@ -1156,7 +1159,7 @@ public class CActions implements SemanticActions {
           bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));  // TODO: use new bindIdent to find typedefname
 
           PresenceCondition pc = subparser.getPresenceCondition();
-
+          
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 5, pc);
           Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 4, pc);
           // TODO: just represent assembly and attributes as strings that get pass with the declaration object
@@ -1202,8 +1205,7 @@ public class CActions implements SemanticActions {
   case 69:
     {
           PresenceCondition pc = subparser.getPresenceCondition();
-
-	  			Multiverse<TypeSpecifier> decl = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
+        	Multiverse<TypeSpecifier> decl = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 	  			setTransformationValue(value, decl);
 				}
     break;
@@ -1749,7 +1751,7 @@ public class CActions implements SemanticActions {
           Multiverse<SymbolTable.Entry<Type>> entries
             = ((CContext)subparser.scope).getInAnyScope(typeName, subparser.getPresenceCondition());
           // expand all renamings of the typedefname and handle type errors
-      	  Multiverse<TypeSpecifier> typedefnametbmv = DesugarOps.typedefEntriesToTypeSpecifier.transform(entries);
+          Multiverse<TypeSpecifier> typedefnametbmv = DesugarOps.typedefEntriesToTypeSpecifier.transform(entries);
           setTransformationValue(value, typedefnametbmv);
         }
     break;
@@ -2205,17 +2207,15 @@ public class CActions implements SemanticActions {
     {
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = (CContext)subparser.scope;
-
-          Syntax keyword = (Syntax) getNodeAt(subparser, 6);
+          Multiverse<Syntax> msy = getSyntaxMV(subparser, 6, pc);
+          Syntax keyword = msy.get(0).getData();
+          msy.destruct();
           // TODO: add attributes to type spec
-          String structTag = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          Multiverse<Syntax> structTag = getSyntaxMV(subparser, 4, pc);
           List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
-
-          // get the renaming of the tag
-          String renamedTag = freshCId(structTag);
           
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
+            = DesugarOps.processStructDefinitionMV(keyword, structTag, this, structfields, pc, scope, freshIdCreator, suTypeCreator);
           setTransformationValue(value, valuemv);
         }
     break;
@@ -3610,8 +3610,7 @@ public class CActions implements SemanticActions {
   case 271:
     {
           PresenceCondition pc = subparser.getPresenceCondition();
-          
-      	  setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
+          setTransformationValue(value, this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc));
         }
     break;
 
@@ -6300,10 +6299,15 @@ public class CActions implements SemanticActions {
           Multiverse<String> prepended = typenamestr.prependScalar(prefix, DesugarOps.concatStrings);
           Multiverse<String> appended = prepended.appendScalar(suffix, DesugarOps.concatStrings);
           typenamestr.destruct(); prepended.destruct();
-          
           todoReminder("typecheck unaryexpression (6)");
           Multiverse<Type> type = new Multiverse<Type>(C.SIZEOF, pc);
-
+          for (Element<Declaration> e : typename) {
+            if (e.getData().getType() == ErrorT.TYPE) {
+              type = type.filter(e.getCondition().not());
+              type.add(ErrorT.TYPE, e.getCondition());
+            }
+          }
+          
           setTransformationValue(value, new ExpressionValue(appended, type));
         }
     break;
@@ -8170,7 +8174,6 @@ protected Multiverse<String> declarationAction(List<DeclaringListValue> declarin
                           recordRenaming(renaming, originalName);
                         }
                         if (tempT.isArray()){
-                          System.err.println("adfasf" + ((ArrayT)tempT).hasLength());
                           if (((ArrayT)tempT).hasLength()) {
                             entrysb.append(desugaredDeclaration);
                           } else {
@@ -9433,6 +9436,10 @@ private <T> Multiverse<T> getCompleteNodeMultiverseValue(Node node, PresenceCond
   // the pc correponds to the current subparsers's pc.
   assert ! resultmv.isEmpty();
 
+  if (resultmv.isEmpty()) {
+    return resultmv;
+  }
+  
   Multiverse<T> filtered = resultmv.filter(pc);
   resultmv.destruct();
     
@@ -9548,6 +9555,39 @@ private <T> List<Multiverse<T>> getCompleteNodeListValue(Node node, PresenceCond
   // the resulting list can be empty, e.g., of the
   // declarationorstatementlist is empty
   return resultlist;
+}
+
+/**
+ * Get the nodes associated with terminals, some of these may turn to
+ * a multiverse with merging.
+ *
+ * @param subparser The subparser containing the semantic multiverse stack.
+ * @param component The index into the semantic multiverse stack.
+ * @param pc The presence condition of the semantic action.
+ * @returns A list of all semantic values of the given node.
+ */
+private Multiverse<Syntax> getSyntaxMV(Subparser subparser, int component, PresenceCondition pc) {
+  return getSyntaxMV(getNodeAt(subparser, component), pc);
+}
+
+/**
+ * Get the nodes associated with terminals, some of these may turn to
+ * a multiverse with merging.
+ *
+ * @param node The AST node holding the semantic multiverse.
+ * @param pc The presence condition of the semantic action.
+ * @return A new list containing the semantic values for all configurations.
+ */
+private Multiverse<Syntax> getSyntaxMV(Node node, PresenceCondition pc) {
+  Multiverse<Node> nodemv = staticCondToMultiverse(node, pc);
+  Multiverse<Syntax> resultmv = new Multiverse<Syntax>();
+
+  for (Element<Node> elem : nodemv) {
+    resultmv.add((Syntax)elem.getData(),elem.getCondition());
+  }
+  nodemv.destruct();
+  
+  return resultmv;
 }
 
 /**

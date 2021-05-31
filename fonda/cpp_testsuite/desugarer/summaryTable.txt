@@ -172,6 +172,7 @@ unit/struct_nested_anonymous                                                    
 unit/enum_constant_expression2                                                             File isn't valid
 unit/if_statement_configurable2                                                            BC generated
 unit/forloopdecl                                                                           BC generated
+unit/sizeof_usable                                                                         File GT not confirmed
 unit/function_configurably_defined                                                         File GT not confirmed
 unit/struct_global_forward_reference                                                       BC generated
 unit/configurable_array                                                                    File isn't valid
@@ -206,11 +207,14 @@ unit/struct_configurable                                                        
 unit/offsetof                                                                              BC failed
 errorTesting/extra_comma                                                                   File GT not confirmed
 errorTesting/undefTypedef_var                                                              File GT not confirmed
+errorTesting/pentuple_config_error                                                         File GT not confirmed
 errorTesting/missing_comma                                                                 File GT not confirmed
 errorTesting/undefTypedef_field                                                            File GT not confirmed
 errorTesting/undefTypedef_field-error                                                      File GT not confirmed
+errorTesting/double_prototype                                                              File GT not confirmed
 errorTesting/tripleTypedef_param                                                           File GT not confirmed
 errorTesting/undefTypedef_param                                                            File GT not confirmed
+errorTesting/double_type_local                                                             File GT not confirmed
 errorTesting/undefTypedef_return                                                           File GT not confirmed
 errorTesting/tripleTypedef_field                                                           File GT not confirmed
 errorTesting/tripleTypedef_var                                                             File GT not confirmed
@@ -379,12 +383,9 @@ transformation/phasar/linear_constant/recursion_01_resugared                    
 transformation/phasar/linear_constant/call_01_resugared                                    BC generated
 transformation/phasar/linear_constant/basic_02_resugared                                   BC generated
 transformation/phasar/linear_constant/basic_04                                             BC generated
-transformation/phasar/secure_memory/memory1                                                SuperC failed
-transformation/phasar/secure_memory/memory1                                                BC failed
-transformation/phasar/secure_memory/memory1_resugared                                      SuperC failed
-transformation/phasar/secure_memory/memory1_resugared                                      BC failed
-transformation/phasar/secure_memory/memory1_2                                              SuperC failed
-transformation/phasar/secure_memory/memory1_2                                              BC failed
+transformation/phasar/secure_memory/memory1                                                BC generated
+transformation/phasar/secure_memory/memory1_resugared                                      BC generated
+transformation/phasar/secure_memory/memory1_2                                              BC generated
 transformation/phasar/secure_memory/memory1_resugared_decls_added                          BC generated
 transformation/phasar/secure_memory/memory1_2_resugared_decls_added                        File isn't valid
 transformation/phasar/secure_memory/memory1_2_resugared                                    File isn't valid
