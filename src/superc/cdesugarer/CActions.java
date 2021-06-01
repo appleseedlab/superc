@@ -310,14 +310,14 @@ public class CActions implements SemanticActions {
                     String renaming = freshCId(originalName);
                     Declarator renamedDeclarator = declarator.getData().rename(renaming);
                     Declaration renamedDeclaration = new Declaration(typespecifier.getData(), renamedDeclarator);
-
+                    boolean invalidTypeSpec = false;
                     // the renamed function is static to enable linking the original function name
                     if (Constants.ATT_STORAGE_EXTERN == typespecifier.getData().getStorageClass()
                         || Constants.ATT_STORAGE_AUTO == typespecifier.getData().getStorageClass()
                         || Constants.ATT_STORAGE_REGISTER == typespecifier.getData().getStorageClass()
                         || Constants.ATT_STORAGE_TYPEDEF == typespecifier.getData().getStorageClass()) {
                       todoReminder("check that function definitions don't have an auto, extern, register, or typedef storage class and produce a type error if so");
-                      System.exit(1);
+                      invalidTypeSpec = true;
                     }
 
                     // make all renamed declarations static until project-wide, configuration-aware linking is possible
@@ -348,7 +348,7 @@ public class CActions implements SemanticActions {
                                                    declarationType.toFunction().getParameters(),
                                                    declarationType.toFunction().isVarArgs());
                     
-                    if (entry.getData().isError()) {
+                    if (entry.getData().isError() || invalidTypeSpec) {
                       // ERROR entry
                       System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
                     } else if (entry.getData().isUndeclared()) {
@@ -7829,8 +7829,12 @@ public class CActions implements SemanticActions {
 
   case 585:
     {
-          todoReminder("support AssemblyExpression (1)");
-          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
+          ExpressionValue e = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
+          Multiverse<String> temp = e.transformation;
+          Multiverse<String> prepended = temp.prependScalar("__asm__(", DesugarOps.concatStrings);
+          Multiverse<String> appended = prepended.appendScalar(")", DesugarOps.concatStrings);
+          temp.destruct(); prepended.destruct();
+          setTransformationValue(value, appended);
         }
     break;
 
@@ -7850,16 +7854,18 @@ public class CActions implements SemanticActions {
 
   case 588:
     {
-          todoReminder("support AssemblyStatement (1)");
-          Multiverse<DeclarationOrStatementValue> m = new Multiverse<DeclarationOrStatementValue>();
-          m.add(new DeclarationOrStatementValue("asm1"),subparser.getPresenceCondition());
-          setTransformationValue(value, m);
+          Multiverse<String> temp = (Multiverse<String>)getTransformationValue(subparser,3);
+          Multiverse<String> prepended = temp.prependScalar("__asm__(", DesugarOps.concatStrings);
+          Multiverse<String> appended = prepended.appendScalar(");", DesugarOps.concatStrings);
+          temp.destruct(); prepended.destruct();
+          setTransformationValue(value, DesugarOps.StringToDSV.transform(appended));
         }
     break;
 
   case 589:
     {
           todoReminder("support AssemblyStatement (2)");
+          System.exit(0);
           Multiverse<DeclarationOrStatementValue> m = new Multiverse<DeclarationOrStatementValue>();
           m.add(new DeclarationOrStatementValue("asm2"),subparser.getPresenceCondition());
           setTransformationValue(value, m);
@@ -7869,6 +7875,7 @@ public class CActions implements SemanticActions {
   case 590:
     {
           todoReminder("support AssemblyStatement (3)");
+          System.exit(0);
           Multiverse<DeclarationOrStatementValue> m = new Multiverse<DeclarationOrStatementValue>();
           m.add(new DeclarationOrStatementValue("asm3"),subparser.getPresenceCondition());
           setTransformationValue(value, m);
@@ -7878,28 +7885,39 @@ public class CActions implements SemanticActions {
   case 591:
     {
           todoReminder("support AssemblyArgument (1)");
+          System.exit(0);
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
   case 592:
     {
-          todoReminder("support AssemblyArgument (2)");
-          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
+          Multiverse<String> first = getCompleteNodeExpressionValue(subparser,5,subparser.getPresenceCondition()).transformation;
+          Multiverse<String> sec = (Multiverse<String>)getTransformationValue(subparser,3);
+          Multiverse<String> third = (Multiverse<String>)getTransformationValue(subparser,1);
+          Multiverse<String> prep2 = sec.prependScalar(":", DesugarOps.concatStrings);
+          sec.destruct();
+          Multiverse<String> prep3 = third.prependScalar(":", DesugarOps.concatStrings);
+          third.destruct();
+          Multiverse<String> later = prep2.product(prep3, DesugarOps.concatStrings);
+          setTransformationValue(value, first.product(later, DesugarOps.concatStrings));
         }
     break;
 
   case 593:
     {
-          todoReminder("support AssemblyArgument (3)");
-          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
+          Multiverse<String> first = getCompleteNodeExpressionValue(subparser,3,subparser.getPresenceCondition()).transformation;
+          Multiverse<String> sec = (Multiverse<String>)getTransformationValue(subparser,1);
+          Multiverse<String> prep = sec.prependScalar(":", DesugarOps.concatStrings);
+          sec.destruct();
+          
+          setTransformationValue(value, first.product(prep, DesugarOps.concatStrings));
         }
     break;
 
   case 594:
     {
-          todoReminder("support AssemblyArgument (4)");
-          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()).transformation);
         }
     break;
 
@@ -7911,29 +7929,38 @@ public class CActions implements SemanticActions {
 
   case 596:
     {
-          todoReminder("support AssemblyoperandsOpt (2)");
-          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
+          setTransformationValue(value, getTransformationValue(subparser,1));
         }
     break;
 
   case 597:
     {
-          todoReminder("support Assemblyoperands (1)");
-          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
+          setTransformationValue(value, getTransformationValue(subparser,1));
         }
     break;
 
   case 598:
     {
-          todoReminder("support Assemblyoperands (2)");
-          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
+          Multiverse<String> prev = (Multiverse<String>)getTransformationValue(subparser,3);
+          Multiverse<String> cur = (Multiverse<String>)getTransformationValue(subparser,1);
+          Multiverse<String> prep = cur.prependScalar(",", DesugarOps.concatStrings);
+          cur.destruct();
+          
+          setTransformationValue(value, prev.product(prep, DesugarOps.concatStrings));
         }
     break;
 
   case 599:
     {
-          todoReminder("support Assemblyoperand (1)");
-          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
+          todoReminder("typecheck Assemblyoperand (1)");
+          ExpressionValue str = getCompleteNodeExpressionValue(subparser,4,subparser.getPresenceCondition());
+          ExpressionValue expr = getCompleteNodeExpressionValue(subparser,2,subparser.getPresenceCondition());
+          Multiverse<String> temp = expr.transformation;
+          Multiverse<String> prepended = temp.prependScalar("(", DesugarOps.concatStrings);
+          Multiverse<String> appended = prepended.appendScalar(")", DesugarOps.concatStrings);
+          temp.destruct(); prepended.destruct();
+          
+          setTransformationValue(value, str.transformation.product(appended, DesugarOps.concatStrings));
         }
     break;
 
@@ -7941,6 +7968,7 @@ public class CActions implements SemanticActions {
     {
           String word = ((Syntax) getNodeAt(subparser, 6).get(0)).getTokenText();
           todoReminder("support Assemblyoperand (2)");
+          System.exit(0);
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
