@@ -129,7 +129,6 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * calling this function.
    */
   public void destruct() {
-        
     if (this.contents.size() > 1) {
       complement.delRef();
       complement = null;

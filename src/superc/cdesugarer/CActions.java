@@ -2224,12 +2224,7 @@ public class CActions implements SemanticActions {
     {
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = (CContext)subparser.scope;
-          System.err.println("HERE");
-          for (int i = 1; i <= 6; ++i)
-            { System.err.println(i + ": " + getNodeAt(subparser, i));}
-          
-
-
+         
           Syntax keyword = (Syntax) getNodeAt(subparser, 6);
           // TODO: add attributes to type spec
           String structTag = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
@@ -3330,6 +3325,7 @@ public class CActions implements SemanticActions {
                 typemv.add(entry.getData().getValue().toEnumerator().getType(), entry.getCondition());
               } else {
                 System.err.println(String.format("type error: use of symbol other than variable, function, or enumerator: %s", originalName));
+                sbmv.add("error", entry.getCondition());
                 typemv.add(ErrorT.TYPE, entry.getCondition());
               }
             }
@@ -3431,8 +3427,9 @@ public class CActions implements SemanticActions {
           Multiverse<List<Initializer>> lists = (Multiverse<List<Initializer>>) getTransformationValue(subparser, 3);
           Multiverse<List<Initializer>> newelem
             = DesugarOps.initializerListWrap.transform((Multiverse<Initializer>) getTransformationValue(subparser, 2));
+          System.err.println(getTransformationValue(subparser, 2));
           Multiverse<List<Initializer>> cproduct = lists.complementedProduct(newelem, DesugarOps.INITIALIZERLISTCONCAT);
-          lists.destruct(); newelem.destruct();
+          //lists.destruct(); newelem.destruct();
           setTransformationValue(value, DesugarOps.toInitializerList.transform(cproduct));
         }
     break;
@@ -4181,13 +4178,13 @@ public class CActions implements SemanticActions {
           todoReminder("check expression in ArrayAbstractDeclarator (2)");
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
           Multiverse<String> arrayBounds = exprval.transformation;
-          /* System.err.println(getNodeAt(subparser, 2)); */
+          System.err.println(exprval);
           Multiverse<Declarator> valuemv = DesugarOps.toAbstractArrayDeclarator.transform(arrayBounds);
           // this is getting an empty mv on filtered for /usr/include/x86_64-linux-gnu/bits/types.h in typesizes.h
           for (Element<Declarator> e : valuemv) {
             ArrayAbstractDeclarator a = ((ArrayAbstractDeclarator)e.getData());
             for (Element<Type> et : exprval.type) {
-              if (e.getCondition().is(et.getCondition())) {
+              if (e.getCondition().is(et.getCondition().and(e.getCondition()))) {
                 a.setTypeError(et.getData() == ErrorT.TYPE || (!et.getData().hasConstant() &&
                                                                !et.getData().hasAttribute(Constants.ATT_CONSTANT)));
               }
@@ -5222,6 +5219,7 @@ public class CActions implements SemanticActions {
                 typemv.add(entry.getData().getValue().toEnumerator().getType(), entry.getCondition());
               } else {
                 System.err.println(String.format("type error: use of symbol other than variable, function, or enumerator: %s", originalName));
+                sbmv.add("error", entry.getCondition());
                 typemv.add(ErrorT.TYPE, entry.getCondition());
               }
             }
@@ -5230,9 +5228,7 @@ public class CActions implements SemanticActions {
           // it and the symtab should always return a non-empty mv
           assert ! sbmv.isEmpty();
           entries.destruct();
-          /* System.err.println(sbmv); */
-          /* System.err.println(typemv); */
-
+          
           setTransformationValue(value, new ExpressionValue(sbmv, typemv));
         }
     break;
@@ -5256,10 +5252,11 @@ public class CActions implements SemanticActions {
           Multiverse<String> typenamestr = DesugarOps.typenameToString.transform(typename);
           Multiverse<String> typename_appended = typenamestr.appendScalar(suffix, DesugarOps.concatStrings);
           Multiverse<String> transformationmv = expr_appended.product(typename_appended, DesugarOps.concatStrings);
-          typename_appended.destruct(); typenamestr.destruct(); expr_appended.destruct(); prepended.destruct();
+          typename_appended.destruct(); typenamestr.destruct(); prepended.destruct();
 
           Multiverse<Type> typemv = DesugarOps.typenameToType.transform(typename);
 
+          expr_appended.destruct(); 
           todoReminder("typecheck VariableArgumentAccess (1)");
 
           setTransformationValue(value, new ExpressionValue(transformationmv, typemv));
@@ -5289,7 +5286,10 @@ public class CActions implements SemanticActions {
           prepended.destruct();
 
           Multiverse<Type> typemv = new Multiverse<Type>(NumberT.INT, pc);
-
+          for (Element<String> v : valuemv) {
+            typemv.add(NumberT.INT, v.getCondition());
+          }
+          
           setTransformationValue(value, new ExpressionValue(valuemv,
                                                             typemv));  // TODO: placeholder; get type from compoundstatement
         }
@@ -5363,7 +5363,6 @@ public class CActions implements SemanticActions {
             for (int i = 0; i < postfixexprval.type.size(); ++i)
               {
                 Element<Type> elemT = postfixexprval.type.get(i);
-                Element<String> elemS = postfixexprval.transformation.get(i);
                 if (elemT.getData().isError()) {
                   typemv.add(elemT.getData(), elemT.getCondition());
                   // __static_error (...) [2];
@@ -5372,7 +5371,6 @@ public class CActions implements SemanticActions {
                   while (tempT.isAnnotated() || tempT.isAlias()) {
                     tempT = ((WrappedT)tempT).getType();
                   }
-                  System.err.println(tempT + "::" + tempT.getClass());
                   // postfix expression should be a pointer or array type
                   if (tempT.isPointer()) {
                     // type should be whatever type the pointer point to
@@ -5393,7 +5391,6 @@ public class CActions implements SemanticActions {
             PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
             PresenceCondition validTypes = errorCond.not();
             transformationmv = transformationmv.filter(validTypes);
-            System.err.println(transformationmv);
             setTransformationValue(value, new ExpressionValue(transformationmv,
                                                               typemv));
           } else {
@@ -8190,7 +8187,7 @@ protected Multiverse<String> declarationAction(List<DeclaringListValue> declarin
                         externalLinkage.put(originalName, originalDeclaration, entry.getCondition());
                       }
                       /* entrysb.append(renamedDeclaration.toString()); */
-                      if (initializer.getData().hasList()) {
+                      if (initializer.getData().hasList() && !scope.isGlobal()) {
                         Type tempT = declarationType;
                         while (tempT.isWrapped()) {
                           tempT = ((WrappedT)tempT).getType();

@@ -129,6 +129,7 @@ unit/struct_nested                                                              
 unit/conditionalexpression                                                                 BC generated
 unit/enum_size                                                                             File isn't valid
 unit/function_parameters_empty                                                             BC generated
+unit/macroFunction                                                                         File GT not confirmed
 unit/z3                                                                                    BC generated
 unit/if_statement                                                                          BC generated
 unit/sizeof                                                                                BC generated
@@ -195,6 +196,7 @@ unit/typedef_local_declaration                                                  
 unit/struct_multiply_defined                                                               BC generated
 unit/local_redeclarations                                                                  BC generated
 unit/declaringlist                                                                         BC generated
+unit/asm                                                                                   File GT not confirmed
 unit/struct_configurable_tls1                                                              BC generated
 unit/size_t                                                                                BC generated
 unit/typedef                                                                               BC generated
@@ -204,8 +206,10 @@ unit/jump_statement                                                             
 unit/single                                                                                BC generated
 unit/switch                                                                                BC generated
 unit/struct_configurable                                                                   BC generated
+unit/initTest                                                                              File GT not confirmed
 unit/offsetof                                                                              BC failed
 errorTesting/extra_comma                                                                   File GT not confirmed
+errorTesting/endOnError                                                                    File GT not confirmed
 errorTesting/undefTypedef_var                                                              File GT not confirmed
 errorTesting/pentuple_config_error                                                         File GT not confirmed
 errorTesting/missing_comma                                                                 File GT not confirmed

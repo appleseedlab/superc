@@ -559,7 +559,7 @@ public class ForkMergeParser {
                       presenceConditionManager.newTrue(),
                       initialParsingContext);
     firstSubparser.lookahead.token = firstSubparser.lookahead.token.getNext();
-
+    
     // Initialize subparser set.
     PriorityQueue<Subparser> subparsers
       = new PriorityQueue<Subparser>(11, subparserComparator);
@@ -590,7 +590,6 @@ public class ForkMergeParser {
       // Get earliest token.  Since subparsers is ordered, we just get
       // the first subparser in the list's token.
       OrderedSyntax earliestToken = subparsers.peek().lookahead.token;
-
       // The subparser should always be on a token or conditional.
       assert earliestToken.syntax.kind() == Kind.CONDITIONAL
         && earliestToken.syntax.toConditional().tag()
@@ -802,7 +801,6 @@ public class ForkMergeParser {
                      != ConditionalTag.START) {
                 Conditional conditional
                   = subparser.lookahead.token.syntax.toConditional();
-
                 switch (conditional.tag()) {
                 case START:
                   // Done
@@ -994,6 +992,11 @@ public class ForkMergeParser {
     }
 
     if (NEW_ERROR_HANDLING) {
+      //if the error subparser still exists at EOF, it can't merge and should end.
+      if (subparser.lookahead.token.syntax.kind() == Kind.EOF) {
+        CContext.addToParseErrorCond(subparser.getPresenceCondition());
+        return false;
+      }
       // Move to the next token or start conditional.
       subparser.lookahead.token
         = subparser.lookahead.token.getNext();
@@ -1020,7 +1023,7 @@ public class ForkMergeParser {
           throw new UnsupportedOperationException();
         }
       }
-
+      
       return true;
     } else {
       // Free presence conditions.
@@ -2350,7 +2353,7 @@ public class ForkMergeParser {
 
     if (showActions) {
       System.err.println("shifting " + token.tag() + "("
-                         + token.getTokenText() + ")");
+                         + token.getTokenText() + ")" + " at " + token.getLocation());
     }
 
     // Don't keep layout unless printing source.

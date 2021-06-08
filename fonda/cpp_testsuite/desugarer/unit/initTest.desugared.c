@@ -7,29 +7,13 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_1;
 void __static_initializer_default() {
-__static_renaming("__bob_4", "bob");
-__static_renaming("__main_5", "main");
+__static_renaming("__a_0", "a");
 
+__static_condition_renaming("__static_condition_default_1", "!(defined A)");
 
 };
-struct __anonymous_tag_0 {
-int  __f_1;
-};
-struct __s_2 {
-struct __anonymous_tag_0  (__x_3[4]);
-};
 
-struct __s_2  __bob_4= { .x = { [0].f = 10 } };
-int  __main_5 () {
-
-{
-
-
-
-}
-
-
-
-}
+int  (__a_0[1])= { 1 };
 
