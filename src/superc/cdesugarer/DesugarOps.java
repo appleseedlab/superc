@@ -873,11 +873,11 @@ class DesugarOps {
    * expressions until full type checking is done.
    */
   public final static Multiverse.Operator<Type> propTypeError = (t1, t2) -> {
+    if (t1 == ErrorT.TYPE || t2 == ErrorT.TYPE) {
+      return ErrorT.TYPE;
+    }
     Type newtype;
     newtype = t1.copy();
-    if (t2 == ErrorT.TYPE) {
-      newtype = ErrorT.TYPE;
-    }
     if ((!t2.hasAttribute(Constants.ATT_CONSTANT) && !t2.hasConstant())) {
       if (newtype.hasConstant()) {
         newtype.removeConstant();
