@@ -4976,10 +4976,13 @@ IterationStatement:  /** complete **/  // Multiverse<String>
                 d.getData().setChildrenBlock("",stmtmv,"");
               }
 
+              dsv = dsv.filter(initval.type.getConditionOf(ErrorT.TYPE).not());
               dsv.add(new DeclarationOrStatementValue(emitError("initialization type error in this presence condition") + ";"),initval.type.getConditionOf(ErrorT.TYPE));
 
+              dsv = dsv.filter(testval.type.getConditionOf(ErrorT.TYPE).not());
               dsv.add(new DeclarationOrStatementValue(emitError("test condition type error in this presence condition") + ";"),testval.type.getConditionOf(ErrorT.TYPE));
               
+              dsv = dsv.filter(updateval.type.getConditionOf(ErrorT.TYPE).not());
               dsv.add(new DeclarationOrStatementValue(emitError("update value type error in this presence condition") + ";"),updateval.type.getConditionOf(ErrorT.TYPE));
               
               setTransformationValue(value, dsv);
