@@ -9,14 +9,17 @@ publications can be found.
 
 ## Dependencies and environment variables
 
-Building SuperC requires `bison` and `sat4j`.  For debian and ubuntu run
+Building SuperC requires `bison`, `libz3-java`, `libjson-java`, and `sat4j`.  For debian and ubuntu run
 
-    apt-get install bison libz3-java sat4j
+    apt-get install bison libz3-java libjson-java sat4j
 
-The following environment variables are expected by SuperC/xtc.
+The following environment variables are expected by SuperC/xtc, changing `/path/to/repository/` to the root of the repository.
 
-    JAVA_DEV_ROOT=~/src/superc  # or wherever your git repo is cloned
-    CLASSPATH=$CLASSPATH:$JAVA_DEV_ROOT/classes:$JAVA_DEV_ROOT/bin/junit.jar:$JAVA_DEV_ROOT/bin/antlr.jar:$JAVA_DEV_ROOT/bin/javabdd.jar:$JAVA_DEV_ROOT/bin/json-simple-1.1.1.jar:/usr/share/java/org.sat4j.core.jar:/usr/share/java/com.microsoft.z3.jar
+    JAVA_DEV_ROOT=/path/to/repository/  # wherever your git repo is cloned
+    # add included libraries to the classpath
+    CLASSPATH=$CLASSPATH:$JAVA_DEV_ROOT/classes:$JAVA_DEV_ROOT/bin/junit.jar:$JAVA_DEV_ROOT/bin/antlr.jar:$JAVA_DEV_ROOT/bin/javabdd.jar:$JAVA_DEV_ROOT/bin/json-simple-1.1.1.jar
+    # add system-installed libraries to the classpath
+    CLASSPATH=$CLASSPATH:/usr/share/java/org.sat4j.core.jar:/usr/share/java/com.microsoft.z3.jar:/usr/share/java/json-lib.jar
     JAVA_ARGS="-Xms2048m -Xmx4048m -Xss128m" # JVM settings
     JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/  # Location of java jdk
     export JAVA_DEV_ROOT CLASSPATH JAVA_ARGS JAVA_HOME
