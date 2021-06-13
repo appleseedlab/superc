@@ -1127,9 +1127,13 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-
           // add the int type by default
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 6, pc);
+          if (types.isEmpty()) {
+            TypeSpecifier t = new TypeSpecifier();
+            t.setError();
+            types.add(t,pc);
+          }
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitInt();
           ts.addTransformation(new Language<CTag>(CTag.INT));
@@ -9321,7 +9325,6 @@ private <T> Multiverse<T> getCompleteNodeMultiverseValue(Subparser subparser, in
 private <T> Multiverse<T> getCompleteNodeMultiverseValue(Node node, PresenceCondition pc) {
   Multiverse<Node> nodemv = staticCondToMultiverse(node, pc);
   Multiverse<T> resultmv = new Multiverse<T>();
-
   // loop through each node, get its multiverse and add to the
   // resultmv.  update each node's multiverse elements with the static
   // conditional branch's presence condition using filter.
@@ -10422,7 +10425,6 @@ public void bindIdent(Subparser subparser, Node typespec, Node declarator, STFie
 int nextRelTagIsTypedef(Object a)
 {
   if ( ! (a instanceof Syntax)) {
-    System.err.println("not syntax:" + a);
     Node n = (Node) a;
     int loc = n.hasName(ForkMergeParser.CHOICE_NODE_NAME) ? 1 : 0 ;
     while (loc < n.size()) {
@@ -10439,7 +10441,6 @@ int nextRelTagIsTypedef(Object a)
     }
     return 1;
   } else if (a instanceof Pair) {
-    System.err.println("pair:" + a);
     int status = nextRelTagIsTypedef(((Pair)a).head());
     if (status == 2 || status == 0) {
         return status;
