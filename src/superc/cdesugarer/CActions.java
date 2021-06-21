@@ -1051,9 +1051,13 @@ public class CActions implements SemanticActions {
   case 60:
     {
           PresenceCondition pc = subparser.getPresenceCondition();
-
           // add the int type by default
           Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 6, pc);
+          if (types.isEmpty()) {
+            TypeSpecifier t = new TypeSpecifier();
+            t.setError();
+            types.add(t,pc);
+          }
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitInt();
           ts.addTransformation(new Language<CTag>(CTag.INT));
@@ -4383,11 +4387,12 @@ public class CActions implements SemanticActions {
           String colon = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
           String prefix = String.format("%s %s", ident, colon);
           // TODO: save attributes
-          Multiverse<String> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
-          Multiverse<String> prepended = stmtmv.prependScalar(prefix, DesugarOps.concatStrings);
-          Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(prepended);
+          Multiverse<DeclarationOrStatementValue>  stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
+          DeclarationOrStatementValue dsv = new DeclarationOrStatementValue(prefix);
+          dsv.setChildrenBlock("",stmtmv,"");
+          Multiverse<DeclarationOrStatementValue> dsvm = new Multiverse<DeclarationOrStatementValue>(dsv,pc);
                     
-          setTransformationValue(value, dsv);
+          setTransformationValue(value, dsvm);
         }
     break;
 
@@ -4399,11 +4404,12 @@ public class CActions implements SemanticActions {
           String colon = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
           String prefix = String.format("%s %s", ident, colon);
           // TODO: save attributes
-          Multiverse<String> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
-          Multiverse<String> prepended = stmtmv.prependScalar(prefix, DesugarOps.concatStrings);
-          Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(prepended);
-          
-          setTransformationValue(value, dsv);
+          Multiverse<DeclarationOrStatementValue>  stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
+          DeclarationOrStatementValue dsv = new DeclarationOrStatementValue(prefix);
+          dsv.setChildrenBlock("",stmtmv,"");
+          Multiverse<DeclarationOrStatementValue> dsvm = new Multiverse<DeclarationOrStatementValue>(dsv,pc);
+
+          setTransformationValue(value, dsvm);
         }
     break;
 
@@ -4827,6 +4833,7 @@ public class CActions implements SemanticActions {
           }
           String errorstmt = String.format("%s;", emitError("invalid type found in do-while statement"));
           PresenceCondition invalidCond = exprval.invalidTypeCondition(pc);
+          dsv = dsv.filter(invalidCond.not());
           dsv.add(new DeclarationOrStatementValue(errorstmt), invalidCond);
           setTransformationValue(value, dsv);
         }
@@ -4879,10 +4886,13 @@ public class CActions implements SemanticActions {
                 d.getData().setChildrenBlock("",stmtmv,"");
               }
 
+              dsv = dsv.filter(initval.type.getConditionOf(ErrorT.TYPE).not());
               dsv.add(new DeclarationOrStatementValue(emitError("initialization type error in this presence condition") + ";"),initval.type.getConditionOf(ErrorT.TYPE));
 
+              dsv = dsv.filter(testval.type.getConditionOf(ErrorT.TYPE).not());
               dsv.add(new DeclarationOrStatementValue(emitError("test condition type error in this presence condition") + ";"),testval.type.getConditionOf(ErrorT.TYPE));
               
+              dsv = dsv.filter(updateval.type.getConditionOf(ErrorT.TYPE).not());
               dsv.add(new DeclarationOrStatementValue(emitError("update value type error in this presence condition") + ";"),updateval.type.getConditionOf(ErrorT.TYPE));
               
               setTransformationValue(value, dsv);
@@ -9452,7 +9462,6 @@ private <T> Multiverse<T> getCompleteNodeMultiverseValue(Subparser subparser, in
 private <T> Multiverse<T> getCompleteNodeMultiverseValue(Node node, PresenceCondition pc) {
   Multiverse<Node> nodemv = staticCondToMultiverse(node, pc);
   Multiverse<T> resultmv = new Multiverse<T>();
-
   // loop through each node, get its multiverse and add to the
   // resultmv.  update each node's multiverse elements with the static
   // conditional branch's presence condition using filter.
@@ -10553,7 +10562,6 @@ public void bindIdent(Subparser subparser, Node typespec, Node declarator, STFie
 int nextRelTagIsTypedef(Object a)
 {
   if ( ! (a instanceof Syntax)) {
-    System.err.println("not syntax:" + a);
     Node n = (Node) a;
     int loc = n.hasName(ForkMergeParser.CHOICE_NODE_NAME) ? 1 : 0 ;
     while (loc < n.size()) {
@@ -10570,7 +10578,6 @@ int nextRelTagIsTypedef(Object a)
     }
     return 1;
   } else if (a instanceof Pair) {
-    System.err.println("pair:" + a);
     int status = nextRelTagIsTypedef(((Pair)a).head());
     if (status == 2 || status == 0) {
         return status;

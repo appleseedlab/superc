@@ -4469,11 +4469,12 @@ LabeledStatement:  /** complete **/  // ADDED attributes  // Multiverse<String>
           String colon = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
           String prefix = String.format("%s %s", ident, colon);
           // TODO: save attributes
-          Multiverse<String> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
-          Multiverse<String> prepended = stmtmv.prependScalar(prefix, DesugarOps.concatStrings);
-          Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(prepended);
+          Multiverse<DeclarationOrStatementValue>  stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
+          DeclarationOrStatementValue dsv = new DeclarationOrStatementValue(prefix);
+          dsv.setChildrenBlock("",stmtmv,"");
+          Multiverse<DeclarationOrStatementValue> dsvm = new Multiverse<DeclarationOrStatementValue>(dsv,pc);
                     
-          setTransformationValue(value, dsv);
+          setTransformationValue(value, dsvm);
         }
         | TYPEDEFname COLON AttributeSpecifierListOpt Statement
         {
@@ -4483,11 +4484,12 @@ LabeledStatement:  /** complete **/  // ADDED attributes  // Multiverse<String>
           String colon = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
           String prefix = String.format("%s %s", ident, colon);
           // TODO: save attributes
-          Multiverse<String> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
-          Multiverse<String> prepended = stmtmv.prependScalar(prefix, DesugarOps.concatStrings);
-          Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(prepended);
-          
-          setTransformationValue(value, dsv);
+          Multiverse<DeclarationOrStatementValue>  stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
+          DeclarationOrStatementValue dsv = new DeclarationOrStatementValue(prefix);
+          dsv.setChildrenBlock("",stmtmv,"");
+          Multiverse<DeclarationOrStatementValue> dsvm = new Multiverse<DeclarationOrStatementValue>(dsv,pc);
+
+          setTransformationValue(value, dsvm);
         }
 
         ;
@@ -4929,6 +4931,7 @@ IterationStatement:  /** complete **/  // Multiverse<String>
           }
           String errorstmt = String.format("%s;", emitError("invalid type found in do-while statement"));
           PresenceCondition invalidCond = exprval.invalidTypeCondition(pc);
+          dsv = dsv.filter(invalidCond.not());
           dsv.add(new DeclarationOrStatementValue(errorstmt), invalidCond);
           setTransformationValue(value, dsv);
         }
