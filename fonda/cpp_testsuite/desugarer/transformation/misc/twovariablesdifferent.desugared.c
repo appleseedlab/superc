@@ -17,9 +17,9 @@ extern const bool __static_condition_default_13;
 extern const bool __static_condition_default_20;
 extern const bool __static_condition_default_14;
 extern const bool __static_condition_default_9;
-extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_7;
 extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_18;
 extern const bool __static_condition_default_10;
 void __static_initializer_default() {

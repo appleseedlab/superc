@@ -4994,10 +4994,10 @@ IterationStatement:  /** complete **/  // Multiverse<String>
               
               setTransformationValue(value, dsv);
             } else {
-              setTransformationValue(value, new Multiverse<DeclarationOrStatementValue>(new DeclarationOrStatementValue (emitError("no valid type in iterationstatement (3)")), pc));
+              setTransformationValue(value, new Multiverse<DeclarationOrStatementValue>(new DeclarationOrStatementValue (emitError("no valid type in iterationstatement (3)") + ";"), pc));
             }
           } else {
-            setTransformationValue(value, new Multiverse<DeclarationOrStatementValue>(new DeclarationOrStatementValue (emitError("no valid type in iterationstatement (3)")), pc));
+            setTransformationValue(value, new Multiverse<DeclarationOrStatementValue>(new DeclarationOrStatementValue (emitError("no valid type in iterationstatement (3)") + ";"), pc));
           }
         }
         // n1570 6.8.5 Iteration statements allows for a declaration in the initializer of a for loop
@@ -6609,7 +6609,8 @@ CastExpression:  /** passthrough, nomerge **/  // ExpressionValue
           appended.destruct();
 
           Multiverse<Type> typemv = DesugarOps.typenameToType.transform(typename);
-
+          typemv = typemv.filter(exprval.type.getConditionOf(ErrorT.TYPE).not());
+          typemv.add(ErrorT.TYPE, exprval.type.getConditionOf(ErrorT.TYPE));
           setTransformationValue(value, new ExpressionValue(transformationmv, typemv));
         }
         ;
@@ -8070,7 +8071,8 @@ protected Multiverse<String> declarationAction(List<DeclaringListValue> declarin
                         externalLinkage.put(originalName, originalDeclaration, entry.getCondition());
                       }
                       /* entrysb.append(renamedDeclaration.toString()); */
-                      if (initializer.getData().hasList() && !scope.isGlobal()) {
+                      if (initializer.getData().hasList() && !scope.isGlobal() &&
+                          (!declarationType.hasAttribute(Constants.ATT_CONSTANT) && !declarationType.hasConstant())) {
                         Type tempT = declarationType;
                         while (tempT.isWrapped()) {
                           tempT = ((WrappedT)tempT).getType();

@@ -208,6 +208,7 @@ unit/switch                                                                     
 unit/struct_configurable                                                                   BC generated
 unit/initTest                                                                              File GT not confirmed
 unit/offsetof                                                                              BC failed
+unit/complexIfError                                                                        File GT not confirmed
 errorTesting/extra_comma                                                                   File GT not confirmed
 errorTesting/endOnError                                                                    File GT not confirmed
 errorTesting/undefTypedef_var                                                              File GT not confirmed
