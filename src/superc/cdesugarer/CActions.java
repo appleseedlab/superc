@@ -44,6 +44,9 @@ import java.io.IOException;
 
 import java.math.BigInteger;
 
+import java.util.Collections;
+import java.util.Comparator;
+ 
 import xtc.Constants;
 import xtc.Limits;
 
@@ -7889,19 +7892,41 @@ public class CActions implements SemanticActions {
 
   case 590:
     {
-          todoReminder("support AssemblyStatement (3)");
-          System.exit(0);
-          Multiverse<DeclarationOrStatementValue> m = new Multiverse<DeclarationOrStatementValue>();
-          m.add(new DeclarationOrStatementValue("asm3"),subparser.getPresenceCondition());
-          setTransformationValue(value, m);
+          Multiverse<TypeSpecifier> qual = getCompleteNodeMultiverseValue(subparser, 5, subparser.getPresenceCondition());
+          Multiverse<String> qualS = DesugarOps.TypeSpecifierToString.transform(qual);
+          qual.destruct();
+          Multiverse<String> preTemp = qualS.prependScalar("__asm__ ", DesugarOps.concatStrings);
+          qualS.destruct();
+          Multiverse<String> temp = (Multiverse<String>)getTransformationValue(subparser,3);
+          
+          Multiverse<String> prepended = temp.prependScalar(" (", DesugarOps.concatStrings);
+          Multiverse<String> appended = prepended.appendScalar(");", DesugarOps.concatStrings);
+          temp.destruct(); prepended.destruct();
+          Multiverse<String> res = preTemp.product(appended, DesugarOps.concatStrings);
+          preTemp.destruct(); appended.destruct();
+          setTransformationValue(value, DesugarOps.StringToDSV.transform(res));
         }
     break;
 
   case 591:
     {
-          todoReminder("support AssemblyArgument (1)");
-          System.exit(0);
-          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
+        Multiverse<String> first = getCompleteNodeExpressionValue(subparser,7,subparser.getPresenceCondition()).transformation;
+          Multiverse<String> sec = (Multiverse<String>)getTransformationValue(subparser,5);
+          Multiverse<String> third = (Multiverse<String>)getTransformationValue(subparser,3);
+          Multiverse<String> fourth = (Multiverse<String>)getTransformationValue(subparser,1);
+          Multiverse<String> prep2 = sec.prependScalar(":", DesugarOps.concatStrings);
+          sec.destruct();
+          Multiverse<String> prep3 = third.prependScalar(":", DesugarOps.concatStrings);
+          third.destruct();
+          Multiverse<String> prep4 = fourth.prependScalar(":", DesugarOps.concatStrings);
+          fourth.destruct();
+          Multiverse<String> last = prep3.product(prep4, DesugarOps.concatStrings);
+          prep3.destruct(); prep4.destruct();
+          Multiverse<String> later = prep2.product(last, DesugarOps.concatStrings);
+          prep2.destruct(); last.destruct();
+          Multiverse<String> res = first.product(later, DesugarOps.concatStrings);
+          first.destruct(); later.destruct();
+          setTransformationValue(value, res);
         }
     break;
 
@@ -7996,22 +8021,26 @@ public class CActions implements SemanticActions {
 
   case 602:
     {
-          todoReminder("support Assemblyclobbersopt (2)");
-          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
+          setTransformationValue(value, (Multiverse<String>)getTransformationValue(subparser,1));
         }
     break;
 
   case 603:
     {
-          todoReminder("support StringLiteralList (1)");
-          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
+          Multiverse<String> first = getCompleteNodeExpressionValue(subparser,1,subparser.getPresenceCondition()).transformation;
+          setTransformationValue(value, first);
         }
     break;
 
   case 604:
     {
-          todoReminder("support StringLiteralList (2)");
-          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
+          Multiverse<String> first = (Multiverse<String>)getTransformationValue(subparser,3);
+          Multiverse<String> second = getCompleteNodeExpressionValue(subparser,1,subparser.getPresenceCondition()).transformation;
+          Multiverse<String> prep2 = second.prependScalar(",", DesugarOps.concatStrings);
+          second.destruct();
+          Multiverse<String> res = first.product(prep2, DesugarOps.concatStrings);
+          first.destruct(); prep2.destruct();
+          setTransformationValue(value, res);
         }
     break;
 
@@ -8327,6 +8356,21 @@ protected Multiverse<String> declarationAction(List<DeclaringListValue> declarin
   return valuemv;
 }
 
+class IDSort implements Comparator<Map.Entry<String,Type>> {
+  private int getID(String x){
+    String res = "";
+    int pos = x.length()-1;
+    while(x.charAt(pos) != '_') {
+      res = x.charAt(pos) + res;
+      pos--;
+    }
+    return Integer.parseInt(res);
+  }
+  public int compare(Map.Entry<String,Type> a, Map.Entry<String,Type> b) {
+    return getID(((VariableT)a.getValue()).getName()) - getID(((VariableT)b.getValue()).getName());
+  }
+}
+
 public String initStruct(String name, StructOrUnionT t, Initializer i, CContext scope, PresenceCondition p)
 {
   //NOTE: All fields are presumably using . as the access method. Chagne this to . / -> depending
@@ -8337,6 +8381,12 @@ public String initStruct(String name, StructOrUnionT t, Initializer i, CContext 
   //this can be solved by sort each list by it's appended number
   
   //SORT
+
+  for (Element<List<Map.Entry<String,Type>>> e : m) {
+    List<Map.Entry<String,Type>> l = e.getData();
+    Collections.sort(l,new IDSort());
+    e.setData(l);
+  }
   
   // for each list, we need to write an if statement for assigning initial values
   // under each pc. We need a list of either expressions to assign, or designators, and

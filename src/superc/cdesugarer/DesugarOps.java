@@ -124,7 +124,14 @@ class DesugarOps {
       }
     };
 
-  
+  /**
+   * Convert Typespecifier to String
+   */
+  public final static Multiverse.Transformer<TypeSpecifier, String> TypeSpecifierToString = new Multiverse.Transformer<TypeSpecifier, String>() {
+      String transform(TypeSpecifier from) {
+        return from.toString();
+      }
+    };
 
   /*****************************************************************************
    ********* Multiverse operators for Declarators
