@@ -5300,7 +5300,7 @@ public class CActions implements SemanticActions {
 
           PresenceCondition pc = subparser.getPresenceCondition();
           String lparen = ((Syntax) getNodeAt(subparser, 5)).getTokenText();
-          Multiverse<DeclarationOrStatementValue>  ds = getCompleteNodeMultiverseValue(subparser, 3, pc);
+          Multiverse<DeclarationOrStatementValue>  ds = getCompleteNodeSingleValue(subparser, 3, pc);
           String rparen = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
           Multiverse<String> valuemv = new Multiverse<String>();
 
