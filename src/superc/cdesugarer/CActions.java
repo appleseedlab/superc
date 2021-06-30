@@ -178,27 +178,32 @@ public class CActions implements SemanticActions {
     switch (production) {
         case 2:
     {
-          Multiverse<String> extdeclmv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
-          String result = concatMultiverseStrings(extdeclmv); extdeclmv.destruct();
+          Multiverse<String> extdeclmv = getCompleteNodeMultiverseValue(subparser, 1, subparser.getPresenceCondition());
+          String result;
+          if (extdeclmv.isEmpty()) {
+            result = "";
+          } else {
+            result = concatMultiverseStrings(extdeclmv); extdeclmv.destruct();
+          }
           setTransformationValue(value, result); 
         }
     break;
 
   case 3:
     {
-          setTransformationValue(value, "");
+          setTransformationValue(value, new Multiverse<String>("",subparser.getPresenceCondition()));
         }
     break;
 
   case 4:
     {
           PresenceCondition pc = subparser.getPresenceCondition();
-          StringBuilder valuesb = new StringBuilder();
-          Multiverse<String> listmv = getCompleteNodeSingleValue(subparser, 2, pc);
+          Multiverse<String> listmv = getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<String> elemmv = getCompleteNodeSingleValue(subparser, 1, pc);
-          valuesb.append(concatMultiverseStrings(listmv)); listmv.destruct();
-          valuesb.append(concatMultiverseStrings(elemmv)); elemmv.destruct();
-          setTransformationValue(value, valuesb.toString());
+          Multiverse<String> product = listmv.product(elemmv, DesugarOps.concatStrings);
+          listmv.destruct();
+          elemmv.destruct();
+          setTransformationValue(value, product);
         }
     break;
 
@@ -5290,7 +5295,7 @@ public class CActions implements SemanticActions {
 
           PresenceCondition pc = subparser.getPresenceCondition();
           String lparen = ((Syntax) getNodeAt(subparser, 5)).getTokenText();
-          Multiverse<DeclarationOrStatementValue>  ds = getCompleteNodeMultiverseValue(subparser, 1, pc);
+          Multiverse<DeclarationOrStatementValue>  ds = getCompleteNodeMultiverseValue(subparser, 3, pc);
           String rparen = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
           Multiverse<String> valuemv = new Multiverse<String>();
 
