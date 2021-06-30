@@ -5290,13 +5290,15 @@ public class CActions implements SemanticActions {
 
           PresenceCondition pc = subparser.getPresenceCondition();
           String lparen = ((Syntax) getNodeAt(subparser, 5)).getTokenText();
-          Multiverse<String> compoundmv = getCompleteNodeSingleValue(subparser, 3, pc);
+          Multiverse<DeclarationOrStatementValue>  ds = getCompleteNodeMultiverseValue(subparser, 1, pc);
           String rparen = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+          Multiverse<String> valuemv = new Multiverse<String>();
 
-          Multiverse<String> prepended = compoundmv.prependScalar(lparen, DesugarOps.concatStrings);
-          Multiverse<String> valuemv = prepended.appendScalar(rparen, DesugarOps.concatStrings);
-          prepended.destruct();
-
+          for (Element<DeclarationOrStatementValue> e : ds) { 
+            
+            String res = "( " + e.getData().getString(e.getCondition(),this) + " )";
+            valuemv.add(res,e.getCondition());
+          }
           Multiverse<Type> typemv = new Multiverse<Type>(NumberT.INT, pc);
           for (Element<String> v : valuemv) {
             typemv.add(NumberT.INT, v.getCondition());
