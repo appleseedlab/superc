@@ -22,9 +22,9 @@ __static_condition_renaming("__static_condition_default_8", "!(defined A)");
 typedef int  __typeAlias_0;
 typedef char  __typeAlias_1;
 
+ // typedef moved to top of scope
 // typedef moved to top of scope
-// typedef moved to top of scope
-int  __main_6 (void  ) {
+ int  __main_6 (void  ) {
 
 {
 

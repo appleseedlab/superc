@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_17;
 extern const bool __static_condition_default_18;
+extern const bool __static_condition_default_17;
 void __static_initializer_default() {
 __static_renaming("__OPENSSL_cleanse_2", "OPENSSL_cleanse");
 __static_renaming("__CRYPTO_free_6", "CRYPTO_free");
@@ -24,11 +24,11 @@ __static_condition_renaming("__static_condition_default_18", "!(defined CONFIG_A
 
 };
 
-void  __OPENSSL_cleanse_2 (void  (* __ptr_0), unsigned int  __len_1);
-void  __CRYPTO_free_6 (void  (* __ptr_3), const char  (* __file_4), int  __line_5);
-void  (* __CRYPTO_malloc_10 (unsigned int  __num_7, const char  (* __file_8), int  __line_9));
-void  __error_12 (const char  (* __fmt_11),  ... );
-int  __main_16 () {
+ void  __OPENSSL_cleanse_2 (void  (* __ptr_0), unsigned int  __len_1);
+ void  __CRYPTO_free_6 (void  (* __ptr_3), const char  (* __file_4), int  __line_5);
+ void  (* __CRYPTO_malloc_10 (unsigned int  __num_7, const char  (* __file_8), int  __line_9));
+ void  __error_12 (const char  (* __fmt_11),  ... );
+ int  __main_16 () {
 
 {
 

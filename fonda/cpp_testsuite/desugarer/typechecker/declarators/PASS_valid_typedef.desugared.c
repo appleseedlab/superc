@@ -31,13 +31,13 @@ typedef int  (* __q_3);
 typedef __q_3  (__w_4[2]);
 volatile typedef __i_0  __j_5;
 
-// typedef moved to top of scope
-// typedef moved to top of scope
-// typedef moved to top of scope
-// typedef moved to top of scope
-// typedef moved to top of scope
-// typedef moved to top of scope
-int  __main_12 () {
+ // typedef moved to top of scope
+ // typedef moved to top of scope
+ // typedef moved to top of scope
+ // typedef moved to top of scope
+ // typedef moved to top of scope
+ // typedef moved to top of scope
+ int  __main_12 () {
 
 {
 

@@ -17,8 +17,8 @@ struct __x_0 {
 int  (__a_1[5]);
 };
 
-struct __x_0 ;
-int  __main_3 () {
+ struct __x_0 ;
+ int  __main_3 () {
 
 {
 

@@ -22,7 +22,7 @@ __static_condition_renaming("__static_condition_default_7", "!A");
 
 };
 
-int  __main_5 (void  ) {
+ int  __main_5 (void  ) {
 
 {
 

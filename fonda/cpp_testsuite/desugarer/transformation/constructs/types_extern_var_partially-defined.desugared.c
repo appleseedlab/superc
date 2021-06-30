@@ -19,8 +19,8 @@ __static_condition_renaming("__static_condition_default_4", "(defined A)");
 
 };
 
-extern int  __x_0;
-int  __main_1 () {
+ extern int  __x_0;
+ int  __main_1 () {
 
 if (__static_condition_default_3) {
 

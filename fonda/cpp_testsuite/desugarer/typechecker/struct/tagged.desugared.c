@@ -15,5 +15,5 @@ struct __s_0 {
 int  __x_1;
 };
 
-struct __s_0 ;
+ struct __s_0 ;
 

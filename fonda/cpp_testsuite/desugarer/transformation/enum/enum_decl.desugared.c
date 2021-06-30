@@ -22,8 +22,8 @@ __e_4,
 __f_5,
 };
 
-enum letter ;
-int  __main_7 (void  ) {
+ enum letter ;
+ int  __main_7 (void  ) {
 
 {
 

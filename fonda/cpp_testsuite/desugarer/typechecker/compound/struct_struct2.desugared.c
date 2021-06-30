@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_8;
 extern const bool __static_condition_default_7;
+extern const bool __static_condition_default_8;
 void __static_initializer_default() {
 __static_renaming("__x_4", "x");
 __static_renaming("__x_5", "x");
@@ -19,7 +19,7 @@ __static_condition_renaming("__static_condition_default_8", "(defined A)");
 
 };
 
-int  __main_6 () {
+ int  __main_6 () {
 
 {
 

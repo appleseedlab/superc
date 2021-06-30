@@ -7,10 +7,10 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_8;
 extern const bool __static_condition_default_9;
 extern const bool __static_condition_default_11;
 extern const bool __static_condition_default_12;
+extern const bool __static_condition_default_8;
 void __static_initializer_default() {
 __static_renaming("__x_7", "x");
 __static_renaming("__x_10", "x");
@@ -32,9 +32,9 @@ unsigned  __a_5;
 int  __b_6;
 };
 
-struct __x_0 ;
+ struct __x_0 ;
 struct __x_3 ;
-int  __main_13 () {
+ int  __main_13 () {
 
 {
 

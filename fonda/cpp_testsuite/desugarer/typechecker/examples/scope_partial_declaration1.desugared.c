@@ -22,9 +22,9 @@ __static_condition_renaming("__static_condition_default_6", "(defined B)");
 
 };
 
-int  __x_0;
+ int  __x_0;
 char  __x_1;
-int  __main_3 () {
+ int  __main_3 () {
 
 {
 

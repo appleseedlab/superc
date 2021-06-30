@@ -22,8 +22,6 @@ __static_condition_renaming("__static_condition_default_7", "!(defined A)");
 
 };
 
-int  __num_0= 1;
-int  (* __x_2);
 char  __x_3 (int  __y_1) {
 
 if (__static_condition_default_4) {
@@ -39,7 +37,7 @@ return  __y_1  ;
 }
 
 }
-int  __main_5 () {
+ int  __main_5 () {
 
 {
 

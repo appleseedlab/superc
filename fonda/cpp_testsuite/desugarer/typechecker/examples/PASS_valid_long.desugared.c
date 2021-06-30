@@ -18,7 +18,7 @@ __static_renaming("__main_5", "main");
 
 };
 
-int  __main_5 (void  ) {
+ int  __main_5 (void  ) {
 
 {
 

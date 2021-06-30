@@ -20,8 +20,8 @@ char  __otherVal_2;
 };
 typedef struct __bob_0  __bob_3;
 
-// typedef moved to top of scope
-int  __main_5 (void  ) {
+ // typedef moved to top of scope
+ int  __main_5 (void  ) {
 
 {
 

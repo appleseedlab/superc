@@ -19,9 +19,9 @@ __SPI_FREQUENCY_33MHZ_2,
 __SPI_FREQUENCY_50MHZ_3,
 };
 
-void  __printf_0 (const char  [],  ... );
-enum __anonymous_tag_4 ;
-static void  __decode_spi_frequency_6 (unsigned int  __freq_5) {
+ void  __printf_0 (const char  [],  ... );
+ enum __anonymous_tag_4 ;
+ static void  __decode_spi_frequency_6 (unsigned int  __freq_5) {
 
 {
 

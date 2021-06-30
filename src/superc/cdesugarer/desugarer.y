@@ -328,9 +328,14 @@ ExternalDeclarationList: /** list, complete **/  // Multiverse<String>
           PresenceCondition pc = subparser.getPresenceCondition();
           Multiverse<String> listmv = getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<String> elemmv = getCompleteNodeSingleValue(subparser, 1, pc);
-          Multiverse<String> product = listmv.product(elemmv, DesugarOps.concatStrings);
+          Multiverse<String> product;
+          if (!listmv.isEmpty()) {
+            product = listmv.product(elemmv, DesugarOps.concatStrings);
+            elemmv.destruct();
+          } else {
+            product = elemmv;
+          }
           listmv.destruct();
-          elemmv.destruct();
           setTransformationValue(value, product);
         }
         ;

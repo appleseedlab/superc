@@ -20,8 +20,8 @@ __static_condition_renaming("__static_condition_default_5", "(defined A)");
 
 };
 
-static int  __x_0;
-int  __main_2 () {
+ static int  __x_0;
+ int  __main_2 () {
 
 if (__static_condition_default_4) {
 

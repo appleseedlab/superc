@@ -31,8 +31,8 @@ struct __s_10 {
 union __anonymous_tag_6  __anon_id_0_11;
 };
 
-struct __s_10 ;
-int  __main_13 () {
+ struct __s_10 ;
+ int  __main_13 () {
 
 {
 

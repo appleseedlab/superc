@@ -30,10 +30,10 @@ int  __y_8;
 char  __z_9;
 };
 
-// typedef moved to top of scope
-// typedef moved to top of scope
-// typedef moved to top of scope
-// typedef moved to top of scope
-struct __t_7  __bob_10;
-__size_t_1  __x_11= __builtin_offsetof ( struct __t_7   , z  );
+ // typedef moved to top of scope
+ // typedef moved to top of scope
+ // typedef moved to top of scope
+ // typedef moved to top of scope
+ struct __t_7  __bob_10;
+ __size_t_1  __x_11= __builtin_offsetof ( struct __t_7   , z  );
 

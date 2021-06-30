@@ -19,7 +19,7 @@ __static_condition_renaming("__static_condition_default_5", "!(defined CONFIG_A)
 
 };
 
-int  __increment_1 (int  __i_0) {
+ int  __increment_1 (int  __i_0) {
 
 {
 
@@ -31,7 +31,7 @@ return ++  __i_0  ;
 
 
 }
-int  __main_3 () {
+ int  __main_3 () {
 
 {
 

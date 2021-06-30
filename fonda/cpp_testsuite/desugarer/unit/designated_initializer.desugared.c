@@ -20,8 +20,8 @@ struct __s_2 {
 struct __anonymous_tag_0  (__x_3[4]);
 };
 
-struct __s_2  __bob_4= { .x = { [0].f = 10 } };
-int  __main_5 () {
+ struct __s_2  __bob_4= { .x = { [0].f = 10 } };
+ int  __main_5 () {
 
 {
 

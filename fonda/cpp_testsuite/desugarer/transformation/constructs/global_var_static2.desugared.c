@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_5;
 extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_5;
 void __static_initializer_default() {
 __static_renaming("__x_0", "x");
 __static_renaming("__x_1", "x");
@@ -23,9 +23,9 @@ struct __bob_6 {
 int  __x_7;
 };
 
-static int  __x_0;
+ static int  __x_0;
 static char  __x_1;
-int  __main_3 () {
+ int  __main_3 () {
 
 {
 
@@ -46,5 +46,5 @@ __static_type_error("type error : no valid expression");
 
 
 }
-struct __bob_6 ;
+ struct __bob_6 ;
 

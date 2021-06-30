@@ -18,5 +18,5 @@ char  __otherVal_2;
 };
 typedef struct __bob_0  __bob_3;
 
-// typedef moved to top of scope
+ // typedef moved to top of scope
 

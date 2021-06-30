@@ -18,12 +18,12 @@ __static_renaming("__main_5", "main");
 
 };
 
-int  (* const  __a_0);
-float  (* const  (* __b_1));
-float  (* volatile  __c_2);
-int  (* volatile  (* __d_3));
-int  (* volatile const  (* (* const  (* volatile  (* (__e_4[2]))))));
-int  __main_5 () {
+ int  (* const  __a_0);
+ float  (* const  (* __b_1));
+ float  (* volatile  __c_2);
+ int  (* volatile  (* __d_3));
+ int  (* volatile const  (* (* const  (* volatile  (* (__e_4[2]))))));
+ int  __main_5 () {
 
 {
 

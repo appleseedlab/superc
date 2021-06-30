@@ -17,5 +17,5 @@ char  __character_2;
 float  __floating_3;
 };
 
-union __intCharFloat_0 ;
+ union __intCharFloat_0 ;
 

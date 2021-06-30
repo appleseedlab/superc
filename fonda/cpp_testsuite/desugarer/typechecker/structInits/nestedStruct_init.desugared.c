@@ -28,9 +28,9 @@ int  __a_6;
 struct __a_0  __field_7;
 };
 
-struct __a_0 ;
-struct __b_5 ;
-int  __main_11 () {
+ struct __a_0 ;
+ struct __b_5 ;
+ int  __main_11 () {
 
 {
 

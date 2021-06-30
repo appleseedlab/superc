@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_6;
 extern const bool __static_condition_default_5;
+extern const bool __static_condition_default_6;
 void __static_initializer_default() {
 __static_renaming("__imajor_0", "imajor");
 __static_renaming("__iminor_1", "iminor");
@@ -21,9 +21,9 @@ __static_condition_renaming("__static_condition_default_6", "(defined CONFIG_INP
 
 };
 
-extern int  __imajor_0 (int  );
-extern int  __iminor_1 (int  );
-int  __main_4 () {
+ extern int  __imajor_0 (int  );
+ extern int  __iminor_1 (int  );
+ int  __main_4 () {
 
 {
 if (__static_condition_default_5) {

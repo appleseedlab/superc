@@ -24,8 +24,8 @@ __f_5,
 };
 typedef enum letter  __letter_6;
 
-// typedef moved to top of scope
-int  __main_8 (void  ) {
+ // typedef moved to top of scope
+ int  __main_8 (void  ) {
 
 {
 

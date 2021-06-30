@@ -15,8 +15,8 @@ __static_renaming("__main_2", "main");
 
 };
 
-int  __foo_0 (int  *);
-int  __main_2 () {
+ int  __foo_0 (int  *);
+ int  __main_2 () {
 
 {
 
@@ -30,7 +30,7 @@ return 0 ;
 
 
 }
-int  __foo_4 (int  (* __x_3)) {
+ int  __foo_4 (int  (* __x_3)) {
 
 {
 

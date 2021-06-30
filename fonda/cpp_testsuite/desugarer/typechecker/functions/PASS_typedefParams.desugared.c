@@ -23,9 +23,9 @@ __static_condition_renaming("__static_condition_default_7", "!(defined A)");
 typedef int  __x_0;
 typedef float  __x_1;
 
+ // typedef moved to top of scope
 // typedef moved to top of scope
-// typedef moved to top of scope
-int  __foo_4 (__x_0  __a_2) {
+ int  __foo_4 (__x_0  __a_2) {
 
 if (__static_condition_default_6) {
 
@@ -55,7 +55,7 @@ return 0 ;
 }
 
 }
-int  __main_8 () {
+ int  __main_8 () {
 
 {
 

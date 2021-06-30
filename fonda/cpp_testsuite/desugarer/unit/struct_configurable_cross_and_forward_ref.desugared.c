@@ -40,12 +40,10 @@ struct __T_10 __T_10;
 };
 };
 
-struct __forward_tag_reference_0  __bob_1;
-struct __T_2 ;
 struct __X_8 ;
-struct __X_4 ;
+ struct __X_4 ;
 struct __T_10 ;
-int  __main_13 () {
+ int  __main_13 () {
 
 {
 

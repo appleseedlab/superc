@@ -16,8 +16,8 @@ __static_renaming("__main_2", "main");
 struct __x_0 {
 };
 
-struct __x_0  __x_1;
-int  __main_2 () {
+ struct __x_0  __x_1;
+ int  __main_2 () {
 
 {
 

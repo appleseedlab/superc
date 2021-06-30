@@ -22,8 +22,8 @@ struct __s_0 {
 int  __field1_1;
 };
 
-struct __s_0 ;
-int  __main_4 () {
+ struct __s_0 ;
+ int  __main_4 () {
 
 {
 

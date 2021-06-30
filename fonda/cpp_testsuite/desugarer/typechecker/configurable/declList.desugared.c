@@ -16,10 +16,10 @@ __static_renaming("__main_3", "main");
 
 };
 
-int  __x_0;
+ int  __x_0;
 int  __y_1;
 int  __z_2;
-int  __main_3 () {
+ int  __main_3 () {
 
 {
 

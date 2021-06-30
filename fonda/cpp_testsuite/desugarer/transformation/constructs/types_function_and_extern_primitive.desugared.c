@@ -21,7 +21,6 @@ __static_condition_renaming("__static_condition_default_5", "!(defined A)");
 
 };
 
-extern int  __f_0;
 float  __f_1 () {
 
 if (__static_condition_default_2) {
@@ -37,7 +36,7 @@ return 0 ;
 }
 
 }
-int  __main_3 () {
+ int  __main_3 () {
 
 {
 

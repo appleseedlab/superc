@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_8;
 extern const bool __static_condition_default_7;
+extern const bool __static_condition_default_8;
 void __static_initializer_default() {
 __static_renaming("__bob_3", "bob");
 __static_renaming("__bobStruct_4", "bobStruct");
@@ -25,8 +25,8 @@ char  __otherVal_2;
 };
 typedef struct __bob_0  __bob_3;
 
-// typedef moved to top of scope
-int  __main_5 (void  ) {
+ // typedef moved to top of scope
+ int  __main_5 (void  ) {
 
 {
 if (__static_condition_default_7) {

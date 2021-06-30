@@ -14,7 +14,7 @@ __static_renaming("__main_1", "main");
 
 };
 
-void  __doNothing_0 () {
+ void  __doNothing_0 () {
 
 {
 
@@ -26,7 +26,7 @@ return  ;
 
 
 }
-int  __main_1 (void  ) {
+ int  __main_1 (void  ) {
 
 {
 
