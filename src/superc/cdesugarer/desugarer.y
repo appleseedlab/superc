@@ -5387,9 +5387,6 @@ StatementAsExpression:  /** nomerge **/  //ADDED
             valuemv.add(res,e.getCondition());
           }
           Multiverse<Type> typemv = new Multiverse<Type>(NumberT.INT, pc);
-          for (Element<String> v : valuemv) {
-            typemv.add(NumberT.INT, v.getCondition());
-          }
           
           setTransformationValue(value, new ExpressionValue(valuemv,
                                                             typemv));  // TODO: placeholder; get type from compoundstatement
