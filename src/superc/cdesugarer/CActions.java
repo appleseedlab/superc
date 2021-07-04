@@ -4779,6 +4779,9 @@ public class CActions implements SemanticActions {
           prepended.destruct();
           Multiverse<String> errorless = appended.filter(exprval.type.getConditionOf(ErrorT.TYPE).not());
           appended.destruct();
+          if (errorless.isEmpty()) {
+            errorless.add("error",exprval.type.getConditionOf(ErrorT.TYPE));
+          }
           Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(errorless);
           errorless.destruct();
           for (Element<DeclarationOrStatementValue> e : dsv) {
@@ -4987,7 +4990,7 @@ public class CActions implements SemanticActions {
 
   case 381:
     {
-          setTransformationValue(value, getTransformationValue(subparser,1));
+          setTransformationValue(value, getCompleteNodeMultiverseValue(subparser, 1, subparser.getPresenceCondition()));
         }
     break;
 
