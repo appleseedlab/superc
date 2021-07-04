@@ -4782,7 +4782,7 @@ public class CActions implements SemanticActions {
           if (errorless.isEmpty()) {
             errorless.add("error",exprval.type.getConditionOf(ErrorT.TYPE));
           }
-          Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(errorless);
+          Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(errorless).filter(exprval.type.getConditionOf(ErrorT.TYPE).not());
           errorless.destruct();
           for (Element<DeclarationOrStatementValue> e : dsv) {
             e.getData().setChildrenBlock("{",body,"}");
