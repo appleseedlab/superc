@@ -23,7 +23,7 @@ char  __otherVal_5;
 };
 typedef struct __bob_2  __bob_6;
 
- // typedef moved to top of scope
 // typedef moved to top of scope
- // typedef moved to top of scope
+// typedef moved to top of scope
+// typedef moved to top of scope
 

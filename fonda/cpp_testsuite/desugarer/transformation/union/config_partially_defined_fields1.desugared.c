@@ -27,9 +27,9 @@ union __intCharFloat_4 {
 int  __integer_5;
 };
 
- union __intCharFloat_0 ;
+union __intCharFloat_0 ;
 union __intCharFloat_4 ;
- int  __main_8 (void  ) {
+int  __main_8 (void  ) {
 
 {
 

@@ -328,14 +328,17 @@ ExternalDeclarationList: /** list, complete **/  // Multiverse<String>
           PresenceCondition pc = subparser.getPresenceCondition();
           Multiverse<String> listmv = getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<String> elemmv = getCompleteNodeSingleValue(subparser, 1, pc);
+          System.err.println(listmv + "--" + elemmv);
           Multiverse<String> product;
           if (!listmv.isEmpty()) {
-            product = listmv.product(elemmv, DesugarOps.concatStrings);
+            product = new Multiverse<String>(concatMultiverseStrings(listmv) +
+                                             concatMultiverseStrings(elemmv), pc);
             elemmv.destruct();
           } else {
             product = elemmv;
           }
           listmv.destruct();
+          System.err.println(product);
           setTransformationValue(value, product);
         }
         ;
@@ -388,7 +391,7 @@ FunctionDefinitionExtension:  /** complete **/  // ADDED  // String
         ;
 
 FunctionDefinition:  /** complete **/ // added scoping  // String
-        FunctionPrototype CompoundStatement
+FunctionPrototype {restartLabelFunction();} CompoundStatement
         /* FunctionPrototype { ReenterScope(subparser); } LBRACE CompoundStatement { ExitScope(subparser); } RBRACE */
         {
           // similar to Declaration, but different in that this has a
@@ -404,7 +407,7 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
           // have a conditional underneath even though the complete
           // annotation isn't on functionprototype.  this is why we
           // are getting all nodes at this point
-          Multiverse<Node> prototypeNodemv = staticCondToMultiverse(getNodeAt(subparser, 2), pc);
+          Multiverse<Node> prototypeNodemv = staticCondToMultiverse(getNodeAt(subparser, 3), pc);
           // produce a multiverse of strings for the body to use
           Multiverse<String> prototypestrmv = new Multiverse<String>();
           // collect the set of configurations that have valid function prototypes
@@ -590,11 +593,6 @@ FunctionDefinition:  /** complete **/ // added scoping  // String
             }
           }
 
-          // change the semantic value of functionprototype to be the multiverse of strings
-          //          setTransformationValue(getNodeAt(subparser, 1), prototypestrmv);
-          System.err.println("PROTOTYPESTRMV " + prototypestrmv);
-          System.err.println(validCond);
-          System.err.println(getNodeAt(subparser, 2));
           
 
           
@@ -4474,16 +4472,17 @@ Statement:  /** complete **/  // Multiverse<DeclarationOrStringValue>
         ;
 
 LabeledStatement:  /** complete **/  // ADDED attributes  // Multiverse<String>
-        IDENTIFIER COLON AttributeSpecifierListOpt Statement
+IDENTIFIER COLON AttributeSpecifierListOpt Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
 
           String ident = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
-          String colon = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
-          String prefix = String.format("%s %s", ident, colon);
+          
           // TODO: save attributes
           Multiverse<DeclarationOrStatementValue>  stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
-          DeclarationOrStatementValue dsv = new DeclarationOrStatementValue(prefix);
+          DeclarationOrStatementValue dsv = new DeclarationOrStatementValue();
+          dsv.setLabel(ident);
+          addLabelInFunction(ident,pc);
           dsv.setChildrenBlock("",stmtmv,"");
           Multiverse<DeclarationOrStatementValue> dsvm = new Multiverse<DeclarationOrStatementValue>(dsv,pc);
                     
@@ -4492,13 +4491,13 @@ LabeledStatement:  /** complete **/  // ADDED attributes  // Multiverse<String>
         | TYPEDEFname COLON AttributeSpecifierListOpt Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-
+          
           String ident = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
-          String colon = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
-          String prefix = String.format("%s %s", ident, colon);
           // TODO: save attributes
           Multiverse<DeclarationOrStatementValue>  stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
-          DeclarationOrStatementValue dsv = new DeclarationOrStatementValue(prefix);
+          DeclarationOrStatementValue dsv = new DeclarationOrStatementValue();
+          dsv.setLabel(ident);
+          addLabelInFunction(ident,pc);
           dsv.setChildrenBlock("",stmtmv,"");
           Multiverse<DeclarationOrStatementValue> dsvm = new Multiverse<DeclarationOrStatementValue>(dsv,pc);
 
@@ -4750,8 +4749,7 @@ ExpressionStatement:  /** complete **/  // Multiverse<String>
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
           Multiverse<Type> exprtype = exprval.type;
           PresenceCondition errorCond = exprtype.getConditionOf(ErrorT.TYPE);
-          /* System.err.println("EXPTYP: " + exprtype); */
-
+ 
           Multiverse<String> valuemv;
           if (! exprval.isAlwaysError()) {
             Multiverse<String> expr = exprval.transformation;
@@ -4874,11 +4872,14 @@ SelectionStatement:  /** complete **/ // Multiverse<String>
           String suffix = String.format("%s", rparen);
           Multiverse<String> appended = prepended.appendScalar(suffix, DesugarOps.concatStrings);
           prepended.destruct();
-          Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(appended);
+          Multiverse<String> errorless = appended.filter(exprval.type.getConditionOf(ErrorT.TYPE).not());
           appended.destruct();
+          Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(errorless);
+          errorless.destruct();
           for (Element<DeclarationOrStatementValue> e : dsv) {
             e.getData().setChildrenBlock("{",body,"}");
           }
+          dsv.add(new DeclarationOrStatementValue(emitError("invalid switch expression") + ";"), exprval.type.getConditionOf(ErrorT.TYPE));
           setTransformationValue(value, dsv);
         }
         ;
@@ -5072,7 +5073,7 @@ IterationStatement:  /** complete **/  // Multiverse<String>
 JumpStatement:  /** complete **/ // Multiverse<String>
         GotoStatement
         {
-          setTransformationValue(value, DesugarOps.StringToDSV.transform(getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition())));
+          setTransformationValue(value, getTransformationValue(subparser,1));
         }
         | ContinueStatement
         {
@@ -5088,14 +5089,15 @@ JumpStatement:  /** complete **/ // Multiverse<String>
         }
         ;
 
-GotoStatement:  /** complete **/ // Multiverse<String>
+GotoStatement:  /** complete **/ // Multiverse<DeclarationOrStatementValue>
         GOTO IdentifierOrTypedefName SEMICOLON
         {
-          String gototoken = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
           String ident = ((Syntax) getNodeAt(subparser, 2).get(0)).getTokenText();
-          String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
-          setTransformationValue(value, new Multiverse<String>(String.format("%s %s %s", gototoken, ident, semi),
-                                                               subparser.getPresenceCondition()));
+
+          DeclarationOrStatementValue d = new DeclarationOrStatementValue();
+          d.setGotoLabel(ident);
+          
+          setTransformationValue(value, new Multiverse<DeclarationOrStatementValue>(d,subparser.getPresenceCondition()));
         }
         | GOTO STAR Expression SEMICOLON  // ADDED
         {
@@ -9185,6 +9187,9 @@ public static class DeclarationOrStatementValue {
   private String childAppend;
   private boolean isDecl;
   private boolean isEmpty;
+  private boolean isGotoLabel;
+  private boolean isLabel;
+  private String Label;
   public DeclarationOrStatementValue() {
     mainValue = "";
     childPrepend = "";
@@ -9194,6 +9199,8 @@ public static class DeclarationOrStatementValue {
     isDo = false;
     isDecl = false;
     isEmpty = false;
+    isGotoLabel = false;
+    isLabel = false;
   }
   public DeclarationOrStatementValue(String x) {
     if (x.equals("")) {
@@ -9208,7 +9215,20 @@ public static class DeclarationOrStatementValue {
     isElse = false;
     isDo = false;
     isDecl = false;
+    isLabel = false;
+    isGotoLabel = false;
   }
+
+  public void setLabel(String label) {
+    Label = label;
+    isLabel = true;
+  }
+
+  public void setGotoLabel(String label) {
+    Label = label;
+    isGotoLabel = true;
+  }
+  
   public void setChildrenBlock(String p, Multiverse<DeclarationOrStatementValue> c, String a) {
     List x = new LinkedList<Multiverse<DeclarationOrStatementValue>>();
     x.add(c);
@@ -9248,6 +9268,20 @@ public static class DeclarationOrStatementValue {
     int count = 0;
     if (!isDo) {
       ret = mainValue + "\n";
+    }
+    if (isLabel) {
+      List<String> labels = getLabelInFunction(Label,p);
+      for (String s : labels) {
+        ret += s + ":\n";
+      }
+    }
+    if (isGotoLabel) {
+      List<String> labels = getLabelInFunction(Label,p);
+      ret += "{\n";
+      for (String s : labels) {
+        ret += "goto " + s + ";\n";
+      }
+      ret += "}\n";
     }
     if (!childPrepend.equals("")) {
       ret += childPrepend + "\n";
@@ -10421,6 +10455,43 @@ public void bindFunDef(Subparser subparser, Node typespec, Node declarator) {
   } else {
     bindIdent(subparser, typespec, declarator, STField.GLOBAL_FUNDEF);
   }
+}
+
+public static Map<String, Multiverse<String>> labelTable = new  HashMap<String, Multiverse<String>>();
+public static int counter;
+
+public static void restartLabelFunction() {
+  for (Multiverse<String> m : labelTable.values()) {
+    m.destruct();
+  }
+  counter = 0;
+  labelTable.clear();
+}
+
+public static void addLabelInFunction(String label, PresenceCondition p) {
+  if (labelTable.containsKey(label)) {
+    Multiverse<String> m  = labelTable.get(label);
+    Multiverse<String> nm = m.filter(p.not());
+    m.destruct();
+    nm.add(label + "_" + Integer.toString(counter),p);
+    labelTable.replace(label,nm);
+  } else {
+    labelTable.put(label, new Multiverse<String>(label + "_" + Integer.toString(counter), p));
+  }
+  counter++;
+}
+
+public static List<String> getLabelInFunction(String label, PresenceCondition p) {
+  List<String> ret = new LinkedList<String>();
+  if (labelTable.containsKey(label)) {
+    Multiverse<String> m  = labelTable.get(label);
+    for (Element<String> e : m) {
+      if (!e.getCondition().isMutuallyExclusive(p)) {
+        ret.add(e.getData());
+      }
+    }
+  }
+  return ret;
 }
 
 public void bindIdent(Subparser subparser, Node typespec, Node declarator) {

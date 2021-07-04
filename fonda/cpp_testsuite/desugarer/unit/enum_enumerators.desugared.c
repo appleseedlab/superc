@@ -20,9 +20,9 @@ __B_1,
 __C_2,
 };
 
- enum E  __x_3;
- int  __nonenumerator_4= 10;
- int  __main_5 () {
+enum E  __x_3;
+int  __nonenumerator_4= 10;
+int  __main_5 () {
 
 {
 

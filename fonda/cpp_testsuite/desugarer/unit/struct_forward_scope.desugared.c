@@ -17,7 +17,7 @@ struct __s_5 {
 int  __x_6;
 };
 
- int  __main_4 () {
+int  __main_4 () {
 
 {
 
@@ -42,5 +42,5 @@ return  __local_var_1  -> __s_2 . __y_3 ;
 
 
 }
- struct __s_5 ;
+struct __s_5 ;
 

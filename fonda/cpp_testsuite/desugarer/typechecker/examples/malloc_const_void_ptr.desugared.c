@@ -15,9 +15,9 @@ __static_renaming("__main_4", "main");
 
 };
 
- extern void  (* ____free_hook_2) (void  (* ____ptr_0), const void  *);
+extern void  (* ____free_hook_2) (void  (* ____ptr_0), const void  *);
 extern void  (* volatile  ____free_hook_3) (void  (* ____ptr_1), const void  *);
- int  __main_4 () {
+int  __main_4 () {
 
 {
 

@@ -25,8 +25,8 @@ int  __d_4;
 int  __d_5;
 };
 
- struct __x_0 ;
- int  __main_9 () {
+struct __x_0 ;
+int  __main_9 () {
 
 {
 

@@ -41,9 +41,9 @@ struct __T_10 __T_10;
 };
 
 struct __X_8 ;
- struct __X_4 ;
+struct __X_4 ;
 struct __T_10 ;
- int  __main_13 () {
+int  __main_13 () {
 
 {
 

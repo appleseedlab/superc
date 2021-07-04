@@ -19,7 +19,7 @@ __static_condition_renaming("__static_condition_default_2", "(defined A) && !(de
 
 };
 
- int  __main_4 () {
+int  __main_4 () {
 
 {
 

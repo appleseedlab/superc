@@ -25,9 +25,9 @@ __static_parse_error("Unable to parse");
 };
 typedef int  __a_0;
 
- // typedef moved to top of scope
+// typedef moved to top of scope
 int  __a_1;
- int  __main_3 () {
+int  __main_3 () {
 
 {
 
@@ -41,7 +41,7 @@ __a_0  __a_2;
 
 
 }
- int  __f_5 () {
+int  __f_5 () {
 
 {
 

@@ -27,9 +27,9 @@ int  __x_5;
 int  __yy_6;
 };
 
- struct __anonymous_tag_0 ;
+struct __anonymous_tag_0 ;
 struct __anonymous_tag_3 ;
- int  __main_7 () {
+int  __main_7 () {
 
 if (__static_condition_default_9) {
 

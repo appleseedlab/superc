@@ -26,9 +26,9 @@ struct __x_0  __a_4;
 int  __b_5;
 };
 
- struct __x_0 ;
- struct __y_3 ;
- int  __main_9 () {
+struct __x_0 ;
+struct __y_3 ;
+int  __main_9 () {
 
 {
 

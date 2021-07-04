@@ -18,6 +18,6 @@ __static_condition_renaming("__static_condition_default_2", "(defined A) && !(de
 
 };
 
- long int  __x_1;
+long int  __x_1;
 long int  __y_3;
 

@@ -31,5 +31,5 @@ __FILEUTILS_IGNORE_CHMOD_ERR_16 = 1 << 31,
 __FILEUTILS_IGNORE_CHMOD_ERR_17 = 1 << 31,
 };
 
- enum __anonymous_tag_18 ;
+enum __anonymous_tag_18 ;
 

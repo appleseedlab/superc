@@ -29,8 +29,8 @@ struct __list_3 __list_3;
 };
 };
 
- struct __list_3 ;
- int  __main_9 () {
+struct __list_3 ;
+int  __main_9 () {
 
 {
 

@@ -30,11 +30,11 @@ struct __s_6 __s_6;
 };
 };
 
- struct ____s_1_1 ;
- struct __s_6 ;
- struct __s_6 ;
- struct __s_6  __x1_8;
- int  __main_9 () {
+struct ____s_1_1 ;
+struct __s_6 ;
+struct __s_6 ;
+struct __s_6  __x1_8;
+int  __main_9 () {
 
 {
 

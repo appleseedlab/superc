@@ -23,7 +23,7 @@ __static_renaming("__x8_10", "x8");
 
 };
 
- int  __x1_0;
+int  __x1_0;
 int  (* __x2_1);
 int  (* __x2b_2);
 int  (* (* __x3_3));

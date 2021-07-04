@@ -21,7 +21,7 @@ __typeAlias_1  __val_4;
 char  __otherVal_5;
 };
 
- // typedef moved to top of scope
 // typedef moved to top of scope
- struct __bob_2 ;
+// typedef moved to top of scope
+struct __bob_2 ;
 

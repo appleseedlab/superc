@@ -18,7 +18,7 @@ __static_condition_renaming("__static_condition_default_3", "!(defined CONFIG_A)
 
 };
 
- int  __main_1 () {
+int  __main_1 () {
 
 {
 

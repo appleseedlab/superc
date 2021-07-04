@@ -13,5 +13,5 @@ __static_renaming("__c_0", "c");
 
 };
 
- int  __c_0;
+int  __c_0;
 

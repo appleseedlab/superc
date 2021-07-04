@@ -23,9 +23,9 @@ struct __bob_6 {
 int  __x_7;
 };
 
- static int  __x_0;
+static int  __x_0;
 static char  __x_1;
- int  __main_3 () {
+int  __main_3 () {
 
 {
 
@@ -46,5 +46,5 @@ __static_type_error("type error : no valid expression");
 
 
 }
- struct __bob_6 ;
+struct __bob_6 ;
 

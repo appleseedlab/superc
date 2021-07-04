@@ -16,5 +16,5 @@ int  __x_1;
 char  __y_2;
 };
 
- struct __anonymous_tag_0 ;
+struct __anonymous_tag_0 ;
 

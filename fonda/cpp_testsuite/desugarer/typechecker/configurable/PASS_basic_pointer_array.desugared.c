@@ -9,12 +9,12 @@ void __static_initializer_default();
 
 extern const bool __static_condition_default_10;
 extern const bool __static_condition_default_12;
+extern const bool __static_condition_default_23;
 extern const bool __static_condition_default_16;
+extern const bool __static_condition_default_22;
 extern const bool __static_condition_default_18;
 extern const bool __static_condition_default_14;
 extern const bool __static_condition_default_20;
-extern const bool __static_condition_default_22;
-extern const bool __static_condition_default_23;
 void __static_initializer_default() {
 __static_renaming("__arr_0", "arr");
 __static_renaming("__arr_1", "arr");
@@ -38,7 +38,7 @@ __static_condition_renaming("__static_condition_default_23", "!(defined C) || (d
 
 };
 
- int  __main_21 () {
+int  __main_21 () {
 
 {
 

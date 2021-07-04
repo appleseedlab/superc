@@ -17,5 +17,5 @@ __x_0,
 __y_1,
 };
 
- enum bob  __bob_2;
+enum bob  __bob_2;
 

@@ -25,6 +25,6 @@ struct __t_4 __t_4;
 };
 };
 
- struct __s_1 ;
- struct __t_4 ;
+struct __s_1 ;
+struct __t_4 ;
 

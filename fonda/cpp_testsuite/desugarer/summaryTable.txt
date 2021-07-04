@@ -146,6 +146,8 @@ unit/abstractpointerdeclarator                                                  
 unit/struct_undef_cast                                                                     BC generated
 unit/parendeclarator                                                                       BC generated
 unit/function_parameters                                                                   BC generated
+unit/labelDuplication                                                                      File GT not confirmed
+unit/redef                                                                                 File GT not confirmed
 unit/struct_global_local                                                                   File isn't valid
 unit/struct_crossref_global2                                                               BC generated
 unit/enum_forward_ref                                                                      File isn't valid
@@ -162,6 +164,7 @@ unit/implicit_param                                                             
 unit/typedefname_partially_defined                                                         BC generated
 unit/declarators                                                                           BC generated
 unit/struct_configurable_main                                                              BC generated
+unit/switchTypeError                                                                       File GT not confirmed
 unit/struct_crossref_local                                                                 BC generated
 unit/if_statement_configurable1                                                            BC generated
 unit/function_parameters_empty_configurable                                                BC generated
@@ -173,6 +176,7 @@ unit/struct_desugar_test                                                        
 unit/struct_global_forward_reference_desugar                                               BC generated
 unit/struct_nested_anonymous                                                               BC generated
 unit/enum_constant_expression2                                                             File isn't valid
+unit/duplicateTest                                                                         File GT not confirmed
 unit/if_statement_configurable2                                                            BC generated
 unit/forloopdecl                                                                           BC generated
 unit/sizeof_usable                                                                         File GT not confirmed

@@ -39,7 +39,7 @@ return  __y_2  ;
 }
 
 }
- int  __main_6 () {
+int  __main_6 () {
 
 {
 

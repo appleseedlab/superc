@@ -16,8 +16,8 @@ __static_renaming("__main_4", "main");
 };
 typedef int  __intAlias_0;
 
- // typedef moved to top of scope
- int  __main_4 (void  ) {
+// typedef moved to top of scope
+int  __main_4 (void  ) {
 
 {
 

@@ -17,8 +17,8 @@ __static_renaming("__main_3", "main");
 };
 typedef int  __a_0;
 
- // typedef moved to top of scope
- int  __main_3 () {
+// typedef moved to top of scope
+int  __main_3 () {
 
 {
 

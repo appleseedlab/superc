@@ -13,7 +13,7 @@ __static_renaming("__main_2", "main");
 
 };
 
- int  __main_2 (int  __argc_0, char  (* (* __argv_1))) {
+int  __main_2 (int  __argc_0, char  (* (* __argv_1))) {
 
 {
 

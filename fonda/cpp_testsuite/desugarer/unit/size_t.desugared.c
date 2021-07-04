@@ -25,9 +25,9 @@ long double  ____max_align_ld_5;
 };
 typedef struct __anonymous_tag_3  __max_align_t_6;
 
- // typedef moved to top of scope
- // typedef moved to top of scope
- // typedef moved to top of scope
- // typedef moved to top of scope
- __size_t_1  __x_7;
+// typedef moved to top of scope
+// typedef moved to top of scope
+// typedef moved to top of scope
+// typedef moved to top of scope
+__size_t_1  __x_7;
 

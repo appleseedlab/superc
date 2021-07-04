@@ -25,8 +25,8 @@ char  __character_2;
 float  __floating_3;
 };
 
- union __intCharFloat_0 ;
- int  __main_7 (void  ) {
+union __intCharFloat_0 ;
+int  __main_7 (void  ) {
 
 if (__static_condition_default_9) {
 

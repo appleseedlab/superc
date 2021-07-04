@@ -23,8 +23,8 @@ __static_renaming("__main_10", "main");
 
 };
 
- signed char  __a_0;
- int  __main_10 (void  ) {
+signed char  __a_0;
+int  __main_10 (void  ) {
 
 {
 

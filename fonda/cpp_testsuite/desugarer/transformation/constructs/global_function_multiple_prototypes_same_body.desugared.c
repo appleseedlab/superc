@@ -19,7 +19,7 @@ __static_condition_renaming("__static_condition_default_3", "!(defined A)");
 
 };
 
- int  __x_0 () {
+int  __x_0 () {
 
 if (__static_condition_default_2) {
 
@@ -49,7 +49,7 @@ return 1 ;
 }
 
 }
- int  __main_4 () {
+int  __main_4 () {
 
 {
 

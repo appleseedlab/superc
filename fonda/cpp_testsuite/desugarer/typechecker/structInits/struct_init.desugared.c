@@ -24,8 +24,8 @@ int  __c_3;
 int  __c_4;
 };
 
- struct __x_0 ;
- int  __main_8 (void  ) {
+struct __x_0 ;
+int  __main_8 (void  ) {
 
 {
 

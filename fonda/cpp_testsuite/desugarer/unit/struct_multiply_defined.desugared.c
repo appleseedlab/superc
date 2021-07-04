@@ -27,6 +27,6 @@ int  __xx_7;
 };
 
 struct __anonymous_tag_4 ;
- struct __anonymous_tag_2  __var_joe_8;
+struct __anonymous_tag_2  __var_joe_8;
 struct __anonymous_tag_6  __var_joe_9;
 

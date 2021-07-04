@@ -7,20 +7,20 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_18;
-extern const bool __static_condition_default_19;
 extern const bool __static_condition_default_20;
-extern const bool __static_condition_default_22;
-extern const bool __static_condition_default_17;
-extern const bool __static_condition_default_24;
+extern const bool __static_condition_default_21;
 extern const bool __static_condition_default_12;
+extern const bool __static_condition_default_22;
+extern const bool __static_condition_default_24;
+extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_19;
+extern const bool __static_condition_default_14;
+extern const bool __static_condition_default_18;
+extern const bool __static_condition_default_17;
 extern const bool __static_condition_default_23;
 extern const bool __static_condition_default_16;
-extern const bool __static_condition_default_15;
-extern const bool __static_condition_default_21;
-extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_11;
 extern const bool __static_condition_default_13;
+extern const bool __static_condition_default_15;
 void __static_initializer_default() {
 __static_renaming("__x_0", "x");
 __static_renaming("__x_1", "x");
@@ -51,7 +51,7 @@ __static_condition_renaming("__static_condition_default_24", "!A && !B && !C");
 
 };
 
- int  __main_10 (void  ) {
+int  __main_10 (void  ) {
 
 {
 
