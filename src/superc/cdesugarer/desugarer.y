@@ -9014,7 +9014,7 @@ private static class ExpressionValue {
     // return true unless we find one type that isn't an error
     for (Element<Type> elem : type) {
       /* System.err.println("ELEM: " + elem.getData()); */
-      if (! elem.getData().isError()) {
+      if (! elem.getData().isError() && elem.getCondition().isNotFalse()) {
         return false;
       }
     }
