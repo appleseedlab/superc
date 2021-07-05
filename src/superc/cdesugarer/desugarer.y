@@ -339,8 +339,7 @@ ExternalDeclarationList: /** list, complete **/  // Multiverse<String>
           }
           listmv.destruct();
           System.err.println(product);
-          setTransformationValue(value, product);
-        }
+          setTransformationValue(value, product);}
         ;
 
 ExternalDeclaration:  /** complete **/  // String

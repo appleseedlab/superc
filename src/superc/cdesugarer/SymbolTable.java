@@ -183,12 +183,10 @@ public class SymbolTable<T> implements Iterable<String> {
    * returns a Multiverse that contains only the UNDECLARED entry.
    */
   public Multiverse<Entry<T>> get(String ident, PresenceCondition cond) {
-    Multiverse<Entry<T>> newmv;
+    Multiverse<Entry<T>> newmv = new Multiverse<Entry<T>>();
     if (! this.map.containsKey(ident)) {
       // Create a new multiverse for the symbol that has only the
       // UNDECLARED entry under the True condition
-      newmv = new Multiverse<Entry<T>>();
-
       PresenceCondition trueCond = cond.presenceConditionManager().newTrue();
       newmv.add(UNDECLARED, trueCond);
       trueCond.delRef();
@@ -199,7 +197,15 @@ public class SymbolTable<T> implements Iterable<String> {
       Multiverse<Entry<T>> filtered = newmv.filter(cond);
       return filtered;
     } else {
-      return this.map.get(ident).filter(cond);
+      Multiverse<Entry<T>> cur = this.map.get(ident);
+      for (Element<Entry<T>> e : cur) {
+        if (!e.getCondition().and(CContext.getParseErrorCond()).is(e.getCondition())) {
+          newmv.add(e);
+        } else {
+          newmv.add(UNDECLARED, e.getCondition());
+        }
+      }
+      return newmv.filter(cond);
     }
   }
 

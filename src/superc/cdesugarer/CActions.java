@@ -211,8 +211,7 @@ public class CActions implements SemanticActions {
           }
           listmv.destruct();
           System.err.println(product);
-          setTransformationValue(value, product);
-        }
+          setTransformationValue(value, product);}
     break;
 
   case 5:
