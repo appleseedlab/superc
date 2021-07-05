@@ -74,7 +74,7 @@ typechecker/struct/anonymous                                                    
 typechecker/compound/primitive_function2                                                   BC generated
 typechecker/compound/pointer_struct1                                                       File isn't valid
 typechecker/compound/primitive_pointer1                                                    BC generated
-typechecker/compound/array_function1                                                       BC failed
+typechecker/compound/array_function1                                                       BC generated
 typechecker/compound/pointer_pointer2                                                      BC generated
 typechecker/compound/pointer_pointer1                                                      BC generated
 typechecker/compound/pointer_struct2                                                       BC generated
@@ -82,8 +82,8 @@ typechecker/compound/primitive_struct2                                          
 typechecker/compound/primitive_array1                                                      File isn't valid
 typechecker/compound/struct_function2                                                      BC generated
 typechecker/compound/struct_struct1                                                        File isn't valid
-typechecker/compound/pointer_function1                                                     BC failed
-typechecker/compound/struct_function1                                                      BC failed
+typechecker/compound/pointer_function1                                                     BC generated
+typechecker/compound/struct_function1                                                      BC generated
 typechecker/compound/primitive_array2                                                      BC generated
 typechecker/compound/struct_struct2                                                        BC generated
 typechecker/compound/array_struct1                                                         File isn't valid
@@ -91,7 +91,7 @@ typechecker/compound/array_function2                                            
 typechecker/compound/pointer_array1                                                        File isn't valid
 typechecker/compound/array_struct2                                                         BC generated
 typechecker/compound/array_array1                                                          BC generated
-typechecker/compound/primitive_function1                                                   BC failed
+typechecker/compound/primitive_function1                                                   BC generated
 typechecker/compound/primitive_pointer2                                                    BC generated
 typechecker/compound/function_function1                                                    BC generated
 typechecker/compound/primitive_primitive1                                                  BC generated
@@ -137,7 +137,7 @@ unit/struct_ref_local_var2                                                      
 unit/struct_local_legal                                                                    BC generated
 unit/if_statement_configurable3                                                            BC generated
 unit/global_redeclarations                                                                 File isn't valid
-unit/struct_configurable_cross_and_forward_ref                                             BC failed
+unit/struct_configurable_cross_and_forward_ref                                             BC generated
 unit/variable_partially_defined                                                            BC generated
 unit/enum_constant_expression1                                                             File isn't valid
 unit/enum_enumerators                                                                      BC generated
@@ -274,7 +274,7 @@ transformation/constructs/global_function_multiple_prototypes_same_body         
 transformation/constructs/global_function_static.autodesugar                               File isn't valid
 transformation/constructs/extern_function_multiply-defined                                 BC generated
 transformation/constructs/global_function_multiple_prototypes_same_body.autodesugar        File isn't valid
-transformation/constructs/types_function_and_extern_primitive                              BC failed
+transformation/constructs/types_function_and_extern_primitive                              BC generated
 transformation/constructs/static_function_multiple_prototypes_same_body                    BC generated
 transformation/constructs/types_global_function_multiply-defined_pointer.autodesugar       File isn't valid
 transformation/constructs/types_extern_var_partially-defined                               BC generated

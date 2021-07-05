@@ -56,6 +56,8 @@ public abstract class Node implements Iterable<Object>, Locatable {
   /** The optional source location. */
   Location location;
 
+  public boolean hasBeenPrinted = false;
+  
   // ========================================================================
 
   /** Create a new node. */

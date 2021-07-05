@@ -304,12 +304,16 @@ import com.microsoft.z3.BoolExpr;
 TranslationUnit:  /** complete **/  // String
         ExternalDeclarationList
         {
-          Multiverse<String> extdeclmv = getCompleteNodeMultiverseValue(subparser, 1, subparser.getPresenceCondition());
-          String result;
-          if (extdeclmv.isEmpty()) {
-            result = "";
-          } else {
-            result = concatMultiverseStrings(extdeclmv); extdeclmv.destruct();
+          PresenceConditionManager p = new PresenceConditionManager();
+          PresenceCondition one = p.newTrue();
+          List<Node> extdecls = (List<Node>)getTransformationValue(subparser, 1);
+          String result = "";
+          for (Node n : extdecls) {
+            if (!n.hasBeenPrinted) {
+              n.hasBeenPrinted = true;
+              Multiverse<String> m = getCompleteNodeSingleValue(n,one);
+              result += concatMultiverseStrings(m);
+            }
           }
           setTransformationValue(value, result); 
         }
@@ -321,25 +325,17 @@ TranslationUnit:  /** complete **/  // String
 ExternalDeclarationList: /** list, complete **/  // Multiverse<String>
         /* empty */  // ADDED gcc allows empty program
         {
-          setTransformationValue(value, new Multiverse<String>("",subparser.getPresenceCondition()));
+          
+          setTransformationValue(value, new LinkedList<Node>());
         }
         | ExternalDeclarationList ExternalDeclaration
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<String> listmv = getCompleteNodeMultiverseValue(subparser, 2, pc);
-          Multiverse<String> elemmv = getCompleteNodeSingleValue(subparser, 1, pc);
-          System.err.println(listmv + "--" + elemmv);
-          Multiverse<String> product;
-          if (!listmv.isEmpty()) {
-            product = new Multiverse<String>(concatMultiverseStrings(listmv) +
-                                             concatMultiverseStrings(elemmv), pc);
-            elemmv.destruct();
-          } else {
-            product = elemmv;
-          }
-          listmv.destruct();
-          System.err.println(product);
-          setTransformationValue(value, product);}
+          List<Node> list = (List<Node>)getTransformationValue(subparser, 2);
+          Node elem = getNodeAt(subparser, 1);
+          list.add(elem);
+          setTransformationValue(value, list);
+        }
         ;
 
 ExternalDeclaration:  /** complete **/  // String
