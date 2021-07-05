@@ -202,7 +202,7 @@ public class SymbolTable<T> implements Iterable<String> {
         if (!e.getCondition().and(CContext.getParseErrorCond()).is(e.getCondition())) {
           newmv.add(e);
         } else {
-          newmv.add(UNDECLARED, e.getCondition());
+          newmv.add(ERROR, e.getCondition());
         }
       }
       return newmv.filter(cond);
