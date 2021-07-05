@@ -4779,8 +4779,10 @@ public class CActions implements SemanticActions {
           }
           Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(errorless).filter(exprval.type.getConditionOf(ErrorT.TYPE).not());
           errorless.destruct();
-          for (Element<DeclarationOrStatementValue> e : dsv) {
-            e.getData().setChildrenBlock("{",body,"}");
+          if (!dsv.isEmpty()) {
+            for (Element<DeclarationOrStatementValue> e : dsv) {
+              e.getData().setChildrenBlock("{",body,"}");
+            }
           }
           dsv.add(new DeclarationOrStatementValue(emitError("invalid switch expression") + ";"), exprval.type.getConditionOf(ErrorT.TYPE));
           setTransformationValue(value, dsv);
