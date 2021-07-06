@@ -3,6 +3,7 @@ package superc.cdesugarer;
 import java.util.List;
 import java.util.LinkedList;
 
+import xtc.Constants;
 import xtc.type.Type;
 import xtc.type.NumberT;
 import xtc.type.IntegerT;
@@ -42,6 +43,7 @@ abstract class Initializer {
   /** True if an list initializer */
   boolean isList() { return false; }
 
+  
   // /**
   //  * Return the type of this initializer for use in checking against
   //  * the declaration.
@@ -50,6 +52,7 @@ abstract class Initializer {
 
   abstract public boolean hasValidType();
   public boolean hasList() { return false; }
+  public boolean hasNonConst() {return false; }
   public List<Initializer> getList() { return null; }
   public boolean hasChild() { return false; }
   public Initializer getChild() { return null; }
@@ -98,9 +101,10 @@ abstract class Initializer {
     }
 
     public boolean hasList() { return initializer.hasList(); }
+    public boolean hasNonConst() { return initializer.hasNonConst(); }
     public List<Initializer> getList() { return initializer.getList(); }
     public boolean hasChild() { return true; }
-  public Initializer getChild() { return initializer; }
+    public Initializer getChild() { return initializer; }
   
   }
 
@@ -123,6 +127,9 @@ abstract class Initializer {
     }
     
     boolean isExpression() { return true; }
+    public boolean hasNonConst() { boolean x =  !type.hasAttribute(Constants.ATT_CONSTANT) && !type.hasConstant();
+      System.err.println(Boolean.toString(x));
+      return x;}
 
     public boolean hasValidType() {
       return ! type.isError();
@@ -173,6 +180,16 @@ abstract class Initializer {
     }
 
     public boolean hasList() { return true; }
+
+    public boolean hasNonConst() {
+      for (Initializer i : list) {
+        if (i.hasNonConst()) {
+          return true;
+        }
+      }
+      return false;
+    }
+    
     public List<Initializer> getList() { return list; }
   }
 
@@ -215,6 +232,9 @@ abstract class Initializer {
     
     public boolean hasChild() { return true; }
     public Initializer getChild() { return initializer; }
+
+    public boolean hasNonConst() { return initializer.hasNonConst(); }
+    
   }
 
   /**

@@ -132,6 +132,7 @@ class DesugarOps {
         return from.toString();
       }
     };
+  
 
   /*****************************************************************************
    ********* Multiverse operators for Declarators
@@ -907,6 +908,7 @@ class DesugarOps {
     return BooleanT.TYPE;
   };
 
+  
   /**
    * Check the type of an assignment.
    */

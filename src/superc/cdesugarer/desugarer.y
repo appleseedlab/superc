@@ -4858,6 +4858,7 @@ SelectionStatement:  /** complete **/ // Multiverse<String>
           String rparen = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
           String lbrace = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
           List<Multiverse<DeclarationOrStatementValue>> body = (List<Multiverse<DeclarationOrStatementValue>>) getTransformationValue(subparser, 2);
+          Multiverse<List<DeclarationOrStatementValue>> bodyswap = listMultiverseSwap(body,subparser.getPresenceCondition());
           String rbrace = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
 
           todoReminder("check that switch statement expression should be an int");
@@ -4874,13 +4875,20 @@ SelectionStatement:  /** complete **/ // Multiverse<String>
           }
           Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(errorless).filter(exprval.type.getConditionOf(ErrorT.TYPE).not());
           errorless.destruct();
-          if (!dsv.isEmpty()) {
+          Multiverse<DeclarationOrStatementValue> newdsv = new Multiverse<DeclarationOrStatementValue>();
+          if (!dsv.isEmpty() && !bodyswap.isEmpty()) {
             for (Element<DeclarationOrStatementValue> e : dsv) {
-              e.getData().setChildrenBlock("{",body,"}");
+              for (Element<List<DeclarationOrStatementValue>> b : bodyswap) {
+                if (!e.getCondition().isMutuallyExclusive(b.getCondition())) {
+                  DeclarationOrStatementValue d = new DeclarationOrStatementValue(e.getData());
+                  d.setSwitchChildrenBlock("{",b.getData(),"}");
+                  newdsv.add(d,e.getCondition().and(b.getCondition()));
+                }
+              }
             }
           }
-          dsv.add(new DeclarationOrStatementValue(emitError("invalid switch expression") + ";"), exprval.type.getConditionOf(ErrorT.TYPE));
-          setTransformationValue(value, dsv);
+          newdsv.add(new DeclarationOrStatementValue(emitError("invalid switch expression") + ";"), exprval.type.getConditionOf(ErrorT.TYPE));
+          setTransformationValue(value, newdsv);
         }
         ;
 // TODO: destruct the multiverses after product
@@ -5360,9 +5368,10 @@ VariableArgumentAccess:  /** nomerge **/  // ADDED
           Multiverse<String> typename_appended = typenamestr.appendScalar(suffix, DesugarOps.concatStrings);
           Multiverse<String> transformationmv = expr_appended.product(typename_appended, DesugarOps.concatStrings);
           typename_appended.destruct(); typenamestr.destruct(); prepended.destruct();
-
+          
           Multiverse<Type> typemv = DesugarOps.typenameToType.transform(typename);
-
+          typemv = typemv.filter(exprval.type.getConditionOf(ErrorT.TYPE).not());
+          typemv.add(ErrorT.TYPE, exprval.type.getConditionOf(ErrorT.TYPE));
           expr_appended.destruct(); 
           todoReminder("typecheck VariableArgumentAccess (1)");
 
@@ -8135,10 +8144,32 @@ protected Multiverse<String> declarationAction(List<DeclaringListValue> declarin
                           recordRenaming(renaming, originalName);
                         }
                       } else {
-                        entrysb.append(desugaredDeclaration);
-                        entrysb.append(initializer.getData().toString());
-                        entrysb.append(semi);  // semi-colon
-                        recordRenaming(renaming, originalName);
+                        boolean compatibleTypes = true;
+                        //check for initializer list
+                          if (initializer.getData().hasList()) {
+                            System.err.println("----------------------\n");
+                            compatibleTypes = !initializer.getData().hasNonConst();
+                          }
+                          if (compatibleTypes) {
+                            entrysb.append(desugaredDeclaration);
+                            entrysb.append(initializer.getData().toString());
+                            entrysb.append(semi);  // semi-colon
+                            recordRenaming(renaming, originalName);
+                          } else {
+                            scope.putError(originalName, entry.getCondition());
+                            recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+                            if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                              externalLinkage.putError(originalName, entry.getCondition());
+                            } else if (!scope.isGlobal()) {
+                              entrysb.append("if (");
+                              entrysb.append(condToCVar(entry.getCondition()));
+                              entrysb.append(") {\n");
+                              entrysb.append(emitError(String.format("non const value in constant list or struct: %s",
+                                                                     originalName)));
+                              entrysb.append(";\n");
+                              entrysb.append("}\n");
+                            }
+                          }
                       }
                     } else {  // already declared entries
                       if (! scope.isGlobal()) {
@@ -8650,6 +8681,46 @@ public Multiverse<String> appendStringToMV(Multiverse<String> oldmv, String app,
     }
   } while (remade);
   return newmv;
+}
+
+
+static public <T> Multiverse<List<T>> listMultiverseSwap(List<Multiverse<T>> list, PresenceCondition pc) {
+  Multiverse<List<T>> lists = new Multiverse<List<T>>();
+  lists.add(new LinkedList<T>(), pc);
+  for (Multiverse<T> m : list) {
+    for (Element<T> e : m) {
+      //for each value, check to see if any 'and's does not result
+      //in not. If it doesn't split the list.
+      boolean remade;
+      do {
+        remade = false;
+        for (Element<List<T>> el : lists) {
+          PresenceCondition p = el.getCondition().and(e.getCondition());
+          //if the presencondition is a subset, but isn't 0
+          //issue is, that we also add if e is strictly greater than.
+          if (el.getCondition().is(p)) {
+            el.getData().add(e.getData());
+          } else if (!p.isFalse()) {
+            Multiverse<List<T>> newLists = new Multiverse<List<T>>();
+            for (Element<List<T>> elN : lists) {
+              if (elN != el) {
+                newLists.add(elN.getData(), elN.getCondition());
+              }
+            }
+            List<T> tL = new LinkedList<T>(el.getData());
+            newLists.add(el.getData(), p);
+            newLists.add(tL, el.getCondition().and(e.getCondition().not()));
+            lists.destruct();
+            lists = newLists;
+            remade = true;
+            p.delRef();
+            break;
+          }
+        }
+      } while (remade);
+    } 
+  }
+  return lists;
 }
 
 /***************************************************************************
@@ -9181,6 +9252,7 @@ private static class EnumeratorValValue {
 public static class DeclarationOrStatementValue {
   private String mainValue;
   private List<Multiverse<DeclarationOrStatementValue>> children;
+  private List<DeclarationOrStatementValue> switchChildren;
   private String childPrepend;
   private boolean isElse;
   private boolean isDo;
@@ -9195,6 +9267,7 @@ public static class DeclarationOrStatementValue {
     childPrepend = "";
     childAppend = "";
     children = null;
+    switchChildren = null;
     isElse = false;
     isDo = false;
     isDecl = false;
@@ -9212,11 +9285,26 @@ public static class DeclarationOrStatementValue {
     childPrepend = "";
     childAppend = "";
     children = null;
+    switchChildren = null;
     isElse = false;
     isDo = false;
     isDecl = false;
     isLabel = false;
     isGotoLabel = false;
+  }
+
+  public DeclarationOrStatementValue(DeclarationOrStatementValue x) {
+    isEmpty = x.isEmpty;
+    mainValue = x.mainValue;
+    childPrepend = x.childPrepend;
+    childAppend = x.childAppend;
+    children = x.children;
+    switchChildren = x.switchChildren;
+    isElse = x.isElse;
+    isDo = x.isDo;
+    isDecl = x.isDecl;
+    isLabel = x.isLabel;
+    isGotoLabel = x.isGotoLabel;
   }
 
   public void setLabel(String label) {
@@ -9243,6 +9331,13 @@ public static class DeclarationOrStatementValue {
     isEmpty = false;
   }
 
+  public void setSwitchChildrenBlock(String p, List<DeclarationOrStatementValue> c, String a) {
+    childPrepend = p;
+    switchChildren = c;
+    childAppend = a;
+    isEmpty = false;
+  }
+  
   public void setChildrenElse(Multiverse<DeclarationOrStatementValue> a,Multiverse<DeclarationOrStatementValue> b) {
     isElse = true;
     children = new LinkedList<Multiverse<DeclarationOrStatementValue>>();
@@ -9306,6 +9401,10 @@ public static class DeclarationOrStatementValue {
             }
             combinedCond.delRef();
           }
+        }
+      } else if (switchChildren != null) {
+        for (DeclarationOrStatementValue d : switchChildren) {
+          ret += d.getString(p,ca);
         }
       }
     } else {

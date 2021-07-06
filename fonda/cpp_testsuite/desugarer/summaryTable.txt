@@ -132,6 +132,7 @@ unit/function_parameters_empty                                                  
 unit/macroFunction                                                                         File GT not confirmed
 unit/z3                                                                                    BC generated
 unit/if_statement                                                                          BC generated
+unit/switchCaseConfig                                                                      File GT not confirmed
 unit/sizeof                                                                                BC generated
 unit/struct_ref_local_var2                                                                 File GT not confirmed
 unit/struct_local_legal                                                                    BC generated
@@ -172,6 +173,7 @@ unit/redeclare_structs                                                          
 unit/forloop                                                                               BC generated
 unit/counter_variable                                                                      File GT not confirmed
 unit/struct_simple                                                                         BC generated
+unit/initializerError                                                                      File GT not confirmed
 unit/struct_desugar_test                                                                   BC generated
 unit/struct_global_forward_reference_desugar                                               BC generated
 unit/struct_nested_anonymous                                                               BC generated
@@ -184,6 +186,7 @@ unit/function_configurably_defined                                              
 unit/struct_global_forward_reference                                                       BC generated
 unit/configurable_array                                                                    File isn't valid
 unit/bitfieldsize                                                                          File GT not confirmed
+unit/vaArgError                                                                            File GT not confirmed
 unit/enum_libbb                                                                            BC generated
 unit/struct_global_forward_reference_illegal                                               File isn't valid
 unit/selectAssembly                                                                        File GT not confirmed
