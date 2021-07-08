@@ -577,7 +577,6 @@ FunctionPrototype {restartLabelFunction();} CompoundStatement
             /* declaratormv.destruct(); */
           } // end of check for invalid typespecifier
           // prototypestrmv may be empty if none are valid types
-          if (debug) System.err.println(scope.getSymbolTable());
           prototypeNodemv.destruct();
 
           if (validCond.isFalse()) {
@@ -635,7 +634,6 @@ FunctionPrototype {restartLabelFunction();} CompoundStatement
             Multiverse<String> subprototypestrmv = resultmv.filter(pc);
             resultmv.destruct();
     
-            /* System.err.println("PROTOTYPESTRMV2 " + prototypestrmv); */
             Multiverse<DeclarationOrStatementValue> bodymv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
             // declarations, including function definitions, should
             // appear unconditionally in the desugared output, since
@@ -1093,7 +1091,6 @@ Declaration:  /** complete **/  // String
           sb.append("\n");
           m = appendStringToMV(m,"\n",pc);
           
-          /* System.err.println(((CContext) subparser.scope).getSymbolTable()); */
           setTransformationValue(value, m);
         }
         | DeclaringList { KillReentrantScope(subparser); } SEMICOLON
@@ -1686,7 +1683,6 @@ SUEDeclarationSpecifier: /** complete **/          /* StorageClass + struct/unio
           // TODO: unit test this action
           PresenceCondition pc = subparser.getPresenceCondition();
 
-          /* System.err.println(getNodeAt(subparser, 2)); */
           Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
@@ -3570,7 +3566,6 @@ Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists // M
           Multiverse<List<Initializer>> lists = (Multiverse<List<Initializer>>) getTransformationValue(subparser, 3);
           Multiverse<List<Initializer>> newelem
             = DesugarOps.initializerListWrap.transform((Multiverse<Initializer>) getTransformationValue(subparser, 2));
-          System.err.println(getTransformationValue(subparser, 2));
           Multiverse<List<Initializer>> cproduct = lists.complementedProduct(newelem, DesugarOps.INITIALIZERLISTCONCAT);
           //lists.destruct(); newelem.destruct();
           setTransformationValue(value, DesugarOps.toInitializerList.transform(cproduct));
@@ -4265,7 +4260,6 @@ ArrayAbstractDeclarator: /** nomerge **/
           todoReminder("check expression in ArrayAbstractDeclarator (2)");
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
           Multiverse<String> arrayBounds = exprval.transformation;
-          System.err.println(exprval);
           Multiverse<Declarator> valuemv = DesugarOps.toAbstractArrayDeclarator.transform(arrayBounds);
           // this is getting an empty mv on filtered for /usr/include/x86_64-linux-gnu/bits/types.h in typesizes.h
           for (Element<Declarator> e : valuemv) {
@@ -4308,7 +4302,6 @@ ArrayAbstractDeclarator: /** nomerge **/
               PresenceCondition combinedCondition = declaratorCond.and(expression.getCondition());
               ArrayAbstractDeclarator a = new ArrayAbstractDeclarator((ArrayAbstractDeclarator) declarator.getData(),
                                                                       expression.getData());
-              System.err.println(t.getClass());
               if (!t.hasConstant() && !t.hasAttribute(Constants.ATT_CONSTANT)) {
                 a.setTypeError(true);
               }
@@ -5141,7 +5134,6 @@ ReturnStatement:  /** complete **/ // Multiverse<String>
           todoReminder("check the type of the return value");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
-          System.err.println(getNodeAt(subparser, 3) + " " + exprval);
           String returnkeyword = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
           Multiverse<String> exprmv = exprval.transformation;
           String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
@@ -5795,12 +5787,8 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
               if (tag.startsWith("__forward_tag_reference_")) {
                 // TODO: is there a safer way to check for this?
 
-                System.err.println("GET: " + tag);
                 String originalTag = scope.getForwardTagReferenceAnyScope(tag);
-                System.err.println("GET: " + originalTag);
-
-
-                System.err.println("originalTag: " + originalTag);
+                
 
                 Multiverse<SymbolTable.Entry<Type>> originalTagEntries
                   = scope.getInAnyScope(CContext.toTagName(originalTag), type.getCondition());
@@ -5952,12 +5940,9 @@ IndirectSelection:  /** nomerge **/
               if (tag.startsWith("__forward_tag_reference_")) {
                 // TODO: is there a safer way to check for this?
 
-                System.err.println("GET: " + tag);
                 String originalTag = scope.getForwardTagReferenceAnyScope(tag);
-                System.err.println("GET: " + originalTag);
-
-                System.err.println("originalTag: " + originalTag);
-
+                
+                
                 Multiverse<SymbolTable.Entry<Type>> originalTagEntries
                   = scope.getInAnyScope(CContext.toTagName(originalTag), type.getCondition());
 
@@ -6476,7 +6461,6 @@ OffsetofExpression:  /** nomerge **/
           typenamestr.destruct(); prepended.destruct();
 
           Multiverse<String> offsetofstr = DesugarOps.offsetofToString.transform(designator);
-          System.err.println(offsetofstr);
           Multiverse<String> offsetofappended = offsetofstr.appendScalar(suffix, DesugarOps.concatStrings);
           
           todoReminder("typecheck OffsetofExpression (1)");
@@ -7104,8 +7088,6 @@ LogicalAndExpression:  /** passthrough, nomerge **/  // ExpressionValue
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
           ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
-          System.err.println("L"+leftval);
-          System.err.println("R"+rightval);
           
           
 
@@ -7119,7 +7101,6 @@ LogicalAndExpression:  /** passthrough, nomerge **/  // ExpressionValue
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             ExpressionValue e = new ExpressionValue(productmv,
                                                     productAll(DesugarOps.propTypeError, leftval.type, rightval.type));
-            System.err.println("E"+e);
             
             setTransformationValue(value, new ExpressionValue(productmv,
                                                               productAll(DesugarOps.propTypeError, leftval.type, rightval.type))); // TODO: placeholder for real type
@@ -8147,7 +8128,6 @@ protected Multiverse<String> declarationAction(List<DeclaringListValue> declarin
                         boolean compatibleTypes = true;
                         //check for initializer list
                           if (initializer.getData().hasList()) {
-                            System.err.println("----------------------\n");
                             compatibleTypes = !initializer.getData().hasNonConst();
                           }
                           if (compatibleTypes) {
@@ -8260,7 +8240,6 @@ protected Multiverse<String> declarationAction(List<DeclaringListValue> declarin
     /* declaratormv.destruct(); */
     /* initializermv.destruct(); */
   } // end loop over declaringlistvalues
-  if (debug) System.err.println(scope.getSymbolTable());
   return valuemv;
 }
 
@@ -8562,7 +8541,6 @@ private int trueInitSize(Initializer i) {
 
 
 Multiverse<Map.Entry<String,Type>> getNestedFields(String structId, String fieldId, PresenceCondition pc, CContext scope) {
-  System.err.println(structId);
   Multiverse<Map.Entry<String,Type>> result = new Multiverse<Map.Entry<String,Type>>();
   SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(structId);
   Multiverse<Entry<Type>> m = tagtab.get(fieldId, pc);
