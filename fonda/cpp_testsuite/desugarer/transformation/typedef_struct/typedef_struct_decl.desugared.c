@@ -28,8 +28,8 @@ __intAlias_0  __x_2;
 
 struct __anonymous_tag_1  __intWrapper_3;
 
- __intWrapper_3  . __x_2 = 2 ;
-return 0 ;
+ __intWrapper_3  . __x_2 = 2 ; // L6
+return 0 ;// L8
 }
 
 

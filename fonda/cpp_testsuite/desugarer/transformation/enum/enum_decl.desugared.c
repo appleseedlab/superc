@@ -31,8 +31,8 @@ int  __main_7 (void  ) {
 
 enum letter  __apple_6;
 
- __apple_6  =  __a_0  ;
-return 0 ;
+ __apple_6  =  __a_0  ; // L5
+return 0 ;// L7
 }
 
 

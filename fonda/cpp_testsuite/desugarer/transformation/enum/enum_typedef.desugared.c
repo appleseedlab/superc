@@ -33,8 +33,8 @@ int  __main_8 (void  ) {
 
 __letter_6  __apple_7;
 
- __apple_7  =  __a_0  ;
-return 0 ;
+ __apple_7  =  __a_0  ; // L5
+return 0 ;// L7
 }
 
 

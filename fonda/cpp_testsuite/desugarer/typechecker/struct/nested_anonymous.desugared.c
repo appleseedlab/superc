@@ -40,22 +40,22 @@ struct __list_3  __head_6;
 
 struct __list_3  __tail_7;
 
- __head_6  . __data_4 . __p_1 = 'a' ;
- __head_6  . __next_5 = &  __tail_7  ;
- __tail_7  . __data_4 . __p_1 = 'b' ;
- __tail_7  . __next_5 = 0 ;
+ __head_6  . __data_4 . __p_1 = 'a' ; // L12
+ __head_6  . __next_5 = &  __tail_7  ; // L13
+ __tail_7  . __data_4 . __p_1 = 'b' ; // L14
+ __tail_7  . __next_5 = 0 ; // L15
 struct __list_3  (* __current_8)= &  __head_6 ;
 
-while ( 0 !=  __current_8  )
+while ( 0 !=  __current_8  )// L18
 
 {
 
 
 
- __current_8  -> __data_4 . __p_1 = 'a' ;
- __current_8  =  __current_8  -> __next_5 ;
+ __current_8  -> __data_4 . __p_1 = 'a' ; // L19
+ __current_8  =  __current_8  -> __next_5 ; // L20
 }
-return 0 ;
+return 0 ;// L23
 }
 
 

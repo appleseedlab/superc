@@ -64,7 +64,7 @@ typechecker/declarators/PASS_valid_array_with_init                              
 typechecker/struct/tagged                                                                  BC generated
 typechecker/struct/selfref                                                                 BC generated
 typechecker/struct/nested_anonymous                                                        BC generated
-typechecker/struct/redef                                                                   BC generated
+typechecker/struct/redef                                                                   BC failed
 typechecker/struct/tagnamespace                                                            BC generated
 typechecker/struct/no_nested_redef                                                         File isn't valid
 typechecker/struct/struct_global_forward_reference                                         File isn't valid
@@ -251,7 +251,7 @@ transformation/functions/config_return_type                                     
 transformation/functions/int_main                                                          BC generated
 transformation/functions/void_main                                                         BC generated
 transformation/functions/config_implicit_function_call                                     BC generated
-transformation/functions/function_pointer                                                  BC generated
+transformation/functions/function_pointer                                                  BC failed
 transformation/functions/config_parameters                                                 BC generated
 transformation/functions/config_main_body                                                  BC generated
 transformation/functions/config_explicit_function_call                                     BC generated
@@ -282,7 +282,7 @@ transformation/constructs/static_function_multiple_prototypes_same_body         
 transformation/constructs/types_global_function_multiply-defined_pointer.autodesugar       File isn't valid
 transformation/constructs/types_extern_var_partially-defined                               BC generated
 transformation/constructs/global_var_static                                                BC generated
-transformation/constructs/global_var_static2                                               BC generated
+transformation/constructs/global_var_static2                                               BC failed
 transformation/constructs/types_global_function_multiple_prototypes_same_body              File isn't valid
 transformation/constructs/global_function_static                                           BC generated
 transformation/constructs/global_var_static.autodesugar                                    File isn't valid
@@ -342,14 +342,14 @@ transformation/typedef_struct/config_partially_defined_struct_field             
 transformation/typedef_struct/config_typedef                                               BC generated
 transformation/typedef_struct/config_partially_defined_struct                              BC generated
 transformation/typedef_struct/typedef_struct_decl                                          BC generated
-transformation/misc/singlevariable                                                         BC generated
+transformation/misc/singlevariable                                                         BC failed
 transformation/misc/canonical                                                              BC generated
 transformation/misc/main                                                                   BC generated
 transformation/misc/twovariables.autodesugar                                               File isn't valid
 transformation/misc/inside                                                                 BC generated
 transformation/misc/decl                                                                   BC generated
-transformation/misc/twovariables                                                           BC generated
-transformation/misc/bob                                                                    BC generated
+transformation/misc/twovariables                                                           BC failed
+transformation/misc/bob                                                                    BC failed
 transformation/misc/canonical_example                                                      BC generated
 transformation/misc/twovariablesdifferent                                                  BC generated
 transformation/misc/test                                                                   BC generated
@@ -398,9 +398,12 @@ transformation/phasar/linear_constant/recursion_01_resugared                    
 transformation/phasar/linear_constant/call_01_resugared                                    BC generated
 transformation/phasar/linear_constant/basic_02_resugared                                   BC generated
 transformation/phasar/linear_constant/basic_04                                             BC generated
-transformation/phasar/secure_memory/memory1                                                BC generated
-transformation/phasar/secure_memory/memory1_resugared                                      BC generated
-transformation/phasar/secure_memory/memory1_2                                              BC generated
+transformation/phasar/secure_memory/memory1                                                SuperC failed
+transformation/phasar/secure_memory/memory1                                                BC failed
+transformation/phasar/secure_memory/memory1_resugared                                      SuperC failed
+transformation/phasar/secure_memory/memory1_resugared                                      BC failed
+transformation/phasar/secure_memory/memory1_2                                              SuperC failed
+transformation/phasar/secure_memory/memory1_2                                              BC failed
 transformation/phasar/secure_memory/memory1_resugared_decls_added                          BC generated
 transformation/phasar/secure_memory/memory1_2_resugared_decls_added                        File isn't valid
 transformation/phasar/secure_memory/memory1_2_resugared                                    File isn't valid

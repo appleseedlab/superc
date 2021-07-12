@@ -34,7 +34,7 @@ char  __e_4= 5;
 char  __f_5= 6;
 char  __g_6= 7;
 
-return 0 ;
+return 0 ;// L5
 }
 
 

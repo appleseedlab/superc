@@ -30,10 +30,10 @@ int  __x_0;
 char  __x_1;
 
 if (__static_condition_default_3) {
- __x_0  ++ ;
+ __x_0  ++ ; // L7
 }
 if (__static_condition_default_4) {
- __x_1  -- ;
+ __x_1  -- ; // L10
 }
 }
 

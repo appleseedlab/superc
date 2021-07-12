@@ -20,7 +20,7 @@ void  __doNothing_0 () {
 
 
 
-return  ;
+return  ;// L2
 }
 
 
@@ -32,8 +32,8 @@ int  __main_1 (void  ) {
 
 
 
- __doNothing_0 ( ) ;
-return 0 ;
+ __doNothing_0 ( ) ; // L6
+return 0 ;// L8
 }
 
 

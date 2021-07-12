@@ -31,34 +31,34 @@ int  __x_0;
 char  __x_1;
 
 if (__static_condition_default_4) {
- __x_0  = 1 ;
+ __x_0  = 1 ; // L8
 }
 if (__static_condition_default_5) {
- __x_1  = 1 ;
+ __x_1  = 1 ; // L8
 }
 if (__static_condition_default_4) {
- __x_0  ++ ;
+ __x_0  ++ ; // L10
 }
 if (__static_condition_default_5) {
- __x_1  ++ ;
+ __x_1  ++ ; // L10
 }
 if (__static_condition_default_4) {
- __x_0  -- ;
+ __x_0  -- ; // L11
 }
 if (__static_condition_default_5) {
- __x_1  -- ;
+ __x_1  -- ; // L11
 }
 int  __y_2;
 
 if (__static_condition_default_4) {
- __y_2  =  __x_0  ;
+ __y_2  =  __x_0  ; // L15
 }
 if (__static_condition_default_5) {
- __y_2  =  __x_1  ;
+ __y_2  =  __x_1  ; // L15
 }
-++  __y_2  ;
---  __y_2  ;
-return 0 ;
+++  __y_2  ; // L17
+--  __y_2  ; // L18
+return 0 ;// L20
 }
 
 

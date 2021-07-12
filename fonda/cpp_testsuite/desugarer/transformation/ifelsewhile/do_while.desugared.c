@@ -28,10 +28,10 @@ do
 
 
 
- __x_0  -- ;
+ __x_0  -- ; // L6
 }
-while(  __x_0  > 3 );
-return 0 ;
+while(  __x_0  > 3 );// L8
+return 0 ;// L10
 }
 
 

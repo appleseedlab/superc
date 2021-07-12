@@ -28,10 +28,10 @@ int  __main_2 () {
 
 
 if (__static_condition_default_3) {
- __x_0 ( ) ;
+ __x_0 ( ) ; // L8
 }
 if (__static_condition_default_4) {
- __x_1 ( ) ;
+ __x_1 ( ) ; // L8
 }
 }
 

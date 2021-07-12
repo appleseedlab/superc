@@ -31,10 +31,10 @@ int  __main_3 () {
 float  __x_2;
 
 if (__static_condition_default_4) {
- __x_1  ++ ;
+ __x_1  ++ ; // L15
 }
 if (__static_condition_default_5) {
- __x_2  ++ ;
+ __x_2  ++ ; // L15
 }
 }
 

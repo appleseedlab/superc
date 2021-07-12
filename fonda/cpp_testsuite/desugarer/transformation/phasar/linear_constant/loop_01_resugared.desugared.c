@@ -29,21 +29,21 @@ int  __x_0= 0;
 
 if (__static_condition_default_3) {
 { int  __i_1= 0;
- for ( ;  __i_1  < 10 ; ++  __i_1  )
+ for ( ;  __i_1  < 10 ; ++  __i_1  ) // L5
 
 {
 
 
 
-++  __x_0  ;
+++  __x_0  ; // L6
 }
 }
 }
 if (__static_condition_default_4) {
-return  __x_0  ;
+return  __x_0  ;// L10
 }
 if (__static_condition_default_3) {
-return  __x_0  ;
+return  __x_0  ;// L10
 }
 }
 

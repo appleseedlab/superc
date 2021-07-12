@@ -25,7 +25,7 @@ int  __increment_1 (int  __i_0) {
 
 
 
-return ++  __i_0  ;
+return ++  __i_0  ;// L1
 }
 
 
@@ -40,13 +40,13 @@ int  __main_3 () {
 int  __x_2= 99;
 
 if (__static_condition_default_4) {
- __x_2  =  __increment_1  (  __x_2  ) ;
+ __x_2  =  __increment_1  (  __x_2  ) ; // L7
 }
 if (__static_condition_default_5) {
-return  __x_2  ;
+return  __x_2  ;// L10
 }
 if (__static_condition_default_4) {
-return  __x_2  ;
+return  __x_2  ;// L10
 }
 }
 

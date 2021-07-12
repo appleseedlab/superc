@@ -456,7 +456,6 @@ public class CActions implements SemanticActions {
             /* declaratormv.destruct(); */
           } // end of check for invalid typespecifier
           // prototypestrmv may be empty if none are valid types
-          if (debug) System.err.println(scope.getSymbolTable());
           prototypeNodemv.destruct();
 
           if (validCond.isFalse()) {
@@ -514,7 +513,6 @@ public class CActions implements SemanticActions {
             Multiverse<String> subprototypestrmv = resultmv.filter(pc);
             resultmv.destruct();
     
-            /* System.err.println("PROTOTYPESTRMV2 " + prototypestrmv); */
             Multiverse<DeclarationOrStatementValue> bodymv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
             // declarations, including function definitions, should
             // appear unconditionally in the desugared output, since
@@ -1011,7 +1009,6 @@ public class CActions implements SemanticActions {
           sb.append("\n");
           m = appendStringToMV(m,"\n",pc);
           
-          /* System.err.println(((CContext) subparser.scope).getSymbolTable()); */
           setTransformationValue(value, m);
         }
     break;
@@ -1669,7 +1666,6 @@ public class CActions implements SemanticActions {
           // TODO: unit test this action
           PresenceCondition pc = subparser.getPresenceCondition();
 
-          /* System.err.println(getNodeAt(subparser, 2)); */
           Multiverse<TypeSpecifier> tb = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<TypeSpecifier> tb1 = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
           setTransformationValue(value, tb.product(tb1, DesugarOps.specifierProduct));
@@ -3441,7 +3437,6 @@ public class CActions implements SemanticActions {
           Multiverse<List<Initializer>> lists = (Multiverse<List<Initializer>>) getTransformationValue(subparser, 3);
           Multiverse<List<Initializer>> newelem
             = DesugarOps.initializerListWrap.transform((Multiverse<Initializer>) getTransformationValue(subparser, 2));
-          System.err.println(getTransformationValue(subparser, 2));
           Multiverse<List<Initializer>> cproduct = lists.complementedProduct(newelem, DesugarOps.INITIALIZERLISTCONCAT);
           //lists.destruct(); newelem.destruct();
           setTransformationValue(value, DesugarOps.toInitializerList.transform(cproduct));
@@ -4192,7 +4187,6 @@ public class CActions implements SemanticActions {
           todoReminder("check expression in ArrayAbstractDeclarator (2)");
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
           Multiverse<String> arrayBounds = exprval.transformation;
-          System.err.println(exprval);
           Multiverse<Declarator> valuemv = DesugarOps.toAbstractArrayDeclarator.transform(arrayBounds);
           // this is getting an empty mv on filtered for /usr/include/x86_64-linux-gnu/bits/types.h in typesizes.h
           for (Element<Declarator> e : valuemv) {
@@ -4237,7 +4231,6 @@ public class CActions implements SemanticActions {
               PresenceCondition combinedCondition = declaratorCond.and(expression.getCondition());
               ArrayAbstractDeclarator a = new ArrayAbstractDeclarator((ArrayAbstractDeclarator) declarator.getData(),
                                                                       expression.getData());
-              System.err.println(t.getClass());
               if (!t.hasConstant() && !t.hasAttribute(Constants.ATT_CONSTANT)) {
                 a.setTypeError(true);
               }
@@ -4392,8 +4385,8 @@ public class CActions implements SemanticActions {
   case 346:
     {
           PresenceCondition pc = subparser.getPresenceCondition();
-
-          String ident = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          Syntax id = (Syntax) getNodeAt(subparser, 4);
+          String ident = id.getTokenText();
           
           // TODO: save attributes
           Multiverse<DeclarationOrStatementValue>  stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
@@ -4645,15 +4638,20 @@ public class CActions implements SemanticActions {
   case 371:
     {
           PresenceCondition pc = subparser.getPresenceCondition();
+          
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
           Multiverse<Type> exprtype = exprval.type;
           PresenceCondition errorCond = exprtype.getConditionOf(ErrorT.TYPE);
- 
           Multiverse<String> valuemv;
+
+          String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+          Multiverse<LineNumbers> lns = exprval.integrateSyntax((Syntax) getNodeAt(subparser, 1));
+          Multiverse<String> comments = DesugarOps.LineNumbersToString.transform(lns);
+          
+          
           if (! exprval.isAlwaysError()) {
             Multiverse<String> expr = exprval.transformation;
-            String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
-            
+          
             // if filtering of type errors is done right, this add 
            // should not violate mutual-exclusion in the multiverse
             // TODO: use dce and other optimizations to remove superfluous __static_type_error calls
@@ -4668,12 +4666,13 @@ public class CActions implements SemanticActions {
             
           } else {
             System.err.println("type error: ExpressionStatement found no valid expressions");
-            valuemv = new Multiverse<String>(String.format("%s;", emitError("type error : no valid expression")), errorCond);
+            valuemv = new Multiverse<String>(String.format("%s", emitError("type error : no valid expression")), errorCond);
           }
           assert valuemv != null;
           /* System.err.println("EXPSMT: " + valuemv); */
           
           errorCond.delRef();
+          valuemv = valuemv.product(comments, DesugarOps.concatStrings);
           setTransformationValue(value, DesugarOps.StringToDSV.transform(valuemv));
         }
     break;
@@ -4683,12 +4682,14 @@ public class CActions implements SemanticActions {
           todoReminder("check the type of the conditional expression SelectionStatement (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 3, pc);
-          String ifstr = ((Syntax) getNodeAt(subparser, 5)).getTokenText();
+          Syntax ifsyn = (Syntax) getNodeAt(subparser, 5);
+          String ifstr = ifsyn.getTokenText();
           String lparenstr = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
           Multiverse<String> exprmv = exprval.transformation;
-          String rparenstr = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
+          Syntax rparensyn = (Syntax) getNodeAt(subparser, 2);
+          String rparenstr = rparensyn.getTokenText();
           Multiverse<DeclarationOrStatementValue> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
-
+          LineNumbers lw = new LineNumbers(ifsyn,rparensyn);
           String errorstmt = String.format("%s;", emitError("invalid type found in if statement"));
           if (exprval.hasValidType()) {
             Multiverse<String> validmv = exprval.validTransformations(pc);
@@ -4696,7 +4697,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> prependmv
               = validmv.prependScalar(prependstr, DesugarOps.concatStrings); validmv.destruct();
             Multiverse<String> appendmv
-              = prependmv.appendScalar(rparenstr, DesugarOps.concatStrings); prependmv.destruct();
+              = prependmv.appendScalar(rparenstr + lw.getComment(), DesugarOps.concatStrings); prependmv.destruct();
 
             Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(appendmv);
 
@@ -4718,11 +4719,13 @@ public class CActions implements SemanticActions {
           todoReminder("check the type of the conditional expression SelectionStatement (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 5, pc);
-
-          String ifstr = ((Syntax) getNodeAt(subparser, 7)).getTokenText();
+          Syntax ifsyn = (Syntax) getNodeAt(subparser, 7);
+          String ifstr = ifsyn.getTokenText();
           String lparenstr = ((Syntax) getNodeAt(subparser, 6)).getTokenText();
           Multiverse<String> exprmv = exprval.transformation;
-          String rparenstr = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          Syntax rparensyn = (Syntax) getNodeAt(subparser, 4);
+          String rparenstr = rparensyn.getTokenText();
+          LineNumbers lw = new LineNumbers(ifsyn, rparensyn);
           Multiverse<DeclarationOrStatementValue> ifbranchmv = getCompleteNodeMultiverseValue(subparser, 3, pc);
           String elsestr = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
           Multiverse<DeclarationOrStatementValue> elsebranchmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
@@ -4734,7 +4737,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> prependmv
               = validmv.prependScalar(prependstr, DesugarOps.concatStrings); validmv.destruct();
             Multiverse<String> appendmv
-              = prependmv.appendScalar(rparenstr, DesugarOps.concatStrings); prependmv.destruct();
+              = prependmv.appendScalar(rparenstr + lw.getComment(), DesugarOps.concatStrings); prependmv.destruct();
 
             Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(appendmv);
 
@@ -4756,12 +4759,14 @@ public class CActions implements SemanticActions {
           // n1570 6.8.4.2 for switch statements
 
           // n1570 labeled statement, 6.8.1, case and default are only to be used under switch statements
-
-          String switchstr = ((Syntax) getNodeAt(subparser, 7)).getTokenText();
+          Syntax switchsyn = (Syntax) getNodeAt(subparser, 7);
+          String switchstr = switchsyn.getTokenText();
           String lparen = ((Syntax) getNodeAt(subparser, 6)).getTokenText();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 5, subparser.getPresenceCondition());
-          String rparen = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          Syntax rparensyn = (Syntax) getNodeAt(subparser, 4);
+          String rparen = (rparensyn).getTokenText();
           String lbrace = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          LineNumbers lw = new LineNumbers(switchsyn, rparensyn);
           List<Multiverse<DeclarationOrStatementValue>> body = (List<Multiverse<DeclarationOrStatementValue>>) getTransformationValue(subparser, 2);
           Multiverse<List<DeclarationOrStatementValue>> bodyswap = listMultiverseSwap(body,subparser.getPresenceCondition());
           String rbrace = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
@@ -4770,7 +4775,7 @@ public class CActions implements SemanticActions {
 
           String prefix = String.format("%s %s", switchstr, lparen);
           Multiverse<String> prepended = exprval.transformation.prependScalar(prefix, DesugarOps.concatStrings);
-          String suffix = String.format("%s", rparen);
+          String suffix = String.format("%s%s", rparen, lw.getComment() );
           Multiverse<String> appended = prepended.appendScalar(suffix, DesugarOps.concatStrings);
           prepended.destruct();
           Multiverse<String> errorless = appended.filter(exprval.type.getConditionOf(ErrorT.TYPE).not());
@@ -4803,12 +4808,14 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 3, pc);
 
-          String whilestr = ((Syntax) getNodeAt(subparser, 5)).getTokenText();
+          Syntax whilesyn = (Syntax) getNodeAt(subparser, 5);
+          String whilestr = whilesyn.getTokenText();
           String lparenstr = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
           Multiverse<String> exprmv = exprval.transformation;
-          String rparenstr = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
+          Syntax rparensyn = (Syntax) getNodeAt(subparser, 2);
+          String rparenstr = (rparensyn).getTokenText();
           Multiverse<DeclarationOrStatementValue> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
-
+          LineNumbers lw = new LineNumbers(whilesyn, rparensyn);
           String errorstmt = String.format("%s;", emitError("invalid type found in while statement"));
           if (exprval.hasValidType()) {
             Multiverse<String> validmv = exprval.validTransformations(pc);
@@ -4816,7 +4823,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> prependmv
               = validmv.prependScalar(prependstr, DesugarOps.concatStrings); validmv.destruct();
             Multiverse<String> appendmv
-              = prependmv.appendScalar(rparenstr, DesugarOps.concatStrings); prependmv.destruct();
+              = prependmv.appendScalar(rparenstr + lw.getComment(), DesugarOps.concatStrings); prependmv.destruct();
 
             Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(appendmv);
 
@@ -4841,15 +4848,18 @@ public class CActions implements SemanticActions {
 
           String dostr = (String)((Syntax) getNodeAt(subparser, 7)).getTokenText();
           Multiverse<DeclarationOrStatementValue> stmtmv = getCompleteNodeMultiverseValue(subparser, 6, pc);
-          String whilestr =  (String)((Syntax) getNodeAt(subparser, 5)).getTokenText();
+          Syntax whilesyn = (Syntax) getNodeAt(subparser, 5);
+          String whilestr =  whilesyn.getTokenText();
           String lparenstr = (String)((Syntax) getNodeAt(subparser, 4)).getTokenText();
           Multiverse<String> exprmv = exprval.transformation;
           String rparenstr = (String)((Syntax) getNodeAt(subparser, 2)).getTokenText();
-          String semistr =   (String)((Syntax) getNodeAt(subparser, 1)).getTokenText();
+          Syntax semisyn = (Syntax) getNodeAt(subparser, 1);
+          String semistr =   semisyn.getTokenText();
+          LineNumbers lw = new LineNumbers(whilesyn, semisyn);
           Multiverse<String> prependmv
               = exprmv.prependScalar(whilestr + lparenstr, DesugarOps.concatStrings); exprmv.destruct();
           Multiverse<String> appendmv
-            = prependmv.appendScalar(rparenstr + semistr, DesugarOps.concatStrings); prependmv.destruct();
+            = prependmv.appendScalar(rparenstr + semistr + lw.getComment(), DesugarOps.concatStrings); prependmv.destruct();
 
           Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(appendmv);
           
@@ -4869,15 +4879,17 @@ public class CActions implements SemanticActions {
     {
           todoReminder("check the type of the conditional expression IterationStatement (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          String forkeyword = ((Syntax) getNodeAt(subparser, 9)).getTokenText();
+          Syntax forsyn = (Syntax) getNodeAt(subparser, 9);
+          String forkeyword = forsyn.getTokenText();
           String lparen = ((Syntax) getNodeAt(subparser, 8)).getTokenText();
           ExpressionValue initval = getCompleteNodeExpressionValue(subparser, 7, pc);
           String semi1 = ((Syntax) getNodeAt(subparser, 6)).getTokenText();
           ExpressionValue testval = getCompleteNodeExpressionValue(subparser, 5, pc);
           String semi2 = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
           ExpressionValue updateval = getCompleteNodeExpressionValue(subparser, 3, pc);
-          String rparen = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
-
+          Syntax rparensyn = (Syntax) getNodeAt(subparser, 2); 
+          String rparen = rparensyn.getTokenText();
+          LineNumbers lw = new LineNumbers(forsyn,rparensyn);
 
           if (initval.hasValidType() && testval.hasValidType() && updateval.hasValidType()) {
             PresenceCondition cond1 = initval.validTypeCondition(pc);
@@ -4901,7 +4913,7 @@ public class CActions implements SemanticActions {
               Multiverse<String> mv3 = mv2.product(testmv, DesugarOps.concatStrings); mv2.destruct();
               Multiverse<String> mv4 = mv3.appendScalar(semi2, DesugarOps.concatStrings); mv3.destruct();
               Multiverse<String> mv5 = mv4.product(updatemv, DesugarOps.concatStrings); mv4.destruct();
-              Multiverse<String> valuemv = mv5.appendScalar(rparen, DesugarOps.concatStrings); mv5.destruct();
+              Multiverse<String> valuemv = mv5.appendScalar(rparen + lw.getComment(), DesugarOps.concatStrings); mv5.destruct();
               
               valuemv = valuemv.filter(initval.type.getConditionOf(ErrorT.TYPE).not()).
                 filter(testval.type.getConditionOf(ErrorT.TYPE).not()).filter(updateval.type.getConditionOf(ErrorT.TYPE).not());
@@ -4946,7 +4958,7 @@ public class CActions implements SemanticActions {
           // TODO: consider rewriting this to put the declaration outside the for loop.  since it's renamed, we should have conflicts, and it resolves issues with scope and semantic values
           todoReminder("check the type of the conditional expression IterationStatement (4)");
           PresenceCondition pc = subparser.getPresenceCondition();
-
+          LineNumbers lw = new LineNumbers((Syntax) getNodeAt(subparser, 10), (Syntax) getNodeAt(subparser, 3));
           Multiverse<String> formv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 10)).getTokenText(), pc);
           Multiverse<String> lparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 9)).getTokenText(), pc);
           Multiverse<String> declstring = getCompleteNodeMultiverseValue(getNodeAt(subparser, 7),subparser.getPresenceCondition());
@@ -4956,6 +4968,7 @@ public class CActions implements SemanticActions {
           ExpressionValue updateval = getCompleteNodeExpressionValue(subparser, 4, pc);
           Multiverse<String> updatemv = updateval.transformation;
           Multiverse<String> rparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 3)).getTokenText(), pc);
+          Multiverse<String> comment = new Multiverse<String>(lw.getComment(),pc);
           Multiverse<DeclarationOrStatementValue> stmtmv = getCompleteNodeMultiverseValue(subparser, 2, pc);
 
           // rewrite by moving the declaration above the for-loop.
@@ -4976,7 +4989,8 @@ public class CActions implements SemanticActions {
                                                 testmv,
                                                 semi2mv,
                                                 updatemv,
-                                                  rparen);
+                                                  rparen,
+                                                  comment);
           valuemv = valuemv.filter(testval.type.getConditionOf(ErrorT.TYPE).not()).filter(updateval.type.getConditionOf(ErrorT.TYPE).not());
 
           Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(valuemv);
@@ -5038,28 +5052,30 @@ public class CActions implements SemanticActions {
 
   case 387:
     {
+          LineNumbers lw = new LineNumbers((Syntax) getNodeAt(subparser, 2),(Syntax) getNodeAt(subparser, 1));
           String continuetoken = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
           String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
-          setTransformationValue(value, new Multiverse<String>(String.format("%s %s", continuetoken, semi),
+          setTransformationValue(value, new Multiverse<String>(String.format("%s %s %s", continuetoken, semi, lw.getComment()),
                                                                subparser.getPresenceCondition()));
         }
     break;
 
   case 388:
     {
+          LineNumbers lw = new LineNumbers((Syntax) getNodeAt(subparser, 2),(Syntax) getNodeAt(subparser, 1));
           String breaktoken = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
           String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
-          setTransformationValue(value, new Multiverse<String>(String.format("%s %s", breaktoken, semi),
+          setTransformationValue(value, new Multiverse<String>(String.format("%s %s %s", breaktoken, semi, lw.getComment()),
                                                                subparser.getPresenceCondition()));
         }
     break;
 
   case 389:
     {
+          LineNumbers lw = new LineNumbers((Syntax) getNodeAt(subparser, 3),(Syntax) getNodeAt(subparser, 1));
           todoReminder("check the type of the return value");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
-          System.err.println(getNodeAt(subparser, 3) + " " + exprval);
           String returnkeyword = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
           Multiverse<String> exprmv = exprval.transformation;
           String semi = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
@@ -5071,7 +5087,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> prependmv
               = validmv.prependScalar(returnkeyword, DesugarOps.concatStrings); validmv.destruct();
             Multiverse<String> valuemv
-              = prependmv.appendScalar(semi, DesugarOps.concatStrings); prependmv.destruct();
+              = prependmv.appendScalar(semi + lw.getComment(), DesugarOps.concatStrings); prependmv.destruct();
             PresenceCondition invalidCond = exprval.invalidTypeCondition(pc);
             valuemv.add(errorstmt, invalidCond);
             setTransformationValue(value, valuemv);
@@ -5085,7 +5101,7 @@ public class CActions implements SemanticActions {
     {
           setTransformationValue(value,
                                  new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
-                                                     new FloatT(NumberT.Kind.FLOAT).attribute(Constants.ATT_CONSTANT), subparser.getPresenceCondition()));
+                                                     new FloatT(NumberT.Kind.FLOAT).attribute(Constants.ATT_CONSTANT), new Multiverse<LineNumbers>(new LineNumbers((Syntax) getNodeAt(subparser, 1)),subparser.getPresenceCondition()), subparser.getPresenceCondition()));
         }
     break;
 
@@ -5095,7 +5111,7 @@ public class CActions implements SemanticActions {
           /* System.err.println(value); */
           setTransformationValue(value,
                                  new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
-                                                     new IntegerT(NumberT.Kind.INT).attribute(Constants.ATT_CONSTANT), subparser.getPresenceCondition()));
+                                                     new IntegerT(NumberT.Kind.INT).attribute(Constants.ATT_CONSTANT),new Multiverse<LineNumbers>(new LineNumbers((Syntax) getNodeAt(subparser, 1)), subparser.getPresenceCondition()), subparser.getPresenceCondition()));
 
           /* System.err.println("Constant: " + value.hashCode()); */
           // TODO: check whether INT is correct here, or whether we
@@ -5107,7 +5123,7 @@ public class CActions implements SemanticActions {
     {
           setTransformationValue(value,
                                  new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
-                                                     new IntegerT(NumberT.Kind.INT).attribute(Constants.ATT_CONSTANT), subparser.getPresenceCondition()));
+                                                     new IntegerT(NumberT.Kind.INT).attribute(Constants.ATT_CONSTANT),new Multiverse<LineNumbers>(new LineNumbers((Syntax) getNodeAt(subparser, 1)), subparser.getPresenceCondition()), subparser.getPresenceCondition()));
         }
     break;
 
@@ -5115,7 +5131,7 @@ public class CActions implements SemanticActions {
     {
           setTransformationValue(value,
                                  new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
-                                                     new IntegerT(NumberT.Kind.INT).attribute(Constants.ATT_CONSTANT), subparser.getPresenceCondition()));
+                                                     new IntegerT(NumberT.Kind.INT).attribute(Constants.ATT_CONSTANT),new Multiverse<LineNumbers>(new LineNumbers((Syntax) getNodeAt(subparser, 1)), subparser.getPresenceCondition()), subparser.getPresenceCondition()));
         }
     break;
 
@@ -5123,22 +5139,23 @@ public class CActions implements SemanticActions {
     {
           setTransformationValue(value,
                                  new ExpressionValue(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
-                                                     new IntegerT(NumberT.Kind.SHORT).attribute(Constants.ATT_CONSTANT), subparser.getPresenceCondition()));
+                                                     new IntegerT(NumberT.Kind.SHORT).attribute(Constants.ATT_CONSTANT),new Multiverse<LineNumbers>(new LineNumbers((Syntax) getNodeAt(subparser, 1)), subparser.getPresenceCondition()), subparser.getPresenceCondition()));
         }
     break;
 
   case 395:
     {
-          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          setTransformationValue(value, new StringListPair(((Syntax) getNodeAt(subparser, 1)).getTokenText(),
+                                                           new LineNumbers((Syntax) getNodeAt(subparser, 1))));
         }
     break;
 
   case 396:
     {
-          StringBuilder valuesb = new StringBuilder();
-          valuesb.append((String) getTransformationValue(subparser, 2));
-          valuesb.append(((Syntax) getNodeAt(subparser, 1)).getTokenText());
-          setTransformationValue(value, valuesb.toString());
+          StringListPair s = new StringListPair(((StringListPair)getTransformationValue(subparser, 2)).str +
+                                                ((Syntax) getNodeAt(subparser, 1)).getTokenText(),
+                                                new LineNumbers(new LineNumbers((Syntax) getNodeAt(subparser, 1)), ((StringListPair)getTransformationValue(subparser, 2)).lines));
+          setTransformationValue(value, s);
         }
     break;
 
@@ -5147,8 +5164,9 @@ public class CActions implements SemanticActions {
           // TODO: CAnalyzer distinguishes between wide and non-wide characters
           // TODO: use a fixed-size array instead of a pointer to char
           setTransformationValue(value,
-                                 new ExpressionValue((String) getTransformationValue(subparser, 1),
+                                 new ExpressionValue(((StringListPair) getTransformationValue(subparser, 1)).str,
                                                      new PointerT(NumberT.CHAR),
+                                                     new Multiverse<LineNumbers>(((StringListPair) getTransformationValue(subparser, 1)).lines, subparser.getPresenceCondition()),
                                                      subparser.getPresenceCondition()));
         }
     break;
@@ -5173,6 +5191,8 @@ public class CActions implements SemanticActions {
 
   case 401:
     {
+          LineNumbers lw = new LineNumbers((Syntax) getNodeAt(subparser, 3),(Syntax) getNodeAt(subparser, 1));
+          
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
           /* System.err.println("PRIMARY: " + exprval.transformation); */
@@ -5186,10 +5206,10 @@ public class CActions implements SemanticActions {
             Multiverse<String> prepended = exprmv.prependScalar(lparen, DesugarOps.concatStrings);
             Multiverse<String> appended = prepended.appendScalar(rparen, DesugarOps.concatStrings); prepended.destruct();
 
-            setTransformationValue(value, new ExpressionValue(appended, exprval.type));
+            setTransformationValue(value, new ExpressionValue(appended, exprval.type,new Multiverse<LineNumbers>(lw,pc)));
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type for the primary expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,new Multiverse<LineNumbers>(lw,pc),
                                                               pc));
           }
         }
@@ -5265,12 +5285,14 @@ public class CActions implements SemanticActions {
           assert ! sbmv.isEmpty();
           entries.destruct();
           
-          setTransformationValue(value, new ExpressionValue(sbmv, typemv));
+          setTransformationValue(value, new ExpressionValue(sbmv, typemv,new Multiverse<LineNumbers>(new LineNumbers((Syntax)getNodeAt(subparser, 1)),cond)));
         }
     break;
 
   case 405:
     {
+          LineNumbers lw = new LineNumbers((Syntax) getNodeAt(subparser, 6),(Syntax) getNodeAt(subparser, 1));
+   
           PresenceCondition pc = subparser.getPresenceCondition();
           String prefix = String.format("%s %s",
                                         ((Syntax) getNodeAt(subparser, 6)).getTokenText(),
@@ -5296,7 +5318,7 @@ public class CActions implements SemanticActions {
           expr_appended.destruct(); 
           todoReminder("typecheck VariableArgumentAccess (1)");
 
-          setTransformationValue(value, new ExpressionValue(transformationmv, typemv));
+          setTransformationValue(value, new ExpressionValue(transformationmv, typemv,new Multiverse<LineNumbers>(lw,pc)));
         }
     break;
 
@@ -5310,6 +5332,8 @@ public class CActions implements SemanticActions {
 
   case 408:
     {
+          LineNumbers lw = new LineNumbers((Syntax) getNodeAt(subparser, 5),(Syntax) getNodeAt(subparser, 1));
+          
           // TODO: unit test this construct
           todoReminder("get last expression's type from compound statement in StatementAsExpression");
 
@@ -5327,7 +5351,7 @@ public class CActions implements SemanticActions {
           Multiverse<Type> typemv = new Multiverse<Type>(NumberT.INT, pc);
           
           setTransformationValue(value, new ExpressionValue(valuemv,
-                                                            typemv));  // TODO: placeholder; get type from compoundstatement
+                                                            typemv, new Multiverse<LineNumbers>(lw,pc)));  // TODO: placeholder; get type from compoundstatement
         }
     break;
 
@@ -5428,10 +5452,10 @@ public class CActions implements SemanticActions {
             PresenceCondition validTypes = errorCond.not();
             transformationmv = transformationmv.filter(validTypes);
             setTransformationValue(value, new ExpressionValue(transformationmv,
-                                                              typemv));
+                                                              typemv, postfixexprval.integrateSyntax((Syntax)getNodeAt(subparser, 1))));
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in subscript expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE, postfixexprval.integrateSyntax((Syntax)getNodeAt(subparser, 1)),
                                                               pc));
           }
         }
@@ -5473,11 +5497,11 @@ public class CActions implements SemanticActions {
             }
             
             setTransformationValue(value, new ExpressionValue(valuemv,
-                                                              returntype)); // TODO: placeholder for real type
+                                                              returntype, exprval.integrateSyntax((Syntax)getNodeAt(subparser, 1)))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in function call"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE, exprval.integrateSyntax((Syntax)getNodeAt(subparser, 1)),
                                                               pc));
           }
         }
@@ -5676,17 +5700,17 @@ public class CActions implements SemanticActions {
               /* System.err.println("FCALLTYPE: " + typemv); */
               /* System.err.println("FCALLERRVALS: " + valuemv); */
             
-              setTransformationValue(value, new ExpressionValue(valuemv, typemv));
+              setTransformationValue(value, new ExpressionValue(valuemv, typemv, postfixexprval.integrateSyntax((Syntax)getNodeAt(subparser, 1))));
             } else {
               setTransformationValue(value, new ExpressionValue(emitError("no valid type for one or more arguments of the function call"),
-                                                                ErrorT.TYPE,
+                                                                ErrorT.TYPE, postfixexprval.integrateSyntax((Syntax)getNodeAt(subparser, 1)),
                                                                 pc));
             }
           } else { // types of postfixexprval are all errors
             // TODO: this throws away the type message from the child,
             // so perhaps copy the child's mv values instead.
             setTransformationValue(value, new ExpressionValue(emitError("no valid type for the function part of the function call"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE, postfixexprval.integrateSyntax((Syntax)getNodeAt(subparser, 1)),
                                                               pc));
           }
         }
@@ -5734,12 +5758,8 @@ public class CActions implements SemanticActions {
               if (tag.startsWith("__forward_tag_reference_")) {
                 // TODO: is there a safer way to check for this?
 
-                System.err.println("GET: " + tag);
                 String originalTag = scope.getForwardTagReferenceAnyScope(tag);
-                System.err.println("GET: " + originalTag);
-
-
-                System.err.println("originalTag: " + originalTag);
+                
 
                 Multiverse<SymbolTable.Entry<Type>> originalTagEntries
                   = scope.getInAnyScope(CContext.toTagName(originalTag), type.getCondition());
@@ -5843,10 +5863,10 @@ public class CActions implements SemanticActions {
             PresenceCondition typesafeCond = errorCond.not();
             valuemv = valuemv.filter(typesafeCond);
             errorCond.delRef(); typesafeCond.delRef();*/
-            setTransformationValue(value, new ExpressionValue(valuemv, typemv));
+            setTransformationValue(value, new ExpressionValue(valuemv, typemv, postfixval.integrateSyntax(((Syntax) getNodeAt(subparser, 1).get(0)))));
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in direct expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE, postfixval.integrateSyntax(((Syntax) getNodeAt(subparser, 1).get(0))),
                                                               pc));
           }
         }
@@ -5890,12 +5910,9 @@ public class CActions implements SemanticActions {
               if (tag.startsWith("__forward_tag_reference_")) {
                 // TODO: is there a safer way to check for this?
 
-                System.err.println("GET: " + tag);
                 String originalTag = scope.getForwardTagReferenceAnyScope(tag);
-                System.err.println("GET: " + originalTag);
-
-                System.err.println("originalTag: " + originalTag);
-
+                
+                
                 Multiverse<SymbolTable.Entry<Type>> originalTagEntries
                   = scope.getInAnyScope(CContext.toTagName(originalTag), type.getCondition());
 
@@ -6083,10 +6100,10 @@ public class CActions implements SemanticActions {
             identmv.destruct(); prepend.destruct();
             
             /* System.err.println("valuemv " + valuemv); */
-            setTransformationValue(value, new ExpressionValue(valuemv, typemv));
+            setTransformationValue(value, new ExpressionValue(valuemv, typemv, postfixval.integrateSyntax(((Syntax) getNodeAt(subparser, 1).get(0)))));
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in indirect expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE, postfixval.integrateSyntax(((Syntax) getNodeAt(subparser, 1).get(0))),
                                                               pc));
           }
         }
@@ -6109,10 +6126,11 @@ public class CActions implements SemanticActions {
 
             setTransformationValue(value,
                                    new ExpressionValue(resultmv,
-                                                       typemv));  // TODO: placeholder until type checking
+                                                       typemv,
+                                                       exprval.integrateSyntax((Syntax) getNodeAt(subparser, 1))));  // TODO: placeholder until type checking
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in unary operation"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE, exprval.integrateSyntax((Syntax) getNodeAt(subparser, 1)),
                                                               pc));
           }
         }
@@ -6135,10 +6153,10 @@ public class CActions implements SemanticActions {
 
             setTransformationValue(value,
                                    new ExpressionValue(resultmv,
-                                                       typemv));  // TODO: placeholder until type checking
+                                                       typemv, exprval.integrateSyntax((Syntax) getNodeAt(subparser, 1))));  // TODO: placeholder until type checking
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in unary operation"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE, exprval.integrateSyntax((Syntax) getNodeAt(subparser, 1)),
                                                               pc));
           }
         }
@@ -6146,6 +6164,8 @@ public class CActions implements SemanticActions {
 
   case 424:
     {
+          LineNumbers lw = new LineNumbers((Syntax) getNodeAt(subparser, 6),(Syntax) getNodeAt(subparser, 1));
+          
           // TODO compare the expression's type against the type name
           // to rule out invalid casts.
           todoReminder("check the legality of the cast and the initializer list types");
@@ -6173,7 +6193,7 @@ public class CActions implements SemanticActions {
 
           Multiverse<Type> typemv = DesugarOps.typenameToType.transform(typename);
 
-          setTransformationValue(value, new ExpressionValue(transformationmv, typemv));
+          setTransformationValue(value, new ExpressionValue(transformationmv, typemv, new Multiverse<LineNumbers>(lw,pc)));
         }
     break;
 
@@ -6236,10 +6256,11 @@ public class CActions implements SemanticActions {
 
             setTransformationValue(value,
                                    new ExpressionValue(resultmv,
-                                                       typemv));  // TODO: placeholder until type checking
+                                                       typemv, exprval.integrateSyntax((Syntax) getNodeAt(subparser, 2))));  // TODO: placeholder until type checking
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in unary operation"),
                                                               ErrorT.TYPE,
+                                                              exprval.integrateSyntax((Syntax) getNodeAt(subparser, 2)),
                                                               pc));
           }
         }
@@ -6262,10 +6283,11 @@ public class CActions implements SemanticActions {
 
             setTransformationValue(value,
                                    new ExpressionValue(resultmv,
-                                                       typemv));  // TODO: placeholder until type checking
+                                                       typemv,exprval.integrateSyntax((Syntax) getNodeAt(subparser, 2))));  // TODO: placeholder until type checking
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in unary operation"),
                                                               ErrorT.TYPE,
+                                                              exprval.integrateSyntax((Syntax) getNodeAt(subparser, 2)),
                                                               pc));
           }
         }
@@ -6289,7 +6311,8 @@ public class CActions implements SemanticActions {
 
             setTransformationValue(value,
                                    new ExpressionValue(resultmv,
-                                                       typemv));  // TODO: placeholder until type checking
+                                                       typemv,
+                                                       exprval.integrateSyntax((Syntax) getTransformationValue(subparser,2))));  // TODO: placeholder until type checking
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in unary operation"),
                                                               ErrorT.TYPE,
@@ -6313,20 +6336,23 @@ public class CActions implements SemanticActions {
                                  new ExpressionValue(productAll(DesugarOps.concatStrings,
                                                                 opmv,
                                                                 exprmv),
-                                                     type));
+                                                     type,
+                                                     exprval.integrateSyntax((Syntax) getNodeAt(subparser, 2))));
           opmv.destruct();
         }
     break;
 
   case 432:
     {
+         
           PresenceCondition pc = subparser.getPresenceCondition();
           String prefix = String.format("%s %s",
                                         ((Syntax) getNodeAt(subparser, 4)).getTokenText(),
                                         ((Syntax) getNodeAt(subparser, 3)).getTokenText());
           Multiverse<Declaration> typename = (Multiverse<Declaration>) getTransformationValue(subparser, 2);
           String suffix = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
-
+          LineNumbers lw = new LineNumbers((Syntax) getNodeAt(subparser, 4),(Syntax) getNodeAt(subparser, 1));
+          
           // convert to string and append tokens
           Multiverse<String> typenamestr = DesugarOps.typenameToString.transform(typename);
           Multiverse<String> prepended = typenamestr.prependScalar(prefix, DesugarOps.concatStrings);
@@ -6341,7 +6367,7 @@ public class CActions implements SemanticActions {
             }
           }
           
-          setTransformationValue(value, new ExpressionValue(appended, type));
+          setTransformationValue(value, new ExpressionValue(appended, type, new Multiverse<LineNumbers>(lw,pc)));
         }
     break;
 
@@ -6412,6 +6438,7 @@ public class CActions implements SemanticActions {
 
   case 441:
     {
+          LineNumbers lw = new LineNumbers((Syntax) getNodeAt(subparser, 6),(Syntax) getNodeAt(subparser, 1));
           PresenceCondition pc = subparser.getPresenceCondition();
           String prefix = String.format("%s %s",
                                         ((Syntax) getNodeAt(subparser, 6)).getTokenText(),
@@ -6428,7 +6455,6 @@ public class CActions implements SemanticActions {
           typenamestr.destruct(); prepended.destruct();
 
           Multiverse<String> offsetofstr = DesugarOps.offsetofToString.transform(designator);
-          System.err.println(offsetofstr);
           Multiverse<String> offsetofappended = offsetofstr.appendScalar(suffix, DesugarOps.concatStrings);
           
           todoReminder("typecheck OffsetofExpression (1)");
@@ -6439,7 +6465,7 @@ public class CActions implements SemanticActions {
                                  new ExpressionValue(productAll(DesugarOps.concatStrings,
                                                                 appended,
                                                                 offsetofappended),
-                                                     type));
+                                                     type,new Multiverse<LineNumbers>(lw,pc)));
           appended.destruct(); offsetofappended.destruct();
         }
     break;
@@ -6454,7 +6480,7 @@ public class CActions implements SemanticActions {
           Multiverse<String> exprmv = exprval.transformation;
           setTransformationValue(value,
                                  new ExpressionValue(productAll(DesugarOps.concatStrings, extmv, exprmv),
-                                                     exprval.type));
+                                                     exprval.type,exprval.integrateSyntax((Syntax) getNodeAt(subparser, 2))));
           extmv.destruct();
         }
     break;
@@ -6462,11 +6488,13 @@ public class CActions implements SemanticActions {
   case 443:
     {
           PresenceCondition pc = subparser.getPresenceCondition();
-          String keyword = (String) getTransformationValue(subparser, 4);
+          Syntax keysyn = (Syntax) getTransformationValue(subparser, 4);
+          String keyword = keysyn.getTokenText();
           String lparen = getNodeAt(subparser, 3).getTokenText();
           Multiverse<Declaration> typenamemv = (Multiverse<Declaration>) getTransformationValue(subparser, 2);
+          Syntax rparensyn = (Syntax)getNodeAt(subparser, 1);
           String rparen = getNodeAt(subparser, 1).getTokenText();
-
+          LineNumbers lw = new LineNumbers(keysyn,rparensyn); 
           // go through each typespecifier and either (1) construct the
           // transformation or (2) preserve the type error.
           Multiverse<String> valuestr = new Multiverse<String>();
@@ -6498,7 +6526,7 @@ public class CActions implements SemanticActions {
           assert ! valuetype.isEmpty();
           errorCond.delRef();
           
-          ExpressionValue exprval = new ExpressionValue(valuestr, valuetype);
+          ExpressionValue exprval = new ExpressionValue(valuestr, valuetype,new Multiverse<LineNumbers>(lw,pc));
           
           setTransformationValue(value, exprval);
         }
@@ -6513,13 +6541,13 @@ public class CActions implements SemanticActions {
 
   case 445:
     {
-          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          setTransformationValue(value, (Syntax)getNodeAt(subparser, 1));
         }
     break;
 
   case 446:
     {
-          setTransformationValue(value, ((Syntax) getNodeAt(subparser, 1)).getTokenText());
+          setTransformationValue(value, (Syntax) getNodeAt(subparser, 1));
         }
     break;
 
@@ -6596,7 +6624,7 @@ public class CActions implements SemanticActions {
           Multiverse<Type> typemv = DesugarOps.typenameToType.transform(typename);
           typemv = typemv.filter(exprval.type.getConditionOf(ErrorT.TYPE).not());
           typemv.add(ErrorT.TYPE, exprval.type.getConditionOf(ErrorT.TYPE));
-          setTransformationValue(value, new ExpressionValue(transformationmv, typemv));
+          setTransformationValue(value, new ExpressionValue(transformationmv, typemv, exprval.integrateSyntax((Syntax) getNodeAt(subparser, 4))));
         }
     break;
 
@@ -6622,10 +6650,10 @@ public class CActions implements SemanticActions {
                                                                          leftmv,
                                                                          opmv,
                                                                          rightmv),
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type)));  // TODO: this is a placeholder for the real type
+                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in multiplicative expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
           opmv.destruct();
@@ -6648,10 +6676,10 @@ public class CActions implements SemanticActions {
                                                                          leftmv,
                                                                          opmv,
                                                                          rightmv),
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type)));  // TODO: this is a placeholder for the real type
+                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in multiplicative expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
           opmv.destruct();
@@ -6673,10 +6701,10 @@ public class CActions implements SemanticActions {
                                                                          leftmv,
                                                                          opmv,
                                                                          rightmv),
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type)));  // TODO: this is a placeholder for the real type
+                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in multiplicative expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
           opmv.destruct();
@@ -6705,11 +6733,11 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
         }
@@ -6731,11 +6759,11 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
         }
@@ -6763,11 +6791,11 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              leftval.type)); // TODO: placeholder for real type
+                                                              leftval.type,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
         }
@@ -6789,11 +6817,11 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              leftval.type)); // TODO: placeholder for real type
+                                                              leftval.type,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
         }
@@ -6821,11 +6849,11 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.relOpProduct, leftval.type, rightval.type)));
+                                                              productAll(DesugarOps.relOpProduct, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers)));
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
         }
@@ -6847,11 +6875,11 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.relOpProduct, leftval.type, rightval.type)));
+                                                              productAll(DesugarOps.relOpProduct, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers)));
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
         }
@@ -6873,11 +6901,11 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.relOpProduct, leftval.type, rightval.type)));
+                                                              productAll(DesugarOps.relOpProduct, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers)));
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
         }
@@ -6899,11 +6927,11 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.relOpProduct, leftval.type, rightval.type)));
+                                                              productAll(DesugarOps.relOpProduct, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers)));
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
         }
@@ -6931,11 +6959,11 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
         }
@@ -6957,11 +6985,11 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
         }
@@ -6989,11 +7017,11 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
         }
@@ -7021,11 +7049,11 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              leftval.type)); // TODO: placeholder for real type
+                                                              leftval.type,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
         }
@@ -7053,11 +7081,11 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
         }
@@ -7075,8 +7103,6 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
           ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
-          System.err.println("L"+leftval);
-          System.err.println("R"+rightval);
           
           
 
@@ -7090,14 +7116,13 @@ public class CActions implements SemanticActions {
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             ExpressionValue e = new ExpressionValue(productmv,
                                                     productAll(DesugarOps.propTypeError, leftval.type, rightval.type));
-            System.err.println("E"+e);
             
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
         }
@@ -7125,11 +7150,11 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
-                                                              ErrorT.TYPE,
+                                                              ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
         }
@@ -7163,10 +7188,12 @@ public class CActions implements SemanticActions {
                                                                          ifmv,
                                                                          colonmv,
                                                                          elsemv),
-                                                              ifval.type));  // TODO: this is a placeholder for the real type
+                                                              ifval.type,
+                                                              condval.lines.product(elseval.lines, DesugarOps.combineLineNumbers)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in conditionalexpression expression"),
                                                               ErrorT.TYPE,
+                                                              condval.lines.product(elseval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
           quesmv.destruct(); colonmv.destruct();
@@ -7198,28 +7225,15 @@ public class CActions implements SemanticActions {
             
             Multiverse<String> expr = leftval.transformation;
             Multiverse<String> op = this.<String>getCompleteNodeSingleValue(subparser, 2, pc);
-            /* Multiverse<String> op */
-            /*   = new Multiverse<String>((String) getTransformationValue(subparser, 2), pc); */
             Multiverse<String> assign = rightval.transformation;
-            /* System.err.println(expr); */
-            /* System.err.println(op); */
-            /* System.err.println(assign); */
-            /* System.err.println(getNodeAt(subparser, 1)); */
-
+            
             // type-checking
             Multiverse<Type> exprtype = leftval.type;
             Multiverse<Type> assigntype = rightval.type;
-            /* System.err.println("exprtype: " + exprtype); */
-            /* System.err.println("assigntype: " + assigntype); */
-            /* Multiverse<Type> producttype = exprtype.product(assigntype, DesugarOps.compareTypes); */
             Multiverse<Type> producttype = DesugarOps.checkAssignmentType(exprtype, assigntype, op, pc, false);
-            /* System.err.println("TODO: deduplicate ErrorT"); */
-            /* System.err.println("TODO: allow type coercion"); */
-
+            
             Multiverse<Type> typemv = producttype;
-            /* Multiverse<Type> typemv = producttype.deduplicate(ErrorT.TYPE); */
-            /* producttype.destruct(); */
-
+            
             // filter out configurations with type errors
             PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
             PresenceCondition typesafeCond = errorCond.not();
@@ -7241,11 +7255,12 @@ public class CActions implements SemanticActions {
               valuemv = suffix;
             }
             errorCond.delRef(); typesafeCond.delRef();
-            setTransformationValue(value, new ExpressionValue(valuemv, typemv));
+            setTransformationValue(value, new ExpressionValue(valuemv, typemv, leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers)));
             
           } else {  // no valid types
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in assignment expression"),
                                                               ErrorT.TYPE,
+                                                              leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
                                                               pc));
           }
         }
@@ -7354,8 +7369,9 @@ public class CActions implements SemanticActions {
 
           Multiverse<String> transformationmv = appended.product(rightmv, DesugarOps.concatStrings);
           appended.destruct();
+          Multiverse<LineNumbers> lnsmv = leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers);
 
-          setTransformationValue(value, new ExpressionValue(transformationmv, rightval.type));
+          setTransformationValue(value, new ExpressionValue(transformationmv, rightval.type, lnsmv));
         }
     break;
 
@@ -8285,7 +8301,6 @@ protected Multiverse<String> declarationAction(List<DeclaringListValue> declarin
                         boolean compatibleTypes = true;
                         //check for initializer list
                           if (initializer.getData().hasList()) {
-                            System.err.println("----------------------\n");
                             compatibleTypes = !initializer.getData().hasNonConst();
                           }
                           if (compatibleTypes) {
@@ -8398,7 +8413,6 @@ protected Multiverse<String> declarationAction(List<DeclaringListValue> declarin
     /* declaratormv.destruct(); */
     /* initializermv.destruct(); */
   } // end loop over declaringlistvalues
-  if (debug) System.err.println(scope.getSymbolTable());
   return valuemv;
 }
 
@@ -8700,7 +8714,6 @@ private int trueInitSize(Initializer i) {
 
 
 Multiverse<Map.Entry<String,Type>> getNestedFields(String structId, String fieldId, PresenceCondition pc, CContext scope) {
-  System.err.println(structId);
   Multiverse<Map.Entry<String,Type>> result = new Multiverse<Map.Entry<String,Type>>();
   SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(structId);
   Multiverse<Entry<Type>> m = tagtab.get(fieldId, pc);
@@ -9177,6 +9190,8 @@ private static class ExpressionValue {
 
   /** The transformation. */
   public final Multiverse<String> transformation;
+
+  public final Multiverse<LineNumbers> lines;
   
   /**
    * The cached valid type condition.
@@ -9188,14 +9203,22 @@ private static class ExpressionValue {
     String ret = "";
     ret += "type:" + type.toString();
     ret += "transform:" + transformation.toString();
+    ret += "comment:" + lines.toString();
     return ret;
   }
 
   public ExpressionValue(Multiverse<String> transformation, Multiverse<Type> type) {
     this.transformation = transformation;
     this.type = type;
+    lines = new Multiverse<LineNumbers>();
   }
 
+  public ExpressionValue(Multiverse<String> transformation, Multiverse<Type> type, Multiverse<LineNumbers> lns) {
+    this.transformation = transformation;
+    this.type = type;
+    lines = lns;
+  }
+  
   /**
    * Create a new expression value from a single type and a single
    * transformation string.
@@ -9203,8 +9226,20 @@ private static class ExpressionValue {
   public ExpressionValue(String transformation, Type type, PresenceCondition pc) {
     this.transformation = new Multiverse<String>(transformation, pc);
     this.type = new Multiverse<Type>(type, pc);
+    
+    lines = new Multiverse<LineNumbers>();
+    lines.add(new LineNumbers(Integer.MAX_VALUE, 0), pc);
   }
-
+  /**
+   * Create a new expression value from a single type and a single
+   * transformation string.
+   */
+  public ExpressionValue(String transformation, Type type, Multiverse<LineNumbers> lmv, PresenceCondition pc) {
+    this.transformation = new Multiverse<String>(transformation, pc);
+    this.type = new Multiverse<Type>(type, pc);
+    lines = lmv;
+  }
+  
   /**
    * Return true there is at least one type that is not an error.
    * This is the negation of isAlwaysError().
@@ -9290,6 +9325,15 @@ private static class ExpressionValue {
     PresenceCondition result = pc.andNot(validCond);
     validCond.delRef();
     return result;
+  }
+
+  public Multiverse<LineNumbers> integrateSyntax(Syntax s) {
+    LineNumbers l = new LineNumbers(s);
+    Multiverse<LineNumbers> lns = new Multiverse<LineNumbers>();
+    for (Element<LineNumbers> e : lines) {
+      lns.add(new LineNumbers(e.getData(), l), e.getCondition());
+    }
+    return lns;
   }
 }
 
@@ -9384,6 +9428,54 @@ private static class EnumeratorValValue {
     } else {
       throw new AssertionError("trying to get value from empty enumerator value");
     }
+  }
+}
+
+public static class StringListPair {
+  public String str;
+  public LineNumbers lines;
+  public StringListPair(String s, LineNumbers l) {
+    str = s;
+    lines = l;
+  }
+}
+
+public static class LineNumbers {
+  public int earliestLine;
+  public int latestLine;
+  public LineNumbers() {
+    earliestLine = 0;
+    latestLine = 0;
+  }
+  public LineNumbers(int line) {
+    earliestLine = line;
+    latestLine = line;
+  }
+  public LineNumbers(Syntax line) {
+    earliestLine = line.getLocation().line;
+    latestLine = line.getLocation().line;
+  }
+  public LineNumbers(int line1, int line2) {
+    earliestLine = line1;
+    latestLine = line2;
+  }
+  public LineNumbers(Syntax line1, Syntax line2) {
+    earliestLine = line1.getLocation().line;
+    latestLine = line2.getLocation().line;
+  }
+  public LineNumbers(LineNumbers one, LineNumbers two) {
+    earliestLine = one.earliestLine < two.earliestLine ? one.earliestLine : two.earliestLine;
+    latestLine = one.latestLine > two.latestLine ? one.latestLine : two.latestLine;
+  }
+  public String getComment() {
+    if (earliestLine == latestLine)
+      return "// L" + Integer.toString(earliestLine);
+    else
+      return "// L" + Integer.toString(earliestLine) + ":L" + Integer.toString(latestLine);
+    
+  }
+  public String toString() {
+    return getComment();
   }
 }
 

@@ -27,7 +27,7 @@ if (__static_condition_default_2) {
 
 
 
-return 1 ;
+return 1 ;// L8
 }
 
 
@@ -42,7 +42,7 @@ if (__static_condition_default_3) {
 
 
 
-return 1 ;
+return 1 ;// L8
 }
 
 
@@ -56,10 +56,10 @@ int  __main_4 () {
 
 
 if (__static_condition_default_2) {
- __x_0 ( ) ;
+ __x_0 ( ) ; // L13
 }
 if (__static_condition_default_3) {
- __x_1 ( ) ;
+ __x_1 ( ) ; // L13
 }
 }
 

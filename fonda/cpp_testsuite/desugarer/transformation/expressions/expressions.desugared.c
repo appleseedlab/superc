@@ -35,69 +35,69 @@ int  __y_2;
 
 int  __z_3;
 
- __y_2  = 2 ;
- __z_3  = 4 ;
+ __y_2  = 2 ; // L12
+ __z_3  = 4 ; // L13
 if (__static_condition_default_5) {
- __x_0  = 3 + 5 ;
+ __x_0  = 3 + 5 ; // L15
 }
 if (__static_condition_default_6) {
- __x_1  = 3 + 5 ;
+ __x_1  = 3 + 5 ; // L15
 }
 if (__static_condition_default_5) {
- __x_0  =  __x_0  +  __z_3  -  __y_2  ;
+ __x_0  =  __x_0  +  __z_3  -  __y_2  ; // L17
 }
 if (__static_condition_default_6) {
- __x_1  =  __x_1  +  __z_3  -  __y_2  ;
+ __x_1  =  __x_1  +  __z_3  -  __y_2  ; // L17
 }
 if (__static_condition_default_5) {
- __x_0  =  __x_0  / 4 ;
+ __x_0  =  __x_0  / 4 ; // L19
 }
 if (__static_condition_default_6) {
- __x_1  =  __x_1  / 4 ;
+ __x_1  =  __x_1  / 4 ; // L19
 }
 if (__static_condition_default_5) {
- __x_0  = 2 *  __y_2  ;
+ __x_0  = 2 *  __y_2  ; // L21
 }
 if (__static_condition_default_6) {
- __x_1  = 2 *  __y_2  ;
+ __x_1  = 2 *  __y_2  ; // L21
 }
 if (__static_condition_default_5) {
- __x_0  =  __z_3  % 5 ;
+ __x_0  =  __z_3  % 5 ; // L23
 }
 if (__static_condition_default_6) {
- __x_1  =  __z_3  % 5 ;
+ __x_1  =  __z_3  % 5 ; // L23
 }
 if (__static_condition_default_5) {
- __x_0  += 1 ;
+ __x_0  += 1 ; // L25
 }
 if (__static_condition_default_6) {
- __x_1  += 1 ;
+ __x_1  += 1 ; // L25
 }
 if (__static_condition_default_5) {
- __x_0  -= 2 ;
+ __x_0  -= 2 ; // L27
 }
 if (__static_condition_default_6) {
- __x_1  -= 2 ;
+ __x_1  -= 2 ; // L27
 }
 if (__static_condition_default_5) {
- __x_0  *= 5 ;
+ __x_0  *= 5 ; // L29
 }
 if (__static_condition_default_6) {
- __x_1  *= 5 ;
+ __x_1  *= 5 ; // L29
 }
 if (__static_condition_default_5) {
- __x_0  /= 3 ;
+ __x_0  /= 3 ; // L31
 }
 if (__static_condition_default_6) {
- __x_1  /= 3 ;
+ __x_1  /= 3 ; // L31
 }
 if (__static_condition_default_5) {
- __x_0  %= 4 ;
+ __x_0  %= 4 ; // L33
 }
 if (__static_condition_default_6) {
- __x_1  %= 4 ;
+ __x_1  %= 4 ; // L33
 }
-return 0 ;
+return 0 ;// L35
 }
 
 

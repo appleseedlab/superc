@@ -31,7 +31,7 @@ if (__static_condition_default_2) {
 __static_type_error("invalid declaration of arr under this presence condition");
 }
 
-return 0 ;
+return 0 ;// L10
 }
 
 

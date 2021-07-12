@@ -30,26 +30,26 @@ int  __x_0= 2;
 char  __x_1= 3;
 
 if (__static_condition_default_3) {
-if (  __x_0  == 2 )
+if (  __x_0  == 2 )// L8
 
 {
 
 
 
- __x_0  ++ ;
+ __x_0  ++ ; // L9
 }
 }
 if (__static_condition_default_4) {
-if (  __x_1  == 2 )
+if (  __x_1  == 2 )// L8
 
 {
 
 
 
- __x_1  ++ ;
+ __x_1  ++ ; // L9
 }
 }
-return 0 ;
+return 0 ;// L12
 }
 
 

@@ -41,9 +41,9 @@ union {
 
 struct __forward_tag_reference_4  __usedUnion_6;
 
-__static_type_error("type error") ;
-__static_type_error("type error") ;
-return 0 ;
+__static_type_error("type error") ; // L12
+__static_type_error("type error") ; // L14
+return 0 ;// L16
 }
 
 
@@ -65,9 +65,9 @@ union {
 
 union __intCharFloat_0  __usedUnion_5;
 
- __usedUnion_5  . __integer_1 = 1 ;
- __usedUnion_5  . __character_2 = 'h' ;
-return 0 ;
+ __usedUnion_5  . __integer_1 = 1 ; // L12
+ __usedUnion_5  . __character_2 = 'h' ; // L14
+return 0 ;// L16
 }
 
 

@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_10;
 extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_10;
 void __static_initializer_default() {
 __static_renaming("__usedUnion_6", "usedUnion");
 __static_renaming("__usedUnion_7", "usedUnion");
@@ -40,12 +40,12 @@ union __intCharFloat_0  __usedUnion_6;
 union __intCharFloat_4  __usedUnion_7;
 
 if (__static_condition_default_9) {
- __usedUnion_6  . __integer_1 = 1 ;
+ __usedUnion_6  . __integer_1 = 1 ; // L16
 }
 if (__static_condition_default_10) {
- __usedUnion_7  . __integer_5 = 1 ;
+ __usedUnion_7  . __integer_5 = 1 ; // L16
 }
-return 0 ;
+return 0 ;// L18
 }
 
 

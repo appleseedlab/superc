@@ -32,18 +32,18 @@ int  __x_1;
 int  (* __x_2);
 
 if (__static_condition_default_4) {
- __x_1  = &  __num_0  ;
+ __x_1  = &  __num_0  ; // L10
 }
 if (__static_condition_default_5) {
- __x_2  = &  __num_0  ;
+ __x_2  = &  __num_0  ; // L10
 }
 if (__static_condition_default_5) {
-*  __x_2  ;
+*  __x_2  ; // L11
 }
 if (__static_condition_default_4) {
-__static_type_error("type error") ;
+__static_type_error("type error") ; // L11
 }
-return 0 ;
+return 0 ;// L13
 }
 
 

@@ -41,10 +41,10 @@ __static_type_error("invalid declaration of bobStruct under this presence condit
 }
 
 if (__static_condition_default_9) {
- __bobStruct_7  . __val_2 = 1 ;
+ __bobStruct_7  . __val_2 = 1 ; // L14
 }
 if (__static_condition_default_5) {
-__static_type_error("type error") ;
+__static_type_error("type error") ; // L14
 }
 }
 

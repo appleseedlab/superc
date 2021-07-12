@@ -30,7 +30,7 @@ if (__static_condition_default_5) {
 
 
 
-return  __a_0  *  __b_1  ;
+return  __a_0  *  __b_1  ;// L3
 }
 
 
@@ -47,7 +47,7 @@ if (__static_condition_default_6) {
 
 
 
-return  __y_2  ;
+return  __y_2  ;// L7
 }
 
 
@@ -62,12 +62,12 @@ int  __main_7 () {
 
 
 if (__static_condition_default_5) {
- __x_3  ( 3.2, 4.0 ) ;
+ __x_3  ( 3.2, 4.0 ) ; // L12
 }
 if (__static_condition_default_8) {
-__static_type_error("type error") ;
+__static_type_error("type error") ; // L12
 }
-return 0 ;
+return 0 ;// L13
 }
 
 

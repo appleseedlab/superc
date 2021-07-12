@@ -29,7 +29,7 @@ int  __c_2;
 
 int  __result_3;
 
- __result_3  =  __a_0  ?  __b_1  :  __c_2  ;
+ __result_3  =  __a_0  ?  __b_1  :  __c_2  ; // L5
 }
 
 

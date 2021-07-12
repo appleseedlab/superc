@@ -27,24 +27,24 @@ int  __main_4 () {
 
 int  __x_2= 0;
 
-if (  ___Djkifd_CONFIG_A_defined_1  )
+if (  ___Djkifd_CONFIG_A_defined_1  )// L8
 
 {
 
 
 
 { int  __i_3= 0;
- for ( ;  __i_3  < 10 ; ++  __i_3  )
+ for ( ;  __i_3  < 10 ; ++  __i_3  ) // L9
 
 {
 
 
 
-++  __x_2  ;
+++  __x_2  ; // L10
 }
 }
 }
-return  __x_2  ;
+return  __x_2  ;// L13
 }
 
 

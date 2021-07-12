@@ -27,7 +27,7 @@ if (__static_condition_default_4) {
 
 
 
-return 1 ;
+return 1 ;// L8
 }
 
 
@@ -42,7 +42,7 @@ if (__static_condition_default_5) {
 
 
 
-return 1 ;
+return 1 ;// L8
 }
 
 
@@ -55,7 +55,7 @@ int  __main_6 (void  ) {
 
 
 
-return 0 ;
+return 0 ;// L12
 }
 
 

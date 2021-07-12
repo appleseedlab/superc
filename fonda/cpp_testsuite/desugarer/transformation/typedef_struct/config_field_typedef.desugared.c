@@ -41,10 +41,10 @@ int  __main_8 (void  ) {
 __bob_6  __bobStruct_7;
 
 if (__static_condition_default_9) {
- __bobStruct_7  . __val_3 = 1 ;
+ __bobStruct_7  . __val_3 = 1 ; // L14
 }
 if (__static_condition_default_10) {
- __bobStruct_7  . __val_4 = 1 ;
+ __bobStruct_7  . __val_4 = 1 ; // L14
 }
 }
 

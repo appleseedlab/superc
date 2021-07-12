@@ -7,20 +7,20 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_13;
-extern const bool __static_condition_default_19;
-extern const bool __static_condition_default_22;
-extern const bool __static_condition_default_17;
-extern const bool __static_condition_default_20;
-extern const bool __static_condition_default_21;
-extern const bool __static_condition_default_23;
-extern const bool __static_condition_default_18;
 extern const bool __static_condition_default_16;
-extern const bool __static_condition_default_24;
-extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_19;
+extern const bool __static_condition_default_23;
 extern const bool __static_condition_default_15;
+extern const bool __static_condition_default_21;
+extern const bool __static_condition_default_12;
+extern const bool __static_condition_default_18;
+extern const bool __static_condition_default_17;
+extern const bool __static_condition_default_22;
+extern const bool __static_condition_default_24;
+extern const bool __static_condition_default_20;
+extern const bool __static_condition_default_13;
+extern const bool __static_condition_default_11;
 void __static_initializer_default() {
 __static_renaming("__x_0", "x");
 __static_renaming("__x_1", "x");
@@ -78,52 +78,52 @@ long  __t_8;
 short  __t_9;
 
 if (__static_condition_default_11) {
- __x_0  = 2 ;
+ __x_0  = 2 ; // L25
 }
 if (__static_condition_default_12) {
- __x_1  = 2 ;
+ __x_1  = 2 ; // L25
 }
 if (__static_condition_default_13) {
- __y_2  = 3 ;
+ __y_2  = 3 ; // L26
 }
 if (__static_condition_default_14) {
- __y_3  = 3 ;
+ __y_3  = 3 ; // L26
 }
- __z_4  = 5 ;
- __w_5  = 1 ;
- __u_6  = 7 ;
- __v_7  = 6 ;
+ __z_4  = 5 ; // L27
+ __w_5  = 1 ; // L28
+ __u_6  = 7 ; // L29
+ __v_7  = 6 ; // L30
 if (__static_condition_default_15) {
- __t_8  = 8 ;
+ __t_8  = 8 ; // L31
 }
 if (__static_condition_default_16) {
- __t_9  = 8 ;
+ __t_9  = 8 ; // L31
 }
 if (__static_condition_default_17) {
- __x_0  =  __y_2  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_8  ;
+ __x_0  =  __y_2  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_8  ; // L33
 }
 if (__static_condition_default_18) {
- __x_0  =  __y_2  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_9  ;
+ __x_0  =  __y_2  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_9  ; // L33
 }
 if (__static_condition_default_19) {
- __x_0  =  __y_3  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_8  ;
+ __x_0  =  __y_3  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_8  ; // L33
 }
 if (__static_condition_default_20) {
- __x_0  =  __y_3  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_9  ;
+ __x_0  =  __y_3  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_9  ; // L33
 }
 if (__static_condition_default_21) {
- __x_1  =  __y_2  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_8  ;
+ __x_1  =  __y_2  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_8  ; // L33
 }
 if (__static_condition_default_22) {
- __x_1  =  __y_2  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_9  ;
+ __x_1  =  __y_2  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_9  ; // L33
 }
 if (__static_condition_default_23) {
- __x_1  =  __y_3  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_8  ;
+ __x_1  =  __y_3  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_8  ; // L33
 }
 if (__static_condition_default_24) {
- __x_1  =  __y_3  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_9  ;
+ __x_1  =  __y_3  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_9  ; // L33
 }
-return 0 ;
+return 0 ;// L35
 }
 
 

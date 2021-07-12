@@ -33,7 +33,7 @@ if (__static_condition_default_5) {
 
 
 
-return  __y_2  ;
+return  __y_2  ;// L5
 }
 
 
@@ -47,12 +47,12 @@ int  __main_6 () {
 
 
 if (__static_condition_default_7) {
- __x_4  ( 2 ) ;
+ __x_4  ( 2 ) ; // L10
 }
 if (__static_condition_default_8) {
-__static_type_error("type error") ;
+__static_type_error("type error") ; // L10
 }
-return 0 ;
+return 0 ;// L11
 }
 
 

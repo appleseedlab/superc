@@ -33,12 +33,12 @@ int  __x_2;
 struct __anonymous_tag_0  __x_3;
 
 if (__static_condition_default_5) {
- __x_3  . __field1_1 ;
+ __x_3  . __field1_1 ; // L8
 }
 if (__static_condition_default_6) {
-__static_type_error("type error") ;
+__static_type_error("type error") ; // L8
 }
-return 0 ;
+return 0 ;// L10
 }
 
 

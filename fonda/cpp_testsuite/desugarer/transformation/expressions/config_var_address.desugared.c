@@ -30,12 +30,12 @@ int  __x_0= 5;
 int  (* __y_1);
 
 if (__static_condition_default_3) {
- __y_1  = &  __x_0  ;
+ __y_1  = &  __x_0  ; // L6
 }
 if (__static_condition_default_4) {
- __y_1  = 3 ;
+ __y_1  = 3 ; // L8
 }
-return 0 ;
+return 0 ;// L11
 }
 
 

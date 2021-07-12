@@ -22,7 +22,7 @@ int  __main_1 () {
 
 static int  __x_0;
 
-return 0 ;
+return 0 ;// L3
 }
 
 

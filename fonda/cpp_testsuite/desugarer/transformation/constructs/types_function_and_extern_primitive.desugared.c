@@ -7,9 +7,9 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_5;
 extern const bool __static_condition_default_2;
+extern const bool __static_condition_default_4;
 void __static_initializer_default() {
 __static_renaming("__f_0", "f");
 __static_renaming("__f_1", "f");
@@ -30,7 +30,7 @@ if (__static_condition_default_2) {
 
 
 
-return 0 ;
+return 0 ;// L3
 }
 
 
@@ -44,12 +44,12 @@ int  __main_3 () {
 
 
 if (__static_condition_default_4) {
- __f_1 ( ) ;
+ __f_1 ( ) ; // L11
 }
 if (__static_condition_default_5) {
- __f_0  ;
+ __f_0  ; // L13
 }
-return 0 ;
+return 0 ;// L15
 }
 
 

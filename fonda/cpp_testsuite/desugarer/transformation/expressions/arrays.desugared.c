@@ -43,18 +43,18 @@ __static_type_error("invalid declaration of variableLength under this presence c
 }
 
 if (__static_condition_default_6) {
- __myFirstArr_1  [ 1 ] = 7 ;
+ __myFirstArr_1  [ 1 ] = 7 ; // L15
 }
 if (__static_condition_default_7) {
- __myFirstArr_2  [ 1 ] = 7 ;
+ __myFirstArr_2  [ 1 ] = 7 ; // L15
 }
 if (__static_condition_default_6) {
- __myFirstArr_1  [  __x_0  ] = 3 ;
+ __myFirstArr_1  [  __x_0  ] = 3 ; // L17
 }
 if (__static_condition_default_7) {
- __myFirstArr_2  [  __x_0  ] = 3 ;
+ __myFirstArr_2  [  __x_0  ] = 3 ; // L17
 }
-return 0 ;
+return 0 ;// L19
 }
 
 

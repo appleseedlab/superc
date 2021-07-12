@@ -36,44 +36,44 @@ int  __y_2;
 int  __z_3;
 
 if (__static_condition_default_5) {
- __x_0  = 1 ;
+ __x_0  = 1 ; // L11
 }
 if (__static_condition_default_6) {
- __x_1  = 1 ;
+ __x_1  = 1 ; // L11
 }
- __y_2  = 2 ;
- __z_3  = 3 ;
+ __y_2  = 2 ; // L12
+ __z_3  = 3 ; // L13
 if (__static_condition_default_5) {
- __x_0  =  __y_2  +  __z_3  ;
+ __x_0  =  __y_2  +  __z_3  ; // L15
 }
 if (__static_condition_default_6) {
- __x_1  =  __y_2  +  __z_3  ;
-}
-if (__static_condition_default_5) {
- __x_0  =  __y_2  -  __z_3  ;
-}
-if (__static_condition_default_6) {
- __x_1  =  __y_2  -  __z_3  ;
+ __x_1  =  __y_2  +  __z_3  ; // L15
 }
 if (__static_condition_default_5) {
- __x_0  =  __y_2  *  __z_3  ;
+ __x_0  =  __y_2  -  __z_3  ; // L17
 }
 if (__static_condition_default_6) {
- __x_1  =  __y_2  *  __z_3  ;
+ __x_1  =  __y_2  -  __z_3  ; // L17
 }
 if (__static_condition_default_5) {
- __x_0  =  __y_2  /  __z_3  ;
+ __x_0  =  __y_2  *  __z_3  ; // L19
 }
 if (__static_condition_default_6) {
- __x_1  =  __y_2  /  __z_3  ;
+ __x_1  =  __y_2  *  __z_3  ; // L19
 }
 if (__static_condition_default_5) {
- __x_0  =  __y_2  %  __z_3  ;
+ __x_0  =  __y_2  /  __z_3  ; // L21
 }
 if (__static_condition_default_6) {
- __x_1  =  __y_2  %  __z_3  ;
+ __x_1  =  __y_2  /  __z_3  ; // L21
 }
-return 0 ;
+if (__static_condition_default_5) {
+ __x_0  =  __y_2  %  __z_3  ; // L23
+}
+if (__static_condition_default_6) {
+ __x_1  =  __y_2  %  __z_3  ; // L23
+}
+return 0 ;// L25
 }
 
 

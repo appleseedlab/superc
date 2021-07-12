@@ -40,7 +40,7 @@ if (__static_condition_default_3) {
 
 int  __x_0;
 
-if (  __x_0  < 100 )
+if (  __x_0  < 100 )// L6
 
 {
 

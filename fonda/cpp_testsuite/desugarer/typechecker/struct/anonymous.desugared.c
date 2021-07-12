@@ -24,8 +24,8 @@ int  __main_3 () {
 
 
 
- __data_2  . __p_1 ;
-return 0 ;
+ __data_2  . __p_1 ; // L7
+return 0 ;// L9
 }
 
 

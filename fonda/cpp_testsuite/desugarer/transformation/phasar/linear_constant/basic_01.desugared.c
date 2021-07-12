@@ -26,13 +26,13 @@ int  __main_3 () {
 
 int  __x_2;
 
-if (  ___Djkifd_CONFIG_A_defined_1  )
+if (  ___Djkifd_CONFIG_A_defined_1  )// L9
 
 {
 
 
 
- __x_2  = 42 ;
+ __x_2  = 42 ; // L10
 }
 else
 
@@ -40,9 +40,9 @@ else
 
 
 
- __x_2  = 13 ;
+ __x_2  = 13 ; // L12
 }
-return  __x_2  ;
+return  __x_2  ;// L14
 }
 
 

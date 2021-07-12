@@ -7,14 +7,14 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_17;
+extern const bool __static_condition_default_13;
+extern const bool __static_condition_default_14;
 extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_15;
 extern const bool __static_condition_default_18;
 extern const bool __static_condition_default_12;
-extern const bool __static_condition_default_13;
-extern const bool __static_condition_default_15;
-extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_17;
 void __static_initializer_default() {
 __static_renaming("__x_0", "x");
 __static_renaming("__x_2", "x");
@@ -55,15 +55,15 @@ if (__static_condition_default_11) {
 
 
 if (__static_condition_default_12) {
- __x_0  = 1 ;
+ __x_0  = 1 ; // L13
 }
 if (__static_condition_default_13) {
- __x_2  = 1 ;
+ __x_2  = 1 ; // L13
 }
 if (__static_condition_default_14) {
-__static_type_error("type error") ;
+__static_type_error("type error") ; // L13
 }
-return - 1 ;
+return - 1 ;// L14
 }
 
 
@@ -79,15 +79,15 @@ if (__static_condition_default_15) {
 
 
 if (__static_condition_default_16) {
- __x_0  = 1 ;
+ __x_0  = 1 ; // L13
 }
 if (__static_condition_default_17) {
- __x_2  = 1 ;
+ __x_2  = 1 ; // L13
 }
 if (__static_condition_default_18) {
- __x_6  = 1 ;
+ __x_6  = 1 ; // L13
 }
-return - 1 ;
+return - 1 ;// L14
 }
 
 

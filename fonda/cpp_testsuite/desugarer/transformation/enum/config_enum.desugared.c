@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_14;
 extern const bool __static_condition_default_13;
+extern const bool __static_condition_default_14;
 void __static_initializer_default() {
 __static_renaming("__apple_11", "apple");
 __static_renaming("__main_12", "main");
@@ -42,12 +42,12 @@ int  __main_12 (void  ) {
 enum someLetters  __apple_11;
 
 if (__static_condition_default_13) {
- __apple_11  =  __a_0  ;
+ __apple_11  =  __a_0  ; // L14
 }
 if (__static_condition_default_14) {
-__static_type_error("type error") ;
+__static_type_error("type error") ; // L14
 }
-return 0 ;
+return 0 ;// L16
 }
 
 

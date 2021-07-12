@@ -8,13 +8,13 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_6;
-extern const bool __static_condition_default_11;
-extern const bool __static_condition_default_7;
-extern const bool __static_condition_default_9;
-extern const bool __static_condition_default_4;
-extern const bool __static_condition_default_8;
-extern const bool __static_condition_default_10;
 extern const bool __static_condition_default_5;
+extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_7;
+extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_8;
+extern const bool __static_condition_default_9;
 void __static_initializer_default() {
 __static_renaming("__x_0", "x");
 __static_renaming("__y_1", "y");
@@ -42,7 +42,7 @@ int  __x_0;
 int  __y_1;
 int  __z_2;
 
-if (  __x_0  )
+if (  __x_0  )// L3
 if (__static_condition_default_4) {
 
 {
@@ -50,10 +50,10 @@ if (__static_condition_default_4) {
 
 
 if (__static_condition_default_5) {
- __x_0  ++ ;
+ __x_0  ++ ; // L5
 }
 if (__static_condition_default_6) {
- __y_1  ++ ;
+ __y_1  ++ ; // L8
 }
 }
 }
@@ -64,16 +64,16 @@ if (__static_condition_default_7) {
 
 
 if (__static_condition_default_8) {
- __x_0  ++ ;
+ __x_0  ++ ; // L5
 }
 if (__static_condition_default_9) {
- __y_1  ++ ;
+ __y_1  ++ ; // L8
 }
 if (__static_condition_default_10) {
- __z_2  ++ ;
+ __z_2  ++ ; // L11
 }
 if (__static_condition_default_11) {
- __z_2  ++ ;
+ __z_2  ++ ; // L11
 }
 }
 }

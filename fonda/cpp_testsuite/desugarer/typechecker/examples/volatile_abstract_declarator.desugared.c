@@ -21,7 +21,7 @@ int  __main_2 () {
 
 
 
-return 0 ;
+return 0 ;// L6
 }
 
 

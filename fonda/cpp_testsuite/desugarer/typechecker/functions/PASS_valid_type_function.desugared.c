@@ -23,7 +23,7 @@ void  __b_1 () {
 
 
 
-return  ;
+return  ;// L4
 }
 
 
@@ -35,7 +35,7 @@ inline int  __c_2 () {
 
 
 
-return 0 ;
+return 0 ;// L9
 }
 
 

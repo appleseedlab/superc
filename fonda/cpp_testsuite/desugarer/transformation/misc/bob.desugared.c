@@ -7,11 +7,11 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_6;
 extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_7;
 extern const bool __static_condition_default_3;
 extern const bool __static_condition_default_5;
+extern const bool __static_condition_default_6;
 void __static_initializer_default() {
 __static_renaming("__x_0", "x");
 __static_renaming("__y_1", "y");
@@ -38,19 +38,19 @@ int  __x_0;
 int  __y_1;
 
 if (__static_condition_default_4) {
-__static_type_error("type error : no valid expression");
+__static_type_error("type error : no valid expression") // L7
 }
 if (__static_condition_default_5) {
- __y_1  = 4 ;
+ __y_1  = 4 ; // L7
 }
 if (__static_condition_default_6) {
- __x_0  =  __y_1  ;
+ __x_0  =  __y_1  ; // L8
 }
 if (__static_condition_default_7) {
-__static_type_error("type error") ;
+__static_type_error("type error") ; // L8
 }
- __x_0  ++ ;
-return  __x_0  ;
+ __x_0  ++ ; // L9
+return  __x_0  ;// L10
 }
 
 

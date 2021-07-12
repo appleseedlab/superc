@@ -7,11 +7,11 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_17;
-extern const bool __static_condition_default_18;
-extern const bool __static_condition_default_15;
-extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_19;
+extern const bool __static_condition_default_15;
+extern const bool __static_condition_default_17;
+extern const bool __static_condition_default_16;
+extern const bool __static_condition_default_18;
 void __static_initializer_default() {
 __static_renaming("__foo_10", "foo");
 __static_renaming("__foo_11", "foo");
@@ -36,7 +36,7 @@ if (__static_condition_default_15) {
 
 
 
-return 0 ;
+return 0 ;// L25
 }
 
 
@@ -51,7 +51,7 @@ if (__static_condition_default_16) {
 
 
 
-return 0 ;
+return 0 ;// L25
 }
 
 
@@ -66,7 +66,7 @@ if (__static_condition_default_17) {
 
 
 
-return 0 ;
+return 0 ;// L25
 }
 
 
@@ -81,7 +81,7 @@ if (__static_condition_default_18) {
 
 
 
-return 0 ;
+return 0 ;// L25
 }
 
 
@@ -96,7 +96,7 @@ if (__static_condition_default_19) {
 
 
 
-return 0 ;
+return 0 ;// L25
 }
 
 
@@ -109,7 +109,7 @@ int  __main_20 () {
 
 
 
-return 0 ;
+return 0 ;// L30
 }
 
 

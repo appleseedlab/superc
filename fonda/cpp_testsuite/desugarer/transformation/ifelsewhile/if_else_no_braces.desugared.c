@@ -22,11 +22,11 @@ int  __main_1 (void  ) {
 
 int  __x_0= 3;
 
-if (  __x_0  > 2 )
- __x_0  = 4 ;
+if (  __x_0  > 2 )// L5
+ __x_0  = 4 ; // L6
 else
- __x_0  ++ ;
-return 0 ;
+ __x_0  ++ ; // L8
+return 0 ;// L11
 }
 
 

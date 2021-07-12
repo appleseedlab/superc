@@ -7,21 +7,21 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_16;
-extern const bool __static_condition_default_9;
-extern const bool __static_condition_default_20;
-extern const bool __static_condition_default_18;
-extern const bool __static_condition_default_8;
-extern const bool __static_condition_default_11;
-extern const bool __static_condition_default_4;
-extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_13;
+extern const bool __static_condition_default_10;
 extern const bool __static_condition_default_15;
-extern const bool __static_condition_default_7;
 extern const bool __static_condition_default_17;
 extern const bool __static_condition_default_19;
+extern const bool __static_condition_default_18;
+extern const bool __static_condition_default_16;
+extern const bool __static_condition_default_14;
+extern const bool __static_condition_default_20;
+extern const bool __static_condition_default_7;
+extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_13;
 extern const bool __static_condition_default_12;
-extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_8;
+extern const bool __static_condition_default_9;
 void __static_initializer_default() {
 __static_renaming("__x_0", "x");
 __static_renaming("__x_1", "x");
@@ -68,43 +68,43 @@ __static_type_error("redeclaration of local symbol: y");
 char  __y_5;
 
 if (__static_condition_default_8) {
- __y_2  = 4 ;
+ __y_2  = 4 ; // L15
 }
 if (__static_condition_default_9) {
-__static_type_error("type error") ;
+__static_type_error("type error") ; // L15
 }
 if (__static_condition_default_10) {
- __y_5  = 4 ;
+ __y_5  = 4 ; // L15
 }
 if (__static_condition_default_11) {
-__static_type_error("type error") ;
+__static_type_error("type error") ; // L15
 }
 if (__static_condition_default_12) {
- __x_0  =  __y_2  ;
+ __x_0  =  __y_2  ; // L16
 }
 if (__static_condition_default_13) {
- __x_0  =  __y_5  ;
+ __x_0  =  __y_5  ; // L16
 }
 if (__static_condition_default_14) {
- __x_1  =  __y_2  ;
+ __x_1  =  __y_2  ; // L16
 }
 if (__static_condition_default_15) {
- __x_1  =  __y_5  ;
+ __x_1  =  __y_5  ; // L16
 }
 if (__static_condition_default_16) {
-__static_type_error("type error") ;
+__static_type_error("type error") ; // L16
 }
 if (__static_condition_default_17) {
- __x_0  ++ ;
+ __x_0  ++ ; // L17
 }
 if (__static_condition_default_18) {
- __x_1  ++ ;
+ __x_1  ++ ; // L17
 }
 if (__static_condition_default_19) {
-return  __x_0  ;
+return  __x_0  ;// L19
 }
 if (__static_condition_default_20) {
-return  __x_1  ;
+return  __x_1  ;// L19
 }
 }
 

@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_5;
 extern const bool __static_condition_default_6;
+extern const bool __static_condition_default_5;
 void __static_initializer_default() {
 __static_renaming("__var_2", "var");
 __static_renaming("__var_3", "var");
@@ -34,10 +34,10 @@ struct __test_0  __var_2;
 int  __var_3;
 
 if (__static_condition_default_5) {
- __var_2  . __x_1 = 1 ;
+ __var_2  . __x_1 = 1 ; // L13
 }
 if (__static_condition_default_6) {
-__static_type_error("type error") ;
+__static_type_error("type error") ; // L13
 }
 }
 

@@ -30,12 +30,12 @@ int  __x_0;
 char  (__x_1[5]);
 
 if (__static_condition_default_3) {
- __x_1  [ 0 ] = 1 ;
+ __x_1  [ 0 ] = 1 ; // L8
 }
 if (__static_condition_default_4) {
-__static_type_error("type error") ;
+__static_type_error("type error") ; // L8
 }
-return 0 ;
+return 0 ;// L10
 }
 
 

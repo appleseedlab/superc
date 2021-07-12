@@ -30,7 +30,7 @@ if (__static_condition_default_3) {
 
 int  __x_0;
 
-return 0 ;
+return 0 ;// L6
 }
 
 
@@ -44,7 +44,7 @@ if (__static_condition_default_4) {
 
 char  __x_1;
 
-return 1 ;
+return 1 ;// L11
 }
 
 

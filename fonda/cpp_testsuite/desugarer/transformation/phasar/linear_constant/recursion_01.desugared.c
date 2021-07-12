@@ -25,19 +25,19 @@ unsigned  __factorial_3 (unsigned  __n_2) {
 
 
 
-if (  ___Djkifd_CONFIG_A_defined_1  )
+if (  ___Djkifd_CONFIG_A_defined_1  )// L7
 
 {
 
 
 
-if (  __n_2  <= 1 )
+if (  __n_2  <= 1 )// L8
 
 {
 
 
 
-return 1 ;
+return 1 ;// L9
 }
 __static_type_error("invalid type found in return expression");
 }
@@ -47,7 +47,7 @@ else
 
 
 
-return  __n_2  ;
+return  __n_2  ;// L13
 }
 }
 
@@ -62,8 +62,8 @@ int  __main_5 () {
 
 int  __x_4= 5;
 
- __x_4  =  __factorial_3  (  __x_4  ) ;
-return  __x_4  ;
+ __x_4  =  __factorial_3  (  __x_4  ) ; // L19
+return  __x_4  ;// L20
 }
 
 

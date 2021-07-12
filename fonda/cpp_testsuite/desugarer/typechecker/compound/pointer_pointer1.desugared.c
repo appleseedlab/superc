@@ -34,12 +34,12 @@ int  (* __x_2);
 struct __s_0  (* __x_3);
 
 if (__static_condition_default_5) {
-*  __x_2  ;
+*  __x_2  ; // L10
 }
 if (__static_condition_default_6) {
-*  __x_3  ;
+*  __x_3  ; // L10
 }
-return 0 ;
+return 0 ;// L12
 }
 
 

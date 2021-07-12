@@ -37,12 +37,12 @@ __typeAlias_1  __x_4;
 struct __anonymous_tag_2  __intOrCharWrapper_5;
 
 if (__static_condition_default_7) {
- __intOrCharWrapper_5  . __x_3 = 2 ;
+ __intOrCharWrapper_5  . __x_3 = 2 ; // L12
 }
 if (__static_condition_default_8) {
- __intOrCharWrapper_5  . __x_4 = 2 ;
+ __intOrCharWrapper_5  . __x_4 = 2 ; // L12
 }
-return 0 ;
+return 0 ;// L14
 }
 
 

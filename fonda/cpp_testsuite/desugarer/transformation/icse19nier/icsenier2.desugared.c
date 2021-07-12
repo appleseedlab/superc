@@ -39,10 +39,10 @@ struct __t_0  __var_5;
 struct __t_2  __var_6;
 
 if (__static_condition_default_8) {
- __var_6  . __i_reserved_quota_4 = 1 ;
+ __var_6  . __i_reserved_quota_4 = 1 ; // L10
 }
 if (__static_condition_default_9) {
-__static_type_error("type error") ;
+__static_type_error("type error") ; // L10
 }
 }
 

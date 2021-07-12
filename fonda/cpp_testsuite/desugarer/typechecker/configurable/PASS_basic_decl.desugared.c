@@ -31,7 +31,7 @@ int  (* __c_2);
 
 int  (* (* __c_3));
 
-return 0 ;
+return 0 ;// L18
 }
 
 

@@ -57,6 +57,7 @@ import superc.cdesugarer.Declaration;
 
 import superc.cdesugarer.CActions.EnumeratorValue;
 import superc.cdesugarer.CActions.DeclarationOrStatementValue;
+import superc.cdesugarer.CActions.LineNumbers;
 
 import superc.cdesugarer.CActions.FreshIDCreator;
 import superc.cdesugarer.CActions.StructOrUnionTypeCreator;
@@ -130,6 +131,15 @@ class DesugarOps {
   public final static Multiverse.Transformer<TypeSpecifier, String> TypeSpecifierToString = new Multiverse.Transformer<TypeSpecifier, String>() {
       String transform(TypeSpecifier from) {
         return from.toString();
+      }
+    };
+
+  /**
+   * Convert LineNumbers to String
+   */
+  public final static Multiverse.Transformer<LineNumbers, String> LineNumbersToString = new Multiverse.Transformer<LineNumbers, String>() {
+      String transform(LineNumbers from) {
+        return from.getComment();
       }
     };
   
@@ -840,6 +850,10 @@ class DesugarOps {
     return newsb.toString();
   };
 
+  public final static Multiverse.Operator<LineNumbers> combineLineNumbers = (ln1, ln2) -> {
+    return new LineNumbers(ln1,ln2);
+  };
+  
   /**
    * Concatenate operator for strings.x unless there is an error
    */

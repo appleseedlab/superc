@@ -52,10 +52,10 @@ int  __main_13 () {
 
 
 if (__static_condition_default_14) {
- __bob_1  . __T_10 . __field_struct_x_12 ;
+ __bob_1  . __T_10 . __field_struct_x_12 ; // L25
 }
 if (__static_condition_default_15) {
- __bob_1  . __T_2 . __field_t_3 ;
+ __bob_1  . __T_2 . __field_t_3 ; // L27
 }
 }
 

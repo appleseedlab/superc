@@ -25,7 +25,7 @@ int  __a_0= 0;
 
 char  __a_1= 0;
 
-return 0 ;
+return 0 ;// L10
 }
 
 

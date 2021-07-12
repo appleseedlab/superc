@@ -27,12 +27,12 @@ int  __main_1 () {
 int  __a_0;
 
 if (__static_condition_default_2) {
- __a_0  = 0 ;
+ __a_0  = 0 ; // L5
 }
 if (__static_condition_default_3) {
- __a_0  = 1 ;
+ __a_0  = 1 ; // L7
 }
-return 0 ;
+return 0 ;// L10
 }
 
 

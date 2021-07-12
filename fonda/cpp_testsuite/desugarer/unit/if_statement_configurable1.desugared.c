@@ -22,7 +22,7 @@ int  __main_1 () {
 
 int  __x_0;
 
-if (  __x_0  )
+if (  __x_0  )// L3
 
 {
 
@@ -38,7 +38,7 @@ else
 
 __static_type_error("invalid type found in if statement");
 }
-return 0 ;
+return 0 ;// L10
 }
 
 

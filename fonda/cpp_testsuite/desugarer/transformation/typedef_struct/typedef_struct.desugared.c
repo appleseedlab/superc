@@ -29,7 +29,7 @@ int  __main_5 (void  ) {
 
 __bob_3  __bobStruct_4;
 
- __bobStruct_4  . __val_1 = 1 ;
+ __bobStruct_4  . __val_1 = 1 ; // L8
 }
 
 

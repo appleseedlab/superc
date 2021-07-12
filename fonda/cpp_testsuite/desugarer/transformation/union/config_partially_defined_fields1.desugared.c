@@ -40,18 +40,18 @@ union __intCharFloat_0  __usedUnion_6;
 union __intCharFloat_4  __usedUnion_7;
 
 if (__static_condition_default_9) {
- __usedUnion_6  . __integer_1 = 1 ;
+ __usedUnion_6  . __integer_1 = 1 ; // L16
 }
 if (__static_condition_default_10) {
- __usedUnion_7  . __integer_5 = 1 ;
+ __usedUnion_7  . __integer_5 = 1 ; // L16
 }
 if (__static_condition_default_9) {
- __usedUnion_6  . __character_2 = 'h' ;
+ __usedUnion_6  . __character_2 = 'h' ; // L18
 }
 if (__static_condition_default_10) {
-__static_type_error("type error") ;
+__static_type_error("type error") ; // L18
 }
-return 0 ;
+return 0 ;// L20
 }
 
 

@@ -35,12 +35,12 @@ int  (* __x_3);
 struct __anonymous_tag_1  __x_4;
 
 if (__static_condition_default_6) {
- __x_4  . __field1_2 ;
+ __x_4  . __field1_2 ; // L10
 }
 if (__static_condition_default_7) {
-__static_type_error("type error") ;
+__static_type_error("type error") ; // L10
 }
-return 0 ;
+return 0 ;// L12
 }
 
 

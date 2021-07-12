@@ -46,7 +46,7 @@ register const int  __h_7;
 
 register volatile int  __i_8;
 
-return 0 ;
+return 0 ;// L12
 }
 
 

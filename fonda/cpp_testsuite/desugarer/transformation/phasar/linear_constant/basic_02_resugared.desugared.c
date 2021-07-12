@@ -22,8 +22,8 @@ int  __main_1 () {
 
 int  __x_0;
 
- __x_0  = 150 ;
-return  __x_0  ;
+ __x_0  = 150 ; // L3
+return  __x_0  ;// L4
 }
 
 
