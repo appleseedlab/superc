@@ -6359,7 +6359,9 @@ public class CActions implements SemanticActions {
           Multiverse<String> appended = prepended.appendScalar(suffix, DesugarOps.concatStrings);
           typenamestr.destruct(); prepended.destruct();
           todoReminder("typecheck unaryexpression (6)");
-          Multiverse<Type> type = new Multiverse<Type>(C.SIZEOF, pc);
+          Type constSizeOf = C.SIZEOF.copy();
+          constSizeOf.addAttribute(Constants.ATT_CONSTANT);
+          Multiverse<Type> type = new Multiverse<Type>(constSizeOf, pc);
           for (Element<Declaration> e : typename) {
             if (e.getData().getType() == ErrorT.TYPE) {
               type = type.filter(e.getCondition().not());
@@ -9404,6 +9406,7 @@ private static class EnumeratorValValue {
     this.type = other.type;
   }
 
+  
   public boolean hasValue() { return hasValue; }
 
   /**
