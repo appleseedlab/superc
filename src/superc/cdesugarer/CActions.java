@@ -6316,7 +6316,7 @@ public class CActions implements SemanticActions {
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in unary operation"),
                                                               ErrorT.TYPE,
-                                                              pc));
+                                                              exprval.integrateSyntax((Syntax) getTransformationValue(subparser,2)),pc));
           }
         }
     break;
@@ -6642,11 +6642,10 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
           ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
-
-          Multiverse<String> leftmv = leftval.transformation;
+	  Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> rightmv = rightval.transformation;
-
+	  
           if (leftval.hasValidType() && rightval.hasValidType()) {
             setTransformationValue(value, new ExpressionValue(productAll(DesugarOps.concatStrings,
                                                                          leftmv,
@@ -6672,8 +6671,7 @@ public class CActions implements SemanticActions {
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> rightmv = rightval.transformation;
-
-          if (leftval.hasValidType() && rightval.hasValidType()) {
+	  if (leftval.hasValidType() && rightval.hasValidType()) {
             setTransformationValue(value, new ExpressionValue(productAll(DesugarOps.concatStrings,
                                                                          leftmv,
                                                                          opmv,
@@ -6697,7 +6695,7 @@ public class CActions implements SemanticActions {
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> rightmv = rightval.transformation;
-
+	  
           if (leftval.hasValidType() && rightval.hasValidType()) {
             setTransformationValue(value, new ExpressionValue(productAll(DesugarOps.concatStrings,
                                                                          leftmv,
@@ -9213,6 +9211,9 @@ private static class ExpressionValue {
     this.transformation = transformation;
     this.type = type;
     lines = new Multiverse<LineNumbers>();
+    PresenceConditionManager p = new PresenceConditionManager();
+    PresenceCondition one = p.newTrue();
+    lines.add(new LineNumbers(Integer.MAX_VALUE, 0), one);
   }
 
   public ExpressionValue(Multiverse<String> transformation, Multiverse<Type> type, Multiverse<LineNumbers> lns) {
@@ -9451,22 +9452,33 @@ public static class LineNumbers {
     latestLine = 0;
   }
   public LineNumbers(int line) {
+    
     earliestLine = line;
     latestLine = line;
   }
   public LineNumbers(Syntax line) {
-    earliestLine = line.getLocation().line;
-    latestLine = line.getLocation().line;
+    if (line.getLocation() != null)
+      {
+	earliestLine = line.getLocation().line;
+	latestLine = line.getLocation().line;
+      }
+    else {
+      earliestLine = Integer.MAX_VALUE;
+      latestLine = 0;
+    }
   }
   public LineNumbers(int line1, int line2) {
+    
     earliestLine = line1;
     latestLine = line2;
   }
   public LineNumbers(Syntax line1, Syntax line2) {
+   
     earliestLine = line1.getLocation().line;
     latestLine = line2.getLocation().line;
   }
   public LineNumbers(LineNumbers one, LineNumbers two) {
+    
     earliestLine = one.earliestLine < two.earliestLine ? one.earliestLine : two.earliestLine;
     latestLine = one.latestLine > two.latestLine ? one.latestLine : two.latestLine;
   }
@@ -10015,15 +10027,17 @@ private ExpressionValue getCompleteNodeExpressionValue(Node node, PresenceCondit
     Multiverse<Node> nodemv = staticCondToMultiverse(node, pc);
     Multiverse<String> transformation = new Multiverse<String>();
     Multiverse<Type> type = new Multiverse<Type>();
-  
+    Multiverse<LineNumbers> lns = new Multiverse<LineNumbers>();
     for (Element<Node> elem : nodemv) {
       PresenceCondition combinedCond = pc.and(elem.getCondition());
       ExpressionValue exprval = (ExpressionValue) ((Node) elem.getData()).getProperty(TRANSFORMATION);
       Multiverse<String> transformation_filtered = exprval.transformation.filter(combinedCond);
       Multiverse<Type> type_filtered = exprval.type.filter(combinedCond);
+      Multiverse<LineNumbers> lnsfilt = exprval.lines.filter(combinedCond);
       transformation.addAll(transformation_filtered);
       type.addAll(type_filtered);
-      transformation_filtered.destruct(); type_filtered.destruct();
+      lns.addAll(lnsfilt);
+      transformation_filtered.destruct(); type_filtered.destruct(); lnsfilt.destruct();
       combinedCond.delRef();
     }
     nodemv.destruct();
@@ -10033,7 +10047,7 @@ private ExpressionValue getCompleteNodeExpressionValue(Node node, PresenceCondit
     assert ! transformation.isEmpty();
     assert ! type.isEmpty();
 
-    return new ExpressionValue(transformation, type);
+    return new ExpressionValue(transformation, type, lns);
   } else {
     // don't bother converting to a multiverse it it's not a conditional node
     return (ExpressionValue) getTransformationValue(node);
