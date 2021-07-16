@@ -4666,7 +4666,7 @@ public class CActions implements SemanticActions {
             
           } else {
             System.err.println("type error: ExpressionStatement found no valid expressions");
-            valuemv = new Multiverse<String>(String.format("%s", emitError("type error : no valid expression")), errorCond);
+            valuemv = new Multiverse<String>(String.format("%s;", emitError("type error : no valid expression")), errorCond);
           }
           assert valuemv != null;
           /* System.err.println("EXPSMT: " + valuemv); */
