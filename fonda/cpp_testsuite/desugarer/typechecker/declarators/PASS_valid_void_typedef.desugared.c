@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
@@ -20,18 +21,26 @@ typedef void  __v_0;
 __v_0  __foo_1 (__v_0  );
 __v_0  (* __x_2);
 int  __main_3 () {
-{
-return 0 ;
 
+{
+
+
+
+return 0 ;// L9
 }
+
 
 
 }
 __v_0  __foo_4 (__v_0  ) {
-{
-return  ;
 
+{
+
+
+
+return  ;// L14
 }
+
 
 
 }

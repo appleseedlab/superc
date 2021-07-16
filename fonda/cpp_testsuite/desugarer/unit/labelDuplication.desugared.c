@@ -7,21 +7,48 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_2;
 extern const bool __static_condition_default_3;
 void __static_initializer_default() {
 __static_renaming("__x_0", "x");
-__static_renaming("__x_1", "x");
-__static_renaming("__main_2", "main");
+__static_renaming("__main_1", "main");
 
-__static_condition_renaming("__static_condition_default_3", "(defined A)");
-__static_condition_renaming("__static_condition_default_4", "!(defined A)");
+__static_condition_renaming("__static_condition_default_2", "(defined A)");
+__static_condition_renaming("__static_condition_default_3", "!(defined A)");
 
 };
 
-int  __main_2 () {
+int  __main_1 () {
 
 {
+if (__static_condition_default_2) {
+
+{
+
+
+
+int  __x_0;
+
+if (  __x_0  )// L4
+
+{
+
+
+
+
+{
+goto lab_0;
+}
+}
+
+lab_0:
+ __x_0  = 1 ; // L9
+return  __x_0  ;// L11
+}
+
+
+}
+
 if (__static_condition_default_3) {
 
 {
@@ -30,41 +57,20 @@ if (__static_condition_default_3) {
 
 int  __x_0;
 
-if (  __x_0  )
+if (  __x_0  )// L4
 
 {
 
 
 
-goto lab ;
-}
-lab :
- __x_0  = 1 ;
-return  __x_0  ;
-}
-
-
-}
-
-if (__static_condition_default_4) {
 
 {
-
-
-
-int  __x_1;
-
-if (  __x_1  )
-
-{
-
-
-
-goto lab ;
+goto lab_1;
 }
-lab :
- __x_1  = 1 ;
-return  __x_1  ;
+}
+
+lab_1:
+return  __x_0  ;// L11
 }
 
 

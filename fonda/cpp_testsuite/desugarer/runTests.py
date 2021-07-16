@@ -53,26 +53,26 @@ def main():
                         sumTOut = os.path.relpath(curDir, os.getcwd()) + '/' + dirFiles[:len(dirFiles) - 2]
                         key = sumTOut + ".c"
 
-                        if key not in js:
-                            sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'File GT not confirmed\n')
-                        elif js[key]['valid'] == False:
-                            sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'File isn\'t valid\n')
+                        #if key not in js:
+                        #    sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'File GT not confirmed\n')
+                        #elif js[key]['valid'] == False:
+                        #    sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'File isn\'t valid\n')
+                        #else:
+                        #if len(js[key]['inclusions']) > 0:
+                        #    os.system( 'java superc.SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= ' + curDir + '/' + dirFiles + ' > ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c 2> ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.Log')
+                        #else:
+                        os.system( 'java superc.SugarC ' + curDir + '/' + dirFiles + ' > ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c 2> ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.Log')
+                            
+                        if os.path.getsize(curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c') <= 32:
+                            sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'SuperC failed\n')
+                            
                         else:
-                            if len(js[key]['inclusions']) > 0:
-                                os.system( 'java superc.SugarC -D "_Noreturn=" -D "Pragma(x)=" -D __extension__= -restrictFreeToPrefix CONFIG_ ' + curDir + '/' + dirFiles + ' > ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c 2> ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.Log')
-                            else:
-                                os.system( 'java superc.SugarC ' + curDir + '/' + dirFiles + ' > ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c 2> ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.Log')
-                            
-                            if os.path.getsize(curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c') <= 32:
-                                sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'SuperC failed\n')
-                            
-                            else:
-                                os.system('clang -emit-llvm -c ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c')
-                            if os.path.exists(os.getcwd() + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.bc'):
-                                os.system('mv ' + dirFiles[:len(dirFiles) - 2] + '.desugared.bc ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.bc')
-                                sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' +'BC generated\n')
-                            else:
-                                sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'BC failed\n')
+                            os.system('clang -Wno-everything -emit-llvm -c ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c')
+                        if os.path.exists(os.getcwd() + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.bc'):
+                            os.system('mv ' + dirFiles[:len(dirFiles) - 2] + '.desugared.bc ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.bc')
+                            sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' +'BC generated\n')
+                        else:
+                            sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'BC failed\n')
                                 
                         
     sumTable.close()

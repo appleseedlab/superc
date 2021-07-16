@@ -38,7 +38,7 @@ int  __x_0;
 int  __y_1;
 
 if (__static_condition_default_4) {
-__static_type_error("type error : no valid expression") // L7
+__static_type_error("type error : no valid expression"); // L7
 }
 if (__static_condition_default_5) {
  __y_1  = 4 ; // L7

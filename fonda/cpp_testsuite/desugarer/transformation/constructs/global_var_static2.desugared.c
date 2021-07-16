@@ -40,7 +40,7 @@ if (__static_condition_default_5) {
  __x_1  ++ ; // L10
 }
  __y_2  ++ ; // L11
-__static_type_error("type error : no valid expression") // L12
+__static_type_error("type error : no valid expression"); // L12
 }
 
 

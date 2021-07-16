@@ -52,7 +52,7 @@ while ( 0 !=  __current_8  )// L18
 
 
 
-__static_type_error("type error : no valid expression") // L19
+__static_type_error("type error : no valid expression"); // L19
  __current_8  =  __current_8  -> __next_5 ; // L20
 }
 return 0 ;// L23

@@ -39,7 +39,7 @@ if (__static_condition_default_2) {
 int  __x_0;
 
 if (__static_condition_default_3) {
-__static_type_error("type error : no valid expression") // L7
+__static_type_error("type error : no valid expression"); // L7
 }
 if (__static_condition_default_4) {
  __x_0  = 2 ; // L7

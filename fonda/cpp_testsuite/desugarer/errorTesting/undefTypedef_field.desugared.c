@@ -28,11 +28,16 @@ __x_0  __a_2;
 // typedef moved to top of scope
 struct __x_1 ;
 int  __main_4 () {
-{
-struct __x_1  __c_3;
-return 0 ;
 
+{
+
+
+
+struct __x_1  __c_3;
+
+return 0 ;// L16
 }
+
 
 
 }

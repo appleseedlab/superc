@@ -21,7 +21,7 @@ void  __fun_1 (int  __a_0) {
 
 
 
-__static_type_error("type error : no valid expression") // L5
+__static_type_error("type error : no valid expression"); // L5
 }
 
 

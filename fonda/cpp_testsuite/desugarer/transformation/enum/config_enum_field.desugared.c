@@ -1,19 +1,22 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
 
-void __static_initializer_9();
+void __static_initializer_default();
 
-void __static_initializer_9() {
-__static_renaming("__main_7", "main");
-__static_renaming("__apple_8", "apple");
+extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_10;
+void __static_initializer_default() {
+__static_renaming("__apple_7", "apple");
+__static_renaming("__main_8", "main");
 
+__static_condition_renaming("__static_condition_default_9", "APPLE");
+__static_condition_renaming("__static_condition_default_10", "!APPLE");
 
 };
-int  __main_7 (void  );
-
 enum someLetters {
 __b_1,
 __a_0,
@@ -23,15 +26,25 @@ __d_4,
 __e_5,
 __f_6,
 };
-enum   someLetters ;
-int  __main_7 (void  ) {
+
+enum someLetters ;
+int  __main_8 (void  ) {
+
 {
-enum   letter  __apple_8;
-__static_type_error("type error");
 
-return 0 ;
 
+
+enum letter  __apple_7;
+
+if (__static_condition_default_9) {
+ __apple_7  =  __a_0  ; // L10
 }
+if (__static_condition_default_10) {
+__static_type_error("type error") ; // L10
+}
+return 0 ;// L12
+}
+
 
 
 }
