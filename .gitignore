@@ -4,3 +4,4 @@ allTests.out
 *.desugared.c
 *.desugared.bc
 *.Log
+*.pyc
