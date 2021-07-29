@@ -6,12 +6,13 @@ import argparse
 import importlib
 from run_testcases import run_testcases
 from common import utils
-import tools.utils as tool_utils
+from tools.utils import get_tool_names
+from analysis.generate_report import generate_report
 
 def parse_args():
   parser = argparse.ArgumentParser(description='evaluate tools on microbenchmark')
 
-  all_tools = tool_utils.get_tool_names()
+  all_tools = get_tool_names()
   parser.add_argument('-t',
       '--tools',
       help='Tools to evaluate.',
@@ -23,26 +24,25 @@ def parse_args():
   return args
 
 def import_tools(tool_names: list):
-  tools = []
+  tools = {}
   for tool_name in tool_names:
     module_name = '.'.join(['tools', tool_name, 'tool'])
     module = importlib.import_module(module_name, package=None)
-    tools.append(module.run)
+    tools[tool_name] = module.run
   return tools
 
-def run_tools(tools:list):
-  for tool in tools:  
-    run_testcases(tool)
+def run_tools(tools:dict):
+  result_data = {}
+  for tool_name, run_tool in tools.items():
+    res = run_testcases(run_tool)
+    result_data[tool_name] = res
+  return result_data
   
-
 def run_benchmark():
   args = parse_args()
   tools = import_tools(args.tools)
-  run_tools(tools)
-
-
-
-  
+  result_data = run_tools(tools)
+  generate_report(result_data)
 
 def main():
   run_benchmark()
