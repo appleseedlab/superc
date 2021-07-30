@@ -99,6 +99,10 @@ abstract class Declarator {
   /** Returns true if this is a NamedBitFieldSizeDeclarator object. */
   public boolean isNamedBitFieldSizeDeclarator() { return false; }
 
+  public String toString(int len) {
+      return "ERROR: incompatible array length specifier";
+    }
+  
   /**
    * This empty declarator is used for abstract declarators that only
    * have a type.
@@ -177,6 +181,9 @@ abstract class Declarator {
 
     public String toString() {
       return String.format("(%s)", declarator.toString());
+    }
+    public String toString(int len) {
+      return String.format("(%s)", declarator.toString(len));
     }
   }
 
@@ -258,6 +265,11 @@ abstract class Declarator {
     public String toString() {
       return String.format("(* %s)", declarator.toString());  // preserve order of operations
     }
+    
+    public String toString(int len) {
+      return String.format("(* %s)", declarator.toString(len));  // preserve order of operations
+    }
+    
   }
 
   /**
@@ -307,6 +319,10 @@ abstract class Declarator {
     public String toString() {
       // return String.format("* %s %s", qualifiers.toString(), declarator.toString());
       return String.format("(* %s %s)", qualifiers.toString(), declarator.toString());  // preserve order of operations
+    }
+    public String toString(int len) {
+      // return String.format("* %s %s", qualifiers.toString(), declarator.toString());
+      return String.format("(* %s %s)", qualifiers.toString(), declarator.toString(len));  // preserve order of operations
     }
   }
 

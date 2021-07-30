@@ -20,6 +20,7 @@ import xtc.type.StructT;
 import xtc.type.VariableT;
 import xtc.type.InternalT;
 import xtc.type.ErrorT;
+import superc.cdesugarer.CActions.LineNumbers;
 
 import xtc.Constants;
 
@@ -47,6 +48,7 @@ class TypeSpecifier {
 
   /** Any other attributes. */
   private List<Attribute> attributes;
+
 
   // The internal state for tracking type specifiers.
   private boolean seenSigned;

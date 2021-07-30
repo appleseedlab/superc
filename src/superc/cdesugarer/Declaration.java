@@ -81,7 +81,7 @@ class Declaration {
   }
 
   public String toString(int len) {
-    return String.format("%s %s", typespecifier.toString(), ((ArrayDeclarator)declarator).toString(len));
+    return String.format("%s %s", typespecifier.toString(), declarator.toString(len));
   }
   
   /**

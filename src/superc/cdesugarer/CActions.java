@@ -1796,92 +1796,230 @@ public class CActions implements SemanticActions {
 
   case 124:
     {
-          System.err.println("ERROR: unsupported semantic action: TypeofDeclarationSpecifier");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+ 	        Multiverse<TypeSpecifier> decl = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
+
+          // combine the partial type specs
+          Multiverse<TypeSpecifier> tb = decl.product(qual, DesugarOps.specifierProduct);
+
+      	  setTransformationValue(value, tb);
+      	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
         }
     break;
 
   case 125:
     {
-          System.err.println("ERROR: unsupported semantic action: TypeofDeclarationSpecifier");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+ 	        Multiverse<TypeSpecifier> decl = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
+
+          // combine the partial type specs
+          Multiverse<TypeSpecifier> tb = decl.product(qual, DesugarOps.specifierProduct);
+
+      	  setTransformationValue(value, tb);
+      	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
         }
     break;
 
   case 126:
     {
-          System.err.println("ERROR: unsupported semantic action: TypeofDeclarationSpecifier");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+ 	        Multiverse<TypeSpecifier> decl = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
+
+          // combine the partial type specs
+          Multiverse<TypeSpecifier> tb = decl.product(qual, DesugarOps.specifierProduct);
+
+      	  setTransformationValue(value, tb);
+      	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
         }
     break;
 
   case 127:
     {
-          System.err.println("ERROR: unsupported semantic action: TypeofDeclarationSpecifier");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+ 	        Multiverse<TypeSpecifier> decl = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
+
+          // combine the partial type specs
+          Multiverse<TypeSpecifier> tb = decl.product(qual, DesugarOps.specifierProduct);
+
+      	  setTransformationValue(value, tb);
+      	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
         }
     break;
 
   case 128:
     {
-          System.err.println("ERROR: unsupported semantic action: TypeofTypeSpecifier");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+ 	        Multiverse<TypeSpecifier> decl = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
+          
+      	  setTransformationValue(value, decl);
         }
     break;
 
   case 129:
     {
-          System.err.println("ERROR: unsupported semantic action: TypeofTypeSpecifier");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+ 	        Multiverse<TypeSpecifier> decl = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
+
+          // combine the partial type specs
+          Multiverse<TypeSpecifier> tb = decl.product(qual, DesugarOps.specifierProduct);
+
+      	  setTransformationValue(value, tb);
+      	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
         }
     break;
 
   case 130:
     {
-          System.err.println("ERROR: unsupported semantic action: TypeofTypeSpecifier");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+ 	        Multiverse<TypeSpecifier> decl = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
+
+          // combine the partial type specs
+          Multiverse<TypeSpecifier> tb = decl.product(qual, DesugarOps.specifierProduct);
+
+      	  setTransformationValue(value, tb);
+      	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
         }
     break;
 
   case 131:
     {
-          System.err.println("ERROR: unsupported semantic action: TypeofTypeSpecifier");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+
+ 	        Multiverse<TypeSpecifier> decl = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
+
+          // combine the partial type specs
+          Multiverse<TypeSpecifier> tb = decl.product(qual, DesugarOps.specifierProduct);
+
+      	  setTransformationValue(value, tb);
+      	  updateSpecs(subparser,
+                      getSpecsAt(subparser, 2),
+                      getSpecsAt(subparser, 1),
+                      value);
         }
     break;
 
   case 132:
     {
-          System.err.println("ERROR: unsupported semantic action: Typeofspecifier");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<TypeSpecifier> tmv = getCompleteNodeMultiverseValue(subparser, 4, pc);
+          for (Element<TypeSpecifier> e : tmv) {
+            TypeSpecifier t = new TypeSpecifier(e.getData());
+            t.addTransformation(((Syntax) getNodeAt(subparser, 3)));
+            e.setData(t);
+          }
+          System.err.println(tmv);
+          Multiverse<Declaration> dmv = getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> newtm = new Multiverse<TypeSpecifier>();
+          for (Element<TypeSpecifier> t : tmv) {
+            for (Element<Declaration> d : dmv) {
+              PresenceCondition p = t.getCondition().and(d.getCondition());
+              if (p.isNotFalse()) {
+                TypeSpecifier ts = new TypeSpecifier(t.getData());
+                ts.visitTypeofSpecifier(d.getData().getType());
+                ts.addTransformation(new Layout(d.getData().toString()));
+                newtm.add(ts, p);
+              }
+              p.delRef();
+            }
+          }
+          tmv.destruct(); dmv.destruct();
+          for (Element<TypeSpecifier> e : newtm) {
+            e.getData().addTransformation(((Syntax) getNodeAt(subparser, 1)));
+          }
+          setTransformationValue(value, newtm);
         }
     break;
 
   case 133:
     {
-          System.err.println("ERROR: unsupported semantic action: Typeofspecifier");
-          System.exit(1);
+          PresenceCondition pc = subparser.getPresenceCondition();
+          Multiverse<TypeSpecifier> tmv = getCompleteNodeMultiverseValue(subparser, 4, pc);
+          for (Element<TypeSpecifier> e : tmv) {
+            TypeSpecifier t = new TypeSpecifier(e.getData());
+            t.addTransformation(((Syntax) getNodeAt(subparser, 3)));
+            e.setData(t);
+          }
+          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
+          Multiverse<TypeSpecifier> newtm = new Multiverse<TypeSpecifier>();
+          for (Element<TypeSpecifier> t : tmv) {
+            for (Element<Type> e : exprval.type) {
+              PresenceCondition p = t.getCondition().and(e.getCondition());
+              if (p.isNotFalse()) {
+                Multiverse<String> transFilt = exprval.transformation.filter(p);
+                for (Element<String> s : transFilt) {
+                  TypeSpecifier ts = new TypeSpecifier(t.getData());
+                  ts.visitTypeofSpecifier(e.getData());
+                  ts.addTransformation(new Layout(s.getData()));
+                  newtm.add(ts, p.and(s.getCondition()));
+                }
+              }
+              p.delRef();
+            }
+          }
+          tmv.destruct();
+          for (Element<TypeSpecifier> e : newtm) {
+            e.getData().addTransformation(((Syntax) getNodeAt(subparser, 1)));
+          }
+          setTransformationValue(value, newtm);
         }
     break;
 
   case 134:
     {
-          System.err.println("ERROR: unsupported semantic action: Typeofkeyword");
-          System.exit(1);
+          TypeSpecifier ts = new TypeSpecifier();
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
+          Multiverse<TypeSpecifier> res = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
+          setTransformationValue(value, res);
         }
     break;
 
   case 135:
     {
-          System.err.println("ERROR: unsupported semantic action: Typeofkeyword");
-          System.exit(1);
+          TypeSpecifier ts = new TypeSpecifier();
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
+          Multiverse<TypeSpecifier> res = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
+          setTransformationValue(value, res);
         }
     break;
 
   case 136:
     {
-          System.err.println("ERROR: unsupported semantic action: Typeofkeyword");
-          System.exit(1);
+          TypeSpecifier ts = new TypeSpecifier();
+          ts.addTransformation(((Syntax) getNodeAt(subparser, 1)));
+          Multiverse<TypeSpecifier> res = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
+          setTransformationValue(value, res);
         }
     break;
 
