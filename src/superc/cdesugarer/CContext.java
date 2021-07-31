@@ -1088,7 +1088,10 @@ public class CContext implements ParsingContext {
         if (null != this.parent) {
           return this.parent.getLookasideTableAnyScope(tag);
         } else {
-          throw new AssertionError("the type checker should always be using a defined struct tag name");
+          //With parse errors, this might not always be true
+          //throw new AssertionError("the type checker should always be using a defined struct tag name");
+          //just try returning an empty table
+          return new SymbolTable();
         }
       }
     }

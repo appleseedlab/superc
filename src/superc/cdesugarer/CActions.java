@@ -1939,7 +1939,6 @@ public class CActions implements SemanticActions {
             t.addTransformation(((Syntax) getNodeAt(subparser, 3)));
             e.setData(t);
           }
-          System.err.println(tmv);
           Multiverse<Declaration> dmv = getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<TypeSpecifier> newtm = new Multiverse<TypeSpecifier>();
           for (Element<TypeSpecifier> t : tmv) {
@@ -3624,7 +3623,6 @@ public class CActions implements SemanticActions {
           Multiverse<List<Initializer>> newelem
             = DesugarOps.initializerListWrap.transform((Multiverse<Initializer>) getTransformationValue(subparser, 2));
           setTransformationValue(value, lists.complementedProduct(newelem, DesugarOps.INITIALIZERLISTCONCAT));
-          newelem.destruct();
         }
     break;
 
@@ -4829,7 +4827,7 @@ public class CActions implements SemanticActions {
           Multiverse<DeclarationOrStatementValue> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
           LineNumbers lw = new LineNumbers(ifsyn,rparensyn);
           String errorstmt = String.format("%s;", emitError("invalid type found in if statement"));
-          if (exprval.hasValidType()) {
+          if (exprval.hasValidType(pc)) {
             Multiverse<String> validmv = exprval.validTransformations(pc);
             String prependstr = String.format("%s %s", ifstr, lparenstr);
             Multiverse<String> prependmv
@@ -6450,11 +6448,10 @@ public class CActions implements SemanticActions {
             setTransformationValue(value,
                                    new ExpressionValue(resultmv,
                                                        typemv,
-                                                       exprval.integrateSyntax((Syntax) getTransformationValue(subparser,2))));  // TODO: placeholder until type checking
+                                                       exprval.integrateSyntax(opmv)));  // TODO: placeholder until type checking
           } else {
-            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in unary operation"),
-                                                              ErrorT.TYPE,
-                                                              exprval.integrateSyntax((Syntax) getTransformationValue(subparser,2)),pc));
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in unary operation"),                                                                                    ErrorT.TYPE,
+                                                              exprval.integrateSyntax(opmv),pc));
           }
         }
     break;
@@ -9390,6 +9387,32 @@ private static class ExpressionValue {
   }
 
   /**
+   * Return true there is at least one type that is not an error under the given condition.
+   * This is the negation of isAlwaysErrorUnder().
+   */
+  public boolean hasValidType(PresenceCondition p) {
+    return ! isAlwaysErrorUnder(p);
+  }
+  
+  /**
+   * Returns true if this expression is a type error in every
+   * configuration under the given condition in which there is a value.  Note that this excludes
+   * the configurations in which there is no value at all, i.e., the
+   * complement of the multiverse.
+   */
+  public boolean isAlwaysErrorUnder(PresenceCondition p) {
+    Multiverse<Type> mtv = type.filter(p);
+    // return true unless we find one type that isn't an error
+    for (Element<Type> elem : mtv) {
+      /* System.err.println("ELEM: " + elem.getData()); */
+      if (! elem.getData().isError() && elem.getCondition().isNotFalse()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
    * Returns true if this expression is a type error in every
    * configuration in which there is a value.  Note that this excludes
    * the configurations in which there is no value at all, i.e., the
@@ -9405,7 +9428,7 @@ private static class ExpressionValue {
     }
     return true;
   }
-
+  
   /**
    * Get only those transformation from a valid type under the given
    * presence condition.
@@ -9473,6 +9496,22 @@ private static class ExpressionValue {
     Multiverse<LineNumbers> lns = new Multiverse<LineNumbers>();
     for (Element<LineNumbers> e : lines) {
       lns.add(new LineNumbers(e.getData(), l), e.getCondition());
+    }
+    return lns;
+  }
+
+  public Multiverse<LineNumbers> integrateSyntax(Multiverse<Syntax> sm) {
+    Multiverse<LineNumbers> lns = new Multiverse<LineNumbers>();
+    for (Element<Syntax> es : sm) {
+      Syntax s = es.getData();
+      LineNumbers l = new LineNumbers(s);
+      for (Element<LineNumbers> e : lines) {
+        PresenceCondition p = es.getCondition().and(e.getCondition());
+        if (p.isNotFalse()) {
+          lns.add(new LineNumbers(e.getData(), l), p);
+        }
+        p.delRef();
+      }
     }
     return lns;
   }
