@@ -6260,9 +6260,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> valuemv = postfixmv.product(prepend, DesugarOps.concatStrings);
             identmv.destruct(); prepend.destruct();
 
-            if (!valuemv.isEmpty()) {
-              valuemv = valuemv.filter(typemv.getConditionOf(ErrorT.TYPE).not());
-            }
+            valuemv = valuemv.filter(typemv.getConditionOf(ErrorT.TYPE).not());
             valuemv.add(emitError("no valid type found in indirect expression"), typemv.getConditionOf(ErrorT.TYPE));
             /* System.err.println("valuemv " + valuemv); */
             setTransformationValue(value, new ExpressionValue(valuemv, typemv, postfixval.integrateSyntax(((Syntax) getNodeAt(subparser, 1).get(0)))));
@@ -7384,12 +7382,13 @@ public class CActions implements SemanticActions {
 
           ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
           ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
-
-          if (leftval.hasValidType() && rightval.hasValidType()) {
+          Multiverse<String> assign = rightval.transformation;
+          Multiverse<String> expr = leftval.transformation;
             
-            Multiverse<String> expr = leftval.transformation;
+          if (leftval.hasValidType() && rightval.hasValidType() &&
+              !assign.isEmpty() && !expr.isEmpty()) {
+            
             Multiverse<String> op = this.<String>getCompleteNodeSingleValue(subparser, 2, pc);
-            Multiverse<String> assign = rightval.transformation;
             
             // type-checking
             Multiverse<Type> exprtype = leftval.type;

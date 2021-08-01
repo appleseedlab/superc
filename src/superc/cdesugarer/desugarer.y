@@ -7408,12 +7408,13 @@ AssignmentExpression:  /** passthrough, nomerge **/  // ExpressionValue
 
           ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
           ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
-
-          if (leftval.hasValidType() && rightval.hasValidType()) {
+          Multiverse<String> assign = rightval.transformation;
+          Multiverse<String> expr = leftval.transformation;
             
-            Multiverse<String> expr = leftval.transformation;
+          if (leftval.hasValidType() && rightval.hasValidType() &&
+              !assign.isEmpty() && !expr.isEmpty()) {
+            
             Multiverse<String> op = this.<String>getCompleteNodeSingleValue(subparser, 2, pc);
-            Multiverse<String> assign = rightval.transformation;
             
             // type-checking
             Multiverse<Type> exprtype = leftval.type;
