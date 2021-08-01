@@ -6259,8 +6259,9 @@ public class CActions implements SemanticActions {
             Multiverse<String> prepend = identmv.prependScalar(arrow, DesugarOps.concatStrings);
             Multiverse<String> valuemv = postfixmv.product(prepend, DesugarOps.concatStrings);
             identmv.destruct(); prepend.destruct();
-
-            valuemv = valuemv.filter(typemv.getConditionOf(ErrorT.TYPE).not());
+            if (!valuemv.isEmpty()) {
+              valuemv = valuemv.filter(typemv.getConditionOf(ErrorT.TYPE).not());
+            }
             valuemv.add(emitError("no valid type found in indirect expression"), typemv.getConditionOf(ErrorT.TYPE));
             /* System.err.println("valuemv " + valuemv); */
             setTransformationValue(value, new ExpressionValue(valuemv, typemv, postfixval.integrateSyntax(((Syntax) getNodeAt(subparser, 1).get(0)))));
