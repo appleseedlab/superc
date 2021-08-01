@@ -3716,11 +3716,22 @@ Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists // M
           if (!exprval.isAlwaysError()) {
             setTransformationValue(value, exprval.type.join(exprval.transformation, DesugarOps.joinExpressionInitializer));
           } else {
+            PresenceCondition errorCond = exprval.type.getConditionOf(ErrorT.TYPE);
             Multiverse<Initializer> mi = new Multiverse<Initializer>();
-            for (Element<String> e : exprval.transformation) {
-              Initializer i = new ExpressionInitializer(ErrorT.TYPE, e.getData());
-              mi.add(i,e.getCondition());
+            if (!exprval.transformation.isEmpty()) {
+              for (Element<String> e : exprval.transformation) {
+                PresenceCondition combo = errorCond.and(e.getCondition());
+                if (combo.isNotFalse()) {
+                  Initializer i = new ExpressionInitializer(ErrorT.TYPE, e.getData());
+                  mi.add(i,e.getCondition());
+                }
+                combo.delRef();
+              }
+            } else {
+              Initializer i = new ExpressionInitializer(ErrorT.TYPE, "error");
+              mi.add(i,errorCond);
             }
+            errorCond.delRef();
             setTransformationValue(value, mi);
           }
         }
@@ -5625,7 +5636,7 @@ Subscript:  /** nomerge **/
           Multiverse<String> transformationmv = postfixexprval.transformation.product(appended, DesugarOps.concatStrings);
           prepended.destruct(); appended.destruct();
           
-          if (postfixexprval.hasValidType() && exprval.hasValidType()) {
+          if (postfixexprval.hasValidType() && exprval.hasValidType() && !transformationmv.isEmpty()) {
             Multiverse<Type> typemv = new Multiverse<Type>();
             for (int i = 0; i < postfixexprval.type.size(); ++i)
               {
@@ -6310,7 +6321,9 @@ IndirectSelection:  /** nomerge **/
             Multiverse<String> prepend = identmv.prependScalar(arrow, DesugarOps.concatStrings);
             Multiverse<String> valuemv = postfixmv.product(prepend, DesugarOps.concatStrings);
             identmv.destruct(); prepend.destruct();
-            
+
+            valuemv = valuemv.filter(typemv.getConditionOf(ErrorT.TYPE).not());
+            valuemv.add(emitError("no valid type found in indirect expression"), typemv.getConditionOf(ErrorT.TYPE));
             /* System.err.println("valuemv " + valuemv); */
             setTransformationValue(value, new ExpressionValue(valuemv, typemv, postfixval.integrateSyntax(((Syntax) getNodeAt(subparser, 1).get(0)))));
           } else {
