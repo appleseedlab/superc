@@ -3713,9 +3713,16 @@ Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists // M
         {
           // ExpressionInitializer
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition());
-          /* System.err.println(exprval.type); */
-          /* System.err.println(exprval.transformation); */
-          setTransformationValue(value, exprval.type.join(exprval.transformation, DesugarOps.joinExpressionInitializer));
+          if (!exprval.isAlwaysError()) {
+            setTransformationValue(value, exprval.type.join(exprval.transformation, DesugarOps.joinExpressionInitializer));
+          } else {
+            Multiverse<Initializer> mi = new Multiverse<Initializer>();
+            for (Element<String> e : exprval.transformation) {
+              Initializer i = new ExpressionInitializer(ErrorT.TYPE, e.getData());
+              mi.add(i,e.getCondition());
+            }
+            setTransformationValue(value, mi);
+          }
         }
         ;
 
@@ -5644,13 +5651,17 @@ Subscript:  /** nomerge **/
                   }
                 }
               }
-            /* System.err.println("SUBSCRIPTBEFORE: " + postfixexprval.type); */
-            /* System.err.println("SUBSCRIPTAFTER: " + typemv); */
-            typemv = typemv.filter(exprval.type.getConditionOf(ErrorT.TYPE).not());
-            typemv.add(ErrorT.TYPE, exprval.type.getConditionOf(ErrorT.TYPE));
-            PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
-            PresenceCondition validTypes = errorCond.not();
-            transformationmv = transformationmv.filter(validTypes);
+            if (!typemv.isEmpty()) {
+              typemv = typemv.filter(exprval.type.getConditionOf(ErrorT.TYPE).not());
+              typemv.add(ErrorT.TYPE, exprval.type.getConditionOf(ErrorT.TYPE));
+              PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
+              PresenceCondition validTypes = errorCond.not();
+              transformationmv = transformationmv.filter(validTypes);
+            } else {
+              PresenceCondition errorCond = postfixexprval.type.getConditionOf(ErrorT.TYPE);
+              transformationmv = transformationmv.filter(errorCond.not());
+              typemv.add(ErrorT.TYPE,errorCond);
+            }
             setTransformationValue(value, new ExpressionValue(transformationmv,
                                                               typemv, postfixexprval.integrateSyntax((Syntax)getNodeAt(subparser, 1))));
           } else {

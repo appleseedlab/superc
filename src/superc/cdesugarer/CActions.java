@@ -3586,9 +3586,16 @@ public class CActions implements SemanticActions {
     {
           // ExpressionInitializer
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition());
-          /* System.err.println(exprval.type); */
-          /* System.err.println(exprval.transformation); */
-          setTransformationValue(value, exprval.type.join(exprval.transformation, DesugarOps.joinExpressionInitializer));
+          if (!exprval.isAlwaysError()) {
+            setTransformationValue(value, exprval.type.join(exprval.transformation, DesugarOps.joinExpressionInitializer));
+          } else {
+            Multiverse<Initializer> mi = new Multiverse<Initializer>();
+            for (Element<String> e : exprval.transformation) {
+              Initializer i = new ExpressionInitializer(ErrorT.TYPE, e.getData());
+              mi.add(i,e.getCondition());
+            }
+            setTransformationValue(value, mi);
+          }
         }
     break;
 
@@ -5583,13 +5590,17 @@ public class CActions implements SemanticActions {
                   }
                 }
               }
-            /* System.err.println("SUBSCRIPTBEFORE: " + postfixexprval.type); */
-            /* System.err.println("SUBSCRIPTAFTER: " + typemv); */
-            typemv = typemv.filter(exprval.type.getConditionOf(ErrorT.TYPE).not());
-            typemv.add(ErrorT.TYPE, exprval.type.getConditionOf(ErrorT.TYPE));
-            PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
-            PresenceCondition validTypes = errorCond.not();
-            transformationmv = transformationmv.filter(validTypes);
+            if (!typemv.isEmpty()) {
+              typemv = typemv.filter(exprval.type.getConditionOf(ErrorT.TYPE).not());
+              typemv.add(ErrorT.TYPE, exprval.type.getConditionOf(ErrorT.TYPE));
+              PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
+              PresenceCondition validTypes = errorCond.not();
+              transformationmv = transformationmv.filter(validTypes);
+            } else {
+              PresenceCondition errorCond = postfixexprval.type.getConditionOf(ErrorT.TYPE);
+              transformationmv = transformationmv.filter(errorCond.not());
+              typemv.add(ErrorT.TYPE,errorCond);
+            }
             setTransformationValue(value, new ExpressionValue(transformationmv,
                                                               typemv, postfixexprval.integrateSyntax((Syntax)getNodeAt(subparser, 1))));
           } else {
@@ -7379,6 +7390,9 @@ public class CActions implements SemanticActions {
             // carefully take the product of each combinations of the
             // left side, operator, right side to check for infeasible
             // combinations.
+            System.err.println(expr);
+            System.err.println(op);
+            System.err.println(assign);
             Multiverse<String> valuemv;
             Multiverse<String> suffix = expr.product(op, DesugarOps.concatStrings); op.destruct();
             
