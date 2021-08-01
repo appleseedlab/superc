@@ -1973,11 +1973,13 @@ Typeofspecifier: /** complete **/  // ADDED
               PresenceCondition p = t.getCondition().and(e.getCondition());
               if (p.isNotFalse()) {
                 Multiverse<String> transFilt = exprval.transformation.filter(p);
-                for (Element<String> s : transFilt) {
-                  TypeSpecifier ts = new TypeSpecifier(t.getData());
-                  ts.visitTypeofSpecifier(e.getData());
-                  ts.addTransformation(new Layout(s.getData()));
-                  newtm.add(ts, p.and(s.getCondition()));
+                if (!transFilt.isEmpty()) {
+                  for (Element<String> s : transFilt) {
+                    TypeSpecifier ts = new TypeSpecifier(t.getData());
+                    ts.visitTypeofSpecifier(e.getData());
+                    ts.addTransformation(new Layout(s.getData()));
+                    newtm.add(ts, p.and(s.getCondition()));
+                  }
                 }
               }
               p.delRef();
@@ -3744,7 +3746,8 @@ MatchedInitializerList:  /** list, nomerge **/  // Multiverse<InitializerList>
         | MatchedInitializerList DesignatedInitializer COMMA
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<List<Initializer>> lists = (Multiverse<List<Initializer>>) getTransformationValue(subparser, 3);
+          Multiverse<List<Initializer>> lists = getCompleteNodeMultiverseValue(subparser, 3, pc);
+          
           Multiverse<List<Initializer>> newelem
             = DesugarOps.initializerListWrap.transform((Multiverse<Initializer>) getTransformationValue(subparser, 2));
           setTransformationValue(value, lists.complementedProduct(newelem, DesugarOps.INITIALIZERLISTCONCAT));
@@ -7405,9 +7408,9 @@ AssignmentExpression:  /** passthrough, nomerge **/  // ExpressionValue
             Multiverse<String> valuemv;
             Multiverse<String> suffix = expr.product(op, DesugarOps.concatStrings); op.destruct();
             
-            if (suffix.size() > 0) {
+            if (!suffix.isEmpty()) {
               Multiverse<String> product = suffix.product(assign, DesugarOps.concatStrings); suffix.destruct();
-              if (product.size() > 0) {
+              if (!product.isEmpty()) {
                 valuemv = product.filter(typesafeCond); product.destruct();
               } else {
                 valuemv = product;
@@ -9282,6 +9285,9 @@ private static class ExpressionValue {
    */
   public boolean isAlwaysError() {
     // return true unless we find one type that isn't an error
+    if (type.isEmpty()) {
+      return true;
+    }
     for (Element<Type> elem : type) {
       /* System.err.println("ELEM: " + elem.getData()); */
       if (! elem.getData().isError() && elem.getCondition().isNotFalse()) {
@@ -10070,13 +10076,15 @@ private ExpressionValue getCompleteNodeExpressionValue(Node node, PresenceCondit
     for (Element<Node> elem : nodemv) {
       PresenceCondition combinedCond = pc.and(elem.getCondition());
       ExpressionValue exprval = (ExpressionValue) ((Node) elem.getData()).getProperty(TRANSFORMATION);
-      Multiverse<String> transformation_filtered = exprval.transformation.filter(combinedCond);
-      Multiverse<Type> type_filtered = exprval.type.filter(combinedCond);
-      Multiverse<LineNumbers> lnsfilt = exprval.lines.filter(combinedCond);
-      transformation.addAll(transformation_filtered);
-      type.addAll(type_filtered);
-      lns.addAll(lnsfilt);
-      transformation_filtered.destruct(); type_filtered.destruct(); lnsfilt.destruct();
+      if (!exprval.transformation.isEmpty() && !exprval.type.isEmpty() && !exprval.lines.isEmpty() ) {
+        Multiverse<String> transformation_filtered = exprval.transformation.filter(combinedCond);
+        Multiverse<Type> type_filtered = exprval.type.filter(combinedCond);
+        Multiverse<LineNumbers> lnsfilt = exprval.lines.filter(combinedCond);
+        transformation.addAll(transformation_filtered);
+        type.addAll(type_filtered);
+        lns.addAll(lnsfilt);
+        transformation_filtered.destruct(); type_filtered.destruct(); lnsfilt.destruct();
+      }
       combinedCond.delRef();
     }
     nodemv.destruct();
