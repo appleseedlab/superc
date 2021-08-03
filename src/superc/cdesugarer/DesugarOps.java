@@ -1118,6 +1118,9 @@ class DesugarOps {
    * Check the type of a unary operator.
    */
   public final static Multiverse.Joiner<Type, Syntax, Type> checkUnaryOp = (type, op) -> {
+    if (type == ErrorT.TYPE) {
+      return ErrorT.TYPE;
+    }
     switch (op.kind()) {
     case LANGUAGE:
       switch (((Language<CTag>) op).tag()) {

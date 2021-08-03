@@ -6534,11 +6534,10 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
             Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
             Multiverse<String> resultmv = opstr.product(exprval.transformation, DesugarOps.concatStrings);
             Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
-
             PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
             PresenceCondition validTypes = errorCond.not();
             resultmv = resultmv.filter(validTypes);
-
+            
             setTransformationValue(value,
                                    new ExpressionValue(resultmv,
                                                        typemv,
@@ -6557,8 +6556,14 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> exprmv = exprval.transformation;
 
           todoReminder("typecheck unaryexpression (5)");
-          Multiverse<Type> type = new Multiverse<Type>(C.SIZEOF, pc);
-
+          
+          Multiverse<Type> type = new Multiverse<Type>();
+          for (Element<Type> e : exprval.type) {
+            if (e.getData() != ErrorT.TYPE) {
+              type.add(C.SIZEOF,e.getCondition());
+            }
+          }
+          type.add(ErrorT.TYPE, exprval.type.getConditionOf(ErrorT.TYPE));
           setTransformationValue(value,
                                  new ExpressionValue(productAll(DesugarOps.concatStrings,
                                                                 opmv,
@@ -6586,11 +6591,13 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           todoReminder("typecheck unaryexpression (6)");
           Type constSizeOf = C.SIZEOF.copy();
           constSizeOf.addAttribute(Constants.ATT_CONSTANT);
-          Multiverse<Type> type = new Multiverse<Type>(constSizeOf, pc);
+          Multiverse<Type> type = new Multiverse<Type>();
           for (Element<Declaration> e : typename) {
             if (e.getData().getType() == ErrorT.TYPE) {
               type = type.filter(e.getCondition().not());
               type.add(ErrorT.TYPE, e.getCondition());
+            } else {
+              type.add(constSizeOf, e.getCondition());
             }
           }
           
