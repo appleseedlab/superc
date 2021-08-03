@@ -30,17 +30,17 @@ struct __s_6 __s_6;
 };
 };
 
-struct ____s_1_1 ;
-struct __s_6 ;
-struct __s_6 ;
-struct __s_6  __x1_8;
+struct ____s_1_1 ;// L1
+struct __s_6 ;// L6
+struct __s_6 ;// L13
+struct __s_6  __x1_8;// L16
 int  __main_9 () {
 
 {
 
 
 
-struct __s_6 ;
+struct __s_6 ;// L19
 
 return  __x1_8  . __anon_id_0_7 . ____s_1_5 . __data_2 ;// L20
 }

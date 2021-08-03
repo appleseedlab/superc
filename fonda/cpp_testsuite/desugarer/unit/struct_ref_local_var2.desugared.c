@@ -17,8 +17,8 @@ __static_renaming("__DoEncryption_10", "DoEncryption");
 
 
 };
-typedef long unsigned int  __size_t_0;
-typedef struct __forward_tag_reference_3  __EVP_CIPHER_CTX_4;
+typedef long unsigned int  __size_t_0;// L1
+typedef struct __forward_tag_reference_3  __EVP_CIPHER_CTX_4;// L4
 
 struct __forward_tag_reference_3 { // generated union of struct variations
 union {
@@ -26,8 +26,8 @@ union {
 };
 
 // typedef moved to top of scope
-void  (* __malloc_2 (__size_t_0  __n_1));
-struct __forward_tag_reference_3 ;
+void  (* __malloc_2 (__size_t_0  __n_1));// L2
+struct __forward_tag_reference_3 ;// L2147483647:L0
 // typedef moved to top of scope
 char  (* __DoEncryption_10 (__EVP_CIPHER_CTX_4  (* __CTX_5), const char  (* __Msg_6), __size_t_0  __MsgLen_7)) {
 
@@ -36,9 +36,9 @@ char  (* __DoEncryption_10 (__EVP_CIPHER_CTX_4  (* __CTX_5), const char  (* __Ms
 
 
  __malloc_2  ( ( __size_t_0   ) 1 ) ; // L6
-char  (* __Buffer_8)=  __malloc_2  ( (  __MsgLen_7  + 16 ) % - 16 );
+char  (* __Buffer_8)=  __malloc_2  ( (  __MsgLen_7  + 16 ) % - 16 );// L7
 
-__size_t_0  __len_9;
+__size_t_0  __len_9;// L8
 
 *  __Buffer_8  =  __len_9  ; // L9
 return  __Buffer_8  ;// L10

@@ -28,23 +28,23 @@ int  __main_9 (void  ) {
 
 
 
-static const int  __a_0;
+static const int  __a_0;// L2
 
-extern const char  __b_1;
+extern const char  __b_1;// L3
 
-auto const float  __c_2;
+auto const float  __c_2;// L4
 
-auto volatile double  __d_3;
+auto volatile double  __d_3;// L5
 
-const volatile long  __e_4;
+const volatile long  __e_4;// L6
 
-static volatile long long  __f_5;
+static volatile long long  __f_5;// L7
 
-extern volatile long double  __g_6;
+extern volatile long double  __g_6;// L8
 
-register const float  __h_7;
+register const float  __h_7;// L9
 
-register volatile int  __i_8;
+register volatile int  __i_8;// L10
 
 }
 

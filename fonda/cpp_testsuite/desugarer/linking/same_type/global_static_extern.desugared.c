@@ -19,7 +19,7 @@ __static_condition_renaming("__static_condition_default_7", "!(defined CONFIG_A)
 
 };
 
-extern int  __f_3 (int  __x_2);
+extern int  __f_3 (int  __x_2);// L11
 int  __f_4 (int  __x_0) {
 
 {

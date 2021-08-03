@@ -26,8 +26,8 @@ struct __anonymous_tag_7 {
 int  __xx_8;
 };
 
-struct __anonymous_tag_0 ;
-struct __anonymous_tag_2  ___1_var_joe_4;
-struct __anonymous_tag_5 ;
-struct __anonymous_tag_7  ___2_var_joe_9;
+struct __anonymous_tag_0 ;// L2
+struct __anonymous_tag_2  ___1_var_joe_4;// L5:L7
+struct __anonymous_tag_5 ;// L8
+struct __anonymous_tag_7  ___2_var_joe_9;// L11:L13
 

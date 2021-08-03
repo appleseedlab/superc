@@ -20,7 +20,7 @@ int  __main_1 () {
 
 
 
-int  __x_0;
+int  __x_0;// L2
 
 if (  __x_0  )// L3
 

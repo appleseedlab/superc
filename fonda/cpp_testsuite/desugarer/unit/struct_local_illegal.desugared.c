@@ -29,9 +29,9 @@ struct __s_2 __s_2;
 };
 
 
-struct __forward_tag_reference_0  __x_1;
+struct __forward_tag_reference_0  __x_1;// L2
 
-struct __s_2 ;
+struct __s_2 ;// L4
 
 }
 

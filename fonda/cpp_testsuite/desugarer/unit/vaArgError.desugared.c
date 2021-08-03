@@ -8,12 +8,12 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_2;
-extern const bool __static_condition_default_12;
-extern const bool __static_condition_default_10;
-extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_8;
-extern const bool __static_condition_default_11;
 extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_12;
 void __static_initializer_default() {
 __static_renaming("____gnuc_va_list_0", "__gnuc_va_list");
 __static_renaming("__va_list_1", "va_list");
@@ -35,14 +35,14 @@ if (__static_condition_default_12)
 __static_parse_error("Unable to parse");
 }
 };
-typedef __builtin_va_list  ____gnuc_va_list_0;
-typedef ____gnuc_va_list_0  __va_list_1;
-typedef ____gnuc_va_list_0  __va_list_3;
+typedef __builtin_va_list  ____gnuc_va_list_0;// L40
+typedef ____gnuc_va_list_0  __va_list_1;// L79
+typedef ____gnuc_va_list_0  __va_list_3;// L99
 
 // typedef moved to top of scope
 // typedef moved to top of scope
 // typedef moved to top of scope
-int  __x_5;
+int  __x_5;// L3
 int  __main_6 () {
 
 if (__static_condition_default_8) {

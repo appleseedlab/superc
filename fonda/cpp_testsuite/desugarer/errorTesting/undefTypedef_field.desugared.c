@@ -20,20 +20,20 @@ if (__static_condition_default_5)
 __static_parse_error("Unable to parse");
 }
 };
-typedef int  __x_0;
+typedef int  __x_0;// L2
 struct __x_1 {
 __x_0  __a_2;
 };
 
 // typedef moved to top of scope
-struct __x_1 ;
+struct __x_1 ;// L5
 int  __main_4 () {
 
 {
 
 
 
-struct __x_1  __c_3;
+struct __x_1  __c_3;// L15
 
 return 0 ;// L16
 }

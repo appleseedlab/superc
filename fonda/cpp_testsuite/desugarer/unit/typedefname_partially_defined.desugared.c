@@ -7,12 +7,12 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_8;
 extern const bool __static_condition_default_7;
-extern const bool __static_condition_default_2;
 extern const bool __static_condition_default_11;
 extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_2;
+extern const bool __static_condition_default_12;
 void __static_initializer_default() {
 __static_renaming("__a_0", "a");
 __static_renaming("__a_3", "a");
@@ -29,9 +29,9 @@ __static_condition_renaming("__static_condition_default_11", "!(defined C)");
 __static_condition_renaming("__static_condition_default_12", "(defined C)");
 
 };
-typedef int  __a_0;
+typedef int  __a_0;// L2
 
-typedef char  __a_3;
+typedef char  __a_3;// L5
 
 // typedef moved to top of scope
 // typedef moved to top of scope
@@ -44,9 +44,9 @@ if (__static_condition_default_11) {
 
 
 
-const __a_0  __a_5;
+const __a_0  __a_5;// L12
 
-const __a_3  __a_6;
+const __a_3  __a_6;// L12
 
 if (__static_condition_default_7) {
 __static_type_error("invalid declaration of a under this presence condition");

@@ -19,8 +19,8 @@ __static_condition_renaming("__static_condition_default_4", "!(defined A)");
 
 };
 
-static int  __x_0;
-static char  __x_1;
+static int  __x_0;// L3
+static char  __x_1;// L5
 int  __main_2 () {
 
 {

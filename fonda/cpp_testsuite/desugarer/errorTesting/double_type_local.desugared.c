@@ -7,9 +7,9 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_2;
 extern const bool __static_condition_default_8;
 extern const bool __static_condition_default_5;
-extern const bool __static_condition_default_2;
 extern const bool __static_condition_default_9;
 extern const bool __static_condition_default_10;
 extern const bool __static_condition_default_7;
@@ -48,18 +48,18 @@ if (__static_condition_default_8) {
 if (__static_condition_default_9) {
 __static_type_error("type error : no valid expression"); // L13:L15
 }
-int  __x_3;
+int  __x_3;// L4:L15
 
-char  __x_4;
+char  __x_4;// L4:L15
 
 if (__static_condition_default_5) {
 __static_type_error("invalid declaration of x under this presence condition");
 }
 
 
-int  __y_0;
+int  __y_0;// L4:L15
 
-char  __y_1;
+char  __y_1;// L4:L15
 
 if (__static_condition_default_2) {
 __static_type_error("invalid declaration of y under this presence condition");

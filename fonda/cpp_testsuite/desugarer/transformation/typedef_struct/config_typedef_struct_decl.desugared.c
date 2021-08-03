@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_8;
 extern const bool __static_condition_default_7;
+extern const bool __static_condition_default_8;
 void __static_initializer_default() {
 __static_renaming("__typeAlias_0", "typeAlias");
 __static_renaming("__typeAlias_1", "typeAlias");
@@ -19,8 +19,8 @@ __static_condition_renaming("__static_condition_default_7", "(defined A)");
 __static_condition_renaming("__static_condition_default_8", "!(defined A)");
 
 };
-typedef int  __typeAlias_0;
-typedef char  __typeAlias_1;
+typedef int  __typeAlias_0;// L1:L7
+typedef char  __typeAlias_1;// L1:L7
 
 // typedef moved to top of scope
 // typedef moved to top of scope
@@ -34,7 +34,7 @@ __typeAlias_1  __x_4;
 };
 
 
-struct __anonymous_tag_2  __intOrCharWrapper_5;
+struct __anonymous_tag_2  __intOrCharWrapper_5;// L10
 
 if (__static_condition_default_7) {
  __intOrCharWrapper_5  . __x_3 = 2 ; // L12

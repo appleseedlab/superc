@@ -29,22 +29,22 @@ struct __list_3 __list_3;
 };
 };
 
-struct __list_3 ;
+struct __list_3 ;// L1
 int  __main_9 () {
 
 {
 
 
 
-struct __list_3  __head_6;
+struct __list_3  __head_6;// L9
 
-struct __list_3  __tail_7;
+struct __list_3  __tail_7;// L10
 
  __head_6  . __data_4 . __p_1 = 'a' ; // L12
  __head_6  . __next_5 = &  __tail_7  ; // L13
  __tail_7  . __data_4 . __p_1 = 'b' ; // L14
  __tail_7  . __next_5 = 0 ; // L15
-struct __list_3  (* __current_8)= &  __head_6 ;
+struct __list_3  (* __current_8)= &  __head_6 ;// L17
 
 while ( 0 !=  __current_8  )// L18
 

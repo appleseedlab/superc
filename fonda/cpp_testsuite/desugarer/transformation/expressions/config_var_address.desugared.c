@@ -25,9 +25,9 @@ int  __main_2 (void  ) {
 
 
 
-int  __x_0= 5;
+int  __x_0= 5;// L2
 
-int  (* __y_1);
+int  (* __y_1);// L3
 
 if (__static_condition_default_3) {
  __y_1  = &  __x_0  ; // L6

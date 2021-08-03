@@ -33,7 +33,7 @@ int  __main_3 () {
 
 
 
-void  (* __fun_ptr_2) (int  )= &  __fun_1 ;
+void  (* __fun_ptr_2) (int  )= &  __fun_1 ;// L11
 
 ( *  __fun_ptr_2  ) ( 10 ) ; // L19
 return 0 ;// L21

@@ -22,16 +22,16 @@ struct __s_0 {
 int  __field1_1;
 };
 
-struct __s_0 ;
+struct __s_0 ;// L1
 int  __main_4 () {
 
 {
 
 
 
-int  (* __x_2);
+int  (* __x_2);// L5
 
-struct __s_0  (* __x_3);
+struct __s_0  (* __x_3);// L7
 
 if (__static_condition_default_5) {
 *  __x_2  ; // L10

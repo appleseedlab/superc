@@ -23,7 +23,7 @@ struct __bob_0 {
 int  __val_1;
 char  __otherVal_2;
 };
-typedef struct __bob_0  __bob_3;
+typedef struct __bob_0  __bob_3;// L2:L6
 
 // typedef moved to top of scope
 int  __main_5 (void  ) {
@@ -51,7 +51,7 @@ if (__static_condition_default_8) {
 
 
 
-__bob_3  __bobStruct_4;
+__bob_3  __bobStruct_4;// L11
 
  __bobStruct_4  . __val_1 = 1 ; // L12
 }

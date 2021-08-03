@@ -8,16 +8,16 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_11;
-extern const bool __static_condition_default_12;
-extern const bool __static_condition_default_9;
-extern const bool __static_condition_default_13;
-extern const bool __static_condition_default_8;
+extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_14;
 extern const bool __static_condition_default_15;
+extern const bool __static_condition_default_8;
+extern const bool __static_condition_default_12;
+extern const bool __static_condition_default_17;
 extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_3;
-extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_17;
-extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_13;
+extern const bool __static_condition_default_9;
 void __static_initializer_default() {
 __static_renaming("__z_4", "z");
 __static_renaming("__z_5", "z");
@@ -51,9 +51,9 @@ __static_type_error("redeclaration of local symbol: x");
 }
 
 
-int  __z_4;
+int  __z_4;// L9
 
-int  __z_5;
+int  __z_5;// L9
 
 __static_type_error("type error") ; // L11
 __static_type_error("type error") ; // L13
@@ -82,9 +82,9 @@ __static_type_error("redeclaration of local symbol: x");
 }
 
 
-int  __z_4;
+int  __z_4;// L9
 
-int  __z_5;
+int  __z_5;// L9
 
 if (__static_condition_default_12) {
  __y_1  =  __x_0  +  __y_1  ; // L11

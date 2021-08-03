@@ -24,14 +24,14 @@ int  __c_3;
 int  __c_4;
 };
 
-struct __x_0 ;
+struct __x_0 ;// L1
 int  __main_8 (void  ) {
 
 {
 
 
 
-struct __x_0  __myFirstStruct_5;
+struct __x_0  __myFirstStruct_5;// L13
 {
 if (__static_condition_default_6) {
 __myFirstStruct_5.__a_1 = 1;

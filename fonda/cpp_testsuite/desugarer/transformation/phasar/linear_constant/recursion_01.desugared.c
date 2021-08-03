@@ -17,8 +17,8 @@ __static_renaming("__main_5", "main");
 
 };
 
-extern int  ___CfIf3K_CONFIG_A_0;
-extern int  ___Djkifd_CONFIG_A_defined_1;
+extern int  ___CfIf3K_CONFIG_A_0;// L2
+extern int  ___Djkifd_CONFIG_A_defined_1;// L4
 unsigned  __factorial_3 (unsigned  __n_2) {
 
 {
@@ -60,7 +60,7 @@ int  __main_5 () {
 
 
 
-int  __x_4= 5;
+int  __x_4= 5;// L18
 
  __x_4  =  __factorial_3  (  __x_4  ) ; // L19
 return  __x_4  ;// L20

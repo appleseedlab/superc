@@ -20,7 +20,7 @@ int  __main_1 (void  ) {
 
 
 
-int  __x_0;
+int  __x_0;// L2
 
  __x_0  = 3 + 5 - 6 * 4 / 2 % 7 ; // L4
 return 0 ;// L6

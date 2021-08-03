@@ -7,9 +7,9 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_9;
 extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_5;
-extern const bool __static_condition_default_9;
 void __static_initializer_default() {
 __static_renaming("___C_40496_0", "_C_40496");
 __static_renaming("___C_40496_DEFINED_1", "_C_40496_DEFINED");
@@ -27,9 +27,9 @@ __static_parse_error("Unable to parse");
 }
 };
 
-extern _Bool  ___C_40496_0;
-extern _Bool  ___C_40496_DEFINED_1;
-extern int  ___V03VpEz_x_2;
+extern _Bool  ___C_40496_0;// L3:L33
+extern _Bool  ___C_40496_DEFINED_1;// L4:L33
+extern int  ___V03VpEz_x_2;// L6
 int  ___F1KCEey_main_3 () {
 
 {

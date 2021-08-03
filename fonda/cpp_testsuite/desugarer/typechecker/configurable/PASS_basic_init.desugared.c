@@ -21,9 +21,9 @@ int  __main_2 () {
 
 
 
-int  __a_0= 0;
+int  __a_0= 0;// L4
 
-int  __b_1= 1;
+int  __b_1= 1;// L6
 
 return 0 ;// L9
 }

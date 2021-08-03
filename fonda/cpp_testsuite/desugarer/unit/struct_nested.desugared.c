@@ -24,5 +24,5 @@ struct __list_2 __list_2;
 };
 };
 
-struct __list_2 ;
+struct __list_2 ;// L1
 

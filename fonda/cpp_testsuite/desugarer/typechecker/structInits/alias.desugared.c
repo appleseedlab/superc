@@ -18,7 +18,7 @@ struct __x_0 {
 int  __a_1;
 int  __b_2;
 };
-typedef struct __x_0  __X_3;
+typedef struct __x_0  __X_3;// L1:L5
 
 // typedef moved to top of scope
 int  __main_5 () {
@@ -27,7 +27,7 @@ int  __main_5 () {
 
 
 
-__X_3  __a_4;
+__X_3  __a_4;// L9
 {
 if (1) {
 __a_4.__a_1 = 1;

@@ -33,9 +33,9 @@ struct __test_2 {
 int  __x_3;
 };
 
-extern _Bool  ___C_40496_0;
-extern _Bool  ___C_40496_DEFINED_1;
-struct __test_2 ;
+extern _Bool  ___C_40496_0;// L3:L33
+extern _Bool  ___C_40496_DEFINED_1;// L4:L33
+struct __test_2 ;// L6
 int  ___F1K4sj1_main_6 () {
 
 {
@@ -53,9 +53,9 @@ if ( 1 )// L9
 
 
 
-struct __test_2  ___V2n3sqb_var_4;
+struct __test_2  ___V2n3sqb_var_4;// L11
 
-int  ___V3nkcU9_var_5;
+int  ___V3nkcU9_var_5;// L13
 
 if (__static_condition_default_7) {
 if (  ___C_40496_DEFINED_1  )// L14

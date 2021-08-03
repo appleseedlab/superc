@@ -15,19 +15,19 @@ __static_renaming("__main_3", "main");
 
 
 };
-typedef int  __a_0;
+typedef int  __a_0;// L1
 
 // typedef moved to top of scope
 int  __main_3 () {
 
 {
 
-typedef __a_0  __a_1;
+typedef __a_0  __a_1;// L4
 
 
 // typedef moved to top of scope
 
-__a_1  __x_2;
+__a_1  __x_2;// L6
 
  __x_2  ++ ; // L8
 return 0 ;// L10

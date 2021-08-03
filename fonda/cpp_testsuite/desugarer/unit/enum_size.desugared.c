@@ -22,9 +22,9 @@ __C_5,
 __D_6 = - 10,
 };
 
-extern int  __printf_1 (const char  (* __restrict  ____format_0),  ... );
-enum E  __x_2;
-enum E ;
+extern int  __printf_1 (const char  (* __restrict  ____format_0),  ... );// L1
+enum E  __x_2;// L3
+enum E ;// L5
 int  __main_8 () {
 
 {
@@ -32,7 +32,7 @@ int  __main_8 () {
 
 
  __x_2  =  __C_5  ; // L13
-int  __y_7=  __x_2 ;
+int  __y_7=  __x_2 ;// L14
 
  __printf_1  ( "%016llx\n",  __A_3  ) ; // L15
  __printf_1  ( "%016llx\n",  __B_4  ) ; // L16

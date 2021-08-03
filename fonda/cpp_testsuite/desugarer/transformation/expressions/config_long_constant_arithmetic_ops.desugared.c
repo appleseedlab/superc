@@ -25,9 +25,9 @@ int  __main_2 (void  ) {
 
 
 
-int  __x_0;
+int  __x_0;// L3
 
-char  __x_1;
+char  __x_1;// L5
 
 if (__static_condition_default_3) {
  __x_0  = 3 + 5 - 6 * 4 / 2 % 7 ; // L8

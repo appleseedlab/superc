@@ -35,11 +35,11 @@ int  __main_6 (void  ) {
 
 
 
-int  __argOne_3= 2;
+int  __argOne_3= 2;// L6
 
-int  __argTwo_4= 5;
+int  __argTwo_4= 5;// L7
 
-int  __result_5;
+int  __result_5;// L8
 
  __result_5  =  __adder_2  (  __argOne_3 ,  __argTwo_4  ) ; // L10
 return 0 ;// L12

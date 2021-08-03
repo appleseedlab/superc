@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_8;
 extern const bool __static_condition_default_6;
+extern const bool __static_condition_default_8;
 void __static_initializer_default() {
 __static_renaming("__x_5", "x");
 __static_renaming("__x_7", "x");
@@ -26,15 +26,15 @@ int  __a_3;
 int  __b_4;
 };
 
-struct __x_0 ;
-struct __x_2 ;
+struct __x_0 ;// L1
+struct __x_2 ;// L1
 int  __main_9 () {
 
 {
 
 
 
-struct __x_0  __x_5;
+struct __x_0  __x_5;// L11
 {
 if (__static_condition_default_6) {
 __x_5.__a_1 = 1;
@@ -42,7 +42,7 @@ __static_type_error("assigning value out of struct range.");
 }
 }
 
-struct __x_2  __x_7;
+struct __x_2  __x_7;// L11
 {
 if (__static_condition_default_8) {
 __x_7.__a_3 = 1;

@@ -23,14 +23,14 @@ int  __main_4 () {
 
 
 
-int  __x_0;
+int  __x_0;// L2
 
 if (__static_condition_default_2) {
 __static_type_error("redeclaration of local symbol: x");
 }
 
 
-int  __b_3;
+int  __b_3;// L6
 
 }
 

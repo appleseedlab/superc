@@ -21,9 +21,9 @@ int  __main_2 () {
 
 
 
-int  __x_0;
+int  __x_0;// L2:L8
 
-int  __y_1;
+int  __y_1;// L2:L8
 
 }
 

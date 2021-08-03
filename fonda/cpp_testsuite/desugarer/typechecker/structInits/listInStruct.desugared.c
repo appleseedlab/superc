@@ -17,14 +17,14 @@ struct __x_0 {
 int  (__a_1[5]);
 };
 
-struct __x_0 ;
+struct __x_0 ;// L1
 int  __main_3 () {
 
 {
 
 
 
-struct __x_0  __a_2;
+struct __x_0  __a_2;// L7
 {
 if (1) {
 __a_2.__a_1[0] = 1;

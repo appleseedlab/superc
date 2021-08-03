@@ -37,8 +37,8 @@ struct __t_8 __t_8;
 };
 };
 
-struct ____s_0_1 ;
-struct ____t_1_4 ;
-struct __t_8 ;
-struct __s_12 ;
+struct ____s_0_1 ;// L1
+struct ____t_1_4 ;// L5
+struct __t_8 ;// L8
+struct __s_12 ;// L14
 

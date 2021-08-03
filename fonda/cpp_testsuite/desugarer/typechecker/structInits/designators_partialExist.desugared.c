@@ -32,15 +32,15 @@ unsigned  __a_5;
 int  __b_6;
 };
 
-struct __x_0 ;
-struct __x_3 ;
+struct __x_0 ;// L1
+struct __x_3 ;// L1
 int  __main_13 () {
 
 {
 
 
 
-struct __x_0  __x_7;
+struct __x_0  __x_7;// L15
 {
 if (__static_condition_default_8) {
 __x_7.__a_1 = 1;
@@ -52,7 +52,7 @@ __static_type_error("designator doesn't exist.");
 }
 }
 
-struct __x_3  __x_10;
+struct __x_3  __x_10;// L15
 {
 if (__static_condition_default_11) {
 __x_10.__a_4 = 1;

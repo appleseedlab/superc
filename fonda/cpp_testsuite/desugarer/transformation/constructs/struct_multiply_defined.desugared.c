@@ -28,10 +28,10 @@ struct __joe_6 {
 int  __xx_7;
 };
 
-struct __bob_0 ;
-struct __bob_4 ;
-struct __joe_2  __var_joe_8;
-struct __joe_6  __var_joe_9;
-struct __bob_0  __var_10;
-struct __bob_4  __var_11;
+struct __bob_0 ;// L2
+struct __bob_4 ;// L9
+struct __joe_2  __var_joe_8;// L5:L7
+struct __joe_6  __var_joe_9;// L12:L14
+struct __bob_0  __var_10;// L17
+struct __bob_4  __var_11;// L17
 

@@ -25,9 +25,9 @@ int  __main_2 (void  ) {
 
 
 
-int  __x_0= 2;
+int  __x_0= 2;// L3
 
-char  __x_1= 3;
+char  __x_1= 3;// L5
 
 if (__static_condition_default_3) {
 if (  __x_0  == 2 )// L8

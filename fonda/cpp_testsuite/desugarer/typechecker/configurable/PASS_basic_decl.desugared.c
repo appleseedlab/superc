@@ -23,13 +23,13 @@ int  __main_4 () {
 
 
 
-int  __a_0;
+int  __a_0;// L4
 
-int  __b_1;
+int  __b_1;// L6
 
-int  (* __c_2);
+int  (* __c_2);// L9:L15
 
-int  (* (* __c_3));
+int  (* (* __c_3));// L9:L15
 
 return 0 ;// L18
 }

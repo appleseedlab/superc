@@ -23,8 +23,8 @@ __static_parse_error("Unable to parse");
 }
 };
 
-extern _Bool  ___C_40496_0;
-extern _Bool  ___C_40496_DEFINED_1;
+extern _Bool  ___C_40496_0;// L3:L33
+extern _Bool  ___C_40496_DEFINED_1;// L4:L33
 int  ___F0Awc8x_x_2 () {
 
 {

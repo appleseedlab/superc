@@ -33,9 +33,9 @@ struct __s2_4 __s2_4;
 };
 
 
-struct __s1_1 ;
+struct __s1_1 ;// L2
 
-struct __s2_4 ;
+struct __s2_4 ;// L7
 
 }
 

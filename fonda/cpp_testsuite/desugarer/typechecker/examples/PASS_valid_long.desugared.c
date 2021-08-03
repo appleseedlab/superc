@@ -24,15 +24,15 @@ int  __main_5 (void  ) {
 
 
 
-long  __a_0;
+long  __a_0;// L2
 
-long long  __b_1;
+long long  __b_1;// L3
 
-long int  __c_2;
+long int  __c_2;// L4
 
-long long int  __d_3;
+long long int  __d_3;// L5
 
-long double  __e_4;
+long double  __e_4;// L6
 
 return 0 ;// L8
 }

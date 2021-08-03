@@ -176,6 +176,7 @@ abstract class Declarator {
       return declarator.hasTypeError();
     }
 
+
     @Override
     public boolean isParenDeclarator() { return true; }
 
@@ -504,7 +505,11 @@ abstract class Declarator {
       assert expressions.size() > 0;  // otherwise no arraytype will be made
       System.err.println("TODO: need to handle the expression to see if the array has a variable size of not");
       for (String expression : expressions) {
-        arrayType = new ArrayT(arrayType);
+        if (expression != "") {
+          arrayType = new ArrayT(arrayType,1);
+        } else {
+          arrayType = new ArrayT(arrayType);
+        }
       }
       return arrayType;
     }
@@ -615,7 +620,7 @@ abstract class Declarator {
     public boolean hasTypeError() {
       return declarator.hasTypeError() || parameters.hasTypeError();
     }
-  
+
     @Override
     public boolean isFunctionDeclarator() { return true; }
 
@@ -656,6 +661,11 @@ abstract class Declarator {
     public boolean hasTypeError() {
       for (Declaration param : parameters) {
         if (param.hasTypeError()) {
+          return true;
+        }
+      }
+      if (parameters.size() > 0) {
+        if (parameters.size() > 1 && parameters.get(0).getType() == VoidT.TYPE) {
           return true;
         }
       }

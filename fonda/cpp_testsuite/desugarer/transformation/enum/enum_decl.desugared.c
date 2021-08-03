@@ -22,14 +22,14 @@ __e_4,
 __f_5,
 };
 
-enum letter ;
+enum letter ;// L1
 int  __main_7 (void  ) {
 
 {
 
 
 
-enum letter  __apple_6;
+enum letter  __apple_6;// L4
 
  __apple_6  =  __a_0  ; // L5
 return 0 ;// L7

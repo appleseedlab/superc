@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_5;
+extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_3;
 void __static_initializer_default() {
 __static_renaming("__a_0", "a");
@@ -25,8 +25,8 @@ __static_parse_error("Unable to parse");
 }
 };
 
-int  (* __a_1);
-int  (* __a_0);
+int  (* __a_1);// L6
+int  (* __a_0);// L6
 int  __main_2 () {
 
 {

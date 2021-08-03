@@ -14,7 +14,7 @@ __static_renaming("__main_4", "main");
 
 
 };
-typedef int  __intAlias_0;
+typedef int  __intAlias_0;// L1
 
 // typedef moved to top of scope
 int  __main_4 (void  ) {
@@ -26,7 +26,7 @@ __intAlias_0  __x_2;
 };
 
 
-struct __anonymous_tag_1  __intWrapper_3;
+struct __anonymous_tag_1  __intWrapper_3;// L4
 
  __intWrapper_3  . __x_2 = 2 ; // L6
 return 0 ;// L8

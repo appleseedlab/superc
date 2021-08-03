@@ -19,7 +19,7 @@ __static_condition_renaming("__static_condition_default_3", "(defined A)");
 
 };
 
-int  __y_0;
+int  __y_0;// L3
 char  __foo_2 () {
 
 if (__static_condition_default_3) {
@@ -28,7 +28,7 @@ if (__static_condition_default_3) {
 
 
 
-int  __x_1;
+int  __x_1;// L7
 
 }
 
@@ -44,7 +44,7 @@ if (__static_condition_default_3) {
 
 
 
-int  __x_4;
+int  __x_4;// L12
 
 return  __foo_2 ( ) ;// L13
 }

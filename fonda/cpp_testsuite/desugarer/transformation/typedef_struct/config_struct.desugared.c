@@ -19,8 +19,8 @@ char  __otherVal_1;
 struct __bob_2 {
 char  __otherVal_3;
 };
-typedef struct __bob_0  __bob_4;
-typedef struct __bob_2  __bob_5;
+typedef struct __bob_0  __bob_4;// L2:L4
+typedef struct __bob_2  __bob_5;// L6:L8
 
 // typedef moved to top of scope
 // typedef moved to top of scope

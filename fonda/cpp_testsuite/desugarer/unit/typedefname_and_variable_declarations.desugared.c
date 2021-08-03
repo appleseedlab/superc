@@ -23,17 +23,17 @@ if (__static_condition_default_6)
 __static_parse_error("Unable to parse");
 }
 };
-typedef int  __a_0;
+typedef int  __a_0;// L2
 
 // typedef moved to top of scope
-int  __a_1;
+int  __a_1;// L4
 int  __main_3 () {
 
 {
 
 
 
-__a_0  __a_2;
+__a_0  __a_2;// L8
 
 
 }
@@ -47,7 +47,7 @@ int  __f_5 () {
 
 
 
-const __a_0  __a_4;
+const __a_0  __a_4;// L12
 
 
 }

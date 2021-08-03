@@ -20,8 +20,8 @@ __static_condition_renaming("__static_condition_default_6", "(defined A)");
 __static_condition_renaming("__static_condition_default_7", "!(defined A)");
 
 };
-typedef signed int  __a_0;
-typedef unsigned int  __a_1;
+typedef signed int  __a_0;// L2
+typedef unsigned int  __a_1;// L4
 
 // typedef moved to top of scope
 // typedef moved to top of scope

@@ -26,7 +26,7 @@ int  __x_9;
 struct ____s_1_10 {
 };
 
-struct __s_0  __bob_2;
+struct __s_0  __bob_2;// L1:L3
 int  __main_7 () {
 
 {
@@ -36,27 +36,27 @@ char  __y_4;
 };
 
 
-struct __s_3  __r_5;
+struct __s_3  __r_5;// L6:L8
 
-struct __s_3  __q_6;
-
-}
-
-
+struct __s_3  __q_6;// L10
 
 }
-struct ____s_0_8 ;
-struct ____s_1_10 ;
-struct __s_0  __bob_11;
+
+
+
+}
+struct ____s_0_8 ;// L15
+struct ____s_1_10 ;// L19
+struct __s_0  __bob_11;// L24
 int  __main_14 () {
 
 {
 
 
 
-struct __s_0  __r_12;
+struct __s_0  __r_12;// L27
 
-struct __s_0  __q_13;
+struct __s_0  __q_13;// L29
 
 }
 

@@ -27,17 +27,17 @@ union __intCharFloat_4 {
 char  __integer_5;
 };
 
-union __intCharFloat_0 ;
-union __intCharFloat_4 ;
+union __intCharFloat_0 ;// L2
+union __intCharFloat_4 ;// L8
 int  __main_8 (void  ) {
 
 {
 
 
 
-union __intCharFloat_0  __usedUnion_6;
+union __intCharFloat_0  __usedUnion_6;// L14
 
-union __intCharFloat_4  __usedUnion_7;
+union __intCharFloat_4  __usedUnion_7;// L14
 
 if (__static_condition_default_9) {
  __usedUnion_6  . __integer_1 = 1 ; // L16

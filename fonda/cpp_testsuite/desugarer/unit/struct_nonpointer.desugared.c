@@ -12,7 +12,7 @@ __static_renaming("__X509_ALGOR_1", "X509_ALGOR");
 
 
 };
-typedef struct __forward_tag_reference_0  __X509_ALGOR_1;
+typedef struct __forward_tag_reference_0  __X509_ALGOR_1;// L1
 struct __X509_algor_st_2 {
 int  (* __algorithm_3);
 char  (* __parameter_4);
@@ -27,5 +27,5 @@ struct __X509_algor_st_2 __X509_algor_st_2;
 };
 
 // typedef moved to top of scope
-struct __X509_algor_st_2 ;
+struct __X509_algor_st_2 ;// L2
 

@@ -23,13 +23,13 @@ int  __main_3 (void  ) {
 
 
 
-int  __x_0= 2;
+int  __x_0= 2;// L3
 
 if (__static_condition_default_1) {
 __static_type_error("invalid declaration of y under this presence condition");
 }
 
-int  __y_2=  __x_0 ;
+int  __y_2=  __x_0 ;// L6
 
 return 0 ;// L8
 }

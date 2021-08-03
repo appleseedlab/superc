@@ -22,7 +22,7 @@ __d_3,
 __e_4,
 __f_5,
 };
-typedef enum letter  __letter_6;
+typedef enum letter  __letter_6;// L1
 
 // typedef moved to top of scope
 int  __main_8 (void  ) {
@@ -31,7 +31,7 @@ int  __main_8 (void  ) {
 
 
 
-__letter_6  __apple_7;
+__letter_6  __apple_7;// L4
 
  __apple_7  =  __a_0  ; // L5
 return 0 ;// L7

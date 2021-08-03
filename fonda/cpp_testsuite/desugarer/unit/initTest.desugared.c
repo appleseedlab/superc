@@ -15,5 +15,5 @@ __static_condition_renaming("__static_condition_default_1", "!(defined A)");
 
 };
 
-int  (__a_0[1])= { 1 };
+int  (__a_0[1])= { 1 };// L4
 

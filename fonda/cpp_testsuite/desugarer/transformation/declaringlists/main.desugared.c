@@ -20,7 +20,7 @@ int  __main_3 (int  __argc_0, char  (* (* __argv_1))) {
 
 
 
-int  __x_2;
+int  __x_2;// L2
 
  __x_2  ++ ; // L3
 return 0 ;// L4

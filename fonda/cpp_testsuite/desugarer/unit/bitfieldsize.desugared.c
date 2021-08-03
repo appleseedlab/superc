@@ -15,5 +15,5 @@ struct __myFirstStruct_0 {
 int  __var_1: 5;
 };
 
-struct __myFirstStruct_0 ;
+struct __myFirstStruct_0 ;// L1
 

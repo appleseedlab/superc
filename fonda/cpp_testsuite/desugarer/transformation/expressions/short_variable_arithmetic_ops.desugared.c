@@ -22,11 +22,11 @@ int  __main_3 (void  ) {
 
 
 
-int  __x_0;
+int  __x_0;// L2
 
-int  __y_1;
+int  __y_1;// L3
 
-int  __z_2;
+int  __z_2;// L4
 
  __x_0  = 1 ; // L5
  __y_1  = 2 ; // L6

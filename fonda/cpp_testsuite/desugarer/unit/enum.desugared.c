@@ -26,9 +26,9 @@ __A_0,
 __B_1,
 };
 
-enum __anonymous_tag_2 ;
-enum bob ;
-enum joe ;
-enum bob  __x_7;
-int  __y_8=  __F_6 ;
+enum __anonymous_tag_2 ;// L1
+enum bob ;// L2
+enum joe ;// L3
+enum bob  __x_7;// L5
+int  __y_8=  __F_6 ;// L6
 

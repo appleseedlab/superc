@@ -14,10 +14,10 @@ __static_renaming("__main_2", "main");
 
 
 };
-typedef void  __v_0;
+typedef void  __v_0;// L1
 
 // typedef moved to top of scope
-__v_0  __foo_1 (__v_0  );
+__v_0  __foo_1 (__v_0  );// L3
 int  __main_2 () {
 
 {

@@ -13,7 +13,7 @@ __static_renaming("__x_0", "x");
 
 };
 
-int  __x_0;
-int  __x_1;
+int  __x_0;// L1
+int  __x_1;// L3
 
 

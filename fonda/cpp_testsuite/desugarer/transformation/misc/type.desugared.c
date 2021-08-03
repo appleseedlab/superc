@@ -20,7 +20,7 @@ int  __main_1 () {
 
 
 
-int long  __x_0;
+int long  __x_0;// L2
 
 }
 

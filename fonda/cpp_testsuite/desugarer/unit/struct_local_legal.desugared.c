@@ -29,11 +29,11 @@ struct __s_1 __s_1;
 };
 
 
-struct __forward_tag_reference_0 ;
+struct __forward_tag_reference_0 ;// L2147483647:L0
 
-struct __s_1 ;
+struct __s_1 ;// L4
 
-struct __s_1  __x_3;
+struct __s_1  __x_3;// L8
 
 }
 

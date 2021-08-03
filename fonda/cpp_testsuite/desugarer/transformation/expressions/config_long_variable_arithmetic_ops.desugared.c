@@ -7,20 +7,20 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_16;
-extern const bool __static_condition_default_14;
 extern const bool __static_condition_default_19;
-extern const bool __static_condition_default_23;
-extern const bool __static_condition_default_15;
-extern const bool __static_condition_default_21;
+extern const bool __static_condition_default_20;
+extern const bool __static_condition_default_22;
 extern const bool __static_condition_default_12;
+extern const bool __static_condition_default_24;
+extern const bool __static_condition_default_23;
+extern const bool __static_condition_default_21;
+extern const bool __static_condition_default_16;
+extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_15;
 extern const bool __static_condition_default_18;
 extern const bool __static_condition_default_17;
-extern const bool __static_condition_default_22;
-extern const bool __static_condition_default_24;
-extern const bool __static_condition_default_20;
+extern const bool __static_condition_default_14;
 extern const bool __static_condition_default_13;
-extern const bool __static_condition_default_11;
 void __static_initializer_default() {
 __static_renaming("__x_0", "x");
 __static_renaming("__x_1", "x");
@@ -57,25 +57,25 @@ int  __main_10 (void  ) {
 
 
 
-int  __x_0;
+int  __x_0;// L3
 
-char  __x_1;
+char  __x_1;// L5
 
-unsigned int  __y_2;
+unsigned int  __y_2;// L9
 
-unsigned char  __y_3;
+unsigned char  __y_3;// L11
 
-int  __z_4;
+int  __z_4;// L14
 
-int  __w_5;
+int  __w_5;// L15
 
-int  __u_6;
+int  __u_6;// L16
 
-int  __v_7;
+int  __v_7;// L17
 
-long  __t_8;
+long  __t_8;// L20
 
-short  __t_9;
+short  __t_9;// L22
 
 if (__static_condition_default_11) {
  __x_0  = 2 ; // L25

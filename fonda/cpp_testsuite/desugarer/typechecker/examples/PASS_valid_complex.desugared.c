@@ -24,19 +24,19 @@ int  __main_5 (void  ) {
 
 
 
-_Complex  __a_0;
+_Complex  __a_0;// L2
 
 if (1) {
 __static_type_error("invalid declaration of b under this presence condition");
 }
 
-_Complex double  __c_1;
+_Complex double  __c_1;// L4
 
-_Complex float  __d_2;
+_Complex float  __d_2;// L5
 
-_Complex double  __e_3;
+_Complex double  __e_3;// L6
 
-_Complex long double  __f_4;
+_Complex long double  __f_4;// L7
 
 return 0 ;// L8
 }

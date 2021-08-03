@@ -36,7 +36,7 @@ float  (* __y_3 (int  __y1_1)) {
 
 
 
-float  (* __y2_2);
+float  (* __y2_2);// L8
 
 return  __y2_2  ;// L9
 }

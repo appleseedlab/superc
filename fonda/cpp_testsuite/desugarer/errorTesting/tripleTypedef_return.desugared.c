@@ -7,10 +7,10 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_6;
 extern const bool __static_condition_default_8;
 extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_7;
-extern const bool __static_condition_default_6;
 void __static_initializer_default() {
 __static_renaming("__a_0", "a");
 __static_renaming("__b_1", "b");
@@ -28,14 +28,14 @@ if (__static_condition_default_8)
 __static_parse_error("Unable to parse");
 }
 };
-typedef int  __a_0;
-typedef int  __b_1;
-typedef int  __c_2;
+typedef int  __a_0;// L2
+typedef int  __b_1;// L6
+typedef int  __c_2;// L10
 
 // typedef moved to top of scope
 // typedef moved to top of scope
 // typedef moved to top of scope
-__c_2  __foo_3 ();
+__c_2  __foo_3 ();// L19
 int  __main_5 () {
 
 {

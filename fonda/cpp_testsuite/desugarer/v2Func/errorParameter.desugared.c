@@ -37,19 +37,19 @@ int  __main_7 () {
 
 
 
-int  __a_3= 1;
+int  __a_3= 1;// L8
 
 if (__static_condition_default_4) {
 __static_type_error("invalid declaration of b under this presence condition");
 }
 
-int  __b_5= 1;
+int  __b_5= 1;// L9:L13
 
 if (1) {
 __static_type_error("invalid declaration of c under this presence condition");
 }
 
-int  __d_6=  __foo_2  (  __a_3 ,  __b_5  );
+int  __d_6=  __foo_2  (  __a_3 ,  __b_5  );// L16
 
 if (__static_condition_default_4) {
 __static_type_error("invalid declaration of d under this presence condition");

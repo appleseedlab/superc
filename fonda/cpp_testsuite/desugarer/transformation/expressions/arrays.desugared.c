@@ -28,15 +28,15 @@ int  __main_5 (void  ) {
 
 
 
-int  __x_0= 5;
+int  __x_0= 5;// L2
 
-int  (__myFirstArr_1[3]);
+int  (__myFirstArr_1[3]);// L5
 
-char  (__myFirstArr_2[3]);
+char  (__myFirstArr_2[3]);// L7
 
-int  (__expressionArr_3[2 + 8]);
+int  (__expressionArr_3[2 + 8]);// L10
 
-char  (__string_4[2]);
+char  (__string_4[2]);// L11
 
 if (1) {
 __static_type_error("invalid declaration of variableLength under this presence condition");

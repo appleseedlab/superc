@@ -18,7 +18,7 @@ struct __bob_0 {
 int  __val_1;
 char  __otherVal_2;
 };
-typedef struct __bob_0  __bob_3;
+typedef struct __bob_0  __bob_3;// L1:L4
 
 // typedef moved to top of scope
 int  __main_5 (void  ) {
@@ -27,7 +27,7 @@ int  __main_5 (void  ) {
 
 
 
-__bob_3  __bobStruct_4;
+__bob_3  __bobStruct_4;// L7
 
  __bobStruct_4  . __val_1 = 1 ; // L8
 }

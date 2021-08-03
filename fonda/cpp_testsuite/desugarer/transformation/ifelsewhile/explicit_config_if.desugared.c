@@ -24,7 +24,7 @@ int  __main_1 (void  ) {
 
 
 
-int  __x_0= 2;
+int  __x_0= 2;// L2
 
 if (__static_condition_default_2) {
 if (  __x_0  == 2 )// L4:L12

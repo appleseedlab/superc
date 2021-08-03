@@ -7,12 +7,12 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_4;
-extern const bool __static_condition_default_8;
-extern const bool __static_condition_default_6;
-extern const bool __static_condition_default_13;
-extern const bool __static_condition_default_3;
 extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_8;
+extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_6;
+extern const bool __static_condition_default_3;
+extern const bool __static_condition_default_13;
 void __static_initializer_default() {
 __static_renaming("___C_40496_0", "_C_40496");
 __static_renaming("___C_40496_DEFINED_1", "_C_40496_DEFINED");
@@ -34,8 +34,8 @@ __static_parse_error("Unable to parse");
 }
 };
 
-extern _Bool  ___C_40496_0;
-extern _Bool  ___C_40496_DEFINED_1;
+extern _Bool  ___C_40496_0;// L3:L33
+extern _Bool  ___C_40496_DEFINED_1;// L4:L33
 static int  ___F01FqLq_x_2 () {
 
 {

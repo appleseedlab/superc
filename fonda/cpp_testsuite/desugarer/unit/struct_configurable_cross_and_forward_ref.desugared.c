@@ -40,11 +40,11 @@ struct __T_10 __T_10;
 };
 };
 
-struct __forward_tag_reference_0  __bob_1;
-struct __T_2 ;
-struct __X_8 ;
-struct __X_4 ;
-struct __T_10 ;
+struct __forward_tag_reference_0  __bob_1;// L1
+struct __T_2 ;// L3
+struct __X_8 ;// L15
+struct __X_4 ;// L6
+struct __T_10 ;// L18
 int  __main_13 () {
 
 {

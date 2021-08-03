@@ -20,7 +20,7 @@ int  __main_1 (void  ) {
 
 
 
-int  (__myFirstArr_0[3]);
+int  (__myFirstArr_0[3]);// L2
 
  __myFirstArr_0  [ 1 ] = 7 ; // L4
 return 0 ;// L6

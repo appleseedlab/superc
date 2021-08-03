@@ -17,7 +17,7 @@ struct __anonymous_tag_0 {
 char  __p_1;
 };
 
-struct __anonymous_tag_0  __data_2;
+struct __anonymous_tag_0  __data_2;// L1:L3
 int  __main_3 () {
 
 {

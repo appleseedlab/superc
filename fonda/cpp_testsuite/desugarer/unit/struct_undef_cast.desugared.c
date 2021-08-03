@@ -28,9 +28,9 @@ struct __s1_5 __s1_5;
 };
 };
 
-struct __forward_tag_reference_0  __x_1;
-struct __s2_2 ;
-struct __s1_5 ;
+struct __forward_tag_reference_0  __x_1;// L1
+struct __s2_2 ;// L3
+struct __s1_5 ;// L8
 int  __main_8 () {
 
 {

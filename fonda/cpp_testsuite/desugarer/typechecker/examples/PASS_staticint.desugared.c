@@ -20,7 +20,7 @@ int  __main_1 () {
 
 
 
-static int  __x_0;
+static int  __x_0;// L2
 
 return 0 ;// L3
 }

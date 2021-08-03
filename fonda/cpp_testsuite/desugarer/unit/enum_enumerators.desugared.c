@@ -20,8 +20,8 @@ __B_1,
 __C_2,
 };
 
-enum E  __x_3;
-int  __nonenumerator_4= 10;
+enum E  __x_3;// L1
+int  __nonenumerator_4= 10;// L2
 int  __main_5 () {
 
 {

@@ -24,7 +24,7 @@ int  __main_1 () {
 
 
 
-int  __a_0;
+int  __a_0;// L2
 
 if (__static_condition_default_2) {
  __a_0  = 0 ; // L5

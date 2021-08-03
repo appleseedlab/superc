@@ -29,17 +29,17 @@ int  __main_10 (void  ) {
 
 
 
-char  __a_0= 2;
-char  __b_1;
-char  __g_2= 4;
+char  __a_0= 2;// L3:L9
+char  __b_1;// L3:L9
+char  __g_2= 4;// L3:L9
 
-char  __a_3= 2;
-char  __b_4;
-char  __c_5= 6;
-char  __d_6;
-char  __e_7;
-char  __f_8;
-char  __g_9= 4;
+char  __a_3= 2;// L3:L9
+char  __b_4;// L3:L9
+char  __c_5= 6;// L3:L9
+char  __d_6;// L3:L9
+char  __e_7;// L3:L9
+char  __f_8;// L3:L9
+char  __g_9= 4;// L3:L9
 
 return 0 ;// L11
 }

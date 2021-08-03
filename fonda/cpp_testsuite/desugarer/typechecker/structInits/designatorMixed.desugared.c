@@ -25,14 +25,14 @@ int  __d_4;
 int  __d_5;
 };
 
-struct __x_0 ;
+struct __x_0 ;// L1
 int  __main_9 () {
 
 {
 
 
 
-struct __x_0  __x_6;
+struct __x_0  __x_6;// L12
 {
 if (__static_condition_default_7) {
 __x_6.__a_1 = 1;

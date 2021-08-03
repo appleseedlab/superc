@@ -35,8 +35,8 @@ union {
 };
 };
 
-struct __forward_tag_reference_0 ;
-struct __forward_tag_reference_1 ;
+struct __forward_tag_reference_0 ;// L2147483647:L0
+struct __forward_tag_reference_1 ;// L2147483647:L0
 
-struct __t_7 ;
+struct __t_7 ;// L11
 

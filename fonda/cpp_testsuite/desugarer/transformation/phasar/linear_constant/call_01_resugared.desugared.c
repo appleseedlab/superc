@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_5;
+extern const bool __static_condition_default_4;
 void __static_initializer_default() {
 __static_renaming("__increment_1", "increment");
 __static_renaming("__x_2", "x");
@@ -37,7 +37,7 @@ int  __main_3 () {
 
 
 
-int  __x_2= 99;
+int  __x_2= 99;// L4
 
 if (__static_condition_default_4) {
  __x_2  =  __increment_1  (  __x_2  ) ; // L7

@@ -17,8 +17,8 @@ enum bob {
 __A_2 =  __y_0 ,
 };
 
-extern int  __y_0;
-enum bob ;
-enum bob  __x_1;
-enum bob ;
+extern int  __y_0;// L1
+enum bob ;// L3
+enum bob  __x_1;// L5
+enum bob ;// L8
 

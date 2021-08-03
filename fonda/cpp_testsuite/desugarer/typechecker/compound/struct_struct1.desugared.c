@@ -31,9 +31,9 @@ int  __field1_3;
 };
 
 
-struct __anonymous_tag_0  __x_4;
+struct __anonymous_tag_0  __x_4;// L3
 
-struct __anonymous_tag_2  __x_5;
+struct __anonymous_tag_2  __x_5;// L5
 
 if (__static_condition_default_7) {
  __x_4  . __a_1 ; // L8

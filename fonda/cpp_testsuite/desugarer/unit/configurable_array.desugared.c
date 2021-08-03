@@ -18,6 +18,6 @@ __static_condition_renaming("__static_condition_default_3", "!(defined A)");
 
 };
 
-int  __x_0;
-char  __x_1;
+int  __x_0;// L2
+char  __x_1;// L4
 

@@ -23,13 +23,13 @@ int  __main_4 (void  ) {
 
 
 
-int  __x_0= 2;
+int  __x_0= 2;// L3
 
-char  __x_1= 3;
+char  __x_1= 3;// L5
 
-int  __y_2=  __x_0 ;
+int  __y_2=  __x_0 ;// L8
 
-int  __y_3=  __x_1 ;
+int  __y_3=  __x_1 ;// L8
 
 return 0 ;// L10
 }

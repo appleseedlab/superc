@@ -31,15 +31,15 @@ __e_9,
 __f_10,
 };
 
-enum someLetters ;
-enum someLetters ;
+enum someLetters ;// L2
+enum someLetters ;// L7
 int  __main_12 (void  ) {
 
 {
 
 
 
-enum someLetters  __apple_11;
+enum someLetters  __apple_11;// L13
 
 if (__static_condition_default_13) {
  __apple_11  =  __a_0  ; // L14

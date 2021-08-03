@@ -20,7 +20,7 @@ __static_condition_renaming("__static_condition_default_7", "(defined A)");
 
 };
 
-int  __num_0= 5;
+int  __num_0= 5;// L1
 int  __main_5 () {
 
 {
@@ -30,9 +30,9 @@ int  __field1_2;
 };
 
 
-int  (* __x_3);
+int  (* __x_3);// L5
 
-struct __anonymous_tag_1  __x_4;
+struct __anonymous_tag_1  __x_4;// L7
 
 if (__static_condition_default_6) {
  __x_4  . __field1_2 ; // L10

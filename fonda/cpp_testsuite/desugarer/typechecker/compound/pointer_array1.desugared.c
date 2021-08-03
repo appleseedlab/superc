@@ -20,16 +20,16 @@ __static_condition_renaming("__static_condition_default_5", "!(defined A)");
 
 };
 
-int  __num_0= 5;
+int  __num_0= 5;// L1
 int  __main_3 () {
 
 {
 
 
 
-int  (* __x_1);
+int  (* __x_1);// L5
 
-char  (__x_2[5]);
+char  (__x_2[5]);// L7
 
 if (__static_condition_default_4) {
  __x_1  = &  __num_0  ; // L10

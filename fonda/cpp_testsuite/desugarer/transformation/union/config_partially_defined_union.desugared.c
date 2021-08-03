@@ -25,7 +25,7 @@ char  __character_2;
 float  __floating_3;
 };
 
-union __intCharFloat_0 ;
+union __intCharFloat_0 ;// L2
 int  __main_7 (void  ) {
 
 if (__static_condition_default_9) {
@@ -39,7 +39,7 @@ union {
 };
 
 
-struct __forward_tag_reference_4  __usedUnion_6;
+struct __forward_tag_reference_4  __usedUnion_6;// L10
 
 __static_type_error("type error") ; // L12
 __static_type_error("type error") ; // L14
@@ -63,7 +63,7 @@ union {
 };
 
 
-union __intCharFloat_0  __usedUnion_5;
+union __intCharFloat_0  __usedUnion_5;// L10
 
  __usedUnion_5  . __integer_1 = 1 ; // L12
  __usedUnion_5  . __character_2 = 'h' ; // L14

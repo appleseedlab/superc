@@ -7,21 +7,21 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_10;
-extern const bool __static_condition_default_15;
-extern const bool __static_condition_default_17;
-extern const bool __static_condition_default_19;
-extern const bool __static_condition_default_18;
-extern const bool __static_condition_default_16;
-extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_20;
 extern const bool __static_condition_default_7;
-extern const bool __static_condition_default_4;
-extern const bool __static_condition_default_13;
-extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_11;
-extern const bool __static_condition_default_8;
+extern const bool __static_condition_default_16;
+extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_20;
+extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_19;
+extern const bool __static_condition_default_13;
+extern const bool __static_condition_default_17;
+extern const bool __static_condition_default_14;
+extern const bool __static_condition_default_15;
+extern const bool __static_condition_default_18;
+extern const bool __static_condition_default_8;
 void __static_initializer_default() {
 __static_renaming("__x_0", "x");
 __static_renaming("__x_1", "x");
@@ -55,17 +55,17 @@ if (__static_condition_default_7) {
 
 
 
-int  __x_0;
+int  __x_0;// L4
 
-char  __x_1;
+char  __x_1;// L6
 
-int  __y_2;
+int  __y_2;// L9
 
 if (__static_condition_default_4) {
 __static_type_error("redeclaration of local symbol: y");
 }
 
-char  __y_5;
+char  __y_5;// L12
 
 if (__static_condition_default_8) {
  __y_2  = 4 ; // L15

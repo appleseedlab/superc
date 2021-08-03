@@ -25,9 +25,9 @@ if (__static_condition_default_11)
 __static_parse_error("Unable to parse");
 }
 };
-typedef int  __a_0;
-typedef int  __b_1;
-typedef int  __c_2;
+typedef int  __a_0;// L2
+typedef int  __b_1;// L6
+typedef int  __c_2;// L10
 struct __y_3 {
 };
 struct __y_4 {
@@ -37,8 +37,8 @@ __c_2  __k_5;
 // typedef moved to top of scope
 // typedef moved to top of scope
 // typedef moved to top of scope
-struct __y_3 ;
-struct __y_4 ;
+struct __y_3 ;// L13
+struct __y_4 ;// L13
 
 int  __main_10 () {
 
@@ -46,9 +46,9 @@ int  __main_10 () {
 
 
 
-int  __d_8= 2;
+int  __d_8= 2;// L28
 
-int  __d_9= 2;
+int  __d_9= 2;// L30
 
 return 0 ;// L32
 }

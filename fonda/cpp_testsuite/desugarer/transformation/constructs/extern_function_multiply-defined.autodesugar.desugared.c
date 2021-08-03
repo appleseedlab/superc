@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_7;
 extern const bool __static_condition_default_6;
+extern const bool __static_condition_default_7;
 extern const bool __static_condition_default_5;
 extern const bool __static_condition_default_11;
 void __static_initializer_default() {
@@ -30,10 +30,10 @@ __static_parse_error("Unable to parse");
 }
 };
 
-extern _Bool  ___C_40496_0;
-extern _Bool  ___C_40496_DEFINED_1;
-extern int  ___V0uid07_x_2 ();
-extern float  ___V1F0Hm8_x_3 ();
+extern _Bool  ___C_40496_0;// L3:L33
+extern _Bool  ___C_40496_DEFINED_1;// L4:L33
+extern int  ___V0uid07_x_2 ();// L6
+extern float  ___V1F0Hm8_x_3 ();// L8
 int  ___F2OCBYb_main_4 () {
 
 {

@@ -16,7 +16,7 @@ typechecker/functions/PASS_configParam                                          
 typechecker/functions/PASS_conditionalParams                                               BC generated
 typechecker/functions/PASS_basicFunctions                                                  BC generated
 typechecker/functions/PASS_valid_type_function                                             BC generated
-typechecker/functions/PASS_void_abstract_functions                                         BC failed
+typechecker/functions/PASS_void_abstract_functions                                         BC generated
 typechecker/functions/function_pointer                                                     BC generated
 typechecker/functions/PASS_typedefParams                                                   BC generated
 typechecker/functions/PASS_invalid_type_function                                           BC generated
@@ -106,13 +106,13 @@ typechecker/compound/function_function2                                         
 typechecker/compound/pointer_function2                                                     BC generated
 typechecker/compound/pointer_array2                                                        BC generated
 typechecker/structInits/designators                                                        BC generated
-typechecker/structInits/listOfLists                                                        BC failed
+typechecker/structInits/listOfLists                                                        BC generated
 typechecker/structInits/listInStructDes                                                    BC generated
 typechecker/structInits/listInit                                                           BC generated
 typechecker/structInits/designatorMixed                                                    BC generated
 typechecker/structInits/listOfStructsDes                                                   BC generated
 typechecker/structInits/nestedStruct_init                                                  BC generated
-typechecker/structInits/listOfListsDesignated                                              BC failed
+typechecker/structInits/listOfListsDesignated                                              BC generated
 typechecker/structInits/constList                                                          BC generated
 typechecker/structInits/alias                                                              BC generated
 typechecker/structInits/nestedStruct_desInit                                               BC generated
@@ -138,6 +138,7 @@ unit/enum_size                                                                  
 unit/function_parameters_empty                                                             BC generated
 unit/macroFunction                                                                         BC generated
 unit/z3                                                                                    BC generated
+unit/pointerArrayAssign                                                                    BC generated
 unit/if_statement                                                                          BC generated
 unit/switchCaseConfig                                                                      BC generated
 unit/sizeof                                                                                SuperC failed
@@ -190,6 +191,7 @@ unit/struct_nested_anonymous                                                    
 unit/enum_constant_expression2                                                             BC failed
 unit/duplicateTest                                                                         BC generated
 unit/if_statement_configurable2                                                            BC generated
+unit/typeofTest                                                                            BC generated
 unit/forloopdecl                                                                           BC generated
 unit/sizeof_usable                                                                         BC generated
 unit/function_configurably_defined                                                         BC generated

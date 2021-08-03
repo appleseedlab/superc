@@ -29,13 +29,13 @@ if (__static_condition_default_0) {
 __static_type_error("invalid declaration of x under this presence condition");
 }
 
-long int  __x_1;
+long int  __x_1;// L5:L13
 
 if (__static_condition_default_2) {
 __static_type_error("invalid declaration of y under this presence condition");
 }
 
-long int  __y_3;
+long int  __y_3;// L5:L13
 
 }
 

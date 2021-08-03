@@ -17,8 +17,8 @@ __static_renaming("__main_5", "main");
 
 };
 
-extern int  ___CfIf3K_CONFIG_A_0;
-extern int  ___Djkifd_CONFIG_A_defined_1;
+extern int  ___CfIf3K_CONFIG_A_0;// L2
+extern int  ___Djkifd_CONFIG_A_defined_1;// L4
 int  __increment_3 (int  __i_2) {
 
 {
@@ -37,7 +37,7 @@ int  __main_5 () {
 
 
 
-int  __x_4= 99;
+int  __x_4= 99;// L9
 
 if (  ___Djkifd_CONFIG_A_defined_1  )// L10
 

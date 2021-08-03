@@ -20,7 +20,7 @@ int  __main_1 (void  ) {
 
 
 
-int  __x_0= 5;
+int  __x_0= 5;// L2
 
 if (1) {
 __static_type_error("invalid declaration of arr under this presence condition");

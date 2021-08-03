@@ -32,35 +32,35 @@ int  __main_13 () {
 
 
 
-int  __a_0;
+int  __a_0;// L3
 
-long  __b_1;
+long  __b_1;// L4
 
-long long  __c_2;
+long long  __c_2;// L5
 
-char  __d_3;
+char  __d_3;// L6
 
-short  __e_4;
+short  __e_4;// L7
 
-float  __f_5;
+float  __f_5;// L8
 
-double  __g_6;
+double  __g_6;// L9
 
 if (1) {
 __static_type_error("invalid declaration of q under this presence condition");
 }
 
-double _Complex  __h_7;
+double _Complex  __h_7;// L11
 
-long int  __i_8;
+long int  __i_8;// L12
 
-long long int  __j_9;
+long long int  __j_9;// L13
 
-long double  __k_10;
+long double  __k_10;// L14
 
-long double _Complex  __l_11;
+long double _Complex  __l_11;// L15
 
-float _Complex  __m_12;
+float _Complex  __m_12;// L16
 
 if (1) {
 __static_type_error("invalid declaration of x under this presence condition");

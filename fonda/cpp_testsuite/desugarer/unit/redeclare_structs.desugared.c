@@ -19,6 +19,6 @@ struct __x_3 {
 int  __y_4;
 };
 
-struct __x_0 ;
+struct __x_0 ;// L1
 
 

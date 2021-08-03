@@ -15,7 +15,7 @@ __static_renaming("__main_4", "main");
 
 };
 
-int  __x_0= 2;
+int  __x_0= 2;// L1
 
 int  __main_4 () {
 
@@ -23,7 +23,7 @@ int  __main_4 () {
 
 
 
-int  (__data_2[4]);
+int  (__data_2[4]);// L6
 {
 __data_2[0] = 1;
 __data_2[1] = 5;

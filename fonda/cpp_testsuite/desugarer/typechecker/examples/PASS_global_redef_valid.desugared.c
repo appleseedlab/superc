@@ -7,14 +7,14 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_15;
+extern const bool __static_condition_default_14;
 extern const bool __static_condition_default_17;
 extern const bool __static_condition_default_13;
-extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_11;
-extern const bool __static_condition_default_15;
 extern const bool __static_condition_default_18;
 extern const bool __static_condition_default_12;
+extern const bool __static_condition_default_16;
 void __static_initializer_default() {
 __static_renaming("__x_0", "x");
 __static_renaming("__x_2", "x");
@@ -34,18 +34,18 @@ __static_condition_renaming("__static_condition_default_17", "!(defined A) && (d
 __static_condition_renaming("__static_condition_default_18", "!(defined A) && !(defined B) && (defined C)");
 
 };
-typedef int  __y_3;
-typedef int  __y_4;
+typedef int  __y_3;// L7
+typedef int  __y_4;// L7
 
-int  __x_0;
-int  __x_1;
-int  __x_2;
+int  __x_0;// L2
+int  __x_1;// L5
+int  __x_2;// L5
 // typedef moved to top of scope
 // typedef moved to top of scope
-__y_3  __x_5;
-__y_3  __x_6;
-__y_4  __x_7;
-__y_4  __x_8;
+__y_3  __x_5;// L9
+__y_3  __x_6;// L9
+__y_4  __x_7;// L9
+__y_4  __x_8;// L9
 int  __main_9 () {
 
 if (__static_condition_default_11) {

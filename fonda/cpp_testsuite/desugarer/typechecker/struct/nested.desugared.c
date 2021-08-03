@@ -29,23 +29,23 @@ struct __list_4 __list_4;
 };
 };
 
-extern int  __printf_1 (const char  (* __format_0),  ... );
-struct __list_4 ;
+extern int  __printf_1 (const char  (* __format_0),  ... );// L1
+struct __list_4 ;// L2
 int  __main_10 () {
 
 {
 
 
 
-struct __list_4  __head_7;
+struct __list_4  __head_7;// L9
 
-struct __list_4  __tail_8;
+struct __list_4  __tail_8;// L10
 
 __static_type_error("type error : no valid expression"); // L12
  __head_7  . __next_6 = &  __tail_8  ; // L13
 __static_type_error("type error : no valid expression"); // L14
  __tail_8  . __next_6 = 0 ; // L15
-struct __list_4  (* __current_9)= &  __head_7 ;
+struct __list_4  (* __current_9)= &  __head_7 ;// L17
 
 while ( 0 !=  __current_9  )// L18
 

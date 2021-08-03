@@ -27,13 +27,13 @@ int  __main_4 (void  ) {
 
 
 
-int  __x_0;
+int  __x_0;// L4
 
-char  __x_1;
+char  __x_1;// L6
 
-int  __y_2;
+int  __y_2;// L9
 
-int  __z_3;
+int  __z_3;// L10
 
  __y_2  = 2 ; // L12
  __z_3  = 4 ; // L13

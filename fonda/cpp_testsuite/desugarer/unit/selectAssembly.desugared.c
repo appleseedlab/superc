@@ -19,7 +19,7 @@ __static_renaming("__main_6", "main");
 struct ____fd_set_0 {
 int  (__fds_bits_1[4]);
 };
-typedef struct ____fd_set_0  __fd_set_2;
+typedef struct ____fd_set_0  __fd_set_2;// L1:L4
 
 // typedef moved to top of scope
 int  __main_6 () {
@@ -28,7 +28,7 @@ int  __main_6 () {
 
 
 
-__fd_set_2  __x_3;
+__fd_set_2  __x_3;// L19
 
 do
 
@@ -36,8 +36,8 @@ do
 
 
 
-int  ____d0_4;
-int  ____d1_5;
+int  ____d0_4;// L9
+int  ____d1_5;// L9
 
 __asm__  __volatile__   ( "cld; rep; ""stosq" : "=c" (  ____d0_4  ) , "=D" (  ____d1_5  ) : "a" ( 0 ) , "0" ( sizeof ( __fd_set_2   ) ) , "1" ( & ( ( &  __x_3  ) -> __fds_bits_1 ) [ 0 ] ) : "memory" );
 }

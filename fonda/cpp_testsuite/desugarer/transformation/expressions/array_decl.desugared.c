@@ -20,7 +20,7 @@ int  __main_1 (void  ) {
 
 
 
-int  (__arr_0[6]);
+int  (__arr_0[6]);// L3
 
 return 0 ;// L5
 }

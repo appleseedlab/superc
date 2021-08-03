@@ -9,14 +9,28 @@ void __static_initializer_default();
 
 void __static_initializer_default() {
 __static_renaming("__x_0", "x");
+__static_renaming("__main_1", "main");
 
 
 };
-enum bob {
-__A_1,
-};
 
-enum bob ;// L1
-enum bob  __x_0;// L3
-enum bob ;// L5
+int  __main_1 () {
+
+{
+
+
+
+char  (* (__x_0[3]));// L3
+{
+__x_0[0] = "first";
+__x_0[1] = "second";
+__x_0[2] = "third";
+}
+
+return 0 ;// L4
+}
+
+
+
+}
 

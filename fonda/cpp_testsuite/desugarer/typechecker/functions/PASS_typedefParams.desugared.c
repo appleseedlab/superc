@@ -20,8 +20,8 @@ __static_condition_renaming("__static_condition_default_6", "(defined A)");
 __static_condition_renaming("__static_condition_default_7", "!(defined A)");
 
 };
-typedef int  __x_0;
-typedef float  __x_1;
+typedef int  __x_0;// L2
+typedef float  __x_1;// L4
 
 // typedef moved to top of scope
 // typedef moved to top of scope

@@ -23,36 +23,36 @@ __static_renaming("__main_10", "main");
 
 };
 
-signed char  __a_0;
+signed char  __a_0;// L1
 int  __main_10 (void  ) {
 
 {
 
 
 
-unsigned char  __b_1;
+unsigned char  __b_1;// L4
 
 
 {
 
 
 
-signed long  __c_2;
+signed long  __c_2;// L7
 
-unsigned long  __d_3;
+unsigned long  __d_3;// L8
 
-signed long long  __e_4;
+signed long long  __e_4;// L9
 
-unsigned long long  __f_5;
+unsigned long long  __f_5;// L10
 
 }
-signed long long int  __g_6;
+signed long long int  __g_6;// L12
 
-unsigned long long int  __h_7;
+unsigned long long int  __h_7;// L13
 
-signed int  __i_8;
+signed int  __i_8;// L14
 
-unsigned int  __j_9;
+unsigned int  __j_9;// L15
 
 return 0 ;// L17
 }

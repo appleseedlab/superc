@@ -25,17 +25,17 @@ int  __main_6 (void  ) {
 
 
 
-int  __x_0= 2;
+int  __x_0= 2;// L4
 
-char  __x_1= 4;
+char  __x_1= 4;// L7
 
-int  __y_2= 3;
+int  __y_2= 3;// L5
 
-int  __y_3= 5;
+int  __y_3= 5;// L8
 
-int  __z_4=  __x_0  +  __y_2 ;
+int  __z_4=  __x_0  +  __y_2 ;// L13
 
-int  __z_5=  __x_1  +  __y_3 ;
+int  __z_5=  __x_1  +  __y_3 ;// L13
 
 return 0 ;// L15
 }

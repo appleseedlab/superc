@@ -996,7 +996,7 @@ DeclarationExtension:  /** complete **/  // ADDED  // String
         }
         ;
 
-Declaration:  /** complete **/  // String
+Declaration:  /** complete **/  // Multiverse<String>
         SUEDeclarationSpecifier { KillReentrantScope(subparser); } SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
@@ -1007,12 +1007,15 @@ Declaration:  /** complete **/  // String
           Multiverse<String> m = new Multiverse<String>();
           m.add("",pc);
           for (Element<TypeSpecifier> typespecifier : structtypesmv) {
+            typespecifier.getData().addTransformation((Syntax)getNodeAt(subparser, 1));
             if (! typespecifier.getData().getType().isError()) {
               sb.append(typespecifier.getData().toString());
               m = appendStringToMV(m,typespecifier.getData().toString(),typespecifier.getCondition());
               
               sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
               m = appendStringToMV(m,getNodeAt(subparser, 1).getTokenText(),typespecifier.getCondition());
+              m = appendStringToMV(m,typespecLines(typespecifier.getData()),typespecifier.getCondition());
+              
             } else {
               CContext scope = ((CContext) subparser.scope);
               if (scope.isGlobal()) {
@@ -1036,7 +1039,7 @@ Declaration:  /** complete **/  // String
                 sb.append(";\n");
                 m = appendStringToMV(m,";\n",typespecifier.getCondition());
                 sb.append("}\n");
-                m = appendStringToMV(m,"}\n",typespecifier.getCondition());
+                m = appendStringToMV(m,"}" + typespecLines(typespecifier.getData()) + "\n",typespecifier.getCondition());
               }
             }
           }
@@ -1061,6 +1064,8 @@ Declaration:  /** complete **/  // String
               m = appendStringToMV(m,typespecifier.getData().toString(),typespecifier.getCondition());
               sb.append(getNodeAt(subparser, 1).getTokenText());  // semi-colon
               m = appendStringToMV(m,getNodeAt(subparser, 1).getTokenText(),typespecifier.getCondition());
+              m = appendStringToMV(m,typespecLines(typespecifier.getData()),typespecifier.getCondition());
+              
             } else {
               CContext scope = ((CContext) subparser.scope);
               if (scope.isGlobal()) {
@@ -1084,7 +1089,7 @@ Declaration:  /** complete **/  // String
                 sb.append(";\n");
                 m = appendStringToMV(m,";\n",typespecifier.getCondition());
                 sb.append("}\n");
-                m = appendStringToMV(m,"}\n",typespecifier.getCondition());
+                m = appendStringToMV(m,"}" + typespecLines(typespecifier.getData()) + "\n",typespecifier.getCondition());
               }
             }
           }
@@ -1099,9 +1104,11 @@ Declaration:  /** complete **/  // String
           CContext scope = ((CContext) subparser.scope);
           
         	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
+          System.err.println(declaringlistvalues);
           String semi = getNodeAt(subparser, 1).getTokenText();
-          Multiverse<String> valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
+          semi += declaringListRange(declaringlistvalues,(Syntax)getNodeAt(subparser,1));
           
+          Multiverse<String> valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
           setTransformationValue(value, valuestring);
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
@@ -1111,9 +1118,9 @@ Declaration:  /** complete **/  // String
 
         	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
           String semi = getNodeAt(subparser, 1).getTokenText();
-
-          Multiverse<String> valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
+          semi += declaringListRange(declaringlistvalues,(Syntax)getNodeAt(subparser,1));
           
+          Multiverse<String> valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
           setTransformationValue(value, valuestring);
         }
         ;
@@ -8316,6 +8323,7 @@ protected Multiverse<String> declarationAction(List<DeclaringListValue> declarin
                           if (((ArrayT)tempT).hasLength()) {
                             entrysb.append(desugaredDeclaration);
                           } else {
+                            System.err.println("no len assigned");
                             //if  the length is implcit, we need to manually assign a value
                             entrysb.append(renamedDeclaration.toString(trueInitSize(initializer.getData())));
                           }
@@ -8898,6 +8906,36 @@ static public <T> Multiverse<List<T>> listMultiverseSwap(List<Multiverse<T>> lis
     } 
   }
   return lists;
+}
+
+static public String typespecLines(TypeSpecifier t) {
+  List<Syntax> l = t.getTokens();
+  LineNumbers ln = new LineNumbers();
+  for (Syntax s : l) {
+    if (s.hasLocation()) {
+      LineNumbers temp = new LineNumbers(s);
+      ln = new LineNumbers(ln,temp);
+    }
+  }
+  return ln.getComment();
+}
+
+static public String declaringListRange(List<DeclaringListValue> ds, Syntax syn) {
+  LineNumbers ln = new LineNumbers();
+  for (DeclaringListValue d : ds) {
+    for (Element<TypeSpecifier> e : d.typespecifier) {
+      TypeSpecifier t = e.getData();
+      List<Syntax> l = t.getTokens();
+      for (Syntax s : l) {
+        if (s.hasLocation()) {
+          LineNumbers temp = new LineNumbers(s);
+          ln = new LineNumbers(ln,temp);
+        }
+      }
+    }
+  }
+  ln = new LineNumbers(ln, new LineNumbers(syn));
+  return ln.getComment();
 }
 
 /***************************************************************************
@@ -9519,7 +9557,7 @@ public static class LineNumbers {
   public int earliestLine;
   public int latestLine;
   public LineNumbers() {
-    earliestLine = 0;
+    earliestLine = Integer.MAX_VALUE;
     latestLine = 0;
   }
   public LineNumbers(int line) {
@@ -9553,6 +9591,7 @@ public static class LineNumbers {
     earliestLine = one.earliestLine < two.earliestLine ? one.earliestLine : two.earliestLine;
     latestLine = one.latestLine > two.latestLine ? one.latestLine : two.latestLine;
   }
+  
   public String getComment() {
     if (earliestLine == latestLine)
       return "// L" + Integer.toString(earliestLine);

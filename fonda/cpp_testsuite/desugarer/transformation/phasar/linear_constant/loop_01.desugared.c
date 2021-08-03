@@ -17,15 +17,15 @@ __static_renaming("__main_4", "main");
 
 };
 
-extern int  ___CfIf3K_CONFIG_A_0;
-extern int  ___Djkifd_CONFIG_A_defined_1;
+extern int  ___CfIf3K_CONFIG_A_0;// L2
+extern int  ___Djkifd_CONFIG_A_defined_1;// L4
 int  __main_4 () {
 
 {
 
 
 
-int  __x_2= 0;
+int  __x_2= 0;// L7
 
 if (  ___Djkifd_CONFIG_A_defined_1  )// L8
 
@@ -33,7 +33,7 @@ if (  ___Djkifd_CONFIG_A_defined_1  )// L8
 
 
 
-{ int  __i_3= 0;
+{ int  __i_3= 0;// L9
  for ( ;  __i_3  < 10 ; ++  __i_3  ) // L9
 
 {

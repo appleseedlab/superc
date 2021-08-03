@@ -26,17 +26,17 @@ int  __i_inline_size_3;
 int  __i_reserved_quota_4;
 };
 
-struct __t_0 ;
-struct __t_2 ;
+struct __t_0 ;// L1
+struct __t_2 ;// L1
 int  __main_7 () {
 
 {
 
 
 
-struct __t_0  __var_5;
+struct __t_0  __var_5;// L9
 
-struct __t_2  __var_6;
+struct __t_2  __var_6;// L9
 
 if (__static_condition_default_8) {
  __var_6  . __i_reserved_quota_4 = 1 ; // L10

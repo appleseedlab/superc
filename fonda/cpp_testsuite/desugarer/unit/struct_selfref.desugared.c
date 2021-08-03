@@ -23,7 +23,7 @@ struct __list_1 __list_1;
 };
 };
 
-struct __list_1 ;
+struct __list_1 ;// L1
 int  __main_4 () {
 
 {
