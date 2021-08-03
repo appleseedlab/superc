@@ -6537,14 +6537,16 @@ public class CActions implements SemanticActions {
           Type constSizeOf = C.SIZEOF.copy();
           constSizeOf.addAttribute(Constants.ATT_CONSTANT);
           Multiverse<Type> type = new Multiverse<Type>();
+
           for (Element<Declaration> e : typename) {
-            if (e.getData().getType() == ErrorT.TYPE) {
-              type = type.filter(e.getCondition().not());
-              type.add(ErrorT.TYPE, e.getCondition());
+            if (e.getData().getType() != ErrorT.TYPE) {
+              type.add(C.SIZEOF,e.getCondition());
             } else {
-              type.add(constSizeOf, e.getCondition());
+              type.add(ErrorT.TYPE, e.getCondition());
             }
           }
+          
+          
           
           setTransformationValue(value, new ExpressionValue(appended, type, new Multiverse<LineNumbers>(lw,pc)));
         }
