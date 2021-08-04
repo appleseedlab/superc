@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_17;
 extern const bool __static_condition_default_18;
+extern const bool __static_condition_default_17;
 void __static_initializer_default() {
 __static_renaming("__OPENSSL_cleanse_2", "OPENSSL_cleanse");
 __static_renaming("__CRYPTO_free_6", "CRYPTO_free");

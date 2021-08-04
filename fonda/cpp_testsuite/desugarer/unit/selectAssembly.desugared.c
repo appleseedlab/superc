@@ -37,6 +37,7 @@ do
 
 
 int  ____d0_4;// L9
+
 int  ____d1_5;// L9
 
 __asm__  __volatile__   ( "cld; rep; ""stosq" : "=c" (  ____d0_4  ) , "=D" (  ____d1_5  ) : "a" ( 0 ) , "0" ( sizeof ( __fd_set_2   ) ) , "1" ( & ( ( &  __x_3  ) -> __fds_bits_1 ) [ 0 ] ) : "memory" );

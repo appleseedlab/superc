@@ -194,6 +194,7 @@ unit/if_statement_configurable2                                                 
 unit/typeofTest                                                                            BC generated
 unit/forloopdecl                                                                           BC generated
 unit/sizeof_usable                                                                         BC generated
+unit/referenceError                                                                        BC generated
 unit/function_configurably_defined                                                         BC generated
 unit/struct_global_forward_reference                                                       BC generated
 unit/configurable_array                                                                    BC generated
@@ -226,6 +227,7 @@ unit/typedef                                                                    
 unit/struct_global_forward_reference_ifdeftoif                                             BC generated
 unit/struct_union_enum                                                                     BC failed
 unit/jump_statement                                                                        BC failed
+unit/partialConfigDeclaringList                                                            BC generated
 unit/single                                                                                BC generated
 unit/switch                                                                                BC generated
 unit/struct_configurable                                                                   BC generated

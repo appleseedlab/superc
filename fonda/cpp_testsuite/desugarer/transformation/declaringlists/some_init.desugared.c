@@ -27,11 +27,17 @@ int  __main_7 (void  ) {
 
 
 char  __a_0= 2;// L3
+
 char  __b_1;// L3
+
 char  __c_2= 6;// L3
+
 char  __d_3;// L3
+
 char  __e_4;// L3
+
 char  __f_5;// L3
+
 char  __g_6= 4;// L3
 
 return 0 ;// L5

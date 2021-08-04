@@ -219,8 +219,14 @@ public class CActions implements SemanticActions {
 
   case 6:
     {
-          Multiverse<String> declmv = getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition());
-          setTransformationValue(value, concatMultiverseStrings(declmv)); declmv.destruct();
+          
+          List<Multiverse<String>> declmv = getCompleteNodeListValue(getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          String s = "";
+          for (Multiverse<String> m : declmv) {
+            s += concatMultiverseStrings(m);
+            m.destruct();
+          }
+          setTransformationValue(value, s);
         }
     break;
 
@@ -893,14 +899,16 @@ public class CActions implements SemanticActions {
 
   case 50:
     {
-          setTransformationValue(value, getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
+          setTransformationValue(value, getCompleteNodeListValue(getNodeAt(subparser, 1), subparser.getPresenceCondition()));
         }
     break;
 
   case 51:
     {
-          Multiverse<String> declmv = getCompleteNodeMultiverseValue(getNodeAt(subparser, 1), subparser.getPresenceCondition());
-          declmv = declmv.prependScalar(getNodeAt(subparser, 2).getTokenText(), DesugarOps.concatStrings);
+          List<Multiverse<String>> declmv = getCompleteNodeListValue(getNodeAt(subparser, 1), subparser.getPresenceCondition());
+          for (Multiverse<String> d : declmv) {
+            d = d.prependScalar(getNodeAt(subparser, 2).getTokenText(), DesugarOps.concatStrings);
+          }
           setTransformationValue(value, declmv);
         }
     break;
@@ -957,8 +965,9 @@ public class CActions implements SemanticActions {
           }
           sb.append("\n");
           m = appendStringToMV(m,"\n",pc);
-
-          setTransformationValue(value, m);
+          List<Multiverse<String>> l = new LinkedList<Multiverse<String>>();
+          l.add(m);
+          setTransformationValue(value, l);
         }
     break;
 
@@ -972,7 +981,7 @@ public class CActions implements SemanticActions {
 
         	Multiverse<TypeSpecifier> structtypesmv
             = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 3, pc);
-        	StringBuilder sb = new StringBuilder();  // the desugared output
+          StringBuilder sb = new StringBuilder();  // the desugared output
           Multiverse<String> m = new Multiverse<String>();
           m.add("",pc);
           
@@ -1013,8 +1022,9 @@ public class CActions implements SemanticActions {
           }
           sb.append("\n");
           m = appendStringToMV(m,"\n",pc);
-          
-          setTransformationValue(value, m);
+          List<Multiverse<String>> l = new LinkedList<Multiverse<String>>();
+          l.add(m);
+          setTransformationValue(value, l);
         }
     break;
 
@@ -1028,11 +1038,10 @@ public class CActions implements SemanticActions {
           CContext scope = ((CContext) subparser.scope);
           
         	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
-          System.err.println(declaringlistvalues);
           String semi = getNodeAt(subparser, 1).getTokenText();
           semi += declaringListRange(declaringlistvalues,(Syntax)getNodeAt(subparser,1));
           
-          Multiverse<String> valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
+          List<Multiverse<String>> valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
           setTransformationValue(value, valuestring);
         }
     break;
@@ -1050,7 +1059,7 @@ public class CActions implements SemanticActions {
           String semi = getNodeAt(subparser, 1).getTokenText();
           semi += declaringListRange(declaringlistvalues,(Syntax)getNodeAt(subparser,1));
           
-          Multiverse<String> valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
+          List<Multiverse<String>> valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
           setTransformationValue(value, valuestring);
         }
     break;
@@ -2355,6 +2364,7 @@ public class CActions implements SemanticActions {
           
           Multiverse<TypeSpecifier> valuemv
             = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
+          System.err.println(valuemv);
           setTransformationValue(value, valuemv);
         }
     break;
@@ -4350,6 +4360,7 @@ public class CActions implements SemanticActions {
     {
           todoReminder("check expression in ArrayAbstractDeclarator (2)");
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
+          System.err.println(exprval);
           Multiverse<String> arrayBounds = exprval.transformation;
           Multiverse<Declarator> valuemv = DesugarOps.toAbstractArrayDeclarator.transform(arrayBounds);
           // this is getting an empty mv on filtered for /usr/include/x86_64-linux-gnu/bits/types.h in typesizes.h
@@ -4747,8 +4758,8 @@ public class CActions implements SemanticActions {
     {
           PresenceCondition pc = subparser.getPresenceCondition();
           List<Multiverse<DeclarationOrStatementValue>> list = getCompleteNodeDeclStmtValueList(subparser, 2, pc);
-          Multiverse<DeclarationOrStatementValue>  ds = getCompleteNodeMultiverseValue(subparser, 1, pc);
-          list.add(ds);
+          List<Multiverse<DeclarationOrStatementValue>>  ds = getCompleteNodeDeclStmtValueList(subparser, 1, pc);
+          list.addAll(ds);
           setTransformationValue(value, list);
         }
     break;
@@ -4756,12 +4767,16 @@ public class CActions implements SemanticActions {
   case 366:
     {
           // declarations are already just strings, so get the multiverse of any static conditionals around them
-          Multiverse<String> ss = getCompleteNodeMultiverseValue(getNodeAt(subparser, 1),subparser.getPresenceCondition());
-          Multiverse<DeclarationOrStatementValue> decl = DesugarOps.StringToDSV.transform(ss);
-          for (Element<DeclarationOrStatementValue> e : decl) {
-            e.getData().setDecl();
+          List<Multiverse<String>> ss = getCompleteNodeListValue(getNodeAt(subparser, 1),subparser.getPresenceCondition());
+          List<Multiverse<DeclarationOrStatementValue>> ds = new LinkedList<Multiverse<DeclarationOrStatementValue>>();
+          for (Multiverse<String> ms : ss) {
+            Multiverse<DeclarationOrStatementValue> decl = DesugarOps.StringToDSV.transform(ms);
+            for (Element<DeclarationOrStatementValue> e : decl) {
+              e.getData().setDecl();
+            }
+            ds.add(decl);
           }
-          setTransformationValue(value, decl);
+          setTransformationValue(value, ds);
         }
     break;
 
@@ -4769,7 +4784,10 @@ public class CActions implements SemanticActions {
     {
           // statements have multiverses, so hoist any static conditionals around them by combining with the statement multiverses
           PresenceCondition pc = subparser.getPresenceCondition();
-          setTransformationValue(value, getCompleteNodeMultiverseValue(subparser, 1, pc));
+          Multiverse<DeclarationOrStatementValue> m = getCompleteNodeMultiverseValue(subparser,1,pc);
+          List<Multiverse<DeclarationOrStatementValue>> l = new LinkedList<Multiverse<DeclarationOrStatementValue>>();
+          l.add(m);
+          setTransformationValue(value, l);
         }
     break;
 
@@ -5125,7 +5143,7 @@ public class CActions implements SemanticActions {
           LineNumbers lw = new LineNumbers((Syntax) getNodeAt(subparser, 10), (Syntax) getNodeAt(subparser, 3));
           Multiverse<String> formv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 10)).getTokenText(), pc);
           Multiverse<String> lparen = new Multiverse<String>(((Syntax) getNodeAt(subparser, 9)).getTokenText(), pc);
-          Multiverse<String> declstring = getCompleteNodeMultiverseValue(getNodeAt(subparser, 7),subparser.getPresenceCondition());
+          List<Multiverse<String>> declstring = getCompleteNodeListValue(getNodeAt(subparser, 7),subparser.getPresenceCondition());
           ExpressionValue testval = getCompleteNodeExpressionValue(subparser, 6, pc);
           Multiverse<String> testmv = testval.transformation;
           Multiverse<String> semi2mv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 5)).getTokenText(), pc);
@@ -5146,7 +5164,7 @@ public class CActions implements SemanticActions {
           Multiverse<String> semi1mv = new Multiverse<String>(";", pc);  // add an empty initializer expression
           Multiverse<String> valuemv = productAll(DesugarOps.concatStrings,
                                                 lbrace,
-                                                declstring,
+                                                  declstring.get(0),
                                                 formv,
                                                 lparen,
                                                 semi1mv,
@@ -6540,12 +6558,11 @@ public class CActions implements SemanticActions {
 
           for (Element<Declaration> e : typename) {
             if (e.getData().getType() != ErrorT.TYPE) {
-              type.add(C.SIZEOF,e.getCondition());
+              type.add(constSizeOf,e.getCondition());
             } else {
               type.add(ErrorT.TYPE, e.getCondition());
             }
           }
-          
           
           
           setTransformationValue(value, new ExpressionValue(appended, type, new Multiverse<LineNumbers>(lw,pc)));
@@ -6821,7 +6838,8 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
           ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
-	  Multiverse<String> leftmv = leftval.transformation;
+          System.err.println(leftval);
+          Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> rightmv = rightval.transformation;
 	  
@@ -8303,7 +8321,7 @@ boolean wrotePrologue = false;
  **** Semantic actions
  ***************************************************************************/
 
-protected Multiverse<String> declarationAction(List<DeclaringListValue> declaringlistvalues,
+protected List<Multiverse<String>> declarationAction(List<DeclaringListValue> declaringlistvalues,
                                    String semi,
                                    PresenceCondition pc,
                                    CContext scope) {
@@ -8317,15 +8335,16 @@ protected Multiverse<String> declarationAction(List<DeclaringListValue> declarin
    */
   todoReminder("typecheck initializers");
   StringBuilder valuesb = new StringBuilder();  // the desugared output
-  Multiverse<String> valuemv = new Multiverse<String>();
-  valuemv.add("",pc);
+  List<Multiverse<String>> retmv = new LinkedList<Multiverse<String>>();
+  
   // loop over each element of the declaration list
   for (DeclaringListValue declaringlistvalue : declaringlistvalues) {
     // unpack type specifier, declarators, and initializers from the transformation value
     Multiverse<TypeSpecifier> typespecifiermv = declaringlistvalue.typespecifier;
     Multiverse<Declarator> declaratormv = declaringlistvalue.declarator;
     Multiverse<Initializer> initializermv = declaringlistvalue.initializer;
-    
+    Multiverse<String> valuemv = new Multiverse<String>();
+    valuemv.add("",pc);
     // TODO: use typespecifier/declarator to reclassify the
     // tokens as typedef/ident in parsing context
 
@@ -8340,6 +8359,7 @@ protected Multiverse<String> declarationAction(List<DeclaringListValue> declarin
             for (Element<Declarator> declarator : declaratormv) {
               PresenceCondition combinedCond = initializerCond.and(declarator.getCondition());
               if (combinedCond.isNotFalse()) {
+                
                 String originalName = declarator.getData().getName();
 
                 // get xtc type from type and declarator
@@ -8593,8 +8613,9 @@ protected Multiverse<String> declarationAction(List<DeclaringListValue> declarin
     /* typespecifiermv.destruct(); */
     /* declaratormv.destruct(); */
     /* initializermv.destruct(); */
+    retmv.add(valuemv);
   } // end loop over declaringlistvalues
-  return valuemv;
+  return retmv;
 }
 
 class IDSort implements Comparator<Map.Entry<String,Type>> {

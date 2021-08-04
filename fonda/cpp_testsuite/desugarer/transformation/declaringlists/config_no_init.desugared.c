@@ -33,18 +33,29 @@ int  __main_13 (void  ) {
 
 
 char  __b_0;// L3:L9
+
 char  __c_1;// L3:L9
+
 char  __d_2;// L3:L9
+
 char  __e_3;// L3:L9
+
 char  __f_4;// L3:L9
+
 char  __g_5;// L3:L9
 
 char  __a_6;// L3:L9
+
 char  __b_7;// L3:L9
+
 char  __c_8;// L3:L9
+
 char  __d_9;// L3:L9
+
 char  __e_10;// L3:L9
+
 char  __f_11;// L3:L9
+
 char  __g_12;// L3:L9
 
 return 0 ;// L11
