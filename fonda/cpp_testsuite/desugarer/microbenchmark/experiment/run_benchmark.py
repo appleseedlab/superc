@@ -28,13 +28,16 @@ def import_tools(tool_names: list):
   for tool_name in tool_names:
     module_name = '.'.join(['tools', tool_name, 'tool'])
     module = importlib.import_module(module_name, package=None)
-    tools[tool_name] = module.run
+    tools[tool_name] = module.Tool
   return tools
 
 def run_tools(tools:dict):
   result_data = {}
-  for tool_name, run_tool in tools.items():
-    res = run_testcases(run_tool)
+  for tool_name, Tool in tools.items():
+    tool = Tool()
+
+    res = run_testcases(tool.run)
+    tool.clean()
     result_data[tool_name] = res
   return result_data
   
