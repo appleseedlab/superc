@@ -42,7 +42,7 @@ def run_benchmark():
   args = parse_args()
   tools = import_tools(args.tools)
   result_data = run_tools(tools)
-  generate_report(result_data)
+  generate_report(args.tools, result_data)
 
 def main():
   run_benchmark()
