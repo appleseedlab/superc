@@ -5,7 +5,7 @@ from common import utils
 TestResult = namedtuple('TestResult', ['passed', 'total'])
 
 def run_testcases(run_tool):
-  test_case_dir = os.path.join(utils.ROOT_DIR, 'testcases')
+  test_case_dir = utils.TEST_CASE_DIR
   ret = {}
 
   for root, dirs, files in os.walk(test_case_dir):
