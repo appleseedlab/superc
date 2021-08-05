@@ -39,14 +39,13 @@ public class ArrayT extends DerivedT {
 
   /** The length. */
   private long length;
-
   /**
    * Create a new, incomplete array type.
    *
    * @param type The element type.
    */
   public ArrayT(Type type) {
-    this(type, -1);
+    this(type, false);
   }
 
   /**

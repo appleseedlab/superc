@@ -51,7 +51,7 @@ if (__static_condition_default_6) {
 
 
 
-int  __x_1= 5 + sizeof ( __AX_0   );// L6
+int  __x_1= 5 + sizeof(__AX_0  );// L6
 
 return  __x_1  ;// L7
 }

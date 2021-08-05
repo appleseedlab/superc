@@ -24,6 +24,8 @@ class Declaration {
   /** The declarator. */
   protected final Declarator declarator;
 
+  protected boolean isField;
+  
   public Declaration(TypeSpecifier typespecifier, Declarator declarator) {
     this.typespecifier = typespecifier;
     this.declarator = declarator;
@@ -73,9 +75,21 @@ class Declaration {
    * VariableT, AliasT, or NamedFunctionT.
    */
   public Type getType() {
-    return declarator.getType(typespecifier.getType());
+    Type t = declarator.getType(typespecifier.getType());
+    if (isField) {
+      t = VariableT.newField(t,getName());
+    }
+    return t; 
   }
 
+  public void setField() {
+    isField = true;
+  }
+
+  public String printType() {
+    return String.format("%s %s", typespecifier.toString(), declarator.printType());
+  }
+  
   public String toString() {
     return String.format("%s %s", typespecifier.toString(), declarator.toString());
   }

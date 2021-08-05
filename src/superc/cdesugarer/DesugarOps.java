@@ -309,7 +309,7 @@ class DesugarOps {
     // (1) add each field to the lookaside table and construct the transformation
 
     // get the field table for the current tag, which should be empty
-    SymbolTable<Type> tagtab = scope.addLookasideTable(renamedTag);
+    SymbolTable<Declaration> tagtab = scope.addLookasideTable(renamedTag);
 
     // prepare the desugared output of this struct
     StringBuilder transformation = new StringBuilder();
@@ -364,10 +364,10 @@ class DesugarOps {
             PresenceCondition newerrorCond = errorCond.or(combinedCond);
             errorCond.delRef(); errorCond = newerrorCond;
           } else { // declaration has no type error
-            Multiverse<SymbolTable.Entry<Type>> entries = tagtab.get(fieldName, combinedCond);
+            Multiverse<SymbolTable.Entry<Declaration>> entries = tagtab.get(fieldName, combinedCond);
             // System.err.println("MVMVMVMV: " + entries);
             // System.err.println(combinedCond);
-            for (Element<SymbolTable.Entry<Type>> entry : entries) {
+            for (Element<SymbolTable.Entry<Declaration>> entry : entries) {
               if (entry.getData().isError()) {
                 // already an error, just emit a message
                 System.err.println(String.format("INFO: redeclaring struct field %s in an already invalid configuration", fieldName));
@@ -376,10 +376,10 @@ class DesugarOps {
                 errorCond.delRef(); errorCond = newerrorCond;
 
               } else if (entry.getData().isUndeclared()) {
-                Type fieldType = VariableT.newField(renamedDeclaration.getType(), renamedField);
-
+                //Type fieldType = VariableT.newField(renamedDeclaration.getType(), renamedField);
+                renamedDeclaration.setField();
                 // add the type containing the renaming to the struct tag's symtab
-                tagtab.put(fieldName, fieldType, entry.getCondition());
+                tagtab.put(fieldName, renamedDeclaration, entry.getCondition());
                 // System.err.println("tagtab.put: " + fieldName);
                 // System.err.println("tagtab.put: " + fieldType);
                 // System.err.println("tagtab.put: " + entry.getCondition());

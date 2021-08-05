@@ -46,6 +46,8 @@ import superc.core.Syntax.Text;
 import superc.core.Syntax.Directive;
 import superc.core.Syntax.Conditional;
 
+import superc.cdesugarer.Declaration;
+
 import xtc.type.Type;
 import xtc.type.StructT;
 import xtc.type.UnionT;
@@ -90,7 +92,7 @@ public class CContext implements ParsingContext {
    * have multiply-defined fields without having to hoist the static
    * conditions around the entire struct definition.
    */
-  protected Map<String, SymbolTable<Type>> taglookasidetable;
+  protected Map<String, SymbolTable<Declaration>> taglookasidetable;
 
   /**
    * The forward tag reference accounts for forward references of
@@ -171,7 +173,7 @@ public class CContext implements ParsingContext {
   /** Create a new initial C parsing contex. */
   public CContext() {
     this(new SymbolTable<Type>(),
-         new HashMap<String, SymbolTable<Type>>(),
+         new HashMap<String, SymbolTable<Declaration>>(),
          new BiMap<String, String>(),
          new HashMap<String, List<String>>(),
          new OldSymbolTable(), null);
@@ -184,7 +186,7 @@ public class CContext implements ParsingContext {
    * @param parent The parent parsing context and scope.
    */
   public CContext(SymbolTable<Type> symtab,
-                  Map<String, SymbolTable<Type>> taglookasidetable,
+                  Map<String, SymbolTable<Declaration>> taglookasidetable,
                   BiMap<String, String> forwardtagrefs,
                   Map<String, List<String>> enumeratorlists,
                   OldSymbolTable oldsymtab,
@@ -217,7 +219,7 @@ public class CContext implements ParsingContext {
    */
   public CContext(CContext scope) {
     this.symtab = scope.symtab.addRef();
-    this.taglookasidetable = scope.taglookasidetable; for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.addRef(); }
+    this.taglookasidetable = scope.taglookasidetable; for (SymbolTable<Declaration> elem : taglookasidetable.values()) { elem.addRef(); }
     this.forwardtagrefs = scope.forwardtagrefs;
     this.enumeratorlists = scope.enumeratorlists;
     this.oldsymtab = scope.oldsymtab.addRef();
@@ -793,7 +795,7 @@ public class CContext implements ParsingContext {
     while (scope.reentrant) {
       scope.symtab.delRef();
       scope.symtab = null;
-      for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.delRef(); }
+      for (SymbolTable<Declaration> elem : taglookasidetable.values()) { elem.delRef(); }
       scope.taglookasidetable = null;
       scope.forwardtagrefs = null;
       scope.enumeratorlists = null;
@@ -803,7 +805,7 @@ public class CContext implements ParsingContext {
     }
 
     scope = new CContext(new SymbolTable<Type>(),
-                         new HashMap<String, SymbolTable<Type>>(),
+                         new HashMap<String, SymbolTable<Declaration>>(),
                          new BiMap<String, String>(),
                          new HashMap<String, List<String>>(),
                          new OldSymbolTable(),
@@ -827,7 +829,7 @@ public class CContext implements ParsingContext {
     while (scope.reentrant) {
       scope.symtab.delRef();
       scope.symtab = null;
-      for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.delRef(); }
+      for (SymbolTable<Declaration> elem : taglookasidetable.values()) { elem.delRef(); }
       scope.taglookasidetable = null;
       scope.forwardtagrefs = null;
       scope.enumeratorlists = null;
@@ -838,7 +840,7 @@ public class CContext implements ParsingContext {
 
     scope.symtab.delRef();
     scope.symtab = null;
-    for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.delRef(); }
+    for (SymbolTable<Declaration> elem : taglookasidetable.values()) { elem.delRef(); }
     scope.taglookasidetable = null;
     scope.forwardtagrefs = null;
     scope.enumeratorlists = null;
@@ -864,7 +866,7 @@ public class CContext implements ParsingContext {
     while (scope.reentrant) {
       scope.symtab.delRef();
       scope.symtab = null;
-      for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.delRef(); }
+      for (SymbolTable<Declaration> elem : taglookasidetable.values()) { elem.delRef(); }
       scope.taglookasidetable = null;
       scope.forwardtagrefs = null;
       scope.enumeratorlists = null;
@@ -917,7 +919,7 @@ public class CContext implements ParsingContext {
     while (scope.reentrant) {
       scope.symtab.delRef();
       scope.symtab = null;
-      for (SymbolTable<Type> elem : taglookasidetable.values()) { elem.delRef(); }
+      for (SymbolTable<Declaration> elem : taglookasidetable.values()) { elem.delRef(); }
       scope.taglookasidetable = null;
       scope.forwardtagrefs = null;
       scope.enumeratorlists = null;
@@ -1059,13 +1061,13 @@ public class CContext implements ParsingContext {
   /**
    * Add a new tag lookaside table.
    */
-  public SymbolTable<Type> addLookasideTable(String tag) {
+  public SymbolTable<Declaration> addLookasideTable(String tag) {
     CContext scope = this;
     while (scope.reentrant) scope = scope.parent;
     if (scope.taglookasidetable.containsKey(tag)) {
       throw new AssertionError("the type checker should never be adding duplicate struct tags");
     }
-    SymbolTable<Type> tagtab = new SymbolTable<Type>();
+    SymbolTable<Declaration> tagtab = new SymbolTable<Declaration>();
     scope.taglookasidetable.put(tag, tagtab);
     return tagtab;
   }
@@ -1073,7 +1075,7 @@ public class CContext implements ParsingContext {
   /**
    * Get the lookaside table, following parent scopes as needed.
    */
-  public SymbolTable<Type> getLookasideTableAnyScope(String tag) {
+  public SymbolTable<Declaration> getLookasideTableAnyScope(String tag) {
     if (this.reentrant) {
       if (null != this.parent) {
         return this.parent.getLookasideTableAnyScope(tag);

@@ -269,48 +269,47 @@ public abstract class NumberT extends Type {
   }
 
   public String toString() {
-    String s = attributes().toString();
     switch (kind) {
     case BYTE:
-      return s + "byte";
+      return "byte";
     case CHAR:
-      return s + "char";
+      return "char";
     case S_CHAR:
-      return s + "signed char";
+      return "signed char";
     case U_CHAR:
-      return s + "unsigned char";
+      return "unsigned char";
     case SHORT:
-      return s + "short";
+      return "short";
     case U_SHORT:
-      return s + "unsigned short";
+      return "unsigned short";
     case INT:
-      return s + "int";
+      return "int";
     case __INT128:
-      return s + "__int128";
+      return "__int128";
     case S_INT:
-      return s + "signed int";
+      return "signed int";
     case U_INT:
-      return s + "unsigned int";
+      return "unsigned int";
     case LONG:
-      return s + "long";
+      return "long";
     case U_LONG:
-      return s + "unsigned long";
+      return "unsigned long";
     case LONG_LONG:
-      return s + "long long";
+      return "long long";
     case U_LONG_LONG:
-      return s + "unsigned long long";
+      return "unsigned long long";
     case FLOAT:
-      return s + "float";
+      return "float";
     case DOUBLE:
-      return s + "double";
+      return "double";
     case LONG_DOUBLE:
-      return s + "long double";
+      return "long double";
     case FLOAT_COMPLEX:
-      return s + "float _Complex";
+      return "float _Complex";
     case DOUBLE_COMPLEX:
-      return s + "double _Complex";
+      return "double _Complex";
     case LONG_DOUBLE_COMPLEX:
-      return s + "long double _Complex";
+      return "long double _Complex";
     default:
       throw new AssertionError("Invalid kind: " + kind);
     }

@@ -135,6 +135,7 @@ unit/struct_local_illegal                                                       
 unit/struct_nested                                                                         BC generated
 unit/conditionalexpression                                                                 BC generated
 unit/enum_size                                                                             BC generated
+unit/negativeSizeof                                                                        BC generated
 unit/function_parameters_empty                                                             BC generated
 unit/macroFunction                                                                         BC generated
 unit/z3                                                                                    BC generated
@@ -166,6 +167,7 @@ unit/wrappedConfig                                                              
 unit/castTypeError                                                                         BC generated
 unit/struct_crossref_global                                                                BC generated
 unit/struct_nonpointer                                                                     BC generated
+unit/sizeofStructStruct                                                                    BC generated
 unit/structArrayTypedef                                                                    BC generated
 unit/begin_decls                                                                           BC generated
 unit/enum_repeated_enumerators                                                             SuperC failed
@@ -189,6 +191,7 @@ unit/struct_desugar_test                                                        
 unit/struct_global_forward_reference_desugar                                               BC generated
 unit/struct_nested_anonymous                                                               BC generated
 unit/enum_constant_expression2                                                             BC failed
+unit/sizeofStructStructError                                                               BC generated
 unit/duplicateTest                                                                         BC generated
 unit/if_statement_configurable2                                                            BC generated
 unit/typeofTest                                                                            BC generated

@@ -4433,7 +4433,6 @@ ArrayAbstractDeclarator: /** nomerge **/
         {
           todoReminder("check expression in ArrayAbstractDeclarator (2)");
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
-          System.err.println(exprval);
           Multiverse<String> arrayBounds = exprval.transformation;
           Multiverse<Declarator> valuemv = DesugarOps.toAbstractArrayDeclarator.transform(arrayBounds);
           // this is getting an empty mv on filtered for /usr/include/x86_64-linux-gnu/bits/types.h in typesizes.h
@@ -6028,20 +6027,20 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
                       String renamedTag = renamedStruct.toStructOrUnion().getName();
                       
                       // check the lookaside table for the renamings of the struct field
-                      SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(renamedTag);
+                      SymbolTable<Declaration> tagtab = scope.getLookasideTableAnyScope(renamedTag);
 
                       // renamed the field according to the tag lookaside
                       // table, or produce an error if that configuration is
                       // missing the field.  expand to all possible
                       // variations of the field.
-                      Multiverse<SymbolTable.Entry<Type>> fieldentries = tagtab.get(ident, tagentry.getCondition());
-                      for (Element<SymbolTable.Entry<Type>> fieldentry : fieldentries) {
+                      Multiverse<SymbolTable.Entry<Declaration>> fieldentries = tagtab.get(ident, tagentry.getCondition());
+                      for (Element<SymbolTable.Entry<Declaration>> fieldentry : fieldentries) {
                         if (fieldentry.getData().isError()) {
                           typemv.add(ErrorT.TYPE, fieldentry.getCondition());
                         } else if (fieldentry.getData().isUndeclared()) {
                           typemv.add(ErrorT.TYPE, fieldentry.getCondition());
                         } else {  // declared
-                          VariableT fieldtype = fieldentry.getData().getValue().toVariable();  // these are stored as VariableT
+                          VariableT fieldtype = fieldentry.getData().getValue().getType().toVariable();  // these are stored as VariableT
                           typemv.add(fieldtype.getType(), fieldentry.getCondition());
                           String indirectaccess = String.format("%s . %s", renamedTag, fieldtype.getName());
                           identmv.add(indirectaccess, fieldentry.getCondition());
@@ -6063,9 +6062,9 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
                 //when here, we also need to check fields nested inside of anon structs/unions.
                 //these can't be forward references, so it only needs to be handled here.
                 PresenceCondition temp = type.getCondition();
-                Multiverse<Map.Entry<String,Type>> access = getNestedFields(tag,ident,temp,scope);
+                Multiverse<Map.Entry<String,Declaration>> access = getNestedFields(tag,ident,temp,scope);
                 if (!access.isEmpty()) {
-                  for (Element<Map.Entry<String,Type>> e : access) {
+                  for (Element<Map.Entry<String,Declaration>> e : access) {
                     String fields = e.getData().getKey();
                     if (fields.equals("")) {
                       //more than one match was found
@@ -6073,7 +6072,7 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
                       identmv.add("", e.getCondition());
                     } else {
                       //found a match
-                      VariableT fieldType = ((VariableT)e.getData().getValue());
+                      VariableT fieldType = ((VariableT)e.getData().getValue().getType());
                       typemv.add(fieldType.getType(), e.getCondition());
                       identmv.add(e.getData().getKey(), e.getCondition());
                       hasValidType = true;
@@ -6181,20 +6180,20 @@ IndirectSelection:  /** nomerge **/
                       String renamedTag = renamedStruct.toStructOrUnion().getName();
                       
                       // check the lookaside table for the renamings of the struct field
-                      SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(renamedTag);
+                      SymbolTable<Declaration> tagtab = scope.getLookasideTableAnyScope(renamedTag);
 
                       // renamed the field according to the tag lookaside
                       // table, or produce an error if that configuration is
                       // missing the field.  expand to all possible
                       // variations of the field.
-                      Multiverse<SymbolTable.Entry<Type>> fieldentries = tagtab.get(ident, tagentry.getCondition());
-                      for (Element<SymbolTable.Entry<Type>> fieldentry : fieldentries) {
+                      Multiverse<SymbolTable.Entry<Declaration>> fieldentries = tagtab.get(ident, tagentry.getCondition());
+                      for (Element<SymbolTable.Entry<Declaration>> fieldentry : fieldentries) {
                         if (fieldentry.getData().isError()) {
                           typemv.add(ErrorT.TYPE, fieldentry.getCondition());
                         } else if (fieldentry.getData().isUndeclared()) {
                           typemv.add(ErrorT.TYPE, fieldentry.getCondition());
                         } else {  // declared
-                          VariableT fieldtype = fieldentry.getData().getValue().toVariable();  // these are stored as VariableT
+                          VariableT fieldtype = fieldentry.getData().getValue().getType().toVariable();  // these are stored as VariableT
                           typemv.add(fieldtype.getType(), fieldentry.getCondition());
                           String indirectaccess = String.format("%s . %s", renamedTag, fieldtype.getName());
                           identmv.add(indirectaccess, fieldentry.getCondition());
@@ -6213,20 +6212,20 @@ IndirectSelection:  /** nomerge **/
                 // as long as the struct type specifiers are correct,
                 // this should always refer to a known (renamed)
                 // struct tag.
-                SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(tag);
+                SymbolTable<Declaration> tagtab = scope.getLookasideTableAnyScope(tag);
 
                 // renamed the field according to the tag lookaside
                 // table, or produce an error if that configuration is
                 // missing the field.  expand to all possible
                 // variations of the field.
-                Multiverse<SymbolTable.Entry<Type>> fieldentries = tagtab.get(ident, type.getCondition());
-                for (Element<SymbolTable.Entry<Type>> fieldentry : fieldentries) {
+                Multiverse<SymbolTable.Entry<Declaration>> fieldentries = tagtab.get(ident, type.getCondition());
+                for (Element<SymbolTable.Entry<Declaration>> fieldentry : fieldentries) {
                   if (fieldentry.getData().isError()) {
                     typemv.add(ErrorT.TYPE, fieldentry.getCondition());
                   } else if (fieldentry.getData().isUndeclared()) {
                     typemv.add(ErrorT.TYPE, fieldentry.getCondition());
                   } else {  // declared
-                    VariableT fieldtype = fieldentry.getData().getValue().toVariable();  // these are stored as VariableT
+                    VariableT fieldtype = fieldentry.getData().getValue().getType().toVariable();  // these are stored as VariableT
                     typemv.add(fieldtype.getType(), fieldentry.getCondition());
                     identmv.add(fieldtype.getName(), fieldentry.getCondition());
                     hasValidType = true;
@@ -6570,25 +6569,24 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
-          Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
-          Multiverse<String> exprmv = exprval.transformation;
-
+          Multiverse<String> exprmv = sizeofExpansion(exprval.transformation, exprval.type,(CContext)subparser.scope,pc);
+          
           todoReminder("typecheck unaryexpression (5)");
+
+          Type constSizeOf = C.SIZEOF.copy();
+          constSizeOf.addAttribute(Constants.ATT_CONSTANT);
           
           Multiverse<Type> type = new Multiverse<Type>();
           for (Element<Type> e : exprval.type) {
             if (e.getData() != ErrorT.TYPE) {
-              type.add(C.SIZEOF,e.getCondition());
+              type.add(constSizeOf,e.getCondition());
             }
           }
           type.add(ErrorT.TYPE, exprval.type.getConditionOf(ErrorT.TYPE));
           setTransformationValue(value,
-                                 new ExpressionValue(productAll(DesugarOps.concatStrings,
-                                                                opmv,
-                                                                exprmv),
+                                 new ExpressionValue(exprmv,
                                                      type,
                                                      exprval.integrateSyntax((Syntax) getNodeAt(subparser, 2))));
-          opmv.destruct();
         }
         | SIZEOF LPAREN TypeName RPAREN
         {
@@ -6602,10 +6600,11 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           LineNumbers lw = new LineNumbers((Syntax) getNodeAt(subparser, 4),(Syntax) getNodeAt(subparser, 1));
           
           // convert to string and append tokens
-          Multiverse<String> typenamestr = DesugarOps.typenameToString.transform(typename);
-          Multiverse<String> prepended = typenamestr.prependScalar(prefix, DesugarOps.concatStrings);
-          Multiverse<String> appended = prepended.appendScalar(suffix, DesugarOps.concatStrings);
-          typenamestr.destruct(); prepended.destruct();
+          
+          //Multiverse<String> typenamestr = DesugarOps.typenameToString.transform(typename);
+          //To deal with stucts in sizeof, we need to offload this to emulate struct size calculation
+          
+          Multiverse<String> typenamestr = sizeofExpansion(typename,(CContext)subparser.scope,pc);
           todoReminder("typecheck unaryexpression (6)");
           Type constSizeOf = C.SIZEOF.copy();
           constSizeOf.addAttribute(Constants.ATT_CONSTANT);
@@ -6620,7 +6619,7 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           }
           
           
-          setTransformationValue(value, new ExpressionValue(appended, type, new Multiverse<LineNumbers>(lw,pc)));
+          setTransformationValue(value, new ExpressionValue(typenamestr, type, new Multiverse<LineNumbers>(lw,pc)));
         }
         | LabelAddressExpression  // ADDED
         {
@@ -8480,7 +8479,7 @@ protected List<Multiverse<String>> declarationAction(List<DeclaringListValue> de
   return retmv;
 }
 
-class IDSort implements Comparator<Map.Entry<String,Type>> {
+class IDSort implements Comparator<Map.Entry<String,Declaration>> {
   private int getID(String x){
     String res = "";
     int pos = x.length()-1;
@@ -8490,8 +8489,8 @@ class IDSort implements Comparator<Map.Entry<String,Type>> {
     }
     return Integer.parseInt(res);
   }
-  public int compare(Map.Entry<String,Type> a, Map.Entry<String,Type> b) {
-    return getID(((VariableT)a.getValue()).getName()) - getID(((VariableT)b.getValue()).getName());
+  public int compare(Map.Entry<String,Declaration> a, Map.Entry<String,Declaration> b) {
+    return getID(((VariableT)a.getValue().getType()).getName()) - getID(((VariableT)b.getValue().getType()).getName());
   }
 }
 
@@ -8499,15 +8498,15 @@ public String initStruct(String name, StructOrUnionT t, Initializer i, CContext 
 {
   //NOTE: All fields are presumably using . as the access method. Chagne this to . / -> depending
   //on the context
-  SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(t.getName());
-  Multiverse<List<Map.Entry<String,Type>>> m = tagtab.getLists(p);
+  SymbolTable<Declaration> tagtab = scope.getLookasideTableAnyScope(t.getName());
+  Multiverse<List<Map.Entry<String,Declaration>>> m = tagtab.getLists(p);
   //for now, I'm making the assumption all field defs are in order, although this isn't the case.
   //this can be solved by sort each list by it's appended number
   
   //SORT
 
-  for (Element<List<Map.Entry<String,Type>>> e : m) {
-    List<Map.Entry<String,Type>> l = e.getData();
+  for (Element<List<Map.Entry<String,Declaration>>> e : m) {
+    List<Map.Entry<String,Declaration>> l = e.getData();
     Collections.sort(l,new IDSort());
     e.setData(l);
   }
@@ -8519,7 +8518,7 @@ public String initStruct(String name, StructOrUnionT t, Initializer i, CContext 
   List<Initializer> inits = i.getList();
   StringBuilder entrysb = new StringBuilder();
    
-  for (Element<List<Map.Entry<String,Type>>> e : m) {
+  for (Element<List<Map.Entry<String,Declaration>>> e : m) {
     entrysb.append("if (");
     entrysb.append(condToCVar(e.getCondition()));
     entrysb.append(") {\n");
@@ -8542,7 +8541,7 @@ public String initStruct(String name, StructOrUnionT t, Initializer i, CContext 
               //individual values are handled.
               if (d.getListSize() == 1) {
                 if (in.isList()) {
-                  VariableT newT = ((VariableT)e.getData().get(newSpot).getValue());
+                  VariableT newT = ((VariableT)e.getData().get(newSpot).getValue().getType());
                   if (newT.getType().isStruct() || newT.getType().isUnion()) {
                     entrysb.append(initStruct( name + "." + newT.getName(),
                                                (StructOrUnionT)newT.getType(), in, scope, e.getCondition()));
@@ -8553,7 +8552,7 @@ public String initStruct(String name, StructOrUnionT t, Initializer i, CContext 
                     entrysb.append(emitError("A list can't be assigned to this type.") + ";\n");
                   }
                 } else {
-                  entrysb.append(name + "." + ((VariableT)e.getData().get(newSpot).getValue()).getName() + " = " + ((DesignatedInitializer)init).getInitString() + ";\n");
+                  entrysb.append(name + "." + ((VariableT)e.getData().get(newSpot).getValue().getType()).getName() + " = " + ((DesignatedInitializer)init).getInitString() + ";\n");
                 }
               } else {
                 List<Designator> newDesList = new LinkedList<Designator>();
@@ -8562,7 +8561,7 @@ public String initStruct(String name, StructOrUnionT t, Initializer i, CContext 
                 }
                 Initializer newInit = new DesignatedInitializer(new Designation(newDesList), in);
                 if (in.isList()) {
-                  VariableT newT = ((VariableT)e.getData().get(newSpot).getValue());
+                  VariableT newT = ((VariableT)e.getData().get(newSpot).getValue().getType());
                   if (newT.getType().isStruct() || newT.getType().isUnion()) {
                     entrysb.append(initStruct( name + "." + newT.getName(),
                                                (StructOrUnionT)newT.getType(), newInit, scope, e.getCondition()));
@@ -8575,9 +8574,9 @@ public String initStruct(String name, StructOrUnionT t, Initializer i, CContext 
                 } else {
                   Multiverse<String> writes =
                     getDesigTransforms(name + "." +
-                                       ((VariableT)e.getData().get(newSpot).getValue()).getName(),
+                                       ((VariableT)e.getData().get(newSpot).getValue().getType()).getName(),
                                        newDesList,
-                                       ((VariableT)e.getData().get(newSpot).getValue()).getType(),
+                                       ((VariableT)e.getData().get(newSpot).getValue().getType()).getType(),
                                        e.getCondition(),
                                        scope);
                   for (Element<String> es : writes) {
@@ -8609,7 +8608,7 @@ public String initStruct(String name, StructOrUnionT t, Initializer i, CContext 
         } else {
           //gotta handle this differently if it's a list, in fact, recursive call.
           if (init.isList()) {
-            VariableT newT = ((VariableT)e.getData().get(spot).getValue());
+            VariableT newT = ((VariableT)e.getData().get(spot).getValue().getType());
             if (newT.getType().isStruct() || newT.getType().isUnion()) {
               entrysb.append(initStruct( name + "." + newT.getName(),
                                          (StructOrUnionT)newT.getType(), init, scope, e.getCondition()));
@@ -8620,7 +8619,7 @@ public String initStruct(String name, StructOrUnionT t, Initializer i, CContext 
               entrysb.append(emitError("A list can't be assigned to this type.") + ";\n");
             }
           } else {
-            entrysb.append(name + "." + ((VariableT)e.getData().get(spot).getValue()).getName() + " = " + init.toString() + ";\n");
+            entrysb.append(name + "." + ((VariableT)e.getData().get(spot).getValue().getType()).getName() + " = " + init.toString() + ";\n");
           }
         }
         spot++;
@@ -8732,13 +8731,13 @@ private Multiverse<String> getDesigTransforms(String prefix, List<Designator> l,
   } else {
     //using the current struct,
     Multiverse<String> ret = new Multiverse<String>();
-    SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(((StructOrUnionT)t).getName());
-    Multiverse<Entry<Type>> m = tagtab.get(((StructUnionDesignator)d).getName(), p);
-    for (Element<Entry<Type>> e : m) {
+    SymbolTable<Declaration> tagtab = scope.getLookasideTableAnyScope(((StructOrUnionT)t).getName());
+    Multiverse<Entry<Declaration>> m = tagtab.get(((StructUnionDesignator)d).getName(), p);
+    for (Element<Entry<Declaration>> e : m) {
       Multiverse<String> toAdd = getDesigTransforms(prefix + "." +
-                                                    ((VariableT)e.getData().getValue()).getName(),
+                                                    ((VariableT)e.getData().getValue().getType()).getName(),
                                                     newD,
-                                                    ((VariableT)e.getData().getValue()).getType(),
+                                                    ((VariableT)e.getData().getValue().getType()).getType(),
                                                     e.getCondition(),
                                                     scope);
       for (Element<String> es : toAdd) {
@@ -8777,17 +8776,17 @@ private int trueInitSize(Initializer i) {
 }
 
 
-Multiverse<Map.Entry<String,Type>> getNestedFields(String structId, String fieldId, PresenceCondition pc, CContext scope) {
-  Multiverse<Map.Entry<String,Type>> result = new Multiverse<Map.Entry<String,Type>>();
-  SymbolTable<Type> tagtab = scope.getLookasideTableAnyScope(structId);
-  Multiverse<Entry<Type>> m = tagtab.get(fieldId, pc);
-  for (Element<Entry<Type>> e  : m) {
+Multiverse<Map.Entry<String,Declaration>> getNestedFields(String structId, String fieldId, PresenceCondition pc, CContext scope) {
+  Multiverse<Map.Entry<String,Declaration>> result = new Multiverse<Map.Entry<String,Declaration>>();
+  SymbolTable<Declaration> tagtab = scope.getLookasideTableAnyScope(structId);
+  Multiverse<Entry<Declaration>> m = tagtab.get(fieldId, pc);
+  for (Element<Entry<Declaration>> e  : m) {
     if (e.getData().isUndeclared()) {
       continue;
     }
     //no checking needs to be done here since we know the multiverse returned has no
     //violations
-    result.add(new AbstractMap.SimpleImmutableEntry<String,Type>(((VariableT)e.getData().getValue()).getName(),
+    result.add(new AbstractMap.SimpleImmutableEntry<String,Declaration>(((VariableT)e.getData().getValue().getType()).getName(),
                                                                  e.getData().getValue()), e.getCondition().and(pc));
   }
   m.destruct();
@@ -8795,37 +8794,37 @@ Multiverse<Map.Entry<String,Type>> getNestedFields(String structId, String field
   List<String> anonIds = tagtab.getAnonIds();
   for (String a : anonIds) {
     m = tagtab.get(a, pc);
-    for (Element<Entry<Type>> e : m) {
+    for (Element<Entry<Declaration>> e : m) {
       if (e.getData().isUndeclared()) {
         continue;
       }
       PresenceCondition p = e.getCondition().and(pc);
-      VariableT v = ((VariableT)e.getData().getValue());
+      VariableT v = ((VariableT)e.getData().getValue().getType());
       if (!v.getType().isStruct() && !v.getType().isUnion()) {
         throw new IllegalStateException("Only structs and unions can be anonymously declared fields");
       }
-      Multiverse<Map.Entry<String,Type>> inner = getNestedFields(((StructOrUnionT)v.getType()).getName(), fieldId, p, scope);
+      Multiverse<Map.Entry<String,Declaration>> inner = getNestedFields(((StructOrUnionT)v.getType()).getName(), fieldId, p, scope);
       p.delRef();
       //add anonymous id . to front of string.
       //anonymous fields cannot be pointers
       if (!inner.isEmpty()) {
-        for (Element<Map.Entry<String,Type>> ei : inner) {
-          ei.setData(new AbstractMap.SimpleImmutableEntry<String,Type>(((VariableT)e.getData().getValue()).getName()
+        for (Element<Map.Entry<String,Declaration>> ei : inner) {
+          ei.setData(new AbstractMap.SimpleImmutableEntry<String,Declaration>(((VariableT)e.getData().getValue().getType()).getName()
                                                                        + " . " + ei.getData().getKey()
                                                                        ,ei.getData().getValue()));
         }
 
-        for (Element<Map.Entry<String,Type>> ei : inner) {
+        for (Element<Map.Entry<String,Declaration>> ei : inner) {
           if (!result.isEmpty()) {
             boolean remade;
             do {
               remade = false;
-              for (Element<Map.Entry<String,Type>> er : result) {
+              for (Element<Map.Entry<String,Declaration>> er : result) {
                 p = er.getCondition().and(ei.getCondition());
                 if (!p.isFalse() && !er.getData().getKey().equals("")) {
                   //there is an overlap in presence conditions, which is a type error
-                  Multiverse<Map.Entry<String,Type>> newR = new Multiverse<Map.Entry<String,Type>>();
-                  for (Element<Map.Entry<String,Type>> en : result) {
+                  Multiverse<Map.Entry<String,Declaration>> newR = new Multiverse<Map.Entry<String,Declaration>>();
+                  for (Element<Map.Entry<String,Declaration>> en : result) {
                     if (en != er) {
                       newR.add(en);
                     } else {
@@ -8966,6 +8965,78 @@ static public String declaringListRange(List<DeclaringListValue> ds, Syntax syn)
   }
   ln = new LineNumbers(ln, new LineNumbers(syn));
   return ln.getComment();
+}
+
+static public Multiverse<String> sizeofBody(Type t, CContext scope, PresenceCondition p) {
+  Multiverse<String> ret = new Multiverse<String>();
+  SymbolTable<Declaration> tagtab = scope.getLookasideTableAnyScope(t.getName());
+  Multiverse<List<Map.Entry<String,Declaration>>> m = tagtab.getLists(p);
+  if (!m.isEmpty()) {
+    for (Element<List<Map.Entry<String,Declaration>>> el : m) {
+      Multiverse<String> structEq = new Multiverse<String>();
+      structEq.add("(",el.getCondition());
+      boolean moreThanOne = false;
+      List<Map.Entry<String,Declaration>> l = el.getData();
+      if (l.size() == 0) {
+        structEq = structEq.appendScalar("0",DesugarOps.concatStrings);
+      }
+      for (Map.Entry<String,Declaration> me : l) {
+        if (moreThanOne) {
+          structEq = structEq.appendScalar(" + ",DesugarOps.concatStrings);
+        }
+        Type fieldT = me.getValue().getType().resolve();
+        if (fieldT.isStruct()) {
+          Multiverse<String> innerStruct = sizeofBody(fieldT,scope,el.getCondition());
+          //I believe this should always be complete. If the struct is undefined or an
+          //error, than the struct it is inside of should be an error in that condition
+          //as well.
+          structEq = structEq.product(innerStruct,DesugarOps.concatStrings);
+        } else {
+          structEq = structEq.appendScalar("sizeof(" + me.getValue().printType() + ")",DesugarOps.concatStrings);
+        }
+        moreThanOne = true;
+      }
+      structEq = structEq.appendScalar(")",DesugarOps.concatStrings);
+      for (Element<String> es : structEq) {
+        ret.add(es.getData(),es.getCondition());
+      }
+    }
+  }
+  return ret;
+}
+
+static public Multiverse<String> sizeofExpansion(Multiverse<Declaration> t, CContext scope, PresenceCondition p) {
+  Multiverse<String> ret = new Multiverse<String>();
+  for (Element<Declaration> e : t) {
+    Type tempT = e.getData().getType().resolve();
+    if (tempT.isStruct()) {
+      Multiverse<String> innerStruct = sizeofBody(tempT,scope,e.getCondition().and(p));
+      ret.addAll(innerStruct);
+    } else{
+      ret.add("sizeof(" + e.getData().toString() + ")",e.getCondition());
+    }
+  }
+  return ret;
+  
+}
+
+static public Multiverse<String> sizeofExpansion(Multiverse<String> s, Multiverse<Type> t, CContext scope, PresenceCondition p) {
+  Multiverse<String> ret = new Multiverse<String>();
+  for (Element<Type> et : t) {
+    Type tempT = et.getData().resolve();
+    if (tempT.isStruct()) {
+      Multiverse<String> innerStruct = sizeofBody(tempT,scope,et.getCondition());
+      ret.addAll(innerStruct);
+    } else {
+      for (Element<String> es : s) {
+        if (et.getCondition().and(es.getCondition()).isNotFalse()) {
+          ret.add("sizeof(" + es.getData().toString() + ")",et.getCondition().and(es.getCondition()));
+        }
+      }
+    }
+    
+  }
+  return ret;
 }
 
 /***************************************************************************
