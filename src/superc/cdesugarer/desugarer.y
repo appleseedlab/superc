@@ -5595,9 +5595,24 @@ StatementAsExpression:  /** nomerge **/  //ADDED
           String lparen = ((Syntax) getNodeAt(subparser, 5)).getTokenText();
           Multiverse<DeclarationOrStatementValue>  ds = getCompleteNodeSingleValue(subparser, 3, pc);
           String rparen = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+
+          Multiverse<DeclarationOrStatementValue> expanded = new Multiverse<DeclarationOrStatementValue>();
+          for (Element<DeclarationOrStatementValue> e : ds) {
+            Multiverse<List<DeclarationOrStatementValue>> inner = e.getData().separate(e.getCondition());
+            for (Element<List<DeclarationOrStatementValue>> el : inner) {
+              List<Multiverse<DeclarationOrStatementValue>> tempmv = new LinkedList<Multiverse<DeclarationOrStatementValue>>();
+              for (DeclarationOrStatementValue d : el.getData()) {
+                tempmv.add(new Multiverse<DeclarationOrStatementValue>(d,el.getCondition()));
+              }
+              DeclarationOrStatementValue dsv = new DeclarationOrStatementValue("");
+              dsv.setChildrenBlock("{",tempmv,"}");
+              expanded.add(dsv,el.getCondition());
+            }
+          }
+          
           Multiverse<String> valuemv = new Multiverse<String>();
 
-          for (Element<DeclarationOrStatementValue> e : ds) { 
+          for (Element<DeclarationOrStatementValue> e : expanded) { 
             
             String res = "( " + e.getData().getString(e.getCondition(),this) + " )";
             valuemv.add(res,e.getCondition());
@@ -9904,7 +9919,11 @@ public static class DeclarationOrStatementValue {
     }
     return ret;
   }
-    
+  
+  public Multiverse<List<DeclarationOrStatementValue>> separate(PresenceCondition p ) {
+    return listMultiverseSwap(children,p);
+  }
+  
 }
 
 private static boolean haltUnfinished = false;

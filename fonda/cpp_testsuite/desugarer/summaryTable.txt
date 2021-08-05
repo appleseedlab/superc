@@ -146,6 +146,7 @@ unit/sizeof                                                                     
 unit/sizeof                                                                                BC failed
 unit/struct_ref_local_var2                                                                 BC generated
 unit/struct_local_legal                                                                    BC generated
+unit/statementExpressionMax                                                                BC generated
 unit/if_statement_configurable3                                                            BC generated
 unit/global_redeclarations                                                                 BC generated
 unit/struct_configurable_cross_and_forward_ref                                             BC generated
