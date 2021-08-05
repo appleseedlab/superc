@@ -27,7 +27,7 @@ class Tool:
     try:
       tmp = os.fdopen(fd, 'wb')
       tmp.write(sugarC_out)
-      gcc_args = ['gcc', '-x', 'c', '-c', '-o', '\dev\null', path]
+      gcc_args = ['gcc', '-x', 'c', '-c', '-o', '/dev/null', path]
       gcc_ret, _, _ = run_command(gcc_args, stdin=tmp)
     finally:
       os.remove(path)
