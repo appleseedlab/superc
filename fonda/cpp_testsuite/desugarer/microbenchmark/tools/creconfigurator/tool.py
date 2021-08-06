@@ -4,7 +4,7 @@ import os
 import sys
 import configparser
 import shutil
-from tools.utils import log_docker_not_found
+from tools import logs
 
 class Tool:
 
@@ -65,7 +65,7 @@ class Tool:
     _, _, err = run_command(args)
     if b'Unable to find image' in err:
       tool_name = os.path.basename(os.path.dirname(__file__))
-      log_docker_not_found(image_name, tool_name)
+      logs.log_docker_not_found(image_name, tool_name)
       self.clean()
       sys.exit(1)
 

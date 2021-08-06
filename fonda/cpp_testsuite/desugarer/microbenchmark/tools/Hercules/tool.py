@@ -3,8 +3,8 @@ import os
 import configparser
 import shutil
 import sys
-from tools.utils import log_docker_not_found
-from tools.utils import log_docker_name_conflict
+from tools import logs
+
 class Tool:
 
   def __init__(self):
@@ -87,11 +87,11 @@ class Tool:
 
     tool_name = os.path.basename(os.path.dirname(__file__))
     if b'Unable to find image' in err:
-      log_docker_not_found(image_name, tool_name)
+      logs.log_docker_not_found(image_name, tool_name)
       self.clean_and_exit(1)
 
     if b'is already in use by container' in err:
-      log_docker_name_conflict('hercules', tool_name)
+      logs.log_docker_name_conflict('hercules', tool_name)
       self.clean_and_exit(1)
 
 
