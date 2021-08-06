@@ -156,6 +156,7 @@ unit/enum_enumerators                                                           
 unit/typedefname_and_variable_declarations                                                 BC generated
 unit/abstractpointerdeclarator                                                             BC generated
 unit/struct_undef_cast                                                                     BC generated
+unit/flexarrTest                                                                           BC generated
 unit/parendeclarator                                                                       BC generated
 unit/function_parameters                                                                   BC generated
 unit/labelDuplication                                                                      BC generated

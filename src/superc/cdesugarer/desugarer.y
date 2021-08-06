@@ -5852,9 +5852,6 @@ FunctionCall:  /** nomerge **/
               // parameter list
               for (Element<Type> postfixelem : postfixexprval.type) {
                 // check that postfix expression is a function type
-                /* System.err.println("FUNTYPE: " + postfixelem.getData()); */
-                /* System.err.println("isnamedfunt: " + (postfixelem.getData() instanceof NamedFunctionT)); */
-                /* System.err.println("isfunt: " + (postfixelem.getData() instanceof FunctionT)); */
                 if (postfixelem.getData().isFunction()) {
                   FunctionT functiontype = postfixelem.getData().toFunction();
                   List<Type> formals = functiontype.getParameters();
@@ -5892,10 +5889,22 @@ FunctionCall:  /** nomerge **/
                       // and set the presence condition to be an error
                       boolean match = true;
                       for (int i = 0; i < min; i++) {
-                        Type formal = formals.get(i);
-                        Type actual = exprlisttype.getData().get(i);
-                        if (! cOps.equal(formal, actual)) {
-                          todoReminder("support C's type coercion rules in function call parameter checking");
+                        Type formal = formals.get(i).resolve();
+                        Type actual = exprlisttype.getData().get(i).resolve();
+                        if (formal.isUnion() && !actual.isUnion()) {
+                          if ( hasField((UnionT)formal,actual)) {
+                            Multiverse<List<String>> toAdd = exprlistmv.filter(combinedCond);
+                            Multiverse<List<String>> newList = exprlistmv.filter(combinedCond.not());
+                            exprlistmv.destruct(); exprlistmv = newList;
+                            for (Element<List<String>> e : toAdd) {
+                              e.getData().set(i,"(" + ((UnionT)formal).getName() + ")" + e.getData().get(i));
+                            }
+                            exprlistmv.addAll(toAdd);
+                          } else {
+                            match = false;
+                            break;
+                          }
+                        } else if (! compatTypes(formal, actual)) {
                           match = false;
                           break;
                         }
@@ -5906,12 +5915,7 @@ FunctionCall:  /** nomerge **/
                       } else {
                         todoReminder("do proper type checking for function calls");
 
-                        typemv.add(functiontype.getResult(), combinedCond);
-                        /* // TODO: unit test */
-                        /* // parameters don't match.  type error. */
-                        /* PresenceCondition new_errorCond = errorCond.or(combinedCond); */
-                        /* valuemv.add(emitError("function call parameter types do not match function type"), combinedCond); */
-                        /* errorCond.delRef(); errorCond = new_errorCond; */
+                        typemv.add(ErrorT.TYPE, combinedCond);
                       }
                     }
                     combinedCond.delRef();
@@ -5924,8 +5928,7 @@ FunctionCall:  /** nomerge **/
                 } // end check for function type
               } // end loop over postfixelems
               typemv.add(ErrorT.TYPE, errorCond);
-              /* valuemv.add(emitError("type error on function call"), errorCond); */  // TODO: add an option to emit one type error message for all instead of individual messages for each configuration
-
+              
               // should be non-empty because either errorCond is
               // non-false or some parameter list matched and added the
               // return type
@@ -5938,9 +5941,6 @@ FunctionCall:  /** nomerge **/
               Multiverse<List<String>> filtered_exprlistmv = exprlistmv.filter(validTypes);
               errorCond.delRef(); validTypes.delRef();
             
-              /* System.err.println("filtered1: " + filtered_postfixexpr); */
-              /* System.err.println("filtered2: " + filtered_exprlistmv); */
-
               if (filtered_postfixexpr.isEmpty() || filtered_exprlistmv.isEmpty()) {
                 // if either is empty, there is nothing left to
                 // do. there were no valid type checking results for any
@@ -5969,10 +5969,6 @@ FunctionCall:  /** nomerge **/
               if (! filtered_exprlistmv.isEmpty()) {
                 filtered_exprlistmv.destruct();
               }
-
-              /* System.err.println("FCALLTYPE: " + typemv); */
-              /* System.err.println("FCALLERRVALS: " + valuemv); */
-            
               setTransformationValue(value, new ExpressionValue(valuemv, typemv, postfixexprval.integrateSyntax((Syntax)getNodeAt(subparser, 1))));
             } else {
               setTransformationValue(value, new ExpressionValue(emitError("no valid type for one or more arguments of the function call"),
@@ -9069,6 +9065,42 @@ static public Multiverse<String> sizeofExpansion(Multiverse<String> s, Multivers
     
   }
   return ret;
+}
+
+static public boolean hasField(UnionT u, Type t) {
+  List<VariableT> l = u.getMembers();
+  for (VariableT v : l) {
+    if (compatTypes(v,t)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+static public boolean compatTypes(Type t1u, Type t2u) {
+  Type t1 = t1u.resolve(), t2 = t2u.resolve();
+  //we'll say that numbers are compatible
+  if (t1.isNumber() && t2.isNumber()) {
+    return true;
+  }
+  //if both variables are pointers/arrays direct compare inner types
+  if ( (t1.isPointer() || t1.isArray()) &&
+       (t2.isPointer() || t2.isArray())) {
+    Type innerT1, innerT2;
+    if (t1.isPointer()) {
+      innerT1 = ((PointerT)t1).getType().resolve();
+    } else {
+      innerT1 = ((ArrayT)t1).getType().resolve();
+    }
+    if (t2.isPointer()) {
+      innerT2 = ((PointerT)t2).getType().resolve();
+    } else {
+      innerT2 = ((ArrayT)t2).getType().resolve();
+    }
+    return (cOps.equal(innerT1, innerT2)) || innerT1.isVoid();
+  }
+  //outside of these, just direct equal
+  return cOps.equal(t1, t2);
 }
 
 /***************************************************************************
