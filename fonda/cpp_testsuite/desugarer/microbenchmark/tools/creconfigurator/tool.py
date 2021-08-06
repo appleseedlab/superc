@@ -1,8 +1,10 @@
 from common.run_command import run_command
 from common import utils
 import os
+import sys
 import configparser
 import shutil
+from tools.utils import log_docker_not_found
 
 class Tool:
 
@@ -43,6 +45,25 @@ class Tool:
 
   def run_creconfig(self):
     shutil.copytree(utils.TEST_CASE_DIR, self.source_dir)
-    args = ['java', f'-Xms{self.xms}', f'-Xmx{self.xmx}', '-jar', self.jar]
-    run_command(args)
+    image_name = 'creconfig'
+    args = ['docker', 
+                'run', 
+                '--rm', 
+                '-v',
+                f'{self.test_dir}:/src/test',
+                '--user',
+                f'{os.getuid()}',
+                image_name,
+                'java', 
+                f'-Xms{self.xms}',
+                f'-Xmx{self.xmx}',
+                '-jar',
+                'creconfig.jar'
+                ]
+    code, out, err = run_command(args)
+    if b'Unable to find image' in err:
+      tool_name = os.path.basename(os.path.dirname(__file__))
+      log_docker_not_found(image_name, tool_name)
+      self.clean()
+      sys.exit(1)
 
