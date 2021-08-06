@@ -142,6 +142,7 @@ unit/z3                                                                         
 unit/pointerArrayAssign                                                                    BC generated
 unit/if_statement                                                                          BC generated
 unit/switchCaseConfig                                                                      BC generated
+unit/transparentUnion                                                                      BC generated
 unit/sizeof                                                                                SuperC failed
 unit/sizeof                                                                                BC failed
 unit/struct_ref_local_var2                                                                 BC generated

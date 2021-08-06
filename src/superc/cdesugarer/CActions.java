@@ -130,7 +130,8 @@ import xtc.type.UnionT;
 import xtc.type.VariableT;
 import xtc.type.VoidT;
 import xtc.type.WrappedT;
-
+import xtc.type.Parameter;
+ 
  
 /* import xtc.util.SymbolTable; */
 /* import xtc.util.SymbolTable.Scope; */
@@ -5470,7 +5471,6 @@ public class CActions implements SemanticActions {
           // it and the symtab should always return a non-empty mv
           assert ! sbmv.isEmpty();
           entries.destruct();
-          
           setTransformationValue(value, new ExpressionValue(sbmv, typemv,new Multiverse<LineNumbers>(new LineNumbers((Syntax)getNodeAt(subparser, 1)),cond)));
         }
     break;
@@ -5728,7 +5728,6 @@ public class CActions implements SemanticActions {
           // return value to the type
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue postfixexprval = getCompleteNodeExpressionValue(subparser, 4, pc);
-
           /* System.err.println("PFTYPE: " + postfixexprval.type); */
           /* System.err.println("PFTRAN: " + postfixexprval.transformation); */
           if (postfixexprval.hasValidType()) {
@@ -5774,7 +5773,6 @@ public class CActions implements SemanticActions {
               exprlistmv.destruct(); exprlistmv = new_exprlistmv;
               exprlisttypemv.destruct(); exprlisttypemv = new_exprlisttypemv;
             }
-
             if (! hasinvalidparameter) {
 
               /* System.err.println("EXPRLISTMV: " + exprlistmv); */
@@ -5795,6 +5793,7 @@ public class CActions implements SemanticActions {
                 if (postfixelem.getData().isFunction()) {
                   FunctionT functiontype = postfixelem.getData().toFunction();
                   List<Type> formals = functiontype.getParameters();
+                  System.err.println(formals);
                   for (Element<List<Type>> exprlisttype : exprlisttypemv) {
                     PresenceCondition combinedCond = postfixelem.getCondition().and(exprlisttype.getCondition());
                     // compare formal vs actual parameter types
@@ -5831,19 +5830,23 @@ public class CActions implements SemanticActions {
                       for (int i = 0; i < min; i++) {
                         Type formal = formals.get(i).resolve();
                         Type actual = exprlisttype.getData().get(i).resolve();
+                        System.err.println(formal);
                         if (formal.isUnion() && !actual.isUnion()) {
-                          if ( hasField((UnionT)formal,actual)) {
+                          //assuming size 1
+                          Multiverse<Boolean> matches = hasField((UnionT)formal,actual,(CContext)subparser.scope,combinedCond);
+                          if (!matches.isEmpty() && matches.get(0).getData() ) {
                             Multiverse<List<String>> toAdd = exprlistmv.filter(combinedCond);
                             Multiverse<List<String>> newList = exprlistmv.filter(combinedCond.not());
                             exprlistmv.destruct(); exprlistmv = newList;
                             for (Element<List<String>> e : toAdd) {
-                              e.getData().set(i,"(" + ((UnionT)formal).getName() + ")" + e.getData().get(i));
+                              e.getData().set(i,"(union " + ((UnionT)formal).getName() + ")" + e.getData().get(i));
                             }
                             exprlistmv.addAll(toAdd);
                           } else {
                             match = false;
                             break;
                           }
+                          
                         } else if (! compatTypes(formal, actual)) {
                           match = false;
                           break;
@@ -9205,14 +9208,21 @@ static public Multiverse<String> sizeofExpansion(Multiverse<String> s, Multivers
   return ret;
 }
 
-static public boolean hasField(UnionT u, Type t) {
-  List<VariableT> l = u.getMembers();
-  for (VariableT v : l) {
-    if (compatTypes(v,t)) {
-      return true;
+//note, I'm pretty sure this shoudl always be size one, but I'm being thurough
+static public Multiverse<Boolean> hasField(UnionT u, Type t, CContext scope, PresenceCondition p) {
+  SymbolTable<Declaration> tagtab = scope.getLookasideTableAnyScope(u.getName());
+  Multiverse<List<Map.Entry<String,Declaration>>> fields = tagtab.getLists(p);
+  Multiverse<Boolean> res = new Multiverse<Boolean>();
+  for (Element<List<Map.Entry<String,Declaration>>> e : fields) {
+    Boolean found = new Boolean(false);
+    for (Map.Entry<String,Declaration> m: e.getData()) { 
+      if (compatTypes(m.getValue().getType(),t)) {
+        found = new Boolean(true);
+      }
     }
+    res.add(found,e.getCondition());
   }
-  return false;
+  return res;
 }
 
 static public boolean compatTypes(Type t1u, Type t2u) {
