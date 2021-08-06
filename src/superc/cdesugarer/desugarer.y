@@ -7432,6 +7432,10 @@ ConditionalExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> elsemv = elseval.transformation;
 
           if (condval.hasValidType() && ifval.hasValidType() && elseval.hasValidType()) {
+            Multiverse<Type> resType = ifval.type.filter(
+                                                         (condval.type.getConditionOf(ErrorT.TYPE).or(elseval.type.getConditionOf(ErrorT.TYPE))).not()
+                                                         );
+            resType.add(ErrorT.TYPE, condval.type.getConditionOf(ErrorT.TYPE).or(elseval.type.getConditionOf(ErrorT.TYPE)));
             // check that condval is a condition type
             setTransformationValue(value, new ExpressionValue(productAll(DesugarOps.concatStrings,
                                                                          condmv,
@@ -7439,7 +7443,7 @@ ConditionalExpression:  /** passthrough, nomerge **/  // ExpressionValue
                                                                          ifmv,
                                                                          colonmv,
                                                                          elsemv),
-                                                              ifval.type,
+                                                              resType,
                                                               condval.lines.product(elseval.lines, DesugarOps.combineLineNumbers)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in conditionalexpression expression"),
