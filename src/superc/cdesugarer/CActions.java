@@ -4854,7 +4854,12 @@ public class CActions implements SemanticActions {
           
           errorCond.delRef();
           valuemv = valuemv.product(comments, DesugarOps.concatStrings);
-          setTransformationValue(value, DesugarOps.StringToDSV.transform(valuemv));
+          Multiverse<DeclarationOrStatementValue> mds = DesugarOps.StringToDSV.transform(valuemv);
+          for (Element<DeclarationOrStatementValue> e : mds) {
+            Multiverse<Type> mt = exprtype.filter(e.getCondition());
+            e.getData().setType(mt);
+          }
+          setTransformationValue(value, mds);
         }
     break;
 
@@ -5538,13 +5543,20 @@ public class CActions implements SemanticActions {
           }
           
           Multiverse<String> valuemv = new Multiverse<String>();
-
+          Multiverse<Type> typemv = new Multiverse<Type>();
+          
           for (Element<DeclarationOrStatementValue> e : expanded) { 
             
             String res = "( " + e.getData().getString(e.getCondition(),this) + " )";
             valuemv.add(res,e.getCondition());
+            Multiverse<Type> tt = e.getData().getType();
+            System.err.println(tt);
+            if (tt != null && !tt.isEmpty()) {
+              typemv.addAll(tt);
+            } else {
+              typemv.add(ErrorT.TYPE,e.getCondition());
+            }
           }
-          Multiverse<Type> typemv = new Multiverse<Type>(NumberT.INT, pc);
           
           setTransformationValue(value, new ExpressionValue(valuemv,
                                                             typemv, new Multiverse<LineNumbers>(lw,pc)));  // TODO: placeholder; get type from compoundstatement
@@ -9871,6 +9883,7 @@ public static class DeclarationOrStatementValue {
   private boolean isGotoLabel;
   private boolean isLabel;
   private String Label;
+  private Multiverse<Type> typeVal;
   public DeclarationOrStatementValue() {
     mainValue = "";
     childPrepend = "";
@@ -9883,6 +9896,7 @@ public static class DeclarationOrStatementValue {
     isEmpty = false;
     isGotoLabel = false;
     isLabel = false;
+    typeVal = null;
   }
   public DeclarationOrStatementValue(String x) {
     if (x.equals("")) {
@@ -9900,6 +9914,7 @@ public static class DeclarationOrStatementValue {
     isDecl = false;
     isLabel = false;
     isGotoLabel = false;
+    typeVal = null;
   }
 
   public DeclarationOrStatementValue(DeclarationOrStatementValue x) {
@@ -9914,6 +9929,7 @@ public static class DeclarationOrStatementValue {
     isDecl = x.isDecl;
     isLabel = x.isLabel;
     isGotoLabel = x.isGotoLabel;
+    typeVal = x.typeVal;
   }
 
   public void setLabel(String label) {
@@ -9931,6 +9947,7 @@ public static class DeclarationOrStatementValue {
     x.add(c);
     setChildrenBlock(p,x,a);
     isEmpty = false;
+    setTypeFrom(c);
   }
 
   public void setChildrenBlock(String p, List<Multiverse<DeclarationOrStatementValue>> c, String a) {
@@ -9938,6 +9955,7 @@ public static class DeclarationOrStatementValue {
     children = c;
     childAppend = a;
     isEmpty = false;
+    setTypeFrom(c.get(c.size()-1));
   }
 
   public void setSwitchChildrenBlock(String p, List<DeclarationOrStatementValue> c, String a) {
@@ -10060,6 +10078,24 @@ public static class DeclarationOrStatementValue {
   
   public Multiverse<List<DeclarationOrStatementValue>> separate(PresenceCondition p ) {
     return listMultiverseSwap(children,p);
+  }
+
+  private void setTypeFrom(Multiverse<DeclarationOrStatementValue> m) {
+    typeVal = new Multiverse<Type>();
+    for (Element<DeclarationOrStatementValue> e : m) {
+      if (e.getData().typeVal != null && !e.getData().typeVal.isEmpty()) {
+        Multiverse<Type> t = e.getData().typeVal.filter(e.getCondition());
+        typeVal.addAll(t);
+      }
+    }
+  }
+
+  public void setType(Multiverse<Type> m) {
+    typeVal = m;
+  }
+
+  public Multiverse<Type> getType() {
+    return typeVal;
   }
   
 }

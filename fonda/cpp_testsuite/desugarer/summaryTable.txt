@@ -162,6 +162,7 @@ unit/labelDuplication                                                           
 unit/redef                                                                                 BC generated
 unit/struct_global_local                                                                   BC generated
 unit/struct_crossref_global2                                                               BC generated
+unit/statementAsExpressionError                                                            BC generated
 unit/enum_forward_ref                                                                      BC generated
 unit/qualifiedpointer                                                                      BC generated
 unit/wrappedConfig                                                                         BC generated
