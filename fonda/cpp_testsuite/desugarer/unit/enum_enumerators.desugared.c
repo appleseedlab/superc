@@ -25,10 +25,12 @@ int  __nonenumerator_4= 10;// L2
 int  __main_5 () {
 
 {
+{
 
 
 
  __x_3  =  __nonenumerator_4  ; // L5
+}
 }
 
 

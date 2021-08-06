@@ -30,6 +30,7 @@ typedef float  __a_1;// L1:L7
 int  __main_10 () {
 
 {
+{
 
 
 
@@ -50,6 +51,7 @@ __a_1  __w_8;// L23:L25
 char  __w_9;// L23:L25
 
 return 0 ;// L26
+}
 }
 
 

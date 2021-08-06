@@ -33,6 +33,7 @@ struct __list_3 ;// L1
 int  __main_9 () {
 
 {
+{
 
 
 
@@ -47,7 +48,9 @@ struct __list_3  __tail_7;// L10
 struct __list_3  (* __current_8)= &  __head_6 ;// L17
 
 while ( 0 !=  __current_8  )// L18
+{
 
+{
 {
 
 
@@ -55,7 +58,10 @@ while ( 0 !=  __current_8  )// L18
  __current_8  -> __data_4 . __p_1 = 'a' ; // L19
  __current_8  =  __current_8  -> __next_5 ; // L20
 }
+}
+}
 return 0 ;// L23
+}
 }
 
 

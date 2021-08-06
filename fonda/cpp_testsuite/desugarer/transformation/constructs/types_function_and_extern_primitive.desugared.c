@@ -27,10 +27,12 @@ float  __f_1 () {
 if (__static_condition_default_2) {
 
 {
+{
 
 
 
 return 0 ;// L3
+}
 }
 
 
@@ -39,6 +41,7 @@ return 0 ;// L3
 }
 int  __main_3 () {
 
+{
 {
 
 
@@ -50,6 +53,7 @@ if (__static_condition_default_5) {
  __f_0  ; // L13
 }
 return 0 ;// L15
+}
 }
 
 

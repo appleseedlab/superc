@@ -31,6 +31,7 @@ typedef struct __bob_1  __bob_6;// L6:L10
 int  __main_8 (void  ) {
 
 {
+{
 
 
 
@@ -45,6 +46,7 @@ if (__static_condition_default_9) {
 }
 if (__static_condition_default_5) {
 __static_type_error("type error") ; // L14
+}
 }
 }
 

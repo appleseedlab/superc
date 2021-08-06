@@ -29,10 +29,12 @@ int  __foo_4 (int  __a_0, float  __b1_2, char  __x_3) {
 if (__static_condition_default_6) {
 
 {
+{
 
 
 
 return 0 ;// L10
+}
 }
 
 
@@ -42,6 +44,7 @@ return 0 ;// L10
 int  __main_7 () {
 
 {
+{
 
 
 
@@ -50,6 +53,7 @@ return  __foo_4  ( 1, 2, 3 ) ;// L14
 }
 if (__static_condition_default_8) {
 __static_type_error("invalid type found in return expression");
+}
 }
 }
 

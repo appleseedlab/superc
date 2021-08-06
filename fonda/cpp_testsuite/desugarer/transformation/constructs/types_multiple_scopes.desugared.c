@@ -26,6 +26,7 @@ int  __main_2 () {
 if (__static_condition_default_4) {
 
 {
+{
 
 
 
@@ -33,6 +34,7 @@ char  __x_1;// L9
 
  __x_1  ++ ; // L12
 return  __x_1  ;// L14
+}
 }
 
 
@@ -44,11 +46,13 @@ int  __main_3 () {
 if (__static_condition_default_5) {
 
 {
+{
 
 
 
  __x_0  ++ ; // L12
 return  __x_0  ;// L14
+}
 }
 
 

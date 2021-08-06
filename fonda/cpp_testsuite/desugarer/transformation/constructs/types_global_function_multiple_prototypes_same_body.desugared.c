@@ -43,6 +43,7 @@ int  __x_2 () {
 if (__static_condition_default_6) {
 
 {
+{
 
 
 
@@ -50,6 +51,7 @@ int  __b_1= 1;// L12
 
 __static_type_error("type error") ; // L14
 return  __b_1  ;// L15
+}
 }
 
 
@@ -61,6 +63,7 @@ char  __x_3 () {
 if (__static_condition_default_7) {
 
 {
+{
 
 
 
@@ -68,6 +71,7 @@ int  __b_1= 1;// L12
 
 __static_type_error("type error") ; // L14
 return  __b_1  ;// L15
+}
 }
 
 
@@ -79,6 +83,7 @@ int  __x_4 (int  __y_0) {
 if (__static_condition_default_8) {
 
 {
+{
 
 
 
@@ -86,6 +91,7 @@ int  __b_1= 1;// L12
 
  __b_1  =  __b_1  +  __y_0  ; // L14
 return  __b_1  ;// L15
+}
 }
 
 
@@ -97,6 +103,7 @@ char  __x_5 (int  __y_0) {
 if (__static_condition_default_9) {
 
 {
+{
 
 
 
@@ -105,6 +112,7 @@ int  __b_1= 1;// L12
  __b_1  =  __b_1  +  __y_0  ; // L14
 return  __b_1  ;// L15
 }
+}
 
 
 }
@@ -112,6 +120,7 @@ return  __b_1  ;// L15
 }
 int  __main_10 () {
 
+{
 {
 
 
@@ -133,6 +142,7 @@ if (__static_condition_default_15) {
 }
 if (__static_condition_default_16) {
 __static_type_error("type error") ; // L21
+}
 }
 }
 

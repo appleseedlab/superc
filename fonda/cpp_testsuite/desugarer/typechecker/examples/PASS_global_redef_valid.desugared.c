@@ -51,6 +51,7 @@ int  __main_9 () {
 if (__static_condition_default_11) {
 
 {
+{
 
 
 
@@ -65,6 +66,7 @@ __static_type_error("type error") ; // L13
 }
 return - 1 ;// L14
 }
+}
 
 
 }
@@ -74,6 +76,7 @@ int  __main_10 () {
 
 if (__static_condition_default_15) {
 
+{
 {
 
 
@@ -88,6 +91,7 @@ if (__static_condition_default_18) {
  __x_6  = 1 ; // L13
 }
 return - 1 ;// L14
+}
 }
 
 

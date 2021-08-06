@@ -22,10 +22,12 @@ __static_condition_renaming("__static_condition_default_4", "!A");
 void  __doNothingOne_0 () {
 
 {
+{
 
 
 
 return  ;// L3
+}
 }
 
 
@@ -34,9 +36,11 @@ return  ;// L3
 void  __doNothingTwo_1 () {
 
 {
+{
 
 
 
+}
 }
 
 
@@ -44,6 +48,7 @@ void  __doNothingTwo_1 () {
 }
 int  __main_2 (void  ) {
 
+{
 {
 
 
@@ -55,6 +60,7 @@ if (__static_condition_default_4) {
  __doNothingTwo_1 ( ) ; // L14
 }
 return 0 ;// L17
+}
 }
 
 

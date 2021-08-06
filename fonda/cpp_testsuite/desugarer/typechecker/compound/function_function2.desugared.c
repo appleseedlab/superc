@@ -27,10 +27,12 @@ float  __x_3 (float  __a_0, float  __b_1) {
 if (__static_condition_default_5) {
 
 {
+{
 
 
 
 return  __a_0  *  __b_1  ;// L3
+}
 }
 
 
@@ -44,10 +46,12 @@ char  __x_4 (int  __y_2) {
 if (__static_condition_default_6) {
 
 {
+{
 
 
 
 return  __y_2  ;// L7
+}
 }
 
 
@@ -57,6 +61,7 @@ return  __y_2  ;// L7
 }
 int  __main_7 () {
 
+{
 {
 
 
@@ -68,6 +73,7 @@ if (__static_condition_default_5) {
 __static_type_error("type error") ; // L12
 }
 return 0 ;// L13
+}
 }
 
 

@@ -24,6 +24,7 @@ __static_condition_renaming("__static_condition_default_6", "!(defined A)");
 int  __main_4 () {
 
 {
+{
 
 
 
@@ -42,6 +43,7 @@ if (__static_condition_default_6) {
  __y_3  = 0 ; // L11
 }
 return 0 ;// L12
+}
 }
 
 

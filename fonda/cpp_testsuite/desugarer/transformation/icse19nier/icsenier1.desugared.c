@@ -29,6 +29,7 @@ int  __main_4 () {
 if (__static_condition_default_5) {
 
 {
+{
 
 
 
@@ -38,12 +39,14 @@ int  __inode_3;// L9
 
  __i_2  =  __iminor_1  (  __inode_3  ) - 32 ; // L5:L15
 }
+}
 
 
 }
 
 if (__static_condition_default_6) {
 
+{
 {
 
 
@@ -53,9 +56,14 @@ int  __i_2;// L8
 int  __inode_3;// L9
 
 if (  __imajor_0  (  __inode_3  ) == 10 )// L11
+{
  __i_2  = 31 ; // L4:L12
+}
 else
+{
  __i_2  =  __iminor_1  (  __inode_3  ) - 32 ; // L5:L15
+}
+}
 }
 
 

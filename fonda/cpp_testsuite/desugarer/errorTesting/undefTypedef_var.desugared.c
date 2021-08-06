@@ -33,10 +33,12 @@ int  __main_2 () {
 if (__static_condition_default_4) {
 
 {
+{
 
 
 
 return 0 ;// L12
+}
 }
 
 
@@ -48,12 +50,14 @@ int  __main_3 () {
 if (__static_condition_default_5) {
 
 {
+{
 
 
 
 __x_0  __a_1;// L8
 
 return 0 ;// L12
+}
 }
 
 

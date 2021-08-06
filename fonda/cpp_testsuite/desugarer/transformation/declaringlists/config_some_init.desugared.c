@@ -26,6 +26,7 @@ __static_renaming("__main_10", "main");
 int  __main_10 (void  ) {
 
 {
+{
 
 
 
@@ -56,6 +57,7 @@ char  __f_8;// L3:L9
 char  __g_9= 4;// L3:L9
 
 return 0 ;// L11
+}
 }
 
 

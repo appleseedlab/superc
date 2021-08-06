@@ -27,12 +27,14 @@ signed char  __a_0;// L1
 int  __main_10 (void  ) {
 
 {
+{
 
 
 
 unsigned char  __b_1;// L4
 
 
+{
 {
 
 
@@ -46,6 +48,7 @@ signed long long  __e_4;// L9
 unsigned long long  __f_5;// L10
 
 }
+}
 signed long long int  __g_6;// L12
 
 unsigned long long int  __h_7;// L13
@@ -55,6 +58,7 @@ signed int  __i_8;// L14
 unsigned int  __j_9;// L15
 
 return 0 ;// L17
+}
 }
 
 

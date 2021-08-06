@@ -53,6 +53,7 @@ void  __foo_8 () {
 if (__static_condition_default_13) {
 
 {
+{
 
 
 
@@ -60,6 +61,7 @@ if (__static_condition_default_14) {
 __static_type_error("type error") ; // L23
 }
 return  ;// L31
+}
 }
 
 
@@ -71,6 +73,7 @@ void  __foo_9 () {
 if (__static_condition_default_15) {
 
 {
+{
 
 
 
@@ -79,6 +82,7 @@ if (__static_condition_default_16) {
 }
  __z_5  = 2 ; // L29
 return  ;// L31
+}
 }
 
 
@@ -90,6 +94,7 @@ void  __foo_10 (__a_0  __x_3, __c_2  __z_5, __b_1  __y_7) {
 if (__static_condition_default_17) {
 
 {
+{
 
 
 
@@ -97,6 +102,7 @@ if (__static_condition_default_17) {
  __y_7  = 2 ; // L26
  __z_5  = 2 ; // L29
 return  ;// L31
+}
 }
 
 
@@ -108,6 +114,7 @@ void  __foo_12 (__b_1  __y_6) {
 if (__static_condition_default_18) {
 
 {
+{
 
 
 
@@ -117,6 +124,7 @@ __static_type_error("type error") ; // L23
  __y_6  = 2 ; // L26
 return  ;// L31
 }
+}
 
 
 }
@@ -125,10 +133,12 @@ return  ;// L31
 int  __main_20 () {
 
 {
+{
 
 
 
 return 0 ;// L36
+}
 }
 
 

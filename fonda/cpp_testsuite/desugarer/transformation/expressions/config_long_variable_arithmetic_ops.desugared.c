@@ -54,6 +54,7 @@ __static_condition_renaming("__static_condition_default_24", "!A && !B && !C");
 int  __main_10 (void  ) {
 
 {
+{
 
 
 
@@ -124,6 +125,7 @@ if (__static_condition_default_24) {
  __x_1  =  __y_3  +  __z_4  -  __w_5  *  __u_6  /  __v_7  %  __t_9  ; // L33
 }
 return 0 ;// L35
+}
 }
 
 

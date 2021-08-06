@@ -22,10 +22,12 @@ int  __z_2;// L1
 int  __main_3 () {
 
 {
+{
 
 
 
 return 0 ;// L5
+}
 }
 
 

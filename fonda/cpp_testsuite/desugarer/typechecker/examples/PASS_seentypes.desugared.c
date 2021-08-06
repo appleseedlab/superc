@@ -29,6 +29,7 @@ __static_renaming("__main_13", "main");
 int  __main_13 () {
 
 {
+{
 
 
 
@@ -67,6 +68,7 @@ __static_type_error("invalid declaration of x under this presence condition");
 }
 
 return 0 ;// L18
+}
 }
 
 

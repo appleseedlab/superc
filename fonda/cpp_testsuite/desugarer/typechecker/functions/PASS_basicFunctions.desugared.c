@@ -21,10 +21,12 @@ __static_renaming("__main_9", "main");
 int  __x_0 () {
 
 {
+{
 
 
 
 return 0 ;// L3
+}
 }
 
 
@@ -33,12 +35,14 @@ return 0 ;// L3
 float  (* __y_3 (int  __y1_1)) {
 
 {
+{
 
 
 
 float  (* __y2_2);// L8
 
 return  __y2_2  ;// L9
+}
 }
 
 
@@ -47,10 +51,12 @@ return  __y2_2  ;// L9
 char  __z_6 (int  __z1_4, int  __z2_5) {
 
 {
+{
 
 
 
 return 'a' ;// L14
+}
 }
 
 
@@ -59,10 +65,12 @@ return 'a' ;// L14
 short  __w_8 (int  __x_7,  ... ) {
 
 {
+{
 
 
 
 return 0 ;// L19
+}
 }
 
 
@@ -71,10 +79,12 @@ return 0 ;// L19
 int  __main_9 (void  ) {
 
 {
+{
 
 
 
 return 0 ;// L27
+}
 }
 
 

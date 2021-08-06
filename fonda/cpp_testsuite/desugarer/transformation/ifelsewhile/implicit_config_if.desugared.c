@@ -22,6 +22,7 @@ __static_condition_renaming("__static_condition_default_4", "!A");
 int  __main_2 (void  ) {
 
 {
+{
 
 
 
@@ -31,7 +32,9 @@ char  __x_1= 3;// L5
 
 if (__static_condition_default_3) {
 if (  __x_0  == 2 )// L8
+{
 
+{
 {
 
 
@@ -39,9 +42,13 @@ if (  __x_0  == 2 )// L8
  __x_0  ++ ; // L9
 }
 }
+}
+}
 if (__static_condition_default_4) {
 if (  __x_1  == 2 )// L8
+{
 
+{
 {
 
 
@@ -49,7 +56,10 @@ if (  __x_1  == 2 )// L8
  __x_1  ++ ; // L9
 }
 }
+}
+}
 return 0 ;// L12
+}
 }
 
 

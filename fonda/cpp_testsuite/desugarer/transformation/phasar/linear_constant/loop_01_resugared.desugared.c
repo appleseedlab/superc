@@ -22,6 +22,7 @@ __static_condition_renaming("__static_condition_default_4", "!(defined CONFIG_A)
 int  __main_2 () {
 
 {
+{
 
 
 
@@ -30,7 +31,9 @@ int  __x_0= 0;// L2
 if (__static_condition_default_3) {
 { int  __i_1= 0;// L5
  for ( ;  __i_1  < 10 ; ++  __i_1  ) // L5
+{
 
+{
 {
 
 
@@ -39,11 +42,14 @@ if (__static_condition_default_3) {
 }
 }
 }
+}
+}
 if (__static_condition_default_4) {
 return  __x_0  ;// L10
 }
 if (__static_condition_default_3) {
 return  __x_0  ;// L10
+}
 }
 }
 

@@ -30,6 +30,7 @@ int  (* __a_0);// L6
 int  __main_2 () {
 
 {
+{
 
 
 
@@ -38,6 +39,7 @@ if (__static_condition_default_3) {
 }
 if (__static_condition_default_4) {
 __static_type_error("type error : no valid expression"); // L12
+}
 }
 }
 

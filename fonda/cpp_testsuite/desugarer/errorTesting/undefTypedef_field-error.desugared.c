@@ -37,12 +37,14 @@ struct __x_4 ;// L11
 int  __main_7 () {
 
 {
+{
 
 
 
 struct __x_4  __c_6;// L21
 
 return 0 ;// L22
+}
 }
 
 

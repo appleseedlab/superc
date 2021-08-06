@@ -20,6 +20,7 @@ __static_condition_renaming("__static_condition_default_2", "(defined A)");
 int  __main_4 () {
 
 {
+{
 
 
 
@@ -32,6 +33,7 @@ __static_type_error("redeclaration of local symbol: x");
 
 int  __b_3;// L6
 
+}
 }
 
 

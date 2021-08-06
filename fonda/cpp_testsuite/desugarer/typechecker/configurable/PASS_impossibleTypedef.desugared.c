@@ -32,10 +32,12 @@ int  __main_1 () {
 if (__static_condition_default_3) {
 
 {
+{
 
 
 
 return 0 ;// L9
+}
 }
 
 
@@ -47,10 +49,12 @@ int  __main_2 () {
 if (__static_condition_default_4) {
 
 {
+{
 
 
 
 return 0 ;// L9
+}
 }
 
 

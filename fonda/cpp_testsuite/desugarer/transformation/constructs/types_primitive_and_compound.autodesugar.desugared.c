@@ -39,16 +39,20 @@ struct __test_2 ;// L6
 int  ___F1K4sj1_main_6 () {
 
 {
+{
 
 
 
 if ( 1 )// L9
+{
 
+{
 {
 
 
 
 
+{
 {
 
 
@@ -59,7 +63,9 @@ int  ___V3nkcU9_var_5;// L13
 
 if (__static_condition_default_7) {
 if (  ___C_40496_DEFINED_1  )// L14
+{
 
+{
 {
 
 
@@ -67,12 +73,16 @@ if (  ___C_40496_DEFINED_1  )// L14
  ___V2n3sqb_var_4  . __x_3 = 1 ; // L15
 }
 }
+}
+}
 if (__static_condition_default_8) {
 __static_type_error("invalid type found in if statement");
 }
 if (__static_condition_default_7) {
 if ( !  ___C_40496_DEFINED_1  )// L17
+{
 
+{
 {
 
 
@@ -80,8 +90,14 @@ if ( !  ___C_40496_DEFINED_1  )// L17
 __static_type_error("type error : no valid expression"); // L18
 }
 }
+}
+}
 if (__static_condition_default_9) {
 __static_type_error("invalid type found in if statement");
+}
+}
+}
+}
 }
 }
 }
@@ -93,16 +109,22 @@ __static_type_error("invalid type found in if statement");
 int  __main_12 (int  __argc_10, char  (* (* __argv_11))) {
 
 {
+{
 
 
 
 if ( 1 )// L25
+{
 
+{
 {
 
 
 
 __static_type_error("type error : no valid expression"); // L26
+}
+}
+}
 }
 }
 

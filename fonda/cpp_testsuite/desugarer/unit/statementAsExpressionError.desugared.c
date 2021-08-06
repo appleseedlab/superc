@@ -26,6 +26,7 @@ int  __main_2 () {
 if (__static_condition_default_4) {
 
 {
+{
 
 
 
@@ -33,6 +34,7 @@ int  __y_1;// L7
 
 __static_type_error("type error") ; // L8
 return 0 ;// L9
+}
 }
 
 
@@ -43,6 +45,7 @@ int  __main_3 () {
 
 if (__static_condition_default_5) {
 
+{
 {
 
 
@@ -58,6 +61,7 @@ int  __y_1;// L7
 }
  ) ; // L8
 return 0 ;// L9
+}
 }
 
 

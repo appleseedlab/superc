@@ -23,6 +23,7 @@ __static_renaming("__main_7", "main");
 int  __main_7 (void  ) {
 
 {
+{
 
 
 
@@ -49,6 +50,7 @@ int  __t_6;// L8
  __t_6  = 8 ; // L16
  __x_0  =  __y_1  +  __z_2  -  __w_3  *  __u_4  /  __v_5  %  __t_6  ; // L18
 return 0 ;// L20
+}
 }
 
 

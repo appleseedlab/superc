@@ -23,6 +23,7 @@ union __intCharFloat_0 ;// L1
 int  __main_5 (void  ) {
 
 {
+{
 
 
 
@@ -31,6 +32,7 @@ union __intCharFloat_0  __usedUnion_4;// L8
  __usedUnion_4  . __integer_1 = 1 ; // L10
  __usedUnion_4  . __character_2 = 'h' ; // L12
 return 0 ;// L14
+}
 }
 
 

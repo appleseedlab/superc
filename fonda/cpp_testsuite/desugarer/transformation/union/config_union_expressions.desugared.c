@@ -47,6 +47,7 @@ union __intCharFloat_4 ;// L8
 int  __main_15 (void  ) {
 
 {
+{
 
 
 
@@ -97,6 +98,7 @@ __static_type_error("invalid declaration of ch under this presence condition");
 }
 
 return 0 ;// L35
+}
 }
 
 

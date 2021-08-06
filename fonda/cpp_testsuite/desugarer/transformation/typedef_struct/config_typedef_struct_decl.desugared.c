@@ -27,6 +27,7 @@ typedef char  __typeAlias_1;// L1:L7
 int  __main_6 (void  ) {
 
 {
+{
 
 struct __anonymous_tag_2 {
 __typeAlias_0  __x_3;
@@ -43,6 +44,7 @@ if (__static_condition_default_8) {
  __intOrCharWrapper_5  . __x_4 = 2 ; // L12
 }
 return 0 ;// L14
+}
 }
 
 

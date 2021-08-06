@@ -31,6 +31,7 @@ int  __main_7 (void  ) {
 if (__static_condition_default_9) {
 
 {
+{
 
 
 struct __forward_tag_reference_4 { // generated union of struct variations
@@ -45,6 +46,7 @@ __static_type_error("type error") ; // L12
 __static_type_error("type error") ; // L14
 return 0 ;// L16
 }
+}
 
 
 }
@@ -54,6 +56,7 @@ int  __main_8 (void  ) {
 
 if (__static_condition_default_10) {
 
+{
 {
 
 
@@ -68,6 +71,7 @@ union __intCharFloat_0  __usedUnion_5;// L10
  __usedUnion_5  . __integer_1 = 1 ; // L12
  __usedUnion_5  . __character_2 = 'h' ; // L14
 return 0 ;// L16
+}
 }
 
 

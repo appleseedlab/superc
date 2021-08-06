@@ -22,6 +22,7 @@ __static_condition_renaming("__static_condition_default_4", "!A");
 int  __main_2 (void  ) {
 
 {
+{
 
 
 
@@ -60,6 +61,7 @@ if (__static_condition_default_4) {
  __x_1  = 10 % 5 ; // L16
 }
 return 0 ;// L18
+}
 }
 
 

@@ -20,10 +20,12 @@ __static_renaming("__main_6", "main");
 int  __adder_2 (int  __a_0, int  __b_1) {
 
 {
+{
 
 
 
 return  __a_0  +  __b_1  ;// L2
+}
 }
 
 
@@ -31,6 +33,7 @@ return  __a_0  +  __b_1  ;// L2
 }
 int  __main_6 (void  ) {
 
+{
 {
 
 
@@ -43,6 +46,7 @@ int  __result_5;// L8
 
  __result_5  =  __adder_2  (  __argOne_3 ,  __argTwo_4  ) ; // L10
 return 0 ;// L12
+}
 }
 
 

@@ -22,20 +22,25 @@ extern int  ___Djkifd_CONFIG_A_defined_1;// L4
 int  __main_4 () {
 
 {
+{
 
 
 
 int  __x_2= 0;// L7
 
 if (  ___Djkifd_CONFIG_A_defined_1  )// L8
+{
 
+{
 {
 
 
 
 { int  __i_3= 0;// L9
  for ( ;  __i_3  < 10 ; ++  __i_3  ) // L9
+{
 
+{
 {
 
 
@@ -44,7 +49,12 @@ if (  ___Djkifd_CONFIG_A_defined_1  )// L8
 }
 }
 }
+}
+}
+}
+}
 return  __x_2  ;// L13
+}
 }
 
 

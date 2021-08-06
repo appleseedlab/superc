@@ -22,6 +22,7 @@ __static_condition_renaming("__static_condition_default_4", "!(defined CONFIG_A)
 int  __main_2 () {
 
 {
+{
 
 
 
@@ -40,6 +41,7 @@ return  __x_0  ;// L10
 }
 if (__static_condition_default_4) {
 return  __x_1  ;// L10
+}
 }
 }
 

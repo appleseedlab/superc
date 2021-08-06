@@ -35,23 +35,29 @@ extern _Bool  ___C_40496_DEFINED_1;// L4:L33
 int  ___F058Niv_x_2 () {
 
 {
+{
 
 
 
 if (__static_condition_default_3) {
 if (  ___C_40496_DEFINED_1  )// L7
+{
 
+{
 {
 
 
 
 
+{
 {
 
 
 
 if (  ___C_40496_DEFINED_1  )// L8
+{
 
+{
 {
 
 
@@ -61,8 +67,14 @@ return 1 ;// L9
 }
 }
 }
+}
+}
+}
+}
+}
 if (__static_condition_default_4) {
 __static_type_error("invalid type found in if statement");
+}
 }
 }
 
@@ -72,23 +84,29 @@ __static_type_error("invalid type found in if statement");
 char  ___F1HJ7pu_x_5 () {
 
 {
+{
 
 
 
 if (__static_condition_default_3) {
 if ( !  ___C_40496_DEFINED_1  )// L17
+{
 
+{
 {
 
 
 
 
+{
 {
 
 
 
 if ( !  ___C_40496_DEFINED_1  )// L18
+{
 
+{
 {
 
 
@@ -98,8 +116,14 @@ return 2 ;// L19
 }
 }
 }
+}
+}
+}
+}
+}
 if (__static_condition_default_6) {
 __static_type_error("invalid type found in if statement");
+}
 }
 }
 
@@ -109,20 +133,28 @@ __static_type_error("invalid type found in if statement");
 int  ___F2GLV8v_main_7 () {
 
 {
+{
 
 
 
 if ( 1 )// L27
+{
 
+{
 {
 
 
 
 
 {
+{
 
 
 
+}
+}
+}
+}
 }
 }
 }
@@ -133,16 +165,22 @@ if ( 1 )// L27
 int  __main_10 (int  __argc_8, char  (* (* __argv_9))) {
 
 {
+{
 
 
 
 if ( 1 )// L33
+{
 
+{
 {
 
 
 
 __static_type_error("type error : no valid expression"); // L34
+}
+}
+}
 }
 }
 

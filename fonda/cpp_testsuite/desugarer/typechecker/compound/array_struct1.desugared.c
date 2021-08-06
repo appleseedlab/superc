@@ -22,6 +22,7 @@ __static_condition_renaming("__static_condition_default_6", "!(defined A)");
 int  __main_4 () {
 
 {
+{
 
 struct __anonymous_tag_0 {
 int  __field1_1;
@@ -39,6 +40,7 @@ if (__static_condition_default_6) {
 __static_type_error("type error") ; // L8
 }
 return 0 ;// L10
+}
 }
 
 

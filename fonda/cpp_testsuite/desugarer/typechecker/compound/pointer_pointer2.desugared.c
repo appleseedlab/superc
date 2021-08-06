@@ -26,6 +26,7 @@ struct __s_0 ;// L1
 int  __main_4 () {
 
 {
+{
 
 
 
@@ -40,6 +41,7 @@ if (__static_condition_default_6) {
 __static_type_error("type error") ; // L10
 }
 return 0 ;// L12
+}
 }
 
 

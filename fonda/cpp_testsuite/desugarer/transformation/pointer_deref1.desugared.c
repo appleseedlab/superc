@@ -29,6 +29,7 @@ extern struct __rsa_st_1  (* (* __RSA_new_3 (void  )));// L5
 void  ___libssh2_rsa_new_6 (struct __rsa_st_1  (* (* __rsa_4))) {
 
 {
+{
 
 
 
@@ -36,6 +37,7 @@ struct __forward_tag_reference_0  (* __e_5);// L8
 
 __static_type_error("type error : no valid expression"); // L9
 ( * *  __rsa_4  ) . __e_2 ; // L10
+}
 }
 
 

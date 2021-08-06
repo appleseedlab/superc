@@ -34,10 +34,12 @@ int  __main_7 () {
 if (__static_condition_default_9) {
 
 {
+{
 
 
 
 return 0 ;// L14
+}
 }
 
 
@@ -49,10 +51,12 @@ int  __main_8 () {
 if (__static_condition_default_10) {
 
 {
+{
 
 
 
 return 0 ;// L14
+}
 }
 
 

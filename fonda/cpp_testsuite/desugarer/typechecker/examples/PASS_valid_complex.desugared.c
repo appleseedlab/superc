@@ -21,6 +21,7 @@ __static_renaming("__main_5", "main");
 int  __main_5 (void  ) {
 
 {
+{
 
 
 
@@ -39,6 +40,7 @@ _Complex double  __e_3;// L6
 _Complex long double  __f_4;// L7
 
 return 0 ;// L8
+}
 }
 
 

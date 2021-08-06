@@ -20,6 +20,7 @@ int  __x_0= 2;// L1
 int  __main_4 () {
 
 {
+{
 
 
 
@@ -37,6 +38,7 @@ __static_type_error("non const value in constant list or struct: data2");
 
 
 return 0 ;// L8
+}
 }
 
 

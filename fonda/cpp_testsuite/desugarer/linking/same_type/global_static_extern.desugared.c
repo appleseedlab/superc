@@ -26,10 +26,12 @@ int  __f_4 (int  __x_0) {
 if (__static_condition_default_6) {
 
 {
+{
 
 
 
 return  __x_0  + 1 ;// L4
+}
 }
 
 
@@ -43,10 +45,12 @@ static int  __f_5 (int  __x_1) {
 if (__static_condition_default_7) {
 
 {
+{
 
 
 
 return  __x_1  + 1 ;// L8
+}
 }
 
 

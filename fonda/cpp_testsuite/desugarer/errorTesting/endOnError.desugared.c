@@ -26,10 +26,12 @@ int  __main_0 () {
 if (__static_condition_default_1) {
 
 {
+{
 
 
 
 return 0 ;// L3
+}
 }
 
 

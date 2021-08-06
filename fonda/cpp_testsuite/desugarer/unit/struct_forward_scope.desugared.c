@@ -20,6 +20,7 @@ int  __x_6;
 int  __main_4 () {
 
 {
+{
 
 struct __s_2 {
 char  __y_3;
@@ -37,6 +38,7 @@ struct __forward_tag_reference_0  (* __local_var_1);// L2
 struct __s_2 ;// L4
 
 return  __local_var_1  -> __s_2 . __y_3 ;// L8
+}
 }
 
 

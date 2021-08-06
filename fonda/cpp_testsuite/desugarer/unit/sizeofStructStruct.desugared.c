@@ -51,6 +51,7 @@ struct __two_5 ;// L11
 int  __main_13 () {
 
 {
+{
 
 
 
@@ -81,6 +82,7 @@ if (__static_condition_default_21) {
  __z_12  = ( sizeof(long long  )  +  sizeof(unsigned long long  )  +  ( sizeof(int  ) ) ) ; // L26
 }
 return 0 ;// L27
+}
 }
 
 

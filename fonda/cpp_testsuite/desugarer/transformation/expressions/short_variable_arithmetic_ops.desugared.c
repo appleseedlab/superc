@@ -19,6 +19,7 @@ __static_renaming("__main_3", "main");
 int  __main_3 (void  ) {
 
 {
+{
 
 
 
@@ -37,6 +38,7 @@ int  __z_2;// L4
  __x_0  =  __y_1  /  __z_2  ; // L15
  __x_0  =  __y_1  %  __z_2  ; // L17
 return 0 ;// L19
+}
 }
 
 

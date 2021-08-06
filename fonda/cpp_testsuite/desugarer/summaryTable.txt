@@ -182,6 +182,7 @@ unit/declarators                                                                
 unit/struct_configurable_main                                                              BC generated
 unit/switchTypeError                                                                       BC generated
 unit/struct_crossref_local                                                                 BC generated
+unit/ifChildMultiverse                                                                     BC generated
 unit/if_statement_configurable1                                                            BC generated
 unit/function_parameters_empty_configurable                                                BC generated
 unit/redeclare_structs                                                                     BC generated
@@ -236,6 +237,7 @@ unit/partialConfigDeclaringList                                                 
 unit/single                                                                                BC generated
 unit/switch                                                                                BC generated
 unit/struct_configurable                                                                   BC generated
+unit/ternaryCondError                                                                      BC generated
 unit/initTest                                                                              BC generated
 unit/offsetof                                                                              SuperC failed
 unit/offsetof                                                                              BC failed

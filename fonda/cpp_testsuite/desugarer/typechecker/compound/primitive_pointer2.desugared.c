@@ -24,6 +24,7 @@ int  __num_0= 1;// L1
 int  __main_3 () {
 
 {
+{
 
 
 
@@ -44,6 +45,7 @@ if (__static_condition_default_4) {
 __static_type_error("type error") ; // L11
 }
 return 0 ;// L13
+}
 }
 
 

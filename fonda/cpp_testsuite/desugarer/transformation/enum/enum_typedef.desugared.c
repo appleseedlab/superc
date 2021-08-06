@@ -28,6 +28,7 @@ typedef enum letter  __letter_6;// L1
 int  __main_8 (void  ) {
 
 {
+{
 
 
 
@@ -35,6 +36,7 @@ __letter_6  __apple_7;// L4
 
  __apple_7  =  __a_0  ; // L5
 return 0 ;// L7
+}
 }
 
 

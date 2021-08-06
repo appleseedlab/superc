@@ -26,6 +26,7 @@ extern int  __get_1 (const char  *, const char  *);// L5
 int  __main_8 () {
 
 {
+{
 
 
 
@@ -58,6 +59,7 @@ typeof (  __get_1  (  __x_2 , "44" ) )  __bb_5=  __get_1  (  __x_2 , "44" );// L
  );// L10
 
 return 0 ;// L11
+}
 }
 
 

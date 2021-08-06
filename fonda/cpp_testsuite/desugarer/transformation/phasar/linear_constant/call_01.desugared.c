@@ -22,10 +22,12 @@ extern int  ___Djkifd_CONFIG_A_defined_1;// L4
 int  __increment_3 (int  __i_2) {
 
 {
+{
 
 
 
 return ++  __i_2  ;// L6
+}
 }
 
 
@@ -34,20 +36,26 @@ return ++  __i_2  ;// L6
 int  __main_5 () {
 
 {
+{
 
 
 
 int  __x_4= 99;// L9
 
 if (  ___Djkifd_CONFIG_A_defined_1  )// L10
+{
 
+{
 {
 
 
 
  __x_4  =  __increment_3  (  __x_4  ) ; // L11
 }
+}
+}
 return  __x_4  ;// L13
+}
 }
 
 

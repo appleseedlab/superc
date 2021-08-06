@@ -23,10 +23,12 @@ int  __main_0 (void  ) {
 if (__static_condition_default_2) {
 
 {
+{
 
 
 
 return 0 ;// L8
+}
 }
 
 
@@ -38,10 +40,12 @@ void  __main_1 (void  ) {
 if (__static_condition_default_3) {
 
 {
+{
 
 
 
 return  ;// L10
+}
 }
 
 

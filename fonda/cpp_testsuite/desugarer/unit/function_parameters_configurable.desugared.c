@@ -43,6 +43,7 @@ int  __f_6 (char  __x_0) {
 if (__static_condition_default_8) {
 
 {
+{
 
 
 
@@ -64,6 +65,7 @@ if (__static_condition_default_10) {
 return  __z_5  ;// L15
 }
 }
+}
 
 
 }
@@ -73,6 +75,7 @@ int  __f_7 (char  __x_0, int  __y_1) {
 
 if (__static_condition_default_11) {
 
+{
 {
 
 
@@ -103,6 +106,7 @@ return  __z_4  ;// L15
 }
 if (__static_condition_default_17) {
 return  __z_5  ;// L15
+}
 }
 }
 

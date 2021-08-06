@@ -30,12 +30,14 @@ struct __x_1 ;// L5
 int  __main_4 () {
 
 {
+{
 
 
 
 struct __x_1  __c_3;// L15
 
 return 0 ;// L16
+}
 }
 
 

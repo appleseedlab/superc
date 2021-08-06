@@ -24,6 +24,7 @@ __static_condition_renaming("__static_condition_default_6", "!A");
 int  __main_4 (void  ) {
 
 {
+{
 
 
 
@@ -74,6 +75,7 @@ if (__static_condition_default_6) {
  __x_1  =  __y_2  %  __z_3  ; // L23
 }
 return 0 ;// L25
+}
 }
 
 

@@ -22,6 +22,7 @@ __static_condition_renaming("__static_condition_default_4", "(defined A)");
 int  __main_2 () {
 
 {
+{
 
 
 
@@ -36,6 +37,7 @@ if (__static_condition_default_4) {
 __static_type_error("type error") ; // L8
 }
 return 0 ;// L10
+}
 }
 
 

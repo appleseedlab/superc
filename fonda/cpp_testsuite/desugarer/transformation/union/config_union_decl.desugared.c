@@ -32,6 +32,7 @@ union __intCharFloat_4 ;// L8
 int  __main_8 (void  ) {
 
 {
+{
 
 
 
@@ -46,6 +47,7 @@ if (__static_condition_default_10) {
  __usedUnion_7  . __integer_5 = 1 ; // L16
 }
 return 0 ;// L18
+}
 }
 
 

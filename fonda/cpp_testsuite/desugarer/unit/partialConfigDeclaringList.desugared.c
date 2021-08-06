@@ -23,6 +23,7 @@ extern int  __x_1;// L4
 static void  __main_5 () {
 
 {
+{
 
 
 
@@ -32,6 +33,7 @@ int  __b_3=  __x_0 ;// L8
 
 int  __b_4=  __x_1 ;// L8
 
+}
 }
 
 

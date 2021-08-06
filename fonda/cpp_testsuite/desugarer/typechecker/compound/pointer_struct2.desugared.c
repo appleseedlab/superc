@@ -24,6 +24,7 @@ int  __num_0= 5;// L1
 int  __main_5 () {
 
 {
+{
 
 struct __anonymous_tag_1 {
 int  __field1_2;
@@ -41,6 +42,7 @@ if (__static_condition_default_7) {
 __static_type_error("type error") ; // L10
 }
 return 0 ;// L12
+}
 }
 
 

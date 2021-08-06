@@ -22,6 +22,7 @@ __static_condition_renaming("__static_condition_default_4", "!A");
 int  __main_2 (void  ) {
 
 {
+{
 
 
 
@@ -36,6 +37,7 @@ if (__static_condition_default_4) {
  __x_1  = 3 + 5 - 6 * 4 / 2 % 7 ; // L8
 }
 return 0 ;// L10
+}
 }
 
 

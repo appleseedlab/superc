@@ -26,10 +26,12 @@ int  (* volatile const  (* (* const  (* volatile  (* (__e_4[2]))))));// L5
 int  __main_5 () {
 
 {
+{
 
 
 
 return 0 ;// L8
+}
 }
 
 

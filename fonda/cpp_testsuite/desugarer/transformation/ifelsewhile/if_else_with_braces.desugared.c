@@ -17,28 +17,38 @@ __static_renaming("__main_1", "main");
 int  __main_1 (void  ) {
 
 {
+{
 
 
 
 int  __x_0= 3;// L3
 
 if (  __x_0  > 2 )// L5
+{
 
+{
 {
 
 
 
  __x_0  = 4 ; // L6
 }
+}
+}
 else
+{
 
+{
 {
 
 
 
  __x_0  ++ ; // L8
 }
+}
+}
 return 0 ;// L11
+}
 }
 
 

@@ -34,6 +34,7 @@ struct __list_4 ;// L2
 int  __main_10 () {
 
 {
+{
 
 
 
@@ -48,7 +49,9 @@ __static_type_error("type error : no valid expression"); // L14
 struct __list_4  (* __current_9)= &  __head_7 ;// L17
 
 while ( 0 !=  __current_9  )// L18
+{
 
+{
 {
 
 
@@ -56,7 +59,10 @@ while ( 0 !=  __current_9  )// L18
  __printf_1  ( "data: %d\n",  __current_9  -> __data_5 ) ; // L19
  __current_9  =  __current_9  -> __next_6 ; // L20
 }
+}
+}
 return 0 ;// L23
+}
 }
 
 

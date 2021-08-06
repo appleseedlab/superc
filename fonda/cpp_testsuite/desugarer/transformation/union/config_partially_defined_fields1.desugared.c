@@ -32,6 +32,7 @@ union __intCharFloat_4 ;// L8
 int  __main_8 (void  ) {
 
 {
+{
 
 
 
@@ -52,6 +53,7 @@ if (__static_condition_default_10) {
 __static_type_error("type error") ; // L18
 }
 return 0 ;// L20
+}
 }
 
 

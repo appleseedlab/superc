@@ -20,12 +20,14 @@ typedef int  __a_0;// L1
 int  __main_2 () {
 
 {
+{
 
 
 
 __a_0  __a_1;// L5
 
 return 0 ;// L6
+}
 }
 
 

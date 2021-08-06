@@ -35,6 +35,7 @@ __static_condition_renaming("__static_condition_default_11", "!(defined B) && (d
 int  __main_3 () {
 
 {
+{
 
 
 
@@ -45,8 +46,10 @@ int  __y_1;// L2
 int  __z_2;// L2
 
 if (  __x_0  )// L3
+{
 if (__static_condition_default_4) {
 
+{
 {
 
 
@@ -59,8 +62,10 @@ if (__static_condition_default_6) {
 }
 }
 }
+}
 if (__static_condition_default_7) {
 
+{
 {
 
 
@@ -76,6 +81,9 @@ if (__static_condition_default_10) {
 }
 if (__static_condition_default_11) {
  __z_2  ++ ; // L11
+}
+}
+}
 }
 }
 }

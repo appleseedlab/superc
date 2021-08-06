@@ -28,6 +28,7 @@ struct __x_0 ;// L1
 int  __main_8 (void  ) {
 
 {
+{
 
 
 
@@ -44,6 +45,7 @@ __myFirstStruct_5.__c_3 = 2;
 }
 
 return 0 ;// L15
+}
 }
 
 

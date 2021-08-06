@@ -20,10 +20,12 @@ extern void  (* volatile  ____free_hook_3) (void  (* ____ptr_1), const void  *);
 int  __main_4 () {
 
 {
+{
 
 
 
 return 0 ;// L18
+}
 }
 
 

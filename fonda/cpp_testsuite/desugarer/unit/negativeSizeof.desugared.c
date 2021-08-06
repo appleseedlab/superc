@@ -32,6 +32,7 @@ struct __Y_4  __y_9;// L7:L15
 int  __main_12 () {
 
 {
+{
 
 
 
@@ -40,6 +41,7 @@ int  (__a_10[( sizeof(int  )  +  sizeof(int  )  +  sizeof(int  ) ) - ( sizeof(in
 int  (__a_11[( sizeof(int  )  +  sizeof(int  )  +  sizeof(int  ) ) - ( sizeof(int  )  +  sizeof(int  ) )]);// L19
 
 return 0 ;// L20
+}
 }
 
 

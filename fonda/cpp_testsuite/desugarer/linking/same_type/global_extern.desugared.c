@@ -22,10 +22,12 @@ int  __f_3 (int  __x_0) {
 if (__static_condition_default_4) {
 
 {
+{
 
 
 
 return  __x_0  + 1 ;// L4
+}
 }
 
 

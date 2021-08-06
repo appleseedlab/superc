@@ -41,6 +41,7 @@ int  __main_9 () {
 if (__static_condition_default_11) {
 
 {
+{
 
 
 
@@ -57,6 +58,7 @@ __static_type_error("invalid declaration of a under this presence condition");
 }
 
 }
+}
 
 
 }
@@ -67,6 +69,7 @@ int  __main_10 () {
 if (__static_condition_default_12) {
 
 {
+{
 
 
 
@@ -74,6 +77,7 @@ if (__static_condition_default_7) {
 __static_type_error("invalid declaration of a under this presence condition");
 }
 
+}
 }
 
 

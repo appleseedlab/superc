@@ -39,10 +39,12 @@ void  __foo_2 () {
 if (__static_condition_default_4) {
 
 {
+{
 
 
 
 return  ;// L12
+}
 }
 
 
@@ -54,10 +56,12 @@ void  __foo_3 (__x_0  __a_1) {
 if (__static_condition_default_5) {
 
 {
+{
 
 
 
 return  ;// L12
+}
 }
 
 
@@ -69,6 +73,7 @@ int  __main_6 () {
 if (__static_condition_default_7) {
 
 {
+{
 
 
 
@@ -79,6 +84,7 @@ if (__static_condition_default_9) {
 __static_type_error("type error") ; // L21
 }
 return 0 ;// L22
+}
 }
 
 

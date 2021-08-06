@@ -21,6 +21,7 @@ typedef int  __a_0;// L1
 int  __main_3 () {
 
 {
+{
 
 typedef __a_0  __a_1;// L4
 
@@ -31,6 +32,7 @@ __a_1  __x_2;// L6
 
  __x_2  ++ ; // L8
 return 0 ;// L10
+}
 }
 
 

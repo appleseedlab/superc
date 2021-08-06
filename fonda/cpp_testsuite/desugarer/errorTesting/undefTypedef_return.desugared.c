@@ -32,10 +32,12 @@ __x_0  __foo_1 () {
 if (__static_condition_default_2) {
 
 {
+{
 
 
 
 return 1 ;// L6
+}
 }
 
 
@@ -44,6 +46,7 @@ return 1 ;// L6
 }
 int  __main_3 () {
 
+{
 {
 
 
@@ -55,6 +58,7 @@ if (__static_condition_default_4) {
 __static_type_error("type error") ; // L13
 }
 return 0 ;// L14
+}
 }
 
 

@@ -39,23 +39,29 @@ extern _Bool  ___C_40496_DEFINED_1;// L4:L33
 int  ___F0iceH4_x_2 () {
 
 {
+{
 
 
 
 if (__static_condition_default_3) {
 if (  ___C_40496_DEFINED_1  )// L7
+{
 
+{
 {
 
 
 
 
+{
 {
 
 
 
 if (  ___C_40496_DEFINED_1  )// L8
+{
 
+{
 {
 
 
@@ -65,8 +71,14 @@ return 1 ;// L9
 }
 }
 }
+}
+}
+}
+}
+}
 if (__static_condition_default_4) {
 __static_type_error("invalid type found in if statement");
+}
 }
 }
 
@@ -76,23 +88,29 @@ __static_type_error("invalid type found in if statement");
 char  ___F1yFZOZ_x_5 () {
 
 {
+{
 
 
 
 if (__static_condition_default_3) {
 if ( !  ___C_40496_DEFINED_1  )// L17
+{
 
+{
 {
 
 
 
 
+{
 {
 
 
 
 if ( !  ___C_40496_DEFINED_1  )// L18
+{
 
+{
 {
 
 
@@ -102,8 +120,14 @@ return 2 ;// L19
 }
 }
 }
+}
+}
+}
+}
+}
 if (__static_condition_default_6) {
 __static_type_error("invalid type found in if statement");
+}
 }
 }
 
@@ -113,23 +137,29 @@ __static_type_error("invalid type found in if statement");
 int  ___F2JFFUV_main_7 () {
 
 {
+{
 
 
 
 if ( 1 )// L27
+{
 
+{
 {
 
 
 
 
+{
 {
 
 
 
 if (__static_condition_default_3) {
 if (  ___C_40496_DEFINED_1  )// L28
+{
 
+{
 {
 
 
@@ -137,12 +167,16 @@ if (  ___C_40496_DEFINED_1  )// L28
  ___F0iceH4_x_2 ( ) ; // L29
 }
 }
+}
+}
 if (__static_condition_default_8) {
 __static_type_error("invalid type found in if statement");
 }
 if (__static_condition_default_3) {
 if ( !  ___C_40496_DEFINED_1  )// L31
+{
 
+{
 {
 
 
@@ -150,8 +184,14 @@ if ( !  ___C_40496_DEFINED_1  )// L31
  ___F1yFZOZ_x_5 ( ) ; // L32
 }
 }
+}
+}
 if (__static_condition_default_9) {
 __static_type_error("invalid type found in if statement");
+}
+}
+}
+}
 }
 }
 }
@@ -163,16 +203,22 @@ __static_type_error("invalid type found in if statement");
 int  __main_12 (int  __argc_10, char  (* (* __argv_11))) {
 
 {
+{
 
 
 
 if ( 1 )// L39
+{
 
+{
 {
 
 
 
 __static_type_error("type error : no valid expression"); // L40
+}
+}
+}
 }
 }
 

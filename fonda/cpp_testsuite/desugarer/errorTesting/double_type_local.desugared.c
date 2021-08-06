@@ -36,6 +36,7 @@ __static_parse_error("Unable to parse");
 int  __main_6 () {
 
 {
+{
 
 
 
@@ -66,6 +67,7 @@ __static_type_error("invalid declaration of y under this presence condition");
 }
 
 return 0 ;// L16
+}
 }
 
 

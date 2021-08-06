@@ -24,10 +24,12 @@ int  __x_0;// L2
 int  __main_1 () {
 
 {
+{
 
 
 
 return 0 ;// L9
+}
 }
 
 

@@ -32,6 +32,7 @@ struct __forward_tag_reference_3 ;// L2147483647:L0
 char  (* __DoEncryption_10 (__EVP_CIPHER_CTX_4  (* __CTX_5), const char  (* __Msg_6), __size_t_0  __MsgLen_7)) {
 
 {
+{
 
 
 
@@ -42,6 +43,7 @@ __size_t_0  __len_9;// L8
 
 *  __Buffer_8  =  __len_9  ; // L9
 return  __Buffer_8  ;// L10
+}
 }
 
 

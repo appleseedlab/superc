@@ -31,6 +31,7 @@ enum someLetters ;// L1
 int  __main_8 (void  ) {
 
 {
+{
 
 
 
@@ -43,6 +44,7 @@ if (__static_condition_default_10) {
 __static_type_error("type error") ; // L10
 }
 return 0 ;// L12
+}
 }
 
 

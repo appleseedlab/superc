@@ -20,6 +20,7 @@ __static_renaming("__main_4", "main");
 int  __main_4 (void  ) {
 
 {
+{
 
 
 
@@ -32,6 +33,7 @@ int  __y_2=  __x_0 ;// L8
 int  __y_3=  __x_1 ;// L8
 
 return 0 ;// L10
+}
 }
 
 

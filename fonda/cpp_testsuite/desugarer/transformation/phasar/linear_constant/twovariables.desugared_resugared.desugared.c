@@ -37,6 +37,7 @@ int  __main_2 () {
 if (__static_condition_default_3) {
 
 {
+{
 
 
 
@@ -51,12 +52,14 @@ if (__static_condition_default_5) {
  __x_0  =  __y_1  ; // L13
 }
 }
+}
 
 
 }
 
 if (__static_condition_default_6) {
 
+{
 {
 
 
@@ -78,6 +81,7 @@ if (__static_condition_default_10) {
  __x_0  ++ ; // L18
 }
 return  __x_0  ;// L23
+}
 }
 
 

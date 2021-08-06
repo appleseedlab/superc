@@ -52,6 +52,7 @@ int  __main_6 () {
 if (__static_condition_default_7) {
 
 {
+{
 
 
 
@@ -105,6 +106,7 @@ return  __x_0  ;// L19
 }
 if (__static_condition_default_20) {
 return  __x_1  ;// L19
+}
 }
 }
 

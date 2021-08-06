@@ -28,27 +28,39 @@ extern _Bool  ___C_40496_DEFINED_1;// L4:L33
 int  ___F0Awc8x_x_2 () {
 
 {
+{
 
 
 
 if ( 1 )// L7
+{
 
+{
 {
 
 
 
 
+{
 {
 
 
 
 if ( 1 )// L8
+{
 
+{
 {
 
 
 
 return 1 ;// L9
+}
+}
+}
+}
+}
+}
 }
 }
 }
@@ -60,27 +72,39 @@ return 1 ;// L9
 int  ___F1fDwXV_main_3 () {
 
 {
+{
 
 
 
 if ( 1 )// L17
+{
 
+{
 {
 
 
 
 
+{
 {
 
 
 
 if ( 1 )// L18
+{
 
+{
 {
 
 
 
  ___F0Awc8x_x_2 ( ) ; // L19
+}
+}
+}
+}
+}
+}
 }
 }
 }
@@ -92,16 +116,22 @@ if ( 1 )// L18
 int  __main_6 (int  __argc_4, char  (* (* __argv_5))) {
 
 {
+{
 
 
 
 if ( 1 )// L26
+{
 
+{
 {
 
 
 
 __static_type_error("type error : no valid expression"); // L27
+}
+}
+}
 }
 }
 

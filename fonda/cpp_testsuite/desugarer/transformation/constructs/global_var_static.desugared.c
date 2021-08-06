@@ -24,6 +24,7 @@ static char  __x_1;// L5
 int  __main_2 () {
 
 {
+{
 
 
 
@@ -32,6 +33,7 @@ if (__static_condition_default_3) {
 }
 if (__static_condition_default_4) {
  __x_1  ++ ; // L9
+}
 }
 }
 

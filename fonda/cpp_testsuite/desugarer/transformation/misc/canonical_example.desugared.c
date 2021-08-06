@@ -22,6 +22,7 @@ __static_condition_renaming("__static_condition_default_2", "(defined A) && !(de
 int  __main_4 () {
 
 {
+{
 
 
 
@@ -37,6 +38,7 @@ __static_type_error("invalid declaration of y under this presence condition");
 
 long int  __y_3;// L5:L13
 
+}
 }
 
 

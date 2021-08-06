@@ -24,9 +24,11 @@ int  __main_1 () {
 if (__static_condition_default_2) {
 
 {
+{
 
 
 
+}
 }
 
 
@@ -35,11 +37,13 @@ if (__static_condition_default_2) {
 if (__static_condition_default_3) {
 
 {
+{
 
 
 
 int  __x_0;// L3
 
+}
 }
 
 

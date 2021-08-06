@@ -33,23 +33,29 @@ extern int  ___V03VpEz_x_2;// L6
 int  ___F1KCEey_main_3 () {
 
 {
+{
 
 
 
 if ( 1 )// L9
+{
 
+{
 {
 
 
 
 
+{
 {
 
 
 
 if (__static_condition_default_4) {
 if (  ___C_40496_DEFINED_1  )// L10
+{
 
+{
 {
 
 
@@ -57,8 +63,14 @@ if (  ___C_40496_DEFINED_1  )// L10
  ___V03VpEz_x_2  ++ ; // L11
 }
 }
+}
+}
 if (__static_condition_default_5) {
 __static_type_error("invalid type found in if statement");
+}
+}
+}
+}
 }
 }
 }
@@ -70,16 +82,22 @@ __static_type_error("invalid type found in if statement");
 int  __main_8 (int  __argc_6, char  (* (* __argv_7))) {
 
 {
+{
 
 
 
 if ( 1 )// L18
+{
 
+{
 {
 
 
 
 __static_type_error("type error : no valid expression"); // L19
+}
+}
+}
 }
 }
 

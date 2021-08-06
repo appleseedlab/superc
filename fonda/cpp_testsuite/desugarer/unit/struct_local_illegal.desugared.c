@@ -17,6 +17,7 @@ __static_renaming("__main_4", "main");
 int  __main_4 () {
 
 {
+{
 
 struct __s_2 {
 int  __y_3;
@@ -33,6 +34,7 @@ struct __forward_tag_reference_0  __x_1;// L2
 
 struct __s_2 ;// L4
 
+}
 }
 
 

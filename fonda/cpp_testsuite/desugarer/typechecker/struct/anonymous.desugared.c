@@ -21,11 +21,13 @@ struct __anonymous_tag_0  __data_2;// L1:L3
 int  __main_3 () {
 
 {
+{
 
 
 
  __data_2  . __p_1 ; // L7
 return 0 ;// L9
+}
 }
 
 

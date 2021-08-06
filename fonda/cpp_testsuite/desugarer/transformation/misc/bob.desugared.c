@@ -30,6 +30,7 @@ int  __main_2 () {
 if (__static_condition_default_3) {
 
 {
+{
 
 
 
@@ -51,6 +52,7 @@ __static_type_error("type error") ; // L8
 }
  __x_0  ++ ; // L9
 return  __x_0  ;// L10
+}
 }
 
 

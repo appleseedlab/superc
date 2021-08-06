@@ -68,6 +68,7 @@ __static_condition_renaming("__static_condition_default_28", "!A && !B");
 int  __main_4 (void  ) {
 
 {
+{
 
 
 
@@ -152,6 +153,7 @@ if (__static_condition_default_28) {
  __x_1  %=  __y_3  ; // L25
 }
 return 0 ;// L27
+}
 }
 
 

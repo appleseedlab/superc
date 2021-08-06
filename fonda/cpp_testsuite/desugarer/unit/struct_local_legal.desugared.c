@@ -17,6 +17,7 @@ __static_renaming("__main_4", "main");
 int  __main_4 () {
 
 {
+{
 
 struct __s_1 {
 int  __y_2;
@@ -35,6 +36,7 @@ struct __s_1 ;// L4
 
 struct __s_1  __x_3;// L8
 
+}
 }
 
 

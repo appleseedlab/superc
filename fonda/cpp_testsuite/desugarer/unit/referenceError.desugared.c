@@ -23,6 +23,7 @@ __static_condition_renaming("__static_condition_default_5", "!(defined A)");
 int  __main_3 () {
 
 {
+{
 
 
 
@@ -39,6 +40,7 @@ if (__static_condition_default_5) {
 __static_type_error("type error") ; // L7
 }
 return 0 ;// L8
+}
 }
 
 

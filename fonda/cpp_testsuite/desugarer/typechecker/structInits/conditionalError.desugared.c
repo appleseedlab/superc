@@ -33,6 +33,7 @@ struct __x_0 ;// L1
 int  __main_10 () {
 
 {
+{
 
 
 
@@ -53,6 +54,7 @@ if (__static_condition_default_5) {
 __static_type_error("invalid declaration of x under this presence condition");
 }
 
+}
 }
 
 

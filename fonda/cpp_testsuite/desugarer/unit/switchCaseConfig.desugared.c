@@ -21,6 +21,7 @@ __static_condition_renaming("__static_condition_default_3", "!(defined A)");
 int  __main_1 () {
 
 {
+{
 
 
 
@@ -30,12 +31,15 @@ if (__static_condition_default_2) {
 switch (  __x_0  )// L4
 {
 case 1 :
+{
 
 
 
  __x_0  = 2 ; // L6
 break ; // L7
+}
 case 2 :
+{
 
 
 
@@ -44,16 +48,20 @@ break ; // L11
  __x_0  = 0 ; // L18
 }
 }
+}
 if (__static_condition_default_3) {
 switch (  __x_0  )// L4
 {
 case 1 :
+{
 
 
 
  __x_0  = 2 ; // L6
 break ; // L7
+}
 case 2 :
+{
 
 
 
@@ -62,7 +70,9 @@ break ; // L15
  __x_0  = 0 ; // L18
 }
 }
+}
 return  __x_0  ;// L20
+}
 }
 
 

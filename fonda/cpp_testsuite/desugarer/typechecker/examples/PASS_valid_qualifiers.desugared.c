@@ -25,6 +25,7 @@ __static_renaming("__main_9", "main");
 int  __main_9 (void  ) {
 
 {
+{
 
 
 
@@ -46,6 +47,7 @@ register const float  __h_7;// L9
 
 register volatile int  __i_8;// L10
 
+}
 }
 
 

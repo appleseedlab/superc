@@ -30,11 +30,13 @@ int  __foo_4 (__a_0  __x_2) {
 if (__static_condition_default_6) {
 
 {
+{
 
 
 
  __x_2  ++ ; // L9
 return 0 ;// L10
+}
 }
 
 
@@ -46,11 +48,13 @@ int  __foo_5 (__a_1  __x_3) {
 if (__static_condition_default_7) {
 
 {
+{
 
 
 
  __x_3  ++ ; // L9
 return 0 ;// L10
+}
 }
 
 
@@ -59,6 +63,7 @@ return 0 ;// L10
 }
 int  __main_8 () {
 
+{
 {
 
 
@@ -70,6 +75,7 @@ if (__static_condition_default_7) {
  __foo_5  ( 1 ) ; // L15
 }
 return 0 ;// L16
+}
 }
 
 

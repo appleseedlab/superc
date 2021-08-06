@@ -35,6 +35,7 @@ typedef struct __bob_2  __bob_6;// L7:L10
 int  __main_8 (void  ) {
 
 {
+{
 
 
 
@@ -45,6 +46,7 @@ if (__static_condition_default_9) {
 }
 if (__static_condition_default_10) {
  __bobStruct_7  . __val_4 = 1 ; // L14
+}
 }
 }
 

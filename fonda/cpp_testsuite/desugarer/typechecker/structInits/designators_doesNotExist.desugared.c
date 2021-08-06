@@ -26,6 +26,7 @@ struct __x_0 ;// L1
 int  __main_6 () {
 
 {
+{
 
 
 
@@ -42,6 +43,7 @@ __static_type_error("designator doesn't exist.");
 }
 
 return 0 ;// L13
+}
 }
 
 

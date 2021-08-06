@@ -38,11 +38,13 @@ union {
 int  __main_14 () {
 
 {
+{
 
 
 
 __builtin_offsetof (   , u  ) ; // L12
 __builtin_offsetof ( int   , u  ) ; // L13
+}
 }
 
 

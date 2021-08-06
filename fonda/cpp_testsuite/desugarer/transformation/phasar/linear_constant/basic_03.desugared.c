@@ -22,6 +22,7 @@ extern int  ___Djkifd_CONFIG_A_defined_1;// L4
 int  __main_4 () {
 
 {
+{
 
 
 
@@ -30,22 +31,31 @@ int  __x_2;// L8
 int  __y_3= 210;// L9
 
 if (  ___Djkifd_CONFIG_A_defined_1  )// L10
+{
 
+{
 {
 
 
 
  __x_2  = 42 ; // L11
 }
+}
+}
 else
+{
 
+{
 {
 
 
 
  __x_2  = 13 ; // L13
 }
+}
+}
 return  __x_2  ;// L15
+}
 }
 
 

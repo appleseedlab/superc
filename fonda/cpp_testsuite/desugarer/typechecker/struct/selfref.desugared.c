@@ -27,9 +27,11 @@ struct __list_1 ;// L1
 int  __main_4 () {
 
 {
+{
 
 
 
+}
 }
 
 

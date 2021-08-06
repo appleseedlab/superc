@@ -17,6 +17,7 @@ __static_renaming("__main_1", "main");
 int  __main_1 (void  ) {
 
 {
+{
 
 
 
@@ -27,6 +28,7 @@ __static_type_error("invalid declaration of arr under this presence condition");
 }
 
 return 0 ;// L6
+}
 }
 
 

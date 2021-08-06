@@ -30,10 +30,12 @@ int  __main_4 () {
 if (__static_condition_default_6) {
 
 {
+{
 
 
 
 return - 1 ;// L9
+}
 }
 
 
@@ -45,10 +47,12 @@ int  __main_5 () {
 if (__static_condition_default_7) {
 
 {
+{
 
 
 
 return - 1 ;// L9
+}
 }
 
 

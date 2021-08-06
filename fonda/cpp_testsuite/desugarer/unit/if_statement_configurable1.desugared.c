@@ -17,28 +17,38 @@ __static_renaming("__main_1", "main");
 int  __main_1 () {
 
 {
+{
 
 
 
 int  __x_0;// L2
 
 if (  __x_0  )// L3
+{
 
+{
 {
 
 
 
 __static_type_error("invalid type found in if statement");
+}
+}
 }
 else
+{
 
+{
 {
 
 
 
 __static_type_error("invalid type found in if statement");
 }
+}
+}
 return 0 ;// L10
+}
 }
 
 

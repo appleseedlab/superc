@@ -24,6 +24,7 @@ int  __num_0= 5;// L1
 int  __main_3 () {
 
 {
+{
 
 
 
@@ -38,6 +39,7 @@ if (__static_condition_default_5) {
  __x_2  [ 2 ] ; // L10
 }
 return 0 ;// L12
+}
 }
 
 

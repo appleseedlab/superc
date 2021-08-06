@@ -28,6 +28,7 @@ static char  __x_1;// L5
 int  __main_3 () {
 
 {
+{
 
 
 
@@ -41,6 +42,7 @@ if (__static_condition_default_5) {
 }
  __y_2  ++ ; // L11
 __static_type_error("type error : no valid expression"); // L12
+}
 }
 
 

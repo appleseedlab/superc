@@ -31,9 +31,11 @@ __testStruct_5  __x_6;// L12
 void  __main_7 () {
 
 {
+{
 
 
 
+}
 }
 
 

@@ -22,11 +22,13 @@ struct __bob_0  __globalvar_2;// L1:L3
 int  __main_4 () {
 
 {
+{
 
 
 
 struct __bob_0  __bobvar_3;// L6
 
+}
 }
 
 

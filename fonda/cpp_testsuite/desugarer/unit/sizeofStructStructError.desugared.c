@@ -58,6 +58,7 @@ struct __two_12 ;// L13
 int  __main_22 () {
 
 {
+{
 
 
 
@@ -79,6 +80,7 @@ if (__static_condition_default_20) {
 __static_type_error("type error") ; // L28
 }
 return 0 ;// L29
+}
 }
 
 

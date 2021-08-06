@@ -22,6 +22,7 @@ __static_condition_renaming("__static_condition_default_4", "!(defined A)");
 int  __main_3 () {
 
 {
+{
 
 
 
@@ -45,6 +46,7 @@ __static_type_error("type error") ; // L11
 }
 __static_type_error("type error : no valid expression"); // L12
 return 0 ;// L13
+}
 }
 
 

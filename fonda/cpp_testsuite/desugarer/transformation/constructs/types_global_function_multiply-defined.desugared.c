@@ -27,10 +27,12 @@ int  __x_1 () {
 if (__static_condition_default_3) {
 
 {
+{
 
 
 
 return 1 ;// L4
+}
 }
 
 
@@ -44,10 +46,12 @@ char  __x_2 (int  __y_0) {
 if (__static_condition_default_4) {
 
 {
+{
 
 
 
 return  __y_0  ;// L8
+}
 }
 
 
@@ -57,6 +61,7 @@ return  __y_0  ;// L8
 }
 int  __main_5 () {
 
+{
 {
 
 
@@ -72,6 +77,7 @@ if (__static_condition_default_6) {
 }
 if (__static_condition_default_3) {
 __static_type_error("type error") ; // L17
+}
 }
 }
 

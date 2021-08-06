@@ -24,12 +24,14 @@ typedef struct __bob_0  __bob_3;// L1:L4
 int  __main_5 (void  ) {
 
 {
+{
 
 
 
 __bob_3  __bobStruct_4;// L7
 
  __bobStruct_4  . __val_1 = 1 ; // L8
+}
 }
 
 

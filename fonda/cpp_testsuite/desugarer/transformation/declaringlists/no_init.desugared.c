@@ -23,6 +23,7 @@ __static_renaming("__main_7", "main");
 int  __main_7 (void  ) {
 
 {
+{
 
 
 
@@ -41,6 +42,7 @@ char  __f_5;// L3
 char  __g_6;// L3
 
 return 0 ;// L5
+}
 }
 
 

@@ -33,6 +33,7 @@ int  __main_1 () {
 if (__static_condition_default_2) {
 
 {
+{
 
 
 
@@ -55,6 +56,7 @@ return  __x_0  ;// L10
 }
 if (__static_condition_default_8) {
 __static_type_error("invalid type found in return expression");
+}
 }
 }
 

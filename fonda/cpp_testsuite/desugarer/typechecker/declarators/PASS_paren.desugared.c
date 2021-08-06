@@ -20,10 +20,12 @@ int  __b_1;// L2
 int  __main_2 () {
 
 {
+{
 
 
 
 return 0 ;// L5
+}
 }
 
 

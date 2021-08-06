@@ -26,6 +26,7 @@ struct __test_0 ;// L1
 int  __main_4 () {
 
 {
+{
 
 
 
@@ -38,6 +39,7 @@ if (__static_condition_default_5) {
 }
 if (__static_condition_default_6) {
 __static_type_error("type error") ; // L13
+}
 }
 }
 

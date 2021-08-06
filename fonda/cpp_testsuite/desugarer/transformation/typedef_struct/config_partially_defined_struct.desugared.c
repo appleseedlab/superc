@@ -32,9 +32,11 @@ int  __main_5 (void  ) {
 if (__static_condition_default_7) {
 
 {
+{
 
 
 
+}
 }
 
 
@@ -48,12 +50,14 @@ int  __main_6 (void  ) {
 if (__static_condition_default_8) {
 
 {
+{
 
 
 
 __bob_3  __bobStruct_4;// L11
 
  __bobStruct_4  . __val_1 = 1 ; // L12
+}
 }
 
 

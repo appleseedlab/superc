@@ -20,6 +20,7 @@ typedef int  __intAlias_0;// L1
 int  __main_4 (void  ) {
 
 {
+{
 
 struct __anonymous_tag_1 {
 __intAlias_0  __x_2;
@@ -30,6 +31,7 @@ struct __anonymous_tag_1  __intWrapper_3;// L4
 
  __intWrapper_3  . __x_2 = 2 ; // L6
 return 0 ;// L8
+}
 }
 
 

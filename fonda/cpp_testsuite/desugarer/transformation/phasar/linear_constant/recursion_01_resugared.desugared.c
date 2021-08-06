@@ -22,17 +22,22 @@ __static_condition_renaming("__static_condition_default_3", "!(defined CONFIG_A)
 unsigned  __factorial_1 (unsigned  __n_0) {
 
 {
+{
 
 
 
 if (__static_condition_default_2) {
 if (  __n_0  <= 1 )// L3
+{
 
+{
 {
 
 
 
 return 1 ;// L4
+}
+}
 }
 }
 if (__static_condition_default_2) {
@@ -42,12 +47,14 @@ if (__static_condition_default_3) {
 return  __n_0  ;// L8
 }
 }
+}
 
 
 
 }
 int  __main_5 () {
 
+{
 {
 
 
@@ -56,6 +63,7 @@ int  __x_4= 5;// L13
 
  __x_4  =  __factorial_1  (  __x_4  ) ; // L14
 return  __x_4  ;// L15
+}
 }
 
 

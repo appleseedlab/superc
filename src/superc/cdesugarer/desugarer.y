@@ -5611,6 +5611,7 @@ StatementAsExpression:  /** nomerge **/  //ADDED
               }
               DeclarationOrStatementValue dsv = new DeclarationOrStatementValue("");
               dsv.setChildrenBlock("{",tempmv,"}");
+              dsv.setIsStatementAsExpression();
               expanded.add(dsv,el.getCondition());
             }
           }
@@ -9748,6 +9749,7 @@ public static class DeclarationOrStatementValue {
   private boolean isEmpty;
   private boolean isGotoLabel;
   private boolean isLabel;
+  private boolean isStatementAsExpression;
   private String Label;
   private Multiverse<Type> typeVal;
   public DeclarationOrStatementValue() {
@@ -9780,6 +9782,7 @@ public static class DeclarationOrStatementValue {
     isDecl = false;
     isLabel = false;
     isGotoLabel = false;
+    isStatementAsExpression = false;
     typeVal = null;
   }
 
@@ -9795,6 +9798,7 @@ public static class DeclarationOrStatementValue {
     isDecl = x.isDecl;
     isLabel = x.isLabel;
     isGotoLabel = x.isGotoLabel;
+    isStatementAsExpression = x.isStatementAsExpression;
     typeVal = x.typeVal;
   }
 
@@ -9850,6 +9854,10 @@ public static class DeclarationOrStatementValue {
   public boolean getEmpty() {
     return isEmpty;
   }
+
+  public void setIsStatementAsExpression() {
+    isStatementAsExpression = true;
+  }
   
   public String getString(PresenceCondition p, CActions ca) {
     String ret = "";
@@ -9876,6 +9884,9 @@ public static class DeclarationOrStatementValue {
     }
     if (!isElse) {
       if (children != null) {
+        if (!isStatementAsExpression) {
+          ret += "{\n";
+        }
         for (Multiverse<DeclarationOrStatementValue> m : children) {
           for (Element<DeclarationOrStatementValue> e : m) {
             PresenceCondition combinedCond = e.getCondition().and(p);
@@ -9884,16 +9895,19 @@ public static class DeclarationOrStatementValue {
                 ret += e.getData().getString(p,ca);
               } else {
                 if (!e.getData().getEmpty()) {
-                    ret += "if (";
-                    ret += ca.condToCVar(combinedCond);
-                    ret += ") {\n";
-                    ret += e.getData().getString(combinedCond, ca);
-                    ret += "}\n";
+                  ret += "if (";
+                  ret += ca.condToCVar(combinedCond);
+                  ret += ") {\n";
+                  ret += e.getData().getString(combinedCond, ca);
+                  ret += "}\n";
                 }
               }
             }
             combinedCond.delRef();
           }
+        }
+        if (!isStatementAsExpression) {
+          ret += "}\n";
         }
       } else if (switchChildren != null) {
         for (DeclarationOrStatementValue d : switchChildren) {
@@ -9901,6 +9915,7 @@ public static class DeclarationOrStatementValue {
         }
       }
     } else {
+      ret += "{\n";
       for (Element<DeclarationOrStatementValue> e : children.get(0)) {
         if (e.getCondition().and(p).isNotFalse()) {
           if (e.getCondition().is(p) || e.getData().isDecl) {
@@ -9916,7 +9931,8 @@ public static class DeclarationOrStatementValue {
           }
         }
       }
-      ret += "else\n";
+      ret += "}\n";
+      ret += "else\n{\n";
       for (Element<DeclarationOrStatementValue> e : children.get(1)) {
         if (e.getCondition().and(p).isNotFalse()) {
           if (e.getCondition().is(p) || e.getData().isDecl) {
@@ -9932,6 +9948,7 @@ public static class DeclarationOrStatementValue {
           }
         }
       }
+      ret += "}\n";
     }
     if (!childAppend.equals("")) {
       ret += childAppend + "\n";

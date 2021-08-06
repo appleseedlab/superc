@@ -24,6 +24,7 @@ typedef struct __x_0  __X_3;// L1:L5
 int  __main_5 () {
 
 {
+{
 
 
 
@@ -36,6 +37,7 @@ __a_4.__b_2 = 2;
 }
 
 return 0 ;// L10
+}
 }
 
 

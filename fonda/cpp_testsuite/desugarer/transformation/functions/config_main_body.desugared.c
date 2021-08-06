@@ -25,12 +25,14 @@ int  __main_2 (void  ) {
 if (__static_condition_default_3) {
 
 {
+{
 
 
 
 int  __x_0;// L5
 
 return 0 ;// L6
+}
 }
 
 
@@ -39,12 +41,14 @@ return 0 ;// L6
 if (__static_condition_default_4) {
 
 {
+{
 
 
 
 char  __x_1;// L10
 
 return 1 ;// L11
+}
 }
 
 

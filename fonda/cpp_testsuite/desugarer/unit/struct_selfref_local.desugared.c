@@ -16,6 +16,7 @@ __static_renaming("__main_4", "main");
 int  __main_4 () {
 
 {
+{
 
 struct __list_1 {
 int  __data_2;
@@ -31,6 +32,7 @@ struct __list_1 __list_1;
 
 struct __list_1 ;// L2
 
+}
 }
 
 

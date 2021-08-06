@@ -29,12 +29,14 @@ void  __test_function_3 () {
 if (__static_condition_default_4) {
 
 {
+{
 
 
 
 struct __forward_tag_reference_0  (* __mdctx_2);// L6
 
 __static_type_error("type error : no valid expression"); // L7
+}
 }
 
 

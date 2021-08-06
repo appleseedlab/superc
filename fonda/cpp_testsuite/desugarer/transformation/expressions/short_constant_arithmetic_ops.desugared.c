@@ -17,6 +17,7 @@ __static_renaming("__main_1", "main");
 int  __main_1 (void  ) {
 
 {
+{
 
 
 
@@ -28,6 +29,7 @@ int  __x_0;// L2
  __x_0  = 8 / 2 ; // L10
  __x_0  = 10 % 5 ; // L12
 return 0 ;// L14
+}
 }
 
 

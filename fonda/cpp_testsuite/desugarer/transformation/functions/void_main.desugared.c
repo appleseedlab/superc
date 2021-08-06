@@ -16,10 +16,12 @@ __static_renaming("__main_0", "main");
 void  __main_0 (void  ) {
 
 {
+{
 
 
 
 return  ;// L2
+}
 }
 
 

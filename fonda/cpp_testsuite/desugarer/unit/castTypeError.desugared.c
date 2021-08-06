@@ -25,6 +25,7 @@ int  __x_1 ();// L1:L5
 int  __main_3 () {
 
 {
+{
 
 
 
@@ -37,6 +38,7 @@ if (__static_condition_default_5) {
 __static_type_error("type error") ; // L10
 }
 return  __a_2  ;// L11
+}
 }
 
 

@@ -25,11 +25,13 @@ char  __foo_2 () {
 if (__static_condition_default_3) {
 
 {
+{
 
 
 
 int  __x_1;// L7
 
+}
 }
 
 
@@ -41,12 +43,14 @@ int  __main_5 () {
 if (__static_condition_default_3) {
 
 {
+{
 
 
 
 int  __x_4;// L12
 
 return  __foo_2 ( ) ;// L13
+}
 }
 
 

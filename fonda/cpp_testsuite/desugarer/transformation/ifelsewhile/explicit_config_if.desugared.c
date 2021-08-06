@@ -21,6 +21,7 @@ __static_condition_renaming("__static_condition_default_3", "!A");
 int  __main_1 (void  ) {
 
 {
+{
 
 
 
@@ -28,17 +29,23 @@ int  __x_0= 2;// L2
 
 if (__static_condition_default_2) {
 if (  __x_0  == 2 )// L4:L12
+{
 
+{
 {
 
 
 
  __x_0  ++ ; // L13
+}
+}
 }
 }
 if (__static_condition_default_3) {
 if (  __x_0  == 3 )// L4:L12
+{
 
+{
 {
 
 
@@ -46,7 +53,10 @@ if (  __x_0  == 3 )// L4:L12
  __x_0  ++ ; // L13
 }
 }
+}
+}
 return 0 ;// L16
+}
 }
 
 

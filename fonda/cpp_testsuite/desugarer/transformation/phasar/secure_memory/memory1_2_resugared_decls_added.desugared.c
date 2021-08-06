@@ -31,6 +31,7 @@ void  __error_12 (const char  (* __fmt_11),  ... );// L17
 int  __main_16 () {
 
 {
+{
 
 
 
@@ -41,12 +42,16 @@ unsigned char  (* __buffer_14)=  __CRYPTO_malloc_10  (  __BUFFER_SIZE_13 , "", 0
 if (__static_condition_default_17) {
 { unsigned int  __i_15= 0;// L3:L23
  for ( ;  __i_15  <  __BUFFER_SIZE_13  ; ++  __i_15  ) // L23
+{
 
+{
 {
 
 
 
  __buffer_14  [  __i_15  ] =  __i_15  ; // L24
+}
+}
 }
 }
 }
@@ -60,6 +65,7 @@ if (__static_condition_default_17) {
  __CRYPTO_free_6  (  __buffer_14 , "", 0 ) ; // L10:L33
 }
 return 0 ;// L34
+}
 }
 
 

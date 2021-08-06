@@ -41,6 +41,7 @@ __static_condition_renaming("__static_condition_default_23", "!(defined C) || (d
 int  __main_21 () {
 
 {
+{
 
 
 
@@ -92,6 +93,7 @@ return 0 ;// L32
 }
 if (__static_condition_default_23) {
 return 0 ;// L32
+}
 }
 }
 

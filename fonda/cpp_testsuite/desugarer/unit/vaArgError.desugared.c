@@ -48,11 +48,13 @@ int  __main_6 () {
 if (__static_condition_default_8) {
 
 {
+{
 
 
 
 if (__static_condition_default_9) {
 __static_type_error("type error") ; // L8:L49
+}
 }
 }
 
@@ -65,11 +67,13 @@ int  __main_7 () {
 if (__static_condition_default_10) {
 
 {
+{
 
 
 
 if (__static_condition_default_11) {
 __builtin_va_arg (  __x_5  , int  * ) ; // L8:L49
+}
 }
 }
 

@@ -49,6 +49,7 @@ int  __main_5 () {
 if (__static_condition_default_7) {
 
 {
+{
 
 
 
@@ -63,6 +64,7 @@ if (__static_condition_default_9) {
 return 0 ;// L23
 }
 }
+}
 
 
 }
@@ -72,6 +74,7 @@ int  __main_6 () {
 
 if (__static_condition_default_10) {
 
+{
 {
 
 
@@ -83,6 +86,7 @@ return 0 ;// L23
 }
 if (__static_condition_default_12) {
 return 0 ;// L23
+}
 }
 }
 

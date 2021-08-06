@@ -29,6 +29,7 @@ int  __main_3 () {
 if (__static_condition_default_5) {
 
 {
+{
 
 
 
@@ -37,6 +38,7 @@ __static_type_error("invalid declaration of x under this presence condition");
 }
 
 __static_type_error("invalid type found in return expression");
+}
 }
 
 
@@ -48,12 +50,14 @@ int  __main_4 () {
 if (__static_condition_default_6) {
 
 {
+{
 
 
 
 int  __x_1= 5 + sizeof(__AX_0  );// L6
 
 return  __x_1  ;// L7
+}
 }
 
 

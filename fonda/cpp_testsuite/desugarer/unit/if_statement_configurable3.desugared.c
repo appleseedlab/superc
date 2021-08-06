@@ -27,6 +27,7 @@ __static_condition_renaming("__static_condition_default_7", "!(defined C)");
 int  __main_3 () {
 
 {
+{
 
 
 
@@ -37,7 +38,9 @@ int  __y_1;// L2
 int  __z_2;// L2
 
 if (  __x_0  )// L3
+{
 
+{
 {
 
 
@@ -57,6 +60,9 @@ if (__static_condition_default_7) {
 }
 if (__static_condition_default_6) {
  __z_2  -- ; // L14
+}
+}
+}
 }
 }
 }

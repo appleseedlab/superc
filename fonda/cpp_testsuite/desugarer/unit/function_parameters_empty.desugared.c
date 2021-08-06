@@ -16,9 +16,11 @@ __static_renaming("__g_0", "g");
 int  __g_0 () {
 
 {
+{
 
 
 
+}
 }
 
 

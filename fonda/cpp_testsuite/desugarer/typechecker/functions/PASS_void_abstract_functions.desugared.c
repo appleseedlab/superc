@@ -20,10 +20,12 @@ void  __fwotwo_1 (void  *, void  *);// L3
 int  __main_2 () {
 
 {
+{
 
 
 
 return 1 ;// L7
+}
 }
 
 

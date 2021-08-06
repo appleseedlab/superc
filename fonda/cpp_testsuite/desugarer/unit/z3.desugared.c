@@ -28,6 +28,7 @@ char  __y_1;// L4
 int  __main_2 () {
 
 {
+{
 
 
 
@@ -42,6 +43,7 @@ return 1 ;// L15
 }
 if (__static_condition_default_6) {
 return 0 ;// L17
+}
 }
 }
 

@@ -24,13 +24,16 @@ int  __main_1 () {
 if (__static_condition_default_2) {
 
 {
+{
 
 
 
 int  __x_0;// L3
 
 if (  __x_0  )// L4
+{
 
+{
 {
 
 
@@ -40,10 +43,15 @@ if (  __x_0  )// L4
 goto lab_0;
 }
 }
+}
+}
 
 lab_0:
+{
  __x_0  = 1 ; // L9
+}
 return  __x_0  ;// L11
+}
 }
 
 
@@ -52,13 +60,16 @@ return  __x_0  ;// L11
 if (__static_condition_default_3) {
 
 {
+{
 
 
 
 int  __x_0;// L3
 
 if (  __x_0  )// L4
+{
 
+{
 {
 
 
@@ -68,9 +79,14 @@ if (  __x_0  )// L4
 goto lab_1;
 }
 }
+}
+}
 
 lab_1:
+{
 return  __x_0  ;// L11
+}
+}
 }
 
 

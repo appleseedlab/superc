@@ -27,10 +27,12 @@ void  __doNothing_0 () {
 if (__static_condition_default_2) {
 
 {
+{
 
 
 
 return  ;// L3
+}
 }
 
 
@@ -44,9 +46,11 @@ void  __doNothing_1 () {
 if (__static_condition_default_3) {
 
 {
+{
 
 
 
+}
 }
 
 
@@ -56,6 +60,7 @@ if (__static_condition_default_3) {
 }
 int  __main_4 (void  ) {
 
+{
 {
 
 
@@ -67,6 +72,7 @@ if (__static_condition_default_5) {
  __doNothing_1 ( ) ; // L11
 }
 return 0 ;// L13
+}
 }
 
 

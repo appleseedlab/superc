@@ -17,11 +17,13 @@ __static_renaming("__main_1", "main");
 int  __main_1 () {
 
 {
+{
 
 
 
 int long  __x_0;// L2
 
+}
 }
 
 
