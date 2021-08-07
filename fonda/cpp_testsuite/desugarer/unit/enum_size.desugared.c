@@ -35,14 +35,14 @@ int  __main_8 () {
  __x_2  =  __C_5  ; // L13
 int  __y_7=  __x_2 ;// L14
 
- __printf_1  ( "%016llx\n",  __A_3  ) ; // L15
- __printf_1  ( "%016llx\n",  __B_4  ) ; // L16
- __printf_1  ( "%016llx\n",  __C_5  ) ; // L17
- __printf_1  ( "%016llx\n",  __x_2  ) ; // L18
- __printf_1  ( "%016llx\n",  __y_7  ) ; // L19
- __printf_1  ( "%d\n",  __D_6  ) ; // L20
+ __printf_1  ("%016llx\n", __A_3 ) ; // L15
+ __printf_1  ("%016llx\n", __B_4 ) ; // L16
+ __printf_1  ("%016llx\n", __C_5 ) ; // L17
+ __printf_1  ("%016llx\n", __x_2 ) ; // L18
+ __printf_1  ("%016llx\n", __y_7 ) ; // L19
+ __printf_1  ("%d\n", __D_6 ) ; // L20
  __x_2  =  __D_6  ; // L21
- __printf_1  ( "%016llx\n",  __x_2  ) ; // L22
+ __printf_1  ("%016llx\n", __x_2 ) ; // L22
 return 0 ;// L23
 }
 }

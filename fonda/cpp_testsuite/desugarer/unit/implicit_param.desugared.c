@@ -69,10 +69,10 @@ int  __main_8 () {
 
 
 if (__static_condition_default_6) {
- __foo_4  ( 1 ) ; // L15
+ __foo_4  (1) ; // L15
 }
 if (__static_condition_default_7) {
- __foo_5  ( 1 ) ; // L15
+ __foo_5  (1) ; // L15
 }
 return 0 ;// L16
 }

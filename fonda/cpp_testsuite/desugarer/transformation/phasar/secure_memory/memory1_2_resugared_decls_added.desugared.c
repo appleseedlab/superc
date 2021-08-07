@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_17;
 extern const bool __static_condition_default_18;
+extern const bool __static_condition_default_17;
 void __static_initializer_default() {
 __static_renaming("__OPENSSL_cleanse_2", "OPENSSL_cleanse");
 __static_renaming("__CRYPTO_free_6", "CRYPTO_free");
@@ -37,7 +37,7 @@ int  __main_16 () {
 
 unsigned int  __BUFFER_SIZE_13= 256;// L3:L21
 
-unsigned char  (* __buffer_14)=  __CRYPTO_malloc_10  (  __BUFFER_SIZE_13 , "", 0 );// L22
+unsigned char  (* __buffer_14)=  __CRYPTO_malloc_10  ( __BUFFER_SIZE_13 ,"",0);// L22
 
 if (__static_condition_default_17) {
 { unsigned int  __i_15= 0;// L3:L23
@@ -56,13 +56,13 @@ if (__static_condition_default_17) {
 }
 }
 if (__static_condition_default_17) {
- __OPENSSL_cleanse_2  (  __buffer_14 ,  __BUFFER_SIZE_13  ) ; // L29
+ __OPENSSL_cleanse_2  ( __buffer_14 , __BUFFER_SIZE_13 ) ; // L29
 }
 if (__static_condition_default_18) {
 __static_type_error("type error : no valid expression"); // L10:L33
 }
 if (__static_condition_default_17) {
- __CRYPTO_free_6  (  __buffer_14 , "", 0 ) ; // L10:L33
+ __CRYPTO_free_6  ( __buffer_14 ,"",0) ; // L10:L33
 }
 return 0 ;// L34
 }

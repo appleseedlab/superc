@@ -43,7 +43,7 @@ int  __main_3 () {
 int  __x_2= 99;// L4
 
 if (__static_condition_default_4) {
- __x_2  =  __increment_1  (  __x_2  ) ; // L7
+ __x_2  =  __increment_1  ( __x_2 ) ; // L7
 }
 if (__static_condition_default_5) {
 return  __x_2  ;// L10

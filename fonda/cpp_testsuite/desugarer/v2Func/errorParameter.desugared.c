@@ -52,7 +52,7 @@ if (1) {
 __static_type_error("invalid declaration of c under this presence condition");
 }
 
-int  __d_6=  __foo_2  (  __a_3 ,  __b_5  );// L16
+int  __d_6=  __foo_2  ( __a_3 , __b_5 );// L16
 
 if (__static_condition_default_4) {
 __static_type_error("invalid declaration of d under this presence condition");

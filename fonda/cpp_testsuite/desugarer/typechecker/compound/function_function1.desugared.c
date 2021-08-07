@@ -67,7 +67,7 @@ int  __main_7 () {
 
 
 if (__static_condition_default_5) {
- __x_3  ( 3.2, 4.0 ) ; // L12
+ __x_3  (3.2,4.0) ; // L12
 }
 if (__static_condition_default_8) {
 __static_type_error("type error") ; // L12

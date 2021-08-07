@@ -61,7 +61,7 @@ int  __main_5 () {
 
 int  __x_4= 5;// L13
 
- __x_4  =  __factorial_1  (  __x_4  ) ; // L14
+ __x_4  =  __factorial_1  ( __x_4 ) ; // L14
 return  __x_4  ;// L15
 }
 }

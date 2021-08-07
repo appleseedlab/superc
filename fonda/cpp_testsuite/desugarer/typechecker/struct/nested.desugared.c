@@ -56,7 +56,7 @@ while ( 0 !=  __current_9  )// L18
 
 
 
- __printf_1  ( "data: %d\n",  __current_9  -> __data_5 ) ; // L19
+ __printf_1  ("data: %d\n", __current_9  -> __data_5) ; // L19
  __current_9  =  __current_9  -> __next_6 ; // L20
 }
 }

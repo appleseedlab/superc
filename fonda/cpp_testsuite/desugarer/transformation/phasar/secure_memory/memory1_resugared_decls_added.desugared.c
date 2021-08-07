@@ -37,7 +37,7 @@ int  __main_16 () {
 
 unsigned int  __BUFFER_SIZE_13= 256;// L3:L20
 
-unsigned char  (* __buffer_14)=  __CRYPTO_malloc_10  (  __BUFFER_SIZE_13 , "", 0 );// L21
+unsigned char  (* __buffer_14)=  __CRYPTO_malloc_10  ( __BUFFER_SIZE_13 ,"",0);// L21
 
 { unsigned int  __i_15= 0;// L3:L22
  for ( ;  __i_15  <  __BUFFER_SIZE_13  ; ++  __i_15  ) // L22
@@ -54,13 +54,13 @@ unsigned char  (* __buffer_14)=  __CRYPTO_malloc_10  (  __BUFFER_SIZE_13 , "", 0
 }
 }
 if (__static_condition_default_17) {
- __OPENSSL_cleanse_2  (  __buffer_14 ,  __BUFFER_SIZE_13  ) ; // L27
+ __OPENSSL_cleanse_2  ( __buffer_14 , __BUFFER_SIZE_13 ) ; // L27
 }
 if (__static_condition_default_18) {
- __CRYPTO_free_6  (  __buffer_14 , "", 0 ) ; // L10:L31
+ __CRYPTO_free_6  ( __buffer_14 ,"",0) ; // L10:L31
 }
 if (__static_condition_default_17) {
- __CRYPTO_free_6  (  __buffer_14 , "", 0 ) ; // L10:L31
+ __CRYPTO_free_6  ( __buffer_14 ,"",0) ; // L10:L31
 }
 return 0 ;// L32
 }

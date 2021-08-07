@@ -47,7 +47,7 @@ int  __main_4 () {
 
 
 if (__static_condition_default_5) {
- __x_2  ( 2 ) ; // L10
+ __x_2  (2) ; // L10
 }
 if (__static_condition_default_6) {
 __static_type_error("type error") ; // L10

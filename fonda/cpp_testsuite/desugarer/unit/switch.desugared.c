@@ -35,7 +35,7 @@ case  __SPI_FREQUENCY_20MHZ_1  :
 
 
 
- __printf_0  ( "20MHz" ) ; // L12
+ __printf_0  ("20MHz") ; // L12
 break ; // L13
 }
 case  __SPI_FREQUENCY_33MHZ_2  :
@@ -43,7 +43,7 @@ case  __SPI_FREQUENCY_33MHZ_2  :
 
 
 
- __printf_0  ( "33MHz" ) ; // L15
+ __printf_0  ("33MHz") ; // L15
 break ; // L16
 }
 case  __SPI_FREQUENCY_50MHZ_3  :
@@ -51,7 +51,7 @@ case  __SPI_FREQUENCY_50MHZ_3  :
 
 
 
- __printf_0  ( "50MHz" ) ; // L18
+ __printf_0  ("50MHz") ; // L18
 break ; // L19
 }
 default:
@@ -59,7 +59,7 @@ default:
 
 
 
- __printf_0  ( "unknown<%x>MHz",  __freq_5  ) ; // L21
+ __printf_0  ("unknown<%x>MHz", __freq_5 ) ; // L21
 }
 }
 }

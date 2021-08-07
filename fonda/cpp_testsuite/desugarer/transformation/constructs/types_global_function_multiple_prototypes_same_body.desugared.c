@@ -9,14 +9,14 @@ void __static_initializer_default();
 
 extern const bool __static_condition_default_6;
 extern const bool __static_condition_default_7;
+extern const bool __static_condition_default_14;
 extern const bool __static_condition_default_16;
-extern const bool __static_condition_default_15;
-extern const bool __static_condition_default_11;
 extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_15;
 extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_13;
 extern const bool __static_condition_default_8;
-extern const bool __static_condition_default_14;
+extern const bool __static_condition_default_11;
 void __static_initializer_default() {
 __static_renaming("__b_1", "b");
 __static_renaming("__x_2", "x");
@@ -135,10 +135,10 @@ if (__static_condition_default_13) {
 __static_type_error("type error") ; // L20
 }
 if (__static_condition_default_14) {
- __x_4  ( 2 ) ; // L21
+ __x_4  (2) ; // L21
 }
 if (__static_condition_default_15) {
- __x_5  ( 2 ) ; // L21
+ __x_5  (2) ; // L21
 }
 if (__static_condition_default_16) {
 __static_type_error("type error") ; // L21

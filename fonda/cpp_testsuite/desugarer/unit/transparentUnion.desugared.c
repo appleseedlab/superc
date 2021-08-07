@@ -32,7 +32,7 @@ int  __main_6 () {
 
 int  __x_5;// L10
 
- __foo_4  ( (union __anonymous_tag_0)&  __x_5  ) ; // L11
+ __foo_4  ((union __anonymous_tag_0)&  __x_5 ) ; // L11
 return 0 ;// L12
 }
 }
