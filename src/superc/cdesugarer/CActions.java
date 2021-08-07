@@ -5773,8 +5773,7 @@ public class CActions implements SemanticActions {
               exprlistmv.destruct(); exprlistmv = new_exprlistmv;
               exprlisttypemv.destruct(); exprlisttypemv = new_exprlisttypemv;
             }
-            
-            if (! hasinvalidparameter) {
+	    if (! hasinvalidparameter) {
 
               /* System.err.println("EXPRLISTMV: " + exprlistmv); */
               /* System.err.println("EXPRLISTTYPEMV: " + exprlisttypemv); */
@@ -5790,105 +5789,115 @@ public class CActions implements SemanticActions {
               // loop over each combination of postfix expression and
               // parameter list
               for (Element<Type> postfixelem : postfixexprval.type) {
+		Multiverse<String> startCall = postfixexprval.transformation.filter(postfixelem.getCondition());
+		if (!startCall.isEmpty()) {
+		  for (Element<String> ess : startCall) {
+		    valuemv.add(ess.getData() + " (", ess.getCondition());
+		  }
+		}
                 // check that postfix expression is a function type
-                Multiverse<String> startCall = postfixexprval.transformation.filter(postfixelem.getCondition());
-                for (Element<String> ess : startCall) {
-                  valuemv.add(ess.getData() + " (", ess.getCondition());
-                }
-                if (postfixelem.getData().isFunction()) {
-                  
-                  FunctionT functiontype = postfixelem.getData().toFunction();
+		if (postfixelem.getData().isFunction()) {
+		  PresenceCondition remain = postfixelem.getCondition();
+		  FunctionT functiontype = postfixelem.getData().toFunction();
                   List<Type> formals = functiontype.getParameters();
                   for (Element<List<Type>> exprlisttype : exprlisttypemv) {
-                    PresenceCondition combinedCond = postfixelem.getCondition().and(exprlisttype.getCondition());
-                    // compare formal vs actual parameter types
-                    int size1 =  formals.size();
-                    int size2 = exprlisttype.getData().size();
-                    int min = Math.min(size1, size2);
-                    boolean hasError = false;
-                    for (Type t : exprlisttype.getData()) {
-                      if (t == ErrorT.TYPE) {
-                        hasError = true;
-                        break;
-                      }
-                    }
-                    if (hasError) {
-                      PresenceCondition new_errorCond = errorCond.or(combinedCond);
-                      valuemv = valuemv.filter(combinedCond.not());
-                      valuemv.add(emitError("A parameter expression is an error"), combinedCond);
-                      errorCond.delRef(); errorCond = new_errorCond;
-                    }
-                    else if (size1 > size2) {
-                      // TODO: unit test
-                      PresenceCondition new_errorCond = errorCond.or(combinedCond);
-                      valuemv = valuemv.filter(combinedCond.not());
-                      valuemv.add(emitError("too few arguments to function"), combinedCond);
-                      errorCond.delRef(); errorCond = new_errorCond;
-                    } else if ((! functiontype.isVarArgs()) && (size1 < size2)) {
-                      // TODO: unit test
-                      PresenceCondition new_errorCond = errorCond.or(combinedCond);
-                      valuemv = valuemv.filter(combinedCond.not());
-                      valuemv.add(emitError("too many arguments to function"), combinedCond);
-                      errorCond.delRef(); errorCond = new_errorCond;
-                    } else {  // parameter size is right
-                      // check compare each of the parameters' types
-                      // one-at-a-time and if one doesn't match, break
-                      // and set the presence condition to be an error
-                      boolean match = true;
-                      for (int i = 0; i < min; i++) {
-                        Type formal = formals.get(i).resolve();
-                        Type actual = exprlisttype.getData().get(i).resolve();
-                        if (formal.isUnion() && !actual.isUnion()) {
-                          //assuming size 1
-                          Multiverse<Boolean> matches = hasField((UnionT)formal,actual,(CContext)subparser.scope,combinedCond);
-                          if (!matches.isEmpty() && matches.get(0).getData() ) {
-                            valuemv = appendStringToMV(valuemv, "(union " + ((UnionT)formal).getName() + ")", combinedCond);
-                            Multiverse<List<String>> tt = exprlistmv.filter(combinedCond);
-                            for (Element<List<String>> tte : tt) {
-                              valuemv = appendStringToMV(valuemv, tte.getData().get(i) + ",", tte.getCondition());
-                            }
-                            tt.destruct();
-                          } else {
-                            match = false;
-                            break;
-                          }
+		    for (Element<List<String>> exprliststring : exprlistmv) { 
+		      PresenceCondition combinedCond = postfixelem.getCondition().and(exprlisttype.getCondition().and(exprliststring.getCondition()));
+		      //if there is no overlap between the two move on
+		      if (combinedCond.isFalse()) {
+			continue;
+		      }
+		      remain = remain.and(combinedCond.not());
+		      // compare formal vs actual parameter types
+		      int size1 =  formals.size();
+		      int size2 = exprlisttype.getData().size();
+		      int min = Math.min(size1, size2);
+		      boolean hasError = false;
+		      for (Type t : exprlisttype.getData()) {
+			if (t == ErrorT.TYPE) {
+			  hasError = true;
+			  break;
+			}
+		      }
+		      if (hasError || exprliststring.getData().size() != size2) {
+			PresenceCondition new_errorCond = errorCond.or(combinedCond);
+			valuemv = valuemv.filter(combinedCond.not());
+			valuemv.add(emitError("A parameter expression is an error"), combinedCond);
+			errorCond.delRef(); errorCond = new_errorCond;
+		      }
+		      else if (size1 > size2) {
+			// TODO: unit test
+			PresenceCondition new_errorCond = errorCond.or(combinedCond);
+			valuemv = valuemv.filter(combinedCond.not());
+			valuemv.add(emitError("too few arguments to function"), combinedCond);
+			errorCond.delRef(); errorCond = new_errorCond;
+		      } else if ((! functiontype.isVarArgs()) && (size1 < size2)) {
+			// TODO: unit test
+			PresenceCondition new_errorCond = errorCond.or(combinedCond);
+			valuemv = valuemv.filter(combinedCond.not());
+			valuemv.add(emitError("too many arguments to function"), combinedCond);
+			errorCond.delRef(); errorCond = new_errorCond;
+		      } else {  // parameter size is right
+			// check compare each of the parameters' types
+			// one-at-a-time and if one doesn't match, break
+			// and set the presence condition to be an error
+			boolean match = true;
+			for (int i = 0; i < min; i++) {
+			  Type formal = formals.get(i).resolve();
+			  Type actual = exprlisttype.getData().get(i).resolve();
+			  if (formal.isUnion() && !actual.isUnion()) {
+			    //assuming size 1
+			    Multiverse<Boolean> matches = hasField((UnionT)formal,actual,(CContext)subparser.scope,combinedCond);
+			    if (!matches.isEmpty() && matches.get(0).getData() ) {
+			      valuemv = appendStringToMV(valuemv, "(union " + ((UnionT)formal).getName() + ")", combinedCond);
+			      valuemv = appendStringToMV(valuemv, exprliststring.getData().get(i) + ",", combinedCond);
+			    } else {
+			      match = false;
+			      break;
+			    }
                           
-                        } else if (compatTypes(formal, actual)) {
-                          Multiverse<List<String>> tt = exprlistmv.filter(combinedCond);
-                          for (Element<List<String>> tte : tt) {
-                            valuemv = appendStringToMV(valuemv, tte.getData().get(i) + ",", tte.getCondition());
-                          }
-                          tt.destruct();
-                        } else {
-                          match = false;
-                          break;
-                        }
-                      }
-                      for (int i = min; i < size2; ++i) {
-                        Multiverse<List<String>> tt = exprlistmv.filter(combinedCond);
-                        for (Element<List<String>> tte : tt) {
-                          valuemv = appendStringToMV(valuemv, tte.getData().get(i) + ",", tte.getCondition());
-                        }
-                        tt.destruct();
-                      }
-                      if (match) {
-                        // the expression's type is the return value's type of the function being called
-                        typemv.add(functiontype.getResult(), combinedCond);
-                      } else {
-                        todoReminder("do proper type checking for function calls");
-                        valuemv = valuemv.filter(combinedCond.not());
-                        valuemv.add(emitError("parameter type mismatch"),combinedCond);
-                        typemv.add(ErrorT.TYPE, combinedCond);
-                      }
-                    }
-                    combinedCond.delRef();
+			  } else if (compatTypes(formal, actual)) {
+			    valuemv = appendStringToMV(valuemv, exprliststring.getData().get(i) + ",", combinedCond);
+			  } else {
+			    match = false;
+			    break;
+			  }
+			}
+			for (int i = min; i < size2; ++i) {
+			  Multiverse<List<String>> tt = exprlistmv.filter(combinedCond);
+			  for (Element<List<String>> tte : tt) {
+			    valuemv = appendStringToMV(valuemv, tte.getData().get(i) + ",", tte.getCondition());
+			  }
+			  tt.destruct();
+			}
+			if (match) {
+			  // the expression's type is the return value's type of the function being called
+			  typemv.add(functiontype.getResult(), combinedCond);
+			} else {
+			  todoReminder("do proper type checking for function calls");
+			  valuemv = valuemv.filter(combinedCond.not());
+			  valuemv.add(emitError("parameter type mismatch"),combinedCond);
+			  PresenceCondition new_errorCond = errorCond.or(combinedCond);
+			  errorCond.delRef(); errorCond = new_errorCond;
+			}
+		      }
+		      combinedCond.delRef();
+		    } // end loop over parameter list strings
                   }  // end loop over parameter list
+		  //there are not expression lists under this condition within postfixelem
+		  if (remain.isNotFalse()) {
+		    valuemv = valuemv.filter(remain.not());
+		    valuemv.add(emitError("expression list undefined"),remain);
+		    PresenceCondition new_errorCond = errorCond.or(remain);
+		    errorCond.delRef(); errorCond = new_errorCond;
+		  }
+		  remain.delRef();
                 } else {  // not a function type
                   PresenceCondition new_errorCond = errorCond.or(postfixelem.getCondition());
                   // TODO: unit test
                   valuemv = valuemv.filter(postfixelem.getCondition().not());
                   valuemv.add(emitError("attempting function call on non-function type"), postfixelem.getCondition());
-                  errorCond.delRef(); errorCond = new_errorCond;
+		  errorCond.delRef(); errorCond = new_errorCond;
                 } // end check for function type
               } // end loop over postfixelems
               typemv.add(ErrorT.TYPE, errorCond);
