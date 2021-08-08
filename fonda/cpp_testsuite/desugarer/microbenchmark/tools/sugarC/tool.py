@@ -1,8 +1,10 @@
-from common.run_command import run_command
 import os
 import configparser
 import shutil
 import tempfile
+
+from common.run_command import run_command
+from tools.utils import TestReturn, check_gcc_code
 
 class Tool:
 
@@ -14,14 +16,14 @@ class Tool:
     self.run_dir = config.get('paths', 'runDir')
 
 
-  def run(self, testcase: str):
+  def run(self, testcase: str) -> TestReturn:
     os.chdir(self.run_dir)
     args = ['java', 'superc.SugarC', testcase]
     sugarC_code, sugarC_out, _ = run_command(args)
 
     # sugarC fails itself
     if sugarC_code:
-      return sugarC_code
+      return TestReturn(code=sugarC_code, msg='sugarC returns non-zero code')
 
     fd, path = tempfile.mkstemp()
     try:
@@ -32,7 +34,7 @@ class Tool:
     finally:
       os.remove(path)
 
-    return gcc_ret
+    return check_gcc_code(gcc_ret)
 
 
   def clean(self):

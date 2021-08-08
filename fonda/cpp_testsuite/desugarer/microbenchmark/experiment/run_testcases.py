@@ -1,10 +1,13 @@
 import os
 from collections import namedtuple
+import logging
+from typing import Callable
+
 from common import utils
 
 TestResult = namedtuple('TestResult', ['passed', 'total'])
 
-def run_testcases(run_tool):
+def run_testcases(tool_name: str, run_func: Callable):
   test_case_dir = utils.TEST_CASE_DIR
   ret = {}
 
@@ -20,18 +23,20 @@ def run_testcases(run_tool):
       if testcase.endswith('.c'):
         testcase_path = os.path.join(root, testcase)
 
-        returncode = run_testcase(run_tool, testcase_path)
+        test_ret = run_testcase(run_func, testcase_path)
         type_result[1] += 1
-        if pass_test(test_type, returncode):
+        if pass_test(test_type, test_ret.code):
           type_result[0] += 1
+        else:
+          logging.debug(f'{tool_name} fails testcase {os.path.relpath(testcase_path, test_case_dir)} with message {test_ret.msg}')
 
     ret[test_type] = TestResult(type_result[0], type_result[1])
 
   return ret
 
-def run_testcase(run_tool, testcase: str):
-  returncode = run_tool(testcase)
-  return returncode
+def run_testcase(run_func: Callable, testcase: str):
+  test_ret = run_func(testcase)
+  return test_ret
 
 def pass_test(test_type: str, returncode: int):
   return not returncode

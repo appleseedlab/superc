@@ -1,10 +1,12 @@
-from common.run_command import run_command
-from common import utils
 import os
 import sys
 import configparser
 import shutil
+
+from common.run_command import run_command
+from common import utils
 from tools import logs
+from tools.utils import TestReturn, check_gcc_code
 
 class Tool:
 
@@ -27,18 +29,18 @@ class Tool:
     '''workaround as creconfigurator takes a batch of c files as input'''
     self.run_creconfig()
 
-  def run(self, testcase: str):
+  def run(self, testcase: str) -> TestReturn:
     rel_testcase_path = os.path.relpath(testcase, utils.TEST_CASE_DIR)
     target_dir = os.path.join(self.test_dir, 'target')
     reconfig_testcase = os.path.join(target_dir, rel_testcase_path)
 
     if not os.path.isfile(reconfig_testcase):
-      return 1
+      return TestReturn(code=1, msg='reconfigured file does not exist')
 
     gcc_args = ['gcc', '-x', 'c', '-c', '-o', '/dev/null', reconfig_testcase]
     gcc_ret, _, _ = run_command(gcc_args)
 
-    return gcc_ret
+    return check_gcc_code(gcc_ret)
 
   def clean(self):
     shutil.rmtree(self.test_dir)

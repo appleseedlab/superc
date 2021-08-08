@@ -40,7 +40,7 @@ def run_tools(tools:dict):
 
   for tool_name, Tool in tools.items():
     tool = Tool()
-    res = run_testcases(tool.run)
+    res = run_testcases(tool_name, tool.run)
     tool.clean()
 
     result_data[tool_name] = res
