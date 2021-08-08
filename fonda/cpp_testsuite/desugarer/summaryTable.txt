@@ -156,6 +156,7 @@ unit/enum_constant_expression1                                                  
 unit/enum_enumerators                                                                      BC generated
 unit/typedefname_and_variable_declarations                                                 BC generated
 unit/abstractpointerdeclarator                                                             BC generated
+unit/configUnionCast                                                                       BC generated
 unit/struct_undef_cast                                                                     BC generated
 unit/flexarrTest                                                                           BC generated
 unit/parendeclarator                                                                       BC generated
@@ -222,7 +223,7 @@ unit/enum_error                                                                 
 unit/enum                                                                                  BC generated
 unit/initializers                                                                          BC failed
 unit/struct_ref_local_var                                                                  BC generated
-unit/designated_initializer                                                                BC failed
+unit/designated_initializer                                                                BC generated
 unit/typedef_local_declaration                                                             BC generated
 unit/struct_multiply_defined                                                               BC generated
 unit/local_redeclarations                                                                  BC generated

@@ -5846,7 +5846,6 @@ FunctionCall:  /** nomerge **/
               // collect the presence condition of all type errors
               PresenceCondition errorCond
                 = subparser.getPresenceCondition().presenceConditionManager().newFalse();
-              todoReminder("support variadic arguments.  see CAnalyzer.processFunctionCall");
               // loop over each combination of postfix expression and
               // parameter list
               for (Element<Type> postfixelem : postfixexprval.type) {
@@ -8388,29 +8387,54 @@ protected List<Multiverse<String>> declarationAction(List<DeclaringListValue> de
                       } else {
                         boolean compatibleTypes = true;
                         //check for initializer list
+                        if (initializer.getData().hasList()) {
+                          compatibleTypes = !initializer.getData().hasNonConst();
+                        }
+                        if (compatibleTypes) {
                           if (initializer.getData().hasList()) {
-                            compatibleTypes = !initializer.getData().hasNonConst();
-                          }
-                          if (compatibleTypes) {
+                            Multiverse<String> mvs = initializer.getData().renamedList(new Multiverse<Type>(declarationType.resolve(),combinedCond),combinedCond,scope);
+                            for (Element<String> evs : mvs) {
+                              if (evs.getData() != "") {
+                                entrysb.append(desugaredDeclaration);
+                                entrysb.append(evs.getData());
+                                entrysb.append(semi);  // semi-colon
+                                recordRenaming(renaming, originalName);
+                              } else {
+                                scope.putError(originalName, entry.getCondition());
+                                recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+                                if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                                  externalLinkage.putError(originalName, entry.getCondition());
+                                } else if (!scope.isGlobal()) {
+                                  entrysb.append("if (");
+                                  entrysb.append(condToCVar(entry.getCondition()));
+                                  entrysb.append(") {\n");
+                                  entrysb.append(emitError(String.format("improper designator value: %s", originalName)));
+                                  entrysb.append(";\n");
+                                  entrysb.append("}\n");
+                                }
+                              }
+                            }
+                          } else {
                             entrysb.append(desugaredDeclaration);
                             entrysb.append(initializer.getData().toString());
                             entrysb.append(semi);  // semi-colon
                             recordRenaming(renaming, originalName);
-                          } else {
-                            scope.putError(originalName, entry.getCondition());
-                            recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
-                            if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
-                              externalLinkage.putError(originalName, entry.getCondition());
-                            } else if (!scope.isGlobal()) {
-                              entrysb.append("if (");
-                              entrysb.append(condToCVar(entry.getCondition()));
-                              entrysb.append(") {\n");
-                              entrysb.append(emitError(String.format("non const value in constant list or struct: %s",
-                                                                     originalName)));
-                              entrysb.append(";\n");
-                              entrysb.append("}\n");
-                            }
                           }
+                        } else {
+                          scope.putError(originalName, entry.getCondition());
+                          recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+                          if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                            externalLinkage.putError(originalName, entry.getCondition());
+                          } else if (!scope.isGlobal()) {
+                            entrysb.append("if (");
+                            entrysb.append(condToCVar(entry.getCondition()));
+                            entrysb.append(") {\n");
+                            entrysb.append(emitError(String.format("non const value in constant list or struct: %s",
+                                                                   originalName)));
+                            entrysb.append(";\n");
+                            entrysb.append("}\n");
+                          }
+                        }
                       }
                     } else {  // already declared entries
                       if (! scope.isGlobal()) {

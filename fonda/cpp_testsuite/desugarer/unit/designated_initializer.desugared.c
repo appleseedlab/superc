@@ -20,7 +20,7 @@ struct __s_2 {
 struct __anonymous_tag_0  (__x_3[4]);
 };
 
-struct __s_2  __bob_4= { .x = { [0].f = 10 } };// L1:L3
+struct __s_2  __bob_4=  { .__x_3 = { [0] .__f_1 = 10 } };// L1:L3
 int  __main_5 () {
 
 {

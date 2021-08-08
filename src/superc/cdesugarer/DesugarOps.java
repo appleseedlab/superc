@@ -850,6 +850,21 @@ class DesugarOps {
     return newsb.toString();
   };
 
+  /**
+   * Concatenate operator for strings.x, unless a String is empty
+   */
+  public final static Multiverse.Operator<String> propEmptyString = (sb1, sb2) -> {
+    if (sb1 == "" || sb2 == "") {
+      return "";
+    }
+    StringBuilder newsb = new StringBuilder();
+    newsb.append(sb1);
+    newsb.append(" ");
+    newsb.append(sb2);
+    return newsb.toString();
+  };
+
+  
   public final static Multiverse.Operator<LineNumbers> combineLineNumbers = (ln1, ln2) -> {
     return new LineNumbers(ln1,ln2);
   };
