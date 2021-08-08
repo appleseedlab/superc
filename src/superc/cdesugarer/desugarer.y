@@ -6468,8 +6468,17 @@ CompoundLiteral:  /** nomerge **/  /* ADDED */
           Multiverse<String> mv3 = mv2.appendScalar(lbrace, DesugarOps.concatStrings); mv2.destruct();
           Multiverse<Initializer> initializerlistmv
             = DesugarOps.toInitializerList.transform(initializerlist);
-          Multiverse<String> initializerliststr
-            = DesugarOps.initializerToString.transform(initializerlistmv);  initializerlistmv.destruct();
+          
+          Multiverse<String> initializerliststr = new Multiverse<String>();
+          for (Element<Declaration> ed : typename) {
+            for (Element<Initializer> ei : initializerlistmv) {
+              PresenceCondition cc = ed.getCondition().and(ei.getCondition()); 
+              initializerliststr.addAll(ei.getData().renamedList(new Multiverse<Type>(ed.getData().getType().resolve(),cc),cc,(CContext)subparser.scope));
+              cc.delRef();
+            }
+          }
+          initializerlistmv.destruct();
+
           Multiverse<String> mv4
             = mv3.product(initializerliststr, DesugarOps.concatStrings); initializerliststr.destruct(); mv3.destruct();
           Multiverse<String> transformationmv = mv4.appendScalar(rbrace, DesugarOps.concatStrings); mv4.destruct();
