@@ -6193,109 +6193,12 @@ public class CActions implements SemanticActions {
                   } else {  // declared
                     VariableT fieldtype = fieldentry.getData().getValue().getType().toVariable();  // these are stored as VariableT
                     typemv.add(fieldtype.getType(), fieldentry.getCondition());
-                    identmv.add(fieldtype.getName(), fieldentry.getCondition());
+                    identmv.add(fieldentry.getData().getValue().getName(), fieldentry.getCondition());
                     hasValidType = true;
                   }
                 }
               }
-
-              /* if (tag.startsWith("anonymous(")) {  // anonymous struct or union */
-              /*   // go through each symtab entry for this struct/union */
-              /*   Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(tag, type.getCondition()); */
-              /*   for (Element<SymbolTable.Entry<Type>> entry : entries) { */
-              /*     PresenceCondition combinedCond = type.getCondition().and(entry.getCondition()); */
-              /*     if (entry.getData().isError()) { */
-              /*       // TODO: type error */
-              /*       typemv.add(ErrorT.TYPE, combinedCond); */
-              /*     } else if (entry.getData().isUndeclared()) { */
-              /*       // TODO: type error, symbol not declared in this presence condition */
-              /*       typemv.add(ErrorT.TYPE, combinedCond); */
-              /*     } else { */
-              /*       // TODO: check for correct field usage, otherwise type error */
-              /*       // TODO: insert field of the union inside the original struct/union */
-
-              /*       // since we looked up a tagname, not seeing a */
-              /*       // struct/union type likely means there's a bug */
-              /*       assert entry.getData().getValue().isStruct() || entry.getData().getValue().isUnion(); */
-              /*       StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getValue(); */
-
-              /*       // similarly, if we looked up a tagname, there */
-              /*       // should be definitions with members */
-              /*       assert null != entrytype.getMembers(); */
-
-              /*       // check that the field exist in this variation of */
-              /*       // the struct.  TypeSpecifier sets all members to */
-              /*       // VariableT FIELD types */
-              /*       VariableT fieldtype = (VariableT) entrytype.lookup(ident); */
-              /*       if (fieldtype.isError()) { */
-              /*         System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName())); */
-              /*         typemv.add(ErrorT.TYPE, combinedCond); */
-              /*       } else { */
-              /*         // found a valid field and we now know its type */
-
-              /*         typemv.add(fieldtype.getType(), combinedCond); */
-
-              /*         // add the indirection using the tag (which is */
-              /*         // the same name as the field in the combined */
-              /*         // struct's union) */
-              /*         identmv.add(String.format("%s", fieldtype.getName()), combinedCond); */
-              /*       } */
-              /*     } */
-              /*     combinedCond.delRef(); */
-              /*   } */
-              /*   entries.destruct(); */
-              /* } else {  // tagged struct or union */
-              /*   // tagged structs work by using the original name for */
-              /*   // a struct that is the union of all variations, so we */
-              /*   // need to replace the field with level of indirection */
-              /*   // into this union. */
-
-              /*   // first go through each symtab entry for the struct tag */
-              /*   String tagname = CContext.toTagName(sutype.getName()); */
-              /*   Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(tagname, type.getCondition()); */
-              /*   for (Element<SymbolTable.Entry<Type>> entry : entries) { */
-              /*     PresenceCondition combinedCond = type.getCondition().and(entry.getCondition()); */
-              /*     if (entry.getData().isError()) { */
-              /*       // TODO: type error */
-              /*       typemv.add(ErrorT.TYPE, combinedCond); */
-              /*     } else if (entry.getData().isUndeclared()) { */
-              /*       // TODO: type error, symbol not declared in this presence condition */
-              /*       typemv.add(ErrorT.TYPE, combinedCond); */
-              /*     } else { */
-              /*       // TODO: check for correct field usage, otherwise type error */
-              /*       // TODO: insert field of the union inside the original struct/union */
-
-              /*       // since we looked up a tagname, not seeing a */
-              /*       // struct/union type likely means there's a bug */
-              /*       assert entry.getData().getValue().isStruct() || entry.getData().getValue().isUnion(); */
-              /*       StructOrUnionT entrytype = (StructOrUnionT) entry.getData().getValue(); */
-
-              /*       // similarly, if we looked up a tagname, there */
-              /*       // should be definitions with members */
-              /*       assert null != entrytype.getMembers(); */
-
-              /*       // check that the field exist in this variation of */
-              /*       // the struct.  TypeSpecifier sets all members to */
-              /*       // VariableT FIELD types */
-              /*       VariableT fieldtype = (VariableT) entrytype.lookup(ident); */
-              /*       if (fieldtype.isError()) { */
-              /*         System.err.println(String.format("type error: field \"%s\" not found in this configuration of struct/union %s", ident, sutype.getName())); */
-              /*         typemv.add(ErrorT.TYPE, combinedCond); */
-              /*       } else { */
-              /*         // found a valid field and we now know its type */
-
-              /*         typemv.add(fieldtype.getType(), combinedCond); */
-
-              /*         // add the indirection using the tag (which is */
-              /*         // the same name as the field in the combined */
-              /*         // struct's union) */
-              /*         identmv.add(String.format("%s . %s", entrytype.getName(), fieldtype.getName()), combinedCond); */
-              /*       } */
-              /*     } */
-              /*     combinedCond.delRef(); */
-              /*   } */
-              /* } */
-              
+    
             } else {
               // TODO: not a pointer, type error
               typemv.add(ErrorT.TYPE, type.getCondition());
@@ -8150,10 +8053,12 @@ public class CActions implements SemanticActions {
 
   case 589:
     {
-          Multiverse<String> temp = (Multiverse<String>)getTransformationValue(subparser,3);
-          Multiverse<String> prepended = temp.prependScalar("__asm__(", DesugarOps.concatStrings);
+          ExpressionValue temp = (ExpressionValue)getTransformationValue(subparser,3);
+          Multiverse<String> prepended = temp.transformation.prependScalar("__asm__(", DesugarOps.concatStrings);
           Multiverse<String> appended = prepended.appendScalar(");", DesugarOps.concatStrings);
-          temp.destruct(); prepended.destruct();
+          temp.transformation.destruct(); prepended.destruct();
+          appended = appended.filter(temp.type.getConditionOf(ErrorT.TYPE).not());
+          appended.add(emitError("invalid type in Assembly Argument"),temp.type.getConditionOf(ErrorT.TYPE));
           setTransformationValue(value, DesugarOps.StringToDSV.transform(appended));
         }
     break;
@@ -8175,13 +8080,15 @@ public class CActions implements SemanticActions {
           qual.destruct();
           Multiverse<String> preTemp = qualS.prependScalar("__asm__ ", DesugarOps.concatStrings);
           qualS.destruct();
-          Multiverse<String> temp = (Multiverse<String>)getTransformationValue(subparser,3);
+          ExpressionValue temp = (ExpressionValue)getTransformationValue(subparser,3);
           
-          Multiverse<String> prepended = temp.prependScalar(" (", DesugarOps.concatStrings);
+          Multiverse<String> prepended = temp.transformation.prependScalar(" (", DesugarOps.concatStrings);
           Multiverse<String> appended = prepended.appendScalar(");", DesugarOps.concatStrings);
-          temp.destruct(); prepended.destruct();
+          temp.transformation.destruct(); prepended.destruct();
           Multiverse<String> res = preTemp.product(appended, DesugarOps.concatStrings);
           preTemp.destruct(); appended.destruct();
+          res = res.filter(temp.type.getConditionOf(ErrorT.TYPE).not());
+          res.add(emitError("invalid type in Assembly Argument"),temp.type.getConditionOf(ErrorT.TYPE));
           setTransformationValue(value, DesugarOps.StringToDSV.transform(res));
         }
     break;
@@ -8189,13 +8096,11 @@ public class CActions implements SemanticActions {
   case 592:
     {
         Multiverse<String> first = getCompleteNodeExpressionValue(subparser,7,subparser.getPresenceCondition()).transformation;
-          Multiverse<String> sec = (Multiverse<String>)getTransformationValue(subparser,5);
-          Multiverse<String> third = (Multiverse<String>)getTransformationValue(subparser,3);
+          ExpressionValue sec = (ExpressionValue)getTransformationValue(subparser,5);
+          ExpressionValue third = (ExpressionValue)getTransformationValue(subparser,3);
           Multiverse<String> fourth = (Multiverse<String>)getTransformationValue(subparser,1);
-          Multiverse<String> prep2 = sec.prependScalar(":", DesugarOps.concatStrings);
-          sec.destruct();
-          Multiverse<String> prep3 = third.prependScalar(":", DesugarOps.concatStrings);
-          third.destruct();
+          Multiverse<String> prep2 = sec.transformation.prependScalar(":", DesugarOps.concatStrings);
+          Multiverse<String> prep3 = third.transformation.prependScalar(":", DesugarOps.concatStrings);
           Multiverse<String> prep4 = fourth.prependScalar(":", DesugarOps.concatStrings);
           fourth.destruct();
           Multiverse<String> last = prep3.product(prep4, DesugarOps.concatStrings);
@@ -8204,44 +8109,46 @@ public class CActions implements SemanticActions {
           prep2.destruct(); last.destruct();
           Multiverse<String> res = first.product(later, DesugarOps.concatStrings);
           first.destruct(); later.destruct();
-          setTransformationValue(value, res);
+          Multiverse<Type> ty = sec.type.product(third.type,DesugarOps.propTypeError);
+          setTransformationValue(value, new ExpressionValue(res,ty));
         }
     break;
 
   case 593:
     {
           Multiverse<String> first = getCompleteNodeExpressionValue(subparser,5,subparser.getPresenceCondition()).transformation;
-          Multiverse<String> sec = (Multiverse<String>)getTransformationValue(subparser,3);
-          Multiverse<String> third = (Multiverse<String>)getTransformationValue(subparser,1);
-          Multiverse<String> prep2 = sec.prependScalar(":", DesugarOps.concatStrings);
-          sec.destruct();
-          Multiverse<String> prep3 = third.prependScalar(":", DesugarOps.concatStrings);
-          third.destruct();
+          ExpressionValue sec = (ExpressionValue)getTransformationValue(subparser,3);
+          ExpressionValue third = (ExpressionValue)getTransformationValue(subparser,1);
+          Multiverse<String> prep2 = sec.transformation.prependScalar(":", DesugarOps.concatStrings);
+          sec.transformation.destruct();
+          Multiverse<String> prep3 = third.transformation.prependScalar(":", DesugarOps.concatStrings);
+          third.transformation.destruct();
           Multiverse<String> later = prep2.product(prep3, DesugarOps.concatStrings);
-          setTransformationValue(value, first.product(later, DesugarOps.concatStrings));
+          Multiverse<Type> ty = sec.type.product(third.type,DesugarOps.propTypeError);
+          Multiverse<String> res = first.product(later, DesugarOps.concatStrings);
+          setTransformationValue(value, new ExpressionValue(res,ty));
         }
     break;
 
   case 594:
     {
           Multiverse<String> first = getCompleteNodeExpressionValue(subparser,3,subparser.getPresenceCondition()).transformation;
-          Multiverse<String> sec = (Multiverse<String>)getTransformationValue(subparser,1);
-          Multiverse<String> prep = sec.prependScalar(":", DesugarOps.concatStrings);
-          sec.destruct();
-          
-          setTransformationValue(value, first.product(prep, DesugarOps.concatStrings));
+          ExpressionValue sec = (ExpressionValue)getTransformationValue(subparser,1);
+          Multiverse<String> prep = sec.transformation.prependScalar(":", DesugarOps.concatStrings);
+          prep = first.product(prep,DesugarOps.concatStrings);
+          setTransformationValue(value, new ExpressionValue(prep,sec.type));
         }
     break;
 
   case 595:
     {
-          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()).transformation);
+          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
     break;
 
   case 596:
     {
-          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
+          setTransformationValue(value, new ExpressionValue(new Multiverse<String>("", subparser.getPresenceCondition()),new Multiverse<Type>(new IntegerT(NumberT.Kind.INT),subparser.getPresenceCondition())));
         }
     break;
 
@@ -8259,12 +8166,11 @@ public class CActions implements SemanticActions {
 
   case 599:
     {
-          Multiverse<String> prev = (Multiverse<String>)getTransformationValue(subparser,3);
-          Multiverse<String> cur = (Multiverse<String>)getTransformationValue(subparser,1);
-          Multiverse<String> prep = cur.prependScalar(",", DesugarOps.concatStrings);
-          cur.destruct();
-          
-          setTransformationValue(value, prev.product(prep, DesugarOps.concatStrings));
+          ExpressionValue  prev = (ExpressionValue)getTransformationValue(subparser,3);
+          ExpressionValue  cur = (ExpressionValue)getTransformationValue(subparser,1);
+          Multiverse<String> prep = cur.transformation.prependScalar(",", DesugarOps.concatStrings);
+          Multiverse<Type> prept = prev.type.product(cur.type,DesugarOps.propTypeError);
+          setTransformationValue(value, new ExpressionValue(prev.transformation.product(prep, DesugarOps.concatStrings),prept));
         }
     break;
 
@@ -8278,7 +8184,7 @@ public class CActions implements SemanticActions {
           Multiverse<String> appended = prepended.appendScalar(")", DesugarOps.concatStrings);
           temp.destruct(); prepended.destruct();
           
-          setTransformationValue(value, str.transformation.product(appended, DesugarOps.concatStrings));
+          setTransformationValue(value, new ExpressionValue(str.transformation.product(appended, DesugarOps.concatStrings),expr.type));
         }
     break;
 

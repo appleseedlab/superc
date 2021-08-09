@@ -843,7 +843,7 @@ abstract class Declarator {
       return String.format("%s : %s", this.declarator.toString(), this.bitfieldsize.expression);
     }
     public String printType() {
-      return String.format(": %s", bitfieldsize.expression);
+      return String.format("", bitfieldsize.expression);
     }
   }
 }
