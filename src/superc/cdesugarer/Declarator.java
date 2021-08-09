@@ -169,7 +169,7 @@ abstract class Declarator {
     }
     
     public Declarator rename(String newName) {
-      return declarator.rename(newName);
+	return new ParenDeclarator(declarator.rename(newName));
     }
 
     public Type getType(Type type) {
@@ -819,7 +819,7 @@ abstract class Declarator {
     }
     
     public Declarator rename(String newName) {
-      return this.declarator.rename(newName);
+	return new NamedBitFieldSizeDeclarator(this.declarator.rename(newName),bitfieldsize);
     }
 
     public Type getType(Type returnType) {

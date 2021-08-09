@@ -338,10 +338,7 @@ class DesugarOps {
           if (d.hasName()) {
             fieldName = structfield.getData().getName();
             renamedField = freshIdCreator.freshCId(fieldName);
-            if (d.isNamedBitFieldSizeDeclarator()) {
-              renamedField += ((NamedBitFieldSizeDeclarator)d).getBitField();
-            }
-            renamedDeclaration = structfield.getData().rename(renamedField);
+	    renamedDeclaration = structfield.getData().rename(renamedField);
           } else {
             fieldName = freshIdCreator.freshCId("anonymous_field");
             renamedField = fieldName;

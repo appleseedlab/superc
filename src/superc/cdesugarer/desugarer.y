@@ -6070,7 +6070,7 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
                         } else {  // declared
                           VariableT fieldtype = fieldentry.getData().getValue().getType().toVariable();  // these are stored as VariableT
                           typemv.add(fieldtype.getType(), fieldentry.getCondition());
-                          String indirectaccess = String.format("%s . %s", renamedTag, fieldtype.getName());
+                          String indirectaccess = String.format("%s . %s", renamedTag, fieldentry.getData().getValue().getName());
                           identmv.add(indirectaccess, fieldentry.getCondition());
                           hasValidType = true;
                         }
@@ -6102,7 +6102,7 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
                       //found a match
                       VariableT fieldType = ((VariableT)e.getData().getValue().getType());
                       typemv.add(fieldType.getType(), e.getCondition());
-                      identmv.add(e.getData().getKey(), e.getCondition());
+                      identmv.add(e.getData().getValue().getName(), e.getCondition());
                       hasValidType = true;
                     }
                   }
@@ -6223,7 +6223,7 @@ IndirectSelection:  /** nomerge **/
                         } else {  // declared
                           VariableT fieldtype = fieldentry.getData().getValue().getType().toVariable();  // these are stored as VariableT
                           typemv.add(fieldtype.getType(), fieldentry.getCondition());
-                          String indirectaccess = String.format("%s . %s", renamedTag, fieldtype.getName());
+                          String indirectaccess = String.format("%s . %s", renamedTag, fieldentry.getData().getValue().getName());
                           identmv.add(indirectaccess, fieldentry.getCondition());
                           hasValidType = true;
                         }
