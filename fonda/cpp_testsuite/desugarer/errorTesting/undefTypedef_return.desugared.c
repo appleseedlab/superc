@@ -42,7 +42,6 @@ return 1 ;// L6
 
 
 }
-
 }
 int  __main_3 () {
 
@@ -60,7 +59,6 @@ __static_type_error("type error") ; // L13
 return 0 ;// L14
 }
 }
-
 
 
 }

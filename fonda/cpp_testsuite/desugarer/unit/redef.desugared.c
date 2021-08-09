@@ -35,7 +35,6 @@ if (__static_condition_default_1) {
 
 
 }
-
 }
 void  __y_2 () {
 
@@ -51,7 +50,6 @@ if (__static_condition_default_4) {
 
 
 }
-
 }
 void  __y_3 () {
 
@@ -67,6 +65,5 @@ if (__static_condition_default_5) {
 
 
 }
-
 }
 

@@ -67,7 +67,6 @@ return 1 ;// L9
 }
 
 
-
 }
 int  ___F1fDwXV_main_3 () {
 
@@ -111,7 +110,6 @@ if ( 1 )// L18
 }
 
 
-
 }
 int  __main_6 (int  __argc_4, char  (* (* __argv_5))) {
 
@@ -134,7 +132,6 @@ __static_type_error("type error : no valid expression"); // L27
 }
 }
 }
-
 
 
 }

@@ -42,8 +42,7 @@ if (__static_condition_default_7) {
 
 }
 
-}
-}
+}}
 int  __main_6 (void  ) {
 
 {
@@ -63,6 +62,5 @@ __bob_3  __bobStruct_4;// L11
 
 }
 
-}
-}
+}}
 

@@ -40,7 +40,6 @@ return  __y_2  ;// L5
 
 
 }
-
 }
 int  __main_6 () {
 
@@ -58,7 +57,6 @@ __static_type_error("type error") ; // L10
 return 0 ;// L11
 }
 }
-
 
 
 }

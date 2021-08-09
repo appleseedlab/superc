@@ -9,10 +9,10 @@ void __static_initializer_default();
 
 extern const bool __static_condition_default_2;
 extern const bool __static_condition_default_4;
-extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_10;
 extern const bool __static_condition_default_9;
 extern const bool __static_condition_default_8;
-extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_11;
 extern const bool __static_condition_default_12;
 void __static_initializer_default() {
 __static_renaming("____gnuc_va_list_0", "__gnuc_va_list");
@@ -60,7 +60,6 @@ __static_type_error("type error") ; // L8:L49
 
 
 }
-
 }
 int  __main_7 () {
 
@@ -79,6 +78,5 @@ __builtin_va_arg (  __x_5  , int  * ) ; // L8:L49
 
 
 }
-
 }
 

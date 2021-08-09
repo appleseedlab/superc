@@ -67,6 +67,5 @@ __static_type_error("type error") ; // L13
 }
 
 
-
 }
 

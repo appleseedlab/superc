@@ -660,7 +660,7 @@ FunctionPrototype {restartLabelFunction();} CompoundStatement
               sb.append(prototypestr.getData());
               sb.append(" {\n");
               sb.append(emitStatementDSV(bodymv, prototypestr.getCondition()));
-              sb.append("\n}\n");
+              sb.append("}\n");
             }
             bodymv.destruct();
           } else {
@@ -4645,7 +4645,6 @@ IDENTIFIER COLON AttributeSpecifierListOpt Statement
           Multiverse<DeclarationOrStatementValue>  stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
           DeclarationOrStatementValue dsv = new DeclarationOrStatementValue();
           dsv.setLabel(ident);
-          addLabelInFunction(ident,pc);
           dsv.setChildrenBlock("",stmtmv,"");
           Multiverse<DeclarationOrStatementValue> dsvm = new Multiverse<DeclarationOrStatementValue>(dsv,pc);
                     
@@ -4660,7 +4659,6 @@ IDENTIFIER COLON AttributeSpecifierListOpt Statement
           Multiverse<DeclarationOrStatementValue>  stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
           DeclarationOrStatementValue dsv = new DeclarationOrStatementValue();
           dsv.setLabel(ident);
-          addLabelInFunction(ident,pc);
           dsv.setChildrenBlock("",stmtmv,"");
           Multiverse<DeclarationOrStatementValue> dsvm = new Multiverse<DeclarationOrStatementValue>(dsv,pc);
 
@@ -6465,7 +6463,7 @@ CompoundLiteral:  /** nomerge **/  /* ADDED */
           Multiverse<String> typenamestr = DesugarOps.typenameToString.transform(typename);
           Multiverse<String> mv1 = typenamestr.prependScalar(lparen, DesugarOps.concatStrings); typenamestr.destruct();
           Multiverse<String> mv2 = mv1.appendScalar(rparen, DesugarOps.concatStrings); mv1.destruct();
-          Multiverse<String> mv3 = mv2.appendScalar(lbrace, DesugarOps.concatStrings); mv2.destruct();
+          //Multiverse<String> mv3 = mv2.appendScalar(lbrace, DesugarOps.concatStrings); mv2.destruct();
           Multiverse<Initializer> initializerlistmv
             = DesugarOps.toInitializerList.transform(initializerlist);
           
@@ -6480,12 +6478,12 @@ CompoundLiteral:  /** nomerge **/  /* ADDED */
           initializerlistmv.destruct();
 
           Multiverse<String> mv4
-            = mv3.product(initializerliststr, DesugarOps.concatStrings); initializerliststr.destruct(); mv3.destruct();
-          Multiverse<String> transformationmv = mv4.appendScalar(rbrace, DesugarOps.concatStrings); mv4.destruct();
+            = mv2.product(initializerliststr, DesugarOps.concatStrings); initializerliststr.destruct(); //mv3.destruct();
+          //Multiverse<String> transformationmv = mv4.appendScalar(rbrace, DesugarOps.concatStrings); mv4.destruct();
 
           Multiverse<Type> typemv = DesugarOps.typenameToType.transform(typename);
 
-          setTransformationValue(value, new ExpressionValue(transformationmv, typemv, new Multiverse<LineNumbers>(lw,pc)));
+          setTransformationValue(value, new ExpressionValue(mv4, typemv, new Multiverse<LineNumbers>(lw,pc)));
         }
         ;
 
@@ -9950,6 +9948,23 @@ public static class DeclarationOrStatementValue {
   public void setIsStatementAsExpression() {
     isStatementAsExpression = true;
   }
+
+  public void nameLabels(PresenceCondition p) {
+    if (isLabel) {
+      addLabelInFunction(Label,p);
+    }
+    if (children != null && !children.isEmpty()) {
+      for (Multiverse<DeclarationOrStatementValue> m : children) {
+        for (Element<DeclarationOrStatementValue> e : m) {
+          PresenceCondition cc = p.and(e.getCondition());
+          if (cc.isNotFalse()) {
+            e.getData().nameLabels(cc);
+          }
+          cc.delRef();
+        }
+      }
+    }
+  }
   
   public String getString(PresenceCondition p, CActions ca) {
     String ret = "";
@@ -10535,6 +10550,7 @@ private String emitStatementDSV(Multiverse<DeclarationOrStatementValue> allState
   }
   for (Multiverse.Element<DeclarationOrStatementValue> statement : allStatementConfigs) {
     PresenceCondition combinedCond = statement.getCondition().and(pc);
+    statement.getData().nameLabels(combinedCond);
     if (! combinedCond.isFalse()) {
       // don't print at all if an infeasible configuration
       if (! combinedCond.isTrue()) {

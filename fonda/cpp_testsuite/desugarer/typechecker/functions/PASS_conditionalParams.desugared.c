@@ -34,7 +34,6 @@ return 0 ;// L7
 
 
 }
-
 }
 int  __foo_5 (int  __x_0, char  __z_2) {
 
@@ -51,7 +50,6 @@ return 0 ;// L7
 
 
 }
-
 }
 int  __main_8 () {
 
@@ -63,7 +61,6 @@ int  __main_8 () {
 return 0 ;// L12
 }
 }
-
 
 
 }

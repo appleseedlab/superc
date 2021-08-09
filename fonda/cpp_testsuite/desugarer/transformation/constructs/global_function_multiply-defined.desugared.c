@@ -38,8 +38,7 @@ return 1 ;// L4
 
 }
 
-}
-}
+}}
 char  __x_1 () {
 
 {
@@ -57,8 +56,7 @@ return 2 ;// L8
 
 }
 
-}
-}
+}}
 int  __main_4 () {
 
 {
@@ -74,7 +72,6 @@ if (__static_condition_default_5) {
 }
 }
 }
-
 
 
 }

@@ -32,6 +32,5 @@ struct __bob_0  __bobvar_3;// L6
 }
 
 
-
 }
 

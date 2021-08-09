@@ -7,15 +7,15 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_15;
+extern const bool __static_condition_default_14;
+extern const bool __static_condition_default_21;
 extern const bool __static_condition_default_19;
 extern const bool __static_condition_default_17;
 extern const bool __static_condition_default_18;
 extern const bool __static_condition_default_13;
-extern const bool __static_condition_default_21;
-extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_15;
-extern const bool __static_condition_default_11;
 extern const bool __static_condition_default_16;
+extern const bool __static_condition_default_11;
 void __static_initializer_default() {
 __static_renaming("__a_0", "a");
 __static_renaming("__b_1", "b");
@@ -66,7 +66,6 @@ return  ;// L31
 
 
 }
-
 }
 void  __foo_9 () {
 
@@ -87,7 +86,6 @@ return  ;// L31
 
 
 }
-
 }
 void  __foo_10 (__a_0  __x_3, __c_2  __z_5, __b_1  __y_7) {
 
@@ -107,7 +105,6 @@ return  ;// L31
 
 
 }
-
 }
 void  __foo_12 (__b_1  __y_6) {
 
@@ -128,7 +125,6 @@ return  ;// L31
 
 
 }
-
 }
 int  __main_20 () {
 
@@ -140,7 +136,6 @@ int  __main_20 () {
 return 0 ;// L36
 }
 }
-
 
 
 }

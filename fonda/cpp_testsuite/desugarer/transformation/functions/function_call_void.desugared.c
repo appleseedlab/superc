@@ -26,7 +26,6 @@ return  ;// L2
 }
 
 
-
 }
 int  __main_1 (void  ) {
 
@@ -39,7 +38,6 @@ int  __main_1 (void  ) {
 return 0 ;// L8
 }
 }
-
 
 
 }

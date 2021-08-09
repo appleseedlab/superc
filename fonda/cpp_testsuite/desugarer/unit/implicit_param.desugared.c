@@ -41,7 +41,6 @@ return 0 ;// L10
 
 
 }
-
 }
 int  __foo_5 (__a_1  __x_3) {
 
@@ -59,7 +58,6 @@ return 0 ;// L10
 
 
 }
-
 }
 int  __main_8 () {
 
@@ -77,7 +75,6 @@ if (__static_condition_default_7) {
 return 0 ;// L16
 }
 }
-
 
 
 }

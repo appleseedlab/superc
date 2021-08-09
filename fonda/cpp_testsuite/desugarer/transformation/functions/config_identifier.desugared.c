@@ -34,7 +34,6 @@ return  __a_0  +  __b_2  ;// L8
 
 
 }
-
 }
 int  __adder_4 (int  __a_1, int  __b_2) {
 
@@ -51,7 +50,6 @@ return  __a_1  +  __b_2  ;// L8
 
 
 }
-
 }
 int  __main_7 (void  ) {
 
@@ -63,7 +61,6 @@ int  __main_7 (void  ) {
 return 0 ;// L12
 }
 }
-
 
 
 }

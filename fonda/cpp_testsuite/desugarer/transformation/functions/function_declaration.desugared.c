@@ -26,7 +26,6 @@ return  __a_0  +  __b_1  ;// L2
 }
 
 
-
 }
 int  __main_3 (void  ) {
 
@@ -38,7 +37,6 @@ int  __main_3 (void  ) {
 return 0 ;// L6
 }
 }
-
 
 
 }

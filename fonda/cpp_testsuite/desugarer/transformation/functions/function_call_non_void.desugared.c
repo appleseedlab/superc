@@ -29,7 +29,6 @@ return  __a_0  +  __b_1  ;// L2
 }
 
 
-
 }
 int  __main_6 (void  ) {
 
@@ -48,7 +47,6 @@ int  __result_5;// L8
 return 0 ;// L12
 }
 }
-
 
 
 }

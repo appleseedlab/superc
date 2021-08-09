@@ -37,7 +37,6 @@ return 0 ;// L3
 
 
 }
-
 }
 int  __main_3 () {
 
@@ -55,7 +54,6 @@ if (__static_condition_default_5) {
 return 0 ;// L15
 }
 }
-
 
 
 }

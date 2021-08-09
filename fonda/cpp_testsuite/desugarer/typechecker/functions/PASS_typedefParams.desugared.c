@@ -40,7 +40,6 @@ return 0 ;// L9
 
 
 }
-
 }
 int  __foo_5 (__x_1  __a_3) {
 
@@ -57,7 +56,6 @@ return 0 ;// L9
 
 
 }
-
 }
 int  __main_8 () {
 
@@ -69,7 +67,6 @@ int  __main_8 () {
 return 0 ;// L14
 }
 }
-
 
 
 }

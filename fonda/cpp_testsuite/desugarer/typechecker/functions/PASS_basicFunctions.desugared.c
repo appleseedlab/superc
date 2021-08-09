@@ -30,7 +30,6 @@ return 0 ;// L3
 }
 
 
-
 }
 float  (* __y_3 (int  __y1_1)) {
 
@@ -46,7 +45,6 @@ return  __y2_2  ;// L9
 }
 
 
-
 }
 char  __z_6 (int  __z1_4, int  __z2_5) {
 
@@ -58,7 +56,6 @@ char  __z_6 (int  __z1_4, int  __z2_5) {
 return 'a' ;// L14
 }
 }
-
 
 
 }
@@ -74,7 +71,6 @@ return 0 ;// L19
 }
 
 
-
 }
 int  __main_9 (void  ) {
 
@@ -86,7 +82,6 @@ int  __main_9 (void  ) {
 return 0 ;// L27
 }
 }
-
 
 
 }

@@ -143,6 +143,7 @@ unit/pointerArrayAssign                                                         
 unit/if_statement                                                                          BC generated
 unit/switchCaseConfig                                                                      BC generated
 unit/transparentUnion                                                                      BC generated
+unit/duplicatedForloopLabel                                                                BC generated
 unit/sizeof                                                                                SuperC failed
 unit/sizeof                                                                                BC failed
 unit/struct_ref_local_var2                                                                 BC generated
@@ -174,6 +175,7 @@ unit/struct_crossref_global                                                     
 unit/struct_nonpointer                                                                     BC generated
 unit/sizeofStructStruct                                                                    BC generated
 unit/structArrayTypedef                                                                    BC generated
+unit/inExpressionUnionInit                                                                 BC generated
 unit/begin_decls                                                                           BC generated
 unit/enum_repeated_enumerators                                                             SuperC failed
 unit/enum_repeated_enumerators                                                             BC failed

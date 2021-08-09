@@ -41,6 +41,5 @@ __static_type_error("type error : no valid expression"); // L7
 
 
 }
-
 }
 

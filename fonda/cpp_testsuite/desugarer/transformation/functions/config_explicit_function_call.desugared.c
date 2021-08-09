@@ -31,7 +31,6 @@ return  ;// L3
 }
 
 
-
 }
 void  __doNothingTwo_1 () {
 
@@ -42,7 +41,6 @@ void  __doNothingTwo_1 () {
 
 }
 }
-
 
 
 }
@@ -62,7 +60,6 @@ if (__static_condition_default_4) {
 return 0 ;// L17
 }
 }
-
 
 
 }

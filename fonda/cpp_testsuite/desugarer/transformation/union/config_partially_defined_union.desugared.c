@@ -50,7 +50,6 @@ return 0 ;// L16
 
 
 }
-
 }
 int  __main_8 (void  ) {
 
@@ -76,6 +75,5 @@ return 0 ;// L16
 
 
 }
-
 }
 

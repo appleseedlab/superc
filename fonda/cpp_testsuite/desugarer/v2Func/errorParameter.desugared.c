@@ -31,7 +31,6 @@ return 0 ;// L3
 }
 
 
-
 }
 int  __main_7 () {
 
@@ -62,7 +61,6 @@ __static_type_error("type error : no valid expression"); // L17
 return 0 ;// L18
 }
 }
-
 
 
 }

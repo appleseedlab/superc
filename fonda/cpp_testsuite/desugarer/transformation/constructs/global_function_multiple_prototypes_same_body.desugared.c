@@ -34,7 +34,6 @@ return 1 ;// L8
 
 
 }
-
 }
 char  __x_1 () {
 
@@ -51,7 +50,6 @@ return 1 ;// L8
 
 
 }
-
 }
 int  __main_4 () {
 
@@ -68,7 +66,6 @@ if (__static_condition_default_3) {
 }
 }
 }
-
 
 
 }

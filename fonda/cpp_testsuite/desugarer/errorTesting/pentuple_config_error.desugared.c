@@ -76,7 +76,6 @@ return 0 ;// L30
 
 
 }
-
 }
 __ourType_1  __foo_10 (int  __x_4, int  __y_5, __ourType_1  __z_7) {
 
@@ -93,7 +92,6 @@ return 0 ;// L30
 
 
 }
-
 }
 __ourType_1  __foo_11 (int  __x_4, __ourType_1  __z_7) {
 
@@ -110,7 +108,6 @@ return 0 ;// L30
 
 
 }
-
 }
 __ourType_1  __foo_12 () {
 
@@ -127,7 +124,6 @@ return 0 ;// L30
 
 
 }
-
 }
 __ourType_2  __foo_13 (int  __x_4, int  __y_5, __ourType_2  __z_8) {
 
@@ -144,7 +140,6 @@ return 0 ;// L30
 
 
 }
-
 }
 __ourType_2  __foo_14 (int  __x_4, __ourType_2  __z_8) {
 
@@ -161,7 +156,6 @@ return 0 ;// L30
 
 
 }
-
 }
 __ourType_2  __foo_15 () {
 
@@ -178,7 +172,6 @@ return 0 ;// L30
 
 
 }
-
 }
 __ourType_3  __foo_16 () {
 
@@ -195,7 +188,6 @@ return 0 ;// L30
 
 
 }
-
 }
 short  __foo_17 (int  __x_4, int  __y_5, __ourType_1  __z_7) {
 
@@ -212,7 +204,6 @@ return 0 ;// L30
 
 
 }
-
 }
 short  __foo_18 (int  __x_4, int  __y_5, __ourType_2  __z_8) {
 
@@ -229,7 +220,6 @@ return 0 ;// L30
 
 
 }
-
 }
 int  __main_32 () {
 
@@ -241,7 +231,6 @@ int  __main_32 () {
 return 0 ;// L35
 }
 }
-
 
 
 }

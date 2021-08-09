@@ -34,7 +34,6 @@ return 1 ;// L6
 
 
 }
-
 }
 int  __returnOne_2 (int  __x_0) {
 
@@ -51,7 +50,6 @@ return 1 ;// L6
 
 
 }
-
 }
 int  __main_5 (void  ) {
 
@@ -63,7 +61,6 @@ int  __main_5 (void  ) {
 return 0 ;// L10
 }
 }
-
 
 
 }

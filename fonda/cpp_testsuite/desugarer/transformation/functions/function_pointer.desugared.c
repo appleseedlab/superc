@@ -27,7 +27,6 @@ __static_type_error("type error : no valid expression"); // L5
 }
 
 
-
 }
 int  __main_3 () {
 
@@ -42,7 +41,6 @@ void  (* __fun_ptr_2) (int  )= &  __fun_1 ;// L11
 return 0 ;// L21
 }
 }
-
 
 
 }

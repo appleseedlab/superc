@@ -31,7 +31,6 @@ return ++  __i_2  ;// L6
 }
 
 
-
 }
 int  __main_5 () {
 
@@ -57,7 +56,6 @@ if (  ___Djkifd_CONFIG_A_defined_1  )// L10
 return  __x_4  ;// L13
 }
 }
-
 
 
 }

@@ -30,7 +30,6 @@ return 0 ;// L7
 }
 
 
-
 }
 int  __foo_4 (int  (* __x_3)) {
 
@@ -42,7 +41,6 @@ int  __foo_4 (int  (* __x_3)) {
 return 1 ;// L12
 }
 }
-
 
 
 }

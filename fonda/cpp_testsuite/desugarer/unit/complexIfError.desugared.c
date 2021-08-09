@@ -55,6 +55,5 @@ __static_type_error("invalid type found in if statement");
 }
 
 
-
 }
 

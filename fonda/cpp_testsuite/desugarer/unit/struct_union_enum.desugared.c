@@ -48,6 +48,5 @@ __builtin_offsetof ( int   , u  ) ; // L13
 }
 
 
-
 }
 

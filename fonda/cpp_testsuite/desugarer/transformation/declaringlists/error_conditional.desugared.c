@@ -33,6 +33,5 @@ __static_type_error("invalid declaration of x under this presence condition");
 }
 
 
-
 }
 

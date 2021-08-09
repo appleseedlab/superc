@@ -38,8 +38,7 @@ return 1 ;// L4
 
 }
 
-}
-}
+}}
 char  __x_2 (int  __y_0) {
 
 {
@@ -57,8 +56,7 @@ return  __y_0  ;// L8
 
 }
 
-}
-}
+}}
 int  __main_5 () {
 
 {
@@ -80,7 +78,6 @@ __static_type_error("type error") ; // L17
 }
 }
 }
-
 
 
 }

@@ -98,7 +98,6 @@ __static_type_error("invalid type found in if statement");
 }
 
 
-
 }
 int  __main_10 (int  __argc_8, char  (* (* __argv_9))) {
 
@@ -121,7 +120,6 @@ __static_type_error("type error : no valid expression"); // L24
 }
 }
 }
-
 
 
 }

@@ -8,8 +8,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_9;
-extern const bool __static_condition_default_8;
 extern const bool __static_condition_default_6;
+extern const bool __static_condition_default_8;
 void __static_initializer_default() {
 __static_renaming("__foo_4", "foo");
 __static_renaming("__main_7", "main");
@@ -39,7 +39,6 @@ return 0 ;// L10
 
 
 }
-
 }
 int  __main_7 () {
 
@@ -56,7 +55,6 @@ __static_type_error("invalid type found in return expression");
 }
 }
 }
-
 
 
 }

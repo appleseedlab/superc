@@ -46,7 +46,6 @@ __static_type_error("type error : no valid expression"); // L12
 }
 
 
-
 }
 struct __bob_6 ;// L17
 
