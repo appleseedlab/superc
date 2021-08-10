@@ -7,9 +7,9 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_5;
-extern const bool __static_condition_default_9;
 extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_5;
 void __static_initializer_default() {
 __static_renaming("___C_40496_0", "_C_40496");
 __static_renaming("___C_40496_DEFINED_1", "_C_40496_DEFINED");

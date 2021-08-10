@@ -13,6 +13,7 @@ import xtc.type.VoidT;
 import xtc.type.PointerT;
 import xtc.type.ArrayT;
 import xtc.type.FunctionT;
+import superc.core.PresenceConditionManager;
 import superc.core.PresenceConditionManager.PresenceCondition;
 import superc.cdesugarer.Multiverse;
 import superc.cdesugarer.Multiverse.Element;
@@ -52,8 +53,10 @@ abstract class Initializer {
   boolean isList() { return false; }
 
   /** Returns the possible strings given the type */
-  public Multiverse<String> renamedList(Multiverse<Type> t, PresenceCondition p, CContext scope) {return new Multiverse<String>("",p);}
-  
+    public Multiverse<String> renamedList(Multiverse<Type> t, PresenceCondition p, CContext scope) {return new Multiverse<String>("",p);}
+    
+    public abstract PresenceCondition getErrorsIn(Multiverse<Type> t, PresenceCondition p);
+    
   // /**
   //  * Return the type of this initializer for use in checking against
   //  * the declaration.
@@ -85,7 +88,9 @@ abstract class Initializer {
     public String toString() {
       return "";
     }
-    
+      public PresenceCondition getErrorsIn(Multiverse<Type> t, PresenceCondition p) {
+	  return p;
+      }
   }
 
   /**
@@ -123,6 +128,9 @@ abstract class Initializer {
       m.destruct(); lists.destruct();
       return ret;
     }
+      public PresenceCondition getErrorsIn(Multiverse<Type> t, PresenceCondition p) {
+	  return initializer.getErrorsIn(t,p);
+      }
   }
 
   /**
@@ -159,6 +167,15 @@ abstract class Initializer {
     public Multiverse<String> renamedList(Multiverse<Type> t, PresenceCondition p, CContext scope) {
       return new Multiverse<String>(expression,p);
     }
+      public PresenceCondition getErrorsIn(Multiverse<Type> t, PresenceCondition p) {
+	  PresenceCondition issues = (new PresenceConditionManager()).newFalse();
+	  for (Element<Type> e : t) {
+	      if (!CActions.compatTypes(e.getData(),type)) {
+		  issues = issues.or(e.getCondition());
+	      }
+	  }
+	  return issues;
+      }
   }
 
   /**
@@ -242,6 +259,24 @@ abstract class Initializer {
       ret.destruct();temp.destruct();ret=st;
       return ret;
     }
+
+      public PresenceCondition getErrorsIn(Multiverse<Type> t, PresenceCondition p) {
+	  PresenceCondition issues = (new PresenceConditionManager()).newFalse();
+	  for (Element<Type> et : t) {
+	      Type st = et.getData();
+	      if (st.isStruct() || st.isUnion() || st.isArray()) {
+		  if (st.isArray()) {
+		      st = ((ArrayT)st).getType();
+		  }
+		  for (Initializer i : list) {
+		      issues = issues.or(i.getErrorsIn(new Multiverse<Type>(st,et.getCondition()),et.getCondition()));
+		  }
+	      } else {
+		  issues = issues.or(et.getCondition());
+	      }
+	  }
+	  return issues;
+      }
   }
 
   /**
@@ -295,7 +330,11 @@ abstract class Initializer {
       l.destruct();r.destruct();
       return ret;
     }
-    
+
+      public PresenceCondition getErrorsIn(Multiverse<Type> t, PresenceCondition p) {
+	  return (new PresenceConditionManager()).newFalse();
+      }
+      
   }
 
   /**

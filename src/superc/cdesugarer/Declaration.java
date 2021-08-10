@@ -66,7 +66,11 @@ class Declaration {
    * object will cause an illegal state exception.
    */
   public Declaration rename(String renaming) {
-    return new Declaration(this.typespecifier, this.declarator.rename(renaming));
+    Declaration d =  new Declaration(this.typespecifier, this.declarator.rename(renaming));
+    if (isField) {
+	d.setField();
+    }
+    return d;
   }
 
   /*

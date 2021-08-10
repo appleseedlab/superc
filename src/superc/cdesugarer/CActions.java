@@ -4606,8 +4606,8 @@ public class CActions implements SemanticActions {
           Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(valuemv);
           for (Element<DeclarationOrStatementValue> e : dsv) {
             e.getData().setChildrenBlock("",body,"");
+	    e.getData().setType(exprval.type.filter(e.getCondition()));
           }
-          
           setTransformationValue(value, dsv);
         }
     break;
@@ -4954,6 +4954,12 @@ public class CActions implements SemanticActions {
           LineNumbers lw = new LineNumbers(switchsyn, rparensyn);
           List<Multiverse<DeclarationOrStatementValue>> body = (List<Multiverse<DeclarationOrStatementValue>>) getTransformationValue(subparser, 2);
           Multiverse<List<DeclarationOrStatementValue>> bodyswap = listMultiverseSwap(body,subparser.getPresenceCondition());
+	  for (Element<List<DeclarationOrStatementValue>> el : bodyswap) {
+	    for (DeclarationOrStatementValue ds : el.getData()) {
+	      ds.filterTypes(el.getCondition());
+	    }
+	  }
+	  
           String rbrace = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
 
           todoReminder("check that switch statement expression should be an int");
@@ -4983,7 +4989,23 @@ public class CActions implements SemanticActions {
             }
           }
           newdsv.add(new DeclarationOrStatementValue(emitError("invalid switch expression") + ";"), exprval.type.getConditionOf(ErrorT.TYPE));
-          setTransformationValue(value, newdsv);
+	  PresenceCondition badCases = (new PresenceConditionManager()).newFalse();
+	  for (Element<List<DeclarationOrStatementValue>> el : bodyswap ) {
+	    PresenceCondition cc = el.getCondition();
+	    for(DeclarationOrStatementValue ds : el.getData()) {
+	      if (!ds.goodSwitchCase(cc)) {
+		badCases = badCases.or(cc);
+		break;
+	      }
+	    }
+	    cc.delRef();
+	  }
+	  if (badCases.isNotFalse()) {
+	    newdsv = newdsv.filter(badCases.not());
+	    newdsv.add(new DeclarationOrStatementValue(emitError("Switch cases are incompatible") + ";"), badCases);
+	  }
+	  badCases.delRef();
+	  setTransformationValue(value, newdsv);
         }
     break;
 
@@ -6301,18 +6323,22 @@ public class CActions implements SemanticActions {
           Multiverse<String> typenamestr = DesugarOps.typenameToString.transform(typename);
           Multiverse<String> mv1 = typenamestr.prependScalar(lparen, DesugarOps.concatStrings); typenamestr.destruct();
           Multiverse<String> mv2 = mv1.appendScalar(rparen, DesugarOps.concatStrings); mv1.destruct();
-          //Multiverse<String> mv3 = mv2.appendScalar(lbrace, DesugarOps.concatStrings); mv2.destruct();
           Multiverse<Initializer> initializerlistmv
             = DesugarOps.toInitializerList.transform(initializerlist);
           
           Multiverse<String> initializerliststr = new Multiverse<String>();
+	  PresenceCondition error = (new PresenceConditionManager()).newFalse();
           for (Element<Declaration> ed : typename) {
             for (Element<Initializer> ei : initializerlistmv) {
               PresenceCondition cc = ed.getCondition().and(ei.getCondition()); 
               initializerliststr.addAll(ei.getData().renamedList(new Multiverse<Type>(ed.getData().getType().resolve(),cc),cc,(CContext)subparser.scope));
+	      PresenceCondition thisError = ei.getData().getErrorsIn(new Multiverse<Type>(ed.getData().getType().resolve(),cc),cc);
+	      error = error.or(thisError);
+	      thisError.delRef();
               cc.delRef();
             }
           }
+	  System.err.println(error);
           initializerlistmv.destruct();
 
           Multiverse<String> mv4
@@ -6320,8 +6346,10 @@ public class CActions implements SemanticActions {
           //Multiverse<String> transformationmv = mv4.appendScalar(rbrace, DesugarOps.concatStrings); mv4.destruct();
 
           Multiverse<Type> typemv = DesugarOps.typenameToType.transform(typename);
-
-          setTransformationValue(value, new ExpressionValue(mv4, typemv, new Multiverse<LineNumbers>(lw,pc)));
+	  Multiverse<Type> filtered = typemv.filter(error.not());
+	  filtered.add(ErrorT.TYPE,error); typemv.destruct();
+	    
+          setTransformationValue(value, new ExpressionValue(mv4, filtered, new Multiverse<LineNumbers>(lw,pc)));
         }
     break;
 
@@ -8058,7 +8086,7 @@ public class CActions implements SemanticActions {
           Multiverse<String> appended = prepended.appendScalar(");", DesugarOps.concatStrings);
           temp.transformation.destruct(); prepended.destruct();
           appended = appended.filter(temp.type.getConditionOf(ErrorT.TYPE).not());
-          appended.add(emitError("invalid type in Assembly Argument"),temp.type.getConditionOf(ErrorT.TYPE));
+          appended.add(emitError("invalid type in Assembly Argument")+";",temp.type.getConditionOf(ErrorT.TYPE));
           setTransformationValue(value, DesugarOps.StringToDSV.transform(appended));
         }
     break;
@@ -8088,7 +8116,7 @@ public class CActions implements SemanticActions {
           Multiverse<String> res = preTemp.product(appended, DesugarOps.concatStrings);
           preTemp.destruct(); appended.destruct();
           res = res.filter(temp.type.getConditionOf(ErrorT.TYPE).not());
-          res.add(emitError("invalid type in Assembly Argument"),temp.type.getConditionOf(ErrorT.TYPE));
+          res.add(emitError("invalid type in Assembly Argument")+";",temp.type.getConditionOf(ErrorT.TYPE));
           setTransformationValue(value, DesugarOps.StringToDSV.transform(res));
         }
     break;
@@ -8921,9 +8949,11 @@ Multiverse<Map.Entry<String,Declaration>> getNestedFields(String structId, Strin
         for (Element<Map.Entry<String,Declaration>> ei : inner) {
           ei.setData(new AbstractMap.SimpleImmutableEntry<String,Declaration>(((VariableT)e.getData().getValue().getType()).getName()
                                                                        + " . " + ei.getData().getKey()
-                                                                       ,ei.getData().getValue()));
+                                                                       ,
+									      (ei.getData().getValue()).rename(((VariableT)e.getData().getValue().getType()).getName()
+                                                                       + " . " + ei.getData().getValue().getName())
+									      ));
         }
-
         for (Element<Map.Entry<String,Declaration>> ei : inner) {
           if (!result.isEmpty()) {
             boolean remade;
@@ -10130,6 +10160,27 @@ public static class DeclarationOrStatementValue {
 
   public Multiverse<Type> getType() {
     return typeVal;
+  }
+
+  public void filterTypes(PresenceCondition p ) {
+    if (!typeVal.isEmpty()) {
+      typeVal = typeVal.filter(p);
+    }
+  }
+
+  public boolean goodSwitchCase(PresenceCondition p) {
+    if (typeVal.isEmpty()) {
+      return true;
+    }
+    Multiverse<Type> subset = typeVal.filter(p);
+    if (subset.isEmpty()) {
+      return false;
+    }
+    for (Element<Type> et : subset) {
+      if (!(et.getData().resolve().isNumber() && (et.getData().hasConstant() || et.getData().hasAttribute(Constants.ATT_CONSTANT))))
+	return false;
+    }
+    return true;
   }
   
 }
