@@ -7,17 +7,17 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_22;
 extern const bool __static_condition_default_24;
-extern const bool __static_condition_default_33;
 extern const bool __static_condition_default_26;
-extern const bool __static_condition_default_30;
-extern const bool __static_condition_default_29;
 extern const bool __static_condition_default_31;
-extern const bool __static_condition_default_23;
+extern const bool __static_condition_default_29;
 extern const bool __static_condition_default_25;
-extern const bool __static_condition_default_27;
 extern const bool __static_condition_default_28;
+extern const bool __static_condition_default_22;
+extern const bool __static_condition_default_33;
+extern const bool __static_condition_default_23;
+extern const bool __static_condition_default_27;
+extern const bool __static_condition_default_30;
 void __static_initializer_default() {
 __static_renaming("__ourType_0", "ourType");
 __static_renaming("__ourType_1", "ourType");

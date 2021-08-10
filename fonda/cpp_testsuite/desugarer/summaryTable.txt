@@ -169,6 +169,7 @@ unit/struct_crossref_global2                                                    
 unit/statementAsExpressionError                                                            BC generated
 unit/enum_forward_ref                                                                      BC generated
 unit/qualifiedpointer                                                                      BC generated
+unit/indirectAccessBitfield                                                                BC generated
 unit/wrappedConfig                                                                         BC generated
 unit/castTypeError                                                                         BC generated
 unit/struct_crossref_global                                                                BC generated
@@ -198,6 +199,7 @@ unit/initializerError                                                           
 unit/struct_desugar_test                                                                   BC generated
 unit/struct_global_forward_reference_desugar                                               BC generated
 unit/struct_nested_anonymous                                                               BC generated
+unit/switchErrorCase                                                                       BC generated
 unit/enum_constant_expression2                                                             BC failed
 unit/sizeofStructStructError                                                               BC generated
 unit/duplicateTest                                                                         BC generated
@@ -226,6 +228,7 @@ unit/enum                                                                       
 unit/initializers                                                                          BC failed
 unit/struct_ref_local_var                                                                  BC generated
 unit/designated_initializer                                                                BC generated
+unit/derefUnionFromStruct                                                                  BC generated
 unit/typedef_local_declaration                                                             BC generated
 unit/struct_multiply_defined                                                               BC generated
 unit/local_redeclarations                                                                  BC generated
@@ -244,6 +247,7 @@ unit/switch                                                                     
 unit/struct_configurable                                                                   BC generated
 unit/ternaryCondError                                                                      BC generated
 unit/initTest                                                                              BC generated
+unit/compoundInitializerError                                                              BC generated
 unit/offsetof                                                                              SuperC failed
 unit/offsetof                                                                              BC failed
 unit/complexIfError                                                                        BC generated
