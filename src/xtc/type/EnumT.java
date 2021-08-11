@@ -212,4 +212,8 @@ public class EnumT extends WrappedT implements Tagged {
     out.append(name);
   }
 
+  public String printType() {
+    return "enum " + name;
+  }
+
 }

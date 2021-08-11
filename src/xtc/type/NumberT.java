@@ -365,4 +365,8 @@ public abstract class NumberT extends Type {
     }
   }
 
+  public String printType() {
+    return toString();
+  }
+
 }

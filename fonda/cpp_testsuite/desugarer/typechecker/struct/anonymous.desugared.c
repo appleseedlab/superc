@@ -8,24 +8,24 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 void __static_initializer_default() {
-__static_renaming("__data_2", "data");
-__static_renaming("__main_3", "main");
+__static_renaming("__data_3", "data");
+__static_renaming("__main_4", "main");
 
 
 };
-struct __anonymous_tag_0 {
-char  __p_1;
+struct ____anonymous_tag_0_1 {
+char  __p_2;
 };
 
-struct __anonymous_tag_0  __data_2;// L1:L3
-int  __main_3 () {
+struct ____anonymous_tag_0_1  __data_3;// L1:L3
+int  __main_4 () {
 
 {
 {
 
 
 
- __data_2  . __p_1 ; // L7
+ __data_3  . __p_2 ; // L7
 return 0 ;// L9
 }
 }

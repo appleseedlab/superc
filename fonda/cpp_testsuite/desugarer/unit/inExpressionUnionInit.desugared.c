@@ -8,23 +8,23 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 void __static_initializer_default() {
-__static_renaming("__main_3", "main");
+__static_renaming("__main_4", "main");
 
 
 };
 
-int  __main_3 () {
+int  __main_4 () {
 
 {
 {
 
-union __anonymous_tag_0 {
-int  __a_1;
-long  __b_2;
+union ____anonymous_tag_0_1 {
+int  __a_2;
+long  __b_3;
 };
 
 
-( ( union __anonymous_tag_0   ) { .__a_1 = 2 } ) . __b_2 ; // L2
+( ( union ____anonymous_tag_0_1   ) { .__a_2 = 2 } ) . __b_3 ; // L2
 return 0 ;// L3
 }
 }

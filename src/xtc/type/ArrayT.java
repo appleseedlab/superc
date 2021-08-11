@@ -204,4 +204,13 @@ public class ArrayT extends DerivedT {
     out.append(')');
   }
 
+  public String printType() {
+    if (hasLength()) {
+      return type.printType() + "[" + getLength() + "]";
+    } else {
+      return type.printType() + "[]";
+    }
+    
+  }
+  
 }

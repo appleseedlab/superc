@@ -116,5 +116,15 @@ public class ParameterizedT extends WrappedT {
     out.append("> ");
     getType().write(out);
   }
-
+  
+  public String printType(){
+    String r = getType().printType() + "<";
+    for (Iterator<Parameter> iter = parameters.iterator(); iter.hasNext(); ) {
+      r += iter.next().printType();
+      if (iter.hasNext()) r +=", ";
+    }
+    r+="> ";
+    return r;
+  }
+  
 }

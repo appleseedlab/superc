@@ -18,27 +18,27 @@ struct __forward_tag_reference_0  (* __z_3);
 struct ____t_1_4 {
 int  __p_5;
 };
-union __anonymous_tag_6 {
-struct ____t_1_4  ____t_1_7;
+union ____anonymous_tag_6_7 {
+struct ____t_1_4  ____t_1_8;
 };
-struct __t_8 {
-union __anonymous_tag_6  __anon_id_0_9;
+struct __t_9 {
+union ____anonymous_tag_6_7  __anon_id_0_10;
 };
-union __anonymous_tag_10 {
-struct ____s_0_1  ____s_0_11;
+union ____anonymous_tag_11_12 {
+struct ____s_0_1  ____s_0_13;
 };
-struct __s_12 {
-union __anonymous_tag_10  __anon_id_1_13;
+struct __s_14 {
+union ____anonymous_tag_11_12  __anon_id_1_15;
 };
 
 struct __forward_tag_reference_0 { // generated union of struct variations
 union {
-struct __t_8 __t_8;
+struct __t_9 __t_9;
 };
 };
 
 struct ____s_0_1 ;// L1
 struct ____t_1_4 ;// L5
-struct __t_8 ;// L8
-struct __s_12 ;// L14
+struct __t_9 ;// L8
+struct __s_14 ;// L14
 

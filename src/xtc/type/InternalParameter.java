@@ -97,4 +97,8 @@ public class InternalParameter extends Parameter {
     return Long.toString(nonce);
   }
 
+  public String printType() {
+    return Long.toString(nonce);
+  }
+
 }

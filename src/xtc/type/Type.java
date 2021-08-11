@@ -1953,4 +1953,11 @@ public abstract class Type extends Node {
     return Collections.unmodifiableList(types);
   }
 
+  /**
+   * prints the type as it would be written
+   * this is only meant to replicate a given type
+   * not to be used as a replacement
+   */
+  public abstract String printType();
+  
 }

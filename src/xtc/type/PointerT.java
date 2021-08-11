@@ -113,4 +113,8 @@ public class PointerT extends DerivedT {
     out.append(')');
   }
 
+  public String printType() {
+    return "("+type.printType()+")*";
+  }
+
 }

@@ -1951,13 +1951,14 @@ Typeofspecifier: /** complete **/  // ADDED
           Multiverse<TypeSpecifier> tmv = getCompleteNodeMultiverseValue(subparser, 4, pc);
           for (Element<TypeSpecifier> e : tmv) {
             TypeSpecifier t = new TypeSpecifier(e.getData());
+            
             t.addTransformation(((Syntax) getNodeAt(subparser, 3)));
             e.setData(t);
           }
           Multiverse<Declaration> dmv = getCompleteNodeMultiverseValue(subparser, 2, pc);
           Multiverse<TypeSpecifier> newtm = new Multiverse<TypeSpecifier>();
-          for (Element<TypeSpecifier> t : tmv) {
-            for (Element<Declaration> d : dmv) {
+          for (Element<Declaration> d : dmv) {
+            for (Element<TypeSpecifier> t : tmv) {
               PresenceCondition p = t.getCondition().and(d.getCondition());
               if (p.isNotFalse()) {
                 TypeSpecifier ts = new TypeSpecifier(t.getData());
@@ -1985,19 +1986,24 @@ Typeofspecifier: /** complete **/  // ADDED
           }
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
           Multiverse<TypeSpecifier> newtm = new Multiverse<TypeSpecifier>();
-          for (Element<TypeSpecifier> t : tmv) {
-            for (Element<Type> e : exprval.type) {
+          for (Element<Type> e : exprval.type) {
+            String standin = "";
+            if (e.getData() != ErrorT.TYPE) {
+              standin = freshCId("typeofStandin");
+              ((CContext)subparser.scope).addDeclaration("typeof("+ e.getData().printType()+")" + standin + ";\n");
+            }
+            for (Element<TypeSpecifier> t : tmv) {
+              //add a declaration of a dummy variable at the top of scope to use instead
+              //for user defined types
               PresenceCondition p = t.getCondition().and(e.getCondition());
               if (p.isNotFalse()) {
-                Multiverse<String> transFilt = exprval.transformation.filter(p);
-                if (!transFilt.isEmpty()) {
-                  for (Element<String> s : transFilt) {
-                    TypeSpecifier ts = new TypeSpecifier(t.getData());
-                    ts.visitTypeofSpecifier(e.getData());
-                    ts.addTransformation(new Layout(s.getData()));
-                    newtm.add(ts, p.and(s.getCondition()));
-                  }
+                TypeSpecifier ts = new TypeSpecifier(t.getData());
+                ts.visitTypeofSpecifier(e.getData());
+                ts.addTransformation(new Layout(standin));
+                if (e.getData() == ErrorT.TYPE) {
+                  ts.setError();
                 }
+                newtm.add(ts, p);
               }
               p.delRef();
             }
@@ -2006,6 +2012,7 @@ Typeofspecifier: /** complete **/  // ADDED
           for (Element<TypeSpecifier> e : newtm) {
             e.getData().addTransformation(((Syntax) getNodeAt(subparser, 1)));
           }
+          
           setTransformationValue(value, newtm);
         }
         ;
@@ -2358,10 +2365,8 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
 
           String structTag = freshCId("anonymous_tag");
           
-          String renamedTag = structTag;
-          
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
+            = DesugarOps.processStructDefinitionWithFlex(keyword, structTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
           System.err.println(valuemv);
           setTransformationValue(value, valuemv);
         }
@@ -2377,7 +2382,7 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
           
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinitionMV(keyword, structTag, this, structfields, pc, scope, freshIdCreator, suTypeCreator);
+            = DesugarOps.processStructDefinitionMV(keyword, structTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
           setTransformationValue(value, valuemv);
         }
         | STRUCT AttributeSpecifierListOpt TYPEDEFname LBRACE StructDeclarationList RBRACE
@@ -2390,11 +2395,8 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           String structTag = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
           List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
 
-          // get the renaming of the tag
-          String renamedTag = freshCId(structTag);
-          
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
+            = DesugarOps.processStructDefinitionWithFlex(keyword, structTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2435,10 +2437,8 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
 
           String structTag = freshCId("anonymous_tag");
           
-          String renamedTag = structTag;
-          
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
+            = DesugarOps.processStructDefinitionWithFlex(keyword, structTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2452,11 +2452,8 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           String structTag = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
           List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
 
-          // get the renaming of the tag
-          String renamedTag = freshCId(structTag);
-          
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
+            = DesugarOps.processStructDefinitionWithFlex(keyword, structTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }
@@ -2470,11 +2467,8 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           String structTag = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
           List<Multiverse<Declaration>> structfields = this.<Declaration>getCompleteNodeListValue(subparser, 2, pc);
 
-          // get the renaming of the tag
-          String renamedTag = freshCId(structTag);
-          
           Multiverse<TypeSpecifier> valuemv
-            = DesugarOps.processStructDefinition(keyword, structTag, renamedTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
+            = DesugarOps.processStructDefinition(keyword, structTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
 
           setTransformationValue(value, valuemv);
         }

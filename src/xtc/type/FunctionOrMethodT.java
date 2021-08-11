@@ -201,4 +201,16 @@ public abstract class FunctionOrMethodT extends DerivedT {
     }
   }
 
+  public String printType() {
+    String r = result.printType() + "(";
+    for (Iterator<Type> iter = parameters.iterator(); iter.hasNext(); ) {
+      r += iter.next().printType();
+      if (iter.hasNext() || varargs) {
+        r +=", ";
+      }
+    }
+    r += ")";
+    return r;
+  }
+
 }

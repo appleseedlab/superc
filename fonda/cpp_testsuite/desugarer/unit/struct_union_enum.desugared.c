@@ -8,16 +8,16 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 void __static_initializer_default() {
-__static_renaming("__main_14", "main");
+__static_renaming("__main_16", "main");
 
 
 };
-union __anonymous_tag_3 {
+union ____anonymous_tag_3_4 {
 };
-union __anonymous_tag_6 {
+union ____anonymous_tag_7_8 {
 };
-struct __len_and_sockaddr_10 {
-int  __len_11;
+struct __len_and_sockaddr_12 {
+int  __len_13;
 };
 
 struct __forward_tag_reference_2 { // generated union of struct variations
@@ -35,7 +35,7 @@ union {
 };
 };
 
-int  __main_14 () {
+int  __main_16 () {
 
 {
 {

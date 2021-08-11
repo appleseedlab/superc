@@ -199,6 +199,7 @@ unit/initializerError                                                           
 unit/struct_desugar_test                                                                   BC generated
 unit/struct_global_forward_reference_desugar                                               BC generated
 unit/struct_nested_anonymous                                                               BC generated
+unit/typedefFlexStruct                                                                     BC generated
 unit/switchErrorCase                                                                       BC generated
 unit/enum_constant_expression2                                                             BC failed
 unit/sizeofStructStructError                                                               BC generated
@@ -244,6 +245,7 @@ unit/jump_statement                                                             
 unit/partialConfigDeclaringList                                                            BC generated
 unit/single                                                                                BC generated
 unit/switch                                                                                BC generated
+unit/conditionalFlexArray                                                                  BC generated
 unit/struct_configurable                                                                   BC generated
 unit/ternaryCondError                                                                      BC generated
 unit/initTest                                                                              BC generated

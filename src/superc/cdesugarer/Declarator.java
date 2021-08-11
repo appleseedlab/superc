@@ -99,9 +99,12 @@ abstract class Declarator {
   /** Returns true if this is a NamedBitFieldSizeDeclarator object. */
   public boolean isNamedBitFieldSizeDeclarator() { return false; }
 
+  public boolean isFlexible() { return false;}
+  
   public String toString(int len) {
       return "ERROR: incompatible array length specifier";
     }
+  
   public abstract String printType();
   /**
    * This empty declarator is used for abstract declarators that only
@@ -192,6 +195,10 @@ abstract class Declarator {
     }
     public String printType() {
       return String.format("(%s)", declarator.printType());
+    }
+
+    public boolean isFlexible() {
+      return declarator.isFlexible();
     }
   }
 
@@ -340,6 +347,9 @@ abstract class Declarator {
     public String printType() {
       // return String.format("* %s %s", qualifiers.toString(), declarator.toString());
       return String.format("(* %s %s)", qualifiers.toString(), declarator.printType());  // preserve order of operations
+    }
+    public boolean isFlexible() {
+      return declarator.isFlexible();
     }
   }
 
@@ -491,6 +501,9 @@ abstract class Declarator {
       System.err.println("WARNING: do we need parentheses?");
       return String.format("(%s%s)", declarator.printType(), arrayabstractdeclarator.printType());
     }
+    public boolean isFlexible() {
+      return arrayabstractdeclarator.isFlexible();
+    }
   }
 
   // do we ever need to know the syntax of the array's expression?  if
@@ -590,6 +603,16 @@ abstract class Declarator {
       }
       return sb.toString();
     }
+
+    public boolean isFlexible() {
+      if (expressions.size() > 1) {
+        return false;
+      } else if (expressions.size() == 1) {
+        return expressions.get(0) == "";
+      }
+      return true;
+      
+    }
   }
 
   /**
@@ -665,6 +688,9 @@ abstract class Declarator {
     }
     public String printType() {
       return String.format("%s %s", declarator.printType(), parameters.printType());
+    }
+    public boolean isFlexible() {
+      return declarator.isFlexible();
     }
   }
 

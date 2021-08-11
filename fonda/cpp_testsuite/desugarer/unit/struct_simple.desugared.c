@@ -11,10 +11,10 @@ void __static_initializer_default() {
 
 
 };
-struct __anonymous_tag_0 {
-int  __x_1;
-char  __y_2;
+struct ____anonymous_tag_0_1 {
+int  __x_2;
+char  __y_3;
 };
 
-struct __anonymous_tag_0 ;// L1
+struct ____anonymous_tag_0_1 ;// L1
 

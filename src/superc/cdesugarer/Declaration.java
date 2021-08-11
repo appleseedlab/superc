@@ -61,6 +61,10 @@ class Declaration {
     return this.declarator.hasName();
   }
 
+  public boolean isFlexible() {
+    return declarator.isFlexible();
+  }
+
   /**
    * Renames the declaration.  If the declarator is abstract, that
    * object will cause an illegal state exception.

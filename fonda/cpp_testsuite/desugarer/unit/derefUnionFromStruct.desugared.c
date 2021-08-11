@@ -8,38 +8,38 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 void __static_initializer_default() {
-__static_renaming("__x_9", "x");
-__static_renaming("__a_10", "a");
+__static_renaming("__x_10", "x");
 __static_renaming("__a_11", "a");
-__static_renaming("__main_12", "main");
+__static_renaming("__a_12", "a");
+__static_renaming("__main_13", "main");
 
 
 };
-union __anonymous_tag_0 {
-int  __c_1;
-short  __c_2;
-long  (* __d_3);
-int  (* __d_4);
+union ____anonymous_tag_0_1 {
+int  __c_2;
+short  __c_3;
+long  (* __d_4);
+int  (* __d_5);
 };
-struct __x_5 {
-int  __a_6;
-int  __b_7;
-union __anonymous_tag_0  __anon_id_0_8;
+struct __x_6 {
+int  __a_7;
+int  __b_8;
+union ____anonymous_tag_0_1  __anon_id_0_9;
 };
 
-struct __x_5 ;// L1
-int  __main_12 () {
+struct __x_6 ;// L1
+int  __main_13 () {
 
 {
 {
 
 
 
-struct __x_5  __x_9;// L17
+struct __x_6  __x_10;// L17
 
-int  __a_10=  __x_9  . __anon_id_0_8 . __c_1;// L18
+int  __a_11=  __x_10  . __anon_id_0_9 . __c_2;// L18
 
-int  __a_11=  __x_9  . __anon_id_0_8 . __c_2;// L18
+int  __a_12=  __x_10  . __anon_id_0_9 . __c_3;// L18
 
 return 0 ;// L19
 }

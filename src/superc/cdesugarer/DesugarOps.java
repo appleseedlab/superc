@@ -19,6 +19,7 @@ import xtc.type.IntegerT;
 
 import superc.core.Syntax;
 
+import superc.core.PresenceConditionManager;
 import superc.core.PresenceConditionManager.PresenceCondition;
 
 import superc.cdesugarer.Multiverse;
@@ -295,12 +296,50 @@ class DesugarOps {
       }
     };
 
+  
+  public static Multiverse<TypeSpecifier> processStructDefinitionWithFlex(Syntax keyword,
+                                                                  String structTag,
+                                                                  List<Multiverse<Declaration>> structfields,
+                                                                  PresenceCondition pc,
+                                                                  CContext scope,
+                                                                  FreshIDCreator freshIdCreator,
+                                                                  StructOrUnionTypeCreator suTypeCreator) {
+    List<PresenceCondition> flexList = new LinkedList<PresenceCondition>();
+    for (Multiverse<Declaration> m : structfields) {
+      for (Element<Declaration> e : m) {
+        if (e.getData().isFlexible()) {
+          flexList.add(e.getCondition());
+        }
+      }
+    }
+    if (flexList.size() <= 1) {
+      return processStructDefinition(keyword,structTag,structfields,pc,scope,freshIdCreator,suTypeCreator);
+    }
+    PresenceCondition remaining = (new PresenceConditionManager()).newTrue();
+    for (PresenceCondition p : flexList) {
+      remaining = remaining.and(p.not());
+    }
+    flexList.add(remaining);
+    Multiverse<TypeSpecifier> ret = new Multiverse<TypeSpecifier>();
+    for (PresenceCondition p : flexList) {
+      if (p.isNotFalse()) {
+        List<Multiverse<Declaration>> l = new LinkedList<Multiverse<Declaration>>();
+        for (Multiverse<Declaration> m : structfields){
+          Multiverse<Declaration> filt = m.filter(p);
+          if (!filt.isEmpty()) {
+            l.add(filt);
+          }
+        }
+        ret.addAll(processStructDefinition(keyword,structTag,l,p,scope,freshIdCreator,suTypeCreator));
+      }
+    }
+    return ret;
+  }
   /**
    * Create the semantic value for a struct definition.
    */
   public static Multiverse<TypeSpecifier> processStructDefinition(Syntax keyword,
                                                                   String structTag,
-                                                                  String renamedTag,
                                                                   List<Multiverse<Declaration>> structfields,
                                                                   PresenceCondition pc,
                                                                   CContext scope,
@@ -309,8 +348,8 @@ class DesugarOps {
     // (1) add each field to the lookaside table and construct the transformation
 
     // get the field table for the current tag, which should be empty
+    String renamedTag = freshIdCreator.freshCId(structTag);
     SymbolTable<Declaration> tagtab = scope.addLookasideTable(renamedTag);
-
     // prepare the desugared output of this struct
     StringBuilder transformation = new StringBuilder();
     transformation.append(keyword);
@@ -470,7 +509,6 @@ class DesugarOps {
    */
   public static Multiverse<TypeSpecifier> processStructDefinitionMV(Syntax keyword,
                                                                   Multiverse<Syntax> structTag,
-                                                                  CActions cact,
                                                                   List<Multiverse<Declaration>> structfields,
                                                                   PresenceCondition pc,
                                                                   CContext scope,
@@ -479,8 +517,7 @@ class DesugarOps {
     Multiverse<TypeSpecifier> retmv = new Multiverse<TypeSpecifier>();
     for (Element<Syntax> e : structTag) {
       String tag = e.getData().getTokenText();
-      String rename = cact.freshCId(tag);
-      retmv.addAll(processStructDefinition(keyword, tag, rename, structfields, pc.and(e.getCondition()), scope, freshIdCreator, suTypeCreator));
+      retmv.addAll(processStructDefinitionWithFlex(keyword, tag, structfields, pc.and(e.getCondition()), scope, freshIdCreator, suTypeCreator));
     }
     return retmv;
   }

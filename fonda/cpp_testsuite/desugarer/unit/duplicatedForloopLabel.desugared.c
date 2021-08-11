@@ -7,54 +7,54 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_13;
+extern const bool __static_condition_default_15;
 void __static_initializer_default() {
-__static_renaming("__this_7", "this");
-__static_renaming("__i_8", "i");
-__static_renaming("__wlen_9", "wlen");
+__static_renaming("__this_9", "this");
 __static_renaming("__i_10", "i");
-__static_renaming("__foo_12", "foo");
+__static_renaming("__wlen_11", "wlen");
+__static_renaming("__i_12", "i");
+__static_renaming("__foo_14", "foo");
 
-__static_condition_renaming("__static_condition_default_11", "!(defined X)");
-__static_condition_renaming("__static_condition_default_13", "(defined X)");
-__static_condition_renaming("__static_condition_default_14", "!(defined X)");
+__static_condition_renaming("__static_condition_default_13", "!(defined X)");
+__static_condition_renaming("__static_condition_default_15", "(defined X)");
+__static_condition_renaming("__static_condition_default_16", "!(defined X)");
 
 };
-struct __anonymous_tag_0 {
-int  __num_1;
+struct ____anonymous_tag_0_1 {
+int  __num_2;
 };
-struct __anonymous_tag_2 {
-int  __x_3;
+struct ____anonymous_tag_3_4 {
+int  __x_5;
 };
-union __u_4 {
-struct __anonymous_tag_0  __a_5;
-struct __anonymous_tag_2  __b_6;
+union __u_6 {
+struct ____anonymous_tag_0_1  __a_7;
+struct ____anonymous_tag_3_4  __b_8;
 };
 
-union __u_4  __this_7;// L7:L16
-void  __foo_12 () {
+union __u_6  __this_9;// L7:L16
+void  __foo_14 () {
 
 {
 {
 
-
-
-int  __i_8;// L20
-
-int  __wlen_9=  __this_7  . __a_5 . __num_1;// L20
 
 
 int  __i_10;// L20
 
+int  __wlen_11=  __this_9  . __a_7 . __num_2;// L20
 
-if (__static_condition_default_11) {
+
+int  __i_12;// L20
+
+
+if (__static_condition_default_13) {
 __static_type_error("invalid declaration of wlen under this presence condition");
 }
 
-if (__static_condition_default_13) {
-for (  __i_8  ;  ;  )// L22
+if (__static_condition_default_15) {
+for (  __i_10  ;  ;  )// L22
 {
 
 {
@@ -65,14 +65,14 @@ for (  __i_8  ;  ;  )// L22
 
 flush_0:
 {
- __i_8  = 2 ; // L24
+ __i_10  = 2 ; // L24
 }
 }
 }
 }
 }
-if (__static_condition_default_14) {
-for (  __i_10  ;  ;  )// L22
+if (__static_condition_default_16) {
+for (  __i_12  ;  ;  )// L22
 {
 
 {
@@ -83,7 +83,7 @@ for (  __i_10  ;  ;  )// L22
 
 flush_1:
 {
- __i_10  = 2 ; // L24
+ __i_12  = 2 ; // L24
 }
 }
 }

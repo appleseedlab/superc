@@ -8,20 +8,20 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 void __static_initializer_default() {
-__static_renaming("__bob_4", "bob");
-__static_renaming("__main_5", "main");
+__static_renaming("__bob_5", "bob");
+__static_renaming("__main_6", "main");
 
 
 };
-struct __anonymous_tag_0 {
-int  __f_1;
+struct ____anonymous_tag_0_1 {
+int  __f_2;
 };
-struct __s_2 {
-struct __anonymous_tag_0  (__x_3[4]);
+struct __s_3 {
+struct ____anonymous_tag_0_1  (__x_4[4]);
 };
 
-struct __s_2  __bob_4=  { .__x_3 = { [0] .__f_1 = 10 } };// L1:L3
-int  __main_5 () {
+struct __s_3  __bob_5=  { .__x_4 = { [0] .__f_2 = 10 } };// L1:L3
+int  __main_6 () {
 
 {
 {
