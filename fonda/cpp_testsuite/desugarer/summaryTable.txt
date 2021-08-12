@@ -247,6 +247,7 @@ unit/single                                                                     
 unit/switch                                                                                BC generated
 unit/conditionalFlexArray                                                                  BC generated
 unit/struct_configurable                                                                   BC generated
+unit/unionFieldTypeof                                                                      BC generated
 unit/ternaryCondError                                                                      BC generated
 unit/initTest                                                                              BC generated
 unit/compoundInitializerError                                                              BC generated
