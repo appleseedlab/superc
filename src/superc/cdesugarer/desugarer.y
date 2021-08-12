@@ -1990,6 +1990,7 @@ Typeofspecifier: /** complete **/  // ADDED
             String standin = "";
             if (e.getData() != ErrorT.TYPE) {
               standin = freshCId("typeofStandin");
+	      System.err.println(e.getData());
               ((CContext)subparser.scope).addDeclaration("typeof("+ e.getData().printType()+")" + standin + ";\n");
             }
             for (Element<TypeSpecifier> t : tmv) {
