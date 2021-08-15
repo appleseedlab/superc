@@ -286,7 +286,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    */
   public Iterator<Element<T>> iterator() {
     if (this.contents.size() == 0) {
-      throw new IllegalStateException("multiverse is not initialized");
+	throw new IllegalStateException("multiverse is not initialized");
     }
     
     return contents.iterator();

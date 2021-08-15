@@ -3153,51 +3153,51 @@ public class CActions implements SemanticActions {
             PresenceCondition typespecifierCond = subparser.getPresenceCondition().and(typespecifier.getCondition());
             for (Element<Declarator> declarator : declarationvalue.declarator) {
               PresenceCondition combinedCond = typespecifierCond.and(declarator.getCondition());
+	      if (combinedCond.isNotFalse()) {
+		// for each combination of typespecifier and declarator
 
-              // for each combination of typespecifier and declarator
+		// (1) rename the declarator part and create a
+		// Declaration for use as the semantic value
+		String originalName = declarator.getData().getName();
+		String renaming = freshCId(originalName);
+		Declarator renamedDeclarator = declarator.getData().rename(renaming);
+		Declaration renamedDeclaration = new Declaration(typespecifier.getData(),
+								 renamedDeclarator);
 
-              // (1) rename the declarator part and create a
-              // Declaration for use as the semantic value
-              String originalName = declarator.getData().getName();
-              String renaming = freshCId(originalName);
-              Declarator renamedDeclarator = declarator.getData().rename(renaming);
-              Declaration renamedDeclaration = new Declaration(typespecifier.getData(),
-                                                               renamedDeclarator);
-
-              valuemv.add(renamedDeclaration, combinedCond);
+		valuemv.add(renamedDeclaration, combinedCond);
               
-              // (2) add the parameter to the symbol table
-              if (typespecifier.getData().getType().isError()) {
-                scope.putError(declarator.getData().getName(), combinedCond);
-              } else {
-                // getName() shouldn't have an error, because thit is
-                // the identifierdeclaration.  abstract declarators
-                // can't go in the symbol table, because there is no
-                // symbol.
-                Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(declarator.getData().getName(), combinedCond);
+		// (2) add the parameter to the symbol table
+		if (typespecifier.getData().getType().isError()) {
+		  scope.putError(declarator.getData().getName(), combinedCond);
+		} else {
+		  // getName() shouldn't have an error, because thit is
+		  // the identifierdeclaration.  abstract declarators
+		  // can't go in the symbol table, because there is no
+		  // symbol.
+		  Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(declarator.getData().getName(), combinedCond);
 
-                // TODO: check for multiply-defined parameter names,
-                // which (I believe) should make the entire function
-                // declarator invalid.
+		  // TODO: check for multiply-defined parameter names,
+		  // which (I believe) should make the entire function
+		  // declarator invalid.
 
-                for (Element<SymbolTable.Entry<Type>> entry : entries) {
-                  if (entry.getData().isError()) {
-                    System.err.println("INFO: invalid parameter declaration for function");
-                    System.err.println("TODO: any invalid parameter declarations should cause the entire function declaration to be invalid under that condition");
-                    scope.putError(declarator.getData().getName(), combinedCond);
-                  } else if (entry.getData().isUndeclared()) {
-                    // get the type and add it to the symtab
-                    Type type = VariableT.newParam(renamedDeclaration.getType(),
-                                                   renamedDeclaration.getName());
-                    scope.put(originalName, type, entry.getCondition());
-                  } else {
-                    System.err.println("INFO: reuse of the same parameter name in function");
-                    System.err.println("TODO: any invalid parameter declarations should cause the entire function declaration to be invalid under that condition");
-                    scope.putError(declarator.getData().getName(), combinedCond);
-                  }  // end test of symtab entry type
-                } // end loop over symtab entries
-              } // end of check for invalid typespecifier
-
+		  for (Element<SymbolTable.Entry<Type>> entry : entries) {
+		    if (entry.getData().isError()) {
+		      System.err.println("INFO: invalid parameter declaration for function");
+		      System.err.println("TODO: any invalid parameter declarations should cause the entire function declaration to be invalid under that condition");
+		      scope.putError(declarator.getData().getName(), combinedCond);
+		    } else if (entry.getData().isUndeclared()) {
+		      // get the type and add it to the symtab
+		      Type type = VariableT.newParam(renamedDeclaration.getType(),
+						     renamedDeclaration.getName());
+		      scope.put(originalName, type, entry.getCondition());
+		    } else {
+		      System.err.println("INFO: reuse of the same parameter name in function");
+		      System.err.println("TODO: any invalid parameter declarations should cause the entire function declaration to be invalid under that condition");
+		      scope.putError(declarator.getData().getName(), combinedCond);
+		    }  // end test of symtab entry type
+		  } // end loop over symtab entries
+		} // end of check for invalid typespecifier
+	      }
               combinedCond.delRef();
             } // end loop over declarators
             typespecifierCond.delRef();
@@ -4684,6 +4684,7 @@ public class CActions implements SemanticActions {
           retmv.add(DesugarOps.StringToDSV.transform(locallabelmv));
           retmv.add(new Multiverse<DeclarationOrStatementValue>(new DeclarationOrStatementValue(scope.getDeclarations(pc)),pc));
           retmv.addAll(listmv);
+	  System.err.println(listmv);
           setTransformationValue(value, retmv);
         }
     break;
@@ -8316,298 +8317,299 @@ protected List<Multiverse<String>> declarationAction(List<DeclaringListValue> de
     valuemv.add("",pc);
     // TODO: use typespecifier/declarator to reclassify the
     // tokens as typedef/ident in parsing context
-
-    for (Element<TypeSpecifier> typespecifier : typespecifiermv) {
-      PresenceCondition typespecifierCond = pc.and(typespecifier.getCondition());
-      if (typespecifierCond.isNotFalse()) {
-        for (Element<Initializer> initializer : initializermv) {
-          // TODO: optimization opportunity, share multiple
-          // initialiers with one renaming (harder for globals)
-          PresenceCondition initializerCond = typespecifierCond.and(initializer.getCondition());
-          if (initializerCond.isNotFalse()) {
-            for (Element<Declarator> declarator : declaratormv) {
-              PresenceCondition combinedCond = initializerCond.and(declarator.getCondition());
-              if (combinedCond.isNotFalse()) {
+    if (!declaringlistvalue.isEmpty()) {
+      for (Element<TypeSpecifier> typespecifier : typespecifiermv) {
+	PresenceCondition typespecifierCond = pc.and(typespecifier.getCondition());
+	if (typespecifierCond.isNotFalse()) {
+	  for (Element<Initializer> initializer : initializermv) {
+	    // TODO: optimization opportunity, share multiple
+	    // initialiers with one renaming (harder for globals)
+	    PresenceCondition initializerCond = typespecifierCond.and(initializer.getCondition());
+	    if (initializerCond.isNotFalse()) {
+	      for (Element<Declarator> declarator : declaratormv) {
+		PresenceCondition combinedCond = initializerCond.and(declarator.getCondition());
+		if (combinedCond.isNotFalse()) {
                 
-                String originalName = declarator.getData().getName();
+		  String originalName = declarator.getData().getName();
 
-                // get xtc type from type and declarator
-                Declaration tempD = new Declaration(typespecifier.getData(), declarator.getData());
-                if (typespecifier.getData().getType().isError()
-                    || ! initializer.getData().hasValidType()
-                    || tempD.hasTypeError()) {
-                  // if type is invalid, put an error entry, emit a call
-                  // to the type error function
-                  scope.putError(originalName, combinedCond);
-                  if (scope.isGlobal()) {
-                    recordInvalidGlobalDeclaration(originalName, combinedCond);
-                  } else {
-                    valuesb.append("if (");
-                    valuemv = appendStringToMV(valuemv,"if (",combinedCond);
-                    String tempC = condToCVar(combinedCond); 
-                    valuesb.append(tempC);
-                    valuemv = appendStringToMV(valuemv,tempC,combinedCond);
-                    valuesb.append(") {\n");
-                    valuemv = appendStringToMV(valuemv,") {\n",combinedCond);
-                    valuesb.append(emitError(String.format("invalid declaration of %s under this presence condition",
-                                                           originalName)));
-                    valuemv = appendStringToMV(valuemv,emitError(String.format("invalid declaration of %s under this presence condition",
-                                                           originalName)),combinedCond);
-                    valuesb.append(";\n");
-                    valuemv = appendStringToMV(valuemv,";\n",combinedCond);
-                    valuesb.append("}\n");
-                    valuemv = appendStringToMV(valuemv,"}\n",combinedCond);
+		  // get xtc type from type and declarator
+		  Declaration tempD = new Declaration(typespecifier.getData(), declarator.getData());
+		  if (typespecifier.getData().getType().isError()
+		      || ! initializer.getData().hasValidType()
+		      || tempD.hasTypeError()) {
+		    // if type is invalid, put an error entry, emit a call
+		    // to the type error function
+		    scope.putError(originalName, combinedCond);
+		    if (scope.isGlobal()) {
+		      recordInvalidGlobalDeclaration(originalName, combinedCond);
+		    } else {
+		      valuesb.append("if (");
+		      valuemv = appendStringToMV(valuemv,"if (",combinedCond);
+		      String tempC = condToCVar(combinedCond); 
+		      valuesb.append(tempC);
+		      valuemv = appendStringToMV(valuemv,tempC,combinedCond);
+		      valuesb.append(") {\n");
+		      valuemv = appendStringToMV(valuemv,") {\n",combinedCond);
+		      valuesb.append(emitError(String.format("invalid declaration of %s under this presence condition",
+							     originalName)));
+		      valuemv = appendStringToMV(valuemv,emitError(String.format("invalid declaration of %s under this presence condition",
+										 originalName)),combinedCond);
+		      valuesb.append(";\n");
+		      valuemv = appendStringToMV(valuemv,";\n",combinedCond);
+		      valuesb.append("}\n");
+		      valuemv = appendStringToMV(valuemv,"}\n",combinedCond);
                     
-                  }
-                } else {
-                  // otherwise loop over each existing entry check for
-                  // type errors or add a new declaration
-                  Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, combinedCond);
-                  for (Element<SymbolTable.Entry<Type>> entry : entries) {
-                    String renaming = freshCId(originalName);
-                    Declarator renamedDeclarator = declarator.getData().rename(renaming);
-                    Declaration renamedDeclaration = new Declaration(typespecifier.getData(),
-                                                                     renamedDeclarator);
-                    Declaration originalDeclaration = new Declaration(typespecifier.getData(), declarator.getData());
+		    }
+		  } else {
+		    // otherwise loop over each existing entry check for
+		    // type errors or add a new declaration
+		    Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, combinedCond);
+		    for (Element<SymbolTable.Entry<Type>> entry : entries) {
+		      String renaming = freshCId(originalName);
+		      Declarator renamedDeclarator = declarator.getData().rename(renaming);
+		      Declaration renamedDeclaration = new Declaration(typespecifier.getData(),
+								       renamedDeclarator);
+		      Declaration originalDeclaration = new Declaration(typespecifier.getData(), declarator.getData());
 
-                    StringBuilder entrysb = new StringBuilder();
+		      StringBuilder entrysb = new StringBuilder();
 
-                    Type declarationType = renamedDeclaration.getType();
-                    Type type;
-                    //System.err.println("has typedef:" + renamedDeclaration.typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF));
-                    if (renamedDeclaration.typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF)) {
-                      type = new AliasT(renaming, declarationType);
-                    } else if (declarationType.isFunction()) {
-                      type = new NamedFunctionT(declarationType.toFunction().getResult(),
-                                                renaming,
-                                                declarationType.toFunction().getParameters(),
-                                                declarationType.toFunction().isVarArgs());
-                    } else {
-                      if (scope.isGlobal()) {
-                        type = VariableT.newGlobal(declarationType, renaming);
-                      } else {
-                        type = VariableT.newLocal(declarationType, renaming);
-                      }
-                    }
-                    assert null != type;
+		      Type declarationType = renamedDeclaration.getType();
+		      Type type;
+		      //System.err.println("has typedef:" + renamedDeclaration.typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF));
+		      if (renamedDeclaration.typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF)) {
+			type = new AliasT(renaming, declarationType);
+		      } else if (declarationType.isFunction()) {
+			type = new NamedFunctionT(declarationType.toFunction().getResult(),
+						  renaming,
+						  declarationType.toFunction().getParameters(),
+						  declarationType.toFunction().isVarArgs());
+		      } else {
+			if (scope.isGlobal()) {
+			  type = VariableT.newGlobal(declarationType, renaming);
+			} else {
+			  type = VariableT.newLocal(declarationType, renaming);
+			}
+		      }
+		      assert null != type;
 
-                    // make all renamed declarations static until project-wide, configuration-aware linking is possible
-                    String desugaredDeclaration;
-                    // disabling the thunks for now, pending
-                    // configuration-aware linking support
-                    if (false && type instanceof NamedFunctionT && hasExternalLinkage(typespecifier.getData())) {  // is extern
-                      todoReminder("account for void or abstract declarators in linker thunk functions");
-                      StringBuilder contents = new StringBuilder();
-                      contents.append(originalName);
-                      contents.append("(");
-                      String delim = "";
-                      todoReminder("do type-checking of extern function thunks");
-                      for (Type parmtype : ((NamedFunctionT) type).toFunctionT().getParameters()) {
-                        // function definitions must have named parameters, so
-                        // the parameter types should be wrapped in a
-                        // variablet type.
-                        assert parmtype.isVariable() && parmtype.toVariable().hasName();
-                        contents.append(delim);
-                        contents.append(parmtype.toVariable().getName());
-                        delim = ", ";
-                      }
-                      contents.append(")");
-                      contents.append("; /* call external thunk */\n");
-                      String staticPrototype = makeStaticDeclaration(typespecifier.getData(), renamedDeclarator);
-                      // replace the extern function declaration with a static, renamed function
-                      desugaredDeclaration = String.format("%s ;\n", staticPrototype);
-                      // define that function to call the originally-named extern function
-                      externFunctionThunks.append(String.format("%s {\n%s}\n", staticPrototype, contents.toString()));
-                      assert 0 == initializer.getData().toString().length();  // extern function declarations should not have an initializer
-                    } else {
-                      desugaredDeclaration = renamedDeclaration.toString();
-                    }
-                    assert null != desugaredDeclaration;
-                    if (entry.getData().isError()) {
-                      // ERROR entry
-                      System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
+		      // make all renamed declarations static until project-wide, configuration-aware linking is possible
+		      String desugaredDeclaration;
+		      // disabling the thunks for now, pending
+		      // configuration-aware linking support
+		      if (false && type instanceof NamedFunctionT && hasExternalLinkage(typespecifier.getData())) {  // is extern
+			todoReminder("account for void or abstract declarators in linker thunk functions");
+			StringBuilder contents = new StringBuilder();
+			contents.append(originalName);
+			contents.append("(");
+			String delim = "";
+			todoReminder("do type-checking of extern function thunks");
+			for (Type parmtype : ((NamedFunctionT) type).toFunctionT().getParameters()) {
+			  // function definitions must have named parameters, so
+			  // the parameter types should be wrapped in a
+			  // variablet type.
+			  assert parmtype.isVariable() && parmtype.toVariable().hasName();
+			  contents.append(delim);
+			  contents.append(parmtype.toVariable().getName());
+			  delim = ", ";
+			}
+			contents.append(")");
+			contents.append("; /* call external thunk */\n");
+			String staticPrototype = makeStaticDeclaration(typespecifier.getData(), renamedDeclarator);
+			// replace the extern function declaration with a static, renamed function
+			desugaredDeclaration = String.format("%s ;\n", staticPrototype);
+			// define that function to call the originally-named extern function
+			externFunctionThunks.append(String.format("%s {\n%s}\n", staticPrototype, contents.toString()));
+			assert 0 == initializer.getData().toString().length();  // extern function declarations should not have an initializer
+		      } else {
+			desugaredDeclaration = renamedDeclaration.toString();
+		      }
+		      assert null != desugaredDeclaration;
+		      if (entry.getData().isError()) {
+			// ERROR entry
+			System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
 
-                    } else if (entry.getData().isUndeclared()) {
-                      // UNDECLARED entry
-                      // update the symbol table for this presence condition
+		      } else if (entry.getData().isUndeclared()) {
+			// UNDECLARED entry
+			// update the symbol table for this presence condition
 
-                      // the renamed function is static to enable linking the original function name
-                      if (scope.isGlobal() && Constants.ATT_STORAGE_AUTO == typespecifier.getData().getStorageClass()) {
-                        todoReminder("check that global variables don't have auto; produce a type error");
-                        System.exit(1);
-                      }
+			// the renamed function is static to enable linking the original function name
+			if (scope.isGlobal() && Constants.ATT_STORAGE_AUTO == typespecifier.getData().getStorageClass()) {
+			  todoReminder("check that global variables don't have auto; produce a type error");
+			  System.exit(1);
+			}
 
-                      scope.put(originalName, type, entry.getCondition());
+			scope.put(originalName, type, entry.getCondition());
 
-                      if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
-                        externalLinkage.put(originalName, originalDeclaration, entry.getCondition());
-                      }
-                      /* entrysb.append(renamedDeclaration.toString()); */
-                      if (initializer.getData().hasList() && !scope.isGlobal() &&
-                          (!declarationType.hasAttribute(Constants.ATT_CONSTANT) && !declarationType.hasConstant())) {
-                        Type tempT = declarationType;
-                        while (tempT.isWrapped()) {
-                          tempT = ((WrappedT)tempT).getType();
-                        }
-                        if (tempT.isStruct() || tempT.isUnion()){
-                          entrysb.append(desugaredDeclaration);
-                          entrysb.append(semi + "\n");  // semi-colon
-                          entrysb.append("{\n" + initStruct(renaming, (StructOrUnionT)tempT, initializer.getData(), scope, combinedCond) + "}");
-                          recordRenaming(renaming, originalName);
-                        }
-                        if (tempT.isArray()){
-                          if (((ArrayT)tempT).hasLength()) {
-                            entrysb.append(desugaredDeclaration);
-                          } else {
-                            System.err.println("no len assigned");
-                            //if  the length is implcit, we need to manually assign a value
-                            entrysb.append(renamedDeclaration.toString(trueInitSize(initializer.getData())));
-                          }
-                          entrysb.append(semi + "\n");  // semi-colon
-                          entrysb.append("{\n" + initArray(renaming, (ArrayT)tempT, initializer.getData(), scope, combinedCond) + "}");
-                          recordRenaming(renaming, originalName);
-                        }
-                      } else {
-                        boolean compatibleTypes = true;
-                        //check for initializer list
-                        if (initializer.getData().hasList()) {
-                          compatibleTypes = !initializer.getData().hasNonConst();
-                        }
-                        if (compatibleTypes) {
-                          if (initializer.getData().hasList()) {
-                            Multiverse<String> mvs = initializer.getData().renamedList(new Multiverse<Type>(declarationType.resolve(),combinedCond),combinedCond,scope);
-                            for (Element<String> evs : mvs) {
-                              if (evs.getData() != "") {
-                                entrysb.append(desugaredDeclaration);
-                                entrysb.append(evs.getData());
-                                entrysb.append(semi);  // semi-colon
-                                recordRenaming(renaming, originalName);
-                              } else {
-                                scope.putError(originalName, entry.getCondition());
-                                recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
-                                if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
-                                  externalLinkage.putError(originalName, entry.getCondition());
-                                } else if (!scope.isGlobal()) {
-                                  entrysb.append("if (");
-                                  entrysb.append(condToCVar(entry.getCondition()));
-                                  entrysb.append(") {\n");
-                                  entrysb.append(emitError(String.format("improper designator value: %s", originalName)));
-                                  entrysb.append(";\n");
-                                  entrysb.append("}\n");
-                                }
-                              }
-                            }
-                          } else {
-                            entrysb.append(desugaredDeclaration);
-                            entrysb.append(initializer.getData().toString());
-                            entrysb.append(semi);  // semi-colon
-                            recordRenaming(renaming, originalName);
-                          }
-                        } else {
-                          scope.putError(originalName, entry.getCondition());
-                          recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
-                          if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
-                            externalLinkage.putError(originalName, entry.getCondition());
-                          } else if (!scope.isGlobal()) {
-                            entrysb.append("if (");
-                            entrysb.append(condToCVar(entry.getCondition()));
-                            entrysb.append(") {\n");
-                            entrysb.append(emitError(String.format("non const value in constant list or struct: %s",
-                                                                   originalName)));
-                            entrysb.append(";\n");
-                            entrysb.append("}\n");
-                          }
-                        }
-                      }
-                    } else {  // already declared entries
-                      if (! scope.isGlobal()) {
-                        // not allowed to redeclare local symbols at all
-                        scope.putError(originalName, entry.getCondition());
-                        entrysb.append("if (");
-                        entrysb.append(condToCVar(entry.getCondition()));
-                        entrysb.append(") {\n");
-                        entrysb.append(emitError(String.format("redeclaration of local symbol: %s",
-                                                               originalName)));
-                        entrysb.append(";\n");
-                        entrysb.append("}\n");
-                      } else {  // global scope
+			if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+			  externalLinkage.put(originalName, originalDeclaration, entry.getCondition());
+			}
+			/* entrysb.append(renamedDeclaration.toString()); */
+			if (initializer.getData().hasList() && !scope.isGlobal() &&
+			    (!declarationType.hasAttribute(Constants.ATT_CONSTANT) && !declarationType.hasConstant())) {
+			  Type tempT = declarationType;
+			  while (tempT.isWrapped()) {
+			    tempT = ((WrappedT)tempT).getType();
+			  }
+			  if (tempT.isStruct() || tempT.isUnion()){
+			    entrysb.append(desugaredDeclaration);
+			    entrysb.append(semi + "\n");  // semi-colon
+			    entrysb.append("{\n" + initStruct(renaming, (StructOrUnionT)tempT, initializer.getData(), scope, combinedCond) + "}");
+			    recordRenaming(renaming, originalName);
+			  }
+			  if (tempT.isArray()){
+			    if (((ArrayT)tempT).hasLength()) {
+			      entrysb.append(desugaredDeclaration);
+			    } else {
+			      System.err.println("no len assigned");
+			      //if  the length is implcit, we need to manually assign a value
+			      entrysb.append(renamedDeclaration.toString(trueInitSize(initializer.getData())));
+			    }
+			    entrysb.append(semi + "\n");  // semi-colon
+			    entrysb.append("{\n" + initArray(renaming, (ArrayT)tempT, initializer.getData(), scope, combinedCond) + "}");
+			    recordRenaming(renaming, originalName);
+			  }
+			} else {
+			  boolean compatibleTypes = true;
+			  //check for initializer list
+			  if (initializer.getData().hasList()) {
+			    compatibleTypes = !initializer.getData().hasNonConst();
+			  }
+			  if (compatibleTypes) {
+			    if (initializer.getData().hasList()) {
+			      Multiverse<String> mvs = initializer.getData().renamedList(new Multiverse<Type>(declarationType.resolve(),combinedCond),combinedCond,scope);
+			      for (Element<String> evs : mvs) {
+				if (evs.getData() != "") {
+				  entrysb.append(desugaredDeclaration);
+				  entrysb.append(evs.getData());
+				  entrysb.append(semi);  // semi-colon
+				  recordRenaming(renaming, originalName);
+				} else {
+				  scope.putError(originalName, entry.getCondition());
+				  recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+				  if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+				    externalLinkage.putError(originalName, entry.getCondition());
+				  } else if (!scope.isGlobal()) {
+				    entrysb.append("if (");
+				    entrysb.append(condToCVar(entry.getCondition()));
+				    entrysb.append(") {\n");
+				    entrysb.append(emitError(String.format("improper designator value: %s", originalName)));
+				    entrysb.append(";\n");
+				    entrysb.append("}\n");
+				  }
+				}
+			      }
+			    } else {
+			      entrysb.append(desugaredDeclaration);
+			      entrysb.append(initializer.getData().toString());
+			      entrysb.append(semi);  // semi-colon
+			      recordRenaming(renaming, originalName);
+			    }
+			  } else {
+			    scope.putError(originalName, entry.getCondition());
+			    recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+			    if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+			      externalLinkage.putError(originalName, entry.getCondition());
+			    } else if (!scope.isGlobal()) {
+			      entrysb.append("if (");
+			      entrysb.append(condToCVar(entry.getCondition()));
+			      entrysb.append(") {\n");
+			      entrysb.append(emitError(String.format("non const value in constant list or struct: %s",
+								     originalName)));
+			      entrysb.append(";\n");
+			      entrysb.append("}\n");
+			    }
+			  }
+			}
+		      } else {  // already declared entries
+			if (! scope.isGlobal()) {
+			  // not allowed to redeclare local symbols at all
+			  scope.putError(originalName, entry.getCondition());
+			  entrysb.append("if (");
+			  entrysb.append(condToCVar(entry.getCondition()));
+			  entrysb.append(") {\n");
+			  entrysb.append(emitError(String.format("redeclaration of local symbol: %s",
+								 originalName)));
+			  entrysb.append(";\n");
+			  entrysb.append("}\n");
+			} else {  // global scope
                         
-                                // declarations only set VariableT or AliasT
-                        boolean sameTypeKind
-                          = entry.getData().getValue().isVariable() && type.isVariable()
-                          ||  entry.getData().getValue().isAlias() && type.isAlias();
+			  // declarations only set VariableT or AliasT
+			  boolean sameTypeKind
+			    = entry.getData().getValue().isVariable() && type.isVariable()
+			    ||  entry.getData().getValue().isAlias() && type.isAlias();
 
-                        // check compatibility of types
-                        if (sameTypeKind) {
-                          boolean compatibleTypes = false;
-                          if (type.isVariable()) {
-                            compatibleTypes = cOps.equal(entry.getData().getValue().toVariable().getType(),
-                                                         type.toVariable().getType());
-                          } else if (type.isAlias()) {
-                            compatibleTypes = cOps.equal(entry.getData().getValue().toAlias().getType(),
-                                                         type.toAlias().getType());
-                          } else {
-                            throw new AssertionError("should not be possible given sameTypeKind");
-                          }
+			  // check compatibility of types
+			  if (sameTypeKind) {
+			    boolean compatibleTypes = false;
+			    if (type.isVariable()) {
+			      compatibleTypes = cOps.equal(entry.getData().getValue().toVariable().getType(),
+							   type.toVariable().getType());
+			    } else if (type.isAlias()) {
+			      compatibleTypes = cOps.equal(entry.getData().getValue().toAlias().getType(),
+							   type.toAlias().getType());
+			    } else {
+			      throw new AssertionError("should not be possible given sameTypeKind");
+			    }
 
-                          if (! compatibleTypes) {
-                            // not allowed to redeclare globals to a different type
-                            scope.putError(originalName, entry.getCondition());
-                            recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
-                            if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
-                              externalLinkage.putError(originalName, entry.getCondition());
-                            }
-                          } else {
-                            // emit the same declaration, since it's legal to redeclare globals to a compatible type
-                            /* entrysb.append(renamedDeclaration.toString()); */
-                            entrysb.append(desugaredDeclaration);
-                            entrysb.append(initializer.getData().toString());
-                            entrysb.append(semi);  // semi-colon
-                            System.err.println(String.format("INFO: \"%s\" is being redeclared in global scope to compatible type", originalName));
-                          }
+			    if (! compatibleTypes) {
+			      // not allowed to redeclare globals to a different type
+			      scope.putError(originalName, entry.getCondition());
+			      recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+			      if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+				externalLinkage.putError(originalName, entry.getCondition());
+			      }
+			    } else {
+			      // emit the same declaration, since it's legal to redeclare globals to a compatible type
+			      /* entrysb.append(renamedDeclaration.toString()); */
+			      entrysb.append(desugaredDeclaration);
+			      entrysb.append(initializer.getData().toString());
+			      entrysb.append(semi);  // semi-colon
+			      System.err.println(String.format("INFO: \"%s\" is being redeclared in global scope to compatible type", originalName));
+			    }
 
-                        } else { // not the same kind of type
-                          scope.putError(originalName, entry.getCondition());
-                          System.err.println(String.format("INFO: attempted to redeclare global to a different kind of type: %s", originalName));
-                          recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
-                          if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
-                            externalLinkage.putError(originalName, entry.getCondition());
-                          }
-                        } // end check for variable type
-                      } // end check global/local scope
-                    } // end entry kind
-                    entrysb.append("\n");
+			  } else { // not the same kind of type
+			    scope.putError(originalName, entry.getCondition());
+			    System.err.println(String.format("INFO: attempted to redeclare global to a different kind of type: %s", originalName));
+			    recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+			    if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+			      externalLinkage.putError(originalName, entry.getCondition());
+			    }
+			  } // end check for variable type
+			} // end check global/local scope
+		      } // end entry kind
+		      entrysb.append("\n");
 
-                    if (renamedDeclaration.typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF)) {
-                      // typedefs are moved to the top of the scope
-                      // to support forward references of structs
-                      scope.addDeclaration(entrysb.toString());
-                      valuesb.append("// typedef moved to top of scope\n");
-                      valuemv = appendStringToMV(valuemv,"// typedef moved to top of scope\n",combinedCond);
-                    } else {
-                      // not a typedef, so add it to regular output
-                      valuesb.append(entrysb.toString());
-                      valuemv = appendStringToMV(valuemv,entrysb.toString(),combinedCond);
-                    }
-                  } // end loop over symtab entries
-                  entries.destruct();
-                }
-              } // end check for false combinedCond
-              combinedCond.delRef();
-            } // end loop over declarators
-          } // end check for false initializerCond
-          initializerCond.delRef();
-        } // end loop over initializers
-      } // end check for false typespecifierCond
-      typespecifierCond.delRef();
-    } // end loop over typespecifiers
-    // TODO: these destructs causes nullpointer errors due to
-    // the sharing of semantic values.  not destructing will
-    // cause memory leak
-    /* typespecifiermv.destruct(); */
-    /* declaratormv.destruct(); */
-    /* initializermv.destruct(); */
-    retmv.add(valuemv);
+		      if (renamedDeclaration.typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF)) {
+			// typedefs are moved to the top of the scope
+			// to support forward references of structs
+			scope.addDeclaration(entrysb.toString());
+			valuesb.append("// typedef moved to top of scope\n");
+			valuemv = appendStringToMV(valuemv,"// typedef moved to top of scope\n",combinedCond);
+		      } else {
+			// not a typedef, so add it to regular output
+			valuesb.append(entrysb.toString());
+			valuemv = appendStringToMV(valuemv,entrysb.toString(),combinedCond);
+		      }
+		    } // end loop over symtab entries
+		    entries.destruct();
+		  }
+		} // end check for false combinedCond
+		combinedCond.delRef();
+	      } // end loop over declarators
+	    } // end check for false initializerCond
+	    initializerCond.delRef();
+	  } // end loop over initializers
+	} // end check for false typespecifierCond
+	typespecifierCond.delRef();
+      } // end loop over typespecifiers
+      // TODO: these destructs causes nullpointer errors due to
+      // the sharing of semantic values.  not destructing will
+      // cause memory leak
+      /* typespecifiermv.destruct(); */
+      /* declaratormv.destruct(); */
+      /* initializermv.destruct(); */
+      retmv.add(valuemv);
+    } //declaringlist is not empty
   } // end loop over declaringlistvalues
   return retmv;
 }
@@ -9449,6 +9451,13 @@ private static class DeclaringListValue {
     this.initializer = initializer;
   }
 
+
+  public boolean isEmpty() {
+    return typespecifier.isEmpty() ||
+      declarator.isEmpty() ||
+      initializer.isEmpty();
+  }
+  
   public String toString()
   {
     return "TypeSpec: " + typespecifier.toString() +
@@ -10177,7 +10186,9 @@ public static class DeclarationOrStatementValue {
     }
     return true;
   }
-  
+  public String toString() {
+    return getString((new PresenceConditionManager()).newTrue(),new CActions());
+  }
 }
 
 private static boolean haltUnfinished = false;
