@@ -621,25 +621,32 @@ class DesugarOps {
         }
       }  // end ratormv
     } // end list
+    if (enums.size() == 0) {
+	Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
+	TypeSpecifier typespecifier = new TypeSpecifier();
+	typespecifier.setType(ErrorT.TYPE);
+	typespecmv.add(typespecifier, pc);
+	return typespecmv;
+    }
     scope.putEnumerator(enumTag,renamedTag,enums,pc);
 
     Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
-
-    if (validCond.isNotFalse()) {
-      TypeSpecifier typespec = new TypeSpecifier();
-      // TODO: get largest type for enum (gcc), instead of ISO standard of int
+    PresenceCondition trueValid = validCond.and(errorCond.not());
+    validCond.delRef();
+    if (trueValid.isNotFalse()) {
+	TypeSpecifier typespec = new TypeSpecifier();
+	// TODO: get largest type for enum (gcc), instead of ISO standard of int
       Type enumreftype = new EnumT(renamedTag);
       typespec.setType(enumreftype);
 
       typespec.addTransformation(keyword);
       typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, renamedTag));
 
-      typespecmv.add(typespec, validCond);
+      typespecmv.add(typespec, trueValid);
 
       /* scope.put(CContext.toTagName(enumTag), enumreftype, validCond); */
     }
-    validCond.delRef();
-
+    
     if (errorCond.isNotFalse()) {
       TypeSpecifier typespecifier = new TypeSpecifier();
       typespecifier.setType(ErrorT.TYPE);
