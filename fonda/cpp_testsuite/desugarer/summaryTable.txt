@@ -183,6 +183,7 @@ unit/enum_repeated_enumerators                                                  
 unit/function_parameters_configurable                                                      BC generated
 unit/statement_configurable                                                                BC generated
 unit/implicit_param                                                                        BC generated
+unit/sizeofEnum                                                                            BC generated
 unit/typedefname_partially_defined                                                         BC generated
 unit/declarators                                                                           BC generated
 unit/struct_configurable_main                                                              BC generated
@@ -197,6 +198,7 @@ unit/counter_variable                                                           
 unit/struct_simple                                                                         BC generated
 unit/initializerError                                                                      BC generated
 unit/struct_desugar_test                                                                   BC generated
+unit/enumError                                                                             BC generated
 unit/struct_global_forward_reference_desugar                                               BC generated
 unit/struct_nested_anonymous                                                               BC generated
 unit/typedefFlexStruct                                                                     BC generated
@@ -352,7 +354,7 @@ transformation/union/config_partially_defined_union                             
 transformation/enum/enum_typedef                                                           BC generated
 transformation/enum/enum_decl                                                              BC generated
 transformation/enum/config_enum                                                            BC generated
-transformation/enum/config_enum_field                                                      BC failed
+transformation/enum/config_enum_field                                                      BC generated
 transformation/enum/enum                                                                   BC generated
 transformation/enum/config_typedef_enum                                                    BC generated
 transformation/ifelsewhile/if_with_braces                                                  BC generated

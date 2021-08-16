@@ -9,16 +9,20 @@ void __static_initializer_default();
 
 void __static_initializer_default() {
 __static_renaming("__y_0", "y");
-__static_renaming("__x_1", "x");
+__static_renaming("__x_2", "x");
 
 
 };
-enum bob {
-__A_2 =  __y_0 ,
+enum __bob_4 {
+__A_3 =  __y_0 ,
+};
+
+union __forward_tag_reference_1 { // generated union of enum variations
+enum __bob_4 __bob_4;
 };
 
 extern int  __y_0;// L1
-enum bob ;// L3
-enum bob  __x_1;// L5
-enum bob ;// L8
+union __forward_tag_reference_1 ;// L2147483647:L0
+union __forward_tag_reference_1  __x_2;// L5
+enum __bob_4 ;// L8
 

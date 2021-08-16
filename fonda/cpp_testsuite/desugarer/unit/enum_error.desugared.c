@@ -11,10 +11,10 @@ void __static_initializer_default() {
 
 
 };
-enum __anonymous_tag_2 {
+enum ____anonymous_tag_2_3 {
 __A_0 = 11,
 __B_1 = 11,
 };
 
-enum __anonymous_tag_2 ;// L1
+enum ____anonymous_tag_2_3 ;// L1
 

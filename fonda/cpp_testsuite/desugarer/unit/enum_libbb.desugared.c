@@ -11,7 +11,7 @@ void __static_initializer_default() {
 
 
 };
-enum __anonymous_tag_18 {
+enum ____anonymous_tag_18_19 {
 __FILEUTILS_PRESERVE_STATUS_0 = 1 << 0,
 __FILEUTILS_DEREFERENCE_1 = 1 << 1,
 __FILEUTILS_RECUR_2 = 1 << 2,
@@ -31,5 +31,5 @@ __FILEUTILS_IGNORE_CHMOD_ERR_16 = 1 << 31,
 __FILEUTILS_IGNORE_CHMOD_ERR_17 = 1 << 31,
 };
 
-enum __anonymous_tag_18 ;// L33
+enum ____anonymous_tag_18_19 ;// L33
 

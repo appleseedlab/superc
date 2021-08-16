@@ -8,15 +8,19 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 void __static_initializer_default() {
-__static_renaming("__x_0", "x");
+__static_renaming("__x_1", "x");
 
 
 };
-enum bob {
-__A_1,
+enum __bob_3 {
+__A_2,
 };
 
-enum bob ;// L1
-enum bob  __x_0;// L3
-enum bob ;// L5
+union __forward_tag_reference_0 { // generated union of enum variations
+enum __bob_3 __bob_3;
+};
+
+union __forward_tag_reference_0 ;// L2147483647:L0
+union __forward_tag_reference_0  __x_1;// L3
+enum __bob_3 ;// L5
 

@@ -7,17 +7,13 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_10;
-extern const bool __static_condition_default_9;
 void __static_initializer_default() {
-__static_renaming("__apple_7", "apple");
-__static_renaming("__main_8", "main");
+__static_renaming("__apple_9", "apple");
+__static_renaming("__main_10", "main");
 
-__static_condition_renaming("__static_condition_default_9", "APPLE");
-__static_condition_renaming("__static_condition_default_10", "!APPLE");
 
 };
-enum someLetters {
+enum __someLetters_7 {
 __b_1,
 __a_0,
 __b_2,
@@ -27,22 +23,20 @@ __e_5,
 __f_6,
 };
 
-enum someLetters ;// L1
-int  __main_8 (void  ) {
+enum __someLetters_7 ;// L1
+int  __main_10 (void  ) {
 
 {
 {
 
 
+union __forward_tag_reference_8 { // generated union of enum variations
+};
 
-enum letter  __apple_7;// L9
 
-if (__static_condition_default_9) {
- __apple_7  =  __a_0  ; // L10
-}
-if (__static_condition_default_10) {
-__static_type_error("type error") ; // L10
-}
+union __forward_tag_reference_8  __apple_9;// L9
+
+__static_type_error("type error : no valid expression"); // L10
 return 0 ;// L12
 }
 }

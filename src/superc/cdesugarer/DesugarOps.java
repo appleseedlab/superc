@@ -16,6 +16,7 @@ import xtc.type.PointerT;
 import xtc.type.ErrorT;
 import xtc.type.BooleanT;
 import xtc.type.IntegerT;
+import xtc.type.EnumeratorT;
 
 import superc.core.Syntax;
 
@@ -377,7 +378,7 @@ class DesugarOps {
           if (d.hasName()) {
             fieldName = structfield.getData().getName();
             renamedField = freshIdCreator.freshCId(fieldName);
-	    renamedDeclaration = structfield.getData().rename(renamedField);
+            renamedDeclaration = structfield.getData().rename(renamedField);
           } else {
             fieldName = freshIdCreator.freshCId("anonymous_field");
             renamedField = fieldName;
@@ -600,36 +601,38 @@ class DesugarOps {
    */
   public static Multiverse<TypeSpecifier> processEnumDefinition(Syntax keyword,
                                                                 String enumTag,
+                                                                String renamedTag,
                                                                 List<Multiverse<EnumeratorValue>> list,
                                                                 PresenceCondition pc,
                                                                 CContext scope) {
     CActions.todoReminder("type check enumerator value.   not allowed to use same int.");
     PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
     PresenceCondition validCond = pc.presenceConditionManager().newFalse();
+    List<String> enums= new LinkedList<String>();
     for (Multiverse<EnumeratorValue> ratormv : list) {
       for (Element<EnumeratorValue> rator : ratormv) {
-        if (rator.getData().getType().isError()) {
+        if (rator.getData().getType() == ErrorT.TYPE) {
           PresenceCondition newerrorCond = errorCond.or(rator.getCondition());
           errorCond.delRef(); errorCond = newerrorCond;
         } else {
           PresenceCondition newvalidCond = validCond.or(rator.getCondition());
           validCond.delRef(); validCond = newvalidCond;
-          scope.putEnumerator(enumTag, rator.getData().getTransformation());
-          // enumeratorlist.add(rator.getData().getType().toEnumerator());  // no longer storing enumerators with enum type
+          enums.add(rator.getData().getTransformation());
         }
       }  // end ratormv
     } // end list
+    scope.putEnumerator(enumTag,renamedTag,enums,pc);
 
     Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
 
     if (validCond.isNotFalse()) {
       TypeSpecifier typespec = new TypeSpecifier();
       // TODO: get largest type for enum (gcc), instead of ISO standard of int
-      Type enumreftype = new EnumT(enumTag);
+      Type enumreftype = new EnumT(renamedTag);
       typespec.setType(enumreftype);
 
       typespec.addTransformation(keyword);
-      typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, enumTag));
+      typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, renamedTag));
 
       typespecmv.add(typespec, validCond);
 
@@ -654,20 +657,44 @@ class DesugarOps {
   }
   
   public static Multiverse<TypeSpecifier> processEnumReference(Syntax keyword,
-                                                              String enumTag,
-                                                              PresenceCondition pc) {
+                                                               String enumTag,
+                                                               PresenceCondition pc,
+                                                               CContext scope,
+                                                               FreshIDCreator freshIdCreator) {
     Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
+    Multiverse<String> renamings = scope.getEnumMultiverse(enumTag,pc);
+    for (Element<String> s : renamings) {
+      TypeSpecifier typespec = new TypeSpecifier();
+      if (s.getData().equals("<error>")) {
+        typespec.setError();
+      } else if (s.getData().equals("<undeclared>")) {
+        String forwardTagRefName;
+        if (scope.hasForwardETagForTag(enumTag)) {
+          forwardTagRefName = scope.getForwardETagForTag(enumTag);
+        } else {
+          forwardTagRefName = freshIdCreator.freshCId("forward_tag_reference");
+          scope.putForwardETagReference(forwardTagRefName, enumTag);
+        }
+        assert null != forwardTagRefName;
 
-    TypeSpecifier typespec = new TypeSpecifier();
-    // TODO: get largest type for enum (gcc), instead of ISO standard of int
-    Type enumreftype = new EnumT(enumTag);
-    typespec.setType(enumreftype);
-
-    typespec.addTransformation(keyword);
-    typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, enumTag));
-
-    typespecmv.add(typespec, pc);
-          
+        List<VariableT> dummy = new LinkedList<VariableT>();
+        dummy.add(VariableT.newField(NumberT.INT,enumTag));
+        Type forwardERef = new UnionT(forwardTagRefName,dummy);
+        typespec.setType(forwardERef);
+        typespec.addTransformation(new Language<CTag>(CTag.UNION));
+        typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, forwardTagRefName));
+        typespecmv.add(typespec, s.getCondition());
+      } else {
+        // TODO: get largest type for enum (gcc), instead of ISO standard of int
+        Type enumreftype = new EnumT(s.getData());
+        typespec.setType(enumreftype);
+        
+        typespec.addTransformation(keyword);
+        typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, s.getData()));
+      
+        typespecmv.add(typespec, s.getCondition());
+      }
+    }
     return typespecmv;
   }
   
