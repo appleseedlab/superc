@@ -7,12 +7,12 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_20;
-extern const bool __static_condition_default_18;
 extern const bool __static_condition_default_14;
+extern const bool __static_condition_default_18;
 extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_19;
+extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_17;
 void __static_initializer_default() {
 __static_renaming("__usedUnion_6", "usedUnion");
@@ -34,12 +34,12 @@ __static_condition_renaming("__static_condition_default_20", "!A && B");
 
 };
 union __intCharFloat_0 {
-int  __integer_1;
-char  __character_2;
-float  __floating_3;
+int  __integer_1;// L3
+char  __character_2;// L4
+float  __floating_3;// L5
 };
 union __intCharFloat_4 {
-char  __integer_5;
+char  __integer_5;// L9
 };
 
 union __intCharFloat_0 ;// L2

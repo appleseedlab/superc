@@ -19,7 +19,7 @@ __static_condition_renaming("__static_condition_default_6", "!(defined A)");
 
 };
 struct __s_0 {
-int  __field1_1;
+int  __field1_1;// L1
 };
 
 struct __s_0 ;// L1

@@ -22,7 +22,7 @@ enum __bob_4 __bob_4;
 };
 
 int  __y_0= 7;// L1
-union __forward_tag_reference_1 ;// L2147483647:L0
+union __forward_tag_reference_1 ;// L0
 union __forward_tag_reference_1  __x_2;// L5
 enum __bob_4 ;// L8
 

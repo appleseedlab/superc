@@ -21,8 +21,8 @@ __static_condition_renaming("__static_condition_default_9", "(defined A)");
 };
 typedef int  __typeAlias_0;// L2
 struct __bob_1 {
-__typeAlias_0  __val_2;
-char  __otherVal_4;
+__typeAlias_0  __val_2;// L0
+char  __otherVal_4;// L9
 };
 typedef struct __bob_1  __bob_6;// L6:L10
 

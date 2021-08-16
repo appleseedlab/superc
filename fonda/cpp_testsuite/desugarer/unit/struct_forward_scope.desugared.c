@@ -14,7 +14,7 @@ __static_renaming("__main_4", "main");
 
 };
 struct __s_5 {
-int  __x_6;
+int  __x_6;// L12
 };
 
 int  __main_4 () {
@@ -23,7 +23,7 @@ int  __main_4 () {
 {
 
 struct __s_2 {
-char  __y_3;
+char  __y_3;// L5
 };
 
 struct __forward_tag_reference_0 { // generated union of struct variations

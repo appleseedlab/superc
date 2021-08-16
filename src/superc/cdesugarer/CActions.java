@@ -9874,9 +9874,12 @@ public static class LineNumbers {
   public String getComment() {
     if (earliestLine == latestLine)
       return "// L" + Integer.toString(earliestLine);
-    else
+    else if (earliestLine == Integer.MAX_VALUE &&
+             latestLine == 0) {
+      return "// L0";
+    } else {
       return "// L" + Integer.toString(earliestLine) + ":L" + Integer.toString(latestLine);
-    
+    }
   }
   public String toString() {
     return getComment();

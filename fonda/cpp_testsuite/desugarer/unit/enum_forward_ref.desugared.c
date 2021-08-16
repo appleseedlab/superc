@@ -20,7 +20,7 @@ union __forward_tag_reference_0 { // generated union of enum variations
 enum __bob_3 __bob_3;
 };
 
-union __forward_tag_reference_0 ;// L2147483647:L0
+union __forward_tag_reference_0 ;// L0
 union __forward_tag_reference_0  __x_1;// L3
 enum __bob_3 ;// L5
 

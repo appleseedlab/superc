@@ -22,10 +22,10 @@ __static_condition_renaming("__static_condition_default_9", "!(defined A) && !(d
 
 };
 struct __x_0 {
-int  __a_1;
-unsigned  __a_2;
-int  __b_3;
-unsigned  __b_4;
+int  __a_1;// L4
+unsigned  __a_2;// L6
+int  __b_3;// L9
+unsigned  __b_4;// L11
 };
 
 struct __x_0 ;// L1

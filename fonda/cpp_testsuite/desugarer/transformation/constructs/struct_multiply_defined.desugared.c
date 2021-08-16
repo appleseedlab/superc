@@ -16,16 +16,16 @@ __static_renaming("__var_11", "var");
 
 };
 struct __bob_0 {
-int  __x_1;
+int  __x_1;// L3
 };
 struct __joe_2 {
-int  __yy_3;
+int  __yy_3;// L6
 };
 struct __bob_4 {
-int  __y_5;
+int  __y_5;// L10
 };
 struct __joe_6 {
-int  __xx_7;
+int  __xx_7;// L13
 };
 
 struct __bob_0 ;// L2

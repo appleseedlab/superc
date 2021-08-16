@@ -17,7 +17,7 @@ __static_renaming("__main_6", "main");
 
 };
 struct ____fd_set_0 {
-int  (__fds_bits_1[4]);
+int  (__fds_bits_1[4]);// L3
 };
 typedef struct ____fd_set_0  __fd_set_2;// L1:L4
 

@@ -16,7 +16,7 @@ __static_condition_renaming("__static_condition_default_6", "(defined CONFIG_A)"
 
 };
 struct __myfirststruct_0 {
-int  __x_1;
+int  __x_1;// L3
 };
 typedef struct __myfirststruct_0  __myfirststruct_2;// L2:L4
 
@@ -26,6 +26,6 @@ union {
 };
 
 // typedef moved to top of scope
-struct __forward_tag_reference_3 ;// L2147483647:L0
+struct __forward_tag_reference_3 ;// L0
 /* no function due to type errors in the function prototype */
 

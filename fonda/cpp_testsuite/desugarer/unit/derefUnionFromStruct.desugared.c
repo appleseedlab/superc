@@ -16,15 +16,15 @@ __static_renaming("__main_13", "main");
 
 };
 union ____anonymous_tag_0_1 {
-int  __c_2;
-short  __c_3;
-long  (* __d_4);
-int  (* __d_5);
+int  __c_2;// L6
+short  __c_3;// L9
+long  (* __d_4);// L7
+int  (* __d_5);// L10
 };
 struct __x_6 {
-int  __a_7;
-int  __b_8;
-union ____anonymous_tag_0_1  __anon_id_0_9;
+int  __a_7;// L2
+int  __b_8;// L3
+union ____anonymous_tag_0_1  __anon_id_0_9;// L4
 };
 
 struct __x_6 ;// L1

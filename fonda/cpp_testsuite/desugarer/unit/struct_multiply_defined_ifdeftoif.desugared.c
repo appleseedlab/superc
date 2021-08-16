@@ -14,16 +14,16 @@ __static_renaming("___2_var_joe_13", "_2_var_joe");
 
 };
 struct ____anonymous_tag_0_1 {
-int  __x_2;
+int  __x_2;// L3
 };
 struct ____anonymous_tag_3_4 {
-int  __yy_5;
+int  __yy_5;// L6
 };
 struct ____anonymous_tag_7_8 {
-int  __y_9;
+int  __y_9;// L9
 };
 struct ____anonymous_tag_10_11 {
-int  __xx_12;
+int  __xx_12;// L12
 };
 
 struct ____anonymous_tag_0_1 ;// L2

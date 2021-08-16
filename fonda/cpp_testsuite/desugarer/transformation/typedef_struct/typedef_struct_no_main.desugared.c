@@ -13,8 +13,8 @@ __static_renaming("__bob_3", "bob");
 
 };
 struct __bob_0 {
-int  __val_1;
-char  __otherVal_2;
+int  __val_1;// L2
+char  __otherVal_2;// L3
 };
 typedef struct __bob_0  __bob_3;// L1:L4
 

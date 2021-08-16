@@ -12,8 +12,8 @@ void __static_initializer_default() {
 
 };
 struct ____anonymous_tag_0_1 {
-int  __x_2;
-char  __y_3;
+int  __x_2;// L2
+char  __y_3;// L3
 };
 
 struct ____anonymous_tag_0_1 ;// L1

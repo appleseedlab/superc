@@ -21,7 +21,7 @@ __static_condition_renaming("__static_condition_default_9", "(defined A)");
 
 };
 struct ____anonymous_tag_0_1 {
-char  __a_2;
+char  __a_2;// L2
 };
 
 struct ____anonymous_tag_0_1  __x_4;// L2

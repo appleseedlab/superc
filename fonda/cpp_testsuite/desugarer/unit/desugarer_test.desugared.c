@@ -14,21 +14,21 @@ __static_renaming("__main_17", "main");
 
 };
 struct ____anonymous_tag_0_1 {
-int  __x_2;
+int  __x_2;// L4
 };
 struct ____anonymous_tag_3_4 {
-char  __x_5;
+char  __x_5;// L7
 };
 struct ____anonymous_tag_6_7 {
-char  __y_8;
+char  __y_8;// L10
 };
 union ____anonymous_tag_9_10 {
-struct ____anonymous_tag_0_1  __s1_11;
-struct ____anonymous_tag_3_4  __s2_12;
-struct ____anonymous_tag_6_7  __s3_13;
+struct ____anonymous_tag_0_1  __s1_11;// L3
+struct ____anonymous_tag_3_4  __s2_12;// L6
+struct ____anonymous_tag_6_7  __s3_13;// L9
 };
 struct __s_14 {
-union ____anonymous_tag_9_10  __anon_id_0_15;
+union ____anonymous_tag_9_10  __anon_id_0_15;// L2
 };
 
 struct __s_14 ;// L1

@@ -15,7 +15,7 @@ __static_renaming("__main_4", "main");
 
 };
 struct __bob_0 {
-int  __x_1;
+int  __x_1;// L2
 };
 
 struct __bob_0  __globalvar_2;// L1:L3

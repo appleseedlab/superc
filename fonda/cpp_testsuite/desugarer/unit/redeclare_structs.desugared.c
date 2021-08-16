@@ -12,11 +12,11 @@ void __static_initializer_default() {
 
 };
 struct __x_0 {
-int  __s_1;
-char  __t_2;
+int  __s_1;// L2
+char  __t_2;// L3
 };
 struct __x_3 {
-int  __y_4;
+int  __y_4;// L8
 };
 
 struct __x_0 ;// L1

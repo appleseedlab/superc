@@ -19,11 +19,11 @@ __static_condition_renaming("__static_condition_default_9", "!(defined CONFIG_QU
 
 };
 struct __t_0 {
-int  __i_inline_size_1;
+int  __i_inline_size_1;// L2
 };
 struct __t_2 {
-int  __i_inline_size_3;
-int  __i_reserved_quota_4;
+int  __i_inline_size_3;// L2
+int  __i_reserved_quota_4;// L4
 };
 
 struct __t_0 ;// L1

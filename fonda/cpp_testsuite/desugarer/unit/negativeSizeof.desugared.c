@@ -16,15 +16,15 @@ __static_renaming("__main_12", "main");
 
 };
 struct __X_0 {
-int  __a_1;
-int  __b_2;
-int  __c_3;
+int  __a_1;// L2
+int  __b_2;// L3
+int  __c_3;// L4
 };
 struct __Y_4 {
-int  __a_5;
-int  __a_6;
-int  __b_7;
-int  __b_8;
+int  __a_5;// L9
+int  __a_6;// L12
+int  __b_7;// L10
+int  __b_8;// L13
 };
 
 struct __X_0 ;// L1

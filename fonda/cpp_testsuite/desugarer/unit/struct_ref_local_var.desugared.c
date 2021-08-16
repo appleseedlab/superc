@@ -22,7 +22,7 @@ union {
 };
 };
 
-struct __forward_tag_reference_0 ;// L2147483647:L0
+struct __forward_tag_reference_0 ;// L0
 struct __forward_tag_reference_0  (* __EVP_MD_CTX_new_1 (void  ));// L2
 void  __test_function_3 () {
 

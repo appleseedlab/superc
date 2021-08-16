@@ -20,7 +20,7 @@ __static_condition_renaming("__static_condition_default_5", "!(defined A)");
 
 };
 struct __bob_6 {
-int  __x_7;
+int  __x_7;// L17
 };
 
 static int  __x_0;// L3

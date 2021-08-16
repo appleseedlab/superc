@@ -18,10 +18,10 @@ __static_condition_renaming("__static_condition_default_7", "!A");
 
 };
 struct __x_0 {
-int  __a_1;
-int  __b_2;
-int  __c_3;
-int  __c_4;
+int  __a_1;// L2
+int  __b_2;// L4
+int  __c_3;// L6
+int  __c_4;// L6
 };
 
 struct __x_0 ;// L1

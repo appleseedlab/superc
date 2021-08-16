@@ -23,14 +23,14 @@ __static_condition_renaming("__static_condition_default_16", "!(defined X)");
 
 };
 struct ____anonymous_tag_0_1 {
-int  __num_2;
+int  __num_2;// L10
 };
 struct ____anonymous_tag_3_4 {
-int  __x_5;
+int  __x_5;// L14
 };
 union __u_6 {
-struct ____anonymous_tag_0_1  __a_7;
-struct ____anonymous_tag_3_4  __b_8;
+struct ____anonymous_tag_0_1  __a_7;// L8
+struct ____anonymous_tag_3_4  __b_8;// L12
 };
 
 union __u_6  __this_9;// L7:L16

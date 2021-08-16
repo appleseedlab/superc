@@ -25,10 +25,10 @@ int  __main_8 () {
 {
 
 struct ____anonymous_tag_0_1 {
-char  __a_2;
+char  __a_2;// L3
 };
 struct ____anonymous_tag_3_4 {
-int  __field1_5;
+int  __field1_5;// L5
 };
 
 

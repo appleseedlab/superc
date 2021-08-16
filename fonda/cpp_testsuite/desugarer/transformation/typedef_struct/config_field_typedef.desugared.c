@@ -23,9 +23,9 @@ __static_condition_renaming("__static_condition_default_10", "!(defined CONFIG_A
 typedef int  __typeAlias_0;// L2
 typedef char  __typeAlias_1;// L4
 struct __bob_2 {
-__typeAlias_0  __val_3;
-__typeAlias_1  __val_4;
-char  __otherVal_5;
+__typeAlias_0  __val_3;// L0
+__typeAlias_1  __val_4;// L0
+char  __otherVal_5;// L9
 };
 typedef struct __bob_2  __bob_6;// L7:L10
 

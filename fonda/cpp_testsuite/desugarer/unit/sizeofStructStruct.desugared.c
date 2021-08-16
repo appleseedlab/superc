@@ -30,19 +30,19 @@ __static_condition_renaming("__static_condition_default_21", "!(defined A) && (d
 
 };
 struct __one_0 {
-int  __a_1;
+int  __a_1;// L4
 };
 struct __one_2 {
-int  __a_3;
-int  __b_4;
+int  __a_3;// L4
+int  __b_4;// L7
 };
 struct __two_5 {
-int  __a_6;
-long long  __c_7;
-int  __b_8;
-unsigned long long  __d_9;
-struct __one_0  __x_10;
-struct __one_2  __x_11;
+int  __a_6;// L14
+long long  __c_7;// L17
+int  __b_8;// L15
+unsigned long long  __d_9;// L18
+struct __one_0  __x_10;// L20
+struct __one_2  __x_11;// L20
 };
 
 struct __one_0 ;// L1

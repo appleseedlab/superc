@@ -17,7 +17,7 @@ __static_renaming("__main_6", "main");
 
 };
 struct __x_0 {
-int  __field_1 : 4;
+int  __field_1 : 4;// L3
 };
 
 struct __x_0 ;// L1

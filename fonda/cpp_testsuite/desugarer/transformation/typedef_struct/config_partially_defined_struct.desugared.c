@@ -20,8 +20,8 @@ __static_condition_renaming("__static_condition_default_8", "(defined A)");
 
 };
 struct __bob_0 {
-int  __val_1;
-char  __otherVal_2;
+int  __val_1;// L3
+char  __otherVal_2;// L5
 };
 typedef struct __bob_0  __bob_3;// L2:L6
 

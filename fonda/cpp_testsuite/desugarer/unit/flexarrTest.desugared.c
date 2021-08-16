@@ -14,8 +14,8 @@ __static_renaming("__main_4", "main");
 
 };
 struct __x_1 {
-int  __x_2;
-char  (__name_3[]);
+int  __x_2;// L4
+char  (__name_3[]);// L5
 };
 
 int  __a_0;// L2

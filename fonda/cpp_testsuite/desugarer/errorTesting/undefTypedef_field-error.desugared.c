@@ -26,7 +26,7 @@ __static_parse_error("Unable to parse");
 typedef int  __x_0;// L2
 typedef int  __y_3;// L8
 struct __x_4 {
-__x_0  __a_5;
+__x_0  __a_5;// L0
 };
 
 // typedef moved to top of scope

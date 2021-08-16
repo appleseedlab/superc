@@ -20,7 +20,7 @@ __static_condition_renaming("__static_condition_default_7", "!(defined A)");
 
 };
 struct __x_0 {
-int  __revents_1;
+int  __revents_1;// L2
 };
 
 struct __x_0 ;// L1

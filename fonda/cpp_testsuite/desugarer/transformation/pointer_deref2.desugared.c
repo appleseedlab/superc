@@ -16,7 +16,7 @@ __static_renaming("___libssh2_rsa_new_7", "_libssh2_rsa_new");
 
 };
 struct __rsa_st_1 {
-struct __forward_tag_reference_0  (* __e_2);
+struct __forward_tag_reference_0  (* __e_2);// L0
 };
 typedef struct __rsa_st_1  __RSA_3;// L5
 
@@ -25,7 +25,7 @@ union {
 };
 };
 
-struct __forward_tag_reference_0 ;// L2147483647:L0
+struct __forward_tag_reference_0 ;// L0
 struct __rsa_st_1 ;// L2
 // typedef moved to top of scope
 extern __RSA_3  (* __RSA_new_4 (void  ));// L6

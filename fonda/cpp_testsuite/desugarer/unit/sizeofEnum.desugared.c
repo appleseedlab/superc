@@ -14,12 +14,12 @@ __static_renaming("__main_11", "main");
 
 };
 struct __x_0 {
-int  __a_1;
-int  __b_2;
+int  __a_1;// L2
+int  __b_2;// L3
 };
 union __U_4 {
-int  __a_5;
-long  __b_6;
+int  __a_5;// L8
+long  __b_6;// L8
 };
 enum __sizes_9 {
 __A_3 = ( sizeof(int  )  +  sizeof(int  ) ),

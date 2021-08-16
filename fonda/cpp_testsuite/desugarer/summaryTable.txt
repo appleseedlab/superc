@@ -178,8 +178,7 @@ unit/sizeofStructStruct                                                         
 unit/structArrayTypedef                                                                    BC generated
 unit/inExpressionUnionInit                                                                 BC generated
 unit/begin_decls                                                                           BC generated
-unit/enum_repeated_enumerators                                                             SuperC failed
-unit/enum_repeated_enumerators                                                             BC failed
+unit/enum_repeated_enumerators                                                             BC generated
 unit/function_parameters_configurable                                                      BC generated
 unit/statement_configurable                                                                BC generated
 unit/implicit_param                                                                        BC generated

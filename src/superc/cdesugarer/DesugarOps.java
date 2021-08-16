@@ -422,8 +422,8 @@ class DesugarOps {
                 // System.err.println("tagtab.put: " + entry.getCondition());
                 // save the text of the desugared field
                 transformation.append(renamedDeclaration.toString());
-                transformation.append(";\n");
-
+                transformation.append(";");
+                transformation.append(CActions.typespecLines(renamedDeclaration.getTypeSpec()) + "\n");
               } else {  // is already declared
                 // emit a message
                 System.err.println(String.format("INFO: type error on redeclaration of struct field %s", fieldName));

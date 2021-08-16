@@ -18,8 +18,8 @@ __static_condition_renaming("__static_condition_default_5", "!(defined A)");
 
 };
 struct __x_0 {
-int  __a_1;
-unsigned  __a_2;
+int  __a_1;// L4
+unsigned  __a_2;// L6
 };
 
 struct __x_0 ;// L1

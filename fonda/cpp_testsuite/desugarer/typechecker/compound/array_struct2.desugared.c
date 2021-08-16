@@ -25,7 +25,7 @@ int  __main_5 () {
 {
 
 struct ____anonymous_tag_0_1 {
-int  __field1_2;
+int  __field1_2;// L5
 };
 
 

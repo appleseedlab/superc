@@ -14,10 +14,10 @@ __static_renaming("__bob_5", "bob");
 
 };
 struct __bob_0 {
-char  __otherVal_1;
+char  __otherVal_1;// L3
 };
 struct __bob_2 {
-char  __otherVal_3;
+char  __otherVal_3;// L7
 };
 typedef struct __bob_0  __bob_4;// L2:L4
 typedef struct __bob_2  __bob_5;// L6:L8

@@ -30,8 +30,8 @@ int  __main_7 (void  ) {
 {
 
 struct ____anonymous_tag_2_3 {
-__typeAlias_0  __x_4;
-__typeAlias_1  __x_5;
+__typeAlias_0  __x_4;// L0
+__typeAlias_1  __x_5;// L0
 };
 
 

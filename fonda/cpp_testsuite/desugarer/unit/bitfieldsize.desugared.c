@@ -12,7 +12,7 @@ void __static_initializer_default() {
 
 };
 struct __myFirstStruct_0 {
-int  __var_1 : 5;
+int  __var_1 : 5;// L2
 };
 
 struct __myFirstStruct_0 ;// L1

@@ -20,7 +20,7 @@ int  __main_4 () {
 {
 
 struct __s_1 {
-int  __y_2;
+int  __y_2;// L5
 };
 
 struct __forward_tag_reference_0 { // generated union of struct variations
@@ -30,7 +30,7 @@ struct __s_1 __s_1;
 };
 
 
-struct __forward_tag_reference_0 ;// L2147483647:L0
+struct __forward_tag_reference_0 ;// L0
 
 struct __s_1 ;// L4
 

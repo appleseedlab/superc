@@ -14,7 +14,7 @@ __static_renaming("__main_4", "main");
 
 };
 struct ____anonymous_tag_0_1 {
-char  __p_2;
+char  __p_2;// L2
 };
 
 struct ____anonymous_tag_0_1  __data_3;// L1:L3

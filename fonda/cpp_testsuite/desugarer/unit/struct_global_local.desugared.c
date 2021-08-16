@@ -18,10 +18,10 @@ __static_renaming("__q_13", "q");
 
 };
 struct __s_0 {
-int  __x_1;
+int  __x_1;// L2
 };
 struct ____s_0_8 {
-int  __x_9;
+int  __x_9;// L16
 };
 struct ____s_1_10 {
 };
@@ -33,7 +33,7 @@ int  __main_7 () {
 {
 
 struct __s_3 {
-char  __y_4;
+char  __y_4;// L7
 };
 
 

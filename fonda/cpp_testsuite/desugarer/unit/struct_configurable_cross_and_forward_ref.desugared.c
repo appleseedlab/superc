@@ -18,19 +18,19 @@ __static_condition_renaming("__static_condition_default_15", "(defined CONFIG_A)
 
 };
 struct __T_2 {
-int  __field_t_3;
+int  __field_t_3;// L4
 };
 struct __X_4 {
-int  __field_x_5;
-struct __T_2  __field_struct_t_6;
-char  __field_struct_t_7;
+int  __field_x_5;// L7
+struct __T_2  __field_struct_t_6;// L9
+char  __field_struct_t_7;// L11
 };
 struct __X_8 {
-int  __field_x_9;
+int  __field_x_9;// L16
 };
 struct __T_10 {
-int  __field_t_11;
-struct __X_8  __field_struct_x_12;
+int  __field_t_11;// L19
+struct __X_8  __field_struct_x_12;// L20
 };
 
 struct __forward_tag_reference_0 { // generated union of struct variations

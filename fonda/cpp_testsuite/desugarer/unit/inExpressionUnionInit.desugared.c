@@ -19,8 +19,8 @@ int  __main_4 () {
 {
 
 union ____anonymous_tag_0_1 {
-int  __a_2;
-long  __b_3;
+int  __a_2;// L2
+long  __b_3;// L2
 };
 
 

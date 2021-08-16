@@ -15,8 +15,8 @@ __static_renaming("__main_5", "main");
 
 };
 struct __x_0 {
-int  __a_1;
-int  __b_2;
+int  __a_1;// L3
+int  __b_2;// L4
 };
 typedef struct __x_0  __X_3;// L1:L5
 

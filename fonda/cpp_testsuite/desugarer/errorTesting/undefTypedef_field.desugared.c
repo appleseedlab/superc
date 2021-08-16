@@ -22,7 +22,7 @@ __static_parse_error("Unable to parse");
 };
 typedef int  __x_0;// L2
 struct __x_1 {
-__x_0  __a_2;
+__x_0  __a_2;// L0
 };
 
 // typedef moved to top of scope

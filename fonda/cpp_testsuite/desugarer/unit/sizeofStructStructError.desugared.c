@@ -7,11 +7,11 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_11;
 extern const bool __static_condition_default_25;
+extern const bool __static_condition_default_20;
 extern const bool __static_condition_default_23;
 extern const bool __static_condition_default_10;
-extern const bool __static_condition_default_11;
-extern const bool __static_condition_default_20;
 extern const bool __static_condition_default_24;
 extern const bool __static_condition_default_26;
 void __static_initializer_default() {
@@ -32,19 +32,19 @@ __static_condition_renaming("__static_condition_default_26", "(defined A) && (de
 };
 typedef int  __a_0;// L2
 struct __one_3 {
-__a_0  __a_4;
+__a_0  __a_4;// L0
 };
 struct __one_6 {
-__a_0  __a_7;
-int  __b_9;
+__a_0  __a_7;// L0
+int  __b_9;// L9
 };
 struct __two_12 {
-int  __a_13;
-long long  __c_14;
-int  __b_15;
-unsigned long long  __d_16;
-struct __one_3  __x_17;
-struct __one_6  __x_18;
+int  __a_13;// L16
+long long  __c_14;// L19
+int  __b_15;// L17
+unsigned long long  __d_16;// L20
+struct __one_3  __x_17;// L22
+struct __one_6  __x_18;// L22
 };
 
 // typedef moved to top of scope

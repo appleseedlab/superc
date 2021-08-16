@@ -12,7 +12,7 @@ void __static_initializer_default() {
 
 };
 struct __s_0 {
-int  __x_1;
+int  __x_1;// L2
 };
 
 struct __s_0 ;// L1

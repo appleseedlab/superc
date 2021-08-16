@@ -19,8 +19,8 @@ int  __main_4 () {
 {
 
 struct __list_1 {
-int  __data_2;
-struct __forward_tag_reference_0  (* __next_3);
+int  __data_2;// L3
+struct __forward_tag_reference_0  (* __next_3);// L0
 };
 
 struct __forward_tag_reference_0 { // generated union of struct variations

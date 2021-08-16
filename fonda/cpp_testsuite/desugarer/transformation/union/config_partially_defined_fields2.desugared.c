@@ -18,10 +18,10 @@ __static_condition_renaming("__static_condition_default_8", "!A");
 
 };
 union __intCharFloat_0 {
-int  __integer_1;
-char  __character_2;
-float  __floating_3;
-float  __floating_4;
+int  __integer_1;// L3
+char  __character_2;// L5
+float  __floating_3;// L7
+float  __floating_4;// L7
 };
 
 union __intCharFloat_0 ;// L2

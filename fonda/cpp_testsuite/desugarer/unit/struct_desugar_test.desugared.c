@@ -14,14 +14,14 @@ __static_renaming("__main_10", "main");
 
 };
 struct ____s_1_1 {
-int  __data_2;
-struct __forward_tag_reference_0  (* __next_3);
+int  __data_2;// L2
+struct __forward_tag_reference_0  (* __next_3);// L0
 };
 union ____anonymous_tag_4_5 {
-struct ____s_1_1  ____s_1_6;
+struct ____s_1_1  ____s_1_6;// L8
 };
 struct __s_7 {
-union ____anonymous_tag_4_5  __anon_id_0_8;
+union ____anonymous_tag_4_5  __anon_id_0_8;// L7
 };
 
 struct __forward_tag_reference_0 { // generated union of struct variations

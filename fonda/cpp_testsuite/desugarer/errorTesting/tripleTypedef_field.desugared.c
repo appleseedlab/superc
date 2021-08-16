@@ -31,7 +31,7 @@ typedef int  __c_2;// L10
 struct __y_3 {
 };
 struct __y_4 {
-__c_2  __k_5;
+__c_2  __k_5;// L0
 };
 
 // typedef moved to top of scope

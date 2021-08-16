@@ -19,11 +19,11 @@ __static_condition_renaming("__static_condition_default_8", "(defined A)");
 
 };
 struct __x_0 {
-int  __a_1;
+int  __a_1;// L3
 };
 struct __x_2 {
-int  __a_3;
-int  __b_4;
+int  __a_3;// L3
+int  __b_4;// L5
 };
 
 struct __x_0 ;// L1

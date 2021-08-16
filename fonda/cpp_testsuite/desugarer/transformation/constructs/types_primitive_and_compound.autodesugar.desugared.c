@@ -30,7 +30,7 @@ __static_parse_error("Unable to parse");
 }
 };
 struct __test_2 {
-int  __x_3;
+int  __x_3;// L6
 };
 
 extern _Bool  ___C_40496_0;// L3:L33

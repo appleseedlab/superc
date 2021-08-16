@@ -23,13 +23,13 @@ __static_condition_renaming("__static_condition_default_12", "!(defined A) && (d
 
 };
 struct __x_0 {
-int  __a_1;
-unsigned  __a_2;
+int  __a_1;// L4
+unsigned  __a_2;// L6
 };
 struct __x_3 {
-int  __a_4;
-unsigned  __a_5;
-int  __b_6;
+int  __a_4;// L4
+unsigned  __a_5;// L6
+int  __b_6;// L9
 };
 
 struct __x_0 ;// L1

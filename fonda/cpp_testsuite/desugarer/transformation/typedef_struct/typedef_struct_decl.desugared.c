@@ -23,7 +23,7 @@ int  __main_5 (void  ) {
 {
 
 struct ____anonymous_tag_1_2 {
-__intAlias_0  __x_3;
+__intAlias_0  __x_3;// L0
 };
 
 

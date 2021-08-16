@@ -24,9 +24,9 @@ int  __main_10 () {
 typeof(int*)__typeofStandin_2;
 typeof(long)__typeofStandin_3;
 union ____anonymous_tag_4_5 {
-typeof ( __typeofStandin_2 )  __a_6;
-typeof ( __typeofStandin_3 )  __a_7;
-int  __b_8;
+typeof ( __typeofStandin_2 )  __a_6;// L9
+typeof ( __typeofStandin_3 )  __a_7;// L9
+int  __b_8;// L10
 };
 
 

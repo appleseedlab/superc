@@ -16,8 +16,8 @@ __static_renaming("__main_7", "main");
 
 };
 union ____anonymous_tag_0_1 {
-int  (* __a_2);
-long  __b_3;
+int  (* __a_2);// L2
+long  __b_3;// L3
 };
 typedef union ____anonymous_tag_0_1  __U_4;// L1:L4
 
