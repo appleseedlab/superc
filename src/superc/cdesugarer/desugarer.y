@@ -3671,9 +3671,9 @@ Initializer: /** nomerge **/  // ADDED gcc can have empty Initializer lists // M
         | LBRACE MatchedInitializerList DesignatedInitializer RBRACE
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<List<Initializer>> lists = (Multiverse<List<Initializer>>) getTransformationValue(subparser, 3);
+          Multiverse<List<Initializer>> lists = getCompleteNodeMultiverseValue(subparser, 3,pc);
           Multiverse<List<Initializer>> newelem
-            = DesugarOps.initializerListWrap.transform((Multiverse<Initializer>) getTransformationValue(subparser, 2));
+            = DesugarOps.initializerListWrap.transform(getCompleteNodeMultiverseValue(subparser, 2,pc));
           Multiverse<List<Initializer>> cproduct = lists.complementedProduct(newelem, DesugarOps.INITIALIZERLISTCONCAT);
           //lists.destruct(); newelem.destruct();
           setTransformationValue(value, DesugarOps.toInitializerList.transform(cproduct));
@@ -3752,9 +3752,10 @@ DesignatedInitializer:/** nomerge, passthrough **/ /* ADDED */ // Multiverse<Ini
         }
         | Designation Initializer
         {
+          PresenceCondition pc = subparser.getPresenceCondition();
           // DesignatedInitializer
-          Multiverse<Designation> designations = (Multiverse<Designation>) getTransformationValue(subparser, 2);
-          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
+          Multiverse<Designation> designations = getCompleteNodeMultiverseValue(subparser, 2,pc);
+          Multiverse<Initializer> initializers = getCompleteNodeMultiverseValue(subparser, 1,pc);
           setTransformationValue(value, designations.join(initializers, DesugarOps.joinDesignatedInitializer));
         }
         ;
@@ -4952,7 +4953,8 @@ SelectionStatement:  /** complete **/ // Multiverse<String>
           todoReminder("check the type of the conditional expression SelectionStatement (2)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 5, pc);
-          Syntax ifsyn = (Syntax) getNodeAt(subparser, 7);
+          Multiverse<Syntax> ifsynm = getSyntaxMV(subparser,7,pc);
+          Syntax ifsyn = ifsynm.get(0).getData();
           String ifstr = ifsyn.getTokenText();
           String lparenstr = ((Syntax) getNodeAt(subparser, 6)).getTokenText();
           Multiverse<String> exprmv = exprval.transformation;
@@ -5130,7 +5132,8 @@ IterationStatement:  /** complete **/  // Multiverse<String>
         {
           todoReminder("check the type of the conditional expression IterationStatement (3)");
           PresenceCondition pc = subparser.getPresenceCondition();
-          Syntax forsyn = (Syntax) getNodeAt(subparser, 9);
+          Multiverse<Syntax> forsynm = getSyntaxMV(subparser,9,pc);
+          Syntax forsyn = forsynm.get(0).getData();
           String forkeyword = forsyn.getTokenText();
           String lparen = ((Syntax) getNodeAt(subparser, 8)).getTokenText();
           ExpressionValue initval = getCompleteNodeExpressionValue(subparser, 7, pc);
@@ -6120,7 +6123,7 @@ DirectSelection:  /** nomerge **/  // ExpressionValue
               
           assert ! typemv.isEmpty();
 
-          if (hasValidType) {
+          if (hasValidType && !postfixmv.isEmpty()) {
             Multiverse<String> valuemv = postfixmv.product(dotmv,DesugarOps.concatStrings);
             valuemv = valuemv.product(identmv, DesugarOps.concatStrings);
             dotmv.destruct(); identmv.destruct();
@@ -6268,7 +6271,7 @@ IndirectSelection:  /** nomerge **/
           /* System.err.println("typemv " + typemv); */
           /* System.err.println("identmv " + identmv); */
 
-          if (hasValidType) {
+          if (hasValidType && !postfixmv.isEmpty()) {
             Multiverse<String> prepend = identmv.prependScalar(arrow, DesugarOps.concatStrings);
             Multiverse<String> valuemv = postfixmv.product(prepend, DesugarOps.concatStrings);
             identmv.destruct(); prepend.destruct();
@@ -7152,7 +7155,7 @@ EqualityExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> rightmv = rightval.transformation;
 
 
-          if (leftval.hasValidType() && rightval.hasValidType()) {
+          if (leftval.hasValidType() && rightval.hasValidType() && !leftmv.isEmpty() && !rightmv.isEmpty()) {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
@@ -8756,7 +8759,7 @@ Multiverse<Map.Entry<String,Declaration>> getNestedFields(String structId, Strin
   SymbolTable<Declaration> tagtab = scope.getLookasideTableAnyScope(structId);
   Multiverse<Entry<Declaration>> m = tagtab.get(fieldId, pc);
   for (Element<Entry<Declaration>> e  : m) {
-    if (e.getData().isUndeclared()) {
+    if (e.getData().isUndeclared() || e.getData().isError()) {
       continue;
     }
     //no checking needs to be done here since we know the multiverse returned has no

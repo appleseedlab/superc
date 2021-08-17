@@ -326,6 +326,9 @@ abstract class Initializer {
       Multiverse<Type> lTypes = new Multiverse<Type>();
       l = designation.renamedList(t,p,scope,lTypes);
       r = initializer.renamedList(lTypes,p,scope);
+      if (l.isEmpty() || r.isEmpty()) {
+        return new Multiverse<String>("",p);
+      }
       ret = l.product(r,DesugarOps.propEmptyString);
       l.destruct();r.destruct();
       return ret;

@@ -85,7 +85,11 @@ class Declaration {
   public Type getType() {
     Type t = declarator.getType(typespecifier.getType());
     if (isField) {
-      t = VariableT.newField(t,getName());
+      if (hasName()) {
+        t = VariableT.newField(t,getName());
+      } else {
+        t = VariableT.newField(t,"");
+      }
     }
     return t; 
   }
