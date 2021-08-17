@@ -1,16 +1,12 @@
 int f(char x,
-      #ifdef A
+#ifdef A
       int y
-      #endif
+#endif
       ) {
-  #ifdef B
-  int x;
-  #endif
-  int z;
-
-  y = x + y;
-
-  z = y;
-
+  int z = x
+#ifdef A
+        + y
+#endif
+;
   return z;
 }

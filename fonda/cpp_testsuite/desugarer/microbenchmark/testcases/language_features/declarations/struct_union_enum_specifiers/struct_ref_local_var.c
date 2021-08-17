@@ -1,9 +1,20 @@
-struct evp_md_ctx_st;
-struct evp_md_ctx_st *EVP_MD_CTX_new(void);
+#ifdef A
+struct a;
+struct a *foo(void);
 
-#ifdef OQS_USE_SHA2_OPENSSL
 void test_function() {
-	struct evp_md_ctx_st *mdctx;
-	mdctx = EVP_MD_CTX_new();
+	struct a *x;
+	x = foo();
+}
+#else
+
+typedef long unsigned int size_t;
+void *malloc(size_t n);
+struct a;
+typedef struct a b;
+char *foo(b *x, const char *y, size_t z) {
+  malloc((size_t) 1);
+  char *Buffer = malloc((z + 16) % -16);
+  return Buffer;
 }
 #endif

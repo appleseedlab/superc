@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#ifdef SWITCH
 enum {
       SPI_FREQUENCY_20MHZ,
       SPI_FREQUENCY_33MHZ,
@@ -22,3 +23,4 @@ static void decode_spi_frequency(unsigned int freq)
 		printf("unknown<%x>MHz", freq);
 	}
 }
+#endif

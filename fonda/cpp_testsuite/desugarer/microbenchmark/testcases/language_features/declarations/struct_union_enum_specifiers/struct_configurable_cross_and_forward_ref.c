@@ -1,15 +1,15 @@
 struct T bob;
-#ifdef CONFIG_A
+#ifdef A
 struct T {
   int field_t;
 };
 struct X {
   int field_x;
-  #ifdef CONFIG_B
+#ifdef B
   struct T field_struct_t;
-  #else
+#else
   char field_struct_t;
-  #endif
+#endif
 };
 #else
 struct X {
@@ -21,7 +21,7 @@ struct T {
 };
 #endif
 int main() {
-  #ifndef CONFIG_A
+  #ifndef A
   bob.field_struct_x;
   #else
   bob.field_t;

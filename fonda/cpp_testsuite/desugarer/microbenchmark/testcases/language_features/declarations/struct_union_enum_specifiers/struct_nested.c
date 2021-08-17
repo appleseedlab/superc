@@ -1,5 +1,14 @@
+#ifdef NESTED
 struct list {
   struct contents {
   } data;
-  struct list *next;
 };
+#endif
+
+#ifdef NESTEDANONYMOUS
+struct list2 {
+  struct {
+    char p;
+  } data;
+};
+#endif

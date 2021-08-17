@@ -1,6 +1,9 @@
 #include <stdarg.h>
 
-#ifdef VARG
+#ifdef DECLARE
+int foo(int num, ...);
+#endif
+
 int foo(int num, ...) {
   int sum = 0;
   va_list valist;
@@ -11,10 +14,3 @@ int foo(int num, ...) {
   va_end(valist);
   return sum;
 }
-
-int main() {
-  foo(2, 1, 3);
-  foo(3, 1, 2, 3);
-  return 0;
-}
-#endif
