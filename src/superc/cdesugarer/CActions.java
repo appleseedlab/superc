@@ -5065,9 +5065,7 @@ public class CActions implements SemanticActions {
               Multiverse<String> updatemv = updateval.transformation;
 
           
-              String forlparen = String.format("%s %s",
-                                               ((Syntax) getNodeAt(subparser, 9)).getTokenText(),
-                                               ((Syntax) getNodeAt(subparser, 8)).getTokenText());
+              String forlparen = String.format("for (");
 
               Multiverse<String> mv1 = initmv.prependScalar(forlparen, DesugarOps.concatStrings);
               Multiverse<String> mv2 = mv1.appendScalar(semi1, DesugarOps.concatStrings); mv1.destruct();
@@ -6233,7 +6231,7 @@ public class CActions implements SemanticActions {
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
 
           Multiverse<Syntax> opmv = new Multiverse<Syntax>((Syntax) getNodeAt(subparser, 1), pc);
-          if (exprval.hasValidType()) {
+          if (exprval.hasValidType() && !exprval.isEmpty()) {
             Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
             Multiverse<String> resultmv = exprval.transformation.product(opstr, DesugarOps.concatStrings);
             Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
@@ -7354,7 +7352,7 @@ public class CActions implements SemanticActions {
           Multiverse<String> center = new Multiverse<String>("? : ",pc);
           Multiverse<String> elsemv = elseval.transformation;
           if (condval.hasValidType() && elseval.hasValidType()) {
-            Multiverse<Type> resType = elseval.type.filter(condval.type.getConditionOf(ErrorT.TYPE));
+            Multiverse<Type> resType = elseval.type.filter(condval.type.getConditionOf(ErrorT.TYPE).not());
             resType.add(ErrorT.TYPE, condval.type.getConditionOf(ErrorT.TYPE));
             // check that condval is a condition type
             setTransformationValue(value, new ExpressionValue(productAll(DesugarOps.concatStrings,
@@ -9661,6 +9659,11 @@ private static class ExpressionValue {
     }
     return true;
   }
+
+  public boolean isEmpty() {
+    return type.isEmpty() || transformation.isEmpty();
+    
+  }
   
   /**
    * Get only those transformation from a valid type under the given
@@ -10779,15 +10782,17 @@ protected static Multiverse<Node> staticCondToMultiverse(Node node, PresenceCond
 
       if (child instanceof PresenceCondition) {
         pc = (PresenceCondition)child;
-	if (!covered.isMutuallyExclusive(pc)) {
-	  pc = pc.and(covered.not());
-	}
-	covered = covered.or(pc);
+        if (!covered.isMutuallyExclusive(pc)) {
+          pc = pc.and(covered.not());
+        }
+        covered = covered.or(pc);
       } else if (child instanceof Node) {
         // assumes that all static choice nodes are mutually exclusive and already ANDed with the subparser's pc
         Multiverse<Node> someChildren = staticCondToMultiverse((Node)child, pc);
-	someChildren = someChildren.filter(pc);
-	allConfigs.addAll(someChildren);
+        if (!someChildren.isEmpty()) {
+          someChildren = someChildren.filter(pc);
+          allConfigs.addAll(someChildren);
+        }
         someChildren.destruct();
       } else {
         System.err.println("unsupported AST child type in staticCondToMultiverse");

@@ -9521,6 +9521,11 @@ private static class ExpressionValue {
     }
     return true;
   }
+
+  public boolean isEmpty() {
+    return type.isEmpty() || transformation.isEmpty();
+    
+  }
   
   /**
    * Get only those transformation from a valid type under the given
@@ -10639,15 +10644,17 @@ protected static Multiverse<Node> staticCondToMultiverse(Node node, PresenceCond
 
       if (child instanceof PresenceCondition) {
         pc = (PresenceCondition)child;
-	if (!covered.isMutuallyExclusive(pc)) {
-	  pc = pc.and(covered.not());
-	}
-	covered = covered.or(pc);
+        if (!covered.isMutuallyExclusive(pc)) {
+          pc = pc.and(covered.not());
+        }
+        covered = covered.or(pc);
       } else if (child instanceof Node) {
         // assumes that all static choice nodes are mutually exclusive and already ANDed with the subparser's pc
         Multiverse<Node> someChildren = staticCondToMultiverse((Node)child, pc);
-	someChildren = someChildren.filter(pc);
-	allConfigs.addAll(someChildren);
+        if (!someChildren.isEmpty()) {
+          someChildren = someChildren.filter(pc);
+          allConfigs.addAll(someChildren);
+        }
         someChildren.destruct();
       } else {
         System.err.println("unsupported AST child type in staticCondToMultiverse");
