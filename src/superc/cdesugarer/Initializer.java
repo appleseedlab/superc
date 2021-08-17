@@ -254,10 +254,14 @@ abstract class Initializer {
         }
         notFirst = true;
       }
-      Multiverse<String> temp = new Multiverse<String>("}",p);
-      Multiverse<String> st = ret.product(temp,DesugarOps.propEmptyString);
-      ret.destruct();temp.destruct();ret=st;
-      return ret;
+      if (!ret.isEmpty()) {
+        Multiverse<String> temp = new Multiverse<String>("}",p);
+        Multiverse<String> st = ret.product(temp,DesugarOps.propEmptyString);
+        ret.destruct();temp.destruct();ret=st;
+        return ret;
+      } else {
+        return new Multiverse<String>("",p);
+      }
     }
 
       public PresenceCondition getErrorsIn(Multiverse<Type> t, PresenceCondition p) {

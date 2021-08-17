@@ -4859,9 +4859,9 @@ public class CActions implements SemanticActions {
           Multiverse<Syntax> ifsynm = getSyntaxMV(subparser,7,pc);
           Syntax ifsyn = ifsynm.get(0).getData();
           String ifstr = ifsyn.getTokenText();
-          String lparenstr = ((Syntax) getNodeAt(subparser, 6)).getTokenText();
+          String lparenstr = "(";
           Multiverse<String> exprmv = exprval.transformation;
-          Syntax rparensyn = (Syntax) getNodeAt(subparser, 4);
+          Syntax rparensyn = (getSyntaxMV(subparser, 4,pc)).get(0).getData();
           String rparenstr = rparensyn.getTokenText();
           LineNumbers lw = new LineNumbers(ifsyn, rparensyn);
           Multiverse<DeclarationOrStatementValue> ifbranchmv = getCompleteNodeMultiverseValue(subparser, 3, pc);
@@ -5042,13 +5042,13 @@ public class CActions implements SemanticActions {
           Multiverse<Syntax> forsynm = getSyntaxMV(subparser,9,pc);
           Syntax forsyn = forsynm.get(0).getData();
           String forkeyword = forsyn.getTokenText();
-          String lparen = ((Syntax) getNodeAt(subparser, 8)).getTokenText();
+          String lparen = "(";
           ExpressionValue initval = getCompleteNodeExpressionValue(subparser, 7, pc);
-          String semi1 = ((Syntax) getNodeAt(subparser, 6)).getTokenText();
+          String semi1 = ";";
           ExpressionValue testval = getCompleteNodeExpressionValue(subparser, 5, pc);
-          String semi2 = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          String semi2 = ";";
           ExpressionValue updateval = getCompleteNodeExpressionValue(subparser, 3, pc);
-          Syntax rparensyn = (Syntax) getNodeAt(subparser, 2); 
+          Syntax rparensyn = (getSyntaxMV(subparser, 2,pc)).get(0).getData(); 
           String rparen = rparensyn.getTokenText();
           LineNumbers lw = new LineNumbers(forsyn,rparensyn);
 
@@ -5359,7 +5359,7 @@ public class CActions implements SemanticActions {
           /* System.err.println("PRIMARY: " + exprval.transformation); */
           /* System.err.println("PRIMARY: " + exprval.type); */
 
-          if (exprval.hasValidType()) {
+          if (exprval.hasValidType() && !exprval.transformation.isEmpty()) {
             String lparen = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
             Multiverse<String> exprmv = exprval.transformation;
             String rparen = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
@@ -6433,7 +6433,7 @@ public class CActions implements SemanticActions {
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<Syntax> opmv = this.<Syntax>getCompleteNodeSingleValue(subparser, 2, pc);
-          if (exprval.hasValidType()) {
+          if (exprval.hasValidType() && !exprval.transformation.isEmpty()) {
             Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
             Multiverse<String> resultmv = opstr.product(exprval.transformation, DesugarOps.concatStrings);
             Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
@@ -7347,9 +7347,28 @@ public class CActions implements SemanticActions {
 
   case 486:
     {
-          System.err.println("TODO: ConditionalExpression");
-          System.exit(1);
-          /// TODO: check for valid types
+          PresenceCondition pc = subparser.getPresenceCondition();
+          ExpressionValue condval = getCompleteNodeExpressionValue(subparser, 4, pc);
+          ExpressionValue elseval = getCompleteNodeExpressionValue(subparser, 1, pc);
+          Multiverse<String> condmv = condval.transformation;
+          Multiverse<String> center = new Multiverse<String>("? : ",pc);
+          Multiverse<String> elsemv = elseval.transformation;
+          if (condval.hasValidType() && elseval.hasValidType()) {
+            Multiverse<Type> resType = elseval.type.filter(condval.type.getConditionOf(ErrorT.TYPE));
+            resType.add(ErrorT.TYPE, condval.type.getConditionOf(ErrorT.TYPE));
+            // check that condval is a condition type
+            setTransformationValue(value, new ExpressionValue(productAll(DesugarOps.concatStrings,
+                                                                         condmv,
+                                                                         center,
+                                                                         elsemv),
+                                                              resType,
+                                                              condval.lines.product(elseval.lines, DesugarOps.combineLineNumbers)));  // TODO: this is a placeholder for the real type
+          } else {
+            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in conditionalexpression expression"),
+                                                              ErrorT.TYPE,
+                                                              condval.lines.product(elseval.lines, DesugarOps.combineLineNumbers),
+                                                              pc));
+          }
         }
     break;
 
@@ -10762,6 +10781,7 @@ protected static Multiverse<Node> staticCondToMultiverse(Node node, PresenceCond
       } else if (child instanceof Node) {
         // assumes that all static choice nodes are mutually exclusive and already ANDed with the subparser's pc
         Multiverse<Node> someChildren = staticCondToMultiverse((Node)child, pc);
+        allConfigs = allConfigs.filter(pc.not());
         allConfigs.addAll(someChildren);
         someChildren.destruct();
       } else {
