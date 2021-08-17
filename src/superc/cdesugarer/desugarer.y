@@ -10634,15 +10634,20 @@ protected static Multiverse<Node> staticCondToMultiverse(Node node, PresenceCond
 
   if (node instanceof GNode && ((GNode) node).hasName(ForkMergeParser.CHOICE_NODE_NAME)) {
     PresenceCondition pc = null;
+    PresenceCondition covered = (new PresenceConditionManager()).newFalse();
     for (Object child : node) {
 
       if (child instanceof PresenceCondition) {
         pc = (PresenceCondition)child;
+	if (!covered.isMutuallyExclusive(pc)) {
+	  pc = pc.and(covered.not());
+	}
+	covered = covered.or(pc);
       } else if (child instanceof Node) {
         // assumes that all static choice nodes are mutually exclusive and already ANDed with the subparser's pc
         Multiverse<Node> someChildren = staticCondToMultiverse((Node)child, pc);
-        allConfigs = allConfigs.filter(pc.not());
-        allConfigs.addAll(someChildren);
+	someChildren = someChildren.filter(pc);
+	allConfigs.addAll(someChildren);
         someChildren.destruct();
       } else {
         System.err.println("unsupported AST child type in staticCondToMultiverse");
