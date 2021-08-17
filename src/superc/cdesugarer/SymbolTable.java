@@ -218,7 +218,7 @@ public class SymbolTable<T> implements Iterable<String> {
     lists.add(new LinkedList<Map.Entry<String,T>>(), cond);
     for (Map.Entry<String,Multiverse<Entry<T>>> m : map.entrySet()) {
       for (Element<Entry<T>> e : m.getValue()) {
-        if (e.getData().isUndeclared()) {
+        if (e.getData().isUndeclared() || e.getData().isError()) {
           continue;
         }
         //for each value, check to see if any 'and's does not result

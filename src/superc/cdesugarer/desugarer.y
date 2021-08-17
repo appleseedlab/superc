@@ -5158,9 +5158,7 @@ IterationStatement:  /** complete **/  // Multiverse<String>
               Multiverse<String> updatemv = updateval.transformation;
 
           
-              String forlparen = String.format("%s %s",
-                                               ((Syntax) getNodeAt(subparser, 9)).getTokenText(),
-                                               ((Syntax) getNodeAt(subparser, 8)).getTokenText());
+              String forlparen = String.format("for (");
 
               Multiverse<String> mv1 = initmv.prependScalar(forlparen, DesugarOps.concatStrings);
               Multiverse<String> mv2 = mv1.appendScalar(semi1, DesugarOps.concatStrings); mv1.destruct();
@@ -6296,7 +6294,7 @@ Increment:  /** nomerge **/  // ExpressionValue
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
 
           Multiverse<Syntax> opmv = new Multiverse<Syntax>((Syntax) getNodeAt(subparser, 1), pc);
-          if (exprval.hasValidType()) {
+          if (exprval.hasValidType() && !exprval.isEmpty()) {
             Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
             Multiverse<String> resultmv = exprval.transformation.product(opstr, DesugarOps.concatStrings);
             Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
@@ -7381,7 +7379,7 @@ ConditionalExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> center = new Multiverse<String>("? : ",pc);
           Multiverse<String> elsemv = elseval.transformation;
           if (condval.hasValidType() && elseval.hasValidType()) {
-            Multiverse<Type> resType = elseval.type.filter(condval.type.getConditionOf(ErrorT.TYPE));
+            Multiverse<Type> resType = elseval.type.filter(condval.type.getConditionOf(ErrorT.TYPE).not());
             resType.add(ErrorT.TYPE, condval.type.getConditionOf(ErrorT.TYPE));
             // check that condval is a condition type
             setTransformationValue(value, new ExpressionValue(productAll(DesugarOps.concatStrings,
