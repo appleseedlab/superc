@@ -13,5 +13,5 @@ __static_renaming("__fun_ptr_0", "fun_ptr");
 
 };
 
-void  (* __fun_ptr_0) (int  );// L1
+void  (* (__fun_ptr_0)) (int  );// L1
 

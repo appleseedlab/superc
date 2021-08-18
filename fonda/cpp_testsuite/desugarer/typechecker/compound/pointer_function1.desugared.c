@@ -23,7 +23,7 @@ __static_condition_renaming("__static_condition_default_7", "!(defined A)");
 };
 
 int  __num_0= 1;// L1
-int  (* __x_2);// L4
+int  (* (__x_2));// L4
 char  __x_3 (int  __y_1) {
 
 if (__static_condition_default_4) {

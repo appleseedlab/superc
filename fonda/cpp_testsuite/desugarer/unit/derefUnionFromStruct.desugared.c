@@ -18,8 +18,8 @@ __static_renaming("__main_13", "main");
 union ____anonymous_tag_0_1 {
 int  __c_2;// L6
 short  __c_3;// L9
-long  (* __d_4);// L7
-int  (* __d_5);// L10
+long  (* (__d_4));// L7
+int  (* (__d_5));// L10
 };
 struct __x_6 {
 int  __a_7;// L2

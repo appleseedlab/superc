@@ -20,7 +20,7 @@ char  __p_2;// L3
 };
 struct __list_4 {
 struct ____anonymous_tag_0_1  __data_5;// L2
-struct __forward_tag_reference_3  (* __next_6);// L0
+struct __forward_tag_reference_3  (* (__next_6));// L0
 };
 
 struct __forward_tag_reference_3 { // generated union of struct variations
@@ -45,7 +45,7 @@ struct __list_4  __tail_8;// L10
  __head_7  . __next_6 = &  __tail_8  ; // L13
  __tail_8  . __data_5 . __p_2 = 'b' ; // L14
  __tail_8  . __next_6 = 0 ; // L15
-struct __list_4  (* __current_9)= &  __head_7 ;// L17
+struct __list_4  (* (__current_9))= &  __head_7 ;// L17
 
 while ( 0 !=  __current_9  )// L18
 {

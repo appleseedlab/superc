@@ -17,7 +17,7 @@ __static_renaming("__AES256_CTR_DRBG_Update_7", "AES256_CTR_DRBG_Update");
 
 };
 
-void  __AES256_CTR_DRBG_Update_7 (unsigned char  (* __provided_data_0), unsigned char  (* __Key_1), unsigned char  (* __V_2)) {
+void  __AES256_CTR_DRBG_Update_7 (unsigned char  (* (__provided_data_0)), unsigned char  (* (__Key_1)), unsigned char  (* (__V_2))) {
 
 {
 {

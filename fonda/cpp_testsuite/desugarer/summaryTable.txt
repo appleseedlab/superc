@@ -165,6 +165,7 @@ unit/function_parameters                                                        
 unit/labelDuplication                                                                      BC generated
 unit/redef                                                                                 BC generated
 unit/struct_global_local                                                                   BC generated
+unit/structPointerCast                                                                     BC generated
 unit/struct_crossref_global2                                                               BC generated
 unit/statementAsExpressionError                                                            BC generated
 unit/enum_forward_ref                                                                      BC generated
@@ -237,6 +238,7 @@ unit/local_redeclarations                                                       
 unit/declaringlist                                                                         BC generated
 unit/asm                                                                                   BC generated
 unit/struct_configurable_tls1                                                              BC generated
+unit/structSelfUse                                                                         BC generated
 unit/size_t                                                                                SuperC failed
 unit/size_t                                                                                BC failed
 unit/typedef                                                                               BC generated
@@ -245,6 +247,7 @@ unit/struct_union_enum                                                          
 unit/jump_statement                                                                        BC failed
 unit/partialConfigDeclaringList                                                            BC generated
 unit/single                                                                                BC generated
+unit/enumSelfUse                                                                           BC generated
 unit/switch                                                                                BC generated
 unit/conditionalFlexArray                                                                  BC generated
 unit/struct_configurable                                                                   BC generated

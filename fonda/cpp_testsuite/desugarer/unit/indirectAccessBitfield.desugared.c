@@ -30,7 +30,7 @@ int  __main_6 () {
 
 struct __x_0  __a_2;// L7
 
-struct __x_0  (* __b_3);// L7
+struct __x_0  (* (__b_3));// L7
 
 if (  __a_2  . __field_1 )// L8
 {

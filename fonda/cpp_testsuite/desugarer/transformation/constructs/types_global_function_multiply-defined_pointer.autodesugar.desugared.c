@@ -159,7 +159,7 @@ if ( 1 )// L27
 
 
 }
-int  __main_10 (int  __argc_8, char  (* (* __argv_9))) {
+int  __main_10 (int  __argc_8, char  (* ((* (__argv_9))))) {
 
 {
 {

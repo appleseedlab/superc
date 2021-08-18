@@ -14,7 +14,7 @@ __static_renaming("__main_4", "main");
 };
 struct __list_1 {
 int  __data_2;// L2
-struct __forward_tag_reference_0  (* __next_3);// L0
+struct __forward_tag_reference_0  (* (__next_3));// L0
 };
 
 struct __forward_tag_reference_0 { // generated union of struct variations

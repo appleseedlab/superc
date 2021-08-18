@@ -105,7 +105,7 @@ __static_type_error("invalid type found in if statement");
 
 
 }
-int  __main_12 (int  __argc_10, char  (* (* __argv_11))) {
+int  __main_12 (int  __argc_10, char  (* ((* (__argv_11))))) {
 
 {
 {

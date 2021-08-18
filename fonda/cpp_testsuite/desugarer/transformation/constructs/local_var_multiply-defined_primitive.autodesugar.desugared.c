@@ -7,12 +7,12 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_6;
-extern const bool __static_condition_default_8;
-extern const bool __static_condition_default_13;
-extern const bool __static_condition_default_9;
 extern const bool __static_condition_default_7;
+extern const bool __static_condition_default_8;
 extern const bool __static_condition_default_5;
+extern const bool __static_condition_default_6;
+extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_13;
 void __static_initializer_default() {
 __static_renaming("___C_n1583398147_0", "_C_n1583398147");
 __static_renaming("___C_n1583398147_DEFINED_1", "_C_n1583398147_DEFINED");
@@ -139,7 +139,7 @@ __static_type_error("invalid type found in if statement");
 
 
 }
-int  __main_12 (int  __argc_10, char  (* (* __argv_11))) {
+int  __main_12 (int  __argc_10, char  (* ((* (__argv_11))))) {
 
 {
 {

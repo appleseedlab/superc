@@ -7,14 +7,14 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_20;
-extern const bool __static_condition_default_18;
-extern const bool __static_condition_default_12;
-extern const bool __static_condition_default_23;
-extern const bool __static_condition_default_22;
 extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_23;
+extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_14;
+extern const bool __static_condition_default_18;
+extern const bool __static_condition_default_22;
+extern const bool __static_condition_default_20;
 void __static_initializer_default() {
 __static_renaming("__arr_0", "arr");
 __static_renaming("__arr_1", "arr");
@@ -57,11 +57,11 @@ float  (__arr_1[]);// L4:L18
 
 char  (__arr_2[]);// L4:L18
 
-int  (* __arr_3);// L4:L21
+int  (* (__arr_3));// L4:L21
 
-float  (* __arr_4);// L4:L21
+float  (* (__arr_4));// L4:L21
 
-char  (* __arr_5);// L4:L21
+char  (* (__arr_5));// L4:L21
 
 if (__static_condition_default_10) {
 __static_type_error("redeclaration of local symbol: arr");

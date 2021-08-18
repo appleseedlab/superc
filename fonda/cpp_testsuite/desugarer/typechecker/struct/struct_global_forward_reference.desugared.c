@@ -13,7 +13,7 @@ void __static_initializer_default() {
 };
 struct __s_3 {
 int  __x_4;// L6
-struct __forward_tag_reference_2  (* __z_6);// L0
+struct __forward_tag_reference_2  (* (__z_6));// L0
 };
 struct __t_7 {
 int  __p_8;// L12

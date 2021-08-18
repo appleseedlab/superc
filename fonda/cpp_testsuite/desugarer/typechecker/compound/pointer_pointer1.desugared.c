@@ -30,9 +30,9 @@ int  __main_4 () {
 
 
 
-int  (* __x_2);// L5
+int  (* (__x_2));// L5
 
-struct __s_0  (* __x_3);// L7
+struct __s_0  (* (__x_3));// L7
 
 if (__static_condition_default_5) {
 *  __x_2  ; // L10

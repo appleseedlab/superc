@@ -7,10 +7,10 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_18;
-extern const bool __static_condition_default_17;
 extern const bool __static_condition_default_16;
+extern const bool __static_condition_default_18;
 extern const bool __static_condition_default_19;
+extern const bool __static_condition_default_17;
 void __static_initializer_default() {
 __static_renaming("__U_8", "U");
 __static_renaming("__U_9", "U");
@@ -28,11 +28,11 @@ __static_condition_renaming("__static_condition_default_19", "!(defined A) && !(
 
 };
 union ____anonymous_tag_0_1 {
-int  (* __a_2);// L3
+int  (* (__a_2));// L3
 long  __b_3;// L4
 };
 union ____anonymous_tag_4_5 {
-int  (* __a_6);// L8
+int  (* (__a_6));// L8
 long  __b_7;// L9
 };
 typedef union ____anonymous_tag_0_1  __U_8;// L2:L5

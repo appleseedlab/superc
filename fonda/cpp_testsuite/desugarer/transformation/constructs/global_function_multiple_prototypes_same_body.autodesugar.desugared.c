@@ -111,7 +111,7 @@ if ( 1 )// L18
 
 
 }
-int  __main_6 (int  __argc_4, char  (* (* __argv_5))) {
+int  __main_6 (int  __argc_4, char  (* ((* (__argv_5))))) {
 
 {
 {

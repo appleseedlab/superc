@@ -8,8 +8,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_16;
-extern const bool __static_condition_default_13;
 extern const bool __static_condition_default_15;
+extern const bool __static_condition_default_13;
 void __static_initializer_default() {
 __static_renaming("__this_9", "this");
 __static_renaming("__i_10", "i");
