@@ -2974,13 +2974,15 @@ EnumeratorList:  /** list, complete **/  // easier to bind  // List<Multiverse<E
         }
         | EnumeratorList COMMA Enumerator
         {
-          List<Multiverse<EnumeratorValue>> list = this.<EnumeratorValue>getCompleteNodeListValue(getNodeAt(subparser, 3),
-                                                                                                  subparser.getPresenceCondition());
+          PresenceCondition pc = subparser.getPresenceCondition().presenceConditionManager().newTrue();
+
+          List<Multiverse<EnumeratorValue>> list = this.<EnumeratorValue>getCompleteNodeListValue(subparser, 3, pc);
           Multiverse<EnumeratorValue> enumerator
             = (Multiverse<EnumeratorValue>) this.<EnumeratorValue>getCompleteNodeMultiverseValue(subparser,
                                                                                                  1,
                                                                                                  subparser.getPresenceCondition());
           list.add(enumerator);
+          System.err.println(list);
           setTransformationValue(value, list);
         }
         ;
@@ -9647,6 +9649,10 @@ protected static class EnumeratorValue {
   public Type getType() {
     return this.type;
   }
+
+  public String toString() {
+    return name + "(" +transformation + ", " + type + ")";
+  }
 }
 
 /**
@@ -10244,7 +10250,6 @@ private <T> List<Multiverse<T>> getCompleteNodeListValue(Subparser subparser, in
 private <T> List<Multiverse<T>> getCompleteNodeListValue(Node node, PresenceCondition pc) {
   Multiverse<Node> nodemv = staticCondToMultiverse(node, pc);
   List<Multiverse<T>> resultlist = new LinkedList<Multiverse<T>>();
-
   // loop through each node, get its multiverse and add to the
   // resultmv.  update each node's multiverse elements with the static
   // conditional branch's presence condition using filter.
