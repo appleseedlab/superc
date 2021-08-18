@@ -6230,8 +6230,8 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
 
-          Multiverse<Syntax> opmv = new Multiverse<Syntax>((Syntax) getNodeAt(subparser, 1), pc);
-          if (exprval.hasValidType() && !exprval.isEmpty()) {
+          Multiverse<Syntax> opmv = getSyntaxMV(subparser, 1, pc);
+          if (exprval.hasValidType() && !exprval.isEmpty() && !opmv.isEmpty()) {
             Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
             Multiverse<String> resultmv = exprval.transformation.product(opstr, DesugarOps.concatStrings);
             Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
@@ -6257,8 +6257,8 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 2, pc);
 
-          Multiverse<Syntax> opmv = new Multiverse<Syntax>((Syntax) getNodeAt(subparser, 1), pc);
-          if (exprval.hasValidType()) {
+          Multiverse<Syntax> opmv = getSyntaxMV(subparser, 1, pc);
+          if (exprval.hasValidType() && !opmv.isEmpty()) {
             Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
             Multiverse<String> resultmv = exprval.transformation.product(opstr, DesugarOps.concatStrings);
             Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
@@ -10251,7 +10251,11 @@ private Object getTransformationValue(Object node) {
  * @returns A multiverse of all semantic values of the given node.
  */
 private <T> Multiverse<T> getCompleteNodeMultiverseValue(Subparser subparser, int component, PresenceCondition pc) {
-  return getCompleteNodeMultiverseValue(getNodeAt(subparser, component), pc);
+  Multiverse<T> ret =  getCompleteNodeMultiverseValue(getNodeAt(subparser, component), pc);
+  if (ret.isEmpty()) {
+    subparser.lookahead.setError();
+  }
+  return ret;
 }
 
 /**
@@ -10271,6 +10275,9 @@ private <T> Multiverse<T> getCompleteNodeMultiverseValue(Node node, PresenceCond
   // loop through each node, get its multiverse and add to the
   // resultmv.  update each node's multiverse elements with the static
   // conditional branch's presence condition using filter.
+  if (nodemv.isEmpty()) {
+    return resultmv;
+  }
   for (Element<Node> elem : nodemv) {
     Multiverse<T> nodevaluemv = (Multiverse<T>) ((Node) elem.getData()).getProperty(TRANSFORMATION);
     Multiverse<T> filtered = nodevaluemv.filter(elem.getCondition());
