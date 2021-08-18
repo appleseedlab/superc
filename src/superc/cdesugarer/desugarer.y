@@ -4590,7 +4590,7 @@ LabeledStatement:  /** complete **/  // ADDED attributes  // Multiverse<String>
 IDENTIFIER COLON AttributeSpecifierListOpt Statement
         {
           PresenceCondition pc = subparser.getPresenceCondition();
-          Syntax id = (Syntax) getNodeAt(subparser, 4);
+          Syntax id = (getSyntaxMV(subparser, 4,pc)).get(0).getData();
           String ident = id.getTokenText();
           
           // TODO: save attributes
@@ -4918,11 +4918,11 @@ SelectionStatement:  /** complete **/ // Multiverse<String>
           todoReminder("check the type of the conditional expression SelectionStatement (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 3, pc);
-          Syntax ifsyn = (Syntax) getNodeAt(subparser, 5);
+          Syntax ifsyn = (getSyntaxMV(subparser, 5,pc)).get(0).getData();
           String ifstr = ifsyn.getTokenText();
-          String lparenstr = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          String lparenstr = (getSyntaxMV(subparser, 4,pc)).get(0).getData().getTokenText();
           Multiverse<String> exprmv = exprval.transformation;
-          Syntax rparensyn = (Syntax) getNodeAt(subparser, 2);
+          Syntax rparensyn = (getSyntaxMV(subparser, 2,pc)).get(0).getData();
           String rparenstr = rparensyn.getTokenText();
           Multiverse<DeclarationOrStatementValue> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
           LineNumbers lw = new LineNumbers(ifsyn,rparensyn);
@@ -4962,7 +4962,7 @@ SelectionStatement:  /** complete **/ // Multiverse<String>
           String rparenstr = rparensyn.getTokenText();
           LineNumbers lw = new LineNumbers(ifsyn, rparensyn);
           Multiverse<DeclarationOrStatementValue> ifbranchmv = getCompleteNodeMultiverseValue(subparser, 3, pc);
-          String elsestr = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
+          String elsestr = (getSyntaxMV(subparser, 2,pc)).get(0).getData().getTokenText();
           Multiverse<DeclarationOrStatementValue> elsebranchmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           String errorstmt = String.format("%s;", emitError("invalid type found in ifelse statement"));
@@ -4990,15 +4990,15 @@ SelectionStatement:  /** complete **/ // Multiverse<String>
         | SWITCH LPAREN Expression RPAREN LBRACE SwitchLabeledStatementList RBRACE
         {
           // n1570 6.8.4.2 for switch statements
-
+	  PresenceCondition pc = subparser.getPresenceCondition();
           // n1570 labeled statement, 6.8.1, case and default are only to be used under switch statements
-          Syntax switchsyn = (Syntax) getNodeAt(subparser, 7);
+          Syntax switchsyn = (getSyntaxMV(subparser, 7,pc)).get(0).getData();
           String switchstr = switchsyn.getTokenText();
           String lparen = ((Syntax) getNodeAt(subparser, 6)).getTokenText();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 5, subparser.getPresenceCondition());
-          Syntax rparensyn = (Syntax) getNodeAt(subparser, 4);
+          Syntax rparensyn = (getSyntaxMV(subparser, 4,pc)).get(0).getData();
           String rparen = (rparensyn).getTokenText();
-          String lbrace = ((Syntax) getNodeAt(subparser, 3)).getTokenText();
+          String lbrace = (getSyntaxMV(subparser, 3,pc)).get(0).getData().getTokenText();
           LineNumbers lw = new LineNumbers(switchsyn, rparensyn);
           List<Multiverse<DeclarationOrStatementValue>> body = (List<Multiverse<DeclarationOrStatementValue>>) getTransformationValue(subparser, 2);
           Multiverse<List<DeclarationOrStatementValue>> bodyswap = listMultiverseSwap(body,subparser.getPresenceCondition());
@@ -5008,7 +5008,7 @@ SelectionStatement:  /** complete **/ // Multiverse<String>
 	    }
 	  }
 	  
-          String rbrace = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
+          String rbrace = (getSyntaxMV(subparser, 1,pc)).get(0).getData().getTokenText();
 
           todoReminder("check that switch statement expression should be an int");
 
@@ -6438,8 +6438,8 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
-          Multiverse<Syntax> opmv = new Multiverse<Syntax>((Syntax) getNodeAt(subparser, 2), pc);
-          if (exprval.hasValidType()) {
+          Multiverse<Syntax> opmv = getSyntaxMV(subparser, 2, pc);
+          if (exprval.hasValidType() && !exprval.isEmpty() && !opmv.isEmpty()) {
             Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
             Multiverse<String> resultmv = opstr.product(exprval.transformation, DesugarOps.concatStrings);
             Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
@@ -6463,8 +6463,8 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
-          Multiverse<Syntax> opmv = new Multiverse<Syntax>((Syntax) getNodeAt(subparser, 2), pc);
-          if (exprval.hasValidType()) {
+          Multiverse<Syntax> opmv = getSyntaxMV(subparser, 2, pc);
+          if (exprval.hasValidType() && !exprval.isEmpty() && !opmv.isEmpty()) {
             Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
             Multiverse<String> resultmv = opstr.product(exprval.transformation, DesugarOps.concatStrings);
             Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
@@ -6838,7 +6838,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> rightmv = rightval.transformation;
 	  
-          if (leftval.hasValidType() && rightval.hasValidType()) {
+          if (leftval.hasValidType() && rightval.hasValidType() && !leftval.isEmpty() && !rightval.isEmpty()) {
             setTransformationValue(value, new ExpressionValue(productAll(DesugarOps.concatStrings,
                                                                          leftmv,
                                                                          opmv,
@@ -6861,7 +6861,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> rightmv = rightval.transformation;
-	  if (leftval.hasValidType() && rightval.hasValidType()) {
+	  if (leftval.hasValidType() && rightval.hasValidType() && !leftval.isEmpty() && !rightval.isEmpty()) {
             setTransformationValue(value, new ExpressionValue(productAll(DesugarOps.concatStrings,
                                                                          leftmv,
                                                                          opmv,
@@ -6884,7 +6884,7 @@ MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> rightmv = rightval.transformation;
 	  
-          if (leftval.hasValidType() && rightval.hasValidType()) {
+          if (leftval.hasValidType() && rightval.hasValidType() && !leftval.isEmpty() && !rightval.isEmpty()) {
             setTransformationValue(value, new ExpressionValue(productAll(DesugarOps.concatStrings,
                                                                          leftmv,
                                                                          opmv,
@@ -6916,7 +6916,7 @@ AdditiveExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> rightmv = rightval.transformation;
 
 
-          if (leftval.hasValidType() && rightval.hasValidType()) {
+          if (leftval.hasValidType() && rightval.hasValidType() && !leftval.isEmpty() && !rightval.isEmpty()) {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
@@ -6971,7 +6971,7 @@ ShiftExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> rightmv = rightval.transformation;
 
 
-          if (leftval.hasValidType() && rightval.hasValidType()) {
+          if (leftval.hasValidType() && rightval.hasValidType() && !leftval.isEmpty() && !rightval.isEmpty()) {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
@@ -6995,7 +6995,7 @@ ShiftExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> rightmv = rightval.transformation;
 
 
-          if (leftval.hasValidType() && rightval.hasValidType()) {
+          if (leftval.hasValidType() && rightval.hasValidType() && !leftval.isEmpty() && !rightval.isEmpty()) {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
@@ -7026,7 +7026,7 @@ RelationalExpression:  /** passthrough, nomerge **/ // ExpressionValue
           Multiverse<String> rightmv = rightval.transformation;
 
 
-          if (leftval.hasValidType() && rightval.hasValidType()) {
+          if (leftval.hasValidType() && rightval.hasValidType() && !leftval.isEmpty() && !rightval.isEmpty()) {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
@@ -7050,7 +7050,7 @@ RelationalExpression:  /** passthrough, nomerge **/ // ExpressionValue
           Multiverse<String> rightmv = rightval.transformation;
 
 
-          if (leftval.hasValidType() && rightval.hasValidType()) {
+          if (leftval.hasValidType() && rightval.hasValidType() && !leftval.isEmpty() && !rightval.isEmpty()) {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
@@ -7074,7 +7074,7 @@ RelationalExpression:  /** passthrough, nomerge **/ // ExpressionValue
           Multiverse<String> rightmv = rightval.transformation;
 
 
-          if (leftval.hasValidType() && rightval.hasValidType()) {
+          if (leftval.hasValidType() && rightval.hasValidType() && !leftval.isEmpty() && !rightval.isEmpty()) {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
@@ -7098,7 +7098,7 @@ RelationalExpression:  /** passthrough, nomerge **/ // ExpressionValue
           Multiverse<String> rightmv = rightval.transformation;
 
 
-          if (leftval.hasValidType() && rightval.hasValidType()) {
+          if (leftval.hasValidType() && rightval.hasValidType() && !leftval.isEmpty() && !rightval.isEmpty()) {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
@@ -7129,7 +7129,7 @@ EqualityExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> rightmv = rightval.transformation;
 
 
-          if (leftval.hasValidType() && rightval.hasValidType()) {
+          if (leftval.hasValidType() && rightval.hasValidType() && !leftval.isEmpty() && !rightval.isEmpty()) {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
@@ -7184,7 +7184,7 @@ AndExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> rightmv = rightval.transformation;
 
 
-          if (leftval.hasValidType() && rightval.hasValidType()) {
+          if (leftval.hasValidType() && rightval.hasValidType() && !leftval.isEmpty() && !rightval.isEmpty()) {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
@@ -7215,7 +7215,7 @@ ExclusiveOrExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> rightmv = rightval.transformation;
 
 
-          if (leftval.hasValidType() && rightval.hasValidType()) {
+          if (leftval.hasValidType() && rightval.hasValidType() && !leftval.isEmpty() && !rightval.isEmpty()) {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
@@ -10113,11 +10113,7 @@ private Object getTransformationValue(Object node) {
  * @returns A multiverse of all semantic values of the given node.
  */
 private <T> Multiverse<T> getCompleteNodeMultiverseValue(Subparser subparser, int component, PresenceCondition pc) {
-  Multiverse<T> ret =  getCompleteNodeMultiverseValue(getNodeAt(subparser, component), pc);
-  if (ret.isEmpty()) {
-    subparser.lookahead.setError();
-  }
-  return ret;
+  return  getCompleteNodeMultiverseValue(getNodeAt(subparser, component), pc);
 }
 
 /**
