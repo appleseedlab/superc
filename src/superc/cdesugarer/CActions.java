@@ -2418,9 +2418,7 @@ public class CActions implements SemanticActions {
           Syntax keyword = (Syntax) getNodeAt(subparser, 3);
           // TODO: add attributes to type spec
           String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
-
           Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator, suTypeCreator);
-
           setTransformationValue(value, valuemv);
         }
     break;
@@ -2918,9 +2916,12 @@ public class CActions implements SemanticActions {
                   // enumerator, if needed.  this may require keeping a
                   // multiverse of last values in the list of
                   // enumerators.
-                  Type ratorbasetype = NumberT.INT;
+                  Type ratorbasetype = NumberT.INT.copy();
+                  ratorbasetype.addAttribute(Constants.ATT_CONSTANT);
                   Type ratortype = new EnumeratorT(ratorbasetype, renaming, BigInteger.ONE);  // TODO: use real values if needed
+                  
                   ratortb.setType(ratortype);
+                  ratortb.visitConstantQualifier();
                   // the type specifier has no transformation value,
                   // because enumerators have no explicit type
                   // specifier.
@@ -6752,7 +6753,6 @@ public class CActions implements SemanticActions {
           
           String prefix = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
           Multiverse<Declaration> typename = (Multiverse<Declaration>) getTransformationValue(subparser, 3);
-          System.err.println(typename);
           String suffix = ((Syntax) getNodeAt(subparser, 2)).getTokenText();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 

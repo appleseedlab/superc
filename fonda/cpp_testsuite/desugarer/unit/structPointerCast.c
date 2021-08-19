@@ -1,6 +1,9 @@
+#ifdef A
+#define SIZE 255
+#endif
 struct x {
   int a;
-  int b;
+  int b[SIZE];
   int c;
 };
 
