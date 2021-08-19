@@ -42,8 +42,9 @@ class Tool:
 
     return check_gcc_code(gcc_ret)
 
-  def clean(self):
-    shutil.rmtree(self.test_dir)
+  def clean(self, keep=False):
+    if not keep:
+      shutil.rmtree(self.test_dir)
 
   def run_creconfig(self):
     shutil.copytree(utils.TEST_CASE_DIR, self.source_dir)

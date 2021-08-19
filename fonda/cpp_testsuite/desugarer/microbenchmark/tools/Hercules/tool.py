@@ -63,8 +63,9 @@ class Tool:
     return check_gcc_code(gcc_ret)
 
 
-  def clean(self):
-    shutil.rmtree(self.working_dir)
+  def clean(self, keep=False):
+    if not keep:
+      shutil.rmtree(self.working_dir)
     self.stop_docker()
 
 

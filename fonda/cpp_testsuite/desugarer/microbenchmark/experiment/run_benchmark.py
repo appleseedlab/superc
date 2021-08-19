@@ -21,6 +21,10 @@ def parse_args():
       required=False,
       default=all_tools,
       choices=all_tools)
+  parser.add_argument('-k',
+      '--keep',
+      help='keep files produced by tools',
+      action='store_true')
   args = parser.parse_args()
   return args
 
@@ -35,13 +39,13 @@ def import_tools(tool_names: list):
     tools[tool_name] = module.Tool
   return tools
 
-def run_tools(tools:dict):
+def run_tools(tools:dict, keep):
   result_data = {}
 
   for tool_name, Tool in tools.items():
     tool = Tool()
     res = run_testcases(tool_name, tool.run)
-    tool.clean()
+    tool.clean(keep)
 
     result_data[tool_name] = res
   return result_data
@@ -50,7 +54,7 @@ def run_benchmark():
   args = parse_args()
   set_logging()
   tools = import_tools(args.tools)
-  result_data = run_tools(tools)
+  result_data = run_tools(tools, args.keep)
   generate_report(args.tools, result_data)
 
 def main():
