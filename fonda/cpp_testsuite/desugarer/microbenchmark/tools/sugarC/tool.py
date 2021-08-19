@@ -37,5 +37,5 @@ class Tool:
     return check_gcc_code(gcc_ret)
 
 
-  def clean(self):
+  def clean(self, keep=False):
     return
