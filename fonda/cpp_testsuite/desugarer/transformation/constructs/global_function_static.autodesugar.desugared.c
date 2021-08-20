@@ -7,28 +7,26 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_6;
+extern const bool __static_condition_default_7;
+extern const bool __static_condition_default_5;
+extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_3;
-extern const bool __static_condition_default_9;
-extern const bool __static_condition_default_8;
-extern const bool __static_condition_default_13;
-extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_11;
 void __static_initializer_default() {
 __static_renaming("___C_40496_0", "_C_40496");
 __static_renaming("___C_40496_DEFINED_1", "_C_40496_DEFINED");
 __static_renaming("___F01FqLq_x_2", "_F01FqLq_x");
-__static_renaming("___F1d6hXF_x_5", "_F1d6hXF_x");
-__static_renaming("___F2UMx8F_main_7", "_F2UMx8F_main");
-__static_renaming("__main_12", "main");
+__static_renaming("___F1d6hXF_x_4", "_F1d6hXF_x");
+__static_renaming("___F2UMx8F_main_6", "_F2UMx8F_main");
+__static_renaming("__main_10", "main");
 
 __static_condition_renaming("__static_condition_default_3", "!(defined __cplusplus)");
-__static_condition_renaming("__static_condition_default_4", "(defined __cplusplus)");
-__static_condition_renaming("__static_condition_default_6", "(defined __cplusplus)");
-__static_condition_renaming("__static_condition_default_8", "(defined __cplusplus)");
-__static_condition_renaming("__static_condition_default_9", "(defined __cplusplus)");
-__static_condition_renaming("__static_condition_default_13", "(defined __cplusplus)");
+__static_condition_renaming("__static_condition_default_5", "!(defined __cplusplus)");
+__static_condition_renaming("__static_condition_default_7", "!(defined __cplusplus)");
+__static_condition_renaming("__static_condition_default_11", "!(defined __cplusplus)");
+__static_condition_renaming("__static_condition_default_12", "(defined __cplusplus)");
 
-if (__static_condition_default_13)
+if (__static_condition_default_12)
 {
 __static_parse_error("Unable to parse");
 }
@@ -38,12 +36,13 @@ extern _Bool  ___C_40496_0;// L3:L33
 extern _Bool  ___C_40496_DEFINED_1;// L4:L33
 static int  ___F01FqLq_x_2 () {
 
-{
-{
-
-
-
 if (__static_condition_default_3) {
+
+{
+{
+
+
+
 if (  ___C_40496_DEFINED_1  )// L7
 {
 
@@ -76,22 +75,20 @@ return 1 ;// L9
 }
 }
 }
-if (__static_condition_default_4) {
-__static_type_error("invalid type found in if statement");
-}
-}
 }
 
 
 }
-static char  ___F1d6hXF_x_5 () {
+}
+static char  ___F1d6hXF_x_4 () {
+
+if (__static_condition_default_5) {
 
 {
 {
 
 
 
-if (__static_condition_default_3) {
 if ( !  ___C_40496_DEFINED_1  )// L17
 {
 
@@ -124,15 +121,14 @@ return 2 ;// L19
 }
 }
 }
-if (__static_condition_default_6) {
-__static_type_error("invalid type found in if statement");
-}
-}
 }
 
 
 }
-int  ___F2UMx8F_main_7 () {
+}
+int  ___F2UMx8F_main_6 () {
+
+if (__static_condition_default_7) {
 
 {
 {
@@ -153,7 +149,6 @@ if ( 1 )// L27
 
 
 
-if (__static_condition_default_3) {
 if (  ___C_40496_DEFINED_1  )// L28
 {
 
@@ -166,11 +161,6 @@ if (  ___C_40496_DEFINED_1  )// L28
 }
 }
 }
-}
-if (__static_condition_default_8) {
-__static_type_error("invalid type found in if statement");
-}
-if (__static_condition_default_3) {
 if ( !  ___C_40496_DEFINED_1  )// L31
 {
 
@@ -179,13 +169,9 @@ if ( !  ___C_40496_DEFINED_1  )// L31
 
 
 
- ___F1d6hXF_x_5 ( ) ; // L32
+ ___F1d6hXF_x_4 ( ) ; // L32
 }
 }
-}
-}
-if (__static_condition_default_9) {
-__static_type_error("invalid type found in if statement");
 }
 }
 }
@@ -197,7 +183,10 @@ __static_type_error("invalid type found in if statement");
 
 
 }
-int  __main_12 (int  __argc_10, char  (* ((* (__argv_11))))) {
+}
+int  __main_10 (int  __argc_8, char  (* ((* (__argv_9))))) {
+
+if (__static_condition_default_11) {
 
 {
 {
@@ -220,5 +209,6 @@ __static_type_error("type error : no valid expression"); // L40
 }
 
 
+}
 }
 

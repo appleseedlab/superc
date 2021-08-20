@@ -241,7 +241,7 @@ public class SymbolTable<T> implements Iterable<String> {
               }
               List<Map.Entry<String,T>> tL = new LinkedList<Map.Entry<String,T>>(el.getData());
               newLists.add(el.getData(), p);
-              newLists.add(tL, el.getCondition().and(e.getCondition().not()));
+              newLists.add(tL, el.getCondition().and(p.not()));
               lists.destruct();
               lists = newLists;
               remade = true;

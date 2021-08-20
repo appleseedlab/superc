@@ -188,6 +188,7 @@ unit/typedefname_partially_defined                                              
 unit/declarators                                                                           BC generated
 unit/struct_configurable_main                                                              BC generated
 unit/switchTypeError                                                                       BC generated
+unit/structPointerCast2                                                                    BC generated
 unit/struct_crossref_local                                                                 BC generated
 unit/ifChildMultiverse                                                                     BC generated
 unit/if_statement_configurable1                                                            BC generated
@@ -244,6 +245,7 @@ unit/size_t                                                                     
 unit/typedef                                                                               BC generated
 unit/struct_global_forward_reference_ifdeftoif                                             BC generated
 unit/struct_union_enum                                                                     BC failed
+unit/switchErrorCase2                                                                      BC generated
 unit/jump_statement                                                                        BC failed
 unit/partialConfigDeclaringList                                                            BC generated
 unit/single                                                                                BC generated
@@ -266,7 +268,7 @@ errorTesting/missing_comma                                                      
 errorTesting/undefTypedef_field                                                            BC generated
 errorTesting/undefTypedef_field-error                                                      BC generated
 errorTesting/double_prototype                                                              BC generated
-errorTesting/tripleTypedef_param                                                           BC failed
+errorTesting/tripleTypedef_param                                                           BC generated
 errorTesting/undefTypedef_param                                                            BC generated
 errorTesting/double_type_local                                                             BC generated
 errorTesting/undefTypedef_return                                                           BC generated

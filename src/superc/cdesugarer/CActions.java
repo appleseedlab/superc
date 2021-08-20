@@ -277,7 +277,7 @@ public class CActions implements SemanticActions {
     {
           // similar to Declaration, but different in that this has a
           // compoundstatement, while declaration has an initializer.
-          PresenceCondition pc = subparser.getPresenceCondition();
+          PresenceCondition pc = subparser.getPresenceCondition().and(CContext.getParseErrorCond().not());
           
           // add all variations of the function declaration to the symtab
           CContext scope = (CContext)subparser.scope;
@@ -4561,7 +4561,7 @@ public class CActions implements SemanticActions {
           Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(valuemv);
           for (Element<DeclarationOrStatementValue> e : dsv) {
             e.getData().setChildrenBlock("",body,"");
-	    e.getData().setType(exprval.type.filter(e.getCondition()));
+            e.getData().setType(exprval.type.filter(e.getCondition()));
           }
           setTransformationValue(value, dsv);
         }
@@ -4910,12 +4910,11 @@ public class CActions implements SemanticActions {
           LineNumbers lw = new LineNumbers(switchsyn, rparensyn);
           List<Multiverse<DeclarationOrStatementValue>> body = (List<Multiverse<DeclarationOrStatementValue>>) getTransformationValue(subparser, 2);
           Multiverse<List<DeclarationOrStatementValue>> bodyswap = listMultiverseSwap(body,subparser.getPresenceCondition());
-	  for (Element<List<DeclarationOrStatementValue>> el : bodyswap) {
-	    for (DeclarationOrStatementValue ds : el.getData()) {
-	      ds.filterTypes(el.getCondition());
-	    }
-	  }
-	  
+          for (Element<List<DeclarationOrStatementValue>> el : bodyswap) {
+            for (DeclarationOrStatementValue ds : el.getData()) {
+              ds.filterTypes(el.getCondition());
+            }
+          }
           String rbrace = (getSyntaxMV(subparser, 1,pc)).get(0).getData().getTokenText();
 
           todoReminder("check that switch statement expression should be an int");
@@ -4945,23 +4944,23 @@ public class CActions implements SemanticActions {
             }
           }
           newdsv.add(new DeclarationOrStatementValue(emitError("invalid switch expression") + ";"), exprval.type.getConditionOf(ErrorT.TYPE));
-	  PresenceCondition badCases = (new PresenceConditionManager()).newFalse();
-	  for (Element<List<DeclarationOrStatementValue>> el : bodyswap ) {
-	    PresenceCondition cc = el.getCondition();
-	    for(DeclarationOrStatementValue ds : el.getData()) {
-	      if (!ds.goodSwitchCase(cc)) {
-		badCases = badCases.or(cc);
-		break;
-	      }
-	    }
-	    cc.delRef();
-	  }
-	  if (badCases.isNotFalse()) {
-	    newdsv = newdsv.filter(badCases.not());
-	    newdsv.add(new DeclarationOrStatementValue(emitError("Switch cases are incompatible") + ";"), badCases);
-	  }
-	  badCases.delRef();
-	  setTransformationValue(value, newdsv);
+          PresenceCondition badCases = (new PresenceConditionManager()).newFalse();
+          for (Element<List<DeclarationOrStatementValue>> el : bodyswap ) {
+            PresenceCondition cc = el.getCondition();
+            for(DeclarationOrStatementValue ds : el.getData()) {
+              if (!ds.goodSwitchCase(cc)) {
+                badCases = badCases.or(cc);
+                break;
+              }
+            }
+            cc.delRef();
+          }
+          if (badCases.isNotFalse()) {
+            newdsv = newdsv.filter(badCases.not());
+            newdsv.add(new DeclarationOrStatementValue(emitError("Switch cases are incompatible") + ";"), badCases);
+          }
+          badCases.delRef();
+          setTransformationValue(value, newdsv);
         }
     break;
 
@@ -9049,43 +9048,47 @@ public Multiverse<String> appendStringToMV(Multiverse<String> oldmv, String app,
 }
 
 
-static public <T> Multiverse<List<T>> listMultiverseSwap(List<Multiverse<T>> list, PresenceCondition pc) {
-  Multiverse<List<T>> lists = new Multiverse<List<T>>();
-  lists.add(new LinkedList<T>(), pc);
-  for (Multiverse<T> m : list) {
-    for (Element<T> e : m) {
+static public Multiverse<List<DeclarationOrStatementValue>> listMultiverseSwap(List<Multiverse<DeclarationOrStatementValue>> listOfObjects, PresenceCondition pc) {
+  Multiverse<List<DeclarationOrStatementValue>> listMV = new Multiverse<List<DeclarationOrStatementValue>>();
+  listMV.add(new LinkedList<DeclarationOrStatementValue>(), pc);
+  for (Multiverse<? extends DeclarationOrStatementValue> m : listOfObjects) {
+    for (Element<? extends DeclarationOrStatementValue> e : m) {
       //for each value, check to see if any 'and's does not result
       //in not. If it doesn't split the list.
       boolean remade;
       do {
         remade = false;
-        for (Element<List<T>> el : lists) {
-          PresenceCondition p = el.getCondition().and(e.getCondition());
-          //if the presencondition is a subset, but isn't 0
-          //issue is, that we also add if e is strictly greater than.
-          if (el.getCondition().is(p)) {
-            el.getData().add(e.getData());
-          } else if (!p.isFalse()) {
-            Multiverse<List<T>> newLists = new Multiverse<List<T>>();
-            for (Element<List<T>> elN : lists) {
+        for (Element<List<DeclarationOrStatementValue>> el : listMV) {
+          PresenceCondition intersect = el.getCondition().and(e.getCondition());
+          //if the intersection is the same as the element in the listMV
+          //then the listMV pc is strictly a subset, and we add the object
+          //to the listMV object.
+          if (el.getCondition().is(intersect)) {
+            el.getData().add(e.getData().deepCopy());
+          } else if (!intersect.isFalse()) {
+            Multiverse<List<DeclarationOrStatementValue>> newLists = new Multiverse<List<DeclarationOrStatementValue>>();
+            for (Element<List<DeclarationOrStatementValue>> elN : listMV) {
               if (elN != el) {
                 newLists.add(elN.getData(), elN.getCondition());
               }
             }
-            List<T> tL = new LinkedList<T>(el.getData());
-            newLists.add(el.getData(), p);
-            newLists.add(tL, el.getCondition().and(e.getCondition().not()));
-            lists.destruct();
-            lists = newLists;
+            List<DeclarationOrStatementValue> tL = new LinkedList<DeclarationOrStatementValue>();
+            for (DeclarationOrStatementValue c : el.getData()) {
+              tL.add(c.deepCopy());
+            }
+            newLists.add(el.getData(), intersect);
+            newLists.add(tL, el.getCondition().and(intersect.not()));
+            listMV.destruct();
+            listMV = newLists;
             remade = true;
-            p.delRef();
+            intersect.delRef();
             break;
           }
         }
       } while (remade);
     } 
   }
-  return lists;
+  return listMV;
 }
 
 static public String typespecLines(TypeSpecifier t) {
@@ -9918,7 +9921,11 @@ public static class LineNumbers {
   }
 }
 
-public static class DeclarationOrStatementValue {
+public interface Copyable {
+  public Copyable deepCopy();
+}
+
+public static class DeclarationOrStatementValue implements Copyable{
   private String mainValue;
   private List<Multiverse<DeclarationOrStatementValue>> children;
   private List<DeclarationOrStatementValue> switchChildren;
@@ -9981,6 +9988,51 @@ public static class DeclarationOrStatementValue {
     isGotoLabel = x.isGotoLabel;
     isStatementAsExpression = x.isStatementAsExpression;
     typeVal = x.typeVal;
+  }
+
+  public DeclarationOrStatementValue deepCopy() {
+    //while this is a deepCopy, only the surface level typeVals are
+    //ever going to be rewritten to.
+    DeclarationOrStatementValue d = new DeclarationOrStatementValue();
+    d.isEmpty = isEmpty;
+    d.mainValue = mainValue;
+    d.childPrepend = childPrepend;
+    d.childAppend = childAppend;
+    if (children != null) {
+      d.children = new LinkedList<Multiverse<DeclarationOrStatementValue>>();
+      for (Multiverse<DeclarationOrStatementValue> m : children) {
+        Multiverse<DeclarationOrStatementValue> mv = new Multiverse<DeclarationOrStatementValue>();
+        for (Element<DeclarationOrStatementValue> ev : m) {
+          mv.add(ev.getData().deepCopy(),ev.getCondition());
+        }
+        d.children.add(mv);
+      }
+    } else {
+      d.children = null;
+    }
+    if (switchChildren != null) {
+      d.switchChildren = new LinkedList<DeclarationOrStatementValue>();
+      for (DeclarationOrStatementValue dv : switchChildren) {
+        d.switchChildren.add(dv.deepCopy());
+      }
+    } else {
+      d.switchChildren = null;
+    }
+    d.isElse = isElse;
+    d.isDo = isDo;
+    d.isDecl = isDecl;
+    d.isLabel = isLabel;
+    d.isGotoLabel = isGotoLabel;
+    d.isStatementAsExpression = isStatementAsExpression;
+    if (typeVal != null) {
+      d.typeVal = new Multiverse<Type>();
+      for (Element<Type> e : typeVal) {
+        d.typeVal.add(e.getData().copy(),e.getCondition());
+      }
+    } else {
+      d.typeVal = null;
+    }
+    return d;
   }
 
   public void setLabel(String label) {
@@ -10185,6 +10237,14 @@ public static class DeclarationOrStatementValue {
     }
   }
 
+  public boolean goodChildrenSwitchCase(PresenceCondition p) {
+    for (DeclarationOrStatementValue d : switchChildren) {
+      if (!d.goodSwitchCase(p)) {
+        return false;
+      }
+    }
+    return true;
+  }
   public boolean goodSwitchCase(PresenceCondition p) {
     if (typeVal.isEmpty()) {
       return true;
@@ -10194,13 +10254,13 @@ public static class DeclarationOrStatementValue {
       return false;
     }
     for (Element<Type> et : subset) {
-      if (!(et.getData().resolve().isNumber() && (et.getData().hasConstant() || et.getData().hasAttribute(Constants.ATT_CONSTANT))))
-	return false;
+      if ((!(et.getData().resolve().isNumber() && (et.getData().hasConstant() || et.getData().hasAttribute(Constants.ATT_CONSTANT))))||(et.getData() == ErrorT.TYPE))
+        return false;
     }
     return true;
   }
   public String toString() {
-    return getString((new PresenceConditionManager()).newTrue(),new CActions());
+    return getString((new PresenceConditionManager()).newTrue(),new CActions()) + "Type: " + getType();
   }
 }
 

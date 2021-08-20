@@ -10,52 +10,45 @@ void __static_initializer_default();
 extern const bool __static_condition_default_3;
 extern const bool __static_condition_default_2;
 void __static_initializer_default() {
-__static_renaming("__x_0", "x");
+__static_renaming("__a_0", "a");
 __static_renaming("__main_1", "main");
 
-__static_condition_renaming("__static_condition_default_2", "A");
-__static_condition_renaming("__static_condition_default_3", "!A");
+__static_condition_renaming("__static_condition_default_2", "!(defined X) && !(defined Y)");
+__static_condition_renaming("__static_condition_default_3", "!(defined X) && (defined Y) || (defined X)");
 
 };
 
-int  __main_1 (void  ) {
+int  __a_0;// L4
+int  __main_1 () {
 
 {
 {
 
 
-
-int  __x_0= 2;// L2
 
 if (__static_condition_default_2) {
-if (  __x_0  == 2 )// L4:L12
+switch (  __a_0  )// L10
+{
+case 254 :
 {
 
-{
-{
 
 
-
- __x_0  ++ ; // L13
+return 0 ;// L12
 }
+case 1 :
+{
+
+
+
+return 0 ;// L14
 }
 }
 }
 if (__static_condition_default_3) {
-if (  __x_0  == 3 )// L4:L12
-{
-
-{
-{
-
-
-
- __x_0  ++ ; // L13
+__static_type_error("Switch cases are incompatible");
 }
-}
-}
-}
-return 0 ;// L16
+return 1 ;// L16
 }
 }
 
