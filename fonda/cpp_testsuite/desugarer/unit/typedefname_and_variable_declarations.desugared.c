@@ -31,7 +31,7 @@ typedef int  __a_0;// L2
 
 // typedef moved to top of scope
 int  __a_1;// L4
-int  __main_3 () {
+int  (__main_3) () {
 
 if (__static_condition_default_4) {
 
@@ -48,7 +48,7 @@ __a_0  __a_2;// L8
 
 }
 }
-int  __f_6 () {
+int  (__f_6) () {
 
 if (__static_condition_default_7) {
 

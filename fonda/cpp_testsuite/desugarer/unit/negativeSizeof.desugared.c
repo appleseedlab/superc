@@ -29,16 +29,16 @@ int  __b_8;// L13
 
 struct __X_0 ;// L1
 struct __Y_4  __y_9;// L7:L15
-int  __main_12 () {
+int  (__main_12) () {
 
 {
 {
 
 
 
-int  (__a_10[( sizeof(int  )  +  sizeof(int  )  +  sizeof(int  ) ) - ( sizeof(int  )  +  sizeof(int  ) )]);// L19
+int  __a_10[( sizeof(int  )  +  sizeof(int  )  +  sizeof(int  ) ) - ( sizeof(int  )  +  sizeof(int  ) )];// L19
 
-int  (__a_11[( sizeof(int  )  +  sizeof(int  )  +  sizeof(int  ) ) - ( sizeof(int  )  +  sizeof(int  ) )]);// L19
+int  __a_11[( sizeof(int  )  +  sizeof(int  )  +  sizeof(int  ) ) - ( sizeof(int  )  +  sizeof(int  ) )];// L19
 
 return 0 ;// L20
 }

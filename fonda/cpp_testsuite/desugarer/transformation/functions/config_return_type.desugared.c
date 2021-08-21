@@ -18,7 +18,7 @@ __static_condition_renaming("__static_condition_default_3", "!A");
 
 };
 
-int  __main_0 (void  ) {
+int  (__main_0) (void  ) {
 
 if (__static_condition_default_2) {
 
@@ -34,7 +34,7 @@ return 0 ;// L8
 
 }
 }
-void  __main_1 (void  ) {
+void  (__main_1) (void  ) {
 
 if (__static_condition_default_3) {
 

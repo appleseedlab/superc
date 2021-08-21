@@ -37,8 +37,8 @@ typedef int  __c_2;// L10
 // typedef moved to top of scope
 // typedef moved to top of scope
 // typedef moved to top of scope
-__c_2  __foo_3 ();// L19
-int  __main_5 () {
+__c_2  (__foo_3) ();// L19
+int  (__main_5) () {
 
 if (__static_condition_default_6) {
 

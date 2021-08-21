@@ -15,7 +15,7 @@ __static_renaming("__main_2", "main");
 
 };
 
-int  __main_2 (void  ) {
+int  (__main_2) (void  ) {
 
 {
 {
@@ -24,7 +24,7 @@ int  __main_2 (void  ) {
 
 int  __x_0= 5;// L2
 
-int  (* (__y_1));// L3
+int  * (__y_1);// L3
 
  __y_1  = &  __x_0  ; // L5
 return 0 ;// L7

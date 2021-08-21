@@ -21,7 +21,7 @@ __static_condition_renaming("__static_condition_default_5", "(defined A)");
 };
 
 static int  __x_0;// L4
-int  __main_2 () {
+int  (__main_2) () {
 
 if (__static_condition_default_4) {
 
@@ -40,7 +40,7 @@ return  __x_1  ;// L14
 
 }
 }
-int  __main_3 () {
+int  (__main_3) () {
 
 if (__static_condition_default_5) {
 

@@ -21,16 +21,16 @@ __static_renaming("__main_11", "main");
 
 };
 
-extern int  __get_0 (char  *, char  *);// L3
-extern int  __get_1 (const char  *, const char  *);// L5
-int  __main_11 () {
+extern int  (__get_0) (char  *, char  *);// L3
+extern int  (__get_1) (const char  *, const char  *);// L5
+int  (__main_11) () {
 
 {
 {
 
 
 
-char  (* (__x_2));// L9
+char  * (__x_2);// L9
 
 int  __a_9= ( 
 {

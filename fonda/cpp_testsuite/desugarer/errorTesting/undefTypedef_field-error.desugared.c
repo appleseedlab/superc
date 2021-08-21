@@ -36,7 +36,7 @@ int  __aaa_1;// L5
 int  __aaa_2;// L5
 // typedef moved to top of scope
 struct __x_4 ;// L11
-int  __main_7 () {
+int  (__main_7) () {
 
 if (__static_condition_default_8) {
 

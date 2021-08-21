@@ -20,18 +20,18 @@ typedef int  __s_0;// L2
 typedef long  __s_1;// L4
 struct __x_2 {
 int  __data_3;// L8
-__s_0  (__id_4[]);// L0
+__s_0  __id_4[];// L0
 };
 struct __x_5 {
 int  __data_6;// L8
-__s_1  (__id_7[]);// L0
+__s_1  __id_7[];// L0
 };
 
 // typedef moved to top of scope
 // typedef moved to top of scope
 struct __x_2 ;// L7
 struct __x_5 ;// L7
-int  __main_10 () {
+int  (__main_10) () {
 
 {
 {

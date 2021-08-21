@@ -21,9 +21,9 @@ __static_condition_renaming("__static_condition_default_6", "(defined CONFIG_INP
 
 };
 
-extern int  __imajor_0 (int  );// L1
-extern int  __iminor_1 (int  );// L2
-int  __main_4 () {
+extern int  (__imajor_0) (int  );// L1
+extern int  (__iminor_1) (int  );// L2
+int  (__main_4) () {
 
 {
 if (__static_condition_default_5) {

@@ -19,7 +19,7 @@ __static_renaming("__main_6", "main");
 
 };
 
-int  __main_6 (void  ) {
+int  (__main_6) (void  ) {
 
 {
 {

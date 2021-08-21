@@ -34,7 +34,7 @@ int  __b_6;// L9
 
 struct __x_0 ;// L1
 struct __x_3 ;// L1
-int  __main_13 () {
+int  (__main_13) () {
 
 {
 {

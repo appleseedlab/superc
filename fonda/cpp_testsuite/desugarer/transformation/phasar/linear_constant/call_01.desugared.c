@@ -19,7 +19,7 @@ __static_renaming("__main_5", "main");
 
 extern int  ___CfIf3K_CONFIG_A_0;// L2
 extern int  ___Djkifd_CONFIG_A_defined_1;// L4
-int  __increment_3 (int  __i_2) {
+int  (__increment_3) (int  __i_2) {
 
 {
 {
@@ -32,7 +32,7 @@ return ++  __i_2  ;// L6
 
 
 }
-int  __main_5 () {
+int  (__main_5) () {
 
 {
 {

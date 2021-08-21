@@ -20,7 +20,7 @@ __static_renaming("__main_5", "main");
 
 extern int  __x_0;// L2
 extern int  __x_1;// L4
-static void  __main_5 () {
+static void  (__main_5) () {
 
 {
 {

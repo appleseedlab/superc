@@ -20,7 +20,7 @@ float  __floating_3;// L4
 };
 
 union __intCharFloat_0 ;// L1
-int  __main_5 (void  ) {
+int  (__main_5) (void  ) {
 
 {
 {

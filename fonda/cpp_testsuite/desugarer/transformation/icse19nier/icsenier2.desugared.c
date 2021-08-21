@@ -28,7 +28,7 @@ int  __i_reserved_quota_4;// L4
 
 struct __t_0 ;// L1
 struct __t_2 ;// L1
-int  __main_7 () {
+int  (__main_7) () {
 
 {
 {

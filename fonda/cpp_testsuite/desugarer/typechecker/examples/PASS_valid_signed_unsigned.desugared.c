@@ -24,7 +24,7 @@ __static_renaming("__main_10", "main");
 };
 
 signed char  __a_0;// L1
-int  __main_10 (void  ) {
+int  (__main_10) (void  ) {
 
 {
 {

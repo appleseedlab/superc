@@ -23,7 +23,7 @@ int  __x_1;// L2
 };
 
 struct __test_0 ;// L1
-int  __main_4 () {
+int  (__main_4) () {
 
 {
 {

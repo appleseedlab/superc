@@ -14,6 +14,6 @@ __static_renaming("__f_3", "f");
 
 };
 
-extern int  __f_2 (int  __x_0);// L3
-extern int  __f_3 (int  __x_1);// L5
+extern int  (__f_2) (int  __x_0);// L3
+extern int  (__f_3) (int  __x_1);// L5
 

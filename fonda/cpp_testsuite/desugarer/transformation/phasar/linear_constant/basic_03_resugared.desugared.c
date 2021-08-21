@@ -19,7 +19,7 @@ __static_condition_renaming("__static_condition_default_4", "!(defined CONFIG_A)
 
 };
 
-int  __main_2 () {
+int  (__main_2) () {
 
 {
 {

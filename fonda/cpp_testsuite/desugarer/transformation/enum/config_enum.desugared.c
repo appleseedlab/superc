@@ -36,7 +36,7 @@ __f_11,
 
 enum __someLetters_6 ;// L2
 enum __someLetters_12 ;// L7
-int  __main_15 (void  ) {
+int  (__main_15) (void  ) {
 
 {
 {

@@ -25,7 +25,7 @@ typedef unsigned int  __a_1;// L4
 
 // typedef moved to top of scope
 // typedef moved to top of scope
-int  __foo_4 (__a_0  __x_2) {
+int  (__foo_4) (__a_0  __x_2) {
 
 if (__static_condition_default_6) {
 
@@ -42,7 +42,7 @@ return 0 ;// L10
 
 }
 }
-int  __foo_5 (__a_1  __x_3) {
+int  (__foo_5) (__a_1  __x_3) {
 
 if (__static_condition_default_7) {
 
@@ -59,7 +59,7 @@ return 0 ;// L10
 
 }
 }
-int  __main_8 () {
+int  (__main_8) () {
 
 {
 {

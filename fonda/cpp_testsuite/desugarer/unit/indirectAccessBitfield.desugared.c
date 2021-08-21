@@ -21,7 +21,7 @@ int  __field_1 : 4;// L3
 };
 
 struct __x_0 ;// L1
-int  __main_6 () {
+int  (__main_6) () {
 
 {
 {
@@ -30,7 +30,7 @@ int  __main_6 () {
 
 struct __x_0  __a_2;// L7
 
-struct __x_0  (* (__b_3));// L7
+struct __x_0  * (__b_3);// L7
 
 if (  __a_2  . __field_1 )// L8
 {

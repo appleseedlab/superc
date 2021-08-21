@@ -38,7 +38,7 @@ int  __a_0;// L2
 char  __a_3;// L5
 int  __x_5;// L10
 int  __x_6;// L10
-int  __main_7 () {
+int  (__main_7) () {
 
 {
 {

@@ -27,7 +27,7 @@ __static_parse_error("Unable to parse");
 }
 };
 
-int  __foo_0 () {
+int  (__foo_0) () {
 
 if (__static_condition_default_2) {
 
@@ -43,7 +43,7 @@ return 1 ;// L8
 
 }
 }
-int  __bar_1 () {
+int  (__bar_1) () {
 
 if (__static_condition_default_3) {
 
@@ -59,7 +59,7 @@ return 1 ;// L8
 
 }
 }
-int  __main_4 () {
+int  (__main_4) () {
 
 if (__static_condition_default_5) {
 

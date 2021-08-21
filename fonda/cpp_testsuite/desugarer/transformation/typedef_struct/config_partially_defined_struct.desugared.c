@@ -26,7 +26,7 @@ char  __otherVal_2;// L5
 typedef struct __bob_0  __bob_3;// L2:L6
 
 // typedef moved to top of scope
-int  __main_5 (void  ) {
+int  (__main_5) (void  ) {
 
 {
 if (__static_condition_default_7) {
@@ -43,7 +43,7 @@ if (__static_condition_default_7) {
 }
 
 }}
-int  __main_6 (void  ) {
+int  (__main_6) (void  ) {
 
 {
 if (__static_condition_default_8) {

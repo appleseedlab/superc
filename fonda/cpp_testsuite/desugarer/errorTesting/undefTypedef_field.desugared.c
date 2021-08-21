@@ -29,7 +29,7 @@ __x_0  __a_2;// L0
 
 // typedef moved to top of scope
 struct __x_1 ;// L5
-int  __main_4 () {
+int  (__main_4) () {
 
 if (__static_condition_default_5) {
 

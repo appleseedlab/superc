@@ -19,7 +19,7 @@ __static_condition_renaming("__static_condition_default_4", "(defined A)");
 
 };
 
-int  __foo_2 (int  __a_0, int  __b_1) {
+int  (__foo_2) (int  __a_0, int  __b_1) {
 
 {
 {
@@ -32,7 +32,7 @@ return 0 ;// L3
 
 
 }
-int  __main_7 () {
+int  (__main_7) () {
 
 {
 {

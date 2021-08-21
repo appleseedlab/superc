@@ -24,7 +24,7 @@ __static_parse_error("Unable to parse");
 }
 };
 
-int  __foo_4 (int  __a_0, float  __b1_2, char  __x_3) {
+int  (__foo_4) (int  __a_0, float  __b1_2, char  __x_3) {
 
 if (__static_condition_default_5) {
 
@@ -40,7 +40,7 @@ return 0 ;// L10
 
 }
 }
-int  __main_6 () {
+int  (__main_6) () {
 
 if (__static_condition_default_7) {
 

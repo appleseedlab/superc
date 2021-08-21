@@ -45,7 +45,7 @@ struct __T_2 ;// L3
 struct __X_8 ;// L15
 struct __X_4 ;// L6
 struct __T_10 ;// L18
-int  __main_13 () {
+int  (__main_13) () {
 
 {
 {

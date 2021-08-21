@@ -19,7 +19,7 @@ __static_condition_renaming("__static_condition_default_4", "!A");
 
 };
 
-void  __doNothingOne_0 () {
+void  (__doNothingOne_0) () {
 
 {
 {
@@ -32,7 +32,7 @@ return  ;// L3
 
 
 }
-void  __doNothingTwo_1 () {
+void  (__doNothingTwo_1) () {
 
 {
 {
@@ -44,7 +44,7 @@ void  __doNothingTwo_1 () {
 
 
 }
-int  __main_2 (void  ) {
+int  (__main_2) (void  ) {
 
 {
 {

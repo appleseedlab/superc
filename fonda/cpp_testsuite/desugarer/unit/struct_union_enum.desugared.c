@@ -35,7 +35,7 @@ union {
 };
 };
 
-int  __main_16 () {
+int  (__main_16) () {
 
 {
 {

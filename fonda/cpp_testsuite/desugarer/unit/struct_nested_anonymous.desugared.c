@@ -16,7 +16,7 @@ char  __p_2;// L3
 };
 struct __list_4 {
 struct ____anonymous_tag_0_1  __data_5;// L2
-struct __forward_tag_reference_3  (* (__next_6));// L0
+struct __forward_tag_reference_3  * (__next_6);// L0
 };
 
 struct __forward_tag_reference_3 { // generated union of struct variations

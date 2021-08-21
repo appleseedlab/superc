@@ -23,9 +23,9 @@ __static_parse_error("Unable to parse");
 }
 };
 
-int  (* (__a_1));// L6
-int  (* (__a_0));// L6
-int  __main_2 () {
+int  * (__a_1);// L6
+int  * (__a_0);// L6
+int  (__main_2) () {
 
 if (__static_condition_default_3) {
 

@@ -42,7 +42,7 @@ __c_2  __k_5;// L0
 struct __y_3 ;// L13
 struct __y_4 ;// L13
 
-int  __main_10 () {
+int  (__main_10) () {
 
 if (__static_condition_default_11) {
 

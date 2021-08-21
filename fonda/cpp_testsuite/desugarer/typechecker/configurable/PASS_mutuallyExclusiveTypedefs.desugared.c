@@ -27,7 +27,7 @@ typedef float  __a_1;// L1:L7
 
 // typedef moved to top of scope
 // typedef moved to top of scope
-int  __main_10 () {
+int  (__main_10) () {
 
 {
 {

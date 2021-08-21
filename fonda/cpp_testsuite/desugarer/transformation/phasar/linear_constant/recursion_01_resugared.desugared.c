@@ -19,7 +19,7 @@ __static_condition_renaming("__static_condition_default_3", "!(defined CONFIG_A)
 
 };
 
-unsigned  __factorial_1 (unsigned  __n_0) {
+unsigned  (__factorial_1) (unsigned  __n_0) {
 
 {
 {
@@ -51,7 +51,7 @@ return  __n_0  ;// L8
 
 
 }
-int  __main_5 () {
+int  (__main_5) () {
 
 {
 {

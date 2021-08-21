@@ -31,7 +31,7 @@ __static_parse_error("Unable to parse");
 
 extern _Bool  ___C_40496_0;// L3:L33
 extern _Bool  ___C_40496_DEFINED_1;// L4:L33
-int  ___F0Awc8x_x_2 () {
+int  (___F0Awc8x_x_2) () {
 
 if (__static_condition_default_3) {
 
@@ -77,7 +77,7 @@ return 1 ;// L9
 
 }
 }
-int  ___F1fDwXV_main_4 () {
+int  (___F1fDwXV_main_4) () {
 
 if (__static_condition_default_5) {
 
@@ -123,7 +123,7 @@ if ( 1 )// L18
 
 }
 }
-int  __main_8 (int  __argc_6, char  (* ((* (__argv_7))))) {
+int  (__main_8) (int  __argc_6, char  * (* (__argv_7))) {
 
 if (__static_condition_default_9) {
 

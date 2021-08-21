@@ -26,10 +26,10 @@ union __forward_tag_reference_2 { // generated union of enum variations
 enum __E_8 __E_8;
 };
 
-extern int  __printf_1 (const char  (* __restrict  ____format_0),  ... );// L1
+extern int  (__printf_1) (const char  * __restrict  ____format_0,  ... );// L1
 union __forward_tag_reference_2  __x_3;// L3
 enum __E_8 ;// L5
-int  __main_10 () {
+int  (__main_10) () {
 
 {
 {

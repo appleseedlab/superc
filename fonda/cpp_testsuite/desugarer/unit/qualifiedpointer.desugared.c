@@ -13,5 +13,5 @@ __static_renaming("__a_0", "a");
 
 };
 
-int  (* const  __a_0);// L1
+int  * const  __a_0;// L1
 

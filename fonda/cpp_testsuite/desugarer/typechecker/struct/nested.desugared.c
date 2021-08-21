@@ -20,7 +20,7 @@ struct __contents_2 {
 };
 struct __list_4 {
 struct __contents_2  __data_5;// L3
-struct __forward_tag_reference_3  (* (__next_6));// L0
+struct __forward_tag_reference_3  * (__next_6);// L0
 };
 
 struct __forward_tag_reference_3 { // generated union of struct variations
@@ -29,9 +29,9 @@ struct __list_4 __list_4;
 };
 };
 
-extern int  __printf_1 (const char  (* (__format_0)),  ... );// L1
+extern int  (__printf_1) (const char  * (__format_0),  ... );// L1
 struct __list_4 ;// L2
-int  __main_10 () {
+int  (__main_10) () {
 
 {
 {
@@ -46,7 +46,7 @@ __static_type_error("type error : no valid expression"); // L12
  __head_7  . __next_6 = &  __tail_8  ; // L13
 __static_type_error("type error : no valid expression"); // L14
  __tail_8  . __next_6 = 0 ; // L15
-struct __list_4  (* (__current_9))= &  __head_7 ;// L17
+struct __list_4  * (__current_9)= &  __head_7 ;// L17
 
 while ( 0 !=  __current_9  )// L18
 {

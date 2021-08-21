@@ -24,7 +24,7 @@ __static_condition_renaming("__static_condition_default_7", "!(defined C)");
 
 };
 
-int  __main_3 () {
+int  (__main_3) () {
 
 {
 {

@@ -15,7 +15,7 @@ __static_renaming("__main_3", "main");
 
 };
 
-void  __fun_1 (int  __a_0) {
+void  (__fun_1) (int  __a_0) {
 
 {
 {
@@ -28,7 +28,7 @@ __static_type_error("type error : no valid expression"); // L5
 
 
 }
-int  __main_3 () {
+int  (__main_3) () {
 
 {
 {

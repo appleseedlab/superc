@@ -17,7 +17,7 @@ struct __x_0 {
 };
 
 struct __x_0  __x_1;// L1:L2
-int  __main_2 () {
+int  (__main_2) () {
 
 {
 {

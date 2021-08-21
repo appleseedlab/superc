@@ -47,7 +47,7 @@ __static_condition_renaming("__static_condition_default_20", "(defined CONFIG_B)
 
 };
 
-int  __main_6 () {
+int  (__main_6) () {
 
 if (__static_condition_default_7) {
 

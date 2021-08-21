@@ -36,7 +36,7 @@ typedef char  __a_3;// L5
 // typedef moved to top of scope
 // typedef moved to top of scope
 // typedef moved to top of scope
-int  __main_9 () {
+int  (__main_9) () {
 
 if (__static_condition_default_11) {
 
@@ -63,7 +63,7 @@ __static_type_error("invalid declaration of a under this presence condition");
 
 }
 }
-int  __main_10 () {
+int  (__main_10) () {
 
 if (__static_condition_default_12) {
 

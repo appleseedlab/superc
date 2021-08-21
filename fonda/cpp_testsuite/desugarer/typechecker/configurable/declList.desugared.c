@@ -19,7 +19,7 @@ __static_renaming("__main_3", "main");
 int  __x_0;// L1
 int  __y_1;// L1
 int  __z_2;// L1
-int  __main_3 () {
+int  (__main_3) () {
 
 {
 {

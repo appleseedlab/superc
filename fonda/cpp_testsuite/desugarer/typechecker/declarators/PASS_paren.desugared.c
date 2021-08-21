@@ -17,7 +17,7 @@ __static_renaming("__main_2", "main");
 
 int  __a_0;// L1
 int  __b_1;// L2
-int  __main_2 () {
+int  (__main_2) () {
 
 {
 {

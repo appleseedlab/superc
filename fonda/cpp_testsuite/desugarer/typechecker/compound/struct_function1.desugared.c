@@ -25,7 +25,7 @@ char  __a_2;// L2
 };
 
 struct ____anonymous_tag_0_1  __x_4;// L2
-char  __x_5 (int  __y_3) {
+char  (__x_5) (int  __y_3) {
 
 if (__static_condition_default_6) {
 
@@ -41,7 +41,7 @@ return  __y_3  ;// L5
 
 }
 }
-int  __main_7 () {
+int  (__main_7) () {
 
 {
 {

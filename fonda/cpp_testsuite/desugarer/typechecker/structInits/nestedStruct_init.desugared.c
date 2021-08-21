@@ -30,7 +30,7 @@ struct __a_0  __field_7;// L11
 
 struct __a_0 ;// L1
 struct __b_5 ;// L9
-int  __main_11 () {
+int  (__main_11) () {
 
 {
 {

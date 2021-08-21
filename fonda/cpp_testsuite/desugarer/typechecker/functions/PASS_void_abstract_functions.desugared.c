@@ -15,9 +15,9 @@ __static_renaming("__main_2", "main");
 
 };
 
-void  __foo_0 (void  );// L1
-void  __fwotwo_1 (void  *, void  *);// L3
-int  __main_2 () {
+void  (__foo_0) (void  );// L1
+void  (__fwotwo_1) (void  *, void  *);// L3
+int  (__main_2) () {
 
 {
 {

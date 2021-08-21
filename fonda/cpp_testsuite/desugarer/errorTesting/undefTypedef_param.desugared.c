@@ -27,7 +27,7 @@ __static_parse_error("Unable to parse");
 typedef int  __x_0;// L2
 
 // typedef moved to top of scope
-void  __foo_2 (__x_0  __a_1) {
+void  (__foo_2) (__x_0  __a_1) {
 
 if (__static_condition_default_3) {
 
@@ -43,7 +43,7 @@ return  ;// L12
 
 }
 }
-int  __main_4 () {
+int  (__main_4) () {
 
 if (__static_condition_default_5) {
 

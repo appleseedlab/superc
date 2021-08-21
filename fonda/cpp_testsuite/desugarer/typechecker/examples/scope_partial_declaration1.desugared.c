@@ -24,7 +24,7 @@ __static_condition_renaming("__static_condition_default_6", "(defined B)");
 
 int  __x_0;// L2
 char  __x_1;// L5
-int  __main_3 () {
+int  (__main_3) () {
 
 {
 {

@@ -46,7 +46,7 @@ __y_3  __x_5;// L9
 __y_3  __x_6;// L9
 __y_4  __x_7;// L9
 __y_4  __x_8;// L9
-int  __main_9 () {
+int  (__main_9) () {
 
 if (__static_condition_default_11) {
 
@@ -71,7 +71,7 @@ return - 1 ;// L14
 
 }
 }
-int  __main_10 () {
+int  (__main_10) () {
 
 if (__static_condition_default_15) {
 

@@ -48,7 +48,7 @@ struct __one_2  __x_11;// L20
 struct __one_0 ;// L1
 struct __one_2 ;// L1
 struct __two_5 ;// L11
-int  __main_13 () {
+int  (__main_13) () {
 
 {
 {

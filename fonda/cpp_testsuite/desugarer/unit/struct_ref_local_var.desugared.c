@@ -23,8 +23,8 @@ union {
 };
 
 struct __forward_tag_reference_0 ;// L0
-struct __forward_tag_reference_0  (* (__EVP_MD_CTX_new_1 (void  )));// L2
-void  __test_function_3 () {
+struct __forward_tag_reference_0  * ((__EVP_MD_CTX_new_1) (void  ));// L2
+void  (__test_function_3) () {
 
 if (__static_condition_default_4) {
 
@@ -33,7 +33,7 @@ if (__static_condition_default_4) {
 
 
 
-struct __forward_tag_reference_0  (* (__mdctx_2));// L6
+struct __forward_tag_reference_0  * (__mdctx_2);// L6
 
 __static_type_error("type error : no valid expression"); // L7
 }

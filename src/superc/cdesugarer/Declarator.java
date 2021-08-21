@@ -281,14 +281,14 @@ abstract class Declarator {
     public boolean isPointerDeclarator() { return true; }
 
     public String toString() {
-      return String.format("(* (%s))", declarator.toString());  // preserve order of operations
+      return String.format("* (%s)", declarator.toString());  // preserve order of operations
     }
     
     public String toString(int len) {
-      return String.format("(* (%s))", declarator.toString(len));  // preserve order of operations
+      return String.format("* (%s)", declarator.toString(len));  // preserve order of operations
     }
     public String printType() {
-      return String.format("(* (%s))", declarator.printType());  // preserve order of operations
+      return String.format("* (%s)", declarator.printType());  // preserve order of operations
     }
   }
 
@@ -338,15 +338,15 @@ abstract class Declarator {
 
     public String toString() {
       // return String.format("* %s %s", qualifiers.toString(), declarator.toString());
-      return String.format("(* %s %s)", qualifiers.toString(), declarator.toString());  // preserve order of operations
+      return String.format("* %s %s", qualifiers.toString(), declarator.toString());  // preserve order of operations
     }
     public String toString(int len) {
       // return String.format("* %s %s", qualifiers.toString(), declarator.toString());
-      return String.format("(* %s %s)", qualifiers.toString(), declarator.toString(len));  // preserve order of operations
+      return String.format("* %s %s", qualifiers.toString(), declarator.toString(len));  // preserve order of operations
     }
     public String printType() {
       // return String.format("* %s %s", qualifiers.toString(), declarator.toString());
-      return String.format("(* %s %s)", qualifiers.toString(), declarator.printType());  // preserve order of operations
+      return String.format("* %s %s", qualifiers.toString(), declarator.printType());  // preserve order of operations
     }
     public boolean isFlexible() {
       return declarator.isFlexible();
@@ -437,10 +437,10 @@ abstract class Declarator {
     public boolean isQualifiedPointerAbstractDeclarator() { return true; }
 
     public String toString() {
-      return String.format("* (%s)", qualifiers.toString());
+      return String.format("* %s", qualifiers.toString());
     }
     public String printType() {
-      return String.format("* (%s)", qualifiers.toString());
+      return String.format("* %s", qualifiers.toString());
     }
   }
 
@@ -489,17 +489,17 @@ abstract class Declarator {
 
     public String toString() {
       System.err.println("WARNING: do we need parentheses?");
-      return String.format("(%s%s)", declarator.toString(), arrayabstractdeclarator.toString());
+      return String.format("%s%s", declarator.toString(), arrayabstractdeclarator.toString());
     }
 
     public String toString(int len) {
       System.err.println("WARNING: do we need parentheses?");
-      return String.format("(%s%s)", declarator.toString(), arrayabstractdeclarator.toString(len));
+      return String.format("%s%s", declarator.toString(), arrayabstractdeclarator.toString(len));
     }
 
     public String printType() {
       System.err.println("WARNING: do we need parentheses?");
-      return String.format("(%s%s)", declarator.printType(), arrayabstractdeclarator.printType());
+      return String.format("%s%s", declarator.printType(), arrayabstractdeclarator.printType());
     }
     public boolean isFlexible() {
       return arrayabstractdeclarator.isFlexible();
@@ -684,10 +684,10 @@ abstract class Declarator {
     public boolean isFunctionDeclarator() { return true; }
 
     public String toString() {
-      return String.format("%s %s", declarator.toString(), parameters.toString());
+      return String.format("(%s) %s", declarator.toString(), parameters.toString());
     }
     public String printType() {
-      return String.format("%s %s", declarator.printType(), parameters.printType());
+      return String.format("(%s) %s", declarator.printType(), parameters.printType());
     }
     public boolean isFlexible() {
       return declarator.isFlexible();

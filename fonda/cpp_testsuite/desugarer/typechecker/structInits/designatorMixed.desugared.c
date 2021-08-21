@@ -26,7 +26,7 @@ int  __d_5;// L7
 };
 
 struct __x_0 ;// L1
-int  __main_9 () {
+int  (__main_9) () {
 
 {
 {

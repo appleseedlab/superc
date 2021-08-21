@@ -17,7 +17,7 @@ __static_renaming("__main_6", "main");
 
 };
 
-int  __adder_2 (int  __a_0, int  __b_1) {
+int  (__adder_2) (int  __a_0, int  __b_1) {
 
 {
 {
@@ -30,7 +30,7 @@ return  __a_0  +  __b_1  ;// L2
 
 
 }
-int  __main_6 (void  ) {
+int  (__main_6) (void  ) {
 
 {
 {

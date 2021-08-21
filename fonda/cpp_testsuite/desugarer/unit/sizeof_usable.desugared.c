@@ -24,7 +24,7 @@ __static_condition_renaming("__static_condition_default_6", "(defined A)");
 typedef int  __AX_0;// L2
 
 // typedef moved to top of scope
-int  __main_3 () {
+int  (__main_3) () {
 
 if (__static_condition_default_5) {
 
@@ -44,7 +44,7 @@ __static_type_error("invalid type found in return expression");
 
 }
 }
-int  __main_4 () {
+int  (__main_4) () {
 
 if (__static_condition_default_6) {
 

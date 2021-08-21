@@ -25,7 +25,7 @@ __static_condition_renaming("__static_condition_default_6", "!(defined A) || (de
 
 int  __x_0;// L2
 char  __y_1;// L4
-int  __main_2 () {
+int  (__main_2) () {
 
 {
 {

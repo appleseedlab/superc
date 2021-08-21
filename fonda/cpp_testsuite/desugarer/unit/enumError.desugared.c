@@ -21,7 +21,7 @@ __eA_0 = 5,
 
 enum __e_1 ;// L5
 
-int  __main_4 () {
+int  (__main_4) () {
 
 {
 {

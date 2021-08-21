@@ -25,7 +25,7 @@ float  __floating_4;// L7
 };
 
 union __intCharFloat_0 ;// L2
-int  __main_6 (void  ) {
+int  (__main_6) (void  ) {
 
 {
 {

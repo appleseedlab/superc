@@ -15,7 +15,7 @@ __static_renaming("__main_1", "main");
 
 /* no function due to type errors in the function prototype */
 /* no function due to type errors in the function prototype */
-int  __main_1 () {
+int  (__main_1) () {
 
 {
 {

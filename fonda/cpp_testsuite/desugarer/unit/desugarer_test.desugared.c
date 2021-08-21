@@ -32,7 +32,7 @@ union ____anonymous_tag_9_10  __anon_id_0_15;// L2
 };
 
 struct __s_14 ;// L1
-int  __main_17 () {
+int  (__main_17) () {
 
 {
 {

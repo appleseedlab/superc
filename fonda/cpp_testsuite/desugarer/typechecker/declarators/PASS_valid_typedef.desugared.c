@@ -27,8 +27,8 @@ __static_renaming("__main_12", "main");
 typedef unsigned int  __i_0;// L1
 typedef long long  __x_1;// L2
 typedef const __x_1  __z_2;// L3
-typedef int  (* (__q_3));// L4
-typedef __q_3  (__w_4[2]);// L5
+typedef int  * (__q_3);// L4
+typedef __q_3  __w_4[2];// L5
 volatile typedef __i_0  __j_5;// L6
 
 // typedef moved to top of scope
@@ -37,7 +37,7 @@ volatile typedef __i_0  __j_5;// L6
 // typedef moved to top of scope
 // typedef moved to top of scope
 // typedef moved to top of scope
-int  __main_12 () {
+int  (__main_12) () {
 
 {
 {

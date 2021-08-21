@@ -19,7 +19,7 @@ __static_condition_renaming("__static_condition_default_7", "!(defined A)");
 
 };
 
-int  __main_5 () {
+int  (__main_5) () {
 
 {
 {
@@ -29,7 +29,7 @@ int  __field1_2;// L5
 };
 
 
-int  (__x_3[4]);// L3
+int  __x_3[4];// L3
 
 struct ____anonymous_tag_0_1  __x_4;// L5
 

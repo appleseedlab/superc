@@ -14,14 +14,14 @@ __static_renaming("__main_1", "main");
 
 };
 
-int  __main_1 () {
+int  (__main_1) () {
 
 {
 {
 
 
 
-int  (__a_0[3]);// L3
+int  __a_0[3];// L3
 {
 __a_0[0] = 1;
 __a_0[1] = 2;

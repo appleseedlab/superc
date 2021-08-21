@@ -24,7 +24,7 @@ typedef char  __typeAlias_1;// L1:L7
 
 // typedef moved to top of scope
 // typedef moved to top of scope
-int  __main_7 (void  ) {
+int  (__main_7) (void  ) {
 
 {
 {

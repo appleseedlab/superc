@@ -55,7 +55,7 @@ struct __one_6 ;// L5
 
 struct __two_12 ;// L13
 
-int  __main_22 () {
+int  (__main_22) () {
 
 {
 {

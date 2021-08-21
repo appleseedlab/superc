@@ -25,7 +25,7 @@ __static_condition_renaming("__static_condition_default_7", "(defined B)");
 int  __x_0;// L2
 
 char  __x_3;// L5
-int  __main_4 () {
+int  (__main_4) () {
 
 if (__static_condition_default_6) {
 
@@ -41,7 +41,7 @@ return - 1 ;// L9
 
 }
 }
-int  __main_5 () {
+int  (__main_5) () {
 
 if (__static_condition_default_7) {
 

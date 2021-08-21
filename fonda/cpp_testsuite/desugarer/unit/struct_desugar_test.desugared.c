@@ -15,7 +15,7 @@ __static_renaming("__main_10", "main");
 };
 struct ____s_1_1 {
 int  __data_2;// L2
-struct __forward_tag_reference_0  (* (__next_3));// L0
+struct __forward_tag_reference_0  * (__next_3);// L0
 };
 union ____anonymous_tag_4_5 {
 struct ____s_1_1  ____s_1_6;// L8
@@ -34,7 +34,7 @@ struct ____s_1_1 ;// L1
 struct __s_7 ;// L6
 struct __s_7 ;// L13
 struct __s_7  __x1_9;// L16
-int  __main_10 () {
+int  (__main_10) () {
 
 {
 {

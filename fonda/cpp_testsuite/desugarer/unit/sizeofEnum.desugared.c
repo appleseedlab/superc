@@ -29,7 +29,7 @@ __C_8,
 
 struct __x_0 ;// L1
 enum __sizes_9 ;// L6
-int  __main_11 () {
+int  (__main_11) () {
 
 {
 {

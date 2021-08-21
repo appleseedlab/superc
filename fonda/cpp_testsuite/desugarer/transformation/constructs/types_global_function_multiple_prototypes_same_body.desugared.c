@@ -38,7 +38,7 @@ __static_condition_renaming("__static_condition_default_16", "!(defined B)");
 
 };
 
-int  __x_2 () {
+int  (__x_2) () {
 
 if (__static_condition_default_6) {
 
@@ -57,7 +57,7 @@ return  __b_1  ;// L15
 
 }
 }
-char  __x_3 () {
+char  (__x_3) () {
 
 if (__static_condition_default_7) {
 
@@ -76,7 +76,7 @@ return  __b_1  ;// L15
 
 }
 }
-int  __x_4 (int  __y_0) {
+int  (__x_4) (int  __y_0) {
 
 if (__static_condition_default_8) {
 
@@ -95,7 +95,7 @@ return  __b_1  ;// L15
 
 }
 }
-char  __x_5 (int  __y_0) {
+char  (__x_5) (int  __y_0) {
 
 if (__static_condition_default_9) {
 
@@ -114,7 +114,7 @@ return  __b_1  ;// L15
 
 }
 }
-int  __main_10 () {
+int  (__main_10) () {
 
 {
 {

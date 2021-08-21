@@ -26,7 +26,7 @@ float  __floating_3;// L5
 };
 
 union __intCharFloat_0 ;// L2
-int  __main_7 (void  ) {
+int  (__main_7) (void  ) {
 
 if (__static_condition_default_9) {
 
@@ -51,7 +51,7 @@ return 0 ;// L16
 
 }
 }
-int  __main_8 (void  ) {
+int  (__main_8) (void  ) {
 
 if (__static_condition_default_10) {
 

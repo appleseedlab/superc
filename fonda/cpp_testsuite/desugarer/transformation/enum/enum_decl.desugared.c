@@ -23,7 +23,7 @@ __f_5,
 };
 
 enum __letter_6 ;// L1
-int  __main_8 (void  ) {
+int  (__main_8) (void  ) {
 
 {
 {

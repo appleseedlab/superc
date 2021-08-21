@@ -16,7 +16,7 @@ __static_renaming("__main_10", "main");
 
 };
 
-int  __main_10 () {
+int  (__main_10) () {
 
 {
 {
@@ -30,7 +30,7 @@ int  __b_8;// L10
 };
 
 
-int  (* (__x_0));// L4
+int  * (__x_0);// L4
 
 long  __x_1;// L6
 

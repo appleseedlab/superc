@@ -14,8 +14,8 @@ __static_renaming("__main_2", "main");
 
 };
 
-extern void  (* volatile  ____free_hook_1) (void  (* (____ptr_0)), const void  *);// L1:L2
-int  __main_2 () {
+extern void  (* volatile  ____free_hook_1) (void  * (____ptr_0), const void  *);// L1:L2
+int  (__main_2) () {
 
 {
 {

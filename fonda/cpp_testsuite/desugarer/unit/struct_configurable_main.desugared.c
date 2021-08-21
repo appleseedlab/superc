@@ -29,7 +29,7 @@ int  __yy_8;// L8
 
 struct ____anonymous_tag_0_1 ;// L2
 struct ____anonymous_tag_4_5 ;// L2
-int  __main_9 () {
+int  (__main_9) () {
 
 if (__static_condition_default_11) {
 
@@ -45,7 +45,7 @@ return 0 ;// L14
 
 }
 }
-int  __main_10 () {
+int  (__main_10) () {
 
 if (__static_condition_default_12) {
 

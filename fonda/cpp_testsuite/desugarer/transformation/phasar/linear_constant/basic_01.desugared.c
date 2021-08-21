@@ -18,7 +18,7 @@ __static_renaming("__main_3", "main");
 
 extern int  ___CfIf3K_CONFIG_A_0;// L2
 extern int  ___Djkifd_CONFIG_A_defined_1;// L4
-int  __main_3 () {
+int  (__main_3) () {
 
 {
 {

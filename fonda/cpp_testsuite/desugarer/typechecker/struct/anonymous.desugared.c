@@ -18,7 +18,7 @@ char  __p_2;// L2
 };
 
 struct ____anonymous_tag_0_1  __data_3;// L1:L3
-int  __main_4 () {
+int  (__main_4) () {
 
 {
 {

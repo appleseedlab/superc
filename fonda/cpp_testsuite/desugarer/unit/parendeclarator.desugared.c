@@ -13,5 +13,5 @@ __static_renaming("__x2b_0", "x2b");
 
 };
 
-int  (* (__x2b_0));// L1
+int  * (__x2b_0);// L1
 

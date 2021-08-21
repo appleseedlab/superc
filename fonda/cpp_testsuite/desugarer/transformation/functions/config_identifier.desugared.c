@@ -19,7 +19,7 @@ __static_condition_renaming("__static_condition_default_6", "!A");
 
 };
 
-int  __add_3 (int  __a_0, int  __b_2) {
+int  (__add_3) (int  __a_0, int  __b_2) {
 
 if (__static_condition_default_5) {
 
@@ -35,7 +35,7 @@ return  __a_0  +  __b_2  ;// L8
 
 }
 }
-int  __adder_4 (int  __a_1, int  __b_2) {
+int  (__adder_4) (int  __a_1, int  __b_2) {
 
 if (__static_condition_default_6) {
 
@@ -51,7 +51,7 @@ return  __a_1  +  __b_2  ;// L8
 
 }
 }
-int  __main_7 (void  ) {
+int  (__main_7) (void  ) {
 
 {
 {

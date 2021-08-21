@@ -45,7 +45,7 @@ typedef int  __c_2;// L10
 // typedef moved to top of scope
 // typedef moved to top of scope
 // typedef moved to top of scope
-void  __foo_8 () {
+void  (__foo_8) () {
 
 if (__static_condition_default_12) {
 
@@ -64,7 +64,7 @@ return  ;// L31
 
 }
 }
-void  __foo_9 (__a_0  __x_3, __c_2  __z_5, __b_1  __y_7) {
+void  (__foo_9) (__a_0  __x_3, __c_2  __z_5, __b_1  __y_7) {
 
 if (__static_condition_default_14) {
 
@@ -83,7 +83,7 @@ return  ;// L31
 
 }
 }
-void  __foo_11 (__b_1  __y_6) {
+void  (__foo_11) (__b_1  __y_6) {
 
 if (__static_condition_default_15) {
 
@@ -103,7 +103,7 @@ return  ;// L31
 
 }
 }
-int  __main_17 () {
+int  (__main_17) () {
 
 if (__static_condition_default_18) {
 

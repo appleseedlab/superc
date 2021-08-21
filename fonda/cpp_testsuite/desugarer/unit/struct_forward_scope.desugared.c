@@ -17,7 +17,7 @@ struct __s_5 {
 int  __x_6;// L12
 };
 
-int  __main_4 () {
+int  (__main_4) () {
 
 {
 {
@@ -33,7 +33,7 @@ struct __s_2 __s_2;
 };
 
 
-struct __forward_tag_reference_0  (* (__local_var_1));// L2
+struct __forward_tag_reference_0  * (__local_var_1);// L2
 
 struct __s_2 ;// L4
 

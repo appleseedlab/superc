@@ -29,7 +29,7 @@ int  __integer_5;// L9
 
 union __intCharFloat_0 ;// L2
 union __intCharFloat_4 ;// L8
-int  __main_8 (void  ) {
+int  (__main_8) (void  ) {
 
 {
 {

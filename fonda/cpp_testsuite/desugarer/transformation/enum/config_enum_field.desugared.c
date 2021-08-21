@@ -24,7 +24,7 @@ __f_6,
 };
 
 enum __someLetters_7 ;// L1
-int  __main_10 (void  ) {
+int  (__main_10) (void  ) {
 
 {
 {

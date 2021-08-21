@@ -30,7 +30,7 @@ int  __b_4;// L8
 
 struct __x_0 ;// L1
 
-int  __main_10 () {
+int  (__main_10) () {
 
 {
 {

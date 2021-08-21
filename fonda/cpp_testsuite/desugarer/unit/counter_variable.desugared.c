@@ -17,14 +17,14 @@ __static_renaming("__AES256_CTR_DRBG_Update_7", "AES256_CTR_DRBG_Update");
 
 };
 
-void  __AES256_CTR_DRBG_Update_7 (unsigned char  (* (__provided_data_0)), unsigned char  (* (__Key_1)), unsigned char  (* (__V_2))) {
+void  (__AES256_CTR_DRBG_Update_7) (unsigned char  * (__provided_data_0), unsigned char  * (__Key_1), unsigned char  * (__V_2)) {
 
 {
 {
 
 
 
-unsigned char  (__temp_3[48]);// L2
+unsigned char  __temp_3[48];// L2
 
 { int  __i_4= 0;// L3
  for ( ;  __i_4  < 3 ;  __i_4  ++ ) // L3

@@ -17,11 +17,11 @@ struct ____anonymous_tag_0_1 {
 int  __f_2;// L2
 };
 struct __s_3 {
-struct ____anonymous_tag_0_1  (__x_4[4]);// L2
+struct ____anonymous_tag_0_1  __x_4[4];// L2
 };
 
 struct __s_3  __bob_5=  { .__x_4 = { [0] .__f_2 = 10 } };// L1:L3
-int  __main_6 () {
+int  (__main_6) () {
 
 {
 {

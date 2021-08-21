@@ -19,7 +19,7 @@ __static_condition_renaming("__static_condition_default_5", "!A");
 
 };
 
-int  __returnOne_2 (int  __x_0) {
+int  (__returnOne_2) (int  __x_0) {
 
 if (__static_condition_default_4) {
 
@@ -35,7 +35,7 @@ return 1 ;// L8
 
 }
 }
-int  __returnOne_3 (char  __x_1) {
+int  (__returnOne_3) (char  __x_1) {
 
 if (__static_condition_default_5) {
 
@@ -51,7 +51,7 @@ return 1 ;// L8
 
 }
 }
-int  __main_6 (void  ) {
+int  (__main_6) (void  ) {
 
 {
 {

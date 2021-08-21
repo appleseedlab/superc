@@ -17,7 +17,7 @@ __static_condition_renaming("__static_condition_default_1", "!CONFIG_A");
 
 };
 
-int  __main_3 (void  ) {
+int  (__main_3) (void  ) {
 
 {
 {

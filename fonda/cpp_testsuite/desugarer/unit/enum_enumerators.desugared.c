@@ -22,7 +22,7 @@ __C_2,
 
 enum __E_3  __x_4;// L1
 int  __nonenumerator_5= 10;// L2
-int  __main_6 () {
+int  (__main_6) () {
 
 {
 {

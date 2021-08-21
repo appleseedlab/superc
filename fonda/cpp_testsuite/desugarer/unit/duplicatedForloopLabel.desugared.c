@@ -34,7 +34,7 @@ struct ____anonymous_tag_3_4  __b_8;// L12
 };
 
 union __u_6  __this_9;// L7:L16
-void  __foo_14 () {
+void  (__foo_14) () {
 
 {
 {

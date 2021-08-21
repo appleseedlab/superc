@@ -18,7 +18,7 @@ __static_condition_renaming("__static_condition_default_5", "!(defined CONFIG_A)
 
 };
 
-int  __f_2 (int  __x_0) {
+int  (__f_2) (int  __x_0) {
 
 {
 if (__static_condition_default_4) {
@@ -36,7 +36,7 @@ return  __x_0  + 1 ;// L4
 }
 
 }}
-int  __f_3 (int  __x_1) {
+int  (__f_3) (int  __x_1) {
 
 {
 if (__static_condition_default_5) {

@@ -45,7 +45,7 @@ typedef int unsigned  __ourType_3;// L1:L10
 // typedef moved to top of scope
 // typedef moved to top of scope
 // typedef moved to top of scope
-__ourType_1  __foo_9 (int  __x_4, int  __y_5, __ourType_1  __z_7) {
+__ourType_1  (__foo_9) (int  __x_4, int  __y_5, __ourType_1  __z_7) {
 
 if (__static_condition_default_13) {
 
@@ -61,7 +61,7 @@ return 0 ;// L30
 
 }
 }
-__ourType_2  __foo_10 (int  __x_4, int  __y_5, __ourType_2  __z_8) {
+__ourType_2  (__foo_10) (int  __x_4, int  __y_5, __ourType_2  __z_8) {
 
 if (__static_condition_default_14) {
 
@@ -77,7 +77,7 @@ return 0 ;// L30
 
 }
 }
-short  __foo_11 (int  __x_4, int  __y_5, __ourType_1  __z_7) {
+short  (__foo_11) (int  __x_4, int  __y_5, __ourType_1  __z_7) {
 
 if (__static_condition_default_15) {
 
@@ -93,7 +93,7 @@ return 0 ;// L30
 
 }
 }
-short  __foo_12 (int  __x_4, int  __y_5, __ourType_2  __z_8) {
+short  (__foo_12) (int  __x_4, int  __y_5, __ourType_2  __z_8) {
 
 if (__static_condition_default_16) {
 
@@ -109,7 +109,7 @@ return 0 ;// L30
 
 }
 }
-int  __main_17 () {
+int  (__main_17) () {
 
 if (__static_condition_default_18) {
 

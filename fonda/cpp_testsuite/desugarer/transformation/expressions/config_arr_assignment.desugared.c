@@ -19,7 +19,7 @@ __static_condition_renaming("__static_condition_default_4", "!A");
 
 };
 
-int  __main_2 (void  ) {
+int  (__main_2) (void  ) {
 
 {
 {
@@ -28,7 +28,7 @@ int  __main_2 (void  ) {
 
 int  __x_0= 2;// L2
 
-int  (__arr_1[5]);// L3
+int  __arr_1[5];// L3
 
 if (__static_condition_default_3) {
  __arr_1  [ 1 ] = 7 ; // L6

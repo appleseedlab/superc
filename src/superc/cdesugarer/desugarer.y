@@ -9863,11 +9863,13 @@ public static class DeclarationOrStatementValue implements Copyable{
     if (children != null) {
       d.children = new LinkedList<Multiverse<DeclarationOrStatementValue>>();
       for (Multiverse<DeclarationOrStatementValue> m : children) {
-        Multiverse<DeclarationOrStatementValue> mv = new Multiverse<DeclarationOrStatementValue>();
-        for (Element<DeclarationOrStatementValue> ev : m) {
-          mv.add(ev.getData().deepCopy(),ev.getCondition());
+        if (!m.isEmpty()) {
+          Multiverse<DeclarationOrStatementValue> mv = new Multiverse<DeclarationOrStatementValue>();
+          for (Element<DeclarationOrStatementValue> ev : m) {
+            mv.add(ev.getData().deepCopy(),ev.getCondition());
+          }
+          d.children.add(mv);
         }
-        d.children.add(mv);
       }
     } else {
       d.children = null;
@@ -9888,8 +9890,10 @@ public static class DeclarationOrStatementValue implements Copyable{
     d.isStatementAsExpression = isStatementAsExpression;
     if (typeVal != null) {
       d.typeVal = new Multiverse<Type>();
-      for (Element<Type> e : typeVal) {
-        d.typeVal.add(e.getData().copy(),e.getCondition());
+      if (!typeVal.isEmpty()) {
+        for (Element<Type> e : typeVal) {
+          d.typeVal.add(e.getData().copy(),e.getCondition());
+        }
       }
     } else {
       d.typeVal = null;
@@ -10108,7 +10112,7 @@ public static class DeclarationOrStatementValue implements Copyable{
     return true;
   }
   public boolean goodSwitchCase(PresenceCondition p) {
-    if (typeVal.isEmpty()) {
+    if (typeVal == null || typeVal.isEmpty()) {
       return true;
     }
     Multiverse<Type> subset = typeVal.filter(p);

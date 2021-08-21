@@ -25,7 +25,7 @@ int  __x_7;// L17
 
 static int  __x_0;// L3
 static char  __x_1;// L5
-int  __main_3 () {
+int  (__main_3) () {
 
 {
 {

@@ -39,7 +39,7 @@ typedef ____gnuc_va_list_0  __va_list_3;// L99
 // typedef moved to top of scope
 // typedef moved to top of scope
 int  __x_5;// L3
-int  __main_6 () {
+int  (__main_6) () {
 
 if (__static_condition_default_8) {
 
@@ -55,7 +55,7 @@ __static_type_error("type error") ; // L8:L49
 
 }
 }
-int  __main_7 () {
+int  (__main_7) () {
 
 if (__static_condition_default_9) {
 

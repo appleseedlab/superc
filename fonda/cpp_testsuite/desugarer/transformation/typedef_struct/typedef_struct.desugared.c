@@ -21,7 +21,7 @@ char  __otherVal_2;// L3
 typedef struct __bob_0  __bob_3;// L1:L4
 
 // typedef moved to top of scope
-int  __main_5 (void  ) {
+int  (__main_5) (void  ) {
 
 {
 {

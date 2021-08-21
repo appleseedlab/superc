@@ -23,7 +23,7 @@ unsigned  __a_2;// L6
 };
 
 struct __x_0 ;// L1
-int  __main_6 () {
+int  (__main_6) () {
 
 {
 {

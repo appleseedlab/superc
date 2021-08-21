@@ -25,7 +25,7 @@ __f_5,
 typedef enum __letter_6  __letter_7;// L1
 
 // typedef moved to top of scope
-int  __main_9 (void  ) {
+int  (__main_9) (void  ) {
 
 {
 {

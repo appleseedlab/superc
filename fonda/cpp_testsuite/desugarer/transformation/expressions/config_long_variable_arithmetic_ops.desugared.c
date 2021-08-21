@@ -51,7 +51,7 @@ __static_condition_renaming("__static_condition_default_24", "!A && !B && !C");
 
 };
 
-int  __main_10 (void  ) {
+int  (__main_10) (void  ) {
 
 {
 {

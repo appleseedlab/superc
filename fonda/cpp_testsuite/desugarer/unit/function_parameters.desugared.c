@@ -14,7 +14,7 @@ __static_renaming("__f_3", "f");
 
 };
 
-int  __f_3 (char  __x_0, int  __y_1) {
+int  (__f_3) (char  __x_0, int  __y_1) {
 
 {
 {

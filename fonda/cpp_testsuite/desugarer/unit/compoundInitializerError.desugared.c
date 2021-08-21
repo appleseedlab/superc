@@ -21,7 +21,7 @@ __static_condition_renaming("__static_condition_default_5", "(defined A)");
 };
 
 const char  __x_0= 'c';// L2
-void  __foo_2 (char  (__c_1[4])) {
+void  (__foo_2) (char  __c_1[4]) {
 
 if (__static_condition_default_4) {
 
@@ -37,7 +37,7 @@ return  ;// L7
 
 }
 }
-void  __foo_3 (char  (__c_1[4])) {
+void  (__foo_3) (char  __c_1[4]) {
 
 if (__static_condition_default_5) {
 
@@ -53,7 +53,7 @@ return  ;// L7
 
 }
 }
-int  __main_6 () {
+int  (__main_6) () {
 
 {
 {

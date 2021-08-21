@@ -19,7 +19,7 @@ __static_condition_renaming("__static_condition_default_4", "!(defined A)");
 
 };
 
-int  __main_3 () {
+int  (__main_3) () {
 
 {
 {
@@ -36,7 +36,7 @@ if (1) {
 __static_type_error("invalid declaration of z under this presence condition");
 }
 
-int  (__a_2[5]);// L10
+int  __a_2[5];// L10
 
 if (__static_condition_default_4) {
  __a_2  [  __x_1  ] ; // L11

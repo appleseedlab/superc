@@ -21,7 +21,7 @@ __static_condition_renaming("__static_condition_default_5", "(defined A) && (def
 
 };
 
-void  __x_0 () {
+void  (__x_0) () {
 
 if (__static_condition_default_1) {
 
@@ -36,7 +36,7 @@ if (__static_condition_default_1) {
 
 }
 }
-void  __y_2 () {
+void  (__y_2) () {
 
 if (__static_condition_default_4) {
 
@@ -51,7 +51,7 @@ if (__static_condition_default_4) {
 
 }
 }
-void  __y_3 () {
+void  (__y_3) () {
 
 if (__static_condition_default_5) {
 

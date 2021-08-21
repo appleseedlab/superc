@@ -14,8 +14,8 @@ __static_renaming("__X509_ALGOR_1", "X509_ALGOR");
 };
 typedef struct __forward_tag_reference_0  __X509_ALGOR_1;// L1
 struct __X509_algor_st_2 {
-int  (* (__algorithm_3));// L3
-char  (* (__parameter_4));// L4
+int  * (__algorithm_3);// L3
+char  * (__parameter_4);// L4
 };
 struct __Netscape_spki_st_5 {
 };

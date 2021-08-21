@@ -19,9 +19,9 @@ __static_condition_renaming("__static_condition_default_4", "!(defined A)");
 
 };
 
-extern int  __x_0 ();// L2
-extern float  __x_1 ();// L4
-int  __main_2 () {
+extern int  (__x_0) ();// L2
+extern float  (__x_1) ();// L4
+int  (__main_2) () {
 
 {
 {

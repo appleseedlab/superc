@@ -38,7 +38,7 @@ __static_condition_renaming("__static_condition_default_23", "!(defined C) || (d
 
 };
 
-int  __main_21 () {
+int  (__main_21) () {
 
 {
 {
@@ -51,17 +51,17 @@ float  __arr_7;// L4:L14
 
 char  __arr_8;// L4:L14
 
-int  (__arr_0[]);// L4:L18
+int  __arr_0[];// L4:L18
 
-float  (__arr_1[]);// L4:L18
+float  __arr_1[];// L4:L18
 
-char  (__arr_2[]);// L4:L18
+char  __arr_2[];// L4:L18
 
-int  (* (__arr_3));// L4:L21
+int  * (__arr_3);// L4:L21
 
-float  (* (__arr_4));// L4:L21
+float  * (__arr_4);// L4:L21
 
-char  (* (__arr_5));// L4:L21
+char  * (__arr_5);// L4:L21
 
 if (__static_condition_default_10) {
 __static_type_error("redeclaration of local symbol: arr");

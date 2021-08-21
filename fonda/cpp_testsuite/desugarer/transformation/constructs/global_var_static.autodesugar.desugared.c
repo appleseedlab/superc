@@ -32,7 +32,7 @@ extern _Bool  ___C_40496_0;// L3:L33
 extern _Bool  ___C_40496_DEFINED_1;// L4:L33
 static int  ___V0zWAm4_x_2;// L6
 static char  ___V1fl0Eo_x_3;// L8
-int  ___F2lROXB_main_4 () {
+int  (___F2lROXB_main_4) () {
 
 if (__static_condition_default_5) {
 
@@ -90,7 +90,7 @@ if ( !  ___C_40496_DEFINED_1  )// L15
 
 }
 }
-int  __main_8 (int  __argc_6, char  (* ((* (__argv_7))))) {
+int  (__main_8) (int  __argc_6, char  * (* (__argv_7))) {
 
 if (__static_condition_default_9) {
 

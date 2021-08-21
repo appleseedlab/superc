@@ -28,7 +28,7 @@ typedef struct __bob_1  __bob_6;// L6:L10
 
 // typedef moved to top of scope
 // typedef moved to top of scope
-int  __main_8 (void  ) {
+int  (__main_8) (void  ) {
 
 {
 {

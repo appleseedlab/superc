@@ -16,19 +16,19 @@ __static_renaming("__main_8", "main");
 
 };
 struct ____anonymous_tag_0_1 {
-unsigned long int  (__a_2[( 1024 / ( 8 * sizeof(unsigned long int  ) ) )]);// L3
+unsigned long int  __a_2[( 1024 / ( 8 * sizeof(unsigned long int  ) ) )];// L3
 };
 typedef struct ____anonymous_tag_0_1  __Y_3;// L2:L4
 struct __X_4 {
 __Y_3  __b_5;// L0
 };
-typedef struct __X_4  (__testStruct_6[1]);// L10
+typedef struct __X_4  __testStruct_6[1];// L10
 
 // typedef moved to top of scope
 struct __X_4 ;// L6
 // typedef moved to top of scope
 __testStruct_6  __x_7;// L12
-void  __main_8 () {
+void  (__main_8) () {
 
 {
 {

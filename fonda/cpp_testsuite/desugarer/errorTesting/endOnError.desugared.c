@@ -21,7 +21,7 @@ __static_parse_error("Unable to parse");
 }
 };
 
-int  __main_0 () {
+int  (__main_0) () {
 
 if (__static_condition_default_1) {
 

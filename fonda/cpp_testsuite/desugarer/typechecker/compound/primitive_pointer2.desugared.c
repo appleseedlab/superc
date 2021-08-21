@@ -21,7 +21,7 @@ __static_condition_renaming("__static_condition_default_5", "!(defined A)");
 };
 
 int  __num_0= 1;// L1
-int  __main_3 () {
+int  (__main_3) () {
 
 {
 {
@@ -30,7 +30,7 @@ int  __main_3 () {
 
 int  __x_1;// L5
 
-int  (* (__x_2));// L7
+int  * (__x_2);// L7
 
 if (__static_condition_default_4) {
  __x_1  = &  __num_0  ; // L10

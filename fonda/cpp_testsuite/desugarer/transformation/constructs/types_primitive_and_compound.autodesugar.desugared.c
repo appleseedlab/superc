@@ -34,7 +34,7 @@ int  __x_3;// L6
 extern _Bool  ___C_40496_0;// L3:L33
 extern _Bool  ___C_40496_DEFINED_1;// L4:L33
 struct __test_2 ;// L6
-int  ___F1K4sj1_main_6 () {
+int  (___F1K4sj1_main_6) () {
 
 if (__static_condition_default_7) {
 
@@ -96,7 +96,7 @@ __static_type_error("type error : no valid expression"); // L18
 
 }
 }
-int  __main_10 (int  __argc_8, char  (* ((* (__argv_9))))) {
+int  (__main_10) (int  __argc_8, char  * (* (__argv_9))) {
 
 if (__static_condition_default_11) {
 

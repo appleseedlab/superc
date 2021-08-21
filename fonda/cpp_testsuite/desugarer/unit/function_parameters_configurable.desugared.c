@@ -38,7 +38,7 @@ __static_condition_renaming("__static_condition_default_17", "(defined A) && (de
 
 };
 
-int  __f_6 (char  __x_0) {
+int  (__f_6) (char  __x_0) {
 
 if (__static_condition_default_8) {
 
@@ -70,7 +70,7 @@ return  __z_5  ;// L15
 
 }
 }
-int  __f_7 (char  __x_0, int  __y_1) {
+int  (__f_7) (char  __x_0, int  __y_1) {
 
 if (__static_condition_default_11) {
 

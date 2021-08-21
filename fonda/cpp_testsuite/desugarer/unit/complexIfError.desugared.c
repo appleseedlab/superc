@@ -25,15 +25,15 @@ int  __revents_1;// L2
 
 struct __x_0 ;// L1
 int  __x_2;// L5:L9
-int  __x_3 ();// L5:L9
-int  __main_5 () {
+int  (__x_3) ();// L5:L9
+int  (__main_5) () {
 
 {
 {
 
 
 
-struct __x_0  (* (__pfd_4));// L13
+struct __x_0  * (__pfd_4);// L13
 
 if (__static_condition_default_6) {
 if ( (  __pfd_4  [ 2 ] . __revents_1 & 0x010 ) &&  __x_3 ( ) == 0 )// L14

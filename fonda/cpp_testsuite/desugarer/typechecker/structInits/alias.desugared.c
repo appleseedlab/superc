@@ -21,7 +21,7 @@ int  __b_2;// L4
 typedef struct __x_0  __X_3;// L1:L5
 
 // typedef moved to top of scope
-int  __main_5 () {
+int  (__main_5) () {
 
 {
 {

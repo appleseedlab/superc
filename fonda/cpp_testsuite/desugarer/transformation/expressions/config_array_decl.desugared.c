@@ -17,7 +17,7 @@ __static_condition_renaming("__static_condition_default_2", "!A");
 
 };
 
-int  __main_3 (void  ) {
+int  (__main_3) (void  ) {
 
 {
 {
@@ -26,7 +26,7 @@ int  __main_3 (void  ) {
 
 int  __x_0= 5;// L2
 
-int  (__arr_1[3]);// L5
+int  __arr_1[3];// L5
 
 if (__static_condition_default_2) {
 __static_type_error("invalid declaration of arr under this presence condition");

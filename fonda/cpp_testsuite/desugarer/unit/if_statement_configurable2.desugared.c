@@ -32,7 +32,7 @@ __static_condition_renaming("__static_condition_default_11", "!(defined B) && (d
 
 };
 
-int  __main_3 () {
+int  (__main_3) () {
 
 {
 {

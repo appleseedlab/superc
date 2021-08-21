@@ -25,7 +25,7 @@ int  __c_4;// L6
 };
 
 struct __x_0 ;// L1
-int  __main_8 (void  ) {
+int  (__main_8) (void  ) {
 
 {
 {
