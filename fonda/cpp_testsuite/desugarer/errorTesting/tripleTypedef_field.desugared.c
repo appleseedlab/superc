@@ -8,7 +8,6 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_11;
-extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_7;
 void __static_initializer_default() {
 __static_renaming("__a_0", "a");
@@ -19,10 +18,9 @@ __static_renaming("__d_9", "d");
 __static_renaming("__main_10", "main");
 
 __static_condition_renaming("__static_condition_default_7", "(defined B) && !(defined C)");
-__static_condition_renaming("__static_condition_default_11", "!(defined A) && !(defined C) || (defined A) && !(defined B) || (defined A) && (defined B) && (defined C)");
-__static_condition_renaming("__static_condition_default_12", "!(defined A) && (defined C) || (defined A) && (defined B) && !(defined C)");
+__static_condition_renaming("__static_condition_default_11", "!(defined A) && (defined C) || (defined A) && (defined B) && !(defined C)");
 
-if (__static_condition_default_12)
+if (__static_condition_default_11)
 {
 __static_parse_error("Unable to parse");
 }
@@ -44,8 +42,6 @@ struct __y_4 ;// L13
 
 int  (__main_10) () {
 
-if (__static_condition_default_11) {
-
 {
 {
 
@@ -60,6 +56,5 @@ return 0 ;// L32
 }
 
 
-}
 }
 

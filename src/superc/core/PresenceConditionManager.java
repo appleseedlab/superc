@@ -886,7 +886,15 @@ public class PresenceConditionManager {
         return false;
       }
     }
-    
+
+    public boolean isSubsetOf(PresenceCondition other) {
+      PresenceCondition andP;
+      
+      andP = this.and(other);
+      boolean res = this.is(andP);
+      andP.delRef();
+      return res;
+    }
 
     public PresenceCondition addRef() {
       if (refs > 0) {

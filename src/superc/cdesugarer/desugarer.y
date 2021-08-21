@@ -398,7 +398,7 @@ FunctionPrototype {restartLabelFunction();} CompoundStatement
         {
           // similar to Declaration, but different in that this has a
           // compoundstatement, while declaration has an initializer.
-          PresenceCondition pc = subparser.getPresenceCondition().and(CContext.getParseErrorCond().not());
+          PresenceCondition pc = subparser.getPresenceCondition();
           
           // add all variations of the function declaration to the symtab
           CContext scope = (CContext)subparser.scope;
@@ -9977,6 +9977,9 @@ public static class DeclarationOrStatementValue implements Copyable{
   
   public String getString(PresenceCondition p, CActions ca) {
     String ret = "";
+    if (p.isSubsetOf(CContext.getParseErrorCond())) {
+      return ret;
+    }
     int count = 0;
     if (!isDo) {
       ret = mainValue + "\n";

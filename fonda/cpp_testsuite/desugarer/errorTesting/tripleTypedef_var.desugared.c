@@ -7,13 +7,13 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_7;
 extern const bool __static_condition_default_13;
 extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_11;
 extern const bool __static_condition_default_10;
-extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_12;
+extern const bool __static_condition_default_7;
 extern const bool __static_condition_default_8;
 void __static_initializer_default() {
 __static_renaming("__a_0", "a");
@@ -24,12 +24,12 @@ __static_renaming("__main_5", "main");
 __static_renaming("__main_6", "main");
 
 __static_condition_renaming("__static_condition_default_4", "!(defined A) && !(defined C) || (defined A) && (defined B) && !(defined C)");
-__static_condition_renaming("__static_condition_default_7", "(defined A) && !(defined C)");
+__static_condition_renaming("__static_condition_default_7", "!(defined C)");
 __static_condition_renaming("__static_condition_default_8", "(defined A) && !(defined B) && !(defined C)");
-__static_condition_renaming("__static_condition_default_9", "(defined A) && (defined B) && !(defined C)");
-__static_condition_renaming("__static_condition_default_10", "(defined A) && (defined C)");
+__static_condition_renaming("__static_condition_default_9", "!(defined A) && !(defined C) || (defined A) && (defined B) && !(defined C)");
+__static_condition_renaming("__static_condition_default_10", "(defined C)");
 __static_condition_renaming("__static_condition_default_11", "(defined A) && !(defined B) && (defined C)");
-__static_condition_renaming("__static_condition_default_12", "(defined A) && (defined B) && (defined C)");
+__static_condition_renaming("__static_condition_default_12", "!(defined A) && (defined C) || (defined A) && (defined B) && (defined C)");
 __static_condition_renaming("__static_condition_default_13", "!(defined A)");
 
 if (__static_condition_default_13)

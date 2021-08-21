@@ -7,22 +7,28 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_5;
-extern const bool __static_condition_default_10;
 extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_13;
+extern const bool __static_condition_default_6;
+extern const bool __static_condition_default_5;
+extern const bool __static_condition_default_7;
+extern const bool __static_condition_default_8;
 void __static_initializer_default() {
 __static_renaming("___C_40496_0", "_C_40496");
 __static_renaming("___C_40496_DEFINED_1", "_C_40496_DEFINED");
 __static_renaming("___V0NWK0Y_x_2", "_V0NWK0Y_x");
 __static_renaming("___V2fh8Co_x_3", "_V2fh8Co_x");
 __static_renaming("___F1DGKM9_main_4", "_F1DGKM9_main");
-__static_renaming("__main_8", "main");
+__static_renaming("__main_12", "main");
 
 __static_condition_renaming("__static_condition_default_5", "!(defined __cplusplus)");
-__static_condition_renaming("__static_condition_default_9", "!(defined __cplusplus)");
-__static_condition_renaming("__static_condition_default_10", "(defined __cplusplus)");
+__static_condition_renaming("__static_condition_default_6", "(defined __cplusplus)");
+__static_condition_renaming("__static_condition_default_7", "(defined __cplusplus)");
+__static_condition_renaming("__static_condition_default_8", "(defined __cplusplus)");
+__static_condition_renaming("__static_condition_default_9", "(defined __cplusplus)");
+__static_condition_renaming("__static_condition_default_13", "(defined __cplusplus)");
 
-if (__static_condition_default_10)
+if (__static_condition_default_13)
 {
 __static_parse_error("Unable to parse");
 }
@@ -32,8 +38,6 @@ extern _Bool  ___C_40496_0;// L3:L33
 extern _Bool  ___C_40496_DEFINED_1;// L4:L33
 static int  ___V0NWK0Y_x_2;// L6
 int  (___F1DGKM9_main_4) () {
-
-if (__static_condition_default_5) {
 
 {
 {
@@ -56,6 +60,7 @@ if ( 1 )// L9
 
 char  ___V2fh8Co_x_3;// L11
 
+if (__static_condition_default_5) {
 if (  ___C_40496_DEFINED_1  )// L12
 {
 
@@ -68,6 +73,10 @@ if (  ___C_40496_DEFINED_1  )// L12
 }
 }
 }
+}
+if (__static_condition_default_6) {
+}
+if (__static_condition_default_5) {
 if ( !  ___C_40496_DEFINED_1  )// L15
 {
 
@@ -80,6 +89,10 @@ if ( !  ___C_40496_DEFINED_1  )// L15
 }
 }
 }
+}
+if (__static_condition_default_7) {
+}
+if (__static_condition_default_5) {
 if (  ___C_40496_DEFINED_1  )// L18
 {
 
@@ -92,6 +105,10 @@ return  ___V0NWK0Y_x_2  ;// L19
 }
 }
 }
+}
+if (__static_condition_default_8) {
+}
+if (__static_condition_default_5) {
 if ( !  ___C_40496_DEFINED_1  )// L21
 {
 
@@ -105,19 +122,19 @@ return  ___V2fh8Co_x_3  ;// L22
 }
 }
 }
-}
-}
-}
-}
-}
-}
-
-
-}
-}
-int  (__main_8) (int  __argc_6, char  * (* (__argv_7))) {
-
 if (__static_condition_default_9) {
+}
+}
+}
+}
+}
+}
+}
+}
+
+
+}
+int  (__main_12) (int  __argc_10, char  * (* (__argv_11))) {
 
 {
 {
@@ -140,6 +157,5 @@ __static_type_error("type error : no valid expression"); // L30
 }
 
 
-}
 }
 

@@ -9,10 +9,10 @@ void __static_initializer_default();
 
 extern const bool __static_condition_default_10;
 extern const bool __static_condition_default_20;
-extern const bool __static_condition_default_23;
 extern const bool __static_condition_default_24;
-extern const bool __static_condition_default_25;
 extern const bool __static_condition_default_26;
+extern const bool __static_condition_default_25;
+extern const bool __static_condition_default_23;
 extern const bool __static_condition_default_11;
 void __static_initializer_default() {
 __static_renaming("__a_0", "a");

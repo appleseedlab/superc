@@ -9,12 +9,12 @@ void __static_initializer_default();
 
 extern const bool __static_condition_default_14;
 extern const bool __static_condition_default_15;
-extern const bool __static_condition_default_19;
-extern const bool __static_condition_default_21;
-extern const bool __static_condition_default_18;
-extern const bool __static_condition_default_20;
 extern const bool __static_condition_default_17;
+extern const bool __static_condition_default_18;
+extern const bool __static_condition_default_19;
+extern const bool __static_condition_default_20;
 extern const bool __static_condition_default_16;
+extern const bool __static_condition_default_21;
 void __static_initializer_default() {
 __static_renaming("__z_12", "z");
 __static_renaming("__main_13", "main");

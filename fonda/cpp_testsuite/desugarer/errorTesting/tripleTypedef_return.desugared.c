@@ -8,9 +8,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_8;
-extern const bool __static_condition_default_9;
-extern const bool __static_condition_default_7;
 extern const bool __static_condition_default_6;
+extern const bool __static_condition_default_7;
 extern const bool __static_condition_default_4;
 void __static_initializer_default() {
 __static_renaming("__a_0", "a");
@@ -20,12 +19,11 @@ __static_renaming("__foo_3", "foo");
 __static_renaming("__main_5", "main");
 
 __static_condition_renaming("__static_condition_default_4", "!(defined A) && (defined B) && !(defined C)");
-__static_condition_renaming("__static_condition_default_6", "!(defined A) && (defined B)");
-__static_condition_renaming("__static_condition_default_7", "!(defined A) && (defined B) && (defined C)");
-__static_condition_renaming("__static_condition_default_8", "!(defined A) && (defined B) && !(defined C)");
-__static_condition_renaming("__static_condition_default_9", "!(defined A) && !(defined B) || (defined A)");
+__static_condition_renaming("__static_condition_default_6", "!(defined A) && (defined B) && (defined C)");
+__static_condition_renaming("__static_condition_default_7", "!(defined A) && !(defined B) || !(defined A) && (defined B) && !(defined C) || (defined A)");
+__static_condition_renaming("__static_condition_default_8", "!(defined A) && !(defined B) || (defined A)");
 
-if (__static_condition_default_9)
+if (__static_condition_default_8)
 {
 __static_parse_error("Unable to parse");
 }
@@ -40,17 +38,15 @@ typedef int  __c_2;// L10
 __c_2  (__foo_3) ();// L19
 int  (__main_5) () {
 
+{
+{
+
+
+
 if (__static_condition_default_6) {
-
-{
-{
-
-
-
-if (__static_condition_default_7) {
  __foo_3 ( ) ; // L23
 }
-if (__static_condition_default_8) {
+if (__static_condition_default_7) {
 __static_type_error("type error") ; // L23
 }
 return 0 ;// L24
@@ -58,6 +54,5 @@ return 0 ;// L24
 }
 
 
-}
 }
 
