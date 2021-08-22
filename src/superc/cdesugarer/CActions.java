@@ -4584,6 +4584,7 @@ public class CActions implements SemanticActions {
           /* Multiverse<String> stmt = getCompleteNodeMultiverseValue(subparser, 1, pc); */
           DeclarationOrStatementValue d = new DeclarationOrStatementValue(defaultstr + colonstr);
           d.setChildrenBlock("",(List<Multiverse<DeclarationOrStatementValue>>) getTransformationValue(subparser, 1),"");
+          d.setType(null);
           Multiverse<DeclarationOrStatementValue> dsv = new Multiverse<DeclarationOrStatementValue>();
           dsv.add(d, pc);          
           setTransformationValue(value, dsv);
@@ -10104,10 +10105,16 @@ public static class DeclarationOrStatementValue implements Copyable{
       for (Multiverse<DeclarationOrStatementValue> m : children) {
         for (Element<DeclarationOrStatementValue> e : m) {
           PresenceCondition cc = p.and(e.getCondition());
-          if (cc.isNotFalse()) {
+          if (cc.isNotFalse() && !cc.isSubsetOf(CContext.getParseErrorCond())) {
             e.getData().nameLabels(cc);
           }
           cc.delRef();
+        }
+      }
+    } else if(switchChildren != null) {
+      for (DeclarationOrStatementValue d : switchChildren) {
+        if (!p.isSubsetOf(CContext.getParseErrorCond())) {
+          d.nameLabels(p);
         }
       }
     }
@@ -10239,19 +10246,11 @@ public static class DeclarationOrStatementValue implements Copyable{
   }
 
   public void filterTypes(PresenceCondition p ) {
-    if (!typeVal.isEmpty()) {
+    if (typeVal != null && !typeVal.isEmpty()) {
       typeVal = typeVal.filter(p);
     }
   }
 
-  public boolean goodChildrenSwitchCase(PresenceCondition p) {
-    for (DeclarationOrStatementValue d : switchChildren) {
-      if (!d.goodSwitchCase(p)) {
-        return false;
-      }
-    }
-    return true;
-  }
   public boolean goodSwitchCase(PresenceCondition p) {
     if (typeVal == null || typeVal.isEmpty()) {
       return true;

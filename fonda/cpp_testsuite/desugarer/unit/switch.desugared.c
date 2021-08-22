@@ -28,7 +28,40 @@ static void  (__decode_spi_frequency_7) (unsigned int  __freq_6) {
 
 
 
-__static_type_error("Switch cases are incompatible");
+switch (  __freq_6  )// L10
+{
+case  __SPI_FREQUENCY_20MHZ_1  :
+{
+
+
+
+ __printf_0  ("20MHz") ; // L12
+break ; // L13
+}
+case  __SPI_FREQUENCY_33MHZ_2  :
+{
+
+
+
+ __printf_0  ("33MHz") ; // L15
+break ; // L16
+}
+case  __SPI_FREQUENCY_50MHZ_3  :
+{
+
+
+
+ __printf_0  ("50MHz") ; // L18
+break ; // L19
+}
+default:
+{
+
+
+
+ __printf_0  ("unknown<%x>MHz", __freq_6 ) ; // L21
+}
+}
 }
 }
 

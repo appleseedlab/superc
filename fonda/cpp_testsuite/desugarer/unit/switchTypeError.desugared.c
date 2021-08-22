@@ -32,7 +32,7 @@ if (__static_condition_default_4) {
 
 int  __y_1;// L7
 
-__static_type_error("Switch cases are incompatible");
+__static_type_error("invalid switch expression");
 return  __y_1  ;// L18
 }
 }
@@ -51,7 +51,32 @@ if (__static_condition_default_5) {
 
 int  __y_1;// L7
 
-__static_type_error("Switch cases are incompatible");
+switch (  __x_0  )// L8
+{
+case 1 :
+{
+
+
+
+ __y_1  = 2 ; // L10
+break ; // L11
+}
+case 2 :
+{
+
+
+
+ __y_1  = 3 ; // L13
+break ; // L14
+}
+default:
+{
+
+
+
+ __y_1  = 0 ; // L16
+}
+}
 return  __y_1  ;// L18
 }
 }

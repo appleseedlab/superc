@@ -9,7 +9,6 @@ void __static_initializer_default();
 
 extern const bool __static_condition_default_9;
 extern const bool __static_condition_default_7;
-extern const bool __static_condition_default_10;
 extern const bool __static_condition_default_6;
 void __static_initializer_default() {
 __static_renaming("__foo_4", "foo");
@@ -19,9 +18,8 @@ __static_renaming("__main_8", "main");
 __static_condition_renaming("__static_condition_default_6", "(defined A)");
 __static_condition_renaming("__static_condition_default_7", "!(defined A)");
 __static_condition_renaming("__static_condition_default_9", "(defined A)");
-__static_condition_renaming("__static_condition_default_10", "(defined A)");
 
-if (__static_condition_default_10)
+if (__static_condition_default_9)
 {
 __static_parse_error("Unable to parse");
 }
@@ -59,8 +57,6 @@ int  (__main_8) () {
 
 if (__static_condition_default_7) {
 return  __foo_5  (1,2,3) ;// L14
-}
-if (__static_condition_default_9) {
 }
 }
 }

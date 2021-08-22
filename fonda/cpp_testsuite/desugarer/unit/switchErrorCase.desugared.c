@@ -51,7 +51,24 @@ if (__static_condition_default_5) {
 
 int  __a_1;// L7
 
-__static_type_error("Switch cases are incompatible");
+switch (  __a_1  )// L8
+{
+case  __x_0  :
+{
+
+
+
+ __a_1  = 1 ; // L11
+break ; // L12
+}
+default:
+{
+
+
+
+ __a_1  = 2 ; // L14
+}
+}
 return 0 ;// L16
 }
 }

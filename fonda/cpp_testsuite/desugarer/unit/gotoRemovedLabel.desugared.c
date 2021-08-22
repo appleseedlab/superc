@@ -10,15 +10,17 @@ void __static_initializer_default();
 extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_3;
 void __static_initializer_default() {
-__static_renaming("__x_0", "x");
-__static_renaming("__i_1", "i");
+__static_renaming("__a_0", "a");
+__static_renaming("__b_1", "b");
 __static_renaming("__main_2", "main");
 
-__static_condition_renaming("__static_condition_default_3", "(defined CONFIG_A)");
-__static_condition_renaming("__static_condition_default_4", "!(defined CONFIG_A)");
+__static_condition_renaming("__static_condition_default_3", "!(defined X) && !(defined Y)");
+__static_condition_renaming("__static_condition_default_4", "!(defined X) && (defined Y) || (defined X)");
 
 };
 
+int  __a_0;// L7
+int  __b_1;// L8
 int  (__main_2) () {
 
 {
@@ -26,30 +28,47 @@ int  (__main_2) () {
 
 
 
-int  __x_0= 0;// L2
+if (  __a_0  >  __b_1  )// L11
+{
 
+{
+}
+}
 if (__static_condition_default_3) {
-{ int  __i_1= 0;// L5
- for ( ;  __i_1  < 10 ; ++  __i_1  ) // L5
+switch (  __a_0  )// L14
+{
+case 2 :
 {
 
+
+
+
+null_0:
 {
-{
-
-
-
-++  __x_0  ; // L6
+ __a_0  = 3 ; // L17
 }
+break ; // L18
 }
+case 3 :
+{
+
+
+
+ __a_0  = 4 ; // L20
+}
+default:
+{
+
+
+
+ __b_1  = 1 ; // L22
 }
 }
 }
 if (__static_condition_default_4) {
-return  __x_0  ;// L10
+__static_type_error("Switch cases are incompatible");
 }
-if (__static_condition_default_3) {
-return  __x_0  ;// L10
-}
+return 0 ;// L24
 }
 }
 

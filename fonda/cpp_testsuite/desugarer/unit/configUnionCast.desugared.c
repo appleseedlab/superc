@@ -9,8 +9,8 @@ void __static_initializer_default();
 
 extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_19;
-extern const bool __static_condition_default_18;
 extern const bool __static_condition_default_17;
+extern const bool __static_condition_default_18;
 void __static_initializer_default() {
 __static_renaming("__U_8", "U");
 __static_renaming("__U_9", "U");

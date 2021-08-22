@@ -7,28 +7,20 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_8;
 extern const bool __static_condition_default_9;
-extern const bool __static_condition_default_4;
-extern const bool __static_condition_default_13;
-extern const bool __static_condition_default_6;
 extern const bool __static_condition_default_3;
 void __static_initializer_default() {
 __static_renaming("___C_40496_0", "_C_40496");
 __static_renaming("___C_40496_DEFINED_1", "_C_40496_DEFINED");
 __static_renaming("___F0iceH4_x_2", "_F0iceH4_x");
-__static_renaming("___F1yFZOZ_x_5", "_F1yFZOZ_x");
-__static_renaming("___F2JFFUV_main_7", "_F2JFFUV_main");
-__static_renaming("__main_12", "main");
+__static_renaming("___F1yFZOZ_x_4", "_F1yFZOZ_x");
+__static_renaming("___F2JFFUV_main_5", "_F2JFFUV_main");
+__static_renaming("__main_8", "main");
 
 __static_condition_renaming("__static_condition_default_3", "!(defined __cplusplus)");
-__static_condition_renaming("__static_condition_default_4", "(defined __cplusplus)");
-__static_condition_renaming("__static_condition_default_6", "(defined __cplusplus)");
-__static_condition_renaming("__static_condition_default_8", "(defined __cplusplus)");
 __static_condition_renaming("__static_condition_default_9", "(defined __cplusplus)");
-__static_condition_renaming("__static_condition_default_13", "(defined __cplusplus)");
 
-if (__static_condition_default_13)
+if (__static_condition_default_9)
 {
 __static_parse_error("Unable to parse");
 }
@@ -76,14 +68,12 @@ return 1 ;// L9
 }
 }
 }
-if (__static_condition_default_4) {
-}
 }
 }
 
 
 }
-char  (___F1yFZOZ_x_5) () {
+char  (___F1yFZOZ_x_4) () {
 
 {
 {
@@ -123,14 +113,12 @@ return 2 ;// L19
 }
 }
 }
-if (__static_condition_default_6) {
-}
 }
 }
 
 
 }
-int  (___F2JFFUV_main_7) () {
+int  (___F2JFFUV_main_5) () {
 
 {
 {
@@ -165,8 +153,6 @@ if (  ___C_40496_DEFINED_1  )// L28
 }
 }
 }
-if (__static_condition_default_8) {
-}
 if (__static_condition_default_3) {
 if ( !  ___C_40496_DEFINED_1  )// L31
 {
@@ -176,12 +162,10 @@ if ( !  ___C_40496_DEFINED_1  )// L31
 
 
 
- ___F1yFZOZ_x_5 ( ) ; // L32
+ ___F1yFZOZ_x_4 ( ) ; // L32
 }
 }
 }
-}
-if (__static_condition_default_9) {
 }
 }
 }
@@ -193,7 +177,7 @@ if (__static_condition_default_9) {
 
 
 }
-int  (__main_12) (int  __argc_10, char  * (* (__argv_11))) {
+int  (__main_8) (int  __argc_6, char  * (* (__argv_7))) {
 
 {
 {

@@ -194,6 +194,7 @@ unit/ifChildMultiverse                                                          
 unit/if_statement_configurable1                                                            BC generated
 unit/function_parameters_empty_configurable                                                BC generated
 unit/redeclare_structs                                                                     BC generated
+unit/gotoRemovedLabel                                                                      BC generated
 unit/forloop                                                                               BC generated
 unit/counter_variable                                                                      BC generated
 unit/struct_simple                                                                         BC generated

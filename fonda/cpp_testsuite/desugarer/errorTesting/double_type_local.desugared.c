@@ -8,11 +8,11 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_2;
-extern const bool __static_condition_default_10;
-extern const bool __static_condition_default_5;
 extern const bool __static_condition_default_7;
 extern const bool __static_condition_default_8;
+extern const bool __static_condition_default_5;
 extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_10;
 void __static_initializer_default() {
 __static_renaming("__y_0", "y");
 __static_renaming("__y_1", "y");
@@ -56,7 +56,6 @@ char  __x_4;// L4:L15
 if (__static_condition_default_5) {
 __static_type_error("invalid declaration of x under this presence condition");
 }
-
 
 int  __y_0;// L4:L15
 
