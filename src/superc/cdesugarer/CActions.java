@@ -10147,7 +10147,7 @@ public static class DeclarationOrStatementValue implements Copyable{
         for (Multiverse<DeclarationOrStatementValue> m : children) {
           for (Element<DeclarationOrStatementValue> e : m) {
             PresenceCondition combinedCond = e.getCondition().and(p);
-            if (e.getCondition().and(p).isNotFalse()) {
+            if (combinedCond.isNotFalse() && !combinedCond.isSubsetOf(CContext.getParseErrorCond())) {
               if (combinedCond.is(p) || e.getData().isDecl) {
                 ret += e.getData().getString(p,ca);
               } else {
