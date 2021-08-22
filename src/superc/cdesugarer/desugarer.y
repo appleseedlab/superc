@@ -2410,6 +2410,7 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           // TODO: add attributes to type spec
           String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
           Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator, suTypeCreator);
+	  System.err.println(valuemv);
           setTransformationValue(value, valuemv);
         }
         | STRUCT AttributeSpecifierListOpt TYPEDEFname
@@ -3633,7 +3634,7 @@ TypeName: /** nomerge **/  // Multiverse<Declaration>
           Multiverse<Declarator> declarator
             = (Multiverse<Declarator>) new Multiverse<Declarator>(new EmptyDeclarator(), subparser.getPresenceCondition());
           setTransformationValue(value, type.join(declarator, DesugarOps.joinDeclaration));
-          declarator.destruct();
+         declarator.destruct();
         }
         | TypeQualifierList AbstractDeclarator
         {
@@ -6803,8 +6804,14 @@ CastExpression:  /** passthrough, nomerge **/  // ExpressionValue
           appended.destruct();
 
           Multiverse<Type> typemv = DesugarOps.typenameToType.transform(typename);
-          typemv = typemv.filter(exprval.type.getConditionOf(ErrorT.TYPE).not());
-          typemv.add(ErrorT.TYPE, exprval.type.getConditionOf(ErrorT.TYPE));
+	  PresenceCondition errorCond = exprval.type.getConditionOf(ErrorT.TYPE);
+	  for (Element<Declaration> e : typename) {
+	    if (e.getData().hasTypeError()) {
+	      errorCond = errorCond.or(e.getCondition());
+	    }
+	  }
+          typemv = typemv.filter(errorCond.not());
+          typemv.add(ErrorT.TYPE, errorCond);
           setTransformationValue(value, new ExpressionValue(transformationmv, typemv, exprval.integrateSyntax((Syntax) getNodeAt(subparser, 4))));
         }
         ;

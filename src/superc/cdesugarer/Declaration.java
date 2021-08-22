@@ -43,7 +43,7 @@ class Declaration {
    * Returns true if the type specifier is invalid.
    */
   public boolean hasTypeError() {
-    return typespecifier.getType().isError() || declarator.hasTypeError() || notCompatible();
+      return typespecifier.getType().isError() || declarator.hasTypeError() || notCompatible();
   }
 
   /**

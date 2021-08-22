@@ -592,7 +592,6 @@ class DesugarOps {
     // should not be empty because symtab.get is not supposed
     // to be empty
     assert ! valuemv.isEmpty();
-
     return valuemv;
   }
 
