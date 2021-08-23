@@ -8,25 +8,26 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 void __static_initializer_default() {
-__static_renaming("__a_0", "a");
+__static_renaming("__x_0", "x");
 __static_renaming("__a_1", "a");
 __static_renaming("__main_2", "main");
 
 
 };
-typedef int  __a_0;// L1
+const int  __x_0= 10;// L1
 
-// typedef moved to top of scope
+
 int  (__main_2) () {
 
 {
 {
 
-const __a_0  __a_1;// L3
 
 
+int  __a_1;// L4
 
-
+__static_type_error("Switch cases are incompatible");
+return 0 ;// L13
 }
 }
 

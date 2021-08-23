@@ -13,6 +13,7 @@ __static_renaming("__main_7", "main");
 
 
 };
+extern const struct __forward_tag_reference_0  * (__ptr_to_globals_1);// L2
 enum ____anonymous_tag_3_4 {
 __TEST_BUFFER_BLOCKS_2 = 16,
 };
@@ -26,7 +27,7 @@ struct __globals_5 __globals_5;
 };
 };
 
-extern const struct __forward_tag_reference_0  * (__ptr_to_globals_1);// L2
+
 enum ____anonymous_tag_3_4 ;// L3
 struct __globals_5 ;// L7
 int  (__main_7) () {

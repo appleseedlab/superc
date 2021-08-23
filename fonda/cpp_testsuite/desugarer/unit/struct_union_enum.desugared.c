@@ -42,7 +42,7 @@ int  (__main_16) () {
 
 
 
-__builtin_offsetof (   , u  ) ; // L12
+__builtin_offsetof ( error  , u  ) ; // L12
 __builtin_offsetof ( int   , u  ) ; // L13
 }
 }

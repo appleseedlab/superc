@@ -8350,35 +8350,41 @@ protected List<Multiverse<String>> declarationAction(List<DeclaringListValue> de
 			    compatibleTypes = !initializer.getData().hasNonConst();
 			  }
 			  if (compatibleTypes) {
-			    if (initializer.getData().hasList()) {
+          String toAddStr = "";
+          if (initializer.getData().hasList()) {
 			      Multiverse<String> mvs = initializer.getData().renamedList(new Multiverse<Type>(declarationType.resolve(),combinedCond),combinedCond,scope);
 			      for (Element<String> evs : mvs) {
-				if (evs.getData() != "") {
-				  entrysb.append(desugaredDeclaration);
-				  entrysb.append(evs.getData());
-				  entrysb.append(semi);  // semi-colon
-				  recordRenaming(renaming, originalName);
-				} else {
-				  scope.putError(originalName, entry.getCondition());
-				  recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
-				  if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
-				    externalLinkage.putError(originalName, entry.getCondition());
-				  } else if (!scope.isGlobal()) {
-				    entrysb.append("if (");
-				    entrysb.append(condToCVar(entry.getCondition()));
-				    entrysb.append(") {\n");
-				    entrysb.append(emitError(String.format("improper designator value: %s", originalName)));
-				    entrysb.append(";\n");
-				    entrysb.append("}\n");
-				  }
-				}
+              if (evs.getData() != "") {
+                toAddStr += (desugaredDeclaration);
+                toAddStr += (evs.getData());
+                toAddStr += (semi);  // semi-colon
+                recordRenaming(renaming, originalName);
+              } else {
+                scope.putError(originalName, entry.getCondition());
+                recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+                if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                  externalLinkage.putError(originalName, entry.getCondition());
+                } else if (!scope.isGlobal()) {
+                  toAddStr += ("if (");
+                  toAddStr += (condToCVar(entry.getCondition()));
+                  toAddStr += (") {\n");
+                  toAddStr += (emitError(String.format("improper designator value: %s", originalName)));
+                  toAddStr += (";\n");
+                  toAddStr += ("}\n");
+                }
+              }
 			      }
 			    } else {
-			      entrysb.append(desugaredDeclaration);
-			      entrysb.append(initializer.getData().toString());
-			      entrysb.append(semi);  // semi-colon
+			      toAddStr += (desugaredDeclaration);
+			      toAddStr += (initializer.getData().toString());
+			      toAddStr += (semi);  // semi-colon
 			      recordRenaming(renaming, originalName);
 			    }
+          if (declarationType.hasAttribute(Constants.ATT_CONSTANT) || declarationType.hasConstant()) {
+            scope.addDeclaration(toAddStr+"\n");
+          } else {
+            entrysb.append(toAddStr);
+          }
 			  } else {
 			    scope.putError(originalName, entry.getCondition());
 			    recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
@@ -8389,81 +8395,81 @@ protected List<Multiverse<String>> declarationAction(List<DeclaringListValue> de
 			      entrysb.append(condToCVar(entry.getCondition()));
 			      entrysb.append(") {\n");
 			      entrysb.append(emitError(String.format("non const value in constant list or struct: %s",
-								     originalName)));
+                                                   originalName)));
 			      entrysb.append(";\n");
 			      entrysb.append("}\n");
 			    }
 			  }
 			}
 		      } else {  // already declared entries
-			if (! scope.isGlobal()) {
-			  // not allowed to redeclare local symbols at all
-			  scope.putError(originalName, entry.getCondition());
-			  entrysb.append("if (");
-			  entrysb.append(condToCVar(entry.getCondition()));
-			  entrysb.append(") {\n");
-			  entrysb.append(emitError(String.format("redeclaration of local symbol: %s",
-								 originalName)));
-			  entrysb.append(";\n");
-			  entrysb.append("}\n");
-			} else {  // global scope
+            if (! scope.isGlobal()) {
+              // not allowed to redeclare local symbols at all
+              scope.putError(originalName, entry.getCondition());
+              entrysb.append("if (");
+              entrysb.append(condToCVar(entry.getCondition()));
+              entrysb.append(") {\n");
+              entrysb.append(emitError(String.format("redeclaration of local symbol: %s",
+                                                     originalName)));
+              entrysb.append(";\n");
+              entrysb.append("}\n");
+            } else {  // global scope
                         
-			  // declarations only set VariableT or AliasT
-			  boolean sameTypeKind
-			    = entry.getData().getValue().isVariable() && type.isVariable()
-			    ||  entry.getData().getValue().isAlias() && type.isAlias();
+              // declarations only set VariableT or AliasT
+              boolean sameTypeKind
+                = entry.getData().getValue().isVariable() && type.isVariable()
+                ||  entry.getData().getValue().isAlias() && type.isAlias();
 
-			  // check compatibility of types
-			  if (sameTypeKind) {
-			    boolean compatibleTypes = false;
-			    if (type.isVariable()) {
-			      compatibleTypes = cOps.equal(entry.getData().getValue().toVariable().getType(),
-							   type.toVariable().getType());
-			    } else if (type.isAlias()) {
-			      compatibleTypes = cOps.equal(entry.getData().getValue().toAlias().getType(),
-							   type.toAlias().getType());
-			    } else {
-			      throw new AssertionError("should not be possible given sameTypeKind");
-			    }
+              // check compatibility of types
+              if (sameTypeKind) {
+                boolean compatibleTypes = false;
+                if (type.isVariable()) {
+                  compatibleTypes = cOps.equal(entry.getData().getValue().toVariable().getType(),
+                                               type.toVariable().getType());
+                } else if (type.isAlias()) {
+                  compatibleTypes = cOps.equal(entry.getData().getValue().toAlias().getType(),
+                                               type.toAlias().getType());
+                } else {
+                  throw new AssertionError("should not be possible given sameTypeKind");
+                }
 
-			    if (! compatibleTypes) {
-			      // not allowed to redeclare globals to a different type
-			      scope.putError(originalName, entry.getCondition());
-			      recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
-			      if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
-				externalLinkage.putError(originalName, entry.getCondition());
-			      }
-			    } else {
-			      // emit the same declaration, since it's legal to redeclare globals to a compatible type
-			      /* entrysb.append(renamedDeclaration.toString()); */
-			      entrysb.append(desugaredDeclaration);
-			      entrysb.append(initializer.getData().toString());
-			      entrysb.append(semi);  // semi-colon
-			      System.err.println(String.format("INFO: \"%s\" is being redeclared in global scope to compatible type", originalName));
-			    }
+                if (! compatibleTypes) {
+                  // not allowed to redeclare globals to a different type
+                  scope.putError(originalName, entry.getCondition());
+                  recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+                  if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                    externalLinkage.putError(originalName, entry.getCondition());
+                  }
+                } else {
+                  // emit the same declaration, since it's legal to redeclare globals to a compatible type
+                  /* entrysb.append(renamedDeclaration.toString()); */
+                  entrysb.append(desugaredDeclaration);
+                  entrysb.append(initializer.getData().toString());
+                  entrysb.append(semi);  // semi-colon
+                  System.err.println(String.format("INFO: \"%s\" is being redeclared in global scope to compatible type", originalName));
+                }
 
-			  } else { // not the same kind of type
-			    scope.putError(originalName, entry.getCondition());
-			    System.err.println(String.format("INFO: attempted to redeclare global to a different kind of type: %s", originalName));
-			    recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
-			    if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
-			      externalLinkage.putError(originalName, entry.getCondition());
-			    }
-			  } // end check for variable type
-			} // end check global/local scope
+              } else { // not the same kind of type
+                scope.putError(originalName, entry.getCondition());
+                System.err.println(String.format("INFO: attempted to redeclare global to a different kind of type: %s", originalName));
+                recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+                if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                  externalLinkage.putError(originalName, entry.getCondition());
+                }
+              } // end check for variable type
+            } // end check global/local scope
 		      } // end entry kind
 		      entrysb.append("\n");
 
 		      if (renamedDeclaration.typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF)) {
-			// typedefs are moved to the top of the scope
-			// to support forward references of structs
-			scope.addDeclaration(entrysb.toString());
-			valuesb.append("// typedef moved to top of scope\n");
-			valuemv = appendStringToMV(valuemv,"// typedef moved to top of scope\n",combinedCond);
+            // typedefs are moved to the top of the scope
+            // to support forward references of structs
+            scope.addDeclaration(entrysb.toString());
+            valuesb.append("// typedef moved to top of scope\n");
+            valuemv = appendStringToMV(valuemv,"// typedef moved to top of scope\n",combinedCond);
 		      } else {
-			// not a typedef, so add it to regular output
-			valuesb.append(entrysb.toString());
-			valuemv = appendStringToMV(valuemv,entrysb.toString(),combinedCond);
+            // not a typedef, so add it to regular output
+            valuesb.append(entrysb.toString());
+            valuemv = appendStringToMV(valuemv,entrysb.toString(),combinedCond);
 		      }
 		    } // end loop over symtab entries
 		    entries.destruct();

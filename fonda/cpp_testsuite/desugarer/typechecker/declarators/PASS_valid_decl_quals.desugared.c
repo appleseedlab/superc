@@ -17,9 +17,11 @@ __static_renaming("__main_5", "main");
 
 
 };
-
 int  * const  __a_0;// L1
 float  * const  * (__b_1);// L2
+
+
+
 float  * volatile  __c_2;// L3
 int  * volatile  * (__d_3);// L4
 int  * volatile const  * (* const  * volatile  * (__e_4[2]));// L5

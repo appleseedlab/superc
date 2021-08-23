@@ -19,8 +19,9 @@ __static_condition_renaming("__static_condition_default_4", "!(defined A)");
 __static_condition_renaming("__static_condition_default_5", "(defined A)");
 
 };
-
 const char  __x_0= 'c';// L2
+
+
 void  (__foo_2) (char  __c_1[4]) {
 
 if (__static_condition_default_4) {

@@ -23,7 +23,7 @@ long  __b_6;// L8
 };
 enum __sizes_9 {
 __A_3 = ( sizeof(int  )  +  sizeof(int  ) ),
-__B_7 = sizeof(union __U_4  ),
+__B_7 = ( ( ( sizeof(int)  >=  sizeof(long) ) ) ? sizeof(int) : ( sizeof(long) ) ),
 __C_8,
 };
 

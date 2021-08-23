@@ -223,6 +223,7 @@ unit/struct_global_forward_reference_illegal                                    
 unit/selectAssembly                                                                        BC generated
 unit/struct_multiply_defined_ifdeftoif                                                     BC generated
 unit/struct_selfref_local                                                                  BC generated
+unit/expandedStructInUnionSingles                                                          BC generated
 unit/struct_selfref                                                                        BC generated
 unit/function_pointer                                                                      BC generated
 unit/struct_forward_scope                                                                  BC generated
@@ -233,12 +234,15 @@ unit/enum                                                                       
 unit/initializers                                                                          BC failed
 unit/struct_ref_local_var                                                                  BC generated
 unit/designated_initializer                                                                BC generated
+unit/structPointerCast3                                                                    BC generated
 unit/derefUnionFromStruct                                                                  BC generated
+unit/expandedStructInUnion                                                                 BC generated
 unit/typedef_local_declaration                                                             BC generated
 unit/struct_multiply_defined                                                               BC generated
 unit/local_redeclarations                                                                  BC generated
 unit/declaringlist                                                                         BC generated
 unit/asm                                                                                   BC generated
+unit/repeatCaseError                                                                       BC generated
 unit/struct_configurable_tls1                                                              BC generated
 unit/structSelfUse                                                                         BC generated
 unit/size_t                                                                                SuperC failed

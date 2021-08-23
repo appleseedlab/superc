@@ -1,5 +1,8 @@
+#ifdef A
 int y = 7;
-
+#else
+const int y = 7;
+#endif
 enum bob;
 
 enum bob x;

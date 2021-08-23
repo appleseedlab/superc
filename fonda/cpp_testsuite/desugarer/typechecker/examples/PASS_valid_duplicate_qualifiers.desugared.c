@@ -21,11 +21,13 @@ int  (__main_3) (void  ) {
 {
 {
 
-
-
 const const float  __g_0;// L2
-
 const const const const const float  __i_1;// L3
+
+
+
+
+
 
 volatile volatile volatile volatile int  __h_2;// L4
 

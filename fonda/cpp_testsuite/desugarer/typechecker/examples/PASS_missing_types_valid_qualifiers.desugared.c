@@ -27,23 +27,28 @@ int  (__main_9) (void  ) {
 {
 {
 
-
-
 static const int  __a_0;// L3
-
 extern const int  __b_1;// L4
-
 auto const int  __c_2;// L5
+const volatile int  __e_4;// L7
+register const int  __h_7;// L10
+
+
+
+
+
+
+
 
 auto volatile int  __d_3;// L6
 
-const volatile int  __e_4;// L7
+
 
 static volatile int  __f_5;// L8
 
 extern volatile int  __g_6;// L9
 
-register const int  __h_7;// L10
+
 
 register volatile int  __i_8;// L11
 

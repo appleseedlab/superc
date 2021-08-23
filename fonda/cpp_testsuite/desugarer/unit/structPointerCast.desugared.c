@@ -22,10 +22,11 @@ int  __a_1;// L5
 int  __b_2[255];// L6
 int  __c_4;// L7
 };
+const struct __x_0  * (__var_6);// L10
 
 struct __x_0 ;// L4
 
-const struct __x_0  * (__var_6);// L10
+
 int  (__main_7) () {
 
 {
