@@ -9034,7 +9034,6 @@ static public Multiverse<String> sizeofBody(Type t, CContext scope, PresenceCond
         if (ll.size() == 0) {
           structEq = structEq.appendScalar("0",DesugarOps.concatStrings);
         } else {
-          structEq = structEq.appendScalar("(",DesugarOps.concatStrings);
           if (ll.size() > 1) {
             for (int i = 0; i < ll.size() - 1; ++i) {
               Multiverse<String> fieldAStr;
@@ -9067,6 +9066,8 @@ static public Multiverse<String> sizeofBody(Type t, CContext scope, PresenceCond
               structEq = structEq.appendScalar("?",DesugarOps.concatStrings);
               structEq = structEq.product(fieldAStr,DesugarOps.concatStrings);
               structEq = structEq.appendScalar(":",DesugarOps.concatStrings);
+              structEq = structEq.appendScalar("(",DesugarOps.concatStrings);
+
             }
           }
           Multiverse<String> fieldCStr;
@@ -9077,8 +9078,11 @@ static public Multiverse<String> sizeofBody(Type t, CContext scope, PresenceCond
             fieldCStr = new Multiverse<String>("sizeof(" + fieldC.printType() + ")",el.getCondition());
           }
           structEq = structEq.product(fieldCStr,DesugarOps.concatStrings);
-          for (int i = 2; i < ll.size(); ++i) {
-            structEq = structEq.appendScalar(")",DesugarOps.concatStrings);
+          if (ll.size() > 1) {
+          
+            for (int i = 0; i < ll.size()-1; ++i) {
+              structEq = structEq.appendScalar(")",DesugarOps.concatStrings);
+            }
           }
          
         }

@@ -36,9 +36,9 @@ int  (__main_12) () {
 
 
 
-int  __array_10[9 - ( ( ( ( ( sizeof(int  )  +  sizeof(int  ) )  >=  sizeof(int) )  &&  ( ( sizeof(int  )  +  sizeof(int  ) )  >=  sizeof(long long) ) ) ? ( sizeof(int  )  +  sizeof(int  ) ) : ( ( sizeof(int)  >=  sizeof(long long) ) ) ? sizeof(int) : sizeof(long long) ) )];// L20
+int  __array_10[9 - ( ( ( ( sizeof(int  )  +  sizeof(int  ) )  >=  sizeof(int) )  &&  ( ( sizeof(int  )  +  sizeof(int  ) )  >=  sizeof(long long) ) ) ? ( sizeof(int  )  +  sizeof(int  ) ) : ( ( ( sizeof(int)  >=  sizeof(long long) ) ) ? sizeof(int) : ( sizeof(long long) ) ) )];// L20
 
-int  __array_11[9 - ( ( ( ( ( sizeof(int  )  +  sizeof(int  ) )  >=  sizeof(int) )  &&  ( ( sizeof(int  )  +  sizeof(int  ) )  >=  sizeof(long long) ) ) ? ( sizeof(int  )  +  sizeof(int  ) ) : ( ( sizeof(int)  >=  sizeof(long long) ) ) ? sizeof(int) : sizeof(long long) ) )];// L20
+int  __array_11[9 - ( ( ( ( sizeof(int  )  +  sizeof(int  ) )  >=  sizeof(int) )  &&  ( ( sizeof(int  )  +  sizeof(int  ) )  >=  sizeof(long long) ) ) ? ( sizeof(int  )  +  sizeof(int  ) ) : ( ( ( sizeof(int)  >=  sizeof(long long) ) ) ? sizeof(int) : ( sizeof(long long) ) ) )];// L20
 
 return 0 ;// L21
 }

@@ -34,9 +34,9 @@ int  (__main_10) () {
 
 
 
-int  __array_8[5 - ( ( ( ( ( sizeof(int  ) )  >=  sizeof(int) )  &&  ( ( sizeof(int  ) )  >=  sizeof(int) ) ) ? ( sizeof(int  ) ) : ( ( sizeof(int)  >=  sizeof(int) ) ) ? sizeof(int) : sizeof(int) ) )];// L18
+int  __array_8[5 - ( ( ( ( sizeof(int  ) )  >=  sizeof(int) )  &&  ( ( sizeof(int  ) )  >=  sizeof(int) ) ) ? ( sizeof(int  ) ) : ( ( ( sizeof(int)  >=  sizeof(int) ) ) ? sizeof(int) : ( sizeof(int) ) ) )];// L18
 
-int  __array_9[5 - ( ( ( ( ( sizeof(int  ) )  >=  sizeof(int) )  &&  ( ( sizeof(int  ) )  >=  sizeof(int) ) ) ? ( sizeof(int  ) ) : ( ( sizeof(int)  >=  sizeof(int) ) ) ? sizeof(int) : sizeof(int) ) )];// L18
+int  __array_9[5 - ( ( ( ( sizeof(int  ) )  >=  sizeof(int) )  &&  ( ( sizeof(int  ) )  >=  sizeof(int) ) ) ? ( sizeof(int  ) ) : ( ( ( sizeof(int)  >=  sizeof(int) ) ) ? sizeof(int) : ( sizeof(int) ) ) )];// L18
 
 return 0 ;// L19
 }
