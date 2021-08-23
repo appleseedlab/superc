@@ -2419,6 +2419,7 @@ public class CActions implements SemanticActions {
           // TODO: add attributes to type spec
           String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
           Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator, suTypeCreator);
+	  System.err.println(valuemv);
           setTransformationValue(value, valuemv);
         }
     break;
@@ -3505,7 +3506,7 @@ public class CActions implements SemanticActions {
           Multiverse<Declarator> declarator
             = (Multiverse<Declarator>) new Multiverse<Declarator>(new EmptyDeclarator(), subparser.getPresenceCondition());
           setTransformationValue(value, type.join(declarator, DesugarOps.joinDeclaration));
-          declarator.destruct();
+         declarator.destruct();
         }
     break;
 
@@ -6765,8 +6766,14 @@ public class CActions implements SemanticActions {
           appended.destruct();
 
           Multiverse<Type> typemv = DesugarOps.typenameToType.transform(typename);
-          typemv = typemv.filter(exprval.type.getConditionOf(ErrorT.TYPE).not());
-          typemv.add(ErrorT.TYPE, exprval.type.getConditionOf(ErrorT.TYPE));
+	  PresenceCondition errorCond = exprval.type.getConditionOf(ErrorT.TYPE);
+	  for (Element<Declaration> e : typename) {
+	    if (e.getData().hasTypeError()) {
+	      errorCond = errorCond.or(e.getCondition());
+	    }
+	  }
+          typemv = typemv.filter(errorCond.not());
+          typemv.add(ErrorT.TYPE, errorCond);
           setTransformationValue(value, new ExpressionValue(transformationmv, typemv, exprval.integrateSyntax((Syntax) getNodeAt(subparser, 4))));
         }
     break;
