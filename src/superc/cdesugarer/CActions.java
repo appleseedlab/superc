@@ -4957,6 +4957,11 @@ public class CActions implements SemanticActions {
             }
             cc.delRef();
           }
+          for (Element<DeclarationOrStatementValue> eds : newdsv) {
+            if (eds.getData().hasRepeatChildName()) {
+              badCases = badCases.or(eds.getCondition());
+            }
+          }
           if (badCases.isNotFalse()) {
             newdsv = newdsv.filter(badCases.not());
             newdsv.add(new DeclarationOrStatementValue(emitError("Switch cases are incompatible") + ";"), badCases);
@@ -10340,6 +10345,23 @@ public static class DeclarationOrStatementValue implements Copyable{
     }
     return true;
   }
+
+  public boolean hasRepeatChildName() {
+    if (switchChildren == null)
+      return false;
+    List<String> names = new LinkedList<String>();
+    for (DeclarationOrStatementValue ds : switchChildren) {
+      boolean found = false;
+      for (String s : names) {
+        if (s.equals(ds.mainValue)) {
+          return true;
+        }
+      }
+      names.add(ds.mainValue);
+    }
+    return false;
+  }
+  
   public String toString() {
     return getString((new PresenceConditionManager()).newTrue(),new CActions()) + "Type: " + getType();
   }
