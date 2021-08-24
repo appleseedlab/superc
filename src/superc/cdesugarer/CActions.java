@@ -10039,6 +10039,7 @@ public static class DeclarationOrStatementValue implements Copyable{
     isEmpty = false;
     isGotoLabel = false;
     isLabel = false;
+    Label = "";
     typeVal = null;
   }
   public DeclarationOrStatementValue(String x) {
@@ -10056,6 +10057,7 @@ public static class DeclarationOrStatementValue implements Copyable{
     isDo = false;
     isDecl = false;
     isLabel = false;
+    Label = "";
     isGotoLabel = false;
     isStatementAsExpression = false;
     typeVal = null;
@@ -10072,6 +10074,7 @@ public static class DeclarationOrStatementValue implements Copyable{
     isDo = x.isDo;
     isDecl = x.isDecl;
     isLabel = x.isLabel;
+    Label = x.Label;
     isGotoLabel = x.isGotoLabel;
     isStatementAsExpression = x.isStatementAsExpression;
     typeVal = x.typeVal;
@@ -10111,6 +10114,7 @@ public static class DeclarationOrStatementValue implements Copyable{
     d.isDo = isDo;
     d.isDecl = isDecl;
     d.isLabel = isLabel;
+    d.Label = new String(Label);
     d.isGotoLabel = isGotoLabel;
     d.isStatementAsExpression = isStatementAsExpression;
     if (typeVal != null) {
