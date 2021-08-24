@@ -8380,7 +8380,8 @@ protected List<Multiverse<String>> declarationAction(List<DeclaringListValue> de
 			      toAddStr += (semi);  // semi-colon
 			      recordRenaming(renaming, originalName);
 			    }
-          if (declarationType.hasAttribute(Constants.ATT_CONSTANT) || declarationType.hasConstant()) {
+          if ((declarationType.hasAttribute(Constants.ATT_CONSTANT) || declarationType.hasConstant()) &&
+	      scope.isGlobal()) {
             scope.addDeclaration(toAddStr+"\n");
           } else {
             entrysb.append(toAddStr);
@@ -10061,7 +10062,7 @@ public static class DeclarationOrStatementValue implements Copyable{
       }
     } else if(switchChildren != null) {
       for (DeclarationOrStatementValue d : switchChildren) {
-        if (!p.isSubsetOf(CContext.getParseErrorCond())) {
+        if (p.isNotFalse() && !p.isSubsetOf(CContext.getParseErrorCond())) {
           d.nameLabels(p);
         }
       }
