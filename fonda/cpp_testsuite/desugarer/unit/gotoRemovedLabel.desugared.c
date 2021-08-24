@@ -32,6 +32,7 @@ if (  __a_0  >  __b_1  )// L11
 {
 
 {
+goto L_0;
 }
 }
 if (__static_condition_default_3) {
@@ -43,7 +44,7 @@ case 2 :
 
 
 
-null_0:
+L_0:
 {
  __a_0  = 3 ; // L17
 }

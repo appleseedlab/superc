@@ -6521,7 +6521,7 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
-          Multiverse<String> exprmv = sizeofExpansion(exprval.transformation, exprval.type,(CContext)subparser.scope,pc);
+          Multiverse<String> exprmv = sizeofExpansion(exprval.type,(CContext)subparser.scope,pc);
           
           todoReminder("typecheck unaryexpression (5)");
 
@@ -6548,6 +6548,10 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
                                         ((Syntax) getNodeAt(subparser, 4)).getTokenText(),
                                         ((Syntax) getNodeAt(subparser, 3)).getTokenText());
           Multiverse<Declaration> typename = (Multiverse<Declaration>) getTransformationValue(subparser, 2);
+          Multiverse<Type> directTypes = new Multiverse<Type>();
+          for (Element<Declaration> e : typename) {
+            directTypes.add(e.getData().getType().resolve(),e.getCondition());
+          }
           String suffix = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
           LineNumbers lw = new LineNumbers((Syntax) getNodeAt(subparser, 4),(Syntax) getNodeAt(subparser, 1));
           
@@ -6556,7 +6560,7 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           //Multiverse<String> typenamestr = DesugarOps.typenameToString.transform(typename);
           //To deal with stucts in sizeof, we need to offload this to emulate struct size calculation
           
-          Multiverse<String> typenamestr = sizeofExpansion(typename,(CContext)subparser.scope,pc);
+          Multiverse<String> typenamestr = sizeofExpansion(directTypes,(CContext)subparser.scope,pc);
           todoReminder("typecheck unaryexpression (6)");
           Type constSizeOf = C.SIZEOF.copy();
           constSizeOf.addAttribute(Constants.ATT_CONSTANT);
@@ -9109,22 +9113,7 @@ static public Multiverse<String> sizeofBody(Type t, CContext scope, PresenceCond
   return ret;
 }
 
-static public Multiverse<String> sizeofExpansion(Multiverse<Declaration> t, CContext scope, PresenceCondition p) {
-  Multiverse<String> ret = new Multiverse<String>();
-  for (Element<Declaration> e : t) {
-    Type tempT = e.getData().getType().resolve();
-    if (tempT.isStruct() || tempT.isUnion()) {
-      Multiverse<String> innerStruct = sizeofBody(tempT,scope,e.getCondition().and(p));
-      ret.addAll(innerStruct);
-    } else{
-      ret.add("sizeof(" + e.getData().toString() + ")",e.getCondition());
-    }
-  }
-  return ret;
-  
-}
-
-static public Multiverse<String> sizeofExpansion(Multiverse<String> s, Multiverse<Type> t, CContext scope, PresenceCondition p) {
+static public Multiverse<String> sizeofExpansion(Multiverse<Type> t, CContext scope, PresenceCondition p) {
   Multiverse<String> ret = new Multiverse<String>();
   for (Element<Type> et : t) {
     Type tempT = et.getData().resolve();
@@ -9132,13 +9121,8 @@ static public Multiverse<String> sizeofExpansion(Multiverse<String> s, Multivers
       Multiverse<String> innerStruct = sizeofBody(tempT,scope,et.getCondition());
       ret.addAll(innerStruct);
     } else {
-      for (Element<String> es : s) {
-        if (et.getCondition().and(es.getCondition()).isNotFalse()) {
-          ret.add("sizeof(" + es.getData().toString() + ")",et.getCondition().and(es.getCondition()));
-        }
-      }
+      ret.add("sizeof(" + et.getData().printType() + ")",et.getCondition());
     }
-    
   }
   return ret;
 }

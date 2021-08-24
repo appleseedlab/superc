@@ -16,7 +16,7 @@ __static_renaming("__main_8", "main");
 
 };
 struct ____anonymous_tag_0_1 {
-unsigned long int  __a_2[( 1024 / ( 8 * sizeof(unsigned long int  ) ) )];// L3
+unsigned long int  __a_2[( 1024 / ( 8 * sizeof(unsigned long) ) )];// L3
 };
 typedef struct ____anonymous_tag_0_1  __Y_3;// L2:L4
 struct __X_4 {
