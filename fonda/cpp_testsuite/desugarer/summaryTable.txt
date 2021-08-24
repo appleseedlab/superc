@@ -234,6 +234,7 @@ unit/enum                                                                       
 unit/initializers                                                                          BC failed
 unit/struct_ref_local_var                                                                  BC generated
 unit/designated_initializer                                                                BC generated
+unit/duplicatedSwitchLabel                                                                 BC generated
 unit/structPointerCast3                                                                    BC generated
 unit/derefUnionFromStruct                                                                  BC generated
 unit/expandedStructInUnion                                                                 BC generated
