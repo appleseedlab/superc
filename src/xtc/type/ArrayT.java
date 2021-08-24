@@ -208,7 +208,7 @@ public class ArrayT extends DerivedT {
     if (hasLength()) {
       return type.printType() + "[" + getLength() + "]";
     } else {
-      return type.printType() + "[]";
+      return type.printType() + "*";
     }
     
   }

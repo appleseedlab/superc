@@ -105,4 +105,7 @@ public class InternalT extends Type {
     return name;
   }
 
+  public String printType() {
+    return name;
+  }
 }
