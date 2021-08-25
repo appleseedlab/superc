@@ -95,4 +95,8 @@ public class ClassT extends ClassOrInterfaceT {
     out.append(qname);
   }
 
+  public String printType() {
+    return "class " + qname;
+  }
+
 }
