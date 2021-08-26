@@ -203,14 +203,51 @@ public class ArrayT extends DerivedT {
     }
     out.append(')');
   }
+    
+    public boolean innerMostIsFunction() {
+	if (type.resolve().isPointer()) {
+	    return ((PointerT)type.resolve()).innerMostIsFunction();
+	} else if (type.resolve().isArray()) {
+	    return ((ArrayT)type.resolve()).innerMostIsFunction();
 
-  public String printType() {
-    if (hasLength()) {
-      return type.printType() + "[" + getLength() + "]";
-    } else {
-      return type.printType() + "*";
+	}
+	return type.resolve().isFunction();
+    }
+
+    public String printType(String extra) {
+	String add;
+      if (hasLength()) {
+	  add = "[" + getLength() + "]";
+      } else {
+	  add = "*";
+      }
+      if (!innerMostIsFunction()) {
+	  return type.printType()+add+extra;
+      } else if (type.resolve().isPointer()) {
+	  return ((PointerT)type.resolve()).printType(add+extra); 
+      } else if (type.resolve().isArray()) {
+	  return ((ArrayT)type.resolve()).printType(add+extra); 
+      } else {
+	  return ((FunctionT)type.resolve()).printType(add+extra);
+      }
     }
     
+  public String printType() {
+      String add;
+      if (hasLength()) {
+	  add = "[" + getLength() + "]";
+      } else {
+	  add = "*";
+      }
+      if (!innerMostIsFunction()) {
+	  return type.printType()+add;
+      } else if (type.resolve().isPointer()) {
+	  return ((PointerT)type.resolve()).printType(add); 
+      } else if (type.resolve().isArray()) {
+	  return ((ArrayT)type.resolve()).printType(add); 
+      } else {
+	  return ((FunctionT)type.resolve()).printType(add);
+      }
   }
   
 }

@@ -9033,8 +9033,12 @@ static public Multiverse<String> sizeofBody(Type t, CContext scope, PresenceCond
             //as well.
             structEq = structEq.product(innerStruct,DesugarOps.concatStrings);
           } else {
-            structEq = structEq.appendScalar("sizeof(" + me.getValue().printType() + ")",DesugarOps.concatStrings);
-          }
+	    if (me.getValue().getDeclarator().isBitFieldSizeDeclarator() || me.getValue().getDeclarator().isNamedBitFieldSizeDeclarator()) {
+	      structEq = structEq.appendScalar(me.getValue().getDeclarator().printType(),DesugarOps.concatStrings);
+	    } else {
+	      structEq = structEq.appendScalar("sizeof(" + me.getValue().printType() + ")",DesugarOps.concatStrings);
+	    }
+	  }
           moreThanOne = true;
         }
         structEq = structEq.appendScalar(")",DesugarOps.concatStrings);

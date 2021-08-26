@@ -817,7 +817,7 @@ abstract class Declarator {
     }
 
     public String printType() {
-      return String.format(": %s", expression);
+      return String.format("%s", expression);
     }
   }
 
@@ -869,7 +869,7 @@ abstract class Declarator {
       return String.format("%s : %s", this.declarator.toString(), this.bitfieldsize.expression);
     }
     public String printType() {
-      return String.format("", bitfieldsize.expression);
+      return String.format("%s", bitfieldsize.expression);
     }
   }
 }

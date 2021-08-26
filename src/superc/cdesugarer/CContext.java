@@ -850,7 +850,11 @@ public class CContext implements ParsingContext {
     while (scope.reentrant) {
       scope.symtab.delRef();
       scope.symtab = null;
-      for (SymbolTable<Declaration> elem : taglookasidetable.values()) { elem.delRef(); }
+      if (scope.taglookasidetable != null) {
+	  for (SymbolTable<Declaration> elem : scope.taglookasidetable.values()) {
+	      elem.delRef();
+	  }
+      }
       scope.taglookasidetable = null;
       scope.forwardtagrefs = null;
       scope.forwardEtagrefs = null;
@@ -862,7 +866,11 @@ public class CContext implements ParsingContext {
 
     scope.symtab.delRef();
     scope.symtab = null;
-    for (SymbolTable<Declaration> elem : taglookasidetable.values()) { elem.delRef(); }
+    if (scope.taglookasidetable != null) {
+	for (SymbolTable<Declaration> elem : scope.taglookasidetable.values()) {
+	    elem.delRef();
+	}
+    }
     scope.taglookasidetable = null;
     scope.forwardtagrefs = null;
     scope.forwardEtagrefs = null;
