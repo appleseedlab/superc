@@ -79,4 +79,8 @@ public class InterfaceT extends ClassOrInterfaceT {
     out.append(qname);
   }
 
+  public String printType() {
+    return "interface " + qname;
+  }
+
 }
