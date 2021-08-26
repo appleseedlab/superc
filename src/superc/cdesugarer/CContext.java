@@ -66,6 +66,9 @@ import superc.core.ForkMergeParser.Lookahead;
 
 import superc.cdesugarer.Multiverse.Element;
 
+import xtc.tree.Node;
+
+
 /**
  * This class maintains just enough type context for parsing.
  *
@@ -76,7 +79,15 @@ public class CContext implements ParsingContext {
 
   /** Output bindings and scope changes. */
   protected static boolean DEBUG = false;
-
+    
+    private static String output = "";
+    public static void addOutput(String s) {
+	output = output + s;
+    }
+    public static String getOutput() {
+	return output;
+    }
+    
   /**
    * Use the desugarer's symbol table to make token reclassfication
    * decisions for typedef names.  When false, it using the previous

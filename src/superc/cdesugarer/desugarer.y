@@ -307,18 +307,18 @@ TranslationUnit:  /** complete **/  // String
         {
           PresenceConditionManager p = new PresenceConditionManager();
           PresenceCondition one = p.newTrue();
-          List<Node> extdecls = (List<Node>)getTransformationValue(subparser, 1);
-          String result = "";
-          for (Node n : extdecls) {
-            if (!n.hasBeenPrinted) {
-              n.hasBeenPrinted = true;
-              Multiverse<String> m = getCompleteNodeSingleValue(n,one);
-              result += concatMultiverseStrings(m);
-            }
-          }
-          setTransformationValue(value, result); 
-        }
-        ;
+          List<Node> extdecls = (List<Node>) getTransformationValue(subparser,1);
+	  String result = "";
+	  for (Node n : extdecls) {
+	    if (!n.hasBeenPrinted) {
+	      n.hasBeenPrinted = true;
+	      result += concatMultiverseStrings(getCompleteNodeSingleValue(n,one));
+	    }
+	    
+	  }
+	  CContext.addOutput(result);
+	}
+;
 
 // ------------------------------------------------------ External definitions
 
@@ -1119,7 +1119,8 @@ Declaration:  /** complete **/  // List<Multiverse<String>>
           semi += declaringListRange(declaringlistvalues,(Syntax)getNodeAt(subparser,1));
           
           List<Multiverse<String>> valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
-          setTransformationValue(value, valuestring);
+	  System.err.println(valuestring);
+	  setTransformationValue(value, valuestring);
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
@@ -2981,7 +2982,6 @@ EnumeratorList:  /** list, complete **/  // easier to bind  // List<Multiverse<E
                                                                                                  1,
                                                                                                  subparser.getPresenceCondition());
           list.add(enumerator);
-          System.err.println(list);
           setTransformationValue(value, list);
         }
         ;

@@ -114,7 +114,11 @@ public class PointerT extends DerivedT {
   }
 
   public String printType() {
-    return type.printType()+"*";
+      if (!type.resolve().isFunction()) {
+	  return type.printType()+"*";
+      } else {
+	  return ((FunctionT)type.resolve()).printType("*");
+      }
   }
 
 }

@@ -181,17 +181,17 @@ public class CActions implements SemanticActions {
     {
           PresenceConditionManager p = new PresenceConditionManager();
           PresenceCondition one = p.newTrue();
-          List<Node> extdecls = (List<Node>)getTransformationValue(subparser, 1);
-          String result = "";
-          for (Node n : extdecls) {
-            if (!n.hasBeenPrinted) {
-              n.hasBeenPrinted = true;
-              Multiverse<String> m = getCompleteNodeSingleValue(n,one);
-              result += concatMultiverseStrings(m);
-            }
-          }
-          setTransformationValue(value, result); 
-        }
+          List<Node> extdecls = (List<Node>) getTransformationValue(subparser,1);
+	  String result = "";
+	  for (Node n : extdecls) {
+	    if (!n.hasBeenPrinted) {
+	      n.hasBeenPrinted = true;
+	      result += concatMultiverseStrings(getCompleteNodeSingleValue(n,one));
+	    }
+	    
+	  }
+	  CContext.addOutput(result);
+	}
     break;
 
   case 3:
@@ -1043,7 +1043,8 @@ public class CActions implements SemanticActions {
           semi += declaringListRange(declaringlistvalues,(Syntax)getNodeAt(subparser,1));
           
           List<Multiverse<String>> valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
-          setTransformationValue(value, valuestring);
+	  System.err.println(valuestring);
+	  setTransformationValue(value, valuestring);
         }
     break;
 
@@ -2880,7 +2881,6 @@ public class CActions implements SemanticActions {
                                                                                                  1,
                                                                                                  subparser.getPresenceCondition());
           list.add(enumerator);
-          System.err.println(list);
           setTransformationValue(value, list);
         }
     break;

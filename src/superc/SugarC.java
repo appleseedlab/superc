@@ -565,8 +565,7 @@ public class SugarC extends Tool {
       System.out.print(scope.getDeclarations(pcTrue));
       
       // write the transformed C
-      Multiverse<String> extdeclmv = actions.getCompleteNodeSingleValue(root, pcTrue);
-      System.out.print(actions.concatMultiverseStrings(extdeclmv)); extdeclmv.destruct();
+      System.out.print(CContext.getOutput());
       System.out.print("\n");
 
       if (runtime.test("linkerThunks")) {
