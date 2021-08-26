@@ -36,6 +36,10 @@ From the root of the xtc source tree, run the following:
 
     java superc.SugarC file_to_desugarer.c > desugared_file.c
 
+## Running the SuperP4 parser
+
+    java superc.SuperP4 -silent -printAST file_to_transform.p4
+
 ## Using preprocessed headers
 
 Preprocessing the headers only needs to be done once:
@@ -73,7 +77,9 @@ SuperC comes shippped with prebuilt parsers.  To modify then generate
 ## SuperC Manual
 
 Run `make manual` in src/superc/manual.  Requires `pdflatex`.
+SuperP4 is similar to SuperC, so the manual applies to SuperP4 as well.
 
 ## Kmax
 
 Kmax is now in its own repository: <https://github.com/paulgazz/kmax>
+

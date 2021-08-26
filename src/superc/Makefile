@@ -50,7 +50,8 @@ PACKAGE_LOC = superc
 SOURCE = \
 	BuiltinsGenerator.java \
 	SugarC.java \
-	SuperC.java
+	SuperC.java \
+	SuperP4.java
 
 
 JNI_SOURCE =
@@ -87,11 +88,13 @@ Builtins.java:
 parsers:
 	$(MAKE) -C expression generate all
 	$(MAKE) -C cparser generate all
+	$(MAKE) -C p4parser generate all
 	$(MAKE) -C cdesugarer generate all
 
 clobber-parsers:
 	$(MAKE) -C expression clobber
 	$(MAKE) -C cparser clobber
+	$(MAKE) -C p4parser clobber
 	$(MAKE) -C cdesugarer clobber
 
 endif
