@@ -33,7 +33,7 @@ fi
 
 allArgs=
 timeout=
-while getopts :l:h:p:S:J:G:cPgDekL:wm:h:irvts:bTK:o:d:CAE opt; do
+while getopts :l:h:p:S:J:G:cPgDekL:wx:a:m:h:irvts:bTK:o:d:CAE opt; do
     case $opt in
         l)
             fileList=$OPTARG
@@ -90,6 +90,14 @@ while getopts :l:h:p:S:J:G:cPgDekL:wm:h:irvts:bTK:o:d:CAE opt; do
         w)
             writeConfigDir=true
             allArgs="$allArgs -w"
+            ;;
+        x)
+            makecrossScript="$OPTARG"
+            allArgs="$allArgs -x \"$OPTARG\""
+            ;;
+        a)
+            arch="$OPTARG"
+            allArgs="$allArgs -a \"$OPTARG\""
             ;;
         m)
             masquerade="$OPTARG"
@@ -203,6 +211,8 @@ if [[ ! -z $help || (-z $file && -z $fileList && -z $host && -z $port && -z $ser
     echo "    -k               Extract all (k)build configuration information."
     echo "    -L dir           Get (L)inux configuration from dir."
     echo "    -w               (w)rite configuration to -L dir."
+    echo "    -x               make.cross script for the config. Defaults to \"make\"."
+    echo "    -a               (a)rchitecture to get the config for."
     echo "    -m file          (m)asquerade as file to use its configuration."
     echo "    -K seconds       (K)ill after a timeout.  Depends on \"timeout\"."
     echo "    -t               (t)est command-line args, but don't run SuperC."
@@ -344,6 +354,16 @@ fi
 
 if [[ ! -z "$writeConfigDir" && -z "$configDir" ]]; then
     echo "-w only applies when using -L"
+    exit
+fi
+
+if [[ ! -z "$makecrossScript" && -z "$writeConfigDir" ]]; then
+    echo "-x only applies when using -w"
+    exit
+fi
+
+if [[ ! -z "$arch" && -z "$writeConfigDir" ]]; then
+    echo "-a only applies when using -w"
     exit
 fi
 
@@ -501,7 +521,18 @@ if [ -z "$servers" ]; then
             elif [[ -z "$configDir" || ! -z "$writeConfigDir" ]]; then
                 # Can't override CC since it is used to emit compiler
                 # information
-                make CHECK="java superc.util.GCCShunt --shunt-filename $config_file --shunt-superc $header_args --shunt-kbuild --shunt-config $config_args" C=2 $obj_file
+                if [[ -z "$makecrossScript" ]]; then
+                    makeScript="make"
+                else
+                    makeScript="$makecrossScript"
+                fi
+                which $makeScript
+                if [[ -z "$arch" ]]; then
+                    archParam=""
+                else
+                    archParam="ARCH=$arch"
+                fi
+                $makeScript $archParam CHECK="java superc.util.GCCShunt --shunt-filename $config_file --shunt-superc $header_args --shunt-kbuild --shunt-config $config_args" C=2 $obj_file
                 getConfigResult=$?
                 # if [ $getConfigResult -ne 0 ]; then
                 # # Try overriding CC instead of CHECK, since the file
