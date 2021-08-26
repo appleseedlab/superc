@@ -382,7 +382,7 @@ public class CActions implements SemanticActions {
                       // UNDECLARED entry
 
                       todoReminder("multiplex functions to so that each can have its own function name.  try using function pointers as a kind of vtable.");
-
+		      ((NamedFunctionT)type).setDefined();
                       // update the symbol table for this presence condition
                       scope.put(originalName, type, entry.getCondition());
 
@@ -415,10 +415,11 @@ public class CActions implements SemanticActions {
                       recordRenaming(renaming, originalName);
 
                     } else {
-                      if (entry.getData().getValue() instanceof NamedFunctionT && !((FunctionT)entry.getData().getValue()).getDefined()) {  // there is no Type.isFunctionOrMethod()
+                      if (entry.getData().getValue() instanceof NamedFunctionT && !((NamedFunctionT)entry.getData().getValue()).getDefined()) {  // there is no Type.isFunctionOrMethod()
                         FunctionT newtype = ((NamedFunctionT) type).toFunctionT();
                         FunctionT previoustype = ((NamedFunctionT) entry.getData().getValue()).toFunctionT();
                         newtype.setDefined();
+			((NamedFunctionT) entry.getData().getValue()).setDefined();
                         // TODO: make sure a function is only defined
                         // once, although it can be declared multiple
                         // times.

@@ -31,6 +31,10 @@ import java.util.List;
  */
 public abstract class FunctionOrMethodT extends DerivedT {
 
+    
+  private boolean isDefined;
+  
+    
   /** The result type. */
   protected Type result;
 
@@ -68,6 +72,7 @@ public abstract class FunctionOrMethodT extends DerivedT {
     this.parameters = parameters;
     this.varargs    = varargs;
     this.exceptions = exceptions;
+    isDefined = false;
   }
 
   public Type seal() {
@@ -224,4 +229,14 @@ public abstract class FunctionOrMethodT extends DerivedT {
 	return r;
     }
 
+    
+  public void setDefined() {
+    isDefined = true;
+  }
+
+  public boolean getDefined() {
+    return isDefined;
+  }
+
+    
 }
