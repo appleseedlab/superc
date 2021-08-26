@@ -48,27 +48,11 @@ class Tool:
 
   def run_creconfig(self):
     shutil.copytree(utils.TEST_CASE_DIR, self.source_dir)
-    image_name = 'creconfig'
-    '''--user option will allow us to modify/remove files
-    created by docker'''
-    args = ['docker', 
-                'run', 
-                '--rm', 
-                '-v',
-                f'{self.test_dir}:/src/test',
-                '--user',
-                f'{os.getuid()}',
-                image_name,
-                'java', 
+    os.chdir(self.test_dir)
+    args = ['java',
                 f'-Xms{self.xms}',
                 f'-Xmx{self.xmx}',
                 '-jar',
-                'creconfig.jar'
-                ]
-    _, _, err = run_command(args)
-    if b'Unable to find image' in err:
-      tool_name = os.path.basename(os.path.dirname(__file__))
-      logs.log_docker_not_found(image_name, tool_name)
-      self.clean()
-      sys.exit(1)
+                self.jar]
+    run_command(args)
 
