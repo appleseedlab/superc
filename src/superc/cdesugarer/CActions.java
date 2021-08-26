@@ -329,7 +329,12 @@ public class CActions implements SemanticActions {
                   for (Element<SymbolTable.Entry<Type>> entry : entries) {
 
                     // the renamed declaration is used to get the type entry in the symtab
-                    String renaming = freshCId(originalName);
+                    String renaming;
+                      if (!entry.getData().isDeclared()) {
+                        renaming = freshCId(originalName);
+                      } else { //is declared
+                        renaming = entry.getData().getValue().getName();
+                      }
                     Declarator renamedDeclarator = declarator.getData().rename(renaming);
                     Declaration renamedDeclaration = new Declaration(typespecifier.getData(), renamedDeclarator);
                     boolean invalidTypeSpec = false;
@@ -410,10 +415,10 @@ public class CActions implements SemanticActions {
                       recordRenaming(renaming, originalName);
 
                     } else {
-                      if (entry.getData().getValue() instanceof NamedFunctionT) {  // there is no Type.isFunctionOrMethod()
+                      if (entry.getData().getValue() instanceof NamedFunctionT && !((FunctionT)entry.getData().getValue()).getDefined()) {  // there is no Type.isFunctionOrMethod()
                         FunctionT newtype = ((NamedFunctionT) type).toFunctionT();
                         FunctionT previoustype = ((NamedFunctionT) entry.getData().getValue()).toFunctionT();
-
+                        newtype.setDefined();
                         // TODO: make sure a function is only defined
                         // once, although it can be declared multiple
                         // times.

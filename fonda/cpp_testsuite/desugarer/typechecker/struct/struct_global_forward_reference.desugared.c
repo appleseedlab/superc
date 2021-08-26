@@ -11,22 +11,17 @@ void __static_initializer_default() {
 
 
 };
-struct __s_3 {
-int  __x_4;// L6
-struct __forward_tag_reference_2  * (__z_6);// L0
+struct __s_2 {
+int  __x_3;// L6
+struct __forward_tag_reference_1  * (__z_5);// L0
 };
-struct __t_7 {
-int  __p_8;// L12
-};
-
-struct __forward_tag_reference_2 { // generated union of struct variations
-union {
-struct __t_7 __t_7;
-};
+struct __t_6 {
+int  __p_7;// L12
 };
 
 struct __forward_tag_reference_1 { // generated union of struct variations
 union {
+struct __t_6 __t_6;
 };
 };
 
@@ -38,5 +33,5 @@ union {
 struct __forward_tag_reference_0 ;// L0
 struct __forward_tag_reference_1 ;// L0
 
-struct __t_7 ;// L11
+struct __t_6 ;// L11
 

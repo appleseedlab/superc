@@ -32,6 +32,8 @@ import java.util.LinkedList;
  */
 public class FunctionT extends FunctionOrMethodT {
 
+  private boolean isDefined;
+  
   /**
    * Create a new function type.
    *
@@ -39,6 +41,7 @@ public class FunctionT extends FunctionOrMethodT {
    */
   public FunctionT(Type result) {
     super(null, result, null, new LinkedList<Type>(), false, null);
+    isDefined = false;
   }
 
   /**
@@ -50,6 +53,7 @@ public class FunctionT extends FunctionOrMethodT {
    */
   public FunctionT(Type result, List<Type> parameters, boolean varargs) {
     super(null, result, null, parameters, varargs, null);
+    isDefined = false;
   }
 
   /**
@@ -63,6 +67,7 @@ public class FunctionT extends FunctionOrMethodT {
   public FunctionT(Type template, Type result, List<Type> parameters,
                    boolean varargs) {
     super(template, result, null, parameters, varargs, null);
+    isDefined = false;
   }
 
   public FunctionT copy() {
@@ -84,6 +89,14 @@ public class FunctionT extends FunctionOrMethodT {
 
   public FunctionT toFunction() {
     return this;
+  }
+
+  public void setDefined() {
+    isDefined = true;
+  }
+
+  public boolean getDefined() {
+    return isDefined;
   }
 
 }
