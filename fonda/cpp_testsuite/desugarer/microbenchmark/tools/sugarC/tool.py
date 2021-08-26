@@ -22,7 +22,9 @@ class Tool:
     sugarC_code, sugarC_out, _ = run_command(args)
 
     # sugarC fails itself
-    if sugarC_code:
+    if sugarC_code == 124:
+      return TestReturn(code=sugarC_code, msg='sugarC reaches running timeout')
+    elif sugarC_code:
       return TestReturn(code=sugarC_code, msg='sugarC returns non-zero code')
 
     fd, path = tempfile.mkstemp()
