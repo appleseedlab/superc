@@ -241,6 +241,7 @@ unit/expandedStructInUnion                                                      
 unit/typedef_local_declaration                                                             BC generated
 unit/struct_multiply_defined                                                               BC generated
 unit/local_redeclarations                                                                  BC generated
+unit/sizeofImplicitLength                                                                  BC generated
 unit/declaringlist                                                                         BC generated
 unit/asm                                                                                   BC generated
 unit/repeatCaseError                                                                       BC generated

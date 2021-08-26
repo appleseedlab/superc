@@ -30,7 +30,6 @@ int  (__main_9) () {
 {
 {
 
-const struct __forward_tag_reference_3  * (__ptr_to_globals_4);// L9
 struct __globals_5 {
 char  __check_blocks_buffer_6[ __TEST_BUFFER_BLOCKS_0 ];// L11
 };
@@ -42,7 +41,7 @@ struct __globals_5 __globals_5;
 };
 
 
-
+const struct __forward_tag_reference_3  * (__ptr_to_globals_4);// L9
 
 if (__static_condition_default_8) {
 __static_type_error("invalid declaration of struct: TODO_struct_tag4");
