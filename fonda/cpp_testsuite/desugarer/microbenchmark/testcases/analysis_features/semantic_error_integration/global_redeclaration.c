@@ -6,5 +6,5 @@ char x;
 #endif
 int main()
 {
-  return -1;
+  return x;
 }

@@ -4,7 +4,7 @@ const char x = 'c';
 char x = 'c';
 #endif
 
-void foo(char c[4])
+void foo(const char c[4])
 {
   return;
 }
