@@ -7,10 +7,7 @@ struct X {
   Y b;
 };
 
+#ifdef A
 typedef struct X testStruct[1];
-
 testStruct x;
-
-void main()
-{
-}
+#endif

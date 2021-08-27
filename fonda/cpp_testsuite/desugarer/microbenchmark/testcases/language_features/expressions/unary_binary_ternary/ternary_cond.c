@@ -1,10 +1,10 @@
-#ifdef A
 int x = 2;
-#endif
 
 int main ()
 {
   int a;
+#ifdef A
   a = x ? 0:2;
+#endif
   return 0;
 }

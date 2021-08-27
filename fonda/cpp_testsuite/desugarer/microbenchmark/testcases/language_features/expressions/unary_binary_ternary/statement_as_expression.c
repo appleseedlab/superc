@@ -1,10 +1,10 @@
-#ifdef A
 int x;
-#endif
 
 int main()
 {
   int y;
+#ifdef A
   y = ({x;});
+#endif
   return 0;
 }
