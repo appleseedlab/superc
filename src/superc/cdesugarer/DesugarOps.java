@@ -485,13 +485,14 @@ class DesugarOps {
 
         } else {  // is a declared entry
           assert entry.getData().isDeclared();
-          System.err.println(String.format("INFO: trying redefine a struct: %s", structTag));
+          System.err.println(String.format("INFO: trying to redefine a struct: %s", structTag));
           TypeSpecifier typespecifier = new TypeSpecifier();
           typespecifier.setType(ErrorT.TYPE);
           valuemv.add(typespecifier, entry.getCondition());
 
           // this configuration has a type error entry
           scope.putError(CContext.toTagName(structTag), entry.getCondition());
+          System.err.println(scope.getSymbolTable());
         }
       }
     }
@@ -1252,11 +1253,12 @@ class DesugarOps {
   public final static Multiverse.Transformer<Type, Type> getReturnType
     = new Multiverse.Transformer<Type, Type>() {
         Type transform(Type ftype) {
-          System.err.println("FTYPE: " + ftype);
-          System.err.println("FTYPE: " + ftype.isFunction());
-          System.err.println("FTYPE: " + ftype.getClass());
-          if (ftype.isFunction()) {
-            return ftype.toFunction().getResult();
+          Type x = ftype;
+          if (x.isPointer()) {
+            x = ((PointerT)x).getType().resolve();
+          }
+          if (x.isFunction() || x instanceof NamedFunctionT) {
+            return x.toFunction().getResult();
           // } else if () {
           } else {
             return ErrorT.TYPE;
