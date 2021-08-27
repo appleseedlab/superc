@@ -1,6 +1,6 @@
 struct x {
   int a;
-  #if A
+  #ifdef A
   int b;
   #endif
   int c;

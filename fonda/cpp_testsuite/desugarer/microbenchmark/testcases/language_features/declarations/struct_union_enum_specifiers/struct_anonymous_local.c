@@ -5,7 +5,7 @@ struct {
 #endif
 
 int main() {
-#ifdef LOCAL
+#ifdef LOCAL_STRUCT
   struct s;
   
   struct s {

@@ -1,4 +1,3 @@
-#ifdef CAST
 struct s1 x;
 
 struct s2 {
@@ -12,6 +11,8 @@ struct s1 {
 };
 
 int main() {
+#ifdef CAST
   return ((struct s2) x).data;
-}
 #endif
+}
+
