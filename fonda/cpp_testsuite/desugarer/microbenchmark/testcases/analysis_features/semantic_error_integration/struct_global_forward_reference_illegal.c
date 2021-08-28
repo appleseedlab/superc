@@ -1,7 +1,6 @@
 #ifdef FORWARD
 struct s {
   int x;
-  struct t y;
   struct t* z;
 };
 #endif
@@ -9,3 +8,8 @@ struct s {
 struct t {
   int p;
 };
+
+int main() {
+  struct s s;
+  return s.z->p;
+}

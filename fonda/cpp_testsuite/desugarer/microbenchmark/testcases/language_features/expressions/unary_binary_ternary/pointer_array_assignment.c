@@ -1,9 +1,9 @@
 int main()
 {
 #ifdef ASSIGN
-  char *x[] = {"first", "second", "third"};
+  char x[] = {"first", "second", "third"};
 #else
-  char *x[10];
+  char x[10];
+#endif
   return 0;
 }
-#endif

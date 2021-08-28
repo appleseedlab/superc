@@ -1,24 +1,23 @@
-#ifdef A
 typedef int a;
-#endif
 int x;
+
 struct one
 {
   a a;
-  #ifdef B
+#ifdef A
   int b;
-  #endif
+#endif
 };
 
 struct two
 {
-  #ifdef C
+#ifdef B
   int a;
   int b;
-  #else
+#else
   long long c;
   unsigned long long d;
-  #endif
+#endif
   struct one x;
 };
 
