@@ -126,12 +126,7 @@ class Declaration {
          !declarator.isPointerAbstractDeclarator() &&
          !declarator.isEmptyDeclarator()) ||
         //if the left is inline, right must be a function
-        (typespecifier.hasInline() && !declarator.isFunctionDeclarator()) ||
-        //if the left is a forward reference struct, and it's not a pointer
-        ((t.isStruct() || t.isUnion()) &&
-         ((StructOrUnionT)t).getName().startsWith("__forward_tag_reference_") &&
-         !declarator.isPointerDeclarator())
-        )
+        (typespecifier.hasInline() && !declarator.isFunctionDeclarator()))
       return true;
     return false;
   }
