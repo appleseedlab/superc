@@ -4985,11 +4985,11 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 3, pc);
 
-          Syntax whilesyn = (Syntax) getNodeAt(subparser, 5);
+          Syntax whilesyn = (getSyntaxMV(subparser, 5,pc)).get(0).getData();
           String whilestr = whilesyn.getTokenText();
-          String lparenstr = ((Syntax) getNodeAt(subparser, 4)).getTokenText();
+          String lparenstr = (getSyntaxMV(subparser, 4,pc)).get(0).getData().getTokenText();
           Multiverse<String> exprmv = exprval.transformation;
-          Syntax rparensyn = (Syntax) getNodeAt(subparser, 2);
+          Syntax rparensyn = (getSyntaxMV(subparser, 2,pc)).get(0).getData();
           String rparenstr = (rparensyn).getTokenText();
           Multiverse<DeclarationOrStatementValue> stmtmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
           LineNumbers lw = new LineNumbers(whilesyn, rparensyn);
