@@ -1566,10 +1566,15 @@ public class CActions implements SemanticActions {
           Multiverse<TypeSpecifier> basicTypeName = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           // combine the partial type specs
-          Multiverse<TypeSpecifier> tb = qualList.product(basicTypeName, DesugarOps.specifierProduct);
-
-	        setTransformationValue(value, tb);
-	        updateSpecs(subparser,
+          if (!qualList.isEmpty() && !basicTypeName.isEmpty()) {
+            Multiverse<TypeSpecifier> tb = qualList.product(basicTypeName, DesugarOps.specifierProduct);
+            setTransformationValue(value, tb);
+          } else {
+            TypeSpecifier E = new TypeSpecifier();
+            E.setError();
+            setTransformationValue(value,new Multiverse<TypeSpecifier>(E,pc));
+          }
+          updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
                       value);
