@@ -617,16 +617,26 @@ class DesugarOps {
         } else {
           PresenceCondition newvalidCond = validCond.or(rator.getCondition());
           validCond.delRef(); validCond = newvalidCond;
-          enums.add(rator.getData().getTransformation());
+          String eToAdd = rator.getData().getTransformation();
+          boolean found = false;
+          for (String es : enums) {
+            if (eToAdd.equals(es)) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            enums.add(eToAdd);
+          }
         }
       }  // end ratormv
     } // end list
     if (enums.size() == 0) {
-	Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
-	TypeSpecifier typespecifier = new TypeSpecifier();
-	typespecifier.setType(ErrorT.TYPE);
-	typespecmv.add(typespecifier, pc);
-	return typespecmv;
+      Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
+      TypeSpecifier typespecifier = new TypeSpecifier();
+      typespecifier.setType(ErrorT.TYPE);
+      typespecmv.add(typespecifier, pc);
+      return typespecmv;
     }
     scope.putEnumerator(enumTag,renamedTag,enums,pc);
 
@@ -634,8 +644,8 @@ class DesugarOps {
     PresenceCondition trueValid = validCond.and(errorCond.not());
     validCond.delRef();
     if (trueValid.isNotFalse()) {
-	TypeSpecifier typespec = new TypeSpecifier();
-	// TODO: get largest type for enum (gcc), instead of ISO standard of int
+      TypeSpecifier typespec = new TypeSpecifier();
+      // TODO: get largest type for enum (gcc), instead of ISO standard of int
       Type enumreftype = new EnumT(renamedTag);
       typespec.setType(enumreftype);
 
