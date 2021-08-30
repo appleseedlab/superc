@@ -4106,8 +4106,7 @@ public class Preprocessor implements Iterator<Syntax> {
                 // feature.  When an empty variaidic argument is
                 // pasted with a comma, the comma is removed.  If the
                 // variadic is not empty, no pasting occurs.
-
-                if (args.size() == f.formals.size()) {
+                if (null != f.formals && args.size() == f.formals.size()) {
                   // Swallow the comma (don't add it to the expanded
                   // definition.)  Then skip the variadic argument
                   // since we know it's empty.
