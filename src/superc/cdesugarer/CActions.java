@@ -9314,7 +9314,7 @@ static public Multiverse<Boolean> hasField(UnionT u, Type t, CContext scope, Pre
 static public boolean compatTypes(Type t1u, Type t2u) {
   Type t1 = t1u.resolve(), t2 = t2u.resolve();
   //we'll say that numbers are compatible
-  if (t1.isNumber() && t2.isNumber()) {
+  if ((t1.isNumber()) && (t2.isNumber())) {
     return true;
   }
   //if both variables are pointers/arrays direct compare inner types
