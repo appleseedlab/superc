@@ -235,7 +235,7 @@ a syntax error causing a spurious error cascade, which isn't too bad.
    track of which identifiers represent types, and which represent namespaces.
 */
 
-start:
+start: /** complete **/
        program;
 
 

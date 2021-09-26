@@ -174,6 +174,8 @@ public class P4Values implements SemanticValues {
       // Fall through
     case 262: // nonBraceExpression
       // Fall through
+    case 119: // start
+      // Fall through
     case 120: // program
       // Fall through
     case 121: // input
