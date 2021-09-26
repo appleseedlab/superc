@@ -1,5 +1,5 @@
-/*
- * xtc - The eXTensible Compiler
+/* 
+* xtc - The eXTensible Compiler
  * Copyright (C) 2009-2012 New York University
  *
  * This program is free software; you can redistribute it and/or
@@ -241,11 +241,25 @@ public class ForkMergeParser {
   /** Count the number of times FOLLOW is called. */
   private int nfollow;
 
+  /** Store what current language is */
+  private String language;
+
+  /** A language specific semanticValues plugin */
+  private static SemanticValues localSemanticValues;
+
   /** Create a new parser. */
   public ForkMergeParser(ParseTables tables, SemanticValues semanticValues,
                          Iterator<Syntax> stream,
                          PresenceConditionManager presenceConditionManager) {
-    this(tables, semanticValues, null, null, stream, presenceConditionManager);
+    this(tables, semanticValues, null, null, stream, presenceConditionManager, "C");
+  }
+
+  /** Create a new parser. */
+  public ForkMergeParser(ParseTables tables, SemanticValues semanticValues,
+                         Iterator<Syntax> stream,
+                         PresenceConditionManager presenceConditionManager,
+                         String language) {
+    this(tables, semanticValues, null, null, stream, presenceConditionManager, language);
   }
 
   /** Create a new parser. */
@@ -254,6 +268,16 @@ public class ForkMergeParser {
                          ParsingContext parsingContext,
                          Iterator<Syntax> stream,
                          PresenceConditionManager presenceConditionManager) {
+    this(tables, semanticValues, semanticActions, parsingContext, stream, presenceConditionManager, "C");
+  }
+
+  /** Create a new parser. */
+  public ForkMergeParser(ParseTables tables, SemanticValues semanticValues,
+                         SemanticActions semanticActions,
+                         ParsingContext parsingContext,
+                         Iterator<Syntax> stream,
+                         PresenceConditionManager presenceConditionManager,
+                         String language) {
     this.tables = tables;
     this.semanticValues = semanticValues;
     this.setSemanticActions(semanticActions);
@@ -268,6 +292,15 @@ public class ForkMergeParser {
 
     if (SAVE_ERROR_COND) {
       this.invalid = presenceConditionManager.newFalse();
+    }
+
+    this.language = language;
+
+    if(language == "P4") {
+      localSemanticValues = new superc.p4parser.P4Values();
+    }
+    else {
+      localSemanticValues = new superc.cparser.CValues();
     }
   }
 
@@ -780,8 +813,8 @@ public class ForkMergeParser {
               }
             } else {
               // No follow-set caching.
-              followSet = follow(subparser.lookahead.token,
-                                 subparser.presenceCondition).values();
+              followSet = new LinkedList<Lookahead>(follow(subparser.lookahead.token,
+                                 subparser.presenceCondition).values());
             }
             break;
 
@@ -886,7 +919,6 @@ public class ForkMergeParser {
             assert subparser.lookahead.token.syntax.kind() == Kind.LANGUAGE
               || subparser.lookahead.token.syntax.toConditional().tag()
               == ConditionalTag.START;
-
             Collection<Lookahead> tokenSet = partition(followSet, subparser);
 
             processedParsers.addAll(fork(subparser, tokenSet));
@@ -1562,7 +1594,6 @@ public class ForkMergeParser {
 
         case CONDITIONAL:
           Conditional conditional = a.syntax.toConditional();
-
           switch (conditional.tag()) {
           case START:
             a = skipConditional(a);
@@ -1621,6 +1652,7 @@ public class ForkMergeParser {
         if (! result.containsKey(a.getSequenceNumber())) {
           result.put(a.getSequenceNumber(),
                      new Lookahead(a, presenceCondition.addRef()));
+          presenceCondition.simplify();
         } else {
           Lookahead n = result.get(a.getSequenceNumber());
           PresenceCondition union = n.presenceCondition.or(presenceCondition);
@@ -1654,6 +1686,7 @@ public class ForkMergeParser {
                     == ConditionalTag.END)) {
             PresenceCondition nestedPresenceCondition = presenceCondition
               .and(a.syntax.toConditional().presenceCondition);
+              nestedPresenceCondition.simplify();
 
             // Move into the branch.
             a = a.getNext();
@@ -1998,12 +2031,41 @@ public class ForkMergeParser {
              == compareParser.lookahead.token.syntax.toLanguage().tag())
           || subparser.lookahead.token.syntax.kind() != Kind.LANGUAGE;
 
+        boolean rules7 = semanticValues.isComplete(subparser.stack.symbol);
+        boolean rules6 = (! hasParsingContext
+        || subparser.scope.mayMerge(compareParser.scope));
+        // boolean rules3_4 = false;
+        boolean rules3_4 = subparser.stack.isMergeable(compareParser.stack);
+        boolean rules5 = subparser.stack != compareParser.stack;
+
+        // System.err.println("Sametokentype: " + sameTokenType);
+        // System.err.println("rules7: " + rules7 + " for stack symbol: " + subparser.stack.symbol);
+        // System.err.println("rules6: " + rules6);
+        // System.err.println("rules3_4: " + rules3_4);
+        // System.err.println("rules5: " + rules5);
+        // System.err.println("Mutually exclusive? " + subparser.lookahead.presenceCondition.isMutuallyExclusive(compareParser.lookahead.presenceCondition));
+
+        // if(rules3_4_int == -1) {
+        //   if(subparser.lookahead.token.syntax.toString().equals(compareParser.lookahead.token.syntax.toString()) && // making sure same token
+        //      subparser.lookahead.action == ParsingAction.NONE && compareParser.lookahead.action == ParsingAction.REDUCE && // making sure top action is None since second parser when first forked is None (which gets pushed to top) and the current second parser is the one that just exited the condition block
+        //      subparser.lookahead.presenceCondition.not().equals(compareParser.lookahead.presenceCondition)) { // making sure the conditions are mutually exclusive
+        //     if(showActions) {
+        //       System.out.println("Handling the new case");
+        //     }
+        //     // System.out.println(subparser.lookahead.presenceCondition.not());
+        //     // System.out.println(compareParser.lookahead.presenceCondition);
+        //     rules3_4 = true;
+        //   }
+        // }
+        // else {
+          // rules3_4 = (rules3_4_int == 1);
+        // }
+
         if (sameTokenType                                          // (1,2)
-            && semanticValues.isComplete(subparser.stack.symbol)   // (7)
-            && (! hasParsingContext
-                || subparser.scope.mayMerge(compareParser.scope))  // (6)
-            && subparser.stack.isMergeable(compareParser.stack)    // (3,4)
-            && subparser.stack != compareParser.stack) {           // (5)
+            && rules7   // (7)
+            && rules6  // (6)
+            && rules3_4    // (3,4)
+            && rules5) {           // (5)
           // Move subparser to merge list.
           mergedParsers.addLast(compareParser);
           subset.remove(inner);
@@ -2023,6 +2085,7 @@ public class ForkMergeParser {
         StackFrame s = subparser.stack;
 
         for (Subparser mergedParser : mergedParsers) {
+          // TODO Try to move 2068 to here (reset s)
           int dist = 0;
           StackFrame t = mergedParser.stack;
 
@@ -2051,6 +2114,10 @@ public class ForkMergeParser {
 
         // Combine each stack frame's semantic values, updating the
         // presence condition along the way.
+
+        //Merging the stack frame at the common ancestor point
+
+        // stack frame merge constructs the merged one stack frame - where the static conditional is inserted
         for (Subparser mergedParser : mergedParsers) {
           subparser.stack.merge(subparser.presenceCondition,
                                 mergedParser.stack,
@@ -2182,6 +2249,7 @@ public class ForkMergeParser {
             = set.presenceCondition.or(n.presenceCondition);
           set.presenceCondition.delRef();
           set.presenceCondition = union;
+          union.simplify();
         } else {
           sharedReductions.put(n.getActionData(), n);
         }
@@ -3087,6 +3155,11 @@ public class ForkMergeParser {
                       int dist) {
       if (dist == 0) return;
 
+      SemanticValues.ValueType valueType = localSemanticValues.getValueType(this.symbol);
+
+      // empty = null when nothing is present, but input() is not null
+      Boolean areSameStackFrames = equals(this, other);
+
       int flags
         = (null != this.value ? 1 : 0)
         | (null != other.value ? 2 : 0);
@@ -3121,6 +3194,8 @@ public class ForkMergeParser {
         if (this.value == other.value) {
           // Both are already pointing to the same list node.  Don't
           // create a conditional.
+        } else if(areSameStackFrames) {
+          // Both are the exact same stackframes/trees. Don't do anything.
         } else if (FLATTEN_MERGED_CHOICE_NODES) {
           // Flatten both values into a single conditional.
           GNode cnode = GNode.create(CHOICE_NODE_NAME);
@@ -3172,6 +3247,15 @@ public class ForkMergeParser {
 
           this.value = cnode;
         // } else if (! ((Node) this.value).getName().equals(CHOICE_NODE_NAME)) {
+        } 
+        else if (valueType == SemanticValues.ValueType.LIST) {
+          // System.err.println("Merging as a list");
+          assert(other.value instanceof GNode);
+          assert(this.value instanceof GNode);
+          Iterator<Object> otherIterator = ((GNode) other.value).iterator();
+          while(otherIterator.hasNext()) {
+            ((GNode) this.value).add(otherIterator.next());
+          }
         } else {
           // Combine the two value, this and other, into a choice
           // node.
@@ -3197,6 +3281,105 @@ public class ForkMergeParser {
       if (this.next != null) {
         this.next.merge(thisPresenceCondition, other.next,otherPresenceCondition, dist - 1);
       }
+    }
+
+    /**
+     * Deep-checks if two stack frames are the same
+     * 
+     * @param current The current parsing state.
+     * @param other The other parsing state to be compared with.
+     * @return true if both the stack frames are the same.
+     */
+    public Boolean equals(StackFrame current, StackFrame other) {
+      // Loop until the current and other values are both null
+      while(current != null || other != null) {
+
+        // If inside the loop, at least one of them (current or other)
+        // is not null. So if another value is null, then current != null
+        if(current == null || other == null) {
+          return false;
+        }
+
+        if(current.height != other.height ||
+           current.state != other.state ||
+           current.symbol != other.symbol) {
+          return false;
+        }
+
+        if(! areSameSemanticValues(current.value, other.value)) {
+          return false;
+        }
+        // if(current.value != null) {
+        //   System.err.println("Value class is: " + current.value.getClass() + " with value: " + current.value);
+        //   if(current.value instanceof GNode) {
+        //     assert(current.value instanceof GNode);
+
+        //     // TODO: Remove this unnecessary assert
+        //     if(other.value == null) {
+        //       System.err.println("Testing whether null other results in false");
+        //       assert(((GNode) current.value).equals(other.value) == false);
+        //     }
+
+        //     if(! ((GNode) current.value).equals(other.value)) {
+        //       return false;
+        //     }
+        //   } else {
+        //     System.err.println("Not a GNode. Value class is: " + current.value.getClass() + " with value: " + current.value);
+        //     assert(current.value instanceof Syntax);
+        //     if(((Syntax) current.value).getTokenText.equals(other.value) {
+        //       System.err.println("current.value " + current.value + " != other.value " + other.value);
+        //       return false;
+        //     }
+        //   }
+        // } else if(current.value != other.value) {
+        //   // current.value is null, if other.value is not null return false
+        //   return false;
+        // }
+
+        current = current.next;
+        other = other.next;
+      };
+      
+      return true;
+
+    }
+
+    /**
+     * Checks if the semantic values are the same.
+     * 
+     * Modularized since semantic value object can be of different classes.
+     * 
+     * @param current The current parsing state's value.
+     * @param other The other parsing state's value to be compared with.
+     * @return Returns true if they are the same.
+     */
+    public Boolean areSameSemanticValues(Object current, Object other) {
+      if(current == null && other == null) {
+        return true;
+      }
+
+      if(current == null || other == null) {
+        return false;
+      }
+
+      assert(current instanceof GNode || current instanceof Syntax);
+      assert(other instanceof GNode || other instanceof Syntax);
+
+      if (current instanceof GNode) {
+        return ((GNode) current).equals(other);
+      } else if (current instanceof Syntax) {
+        if(current.getClass() != other.getClass()) {
+          return false;
+        }
+        if(! ((Syntax) current).getTokenText().equals(((Syntax) other).getTokenText())) {
+          return false;
+        }
+      } else {
+        // In case assert is disabled
+        return false;
+      }
+
+      return true;
     }
 
     /**

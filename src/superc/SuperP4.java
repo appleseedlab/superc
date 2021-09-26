@@ -735,7 +735,8 @@ public class SuperP4 extends Tool {
         = new ForkMergeParser(P4ParseTables.getInstance(),
                               P4Values.getInstance(), actions,
                               initialParsingContext, preprocessor,
-                              presenceConditionManager);
+                              presenceConditionManager,
+                              "P4");
       initialParsingContext.free();
 
       // Initialize the the token stream.  Only pass ordinary tokens
@@ -1086,7 +1087,7 @@ public class SuperP4 extends Tool {
 
       parser = new ForkMergeParser(P4ParseTables.getInstance(), semanticValues,
                                    actions, initialParsingContext,
-                                   preprocessor, presenceConditionManager);
+                                   preprocessor, presenceConditionManager, "P4");
       parser.saveLayoutTokens(runtime.test("printSource") 
                               || runtime.test("configureAllYes")
                               || runtime.test("configureAllNo")

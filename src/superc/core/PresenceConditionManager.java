@@ -734,7 +734,7 @@ public class PresenceConditionManager {
       this.refs = 1;
       this.tree = tree;
       this.expr = expr;
-      // this.simplify();
+      this.simplify();
     }
     
     private PresenceCondition(boolean value) {
@@ -907,8 +907,8 @@ public class PresenceConditionManager {
     }
 
     public boolean useContextSimplify = true;
-    public String nameContextSimplify = "ctx-simplify";  // better than "simplify" alone
-    // public String nameContextSimplify = "ctx-solver-simplify";  // best simplification, but very slow due to calls to solver
+    // public String nameContextSimplify = "ctx-simplify";  // better than "simplify" alone
+    public String nameContextSimplify = "ctx-solver-simplify";  // best simplification, but very slow due to calls to solver
     
     protected void simplify() {
       if (! isSimplified) {
