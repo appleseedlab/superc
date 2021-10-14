@@ -5,3 +5,6 @@ allTests.out
 *.Log
 *.o
 *.pyc
+/fonda/cpp_testsuite/desugarer/masterTypeCheck/binary
+/fonda/cpp_testsuite/desugarer/masterTypeCheck/unary
+/fonda/cpp_testsuite/desugarer/masterTypeCheck/other
