@@ -983,6 +983,28 @@ class DesugarOps {
   };
 
   /**
+   * 
+   */
+  public final static Multiverse.Operator<Type> shiftOp = (t1, t2) -> {
+    // TODO: see CAnalyzer, e.g., additiveexpression, etc
+    Type newtype;
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    if (r1.isNumber() && !((NumberT)r1).isDecimal()) {
+      if (r2.isNumber() && !((NumberT)r2).isDecimal()) {
+        newtype = r1;
+      } else {
+        newtype = ErrorT.TYPE;
+      }
+    } else {
+      newtype = ErrorT.TYPE;
+    }
+    
+    return newtype;
+  };
+  
+  /**
    * product of two types. Returns an error if either type is an error.
    * otherwise returns left type. This should only be temporary in binary
    * expressions until full type checking is done.
@@ -1009,10 +1031,129 @@ class DesugarOps {
    * expressions until full type checking is done.
    */
   public final static Multiverse.Operator<Type> relOpProduct = (t1, t2) -> {
-    if (t2 == ErrorT.TYPE || t1 == ErrorT.TYPE) {
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    if ( (r1.isNumber() || r1.isEnum() || r1.isEnumerator())
+         &&
+         (r2.isNumber() || r2.isEnum() || r2.isEnumerator())) {
+      return NumberT.INT;
+    }
+
+        //compare pointer with non-decimal
+    if (((r1.isPointer() || r1.isArray()) && ((r2.isNumber() && !((NumberT)r2).isDecimal()) || r2.isEnumerator() || r2.isEnum() || r2.isPointer() || r2.isArray())) ||
+        ((r2.isPointer() || r2.isArray()) && ((r1.isNumber() && !((NumberT)r1).isDecimal()) || r1.isEnumerator() || r1.isEnum() || r1.isPointer() || r1.isArray()))) {
+      return NumberT.INT;
+    }
+    return ErrorT.TYPE;
+  };
+
+
+  public final static Multiverse.Operator<Type> eqOp = (t1, t2) -> {
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    //two quantitative values
+    if ( (r1.isNumber() || r1.isEnum() || r1.isEnumerator())
+         &&
+         (r2.isNumber() || r2.isEnum() || r2.isEnumerator())) {
+      return NumberT.INT;
+    }
+    //compare pointer with non-decimal
+    if (((r1.isPointer() || r1.isArray()) && ((r2.isNumber() && !((NumberT)r2).isDecimal()) || r2.isEnumerator() || r2.isEnum() || r2.isPointer() || r2.isArray())) ||
+        ((r2.isPointer() || r2.isArray()) && ((r1.isNumber() && !((NumberT)r1).isDecimal()) || r1.isEnumerator() || r1.isEnum() || r1.isPointer() || r1.isArray()))) {
+      return NumberT.INT;
+    }
+    return ErrorT.TYPE;
+  };
+
+        
+  public final static Multiverse.Operator<Type> bitOp = (t1, t2) -> {
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    //two quantitative values
+    if ( ((r1.isNumber() && !((NumberT)r1).isDecimal()) || r1.isEnum() || r1.isEnumerator())
+         &&
+         ((r2.isNumber() && !((NumberT)r2).isDecimal()) || r2.isEnum() || r2.isEnumerator())) {
+      return NumberT.INT;
+    }
+    return ErrorT.TYPE;
+  };
+        
+  public final static Multiverse.Operator<Type> scalarOp = (t1, t2) -> {
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    //two quantitative values
+    if ( (r1.isStruct() || r1.isUnion())
+         ||
+         (r2.isStruct() || r2.isUnion())) {
       return ErrorT.TYPE;
     }
-    return BooleanT.TYPE;
+    return NumberT.INT;
+  };
+
+  public final static Multiverse.Operator<Type> multOp = (t1, t2) -> {
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    //two quantitative values
+    if ( (r1.isNumber() || r1.isEnum() || r1.isEnumerator())
+         &&
+         (r2.isNumber() || r2.isEnum() || r2.isEnumerator())) {
+      return r1;
+    }
+    return ErrorT.TYPE;
+  };
+  
+  public final static Multiverse.Operator<Type> modOp = (t1, t2) -> {
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    //two quantitative values
+    if ( ((r1.isNumber() && !((NumberT)r1).isDecimal()) || r1.isEnum() || r1.isEnumerator())
+         &&
+         ((r2.isNumber() && !((NumberT)r2).isDecimal()) || r2.isEnum() || r2.isEnumerator())) {
+      return r1;
+    }
+    return ErrorT.TYPE;
+  };
+
+  public final static Multiverse.Operator<Type> addOp = (t1, t2) -> {
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    //two quantitative values
+    if ( (r1.isNumber() || r1.isEnum() || r1.isEnumerator())
+         &&
+         (r2.isNumber() || r2.isEnum() || r2.isEnumerator())) {
+      return r1;
+    }
+    //compare pointer with non-decimal
+    if ((r1.isPointer() || r1.isArray()) && ((r2.isNumber() && !((NumberT)r2).isDecimal()) || r2.isEnumerator() || r2.isEnum())) {
+      return r1;
+    } else if ((r2.isPointer() || r2.isArray()) && ((r1.isNumber() && !((NumberT)r1).isDecimal()) || r1.isEnumerator() || r1.isEnum())) {
+      return r2;
+    }
+    return ErrorT.TYPE;
+  };
+
+  public final static Multiverse.Operator<Type> subOp = (t1, t2) -> {
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    //two quantitative values
+    if ( (r1.isNumber() || r1.isEnum() || r1.isEnumerator())
+         &&
+         (r2.isNumber() || r2.isEnum() || r2.isEnumerator())) {
+      return r1;
+    }
+    //compare pointer with non-decimal
+    if ((r1.isPointer() || r1.isArray()) && ((r2.isNumber() && !((NumberT)r2).isDecimal()) || r2.isEnumerator() || r2.isEnum() || r2.isPointer() || r2.isArray())) {
+      return r1;
+    }
+    return ErrorT.TYPE;
   };
 
   
@@ -1047,6 +1188,10 @@ class DesugarOps {
 
             if (r2.isVoid()) {
               System.err.println("type error: void value not ignored as it ought to be");
+              resultmv.add(ErrorT.TYPE, elemCond);
+              continue;
+            }
+            if (t1.isEnum() && (r2.isPointer() || r2.isArray())) {
               resultmv.add(ErrorT.TYPE, elemCond);
               continue;
             }
@@ -1167,9 +1312,11 @@ class DesugarOps {
                   result = r1;
                 }
 
+              } else if (t2.isEnum()) {
+                result = ErrorT.TYPE;
               } else if (t2.hasConstant() && t2.getConstant().isNull()) {
                 result = r1;
-
+                
               } else if (cOps.isIntegral(t2)) {
                 if (pedantic) {
                   System.err.println("type error: " + op + " makes pointer from integer without a cast");
@@ -1180,7 +1327,8 @@ class DesugarOps {
                   result = r1;
                 }
               }
-            } break;
+            }
+              break;
             case FUNCTION: {
               System.err.println("type error: " + "functions cannot be assigned to");
               result = ErrorT.TYPE;
@@ -1216,43 +1364,58 @@ class DesugarOps {
     }
     switch (op.kind()) {
     case LANGUAGE:
-      switch (((Language<CTag>) op).tag()) {
-      case STAR:
-        Type resolvedType = type.resolve();  // unwrap any typedef aliasing
-        if (resolvedType.isPointer()) {
-          return resolvedType.toPointer().getType();
-        } else if (resolvedType.isArray()) {
-          return resolvedType.toArray().getType();
-        }else {
-          return ErrorT.TYPE;
-        }
-      // should be unreachable
-      case AND:
-      return  new PointerT(type.resolve());
-      case ICR:
-      //fall-through
-      case DECR:
-        resolvedType = type.resolve();
-        if ( resolvedType.isArray() ||
-             resolvedType.isStruct() ||
-             resolvedType.isUnion() ||
-             resolvedType.isFunction())
-          return ErrorT.TYPE;
-      case PLUS:
-      // fall-through
-      case MINUS:
-        // fall-through
-      case NEGATE:
-        // fall-through
-      case NOT:
-        // TDDO: check types of other operators
-        return type;
-      
-      default:
-      throw new AssertionError("unexpected unary op token");
+    Type resolvedType = type.resolve();  // unwrap any typedef aliasing
+    switch (((Language<CTag>) op).tag()) {
+    case STAR:
+      if (resolvedType.isPointer()) {
+        return resolvedType.toPointer().getType();
+      } else if (resolvedType.isArray()) {
+        return resolvedType.toArray().getType();
+      }else {
+        return ErrorT.TYPE;
       }
-      default:
-      throw new AssertionError("unary op should always be a language token");
+      // should be unreachable
+    case AND:
+      return  new PointerT(type.resolve());
+    case ICR:
+      //fall-through
+    case DECR:
+      if ( resolvedType.isNumber() ||
+           resolvedType.isPointer() ||
+           resolvedType.isEnum() ||
+           resolvedType.isEnumerator())
+        return resolvedType;
+      else {
+        return ErrorT.TYPE;
+      }
+    case PLUS:
+      // fall-through
+    case MINUS:
+      if (resolvedType.isNumber()) {
+        return resolvedType;
+      } else {
+        return ErrorT.TYPE;
+      }
+    case NEGATE:
+      resolvedType = type.resolve();
+      // TDDO: check types of other operators
+      if (resolvedType.isNumber() && !((NumberT)resolvedType).isDecimal()) {
+        return resolvedType;
+      } else {
+        return ErrorT.TYPE;
+      }
+    case NOT:
+      if (resolvedType.isStruct() || resolvedType.isUnion()) {
+        return ErrorT.TYPE;
+      } else {
+        return NumberT.CHAR;
+      }
+      
+    default:
+    throw new AssertionError("unexpected unary op token");
+    }
+    default:
+    throw new AssertionError("unary op should always be a language token");
     }
   };
   

@@ -268,6 +268,20 @@ public abstract class NumberT extends Type {
     out.append(toString());
   }
 
+  public boolean isDecimal() {
+    switch (kind) {
+    case FLOAT:
+    case DOUBLE:
+    case LONG_DOUBLE:
+    case FLOAT_COMPLEX:
+    case DOUBLE_COMPLEX:
+    case LONG_DOUBLE_COMPLEX:
+      return true;
+    default:
+      return false;
+    }
+  }
+  
   public String toString() {
     switch (kind) {
     case BYTE:

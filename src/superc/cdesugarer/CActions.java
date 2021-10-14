@@ -5494,6 +5494,7 @@ public class CActions implements SemanticActions {
           // it and the symtab should always return a non-empty mv
           assert ! sbmv.isEmpty();
           entries.destruct();
+          System.err.println(typemv);
           setTransformationValue(value, new ExpressionValue(sbmv, typemv,new Multiverse<LineNumbers>(new LineNumbers((Syntax)getNodeAt(subparser, 1)),cond)));
         }
     break;
@@ -6834,7 +6835,7 @@ public class CActions implements SemanticActions {
                                                                          leftmv,
                                                                          opmv,
                                                                          rightmv),
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers)));  // TODO: this is a placeholder for the real type
+                                                              productAll(DesugarOps.multOp, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in multiplicative expression"),
                                                               ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
@@ -6859,7 +6860,7 @@ public class CActions implements SemanticActions {
                                                                          leftmv,
                                                                          opmv,
                                                                          rightmv),
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers)));  // TODO: this is a placeholder for the real type
+                                                              productAll(DesugarOps.multOp, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in multiplicative expression"),
                                                               ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
@@ -6884,7 +6885,7 @@ public class CActions implements SemanticActions {
                                                                          leftmv,
                                                                          opmv,
                                                                          rightmv),
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers)));  // TODO: this is a placeholder for the real type
+                                                              productAll(DesugarOps.modOp, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers)));  // TODO: this is a placeholder for the real type
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in multiplicative expression"),
                                                               ErrorT.TYPE,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers),
@@ -6916,7 +6917,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.addOp, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -6942,7 +6943,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.subOp, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -6974,7 +6975,8 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              leftval.type,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
+                                                              leftval.type.product(rightval.type, DesugarOps.shiftOp),
+                                                              leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -7000,7 +7002,8 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              leftval.type,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
+                                                              leftval.type.product(rightval.type, DesugarOps.shiftOp),
+                                                              leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -7142,7 +7145,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.eqOp, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -7168,7 +7171,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.eqOp, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -7200,7 +7203,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.bitOp, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -7232,7 +7235,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              leftval.type,leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.bitOp, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -7264,7 +7267,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.bitOp, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -7298,10 +7301,10 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             ExpressionValue e = new ExpressionValue(productmv,
-                                                    productAll(DesugarOps.propTypeError, leftval.type, rightval.type));
+                                                    productAll(DesugarOps.scalarOp, leftval.type, rightval.type));
             
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.scalarOp, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
@@ -7333,7 +7336,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> appendmv = leftmv.appendScalar(opstr, DesugarOps.concatStrings);
             Multiverse<String> productmv = appendmv.product(rightmv, DesugarOps.concatStrings);  appendmv.destruct();
             setTransformationValue(value, new ExpressionValue(productmv,
-                                                              productAll(DesugarOps.propTypeError, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
+                                                              productAll(DesugarOps.scalarOp, leftval.type, rightval.type),leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers))); // TODO: placeholder for real type
                                                               
           } else {
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in expression"),
