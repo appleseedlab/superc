@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
@@ -13,22 +14,23 @@ __static_renaming("__z_2", "z");
 __static_renaming("__q_3", "q");
 __static_renaming("__w_4", "w");
 __static_renaming("__j_5", "j");
-__static_renaming("__main_6", "main");
-__static_renaming("__a_7", "a");
-__static_renaming("__b_8", "b");
-__static_renaming("__c_9", "c");
-__static_renaming("__d_10", "d");
-__static_renaming("__e_11", "e");
-__static_renaming("__f_12", "f");
+__static_renaming("__a_6", "a");
+__static_renaming("__b_7", "b");
+__static_renaming("__c_8", "c");
+__static_renaming("__d_9", "d");
+__static_renaming("__e_10", "e");
+__static_renaming("__f_11", "f");
+__static_renaming("__main_12", "main");
 
 
 };
-typedef unsigned int  __i_0;
-typedef long long  __x_1;
-typedef const __x_1  __z_2;
-typedef int  (* __q_3);
-typedef __q_3  (__w_4[2]);
-volatile typedef __i_0  __j_5;
+typedef unsigned int  __i_0;// L1
+typedef long long  __x_1;// L2
+typedef const __x_1  __z_2;// L3
+
+typedef int  * (__q_3);// L4
+typedef __q_3  __w_4[2];// L5
+volatile typedef __i_0  __j_5;// L6
 
 // typedef moved to top of scope
 // typedef moved to top of scope
@@ -36,16 +38,27 @@ volatile typedef __i_0  __j_5;
 // typedef moved to top of scope
 // typedef moved to top of scope
 // typedef moved to top of scope
-int  __main_6 () {
+int  (__main_12) () {
+
 {
-__i_0  __a_7;
-__x_1  __b_8;
-__z_2  __c_9;
-__q_3  __d_10;
-__w_4  __e_11;
-__j_5  __f_12;
-return 0 ;
+{
 
+
+
+__i_0  __a_6;// L9
+
+__x_1  __b_7;// L10
+
+__z_2  __c_8;// L11
+
+__q_3  __d_9;// L12
+
+__w_4  __e_10;// L13
+
+__j_5  __f_11;// L14
+
+return 0 ;// L15
+}
 }
 
 

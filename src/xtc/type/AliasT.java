@@ -116,4 +116,8 @@ public class AliasT extends WrappedT {
     out.append(')');
   }
 
+    public String printType() {
+	return getType().printType();
+    }
+
 }

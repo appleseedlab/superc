@@ -83,4 +83,8 @@ public class BooleanT extends Type {
     return "boolean";
   }
 
+  public String printType() {
+    return "bool";
+  }
+  
 }

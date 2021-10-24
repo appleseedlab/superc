@@ -99,6 +99,13 @@ abstract class Declarator {
   /** Returns true if this is a NamedBitFieldSizeDeclarator object. */
   public boolean isNamedBitFieldSizeDeclarator() { return false; }
 
+  public boolean isFlexible() { return false;}
+  
+  public String toString(int len) {
+      return "ERROR: incompatible array length specifier";
+    }
+  
+  public abstract String printType();
   /**
    * This empty declarator is used for abstract declarators that only
    * have a type.
@@ -134,6 +141,10 @@ abstract class Declarator {
       // empty declarators have no string
       return "";
     }
+
+    public String printType() {
+      return "";
+    }
   }
 
   /**
@@ -161,7 +172,7 @@ abstract class Declarator {
     }
     
     public Declarator rename(String newName) {
-      return declarator.rename(newName);
+	return new ParenDeclarator(declarator.rename(newName));
     }
 
     public Type getType(Type type) {
@@ -172,11 +183,22 @@ abstract class Declarator {
       return declarator.hasTypeError();
     }
 
+
     @Override
     public boolean isParenDeclarator() { return true; }
 
     public String toString() {
       return String.format("(%s)", declarator.toString());
+    }
+    public String toString(int len) {
+      return String.format("(%s)", declarator.toString(len));
+    }
+    public String printType() {
+      return String.format("(%s)", declarator.printType());
+    }
+
+    public boolean isFlexible() {
+      return declarator.isFlexible();
     }
   }
 
@@ -218,6 +240,9 @@ abstract class Declarator {
     public String toString() {
       return name;
     }
+    public String printType() {
+      return "";
+    }
   }
 
   /**
@@ -256,7 +281,14 @@ abstract class Declarator {
     public boolean isPointerDeclarator() { return true; }
 
     public String toString() {
-      return String.format("(* %s)", declarator.toString());  // preserve order of operations
+      return String.format("* (%s)", declarator.toString());  // preserve order of operations
+    }
+    
+    public String toString(int len) {
+      return String.format("* (%s)", declarator.toString(len));  // preserve order of operations
+    }
+    public String printType() {
+      return String.format("* (%s)", declarator.printType());  // preserve order of operations
     }
   }
 
@@ -306,7 +338,18 @@ abstract class Declarator {
 
     public String toString() {
       // return String.format("* %s %s", qualifiers.toString(), declarator.toString());
-      return String.format("(* %s %s)", qualifiers.toString(), declarator.toString());  // preserve order of operations
+      return String.format("* %s %s", qualifiers.toString(), declarator.toString());  // preserve order of operations
+    }
+    public String toString(int len) {
+      // return String.format("* %s %s", qualifiers.toString(), declarator.toString());
+      return String.format("* %s %s", qualifiers.toString(), declarator.toString(len));  // preserve order of operations
+    }
+    public String printType() {
+      // return String.format("* %s %s", qualifiers.toString(), declarator.toString());
+      return String.format("* %s %s", qualifiers.toString(), declarator.printType());  // preserve order of operations
+    }
+    public boolean isFlexible() {
+      return declarator.isFlexible();
     }
   }
 
@@ -345,6 +388,9 @@ abstract class Declarator {
 
     public String toString() {
       // TODO: double-check the position of parentheses around declarators
+      return "*";
+    }
+    public String printType() {
       return "*";
     }
   }
@@ -391,6 +437,9 @@ abstract class Declarator {
     public boolean isQualifiedPointerAbstractDeclarator() { return true; }
 
     public String toString() {
+      return String.format("* %s", qualifiers.toString());
+    }
+    public String printType() {
       return String.format("* %s", qualifiers.toString());
     }
   }
@@ -440,7 +489,20 @@ abstract class Declarator {
 
     public String toString() {
       System.err.println("WARNING: do we need parentheses?");
-      return String.format("(%s%s)", declarator.toString(), arrayabstractdeclarator.toString());
+      return String.format("%s%s", declarator.toString(), arrayabstractdeclarator.toString());
+    }
+
+    public String toString(int len) {
+      System.err.println("WARNING: do we need parentheses?");
+      return String.format("%s%s", declarator.toString(), arrayabstractdeclarator.toString(len));
+    }
+
+    public String printType() {
+      System.err.println("WARNING: do we need parentheses?");
+      return String.format("%s%s", declarator.printType(), arrayabstractdeclarator.printType());
+    }
+    public boolean isFlexible() {
+      return arrayabstractdeclarator.isFlexible();
     }
   }
 
@@ -457,11 +519,13 @@ abstract class Declarator {
      * brackets.
      */
     protected final List<String> expressions;
-
+    protected boolean typeError;
+    
     /**
      * The initial single dimension array declarator.
      */
     public ArrayAbstractDeclarator(String expression) {
+      typeError = false;
       this.expressions = new LinkedList();
       this.expressions.add(expression);
     }
@@ -471,6 +535,7 @@ abstract class Declarator {
      */
     public ArrayAbstractDeclarator(ArrayAbstractDeclarator arraydeclarator,
                            String expression) {
+      typeError = false;
       this.expressions = new LinkedList(arraydeclarator.expressions);
       this.expressions.add(expression);
     }
@@ -480,13 +545,21 @@ abstract class Declarator {
       assert expressions.size() > 0;  // otherwise no arraytype will be made
       System.err.println("TODO: need to handle the expression to see if the array has a variable size of not");
       for (String expression : expressions) {
-        arrayType = new ArrayT(arrayType);
+        if (expression != "") {
+          arrayType = new ArrayT(arrayType,1);
+        } else {
+          arrayType = new ArrayT(arrayType);
+        }
       }
       return arrayType;
     }
-
+    
+    public void setTypeError(boolean t) {
+      typeError = t;
+    }
+    
     public boolean hasTypeError() {
-      return false;
+      return typeError;
     }
 
     public String getName() {
@@ -513,6 +586,32 @@ abstract class Declarator {
         sb.append(String.format("[%s]", expression));
       }
       return sb.toString();
+    }
+
+    public String toString(int len) {
+      StringBuilder sb = new StringBuilder();
+      sb.append(String.format("[%d]", len));
+      return sb.toString();
+    }
+
+    public String printType() {
+      StringBuilder sb = new StringBuilder();
+      assert expressions.size() > 0;  // otherwise no arraytype will be made
+      System.err.println("need to handle the expression to see if the array has a variable size of not");
+      for (String expression : expressions) {
+        sb.append(String.format("[%s]", expression == "" ? "0" : expression));
+      }
+      return sb.toString();
+    }
+
+    public boolean isFlexible() {
+      if (expressions.size() > 1) {
+        return false;
+      } else if (expressions.size() == 1) {
+        return expressions.get(0) == "";
+      }
+      return true;
+      
     }
   }
 
@@ -580,12 +679,18 @@ abstract class Declarator {
     public boolean hasTypeError() {
       return declarator.hasTypeError() || parameters.hasTypeError();
     }
-  
+
     @Override
     public boolean isFunctionDeclarator() { return true; }
 
     public String toString() {
-      return String.format("%s %s", declarator.toString(), parameters.toString());
+      return String.format("(%s) %s", declarator.toString(), parameters.toString());
+    }
+    public String printType() {
+      return String.format("(%s) %s", declarator.printType(), parameters.printType());
+    }
+    public boolean isFlexible() {
+      return declarator.isFlexible();
     }
   }
 
@@ -624,6 +729,11 @@ abstract class Declarator {
           return true;
         }
       }
+      if (parameters.size() > 0) {
+        if (parameters.size() > 1 && parameters.get(0).getType() == VoidT.TYPE) {
+          return true;
+        }
+      }
       return false;
     }
   
@@ -637,6 +747,22 @@ abstract class Declarator {
       for (Declaration param : parameters) {
         sb.append(delim);
         sb.append(param.toString());
+        delim = ", ";
+      }
+      if (varargs) {
+        sb.append(delim);
+        sb.append(" ... ");
+      }
+      sb.append(")");
+      return sb.toString();
+    }
+    public String printType() {
+      StringBuilder sb = new StringBuilder();
+      sb.append("(");
+      String delim = "";
+      for (Declaration param : parameters) {
+        sb.append(delim);
+        sb.append(param.printType());
         delim = ", ";
       }
       if (varargs) {
@@ -689,6 +815,10 @@ abstract class Declarator {
     public String toString() {
       return String.format(": %s", expression);
     }
+
+    public String printType() {
+      return String.format("%s", expression);
+    }
   }
 
   /**
@@ -715,7 +845,7 @@ abstract class Declarator {
     }
     
     public Declarator rename(String newName) {
-      return this.declarator.rename(newName);
+	return new NamedBitFieldSizeDeclarator(this.declarator.rename(newName),bitfieldsize);
     }
 
     public Type getType(Type returnType) {
@@ -733,8 +863,13 @@ abstract class Declarator {
     @Override
     public boolean isNamedBitFieldSizeDeclarator() { return true; }
 
+    public String getBitField() { return this.bitfieldsize.toString(); }
+    
     public String toString() {
       return String.format("%s : %s", this.declarator.toString(), this.bitfieldsize.expression);
+    }
+    public String printType() {
+      return String.format("%s", bitfieldsize.expression);
     }
   }
 }

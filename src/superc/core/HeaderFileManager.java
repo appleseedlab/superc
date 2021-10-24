@@ -439,7 +439,7 @@ public class HeaderFileManager implements Iterator<Syntax> {
     if (guarded) {
 
       // No need to even open the header file.  It is guarded.
-
+      if(showHeaders) System.err.println("guarded header file: " + header.name);
       return true;
     }
 
@@ -756,7 +756,6 @@ public class HeaderFileManager implements Iterator<Syntax> {
                            macroTable);
 
     if (showHeaders) System.err.println(String.format("entering header(%d): %s", includes.size(), ((Computed) include).pfile.file));
-
     if (statisticsCollection) {
       System.err.format("computed %s %s %d %d\n",
                         includes.peek().getLocation(),

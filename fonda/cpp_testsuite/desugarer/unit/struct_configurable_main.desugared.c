@@ -1,50 +1,64 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_7;
-extern const bool __static_condition_default_8;
+extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_12;
 void __static_initializer_default() {
-__static_renaming("__main_5", "main");
-__static_renaming("__main_6", "main");
+__static_renaming("__main_9", "main");
+__static_renaming("__main_10", "main");
 
-__static_condition_renaming("__static_condition_default_7", "!(defined CONFIG_A)");
-__static_condition_renaming("__static_condition_default_8", "(defined CONFIG_A)");
+__static_condition_renaming("__static_condition_default_11", "!(defined CONFIG_A)");
+__static_condition_renaming("__static_condition_default_12", "(defined CONFIG_A)");
 
 };
-struct __anonymous_tag_0 {
+struct ____anonymous_tag_0_1 {
+int  __a_2;// L3
+int  __x_3;// L5
 };
-struct __anonymous_tag_1 {
-int  __a_2;
-int  __x_3;
-int  __yy_4;
+struct ____anonymous_tag_4_5 {
+int  __a_6;// L3
+int  __x_7;// L5
+int  __yy_8;// L8
 };
 
-struct __anonymous_tag_0 ;struct __anonymous_tag_1 ;
-int  __main_5 () {
+struct ____anonymous_tag_0_1 ;// L2
+struct ____anonymous_tag_4_5 ;// L2
+int  (__main_9) () {
 
-if (__static_condition_default_7) {
+if (__static_condition_default_11) {
+
 {
-return 0 ;
-
-}
-
-}
-
-}
-int  __main_6 () {
-
-if (__static_condition_default_8) {
 {
-return 0 ;
 
+
+
+return 0 ;// L14
+}
 }
 
+
+}
+}
+int  (__main_10) () {
+
+if (__static_condition_default_12) {
+
+{
+{
+
+
+
+return 0 ;// L14
+}
 }
 
+
+}
 }
 

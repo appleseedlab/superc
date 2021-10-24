@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
@@ -12,5 +13,5 @@ __static_renaming("__c_0", "c");
 
 };
 
-int  __c_0;
+int  __c_0;// L1
 

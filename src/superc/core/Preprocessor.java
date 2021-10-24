@@ -1706,12 +1706,12 @@ public class Preprocessor implements Iterator<Syntax> {
       Syntax linemarker
         = fileManager.includeHeader(headerName, sysHeader, includeNext,
                                     presenceConditionManager, macroTable);
-
+      
       // System.err.println(singleConfigurationSysheaders);
       // System.err.println(fileManager.inSystemHeader());
       // System.err.println(sysHeader);
       // System.err.println(! isConfigurationAwarenessOff());
-
+      
       if (singleConfigurationSysheaders
           && fileManager.inSystemHeader()
           && ! isConfigurationAwarenessOff()) {

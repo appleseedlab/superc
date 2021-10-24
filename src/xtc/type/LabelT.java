@@ -95,4 +95,7 @@ public class LabelT extends Type {
     out.append(')');
   }
 
+  public String printType() {
+    return name;
+  }
 }

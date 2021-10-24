@@ -886,7 +886,15 @@ public class PresenceConditionManager {
         return false;
       }
     }
-    
+
+    public boolean isSubsetOf(PresenceCondition other) {
+      PresenceCondition andP;
+      
+      andP = this.and(other);
+      boolean res = this.is(andP);
+      andP.delRef();
+      return res;
+    }
 
     public PresenceCondition addRef() {
       if (refs > 0) {
@@ -972,7 +980,7 @@ public class PresenceConditionManager {
      */
     public void print(Writer writer) throws IOException {
       
-      //printz3(expr, writer);
+      // printz3(expr, writer);
       printBDD(bdd, writer);
     }
 

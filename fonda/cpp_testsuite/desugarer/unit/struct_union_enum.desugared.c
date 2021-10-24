@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
@@ -7,24 +8,17 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 void __static_initializer_default() {
-__static_renaming("__len_and_sockaddr_12", "len_and_sockaddr");
-__static_renaming("__main_13", "main");
+__static_renaming("__main_16", "main");
 
 
 };
-union __anonymous_tag_3 {
+union ____anonymous_tag_3_4 {
 };
-union __anonymous_tag_4 {
-struct __forward_tag_reference_0  __sa_5;
-struct __forward_tag_reference_1  __sin_6;
-struct __forward_tag_reference_2  __sin6_7;
+union ____anonymous_tag_7_8 {
 };
-struct __len_and_sockaddr_8 {
-int  __len_9;
-union __anonymous_tag_3  __u_10;
-union __anonymous_tag_4  __u_11;
+struct __len_and_sockaddr_12 {
+int  __len_13;// L2
 };
-typedef struct __len_and_sockaddr_8  __len_and_sockaddr_12;
 
 struct __forward_tag_reference_2 { // generated union of struct variations
 union {
@@ -41,13 +35,16 @@ union {
 };
 };
 
-// typedef moved to top of scope
-int  __main_13 () {
+int  (__main_16) () {
+
 {
-__builtin_offsetof ( __len_and_sockaddr_12   , u  ) ;
+{
 
-__builtin_offsetof ( int   , u  ) ;
 
+
+__builtin_offsetof ( error  , u  ) ; // L12
+__builtin_offsetof ( int   , u  ) ; // L13
+}
 }
 
 

@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
@@ -7,41 +8,59 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 void __static_initializer_default() {
-__static_renaming("__main_0", "main");
-__static_renaming("__b_1", "b");
-__static_renaming("__c_2", "c");
-__static_renaming("__d_3", "d");
-__static_renaming("__e_4", "e");
-__static_renaming("__f_5", "f");
-__static_renaming("__g_6", "g");
-__static_renaming("__a_7", "a");
-__static_renaming("__b_8", "b");
-__static_renaming("__c_9", "c");
-__static_renaming("__d_10", "d");
-__static_renaming("__e_11", "e");
-__static_renaming("__f_12", "f");
-__static_renaming("__g_13", "g");
+__static_renaming("__b_0", "b");
+__static_renaming("__c_1", "c");
+__static_renaming("__d_2", "d");
+__static_renaming("__e_3", "e");
+__static_renaming("__f_4", "f");
+__static_renaming("__g_5", "g");
+__static_renaming("__a_6", "a");
+__static_renaming("__b_7", "b");
+__static_renaming("__c_8", "c");
+__static_renaming("__d_9", "d");
+__static_renaming("__e_10", "e");
+__static_renaming("__f_11", "f");
+__static_renaming("__g_12", "g");
+__static_renaming("__main_13", "main");
 
 
 };
 
-int  __main_0 (void  ) {
-{
-char  __b_1;
-char  __c_2;
-char  __d_3;
-char  __e_4;
-char  __f_5;
-char  __g_6;
-char  __a_7;
-char  __b_8;
-char  __c_9;
-char  __d_10;
-char  __e_11;
-char  __f_12;
-char  __g_13;
-return 0 ;
+int  (__main_13) (void  ) {
 
+{
+{
+
+
+
+char  __b_0;// L3:L9
+
+char  __c_1;// L3:L9
+
+char  __d_2;// L3:L9
+
+char  __e_3;// L3:L9
+
+char  __f_4;// L3:L9
+
+char  __g_5;// L3:L9
+
+char  __a_6;// L3:L9
+
+char  __b_7;// L3:L9
+
+char  __c_8;// L3:L9
+
+char  __d_9;// L3:L9
+
+char  __e_10;// L3:L9
+
+char  __f_11;// L3:L9
+
+char  __g_12;// L3:L9
+
+return 0 ;// L11
+}
 }
 
 

@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
@@ -18,32 +19,47 @@ __static_condition_renaming("__static_condition_default_4", "A");
 
 };
 
-int  __returnOne_1 () {
+int  (__returnOne_1) () {
 
 if (__static_condition_default_3) {
+
 {
-return 1 ;
+{
 
+
+
+return 1 ;// L6
+}
 }
 
-}
 
 }
-int  __returnOne_2 (int  __x_0) {
+}
+int  (__returnOne_2) (int  __x_0) {
 
 if (__static_condition_default_4) {
+
 {
-return 1 ;
-
-}
-
-}
-
-}
-int  __main_5 (void  ) {
 {
-return 0 ;
 
+
+
+return 1 ;// L6
+}
+}
+
+
+}
+}
+int  (__main_5) (void  ) {
+
+{
+{
+
+
+
+return 0 ;// L10
+}
 }
 
 

@@ -56,6 +56,8 @@ public abstract class Node implements Iterable<Object>, Locatable {
   /** The optional source location. */
   Location location;
 
+  public boolean hasBeenPrinted = false;
+  
   // ========================================================================
 
   /** Create a new node. */
@@ -763,7 +765,7 @@ public abstract class Node implements Iterable<Object>, Locatable {
         if (first) {
           first = false;
         } else {
-          out.append(", ");
+          out.append(",\n\n ");
         }
 
         if (null == o) {

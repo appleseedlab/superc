@@ -379,7 +379,7 @@
     "stdErr":"",
     "stdOut":""
   },
-  "typechecker/struct/struct_init.c":{
+  "typechecker/structInits/struct_init.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",
@@ -2046,6 +2046,102 @@
     "stdOut":""
   },
   "unit/struct_configurable_tls1.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/designators.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/designatorList.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/conditionalError.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/designators_doesNotExist.c":{
+    "inclusions":[],
+    "valid":false,
+    "stdErr":"typechecker/structInits/designators_doesNotExist.c: In function \u2018main\u2019:\ntypechecker/structInits/designators_doesNotExist.c:12:26: error: \u2018struct x\u2019 has no member named \u2018b\u2019\n   struct x x = {.a = 1, .b = 2};\n                          ^\ntypechecker/structInits/designators_doesNotExist.c:12:30: warning: excess elements in struct initializer\n   struct x x = {.a = 1, .b = 2};\n                              ^\ntypechecker/structInits/designators_doesNotExist.c:12:30: note: (near initialization for \u2018x\u2019)\n",
+    "stdOut":""
+  },
+  "typechecker/structInits/outOfRange.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"typechecker/structInits/outOfRange.c: In function \u2018main\u2019:\ntypechecker/structInits/outOfRange.c:11:19: warning: excess elements in struct initializer\n   struct x x = {1,2};\n                   ^\ntypechecker/structInits/outOfRange.c:11:19: note: (near initialization for \u2018x\u2019)\n",
+    "stdOut":""
+  },
+  "typechecker/structInits/designatorMixed.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/designators_partialExist.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"typechecker/structInits/designators_partialExist.c: In function \u2018main\u2019:\ntypechecker/structInits/designators_partialExist.c:15:26: error: \u2018struct x\u2019 has no member named \u2018b\u2019\n   struct x x = {.a = 1, .b = 2};\n                          ^\ntypechecker/structInits/designators_partialExist.c:15:30: warning: excess elements in struct initializer\n   struct x x = {.a = 1, .b = 2};\n                              ^\ntypechecker/structInits/designators_partialExist.c:15:30: note: (near initialization for \u2018x\u2019)\n",
+    "stdOut":""
+  },
+  "typechecker/structInits/nestedStruct_init.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listOfStructsDes.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listInStruct.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listOfLists.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listInStructDes.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/list_designator.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listInit.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listOfListsDesignated.c":{
+    "inclusions":[],
+    "valid":true,
+    "stdErr":"",
+    "stdOut":""
+  },
+  "typechecker/structInits/listOfStructs.c":{
     "inclusions":[],
     "valid":true,
     "stdErr":"",

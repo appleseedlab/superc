@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
@@ -16,16 +17,23 @@ __static_renaming("__main_5", "main");
 
 
 };
+int  * const  __a_0;// L1
+float  * const  * (__b_1);// L2
 
-int  (* const  __a_0);
-float  (* const  (* __b_1));
-float  (* volatile  __c_2);
-int  (* volatile  (* __d_3));
-int  (* volatile const  (* (* const  (* volatile  (* (__e_4[2]))))));
-int  __main_5 () {
+
+
+float  * volatile  __c_2;// L3
+int  * volatile  * (__d_3);// L4
+int  * volatile const  * (* const  * volatile  * (__e_4[2]));// L5
+int  (__main_5) () {
+
 {
-return 0 ;
+{
 
+
+
+return 0 ;// L8
+}
 }
 
 

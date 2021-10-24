@@ -129,10 +129,6 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * calling this function.
    */
   public void destruct() {
-    if (this.contents.size() == 0) {
-      throw new IllegalStateException("multiverse is not initialized");
-    }
-    
     if (this.contents.size() > 1) {
       complement.delRef();
       complement = null;
@@ -290,7 +286,7 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    */
   public Iterator<Element<T>> iterator() {
     if (this.contents.size() == 0) {
-      throw new IllegalStateException("multiverse is not initialized");
+	throw new IllegalStateException("multiverse is not initialized");
     }
     
     return contents.iterator();
@@ -608,7 +604,10 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
       }
       return newmv;
     }
+    
   }
+
+  
 
   public String toString() {
     StringBuilder sb = new StringBuilder();

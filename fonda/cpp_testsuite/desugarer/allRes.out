@@ -1,0 +1,747 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/configurable/PASS_basic_pointer_array.desugared.c:53:7: error: definition of variable with array type needs an explicit size or an initializer
+int  (__arr_0[]);
+      ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/configurable/PASS_basic_pointer_array.desugared.c:55:9: error: definition of variable with array type needs an explicit size or an initializer
+float  (__arr_1[]);
+        ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/configurable/PASS_basic_pointer_array.desugared.c:57:8: error: definition of variable with array type needs an explicit size or an initializer
+char  (__arr_2[]);
+       ^
+3 errors generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/configurable/PASS_impossibleTypedef.desugared.c:44:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/configurable/PASS_impossibleTypedef.desugared.c:59:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/configurable/PASS_impossibleTypedef2.desugared.c:47:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/configurable/PASS_impossibleTypedef2.desugared.c:64:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/functions/PASS_multipleConfigs.desugared.c:45:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/functions/PASS_multipleConfigs.desugared.c:60:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/functions/PASS_multipleConfigs.desugared.c:75:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/functions/PASS_multipleConfigs.desugared.c:90:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/functions/PASS_multipleConfigs.desugared.c:105:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+5 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/functions/PASS_configParam.desugared.c:36:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/functions/PASS_configParam.desugared.c:51:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/functions/PASS_conditionalParams.desugared.c:36:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/functions/PASS_conditionalParams.desugared.c:51:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/functions/PASS_valid_type_function.desugared.c:54:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/functions/PASS_typedefParams.desugared.c:42:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/functions/PASS_typedefParams.desugared.c:57:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/test_struct.desugared.c:34:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_partial_redeclaration1.desugared.c:48:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/scope_partial_declaration2.desugared.c:43:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_partial_redeclaration2.desugared.c:48:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_global_redef_invalid.desugared.c:42:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_global_redef_invalid.desugared.c:57:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_no_redeclaration.desugared.c:42:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_valid_qualifiers.desugared.c:53:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/scope_partial_declaration1.desugared.c:48:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_global_redef_valid.desugared.c:72:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_global_redef_valid.desugared.c:96:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_valid_complex.desugared.c:27:1: warning: plain '_Complex' requires a type specifier; assuming '_Complex double'
+_Complex  __a_0;
+^
+         double
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_valid_duplicate_qualifiers.desugared.c:25:7: warning: duplicate 'const' declaration specifier [-Wduplicate-decl-specifier]
+const const float  __g_0;
+      ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_valid_duplicate_qualifiers.desugared.c:27:7: warning: duplicate 'const' declaration specifier [-Wduplicate-decl-specifier]
+const const const const const float  __i_1;
+      ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_valid_duplicate_qualifiers.desugared.c:27:13: warning: duplicate 'const' declaration specifier [-Wduplicate-decl-specifier]
+const const const const const float  __i_1;
+            ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_valid_duplicate_qualifiers.desugared.c:27:19: warning: duplicate 'const' declaration specifier [-Wduplicate-decl-specifier]
+const const const const const float  __i_1;
+                  ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_valid_duplicate_qualifiers.desugared.c:27:25: warning: duplicate 'const' declaration specifier [-Wduplicate-decl-specifier]
+const const const const const float  __i_1;
+                        ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_valid_duplicate_qualifiers.desugared.c:29:10: warning: duplicate 'volatile' declaration specifier [-Wduplicate-decl-specifier]
+volatile volatile volatile volatile int  __h_2;
+         ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_valid_duplicate_qualifiers.desugared.c:29:19: warning: duplicate 'volatile' declaration specifier [-Wduplicate-decl-specifier]
+volatile volatile volatile volatile int  __h_2;
+                  ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/PASS_valid_duplicate_qualifiers.desugared.c:29:28: warning: duplicate 'volatile' declaration specifier [-Wduplicate-decl-specifier]
+volatile volatile volatile volatile int  __h_2;
+                           ^
+8 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/typedef.desugared.c:32:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples/typedefname_with_qualifer.desugared.c:32:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/declarators/PASS_valid_Array_Pointer.desugared.c:33:7: warning: tentative array definition assumed to have one element
+int  (__e_4[]);
+      ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/declarators/PASS_valid_Array_Pointer.desugared.c:37:13: warning: tentative array definition assumed to have one element
+int  (* (* (__i_8[])));
+            ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/declarators/PASS_valid_Array_Pointer.desugared.c:40:7: warning: tentative array definition assumed to have one element
+int  (__l_11[]);
+      ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/declarators/PASS_valid_Array_Pointer.desugared.c:41:7: warning: tentative array definition assumed to have one element
+int  (__m_12[]);
+      ^
+4 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/declarators/PASS_valid_array_implicit_length.desugared.c:23:7: error: definition of variable with array type needs an explicit size or an initializer
+int  (__x_0[]);
+      ^
+1 error generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/struct/selfref.desugared.c:37:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/struct/nested_anonymous.desugared.c:44:23: warning: incompatible pointer types assigning to 'struct __forward_tag_reference_2 (*)' from 'struct __list_3 *' [-Wincompatible-pointer-types]
+ __head_6  . __next_5 = &  __tail_7  ;
+                      ^ ~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/struct/nested_anonymous.desugared.c:56:15: warning: incompatible pointer types assigning to 'struct __list_3 (*)' from 'struct __forward_tag_reference_2 (*)' [-Wincompatible-pointer-types]
+ __current_8  =  __current_8  -> __next_5 ;
+              ^  ~~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/struct/redef.desugared.c:44:23: warning: incompatible pointer types assigning to 'struct __forward_tag_reference_2 (*)' from 'struct __list_3 *' [-Wincompatible-pointer-types]
+ __head_6  . __next_5 = &  __tail_7  ;
+                      ^ ~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/struct/redef.desugared.c:56:15: warning: incompatible pointer types assigning to 'struct __list_3 (*)' from 'struct __forward_tag_reference_2 (*)' [-Wincompatible-pointer-types]
+ __current_8  =  __current_8  -> __next_5 ;
+              ^  ~~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/struct/tagnamespace.desugared.c:30:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/struct/anonymous.desugared.c:27:14: warning: expression result unused [-Wunused-value]
+ __data_2  . __p_1 ;
+ ~~~~~~~~    ^~~~~
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/primitive_function2.desugared.c:39:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/primitive_pointer1.desugared.c:36:9: warning: incompatible integer to pointer conversion assigning to 'int (*)' from 'int' [-Wint-conversion]
+ __x_1  = 1 ;
+        ^ ~
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/array_function1.desugared.c:39:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/array_function1.desugared.c:47:13: warning: expression result unused [-Wunused-value]
+ __x_1  [ 2 ] ;
+ ~~~~~    ~ ^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/pointer_pointer2.desugared.c:37:17: warning: expression result unused [-Wunused-value]
+( *  __x_3  ) . __field1_1 ;
+~~~~~~~~~~~~~   ^~~~~~~~~~
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/pointer_pointer1.desugared.c:37:1: warning: expression result unused [-Wunused-value]
+*  __x_2  ;
+^  ~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/pointer_pointer1.desugared.c:40:1: warning: expression result unused [-Wunused-value]
+*  __x_3  ;
+^  ~~~~~
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/pointer_struct2.desugared.c:38:11: warning: expression result unused [-Wunused-value]
+ __x_4  . __field1_2 ;
+ ~~~~~    ^~~~~~~~~~
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/primitive_struct2.desugared.c:36:11: warning: expression result unused [-Wunused-value]
+ __x_3  . __field1_1 ;
+ ~~~~~    ^~~~~~~~~~
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/struct_function2.desugared.c:42:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/pointer_function1.desugared.c:41:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/pointer_function1.desugared.c:55:1: warning: expression result unused [-Wunused-value]
+*  __x_2  ;
+^  ~~~~~
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/struct_function1.desugared.c:42:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/struct_function1.desugared.c:50:11: warning: expression result unused [-Wunused-value]
+ __x_3  . __a_1 ;
+ ~~~~~    ^~~~~
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/struct_struct2.desugared.c:39:11: warning: expression result unused [-Wunused-value]
+ __x_5  . __field1_3 ;
+ ~~~~~    ^~~~~~~~~~
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/array_function2.desugared.c:39:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/array_struct2.desugared.c:36:11: warning: expression result unused [-Wunused-value]
+ __x_3  . __field1_1 ;
+ ~~~~~    ^~~~~~~~~~
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/array_array1.desugared.c:33:13: warning: expression result unused [-Wunused-value]
+ __x_0  [ 5 ] ;
+ ~~~~~    ~ ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/array_array1.desugared.c:36:13: warning: expression result unused [-Wunused-value]
+ __x_1  [ 5 ] ;
+ ~~~~~    ~ ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/array_array1.desugared.c:33:2: warning: array index 5 is past the end of the array (which contains 4 elements) [-Warray-bounds]
+ __x_0  [ 5 ] ;
+ ^        ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/array_array1.desugared.c:28:1: note: array '__x_0' declared here
+int  (__x_0[4]);
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/array_array1.desugared.c:36:2: warning: array index 5 is past the end of the array (which contains 5 elements) [-Warray-bounds]
+ __x_1  [ 5 ] ;
+ ^        ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/array_array1.desugared.c:30:1: note: array '__x_1' declared here
+float  (__x_1[5]);
+^
+4 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/primitive_function1.desugared.c:39:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/primitive_pointer2.desugared.c:35:9: warning: incompatible pointer to integer conversion assigning to 'int' from 'int *'; remove & [-Wint-conversion]
+ __x_1  = &  __num_0  ;
+        ^ ~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/primitive_pointer2.desugared.c:41:1: warning: expression result unused [-Wunused-value]
+*  __x_2  ;
+^  ~~~~~
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/function_function1.desugared.c:40:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/function_function1.desugared.c:57:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/function_function2.desugared.c:40:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/function_function2.desugared.c:57:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/pointer_function2.desugared.c:41:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/pointer_array2.desugared.c:35:13: warning: expression result unused [-Wunused-value]
+ __x_1  [ 2 ] ;
+ ~~~~~    ~ ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound/pointer_array2.desugared.c:38:13: warning: expression result unused [-Wunused-value]
+ __x_2  [ 2 ] ;
+ ~~~~~    ~ ^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/structInits/listOfLists.desugared.c:34:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/structInits/listInStructDes.desugared.c:46:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/structInits/listInit.desugared.c:23:7: error: definition of variable with array type needs an explicit size or an initializer
+int  (__a_0[]);
+      ^
+1 error generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/structInits/listOfStructsDes.desugared.c:47:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/structInits/listOfListsDesignated.desugared.c:40:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/structInits/outOfRange.desugared.c:41:60: error: expected ';' after expression
+__static_type_error("assigning value out of struct range.")}
+                                                           ^
+                                                           ;
+1 error generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/structInits/list_designator.desugared.c:34:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/structInits/listInStruct.desugared.c:40:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/structInits/conditionalError.desugared.c:60:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/structInits/listOfStructs.desugared.c:47:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/structInits/designators_partialExist.desugared.c:47:49: error: expected ';' after expression
+__static_type_error("designator doesn't exist.")}
+                                                ^
+                                                ;
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/structInits/designators_partialExist.desugared.c:50:49: error: expected ';' after expression
+__static_type_error("designator doesn't exist.")}
+                                                ^
+                                                ;
+2 errors generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/conditionalexpression.desugared.c:37:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/function_parameters_empty.desugared.c:26:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/z3.desugared.c:50:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/struct_local_legal.desugared.c:42:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/if_statement_configurable3.desugared.c:64:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/struct_configurable_cross_and_forward_ref.desugared.c:55:22: warning: expression result unused [-Wunused-value]
+ __bob_1  . __T_10 . __field_struct_x_12 ;
+ ~~~~~~~~~~~~~~~~~   ^~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/struct_configurable_cross_and_forward_ref.desugared.c:58:21: warning: expression result unused [-Wunused-value]
+ __bob_1  . __T_2 . __field_t_3 ;
+ ~~~~~~~~~~~~~~~~   ^~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/struct_configurable_cross_and_forward_ref.desugared.c:64:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+3 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/variable_partially_defined.desugared.c:48:2: warning: expression result unused [-Wunused-value]
+ __a_0  ;
+ ^~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/variable_partially_defined.desugared.c:51:2: warning: expression result unused [-Wunused-value]
+ __a_3  ;
+ ^~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/variable_partially_defined.desugared.c:69:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+3 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/enum_enumerators.desugared.c:36:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/typedefname_and_variable_declarations.desugared.c:43:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/typedefname_and_variable_declarations.desugared.c:57:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/struct_undef_cast.desugared.c:44:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/typedefname_partially_defined.desugared.c:64:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/typedefname_partially_defined.desugared.c:82:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/declarators.desugared.c:31:7: warning: tentative array definition assumed to have one element
+int  (__x4a_5[]);
+      ^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/struct_configurable_main.desugared.c:46:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/struct_configurable_main.desugared.c:61:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/struct_crossref_local.desugared.c:44:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/function_parameters_empty_configurable.desugared.c:37:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/function_parameters_empty_configurable.desugared.c:51:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/function_parameters_empty_configurable.desugared.c:65:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+3 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/forloop.desugared.c:40:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/if_statement_configurable2.desugared.c:84:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/forloopdecl.desugared.c:40:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/struct_selfref_local.desugared.c:38:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/struct_selfref.desugared.c:37:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/desugarer_test.desugared.c:49:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/designated_initializer.desugared.c:24:1: error: expected identifier or '('
+{
+^
+1 error generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/local_redeclarations.desugared.c:39:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/declaringlist.desugared.c:31:7: warning: tentative array definition assumed to have one element
+int  (__x4a_5[]);
+      ^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/typedef.desugared.c:32:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/unit/offsetof.desugared.c:38:21: error: no member named 'z' in '__t_7'
+__size_t_1  __x_11= __builtin_offsetof ( struct __t_7   , z  );
+                    ^                                     ~
+1 error generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/functions/config_identifier.desugared.c:36:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/functions/config_identifier.desugared.c:51:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/functions/config_return_type.desugared.c:35:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/functions/config_parameters.desugared.c:36:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/functions/config_parameters.desugared.c:51:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/functions/config_main_body.desugared.c:54:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/functions/single.desugared.c:26:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/functions/config_multiply_defined_parameter.desugared.c:36:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/functions/config_multiply_defined_parameter.desugared.c:51:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/types_multiple_scopes.desugared.c:41:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/types_multiple_scopes.desugared.c:57:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/types_global_function_multiply-defined_pointer.desugared.c:38:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/types_global_function_multiply-defined_pointer.desugared.c:55:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/types_global_function_multiply-defined_pointer.desugared.c:66:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+3 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/extern_var_multiply-defined_primitive.desugared.c:40:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/types_primitive_and_compound.desugared.c:46:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/local_var_multiply-defined_primitive.desugared.c:48:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/global_function_multiple_prototypes_same_body.desugared.c:36:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/global_function_multiple_prototypes_same_body.desugared.c:51:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/global_function_multiple_prototypes_same_body.desugared.c:68:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+3 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/extern_function_multiply-defined.desugared.c:40:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/static_function_multiple_prototypes_same_body.desugared.c:36:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/static_function_multiple_prototypes_same_body.desugared.c:51:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/static_function_multiple_prototypes_same_body.desugared.c:68:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+3 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/types_extern_var_partially-defined.desugared.c:37:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/types_extern_var_partially-defined.desugared.c:52:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/global_var_static.desugared.c:40:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/global_var_static2.desugared.c:48:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/global_function_static.desugared.c:40:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/global_function_static.desugared.c:57:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/global_function_static.desugared.c:74:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+3 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/global_function_multiply-defined.desugared.c:40:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/global_function_multiply-defined.desugared.c:57:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/global_function_multiply-defined.desugared.c:74:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+3 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/types_extern_function_multiply-defined.desugared.c:31:10: error: too few arguments to function call, expected 1, have 0
+ __x_1 ( ) ;
+ ~~~~~   ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs/types_extern_function_multiply-defined.desugared.c:23:1: note: '__x_1' declared here
+extern float  __x_1 (int  );
+^
+1 error generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/declaringlists/error_conditional.desugared.c:35:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/declaringlists/undeclared.desugared.c:49:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/union/config_partially_defined_union.desugared.c:52:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/union/config_partially_defined_union.desugared.c:76:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/icse19nier/icsenier1.desugared.c:65:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/icse19nier/icsenier2.desugared.c:51:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/typedef_struct/typedef_struct.desugared.c:37:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/typedef_struct/config_field_typedef.desugared.c:53:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/typedef_struct/config_partially_defined_struct_field.desugared.c:53:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/typedef_struct/config_partially_defined_struct.desugared.c:44:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/typedef_struct/config_partially_defined_struct.desugared.c:63:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/misc/singlevariable.desugared.c:64:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/misc/main.desugared.c:49:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/misc/inside.desugared.c:32:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/misc/decl.desugared.c:34:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/misc/twovariables.desugared.c:77:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/misc/bob.desugared.c:59:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/misc/canonical_example.desugared.c:44:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/misc/twovariablesdifferent.desugared.c:114:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/misc/test.desugared.c:26:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/misc/type.desugared.c:29:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/misc/regular_conditional.desugared.c:56:1: warning: non-void function does not return a value [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/expressions/config_var_address.desugared.c:36:9: warning: incompatible integer to pointer conversion assigning to 'int (*)' from 'int' [-Wint-conversion]
+ __y_1  = 3 ;
+        ^ ~
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/phasar/linear_constant/twovariables.desugared_resugared.desugared.c:87:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/phasar/linear_constant/recursion_01.desugared.c:56:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/phasar/linear_constant/loop_01_resugared.desugared.c:52:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/phasar/linear_constant/recursion_01_resugared.desugared.c:48:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/phasar/linear_constant/call_01_resugared.desugared.c:55:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+}
+^
+1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/configurable
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/functions
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/examples
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/declarators
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/struct
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/compound
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/typechecker/structInits
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/linking/same_type
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/phasar
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/functions
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/constructs
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/declaringlists
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/union
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/enum
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/ifelsewhile
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/icse19nier
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/typedef_struct
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/misc
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/expressions
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/phasar/linear_constant
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/transformation/phasar/secure_memory

@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
@@ -7,37 +8,42 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 void __static_initializer_default() {
-__static_renaming("__main_12", "main");
-__static_renaming("__t_13", "t");
+__static_renaming("__t_16", "t");
+__static_renaming("__main_17", "main");
 
 
 };
-struct __anonymous_tag_0 {
-int  __x_1;
+struct ____anonymous_tag_0_1 {
+int  __x_2;// L4
 };
-struct __anonymous_tag_2 {
-char  __x_3;
+struct ____anonymous_tag_3_4 {
+char  __x_5;// L7
 };
-struct __anonymous_tag_4 {
-char  __y_5;
+struct ____anonymous_tag_6_7 {
+char  __y_8;// L10
 };
-union __anonymous_tag_6 {
-struct __anonymous_tag_0  __s1_7;
-struct __anonymous_tag_2  __s2_8;
-struct __anonymous_tag_4  __s3_9;
+union ____anonymous_tag_9_10 {
+struct ____anonymous_tag_0_1  __s1_11;// L3
+struct ____anonymous_tag_3_4  __s2_12;// L6
+struct ____anonymous_tag_6_7  __s3_13;// L9
 };
-struct __s_10 {
-union __anonymous_tag_6  ;
+struct __s_14 {
+union ____anonymous_tag_9_10  __anon_id_0_15;// L2
 };
 
-struct __s_10 ;
-int  __main_12 () {
+struct __s_14 ;// L1
+int  (__main_17) () {
+
 {
-struct __s_10  __t_13;
-__static_type_error("type error");
+{
 
-__static_type_error("type error");
 
+
+struct __s_14  __t_16;// L16
+
+ __t_16  . __anon_id_0_15 . __s1_11 . __x_2 = 1 ; // L17
+ __t_16  . __anon_id_0_15 . __s3_13 . __y_8 = 2 ; // L18
+}
 }
 
 

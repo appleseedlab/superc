@@ -3,6 +3,8 @@ package superc.cdesugarer;
 import java.util.List;
 import java.util.LinkedList;
 
+import xtc.Constants;
+
 import xtc.type.C;
 import xtc.type.Type;
 import xtc.type.VariableT;
@@ -12,9 +14,13 @@ import xtc.type.EnumT;
 import xtc.type.NumberT;
 import xtc.type.PointerT;
 import xtc.type.ErrorT;
+import xtc.type.BooleanT;
+import xtc.type.IntegerT;
+import xtc.type.EnumeratorT;
 
 import superc.core.Syntax;
 
+import superc.core.PresenceConditionManager;
 import superc.core.PresenceConditionManager.PresenceCondition;
 
 import superc.cdesugarer.Multiverse;
@@ -52,6 +58,8 @@ import superc.cdesugarer.Initializer.StructUnionDesignator;
 import superc.cdesugarer.Declaration;
 
 import superc.cdesugarer.CActions.EnumeratorValue;
+import superc.cdesugarer.CActions.DeclarationOrStatementValue;
+import superc.cdesugarer.CActions.LineNumbers;
 
 import superc.cdesugarer.CActions.FreshIDCreator;
 import superc.cdesugarer.CActions.StructOrUnionTypeCreator;
@@ -107,6 +115,33 @@ class DesugarOps {
   public final static Multiverse.Transformer<Syntax, String> syntaxToString = new Multiverse.Transformer<Syntax, String>() {
       String transform(Syntax from) {
         return from.getTokenText();
+      }
+    };
+
+  /**
+   * Convert String to DeclarationOrStatementValue
+   */
+  public final static Multiverse.Transformer<String, DeclarationOrStatementValue> StringToDSV = new Multiverse.Transformer<String, DeclarationOrStatementValue>() {
+      DeclarationOrStatementValue transform(String from) {
+        return new DeclarationOrStatementValue(from);
+      }
+    };
+
+  /**
+   * Convert Typespecifier to String
+   */
+  public final static Multiverse.Transformer<TypeSpecifier, String> TypeSpecifierToString = new Multiverse.Transformer<TypeSpecifier, String>() {
+      String transform(TypeSpecifier from) {
+        return from.toString();
+      }
+    };
+
+  /**
+   * Convert LineNumbers to String
+   */
+  public final static Multiverse.Transformer<LineNumbers, String> LineNumbersToString = new Multiverse.Transformer<LineNumbers, String>() {
+      String transform(LineNumbers from) {
+        return from.getComment();
       }
     };
   
@@ -262,12 +297,50 @@ class DesugarOps {
       }
     };
 
+  
+  public static Multiverse<TypeSpecifier> processStructDefinitionWithFlex(Syntax keyword,
+                                                                  String structTag,
+                                                                  List<Multiverse<Declaration>> structfields,
+                                                                  PresenceCondition pc,
+                                                                  CContext scope,
+                                                                  FreshIDCreator freshIdCreator,
+                                                                  StructOrUnionTypeCreator suTypeCreator) {
+    List<PresenceCondition> flexList = new LinkedList<PresenceCondition>();
+    for (Multiverse<Declaration> m : structfields) {
+      for (Element<Declaration> e : m) {
+        if (e.getData().isFlexible()) {
+          flexList.add(e.getCondition());
+        }
+      }
+    }
+    if (flexList.size() <= 1) {
+      return processStructDefinition(keyword,structTag,structfields,pc,scope,freshIdCreator,suTypeCreator);
+    }
+    PresenceCondition remaining = (new PresenceConditionManager()).newTrue();
+    for (PresenceCondition p : flexList) {
+      remaining = remaining.and(p.not());
+    }
+    flexList.add(remaining);
+    Multiverse<TypeSpecifier> ret = new Multiverse<TypeSpecifier>();
+    for (PresenceCondition p : flexList) {
+      if (p.isNotFalse()) {
+        List<Multiverse<Declaration>> l = new LinkedList<Multiverse<Declaration>>();
+        for (Multiverse<Declaration> m : structfields){
+          Multiverse<Declaration> filt = m.filter(p);
+          if (!filt.isEmpty()) {
+            l.add(filt);
+          }
+        }
+        ret.addAll(processStructDefinition(keyword,structTag,l,p,scope,freshIdCreator,suTypeCreator));
+      }
+    }
+    return ret;
+  }
   /**
    * Create the semantic value for a struct definition.
    */
   public static Multiverse<TypeSpecifier> processStructDefinition(Syntax keyword,
                                                                   String structTag,
-                                                                  String renamedTag,
                                                                   List<Multiverse<Declaration>> structfields,
                                                                   PresenceCondition pc,
                                                                   CContext scope,
@@ -276,8 +349,8 @@ class DesugarOps {
     // (1) add each field to the lookaside table and construct the transformation
 
     // get the field table for the current tag, which should be empty
-    SymbolTable<Type> tagtab = scope.addLookasideTable(renamedTag);
-
+    String renamedTag = freshIdCreator.freshCId(structTag);
+    SymbolTable<Declaration> tagtab = scope.addLookasideTable(renamedTag);
     // prepare the desugared output of this struct
     StringBuilder transformation = new StringBuilder();
     transformation.append(keyword);
@@ -294,7 +367,7 @@ class DesugarOps {
       for (Element<Declaration> structfield : structfieldmv) {
         PresenceCondition combinedCond = pc.and(structfield.getCondition());
         if (combinedCond.isNotFalse()) {
-
+          Declarator d = structfield.getData().getDeclarator();
           // if the struct field has no name, then there is no
           // possibilty of a name clash.  we just give it a new
           // name so that it can be stored in the lookaside
@@ -302,13 +375,16 @@ class DesugarOps {
           String fieldName;
           Declaration renamedDeclaration;
           String renamedField;
-          if (structfield.getData().hasName()) {
+          if (d.hasName()) {
             fieldName = structfield.getData().getName();
             renamedField = freshIdCreator.freshCId(fieldName);
             renamedDeclaration = structfield.getData().rename(renamedField);
           } else {
             fieldName = freshIdCreator.freshCId("anonymous_field");
             renamedField = fieldName;
+            if (d.isBitFieldSizeDeclarator()) {
+              renamedField += d.toString();
+            }
             renamedDeclaration = structfield.getData();
           }
           assert null != fieldName;
@@ -325,10 +401,10 @@ class DesugarOps {
             PresenceCondition newerrorCond = errorCond.or(combinedCond);
             errorCond.delRef(); errorCond = newerrorCond;
           } else { // declaration has no type error
-            Multiverse<SymbolTable.Entry<Type>> entries = tagtab.get(fieldName, combinedCond);
+            Multiverse<SymbolTable.Entry<Declaration>> entries = tagtab.get(fieldName, combinedCond);
             // System.err.println("MVMVMVMV: " + entries);
             // System.err.println(combinedCond);
-            for (Element<SymbolTable.Entry<Type>> entry : entries) {
+            for (Element<SymbolTable.Entry<Declaration>> entry : entries) {
               if (entry.getData().isError()) {
                 // already an error, just emit a message
                 System.err.println(String.format("INFO: redeclaring struct field %s in an already invalid configuration", fieldName));
@@ -337,17 +413,17 @@ class DesugarOps {
                 errorCond.delRef(); errorCond = newerrorCond;
 
               } else if (entry.getData().isUndeclared()) {
-                Type fieldType = VariableT.newField(renamedDeclaration.getType(), renamedField);
-
+                //Type fieldType = VariableT.newField(renamedDeclaration.getType(), renamedField);
+                renamedDeclaration.setField();
                 // add the type containing the renaming to the struct tag's symtab
-                tagtab.put(fieldName, fieldType, entry.getCondition());
+                tagtab.put(fieldName, renamedDeclaration, entry.getCondition());
                 // System.err.println("tagtab.put: " + fieldName);
                 // System.err.println("tagtab.put: " + fieldType);
                 // System.err.println("tagtab.put: " + entry.getCondition());
                 // save the text of the desugared field
                 transformation.append(renamedDeclaration.toString());
-                transformation.append(";\n");
-
+                transformation.append(";");
+                transformation.append(CActions.typespecLines(renamedDeclaration.getTypeSpec()) + "\n");
               } else {  // is already declared
                 // emit a message
                 System.err.println(String.format("INFO: type error on redeclaration of struct field %s", fieldName));
@@ -409,13 +485,14 @@ class DesugarOps {
 
         } else {  // is a declared entry
           assert entry.getData().isDeclared();
-          System.err.println(String.format("INFO: trying redefine a struct: %s", structTag));
+          System.err.println(String.format("INFO: trying to redefine a struct: %s", structTag));
           TypeSpecifier typespecifier = new TypeSpecifier();
           typespecifier.setType(ErrorT.TYPE);
           valuemv.add(typespecifier, entry.getCondition());
 
           // this configuration has a type error entry
           scope.putError(CContext.toTagName(structTag), entry.getCondition());
+          System.err.println(scope.getSymbolTable());
         }
       }
     }
@@ -428,6 +505,25 @@ class DesugarOps {
 
     return valuemv;
   }
+
+    /**
+   * Create the semantic value for a struct definition.
+   */
+  public static Multiverse<TypeSpecifier> processStructDefinitionMV(Syntax keyword,
+                                                                  Multiverse<Syntax> structTag,
+                                                                  List<Multiverse<Declaration>> structfields,
+                                                                  PresenceCondition pc,
+                                                                  CContext scope,
+                                                                  FreshIDCreator freshIdCreator,
+                                                                  StructOrUnionTypeCreator suTypeCreator) {
+    Multiverse<TypeSpecifier> retmv = new Multiverse<TypeSpecifier>();
+    for (Element<Syntax> e : structTag) {
+      String tag = e.getData().getTokenText();
+      retmv.addAll(processStructDefinitionWithFlex(keyword, tag, structfields, pc.and(e.getCondition()), scope, freshIdCreator, suTypeCreator));
+    }
+    return retmv;
+  }
+
 
   /**
    * Create the semantic value for a struct reference.
@@ -497,7 +593,6 @@ class DesugarOps {
     // should not be empty because symtab.get is not supposed
     // to be empty
     assert ! valuemv.isEmpty();
-
     return valuemv;
   }
 
@@ -506,43 +601,62 @@ class DesugarOps {
    */
   public static Multiverse<TypeSpecifier> processEnumDefinition(Syntax keyword,
                                                                 String enumTag,
+                                                                String renamedTag,
                                                                 List<Multiverse<EnumeratorValue>> list,
                                                                 PresenceCondition pc,
                                                                 CContext scope) {
     CActions.todoReminder("type check enumerator value.   not allowed to use same int.");
     PresenceCondition errorCond = pc.presenceConditionManager().newFalse();
     PresenceCondition validCond = pc.presenceConditionManager().newFalse();
+    List<String> enums= new LinkedList<String>();
     for (Multiverse<EnumeratorValue> ratormv : list) {
       for (Element<EnumeratorValue> rator : ratormv) {
-        if (rator.getData().getType().isError()) {
+        if (rator.getData().getType() == ErrorT.TYPE) {
           PresenceCondition newerrorCond = errorCond.or(rator.getCondition());
           errorCond.delRef(); errorCond = newerrorCond;
         } else {
           PresenceCondition newvalidCond = validCond.or(rator.getCondition());
           validCond.delRef(); validCond = newvalidCond;
-          scope.putEnumerator(enumTag, rator.getData().getTransformation());
-          // enumeratorlist.add(rator.getData().getType().toEnumerator());  // no longer storing enumerators with enum type
+          String eToAdd = rator.getData().getTransformation();
+          boolean found = false;
+          for (String es : enums) {
+            if (eToAdd.equals(es)) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            enums.add(eToAdd);
+          }
         }
       }  // end ratormv
     } // end list
+    if (enums.size() == 0) {
+      Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
+      TypeSpecifier typespecifier = new TypeSpecifier();
+      typespecifier.setType(ErrorT.TYPE);
+      typespecmv.add(typespecifier, pc);
+      return typespecmv;
+    }
+    scope.putEnumerator(enumTag,renamedTag,enums,pc);
 
     Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
-
-    if (validCond.isNotFalse()) {
+    PresenceCondition trueValid = validCond.and(errorCond.not());
+    validCond.delRef();
+    if (trueValid.isNotFalse()) {
       TypeSpecifier typespec = new TypeSpecifier();
       // TODO: get largest type for enum (gcc), instead of ISO standard of int
-      Type enumreftype = new EnumT(enumTag);
+      Type enumreftype = new EnumT(renamedTag);
       typespec.setType(enumreftype);
 
       typespec.addTransformation(keyword);
-      typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, enumTag));
+      typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, renamedTag));
 
-      typespecmv.add(typespec, validCond);
+      typespecmv.add(typespec, trueValid);
 
       /* scope.put(CContext.toTagName(enumTag), enumreftype, validCond); */
     }
-    validCond.delRef();
-
+    
     if (errorCond.isNotFalse()) {
       TypeSpecifier typespecifier = new TypeSpecifier();
       typespecifier.setType(ErrorT.TYPE);
@@ -560,20 +674,44 @@ class DesugarOps {
   }
   
   public static Multiverse<TypeSpecifier> processEnumReference(Syntax keyword,
-                                                              String enumTag,
-                                                              PresenceCondition pc) {
+                                                               String enumTag,
+                                                               PresenceCondition pc,
+                                                               CContext scope,
+                                                               FreshIDCreator freshIdCreator) {
     Multiverse<TypeSpecifier> typespecmv = new Multiverse<TypeSpecifier>();
+    Multiverse<String> renamings = scope.getEnumMultiverse(enumTag,pc);
+    for (Element<String> s : renamings) {
+      TypeSpecifier typespec = new TypeSpecifier();
+      if (s.getData().equals("<error>")) {
+        typespec.setError();
+      } else if (s.getData().equals("<undeclared>")) {
+        String forwardTagRefName;
+        if (scope.hasForwardETagForTag(enumTag)) {
+          forwardTagRefName = scope.getForwardETagForTag(enumTag);
+        } else {
+          forwardTagRefName = freshIdCreator.freshCId("forward_tag_reference");
+          scope.putForwardETagReference(forwardTagRefName, enumTag);
+        }
+        assert null != forwardTagRefName;
 
-    TypeSpecifier typespec = new TypeSpecifier();
-    // TODO: get largest type for enum (gcc), instead of ISO standard of int
-    Type enumreftype = new EnumT(enumTag);
-    typespec.setType(enumreftype);
-
-    typespec.addTransformation(keyword);
-    typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, enumTag));
-
-    typespecmv.add(typespec, pc);
-          
+        List<VariableT> dummy = new LinkedList<VariableT>();
+        dummy.add(VariableT.newField(NumberT.INT,enumTag));
+        Type forwardERef = new UnionT(forwardTagRefName,dummy);
+        typespec.setType(forwardERef);
+        typespec.addTransformation(new Language<CTag>(CTag.UNION));
+        typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, forwardTagRefName));
+        typespecmv.add(typespec, s.getCondition());
+      } else {
+        // TODO: get largest type for enum (gcc), instead of ISO standard of int
+        Type enumreftype = new EnumT(s.getData());
+        typespec.setType(enumreftype);
+        
+        typespec.addTransformation(keyword);
+        typespec.addTransformation(new Text<CTag>(CTag.IDENTIFIER, s.getData()));
+      
+        typespecmv.add(typespec, s.getCondition());
+      }
+    }
     return typespecmv;
   }
   
@@ -791,6 +929,25 @@ class DesugarOps {
   };
 
   /**
+   * Concatenate operator for strings.x, unless a String is empty
+   */
+  public final static Multiverse.Operator<String> propEmptyString = (sb1, sb2) -> {
+    if (sb1 == "" || sb2 == "") {
+      return "";
+    }
+    StringBuilder newsb = new StringBuilder();
+    newsb.append(sb1);
+    newsb.append(" ");
+    newsb.append(sb2);
+    return newsb.toString();
+  };
+
+  
+  public final static Multiverse.Operator<LineNumbers> combineLineNumbers = (ln1, ln2) -> {
+    return new LineNumbers(ln1,ln2);
+  };
+  
+  /**
    * Concatenate operator for strings.x unless there is an error
    */
   public final static Multiverse.Operator<String> concatStringsPropError = (sb1, sb2) -> {
@@ -826,6 +983,180 @@ class DesugarOps {
   };
 
   /**
+   * 
+   */
+  public final static Multiverse.Operator<Type> shiftOp = (t1, t2) -> {
+    // TODO: see CAnalyzer, e.g., additiveexpression, etc
+    Type newtype;
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    if (r1.isNumber() && !((NumberT)r1).isDecimal()) {
+      if (r2.isNumber() && !((NumberT)r2).isDecimal()) {
+        newtype = r1;
+      } else {
+        newtype = ErrorT.TYPE;
+      }
+    } else {
+      newtype = ErrorT.TYPE;
+    }
+    
+    return newtype;
+  };
+  
+  /**
+   * product of two types. Returns an error if either type is an error.
+   * otherwise returns left type. This should only be temporary in binary
+   * expressions until full type checking is done.
+   */
+  public final static Multiverse.Operator<Type> propTypeError = (t1, t2) -> {
+    if (t1 == ErrorT.TYPE || t2 == ErrorT.TYPE) {
+      return ErrorT.TYPE;
+    }
+    Type newtype;
+    newtype = t1.copy();
+    if ((!t2.hasAttribute(Constants.ATT_CONSTANT) && !t2.hasConstant())) {
+      if (newtype.hasConstant()) {
+        newtype.removeConstant();
+      } else if (newtype.hasAttribute(Constants.ATT_CONSTANT)) {
+        newtype.removeAttribute(Constants.ATT_CONSTANT);
+      }
+    }
+    return newtype;
+  };
+
+  /**
+   * product of two relational types. Returns an error if either type is an error.
+   * otherwise returns a boolean type. This should only be temporary in binary
+   * expressions until full type checking is done.
+   */
+  public final static Multiverse.Operator<Type> relOpProduct = (t1, t2) -> {
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    if ( (r1.isNumber() || r1.isEnum() || r1.isEnumerator())
+         &&
+         (r2.isNumber() || r2.isEnum() || r2.isEnumerator())) {
+      return NumberT.INT;
+    }
+
+        //compare pointer with non-decimal
+    if (((r1.isPointer() || r1.isArray()) && ((r2.isNumber() && !((NumberT)r2).isDecimal()) || r2.isEnumerator() || r2.isEnum() || r2.isPointer() || r2.isArray())) ||
+        ((r2.isPointer() || r2.isArray()) && ((r1.isNumber() && !((NumberT)r1).isDecimal()) || r1.isEnumerator() || r1.isEnum() || r1.isPointer() || r1.isArray()))) {
+      return NumberT.INT;
+    }
+    return ErrorT.TYPE;
+  };
+
+
+  public final static Multiverse.Operator<Type> eqOp = (t1, t2) -> {
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    //two quantitative values
+    if ( (r1.isNumber() || r1.isEnum() || r1.isEnumerator())
+         &&
+         (r2.isNumber() || r2.isEnum() || r2.isEnumerator())) {
+      return NumberT.INT;
+    }
+    //compare pointer with non-decimal
+    if (((r1.isPointer() || r1.isArray()) && ((r2.isNumber() && !((NumberT)r2).isDecimal()) || r2.isEnumerator() || r2.isEnum() || r2.isPointer() || r2.isArray())) ||
+        ((r2.isPointer() || r2.isArray()) && ((r1.isNumber() && !((NumberT)r1).isDecimal()) || r1.isEnumerator() || r1.isEnum() || r1.isPointer() || r1.isArray()))) {
+      return NumberT.INT;
+    }
+    return ErrorT.TYPE;
+  };
+
+        
+  public final static Multiverse.Operator<Type> bitOp = (t1, t2) -> {
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    //two quantitative values
+    if ( ((r1.isNumber() && !((NumberT)r1).isDecimal()) || r1.isEnum() || r1.isEnumerator())
+         &&
+         ((r2.isNumber() && !((NumberT)r2).isDecimal()) || r2.isEnum() || r2.isEnumerator())) {
+      return NumberT.INT;
+    }
+    return ErrorT.TYPE;
+  };
+        
+  public final static Multiverse.Operator<Type> scalarOp = (t1, t2) -> {
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    //two quantitative values
+    if ( (r1.isStruct() || r1.isUnion())
+         ||
+         (r2.isStruct() || r2.isUnion())) {
+      return ErrorT.TYPE;
+    }
+    return NumberT.INT;
+  };
+
+  public final static Multiverse.Operator<Type> multOp = (t1, t2) -> {
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    //two quantitative values
+    if ( (r1.isNumber() || r1.isEnum() || r1.isEnumerator())
+         &&
+         (r2.isNumber() || r2.isEnum() || r2.isEnumerator())) {
+      return r1;
+    }
+    return ErrorT.TYPE;
+  };
+  
+  public final static Multiverse.Operator<Type> modOp = (t1, t2) -> {
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+    //two quantitative values
+    if ( ((r1.isNumber() && !((NumberT)r1).isDecimal()) || r1.isEnum() || r1.isEnumerator())
+         &&
+         ((r2.isNumber() && !((NumberT)r2).isDecimal()) || r2.isEnum() || r2.isEnumerator())) {
+      return r1;
+    }
+    return ErrorT.TYPE;
+  };
+
+  public final static Multiverse.Operator<Type> addOp = (t1, t2) -> {
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    //two quantitative values
+    if ( (r1.isNumber() || r1.isEnum() || r1.isEnumerator())
+         &&
+         (r2.isNumber() || r2.isEnum() || r2.isEnumerator())) {
+      return r1;
+    }
+    //compare pointer with non-decimal
+    if ((r1.isPointer() || r1.isArray()) && ((r2.isNumber() && !((NumberT)r2).isDecimal()) || r2.isEnumerator() || r2.isEnum())) {
+      return r1;
+    } else if ((r2.isPointer() || r2.isArray()) && ((r1.isNumber() && !((NumberT)r1).isDecimal()) || r1.isEnumerator() || r1.isEnum())) {
+      return r2;
+    }
+    return ErrorT.TYPE;
+  };
+
+  public final static Multiverse.Operator<Type> subOp = (t1, t2) -> {
+    Type r1 = t1.resolve();
+    Type r2 = t2.resolve();
+
+    //two quantitative values
+    if ( (r1.isNumber() || r1.isEnum() || r1.isEnumerator())
+         &&
+         (r2.isNumber() || r2.isEnum() || r2.isEnumerator())) {
+      return r1;
+    }
+    //compare pointer with non-decimal
+    if ((r1.isPointer() || r1.isArray()) && ((r2.isNumber() && !((NumberT)r2).isDecimal()) || r2.isEnumerator() || r2.isEnum() || r2.isPointer() || r2.isArray())) {
+      return r1;
+    }
+    return ErrorT.TYPE;
+  };
+
+  
+  /**
    * Check the type of an assignment.
    */
   public final static Multiverse<Type> checkAssignmentType(Multiverse<Type> left, Multiverse<Type> right,
@@ -840,23 +1171,26 @@ class DesugarOps {
         PresenceCondition rightcond = rightelem.getCondition().and(leftcond);
         for (Element<String> opelem : opmv) {
           PresenceCondition elemCond = opelem.getCondition().and(rightcond);
-          
+            
           if (elemCond.isNotFalse()) {
             Type t1 = leftelem.getData();
             Type t2 = rightelem.getData();
             String op = opelem.getData();
-            
             if (t1.hasError() || t2.hasError()) {
               resultmv.add(ErrorT.TYPE, elemCond);
               continue;
             }
-            
+
             final Type r1 = t1.resolve();
             final Type r2 = cOps.pointerize(t2);
             Type result   = null;
 
             if (r2.isVoid()) {
               System.err.println("type error: void value not ignored as it ought to be");
+              resultmv.add(ErrorT.TYPE, elemCond);
+              continue;
+            }
+            if (t1.isEnum() && (r2.isPointer() || r2.isArray())) {
               resultmv.add(ErrorT.TYPE, elemCond);
               continue;
             }
@@ -977,9 +1311,11 @@ class DesugarOps {
                   result = r1;
                 }
 
+              } else if (t2.isEnum()) {
+                result = ErrorT.TYPE;
               } else if (t2.hasConstant() && t2.getConstant().isNull()) {
                 result = r1;
-
+                
               } else if (cOps.isIntegral(t2)) {
                 if (pedantic) {
                   System.err.println("type error: " + op + " makes pointer from integer without a cast");
@@ -990,7 +1326,8 @@ class DesugarOps {
                   result = r1;
                 }
               }
-            } break;
+            }
+              break;
             case FUNCTION: {
               System.err.println("type error: " + "functions cannot be assigned to");
               result = ErrorT.TYPE;
@@ -1021,45 +1358,63 @@ class DesugarOps {
    * Check the type of a unary operator.
    */
   public final static Multiverse.Joiner<Type, Syntax, Type> checkUnaryOp = (type, op) -> {
+    if (type == ErrorT.TYPE) {
+      return ErrorT.TYPE;
+    }
     switch (op.kind()) {
     case LANGUAGE:
-      switch (((Language<CTag>) op).tag()) {
-      case STAR:
-        Type resolvedType = type.resolve();  // unwrap any typedef aliasing
-        if (resolvedType.isPointer()) {
-          return resolvedType.toPointer().getType();
-        } else if (resolvedType.isArray()) {
-          return resolvedType.toArray().getType();
-        }else {
-          return ErrorT.TYPE;
-        }
-      // should be unreachable
-      case AND:
-      return  new PointerT(type.resolve());
-      case ICR:
-      //fall-through
-      case DECR:
-        resolvedType = type.resolve();
-        if ( resolvedType.isArray() ||
-             resolvedType.isStruct() ||
-             resolvedType.isUnion() ||
-             resolvedType.isFunction())
-          return ErrorT.TYPE;
-      case PLUS:
-      // fall-through
-      case MINUS:
-        // fall-through
-      case NEGATE:
-        // fall-through
-      case NOT:
-        // TDDO: check types of other operators
-        return type;
-      
-      default:
-      throw new AssertionError("unexpected unary op token");
+    Type resolvedType = type.resolve();  // unwrap any typedef aliasing
+    switch (((Language<CTag>) op).tag()) {
+    case STAR:
+      if (resolvedType.isPointer()) {
+        return resolvedType.toPointer().getType();
+      } else if (resolvedType.isArray()) {
+        return resolvedType.toArray().getType();
+      }else {
+        return ErrorT.TYPE;
       }
-      default:
-      throw new AssertionError("unary op should always be a language token");
+      // should be unreachable
+    case AND:
+      return  new PointerT(type.resolve());
+    case ICR:
+      //fall-through
+    case DECR:
+      if ( resolvedType.isNumber() ||
+           resolvedType.isPointer() ||
+           resolvedType.isEnum() ||
+           resolvedType.isEnumerator())
+        return resolvedType;
+      else {
+        return ErrorT.TYPE;
+      }
+    case PLUS:
+      // fall-through
+    case MINUS:
+      if (resolvedType.isNumber()) {
+        return resolvedType;
+      } else {
+        return ErrorT.TYPE;
+      }
+    case NEGATE:
+      resolvedType = type.resolve();
+      // TDDO: check types of other operators
+      if (resolvedType.isNumber() && !((NumberT)resolvedType).isDecimal()) {
+        return resolvedType;
+      } else {
+        return ErrorT.TYPE;
+      }
+    case NOT:
+      if (resolvedType.isStruct() || resolvedType.isUnion()) {
+        return ErrorT.TYPE;
+      } else {
+        return NumberT.CHAR;
+      }
+      
+    default:
+    throw new AssertionError("unexpected unary op token");
+    }
+    default:
+    throw new AssertionError("unary op should always be a language token");
     }
   };
   
@@ -1070,11 +1425,12 @@ class DesugarOps {
   public final static Multiverse.Transformer<Type, Type> getReturnType
     = new Multiverse.Transformer<Type, Type>() {
         Type transform(Type ftype) {
-          System.err.println("FTYPE: " + ftype);
-          System.err.println("FTYPE: " + ftype.isFunction());
-          System.err.println("FTYPE: " + ftype.getClass());
-          if (ftype.isFunction()) {
-            return ftype.toFunction().getResult();
+          Type x = ftype;
+          if (x.isPointer()) {
+            x = ((PointerT)x).getType().resolve();
+          }
+          if (x.isFunction() || x instanceof NamedFunctionT) {
+            return x.toFunction().getResult();
           // } else if () {
           } else {
             return ErrorT.TYPE;

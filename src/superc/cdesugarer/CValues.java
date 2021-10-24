@@ -229,6 +229,8 @@ public class CValues implements SemanticValues {
       // Fall through
     case 264: // CompoundStatement
       // Fall through
+    case 140: // FunctionPrototype
+      // Fall through
     case 268: // LocalLabelDeclarationListOpt
       // Fall through
     case 269: // LocalLabelDeclarationList

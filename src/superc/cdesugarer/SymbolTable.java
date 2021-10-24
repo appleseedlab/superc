@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.List;
 import java.util.Random;
 import java.util.Iterator;
+import java.util.AbstractMap;
 
 import xtc.tree.Location;
 
@@ -182,12 +183,10 @@ public class SymbolTable<T> implements Iterable<String> {
    * returns a Multiverse that contains only the UNDECLARED entry.
    */
   public Multiverse<Entry<T>> get(String ident, PresenceCondition cond) {
-    Multiverse<Entry<T>> newmv;
+    Multiverse<Entry<T>> newmv = new Multiverse<Entry<T>>();
     if (! this.map.containsKey(ident)) {
       // Create a new multiverse for the symbol that has only the
       // UNDECLARED entry under the True condition
-      newmv = new Multiverse<Entry<T>>();
-
       PresenceCondition trueCond = cond.presenceConditionManager().newTrue();
       newmv.add(UNDECLARED, trueCond);
       trueCond.delRef();
@@ -195,13 +194,65 @@ public class SymbolTable<T> implements Iterable<String> {
       PresenceCondition falseCond = cond.presenceConditionManager().newFalse();
       newmv.add(ERROR, falseCond);
       falseCond.delRef();
-      
       Multiverse<Entry<T>> filtered = newmv.filter(cond);
-      newmv.destruct();
       return filtered;
     } else {
-      return this.map.get(ident).filter(cond);
+      Multiverse<Entry<T>> cur = this.map.get(ident);
+      for (Element<Entry<T>> e : cur) {
+        if (!e.getCondition().and(CContext.getParseErrorCond()).is(e.getCondition())) {
+          newmv.add(e);
+        } else {
+          newmv.add(ERROR, e.getCondition());
+        }
+      }
+      return newmv.filter(cond);
     }
+  }
+
+  /**
+   * returns a Multiverse of a List of all elements under a presence condition
+   * 
+   */
+  public Multiverse<List<Map.Entry<String,T>>> getLists(PresenceCondition cond) {
+    Multiverse<List<Map.Entry<String,T>>> lists = new Multiverse<List<Map.Entry<String,T>>>();
+    lists.add(new LinkedList<Map.Entry<String,T>>(), cond);
+    for (Map.Entry<String,Multiverse<Entry<T>>> m : map.entrySet()) {
+      for (Element<Entry<T>> e : m.getValue()) {
+        if (e.getData().isUndeclared() || e.getData().isError()) {
+          continue;
+        }
+        //for each value, check to see if any 'and's does not result
+        //in not. If it doesn't split the list.
+        boolean remade;
+        do {
+          remade = false;
+          for (Element<List<Map.Entry<String,T>>> el : lists) {
+            PresenceCondition p = el.getCondition().and(e.getCondition());
+            //if the presencondition is a subset, but isn't 0
+            //issue is, that we also add if e is strictly greater than.
+            if (el.getCondition().is(p)) {
+              el.getData().add(new AbstractMap.SimpleImmutableEntry<String,T>(m.getKey(),e.getData().getValue()));
+            } else if (!p.isFalse()) {
+              Multiverse<List<Map.Entry<String,T>>> newLists = new Multiverse<List<Map.Entry<String,T>>>();
+              for (Element<List<Map.Entry<String,T>>> elN : lists) {
+                if (elN != el) {
+                  newLists.add(elN.getData(), elN.getCondition());
+                }
+              }
+              List<Map.Entry<String,T>> tL = new LinkedList<Map.Entry<String,T>>(el.getData());
+              newLists.add(el.getData(), p);
+              newLists.add(tL, el.getCondition().and(p.not()));
+              lists.destruct();
+              lists = newLists;
+              remade = true;
+              p.delRef();
+              break;
+            }
+          }
+        } while (remade);
+      } 
+    }
+    return lists;
   }
 
   /**
@@ -445,6 +496,20 @@ public class SymbolTable<T> implements Iterable<String> {
   //   return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
   // }
 
+  /**
+   * returns a list of all anonymous ids that exist in the
+   * symbol table.
+   */
+  public List<String> getAnonIds() {
+    List<String> res = new LinkedList<String>();
+    for (String k : map.keySet()) {
+      if (k.startsWith("anon_id_")) {
+        res.add(k);
+      }
+    }
+    return res;
+  }
+  
   public String toString() {
     StringBuilder sb  = new StringBuilder();
 
@@ -456,6 +521,7 @@ public class SymbolTable<T> implements Iterable<String> {
     
     return sb.toString();
   }
+
 
   public static void main(String args[]) {
     PresenceConditionManager presenceConditionManager = new PresenceConditionManager();

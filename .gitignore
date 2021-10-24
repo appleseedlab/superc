@@ -3,3 +3,8 @@ rats.log rats.sum xtc.log xtc.sum source-list.txt
 allTests.out
 *.desugared.bc
 *.Log
+*.o
+*.pyc
+/fonda/cpp_testsuite/desugarer/masterTypeCheck/binary
+/fonda/cpp_testsuite/desugarer/masterTypeCheck/unary
+/fonda/cpp_testsuite/desugarer/masterTypeCheck/other

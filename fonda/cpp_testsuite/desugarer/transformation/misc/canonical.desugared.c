@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
@@ -17,6 +18,6 @@ __static_condition_renaming("__static_condition_default_2", "(defined A) && !(de
 
 };
 
-long int  __x_1;
-long int  __y_3;
+long int  __x_1;// L4:L12
+long int  __y_3;// L4:L12
 
