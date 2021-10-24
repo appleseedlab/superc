@@ -1110,7 +1110,6 @@ class DesugarOps {
   public final static Multiverse.Operator<Type> modOp = (t1, t2) -> {
     Type r1 = t1.resolve();
     Type r2 = t2.resolve();
-
     //two quantitative values
     if ( ((r1.isNumber() && !((NumberT)r1).isDecimal()) || r1.isEnum() || r1.isEnumerator())
          &&

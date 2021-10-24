@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef WIN32
+#ifdef WIN32X
 void ap_get_win32_interpreter()
 {
   char buffer[1024];
@@ -18,7 +18,7 @@ void ap_get_win32_interpreter()
 
 int main(void)
 {
-  #ifdef WIN32
+  #ifdef WIN32X
   ap_get_win32_interpreter();
   #endif
   return 0;

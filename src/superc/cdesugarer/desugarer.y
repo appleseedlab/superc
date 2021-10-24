@@ -5785,7 +5785,14 @@ FunctionCall:  /** nomerge **/
               if (x.isPointer()) {
                 x = ((PointerT)x).getType().resolve();
               }
-              if ((x.isFunction() || x instanceof NamedFunctionT) && ((FunctionOrMethodT)x).getParameters().size() == 0 ) {
+              if (
+                  (x.isFunction() || x instanceof NamedFunctionT) &&
+                  (
+                   ((FunctionOrMethodT)x).getParameters().size() == 0
+                   ||
+                   (((FunctionOrMethodT)x).getParameters().size() == 1 &&
+                    ((FunctionOrMethodT)x).getParameters().get(0).resolve().isVoid()
+                    ))) {
                 for (Element<String> es : exprval.transformation) {
                   if (es.getCondition().is(et.getCondition())) {
                     valuemv.add(es.getData() + "( )",et.getCondition());
@@ -6928,7 +6935,6 @@ MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> rightmv = rightval.transformation;
-	  
           if (leftval.hasValidType() && rightval.hasValidType() && !leftval.isEmpty() && !rightval.isEmpty()) {
             setTransformationValue(value, new ExpressionValue(productAll(DesugarOps.concatStrings,
                                                                          leftmv,

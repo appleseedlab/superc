@@ -3,6 +3,10 @@ import os
 import shutil
 import json
 
+LOC = "/home/kisamefishfry/SystemConfig"
+stdInc = "-nostdinc -include " + LOC + "/baseInc.h -I " + LOC + "/original/usr/include/ -I " + LOC + "/original/usr/include/x86_64-linux-gnu/ -I " + LOC + "/\original/usr/lib/gcc/x86_64-linux-gnu/9/include/"
+
+
 def remove_prefix(text, prefix):
     return text[text.startswith(prefix) and len(prefix):]
 
@@ -49,7 +53,7 @@ def main():
                         sumTOut = os.path.relpath(curDir, os.getcwd()) + '/' + dirFiles[:len(dirFiles) - 2]
                         key = sumTOut + ".c"
                         print(curDir + '/' + dirFiles)
-                        os.system( 'java superc.SugarC ' + curDir + '/' + dirFiles + ' > ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c 2> ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.Log')
+                        os.system( 'java superc.SugarC ' + stdInc + " " + curDir + '/' + dirFiles + ' > ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c 2> ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.Log')
                             
                         if os.path.getsize(curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c') <= 32:
                             sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'SuperC failed\n')
