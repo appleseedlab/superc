@@ -6150,9 +6150,9 @@ public class CActions implements SemanticActions {
             // check that the postfix type is a pointer to a struct/union
             Type resolvedType = type.getData().resolve();  // unwrap any typedef aliasing
             if (resolvedType.isPointer()
-                && (resolvedType.toPointer().getType().isStruct()
-                    || resolvedType.toPointer().getType().isUnion())) {
-              StructOrUnionT sutype = resolvedType.toPointer().getType().toStructOrUnion();
+                && (resolvedType.toPointer().getType().resolve().isStruct()
+                    || resolvedType.toPointer().getType().resolve().isUnion())) {
+              StructOrUnionT sutype = resolvedType.toPointer().getType().resolve().toStructOrUnion();
               String tag = sutype.getName();
               assert tag != null;  // even anonymous structs get a name, e.g., anonymous(0)
 
@@ -10250,11 +10250,15 @@ public static class DeclarationOrStatementValue implements Copyable{
     }
     if (isGotoLabel) {
       List<String> labels = getLabelInFunction(Label,p);
-      ret += "{\n";
-      for (String s : labels) {
-        ret += "goto " + s + ";\n";
+      if (labels.size() == 0) {
+        ret += String.format("__static_type_error(\"%s\");\n", "invalid goto label");
+      } else {
+        ret += "{\n";
+        for (String s : labels) {
+          ret += "goto " + s + ";\n";
+        }
+        ret += "}\n";
       }
-      ret += "}\n";
     }
     if (!childPrepend.equals("")) {
       ret += childPrepend + "\n";

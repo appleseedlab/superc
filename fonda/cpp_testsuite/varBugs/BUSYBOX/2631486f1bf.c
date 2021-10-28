@@ -23,10 +23,10 @@ void dfree(struct dnode **arr)
 }
 #endif
 
-void showdirs(int **arr)
+void showdirs(struct dnode **arr)
 {
   for (int i = 0; i < 5; ++i) {
-    printf("\n%d", *arr[i]->val);
+    printf("\n%d", arr[i]->val);
   }
 
   #ifdef CONFIG_FEATURE_LS_RECURSIVE
@@ -58,7 +58,7 @@ void sort(int **arr, int size)
 int main(int argc, char **argv)
 {
   struct dnode *curr, *head;
-  int size = 5;
+  const int size = 5;
   struct dnode *arr[size];
 
   for (int i = 0; i < size; i++) {
