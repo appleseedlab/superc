@@ -45,11 +45,8 @@ public class CallGraphGenerator {
     Map<LanguageObject, Map<String, LanguageObject>> symtab;
     Stack<LanguageObject> scope;
     // TODO: replace this with a constant LanguageObject global scope obj
-    static String GLOBAL_SCOPE_NAME = "GLOBAL";
-    // todo; remove these two
-    static String APPLY_SCOPE_NAME = "APPLY";
-    static String UNDEFINED_SCOPE = "UNDEFINED";
-    LanguageObject undefined_scope = new LanguageObject(UNDEFINED_SCOPE, null);
+    LanguageObject global_scope = new LanguageObject("GLOBAL", null);
+    LanguageObject undefined_scope = new LanguageObject("UNDEFINED", null);
     // what is this 
     HashSet<String> notExplicitlySupported = new HashSet<>(Arrays.asList("constantDeclaration",
                                                                          "tableDeclaration",
@@ -71,11 +68,9 @@ public class CallGraphGenerator {
         // OR, first traverse declarations and then pass through for uses - separate call graph and declaration passes
         // OR in single pass, with flags to say declared or not (separate type checking pass)
 
-        LanguageObject global_scope = new LanguageObject(GLOBAL_SCOPE_NAME, null);
         scope.add(global_scope);
     }
 
-    // TODO: capitalize
     class LanguageObject {
         public String name;
         public LanguageObject nameSpace; //namespace TODO, make it immutable
