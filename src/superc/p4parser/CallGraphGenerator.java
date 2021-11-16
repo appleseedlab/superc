@@ -247,13 +247,22 @@ public class CallGraphGenerator {
             // Note: we do not skip visiting controlTypeDeclaration even though we externally retrieved
             // the name from it cause visitcontrolTypeDeclaration would do different operations
 
-            // TODO: remove as not needed atm
-            visit(n.getGeneric(0)); // controlTypeDeclaration
-            // TODO: make this a dispatch
-            visit(n.getGeneric(3)); // controlLocalDeclarations
-            // TODO: make it dynamic dispatch (stick with it all over)
-            // TODO: move visitcontrolBody here rather than make a call
-            visitcontrolBody(n.getGeneric(5));
+            dispatch(n.getGeneric(3)); // controlLocalDeclarations
+            String applyBlockName = n.get(4).toString();
+
+            // start parse controlBody
+            GNode oldN = n;
+            n = n.getGeneric(5); // controlBody
+            LanguageObject apply = new LanguageObject(applyBlockName, scope.peek());
+            scope.peek().callees.add(apply); // edge between parent control block and this apply block
+            addToSymtab(scope.peek(), applyBlockName, apply);
+            scope.add(apply);
+
+            dispatch(n.getGeneric(0)); // controlBody can have only one child
+            
+            scope.pop();
+            n = oldN;
+            //end parse controlBody
 
             scope.pop();
             return n;
@@ -272,21 +281,6 @@ public class CallGraphGenerator {
             return n;
         }
 
-        public Node visitcontrolBody(GNode n) {
-            // this is inside an apply block, so set scope
-            // TODO remove the concat for apply block, and call it apply, take the key word from the ast
-            LanguageObject apply = new LanguageObject(scope.peek().name + "/" + APPLY_SCOPE_NAME, scope.peek());
-            scope.peek().callees.add(apply); // edge between parent control block and this apply block
-            addToSymtab(scope.peek(), scope.peek().name + "/" + APPLY_SCOPE_NAME, apply);
-            scope.add(apply);
-
-            dispatch(n.getGeneric(0)); // controlBody can have only one child
-            
-            scope.pop();
-
-            return n;
-        }
-
         public Node visitdirectApplication(GNode n) {
             // As per the grammar we can have only one typename before the `.apply`, so nesting can't happen
             
@@ -295,7 +289,7 @@ public class CallGraphGenerator {
             lookupInSymTabAndAddAsCallee(calleeName);
             // LanguageObject callee = symtabLookup(scope.peek(), calleeName);
 
-            visit(n.getGeneric(4)); // argumentList
+            dispatch(n.getGeneric(4)); // argumentList
 
             // LanguageObject caller = scope.peek();
             // caller.callees.add(callee);
@@ -337,7 +331,7 @@ public class CallGraphGenerator {
                 String methodCalleeName = getPrefixedNonTypeNameFromLvalue(n.getGeneric(0));
                 lookupInSymTabAndAddAsCallee(methodCalleeName);
 
-                visit(n.getGeneric(LPARENindx + 1)); // argumentList
+                dispatch(n.getGeneric(LPARENindx + 1)); // argumentList
 
                 return n;
             }
@@ -397,7 +391,7 @@ public class CallGraphGenerator {
                 String stateName = getStringUnderName(n.getGeneric(0));
                 lookupInSymTabAndAddAsCallee(stateName, false);
             } else { // selectExpression;
-                visitselectExpression(n.getGeneric(0));
+                dispatch(n.getGeneric(0));
             }
             return n;
         }
