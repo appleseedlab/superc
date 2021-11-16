@@ -668,8 +668,8 @@ externDeclaration: /** complete **/
           }
         optTypeParameters {}
         L_BRACE methodPrototypes R_BRACE 
-    | optAnnotations EXTERN functionPrototype SEMICOLON 
-    | optAnnotations EXTERN name SEMICOLON 
+    | optAnnotations EXTERN functionPrototype SEMICOLON { bindIdent(subparser, getNodeAt(subparser, 3), getNodeAt(subparser, 2)); }
+    | optAnnotations EXTERN name SEMICOLON // not present in latest language specification
     ;
 
 methodPrototypes: /** complete, list **/
@@ -1184,6 +1184,9 @@ expression: /** complete, list **/
     | expression AND expression         {}
     | expression OR expression         {}
     | expression QUESTION expression COLON expression {}
+    | invokingExpression {}
+    ;
+invokingExpression: /** complete, list **/
     | expression l_angle realTypeArgumentList r_angle L_PAREN argumentList R_PAREN
         {}
     | expression L_PAREN argumentList R_PAREN

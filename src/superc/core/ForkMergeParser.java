@@ -103,7 +103,7 @@ public class ForkMergeParser {
    * state with an Syntax.Error object.  The subparser will be merged
    * instead of thrown away.
    */
-  final private static boolean NEW_ERROR_HANDLING = false;
+  final private static boolean NEW_ERROR_HANDLING = true;
 
   /** Save the disjunction of invalid configurations. */
   final private static boolean SAVE_ERROR_COND = false;
@@ -241,25 +241,11 @@ public class ForkMergeParser {
   /** Count the number of times FOLLOW is called. */
   private int nfollow;
 
-  /** Store what current language is */
-  private String language;
-
-  /** A language specific semanticValues plugin */
-  private static SemanticValues localSemanticValues;
-
   /** Create a new parser. */
   public ForkMergeParser(ParseTables tables, SemanticValues semanticValues,
                          Iterator<Syntax> stream,
                          PresenceConditionManager presenceConditionManager) {
-    this(tables, semanticValues, null, null, stream, presenceConditionManager, "C");
-  }
-
-  /** Create a new parser. */
-  public ForkMergeParser(ParseTables tables, SemanticValues semanticValues,
-                         Iterator<Syntax> stream,
-                         PresenceConditionManager presenceConditionManager,
-                         String language) {
-    this(tables, semanticValues, null, null, stream, presenceConditionManager, language);
+    this(tables, semanticValues, null, null, stream, presenceConditionManager);
   }
 
   /** Create a new parser. */
@@ -268,16 +254,6 @@ public class ForkMergeParser {
                          ParsingContext parsingContext,
                          Iterator<Syntax> stream,
                          PresenceConditionManager presenceConditionManager) {
-    this(tables, semanticValues, semanticActions, parsingContext, stream, presenceConditionManager, "C");
-  }
-
-  /** Create a new parser. */
-  public ForkMergeParser(ParseTables tables, SemanticValues semanticValues,
-                         SemanticActions semanticActions,
-                         ParsingContext parsingContext,
-                         Iterator<Syntax> stream,
-                         PresenceConditionManager presenceConditionManager,
-                         String language) {
     this.tables = tables;
     this.semanticValues = semanticValues;
     this.setSemanticActions(semanticActions);
@@ -292,15 +268,6 @@ public class ForkMergeParser {
 
     if (SAVE_ERROR_COND) {
       this.invalid = presenceConditionManager.newFalse();
-    }
-
-    this.language = language;
-
-    if(language == "P4") {
-      localSemanticValues = new superc.p4parser.P4Values();
-    }
-    else {
-      localSemanticValues = new superc.cparser.CValues();
     }
   }
 
@@ -2025,47 +1992,20 @@ public class ForkMergeParser {
         // scopes, can be merged, e.g., same nesting level, (7) the
         // grammar node is considered complete, i.e., non-complete
         // nodes shouldn't be children of conditional nodes
+        // (8) errors should not be merged here.
         boolean sameTokenType
           = (subparser.lookahead.token.syntax.kind() == Kind.LANGUAGE
              && subparser.lookahead.token.syntax.toLanguage().tag()
              == compareParser.lookahead.token.syntax.toLanguage().tag())
           || subparser.lookahead.token.syntax.kind() != Kind.LANGUAGE;
 
-        boolean rules7 = semanticValues.isComplete(subparser.stack.symbol);
-        boolean rules6 = (! hasParsingContext
-        || subparser.scope.mayMerge(compareParser.scope));
-        // boolean rules3_4 = false;
-        boolean rules3_4 = subparser.stack.isMergeable(compareParser.stack);
-        boolean rules5 = subparser.stack != compareParser.stack;
-
-        // System.err.println("Sametokentype: " + sameTokenType);
-        // System.err.println("rules7: " + rules7 + " for stack symbol: " + subparser.stack.symbol);
-        // System.err.println("rules6: " + rules6);
-        // System.err.println("rules3_4: " + rules3_4);
-        // System.err.println("rules5: " + rules5);
-        // System.err.println("Mutually exclusive? " + subparser.lookahead.presenceCondition.isMutuallyExclusive(compareParser.lookahead.presenceCondition));
-
-        // if(rules3_4_int == -1) {
-        //   if(subparser.lookahead.token.syntax.toString().equals(compareParser.lookahead.token.syntax.toString()) && // making sure same token
-        //      subparser.lookahead.action == ParsingAction.NONE && compareParser.lookahead.action == ParsingAction.REDUCE && // making sure top action is None since second parser when first forked is None (which gets pushed to top) and the current second parser is the one that just exited the condition block
-        //      subparser.lookahead.presenceCondition.not().equals(compareParser.lookahead.presenceCondition)) { // making sure the conditions are mutually exclusive
-        //     if(showActions) {
-        //       System.out.println("Handling the new case");
-        //     }
-        //     // System.out.println(subparser.lookahead.presenceCondition.not());
-        //     // System.out.println(compareParser.lookahead.presenceCondition);
-        //     rules3_4 = true;
-        //   }
-        // }
-        // else {
-          // rules3_4 = (rules3_4_int == 1);
-        // }
-
         if (sameTokenType                                          // (1,2)
-            && rules7   // (7)
-            && rules6  // (6)
-            && rules3_4    // (3,4)
-            && rules5) {           // (5)
+            && semanticValues.isComplete(subparser.stack.symbol)   // (7)
+            && (! hasParsingContext
+                || subparser.scope.mayMerge(compareParser.scope))  // (6)
+            && subparser.stack.isMergeable(compareParser.stack)    // (3,4)
+            && subparser.stack != compareParser.stack           // (5)
+            && ParsingAction.ERROR != subparser.lookahead.action ) { // (8)
           // Move subparser to merge list.
           mergedParsers.addLast(compareParser);
           subset.remove(inner);
@@ -2122,7 +2062,8 @@ public class ForkMergeParser {
           subparser.stack.merge(subparser.presenceCondition,
                                 mergedParser.stack,
                                 mergedParser.presenceCondition,
-                                maxDist);
+                                maxDist,
+                                semanticValues);
 
           PresenceCondition or =
             subparser.presenceCondition.or(mergedParser.presenceCondition);
@@ -3149,13 +3090,16 @@ public class ForkMergeParser {
      * other state stack's semantic value.
      * @param dist The distance down the stack to merge.
      */
+
+     // TODO: pass in the semanticvalue to the merge function and remove localSemanticValue var
     public void merge(PresenceCondition thisPresenceCondition,
                       StackFrame other,
                       PresenceCondition otherPresenceCondition,
-                      int dist) {
+                      int dist,
+                      SemanticValues semanticValues) {
       if (dist == 0) return;
 
-      SemanticValues.ValueType valueType = localSemanticValues.getValueType(this.symbol);
+      SemanticValues.ValueType valueType = semanticValues.getValueType(this.symbol);
 
       // empty = null when nothing is present, but input() is not null
       Boolean areSameStackFrames = equals(this, other);
@@ -3279,7 +3223,7 @@ public class ForkMergeParser {
       // System.err.println(this.value);
 
       if (this.next != null) {
-        this.next.merge(thisPresenceCondition, other.next,otherPresenceCondition, dist - 1);
+        this.next.merge(thisPresenceCondition, other.next,otherPresenceCondition, dist - 1, semanticValues);
       }
     }
 

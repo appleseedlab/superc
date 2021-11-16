@@ -17,9 +17,10 @@
  * USA.
  */
 package superc;
+import java.lang.reflect.*;
 
 import java.lang.StringBuilder;
-
+import java.nio.Buffer;
 import java.io.File;
 import java.io.Reader;
 import java.io.BufferedReader;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Map;
@@ -39,6 +41,7 @@ import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Stack;
 
 import superc.core.Lexer;
 import superc.core.LexerCreator;
@@ -81,6 +84,10 @@ import superc.p4parser.P4Actions;
 import superc.p4parser.P4Context;
 import superc.p4parser.P4LexerCreator;
 import superc.p4parser.P4TokenCreator;
+
+import superc.p4parser.GraphViz;
+// import static guru.nidi.graphviz.model.Factory.*;
+import superc.CallGraphGenerator;
 
 import superc.p4parser.P4Context.SymbolTable.STField;
 
@@ -136,6 +143,12 @@ public class SuperP4 extends Tool {
   /** Simplify nested conditionals in preprocessor output. */
   private final static boolean SIMPLIFY_NESTED_CONDITIONALS = true;
 
+  HashSet set = new HashSet<>();
+  ArrayList<String> blockValues = new ArrayList<String>();
+  HashMap<String, String> template_block_map = new HashMap<>();
+  HashMap<String, HashSet<String>> conditionalsInsideSpecificBlosk;
+  HashMap<String, HashSet<String>> conditionalsInsideEverything = new HashMap<>();
+  int counter = 0;
   /** Create a new tool. */
   public SuperP4() { /* Nothing to do. */ }
 
@@ -326,6 +339,8 @@ public class SuperP4 extends Tool {
       // Output and debugging
       bool("printAST", "printAST", false,
            "Print the parsed AST.").
+      bool("preprocessorUsageMatrix", "preprocessorUsageMatrix", false,
+           "Print intersection matrix of grammar constructs and preprocessor present inside each construct.").
       bool("printSource", "printSource", false,
            "Print the parsed AST in C source form.").
       bool("suppressConditions", "suppressConditions", false,
@@ -735,8 +750,7 @@ public class SuperP4 extends Tool {
         = new ForkMergeParser(P4ParseTables.getInstance(),
                               P4Values.getInstance(), actions,
                               initialParsingContext, preprocessor,
-                              presenceConditionManager,
-                              "P4");
+                              presenceConditionManager);
       initialParsingContext.free();
 
       // Initialize the the token stream.  Only pass ordinary tokens
@@ -1087,7 +1101,7 @@ public class SuperP4 extends Tool {
 
       parser = new ForkMergeParser(P4ParseTables.getInstance(), semanticValues,
                                    actions, initialParsingContext,
-                                   preprocessor, presenceConditionManager, "P4");
+                                   preprocessor, presenceConditionManager);
       parser.saveLayoutTokens(runtime.test("printSource") 
                               || runtime.test("configureAllYes")
                               || runtime.test("configureAllNo")
@@ -1197,287 +1211,361 @@ public class SuperP4 extends Tool {
         runtime.console().format((Node) translationUnit).pln().flush();
       }
 
-      if (runtime.test("printSource")) {
-        OutputStreamWriter writer = new OutputStreamWriter(System.out);
+      if(runtime.test("preprocessorUsageMatrix")) {
 
-        System.err.println("Print Source");
+        CallGraphGenerator graph = new CallGraphGenerator();
+        graph.doEverything((Node) translationUnit);
+        graph.printCallGraph();
 
-        LinkedList<PresenceCondition> parents
-          = new LinkedList<PresenceCondition>();
+        if(! true) {
 
-        parents.push(presenceConditionManager.newTrue());
+          ArrayList<String> template = readTemplate("/mnt/onos-satellite/pipelines/fabric/src/main/resources/V1Template.txt");
+          collectBlockNames((Node) translationUnit, template);
+          template_block_map = (HashMap<String, String>) stripParenthesis(template_block_map);
+          blockValues = (ArrayList<String>) stripParenthesis(blockValues);
+          initializeConditionalsInside();
+          System.out.println(template_block_map);
+          System.out.println(blockValues);
 
-        printSource((Node) translationUnit,
-                    presenceConditionManager.newTrue(),
-                    parents, writer);
+          walkAST((Node) translationUnit, "", false);
+          walkASTForAllConstructs((Node) translationUnit, null);
+          convertNotConditionalsAndRemoveDefinedWordForStatPurposes(conditionalsInsideSpecificBlosk);
+          convertNotConditionalsAndRemoveDefinedWordForStatPurposes(conditionalsInsideEverything);
 
-        parents.pop();
-        assert(parents.size() == 0);
-        
-        writer.flush();
-      }
-
-      // if (runtime.test("configureAllYes") || runtime.test("configureAllNo")) {
-      //   OutputStreamWriter writer = new OutputStreamWriter(System.out);
-      //   boolean defaultSetting = runtime.test("configureAllYes") ? true : false;
-      //   List<String> clExceptions = null != runtime.getString("configureExceptions") ?
-      //     Arrays.asList(runtime.getString("configureExceptions").split(",")) :
-      //     null;
-      
-      //   List<String> exceptions = new LinkedList<String>();
-      //   Map<String, String> nonbooleans = new HashMap<String, String>();
-      //   ConditionEvaluator evaluator = null;
-      //   BDD configuration;
-
-      //   if (null != clExceptions) {
-      //     exceptions.addAll(clExceptions);
-      //   }
-
-      //   if (null != runtime.getString("configFile")) {
-      //     BufferedReader configFile =
-      //       new BufferedReader(new FileReader(runtime.getString("configFile")));
-      //     String line;
-
-      //     // Turn on the configuration variables from a linux .config
-      //     // file
-      //     while (null != (line = configFile.readLine())) {
-      //       if (line.length() == 0) continue;
-      //       if (line.startsWith("#")) continue;
-      //       if (line.endsWith("=y")) {  // boolean and tristate
-      //         String exception =
-      //           "(defined " + line.substring(0,line.length() - 2) + ")";
-      //         exceptions.add(exception);
-      //       } else { // non-boolean
-      //         String[] def = line.split("=");
-      //         String exception = "(defined " + def[0] + ")";
-      //         exceptions.add(exception);
-      //         nonbooleans.put(def[0], def[1]);
-      //       }
-      //     }
-      //   }
-
-      //   // PresenceCondition t = presenceConditionManager.newTrue();
-      //   // macroTable._define("CONFIG_64BIT", new MacroTable.Macro.Object(null), t);
-
-      //   // StringBuilder sb;
-      //   // String name = "BITS_PER_LONG";
-      //   // // String name = "CONFIG_64BIT";
-    
-      //   // sb = new StringBuilder();
-        
-      //   // sb.append(name);
-      //   // sb.append("\n");
-      //   // sb.append("-------------------------------------------");
-      //   // sb.append("\n");
-      //   // for (MacroTable.Entry e : macroTable.table.get(name)) {
-      //   //   sb.append(e);
-      //   //   sb.append("\n");
-      //   // }
-      //   // sb.append("\n");
-
-      //   // System.err.println(sb.toString());
-
-      //   if (null != nonbooleans) {
-      //     evaluator = new ConditionEvaluator(ExpressionParser.fromRats(),
-      //                                        presenceConditionManager,
-      //                                        macroTable);
-      //   }
-
-      //   configuration = presenceConditionManager.
-      //     createConfiguration(defaultSetting, exceptions);
-      //   System.err.println("Configure AST");
-
-      //   configureAST((Node) translationUnit, configuration, nonbooleans, writer);
-      //   configuration.free();
-
-      //   writer.flush();
-      // } else if (null != runtime.getString("configFile")) {
-      //   OutputStreamWriter writer = new OutputStreamWriter(System.out);
-      //   Map<String, String> nonbooleans = new HashMap<String, String>();
-      //   BufferedReader configFile =
-      //     new BufferedReader(new FileReader(runtime.getString("configFile")));
-      //   List<String> clExceptions = null != runtime.getString("configureExceptions") ?
-      //     Arrays.asList(runtime.getString("configureExceptions").split(",")) :
-      //     null;
-      //   PresenceCondition t =
-      //     presenceConditionManager.newTrue();
-      //   Iterator<String> clIterator = null != clExceptions ? clExceptions.iterator()
-      //     : null;
-      //   String line;
-      //   HashSet<String> configuredVars = new HashSet<String>();
-
-      //   // Put the config file definitions into the macro symbol table
-      //   while (null != (line = configFile.readLine()) ||
-      //          clIterator != null &&
-      //          clIterator.hasNext() &&
-      //          null != (line = clIterator.next())) {
-      //     if (line.length() == 0) {
-      //       continue;
-      //     } else if (line.startsWith("# ") && line.endsWith(" is not set")) {
-      //       String var_name = line.substring(2,line.length() - " is not set".length());
-      //       macroTable._define(var_name,
-      //                          MacroTable.Macro.undefined,
-      //                          t);
-      //       configuredVars.add(var_name);
-      //     } else if (line.startsWith("#")) { // ignore comments other than undefined config vars
-      //       continue;
-      //     } else if (line.endsWith("=y")) {  // store boolean and tristate config vars
-      //       String var_name = line.substring(0,line.length() - 2);
-      //       // if (var_name.equals("__KERNEL__")) System.err.println("before define " + macroTable.contains("__KERNEL__"));
-      //       macroTable._define(var_name,
-      //                          new MacroTable.Macro.Object(null),
-      //                          t);
-      //       configuredVars.add(var_name);
-      //       // if (var_name.equals("__KERNEL__")) System.err.println("after define " + macroTable.contains("__KERNEL__"));
-      //     } else { // store non-boolean config var defs
-      //       String[] def = line.split("=");
-      //       List<Syntax> def_list = new LinkedList<Syntax>();
-      //       final CLexer clexer;
-      //       Syntax syntax = null;
-
-      //       if (def.length > 1) {
-      //         clexer = new CLexer(new StringReader(def[1]));
-      //         clexer.setFileName("config file");
-
-      //         while (true) {
-      //           try {
-      //             syntax = clexer.yylex();
-      //           } catch (IOException e) {
-      //             e.printStackTrace();
-      //             throw new RuntimeException();
-      //           }
-      //           if (syntax.kind() == Kind.EOF) break;
-      //           def_list.add(syntax);
-      //         }
-      //         macroTable._define(def[0],
-      //                            new MacroTable.Macro.Object(def_list),
-      //                            t);
-      //         nonbooleans.put(def[0], def[1]);
-      //         configuredVars.add(def[0]);
-      //       } else {
-      //         // System.err.println("wrong " + line);
-      //       }
-      //     }
-      //   }
-
-      //   // Pull any other macros not defined in the config file to false
-      //   for (String var_name : macroTable.table.keySet()) {
-      //     if (! configuredVars.contains(var_name)) {
-      //       macroTable._define(var_name,
-      //                          MacroTable.Macro.undefined,
-      //                          t);
-      //     }
-      //   }
-
-      //   // StringBuilder sb;
-      //   // // String name = "__KERNEL__";
-      //   // // String name = "BITS_PER_LONG";
-      //   // // String name = "CONFIG_64BIT";
-      //   // // String name = "__CHECKER__";
-      //   // String name = "__section";
-    
-      //   // sb = new StringBuilder();
-        
-      //   // sb.append(name);
-      //   // sb.append("\n");
-      //   // sb.append("-------------------------------------------");
-      //   // sb.append("\n");
-      //   // for (MacroTable.Entry e : macroTable.table.get(name)) {
-      //   //   sb.append(e);
-      //   //   sb.append("\n");
-      //   // }
-      //   // sb.append("\n");
-
-      //   // System.err.println(sb.toString());
-
-      //   // Evaluate each BDD variable according to the Linux .config
-      //   // file settings.
-      //   BDD configuration = presenceConditionManager.newTrue().getBDD();
-      //   int var_idx = 0;
-      //   String var_name = null;
-
-      //   // conditionEvaluator.setPullUndefinedFalse(true);
-      //   while (null != (var_name = presenceConditionManager.getVariableManager().getName(var_idx++))) {
-      //     String var_cond = "#if " + var_name + "\n#else\n#endif\n";
-      //     // System.err.println(var_cond);
-      //     HeaderFileManager var_filemanager =
-      //       new HeaderFileManager(new StringReader(var_cond),
-      //                             new File(var_name),
-      //                             null, null, null, null, null);
-      //     // System.err.println("current: " + presenceConditionManager.reference().isTrue())
-      //       ;
-      //     Preprocessor var_evaluator =
-      //       new Preprocessor(var_filemanager,
-      //                        macroTable,
-      //                        presenceConditionManager,
-      //                        conditionEvaluator,
-      //                        tokenCreator);
-
-      //     Syntax syntax = var_evaluator.next();
-
-      //     if (syntax.kind() == Kind.CONDITIONAL) {
-      //       PresenceCondition presult = ((Conditional) syntax).presenceCondition();
-      //       // if (var_name.equals("(defined __KERNEL__)")) {
-      //       //   System.err.println("after configure " + var_name);
-      //       //   System.err.println("after configure " + var_cond);
-      //       //   System.err.println("after configure " + presult.toString());
-      //       // }
-      //       if (presult.isTrue()) {
-      //         configuration.andWith(presenceConditionManager.getVariableManager().getVariable(var_name));
-      //         // System.err.println("FJDSKL");
-      //       } else // if (presult.isFalse())
-      //         {
-      //         BDD ith = presenceConditionManager.getVariableManager().getVariable(var_name);
-      //         BDD not = ith.not();
-      //         ith.free();
-      //         configuration.andWith(not);
-      //         // System.err.println("noonononon");
-      //       } // else {
-      //       //   System.err.println("unresolved expression");
-      //       //   System.err.println(var_name + " " + presult.toString());
-      //       //   System.exit(1);
-      //       // }
-      //     } else {
-      //       System.err.println("handle incorrect evaluation");
-      //       System.exit(1);
-      //     }
-
-      //     while (syntax.kind() != Kind.EOF) syntax = var_evaluator.next();
-      //   }
-
-      //   // Evaluate each macro in the macro table until each is
-      //   // unconditionally defined.
-
-      //   // After parsing, replace identifiers, recursively evaluate if
-      //   // necessary
-
-      //   // // Evaluate each BDD it using the above evaluator
-      //   // BDD configuration = presenceConditionManager.evaluateBDDs(visitor);
-
-      //   System.err.println("Configure AST");
-      //   configureAST((Node) translationUnit, configuration, nonbooleans, writer);
-      //   configuration.free();
-
-      //   writer.flush();
-      // }
-
-      if (runtime.test("statisticsParser")) {
-        IdentityHashMap<Object, Integer> seen
-          = new IdentityHashMap<Object, Integer>();
-        int count = dagNodeCount((Node) translationUnit, seen);
-        runtime.errConsole().pln(String.format("dag_nodes %d", count));
-
-        int shared = 0;
-        for (Integer i : seen.values()) {
-          if (i > 1) {
-            shared++;
+          
+          for(String key : conditionalsInsideSpecificBlosk.keySet()) {
+            // eliminateCancellations(conditionalsInsideSpecificBlosk.get(key), key);
+            System.out.println("\nHello, this is key " + key + " with the set: " + conditionalsInsideSpecificBlosk.get(key));
           }
-        }
-        runtime.errConsole().pln(String.format("dag_nodes_shared %d", shared));
-        runtime.errConsole().flush();
-      }
 
-      result = (Node) translationUnit;
+          printMatrix(conditionalsInsideSpecificBlosk);
+          // printMatrix(conditionalsInsideEverything);
+
+          collectASTData((Node) translationUnit);
+          convertNotConditionalsAndRemoveDefinedWordForStatPurposes(presenceCondMap);
+
+          for(String e: presenceCondMap.keySet()) {
+            // System.out.println(e + ": " + presenceCondMap.get(e));
+
+            if(conditionalsInsideSpecificBlosk.containsKey(e)) {
+              if(! conditionalsInsideSpecificBlosk.get(e).equals(presenceCondMap.get(e))) {
+                System.err.println("ERORORO not equal: " + e);
+                System.exit(1);
+              }
+            }
+          }
+
+          System.out.println("Printing call graph");
+          for(String key: callGraph.keySet()) {
+            System.out.println(key + " is calling: " + callGraph.get(key));
+          }
+
+          expandCPP();
+          removeEmpty(presenceCondMap);
+          System.out.println(blockValues);
+          for(String e: presenceCondMap.keySet()) {
+            if(blockValues.contains(e))
+              System.out.println(e + ": " + presenceCondMap.get(e));
+
+            // if(conditionalsInsideSpecificBlosk.containsKey(e)) {
+            //   System.out.println("old " + e + ": " + conditionalsInsideSpecificBlosk.get(e));
+            //   // presenceCondMap.get(e).removeAll(conditionalsInsideSpecificBlosk.get(e));
+            //   // System.out.println("diff: " + presenceCondMap.get(e));
+            // }
+          }
+
+          presenceCondMap = keepOnlySpecifics(blockValues, presenceCondMap);
+          printMatrix(presenceCondMap);
+
+          
+          // System.out.println(presenceCondMap);
+
+          String dot_string = toDot(callGraph, "callGraph");
+          System.out.println("digraph{" + dot_string + "}");
+        }
+
+        if (runtime.test("printSource")) {
+          OutputStreamWriter writer = new OutputStreamWriter(System.out);
+
+          System.err.println("Print Source");
+
+          LinkedList<PresenceCondition> parents
+            = new LinkedList<PresenceCondition>();
+
+          parents.push(presenceConditionManager.newTrue());
+
+          printSource((Node) translationUnit,
+                      presenceConditionManager.newTrue(),
+                      parents, writer);
+
+          parents.pop();
+          assert(parents.size() == 0);
+          
+          writer.flush();
+        }
+
+        // if (runtime.test("configureAllYes") || runtime.test("configureAllNo")) {
+        //   OutputStreamWriter writer = new OutputStreamWriter(System.out);
+        //   boolean defaultSetting = runtime.test("configureAllYes") ? true : false;
+        //   List<String> clExceptions = null != runtime.getString("configureExceptions") ?
+        //     Arrays.asList(runtime.getString("configureExceptions").split(",")) :
+        //     null;
+        
+        //   List<String> exceptions = new LinkedList<String>();
+        //   Map<String, String> nonbooleans = new HashMap<String, String>();
+        //   ConditionEvaluator evaluator = null;
+        //   BDD configuration;
+
+        //   if (null != clExceptions) {
+        //     exceptions.addAll(clExceptions);
+        //   }
+
+        //   if (null != runtime.getString("configFile")) {
+        //     BufferedReader configFile =
+        //       new BufferedReader(new FileReader(runtime.getString("configFile")));
+        //     String line;
+
+        //     // Turn on the configuration variables from a linux .config
+        //     // file
+        //     while (null != (line = configFile.readLine())) {
+        //       if (line.length() == 0) continue;
+        //       if (line.startsWith("#")) continue;
+        //       if (line.endsWith("=y")) {  // boolean and tristate
+        //         String exception =
+        //           "(defined " + line.substring(0,line.length() - 2) + ")";
+        //         exceptions.add(exception);
+        //       } else { // non-boolean
+        //         String[] def = line.split("=");
+        //         String exception = "(defined " + def[0] + ")";
+        //         exceptions.add(exception);
+        //         nonbooleans.put(def[0], def[1]);
+        //       }
+        //     }
+        //   }
+
+        //   // PresenceCondition t = presenceConditionManager.newTrue();
+        //   // macroTable._define("CONFIG_64BIT", new MacroTable.Macro.Object(null), t);
+
+        //   // StringBuilder sb;
+        //   // String name = "BITS_PER_LONG";
+        //   // // String name = "CONFIG_64BIT";
+      
+        //   // sb = new StringBuilder();
+          
+        //   // sb.append(name);
+        //   // sb.append("\n");
+        //   // sb.append("-------------------------------------------");
+        //   // sb.append("\n");
+        //   // for (MacroTable.Entry e : macroTable.table.get(name)) {
+        //   //   sb.append(e);
+        //   //   sb.append("\n");
+        //   // }
+        //   // sb.append("\n");
+
+        //   // System.err.println(sb.toString());
+
+        //   if (null != nonbooleans) {
+        //     evaluator = new ConditionEvaluator(ExpressionParser.fromRats(),
+        //                                        presenceConditionManager,
+        //                                        macroTable);
+        //   }
+
+        //   configuration = presenceConditionManager.
+        //     createConfiguration(defaultSetting, exceptions);
+        //   System.err.println("Configure AST");
+
+        //   configureAST((Node) translationUnit, configuration, nonbooleans, writer);
+        //   configuration.free();
+
+        //   writer.flush();
+        // } else if (null != runtime.getString("configFile")) {
+        //   OutputStreamWriter writer = new OutputStreamWriter(System.out);
+        //   Map<String, String> nonbooleans = new HashMap<String, String>();
+        //   BufferedReader configFile =
+        //     new BufferedReader(new FileReader(runtime.getString("configFile")));
+        //   List<String> clExceptions = null != runtime.getString("configureExceptions") ?
+        //     Arrays.asList(runtime.getString("configureExceptions").split(",")) :
+        //     null;
+        //   PresenceCondition t =
+        //     presenceConditionManager.newTrue();
+        //   Iterator<String> clIterator = null != clExceptions ? clExceptions.iterator()
+        //     : null;
+        //   String line;
+        //   HashSet<String> configuredVars = new HashSet<String>();
+
+        //   // Put the config file definitions into the macro symbol table
+        //   while (null != (line = configFile.readLine()) ||
+        //          clIterator != null &&
+        //          clIterator.hasNext() &&
+        //          null != (line = clIterator.next())) {
+        //     if (line.length() == 0) {
+        //       continue;
+        //     } else if (line.startsWith("# ") && line.endsWith(" is not set")) {
+        //       String var_name = line.substring(2,line.length() - " is not set".length());
+        //       macroTable._define(var_name,
+        //                          MacroTable.Macro.undefined,
+        //                          t);
+        //       configuredVars.add(var_name);
+        //     } else if (line.startsWith("#")) { // ignore comments other than undefined config vars
+        //       continue;
+        //     } else if (line.endsWith("=y")) {  // store boolean and tristate config vars
+        //       String var_name = line.substring(0,line.length() - 2);
+        //       // if (var_name.equals("__KERNEL__")) System.err.println("before define " + macroTable.contains("__KERNEL__"));
+        //       macroTable._define(var_name,
+        //                          new MacroTable.Macro.Object(null),
+        //                          t);
+        //       configuredVars.add(var_name);
+        //       // if (var_name.equals("__KERNEL__")) System.err.println("after define " + macroTable.contains("__KERNEL__"));
+        //     } else { // store non-boolean config var defs
+        //       String[] def = line.split("=");
+        //       List<Syntax> def_list = new LinkedList<Syntax>();
+        //       final CLexer clexer;
+        //       Syntax syntax = null;
+
+        //       if (def.length > 1) {
+        //         clexer = new CLexer(new StringReader(def[1]));
+        //         clexer.setFileName("config file");
+
+        //         while (true) {
+        //           try {
+        //             syntax = clexer.yylex();
+        //           } catch (IOException e) {
+        //             e.printStackTrace();
+        //             throw new RuntimeException();
+        //           }
+        //           if (syntax.kind() == Kind.EOF) break;
+        //           def_list.add(syntax);
+        //         }
+        //         macroTable._define(def[0],
+        //                            new MacroTable.Macro.Object(def_list),
+        //                            t);
+        //         nonbooleans.put(def[0], def[1]);
+        //         configuredVars.add(def[0]);
+        //       } else {
+        //         // System.err.println("wrong " + line);
+        //       }
+        //     }
+        //   }
+
+        //   // Pull any other macros not defined in the config file to false
+        //   for (String var_name : macroTable.table.keySet()) {
+        //     if (! configuredVars.contains(var_name)) {
+        //       macroTable._define(var_name,
+        //                          MacroTable.Macro.undefined,
+        //                          t);
+        //     }
+        //   }
+
+        //   // StringBuilder sb;
+        //   // // String name = "__KERNEL__";
+        //   // // String name = "BITS_PER_LONG";
+        //   // // String name = "CONFIG_64BIT";
+        //   // // String name = "__CHECKER__";
+        //   // String name = "__section";
+      
+        //   // sb = new StringBuilder();
+          
+        //   // sb.append(name);
+        //   // sb.append("\n");
+        //   // sb.append("-------------------------------------------");
+        //   // sb.append("\n");
+        //   // for (MacroTable.Entry e : macroTable.table.get(name)) {
+        //   //   sb.append(e);
+        //   //   sb.append("\n");
+        //   // }
+        //   // sb.append("\n");
+
+        //   // System.err.println(sb.toString());
+
+        //   // Evaluate each BDD variable according to the Linux .config
+        //   // file settings.
+        //   BDD configuration = presenceConditionManager.newTrue().getBDD();
+        //   int var_idx = 0;
+        //   String var_name = null;
+
+        //   // conditionEvaluator.setPullUndefinedFalse(true);
+        //   while (null != (var_name = presenceConditionManager.getVariableManager().getName(var_idx++))) {
+        //     String var_cond = "#if " + var_name + "\n#else\n#endif\n";
+        //     // System.err.println(var_cond);
+        //     HeaderFileManager var_filemanager =
+        //       new HeaderFileManager(new StringReader(var_cond),
+        //                             new File(var_name),
+        //                             null, null, null, null, null);
+        //     // System.err.println("current: " + presenceConditionManager.reference().isTrue())
+        //       ;
+        //     Preprocessor var_evaluator =
+        //       new Preprocessor(var_filemanager,
+        //                        macroTable,
+        //                        presenceConditionManager,
+        //                        conditionEvaluator,
+        //                        tokenCreator);
+
+        //     Syntax syntax = var_evaluator.next();
+
+        //     if (syntax.kind() == Kind.CONDITIONAL) {
+        //       PresenceCondition presult = ((Conditional) syntax).presenceCondition();
+        //       // if (var_name.equals("(defined __KERNEL__)")) {
+        //       //   System.err.println("after configure " + var_name);
+        //       //   System.err.println("after configure " + var_cond);
+        //       //   System.err.println("after configure " + presult.toString());
+        //       // }
+        //       if (presult.isTrue()) {
+        //         configuration.andWith(presenceConditionManager.getVariableManager().getVariable(var_name));
+        //         // System.err.println("FJDSKL");
+        //       } else // if (presult.isFalse())
+        //         {
+        //         BDD ith = presenceConditionManager.getVariableManager().getVariable(var_name);
+        //         BDD not = ith.not();
+        //         ith.free();
+        //         configuration.andWith(not);
+        //         // System.err.println("noonononon");
+        //       } // else {
+        //       //   System.err.println("unresolved expression");
+        //       //   System.err.println(var_name + " " + presult.toString());
+        //       //   System.exit(1);
+        //       // }
+        //     } else {
+        //       System.err.println("handle incorrect evaluation");
+        //       System.exit(1);
+        //     }
+
+        //     while (syntax.kind() != Kind.EOF) syntax = var_evaluator.next();
+        //   }
+
+        //   // Evaluate each macro in the macro table until each is
+        //   // unconditionally defined.
+
+        //   // After parsing, replace identifiers, recursively evaluate if
+        //   // necessary
+
+        //   // // Evaluate each BDD it using the above evaluator
+        //   // BDD configuration = presenceConditionManager.evaluateBDDs(visitor);
+
+        //   System.err.println("Configure AST");
+        //   configureAST((Node) translationUnit, configuration, nonbooleans, writer);
+        //   configuration.free();
+
+        //   writer.flush();
+        // }
+
+        if (runtime.test("statisticsParser")) {
+          IdentityHashMap<Object, Integer> seen
+            = new IdentityHashMap<Object, Integer>();
+          int count = dagNodeCount((Node) translationUnit, seen);
+          runtime.errConsole().pln(String.format("dag_nodes %d", count));
+
+          int shared = 0;
+          for (Integer i : seen.values()) {
+            if (i > 1) {
+              shared++;
+            }
+          }
+          runtime.errConsole().pln(String.format("dag_nodes_shared %d", shared));
+          runtime.errConsole().flush();
+        }
+
+        result = (Node) translationUnit;
+      }
     }
     
     // Print optional statistics and debugging information.
@@ -1741,4 +1829,612 @@ public class SuperP4 extends Tool {
   public static void main(String[] args) {
     new SuperP4().run(args);
   }
+
+  /**
+   * Takes in the filepath containing the template of the P4 model
+   * and returns a list of the template in order
+   * 
+   * Assumption: First value in template is model name and last value is the word "name" to indicate end of instantiation
+   * 
+   * @param filepath The path to where the template file is located
+   * @return An arraylist containing the order of network model
+   * @throws IOException
+   */
+  public ArrayList readTemplate(String filepath) throws IOException{
+    File file = new File(filepath);
+    ArrayList<String> template = new ArrayList<>();
+    BufferedReader reader = new BufferedReader(new FileReader(file));
+
+    String line;
+    boolean seenName = false;
+    while((line = reader.readLine()) != null) {
+      if(line.toLowerCase().equals("name")) {
+        seenName = true;
+      }
+      template.add(line);
+    }
+
+    System.out.println(template);
+    
+    if(! seenName) {
+      System.out.println("'name' word not found in the template to indicate end of parameters");
+      System.exit(1);
+    }
+
+    return template;
+  }
+
+  /**
+   * Walks the AST tree to obtain the specific block names from switch instantiation
+   * 
+   * @param node The obj structure containing the final AST of the program
+   * @param template An ArrayList structure containing the order of network model parameters
+   */
+  public String collectBlockNames(Object obj, ArrayList<String> template) {
+    // System.out.println(obj.getClass());
+    if(obj instanceof Node) {
+      Node node = (Node) obj;
+      System.out.println("name is: " + node.getName() + " of class " + node.getClass());
+      if(node.getName().equals("nonTypeName")) {
+        System.out.println("next is: " + (node.get(0) instanceof Syntax ? node.get(0) : node.getGeneric(0)));
+      }
+      if(node.isToken()) {
+        System.out.println("Token texT:" + node.getTokenText());
+      }
+      Iterator its = node.iterator();
+      // System.out.println(noded.getName());
+      String lastValue = "";
+      while(its.hasNext()) {
+        Object cur = its.next();
+
+        String rValue = collectBlockNames(cur, template);
+        // System.out.println("rvalue is: " + rValue);
+
+        if(blockValues.size() == 0) {
+          if(node.getName() == "instantiation" &&
+          rValue.toLowerCase().equals(template.get(0).toLowerCase())) {
+               template_block_map.put(template.get(blockValues.size()), rValue);
+               blockValues.add(rValue);
+             }
+          lastValue = rValue;
+        } 
+        else {
+          lastValue = lastValue.concat(rValue);
+          if (node.getName() == "argument") {
+            assert blockValues.size() < (template.size()-1) : "number of values in blockValues should be less than number of provided argument, but current it is: " + blockValues.size() + " with the value:"  + blockValues;
+
+            template_block_map.put(template.get(blockValues.size()), lastValue);
+            blockValues.add(lastValue);
+            lastValue = "";
+          } 
+          if(node.getName() == "name") {
+            assert blockValues.size() == (template.size()-1) : "At the name construct, meaning we should have reached end of instantiation block but not all values obtained. Current values: " + blockValues;
+
+            template_block_map.put(template.get(blockValues.size()), lastValue);
+            blockValues.add(lastValue);
+            lastValue = "";          
+          }
+        }
+      }
+      return lastValue;
+    }
+    else {
+      // System.out.println(obj.toString());
+      // set.add(obj.getClass());
+      // System.out.println("NOT A NODE\n");
+      if(obj instanceof PresenceCondition) {
+        PresenceCondition pc = (PresenceCondition) obj;
+        // System.out.println(pc);
+      }
+      if(obj instanceof String) {
+        return obj.toString();
+      }
+      else {
+        return "";
+      }
+    }
+    // System.out.println(set);
+  }
+
+  public Object stripParenthesis(Object collection) {
+    if(collection instanceof ArrayList) {
+      ArrayList<String> blockValues = (ArrayList) collection;
+
+      for(int i = 0; i < blockValues.size(); i++) {
+        blockValues.set(i, blockValues.get(i).replace("()", ""));
+      }
+
+      return blockValues;
+    }
+    else if(collection instanceof HashMap) {
+      HashMap<String, String> map = (HashMap) collection;
+      for(String key : map.keySet()) {
+        map.put(key, (map.get(key).replace("()", "")));
+      }
+
+      return map;
+    }
+
+    else {
+      System.err.println("ERROR, unsupported type given");
+      return collection;
+    }
+  }
+
+  public void initializeConditionalsInside() {
+    conditionalsInsideSpecificBlosk = new HashMap<>();
+    if(! blockValues.isEmpty()) {
+      blockValues.remove(0);
+      blockValues.remove(blockValues.size()-1);
+      for(int i = 0; i < blockValues.size(); i++) {
+        conditionalsInsideSpecificBlosk.put(blockValues.get(i), new HashSet<>());
+      }
+    }
+
+    System.out.println("It is: " + conditionalsInsideSpecificBlosk);
+  }
+
+  public String walkAST(Object obj, String currentBlock, boolean isDeclaration) {
+    // System.out.println(obj.getClass());
+    if(obj instanceof Node) {
+      Node node = (Node) obj;
+      Iterator its = node.iterator();
+      while(its.hasNext()) {
+        Object cur = its.next();
+        String rValue;
+        // int conditionalsInsideSpecificBloskSizeBefore = 0;
+        // int conditionalsInsideSpecificBloskSizeAfter = 0;
+        // if(currentBlock != "")
+        //   conditionalsInsideSpecificBloskSizeBefore = conditionalsInsideSpecificBlosk.get(currentBlock).size();
+        if(cur instanceof Node && ((Node) cur).getName().equals("declaration")) {
+          rValue = walkAST(cur, currentBlock, true);
+        } else {
+          if(cur instanceof Node && ((Node) cur).getName().equals("nonTypeName")) {
+            Set methods = ((Node) cur).properties();
+            // if(counter == 0)
+            // System.out.println("properties: ");
+              for (Object method : methods) {
+                System.out.printf("%s", method.toString());
+                System.out.println();
+              }
+              counter = 1;
+          }
+          rValue = walkAST(cur, currentBlock, isDeclaration);
+        }
+        // if(currentBlock != "")
+        //   conditionalsInsideSpecificBloskSizeAfter = conditionalsInsideSpecificBlosk.get(currentBlock).size();
+        // if(conditionalsInsideSpecificBloskSizeAfter != conditionalsInsideSpecificBloskSizeBefore) {
+        //   System.out.println("PCs added inside: " + currentBlock + " at loc: " + node.getLocation());
+        // }
+        if(cur instanceof Node && ((Node) cur).getName().equals("declaration")){
+          // System.out.println("sending back " + currentBlock);
+          currentBlock = "";
+        }
+        else {
+          currentBlock = rValue == "" ? currentBlock : rValue;
+        }
+      }
+      return currentBlock;
+    }
+    else {
+      if(obj instanceof PresenceCondition) {
+        PresenceCondition pc = (PresenceCondition) obj;
+        if(isDeclaration && (! currentBlock.isEmpty())) {
+          // System.out.println("curBlock: " + currentBlock);
+          // System.out.println(conditionalsInsideSpecificBlosk.get(currentBlock));
+          // System.out.println("adding value in block: " + currentBlock + " at loc: " + node.getLocation());
+          // System.out.println(currentBlock);
+          conditionalsInsideSpecificBlosk.get(currentBlock).addAll(pc.getAllConfigs());
+        }
+        // System.out.println(pc);
+      }
+      if(obj instanceof String) {
+        Method[] methods = obj.getClass().getDeclaredMethods();
+
+        if(blockValues.contains(obj.toString())) {
+          return obj.toString();
+        }
+        return "";
+      }
+      else {
+        return "";
+      }
+    }
+  }
+
+  public void walkASTForAllConstructs(Object obj, ArrayList<String> listOfNestedBlocks) {
+    // System.out.println(obj.getClass());
+    if(listOfNestedBlocks == null) {
+      listOfNestedBlocks = new ArrayList<String>();
+    }
+
+    if(obj instanceof Node) {
+      Node node = (Node) obj;
+      Iterator its = node.iterator();
+
+      while(its.hasNext()) {
+        Object cur = its.next();
+        if(cur instanceof Node) {
+          Node curNode = (Node) cur;
+          listOfNestedBlocks.add(curNode.getName());
+          walkASTForAllConstructs(cur, listOfNestedBlocks);
+          listOfNestedBlocks.remove(listOfNestedBlocks.size()-1);
+        } else {
+          walkASTForAllConstructs(cur, listOfNestedBlocks);
+        }
+      }
+      return;
+    }
+    else {
+      if(obj instanceof PresenceCondition) {
+        PresenceCondition pc = (PresenceCondition) obj;
+        for(String blockName: listOfNestedBlocks) {
+          if(conditionalsInsideEverything.containsKey(blockName)) {
+            conditionalsInsideEverything.get(blockName).addAll(pc.getAllConfigs());
+          }
+          else {
+            conditionalsInsideEverything.put(blockName, new HashSet<>());
+            conditionalsInsideEverything.get(blockName).addAll(pc.getAllConfigs());
+          }
+        }
+      }
+      return;
+    }
+  }
+
+  public void eliminateCancellations(ArrayList<String> array, String hashMapKey) {
+    HashMap<String, Integer> counter = new HashMap<>();
+
+    for(String element: array) {
+      if(counter.containsKey(element)) {
+        counter.put(element, counter.get(element) + 1);
+      }
+      else {
+        counter.put(element, 1);
+      }
+    }
+
+    for(String key: counter.keySet()) {
+      if(counter.containsKey("!" + key)) {
+        String notVar = "!" + key;
+        if(counter.get(key) <= 0 || counter.get(notVar) <= 0) {
+          continue;
+        }
+        int cur_int = counter.get(key);
+        int other_int = counter.get(notVar);
+        counter.put(key, cur_int - other_int);
+        counter.put(notVar, other_int - cur_int);
+
+        // if(counter.get(key) == 0) {
+        //   counter.remove(key);
+        // }
+        // if (counter.get(notVar) == 0) {
+        //   counter.remove(notVar);
+        // }
+      }
+    }
+
+    // System.out.println(hashMapKey + ": " + counter);
+
+    conditionalsInsideSpecificBlosk.get(hashMapKey).clear();
+    for(String key: counter.keySet()) {
+      if(counter.get(key) <= 0) {
+        continue;
+      }
+      conditionalsInsideSpecificBlosk.get(hashMapKey).add(key);
+    }
+  }
+ boolean printUnit = false;
+  public void convertNotConditionalsAndRemoveDefinedWordForStatPurposes(HashMap<String, HashSet<String>> workingSet) {
+    for(String key : workingSet.keySet()) {
+      // System.out.println("OG size for " + key + " is " + workingSet.get(key).size());
+      Iterator<String> itr = workingSet.get(key).iterator();
+      HashSet<String> temp = new HashSet<>();
+      while(itr.hasNext()) {
+        String str = itr.next();
+        str = str.replace("(defined", "");
+        str = str.replace(")", "");
+        if(str.startsWith("!")) {
+          str = str.substring(1);
+        }
+        str = str.stripLeading();
+        temp.add(str);
+        itr.remove();
+      }
+
+      workingSet.get(key).addAll(temp);
+
+      // Iterator<String> itr2 = workingSet.get(key).iterator();
+      // while(itr2.hasNext()) {
+      //   String str = itr2.next();
+      //   str.replace("(defined", "");
+      //   str.replace(")", "");
+      //   workingSet.get(key).add(str);
+      // }
+      // System.out.println("After size for " + key + " is " + workingSet.get(key).size());
+    }
+  }
+
+  public void printMatrix(HashMap<String, HashSet<String>> workingSet) {
+    System.out.println("\nPRINTING MATRIX");
+    HashSet<String> allValuesTogether = new HashSet<>();
+
+    for(String key : workingSet.keySet()) {
+      allValuesTogether.addAll(workingSet.get(key));
+    }
+
+    ArrayList<String> sortedConditionalValues = new ArrayList<>(allValuesTogether);
+    Collections.sort(sortedConditionalValues);
+
+    ArrayList<String> sortedBlockNames = new ArrayList<>(workingSet.keySet());
+    // Collections.sort(sortedBlockNames);
+
+    int [][] matrix = new int[sortedConditionalValues.size()][sortedBlockNames.size()];
+
+
+    for(int i = 0; i < sortedConditionalValues.size(); i++) {
+      for(int j = 0; j < sortedBlockNames.size(); j++) {
+        matrix[i][j] = workingSet.get(sortedBlockNames.get(j)).contains(sortedConditionalValues.get(i)) ? 1 : 0;
+      }
+    }
+
+    // Loop through all elements of current row
+    for (int j = 0; j < matrix[0].length; j++) {
+        System.out.print(sortedBlockNames.get(j)+ " ");
+    }
+    System.out.println();
+    
+    for (int i = 0; i < matrix.length; i++) {
+      System.out.print(sortedConditionalValues.get(i) + " ");
+            // Loop through all elements of current row
+            for (int j = 0; j < matrix[i].length; j++) {
+                System.out.print(matrix[i][j] + " ");
+            }
+            System.out.println();
+    }
+  }
+
+  public class declarationClass {
+    String declarationsString;
+    boolean hasName;
+
+    declarationClass(String name, boolean hasName) {
+      this.declarationsString = name;
+      this.hasName = hasName;
+    }
+
+    declarationClass(String name) {
+      this.declarationsString = name;
+      this.hasName = false;
+    }
+  }
+
+  HashMap<String, HashSet<String>> presenceCondMap = new HashMap<>();
+  HashMap<String, HashSet<String>> callGraph = new HashMap<>();
+  Stack<String> blockNames = new Stack<>();
+  HashSet<String> declarationsOptions = new HashSet<>(Arrays.asList("constantDeclaration",
+                                                      "externDeclaration",
+                                                      "actionDeclaration",
+                                                      "parserDeclaration",
+                                                      "typeDeclaration",
+                                                      "controlDeclaration",
+                                                      "instantiation",
+                                                      "errorDeclaration",
+                                                      "matchKindDeclaration",
+                                                      "functionDeclaration"));
+  int nestedDepth = 0;
+  // boolean findingDeclName = false;
+  int findingDeclName = 0;
+  int findingTypeRefName = 0;
+  Stack<declarationClass> declarationsStack = new Stack<>();
+
+  public void collectASTData(Object unit) {
+      if(printUnit)
+        System.out.println("CURRENT UNIT: " + unit + " of type: " + unit.getClass());
+      if(unit instanceof Node){
+          visit((Node) unit);
+          // collectASTData((Node) unit);
+      }
+      else if(unit instanceof PresenceCondition) {
+          visit((PresenceCondition) unit);
+      }
+      else if(unit instanceof String) {
+          visit((String) unit);
+      }
+      else {
+          System.err.println("interesting error");
+          System.exit(1);
+      }
+      // visit(unit);
+  }
+
+  public Object visit(Node node) {
+    System.out.println("name: " + node.getName());
+    Iterator itr = node.iterator();
+
+    // declarationoptions - contains only list of blocks names we want to track
+    // we check if current node is something we want to track
+    if(declarationsOptions.contains(node.getName())) {
+      // push on top of scope stack
+      declarationsStack.push(new declarationClass(node.getName(), false));
+
+      // if we are entering a new declaration stack, we ideally want to find its name
+      // set flag to 1 to indicate we want to find name
+      if(findingDeclName == 0) {
+        findingDeclName = 1;
+      }
+    }
+    if(findingDeclName == 1 && node.getName().equals("nonTypeName")) {
+      // nonTypeName is the construct that is used to name a declaration
+      // so if we are entering the nonTypeName after entering a declaration block,
+      // the string under nonTypeName will be the name of the current declaration block
+      // set flag to 2 to indicate the next string value will be name of current declaration
+      findingDeclName = 2;
+    }
+
+    if(findingTypeRefName == 0 && node.getName().equals("typeName")) {
+      // findingTypeRefName is the flag that will be used to indicate whether
+      // we are entering a block that might contains a typeref (declared type_identifier)
+      findingTypeRefName = 1;
+    }
+
+    while(itr.hasNext()) {
+      // Go through child nodes
+      Object cur = itr.next();
+      collectASTData(cur);
+    }
+
+    if(declarationsOptions.contains(node.getName())) {
+      assert declarationsStack.peek().declarationsString.equals(node.getName()) : "top of stack not same as outcoming order";
+      // Exiting declaration block
+      declarationClass popped = declarationsStack.pop();
+
+      if(popped.hasName && findingDeclName == 3) {
+        // since we are exiting declaration block, reset global flag and block name
+
+        // System.out.println("Exiting block: " + blockNames.pop() + " for type: " + node.getName());
+        findingDeclName = 0;
+        printUnit = false;
+        blockNames.pop();
+      }
+    }
+
+    return node;
+  }
+
+  public Object visit(PresenceCondition node) {
+    if(blockNames.isEmpty()) {
+      return node;
+    }
+
+    // System.out.println("adding to block: " + blockNames.peek() + " value: " + node.getAllConfigs());
+
+    if(presenceCondMap.containsKey(blockNames.peek())) {
+      presenceCondMap.get(blockNames.peek()).addAll(node.getAllConfigs());
+    } else {
+      presenceCondMap.put(blockNames.peek(), new HashSet<>(node.getAllConfigs()));
+    }
+
+    return node;
+  }
+
+  public String visit(String node) {
+    if(findingDeclName == 2) {
+      blockNames.push(node);
+      callGraph.put(node, new HashSet<>());
+      findingDeclName = 3;
+
+      declarationsStack.peek().hasName = true;
+
+      // System.out.println("new blockname: " + node);
+      // if(node.equals("FabricEgress"))
+      //   printUnit = true;
+    }
+
+    if(findingTypeRefName == 1) {
+      if(blockNames.isEmpty()) {
+        if(! callGraph.containsKey("Global")) {
+          callGraph.put("Global", new HashSet<>());
+        }
+        callGraph.get("Global").add(node);
+      } else {
+        assert callGraph.containsKey(blockNames.peek()) : "found a typeref but current blockname is not in callgraph: " + blockNames.peek();
+
+        // Adding the current typeref name (the block that is being called) as a connecting edge to current block
+        callGraph.get(blockNames.peek()).add(node);
+      }
+
+      findingTypeRefName = 0;
+    }
+    return node;
+  }
+
+  public void expandCPP() {
+    int magnitude = magnitude(presenceCondMap);
+    int newMagnitude = magnitude;
+    do {
+      magnitude = newMagnitude;
+
+      for(String key : callGraph.keySet()) {
+        if(! presenceCondMap.containsKey(key)) {
+          continue;
+        }
+
+        Set<String> calleSet = new HashSet<>();
+
+        for(String calleBlock : callGraph.get(key)) {
+          if(! presenceCondMap.containsKey(calleBlock))
+            continue;
+            
+            calleSet.addAll(presenceCondMap.get(calleBlock));
+        }
+        // TODO: use addAll's return value to check if it changes the value
+        presenceCondMap.get(key).addAll(calleSet);
+      }
+
+      newMagnitude = magnitude(presenceCondMap);
+
+    } while(magnitude != newMagnitude);
+  }
+
+  public int magnitude(HashMap<String, HashSet<String>> presenceCondMap) {
+    int counter = 0;
+
+    for(String key: presenceCondMap.keySet()) {
+      counter += presenceCondMap.get(key).size();
+    }
+
+    return counter;
+  }
+
+  public HashMap<String, HashSet<String>> removeEmpty(HashMap<String, HashSet<String>> presenceMap) {
+    Iterator itr = presenceMap.entrySet().iterator();
+
+    presenceMap.values().removeIf(Set::isEmpty);
+
+    return presenceMap;
+  }
+
+  public HashMap<String, HashSet<String>> keepOnlySpecifics(ArrayList<String> blockValues, HashMap<String, HashSet<String>> maps) {
+    HashMap<String, HashSet<String>> filtered = new HashMap<>();
+
+    for(String key : maps.keySet()) {
+      if(blockValues.contains(key)) {
+        filtered.put(key, maps.get(key));
+      }
+    }
+
+    return filtered;
+  }
+
+  public String toDot(HashMap<String, HashSet<String>> callGraph, String filename) {
+    String dot_string = "";
+
+    for(String key: callGraph.keySet()) {
+      dot_string += key;
+      for(String value: callGraph.get(key)) {
+        dot_string += "->" + value;
+      }
+      dot_string += ";";
+    }
+    createDotGraph(dot_string, filename);
+    return dot_string;
+  }
+
+  public static void createDotGraph(String dotFormat,String fileName)
+{
+    GraphViz gv=new GraphViz();
+    gv.addln(gv.start_graph());
+    gv.add(dotFormat);
+    gv.addln(gv.end_graph());
+   // String type = "gif";
+    String type = "pdf";
+  // gv.increaseDpi();
+    gv.decreaseDpi();
+    gv.decreaseDpi();
+    System.out.println(gv.toString());
+    File out = new File(fileName+"."+ type); 
+    gv.writeGraphToFile( gv.getGraph( gv.getDotSource(), type ), out );
+}
+
 }

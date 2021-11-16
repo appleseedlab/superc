@@ -48,7 +48,7 @@ public class P4Values implements SemanticValues {
     return value;
   }
   public ValueType getValueType(int id) {
-    if (0 <= id && id < 121 || 262 < id) {
+    if (0 <= id && id < 121 || 263 < id) {
       return ValueType.NODE;
     }
     switch (id - 121) {
@@ -110,7 +110,9 @@ public class P4Values implements SemanticValues {
         // Fall through
       case 140: // expression (261)
         // Fall through
-      case 141: // nonBraceExpression (262)
+      case 141: // invokingExpression (262)
+        // Fall through
+      case 142: // nonBraceExpression (263)
         return ValueType.LIST;
 
       case 18: // $@1 (139)
@@ -172,7 +174,9 @@ public class P4Values implements SemanticValues {
       // Fall through
     case 261: // expression
       // Fall through
-    case 262: // nonBraceExpression
+    case 262: // invokingExpression
+      // Fall through
+    case 263: // nonBraceExpression
       // Fall through
     case 119: // start
       // Fall through

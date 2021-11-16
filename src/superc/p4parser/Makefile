@@ -55,7 +55,9 @@ SOURCE = \
 	P4TokenCreator.java \
 	P4Values.java \
 	P4Actions.java \
-	P4Context.java
+	P4Context.java \
+	GraphViz.java \
+	CallGraphGenerator.java
 
 
 JNI_SOURCE =
