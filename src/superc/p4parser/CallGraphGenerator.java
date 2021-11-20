@@ -236,11 +236,7 @@ public class CallGraphGenerator {
             addToSymtab(scope.peek(), controlBlockName, controlObj);
             scope.add(controlObj);
 
-            // dispatch on rest of control child blocks
-            Iterator itr = n.iterator();
-
-            // Note: we do not skip visiting controlTypeDeclaration even though we externally retrieved
-            // the name from it cause visitcontrolTypeDeclaration would do different operations
+            // skipping visiting controlTypeDeclaration
 
             dispatch(n.getGeneric(3)); // controlLocalDeclarations
             String applyBlockName = n.get(4).toString();
@@ -260,19 +256,6 @@ public class CallGraphGenerator {
             //end parse controlBody
 
             scope.pop();
-            return n;
-        }
-
-        // TODO: remove as handled by default visitor
-        public Node visitcontrolLocalDeclaration(GNode n) {
-            // if(n.getGeneric(0).getName().equals("actionDeclaration")) {
-            //     dispatch(n.getGeneric(0)); //dispatch and not specific visit cause this will be dynamically dispatch when all children are supported
-            // } else {
-            //     System.err.println("Non-control declarations not supported at the moment");
-            //     System.err.println("Unsupported block at: " + n);
-            //     System.exit(1);
-            // }
-            dispatch(n.getGeneric(0));
             return n;
         }
 
