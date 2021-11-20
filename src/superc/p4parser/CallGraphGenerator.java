@@ -20,6 +20,7 @@ import java.util.Stack;
 import superc.core.Syntax;
 import superc.core.Syntax.Language;
 
+import javax.security.auth.callback.LanguageCallback;
 import javax.swing.LookAndFeel;
 import javax.swing.plaf.synth.SynthLookAndFeel;
 import javax.xml.stream.events.Namespace;
@@ -46,7 +47,7 @@ public class CallGraphGenerator {
     Stack<LanguageObject> scope;
     LanguageObject global_scope = new LanguageObject("GLOBAL", null);
     LanguageObject undefined_scope = new LanguageObject("UNDEFINED", null);
-    // what is this 
+    // A list of grammar constructs that are not yet supported and might contain invocation
     HashSet<String> notExplicitlySupported = new HashSet<>(Arrays.asList("constantDeclaration",
                                                                          "tableDeclaration",
                                                                          "instantiation",
@@ -80,40 +81,118 @@ public class CallGraphGenerator {
             this.nameSpace = nameSpace;
             callees = new HashSet<>();
         }
-        // TODO: overload hash function, pull out callees, overload toString and use that for hash function (same name under same namescope should have same hash value)
+
+        @Override
+        public String toString() {
+            // For simple toString calls where the current value is not present under the symbol table
+            if(this == global_scope) {
+                return name;
+            }
+            
+            return name + "(" + this.nameSpace.name + ")";
+        }
+
+        /**
+         * A toString function to use when in-depth detail about current object is needed.
+         * Outputs the callees present under the current object if it is not present under the global scope.
+         * @return
+         */
+        public String toStringExtensive() {
+            String finalString = name + ": ";
+
+            Iterator<String> itr = symtab.get(this).keySet().iterator();
+
+            while(itr.hasNext()) {
+                String childKey = (String) itr.next();
+                finalString += symtab.get(this).get(childKey).toString();
+
+                if(symtab.containsKey(childKey)) {
+                    finalString += itr.hasNext() ? ", " : "";
+                    continue;
+                }
+
+                ArrayList<String> calleeNames = new ArrayList<>();
+                for(LanguageObject callee : symtab.get(this).get(childKey).callees) {
+                    calleeNames.add(callee.toString());
+                }
+
+                if(! calleeNames.isEmpty()) {
+                    finalString += ": " + calleeNames.toString() + (itr.hasNext() ? ", " : "");
+                }
+            }
+
+            return finalString;
+        }
+
+        /**
+         * Having same name under the same scope means they are "equal" for our usage and have same hash value
+         */
+        @Override
+        public boolean equals(Object object) {
+            if(this == object) {
+                return true;    
+            }
+            if(object == null) {
+                return false;
+            }
+            if (object instanceof LanguageObject == false) {
+                return false;
+            }
+
+            LanguageObject compObject = (LanguageObject) object;
+
+            if(compObject == global_scope || this == global_scope) {
+                // if both are global_scope, then it should have returned true at the beginning
+                return false;
+            }
+
+            if(compObject.name.equals(this.name)
+               && compObject.nameSpace.equals(this.nameSpace)) {
+                   return true;
+            }
+
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            String hashString = "";
+            if(this.nameSpace != null) {
+                // not the GLOBAL LanguageObject
+                hashString += this.nameSpace.name + "/";
+            }
+            hashString += this.name;
+            
+            return hashString.hashCode();
+        }
+        // TODO: pull out callees
         // conditioned callees
     }
 
     /**
-     * Adds the given block name and its language object to the given scope
+     * Creates the scope if not present, creates entity for name under scope if not present.
+     * Adds the entity to the given scope if it doesn't already exist.
      * 
+     * Returns the existing or newly created entity.
      * @param scope
      * @param name
-     * @param nodeObj
+     * @return
      */
-    public void addToSymtab(LanguageObject scope, String name, LanguageObject nodeObj) {
+    public LanguageObject addToSymtab(LanguageObject scope, String name) {
+        LanguageObject nodeObj = null;
+
         if( !symtab.containsKey(scope)) {
             symtab.put(scope, new HashMap<>());
         }
 
-        assert !symtab.get(scope).containsKey(name) : "Encountered an unexpected situation where trying to insert an existing value in scope. Scope: " + scope.name + ", value: " + name;
+        if(symtab.get(scope).containsKey(name)) {
+            nodeObj = symtab.get(scope).get(name);
+        } else {
+            nodeObj = new LanguageObject(name, scope);
+            symtab.get(scope).put(name, nodeObj);
+        }
 
-        symtab.get(scope).put(name, nodeObj);
-
-
-        // Set<LanguageObject> currentSet = new HashSet<>();
-        // currentSet.add(nodeObj);
-        // if(! symtab.containsKey(scope)) {
-        //     Map<String, Set<LanguageObject>> childObj = new HashMap<>();
-        //     childObj.put(name, currentSet);
-        //     symtab.put(scope, childObj);
-        // } else {
-        //     if(! symtab.get(scope).containsKey(name)) {
-        //         symtab.get(scope).put(name, currentSet);
-        //     } else {
-        //         symtab.get(scope).get(name).add(nodeObj);
-        //     }
-        // }
+        return nodeObj;
     }
 
     /**
@@ -224,9 +303,8 @@ public class CallGraphGenerator {
         public Node visitcontrolDeclaration(GNode n) {
             // If need to parse parameters, visit the controltypedeclaration instead of static function to get name
             String controlBlockName = getNameOfControlBlock(n.getGeneric(0));
-            LanguageObject controlObj = new LanguageObject(controlBlockName, scope.peek());
 
-            addToSymtab(scope.peek(), controlBlockName, controlObj);
+            LanguageObject controlObj = addToSymtab(scope.peek(), controlBlockName);
             scope.add(controlObj);
 
             // skipping visiting controlTypeDeclaration
@@ -237,9 +315,8 @@ public class CallGraphGenerator {
             // start parse controlBody
             GNode oldN = n;
             n = n.getGeneric(5); // controlBody
-            LanguageObject apply = new LanguageObject(applyBlockName, scope.peek());
+            LanguageObject apply = addToSymtab(scope.peek(), applyBlockName);
             scope.peek().callees.add(apply); // edge between parent control block and this apply block
-            addToSymtab(scope.peek(), applyBlockName, apply);
             scope.add(apply);
 
             dispatch(n.getGeneric(0)); // controlBody can have only one child
@@ -272,9 +349,7 @@ public class CallGraphGenerator {
         public Node visitactionDeclaration(GNode n) {
             // Each action in the list of actions for a table must have a distinct name
             String actionBlockName = getStringUnderName(n.getGeneric(2));
-            LanguageObject actionObj = new LanguageObject(actionBlockName, scope.peek());
-
-            addToSymtab(scope.peek(), actionBlockName, actionObj);
+            LanguageObject actionObj =  addToSymtab(scope.peek(), actionBlockName);
             scope.add(actionObj);
 
             dispatch(n.getGeneric(4)); // parameterList
@@ -316,9 +391,7 @@ public class CallGraphGenerator {
 
             // as per language specification, functionPrototype will describe the name and type signature of the function
             String functionName = getStringUnderFunctionPrototype(n.getGeneric(0));
-            LanguageObject functionObj = new LanguageObject(functionName, scope.peek());
-
-            addToSymtab(scope.peek(), functionName, functionObj);
+            LanguageObject functionObj = addToSymtab(scope.peek(), functionName);
             scope.add(functionObj);
 
             dispatch(n.getGeneric(1)); // blockstatement
@@ -330,8 +403,7 @@ public class CallGraphGenerator {
 
         public Node visitparserDeclaration(GNode n) {
             String parserName = getStringUnderParserTypeDeclaration(n.getGeneric(0)); // TODO: take of parameter list here if needed to
-            LanguageObject parserObj = new LanguageObject(parserName, scope.peek());
-            addToSymtab(scope.peek(), parserName, parserObj);
+            LanguageObject parserObj = addToSymtab(scope.peek(), parserName);
             scope.add(parserObj);
 
             dispatch(n.getGeneric(3)); // parserLocalElements TODO: valueSetDeclaration needs to be traced for data flow
@@ -344,8 +416,7 @@ public class CallGraphGenerator {
 
         public Node visitparserState(GNode n) {
             String stateName = getStringUnderName(n.getGeneric(2));
-            LanguageObject stateObj = new LanguageObject(stateName, scope.peek());
-            addToSymtab(scope.peek(), stateName, stateObj);
+            LanguageObject stateObj = addToSymtab(scope.peek(), stateName);
             scope.add(stateObj);
 
             dispatch(n.getGeneric(4)); // parserStatements
@@ -458,27 +529,7 @@ public class CallGraphGenerator {
 
     public void printCallGraph() {
         for(LanguageObject key : symtab.keySet()) {
-            System.out.print(key.name + ": ");
-
-            for(String childKey : symtab.get(key).keySet()) {
-                System.out.print(childKey + "(" + (symtab.get(key).get(childKey).nameSpace == null ? "" : symtab.get(key).get(childKey).nameSpace.name) + ")");
-
-                if(symtab.containsKey(childKey)) {
-                    // System.err.println(childKey + " is in symtab");
-                    System.out.print(", ");
-                    continue;
-                }
-
-                ArrayList<String> calleeNames = new ArrayList<>();
-                for(LanguageObject callee : symtab.get(key).get(childKey).callees) {
-                    calleeNames.add(callee.name + "(" + (callee.nameSpace == null ? "" : callee.nameSpace.name) + ")");
-                }
-
-                if(! calleeNames.isEmpty()) {
-                    System.out.print(": " + calleeNames.toString() + ", ");
-                }
-            }
-            System.err.println();
+            System.out.println(key.toStringExtensive());
         }
     }
 }
