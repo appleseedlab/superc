@@ -117,8 +117,9 @@ public class CallGraphGenerator {
                 }
 
                 if(! calleeNames.isEmpty()) {
-                    finalString += ": " + calleeNames.toString() + (itr.hasNext() ? ", " : "");
+                    finalString += ": " + calleeNames.toString();
                 }
+                finalString += (itr.hasNext() ? ", " : "");
             }
 
             return finalString;
@@ -250,20 +251,11 @@ public class CallGraphGenerator {
         }
     }
 
-    public void lookupInSymTabAndAddAsCallee(String name) {
-        lookupInSymTabAndAddAsCallee(name, true);
-    }
-
     // TODO: this will change when separating out call graph generation
-    public void lookupInSymTabAndAddAsCallee(String name, boolean lookup) {
+    public void lookupInSymTabAndAddAsCallee(String name) {
         // exists, add when doing only declarations
 
         LanguageObject callee = symtabLookup(scope.peek(), name);
-        if(! lookup) {
-            if(callee == null) {
-                callee = new LanguageObject(name, undefined_scope);
-            }
-        }
 
         assert callee != null : "Calling to an undefined symbol when expecting it to be defined beforehand (" + name + ")";
         scope.peek().callees.add(callee);
@@ -334,7 +326,7 @@ public class CallGraphGenerator {
             
             String calleeName = getNameFromTypeName(n.getGeneric(0));
             // TODO: below doesn't tell that it's also doing type checking, separate it out
-            lookupInSymTabAndAddAsCallee(calleeName);
+            // lookupInSymTabAndAddAsCallee(calleeName);
             // LanguageObject callee = symtabLookup(scope.peek(), calleeName);
 
             dispatch(n.getGeneric(4)); // argumentList
@@ -375,7 +367,7 @@ public class CallGraphGenerator {
                 }
 
                 String methodCalleeName = getPrefixedNonTypeNameFromLvalue(n.getGeneric(0));
-                lookupInSymTabAndAddAsCallee(methodCalleeName);
+                // lookupInSymTabAndAddAsCallee(methodCalleeName);
 
                 dispatch(n.getGeneric(LPARENindx + 1)); // argumentList
 
@@ -431,7 +423,7 @@ public class CallGraphGenerator {
         public Node visitstateExpression(GNode n) {
             if(n.size() == 2) { // name SEMICOLON
                 String stateName = getStringUnderName(n.getGeneric(0));
-                lookupInSymTabAndAddAsCallee(stateName, false);
+                // lookupInSymTabAndAddAsCallee(stateName);
             } else { // selectExpression;
                 dispatch(n.getGeneric(0));
             }
@@ -448,7 +440,7 @@ public class CallGraphGenerator {
             // TODO trace keysetExpression for data
 
             String selectName = getStringUnderName(n.getGeneric(2));
-            lookupInSymTabAndAddAsCallee(selectName, false);
+            // lookupInSymTabAndAddAsCallee(selectName);
 
             return n;
         }
