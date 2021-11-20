@@ -44,7 +44,6 @@ public class CallGraphGenerator {
 
     Map<LanguageObject, Map<String, LanguageObject>> symtab;
     Stack<LanguageObject> scope;
-    // TODO: replace this with a constant LanguageObject global scope obj
     LanguageObject global_scope = new LanguageObject("GLOBAL", null);
     LanguageObject undefined_scope = new LanguageObject("UNDEFINED", null);
     // what is this 
@@ -72,16 +71,14 @@ public class CallGraphGenerator {
     }
 
     class LanguageObject {
-        public String name;
-        public LanguageObject nameSpace; //namespace TODO, make it immutable
+        public final String name;
+        public final LanguageObject nameSpace;
         public HashSet<LanguageObject> callees;
-        boolean visited; // TODO: remove
 
         public LanguageObject(String name, LanguageObject nameSpace) {
             this.name = name;
             this.nameSpace = nameSpace;
             callees = new HashSet<>();
-            visited = false;
         }
         // TODO: overload hash function, pull out callees, overload toString and use that for hash function (same name under same namescope should have same hash value)
         // conditioned callees
@@ -119,64 +116,60 @@ public class CallGraphGenerator {
         // }
     }
 
-    // TODO: create a function to look up if the symbol exists rather than returning null
-
-    // TODO: merge this with symtabLookup, make it recursive rather than while loop with global base case
-    public LanguageObject retrieveFromSymtab(LanguageObject scope, String name) {
-        assert scope != null : "Unexpected null scope during lookup";
-
-        if( !symtab.containsKey(scope) ||
-            ! symtab.get(scope).containsKey(name)) {
-                return null;
+    /**
+     * Checks if scope exists in the symbol table.
+     * Returns true if it does, false otherwise.
+     * @param scope
+     * @return Boolean
+     */
+    public boolean doesScopeExist(LanguageObject scope) {
+        if ( !symtab.containsKey(scope)) {
+            return false;
         }
-        // System.out.println("retrieveFromSymtab returning " + symtab.get(scope).get(name));
-        return symtab.get(scope).get(name);
+
+        return true;
     }
 
+    /**
+     * Checks if the given name exists under the given scope.
+     * Returns true if it does, false otherwise.
+     * @param scope The scope to check under
+     * @param name The name to find under the scope
+     * @return Boolean
+     */
+    public boolean doesSymbolExist(LanguageObject scope, String name) {
+        if( !doesScopeExist(scope) ||
+            !symtab.get(scope).containsKey(name)) {
+                return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks if scope and symbol exists, returns the corresponding object from symtab if it does.
+     * Recursively goes through the parent scopes if not found under current scope.
+     * Assertion error is invoked if it does not exist.
+     * @param localScope
+     * @param typeName
+     * @return
+     */
     public LanguageObject symtabLookup(LanguageObject localScope, String typeName) {
         assert !typeName.isBlank() : "typeName is not supposed to be empty when looking it up on symbol table";
 
-        LanguageObject retrievedObj = retrieveFromSymtab(localScope, typeName);
-
-        while(retrievedObj == null && localScope.nameSpace != null) {
-            localScope = localScope.nameSpace;
-            retrievedObj = retrieveFromSymtab(localScope, typeName);
+        // base case where global_scope is the top-most parent
+        if(localScope.equals(global_scope)) {
+            assert doesSymbolExist(localScope, typeName) : "Calling to an undefined symbol (" + typeName + ")";
+            return symtab.get(localScope).get(typeName);
         }
 
-        // assert retrievedObj != null : "Calling to an undefined symbol (" + typeName + ")";
-
-        return retrievedObj;
+        // if the symbol does not exist in the current scope, check under its parent scope
+        if( !doesSymbolExist(localScope, typeName)) {
+            return symtabLookup(localScope.nameSpace, typeName);
+        } else {
+            return symtab.get(localScope).get(typeName);
+        }
     }
-
-    // public LanguageObject symtabLookup(LanguageObject localScope, Node node) {
-    //     // TODO: check getName
-    //     System.out.println("symtablookup name: " + node.getName());
-    //     System.out.println("node: " + node.toString());
-    //     Object randomTry = visitor.dispatch(node.getGeneric(0));
-    //     System.out.println("randomout: " + randomTry);
-    //     for(LanguageObject key : symtab.keySet()) {
-    //         System.out.print(key.name + ": ");
-    //         for(String childKey : symtab.get(key).keySet()) {
-    //             System.out.print(childKey + ", ");
-    //         }
-    //         System.err.println();
-    //     }
-
-    //     // LanguageObject retrievedObj = retrieveFromSymtab(localScope, node.getName());
-    //     LanguageObject retrievedObj = symtabLookup(localScope, (String) randomTry);
-
-    //     if(retrievedObj == null) {
-    //         return null;
-    //     }
-
-    //     // if(! node.isEmpty()) {
-    //     //     // TODO: check child names how it's handled
-    //     //     assert node.get(0) instanceof Node : "Encountering case where node's child is not a node. Node's child is of class: " + node.get(0).getClass();
-    //     //     return symtabLookup(retrievedObj, node.getGeneric(0));
-    //     // } else {
-    //         return retrievedObj;
-    //     // }
-    // }
 
     public void lookupInSymTabAndAddAsCallee(String name) {
         lookupInSymTabAndAddAsCallee(name, true);
