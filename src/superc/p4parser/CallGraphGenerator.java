@@ -20,11 +20,6 @@ import java.util.Stack;
 import superc.core.Syntax;
 import superc.core.Syntax.Language;
 
-import javax.security.auth.callback.LanguageCallback;
-import javax.swing.LookAndFeel;
-import javax.swing.plaf.synth.SynthLookAndFeel;
-import javax.xml.stream.events.Namespace;
-
 import org.w3c.dom.NameList;
 
 import xtc.tree.GNode;
@@ -403,6 +398,19 @@ public class CallGraphGenerator {
             return n;
         }
 
+        // TODO: check if we need to list table scope (if not, remove from callGraphGenerator as well)
+        public Node visittableDeclaration(GNode n) {
+            String tableName = getStringUnderName(n.getGeneric(2));
+            LanguageObject tableObj = addToSymtab(scope.peek(), tableName);
+            scope.add(tableObj);
+
+            dispatch(n.getGeneric(4)); // tablePropertyList
+
+            scope.pop();
+
+            return n;
+        }
+
         // TODO: functionprototype, extern declaration. lvalue, invkingexpression, expression
 
     };
@@ -554,6 +562,19 @@ public class CallGraphGenerator {
             return n;
         }
 
+        // TODO: check if we need to list table scope (if not, remove from definitions dispatcher as well)
+        public Node visittableDeclaration(GNode n) {
+            String tableName = getStringUnderName(n.getGeneric(2));
+            LanguageObject tableObj = symtabLookup(scope.peek(), tableName);
+            scope.add(tableObj);
+
+            dispatch(n.getGeneric(4)); // tablePropertyList
+
+            scope.pop();
+
+            return n;
+        }
+
         public Node visitstateExpression(GNode n) {
             if(n.size() == 2) { // name SEMICOLON
                 // TODO: need to handle keywords like accept or reject
@@ -574,9 +595,82 @@ public class CallGraphGenerator {
             return n;
         }
 
-        // TODO: functionprototype, lvalue, invkingexpression, expression
+        // TODO: weird handling of constructs tagged as list
+        public Node visitactionList(GNode n) {
+            if(n.size() == 0) { // empty production
+                return n;
+            }
+
+            // Since there can be any number of children with any number of actionRefs, go through the children
+            Iterator itr = n.iterator();
+
+            while(itr.hasNext()) {
+                Object next = itr.next();
+                if (next instanceof Syntax) { // final SEMICOLON
+                    continue;
+                }
+                GNode nextNode = (GNode) next;
+                if(nextNode.getName() == "actionList") {
+                    dispatch(nextNode);
+                } else if(nextNode.getName() == "optAnnotations") {
+                    continue;
+                } else if(nextNode.getName() == "actionRef") {
+                    getNameUnderActionRefAndAddAsCallee(nextNode);
+                } else if(nextNode.getName() == "Conditional") {
+                    handleConditionalNodesUnderActionList(nextNode);
+                } else {
+                    assert false : "Unexpected value under actionList. Node name: " + nextNode.getName();
+                }
+            }
+
+            return n;
+        }
+
+        // TODO: lvalue, invkingexpression, expression
 
     };
+
+    /**
+     * Given an actionRef node, gets the name of the mentioned action and adds as callee
+     * Separating this out from call graph visitor as it is reused by handleConditionalNodesUnderActionList
+     * @param n actionRef node
+     */
+    public void getNameUnderActionRefAndAddAsCallee(GNode n) {
+        assert n.getName() == "actionRef";
+
+        String actionRefName = getStringUnderActionRef(n);
+        lookupInSymTabAndAddAsCallee(actionRefName);
+    }
+
+    /**
+     * Goes through conditional nodes and either calls the call graph visitor or adds actionRef as a callee
+     * 
+     * Specific for actionList node as it is tagged as list and will contain conditional nodes inside it
+     * that wrap other grammar nodes.
+     * @param n conditional node
+     */
+    // TODO: conditional node always has 2 children right?
+    public void handleConditionalNodesUnderActionList(GNode n) {
+        assert n.getName() == "Conditional";
+        assert n.size() == 2;
+
+        if (n.get(1) instanceof Syntax) { // final SEMICOLON
+            return;
+        }
+
+        GNode insideNode = n.getGeneric(1);
+        if(insideNode.getName() == "actionList") {
+            callGraphVisitor.dispatch(insideNode);
+        } else if(insideNode.getName() == "optAnnotations") {
+            return;
+        } else if(insideNode.getName() == "actionRef") {
+            getNameUnderActionRefAndAddAsCallee(insideNode);
+        } else if(insideNode.getName() == "Conditional") {
+            handleConditionalNodesUnderActionList(insideNode);
+        } else {
+            assert false : "Unexpected value under actionList. Node name: " + insideNode.getName();
+        }      
+    }
 
     public String getNameFromTypeName(GNode n) {
         assert n.getName() == "typeName";
@@ -646,6 +740,16 @@ public class CallGraphGenerator {
         assert n.getName() == "parserTypeDeclaration";
 
         return getStringUnderName(n.getGeneric(2));
+    }
+
+    public String getStringUnderActionRef(GNode n) {
+        assert n.getName() == "actionRef";
+
+        String prefixedNonTypeName = getStringUnderPrefixedNonTypeName(n.getGeneric(0));
+
+        // TODO: parse argumentList?
+
+        return prefixedNonTypeName;
     }
 
     public void printCallGraph() {
