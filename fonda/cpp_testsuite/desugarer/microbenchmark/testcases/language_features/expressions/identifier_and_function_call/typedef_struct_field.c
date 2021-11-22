@@ -12,5 +12,5 @@ struct x {
 int main()
 {
   struct x a;
-  return 0;
+  return sizeof(a);
 }

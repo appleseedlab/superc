@@ -25,6 +25,6 @@ int main()
 {
   int z;
   z = sizeof(struct two);
-  return 0;
+  return z;
 }
 

@@ -1,13 +1,13 @@
 int main()
 {
   #ifdef A
-  int *x;
+  int x;
   #else
-  long x;
+  long long  x;
   #endif
   union {
     typeof(x) a;
     int b;
   } y;
-  return 0;
+  return sizeof(y);
 }

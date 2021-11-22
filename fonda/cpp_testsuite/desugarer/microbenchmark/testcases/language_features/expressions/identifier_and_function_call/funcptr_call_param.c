@@ -1,5 +1,5 @@
 #ifdef HAS_PARAM
-int foo();
+int foo(int a);
 
 int foo(int a) {
   return a;
@@ -13,12 +13,13 @@ int foo() {
 #endif
 
 int main() {
+  int z;
 #ifdef HAS_PARAM
   int (*ptr) (int) = foo;
-  ptr(10);
+  z = ptr(10);
 #else
   int (*ptr) () = foo;
-  ptr();
+  z = ptr();
 #endif
-  return 0;
+  return z;
 }

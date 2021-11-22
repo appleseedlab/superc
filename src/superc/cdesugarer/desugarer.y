@@ -2009,7 +2009,6 @@ Typeofspecifier: /** complete **/  // ADDED
             String standin = "";
             if (e.getData() != ErrorT.TYPE) {
               standin = freshCId("typeofStandin");
-	      System.err.println(e.getData());
               ((CContext)subparser.scope).addDeclaration("typeof("+ e.getData().printType()+")" + standin + ";\n");
             }
             for (Element<TypeSpecifier> t : tmv) {
@@ -2023,6 +2022,7 @@ Typeofspecifier: /** complete **/  // ADDED
                 if (e.getData() == ErrorT.TYPE) {
                   ts.setError();
                 }
+                System.err.println(e.getData() + ":" + ts.getType());
                 newtm.add(ts, p);
               }
               p.delRef();
@@ -6554,7 +6554,7 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
-          Multiverse<String> exprmv = sizeofExpansion(exprval.type,(CContext)subparser.scope,pc);
+          Multiverse<String> exprmv = sizeofExpansion(exprval.type,freshIdCreator,(CContext)subparser.scope,pc);
           
           todoReminder("typecheck unaryexpression (5)");
 
@@ -6593,7 +6593,7 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           //Multiverse<String> typenamestr = DesugarOps.typenameToString.transform(typename);
           //To deal with stucts in sizeof, we need to offload this to emulate struct size calculation
           
-          Multiverse<String> typenamestr = sizeofExpansion(directTypes,(CContext)subparser.scope,pc);
+          Multiverse<String> typenamestr = sizeofExpansion(directTypes,freshIdCreator,(CContext)subparser.scope,pc);
           todoReminder("typecheck unaryexpression (6)");
           Type constSizeOf = C.SIZEOF.copy();
           constSizeOf.addAttribute(Constants.ATT_CONSTANT);
@@ -9041,122 +9041,55 @@ static public String declaringListRange(List<DeclaringListValue> ds, Syntax syn)
   return ln.getComment();
 }
 
-static public Multiverse<String> sizeofBody(Type t, CContext scope, PresenceCondition p) {
+static public Multiverse<String> sizeofBody(Type t, FreshIDCreator fic, CContext scope, PresenceCondition p) {
   Multiverse<String> ret = new Multiverse<String>();
   SymbolTable<Declaration> tagtab = scope.getLookasideTableAnyScope(t.getName());
   Multiverse<List<Map.Entry<String,Declaration>>> m = tagtab.getLists(p);
   if (!m.isEmpty()) {
-    if (t.isStruct()) {
-      for (Element<List<Map.Entry<String,Declaration>>> el : m) {
-        Multiverse<String> structEq = new Multiverse<String>();
-        structEq.add("(",el.getCondition());
-        boolean moreThanOne = false;
-        List<Map.Entry<String,Declaration>> l = el.getData();
-        if (l.size() == 0) {
-          structEq = structEq.appendScalar("0",DesugarOps.concatStrings);
-        }
-        for (Map.Entry<String,Declaration> me : l) {
-          if (moreThanOne) {
-            structEq = structEq.appendScalar(" + ",DesugarOps.concatStrings);
-          }
-          Type fieldT = me.getValue().getType().resolve();
-          if (fieldT.isStruct() || fieldT.isUnion()) {
-            Multiverse<String> innerStruct = sizeofBody(fieldT,scope,el.getCondition());
-            //I believe this should always be complete. If the struct is undefined or an
-            //error, than the struct it is inside of should be an error in that condition
-            //as well.
-            structEq = structEq.product(innerStruct,DesugarOps.concatStrings);
+    for (Element<List<Map.Entry<String,Declaration>>> el : m) {
+      Multiverse<List<String>> structEq = new Multiverse<List<String>>();
+      String typ = t.isStruct() ? "struct" : "union";
+      structEq.add(new LinkedList<String>(){{add(typ + " {");}},el.getCondition());
+      boolean moreThanOne = false;
+      List<Map.Entry<String,Declaration>> l = el.getData();
+      for (Map.Entry<String,Declaration> me : l) {
+        Type fieldT = me.getValue().getType().resolve();
+        if (fieldT.isStruct() || fieldT.isUnion()) {
+          Multiverse<String> innerStruct = sizeofBody(fieldT,fic,scope,el.getCondition());
+          innerStruct = innerStruct.appendScalar(fic.freshCId() + ";",DesugarOps.concatStrings);
+          //I believe this should always be complete. If the struct is undefined or an
+          //error, than the struct it is inside of should be an error in that condition
+          //as well.
+          structEq = structEq.product(DesugarOps.StringToStringList.transform(innerStruct),DesugarOps.concatStringsList);
+        } else {
+          if (me.getValue().getDeclarator().isBitFieldSizeDeclarator() || me.getValue().getDeclarator().isNamedBitFieldSizeDeclarator()) {
+            structEq = structEq.appendScalar(new LinkedList<String>(){{add(me.getValue().getDeclarator().printType() + fic.freshCId() + ";");}},DesugarOps.concatStringsList);
           } else {
-	    if (me.getValue().getDeclarator().isBitFieldSizeDeclarator() || me.getValue().getDeclarator().isNamedBitFieldSizeDeclarator()) {
-	      structEq = structEq.appendScalar(me.getValue().getDeclarator().printType(),DesugarOps.concatStrings);
-	    } else {
-	      structEq = structEq.appendScalar("sizeof(" + me.getValue().printType() + ")",DesugarOps.concatStrings);
-	    }
-	  }
-          moreThanOne = true;
-        }
-        structEq = structEq.appendScalar(")",DesugarOps.concatStrings);
-        for (Element<String> es : structEq) {
-          ret.add(es.getData(),es.getCondition());
+            structEq = structEq.appendScalar(new LinkedList<String>(){{add(me.getValue().printType() + fic.freshCId() + ";");}},DesugarOps.concatStringsList);
+          }
         }
       }
-    } else { //in this case, it is union
-      for (Element<List<Map.Entry<String,Declaration>>> el : m) {
-        Multiverse<String> structEq = new Multiverse<String>();
-        structEq.add("(",el.getCondition());
-        List<Map.Entry<String,Declaration>> ll = el.getData();
-        if (ll.size() == 0) {
-          structEq = structEq.appendScalar("0",DesugarOps.concatStrings);
-        } else {
-          if (ll.size() > 1) {
-            for (int i = 0; i < ll.size() - 1; ++i) {
-              Multiverse<String> fieldAStr;
-              Type fieldA = ll.get(i).getValue().getType().resolve();
-              if (fieldA.isStruct() || fieldA.isUnion()) {
-                fieldAStr = sizeofBody(fieldA,scope,el.getCondition());
-              } else {
-                fieldAStr = new Multiverse<String>("sizeof(" + fieldA.printType() + ")",el.getCondition());
-              }
-              structEq = structEq.appendScalar("(",DesugarOps.concatStrings);
-              for (int j = i+1; j < ll.size(); ++j) {
-                Multiverse<String> fieldBStr;
-                Type fieldB = ll.get(j).getValue().getType().resolve();
-                if (fieldB.isStruct() || fieldB.isUnion()) {
-                  fieldBStr = sizeofBody(fieldB,scope,el.getCondition());
-                } else {
-                  fieldBStr = new Multiverse<String>("sizeof(" + fieldB.printType() + ")",el.getCondition());
-                }
-                if (j > i+1) {
-                  structEq = structEq.appendScalar(" && ",DesugarOps.concatStrings);
-                }
-                structEq = structEq.appendScalar("(",DesugarOps.concatStrings);
-
-                structEq = structEq.product(fieldAStr,DesugarOps.concatStrings);
-                structEq = structEq.appendScalar(" >= ",DesugarOps.concatStrings);
-                structEq = structEq.product(fieldBStr,DesugarOps.concatStrings);
-                structEq = structEq.appendScalar(")",DesugarOps.concatStrings);
-              }
-              structEq = structEq.appendScalar(")",DesugarOps.concatStrings);
-              structEq = structEq.appendScalar("?",DesugarOps.concatStrings);
-              structEq = structEq.product(fieldAStr,DesugarOps.concatStrings);
-              structEq = structEq.appendScalar(":",DesugarOps.concatStrings);
-              structEq = structEq.appendScalar("(",DesugarOps.concatStrings);
-
-            }
-          }
-          Multiverse<String> fieldCStr;
-          Type fieldC = ll.get(ll.size()-1).getValue().getType().resolve();
-          if (fieldC.isStruct() || fieldC.isUnion()) {
-            fieldCStr = sizeofBody(fieldC,scope,el.getCondition());
-          } else {
-            fieldCStr = new Multiverse<String>("sizeof(" + fieldC.printType() + ")",el.getCondition());
-          }
-          structEq = structEq.product(fieldCStr,DesugarOps.concatStrings);
-          if (ll.size() > 1) {
-          
-            for (int i = 0; i < ll.size()-1; ++i) {
-              structEq = structEq.appendScalar(")",DesugarOps.concatStrings);
-            }
-          }
-         
+      structEq = structEq.appendScalar(new LinkedList<String>(){{add("}");}},DesugarOps.concatStringsList);
+      for (Element<List<String>> es : structEq) {
+        String X = "";
+        for (String s : es.getData()) {
+          X = X + s;
         }
-        
-        structEq = structEq.appendScalar(")",DesugarOps.concatStrings);
-        for (Element<String> es : structEq) {
-          ret.add(es.getData(),es.getCondition());
-        }
+        ret.add(X,es.getCondition());
       }
     }
   }
   return ret;
 }
 
-static public Multiverse<String> sizeofExpansion(Multiverse<Type> t, CContext scope, PresenceCondition p) {
+static public Multiverse<String> sizeofExpansion(Multiverse<Type> t, FreshIDCreator fic, CContext scope, PresenceCondition p) {
   Multiverse<String> ret = new Multiverse<String>();
   for (Element<Type> et : t) {
     Type tempT = et.getData().resolve();
     if (tempT.isStruct() || tempT.isUnion()) {
-      Multiverse<String> innerStruct = sizeofBody(tempT,scope,et.getCondition());
+      Multiverse<String> innerStruct = sizeofBody(tempT,fic,scope,et.getCondition());
+      innerStruct = innerStruct.prependScalar("sizeof(",DesugarOps.concatStrings);
+      innerStruct = innerStruct.appendScalar(")",DesugarOps.concatStrings);
       ret.addAll(innerStruct);
     } else {
       ret.add("sizeof(" + et.getData().printType() + ")",et.getCondition());
