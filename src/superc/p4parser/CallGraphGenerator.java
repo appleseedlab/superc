@@ -56,7 +56,6 @@ public class CallGraphGenerator {
                                                                          "exitStatement",
                                                                          "switchStatement",
                                                                          "functionPrototypes",
-                                                                         "parserDeclaration",
                                                                          "invokingExpression"));
     //PC Scope
 
@@ -203,11 +202,7 @@ public class CallGraphGenerator {
      * @return Boolean
      */
     public boolean doesScopeExist(LanguageObject scope) {
-        if ( !symtab.containsKey(scope)) {
-            return false;
-        }
-
-        return true;
+        return symtab.containsKey(scope);
     }
 
     /**
@@ -239,7 +234,7 @@ public class CallGraphGenerator {
 
         // base case where global_scope is the top-most parent
         if(localScope.equals(global_scope)) {
-            assert doesSymbolExist(localScope, typeName) : "Calling to an undefined symbol (" + typeName + ")";
+            assert doesSymbolExist(localScope, typeName) : "Calling to an undefined symbol \"" + typeName + "\"";
             return symtab.get(localScope).get(typeName);
         }
 
@@ -257,15 +252,16 @@ public class CallGraphGenerator {
 
         LanguageObject callee = symtabLookup(scope.peek(), name);
 
-        assert callee != null : "Calling to an undefined symbol when expecting it to be defined beforehand (" + name + ")";
+        assert callee != null : "UNCAUGHT Calling to an undefined symbol when expecting it to be defined beforehand (" + name + ")";
         scope.peek().callees.add(callee);
     }
 
     public void doEverything(Node translationUnit) {
-        visitor.dispatch(translationUnit.getGeneric(0));
+        definitionsVisitor.dispatch(translationUnit.getGeneric(0));
+        callGraphVisitor.dispatch(translationUnit.getGeneric(0));
     }
 
-    private Visitor visitor = new Visitor() {
+    private Visitor definitionsVisitor = new Visitor() {
         // default visitor
         public Node visit(GNode n) {
             // filtering out block that aren't supported yet and can cause silent failures
@@ -308,7 +304,6 @@ public class CallGraphGenerator {
             GNode oldN = n;
             n = n.getGeneric(5); // controlBody
             LanguageObject apply = addToSymtab(scope.peek(), applyBlockName);
-            scope.peek().callees.add(apply); // edge between parent control block and this apply block
             scope.add(apply);
 
             dispatch(n.getGeneric(0)); // controlBody can have only one child
@@ -318,23 +313,6 @@ public class CallGraphGenerator {
             //end parse controlBody
 
             scope.pop();
-            return n;
-        }
-
-        public Node visitdirectApplication(GNode n) {
-            // As per the grammar we can have only one typename before the `.apply`, so nesting can't happen
-            
-            String calleeName = getNameFromTypeName(n.getGeneric(0));
-            // TODO: below doesn't tell that it's also doing type checking, separate it out
-            // lookupInSymTabAndAddAsCallee(calleeName);
-            // LanguageObject callee = symtabLookup(scope.peek(), calleeName);
-
-            dispatch(n.getGeneric(4)); // argumentList
-
-            // LanguageObject caller = scope.peek();
-            // caller.callees.add(callee);
-            // TODO: add callee under conditional edge
-
             return n;
         }
 
@@ -366,9 +344,7 @@ public class CallGraphGenerator {
                     LPARENindx = 4;
                 }
 
-                String methodCalleeName = getPrefixedNonTypeNameFromLvalue(n.getGeneric(0));
-                // lookupInSymTabAndAddAsCallee(methodCalleeName);
-
+                // leaving it here cause argumentlist can contain assignments and expression
                 dispatch(n.getGeneric(LPARENindx + 1)); // argumentList
 
                 return n;
@@ -421,18 +397,171 @@ public class CallGraphGenerator {
         }
 
         public Node visitstateExpression(GNode n) {
-            if(n.size() == 2) { // name SEMICOLON
-                String stateName = getStringUnderName(n.getGeneric(0));
-                // lookupInSymTabAndAddAsCallee(stateName);
-            } else { // selectExpression;
+            if(n.size() == 1) { // selectExpression; (name SEMICOLON is handled in callGraphVisitor)
                 dispatch(n.getGeneric(0));
             }
             return n;
         }
 
-        public Node visitselectExpression(GNode n) {
-            // TODO trace expressionList for data
-            dispatch(n.getGeneric(5)); // selectCaseList - dynamic dispatch cause it's recursive
+        // TODO: functionprototype, extern declaration. lvalue, invkingexpression, expression
+
+    };
+
+    private Visitor callGraphVisitor = new Visitor() {
+        // default visitor
+        public Node visit(GNode n) {
+            // filtering out block that aren't supported yet and can cause silent failures
+            assert ! notExplicitlySupported.contains(n.getName()) : n.getName() + " is not supported at the moment";
+
+            // just visiting the child nodes since no specific dispatch is available for current node
+            Iterator itr = n.iterator();
+            while(itr.hasNext()) {
+                Object nextObj = itr.next();
+                // assert (!nextObj.getClass().equals(PresenceCondition.class)) : "PresenceCondition nodes not supported at the moment. Under node: " + nextObj;
+                if(nextObj instanceof Syntax) {
+                    // Since Syntax objects are not nodes
+                    // System.out.println("It's a syntax obj: " + nextObj.toString());
+                    // System.out.println("tag: " + ((Language) nextObj).tag());
+                    continue;
+                } else if(nextObj instanceof PresenceCondition) {
+                    // TODO handle PC scenarios under conditional nodes
+
+                    assert ((PresenceCondition) nextObj).getAllConfigs().size() == 0 : "non-empty PresenceCondition nodes not supported at the moment";
+                    continue;
+                }
+                dispatch((Node) nextObj);
+            }
+            return n;
+        }
+
+        public Node visitcontrolDeclaration(GNode n) {
+            // If need to parse parameters, visit the controltypedeclaration instead of static function to get name
+            String controlBlockName = getNameOfControlBlock(n.getGeneric(0));
+
+            LanguageObject controlObj = symtabLookup(scope.peek(), controlBlockName);
+            scope.add(controlObj);
+
+            // skipping visiting controlTypeDeclaration
+
+            dispatch(n.getGeneric(3)); // controlLocalDeclarations
+            String applyBlockName = n.get(4).toString();
+
+            // start parse controlBody
+            GNode oldN = n;
+            n = n.getGeneric(5); // controlBody
+            LanguageObject apply = symtabLookup(scope.peek(), applyBlockName);
+            lookupInSymTabAndAddAsCallee(applyBlockName); // TODO: ask if need to insert this as a callee?
+            scope.add(apply);
+
+            dispatch(n.getGeneric(0)); // controlBody can have only one child
+            
+            scope.pop();
+            n = oldN;
+            //end parse controlBody
+
+            scope.pop();
+            return n;
+        }
+
+        public Node visitactionDeclaration(GNode n) {
+            // Each action in the list of actions for a table must have a distinct name
+            String actionBlockName = getStringUnderName(n.getGeneric(2));
+            LanguageObject actionObj =  symtabLookup(scope.peek(), actionBlockName);
+            scope.add(actionObj);
+
+            dispatch(n.getGeneric(4)); // parameterList
+            dispatch(n.getGeneric(6)); // TODO: blockStatement 
+
+            scope.pop();
+
+            return n;
+        }
+
+        // Interesting: functionDeclaration not part of P416? not in online language specification -- experimental
+        //
+        public Node visitfunctionDeclaration(GNode n) {
+            // TODO: need to take care of typeOrVoid if we are keeping track of defined variables (can devolve into identifier or type ident)
+            // dispatch(n.getGeneric(0));
+
+            // as per language specification, functionPrototype will describe the name and type signature of the function
+            String functionName = getStringUnderFunctionPrototype(n.getGeneric(0));
+            LanguageObject functionObj = symtabLookup(scope.peek(), functionName);
+            scope.add(functionObj);
+
+            dispatch(n.getGeneric(1)); // blockstatement
+
+            scope.pop();
+
+            return n;
+        }
+
+        public Node visitparserDeclaration(GNode n) {
+            String parserName = getStringUnderParserTypeDeclaration(n.getGeneric(0)); // TODO: take of parameter list here if needed to
+            LanguageObject parserObj = symtabLookup(scope.peek(), parserName);
+            scope.add(parserObj);
+
+            dispatch(n.getGeneric(3)); // parserLocalElements TODO: valueSetDeclaration needs to be traced for data flow
+            dispatch(n.getGeneric(4)); // parserStates
+
+            scope.pop();
+
+            return n;
+        }
+
+        public Node visitparserState(GNode n) {
+            String stateName = getStringUnderName(n.getGeneric(2));
+            LanguageObject stateObj = symtabLookup(scope.peek(), stateName);
+            scope.add(stateObj);
+
+            dispatch(n.getGeneric(4)); // parserStatements
+            dispatch(n.getGeneric(5)); // transitionStatement
+
+            scope.pop();
+            
+            return n;
+
+        }
+
+        public Node visitdirectApplication(GNode n) {
+            // As per the grammar we can have only one typename before the `.apply`, so nesting can't happen
+            
+            String calleeName = getNameFromTypeName(n.getGeneric(0));
+            // TODO: below doesn't tell that it's also doing type checking, separate it out
+            lookupInSymTabAndAddAsCallee(calleeName);
+
+            // dispatch(n.getGeneric(4)); // argumentList
+
+            return n;
+        }
+
+        public Node visitassignmentOrMethodCallStatement(GNode n) {
+            if(n.size() == 4) { // assignment statement
+                // TODO: figure out if need to implement scope for lvalue that is not an identifier (like identifier DOT identifier)
+                dispatch(n.getGeneric(2)); // expression
+                return n;
+            } else { // method call statement
+                int LPARENindx = 1;
+
+                if(n.size() == 8) {
+                    LPARENindx = 4;
+                }
+
+                String methodCalleeName = getPrefixedNonTypeNameFromLvalue(n.getGeneric(0));
+                lookupInSymTabAndAddAsCallee(methodCalleeName);
+
+                // dispatch(n.getGeneric(LPARENindx + 1)); // argumentList
+            }
+            return n;
+        }
+
+        public Node visitstateExpression(GNode n) {
+            if(n.size() == 2) { // name SEMICOLON
+                // TODO: need to handle keywords like accept or reject
+                String stateName = getStringUnderName(n.getGeneric(0));
+                lookupInSymTabAndAddAsCallee(stateName);
+            } else { // selectExpression;
+                dispatch(n.getGeneric(0));
+            }
             return n;
         }
 
@@ -440,12 +569,12 @@ public class CallGraphGenerator {
             // TODO trace keysetExpression for data
 
             String selectName = getStringUnderName(n.getGeneric(2));
-            // lookupInSymTabAndAddAsCallee(selectName);
+            lookupInSymTabAndAddAsCallee(selectName);
 
             return n;
         }
 
-        // TODO: functionprototype, extern declaration. lvalue, invkingexpression, expression
+        // TODO: functionprototype, lvalue, invkingexpression, expression
 
     };
 
