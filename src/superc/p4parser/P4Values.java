@@ -48,7 +48,7 @@ public class P4Values implements SemanticValues {
     return value;
   }
   public ValueType getValueType(int id) {
-    if (0 <= id && id < 121 || 264 < id) {
+    if (0 <= id && id < 121 || 266 < id) {
       return ValueType.NODE;
     }
     switch (id - 121) {
@@ -90,29 +90,29 @@ public class P4Values implements SemanticValues {
         // Fall through
       case 100: // identifierList (221)
         // Fall through
-      case 111: // statOrDeclList (232)
+      case 112: // statOrDeclList (233)
         // Fall through
-      case 113: // switchCases (234)
+      case 114: // switchCases (235)
         // Fall through
-      case 118: // tablePropertyList (239)
+      case 119: // tablePropertyList (240)
         // Fall through
-      case 120: // keyElementList (241)
+      case 121: // keyElementList (242)
         // Fall through
-      case 122: // actionList (243)
+      case 123: // actionList (244)
         // Fall through
-      case 126: // entriesList (247)
+      case 127: // entriesList (248)
         // Fall through
-      case 133: // argumentList (254)
+      case 134: // argumentList (255)
         // Fall through
-      case 134: // nonEmptyArgList (255)
+      case 135: // nonEmptyArgList (256)
         // Fall through
-      case 136: // expressionList (257)
+      case 137: // expressionList (258)
         // Fall through
-      case 141: // expression (262)
+      case 143: // expression (264)
         // Fall through
-      case 142: // invokingExpression (263)
+      case 144: // invokingExpression (265)
         // Fall through
-      case 143: // nonBraceExpression (264)
+      case 145: // nonBraceExpression (266)
         return ValueType.LIST;
 
       case 18: // $@1 (139)
@@ -153,9 +153,9 @@ public class P4Values implements SemanticValues {
         // Fall through
       case 95: // $@19 (216)
         // Fall through
-      case 110: // $@20 (231)
+      case 111: // $@20 (232)
         // Fall through
-      case 139: // $@21 (260)
+      case 140: // $@21 (261)
         return ValueType.ACTION;
 
       default:
@@ -164,21 +164,25 @@ public class P4Values implements SemanticValues {
   }
   public boolean isComplete(int id) {
     switch(id) {
-    case 256: // argument
+    case 256: // nonEmptyArgList
       // Fall through
-    case 257: // expressionList
+    case 257: // argument
       // Fall through
-    case 259: // dot_name
+    case 258: // expressionList
       // Fall through
-    case 260: // $@21
+    case 260: // dot_name
       // Fall through
-    case 261: // lvalue
+    case 261: // $@21
       // Fall through
-    case 262: // expression
+    case 262: // lvalue
       // Fall through
-    case 263: // invokingExpression
+    case 263: // lvalueExpression
       // Fall through
-    case 264: // nonBraceExpression
+    case 264: // expression
+      // Fall through
+    case 265: // invokingExpression
+      // Fall through
+    case 266: // nonBraceExpression
       // Fall through
     case 119: // start
       // Fall through
@@ -358,67 +362,65 @@ public class P4Values implements SemanticValues {
       // Fall through
     case 223: // assignmentOrMethodCallStatement
       // Fall through
-    case 224: // emptyStatement
+    case 225: // emptyStatement
       // Fall through
-    case 225: // exitStatement
+    case 226: // exitStatement
       // Fall through
-    case 226: // returnStatement
+    case 227: // returnStatement
       // Fall through
-    case 227: // conditionalStatement
+    case 228: // conditionalStatement
       // Fall through
-    case 228: // directApplication
+    case 229: // directApplication
       // Fall through
-    case 229: // statement
+    case 230: // statement
       // Fall through
-    case 230: // blockStatement
+    case 231: // blockStatement
       // Fall through
-    case 231: // $@20
+    case 232: // $@20
       // Fall through
-    case 232: // statOrDeclList
+    case 233: // statOrDeclList
       // Fall through
-    case 233: // switchStatement
+    case 234: // switchStatement
       // Fall through
-    case 234: // switchCases
+    case 235: // switchCases
       // Fall through
-    case 235: // switchCase
+    case 236: // switchCase
       // Fall through
-    case 237: // statementOrDeclaration
+    case 238: // statementOrDeclaration
       // Fall through
-    case 238: // tableDeclaration
+    case 239: // tableDeclaration
       // Fall through
-    case 239: // tablePropertyList
+    case 240: // tablePropertyList
       // Fall through
-    case 240: // tableProperty
+    case 241: // tableProperty
       // Fall through
-    case 241: // keyElementList
+    case 242: // keyElementList
       // Fall through
-    case 242: // keyElement
+    case 243: // keyElement
       // Fall through
-    case 243: // actionList
+    case 244: // actionList
       // Fall through
-    case 244: // action
+    case 245: // action
       // Fall through
-    case 245: // actionRef
+    case 246: // actionRef
       // Fall through
-    case 246: // entry
+    case 247: // entry
       // Fall through
-    case 247: // entriesList
+    case 248: // entriesList
       // Fall through
-    case 248: // actionDeclaration
+    case 249: // actionDeclaration
       // Fall through
-    case 249: // variableDeclaration
+    case 250: // variableDeclaration
       // Fall through
-    case 250: // constantDeclaration
+    case 251: // constantDeclaration
       // Fall through
-    case 251: // optInitializer
+    case 252: // optInitializer
       // Fall through
-    case 252: // initializer
+    case 253: // initializer
       // Fall through
-    case 253: // functionDeclaration
+    case 254: // functionDeclaration
       // Fall through
-    case 254: // argumentList
-      // Fall through
-    case 255: // nonEmptyArgList
+    case 255: // argumentList
       return true;
 
     default:

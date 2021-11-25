@@ -330,24 +330,72 @@ public class CallGraphGenerator {
         // header functions - push_front
         // TODO: write out explanation for lvalue
         public Node visitassignmentOrMethodCallStatement(GNode n) {
-
-            if(n.size() == 4) { // assignment statement
-                // TODO: figure out if need to implement scope for lvalue that is not an identifier (like identifier DOT identifier)
-                String leftSizeValue = getPrefixedNonTypeNameFromLvalue(n.getGeneric(0)); // right now assuming just one identifier value is present
+            if(n.getGeneric(0).getName() == "methodCallStatements") {
+                // method call statements
+                dispatch(n.getGeneric(0));
+            } else {
+                // assignment statement
+                // TODO: need to assert that this lvalue call does not invoke functions
+                dispatch(n.getGeneric(0)); //lvalue
                 dispatch(n.getGeneric(2)); // expression
-                return n;
-            } else { // method call statement
-                int LPARENindx = 1;
+            }
+            return n;
+        }
 
-                if(n.size() == 8) {
-                    LPARENindx = 4;
-                }
+        public Node visitmethodCallStatements(GNode n) {
+            dispatch(n.getGeneric(0)); // lvalue
 
-                // leaving it here cause argumentlist can contain assignments and expression
-                dispatch(n.getGeneric(LPARENindx + 1)); // argumentList
+            // There are two possible set of sub productions, both which have argument list under it
+            // but one has typeArgumentList before argument list, so argumentList is not at the same place
+            // hence check the size to see which production we are currently under and dispatching
+            // the visitor at the respective argumentList position
+            if(n.size() == 5) {
+                dispatch(n.getGeneric(2)); //argumentlist
+            } else { 
+                dispatch(n.getGeneric(5)); // argumentList
+            }
 
+            return n;
+        }
+
+        public Node visitlvalue(GNode n) {
+            if(n.get(0) instanceof Syntax) { // keyword "THIS"
                 return n;
             }
+
+            switch(n.getGeneric(0).getName()) {
+                case "prefixedNonTypeName":
+                    break;
+                case "lvalue":
+                    dispatch(n.getGeneric(0));
+                    if(n.getGeneric(1).getName() == "dot_name") {
+                        // as per the grammar specifications, lvalue dot values can only be used for structs, headers, and header union fields.
+                        // so ensuring that's the case
+                        // TOOD: change LanguageObject to include what constructs to check for this
+                        ensureDotValueIsOnlySpecificConstructs(n.getGeneric(1));
+                    } else {
+                        dispatch(n.getGeneric(1)); // lvalueExpression
+                    }
+                    break;
+                default:
+                    assert false : "Unhandled lvalue first element: " + n.getGeneric(0).getName();
+            }
+
+            return n;
+        }
+
+        public Node visitlvalueExpression(GNode n) {
+            // Two possible productions:
+            // L_BRACKET expression R_BRACKET - size 3
+            // L_BRACKET expression COLON expression R_BRACKET - size 5
+
+            dispatch(n.getGeneric(1)); // always expression 
+
+            if(n.size() == 5) { // L_BRACKET expression COLON expression R_BRACKET
+                dispatch(n.getGeneric(3)); // expression
+            }
+
+            return n;
         }
 
         // Interesting: functionDeclaration not part of P416? not in online language specification -- experimental
@@ -550,25 +598,38 @@ public class CallGraphGenerator {
             return n;
         }
 
-        // TODO: comment on why using size or break assingmentOrMethodCallStatement into two
         // TODO: build control_duplicate with a main module
         public Node visitassignmentOrMethodCallStatement(GNode n) {
-            if(n.size() == 4) { // assignment statement
-                // TODO: figure out if need to implement scope for lvalue that is not an identifier (like identifier DOT identifier)
+            if(n.getGeneric(0).getName() == "methodCallStatements") {
+                // method call statements
+                dispatch(n.getGeneric(0));
+            } else {
+                dispatch(n.getGeneric(0)); // lvalue
                 dispatch(n.getGeneric(2)); // expression
-                return n;
-            } else { // method call statement
-                int LPARENindx = 1;
-
-                if(n.size() == 8) {
-                    LPARENindx = 4;
-                }
-
-                LanguageObject methodCallee = getMethodPrefixedNonTypeNameFromLvalue(n.getGeneric(0), this, scope.peek());
-                scope.peek().callees.add(methodCallee);
-
-                // dispatch(n.getGeneric(LPARENindx + 1)); // argumentList
             }
+
+            return n;
+        }
+
+        public Node visitmethodCallStatements(GNode n) {
+            dispatch(n.getGeneric(0)); // lvalue
+
+            // only legal value of lvalue for method call statements is prefixedNonTypeName
+            // as dot_name and lvalueExpressions cannot be used for method call statements
+            // (see end of document). getStringUnderLvaluePrefixNonTypeName asserts that
+            String calleeMethodName = getStringUnderLvaluePrefixNonTypeName(n.getGeneric(0));
+            lookupInSymTabAndAddAsCallee(calleeMethodName);
+
+            // There are two possible set of sub productions, both which have argument list under it
+            // but one has typeArgumentList before argument list, so argumentList is not at the same place
+            // hence check the size to see which production we are currently under and dispatching
+            // the visitor at the respective argumentList position
+            if(n.size() == 5) {
+                dispatch(n.getGeneric(2)); //argumentlist
+            } else { 
+                dispatch(n.getGeneric(5)); // argumentList
+            }
+
             return n;
         }
 
@@ -658,6 +719,11 @@ public class CallGraphGenerator {
         return getStringUnderName(n.getGeneric(2));
     }
 
+    // TODO: !! (need to change LanguageObject to include which construct each symbol is from)
+    public void ensureDotValueIsOnlySpecificConstructs(GNode n) {
+        assert true;
+    }
+
     public String getStringUnderName(GNode n) {
         assert n.getName() == "name";
 
@@ -686,45 +752,15 @@ public class CallGraphGenerator {
         return getStringUnderNonTypeName(n.getGeneric(0));
     }
 
-    public String getPrefixedNonTypeNameFromLvalue(GNode n) {
+    public String getStringUnderLvaluePrefixNonTypeName(GNode n) {
+        // only legal value of lvalue for method call statements is prefixedNonTypeName
+        // as dot_name and lvalueExpressions cannot be used for method call statements
+        // (see end of document)
+
         assert n.getName() == "lvalue";
-        assert n.getGeneric(0) instanceof GNode && ((GNode) n.getGeneric(0)).getName() == "prefixedNonTypeName" : "lvalue construct not supported with values other than prefixedNonTypeName";
+        assert n.get(0) instanceof Node && ((Node) n.get(0)).isGeneric() && n.getGeneric(0).getName() == "prefixedNonTypeName";
 
         return getStringUnderPrefixedNonTypeName(n.getGeneric(0));
-    }
-
-    public LanguageObject getMethodPrefixedNonTypeNameFromLvalue(Object node, Visitor visitor, LanguageObject scope) {
-        if(node instanceof Syntax) {
-            return scope;
-        }
-
-        assert node instanceof GNode;
-        GNode n = (GNode) node;
-
-        if(n.getName() == "prefixedNonTypeName") {
-            String prefixedNonTypeName = getStringUnderPrefixedNonTypeName(n);
-            LanguageObject pNTN = symtabLookup(scope, prefixedNonTypeName);
-            return pNTN;
-        } else if(n.getName() == "dot_name") {
-            String dotName = getStringUnderDotName(n);
-            LanguageObject name = symtabLookup(scope, dotName);
-            return name;
-        } else if(n.getName() == "expression") {
-            // don't need to add current scope to the scope stack since the expression will be invoked under
-            // the "main" scope and not the lvalue scope
-            visitor.dispatch(n);
-            return scope;
-        } else if(n.getName() == "lvalue") {
-            Iterator itr = n.iterator();
-
-            while(itr.hasNext()) {
-                scope = getMethodPrefixedNonTypeNameFromLvalue(itr.next(), visitor, scope);
-            }
-        } else {
-            assert false : "hmm unhandled case in getMethodPrefixedNonTypeNameFromLvalue";
-        }
-
-        return scope;
     }
 
     public String getStringUnderDotName(GNode n) {

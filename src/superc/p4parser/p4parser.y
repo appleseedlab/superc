@@ -916,15 +916,17 @@ typedefDeclaration: /** complete **/
 
 assignmentOrMethodCallStatement: /** complete **/
 // These rules are overly permissive, but they avoid some conflicts
-      lvalue L_PAREN argumentList R_PAREN SEMICOLON
+    methodCallStatements
         {}
-
-    | lvalue l_angle typeArgumentList r_angle L_PAREN argumentList R_PAREN SEMICOLON
-        {}
-
     | lvalue ASSIGN expression SEMICOLON
         {}
+    ;
 
+methodCallStatements:
+    lvalue L_PAREN argumentList R_PAREN SEMICOLON
+        {}
+    | lvalue l_angle typeArgumentList r_angle L_PAREN argumentList R_PAREN SEMICOLON
+        {}
     ;
 
 emptyStatement: /** complete **/
@@ -1137,9 +1139,12 @@ lvalue: /** complete **/
     prefixedNonTypeName                {}
     | THIS                               {}  // experimental
     | lvalue dot_name %prec DOT          {}
-    | lvalue L_BRACKET expression R_BRACKET          {}
-    | lvalue L_BRACKET expression COLON expression R_BRACKET {}
+    | lvalue lvalueExpression          {}
     ;
+
+lvalueExpression: /** complete **/
+    L_BRACKET expression R_BRACKET          {}
+    | L_BRACKET expression COLON expression R_BRACKET {}
 
 expression: /** complete, list **/
     INTEGER                            {}
