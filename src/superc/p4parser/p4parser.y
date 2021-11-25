@@ -1035,8 +1035,12 @@ keyElement: /** complete **/
 
 actionList: /** complete, list **/
     %empty {}
-    | actionList optAnnotations actionRef SEMICOLON
+    | actionList action
         {}
+    ;
+
+action: /** complete **/
+    optAnnotations actionRef SEMICOLON
     ;
 
 actionRef: /** complete **/

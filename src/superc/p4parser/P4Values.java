@@ -48,7 +48,7 @@ public class P4Values implements SemanticValues {
     return value;
   }
   public ValueType getValueType(int id) {
-    if (0 <= id && id < 121 || 263 < id) {
+    if (0 <= id && id < 121 || 264 < id) {
       return ValueType.NODE;
     }
     switch (id - 121) {
@@ -100,19 +100,19 @@ public class P4Values implements SemanticValues {
         // Fall through
       case 122: // actionList (243)
         // Fall through
-      case 125: // entriesList (246)
+      case 126: // entriesList (247)
         // Fall through
-      case 132: // argumentList (253)
+      case 133: // argumentList (254)
         // Fall through
-      case 133: // nonEmptyArgList (254)
+      case 134: // nonEmptyArgList (255)
         // Fall through
-      case 135: // expressionList (256)
+      case 136: // expressionList (257)
         // Fall through
-      case 140: // expression (261)
+      case 141: // expression (262)
         // Fall through
-      case 141: // invokingExpression (262)
+      case 142: // invokingExpression (263)
         // Fall through
-      case 142: // nonBraceExpression (263)
+      case 143: // nonBraceExpression (264)
         return ValueType.LIST;
 
       case 18: // $@1 (139)
@@ -155,7 +155,7 @@ public class P4Values implements SemanticValues {
         // Fall through
       case 110: // $@20 (231)
         // Fall through
-      case 138: // $@21 (259)
+      case 139: // $@21 (260)
         return ValueType.ACTION;
 
       default:
@@ -164,19 +164,21 @@ public class P4Values implements SemanticValues {
   }
   public boolean isComplete(int id) {
     switch(id) {
-    case 256: // expressionList
+    case 256: // argument
       // Fall through
-    case 258: // dot_name
+    case 257: // expressionList
       // Fall through
-    case 259: // $@21
+    case 259: // dot_name
       // Fall through
-    case 260: // lvalue
+    case 260: // $@21
       // Fall through
-    case 261: // expression
+    case 261: // lvalue
       // Fall through
-    case 262: // invokingExpression
+    case 262: // expression
       // Fall through
-    case 263: // nonBraceExpression
+    case 263: // invokingExpression
+      // Fall through
+    case 264: // nonBraceExpression
       // Fall through
     case 119: // start
       // Fall through
@@ -394,29 +396,29 @@ public class P4Values implements SemanticValues {
       // Fall through
     case 243: // actionList
       // Fall through
-    case 244: // actionRef
+    case 244: // action
       // Fall through
-    case 245: // entry
+    case 245: // actionRef
       // Fall through
-    case 246: // entriesList
+    case 246: // entry
       // Fall through
-    case 247: // actionDeclaration
+    case 247: // entriesList
       // Fall through
-    case 248: // variableDeclaration
+    case 248: // actionDeclaration
       // Fall through
-    case 249: // constantDeclaration
+    case 249: // variableDeclaration
       // Fall through
-    case 250: // optInitializer
+    case 250: // constantDeclaration
       // Fall through
-    case 251: // initializer
+    case 251: // optInitializer
       // Fall through
-    case 252: // functionDeclaration
+    case 252: // initializer
       // Fall through
-    case 253: // argumentList
+    case 253: // functionDeclaration
       // Fall through
-    case 254: // nonEmptyArgList
+    case 254: // argumentList
       // Fall through
-    case 255: // argument
+    case 255: // nonEmptyArgList
       return true;
 
     default:

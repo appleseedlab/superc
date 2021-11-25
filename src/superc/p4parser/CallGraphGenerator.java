@@ -607,32 +607,9 @@ public class CallGraphGenerator {
 
         // TODO: weird handling of constructs tagged as list
         // TODO: can change grammar for actionList to be similar keyElementList
-        public Node visitactionList(GNode n) {
-            if(n.size() == 0) { // empty production
-                return n;
-            }
-
-            // Since there can be any number of children with any number of actionRefs, go through the children
-            Iterator itr = n.iterator();
-
-            while(itr.hasNext()) {
-                Object next = itr.next();
-                if (next instanceof Syntax) { // final SEMICOLON
-                    continue;
-                }
-                GNode nextNode = (GNode) next;
-                if(nextNode.getName() == "actionList") {
-                    dispatch(nextNode);
-                } else if(nextNode.getName() == "optAnnotations") {
-                    continue;
-                } else if(nextNode.getName() == "actionRef") {
-                    getNameUnderActionRefAndAddAsCallee(nextNode);
-                } else if(nextNode.getName() == "Conditional") {
-                    handleConditionalNodesUnderActionList(nextNode);
-                } else {
-                    assert false : "Unexpected value under actionList. Node name: " + nextNode.getName();
-                }
-            }
+        public Node visitaction(GNode n) {
+            String actionRefName = getNameUnderActionRef(n.getGeneric(1), this);
+            lookupInSymTabAndAddAsCallee(actionRefName);
 
             return n;
         }
@@ -642,45 +619,20 @@ public class CallGraphGenerator {
     };
 
     /**
-     * Given an actionRef node, gets the name of the mentioned action and adds as callee
-     * Separating this out from call graph visitor as it is reused by handleConditionalNodesUnderActionList
+     * Given an actionRef node, gets the name of the mentioned action and returns that
      * @param n actionRef node
+     * @return Returns the String present under the actionRef
      */
-    public void getNameUnderActionRefAndAddAsCallee(GNode n) {
+    public String getNameUnderActionRef(GNode n, Visitor visitor) {
         assert n.getName() == "actionRef";
 
-        String actionRefName = getStringUnderActionRef(n);
-        lookupInSymTabAndAddAsCallee(actionRefName);
-    }
+        String actionRefName = getStringUnderPrefixedNonTypeName(n.getGeneric(0));
 
-    /**
-     * Goes through conditional nodes and either calls the call graph visitor or adds actionRef as a callee
-     * 
-     * Specific for actionList node as it is tagged as list and will contain conditional nodes inside it
-     * that wrap other grammar nodes.
-     * @param n conditional node
-     */
-    // TODO: conditional node always has 2 children right?
-    public void handleConditionalNodesUnderActionList(GNode n) {
-        assert n.getName() == "Conditional";
-        assert n.size() == 2;
-
-        if (n.get(1) instanceof Syntax) { // final SEMICOLON
-            return;
+        if(n.size() > 1) {
+            visitor.dispatch(n.getGeneric(2)); // argumentList
         }
 
-        GNode insideNode = n.getGeneric(1);
-        if(insideNode.getName() == "actionList") {
-            callGraphVisitor.dispatch(insideNode);
-        } else if(insideNode.getName() == "optAnnotations") {
-            return;
-        } else if(insideNode.getName() == "actionRef") {
-            getNameUnderActionRefAndAddAsCallee(insideNode);
-        } else if(insideNode.getName() == "Conditional") {
-            handleConditionalNodesUnderActionList(insideNode);
-        } else {
-            assert false : "Unexpected value under actionList. Node name: " + insideNode.getName();
-        }      
+        return actionRefName;
     }
 
     public String getNameFromTypeName(GNode n) {
