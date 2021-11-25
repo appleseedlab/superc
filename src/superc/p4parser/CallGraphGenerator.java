@@ -17,6 +17,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
+
+import javax.swing.plaf.synth.SynthLookAndFeel;
+
 import superc.core.Syntax;
 import superc.core.Syntax.Language;
 
@@ -50,8 +53,7 @@ public class CallGraphGenerator {
                                                                          "returnStatement",
                                                                          "exitStatement",
                                                                          "switchStatement",
-                                                                         "functionPrototypes",
-                                                                         "invokingExpression"));
+                                                                         "functionPrototypes"));
     //PC Scope
 
     public CallGraphGenerator() {
@@ -666,11 +668,61 @@ public class CallGraphGenerator {
             return n;
         }
 
-        // TODO: weird handling of constructs tagged as list
-        // TODO: can change grammar for actionList to be similar keyElementList
         public Node visitaction(GNode n) {
             String actionRefName = getNameUnderActionRef(n.getGeneric(1), this);
             lookupInSymTabAndAddAsCallee(actionRefName);
+
+            return n;
+        }
+
+        public Node visitinvokingExpression(GNode n) {
+            if(n.getGeneric(0).getName() == "namedType") {
+                // one of three possible productions, starts with namedType
+                String namedType = getStringUnderNamedType(n.getGeneric(0));
+                lookupInSymTabAndAddAsCallee(namedType);
+
+                dispatch(n.getGeneric(2)); // argumentList
+            } else { // first element pointing to name is an expression, extract from that
+                LanguageObject expressionCallee = getCalleeFromExpression(n.getGeneric(0));
+                scope.peek().callees.add(expressionCallee);
+
+                // two possible productions, one contains extra set of type arguments 
+                // inside angle brackets (of size 4 & 7)
+                if(n.size() == 4) {
+                    dispatch(n.getGeneric(2)); // argumentList
+                } else {
+                    dispatch(n.getGeneric(4));
+                    // TODO: data inside realTypeArguments? can refer nontypenames
+                }
+            }
+
+            return n;
+        }
+
+        public Node visitinvokingNonBraceExpression(GNode n) {
+            // since expression and nonbraceexpression are the same
+            // expect that nonbraceexpression does not include any cases that 
+            // can begin with a left brace { character
+            
+            if(n.getGeneric(0).getName() == "namedType") {
+                // one of three possible productions, starts with namedType
+                String namedType = getStringUnderNamedType(n.getGeneric(0));
+                lookupInSymTabAndAddAsCallee(namedType);
+
+                dispatch(n.getGeneric(2)); // argumentList
+            } else { // first element pointing to name is an nonBraceExpression, extract from that
+                LanguageObject expressionCallee = getCalleeFromNonBraceExpression(n.getGeneric(0));
+                scope.peek().callees.add(expressionCallee);
+
+                // two possible productions, one contains extra set of type arguments 
+                // inside angle brackets (of size 4 & 7)
+                if(n.size() == 4) {
+                    dispatch(n.getGeneric(2)); // argumentList
+                } else {
+                    dispatch(n.getGeneric(4));
+                    // TODO: data inside realTypeArguments? can refer nontypenames
+                }
+            }
 
             return n;
         }
@@ -694,6 +746,143 @@ public class CallGraphGenerator {
         }
 
         return actionRefName;
+    }
+
+    // nonTypeName, dotPrefix nonTypeName, typeName dot_name, expression dot_name
+    // Note: `NOT expression` will be taken care of by recursion
+    public LanguageObject getCalleeFromExpression(GNode n) {
+        assert n.getName() == "expression" : "current name is: " + n.getName();
+
+        if(n.get(0) instanceof Syntax) { // NOT expression
+            assert n.get(0).toString() == "!";
+            return getCalleeFromExpression(n.getGeneric(1));
+        }
+
+        assert ((Node) n.get(0)).isGeneric();
+
+        String dotNameString;
+        boolean currentConditionalFlag = false;
+        do {
+            currentConditionalFlag = false;
+            System.out.println("name is: " + n.getName());
+            GNode firstChild = n.getGeneric(0);
+            if(n.getGeneric(0).getName() == "Conditional") {
+                firstChild = getNodeUnderConditional(n.getGeneric(0));
+            }
+            switch(firstChild.getName()) {
+                case "nonTypeName":
+                    // nonTypeName
+                    return symtabLookup(scope.peek(), getStringUnderNonTypeName(returnSecondChildIfConditional(n.getGeneric(0))));
+                case "dotPrefix":
+                    // dotPrefix nonTypeName
+                    // TODO: namespacing?
+                    assert n.size() > 1;
+                    return symtabLookup(scope.peek(), getStringUnderNonTypeName(returnSecondChildIfConditional(n.getGeneric(1))));
+                case "typeName":
+                    // typeName dot_name
+                    // doing namespacing
+                    LanguageObject typeNameLO = symtabLookup(scope.peek(), getNameFromTypeName(returnSecondChildIfConditional(n.getGeneric(0))));
+                    dotNameString = getStringUnderDotName(returnSecondChildIfConditional(n.getGeneric(1)));
+                    return symtabLookup(typeNameLO, dotNameString);
+                case "expression":
+                    // expression dot_name
+                    // namespace
+                    assert n.size() == 2 && n.getGeneric(1).getName() == "dot_name";
+                    LanguageObject expressionLO = getCalleeFromExpression(returnSecondChildIfConditional(n.getGeneric(0)));
+                    dotNameString = getStringUnderDotName(returnSecondChildIfConditional(n.getGeneric(1)));
+                    return symtabLookup(expressionLO, dotNameString);
+                default:
+                    assert false : "Encountered a situation where expression inside invoking expression was not of expected value";
+            }
+        } while(currentConditionalFlag);
+
+        assert false : "should not be reaching this place";
+        return symtabLookup(scope.peek(), n.getName());
+    }
+
+    // nonTypeName, dotPrefix nonTypeName, typeName dot_name, expression dot_name
+    // Note: `NOT expression` will be taken care of by recursion
+    public LanguageObject getCalleeFromNonBraceExpression(GNode n) {
+        assert n.getName() == "expression" : "current name is: " + n.getName();
+
+        if(n.get(0) instanceof Syntax) { // NOT expression
+            assert n.get(0).toString() == "!";
+            return getCalleeFromExpression(n.getGeneric(1));
+        }
+
+        assert ((Node) n.get(0)).isGeneric();
+
+        String dotNameString;
+        boolean currentConditionalFlag = false;
+        do {
+            currentConditionalFlag = false;
+            System.out.println("name is: " + n.getName());
+            GNode firstChild = n.getGeneric(0);
+            if(n.getGeneric(0).getName() == "Conditional") {
+                firstChild = getNodeUnderConditional(n.getGeneric(0));
+            }
+            switch(firstChild.getName()) {
+                case "nonTypeName":
+                    // nonTypeName
+                    return symtabLookup(scope.peek(), getStringUnderNonTypeName(returnSecondChildIfConditional(n.getGeneric(0))));
+                case "dotPrefix":
+                    // dotPrefix nonTypeName
+                    // TODO: namespacing?
+                    assert n.size() > 1;
+                    return symtabLookup(scope.peek(), getStringUnderNonTypeName(returnSecondChildIfConditional(n.getGeneric(1))));
+                case "typeName":
+                    // typeName dot_name
+                    // doing namespacing
+                    LanguageObject typeNameLO = symtabLookup(scope.peek(), getNameFromTypeName(returnSecondChildIfConditional(n.getGeneric(0))));
+                    dotNameString = getStringUnderDotName(returnSecondChildIfConditional(n.getGeneric(1)));
+                    return symtabLookup(typeNameLO, dotNameString);
+                case "expression":
+                    // nonBraceExpression dot_name
+                    // namespace
+                    assert n.size() == 2 && n.getGeneric(1).getName() == "dot_name";
+                    LanguageObject expressionLO = getCalleeFromNonBraceExpression(returnSecondChildIfConditional(n.getGeneric(0)));
+                    dotNameString = getStringUnderDotName(returnSecondChildIfConditional(n.getGeneric(1)));
+                    return symtabLookup(expressionLO, dotNameString);
+                default:
+                    assert false : "Encountered a situation where expression inside invoking expression was not of expected value";
+            }
+        } while(currentConditionalFlag);
+
+        assert false : "should not be reaching this place";
+        return symtabLookup(scope.peek(), n.getName());
+    }
+
+    public GNode returnSecondChildIfConditional(GNode n) {
+        if(n.getName() == "Conditional") {
+            // since first child is the presence condition
+            return n.getGeneric(1);
+        } else {
+            return n;
+        }
+    }
+
+    public GNode getNodeUnderConditional(GNode n) {
+        assert n.getName() == "Conditional";
+
+        return n.getGeneric(1);
+    }
+
+    public String getStringUnderNamedType(GNode n) {
+        assert n.getName() == "namedType";
+
+        if(n.getGeneric(0).getName() == "typeName") { // typeName
+            return getNameFromTypeName(n.getGeneric(0));
+        } else { //specializedType
+            return getStringUnderSpecializedTypeName(n.getGeneric(0));
+        }
+    }
+
+    public String getStringUnderSpecializedTypeName(GNode n) {
+        assert n.getName() == "specializedType";
+
+        // TODO: take care of typeArgumentList
+
+        return getNameFromTypeName(n.getGeneric(0));
     }
 
     public String getNameFromTypeName(GNode n) {
@@ -807,4 +996,8 @@ Hence it isn't necessary to traverse lvalue for call graphs, but is necessary fo
 
 None of the grammar constructs (control, action, function, and parser) that define invokable blocks allow for nested declarations of the same type inside themselves.
 
+Expressions.
+Possible expressions that can be present in an invocation (invokingExpression).
+nonTypeName, dotPrefix nonTypeName, typeName dot_name, expression dot_name
+Note: `NOT expression` will be taken care of by recursion
 */

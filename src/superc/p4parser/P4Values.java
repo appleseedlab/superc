@@ -110,8 +110,6 @@ public class P4Values implements SemanticValues {
         // Fall through
       case 143: // expression (264)
         // Fall through
-      case 144: // invokingExpression (265)
-        // Fall through
       case 145: // nonBraceExpression (266)
         return ValueType.LIST;
 
@@ -183,6 +181,8 @@ public class P4Values implements SemanticValues {
     case 265: // invokingExpression
       // Fall through
     case 266: // nonBraceExpression
+      // Fall through
+    case 267: // invokingNonBraceExpression
       // Fall through
     case 119: // start
       // Fall through
