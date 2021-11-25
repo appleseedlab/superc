@@ -325,6 +325,10 @@ public class CallGraphGenerator {
             return n;
         }
 
+        // follow similar as last time (break into three different grammar constructs)
+        // . member values has structfield list inside it, so no function calls inside it - but matters for data flow
+        // header functions - push_front
+        // TODO: write out explanation for lvalue
         public Node visitassignmentOrMethodCallStatement(GNode n) {
 
             if(n.size() == 4) { // assignment statement
@@ -412,6 +416,8 @@ public class CallGraphGenerator {
         }
 
         // TODO: functionprototype, extern declaration. lvalue, invkingexpression, expression
+        // TODO: go through expressions and see which ones can make function calls (specs doc helps)
+        // inside invoking expression we can specify that only 3-4 expressions can be valid syntactically (write the reasoning and have asserts)
 
     };
 
@@ -441,6 +447,8 @@ public class CallGraphGenerator {
             }
             return n;
         }
+
+        // TODO: Annotate the tree with the language object for the scope
 
         public Node visitcontrolDeclaration(GNode n) {
             // If need to parse parameters, visit the controltypedeclaration instead of static function to get name
@@ -542,6 +550,8 @@ public class CallGraphGenerator {
             return n;
         }
 
+        // TODO: comment on why using size or break assingmentOrMethodCallStatement into two
+        // TODO: build control_duplicate with a main module
         public Node visitassignmentOrMethodCallStatement(GNode n) {
             if(n.size() == 4) { // assignment statement
                 // TODO: figure out if need to implement scope for lvalue that is not an identifier (like identifier DOT identifier)
@@ -554,8 +564,8 @@ public class CallGraphGenerator {
                     LPARENindx = 4;
                 }
 
-                String methodCalleeName = getPrefixedNonTypeNameFromLvalue(n.getGeneric(0));
-                lookupInSymTabAndAddAsCallee(methodCalleeName);
+                LanguageObject methodCallee = getMethodPrefixedNonTypeNameFromLvalue(n.getGeneric(0), this, scope.peek());
+                scope.peek().callees.add(methodCallee);
 
                 // dispatch(n.getGeneric(LPARENindx + 1)); // argumentList
             }
@@ -596,6 +606,7 @@ public class CallGraphGenerator {
         }
 
         // TODO: weird handling of constructs tagged as list
+        // TODO: can change grammar for actionList to be similar keyElementList
         public Node visitactionList(GNode n) {
             if(n.size() == 0) { // empty production
                 return n;
@@ -626,7 +637,7 @@ public class CallGraphGenerator {
             return n;
         }
 
-        // TODO: lvalue, invkingexpression, expression
+        // TODO: lvalue -- note why that doesn't matter for us, invkingexpression, expression
 
     };
 
@@ -712,7 +723,7 @@ public class CallGraphGenerator {
         assert n.getName() == "nonTypeName";
 
         // only terminals under nonTypeName, but right now only handling IDENTIFIER tokens, not reserved keywords
-        assert P4Tag.IDENTIFIER == ((Language) n.get(0)).tag() : "non-IDENTIFIER terminals not supported under nonTypeName atm";
+        assert (P4Tag.IDENTIFIER == ((Language) n.get(0)).tag() || n.get(0).toString() == "apply") : "non-IDENTIFIER terminals not supported under nonTypeName atm";
         return n.get(0).toString();
     }
 
@@ -728,6 +739,44 @@ public class CallGraphGenerator {
         assert n.getGeneric(0) instanceof GNode && ((GNode) n.getGeneric(0)).getName() == "prefixedNonTypeName" : "lvalue construct not supported with values other than prefixedNonTypeName";
 
         return getStringUnderPrefixedNonTypeName(n.getGeneric(0));
+    }
+
+    public LanguageObject getMethodPrefixedNonTypeNameFromLvalue(Object node, Visitor visitor, LanguageObject scope) {
+        if(node instanceof Syntax) {
+            return scope;
+        }
+
+        assert node instanceof GNode;
+        GNode n = (GNode) node;
+
+        if(n.getName() == "prefixedNonTypeName") {
+            String prefixedNonTypeName = getStringUnderPrefixedNonTypeName(n);
+            LanguageObject pNTN = symtabLookup(scope, prefixedNonTypeName);
+            return pNTN;
+        } else if(n.getName() == "dot_name") {
+            String dotName = getStringUnderDotName(n);
+            LanguageObject name = symtabLookup(scope, dotName);
+            return name;
+        } else if(n.getName() == "expression") {
+            // don't need to add current scope to the scope stack since the expression will be invoked under
+            // the "main" scope and not the lvalue scope
+            visitor.dispatch(n);
+            return scope;
+        } else if(n.getName() == "lvalue") {
+            Iterator itr = n.iterator();
+
+            while(itr.hasNext()) {
+                scope = getMethodPrefixedNonTypeNameFromLvalue(itr.next(), visitor, scope);
+            }
+        } else {
+            assert false : "hmm unhandled case in getMethodPrefixedNonTypeNameFromLvalue";
+        }
+
+        return scope;
+    }
+
+    public String getStringUnderDotName(GNode n) {
+        return getStringUnderName(n.getGeneric(1));
     }
 
     public String getStringUnderFunctionPrototype(GNode n) {
@@ -758,3 +807,16 @@ public class CallGraphGenerator {
         }
     }
 }
+
+// Notes:
+/*
+L-value (lvalue) has a production that uses namespace to retrieve certain values (using the dot notation).
+According to the language specification (section 6.6), only structure, header, and header union field member access operations
+can happen using the dot notation. And none of productions can contain any type of function declaration and nothing inside those
+productions can be invoked.
+Hence it isn't necessary to traverse lvalue for call graphs, but is necessary for data flow analysis.
+
+
+None of the grammar constructs (control, action, function, and parser) that define invokable blocks allow for nested declarations of the same type inside themselves.
+
+*/
