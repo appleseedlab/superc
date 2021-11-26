@@ -668,7 +668,7 @@ externDeclaration: /** complete **/
           }
         optTypeParameters {}
         L_BRACE methodPrototypes R_BRACE 
-    | optAnnotations EXTERN functionPrototype SEMICOLON { bindIdent(subparser, getNodeAt(subparser, 3), getNodeAt(subparser, 2)); }
+    | optAnnotations EXTERN functionPrototype SEMICOLON 
     | optAnnotations EXTERN name SEMICOLON // not present in latest language specification
     ;
 
@@ -1193,16 +1193,16 @@ expression: /** complete, list **/
     | expression AND expression         {}
     | expression OR expression         {}
     | expression QUESTION expression COLON expression {}
-    | L_PAREN typeRef R_PAREN expression %prec PREFIX {}
     | invokingExpression {}
     ;
-invokingExpression: /** complete **/
-    expression l_angle realTypeArgumentList r_angle L_PAREN argumentList R_PAREN
+invokingExpression: /** complete, list **/
+    | expression l_angle realTypeArgumentList r_angle L_PAREN argumentList R_PAREN
         {}
     | expression L_PAREN argumentList R_PAREN
         {}
     | namedType L_PAREN argumentList R_PAREN
         {}
+    | L_PAREN typeRef R_PAREN expression %prec PREFIX {}
     ;
 
 nonBraceExpression: /** complete, list **/
@@ -1249,17 +1249,13 @@ nonBraceExpression: /** complete, list **/
     | nonBraceExpression AND expression         {}
     | nonBraceExpression OR expression         {}
     | nonBraceExpression QUESTION expression COLON expression {}
-    | L_PAREN typeRef R_PAREN expression %prec PREFIX {}
-    | invokingNonBraceExpression
-    ;
-    
-invokingNonBraceExpression: /** complete **/
-    nonBraceExpression l_angle realTypeArgumentList r_angle L_PAREN argumentList R_PAREN
+    | nonBraceExpression l_angle realTypeArgumentList r_angle L_PAREN argumentList R_PAREN
         {}
     | nonBraceExpression L_PAREN argumentList R_PAREN
         {}
     | namedType L_PAREN argumentList R_PAREN
         {}
+    | L_PAREN typeRef R_PAREN expression %prec PREFIX {}
     ;
 
 intOrStr:
