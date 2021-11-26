@@ -46,14 +46,7 @@ public class CallGraphGenerator {
     LanguageObject global_scope = new LanguageObject("GLOBAL", null);
     LanguageObject undefined_scope = new LanguageObject("UNDEFINED", null);
     // A list of grammar constructs that are not yet supported and might contain invocation
-    HashSet<String> notExplicitlySupported = new HashSet<>(Arrays.asList("constantDeclaration",
-                                                                         "tableDeclaration",
-                                                                         "instantiation",
-                                                                         "emptyStatement",
-                                                                         "returnStatement",
-                                                                         "exitStatement",
-                                                                         "switchStatement",
-                                                                         "functionPrototypes"));
+    HashSet<String> notExplicitlySupported = new HashSet<>(Arrays.asList());
     //PC Scope
 
     public CallGraphGenerator() {
@@ -617,7 +610,7 @@ public class CallGraphGenerator {
             dispatch(n.getGeneric(0)); // lvalue
 
             // only legal value of lvalue for method call statements is prefixedNonTypeName
-            // as dot_name and lvalueExpressions cannot be used for method call statements
+            // with dot_name as lvalueExpressions cannot be used for method call statements
             // (see end of document). getStringUnderLvaluePrefixNonTypeName asserts that
             String calleeMethodName = getStringUnderLvaluePrefixNonTypeName(n.getGeneric(0));
             lookupInSymTabAndAddAsCallee(calleeMethodName);
@@ -947,9 +940,44 @@ public class CallGraphGenerator {
         // (see end of document)
 
         assert n.getName() == "lvalue";
-        assert n.get(0) instanceof Node && ((Node) n.get(0)).isGeneric() && n.getGeneric(0).getName() == "prefixedNonTypeName";
+        assert n.get(0) instanceof Node && ((Node) n.get(0)).isGeneric();
 
-        return getStringUnderPrefixedNonTypeName(n.getGeneric(0));
+        GNode firstChild = n.getGeneric(0);
+        if(firstChild.getName() == "lvalue") {
+            return traverseLvalueAndGetStringUnderPrefixedNonTypeName(n);
+        } else if(firstChild.getName() == "prefixedNonTypeName") {
+            return getStringUnderPrefixedNonTypeName(firstChild);
+        } else {
+            assert false : "unhandled case in getStringUnderLvaluePrefixNonTypeName where first value name is: " + firstChild.getName();
+            return "";
+        }
+    }
+
+    public String traverseLvalueAndGetStringUnderPrefixedNonTypeName(GNode n) {
+        int size = n.size();
+        String final_val = "";
+        System.out.println("new val: " + n);
+        System.out.println("size: " + size);
+        for(int i = 0; i < size; i++) {
+            System.err.println("checking name: " + n.getGeneric(i).getName());
+            if(n.getGeneric(i).getName() == "lvalue") {
+                System.out.println("under lvalue");
+                System.out.println(n.getGeneric(i));
+                final_val = traverseLvalueAndGetStringUnderPrefixedNonTypeName(n.getGeneric(i));
+            } else if(n.getGeneric(i).getName() == "prefixedNonTypeName") {
+                System.out.println("under prefix");
+                return getStringUnderPrefixedNonTypeName(n.getGeneric(i));
+            } else if(n.getGeneric(i).getName() == "dot_name") {
+                assert n.getGeneric(i).getGeneric(1).getName() == "name";
+                assert n.getGeneric(i).getGeneric(1).get(0) instanceof Syntax == false : "dot_name under a lvalue construct used in a method call statement cannot invoke a type identifier";
+            } else if(n.getGeneric(i).getName() == "lvalueExpression") {
+                assert false : "lvalueExpression cannot be used in an method calling statement";
+            }
+        }
+
+        assert !final_val.isBlank() : "Unable to retrieve string under a nested lvalue structure";
+
+        return final_val;
     }
 
     public String getStringUnderDotName(GNode n) {
