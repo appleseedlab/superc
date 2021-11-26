@@ -668,8 +668,12 @@ externDeclaration: /** complete **/
           }
         optTypeParameters {}
         L_BRACE methodPrototypes R_BRACE 
-    | optAnnotations EXTERN functionPrototype SEMICOLON 
+    | externFunctionDeclaration 
     | optAnnotations EXTERN name SEMICOLON // not present in latest language specification
+    ;
+
+externFunctionDeclaration: /** complete **/
+    optAnnotations EXTERN functionPrototype SEMICOLON 
     ;
 
 methodPrototypes: /** complete, list **/

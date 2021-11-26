@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import javax.swing.plaf.synth.SynthLookAndFeel;
+import javax.xml.crypto.dsig.spec.DigestMethodParameterSpec;
 
 import superc.core.Syntax;
 import superc.core.Syntax.Language;
@@ -47,6 +48,12 @@ public class CallGraphGenerator {
     LanguageObject undefined_scope = new LanguageObject("UNDEFINED", null);
     // A list of grammar constructs that are not yet supported and might contain invocation
     HashSet<String> notExplicitlySupported = new HashSet<>(Arrays.asList());
+
+    // accept and reject are two parser states not defined by the user but is in the logic
+    ArrayList<String> implicitParserStates = new ArrayList<>() {{
+                                                                add("accept");
+                                                                add("reject");
+                                                               }};
     //PC Scope
 
     public CallGraphGenerator() {
@@ -64,6 +71,7 @@ public class CallGraphGenerator {
         public final String name;
         public final LanguageObject nameSpace;
         public HashSet<LanguageObject> callees;
+        // TODO MAIN: take care of parametrization and typedef (xor example)
 
         public LanguageObject(String name, LanguageObject nameSpace) {
             this.name = name;
@@ -458,10 +466,15 @@ public class CallGraphGenerator {
             return n;
         }
 
-        // TODO: functionprototype, extern declaration. lvalue, invkingexpression, expression
-        // TODO: go through expressions and see which ones can make function calls (specs doc helps)
-        // inside invoking expression we can specify that only 3-4 expressions can be valid syntactically (write the reasoning and have asserts)
+        // extern function declarations are invokable constructs as per the language specs
+        // so keeping track of that in the symbol table for future invocations
+        public Node visitexternFunctionDeclaration(GNode n) {
+            // TODO: take care of parameters (inside functionPrototype and in general)
+            String functionName = getStringUnderFunctionPrototype(n.getGeneric(2));
+            LanguageObject functionObj = addToSymtab(scope.peek(), functionName);
 
+            return n;
+        }
     };
 
     private Visitor callGraphVisitor = new Visitor() {
@@ -645,7 +658,9 @@ public class CallGraphGenerator {
             if(n.size() == 2) { // name SEMICOLON
                 // TODO: need to handle keywords like accept or reject
                 String stateName = getStringUnderName(n.getGeneric(0));
-                lookupInSymTabAndAddAsCallee(stateName);
+                if( !implicitParserStates.contains(stateName)) {
+                    lookupInSymTabAndAddAsCallee(stateName);
+                }
             } else { // selectExpression;
                 dispatch(n.getGeneric(0));
             }
@@ -654,9 +669,12 @@ public class CallGraphGenerator {
 
         public Node visitselectCase(GNode n) {
             // TODO trace keysetExpression for data
+            dispatch(n.getGeneric(0)); // keysetExpression
 
             String selectName = getStringUnderName(n.getGeneric(2));
-            lookupInSymTabAndAddAsCallee(selectName);
+            if ( !implicitParserStates.contains(selectName)) {
+                lookupInSymTabAndAddAsCallee(selectName);
+            }
 
             return n;
         }
@@ -669,22 +687,23 @@ public class CallGraphGenerator {
         }
 
         public Node visitinvokingExpression(GNode n) {
-            if(n.getGeneric(0).getName() == "namedType") {
+            GNode nGetGeneric0 = returnSecondChildIfConditional(n.getGeneric(0));
+            if(nGetGeneric0.getName() == "namedType") {
                 // one of three possible productions, starts with namedType
-                String namedType = getStringUnderNamedType(n.getGeneric(0));
+                String namedType = getStringUnderNamedType(nGetGeneric0);
                 lookupInSymTabAndAddAsCallee(namedType);
 
-                dispatch(n.getGeneric(2)); // argumentList
+                dispatch(returnSecondChildIfConditional(n.getGeneric(2))); // argumentList
             } else { // first element pointing to name is an expression, extract from that
-                LanguageObject expressionCallee = getCalleeFromExpression(n.getGeneric(0));
+                LanguageObject expressionCallee = getCalleeFromExpression(nGetGeneric0);
                 scope.peek().callees.add(expressionCallee);
 
                 // two possible productions, one contains extra set of type arguments 
                 // inside angle brackets (of size 4 & 7)
                 if(n.size() == 4) {
-                    dispatch(n.getGeneric(2)); // argumentList
+                    dispatch(returnSecondChildIfConditional(n.getGeneric(2))); // argumentList
                 } else {
-                    dispatch(n.getGeneric(4));
+                    dispatch(returnSecondChildIfConditional(n.getGeneric(4)));
                     // TODO: data inside realTypeArguments? can refer nontypenames
                 }
             }
@@ -693,35 +712,29 @@ public class CallGraphGenerator {
         }
 
         public Node visitinvokingNonBraceExpression(GNode n) {
-            // since expression and nonbraceexpression are the same
-            // expect that nonbraceexpression does not include any cases that 
-            // can begin with a left brace { character
-            
-            if(n.getGeneric(0).getName() == "namedType") {
+            GNode nGetGeneric0 = returnSecondChildIfConditional(n.getGeneric(0));
+            if(nGetGeneric0.getName() == "namedType") {
                 // one of three possible productions, starts with namedType
-                String namedType = getStringUnderNamedType(n.getGeneric(0));
+                String namedType = getStringUnderNamedType(nGetGeneric0);
                 lookupInSymTabAndAddAsCallee(namedType);
 
-                dispatch(n.getGeneric(2)); // argumentList
-            } else { // first element pointing to name is an nonBraceExpression, extract from that
-                LanguageObject expressionCallee = getCalleeFromNonBraceExpression(n.getGeneric(0));
+                dispatch(returnSecondChildIfConditional(n.getGeneric(2))); // argumentList
+            } else { // first element pointing to name is an expression, extract from that
+                LanguageObject expressionCallee = getCalleeFromNonBraceExpression(nGetGeneric0);
                 scope.peek().callees.add(expressionCallee);
 
                 // two possible productions, one contains extra set of type arguments 
                 // inside angle brackets (of size 4 & 7)
                 if(n.size() == 4) {
-                    dispatch(n.getGeneric(2)); // argumentList
+                    dispatch(returnSecondChildIfConditional(n.getGeneric(2))); // argumentList
                 } else {
-                    dispatch(n.getGeneric(4));
+                    dispatch(returnSecondChildIfConditional(n.getGeneric(4)));
                     // TODO: data inside realTypeArguments? can refer nontypenames
                 }
             }
 
             return n;
         }
-
-        // TODO: lvalue -- note why that doesn't matter for us, invkingexpression, expression
-
     };
 
     /**
@@ -757,7 +770,6 @@ public class CallGraphGenerator {
         boolean currentConditionalFlag = false;
         do {
             currentConditionalFlag = false;
-            System.out.println("name is: " + n.getName());
             GNode firstChild = n.getGeneric(0);
             if(n.getGeneric(0).getName() == "Conditional") {
                 firstChild = getNodeUnderConditional(n.getGeneric(0));
@@ -809,7 +821,6 @@ public class CallGraphGenerator {
         boolean currentConditionalFlag = false;
         do {
             currentConditionalFlag = false;
-            System.out.println("name is: " + n.getName());
             GNode firstChild = n.getGeneric(0);
             if(n.getGeneric(0).getName() == "Conditional") {
                 firstChild = getNodeUnderConditional(n.getGeneric(0));
@@ -956,16 +967,10 @@ public class CallGraphGenerator {
     public String traverseLvalueAndGetStringUnderPrefixedNonTypeName(GNode n) {
         int size = n.size();
         String final_val = "";
-        System.out.println("new val: " + n);
-        System.out.println("size: " + size);
         for(int i = 0; i < size; i++) {
-            System.err.println("checking name: " + n.getGeneric(i).getName());
             if(n.getGeneric(i).getName() == "lvalue") {
-                System.out.println("under lvalue");
-                System.out.println(n.getGeneric(i));
                 final_val = traverseLvalueAndGetStringUnderPrefixedNonTypeName(n.getGeneric(i));
             } else if(n.getGeneric(i).getName() == "prefixedNonTypeName") {
-                System.out.println("under prefix");
                 return getStringUnderPrefixedNonTypeName(n.getGeneric(i));
             } else if(n.getGeneric(i).getName() == "dot_name") {
                 assert n.getGeneric(i).getGeneric(1).getName() == "name";
