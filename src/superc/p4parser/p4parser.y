@@ -690,8 +690,12 @@ functionPrototype:
 methodPrototype: /** complete **/
     optAnnotations functionPrototype SEMICOLON {}
     | optAnnotations ABSTRACT functionPrototype SEMICOLON {}  // experimental
-    | optAnnotations TYPE_IDENTIFIER L_PAREN parameterList R_PAREN SEMICOLON  // constructor
+    | constructorMethodPrototype {}
                                         {}
+    ;
+
+constructorMethodPrototype: /** complete **/
+    optAnnotations TYPE_IDENTIFIER L_PAREN parameterList R_PAREN SEMICOLON  // constructor
     ;
 
 /************************** TYPES ****************************/

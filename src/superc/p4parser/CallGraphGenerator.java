@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.ThreadPoolExecutor.DiscardPolicy;
 
 import javax.swing.plaf.synth.SynthLookAndFeel;
 import javax.xml.crypto.dsig.spec.DigestMethodParameterSpec;
@@ -31,12 +32,9 @@ import xtc.tree.Node;
 import xtc.tree.Token;
 import xtc.tree.Visitor;
 
-// import xtc.type.P4;
 import xtc.type.Type;
 
 import superc.core.PresenceConditionManager.PresenceCondition;
-import superc.core.MacroTable.Macro;
-import superc.core.MacroTable.Entry;
 import superc.core.Syntax.Kind;
 import superc.p4parser.P4Tag;
 
@@ -54,11 +52,13 @@ public class CallGraphGenerator {
                                                                 add("accept");
                                                                 add("reject");
                                                                }};
+    HashMap<LanguageObject, HashSet<LanguageObject>> callGraphObject;
     //PC Scope
 
     public CallGraphGenerator() {
         this.symtab = new HashMap<>();
         this.scope = new Stack<>();
+        this.callGraphObject = new HashMap<>();
 
         scope.add(global_scope);
     }
@@ -66,13 +66,14 @@ public class CallGraphGenerator {
     class LanguageObject {
         public final String name;
         public final LanguageObject nameSpace;
-        public HashSet<LanguageObject> callees;
-        // TODO MAIN: take care of parametrization and typedef (xor example)
+        // TODO MAIN: take care of parametrization and typedef (check xor example)
+
+        // Store the type of the object if the current object is a typedef (type or parameter)
+        LanguageObject type;
 
         public LanguageObject(String name, LanguageObject nameSpace) {
             this.name = name;
             this.nameSpace = nameSpace;
-            callees = new HashSet<>();
         }
 
         @Override
@@ -105,8 +106,10 @@ public class CallGraphGenerator {
                 }
 
                 ArrayList<String> calleeNames = new ArrayList<>();
-                for(LanguageObject callee : symtab.get(this).get(childKey).callees) {
-                    calleeNames.add(callee.toString());
+                if(callGraphObject.containsKey(symtab.get(this).get(childKey))) {
+                    for(LanguageObject callee : callGraphObject.get(symtab.get(this).get(childKey))) {
+                        calleeNames.add(callee.toString());
+                    }
                 }
 
                 if(! calleeNames.isEmpty()) {
@@ -159,7 +162,6 @@ public class CallGraphGenerator {
             
             return hashString.hashCode();
         }
-        // TODO: pull out callees
         // conditioned callees
     }
 
@@ -184,6 +186,8 @@ public class CallGraphGenerator {
             //                     + name + 
             //                     ") already exists");
             // System.exit(1);
+            System.out.println("Warning: defining with an already existing name ("
+                                + name + ").");
             nodeObj = symtab.get(scope).get(name);
         } else {
             nodeObj = new LanguageObject(name, scope);
@@ -255,7 +259,10 @@ public class CallGraphGenerator {
         LanguageObject callee = symtabLookup(scope.peek(), name);
 
         assert callee != null : "UNCAUGHT Calling to an undefined symbol when expecting it to be defined beforehand (" + name + ")";
-        scope.peek().callees.add(callee);
+        if( !callGraphObject.containsKey(scope.peek())) {
+            callGraphObject.put(scope.peek(), new HashSet<>());
+        }
+        callGraphObject.get(scope.peek()).add(callee);
     }
 
     public void buildSymbolTable(Node translationUnit) {
@@ -407,6 +414,31 @@ public class CallGraphGenerator {
             return n;
         }
 
+        public Node visitexternDeclaration(GNode n) {
+            if(returnSecondChildIfConditional(n.getGeneric(0)).getName() == "externFunctionDeclaration") { // separate dispatch available for this
+                // TODO: check if externFunctionDeclaration can be merged back again
+                dispatch(returnSecondChildIfConditional(n.getGeneric(0)));
+                return n;
+            } else {
+                if(returnSecondChildIfConditional(n.getGeneric(2)).getName() == "nonTypeName") {
+                    String externName = getStringUnderNonTypeName(returnSecondChildIfConditional(n.getGeneric(2)));
+                    LanguageObject externObj = addToSymtab(scope.peek(), externName);
+                    scope.add(externObj);
+
+                    dispatch(n.getGeneric(3)); // optTypeParameters
+                    dispatch(n.getGeneric(5)); // methodPrototypes
+
+                    scope.pop();
+                } else { // only option left is "optAnnotations EXTERN name SEMICOLON" production
+                    assert returnSecondChildIfConditional(n.getGeneric(2)).getName() == "name" : "Unhandled case in extern declarations";
+                    String externName = getStringUnderName(returnSecondChildIfConditional(n.getGeneric(2)));
+                    LanguageObject externObj = addToSymtab(scope.peek(), externName);
+                }
+
+                return n;
+            }
+        }
+
         // Interesting: functionDeclaration not part of P416? not in online language specification -- experimental
         //
         public Node visitfunctionDeclaration(GNode n) {
@@ -418,7 +450,65 @@ public class CallGraphGenerator {
             LanguageObject functionObj = addToSymtab(scope.peek(), functionName);
             scope.add(functionObj);
 
+            dispatch(n.getGeneric(0)); // functionPrototype (for parameters)
             dispatch(n.getGeneric(1)); // blockstatement
+
+            scope.pop();
+
+            return n;
+        }
+
+        public Node visitmethodPrototype(GNode n) {
+            /* methodPrototype
+                optAnnotations functionPrototype SEMICOLON
+                optAnnotations ABSTRACT functionPrototype SEMICOLON
+                constructorMethodPrototype
+
+               constructorMethodPrototype:
+                optAnnotations TYPE_IDENTIFIER L_PAREN parameterList R_PAREN SEMICOLON
+
+               Where last one is a constructor 
+            */
+
+            if(returnSecondChildIfConditional(n.getGeneric(0)).getName() == "constructorMethodPrototype") {
+                dispatch(returnSecondChildIfConditional(n.getGeneric(0)));
+            } else if(n.get(1) instanceof Syntax) { // keyword ABSTRACT
+                // TODO: need to handle abstract methods
+                dispatch(n.getGeneric(0)); // optAnnotations
+                String functionName = getStringUnderFunctionPrototype(returnSecondChildIfConditional(n.getGeneric(2)));
+                LanguageObject functionObj = addToSymtab(scope.peek(), functionName);
+                scope.add(functionObj);
+
+                dispatch(returnSecondChildIfConditional(n.getGeneric(2)));
+
+                scope.pop();
+            } else {
+                assert returnSecondChildIfConditional(n.getGeneric(1)).getName() == "functionPrototype" : "unhandled case in method prototype";
+                dispatch(n.getGeneric(0)); // optAnnotations
+                String functionName = getStringUnderFunctionPrototype(returnSecondChildIfConditional(n.getGeneric(1)));
+                LanguageObject functionObj = addToSymtab(scope.peek(), functionName);
+                scope.add(functionObj);
+
+                dispatch(returnSecondChildIfConditional(n.getGeneric(1)));
+
+                scope.pop();
+            }
+
+            return n;
+        }
+
+        public Node visitconstructorMethodPrototype(GNode n) {            
+            String type_identifier = n.get(1).toString();
+
+            // methodPrototype -> constructorMethodPrototype is directly under parent extern scope
+            // so can retrieve the extern block's name from the scope
+            // TODO: check if there is a better way
+
+            assert type_identifier.equals(scope.peek().name) : "Extern constructor not of the same name as extern block";
+            LanguageObject constructor = addToSymtab(scope.peek(), type_identifier);
+            scope.add(constructor);
+
+            dispatch(n.getGeneric(3)); // parameterList
 
             scope.pop();
 
@@ -566,6 +656,7 @@ public class CallGraphGenerator {
             LanguageObject functionObj = symtabLookup(scope.peek(), functionName);
             scope.add(functionObj);
 
+            dispatch(n.getGeneric(0)); // functionPrototype (for parameters)
             dispatch(n.getGeneric(1)); // blockstatement
 
             scope.pop();
@@ -598,6 +689,84 @@ public class CallGraphGenerator {
             
             return n;
 
+        }
+
+        public Node visitexternDeclaration(GNode n) {
+            if(returnSecondChildIfConditional(n.getGeneric(0)).getName() == "externFunctionDeclaration") { // generic dispatch
+                dispatch(returnSecondChildIfConditional(n.getGeneric(0)));
+                return n;
+            } else {
+                if(returnSecondChildIfConditional(n.getGeneric(2)).getName() == "nonTypeName") {
+                    String externName = getStringUnderNonTypeName(returnSecondChildIfConditional(n.getGeneric(2)));
+                    LanguageObject externObj = symtabLookup(scope.peek(), externName);
+                    scope.add(externObj);
+
+                    dispatch(n.getGeneric(3)); // optTypeParameters
+                    dispatch(n.getGeneric(5)); // methodPrototypes
+
+                    scope.pop();
+                }
+
+                return n;
+            }
+        }
+
+        public Node visitmethodPrototype(GNode n) {
+            /* methodPrototype
+                optAnnotations functionPrototype SEMICOLON
+                optAnnotations ABSTRACT functionPrototype SEMICOLON
+                constructorMethodPrototype
+
+               constructorMethodPrototype:
+                optAnnotations TYPE_IDENTIFIER L_PAREN parameterList R_PAREN SEMICOLON
+
+               Where last one is a constructor 
+            */
+
+            if(returnSecondChildIfConditional(n.getGeneric(0)).getName() == "constructorMethodPrototype") {
+                dispatch(n.getGeneric(0));
+            } else if(n.get(1) instanceof Syntax) { // keyword ABSTRACT
+                dispatch(n.getGeneric(0)); // optAnnotations
+
+                // TODO: need to handle abstract methods
+                String functionName = getStringUnderFunctionPrototype(returnSecondChildIfConditional(n.getGeneric(2)));
+                LanguageObject functionObj = symtabLookup(scope.peek(), functionName);
+                scope.add(functionObj);
+
+                dispatch(n.getGeneric(2));
+
+                scope.pop();
+            } else {
+                assert returnSecondChildIfConditional(n.getGeneric(1)).getName() == "functionPrototype" : "unhandled case in method prototype";
+                dispatch(n.getGeneric(0)); // optAnnotations
+                String functionName = getStringUnderFunctionPrototype(returnSecondChildIfConditional(n.getGeneric(1)));
+                LanguageObject functionObj = symtabLookup(scope.peek(), functionName);
+                scope.add(functionObj);
+
+                dispatch(n.getGeneric(1));
+
+                scope.pop();
+            }
+
+            return n;
+        }
+
+        public Node visitconstructorMethodPrototype(GNode n) {            
+            String type_identifier = n.get(1).toString();
+
+            // methodPrototype -> constructorMethodPrototype is directly under parent extern scope
+            // so can retrieve the extern block's name from the scope
+            // TODO: check if there is a better way
+
+            assert type_identifier.equals(scope.peek().name) : "Extern constructor not of the same name as extern block";
+            LanguageObject constructor = symtabLookup(scope.peek(), type_identifier);
+            scope.add(constructor);
+
+            dispatch(n.getGeneric(3)); // parameterList
+
+            scope.pop();
+
+            return n;
         }
 
         public Node visitdirectApplication(GNode n) {
@@ -701,7 +870,7 @@ public class CallGraphGenerator {
                 dispatch(returnSecondChildIfConditional(n.getGeneric(2))); // argumentList
             } else { // first element pointing to name is an expression, extract from that
                 LanguageObject expressionCallee = getCalleeFromExpression(nGetGeneric0);
-                scope.peek().callees.add(expressionCallee);
+                callGraphObject.get(scope.peek()).add(expressionCallee);
 
                 // two possible productions, one contains extra set of type arguments 
                 // inside angle brackets (of size 4 & 7)
@@ -726,7 +895,7 @@ public class CallGraphGenerator {
                 dispatch(returnSecondChildIfConditional(n.getGeneric(2))); // argumentList
             } else { // first element pointing to name is an expression, extract from that
                 LanguageObject expressionCallee = getCalleeFromNonBraceExpression(nGetGeneric0);
-                scope.peek().callees.add(expressionCallee);
+                callGraphObject.get(scope.peek()).add(expressionCallee);
 
                 // two possible productions, one contains extra set of type arguments 
                 // inside angle brackets (of size 4 & 7)
@@ -1071,4 +1240,6 @@ Expressions.
 Possible expressions that can be present in an invocation (invokingExpression).
 nonTypeName, dotPrefix nonTypeName, typeName dot_name, expression dot_name
 Note: `NOT expression` will be taken care of by recursion
+Note: Multiple declarations of same name: cannot occur.
+Note: Overloading is possible for functions and method (language specification, 7.2.9.2)
 */
