@@ -761,6 +761,16 @@ public class CallGraphGenerator {
 
     // nonTypeName, dotPrefix nonTypeName, typeName dot_name, expression dot_name
     // Note: `NOT expression` will be taken care of by recursion
+    /**
+     * Handles possible expressions that can be used to invoke an entity.
+     * 
+     * Specifically invoked when the expression is inside an invoking expression
+     * and is invoking a previously declared entity (callee).
+     * Handles those possible expressions, including namespacing if present, and adds
+     * the invoked entity as a call to the current scope object.
+     * @param n
+     * @return
+     */
     public LanguageObject getCalleeFromExpression(GNode n) {
         assert n.getName() == "expression" : "current name is: " + n.getName();
 
@@ -812,6 +822,17 @@ public class CallGraphGenerator {
 
     // nonTypeName, dotPrefix nonTypeName, typeName dot_name, expression dot_name
     // Note: `NOT expression` will be taken care of by recursion
+    /**
+     * Handles possible expressions that can be used to invoke an entity.
+     * Similar to getCalleeFromExpression
+     * 
+     * Specifically invoked when the expression is inside an invoking expression
+     * and is invoking a previously declared entity (callee).
+     * Handles those possible expressions, including namespacing if present, and adds
+     * the invoked entity as a call to the current scope object.
+     * @param n
+     * @return
+     */
     public LanguageObject getCalleeFromNonBraceExpression(GNode n) {
         assert n.getName() == "expression" : "current name is: " + n.getName();
 
@@ -950,6 +971,12 @@ public class CallGraphGenerator {
         return getStringUnderNonTypeName(n.getGeneric(0));
     }
 
+    /**
+     * Assert that only syntactically legal values are present for method call statements.
+     * Returns the string present.
+     * @param n Parent GNode containing the lvalue construct
+     * @return
+     */
     public String getStringUnderLvaluePrefixNonTypeName(GNode n) {
         // only legal value of lvalue for method call statements is prefixedNonTypeName
         // as dot_name and lvalueExpressions cannot be used for method call statements
@@ -969,6 +996,12 @@ public class CallGraphGenerator {
         }
     }
 
+    /**
+     * Handles recursive cases where a prefixedNonTypeName is expected but buried under
+     * recursive lvalue constructs
+     * @param n
+     * @return
+     */
     public String traverseLvalueAndGetStringUnderPrefixedNonTypeName(GNode n) {
         int size = n.size();
         String final_val = "";
