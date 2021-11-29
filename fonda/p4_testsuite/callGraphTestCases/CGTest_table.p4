@@ -18,10 +18,10 @@ control pipe() {
             Reject(); 
             NotAccpet(); 
         }
-        // default_action = Reject(1, 0);
+        default_action = Reject(1, 0);
     }
     apply {
         bool x = true;
-        t(); // incorrect symmantically, should be t.apply() - check CGTest_table_with_lvalue_apply.p4 example
+        t.apply();
     }
 }

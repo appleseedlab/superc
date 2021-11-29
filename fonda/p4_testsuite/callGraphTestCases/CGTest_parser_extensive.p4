@@ -32,9 +32,7 @@ parser FabricParser (packet_in packet) {
             ETHERTYPE_VLAN: parse_vlan_tag;
             ETHERTYPE_MPLS: parse_mpls;
             ETHERTYPE_IPV4: pre_parse_ipv4;
-#ifdef WITH_IPV6
             ETHERTYPE_IPV6: pre_parse_ipv6;
-#endif // WITH_IPV6
             default: accept;
         }
     }
@@ -53,9 +51,7 @@ parser FabricParser (packet_in packet) {
             // If we have MPLS, go directly to parsing state without
             // moving to pre_ states, the packet is considered MPLS
             IP_VERSION_4: parse_ipv4;
-#ifdef WITH_IPV6
             IP_VERSION_6: parse_ipv6;
-#endif // WITH_IPV6
             default: parse_ethernet;
         }
     }
@@ -79,7 +75,6 @@ parser FabricParser (packet_in packet) {
         }
     }
 
-#ifdef WITH_IPV6
     // Intermediate state to set is_ipv6
     state pre_parse_ipv6 {
         fabric_metadata.is_ipv6 = _TRUE;
@@ -96,17 +91,12 @@ parser FabricParser (packet_in packet) {
             default: accept;
         }
     }
-#endif // WITH_IPV6
 
     state parse_tcp {
         packet.extract(hdr.tcp);
         fabric_metadata.l4_sport = hdr.tcp.sport;
         fabric_metadata.l4_dport = hdr.tcp.dport;
-#ifdef WITH_INT
         transition parse_int;
-#else
-        transition accept;
-#endif // WITH_INT
     }
 
     state parse_udp {
@@ -114,14 +104,8 @@ parser FabricParser (packet_in packet) {
         fabric_metadata.l4_sport = hdr.udp.sport;
         fabric_metadata.l4_dport = hdr.udp.dport;
         transition select(hdr.udp.dport) {
-#ifdef WITH_SPGW
             UDP_PORT_GTPU: parse_gtpu;
-#endif // WITH_SPGW
-#ifdef WITH_INT
             default: parse_int;
-#else
-            default: accept;
-#endif // WITH_INT
         }
     }
 
@@ -130,7 +114,6 @@ parser FabricParser (packet_in packet) {
         transition accept;
     }
 
-#ifdef WITH_SPGW
     state parse_gtpu {
         transition select(hdr.ipv4.dst_addr[31:32-S1U_SGW_PREFIX_LEN]) {
             // Avoid parsing GTP and inner headers if we know this GTP packet
@@ -162,15 +145,9 @@ parser FabricParser (packet_in packet) {
         packet.extract(hdr.inner_udp);
         fabric_metadata.l4_sport = hdr.inner_udp.sport;
         fabric_metadata.l4_dport = hdr.inner_udp.dport;
-#ifdef WITH_INT
         transition parse_int;
-#else
-        transition accept;
-#endif // WITH_INT
     }
-#endif // WITH_SPGW
 
-#ifdef WITH_INT
     state parse_int {
         transition select(last_ipv4_dscp) {
             INT_DSCP &&& INT_DSCP: parse_intl4_shim;
@@ -195,18 +172,13 @@ parser FabricParser (packet_in packet) {
     }
 
     state parse_int_data {
-#ifdef WITH_INT_SINK
         // Parse INT metadata stack, but not tail
         packet.extract(hdr.int_data, (bit<32>) (hdr.intl4_shim.len_words - INT_HEADER_LEN_WORDS) << 5);
         transition parse_intl4_tail;
-#else // not interested in INT data
-        transition accept;
-#endif // WITH_INT_SINK
     }
 
     state parse_intl4_tail {
         packet.extract(hdr.intl4_tail);
         transition accept;
     }
-#endif // WITH_INT
 }

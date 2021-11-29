@@ -14,7 +14,7 @@ control FabricEgress () {
 
 parser P<H>(inout H data) { 
     state start {
-        transition select(b.lookahead<bit<8>>()) {
+        transition select() {
             5: parse_tcp_option_sack;
         }
     }

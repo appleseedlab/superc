@@ -11,7 +11,7 @@ control pipe() {
     }
     table t {
         actions = { Reject(); Reject(); }
-        // default_action = Reject(1, 0);
+        default_action = Reject(1, 0);
     }
     apply {
         bool x = true;
