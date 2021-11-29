@@ -60,10 +60,6 @@ public class CallGraphGenerator {
         this.symtab = new HashMap<>();
         this.scope = new Stack<>();
 
-        // TODO: do a second run to map UNDEFINED scopes with blocks defined after
-        // OR, first traverse declarations and then pass through for uses - separate call graph and declaration passes
-        // OR in single pass, with flags to say declared or not (separate type checking pass)
-
         scope.add(global_scope);
     }
 
@@ -184,6 +180,10 @@ public class CallGraphGenerator {
         }
 
         if(symtab.get(scope).containsKey(name)) {
+            // System.err.println("Multiple declaration error: another entity with the same name (" 
+            //                     + name + 
+            //                     ") already exists");
+            // System.exit(1);
             nodeObj = symtab.get(scope).get(name);
         } else {
             nodeObj = new LanguageObject(name, scope);
@@ -244,18 +244,25 @@ public class CallGraphGenerator {
         }
     }
 
-    // TODO: this will change when separating out call graph generation
+    /**
+     * Looks up the given name in the symbol table and adds it as a callee to the current scope.
+     * @param name The name of the symbol to look up
+     */
     public void lookupInSymTabAndAddAsCallee(String name) {
-        // exists, add when doing only declarations
 
+        // looks up in the symbol table under the current scope
+        // if not in current scope, checks under parent scopes.
         LanguageObject callee = symtabLookup(scope.peek(), name);
 
         assert callee != null : "UNCAUGHT Calling to an undefined symbol when expecting it to be defined beforehand (" + name + ")";
         scope.peek().callees.add(callee);
     }
 
-    public void doEverything(Node translationUnit) {
+    public void buildSymbolTable(Node translationUnit) {
         definitionsVisitor.dispatch(translationUnit.getGeneric(0));
+    }
+
+    public void buildCallGraph(Node translationUnit) {
         callGraphVisitor.dispatch(translationUnit.getGeneric(0));
     }
 
@@ -321,7 +328,7 @@ public class CallGraphGenerator {
             scope.add(actionObj);
 
             dispatch(n.getGeneric(4)); // parameterList
-            dispatch(n.getGeneric(6)); // TODO: blockStatement 
+            dispatch(n.getGeneric(6)); // blockStatement
 
             scope.pop();
 
@@ -331,7 +338,6 @@ public class CallGraphGenerator {
         // follow similar as last time (break into three different grammar constructs)
         // . member values has structfield list inside it, so no function calls inside it - but matters for data flow
         // header functions - push_front
-        // TODO: write out explanation for lvalue
         public Node visitassignmentOrMethodCallStatement(GNode n) {
             if(n.getGeneric(0).getName() == "methodCallStatements") {
                 // method call statements
@@ -339,7 +345,7 @@ public class CallGraphGenerator {
             } else {
                 // assignment statement
                 // TODO: need to assert that this lvalue call does not invoke functions
-                dispatch(n.getGeneric(0)); //lvalue
+                dispatch(n.getGeneric(0)); // lvalue
                 dispatch(n.getGeneric(2)); // expression
             }
             return n;
@@ -374,7 +380,7 @@ public class CallGraphGenerator {
                     if(n.getGeneric(1).getName() == "dot_name") {
                         // as per the grammar specifications, lvalue dot values can only be used for structs, headers, and header union fields.
                         // so ensuring that's the case
-                        // TOOD: change LanguageObject to include what constructs to check for this
+                        // TODO: change LanguageObject to include what constructs to check for this
                         ensureDotValueIsOnlySpecificConstructs(n.getGeneric(1));
                     } else {
                         dispatch(n.getGeneric(1)); // lvalueExpression
@@ -542,7 +548,7 @@ public class CallGraphGenerator {
             scope.add(actionObj);
 
             dispatch(n.getGeneric(4)); // parameterList
-            dispatch(n.getGeneric(6)); // TODO: blockStatement 
+            dispatch(n.getGeneric(6)); // blockStatement 
 
             scope.pop();
 
@@ -598,7 +604,7 @@ public class CallGraphGenerator {
             // As per the grammar we can have only one typename before the `.apply`, so nesting can't happen
             
             String calleeName = getNameFromTypeName(n.getGeneric(0));
-            // TODO: below doesn't tell that it's also doing type checking, separate it out
+
             lookupInSymTabAndAddAsCallee(calleeName);
 
             // dispatch(n.getGeneric(4)); // argumentList
@@ -606,7 +612,6 @@ public class CallGraphGenerator {
             return n;
         }
 
-        // TODO: build control_duplicate with a main module
         public Node visitassignmentOrMethodCallStatement(GNode n) {
             if(n.getGeneric(0).getName() == "methodCallStatements") {
                 // method call statements

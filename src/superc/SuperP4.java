@@ -1214,7 +1214,8 @@ public class SuperP4 extends Tool {
       if(runtime.test("preprocessorUsageMatrix")) {
 
         CallGraphGenerator graph = new CallGraphGenerator();
-        graph.doEverything((Node) translationUnit);
+        graph.buildSymbolTable((Node) translationUnit);
+        graph.buildCallGraph((Node) translationUnit);
         graph.printCallGraph();
 
         if(! true) {
