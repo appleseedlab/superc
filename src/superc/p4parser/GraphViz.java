@@ -81,7 +81,7 @@ public class GraphViz
     /**
      * Load the config.properties file.
      */
-    private final static String cfgProp = "/mnt/src/superc/p4parser/config.properties";
+    private final static String cfgProp = "../../../src/superc/p4parser/config.properties";
     private final static Properties configFile = new Properties() {
         private final static long serialVersionUID = 1L; {
             try {
@@ -93,7 +93,7 @@ public class GraphViz
     /**
      * The dir. where temporary files will be created.
      */
-  private static String TEMP_DIR = "tmp/";
+  private static String TEMP_DIR = "../../../src/superc/p4parser/tmp/";
 
     /**
      * Where is your dot program located? It will be called externally.
@@ -225,7 +225,6 @@ public class GraphViz
     public int writeGraphToFile(byte[] img, File to)
     {
         try {
-            System.out.println(img);
             FileOutputStream fos = new FileOutputStream(to);
             fos.write(img);
             fos.close();
@@ -250,13 +249,10 @@ public class GraphViz
         try {
             img = File.createTempFile("graph_", "."+type, new File(GraphViz.TEMP_DIR));
             Runtime rt = Runtime.getRuntime();
-            System.err.println("is rt null? " + (rt == null ? "yep" : "nah"));
 
             // patch by Mike Chenault
             String[] args = {DOT, "-T"+type, "-Gdpi="+dpiSizes[this.currentDpiPos], dot.getAbsolutePath(), "-o", img.getAbsolutePath()};
 
-    System.err.println("configFile" + configFile);
-            System.err.println("is args null? " + args[0]);
             Process p = rt.exec(args);
 
             p.waitFor();

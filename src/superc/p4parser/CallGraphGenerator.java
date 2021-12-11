@@ -1,6 +1,7 @@
 package superc;
 import java.lang.reflect.*;
 import java.sql.CallableStatement;
+import java.text.BreakIterator;
 import java.time.LocalDate;
 import java.lang.Iterable;
 
@@ -11,6 +12,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Map;
+import java.io.File;
 import java.util.IdentityHashMap;
 import java.util.HashSet;
 import java.util.HashMap;
@@ -19,6 +21,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ThreadPoolExecutor.DiscardPolicy;
 
+import javax.sound.midi.SysexMessage;
 import javax.swing.plaf.synth.SynthLookAndFeel;
 import javax.xml.crypto.dsig.spec.DigestMethodParameterSpec;
 
@@ -37,6 +40,7 @@ import xtc.type.Type;
 import superc.core.PresenceConditionManager.PresenceCondition;
 import superc.core.Syntax.Kind;
 import superc.p4parser.P4Tag;
+import superc.p4parser.GraphViz;
 
 public class CallGraphGenerator {
 
@@ -46,6 +50,8 @@ public class CallGraphGenerator {
     LanguageObject undefined_scope = new LanguageObject("UNDEFINED", null);
     // A list of grammar constructs that are not yet supported and might contain invocation
     HashSet<String> notExplicitlySupported = new HashSet<>(Arrays.asList());
+    private Map<BaseTypes, LanguageObject> baseTypeLanguageObjects = new HashMap<>();
+    private Map<String, BaseTypes> baseTypeValues = new HashMap<>();
 
     // accept and reject are two parser states not defined by the user but is in the logic
     ArrayList<String> implicitParserStates = new ArrayList<>() {{
@@ -53,6 +59,43 @@ public class CallGraphGenerator {
                                                                 add("reject");
                                                                }};
     HashMap<LanguageObject, HashSet<LanguageObject>> callGraphObject;
+    ArrayList<String> baseTypes = new ArrayList<>() {{
+                                                        add("bool");
+                                                        add("error");
+                                                        add("bit");
+                                                        add("string");
+                                                        add("int");
+                                                        add("varbit");
+                                                    }};
+    enum BaseTypes {
+        BOOL("bool"),
+        ERROR("error"),
+        BIT("bit"),
+        STRING("string"),
+        INT("int"),
+        VARBIT("varbit");
+
+
+        public String baseString;
+
+        private BaseTypes(String typeString) {
+            this.baseString = typeString;
+        }
+    }
+
+    
+    public BaseTypes valueOfBaseType(String typeString) {
+        return baseTypeValues.get(typeString);
+    }
+
+    public boolean isBaseType(String typeString) {
+        return baseTypeValues.containsKey(typeString);
+    }
+
+    public Map<String, BaseTypes> getBaseTypeValues() {
+        return this.baseTypeValues;
+    }
+
     //PC Scope
 
     public CallGraphGenerator() {
@@ -60,20 +103,63 @@ public class CallGraphGenerator {
         this.scope = new Stack<>();
         this.callGraphObject = new HashMap<>();
 
+        for (BaseTypes e: BaseTypes.values()) {
+            baseTypeValues.put(e.baseString, e);
+            baseTypeLanguageObjects.put(e, new LanguageObject(e.baseString, global_scope));
+        }
+
         scope.add(global_scope);
     }
 
+    public LanguageObject getLanguageObjectForBaseType(String typeString, LanguageObject scope) {
+        assert baseTypeValues.containsKey(typeString) : "Not a type string. Assuming that the passed in value has been previously check if it a valid base type";
+        LanguageObject check = baseTypeLanguageObjects.get(BaseTypes.BIT);
+        return baseTypeLanguageObjects.get(baseTypeValues.get(typeString));
+    }
+
+    // For symbols
     class LanguageObject {
         public final String name;
         public final LanguageObject nameSpace;
         // TODO MAIN: take care of parametrization and typedef (check xor example)
 
         // Store the type of the object if the current object is a typedef (type or parameter)
+        // Three supported classes at the moment: String (base type) and LanguageObject (previously defined) and boolean (for initialization)
         LanguageObject type;
+        Boolean isOfType;
+        Boolean isScope;
 
+        // TODO: instead of null for type, make a global object for no type and use that?
         public LanguageObject(String name, LanguageObject nameSpace) {
+            this(name, nameSpace, null, false);
+        }
+        public LanguageObject(String name, LanguageObject nameSpace, LanguageObject type) {
+            this(name, nameSpace, type, false);
+        }
+        public LanguageObject(String name, LanguageObject nameSpace, Boolean scope) {
+            this(name, nameSpace, null, scope);
+        }
+
+        // Construct with all fields
+        public LanguageObject(String name, LanguageObject nameSpace, LanguageObject type,
+                              Boolean scope) {
             this.name = name;
             this.nameSpace = nameSpace;
+            this.type = type;
+            if(type != null) {
+                this.isOfType = true;
+            } else {
+                this.isOfType = false;
+            }
+            this.isOfType = scope;
+        }
+
+        public String getNameSpaceString() {
+            if(this == global_scope) {
+                return name;
+            }
+            
+            return this.nameSpace.name;
         }
 
         @Override
@@ -83,7 +169,19 @@ public class CallGraphGenerator {
                 return name;
             }
             
-            return name + "(" + this.nameSpace.name + ")";
+            return name + "(" + this.getNameSpaceString() + ")";
+        }
+
+        public boolean isType() {
+            return isOfType;
+        }
+
+        public boolean isBaseType() {
+            return (isType() && baseTypes.contains(this.type));
+        }
+
+        public Object getType() {
+            return type;
         }
 
         /**
@@ -98,16 +196,16 @@ public class CallGraphGenerator {
 
             while(itr.hasNext()) {
                 String childKey = (String) itr.next();
-                finalString += symtab.get(this).get(childKey).toString();
-
-                if(symtab.containsKey(childKey)) {
+                LanguageObject childLangObj = symtab.get(this).get(childKey);
+                finalString += childLangObj.toString();
+                if(symtab.containsKey(childLangObj)) {
                     finalString += itr.hasNext() ? ", " : "";
                     continue;
                 }
 
                 ArrayList<String> calleeNames = new ArrayList<>();
-                if(callGraphObject.containsKey(symtab.get(this).get(childKey))) {
-                    for(LanguageObject callee : callGraphObject.get(symtab.get(this).get(childKey))) {
+                if(callGraphObject.containsKey(childLangObj)) {
+                    for(LanguageObject callee : callGraphObject.get(childLangObj)) {
                         calleeNames.add(callee.toString());
                     }
                 }
@@ -118,6 +216,43 @@ public class CallGraphGenerator {
                 finalString += (itr.hasNext() ? ", " : "");
             }
 
+            return finalString;
+        }
+
+        public String toDotString() {
+            String finalString = "";
+
+            Iterator<String> itr = symtab.get(this).keySet().iterator();
+            finalString += this.hashCode() + ";";
+            finalString += this.hashCode() + " [label=\"" + this.name + "\"];";
+            while(itr.hasNext()) {
+                String childKey = (String) itr.next();
+                LanguageObject childLangObj = symtab.get(this).get(childKey);
+                finalString += this.hashCode() + " -> " + childLangObj.hashCode() + " [style=dashed, color=blue];";
+                finalString += childLangObj.hashCode() + " [label=\"" + childLangObj.name + "\"];";
+
+                if(symtab.containsKey(childLangObj)) {
+                    continue;
+                }
+
+                ArrayList<LanguageObject> calleeNames = new ArrayList<>();
+                if(callGraphObject.containsKey(childLangObj)) {
+                    for(LanguageObject callee : callGraphObject.get(childLangObj)) {
+                        calleeNames.add(callee);
+                    }
+                }
+
+                if(! calleeNames.isEmpty()) {
+                    for(LanguageObject localCallee : calleeNames) {
+                        finalString += childLangObj.hashCode() + "->" + localCallee.hashCode() + ";";
+                        finalString += localCallee.hashCode() + " [label=\"" + localCallee.name + "\"];";
+                    }
+                }
+
+            }
+
+            // finalString += this.hashCode() + " [label=\"" + this.name + "\"]";
+            // System.out.println(finalString);
             return finalString;
         }
 
@@ -156,11 +291,27 @@ public class CallGraphGenerator {
             String hashString = "";
             if(this.nameSpace != null) {
                 // not the GLOBAL LanguageObject
-                hashString += this.nameSpace.name + "/";
+                hashString += this.getParentNameSpaces() + "/";
             }
             hashString += this.name;
             
             return hashString.hashCode();
+        }
+
+        public String getParentNameSpaces() {
+            String ancestorNameSpace = "";
+            LanguageObject currentNameSpace = this.nameSpace;
+            if(this == global_scope || currentNameSpace == global_scope) {
+                return "GLOBAL";
+            }
+
+            while(currentNameSpace != global_scope) {
+                ancestorNameSpace += (ancestorNameSpace.isBlank() ? "" : "/");
+                ancestorNameSpace += currentNameSpace.name;
+                currentNameSpace = currentNameSpace.nameSpace;
+            }
+
+            return ancestorNameSpace;
         }
         // conditioned callees
     }
@@ -175,6 +326,9 @@ public class CallGraphGenerator {
      * @return
      */
     public LanguageObject addToSymtab(LanguageObject scope, String name) {
+        return addToSymtab(scope, name, null, false);
+    }
+    public LanguageObject addToSymtab(LanguageObject scope, String name, LanguageObject type, Boolean isScoped) {
         LanguageObject nodeObj = null;
 
         if( !symtab.containsKey(scope)) {
@@ -273,6 +427,11 @@ public class CallGraphGenerator {
         callGraphVisitor.dispatch(translationUnit.getGeneric(0));
     }
 
+    public void createCallGraphVisual(String fileName) {
+        String dotFormat = toDot();
+        createDotGraph(dotFormat, fileName);
+    }
+
     private Visitor definitionsVisitor = new Visitor() {
         // default visitor
         public Node visit(GNode n) {
@@ -292,7 +451,7 @@ public class CallGraphGenerator {
                 } else if(nextObj instanceof PresenceCondition) {
                     // TODO handle PC scenarios under conditional nodes
 
-                    assert ((PresenceCondition) nextObj).getAllConfigs().size() == 0 : "non-empty PresenceCondition nodes not supported at the moment";
+                    // assert ((PresenceCondition) nextObj).getAllConfigs().size() == 0 : "non-empty PresenceCondition nodes not supported at the moment";
                     continue;
                 }
                 dispatch((Node) nextObj);
@@ -374,6 +533,7 @@ public class CallGraphGenerator {
             return n;
         }
 
+        // TODO: finish ensureDotValueIsOnlySpecificConstructs and check logic (like .apply()?)
         public Node visitlvalue(GNode n) {
             if(n.get(0) instanceof Syntax) { // keyword "THIS"
                 return n;
@@ -387,6 +547,10 @@ public class CallGraphGenerator {
                     if(n.getGeneric(1).getName() == "dot_name") {
                         // as per the grammar specifications, lvalue dot values can only be used for structs, headers, and header union fields.
                         // so ensuring that's the case
+                        // note: can also be nonTypeName (apply, key, actions,...)  - apply is an invocation
+                        // TODO: figure out key, actions...
+                        // TODO: can we do controlblock.functioname?
+                        // note: if name is type_identifier, then ensure its of one of those constructs
                         // TODO: change LanguageObject to include what constructs to check for this
                         ensureDotValueIsOnlySpecificConstructs(n.getGeneric(1));
                     } else {
@@ -499,6 +663,7 @@ public class CallGraphGenerator {
 
         public Node visitconstructorMethodPrototype(GNode n) {            
             String type_identifier = n.get(1).toString();
+            // System.out.println("constructor inside: " + type_identifier);
 
             // methodPrototype -> constructorMethodPrototype is directly under parent extern scope
             // so can retrieve the extern block's name from the scope
@@ -514,6 +679,52 @@ public class CallGraphGenerator {
 
             return n;
         }
+
+        // public Node visitparameter(GNode n) {
+        //     dispatch(n.getGeneric(0)); // optAnnotations
+
+        //     String type_ref_string = getTypeStringUnderTypeRef(n.getGeneric(2));
+        //     String name = getStringUnderName(n.getGeneric(3));
+
+        //     LanguageObject parameterObj = addToSymtab(scope.peek(), name);
+
+        //     if(baseTypes.contains(type_ref_string)) {
+        //         parameterObj.type = type_ref_string;
+        //     } else {
+        //         LanguageObject typeObj = symtabLookup(scope.peek(), type_ref_string);
+        //         parameterObj.type = typeObj;
+        //     }
+
+        //     if(n.size() == 6) {
+        //         // "optAnnotations direction typeRef name ASSIGN expression {}" productiom
+        //         // so need to take care of expression
+        //         // The other production is just "optAnnotations direction typeRef name"
+        //         dispatch(n.getGeneric(5));
+        //     }
+
+        //     return n;
+        // }
+
+        // public Node visittypeParameterList(GNode n) {
+        //     /*
+        //     Two possible productions:
+        //         name
+        //         typeParameterList COMMA name ----- recursive
+        //     */
+
+        //     if(returnSecondChildIfConditional(n.getGeneric(0)).getName() == "typeParameterList") {
+        //         // typeParameterList COMMA name ----- recursive
+        //         dispatch(n.getGeneric(0));
+        //         String name = getStringUnderName(returnSecondChildIfConditional(n.getGeneric(2)));
+        //         addToSymtab(scope.peek(), name);
+        //     } else {
+        //         // just 'name'
+        //         String name = getStringUnderName(returnSecondChildIfConditional(n.getGeneric(0)));
+        //         addToSymtab(scope.peek(), name);
+        //     }
+
+        //     return n;
+        // }
 
         public Node visitparserDeclaration(GNode n) {
             String parserName = getStringUnderParserTypeDeclaration(n.getGeneric(0)); // TODO: take of parameter list here if needed to
@@ -592,7 +803,7 @@ public class CallGraphGenerator {
                 } else if(nextObj instanceof PresenceCondition) {
                     // TODO handle PC scenarios under conditional nodes
 
-                    assert ((PresenceCondition) nextObj).getAllConfigs().size() == 0 : "non-empty PresenceCondition nodes not supported at the moment";
+                    // assert ((PresenceCondition) nextObj).getAllConfigs().size() == 0 : "non-empty PresenceCondition nodes not supported at the moment";
                     continue;
                 }
                 dispatch((Node) nextObj);
@@ -785,7 +996,7 @@ public class CallGraphGenerator {
             if(n.getGeneric(0).getName() == "methodCallStatements") {
                 // method call statements
                 dispatch(n.getGeneric(0));
-            } else {
+            } else { // TODO: make clear which production
                 dispatch(n.getGeneric(0)); // lvalue
                 dispatch(n.getGeneric(2)); // expression
             }
@@ -1127,7 +1338,9 @@ public class CallGraphGenerator {
 
     public String getStringUnderNonTypeName(GNode n) {
         assert n.getName() == "nonTypeName";
-
+        // System.out.println(n.toString());
+        // System.out.println(n.get(0));
+        // System.out.println(((Language) n.get(0)).tag());
         // only terminals under nonTypeName, but right now only handling IDENTIFIER tokens, not reserved keywords
         assert (P4Tag.IDENTIFIER == ((Language) n.get(0)).tag() || n.get(0).toString() == "apply") : "non-IDENTIFIER terminals not supported under nonTypeName atm";
         return n.get(0).toString();
@@ -1192,6 +1405,51 @@ public class CallGraphGenerator {
         return final_val;
     }
 
+    public String getTypeStringUnderTypeRef(GNode n) {
+        assert n.getName() == "typeRef";
+        
+        switch(n.getGeneric(0).getName()) {
+            case "typeName":
+                return getNameFromTypeName(n.getGeneric(0));
+            case "baseType":
+                return getBaseTypeAsString(n.getGeneric(0));
+            case "specializedType":
+                return getStringUnderSpecializedTypeName(n.getGeneric(0));
+            case "headerStackType":
+                return getStringUnderHeaderStackType(n.getGeneric(0));
+            case "tupleType":
+                return "tuple"; // TODO: example cases and figure out tuple nesting
+            default:
+                System.err.println("Unhandled new case for typeRef");
+                System.exit(1);
+        }
+
+        return "Unhandled case under type ref";
+    }
+
+    public String getBaseTypeAsString(GNode n) {
+        assert n.getName() == "baseType";
+
+        // handle expressions within basetype
+        return n.get(0).toString();
+    }
+
+    public String getStringUnderHeaderStackType(GNode n) {
+        assert n.getName() == "headerStackType";
+
+        // TODO: handle expression inside
+        if(n.getGeneric(0).getName() == "typeName") {
+            return getNameFromTypeName(n.getGeneric(0));
+        } else if(n.getGeneric(0).getName() == "specializedType") {
+            return getStringUnderSpecializedTypeName(n.getGeneric(0));
+        } else {
+            System.err.println("Unhandled header stack type case");
+            System.exit(1);
+        }
+
+        return "Unhandled case under header stack type";
+    }
+
     public String getStringUnderDotName(GNode n) {
         return getStringUnderName(n.getGeneric(1));
     }
@@ -1222,7 +1480,36 @@ public class CallGraphGenerator {
         for(LanguageObject key : symtab.keySet()) {
             System.out.println(key.toStringExtensive());
         }
+        // System.out.println(callGraphObject);
     }
+
+    public String toDot() {
+        String dotFormat = "";
+        for(LanguageObject key : symtab.keySet()) {
+            dotFormat += key.toDotString();
+        }
+
+        // System.out.println(dotFormat);
+        return dotFormat;
+    }
+    
+    public static void createDotGraph(String dotFormat,String fileName) {
+        String check = "{rank=same; a1, b1 } {rank=same; a2, b2 } a1 [label=\"This defines\"] a2 [label=\"This calls\"] b1 [label=\"this\"] b2 [label=\"this\"] a1 -> b1 [ minlen=4 ] a2 -> b2 [ style=dashed, color=blue, minlen=4 ]";
+        dotFormat += check;
+        GraphViz gv=new GraphViz();
+        gv.addln(gv.start_graph());
+        gv.add(dotFormat);
+        gv.addln(gv.end_graph());
+       // String type = "gif";
+        String type = "pdf";
+      // gv.increaseDpi();
+        gv.decreaseDpi();
+        gv.decreaseDpi();
+        // System.out.println(gv.toString());
+        File out = new File(fileName+"."+ type); 
+        gv.writeGraphToFile( gv.getGraph( gv.getDotSource(), type ), out );
+    }
+
 }
 
 // Notes:
