@@ -27,6 +27,7 @@ import javax.xml.crypto.dsig.spec.DigestMethodParameterSpec;
 
 import superc.core.Syntax;
 import superc.core.Syntax.Language;
+import superc.p4parser.LanguageObject;
 
 import org.w3c.dom.NameList;
 
@@ -46,12 +47,10 @@ public class CallGraphGenerator {
 
     Map<LanguageObject, Map<String, LanguageObject>> symtab;
     Stack<LanguageObject> scope;
-    LanguageObject global_scope = new LanguageObject("GLOBAL", null);
-    LanguageObject undefined_scope = new LanguageObject("UNDEFINED", null);
     // A list of grammar constructs that are not yet supported and might contain invocation
     HashSet<String> notExplicitlySupported = new HashSet<>(Arrays.asList());
-    private Map<BaseTypes, LanguageObject> baseTypeLanguageObjects = new HashMap<>();
-    private Map<String, BaseTypes> baseTypeValues = new HashMap<>();
+    // private Map<BaseTypes, LanguageObject> baseTypeLanguageObjects = new HashMap<>();
+    // private Map<String, BaseTypes> baseTypeValues = new HashMap<>();
 
     // accept and reject are two parser states not defined by the user but is in the logic
     ArrayList<String> implicitParserStates = new ArrayList<>() {{
@@ -67,34 +66,34 @@ public class CallGraphGenerator {
                                                         add("int");
                                                         add("varbit");
                                                     }};
-    enum BaseTypes {
-        BOOL("bool"),
-        ERROR("error"),
-        BIT("bit"),
-        STRING("string"),
-        INT("int"),
-        VARBIT("varbit");
+    // enum BaseTypes {
+    //     BOOL("bool"),
+    //     ERROR("error"),
+    //     BIT("bit"),
+    //     STRING("string"),
+    //     INT("int"),
+    //     VARBIT("varbit");
 
 
-        public String baseString;
+    //     public String baseString;
 
-        private BaseTypes(String typeString) {
-            this.baseString = typeString;
-        }
-    }
+    //     private BaseTypes(String typeString) {
+    //         this.baseString = typeString;
+    //     }
+    // }
 
     
-    public BaseTypes valueOfBaseType(String typeString) {
-        return baseTypeValues.get(typeString);
-    }
+    // public BaseTypes valueOfBaseType(String typeString) {
+    //     return baseTypeValues.get(typeString);
+    // }
 
-    public boolean isBaseType(String typeString) {
-        return baseTypeValues.containsKey(typeString);
-    }
+    // public boolean isBaseType(String typeString) {
+    //     return baseTypeValues.containsKey(typeString);
+    // }
 
-    public Map<String, BaseTypes> getBaseTypeValues() {
-        return this.baseTypeValues;
-    }
+    // public Map<String, BaseTypes> getBaseTypeValues() {
+    //     return this.baseTypeValues;
+    // }
 
     //PC Scope
 
@@ -103,218 +102,19 @@ public class CallGraphGenerator {
         this.scope = new Stack<>();
         this.callGraphObject = new HashMap<>();
 
-        for (BaseTypes e: BaseTypes.values()) {
-            baseTypeValues.put(e.baseString, e);
-            baseTypeLanguageObjects.put(e, new LanguageObject(e.baseString, global_scope));
-        }
+        // for (BaseTypes e: BaseTypes.values()) {
+        //     baseTypeValues.put(e.baseString, e);
+        //     baseTypeLanguageObjects.put(e, new LanguageObject(e.baseString, LanguageObject.global_scope));
+        // }
 
-        scope.add(global_scope);
+        scope.add(LanguageObject.global_scope);
     }
 
-    public LanguageObject getLanguageObjectForBaseType(String typeString, LanguageObject scope) {
-        assert baseTypeValues.containsKey(typeString) : "Not a type string. Assuming that the passed in value has been previously check if it a valid base type";
-        LanguageObject check = baseTypeLanguageObjects.get(BaseTypes.BIT);
-        return baseTypeLanguageObjects.get(baseTypeValues.get(typeString));
-    }
-
-    // For symbols
-    class LanguageObject {
-        public final String name;
-        public final LanguageObject nameSpace;
-        // TODO MAIN: take care of parametrization and typedef (check xor example)
-
-        // Store the type of the object if the current object is a typedef (type or parameter)
-        // Three supported classes at the moment: String (base type) and LanguageObject (previously defined) and boolean (for initialization)
-        LanguageObject type;
-        Boolean isOfType;
-        Boolean isScope;
-
-        // TODO: instead of null for type, make a global object for no type and use that?
-        public LanguageObject(String name, LanguageObject nameSpace) {
-            this(name, nameSpace, null, false);
-        }
-        public LanguageObject(String name, LanguageObject nameSpace, LanguageObject type) {
-            this(name, nameSpace, type, false);
-        }
-        public LanguageObject(String name, LanguageObject nameSpace, Boolean scope) {
-            this(name, nameSpace, null, scope);
-        }
-
-        // Construct with all fields
-        public LanguageObject(String name, LanguageObject nameSpace, LanguageObject type,
-                              Boolean scope) {
-            this.name = name;
-            this.nameSpace = nameSpace;
-            this.type = type;
-            if(type != null) {
-                this.isOfType = true;
-            } else {
-                this.isOfType = false;
-            }
-            this.isOfType = scope;
-        }
-
-        public String getNameSpaceString() {
-            if(this == global_scope) {
-                return name;
-            }
-            
-            return this.nameSpace.name;
-        }
-
-        @Override
-        public String toString() {
-            // For simple toString calls where the current value is not present under the symbol table
-            if(this == global_scope) {
-                return name;
-            }
-            
-            return name + "(" + this.getNameSpaceString() + ")";
-        }
-
-        public boolean isType() {
-            return isOfType;
-        }
-
-        public boolean isBaseType() {
-            return (isType() && baseTypes.contains(this.type));
-        }
-
-        public Object getType() {
-            return type;
-        }
-
-        /**
-         * A toString function to use when in-depth detail about current object is needed.
-         * Outputs the callees present under the current object if it is not present under the global scope.
-         * @return
-         */
-        public String toStringExtensive() {
-            String finalString = name + ": ";
-
-            Iterator<String> itr = symtab.get(this).keySet().iterator();
-
-            while(itr.hasNext()) {
-                String childKey = (String) itr.next();
-                LanguageObject childLangObj = symtab.get(this).get(childKey);
-                finalString += childLangObj.toString();
-                if(symtab.containsKey(childLangObj)) {
-                    finalString += itr.hasNext() ? ", " : "";
-                    continue;
-                }
-
-                ArrayList<String> calleeNames = new ArrayList<>();
-                if(callGraphObject.containsKey(childLangObj)) {
-                    for(LanguageObject callee : callGraphObject.get(childLangObj)) {
-                        calleeNames.add(callee.toString());
-                    }
-                }
-
-                if(! calleeNames.isEmpty()) {
-                    finalString += ": " + calleeNames.toString();
-                }
-                finalString += (itr.hasNext() ? ", " : "");
-            }
-
-            return finalString;
-        }
-
-        public String toDotString() {
-            String finalString = "";
-
-            Iterator<String> itr = symtab.get(this).keySet().iterator();
-            finalString += this.hashCode() + ";";
-            finalString += this.hashCode() + " [label=\"" + this.name + "\"];";
-            while(itr.hasNext()) {
-                String childKey = (String) itr.next();
-                LanguageObject childLangObj = symtab.get(this).get(childKey);
-                finalString += this.hashCode() + " -> " + childLangObj.hashCode() + " [style=dashed, color=blue];";
-                finalString += childLangObj.hashCode() + " [label=\"" + childLangObj.name + "\"];";
-
-                if(symtab.containsKey(childLangObj)) {
-                    continue;
-                }
-
-                ArrayList<LanguageObject> calleeNames = new ArrayList<>();
-                if(callGraphObject.containsKey(childLangObj)) {
-                    for(LanguageObject callee : callGraphObject.get(childLangObj)) {
-                        calleeNames.add(callee);
-                    }
-                }
-
-                if(! calleeNames.isEmpty()) {
-                    for(LanguageObject localCallee : calleeNames) {
-                        finalString += childLangObj.hashCode() + "->" + localCallee.hashCode() + ";";
-                        finalString += localCallee.hashCode() + " [label=\"" + localCallee.name + "\"];";
-                    }
-                }
-
-            }
-
-            // finalString += this.hashCode() + " [label=\"" + this.name + "\"]";
-            // System.out.println(finalString);
-            return finalString;
-        }
-
-        /**
-         * Having same name under the same scope means they are "equal" for our usage and have same hash value
-         */
-        @Override
-        public boolean equals(Object object) {
-            if(this == object) {
-                return true;    
-            }
-            if(object == null) {
-                return false;
-            }
-            if (object instanceof LanguageObject == false) {
-                return false;
-            }
-
-            LanguageObject compObject = (LanguageObject) object;
-
-            if(compObject == global_scope || this == global_scope) {
-                // if both are global_scope, then it should have returned true at the beginning
-                return false;
-            }
-
-            if(compObject.name.equals(this.name)
-               && compObject.nameSpace.equals(this.nameSpace)) {
-                   return true;
-            }
-
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            String hashString = "";
-            if(this.nameSpace != null) {
-                // not the GLOBAL LanguageObject
-                hashString += this.getParentNameSpaces() + "/";
-            }
-            hashString += this.name;
-            
-            return hashString.hashCode();
-        }
-
-        public String getParentNameSpaces() {
-            String ancestorNameSpace = "";
-            LanguageObject currentNameSpace = this.nameSpace;
-            if(this == global_scope || currentNameSpace == global_scope) {
-                return "GLOBAL";
-            }
-
-            while(currentNameSpace != global_scope) {
-                ancestorNameSpace += (ancestorNameSpace.isBlank() ? "" : "/");
-                ancestorNameSpace += currentNameSpace.name;
-                currentNameSpace = currentNameSpace.nameSpace;
-            }
-
-            return ancestorNameSpace;
-        }
-        // conditioned callees
-    }
+    // public LanguageObject getLanguageObjectForBaseType(String typeString, LanguageObject scope) {
+    //     assert baseTypeValues.containsKey(typeString) : "Not a type string. Assuming that the passed in value has been previously check if it a valid base type";
+    //     LanguageObject check = baseTypeLanguageObjects.get(BaseTypes.BIT);
+    //     return baseTypeLanguageObjects.get(baseTypeValues.get(typeString));
+    // }
 
     /**
      * Creates the scope if not present, creates entity for name under scope if not present.
@@ -389,7 +189,7 @@ public class CallGraphGenerator {
         assert !typeName.isBlank() : "typeName is not supposed to be empty when looking it up on symbol table";
 
         // base case where global_scope is the top-most parent
-        if(localScope.equals(global_scope)) {
+        if(localScope.equals(LanguageObject.global_scope)) {
             assert doesSymbolExist(localScope, typeName) : "Calling to an undefined symbol \"" + typeName + "\"";
             return symtab.get(localScope).get(typeName);
         }
@@ -1478,7 +1278,7 @@ public class CallGraphGenerator {
 
     public void printCallGraph() {
         for(LanguageObject key : symtab.keySet()) {
-            System.out.println(key.toStringExtensive());
+            System.out.println(key.toStringExtensive(symtab, callGraphObject));
         }
         // System.out.println(callGraphObject);
     }
@@ -1486,7 +1286,7 @@ public class CallGraphGenerator {
     public String toDot() {
         String dotFormat = "";
         for(LanguageObject key : symtab.keySet()) {
-            dotFormat += key.toDotString();
+            dotFormat += key.toDotString(symtab, callGraphObject);
         }
 
         // System.out.println(dotFormat);
