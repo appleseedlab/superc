@@ -28,6 +28,7 @@ import javax.xml.crypto.dsig.spec.DigestMethodParameterSpec;
 import superc.core.Syntax;
 import superc.core.Syntax.Language;
 import superc.p4parser.LanguageObject;
+import superc.p4parser.ObjectOfLanguage;
 
 import org.w3c.dom.NameList;
 
@@ -45,6 +46,8 @@ import superc.p4parser.GraphViz;
 
 public class CallGraphGenerator {
 
+    public static final ObjectOfLanguage global_scope = new ConstantTreeGlobalObjects("GLOBAL");
+    public static final ObjectOfLanguage undefined_scope = new ConstantTreeGlobalObjects("UNDEFINED");
     Map<LanguageObject, Map<String, LanguageObject>> symtab;
     Stack<LanguageObject> scope;
     // A list of grammar constructs that are not yet supported and might contain invocation
@@ -393,10 +396,9 @@ public class CallGraphGenerator {
                     dispatch(n.getGeneric(5)); // methodPrototypes
 
                     scope.pop();
-                } else { // only option left is "optAnnotations EXTERN name SEMICOLON" production
-                    assert returnSecondChildIfConditional(n.getGeneric(2)).getName() == "name" : "Unhandled case in extern declarations";
-                    String externName = getStringUnderName(returnSecondChildIfConditional(n.getGeneric(2)));
-                    LanguageObject externObj = addToSymtab(scope.peek(), externName);
+                } else { // only option left is "optAnnotations EXTERN name SEMICOLON" production but that is not valid anymore
+                    System.err.println("externDeclaration with the grammar: \"optAnnotations EXTERN name SEMICOLON\" is deprecated");
+                    System.exit(1);
                 }
 
                 return n;
@@ -716,6 +718,9 @@ public class CallGraphGenerator {
                     dispatch(n.getGeneric(5)); // methodPrototypes
 
                     scope.pop();
+                } else {
+                    System.err.println("externDeclaration with the grammar: \"optAnnotations EXTERN name SEMICOLON\" is deprecated");
+                    System.exit(1);
                 }
 
                 return n;
