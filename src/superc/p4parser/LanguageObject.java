@@ -437,6 +437,12 @@ class LanguageObject {
             return false;
         }
 
+        /**
+         * Generates a unique hash code based on the scoping ancestry
+         * (If two blocks are under the same scope then they are the same piece of code)
+         * @param global_scope
+         * @return
+         */
         public int hashCode(ObjectOfLanguage global_scope) {
             String hashString = "";
             if(this.nameSpace != null) {
@@ -448,6 +454,11 @@ class LanguageObject {
             return hashString.hashCode();
         }
 
+        /**
+         * Returns a string with current scope name and the ancestry scope name.
+         * @param global_scope
+         * @return
+         */
         public String getParentNameSpaces(ObjectOfLanguage global_scope) {
             String ancestorNameSpace = "";
             ObjectOfLanguage currentNameSpace = this.nameSpace;
@@ -468,6 +479,9 @@ class LanguageObject {
 
     }
 
+    /**
+     * Class used to declare global constant language objects like global scope.
+     */
     class ConstantTreeGlobalObjects extends ObjectOfLanguage {
         @Override
         boolean isConstantValue() {
@@ -602,6 +616,8 @@ class LanguageObject {
             this.returnType = returnType;
         }
 
+        // Right now we are assuming that the invoker has already created or retrieved the type object
+        // and will pass it to us
         public FunctionPrototype(String name, ObjectOfLanguage nameSpace, ObjectOfLanguage returnType) {
             super(name, nameSpace);
             this.returnType = returnType;
@@ -646,6 +662,8 @@ class LanguageObject {
             return this.type;
         }
 
+        // Right now we are assuming that the invoker has already created or retrieved the type and direction object
+        // and will pass it to us
         public Parameter(String name, ObjectOfLanguage nameSpace, TypeRef type, ConstantTreeGlobalObjects direction) {
             super(name, nameSpace);
             this.type = type;
@@ -685,6 +703,8 @@ class LanguageObject {
             return true;
         }
 
+        // Right now we are assuming that the invoker has already created or retrieved the type object
+        // and will pass it to us
         public TypeRef(ObjectOfLanguage type, ObjectOfLanguage nameScope) {
             super(type.getName(), nameScope);
             this.type = type;
@@ -820,8 +840,10 @@ class LanguageObject {
         // }
     }
 
+    // Merged PrefixedType with TypeName as it is the only place where it is used
     class TypeName extends ObjectOfLanguage {
-        PrefixedType prefixedType;
+        private ObjectOfLanguage type;
+        private boolean hasDotPrefix;
 
         @Override 
         boolean isScoped() {
@@ -834,40 +856,18 @@ class LanguageObject {
         }
 
         public boolean hasDotPrefix() {
-            return this.prefixedType.hasDotPrefix();
+            return this.hasDotPrefix();
         }
 
-        public TypeName(PrefixedType prefixedType,ObjectOfLanguage nameScope) {
-            super(prefixedType.getName(), nameScope);
-            this.prefixedType = prefixedType;
-        }
-    }
-
-    class PrefixedType extends ObjectOfLanguage {
-        private ObjectOfLanguage type;
-        private boolean hasDotPrefix;
-        @Override 
-        boolean isScoped() {
-            return false;
-        }
-
-        @Override
-        boolean isPrefixedType() {
-            return true;
-        }
-
-        boolean hasDotPrefix() {
-            return this.hasDotPrefix;
-        }
-
-        public PrefixedType(String name, ObjectOfLanguage typeObject, ObjectOfLanguage nameScope, boolean hasDotPrefix) {
-            super(name, nameScope);
+        // Right now assuming the invoker has retrieved the object referring to the type
+        // and will pass it to us. Also that whether the prefixedType has a dot prefix or not
+        public TypeName(ObjectOfLanguage typeObject, ObjectOfLanguage nameScope, boolean hasDotPrefix) {
+            super(typeObject.getName(), nameScope);
             this.type = typeObject;
             this.hasDotPrefix = hasDotPrefix;
         }
     }
 
-    // todo: method prototype, function prototype, extern function declaration
     class MethodPrototype extends ObjectOfLanguage {
         @Override
         boolean isScoped() {
