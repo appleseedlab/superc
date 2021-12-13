@@ -1257,6 +1257,8 @@ nonBraceExpression: /** complete, list **/
     | nonBraceExpression AND expression         {}
     | nonBraceExpression OR expression         {}
     | nonBraceExpression QUESTION expression COLON expression {}
+    ;
+invokingNonBraceExpression: /** complete, list **/
     | nonBraceExpression l_angle realTypeArgumentList r_angle L_PAREN argumentList R_PAREN
         {}
     | nonBraceExpression L_PAREN argumentList R_PAREN
