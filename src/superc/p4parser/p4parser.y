@@ -306,14 +306,13 @@ annotation: /** complete **/
         {}
     | AT name L_PAREN annotationBody R_PAREN
         {}
-    | AT name L_BRACKET expressionList R_BRACKET
+    | AT name L_BRACKET structuredAnnotationBody R_BRACKET
         {}
-    | AT name L_BRACKET kvList R_BRACKET
-        {}
-    // Experimental: backwards compatibility with P4-14 pragmas (which
-    // themselves are experimental!)
-    | PRAGMA name annotationBody END_PRAGMA
-        {}
+    ;
+
+structuredAnnotationBody
+    : expressionList
+    | kvList
     ;
 
 annotationBody: /** complete, list **/

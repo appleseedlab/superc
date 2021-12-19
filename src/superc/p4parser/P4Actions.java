@@ -268,14 +268,6 @@ public class P4Actions implements SemanticActions {
         {}
     break;
 
-  case 40:
-        {}
-    break;
-
-  case 41:
-        {}
-    break;
-
   case 42:
               {}
     break;
