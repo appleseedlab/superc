@@ -1,5 +1,6 @@
 package superc.p4parser;
 import java.beans.Expression;
+import java.io.ObjectInputStream;
 import java.lang.StackWalker.Option;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -7,6 +8,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+
+import javax.naming.ldap.PagedResultsResponseControl;
+import javax.sound.midi.SysexMessage;
 
 // For symbols
 class LanguageObject {
@@ -243,9 +247,9 @@ class LanguageObject {
         TYPEPARAMETER,
         STRUCTFIELD,
         IDENTIFIERLIST,
-        HEADERTYPE,
+        HEADERTYPEDECLARATION,
         HEADERUNION,
-        STRUCTTYPE,
+        STRUCTTYPEDECLARATION,
         ENUMDECLARATION,
         TYPEDEFDECLARATION,
         PARSERTYPEDECLARATION,
@@ -275,7 +279,16 @@ class LanguageObject {
         INVOKINGNONBRACEEXPRESSION,
         INTEGER,
         VARIABLEDECLARATION,
-        ANNOTATION
+        ANNOTATION,
+        INSTANTIATION,
+        INSTANTIATIONWITHASSIGNMENT,
+        OBJINITIALIZER,
+        PARSERDECLARATION,
+        PARSERSTATE,
+        PARSERBLOCKSTATEMENT,
+        STATEEXPRESSION,
+        SELECTEXPRESSION,
+        SELECTCASE
     }
 
     abstract class ObjectOfLanguage {
@@ -527,6 +540,7 @@ class LanguageObject {
      * Class used to declare global constant language objects like global scope.
      */
     class ConstantTreeGlobalObjects extends ObjectOfLanguage {
+        private final boolean isScoped;
         @Override
         public LObjectKind getConstructType() {
             return LObjectKind.CONSTANTVALUE;
@@ -534,7 +548,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return isScoped;
         }
 
         @Override
@@ -545,8 +559,14 @@ class LanguageObject {
             return null;
         }
 
+        public ConstantTreeGlobalObjects(String name, boolean isScoped) {
+            super(name, null);
+            this.isScoped = isScoped;
+        }
+
         public ConstantTreeGlobalObjects(String name) {
             super(name, null);
+            this.isScoped = true;
         }
     }
 
@@ -603,7 +623,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         TypeParameter(String name, ObjectOfLanguage nameSpace) {
@@ -687,7 +707,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         public ArrayList<Parameter> getParameters() {
@@ -719,12 +739,13 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
+        // void and dontcare are still types
         @Override
         boolean hasAssociatedType() {
-            return typeRef != null;
+            return true;
         }
 
         boolean isConstantTreeGlobalObjects() {
@@ -771,7 +792,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -797,7 +818,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         public IdentifierList(String name, ObjectOfLanguage nameSpace) {
@@ -807,7 +828,7 @@ class LanguageObject {
 
     class SpecifiedIdentifier extends ObjectOfLanguage {
         // Initializer is just expression
-        private final Expression initializer;
+        private final Initializer initializer;
 
         @Override 
         public LObjectKind getConstructType() {
@@ -816,25 +837,25 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return initializer.isScoped();
         }
 
-        public Expression getInitializer() {
+        public Initializer getInitializer() {
             return this.initializer;
         }
 
-        public SpecifiedIdentifier(String name, ObjectOfLanguage nameSpace, Expression initializer) {
+        public SpecifiedIdentifier(String name, ObjectOfLanguage nameSpace, Initializer initializer) {
             super(name, nameSpace);
             this.initializer = initializer;
         }
     }
 
-    class HeaderType extends ObjectOfLanguage {
+    class HeaderTypeDeclaration extends ObjectOfLanguage {
         private final ArrayList<StructField> structFieldList;
 
         @Override 
         public LObjectKind getConstructType() {
-            return LObjectKind.HEADERTYPE;
+            return LObjectKind.HEADERTYPEDECLARATION;
         }
 
         @Override
@@ -854,7 +875,7 @@ class LanguageObject {
             this.structFieldList.add(structField);
         }
 
-        HeaderType(String name, ObjectOfLanguage nameSpace) {
+        HeaderTypeDeclaration(String name, ObjectOfLanguage nameSpace) {
             super(name, nameSpace);
             this.structFieldList = new ArrayList<>();
         }
@@ -890,11 +911,11 @@ class LanguageObject {
         }
     }
 
-    class StructType extends ObjectOfLanguage {
+    class StructTypeDeclaration extends ObjectOfLanguage {
         private final ArrayList<StructField> structFieldList;
         @Override 
         public LObjectKind getConstructType() {
-            return LObjectKind.STRUCTTYPE;
+            return LObjectKind.STRUCTTYPEDECLARATION;
         }
 
         @Override
@@ -914,7 +935,7 @@ class LanguageObject {
             this.structFieldList.add(structField);
         }
 
-        StructType(String name, ObjectOfLanguage nameSpace) {
+        StructTypeDeclaration(String name, ObjectOfLanguage nameSpace) {
             super(name, nameSpace);
             this.structFieldList = new ArrayList<>();
         }
@@ -998,9 +1019,17 @@ class LanguageObject {
             return LObjectKind.TYPEDEFDECLARATION;
         }
 
+        /* Since type can either be of TypeRef or derivedTypeDeclaration
+        where derivedTypeDeclaration can be headerTypeDeclaration, headerUnionDeclaration
+        structTypeDeclaration, or enumDeclaration, and they can be scoped.
+        */
         @Override
         public boolean isScoped() {
-            return true;
+            if(type.getClass().equals(TypeRef.class)) {
+                return false;
+            } else {
+                return type.isScoped();
+            }
         }
 
         @Override
@@ -1020,7 +1049,7 @@ class LanguageObject {
             super(name, nameSpace);
 
             Class typeClass = type.getClass();
-            if(typeClass == HeaderType.class || typeClass == StructType.class
+            if(typeClass == HeaderTypeDeclaration.class || typeClass == StructTypeDeclaration.class
                || typeClass == EnumDeclaration.class || typeClass == TypeRef.class) {
                } else {
                     System.err.println("Error: Type used in TypeDef for " + name + " has to be of type either TypeRef or DerivedTypeDeclaration");
@@ -1042,7 +1071,7 @@ class LanguageObject {
 
         @Override 
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         public boolean hasParameters() {
@@ -1073,7 +1102,7 @@ class LanguageObject {
 
         @Override 
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         public boolean hasParameters() {
@@ -1094,6 +1123,409 @@ class LanguageObject {
         }
     }
 
+    class Instantiation extends ObjectOfLanguage {
+        private final ArrayList<Annotation> annotations;
+        private final ArrayList<Argument> argumentList;
+        private final TypeRef type;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.INSTANTIATION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return false;
+        }
+
+        @Override
+        public boolean hasAssociatedType() {
+            return true;
+        }
+
+        public TypeRef getType() {
+            return this.type;
+        }
+
+        public boolean hasArgumentList() {
+            return this.argumentList != null;
+        }
+
+        public ArrayList<Argument> getArgumentList() {
+            return this.argumentList;
+        }
+
+        public void addToArgumentList(Argument argument) {
+            this.argumentList.add(argument);
+        }
+
+        public boolean hasAnnotations() {
+            return this.annotations != null;
+        }
+
+        public void addToAnnotationsList(Annotation annotation) {
+            this.annotations.add(annotation);
+        }
+
+        public ArrayList<Annotation> getAnnotations() {
+            return this.annotations;
+        }
+
+        public Instantiation(String name, ObjectOfLanguage nameSpace, TypeRef type, boolean hasAnnotations) {
+            super(name, nameSpace);
+            this.type = type;
+            this.argumentList = new ArrayList<>();
+            if(hasAnnotations) {
+                this.annotations = new ArrayList<>();
+            } else {
+                this.annotations = null;
+            }
+        }
+    }
+
+    class InstantiationWithAssignment extends ObjectOfLanguage {
+        private final ArrayList<Annotation> annotations;
+        private final ArrayList<Argument> argumentList;
+        private final TypeRef type;
+        private final ObjInitializer objInitializer;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.INSTANTIATIONWITHASSIGNMENT;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        public boolean hasAssociatedType() {
+            return true;
+        }
+
+        public TypeRef getType() {
+            return this.type;
+        }
+
+        public boolean hasArgumentList() {
+            return this.argumentList != null;
+        }
+
+        public ArrayList<Argument> getArgumentList() {
+            return this.argumentList;
+        }
+
+        public void addToArgumentList(Argument argument) {
+            this.argumentList.add(argument);
+        }
+
+        public boolean hasAnnotations() {
+            return this.annotations != null;
+        }
+
+        public void addToAnnotationsList(Annotation annotation) {
+            this.annotations.add(annotation);
+        }
+
+        public ArrayList<Annotation> getAnnotations() {
+            return this.annotations;
+        }
+
+        public ObjInitializer getObjInitializer() {
+            return this.objInitializer;
+        }
+
+        public InstantiationWithAssignment(String name, ObjectOfLanguage nameSpace, TypeRef type, boolean hasAnnotations, ObjInitializer objInitializer) {
+            super(name, nameSpace);
+            this.type = type;
+            this.argumentList = new ArrayList<>();
+            this.objInitializer = objInitializer;
+            if(hasAnnotations) {
+                this.annotations = new ArrayList<>();
+            } else {
+                this.annotations = null;
+            }
+        }
+    }
+
+    class ObjInitializer extends ObjectOfLanguage {
+        private final ArrayList<ObjectOfLanguage> objDeclarations;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.OBJINITIALIZER;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasObjDeclarations() {
+            return !this.objDeclarations.isEmpty();
+        }
+
+        public void addToObjDeclarations(ObjectOfLanguage obj) {
+            assert obj.getClass().equals(FunctionDeclaration.class) || obj.getClass().equals(Instantiation.class);
+            this.objDeclarations.add(obj);
+        }
+
+        public ArrayList<ObjectOfLanguage> getObjDeclarations() {
+            return this.objDeclarations;
+        }
+
+        public ObjInitializer(ObjectOfLanguage nameSpace) {
+            super(nameSpace);
+            this.objDeclarations = new ArrayList<>();
+        }
+    }
+
+    class ParserDeclaration extends ObjectOfLanguage {
+        private final ParserTypeDeclaration parserTypeDeclaration;
+        private final ArrayList<ObjectOfLanguage> parserLocalElements;
+        private final ArrayList<ParserState> parserStates;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.PARSERDECLARATION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasParserStates() {
+            assert !this.parserStates.isEmpty() : "There needs to be at least one parser statement";
+
+            return true;
+        }
+        
+        public void addToParserStates(ParserState pState) {
+            this.parserStates.add(pState);
+        }
+
+        public ArrayList<ParserState> getParserStates() {
+            assert !this.parserStates.isEmpty() : "There needs to be at least one parser statement";
+
+            return this.parserStates;
+        }
+
+        public boolean hasParserLocalElements() {
+            return !this.parserLocalElements.isEmpty();
+        }
+
+        public void addToParserLocalElements(ObjectOfLanguage element) {
+            this.parserLocalElements.add(element);
+        }
+
+        public ArrayList<ObjectOfLanguage> getParserLocalElements() {
+            return this.parserLocalElements;
+        }
+
+        public ParserTypeDeclaration getParserTypeDeclaration() {
+            return this.parserTypeDeclaration;
+        }
+
+        public ParserDeclaration(String name, ObjectOfLanguage nameSpace, ParserTypeDeclaration pTypeDeclaration) {
+            super(name, nameSpace);
+            this.parserTypeDeclaration = pTypeDeclaration;
+            this.parserLocalElements = new ArrayList<>();
+            this.parserStates = new ArrayList<>();
+        }
+    }
+
+    class ParserState extends ObjectOfLanguage {
+        private final ArrayList<ObjectOfLanguage> parserStatements;
+        private final StateExpression transitionStatement;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.PARSERSTATE;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasParserStatements() {
+            return !this.parserStatements.isEmpty();
+        }
+
+        public void addToParserStatements(ObjectOfLanguage element) {
+            this.parserStatements.add(element);
+        }
+
+        public ArrayList<ObjectOfLanguage> getParseStatements() {
+            return this.parserStatements;
+        }
+
+        public boolean hasTransitionStatement() {
+            return this.transitionStatement != null;
+        }
+
+        public StateExpression getTransitionStatement() {
+            return this.transitionStatement;
+        }
+
+        public ParserState(String name, ObjectOfLanguage nameSpace, StateExpression transitionStatement) {
+            super(name, nameSpace);
+            this.transitionStatement = transitionStatement;
+            this.parserStatements = new ArrayList<>();
+        }
+    }
+
+    class ParserBlockStatement extends ObjectOfLanguage {
+        private final ArrayList<ObjectOfLanguage> parserStatements;
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.PARSERBLOCKSTATEMENT;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasParserStatements() {
+            return !this.parserStatements.isEmpty();
+        }
+
+        public void addToParserStatements(ObjectOfLanguage element) {
+            this.parserStatements.add(element);
+        }
+
+        public ArrayList<ObjectOfLanguage> getParseStatements() {
+            return this.parserStatements;
+        }
+
+        public ParserBlockStatement(ObjectOfLanguage nameSpace) {
+            super(nameSpace);
+            this.parserStatements = new ArrayList<>();
+        }
+    }
+
+    class StateExpression extends ObjectOfLanguage {
+        private final SelectExpression selectExpression;
+        private final ObjectOfLanguage transitionBlock;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.STATEEXPRESSION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return false;
+        }
+
+        @Override
+        public String getName() {
+            if(this.transitionBlock != null) {
+                assert this.selectExpression == null;
+
+                return this.getName();
+            } else {
+                System.err.println("This state expression has multiple values associated with it (select expression)");
+                System.exit(1);
+                return "";
+            }
+        }
+
+        public boolean hasSelectionExpression() {
+            return this.selectExpression != null;
+        }
+
+        public SelectExpression getSelectExpression() {
+            return this.selectExpression;
+        }
+
+        public ObjectOfLanguage getTransitionBlock() {
+            return this.transitionBlock;
+        }
+
+        public StateExpression(String name, ObjectOfLanguage nameSpace, ObjectOfLanguage transitionBlock) {
+            super(name, nameSpace);
+            this.selectExpression = null;
+            this.transitionBlock = transitionBlock;
+        }
+
+        public StateExpression(ObjectOfLanguage nameSpace, SelectExpression selectExpression) {
+            super(nameSpace);
+            this.selectExpression = selectExpression;
+            this.transitionBlock = null;
+        }
+    }
+
+    class SelectExpression extends ObjectOfLanguage {
+        private final ArrayList<Expression> expressionList;
+        private final ArrayList<SelectCase> selectCaseList;
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.SELECTEXPRESSION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public void addToExpressionList(Expression expression) {
+            this.expressionList.add(expression);
+        }
+
+        public boolean hasExpressionList() {
+            return ! this.expressionList.isEmpty();
+        }
+
+        public ArrayList<Expression> getExpressionList() {
+            return this.expressionList;
+        }
+
+        public void addToSelectCaseList(SelectCase expression) {
+            this.selectCaseList.add(expression);
+        }
+
+        public boolean hasSelectCaseList() {
+            return ! this.selectCaseList.isEmpty();
+        }
+
+        public ArrayList<SelectCase> getSelectCaseList() {
+            return this.selectCaseList;
+        }
+
+        public SelectExpression(ObjectOfLanguage nameSpace) {
+            super(nameSpace);
+            this.expressionList = new ArrayList<>();
+            this.selectCaseList = new ArrayList<>();
+        }
+    }
+    
+    class SelectCase extends ObjectOfLanguage {
+        private final ObjectOfLanguage keySetExpression;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.SELECTCASE;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return false;
+        }
+
+        public ObjectOfLanguage getKeySetExpression() {
+            return this.keySetExpression;
+        }
+
+        public SelectCase(String name, ObjectOfLanguage nameSpace, ObjectOfLanguage keySetExpression) {
+            super(name, nameSpace);
+            this.keySetExpression = keySetExpression;
+        }
+    }
+
     class Error extends ObjectOfLanguage {
         private ArrayList<IdentifierList> identifierList;
 
@@ -1104,7 +1536,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         public boolean hasIdentifiers() {
@@ -1167,7 +1599,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         public LValue getLValue() {
@@ -1197,7 +1629,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         public LValue getLValue() {
@@ -1246,7 +1678,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         public boolean hasExpression() {
@@ -1281,7 +1713,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         public boolean hasDotPrefix() {
@@ -1357,7 +1789,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         public boolean hasElseStatement() {
@@ -1402,7 +1834,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         public boolean hasArguments() {
@@ -1505,9 +1937,14 @@ class LanguageObject {
             return LObjectKind.SWITCHCASE;
         }
 
+        // Since block statements are scoped and a SwitchCase can optionally have a blockstatement
         @Override
         public boolean isScoped() {
-            return true;
+            if(this.blockStatement == null) {
+                return false;
+            } else {
+                return true;
+            }
         }
 
         public boolean hasBlockStatement() {
@@ -1593,9 +2030,15 @@ class LanguageObject {
             return LObjectKind.TABLEPROPERTY;
         }
 
+        // Four productions for tableproperty, three of which have explicit braces for scoping
+        // but one has an initializer
         @Override
         boolean isScoped() {
-            return this.initializer == null;
+            if(initializer == null) {
+                return true;
+            } else {
+                return initializer.isScoped();
+            }
         }
 
         public boolean hasKeyElementList() {
@@ -1691,7 +2134,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         public Expression getExpression() {
@@ -1713,7 +2156,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         public ActionRef getActionRef() {
@@ -1737,7 +2180,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         public boolean hasArgumentList() {
@@ -1774,7 +2217,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         public ObjectOfLanguage getKeySetExpression() {
@@ -1834,7 +2277,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return initializer.isScoped();
         }
 
         @Override
@@ -1897,7 +2340,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         public boolean hasBitSplice() {
@@ -1916,12 +2359,15 @@ class LanguageObject {
             super(lvalue.getName(), nameSpace);
             this.expression = expression;
             this.secondExpression = null;
+            assert !expression.isScoped();
         }
 
         public LValueExpression(LValue lvalue, Expression expression, Expression secondExpression, ObjectOfLanguage nameSpace) {
             super(lvalue.getName(), nameSpace);
             this.expression = expression;
             this.secondExpression = secondExpression;
+            assert !expression.isScoped();
+            assert !secondExpression.isScoped();
         }
     }
 
@@ -1937,7 +2383,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -1998,7 +2444,7 @@ class LanguageObject {
 
         @Override 
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2040,7 +2486,7 @@ class LanguageObject {
 
         @Override 
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2085,7 +2531,7 @@ class LanguageObject {
 
         @Override 
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2111,6 +2557,7 @@ class LanguageObject {
             this.type = type;
             this.specializedType = null;
             this.expression = expression;
+            assert !expression.isScoped();
         }
 
         public HeaderStackType(SpecializedType specializedType, ObjectOfLanguage nameSpace, Expression expression) {
@@ -2118,6 +2565,7 @@ class LanguageObject {
             this.specializedType = specializedType;
             this.type = null;
             this.expression = expression;
+            assert !expression.isScoped();
         }
     }
 
@@ -2134,7 +2582,7 @@ class LanguageObject {
 
         @Override 
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2143,7 +2591,7 @@ class LanguageObject {
         }
 
         public TupleType(ObjectOfLanguage nameSpace) {
-            super("TUPLE", nameSpace);
+            super(nameSpace);
             this.typeArgumentList = new ArrayList<>();
         }
     }
@@ -2155,7 +2603,7 @@ class LanguageObject {
 
         @Override 
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2212,7 +2660,7 @@ class LanguageObject {
 
         @Override 
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2252,7 +2700,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2273,7 +2721,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2310,7 +2758,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2388,7 +2836,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2491,7 +2939,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return this.isScoped;
         }
 
         @Override
@@ -2521,7 +2969,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2610,7 +3058,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2665,9 +3113,14 @@ class LanguageObject {
         private final ConstantTreeGlobalObjects dontcare; // for dont care
         private boolean isAssignment;
 
+        // since argument can be an expression and an expression can be scoped
         @Override
         public boolean isScoped() {
-            return true;
+            if(dontcare != null) {
+                return false;
+            } else {
+                return expression.isScoped();
+            }
         }
 
         @Override
@@ -2726,12 +3179,16 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
         public LObjectKind getConstructType() {
             return LObjectKind.NAME;
+        }
+
+        public ObjectOfLanguage getNameObject() {
+            return this.name;
         }
 
         public Name(ObjectOfLanguage name, ObjectOfLanguage scope) {
@@ -2743,7 +3200,7 @@ class LanguageObject {
     class OLangString extends ObjectOfLanguage {
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2759,7 +3216,7 @@ class LanguageObject {
     class OLangInteger extends ObjectOfLanguage {
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2791,7 +3248,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2834,17 +3291,17 @@ class LanguageObject {
             return structuredAnnotationBody != null;
         }
 
-        StructuredAnnotationBody getStructuredAnnotationBody() {
+        public StructuredAnnotationBody getStructuredAnnotationBody() {
             return this.structuredAnnotationBody;
         }
 
-        AnnotationBody getAnnotationBody() {
+        public AnnotationBody getAnnotationBody() {
             return this.annotationBody;
         }
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2866,13 +3323,12 @@ class LanguageObject {
     }
     
     class StructuredAnnotationBody extends ObjectOfLanguage {
-        private ArrayList<ObjectOfLanguage> list;
-        private boolean isExpressionList;
-        private boolean isKVList;
+        private final ArrayList<Expression> expressionList;
+        private final ArrayList<KVPair> kvList;
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2880,32 +3336,47 @@ class LanguageObject {
             return LObjectKind.STRUCTUREDANNOTATIONBODY;
         }
 
-        boolean isExpressionList() {
-            return this.isExpressionList;
+        public boolean isExpressionList() {
+            return this.expressionList != null;
         }
 
-        boolean isKVList() {
-            return this.isKVList;
+        public boolean isKVList() {
+            return this.kvList != null;
         }
 
-        ArrayList<ObjectOfLanguage> getList() {
-            return this.list;
+        public ArrayList<Expression> getExpressionList() {
+            return this.expressionList;
         }
 
-        void addToList(ObjectOfLanguage element) {
-            if(this.list.size() != 0 && !this.list.get(0).getClass().equals(element.getClass())) {
-                System.out.println("Different element class error: The list inside Structured Annotation Body is of class: " + this.list.get(0).getClass() + " while the element trying to be added is of class: " + element.getClass());
-                System.exit(1);
+        public ArrayList<KVPair> getKVList() {
+            return this.kvList;
+        }
+
+        public void addToExpressionList(Expression expression) {
+            this.expressionList.add(expression);
+        }
+
+        public boolean hasExpressionList() {
+            return ! this.expressionList.isEmpty();
+        }
+
+        public boolean hasKVList() {
+            return ! this.kvList.isEmpty();
+        }
+
+        public void addToKVList(KVPair kPair) {
+            this.kvList.add(kPair);
+        }
+
+        public StructuredAnnotationBody(ObjectOfLanguage nameSpace, boolean isExpressionList) {
+            super(nameSpace);
+            if(isExpressionList) {
+                this.expressionList = new ArrayList<>();
+                this.kvList = null;
+            } else {
+                this.kvList = new ArrayList<>();
+                this.expressionList = null;
             }
-
-            this.list.add(element);
-        }
-
-        public StructuredAnnotationBody(String name, ObjectOfLanguage nameSpace, ArrayList<ObjectOfLanguage> list, boolean isExpressionList) {
-            super(name, nameSpace);
-            this.list = new ArrayList();
-            this.isExpressionList = isExpressionList;
-            this.isKVList = !isExpressionList;
         }
     }
 
@@ -2927,7 +3398,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2935,14 +3406,14 @@ class LanguageObject {
             return LObjectKind.ANNOTATIONBODY;
         }
 
-        public AnnotationBody(String name, ObjectOfLanguage nameSpace, AnnotationBody annotationBody) {
-            super(name, nameSpace);
+        public AnnotationBody(ObjectOfLanguage nameSpace, AnnotationBody annotationBody) {
+            super(nameSpace);
             this.annotationBody = annotationBody;
             this.annotationToken = null;
         }
 
-        public AnnotationBody(String name, ObjectOfLanguage nameSpace, AnnotationBody annotationBody, String annotationToken) {
-            super(name, nameSpace);
+        public AnnotationBody(ObjectOfLanguage nameSpace, AnnotationBody annotationBody, String annotationToken) {
+            super(nameSpace);
             this.annotationBody = annotationBody;
             this.annotationToken = annotationToken;
         }
@@ -2957,7 +3428,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return false;
         }
 
         @Override
@@ -2976,7 +3447,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return initializer.isScoped();
         }
 
         @Override
@@ -2999,7 +3470,7 @@ class LanguageObject {
 
         @Override
         public boolean isScoped() {
-            return true;
+            return expression.isScoped();
         }
 
         @Override
