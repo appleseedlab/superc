@@ -1,12 +1,12 @@
 package superc.p4parser;
+import java.beans.Expression;
+import java.lang.StackWalker.Option;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-
-import xtc.parser.Transformer.Typer;
 
 // For symbols
 class LanguageObject {
@@ -207,125 +207,126 @@ class LanguageObject {
         return ancestorNameSpace;
     }
     // conditioned callees
+    enum LObjectKind {
+        VARIABLE,
+        FUNCTION,
+        STRUCT,
+        HEADER,
+        CONTROLBLOCK,
+        EXTERNDECLARATION,
+        EXTERNFUNCTIONDECLARATION,
+        METHODPROTOTYPE,
+        FUNCTIONPROTOTYPE,
+        PARAMETER,
+        EXPRESSION,
+        SPECIALIZEDTYPE,
+        HEADERSTACKTYPE,
+        TUPLETYPE,
+        PREFIXEDTYPE,
+        TYPENAME,
+        CONSTRUCTORMETHODPROTOTYPE,
+        TYPEARGUMENT,
+        NAMEDTYPE,
+        INVOKINGEXPRESSION,
+        NAME,
+        ARGUMENT,
+        REALTYPEARGUMENT,
+        CONSTANTVALUE,
+        TYPEREF,
+        KVPAIR,
+        STRUCTUREDANNOTATIONBODY,
+        ANNOTATIONBODY,
+        STRING,
+        OPTINITIALIZER,
+        INITIALIZER,
+        CONTROLTYPE,
+        TYPEPARAMETER,
+        STRUCTFIELD,
+        IDENTIFIERLIST,
+        HEADERTYPE,
+        HEADERUNION,
+        STRUCTTYPE,
+        ENUMDECLARATION,
+        TYPEDEFDECLARATION,
+        PARSERTYPEDECLARATION,
+        PACKAGETYPEDECLARATION,
+        ERROR,
+        MATCHKIND,
+        ASSIGNMENT,
+        METHODCALLSTATEMENT,
+        RETURNSTATEMENT,
+        LVALUE,
+        LVALUEEXPRESSION,
+        CONDITIONALSTATEMENT,
+        DIRECTAPPLICATION,
+        BLOCKSTATEMENT,
+        SWITCHSTATEMENT,
+        SWITCHCASE,
+        TABLEDECLARATION,
+        TABLEPROPERTY,
+        KEYELEMENT,
+        ACTION,
+        ACTIONREF,
+        ENTRY,
+        ACTIONDECLARATION,
+        CONSTANTDECLARATION,
+        FUNCTIONDECLARATION,
+        NONBRACEEXPRESSION,
+        INVOKINGNONBRACEEXPRESSION,
+        INTEGER,
+        VARIABLEDECLARATION,
+        ANNOTATION
+    }
 
     abstract class ObjectOfLanguage {
         private final String name;
         private final ObjectOfLanguage nameSpace;
         abstract boolean isScoped();
         // not making this private to avoid allocating memory since it is not present most times
-        private ArrayList<ObjectOfLanguage> listOfOptConstructorParameters = null;
-
-        boolean isVariable() {
-            return false;
-        }
-
-        boolean isFunction() {
-            return false;
-        }
-
-        boolean isStruct() {
-            return false;
-        }
-
-        boolean isHeader() {
-            return false;
-        }
-
-        boolean isControlBlock() {
-            return false;
-        }
-
-        boolean isExternDeclaration() {
-            return false;
-        }
-
-        boolean isExternFunctionDeclaration() {
-            return false;
-        }
-
-        boolean isMethodPrototype() {
-            return false;
-        }
-
-        boolean isFunctionPrototype() {
-            return false;
-        }
+        private ArrayList<Parameter> optConstructorParameters = null;
+        private ArrayList<Annotation> optAnnotations = null;
+        private ArrayList<TypeParameter> optTypeParameters = null;
+        // abstract method to return respective enum
+        abstract LObjectKind getConstructType();
 
         boolean hasAssociatedType() {
             return false;
         }
 
-        boolean isParameter() {
-            return false;
-        }
-
-        boolean isExpression() {
-            return false;
-        }
-
-        boolean isSpecializedType() {
-            return false;
-        }
-
-        boolean isHeaderStackType() {
-            return false;
-        }
-
-        boolean isTupleType() {
-            return false;
-        }
-
-        boolean isPrefixedType() {
-            return false;
-        }
-
-        boolean isTypeName() {
-            return false;
-        }
-
-        boolean isTypeRef() {
-            return false;
-        }
-
-        boolean isConstructorMethodPrototype() {
-            return false;
-        }
-
-        boolean isTypeArgument() {
-            return false;
-        }
-
-        boolean isNamedType() {
-            return false;
-        }
-
-        boolean isInvokingExpression() {
-            return false;
-        }
-
-        boolean isName() {
-            return false;
-        }
-
-        boolean isArgument() {
-            return false;
-        }
-
-        boolean isRealTypeArgument() {
-            return false;
-        }
-
-        // For GLOBAL and UNDEFINED variables
-        boolean isConstantValue() {
-            return false;
-        }
-
         public String getName() {
+            if(this.name == null) {
+                System.err.println(this.getConstructType().toString() + " construct does not have a name associated with it.");
+            }
+
             return this.name;
         }
 
+        public boolean hasName() {
+            return this.name != null;
+        }
+
         public boolean hasOptConstructorParameters() {
-            return (listOfOptConstructorParameters != null);
+            return (optConstructorParameters != null);
+        }
+
+        public boolean hasOptAnnotations() {
+            return optAnnotations != null;
+        }
+
+        void addOptTypeParameters(TypeParameter typeParameter) {
+            if(this.optTypeParameters == null) {
+                this.optTypeParameters = new ArrayList<>();
+            }
+
+            this.optTypeParameters.add(typeParameter);
+        }
+
+        boolean hasOptTypeParameters() {
+            return !this.optTypeParameters.isEmpty();
+        }
+
+        ArrayList<TypeParameter> getOptTypeParameters() {
+            return this.optTypeParameters;
         }
 
         public ObjectOfLanguage getNameSpace() {
@@ -340,22 +341,34 @@ class LanguageObject {
             return this.nameSpace.name;
         }
 
-        public ArrayList<ObjectOfLanguage> getListOfOptConstructorParameters() {
-            return this.listOfOptConstructorParameters;
+        public ArrayList<Parameter> getOptConstructorParameters() {
+            return this.optConstructorParameters;
         }
 
-        public void addToOptConstructorParametersList(ObjectOfLanguage parameter) {
-            if(listOfOptConstructorParameters == null) {
-                this.listOfOptConstructorParameters = new ArrayList<>();
+        public void addToOptConstructorParametersList(Parameter parameter) {
+            if(optConstructorParameters == null) {
+                this.optConstructorParameters = new ArrayList<>();
             }
 
-            this.listOfOptConstructorParameters.add(parameter);
+            this.optConstructorParameters.add(parameter);
+        }
+
+        public void addToOptAnnotations(Annotation annotation) {
+            if (optAnnotations == null) {
+                this.optAnnotations = new ArrayList<>();
+            }
+
+            this.optAnnotations.add(annotation);
         }
 
         public ObjectOfLanguage(String name, ObjectOfLanguage nameSpace) {
             this.name = name;
             this.nameSpace = nameSpace;
-            this.listOfOptConstructorParameters = new ArrayList<>();
+        }
+
+        public ObjectOfLanguage(ObjectOfLanguage nameSpace) {
+            this.name = null;
+            this.nameSpace = nameSpace;
         }
 
         public String toString(ObjectOfLanguage global_scope) {
@@ -515,13 +528,13 @@ class LanguageObject {
      */
     class ConstantTreeGlobalObjects extends ObjectOfLanguage {
         @Override
-        boolean isConstantValue() {
-            return true;
+        public LObjectKind getConstructType() {
+            return LObjectKind.CONSTANTVALUE;
         }
 
         @Override
-        boolean isScoped() {
-            return false;
+        public boolean isScoped() {
+            return true;
         }
 
         @Override
@@ -538,18 +551,63 @@ class LanguageObject {
     }
 
     class ControlDeclaration extends ObjectOfLanguage {
+        ControlTypeDeclaration controlTypeDeclaration;
+
         @Override 
-        boolean isControlBlock() {
-            return true;
+        public LObjectKind getConstructType() {
+            return LObjectKind.CONTROLBLOCK;
         }
 
         @Override
-        boolean isScoped() {
+        public boolean isScoped() {
             return true;
         }
 
-        public ControlDeclaration(String name, ObjectOfLanguage scope) {
-            super(name, scope);
+        public ControlDeclaration(String name, ObjectOfLanguage nameSpace, ControlTypeDeclaration controlTypeDeclaration) {
+            super(name, nameSpace);
+            this.controlTypeDeclaration = controlTypeDeclaration;
+        }
+    }
+
+    class ControlTypeDeclaration extends ObjectOfLanguage {
+        private ArrayList<Parameter> parameterList;
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.CONTROLTYPE;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasParameters() {
+            return !this.parameterList.isEmpty();
+        }
+
+        public void addParameter(Parameter parameter) {
+            this.parameterList.add(parameter);
+        }
+
+        public ControlTypeDeclaration(String name, ObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+            this.parameterList = new ArrayList<>();
+        }
+    }
+
+    class TypeParameter extends ObjectOfLanguage {
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.TYPEPARAMETER;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        TypeParameter(String name, ObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
         }
     }
 
@@ -567,12 +625,13 @@ class LanguageObject {
         private final ArrayList<MethodPrototype> methodPrototypes;
 
         @Override
-        boolean isExternDeclaration() {
-            return true;
+        public LObjectKind getConstructType() {
+            return LObjectKind.EXTERNDECLARATION;
         }
 
+        // technically scoped for "optAnnotations EXTERN name SEMICOLON" production as well
         @Override
-        boolean isScoped() {
+        public boolean isScoped() {
             return true;
         }
 
@@ -588,18 +647,22 @@ class LanguageObject {
         public void addMethodPrototype(MethodPrototype newMethodPrototype) {
             this.methodPrototypes.add(newMethodPrototype);
         }
+
+        public boolean hasMethodPrototypes() {
+            return !this.methodPrototypes.isEmpty();
+        }
     }
 
     class ExternFunctionDeclaration extends ObjectOfLanguage {
         private final FunctionPrototype functionPrototype;
 
         @Override
-        boolean isScoped() {
-            return false;
+        public LObjectKind getConstructType() {
+            return LObjectKind.EXTERNFUNCTIONDECLARATION;
         }
 
         @Override
-        boolean isExternDeclaration() {
+        public boolean isScoped() {
             return true;
         }
 
@@ -607,23 +670,107 @@ class LanguageObject {
             return this.functionPrototype;
         }
 
-        public ExternFunctionDeclaration(String name, ObjectOfLanguage nameSpace, FunctionPrototype functionPrototype) {
-            super(name, nameSpace);
+        public ExternFunctionDeclaration(ObjectOfLanguage nameSpace, FunctionPrototype functionPrototype) {
+            super(functionPrototype.getName(), nameSpace);
             this.functionPrototype = functionPrototype;
         }
     }
 
     class FunctionPrototype extends ObjectOfLanguage {
-        private final ObjectOfLanguage returnType;
         private final ArrayList<Parameter> parameterList;
+        private final TypeOrVoid typeOrVoid;
 
         @Override
-        boolean isScoped() {
-            return false;
+        public LObjectKind getConstructType() {
+            return LObjectKind.FUNCTIONPROTOTYPE;
         }
 
         @Override
-        boolean isFunctionPrototype() {
+        public boolean isScoped() {
+            return true;
+        }
+
+        public ArrayList<Parameter> getParameters() {
+            return this.parameterList;
+        }
+
+        TypeOrVoid getReturnType() {
+            return this.typeOrVoid;
+        }
+
+        // Right now we are assuming that the invoker has already created or retrieved the type object
+        // and will pass it to us
+        public FunctionPrototype(String name, ObjectOfLanguage nameSpace, TypeOrVoid typeOrVoid) {
+            super(name, nameSpace);
+            parameterList = new ArrayList<>();
+            this.typeOrVoid = typeOrVoid;
+        }
+    }
+
+    class TypeOrVoid extends ObjectOfLanguage {
+        private TypeRef typeRef;
+        private ConstantTreeGlobalObjects voidVar;
+        private ObjectOfLanguage identifier;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.PARAMETER;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        boolean hasAssociatedType() {
+            return typeRef != null;
+        }
+
+        boolean isConstantTreeGlobalObjects() {
+            return voidVar != null;
+        }
+
+        boolean isTypeRef() {
+            return typeRef != null;
+        }
+
+        boolean isIdentifier() {
+            return identifier != null;
+        }
+
+        TypeOrVoid(TypeRef typeRef, ObjectOfLanguage nameSpace) {
+            super(typeRef.getName(), nameSpace);
+            this.typeRef = typeRef;
+            this.identifier = null;
+            this.voidVar = null;
+        }
+
+        TypeOrVoid(ObjectOfLanguage identifier, ObjectOfLanguage nameSpace) {
+            super(identifier.getName(), nameSpace);
+            this.identifier = identifier;
+            this.typeRef = null;
+            this.voidVar = null;
+        }
+
+        TypeOrVoid(ConstantTreeGlobalObjects voidVar, ObjectOfLanguage nameSpace) {
+            super(voidVar.getName(), nameSpace);
+            this.identifier = null;
+            this.typeRef = null;
+            this.voidVar = voidVar;
+        }
+
+    }
+
+    class StructField extends ObjectOfLanguage {
+        private final TypeRef type;
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.STRUCTFIELD;
+        }
+
+        @Override
+        public boolean isScoped() {
             return true;
         }
 
@@ -632,36 +779,1164 @@ class LanguageObject {
             return true;
         }
 
-        public ArrayList<Parameter> getParameters() {
+        public TypeRef getType() {
+            return this.type;
+        }
+
+        public StructField(String name, ObjectOfLanguage nameSpace, TypeRef typeRef) {
+            super(name, nameSpace);
+            this.type = typeRef;
+        }
+    }
+
+    class IdentifierList extends ObjectOfLanguage {
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.IDENTIFIERLIST;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public IdentifierList(String name, ObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+        }
+    }
+
+    class SpecifiedIdentifier extends ObjectOfLanguage {
+        // Initializer is just expression
+        private final Expression initializer;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.IDENTIFIERLIST;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public Expression getInitializer() {
+            return this.initializer;
+        }
+
+        public SpecifiedIdentifier(String name, ObjectOfLanguage nameSpace, Expression initializer) {
+            super(name, nameSpace);
+            this.initializer = initializer;
+        }
+    }
+
+    class HeaderType extends ObjectOfLanguage {
+        private final ArrayList<StructField> structFieldList;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.HEADERTYPE;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        ArrayList<StructField> getStructFieldList() {
+            return this.structFieldList;
+        }
+
+        public boolean hasStructFieldList() {
+            return !this.structFieldList.isEmpty();
+        }
+
+        public void addToStructFieldList(StructField structField) {
+            this.structFieldList.add(structField);
+        }
+
+        HeaderType(String name, ObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+            this.structFieldList = new ArrayList<>();
+        }
+    }
+
+    class HeaderUnion extends ObjectOfLanguage {
+        private final ArrayList<StructField> structFieldList;
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.HEADERUNION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        ArrayList<StructField> getStructFieldList() {
+            return this.structFieldList;
+        }
+
+        public boolean hasStructFieldList() {
+            return !this.structFieldList.isEmpty();
+        }
+
+        public void addToStructFieldList(StructField structField) {
+            this.structFieldList.add(structField);
+        }
+
+        HeaderUnion(String name, ObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+            this.structFieldList = new ArrayList<>();
+        }
+    }
+
+    class StructType extends ObjectOfLanguage {
+        private final ArrayList<StructField> structFieldList;
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.STRUCTTYPE;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        ArrayList<StructField> getStructFieldList() {
+            return this.structFieldList;
+        }
+
+        public boolean hasStructFieldList() {
+            return !this.structFieldList.isEmpty();
+        }
+
+        public void addToStructFieldList(StructField structField) {
+            this.structFieldList.add(structField);
+        }
+
+        StructType(String name, ObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+            this.structFieldList = new ArrayList<>();
+        }
+    }
+
+    class EnumDeclaration extends ObjectOfLanguage {
+        // normal enums and serializable enums that have an associated type
+        private final TypeRef type;
+        private final ArrayList<IdentifierList> identifierList;
+        private final ArrayList<SpecifiedIdentifier> specifiedIdentifierList;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.ENUMDECLARATION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        boolean hasAssociatedType() {
+            return this.type != null;
+        }
+
+        public TypeRef getType() {
+            return this.type;
+        }
+
+        public boolean hasIdentifiersList() {
+            return (this.identifierList != null && 
+                    !this.identifierList.isEmpty());
+        }
+
+        public boolean hasSpecifiedIdentifiersList() {
+            return (this.specifiedIdentifierList != null 
+                    && !this.specifiedIdentifierList.isEmpty());
+        }
+
+        public void addToIdentifierList(IdentifierList identifier) {
+            this.identifierList.add(identifier);
+        }
+
+        public void addToSpecifiedIdentifierList(SpecifiedIdentifier identifier) {
+            this.specifiedIdentifierList.add(identifier);
+        }
+
+        public ArrayList<IdentifierList> getIdentifierList() {
+            return this.identifierList;
+        }
+
+        public ArrayList<SpecifiedIdentifier> getSpecifiedIdentifierList() {
+            return this.specifiedIdentifierList;
+        }
+
+        public EnumDeclaration(String name, ObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+            this.type = null;
+            this.identifierList = new ArrayList<>();
+            this.specifiedIdentifierList = null;
+        }
+
+        public EnumDeclaration(String name, ObjectOfLanguage nameSpace, TypeRef type) {
+            super(name, nameSpace);
+            this.type = type;
+            this.specifiedIdentifierList = new ArrayList<>();
+            this.identifierList = null;
+        }
+    }
+
+    class TypeDefDeclaration extends ObjectOfLanguage {
+        // typdef vs type -> difference is made in parsing context where both values
+        // are stored in symtab for TYPEDEF while only newly declared variable name is stored
+        // in symtab for TYPE
+        private final ObjectOfLanguage type;
+        private final boolean isTypeDef;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.TYPEDEFDECLARATION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        boolean hasAssociatedType() {
+            return true;
+        }
+
+        public ObjectOfLanguage getType() {
+            return this.type;
+        }
+
+        public boolean isTypeDef() {
+            return this.isTypeDef;
+        }
+
+        public TypeDefDeclaration(String name, ObjectOfLanguage nameSpace, ObjectOfLanguage type, Boolean typeDef) {
+            super(name, nameSpace);
+
+            Class typeClass = type.getClass();
+            if(typeClass == HeaderType.class || typeClass == StructType.class
+               || typeClass == EnumDeclaration.class || typeClass == TypeRef.class) {
+               } else {
+                    System.err.println("Error: Type used in TypeDef for " + name + " has to be of type either TypeRef or DerivedTypeDeclaration");
+                    System.exit(1);
+            }
+
+            this.type = type;
+            this.isTypeDef = typeDef;
+        }
+    }
+
+    class ParserTypeDeclaration extends ObjectOfLanguage {
+        private final ArrayList<Parameter> parameterList;
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.PARSERTYPEDECLARATION;
+        }
+
+        @Override 
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasParameters() {
+            return !this.parameterList.isEmpty();
+        }
+
+        public void addToParameterList(Parameter parameter) {
+            this.parameterList.add(parameter);
+        }
+
+        public ArrayList<Parameter> getParameterList() {
             return this.parameterList;
         }
 
-        public ObjectOfLanguage getReturnType() {
-            return this.returnType;
+        public ParserTypeDeclaration(String name, ObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+            this.parameterList = new ArrayList();
+        }
+    }
+
+    class PackageTypeDeclaration extends ObjectOfLanguage {
+        private final ArrayList<Parameter> parameterList;
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.PACKAGETYPEDECLARATION;
         }
 
-        // Right now we are assuming that the invoker has already created or retrieved the type object
-        // and will pass it to us
-        public FunctionPrototype(String name, ObjectOfLanguage nameSpace, ObjectOfLanguage returnType) {
+        @Override 
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasParameters() {
+            return !this.parameterList.isEmpty();
+        }
+
+        public void addToParameterList(Parameter parameter) {
+            this.parameterList.add(parameter);
+        }
+
+        public ArrayList<Parameter> getParameterList() {
+            return this.parameterList;
+        }
+
+        public PackageTypeDeclaration(String name, ObjectOfLanguage nameSpace) {
             super(name, nameSpace);
-            this.returnType = returnType;
-            parameterList = new ArrayList<>();
+            this.parameterList = new ArrayList();
+        }
+    }
+
+    class Error extends ObjectOfLanguage {
+        private ArrayList<IdentifierList> identifierList;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.ERROR;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasIdentifiers() {
+            return !this.identifierList.isEmpty();
+        }
+
+        public void addToIdentifierList(IdentifierList identifier) {
+            this.identifierList.add(identifier);
+        }
+
+        public ArrayList<IdentifierList> getIdentifierList() {
+            return this.identifierList;
+        }
+
+        public Error(String name, ObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+            this.identifierList = new ArrayList<>();
+        }
+    }
+
+    class MatchKind extends ObjectOfLanguage {
+        private ArrayList<IdentifierList> identifierList;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.MATCHKIND;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasIdentifiers() {
+            return !this.identifierList.isEmpty();
+        }
+
+        public void addToIdentifierList(IdentifierList identifier) {
+            this.identifierList.add(identifier);
+        }
+
+        public ArrayList<IdentifierList> getIdentifierList() {
+            return this.identifierList;
+        }
+
+        public MatchKind(ObjectOfLanguage nameSpace) {
+            super("match_kind", nameSpace);
+            this.identifierList = new ArrayList<>();
+        }
+    }
+
+    class Assignment extends ObjectOfLanguage {
+        private final LValue lvalue;
+        private final Expression expression;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.ASSIGNMENT;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public LValue getLValue() {
+            return this.lvalue;
+        }
+
+        public Expression getExpression() {
+            return this.expression;
+        }
+
+        public Assignment(String name, ObjectOfLanguage nameSpace, LValue lvalue, Expression expression) {
+            super(name, nameSpace);
+            this.lvalue = lvalue;
+            this.expression = expression;
+        }
+    }
+
+    class MethodCallStatement extends ObjectOfLanguage {
+        private final LValue lvalue;
+        private final ArrayList<Argument> argumentList;
+        private final ArrayList<TypeArgument> typeArgumentList;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.METHODCALLSTATEMENT;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public LValue getLValue() {
+            return this.lvalue;
+        }
+
+        public boolean hasArgumentList() {
+            return this.argumentList != null;
+        }
+
+        public ArrayList<Argument> getArgumentList() {
+            return this.argumentList;
+        }
+
+        public void addToArgumentList(Argument argument) {
+            this.argumentList.add(argument);
+        }
+
+        public boolean hasTypeArgumentList() {
+            return this.typeArgumentList != null;
+        }
+
+        public ArrayList<TypeArgument> getTypeArgumentList() {
+            return this.typeArgumentList;
+        }
+
+        public void addToArgumentList(TypeArgument argument) {
+            this.typeArgumentList.add(argument);
+        }
+
+        public MethodCallStatement(LValue lvalue, ObjectOfLanguage nameSpace) {
+            super(lvalue.getName(), nameSpace);
+            this.lvalue = lvalue;
+            this.argumentList = new ArrayList<>();
+            this.typeArgumentList = new ArrayList<>();
+        }
+    }
+
+    class ReturnStatement extends ObjectOfLanguage {
+        private final Expression expression;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.RETURNSTATEMENT;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasExpression() {
+            return this.expression != null;
+        }
+
+        public Expression getExpression() {
+            return this.expression;
+        }
+
+        public ReturnStatement(ObjectOfLanguage nameSpace) {
+            super("return", nameSpace);
+            this.expression = null;
+        }
+
+        public ReturnStatement(ObjectOfLanguage nameSpace, Expression expression) {
+            super("return", nameSpace);
+            this.expression = expression;
+        }
+    }
+
+    class LValue extends ObjectOfLanguage {
+        private final Name associatedValue;
+        private final LValueExpression lvalueExpression;
+        private boolean hasDotPrefix;
+        private LValue recursiveLValue;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.LVALUE;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasDotPrefix() {
+            return this.hasDotPrefix;
+        }
+
+        public boolean hasAssociatedValue() {
+            return this.associatedValue != null;
+        }
+
+        public ObjectOfLanguage getAssociatedValue() {
+            return this.associatedValue;
+        }
+
+        public boolean hasLValueExpression() {
+            return this.lvalueExpression != null;
+        }
+
+        public LValueExpression getLValueExpression() {
+            return this.lvalueExpression;
+        }
+
+        public boolean hasRecursiveLValue() {
+            return this.recursiveLValue != null;
+        }
+
+        public LValue getLValueRecursive() {
+            return this.recursiveLValue;
+        }
+
+        public LValue(String prefixedNonTypeName, boolean hasDotPrefix, ObjectOfLanguage nameSpace) {
+            super(prefixedNonTypeName, nameSpace);
+            this.associatedValue = null;
+            this.hasDotPrefix = hasDotPrefix;
+            this.lvalueExpression = null;
+            this.recursiveLValue = null;
+        }
+
+        public LValue(Name name, LValue recursiveLvalue, ObjectOfLanguage nameSpace) {
+            super(recursiveLvalue.getName(), nameSpace);
+            this.associatedValue = name;
+            this.lvalueExpression = null;
+            this.hasDotPrefix = false;
+            this.recursiveLValue = recursiveLvalue;
+        }
+
+        public LValue(LValueExpression lvalueExpression, LValue recursiveLvalue, ObjectOfLanguage nameSpace) {
+            super(recursiveLvalue.getName(), nameSpace);
+            this.associatedValue = null;
+            this.lvalueExpression = lvalueExpression;
+            this.hasDotPrefix = false;
+            this.recursiveLValue = recursiveLvalue;
+        }
+
+        public LValue(ObjectOfLanguage nameSpace) {
+            super("this", nameSpace);
+            this.associatedValue = null;
+            this.lvalueExpression = null;
+            this.hasDotPrefix = false;
+            this.recursiveLValue = null;
+        }
+    }
+
+    class ConditionalStatement extends ObjectOfLanguage {
+        private final Expression expresion;
+        private final ObjectOfLanguage ifStatement;
+        private final ObjectOfLanguage elseStatement;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.CONDITIONALSTATEMENT;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasElseStatement() {
+            return this.elseStatement != null;
+        }
+
+        public Expression getExpression() {
+            return this.expresion;
+        }
+
+        public ObjectOfLanguage getIfStatement() {
+            return this.ifStatement;
+        }
+
+        public ObjectOfLanguage getElseStatement() {
+            return this.elseStatement;
+        }
+
+        public ConditionalStatement(Expression expression, ObjectOfLanguage ifStatement, ObjectOfLanguage nameSpace) {
+            super(expression.getName(), nameSpace);
+            this.ifStatement = ifStatement;
+            this.elseStatement = null;
+            this.expresion = expression;
+        }
+
+        public ConditionalStatement(Expression expression, ObjectOfLanguage ifStatement, ObjectOfLanguage elseStatement, ObjectOfLanguage nameSpace) {
+            super(expression.getName(), nameSpace);
+            this.ifStatement = ifStatement;
+            this.elseStatement = elseStatement;
+            this.expresion = expression;
+        }
+    }
+
+    class DirectApplication extends ObjectOfLanguage {
+        private final ObjectOfLanguage invokingObject;
+        private final ArrayList<Argument> argumentList;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.DIRECTAPPLICATION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasArguments() {
+            return !this.argumentList.isEmpty();
+        }
+
+        public ArrayList<Argument> getArgumentList() {
+            return this.argumentList;
+        }
+
+        public void addToArgumentList(Argument argument) {
+            this.argumentList.add(argument);
+        }
+
+        public ObjectOfLanguage getInvokingObject() {
+            return this.invokingObject;
+        }
+
+        public DirectApplication(ObjectOfLanguage invokingType, ObjectOfLanguage nameSpace) {
+            super(invokingType.getName(), nameSpace);
+            this.invokingObject = invokingType;
+            this.argumentList = new ArrayList<>();
+        }
+    }
+
+    class BlockStatement extends ObjectOfLanguage {
+        private final ArrayList<ObjectOfLanguage> statmentOrDeclList;
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.BLOCKSTATEMENT;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasStatementOrDeclList() {
+            return !this.statmentOrDeclList.isEmpty();
+        }
+
+        public ArrayList<ObjectOfLanguage> getStatementOrDeclList() {
+            return this.statmentOrDeclList;
+        }
+
+        public void addToStatementOrDeclList(ObjectOfLanguage obj) {
+            this.statmentOrDeclList.add(obj);
+        }
+
+        public BlockStatement(ObjectOfLanguage nameSpace) {
+            super("block_statement", nameSpace);
+            this.statmentOrDeclList = new ArrayList<>();
+        }
+    }
+
+    class SwitchStatement extends ObjectOfLanguage {
+        private final Expression expression;
+        private final ArrayList<SwitchCase> switchCases;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.SWITCHSTATEMENT;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasSwitchCases() {
+            return !this.switchCases.isEmpty();
+        }
+
+        public ArrayList<SwitchCase> getSwitchCases() {
+            return this.switchCases;
+        }
+
+        public void addToSwitchCases(SwitchCase switchCase) {
+            this.switchCases.add(switchCase);
+        }
+
+        public Expression getExpression() {
+            return this.expression;
+        }
+
+        public SwitchStatement(Expression expression, ObjectOfLanguage nameSpace) {
+            super("switch", nameSpace);
+            this.expression = expression;
+            this.switchCases = new ArrayList<>();
+        }
+    }
+
+    class SwitchCase extends ObjectOfLanguage {
+        private final NonBraceExpression nonBraceExpression;
+        // Switch label -> can either be DEFAULT or NonBraceExpression
+        private final BlockStatement blockStatement;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.SWITCHCASE;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasBlockStatement() {
+            return this.blockStatement != null;
+        }
+
+        public BlockStatement getBlockStatement() {
+            return this.blockStatement;
+        }
+
+        public boolean hasNonBraceExpression() {
+            return this.nonBraceExpression != null;
+        }
+
+        public NonBraceExpression getNonBraceExpression() {
+            return this.nonBraceExpression;
+        }
+
+        public SwitchCase(ObjectOfLanguage nameSpace) {
+            super("default", nameSpace);
+            this.blockStatement = null;
+            this.nonBraceExpression = null;
+        }
+
+        public SwitchCase(BlockStatement blockStatement, ObjectOfLanguage nameSpace) {
+            super("default", nameSpace);
+            this.blockStatement = blockStatement;
+            this.nonBraceExpression = null;
+        }
+
+        public SwitchCase(NonBraceExpression nonBraceExpression, ObjectOfLanguage nameSpace) {
+            super(nonBraceExpression.getName(), nameSpace);
+            this.blockStatement = null;
+            this.nonBraceExpression = nonBraceExpression;
+        }
+
+        public SwitchCase(BlockStatement blockStatement, NonBraceExpression nonBraceExpression, ObjectOfLanguage nameSpace) {
+            super(nonBraceExpression.getName(), nameSpace);
+            this.blockStatement = blockStatement;
+            this.nonBraceExpression = nonBraceExpression;
+        }
+    }
+
+    class TableDeclaration extends ObjectOfLanguage {
+        private final ArrayList<TableProperty> tablePropertyList;
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.TABLEDECLARATION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasTableProperties() {
+            assert !tablePropertyList.isEmpty() : "Trying to retrieve list of table properties before parsing and adding them";
+            return true;
+        }
+
+        public ArrayList<TableProperty> getTableProperties() {
+            return this.tablePropertyList;
+        }
+
+        public void addToTablePropertyList(TableProperty tp) {
+            this.tablePropertyList.add(tp);
+        }
+
+        public TableDeclaration(String name, ObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+            this.tablePropertyList = new ArrayList<>();
+        }
+    }
+
+    class TableProperty extends ObjectOfLanguage {
+        private final ArrayList<KeyElement> keyElementList;
+        private final ArrayList<Action> actionList;
+        private final ArrayList<Entry> entriesList;
+        private final Initializer initializer;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.TABLEPROPERTY;
+        }
+
+        @Override
+        boolean isScoped() {
+            return this.initializer == null;
+        }
+
+        public boolean hasKeyElementList() {
+            return !this.keyElementList.isEmpty();
+        }
+
+        public boolean hasActionList() {
+            return !this.actionList.isEmpty();
+        }
+
+        public boolean hasEntriesList() {
+            return !this.entriesList.isEmpty();
+        }
+
+        public boolean hasInitializer() {
+            return this.initializer != null;
+        }
+
+        public void addToKeyElementList(KeyElement element) {
+            this.keyElementList.add(element);
+        }
+
+        public void addToActionList(Action element) {
+            this.actionList.add(element);
+        }
+
+        public void addToEntriesList(Entry element) {
+            this.entriesList.add(element);
+        }
+
+        public ArrayList<KeyElement> getKeyElementList() {
+            return this.keyElementList;
+        }
+
+        public ArrayList<Action> getActionList() {
+            return this.actionList;
+        }
+
+        public ArrayList<Entry> getEntriesList() {
+            return this.entriesList;
+        }
+
+        public Initializer getInitializer() {
+            return this.initializer;
+        }
+
+        public TableProperty(String start, ObjectOfLanguage nameSpace) {
+            super("table_property", nameSpace);
+            switch(start) {
+                case "key":
+                    this.keyElementList = new ArrayList<>();
+                    this.actionList = null;
+                    this.entriesList = null;
+                    this.initializer = null;
+                    break;
+                case "actions":
+                    this.keyElementList = null;
+                    this.actionList = new ArrayList<>();
+                    this.entriesList = null;
+                    this.initializer = null;
+                    break;
+                case "entries":
+                    this.keyElementList = null;
+                    this.actionList = null;
+                    this.entriesList = new ArrayList<>();
+                    this.initializer = null;
+                    break;
+                default:
+                    System.err.print("Please passed in a valid value for table property");
+                    System.exit(1);
+                    this.keyElementList = null;
+                    this.actionList = null;
+                    this.entriesList = null;
+                    this.initializer = null;
+            }
+        }
+
+        public TableProperty(ObjectOfLanguage potentialName, Initializer initializer, ObjectOfLanguage nameSpace) {
+            super(potentialName.getName(), nameSpace);
+            this.initializer = initializer;
+            this.keyElementList = null;
+            this.actionList = null;
+            this.entriesList = null;
+        }
+    }
+
+    class KeyElement extends ObjectOfLanguage {
+        private final Expression expression;
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.KEYELEMENT;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public Expression getExpression() {
+            return this.expression;
+        }
+
+        public KeyElement(String name, Expression expression, ObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+            this.expression = expression;
+        }
+    }
+
+    class Action extends ObjectOfLanguage {
+        private final ActionRef actionRef;
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.ACTION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public ActionRef getActionRef() {
+            return this.actionRef;
+        }
+
+        public Action(ActionRef actionRef, ObjectOfLanguage nameSpace) {
+            super("action", nameSpace);
+            this.actionRef = actionRef;
+        }
+    }
+
+    class ActionRef extends ObjectOfLanguage {
+        private final ArrayList<Argument> argumentList;
+        private final boolean hasDotPrefix;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.ACTIONREF;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasArgumentList() {
+            return !this.argumentList.isEmpty();
+        }
+
+        public void addToArgumentList(Argument argument) {
+            this.argumentList.add(argument);
+        }
+
+        public ArrayList<Argument> getArgumentList() {
+            return this.argumentList;
+        }
+
+        public boolean hasDotPrefix() {
+            return this.hasDotPrefix;
+        }
+
+        public ActionRef(String prefixedNonTypeName, boolean hasDotPrefix, ObjectOfLanguage nameSpace) {
+            super(prefixedNonTypeName, nameSpace);
+            this.hasDotPrefix = hasDotPrefix;
+            this.argumentList = new ArrayList<>();
+        }
+    }
+
+    class Entry extends ObjectOfLanguage {
+        private final ObjectOfLanguage keySetExpression;
+        private final ActionRef actionRef;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.ENTRY;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public ObjectOfLanguage getKeySetExpression() {
+            return this.keySetExpression;
+        }
+
+        public ActionRef getActionRef() {
+            return this.actionRef;
+        }
+
+        public Entry(ObjectOfLanguage keySet, ActionRef actionRef, ObjectOfLanguage nameSpace) {
+            super("entry", nameSpace);
+            this.actionRef = actionRef;
+            this.keySetExpression = keySet;
+        }
+    }
+
+    class ActionDeclaration extends ObjectOfLanguage {
+        private final ArrayList<Parameter> parameterList;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.ACTIONDECLARATION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public void addParameter(Parameter parameter) {
+            parameterList.add(parameter);
+        }
+
+        public ArrayList<Parameter> getParameterList() {
+            return this.parameterList;
+        }
+
+        public boolean hasParameterList() {
+            return !this.parameterList.isEmpty();
+        }
+
+        public ActionDeclaration(String name, ObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+            this.parameterList = new ArrayList<>();
+        }
+    }
+
+    class ConstantDeclaration extends ObjectOfLanguage {
+        private final TypeRef type;
+        private final Initializer initializer;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.CONSTANTDECLARATION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        boolean hasAssociatedType() {
+            return true;
+        }
+
+        public TypeRef getType() {
+            return this.type;
+        }
+
+        public Initializer getInitializer() {
+            return this.initializer;
+        }
+
+        public ConstantDeclaration(String name, TypeRef type, Initializer initializer, ObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+            this.type = type;
+            this.initializer = initializer;
+        }
+    }
+
+    class FunctionDeclaration extends ObjectOfLanguage {
+        private final FunctionPrototype functionPrototype;
+        private final ObjectOfLanguage blockStatement;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.FUNCTIONDECLARATION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public FunctionPrototype getFunctionPrototype() {
+            return this.functionPrototype;
+        }
+
+        public ObjectOfLanguage getBlockStatement() {
+            return this.blockStatement;
+        }
+
+        public FunctionDeclaration(String name, ObjectOfLanguage nameSpace, FunctionPrototype functionPrototype, ObjectOfLanguage blockStatement) {
+            super(name, nameSpace);
+            this.functionPrototype = functionPrototype;
+            this.blockStatement = blockStatement;
+        }
+    }
+
+    class LValueExpression extends ObjectOfLanguage {
+        private final Expression expression;
+        private final Expression secondExpression;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.LVALUEEXPRESSION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public boolean hasBitSplice() {
+            return this.secondExpression != null;
+        }
+
+        public Expression getExpression() {
+            return this.expression;
+        }
+
+        public Expression getSecondExpression() {
+            return this.secondExpression;
+        }
+
+        public LValueExpression(LValue lvalue, Expression expression,ObjectOfLanguage nameSpace) {
+            super(lvalue.getName(), nameSpace);
+            this.expression = expression;
+            this.secondExpression = null;
+        }
+
+        public LValueExpression(LValue lvalue, Expression expression, Expression secondExpression, ObjectOfLanguage nameSpace) {
+            super(lvalue.getName(), nameSpace);
+            this.expression = expression;
+            this.secondExpression = secondExpression;
         }
     }
 
     class Parameter extends ObjectOfLanguage {
         private final TypeRef type;
-        // private final Expression assignedExpression;
-        private final boolean hasAssignedExpression;
+        private final Expression assignedExpression;
         private final ConstantTreeGlobalObjects direction;
 
         @Override 
-        boolean isScoped() {
-            return false;
+        public LObjectKind getConstructType() {
+            return LObjectKind.PARAMETER;
         }
 
         @Override
-        boolean isParameter() {
+        public boolean isScoped() {
             return true;
         }
 
@@ -671,16 +1946,12 @@ class LanguageObject {
         }
 
         boolean hasAssignedExpression() {
-            return hasAssignedExpression;
+            return (assignedExpression != null);
         }
 
-        // public void setAssignedExpression(Expression expression) {
-        //     assignedExpression = expression;
-        // }
-
-        // public Expression getAssignedExpression() {
-        //     return this.assignedExpression;
-        // }
+        public Expression getAssignedExpression() {
+            return this.assignedExpression;
+        }
 
         public TypeRef getType() {
             return this.type;
@@ -695,22 +1966,21 @@ class LanguageObject {
         public Parameter(String name, ObjectOfLanguage nameSpace, TypeRef type, ConstantTreeGlobalObjects direction) {
             super(name, nameSpace);
             this.type = type;
-            hasAssignedExpression = false;
             this.direction = direction;
+            this.assignedExpression = null;
         }
 
-        // public Parameter(String name, ObjectOfLanguage nameSpace, TypeRef type, ConstantTreeGlobalObjects direction, Expression assignedExpression) {
-        //     super(name, nameSpace);
-        //     this.type = type;
-        //     // this.assignedExpression = assignedExpression;
-        //     this.direction = direction;
-        //     hasAssignedExpression = true;
-        // }
+        public Parameter(String name, ObjectOfLanguage nameSpace, TypeRef type, ConstantTreeGlobalObjects direction, Expression assignedExpression) {
+            super(name, nameSpace);
+            this.type = type;
+            this.assignedExpression = assignedExpression;
+            this.direction = direction;
+        }
     }
 
     class TypeRef extends ObjectOfLanguage {
         /*
-        Possible typed:
+        Possible types:
         baseType - of class ConstantTreeObject
         typeName - ends up being some ObjectOfLanguage type
         specializedType - has typeName + typeArgumentlist
@@ -721,13 +1991,18 @@ class LanguageObject {
         */
         private final ObjectOfLanguage type;
 
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.TYPEREF;
+        }
+
         @Override 
-        boolean isScoped() {
-            return false;
+        public boolean isScoped() {
+            return true;
         }
 
         @Override
-        boolean isTypeRef() {
+        boolean hasAssociatedType() {
             return true;
         }
 
@@ -759,13 +2034,22 @@ class LanguageObject {
             this.typeArgumentList.add(typeArgument);
         }
 
+        public boolean hasTypeArguments() {
+            return !this.typeArgumentList.isEmpty();
+        }
+
         @Override 
-        boolean isScoped() {
-            return false;
+        public boolean isScoped() {
+            return true;
         }
 
         @Override
-        boolean isSpecializedType() {
+        public LObjectKind getConstructType() {
+            return LObjectKind.SPECIALIZEDTYPE;
+        }
+
+        @Override
+        boolean hasAssociatedType() {
             return true;
         }
 
@@ -779,9 +2063,7 @@ class LanguageObject {
     class HeaderStackType extends ObjectOfLanguage {
         private final TypeName type;
         private final SpecializedType specializedType;
-        private final boolean hasTypeName;
-        private final boolean hasSpecializedType;
-        // private Expression expression;
+        private final Expression expression;
 
         public ObjectOfLanguage getType() {
             // Since both TypeName and SpecializedType are "types" of this constructor
@@ -797,51 +2079,45 @@ class LanguageObject {
             return this.specializedType;
         }
 
-        // public void setExpression(Expression expression) {
-        //     this.expression = expression;
-        // }
-
-        // public Expression getExpression() {
-        //     return this.expression;
-        // }
-
-        @Override 
-        boolean isScoped() {
-            return false;
+        public Expression getExpression() {
+            return this.expression;
         }
 
-        @Override
-        boolean isHeaderStackType() {
+        @Override 
+        public boolean isScoped() {
             return true;
         }
 
         @Override
-        boolean isTypeRef() {
+        public LObjectKind getConstructType() {
+            return LObjectKind.HEADERSTACKTYPE;
+        }
+
+        @Override
+        boolean hasAssociatedType() {
             return true;
         }
 
         public boolean hasTypeName() {
-            return this.hasTypeName;
+            return this.type != null;
         }
 
         public boolean hasSpecializedType() {
-            return this.hasSpecializedType;
+            return this.specializedType != null;
         }
 
-        public HeaderStackType(TypeName type, ObjectOfLanguage nameSpace) {
+        public HeaderStackType(TypeName type, ObjectOfLanguage nameSpace, Expression expression) {
             super(type.getName(), nameSpace);
             this.type = type;
             this.specializedType = null;
-            hasTypeName = true;
-            hasSpecializedType = false;
+            this.expression = expression;
         }
 
-        public HeaderStackType(SpecializedType specializedType, ObjectOfLanguage nameSpace) {
+        public HeaderStackType(SpecializedType specializedType, ObjectOfLanguage nameSpace, Expression expression) {
             super(specializedType.getType().getName(), nameSpace);
             this.specializedType = specializedType;
             this.type = null;
-            hasTypeName = false;
-            hasSpecializedType = true;
+            this.expression = expression;
         }
     }
 
@@ -857,19 +2133,14 @@ class LanguageObject {
         }
 
         @Override 
-        boolean isScoped() {
-            return false;
-        }
-
-        @Override
-        boolean isTupleType() {
+        public boolean isScoped() {
             return true;
         }
 
-        // @Override
-        // boolean isTypeRef() {
-        //     return true;
-        // }
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.TUPLETYPE;
+        }
 
         public TupleType(ObjectOfLanguage nameSpace) {
             super("TUPLE", nameSpace);
@@ -883,17 +2154,17 @@ class LanguageObject {
         private final boolean hasDotPrefix;
 
         @Override 
-        boolean isScoped() {
-            return false;
-        }
-
-        @Override
-        boolean isTypeName() {
+        public boolean isScoped() {
             return true;
         }
 
         @Override
-        boolean isTypeRef() {
+        public LObjectKind getConstructType() {
+            return LObjectKind.TYPENAME;
+        }
+
+        @Override
+        boolean hasAssociatedType() {
             return true;
         }
 
@@ -915,10 +2186,16 @@ class LanguageObject {
     }
 
     class NamedType extends ObjectOfLanguage {
-        private final ObjectOfLanguage type;
+        private final TypeName typeName;
+        private final SpecializedType specializedType;
 
         public ObjectOfLanguage getType() {
-            return this.type;
+            if(this.typeName != null) {
+                return this.typeName;
+            } else {
+                assert this.specializedType != null : "Unexpected error in NamedType";
+                return this.specializedType;
+            }
         }
 
         public Class getTypeClass() {
@@ -926,100 +2203,82 @@ class LanguageObject {
         }
 
         public boolean isTypeName() {
-            return this.type instanceof TypeName == true;
+            return this.typeName != null;
         }
 
         public boolean isSpecializedType() {
-            return this.type instanceof SpecializedType == true;
+            return this.specializedType != null;
         }
 
         @Override 
-        boolean isScoped() {
-            return false;
-        }
-
-        @Override
-        boolean isNamedType() {
+        public boolean isScoped() {
             return true;
         }
 
         @Override
-        boolean isTypeRef() {
+        public LObjectKind getConstructType() {
+            return LObjectKind.NAMEDTYPE;
+        }
+
+        @Override
+        boolean hasAssociatedType() {
             return true;
         }
 
-        public NamedType (ObjectOfLanguage type, ObjectOfLanguage nameSpace) {
-            super(type.getName(), nameSpace);
-            this.type = type;
+        public NamedType (TypeName typeName, ObjectOfLanguage nameSpace) {
+            super(typeName.getName(), nameSpace);
+            this.typeName = typeName;
+            this.specializedType = null;
+        }
+
+        public NamedType (SpecializedType specializedType, ObjectOfLanguage nameSpace) {
+            super(specializedType.getName(), nameSpace);
+            this.typeName = null;
+            this.specializedType = specializedType;
         }
     }
 
     class MethodPrototype extends ObjectOfLanguage {
         private final boolean isAbstract;
         private FunctionPrototype functionPrototype;
-        // TODO don't this constructor values are needed?
-        private ConstructorMethodPrototype constructorMethodPrototype;
 
         public boolean isAbstract() {
-            assert constructorMethodPrototype == null;
-
             return this.isAbstract;
         }
 
         public FunctionPrototype getFunctionPrototype() {
-            assert constructorMethodPrototype == null;
-
             return this.functionPrototype;
         }
 
-        public boolean isConstructor() {
-            assert functionPrototype == null;
-
-            return constructorMethodPrototype != null;
-        }
-
-        public ConstructorMethodPrototype getConstructorMethodPrototype() {
-            assert functionPrototype == null;
-
-            return this.constructorMethodPrototype;
-        }
-
         @Override
-        boolean isScoped() {
-            return false;
-        }
-
-        @Override
-        boolean isMethodPrototype() {
+        public boolean isScoped() {
             return true;
         }
 
-        public MethodPrototype(ConstructorMethodPrototype constructorMethodPrototype, ObjectOfLanguage nameSpace, boolean isAbstract) {
-            super(constructorMethodPrototype.getName(), nameSpace);
-            this.constructorMethodPrototype = constructorMethodPrototype;
-            this.isAbstract = false;
-            this.functionPrototype = null;
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.METHODPROTOTYPE;
         }
 
         public MethodPrototype(FunctionPrototype functionPrototype, ObjectOfLanguage nameSpace, boolean isAbstract) {
             super(functionPrototype.getName(), nameSpace);
             this.functionPrototype = functionPrototype;
             this.isAbstract = isAbstract;
-            this.constructorMethodPrototype = null;
         }
     }
 
     class ConstructorMethodPrototype extends ObjectOfLanguage {
+        private final ObjectOfLanguage typeIdentifier;
         private final ArrayList<Parameter> parameterList;
 
         @Override
-        boolean isScoped() {
-            return false;
+        public boolean isScoped() {
+            return true;
         }
 
         @Override
-        boolean isConstructorMethodPrototype() {
-            return true;
+        public LObjectKind getConstructType() {
+            return LObjectKind.CONSTRUCTORMETHODPROTOTYPE;
         }
 
         public void addParameter(Parameter parameter) {
@@ -1030,8 +2289,17 @@ class LanguageObject {
             return this.parameterList;
         }
 
-        public ConstructorMethodPrototype(ObjectOfLanguage type, ObjectOfLanguage nameSpace) {
-            super(type.getName(), nameSpace);
+        public boolean hasParameterList() {
+            return !this.parameterList.isEmpty();
+        }
+
+        ObjectOfLanguage getTypeIdentifier() {
+            return this.typeIdentifier;
+        }
+
+        public ConstructorMethodPrototype(ObjectOfLanguage typeIdentifier, ObjectOfLanguage nameSpace) {
+            super(typeIdentifier.getName(), nameSpace);
+            this.typeIdentifier = typeIdentifier;
             parameterList = new ArrayList<>();
         }
     }
@@ -1041,13 +2309,22 @@ class LanguageObject {
         private final ObjectOfLanguage type;
 
         @Override
-        boolean isScoped() {
-            return false;
+        public boolean isScoped() {
+            return true;
         }
 
         @Override
-        boolean isTypeArgument() {
+        public LObjectKind getConstructType() {
+            return LObjectKind.TYPEARGUMENT;
+        }
+
+        @Override
+        boolean hasAssociatedType() {
             return true;
+        }
+
+        public ObjectOfLanguage getType() {
+            return this.type;
         }
 
         public Class getTypeClass() {
@@ -1072,6 +2349,7 @@ class LanguageObject {
         */
 
         private final InvokingExpression invokingExpression;
+        private final boolean isScoped;
 
         public boolean isInvokingExpression() {
             return invokingExpression != null;
@@ -1080,22 +2358,24 @@ class LanguageObject {
         // What about expressions with L_BRACE?
         @Override
         boolean isScoped() {
-            return false;
+            return this.isScoped;
         }
 
         @Override
-        boolean isExpression() {
-            return true;
+        public LObjectKind getConstructType() {
+            return LObjectKind.EXPRESSION;
         }
 
-        public Expression(String name, ObjectOfLanguage nameSpace) {
+        public Expression(String name, ObjectOfLanguage nameSpace, boolean isScoped) {
             super(name, nameSpace);
             this.invokingExpression = null;
+            this.isScoped = isScoped;
         }
 
         public Expression(InvokingExpression invokingExpression, ObjectOfLanguage nameSpace) {
             super(invokingExpression.getName(), nameSpace);
             this.invokingExpression = invokingExpression;
+            this.isScoped = false;
         }
     }
 
@@ -1107,13 +2387,18 @@ class LanguageObject {
         private final TypeRef typeRef;
 
         @Override
-        boolean isScoped() {
-            return false;
+        public boolean isScoped() {
+            return true;
         }
 
         @Override
-        boolean isInvokingExpression() {
-            return true;
+        public LObjectKind getConstructType() {
+            return LObjectKind.INVOKINGEXPRESSION;
+        }
+
+        @Override
+        boolean hasAssociatedType() {
+            return typeRef != null;
         }
 
         public ArrayList<Argument> getArgumentList() {
@@ -1186,30 +2471,167 @@ class LanguageObject {
         }
     }
 
+    class NonBraceExpression extends ObjectOfLanguage {
+        /*
+        Terminal (Integer, string literal, true, false, this)
+        nonTypeName (w/ dotPrefix)
+        kvList
+        typeName (w/ dot_name)
+        ERROR DOT name
+
+        Assuming that the parser will find the terminal and pass a string to this constructor
+        */
+
+        private final InvokingNonBraceExpression invokingNonBraceExpression;
+        private final boolean isScoped;
+
+        public boolean isInvokingNonBraceExpression() {
+            return invokingNonBraceExpression != null;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.NONBRACEEXPRESSION;
+        }
+
+        public NonBraceExpression(String name, ObjectOfLanguage nameSpace, boolean isScoped) {
+            super(name, nameSpace);
+            this.invokingNonBraceExpression = null;
+            this.isScoped = isScoped;
+        }
+
+        public NonBraceExpression(InvokingNonBraceExpression invokingNonBraceExpression, ObjectOfLanguage nameSpace) {
+            super(invokingNonBraceExpression.getName(), nameSpace);
+            this.invokingNonBraceExpression = invokingNonBraceExpression;
+            this.isScoped = false;
+        }
+    }
+
+    class InvokingNonBraceExpression extends ObjectOfLanguage {
+        private final ArrayList<Argument> argumentList;
+        private final ArrayList<RealTypeArgument> realTypeArgumentList;
+        private final NonBraceExpression nonBraceexpression;
+        private final NamedType namedType;
+        private final TypeRef typeRef;
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.INVOKINGNONBRACEEXPRESSION;
+        }
+
+        @Override
+        boolean hasAssociatedType() {
+            return typeRef != null;
+        }
+
+        public ArrayList<Argument> getArgumentList() {
+            assert this.argumentList != null;
+
+            return this.argumentList;
+        }
+
+        public ArrayList<RealTypeArgument> getRealTypeArgumentList() {
+            assert this.realTypeArgumentList != null;
+
+            return this.realTypeArgumentList;
+        }
+
+        public NonBraceExpression getExpression() {
+            assert this.nonBraceexpression != null;
+
+            return this.nonBraceexpression;
+        }
+
+        public NamedType getNamedType() {
+            assert this.namedType != null;
+
+            return this.namedType;
+        }
+
+        public TypeRef getTypeRef() {
+            assert this.typeRef != null;
+
+            return this.typeRef;
+        }
+
+        public void addToRealTypeArgumentList(RealTypeArgument typeArgument) {
+            assert this.realTypeArgumentList != null;
+
+            this.realTypeArgumentList.add(typeArgument);
+        }
+
+        public void addToArgumentList(Argument argument) {
+            assert this.argumentList != null;
+
+            this.argumentList.add(argument);
+        }
+
+        public InvokingNonBraceExpression(NonBraceExpression expression, ObjectOfLanguage nameSpace) {
+            super(expression.getName(), nameSpace);
+            this.nonBraceexpression = expression;
+            this.realTypeArgumentList = new ArrayList<>();
+            this.argumentList = new ArrayList<>();
+            this.namedType = null;
+            this.typeRef = null;
+        }
+
+        public InvokingNonBraceExpression(NamedType namedType, ObjectOfLanguage nameSpace) {
+            super(namedType.getName(), nameSpace);
+            this.nonBraceexpression = null;
+            this.realTypeArgumentList = null;
+            this.argumentList = new ArrayList<>();
+            this.namedType = namedType;
+            this.typeRef = null;
+        }
+
+        public InvokingNonBraceExpression(TypeRef typeRef, NonBraceExpression expression, ObjectOfLanguage nameSpace) {
+            super(typeRef.getName(), nameSpace);
+            this.nonBraceexpression = expression;
+            this.realTypeArgumentList = null;
+            this.argumentList = null;
+            this.namedType = null;
+            this.typeRef = typeRef;
+        }
+    }
+
     class RealTypeArgument extends ObjectOfLanguage {
         private ConstantTreeGlobalObjects void_or_dontcare;
         private TypeRef typeRef;
 
         @Override
-        boolean isScoped() {
-            return false;
+        public boolean isScoped() {
+            return true;
         }
 
         @Override
-        boolean isRealTypeArgument() {
-            return false;
+        public LObjectKind getConstructType() {
+            return LObjectKind.REALTYPEARGUMENT;
         }
 
-        public boolean isTypeRef() {
-            return this.typeRef != null;
+        public boolean hasAssociatedType() {
+            return true;
         }
 
-        public boolean isVoid() {
-            return this.void_or_dontcare.getName() == "void";
-        }
+        public ObjectOfLanguage getType() {
+            if(this.void_or_dontcare != null) {
+                assert this.typeRef == null;
 
-        public boolean isDontCare() {
-            return this.void_or_dontcare.getName() == "_";
+                return this.void_or_dontcare;
+            } else {
+                assert this.void_or_dontcare == null;
+
+                return this.typeRef;
+            }
         }
 
         public ConstantTreeGlobalObjects getVoidOrDontCare() {
@@ -1244,13 +2666,13 @@ class LanguageObject {
         private boolean isAssignment;
 
         @Override
-        boolean isScoped() {
-            return false;
+        public boolean isScoped() {
+            return true;
         }
 
         @Override
-        boolean isArgument() {
-            return true;
+        public LObjectKind getConstructType() {
+            return LObjectKind.ARGUMENT;
         }
 
         public boolean isAssignment() {
@@ -1303,13 +2725,13 @@ class LanguageObject {
         private final ObjectOfLanguage name;
 
         @Override
-        boolean isScoped() {
-            return false;
+        public boolean isScoped() {
+            return true;
         }
 
         @Override
-        boolean isName() {
-            return true;
+        public LObjectKind getConstructType() {
+            return LObjectKind.NAME;
         }
 
         public Name(ObjectOfLanguage name, ObjectOfLanguage scope) {
@@ -1317,6 +2739,281 @@ class LanguageObject {
             this.name = name;
         }
     }
+
+    class OLangString extends ObjectOfLanguage {
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.STRING;
+        }
+
+        public OLangString(String name, ObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+        }
+    }
+
+    class OLangInteger extends ObjectOfLanguage {
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.INTEGER;
+        }
+
+        public OLangInteger(String name, ObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+        }
+    }
+
+    class VariableDeclaration extends ObjectOfLanguage {
+        private ArrayList<Annotation> annotations;
+        private TypeRef type;
+        private OptInitializer optInitializer;
+
+        boolean hasOptInitializer() {
+            return optInitializer != null;
+        }
+
+        OptInitializer getOptInitializer() {
+            return this.optInitializer;
+        }
+
+        TypeRef getType() {
+            return this.type;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.VARIABLEDECLARATION;
+        }
+
+        boolean hasAnnotations() {
+            return !this.annotations.isEmpty();
+        }
+
+        ArrayList<Annotation> getAnnotations() {
+            return this.annotations;
+        }
+
+        public VariableDeclaration(String name, ObjectOfLanguage nameSpace, TypeRef type) {
+            super(name, nameSpace);
+            this.type = type;
+            this.annotations = new ArrayList();
+            this.optInitializer = null;
+        }
+
+        public VariableDeclaration(String name, ObjectOfLanguage nameSpace, TypeRef type, OptInitializer optInitializer) {
+            super(name, nameSpace);
+            this.type = type;
+            this.annotations = new ArrayList();
+            this.optInitializer = optInitializer;
+        }
+    }
+
+    class Annotation extends ObjectOfLanguage {
+        private final StructuredAnnotationBody structuredAnnotationBody;
+        private final AnnotationBody annotationBody;
+
+        public boolean hasAnnotationBody() {
+            return annotationBody != null;
+        }
+
+        public boolean hasStructuredAnnotationBody() {
+            return structuredAnnotationBody != null;
+        }
+
+        StructuredAnnotationBody getStructuredAnnotationBody() {
+            return this.structuredAnnotationBody;
+        }
+
+        AnnotationBody getAnnotationBody() {
+            return this.annotationBody;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.ANNOTATION;
+        }
+
+        public Annotation(String name, ObjectOfLanguage nameSpace, AnnotationBody annotationBody) {
+            super(name, nameSpace);
+            this.annotationBody = annotationBody;
+            this.structuredAnnotationBody = null;
+        }
+
+        public Annotation(String name, ObjectOfLanguage nameSpace, StructuredAnnotationBody structuredAnnotationBody) {
+            super(name, nameSpace);
+            this.annotationBody = null;
+            this.structuredAnnotationBody = structuredAnnotationBody;
+        }
+    }
+    
+    class StructuredAnnotationBody extends ObjectOfLanguage {
+        private ArrayList<ObjectOfLanguage> list;
+        private boolean isExpressionList;
+        private boolean isKVList;
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.STRUCTUREDANNOTATIONBODY;
+        }
+
+        boolean isExpressionList() {
+            return this.isExpressionList;
+        }
+
+        boolean isKVList() {
+            return this.isKVList;
+        }
+
+        ArrayList<ObjectOfLanguage> getList() {
+            return this.list;
+        }
+
+        void addToList(ObjectOfLanguage element) {
+            if(this.list.size() != 0 && !this.list.get(0).getClass().equals(element.getClass())) {
+                System.out.println("Different element class error: The list inside Structured Annotation Body is of class: " + this.list.get(0).getClass() + " while the element trying to be added is of class: " + element.getClass());
+                System.exit(1);
+            }
+
+            this.list.add(element);
+        }
+
+        public StructuredAnnotationBody(String name, ObjectOfLanguage nameSpace, ArrayList<ObjectOfLanguage> list, boolean isExpressionList) {
+            super(name, nameSpace);
+            this.list = new ArrayList();
+            this.isExpressionList = isExpressionList;
+            this.isKVList = !isExpressionList;
+        }
+    }
+
+    class AnnotationBody extends ObjectOfLanguage {
+        private AnnotationBody annotationBody;
+        private String annotationToken;
+
+        AnnotationBody getNestedAnnotationBody() {
+            return this.annotationBody;
+        }
+
+        boolean hasToken() {
+            return annotationToken != null;
+        }
+
+        String getToken() {
+            return this.annotationToken;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.ANNOTATIONBODY;
+        }
+
+        public AnnotationBody(String name, ObjectOfLanguage nameSpace, AnnotationBody annotationBody) {
+            super(name, nameSpace);
+            this.annotationBody = annotationBody;
+            this.annotationToken = null;
+        }
+
+        public AnnotationBody(String name, ObjectOfLanguage nameSpace, AnnotationBody annotationBody, String annotationToken) {
+            super(name, nameSpace);
+            this.annotationBody = annotationBody;
+            this.annotationToken = annotationToken;
+        }
+    }
+
+    class KVPair extends ObjectOfLanguage {
+        private Expression expression;
+
+        Expression getExpression() {
+            return this.expression;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.KVPAIR;
+        }
+
+        KVPair(String name, ObjectOfLanguage nameSpace, Expression expression) {
+            super(name, nameSpace);
+            this.expression = expression;
+        }
+    }
+    
+    class OptInitializer extends ObjectOfLanguage {
+        private final Initializer initializer;
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.OPTINITIALIZER;
+        }
+
+        public Initializer getInitializer() {
+            return this.initializer;
+        }
+
+        public OptInitializer(Initializer initializer, ObjectOfLanguage nameSpace) {
+            super(initializer.getName(), nameSpace);
+            this.initializer = initializer;
+        }
+    }
+
+    class Initializer extends ObjectOfLanguage {
+        Expression expression;
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.OPTINITIALIZER;
+        }
+
+        public Initializer(Expression expression, ObjectOfLanguage nameSpace) {
+            super(expression.getName(), nameSpace);
+            this.expression = expression;
+        }
+    }
+
+
 
     public class BaseTypes {
         private ArrayList<String> baseTypes;
@@ -1395,4 +3092,3 @@ class LanguageObject {
         }
     }
 }
-// TODO:make isTypeRef() true for all functions with a type variable
