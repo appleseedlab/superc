@@ -458,6 +458,10 @@ instantiation: /** complete **/
                      {}
       | typeRef L_PAREN argumentList R_PAREN name SEMICOLON
                      {}
+      | instantiationWithAssignment
+      ;
+      
+instantiationWithAssignment: /** complete **/
       /* experimental */
       | annotations typeRef L_PAREN argumentList R_PAREN name ASSIGN objInitializer SEMICOLON
                      {}

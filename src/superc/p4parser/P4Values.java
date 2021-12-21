@@ -48,7 +48,7 @@ public class P4Values implements SemanticValues {
     return value;
   }
   public ValueType getValueType(int id) {
-    if (0 <= id && id < 121 || 270 < id) {
+    if (0 <= id && id < 121 || 271 < id) {
       return ValueType.NODE;
     }
     switch (id - 121) {
@@ -64,100 +64,100 @@ public class P4Values implements SemanticValues {
         // Fall through
       case 15: // nonEmptyParameterList (136)
         // Fall through
-      case 30: // parserLocalElements (151)
+      case 31: // parserLocalElements (152)
         // Fall through
-      case 35: // parserStates (156)
+      case 36: // parserStates (157)
         // Fall through
-      case 38: // parserStatements (159)
+      case 39: // parserStatements (160)
         // Fall through
-      case 45: // selectCaseList (166)
+      case 46: // selectCaseList (167)
         // Fall through
-      case 49: // simpleExpressionList (170)
+      case 50: // simpleExpressionList (171)
         // Fall through
-      case 57: // controlLocalDeclarations (178)
+      case 58: // controlLocalDeclarations (179)
         // Fall through
-      case 64: // methodPrototypes (185)
+      case 65: // methodPrototypes (186)
         // Fall through
-      case 81: // typeParameterList (202)
+      case 82: // typeParameterList (203)
         // Fall through
-      case 83: // typeArgumentList (204)
+      case 84: // typeArgumentList (205)
         // Fall through
-      case 85: // realTypeArgumentList (206)
+      case 86: // realTypeArgumentList (207)
         // Fall through
-      case 95: // structFieldList (216)
+      case 96: // structFieldList (217)
         // Fall through
-      case 100: // specifiedIdentifierList (221)
+      case 101: // specifiedIdentifierList (222)
         // Fall through
-      case 104: // identifierList (225)
+      case 105: // identifierList (226)
         // Fall through
-      case 116: // statOrDeclList (237)
+      case 117: // statOrDeclList (238)
         // Fall through
-      case 118: // switchCases (239)
+      case 119: // switchCases (240)
         // Fall through
-      case 123: // tablePropertyList (244)
+      case 124: // tablePropertyList (245)
         // Fall through
-      case 125: // keyElementList (246)
+      case 126: // keyElementList (247)
         // Fall through
-      case 127: // actionList (248)
+      case 128: // actionList (249)
         // Fall through
-      case 131: // entriesList (252)
+      case 132: // entriesList (253)
         // Fall through
-      case 138: // argumentList (259)
+      case 139: // argumentList (260)
         // Fall through
-      case 139: // nonEmptyArgList (260)
+      case 140: // nonEmptyArgList (261)
         // Fall through
-      case 141: // expressionList (262)
+      case 142: // expressionList (263)
         // Fall through
-      case 147: // expression (268)
+      case 148: // expression (269)
         // Fall through
-      case 148: // invokingExpression (269)
+      case 149: // invokingExpression (270)
         // Fall through
-      case 149: // nonBraceExpression (270)
+      case 150: // nonBraceExpression (271)
         return ValueType.LIST;
 
       case 19: // $@1 (140)
         // Fall through
       case 20: // $@2 (141)
         // Fall through
-      case 28: // $@3 (149)
+      case 29: // $@3 (150)
         // Fall through
-      case 29: // $@4 (150)
+      case 30: // $@4 (151)
         // Fall through
-      case 33: // $@5 (154)
+      case 34: // $@5 (155)
         // Fall through
-      case 34: // $@6 (155)
+      case 35: // $@6 (156)
         // Fall through
-      case 37: // $@7 (158)
+      case 38: // $@7 (159)
         // Fall through
-      case 41: // $@8 (162)
+      case 42: // $@8 (163)
         // Fall through
-      case 55: // $@9 (176)
+      case 56: // $@9 (177)
         // Fall through
-      case 56: // $@10 (177)
+      case 57: // $@10 (178)
         // Fall through
-      case 61: // $@11 (182)
+      case 62: // $@11 (183)
         // Fall through
-      case 62: // $@12 (183)
+      case 63: // $@12 (184)
         // Fall through
-      case 66: // $@13 (187)
+      case 67: // $@13 (188)
         // Fall through
-      case 68: // $@14 (189)
+      case 69: // $@14 (190)
         // Fall through
-      case 89: // $@15 (210)
+      case 90: // $@15 (211)
         // Fall through
-      case 90: // $@16 (211)
+      case 91: // $@16 (212)
         // Fall through
-      case 93: // $@17 (214)
+      case 94: // $@17 (215)
         // Fall through
-      case 94: // $@18 (215)
+      case 95: // $@18 (216)
         // Fall through
-      case 98: // $@19 (219)
+      case 99: // $@19 (220)
         // Fall through
-      case 99: // $@20 (220)
+      case 100: // $@20 (221)
         // Fall through
-      case 115: // $@21 (236)
+      case 116: // $@21 (237)
         // Fall through
-      case 144: // $@22 (265)
+      case 145: // $@22 (266)
         return ValueType.ACTION;
 
       default:
@@ -166,33 +166,35 @@ public class P4Values implements SemanticValues {
   }
   public boolean isComplete(int id) {
     switch(id) {
-    case 256: // optInitializer
+    case 256: // constantDeclaration
       // Fall through
-    case 257: // initializer
+    case 257: // optInitializer
       // Fall through
-    case 258: // functionDeclaration
+    case 258: // initializer
       // Fall through
-    case 259: // argumentList
+    case 259: // functionDeclaration
       // Fall through
-    case 260: // nonEmptyArgList
+    case 260: // argumentList
       // Fall through
-    case 261: // argument
+    case 261: // nonEmptyArgList
       // Fall through
-    case 262: // expressionList
+    case 262: // argument
       // Fall through
-    case 264: // dot_name
+    case 263: // expressionList
       // Fall through
-    case 265: // $@22
+    case 265: // dot_name
       // Fall through
-    case 266: // lvalue
+    case 266: // $@22
       // Fall through
-    case 267: // lvalueExpression
+    case 267: // lvalue
       // Fall through
-    case 268: // expression
+    case 268: // lvalueExpression
       // Fall through
-    case 269: // invokingExpression
+    case 269: // expression
       // Fall through
-    case 270: // nonBraceExpression
+    case 270: // invokingExpression
+      // Fall through
+    case 271: // nonBraceExpression
       // Fall through
     case 119: // start
       // Fall through
@@ -228,207 +230,207 @@ public class P4Values implements SemanticValues {
       // Fall through
     case 142: // instantiation
       // Fall through
-    case 146: // optConstructorParameters
+    case 143: // instantiationWithAssignment
       // Fall through
-    case 148: // parserDeclaration
+    case 147: // optConstructorParameters
       // Fall through
-    case 149: // $@3
+    case 149: // parserDeclaration
       // Fall through
-    case 150: // $@4
+    case 150: // $@3
       // Fall through
-    case 151: // parserLocalElements
+    case 151: // $@4
       // Fall through
-    case 152: // parserLocalElement
+    case 152: // parserLocalElements
       // Fall through
-    case 153: // parserTypeDeclaration
+    case 153: // parserLocalElement
       // Fall through
-    case 154: // $@5
+    case 154: // parserTypeDeclaration
       // Fall through
-    case 155: // $@6
+    case 155: // $@5
       // Fall through
-    case 156: // parserStates
+    case 156: // $@6
       // Fall through
-    case 157: // parserState
+    case 157: // parserStates
       // Fall through
-    case 158: // $@7
+    case 158: // parserState
       // Fall through
-    case 159: // parserStatements
+    case 159: // $@7
       // Fall through
-    case 160: // parserStatement
+    case 160: // parserStatements
       // Fall through
-    case 161: // parserBlockStatement
+    case 161: // parserStatement
       // Fall through
-    case 162: // $@8
+    case 162: // parserBlockStatement
       // Fall through
-    case 163: // transitionStatement
+    case 163: // $@8
       // Fall through
-    case 164: // stateExpression
+    case 164: // transitionStatement
       // Fall through
-    case 165: // selectExpression
+    case 165: // stateExpression
       // Fall through
-    case 166: // selectCaseList
+    case 166: // selectExpression
       // Fall through
-    case 168: // keysetExpression
+    case 167: // selectCaseList
       // Fall through
-    case 169: // tupleKeysetExpression
+    case 169: // keysetExpression
       // Fall through
-    case 170: // simpleExpressionList
+    case 170: // tupleKeysetExpression
       // Fall through
-    case 171: // reducedSimpleKeysetExpression
+    case 171: // simpleExpressionList
       // Fall through
-    case 172: // simpleKeysetExpression
+    case 172: // reducedSimpleKeysetExpression
       // Fall through
-    case 173: // valueSetDeclaration
+    case 173: // simpleKeysetExpression
       // Fall through
-    case 174: // controlDeclaration
+    case 174: // valueSetDeclaration
       // Fall through
-    case 175: // controlTypeDeclaration
+    case 175: // controlDeclaration
       // Fall through
-    case 176: // $@9
+    case 176: // controlTypeDeclaration
       // Fall through
-    case 177: // $@10
+    case 177: // $@9
       // Fall through
-    case 178: // controlLocalDeclarations
+    case 178: // $@10
       // Fall through
-    case 179: // controlLocalDeclaration
+    case 179: // controlLocalDeclarations
       // Fall through
-    case 180: // controlBody
+    case 180: // controlLocalDeclaration
       // Fall through
-    case 181: // externDeclaration
+    case 181: // controlBody
       // Fall through
-    case 182: // $@11
+    case 182: // externDeclaration
       // Fall through
-    case 183: // $@12
+    case 183: // $@11
       // Fall through
-    case 184: // externFunctionDeclaration
+    case 184: // $@12
       // Fall through
-    case 185: // methodPrototypes
+    case 185: // externFunctionDeclaration
       // Fall through
-    case 187: // $@13
+    case 186: // methodPrototypes
       // Fall through
-    case 188: // methodPrototype
+    case 188: // $@13
       // Fall through
-    case 189: // $@14
+    case 189: // methodPrototype
       // Fall through
-    case 190: // constructorMethodPrototype
+    case 190: // $@14
       // Fall through
-    case 191: // typeRef
+    case 191: // constructorMethodPrototype
       // Fall through
-    case 192: // namedType
+    case 192: // typeRef
       // Fall through
-    case 193: // prefixedType
+    case 193: // namedType
       // Fall through
-    case 194: // typeName
+    case 194: // prefixedType
       // Fall through
-    case 195: // tupleType
+    case 195: // typeName
       // Fall through
-    case 196: // headerStackType
+    case 196: // tupleType
       // Fall through
-    case 197: // specializedType
+    case 197: // headerStackType
       // Fall through
-    case 200: // optTypeParameters
+    case 198: // specializedType
       // Fall through
-    case 201: // typeParameters
+    case 201: // optTypeParameters
       // Fall through
-    case 202: // typeParameterList
+    case 202: // typeParameters
       // Fall through
-    case 204: // typeArgumentList
+    case 203: // typeParameterList
       // Fall through
-    case 206: // realTypeArgumentList
+    case 205: // typeArgumentList
       // Fall through
-    case 207: // typeDeclaration
+    case 207: // realTypeArgumentList
       // Fall through
-    case 208: // derivedTypeDeclaration
+    case 208: // typeDeclaration
       // Fall through
-    case 209: // headerTypeDeclaration
+    case 209: // derivedTypeDeclaration
       // Fall through
-    case 210: // $@15
+    case 210: // headerTypeDeclaration
       // Fall through
-    case 211: // $@16
+    case 211: // $@15
       // Fall through
-    case 212: // structTypeDeclaration
+    case 212: // $@16
       // Fall through
-    case 213: // headerUnionDeclaration
+    case 213: // structTypeDeclaration
       // Fall through
-    case 214: // $@17
+    case 214: // headerUnionDeclaration
       // Fall through
-    case 215: // $@18
+    case 215: // $@17
       // Fall through
-    case 216: // structFieldList
+    case 216: // $@18
       // Fall through
-    case 217: // structField
+    case 217: // structFieldList
       // Fall through
-    case 218: // enumDeclaration
+    case 218: // structField
       // Fall through
-    case 219: // $@19
+    case 219: // enumDeclaration
       // Fall through
-    case 220: // $@20
+    case 220: // $@19
       // Fall through
-    case 221: // specifiedIdentifierList
+    case 221: // $@20
       // Fall through
-    case 222: // specifiedIdentifier
+    case 222: // specifiedIdentifierList
       // Fall through
-    case 223: // errorDeclaration
+    case 223: // specifiedIdentifier
       // Fall through
-    case 224: // matchKindDeclaration
+    case 224: // errorDeclaration
       // Fall through
-    case 225: // identifierList
+    case 225: // matchKindDeclaration
       // Fall through
-    case 226: // typedefDeclaration
+    case 226: // identifierList
       // Fall through
-    case 227: // assignmentOrMethodCallStatement
+    case 227: // typedefDeclaration
       // Fall through
-    case 229: // emptyStatement
+    case 228: // assignmentOrMethodCallStatement
       // Fall through
-    case 230: // exitStatement
+    case 230: // emptyStatement
       // Fall through
-    case 231: // returnStatement
+    case 231: // exitStatement
       // Fall through
-    case 232: // conditionalStatement
+    case 232: // returnStatement
       // Fall through
-    case 233: // directApplication
+    case 233: // conditionalStatement
       // Fall through
-    case 234: // statement
+    case 234: // directApplication
       // Fall through
-    case 235: // blockStatement
+    case 235: // statement
       // Fall through
-    case 236: // $@21
+    case 236: // blockStatement
       // Fall through
-    case 237: // statOrDeclList
+    case 237: // $@21
       // Fall through
-    case 238: // switchStatement
+    case 238: // statOrDeclList
       // Fall through
-    case 239: // switchCases
+    case 239: // switchStatement
       // Fall through
-    case 240: // switchCase
+    case 240: // switchCases
       // Fall through
-    case 242: // statementOrDeclaration
+    case 241: // switchCase
       // Fall through
-    case 243: // tableDeclaration
+    case 243: // statementOrDeclaration
       // Fall through
-    case 244: // tablePropertyList
+    case 244: // tableDeclaration
       // Fall through
-    case 245: // tableProperty
+    case 245: // tablePropertyList
       // Fall through
-    case 246: // keyElementList
+    case 246: // tableProperty
       // Fall through
-    case 247: // keyElement
+    case 247: // keyElementList
       // Fall through
-    case 248: // actionList
+    case 248: // keyElement
       // Fall through
-    case 249: // action
+    case 249: // actionList
       // Fall through
-    case 250: // actionRef
+    case 250: // action
       // Fall through
-    case 251: // entry
+    case 251: // actionRef
       // Fall through
-    case 252: // entriesList
+    case 252: // entry
       // Fall through
-    case 253: // actionDeclaration
+    case 253: // entriesList
       // Fall through
-    case 254: // variableDeclaration
+    case 254: // actionDeclaration
       // Fall through
-    case 255: // constantDeclaration
+    case 255: // variableDeclaration
       return true;
 
     default:
