@@ -10,12 +10,11 @@ struct Y {
   int b;
 #else
   int a;
-  int b;
 #endif
 } y;
 
 int main()
 {
   int a[sizeof(struct X) - sizeof y];
-  return 0;
+  return sizeof(struct X) - sizeof y;
 }

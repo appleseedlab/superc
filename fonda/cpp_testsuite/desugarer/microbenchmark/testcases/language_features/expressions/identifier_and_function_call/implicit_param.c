@@ -7,11 +7,11 @@ typedef unsigned int a;
 int foo(a x)
 {
   x++;
-  return 0;
+  return x;
 }
 
 int main()
-{
-  foo(1);
-  return 0;
+{ int z;
+  z = foo(1);
+  return z;
 }

@@ -13,10 +13,11 @@ int foo() {
 #endif
 
 int main() {
+  int z;
 #ifdef HAS_PARAM
-  foo(10);
+  z = foo(10);
 #else
-  foo();
+  z = foo();
 #endif
-  return 0;
+  return z;
 }

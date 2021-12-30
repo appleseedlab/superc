@@ -146,6 +146,15 @@ class DesugarOps {
     };
   
 
+  /**
+   * Convert LineNumbers to String
+   */
+  public final static Multiverse.Transformer<String, List<String>> StringToStringList = new Multiverse.Transformer<String, List<String>>() {
+      List<String> transform(String from) {
+        return new LinkedList<String>(){{add(from);}};
+      }
+    };
+  
   /*****************************************************************************
    ********* Multiverse operators for Declarators
    *****************************************************************************/
@@ -928,6 +937,17 @@ class DesugarOps {
     return newsb.toString();
   };
 
+  /**
+   * Concatenate operator for strings.x
+   */
+  public final static Multiverse.Operator<List<String>> concatStringsList = (sb1, sb2) -> {
+    List<String> newsb = new LinkedList<String>();
+    newsb.addAll(sb1);
+    newsb.add(" ");
+    newsb.addAll(sb2);
+    return newsb;
+  };
+  
   /**
    * Concatenate operator for strings.x, unless a String is empty
    */

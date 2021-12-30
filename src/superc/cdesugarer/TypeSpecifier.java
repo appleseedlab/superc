@@ -486,16 +486,16 @@ class TypeSpecifier {
   }
 
   /** Process the typeof specifier. */
-  public void visitTypeofSpecifier(Type type) {
+  public void visitTypeofSpecifier(Type t) {
     if (hasType()) {
       multipleTypes();
     } else {
       // Strip any annotations from the type, but do keep the
       // qualifiers.
-      if (type.hasEnum()) {
-        type = DesugarOps.cOps.qualify(type.toEnum(), type);
+      if (t.hasEnum()) {
+        type = DesugarOps.cOps.qualify(t.toEnum(), t);
       } else {
-        type = DesugarOps.cOps.qualify(type.resolve(), type);
+        type = DesugarOps.cOps.qualify(t.resolve(), t);
       }
     }
   }
