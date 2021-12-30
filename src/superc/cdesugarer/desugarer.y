@@ -10870,6 +10870,28 @@ private void recordRenaming(String renaming, String original) {
   recordedRenamings.append(String.format("__static_renaming(\"%s\", \"%s\");\n", renaming, original));
 }
 
+public String printMain(CContext scope, PresenceCondition pc) {
+  String ret = "";
+  ret += "int main() {\n";
+  Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope("main", pc);
+  for (Element<SymbolTable.Entry<Type>> entry : entries) {
+	ret += "if (";
+        ret += ca.condToCVar(entry.getCondition());
+        ret += ") {\n";
+        if (entry.getData().isError()) {
+		ret += emitError("main function error") + ";\n";
+  	} else if (entry.getData().isUndeclared()) {
+ 		ret += emitError("main function undefined") + ";\n";
+        } else if (!entry.getData().getValue().isVariable()){
+      		ret += emitError("main illegally defined") + ";\n";
+        } else {
+		ret += "return " + entry.getData().getValue().toVariable().getName() + "();";
+  	}  // end test of symtab entry type
+        ret += "}\n";
+  } // end loop over symtab entries
+  ret += "return 0; }\n";
+  return ret;
+}
 
 public String staticInitialization(boolean showParseError) {
   StringBuilder sb = new StringBuilder();

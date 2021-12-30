@@ -213,6 +213,8 @@ public class SugarC extends Tool {
       // Desugaring features
       bool("linkerThunks", "linkerThunks", false,
            "Emit thunks for single-configuration linking (experimental).").
+      bool("make-main", "make-main", false,
+           "Create a main function to call main variants.").
       
       // Output and debugging
       bool("printAST", "printAST", false,
@@ -573,6 +575,9 @@ public class SugarC extends Tool {
         System.out.print(actions.linkerThunks(scope, pcTrue));
       }
 
+      if (runtime.test("make-main")) {
+        System.out.print(actions.printMain(scope, pcTrue));
+      }
     }
 
     // if (null != translationUnit

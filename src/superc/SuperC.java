@@ -215,6 +215,8 @@ public class SuperC extends Tool {
            "Preprocess but don't print.").
       bool("follow-set", "follow-set", false,
            "Compute the FOLLOW sets of each token in the preprocessed input.").
+      bool("make-main", "make-main", false,
+           "Create a main function to call main variants.").
 
       // // Desugarer component selection
       // bool("desugar", "desugarer", false,
