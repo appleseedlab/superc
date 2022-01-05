@@ -13,7 +13,7 @@ import javax.naming.ldap.PagedResultsResponseControl;
 import javax.sound.midi.SysexMessage;
 
 // For symbols
-class LanguageObject {
+class P4LanguageObject {
     // conditioned callees
     enum LObjectKind {
         CONSTANTVALUE,
@@ -282,7 +282,7 @@ class LanguageObject {
 
     }
 
-    class ObjectOfLanguage extends AbstractObjectOfLanguage {
+    class LanguageObject extends AbstractObjectOfLanguage {
         private final boolean isScoped;
         @Override
         public LObjectKind getConstructType() {
@@ -294,12 +294,12 @@ class LanguageObject {
             return isScoped;
         }
 
-        public ObjectOfLanguage(String name, AbstractObjectOfLanguage nameSpace, boolean isScoped) {
+        public LanguageObject(String name, AbstractObjectOfLanguage nameSpace, boolean isScoped) {
             super(name, nameSpace);
             this.isScoped = isScoped;
         }
 
-        public ObjectOfLanguage(String name, AbstractObjectOfLanguage nameSpace) {
+        public LanguageObject(String name, AbstractObjectOfLanguage nameSpace) {
             super(name, nameSpace);
             this.isScoped = false;
         }

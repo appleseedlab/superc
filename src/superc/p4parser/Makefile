@@ -58,7 +58,7 @@ SOURCE = \
 	P4Context.java \
 	GraphViz.java \
 	CallGraphGenerator.java \
-	LanguageObject.java
+	P4LanguageObject.java
 
 
 JNI_SOURCE =

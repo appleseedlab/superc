@@ -27,10 +27,9 @@ import javax.xml.crypto.dsig.spec.DigestMethodParameterSpec;
 
 import superc.core.Syntax;
 import superc.core.Syntax.Language;
-import superc.p4parser.LanguageObject;
-import superc.p4parser.ObjectOfLanguage;
-
-import org.w3c.dom.NameList;
+import superc.p4parser.*;
+import superc.p4parser.P4LanguageObject.*;
+import superc.p4parser.P4LanguageObject.LanguageObject;
 
 import xtc.tree.GNode;
 import xtc.tree.Node;
@@ -43,16 +42,18 @@ import superc.core.PresenceConditionManager.PresenceCondition;
 import superc.core.Syntax.Kind;
 import superc.p4parser.P4Tag;
 import superc.p4parser.GraphViz;
+// import superc.p4parser.AbstractObjectOfLanguage;
 
 public class CallGraphGenerator {
 
-    public static final ObjectOfLanguage global_scope = new ConstantTreeGlobalObjects("GLOBAL");
-    public static final ObjectOfLanguage undefined_scope = new ConstantTreeGlobalObjects("UNDEFINED");
-    Map<LanguageObject, Map<String, LanguageObject>> symtab;
-    Stack<LanguageObject> scope;
+    private static final P4LanguageObject p4LanguageObject = new P4LanguageObject();
+    public static final AbstractObjectOfLanguage global_scope = p4LanguageObject.new ConstantTreeGlobalObjects("GLOBAL");
+    public static final AbstractObjectOfLanguage undefined_scope = p4LanguageObject.new ConstantTreeGlobalObjects("UNDEFINED");
+    Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab;
+    Stack<AbstractObjectOfLanguage> scope;
     // A list of grammar constructs that are not yet supported and might contain invocation
     HashSet<String> notExplicitlySupported = new HashSet<>(Arrays.asList());
-    // private Map<BaseTypes, LanguageObject> baseTypeLanguageObjects = new HashMap<>();
+    // private Map<BaseTypes, AbstractObjectOfLanguage> baseTypeObjectOfLanguages = new HashMap<>();
     // private Map<String, BaseTypes> baseTypeValues = new HashMap<>();
 
     // accept and reject are two parser states not defined by the user but is in the logic
@@ -60,7 +61,7 @@ public class CallGraphGenerator {
                                                                 add("accept");
                                                                 add("reject");
                                                                }};
-    HashMap<LanguageObject, HashSet<LanguageObject>> callGraphObject;
+    HashMap<AbstractObjectOfLanguage, HashSet<AbstractObjectOfLanguage>> callGraphObject;
     ArrayList<String> baseTypes = new ArrayList<>() {{
                                                         add("bool");
                                                         add("error");
@@ -69,35 +70,6 @@ public class CallGraphGenerator {
                                                         add("int");
                                                         add("varbit");
                                                     }};
-    // enum BaseTypes {
-    //     BOOL("bool"),
-    //     ERROR("error"),
-    //     BIT("bit"),
-    //     STRING("string"),
-    //     INT("int"),
-    //     VARBIT("varbit");
-
-
-    //     public String baseString;
-
-    //     private BaseTypes(String typeString) {
-    //         this.baseString = typeString;
-    //     }
-    // }
-
-    
-    // public BaseTypes valueOfBaseType(String typeString) {
-    //     return baseTypeValues.get(typeString);
-    // }
-
-    // public boolean isBaseType(String typeString) {
-    //     return baseTypeValues.containsKey(typeString);
-    // }
-
-    // public Map<String, BaseTypes> getBaseTypeValues() {
-    //     return this.baseTypeValues;
-    // }
-
     //PC Scope
 
     public CallGraphGenerator() {
@@ -107,16 +79,16 @@ public class CallGraphGenerator {
 
         // for (BaseTypes e: BaseTypes.values()) {
         //     baseTypeValues.put(e.baseString, e);
-        //     baseTypeLanguageObjects.put(e, new LanguageObject(e.baseString, LanguageObject.global_scope));
+        //     baseTypeObjectOfLanguages.put(e, new AbstractObjectOfLanguage(e.baseString, AbstractObjectOfLanguage.global_scope));
         // }
 
-        scope.add(LanguageObject.global_scope);
+        scope.add(global_scope);
     }
 
-    // public LanguageObject getLanguageObjectForBaseType(String typeString, LanguageObject scope) {
+    // public AbstractObjectOfLanguage getObjectOfLanguageForBaseType(String typeString, AbstractObjectOfLanguage scope) {
     //     assert baseTypeValues.containsKey(typeString) : "Not a type string. Assuming that the passed in value has been previously check if it a valid base type";
-    //     LanguageObject check = baseTypeLanguageObjects.get(BaseTypes.BIT);
-    //     return baseTypeLanguageObjects.get(baseTypeValues.get(typeString));
+    //     AbstractObjectOfLanguage check = baseTypeObjectOfLanguages.get(BaseTypes.BIT);
+    //     return baseTypeObjectOfLanguages.get(baseTypeValues.get(typeString));
     // }
 
     /**
@@ -128,30 +100,28 @@ public class CallGraphGenerator {
      * @param name
      * @return
      */
-    public LanguageObject addToSymtab(LanguageObject scope, String name) {
-        return addToSymtab(scope, name, null, false);
+    public AbstractObjectOfLanguage addToSymtab(AbstractObjectOfLanguage scope, String name) {
+        LanguageObject newLangObj = p4LanguageObject.new LanguageObject(name, scope);
+        return addToSymtab(scope, name, newLangObj);
     }
-    public LanguageObject addToSymtab(LanguageObject scope, String name, LanguageObject type, Boolean isScoped) {
-        LanguageObject nodeObj = null;
 
+    public AbstractObjectOfLanguage addToSymtab(AbstractObjectOfLanguage scope, String name, AbstractObjectOfLanguage newLangObj) {
         if( !symtab.containsKey(scope)) {
             symtab.put(scope, new HashMap<>());
         }
 
         if(symtab.get(scope).containsKey(name)) {
-            // System.err.println("Multiple declaration error: another entity with the same name (" 
-            //                     + name + 
-            //                     ") already exists");
-            // System.exit(1);
-            System.out.println("Warning: defining with an already existing name ("
-                                + name + ").");
-            nodeObj = symtab.get(scope).get(name);
+            // TODO: Functions and method can have overloadings - take care of that
+            System.err.println("Multiple declaration error: another entity with the same name (" 
+                                + name + 
+                                ") already exists");
+            System.exit(1);
         } else {
-            nodeObj = new LanguageObject(name, scope);
-            symtab.get(scope).put(name, nodeObj);
+            // nodeObj = p4LanguageObject.new LanguageObject(name, scope);
+            symtab.get(scope).put(name, newLangObj);
         }
 
-        return nodeObj;
+        return newLangObj;
     }
 
     /**
@@ -160,7 +130,7 @@ public class CallGraphGenerator {
      * @param scope
      * @return Boolean
      */
-    public boolean doesScopeExist(LanguageObject scope) {
+    public boolean doesScopeExist(AbstractObjectOfLanguage scope) {
         return symtab.containsKey(scope);
     }
 
@@ -171,7 +141,7 @@ public class CallGraphGenerator {
      * @param name The name to find under the scope
      * @return Boolean
      */
-    public boolean doesSymbolExist(LanguageObject scope, String name) {
+    public boolean doesSymbolExist(AbstractObjectOfLanguage scope, String name) {
         if( !doesScopeExist(scope) ||
             !symtab.get(scope).containsKey(name)) {
                 return false;
@@ -188,18 +158,18 @@ public class CallGraphGenerator {
      * @param typeName
      * @return
      */
-    public LanguageObject symtabLookup(LanguageObject localScope, String typeName) {
+    public AbstractObjectOfLanguage symtabLookup(AbstractObjectOfLanguage localScope, String typeName) {
         assert !typeName.isBlank() : "typeName is not supposed to be empty when looking it up on symbol table";
 
         // base case where global_scope is the top-most parent
-        if(localScope.equals(LanguageObject.global_scope)) {
+        if(localScope.equals(global_scope)) {
             assert doesSymbolExist(localScope, typeName) : "Calling to an undefined symbol \"" + typeName + "\"";
             return symtab.get(localScope).get(typeName);
         }
 
         // if the symbol does not exist in the current scope, check under its parent scope
         if( !doesSymbolExist(localScope, typeName)) {
-            return symtabLookup(localScope.nameSpace, typeName);
+            return symtabLookup(localScope.getNameSpace(), typeName);
         } else {
             return symtab.get(localScope).get(typeName);
         }
@@ -213,7 +183,7 @@ public class CallGraphGenerator {
 
         // looks up in the symbol table under the current scope
         // if not in current scope, checks under parent scopes.
-        LanguageObject callee = symtabLookup(scope.peek(), name);
+        AbstractObjectOfLanguage callee = symtabLookup(scope.peek(), name);
 
         assert callee != null : "UNCAUGHT Calling to an undefined symbol when expecting it to be defined beforehand (" + name + ")";
         if( !callGraphObject.containsKey(scope.peek())) {
@@ -266,7 +236,9 @@ public class CallGraphGenerator {
             // If need to parse parameters, visit the controltypedeclaration instead of static function to get name
             String controlBlockName = getNameOfControlBlock(n.getGeneric(0));
 
-            LanguageObject controlObj = addToSymtab(scope.peek(), controlBlockName);
+            ControlDeclaration controlBlock = p4LanguageObject.new ControlDeclaration(controlBlockName, scope.peek());
+
+            AbstractObjectOfLanguage controlObj = addToSymtab(scope.peek(), controlBlockName);
             scope.add(controlObj);
 
             // skipping visiting controlTypeDeclaration
@@ -277,7 +249,7 @@ public class CallGraphGenerator {
             // start parse controlBody
             GNode oldN = n;
             n = n.getGeneric(5); // controlBody
-            LanguageObject apply = addToSymtab(scope.peek(), applyBlockName);
+            AbstractObjectOfLanguage apply = addToSymtab(scope.peek(), applyBlockName);
             scope.add(apply);
 
             dispatch(n.getGeneric(0)); // controlBody can have only one child
@@ -290,10 +262,38 @@ public class CallGraphGenerator {
             return n;
         }
 
+        public Node visitheaderTypeDeclaration(GNode n) {
+            String headerTypeName = getStringUnderName(n.getGeneric(2));
+            HeaderTypeDeclaration headerTypeDeclarationObject = p4LanguageObject.new HeaderTypeDeclaration(headerTypeName, scope.peek());
+            addToSymtab(scope.peek(), headerTypeName, headerTypeDeclarationObject);
+            scope.add(headerTypeDeclarationObject);
+
+            dispatch(n.getGeneric(3)); // optTypeParameters
+            dispatch(n.getGeneric(5)); // structFieldList
+
+            scope.pop();
+
+            return n;
+        }
+
+        public Node visitheaderUnionDeclaration(GNode n) {
+            String headerUnionName = getStringUnderName(n.getGeneric(2));
+            HeaderUnionDeclaration headerUnionDeclarationObject = p4LanguageObject.new HeaderUnionDeclaration(headerUnionName, scope.peek());
+            addToSymtab(scope.peek(), headerUnionName, headerUnionDeclarationObject);
+            scope.add(headerUnionDeclarationObject);
+
+            dispatch(n.getGeneric(3)); // optTypeParameters
+            dispatch(n.getGeneric(5)); // structFieldList
+
+            scope.pop();
+
+            return n;
+        }
+
         public Node visitactionDeclaration(GNode n) {
             // Each action in the list of actions for a table must have a distinct name
             String actionBlockName = getStringUnderName(n.getGeneric(2));
-            LanguageObject actionObj =  addToSymtab(scope.peek(), actionBlockName);
+            AbstractObjectOfLanguage actionObj =  addToSymtab(scope.peek(), actionBlockName);
             scope.add(actionObj);
 
             dispatch(n.getGeneric(4)); // parameterList
@@ -354,7 +354,7 @@ public class CallGraphGenerator {
                         // TODO: figure out key, actions...
                         // TODO: can we do controlblock.functioname?
                         // note: if name is type_identifier, then ensure its of one of those constructs
-                        // TODO: change LanguageObject to include what constructs to check for this
+                        // TODO: change AbstractObjectOfLanguage to include what constructs to check for this
                         ensureDotValueIsOnlySpecificConstructs(n.getGeneric(1));
                     } else {
                         dispatch(n.getGeneric(1)); // lvalueExpression
@@ -389,7 +389,7 @@ public class CallGraphGenerator {
             } else {
                 if(returnSecondChildIfConditional(n.getGeneric(2)).getName() == "nonTypeName") {
                     String externName = getStringUnderNonTypeName(returnSecondChildIfConditional(n.getGeneric(2)));
-                    LanguageObject externObj = addToSymtab(scope.peek(), externName);
+                    AbstractObjectOfLanguage externObj = addToSymtab(scope.peek(), externName);
                     scope.add(externObj);
 
                     dispatch(n.getGeneric(3)); // optTypeParameters
@@ -413,7 +413,7 @@ public class CallGraphGenerator {
 
             // as per language specification, functionPrototype will describe the name and type signature of the function
             String functionName = getStringUnderFunctionPrototype(n.getGeneric(0));
-            LanguageObject functionObj = addToSymtab(scope.peek(), functionName);
+            AbstractObjectOfLanguage functionObj = addToSymtab(scope.peek(), functionName);
             scope.add(functionObj);
 
             dispatch(n.getGeneric(0)); // functionPrototype (for parameters)
@@ -442,7 +442,7 @@ public class CallGraphGenerator {
                 // TODO: need to handle abstract methods
                 dispatch(n.getGeneric(0)); // optAnnotations
                 String functionName = getStringUnderFunctionPrototype(returnSecondChildIfConditional(n.getGeneric(2)));
-                LanguageObject functionObj = addToSymtab(scope.peek(), functionName);
+                AbstractObjectOfLanguage functionObj = addToSymtab(scope.peek(), functionName);
                 scope.add(functionObj);
 
                 dispatch(returnSecondChildIfConditional(n.getGeneric(2)));
@@ -452,7 +452,7 @@ public class CallGraphGenerator {
                 assert returnSecondChildIfConditional(n.getGeneric(1)).getName() == "functionPrototype" : "unhandled case in method prototype";
                 dispatch(n.getGeneric(0)); // optAnnotations
                 String functionName = getStringUnderFunctionPrototype(returnSecondChildIfConditional(n.getGeneric(1)));
-                LanguageObject functionObj = addToSymtab(scope.peek(), functionName);
+                AbstractObjectOfLanguage functionObj = addToSymtab(scope.peek(), functionName);
                 scope.add(functionObj);
 
                 dispatch(returnSecondChildIfConditional(n.getGeneric(1)));
@@ -471,8 +471,8 @@ public class CallGraphGenerator {
             // so can retrieve the extern block's name from the scope
             // TODO: check if there is a better way
 
-            assert type_identifier.equals(scope.peek().name) : "Extern constructor not of the same name as extern block";
-            LanguageObject constructor = addToSymtab(scope.peek(), type_identifier);
+            assert type_identifier.equals(scope.peek().getName()) : "Extern constructor not of the same name as extern block";
+            AbstractObjectOfLanguage constructor = addToSymtab(scope.peek(), type_identifier);
             scope.add(constructor);
 
             dispatch(n.getGeneric(3)); // parameterList
@@ -488,12 +488,12 @@ public class CallGraphGenerator {
         //     String type_ref_string = getTypeStringUnderTypeRef(n.getGeneric(2));
         //     String name = getStringUnderName(n.getGeneric(3));
 
-        //     LanguageObject parameterObj = addToSymtab(scope.peek(), name);
+        //     AbstractObjectOfLanguage parameterObj = addToSymtab(scope.peek(), name);
 
         //     if(baseTypes.contains(type_ref_string)) {
         //         parameterObj.type = type_ref_string;
         //     } else {
-        //         LanguageObject typeObj = symtabLookup(scope.peek(), type_ref_string);
+        //         AbstractObjectOfLanguage typeObj = symtabLookup(scope.peek(), type_ref_string);
         //         parameterObj.type = typeObj;
         //     }
 
@@ -530,7 +530,7 @@ public class CallGraphGenerator {
 
         public Node visitparserDeclaration(GNode n) {
             String parserName = getStringUnderParserTypeDeclaration(n.getGeneric(0)); // TODO: take of parameter list here if needed to
-            LanguageObject parserObj = addToSymtab(scope.peek(), parserName);
+            AbstractObjectOfLanguage parserObj = addToSymtab(scope.peek(), parserName);
             scope.add(parserObj);
 
             dispatch(n.getGeneric(3)); // parserLocalElements TODO: valueSetDeclaration needs to be traced for data flow
@@ -543,7 +543,7 @@ public class CallGraphGenerator {
 
         public Node visitparserState(GNode n) {
             String stateName = getStringUnderName(n.getGeneric(2));
-            LanguageObject stateObj = addToSymtab(scope.peek(), stateName);
+            AbstractObjectOfLanguage stateObj = addToSymtab(scope.peek(), stateName);
             scope.add(stateObj);
 
             dispatch(n.getGeneric(4)); // parserStatements
@@ -565,7 +565,7 @@ public class CallGraphGenerator {
         // TODO: check if we need to list table scope (if not, remove from callGraphGenerator as well)
         public Node visittableDeclaration(GNode n) {
             String tableName = getStringUnderName(n.getGeneric(2));
-            LanguageObject tableObj = addToSymtab(scope.peek(), tableName);
+            AbstractObjectOfLanguage tableObj = addToSymtab(scope.peek(), tableName);
             scope.add(tableObj);
 
             dispatch(n.getGeneric(4)); // tablePropertyList
@@ -580,7 +580,7 @@ public class CallGraphGenerator {
         public Node visitexternFunctionDeclaration(GNode n) {
             // TODO: take care of parameters (inside functionPrototype and in general)
             String functionName = getStringUnderFunctionPrototype(n.getGeneric(2));
-            LanguageObject functionObj = addToSymtab(scope.peek(), functionName);
+            AbstractObjectOfLanguage functionObj = addToSymtab(scope.peek(), functionName);
 
             return n;
         }
@@ -619,7 +619,7 @@ public class CallGraphGenerator {
             // If need to parse parameters, visit the controltypedeclaration instead of static function to get name
             String controlBlockName = getNameOfControlBlock(n.getGeneric(0));
 
-            LanguageObject controlObj = symtabLookup(scope.peek(), controlBlockName);
+            AbstractObjectOfLanguage controlObj = symtabLookup(scope.peek(), controlBlockName);
             scope.add(controlObj);
 
             // skipping visiting controlTypeDeclaration
@@ -630,7 +630,7 @@ public class CallGraphGenerator {
             // start parse controlBody
             GNode oldN = n;
             n = n.getGeneric(5); // controlBody
-            LanguageObject apply = symtabLookup(scope.peek(), applyBlockName);
+            AbstractObjectOfLanguage apply = symtabLookup(scope.peek(), applyBlockName);
             lookupInSymTabAndAddAsCallee(applyBlockName); // TODO: ask if need to insert this as a callee?
             scope.add(apply);
 
@@ -647,7 +647,7 @@ public class CallGraphGenerator {
         public Node visitactionDeclaration(GNode n) {
             // Each action in the list of actions for a table must have a distinct name
             String actionBlockName = getStringUnderName(n.getGeneric(2));
-            LanguageObject actionObj =  symtabLookup(scope.peek(), actionBlockName);
+            AbstractObjectOfLanguage actionObj =  symtabLookup(scope.peek(), actionBlockName);
             scope.add(actionObj);
 
             dispatch(n.getGeneric(4)); // parameterList
@@ -666,7 +666,7 @@ public class CallGraphGenerator {
 
             // as per language specification, functionPrototype will describe the name and type signature of the function
             String functionName = getStringUnderFunctionPrototype(n.getGeneric(0));
-            LanguageObject functionObj = symtabLookup(scope.peek(), functionName);
+            AbstractObjectOfLanguage functionObj = symtabLookup(scope.peek(), functionName);
             scope.add(functionObj);
 
             dispatch(n.getGeneric(0)); // functionPrototype (for parameters)
@@ -679,7 +679,7 @@ public class CallGraphGenerator {
 
         public Node visitparserDeclaration(GNode n) {
             String parserName = getStringUnderParserTypeDeclaration(n.getGeneric(0)); // TODO: take of parameter list here if needed to
-            LanguageObject parserObj = symtabLookup(scope.peek(), parserName);
+            AbstractObjectOfLanguage parserObj = symtabLookup(scope.peek(), parserName);
             scope.add(parserObj);
 
             dispatch(n.getGeneric(3)); // parserLocalElements TODO: valueSetDeclaration needs to be traced for data flow
@@ -692,7 +692,7 @@ public class CallGraphGenerator {
 
         public Node visitparserState(GNode n) {
             String stateName = getStringUnderName(n.getGeneric(2));
-            LanguageObject stateObj = symtabLookup(scope.peek(), stateName);
+            AbstractObjectOfLanguage stateObj = symtabLookup(scope.peek(), stateName);
             scope.add(stateObj);
 
             dispatch(n.getGeneric(4)); // parserStatements
@@ -711,7 +711,7 @@ public class CallGraphGenerator {
             } else {
                 if(returnSecondChildIfConditional(n.getGeneric(2)).getName() == "nonTypeName") {
                     String externName = getStringUnderNonTypeName(returnSecondChildIfConditional(n.getGeneric(2)));
-                    LanguageObject externObj = symtabLookup(scope.peek(), externName);
+                    AbstractObjectOfLanguage externObj = symtabLookup(scope.peek(), externName);
                     scope.add(externObj);
 
                     dispatch(n.getGeneric(3)); // optTypeParameters
@@ -746,7 +746,7 @@ public class CallGraphGenerator {
 
                 // TODO: need to handle abstract methods
                 String functionName = getStringUnderFunctionPrototype(returnSecondChildIfConditional(n.getGeneric(2)));
-                LanguageObject functionObj = symtabLookup(scope.peek(), functionName);
+                AbstractObjectOfLanguage functionObj = symtabLookup(scope.peek(), functionName);
                 scope.add(functionObj);
 
                 dispatch(n.getGeneric(2));
@@ -756,7 +756,7 @@ public class CallGraphGenerator {
                 assert returnSecondChildIfConditional(n.getGeneric(1)).getName() == "functionPrototype" : "unhandled case in method prototype";
                 dispatch(n.getGeneric(0)); // optAnnotations
                 String functionName = getStringUnderFunctionPrototype(returnSecondChildIfConditional(n.getGeneric(1)));
-                LanguageObject functionObj = symtabLookup(scope.peek(), functionName);
+                AbstractObjectOfLanguage functionObj = symtabLookup(scope.peek(), functionName);
                 scope.add(functionObj);
 
                 dispatch(n.getGeneric(1));
@@ -774,8 +774,8 @@ public class CallGraphGenerator {
             // so can retrieve the extern block's name from the scope
             // TODO: check if there is a better way
 
-            assert type_identifier.equals(scope.peek().name) : "Extern constructor not of the same name as extern block";
-            LanguageObject constructor = symtabLookup(scope.peek(), type_identifier);
+            assert type_identifier.equals(scope.peek().getName()) : "Extern constructor not of the same name as extern block";
+            AbstractObjectOfLanguage constructor = symtabLookup(scope.peek(), type_identifier);
             scope.add(constructor);
 
             dispatch(n.getGeneric(3)); // parameterList
@@ -834,7 +834,7 @@ public class CallGraphGenerator {
         // TODO: check if we need to list table scope (if not, remove from definitions dispatcher as well)
         public Node visittableDeclaration(GNode n) {
             String tableName = getStringUnderName(n.getGeneric(2));
-            LanguageObject tableObj = symtabLookup(scope.peek(), tableName);
+            AbstractObjectOfLanguage tableObj = symtabLookup(scope.peek(), tableName);
             scope.add(tableObj);
 
             dispatch(n.getGeneric(4)); // tablePropertyList
@@ -885,7 +885,7 @@ public class CallGraphGenerator {
 
                 dispatch(returnSecondChildIfConditional(n.getGeneric(2))); // argumentList
             } else { // first element pointing to name is an expression, extract from that
-                LanguageObject expressionCallee = getCalleeFromExpression(nGetGeneric0);
+                AbstractObjectOfLanguage expressionCallee = getCalleeFromExpression(nGetGeneric0);
                 callGraphObject.get(scope.peek()).add(expressionCallee);
 
                 // two possible productions, one contains extra set of type arguments 
@@ -910,7 +910,7 @@ public class CallGraphGenerator {
 
                 dispatch(returnSecondChildIfConditional(n.getGeneric(2))); // argumentList
             } else { // first element pointing to name is an expression, extract from that
-                LanguageObject expressionCallee = getCalleeFromNonBraceExpression(nGetGeneric0);
+                AbstractObjectOfLanguage expressionCallee = getCalleeFromNonBraceExpression(nGetGeneric0);
                 callGraphObject.get(scope.peek()).add(expressionCallee);
 
                 // two possible productions, one contains extra set of type arguments 
@@ -956,7 +956,7 @@ public class CallGraphGenerator {
      * @param n
      * @return
      */
-    public LanguageObject getCalleeFromExpression(GNode n) {
+    public AbstractObjectOfLanguage getCalleeFromExpression(GNode n) {
         assert n.getName() == "expression" : "current name is: " + n.getName();
 
         if(n.get(0) instanceof Syntax) { // NOT expression
@@ -986,14 +986,14 @@ public class CallGraphGenerator {
                 case "typeName":
                     // typeName dot_name
                     // doing namespacing
-                    LanguageObject typeNameLO = symtabLookup(scope.peek(), getNameFromTypeName(returnSecondChildIfConditional(n.getGeneric(0))));
+                    AbstractObjectOfLanguage typeNameLO = symtabLookup(scope.peek(), getNameFromTypeName(returnSecondChildIfConditional(n.getGeneric(0))));
                     dotNameString = getStringUnderDotName(returnSecondChildIfConditional(n.getGeneric(1)));
                     return symtabLookup(typeNameLO, dotNameString);
                 case "expression":
                     // expression dot_name
                     // namespace
                     assert n.size() == 2 && n.getGeneric(1).getName() == "dot_name";
-                    LanguageObject expressionLO = getCalleeFromExpression(returnSecondChildIfConditional(n.getGeneric(0)));
+                    AbstractObjectOfLanguage expressionLO = getCalleeFromExpression(returnSecondChildIfConditional(n.getGeneric(0)));
                     dotNameString = getStringUnderDotName(returnSecondChildIfConditional(n.getGeneric(1)));
                     return symtabLookup(expressionLO, dotNameString);
                 default:
@@ -1018,7 +1018,7 @@ public class CallGraphGenerator {
      * @param n
      * @return
      */
-    public LanguageObject getCalleeFromNonBraceExpression(GNode n) {
+    public AbstractObjectOfLanguage getCalleeFromNonBraceExpression(GNode n) {
         assert n.getName() == "expression" : "current name is: " + n.getName();
 
         if(n.get(0) instanceof Syntax) { // NOT expression
@@ -1048,14 +1048,14 @@ public class CallGraphGenerator {
                 case "typeName":
                     // typeName dot_name
                     // doing namespacing
-                    LanguageObject typeNameLO = symtabLookup(scope.peek(), getNameFromTypeName(returnSecondChildIfConditional(n.getGeneric(0))));
+                    AbstractObjectOfLanguage typeNameLO = symtabLookup(scope.peek(), getNameFromTypeName(returnSecondChildIfConditional(n.getGeneric(0))));
                     dotNameString = getStringUnderDotName(returnSecondChildIfConditional(n.getGeneric(1)));
                     return symtabLookup(typeNameLO, dotNameString);
                 case "expression":
                     // nonBraceExpression dot_name
                     // namespace
                     assert n.size() == 2 && n.getGeneric(1).getName() == "dot_name";
-                    LanguageObject expressionLO = getCalleeFromNonBraceExpression(returnSecondChildIfConditional(n.getGeneric(0)));
+                    AbstractObjectOfLanguage expressionLO = getCalleeFromNonBraceExpression(returnSecondChildIfConditional(n.getGeneric(0)));
                     dotNameString = getStringUnderDotName(returnSecondChildIfConditional(n.getGeneric(1)));
                     return symtabLookup(expressionLO, dotNameString);
                 default:
@@ -1123,7 +1123,7 @@ public class CallGraphGenerator {
         return getStringUnderName(n.getGeneric(2));
     }
 
-    // TODO: !! (need to change LanguageObject to include which construct each symbol is from)
+    // TODO: !! (need to change AbstractObjectOfLanguage to include which construct each symbol is from)
     public void ensureDotValueIsOnlySpecificConstructs(GNode n) {
         assert true;
     }
@@ -1282,7 +1282,7 @@ public class CallGraphGenerator {
     }
 
     public void printCallGraph() {
-        for(LanguageObject key : symtab.keySet()) {
+        for(AbstractObjectOfLanguage key : symtab.keySet()) {
             System.out.println(key.toStringExtensive(symtab, callGraphObject));
         }
         // System.out.println(callGraphObject);
@@ -1290,7 +1290,7 @@ public class CallGraphGenerator {
 
     public String toDot() {
         String dotFormat = "";
-        for(LanguageObject key : symtab.keySet()) {
+        for(AbstractObjectOfLanguage key : symtab.keySet()) {
             dotFormat += key.toDotString(symtab, callGraphObject);
         }
 
