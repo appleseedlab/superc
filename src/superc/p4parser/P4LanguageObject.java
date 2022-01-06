@@ -12,6 +12,8 @@ import java.util.Map;
 import javax.naming.ldap.PagedResultsResponseControl;
 import javax.sound.midi.SysexMessage;
 
+import superc.p4parser.P4LanguageObject.TypeOrVoid;
+
 // For symbols
 class P4LanguageObject {
     // conditioned callees
@@ -19,8 +21,6 @@ class P4LanguageObject {
         CONSTANTVALUE,
         HEADERTYPEDECLARATION,
         HEADERUNIONDECLARATION,
-        HEADERSTACKTYPE,
-        TUPLETYPE,
         STRUCTTYPEDECLARATION,
         ENUMDECLARATION,
         TYPEDEFDECLARATION,
@@ -29,12 +29,13 @@ class P4LanguageObject {
         EXTERNDECLARATION,
         EXTERNFUNCTIONDECLARATION,
         PARAMETER,
-        CONTROLBLOCK,
+        CONTROLTYPEDECLARATION,
         TYPEORVOID,
         TYPEPARAMETER,
         STRUCTFIELD,
         STRING,
-        DEFAULT
+        DEFAULT,
+        FUNCTIONPROTOTYPE
     }
 
     abstract class AbstractObjectOfLanguage {
@@ -152,7 +153,7 @@ class P4LanguageObject {
             while(itr.hasNext()) {
                 String childKey = (String) itr.next();
                 AbstractObjectOfLanguage childLangObj = symtab.get(this).get(childKey);
-                finalString += childLangObj.toString();
+                finalString += childLangObj.getName();
                 if(symtab.containsKey(childLangObj)) {
                     finalString += itr.hasNext() ? ", " : "";
                     continue;
@@ -161,7 +162,7 @@ class P4LanguageObject {
                 ArrayList<String> calleeNames = new ArrayList<>();
                 if(callGraphObject.containsKey(childLangObj)) {
                     for(AbstractObjectOfLanguage callee : callGraphObject.get(childLangObj)) {
-                        calleeNames.add(callee.toString());
+                        calleeNames.add(callee.getName());
                     }
                 }
 
@@ -397,86 +398,6 @@ class P4LanguageObject {
         HeaderUnionDeclaration(String name, AbstractObjectOfLanguage nameSpace) {
             super(name, nameSpace);
             this.structFieldList = new ArrayList<>();
-        }
-    }
-
-    // HeaderStack is used to initialize an array of headers
-    // If A is of header type, A[5] a_array -> header stack
-    //          initializes a_array with 5 entries of type A
-    class HeaderStackType extends AbstractObjectOfLanguage {
-        private final AbstractObjectOfLanguage type;
-        private final ArrayList<String> typeArgumentList;
-
-        public AbstractObjectOfLanguage getType() {
-            return this.type;
-        }
-
-        // public SpecializedType getSpecializedType() {
-        //     return this.specializedType;
-        // }
-
-        @Override 
-        public boolean isScoped() {
-            return false;
-        }
-
-        @Override
-        public LObjectKind getConstructType() {
-            return LObjectKind.HEADERSTACKTYPE;
-        }
-
-        @Override
-        boolean hasAssociatedType() {
-            return true;
-        }
-
-        public boolean hasArgumentsList() {
-            return !this.typeArgumentList.isEmpty();
-        }
-
-        public ArrayList<String> getTypeArgumentsList() {
-            return this.typeArgumentList;
-        }
-
-        public void addToTypeArgumentsList(String type) {
-            this.typeArgumentList.add(type);
-        }
-
-        public HeaderStackType(AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage type) {
-            super(nameSpace);
-            this.type = type;
-            this.typeArgumentList = new ArrayList<>();
-        }
-    }
-
-    class TupleType extends AbstractObjectOfLanguage {
-        private final ArrayList<String> typeArgumentList;
-
-        public boolean hasArgumentsList() {
-            return !this.typeArgumentList.isEmpty();
-        }
-
-        public ArrayList<String> getTypeArgumentsList() {
-            return this.typeArgumentList;
-        }
-
-        public void addToTypeArgumentsList(String type) {
-            this.typeArgumentList.add(type);
-        }
-
-        @Override 
-        public boolean isScoped() {
-            return false;
-        }
-
-        @Override
-        public LObjectKind getConstructType() {
-            return LObjectKind.TUPLETYPE;
-        }
-
-        public TupleType(AbstractObjectOfLanguage nameSpace) {
-            super(nameSpace);
-            this.typeArgumentList = new ArrayList<>();
         }
     }
 
@@ -723,8 +644,7 @@ class P4LanguageObject {
 
     // combines function prototype
     class ExternFunctionDeclaration extends AbstractObjectOfLanguage {
-        private final ArrayList<Parameter> parameterList;
-        private final TypeOrVoid typeOrVoid;
+        private final FunctionPrototype functionPrototype;
 
         @Override
         public LObjectKind getConstructType() {
@@ -737,18 +657,58 @@ class P4LanguageObject {
         }
 
         public ArrayList<Parameter> getParameters() {
-            return this.parameterList;
+            return this.functionPrototype.getParameters();
         }
 
-        TypeOrVoid getReturnType() {
+        AbstractObjectOfLanguage getReturnType() {
+            return this.functionPrototype.getTypeOrVoid();
+        }
+
+        public void addToParameters(Parameter parameter) {
+            this.functionPrototype.addToParameters(parameter);
+        }
+
+        public boolean hasParameters() {
+            return this.functionPrototype.hasParameters();
+        }
+
+        public ExternFunctionDeclaration(String name, AbstractObjectOfLanguage nameSpace, FunctionPrototype functionPrototype){
+            super(name, nameSpace);
+            this.functionPrototype = functionPrototype;
+        }
+    }
+
+    class FunctionPrototype extends AbstractObjectOfLanguage {
+        private final ArrayList<Parameter> parameterList;
+        private final AbstractObjectOfLanguage typeOrVoid;
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.FUNCTIONPROTOTYPE;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        AbstractObjectOfLanguage getTypeOrVoid() {
             return this.typeOrVoid;
+        }
+
+        public ArrayList<Parameter> getParameters() {
+            return this.parameterList;
         }
 
         public void addToParameters(Parameter parameter) {
             this.parameterList.add(parameter);
         }
 
-        public ExternFunctionDeclaration(String name, AbstractObjectOfLanguage nameSpace, TypeOrVoid typeOrVoid){
+        public boolean hasParameters() {
+            return !this.parameterList.isEmpty();
+        }
+
+        public FunctionPrototype(String name, AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage typeOrVoid){
             super(name, nameSpace);
             this.parameterList = new ArrayList<>();
             this.typeOrVoid = typeOrVoid;
@@ -756,12 +716,12 @@ class P4LanguageObject {
     }
 
     // combines control type declaration
-    class ControlDeclaration extends AbstractObjectOfLanguage {
+    class ControlTypeDeclaration extends AbstractObjectOfLanguage {
         private final ArrayList<Parameter> parameterList;
 
         @Override 
         public LObjectKind getConstructType() {
-            return LObjectKind.CONTROLBLOCK;
+            return LObjectKind.CONTROLTYPEDECLARATION;
         }
 
         @Override
@@ -777,7 +737,7 @@ class P4LanguageObject {
             this.parameterList.add(parameter);
         }
 
-        public ControlDeclaration(String name, AbstractObjectOfLanguage nameSpace) {
+        public ControlTypeDeclaration(String name, AbstractObjectOfLanguage nameSpace) {
             super(name, nameSpace);
             this.parameterList = new ArrayList<>();
         }
@@ -831,7 +791,7 @@ class P4LanguageObject {
             this.voidVar = null;
         }
 
-        TypeOrVoid(ConstantTreeGlobalObjects voidVar, AbstractObjectOfLanguage nameSpace) {
+        TypeOrVoid(AbstractObjectOfLanguage nameSpace, ConstantTreeGlobalObjects voidVar) {
             super(voidVar.getName(), nameSpace);
             this.identifier = null;
             this.typeRef = null;
@@ -841,7 +801,7 @@ class P4LanguageObject {
 
     class Parameter extends AbstractObjectOfLanguage {
         private final AbstractObjectOfLanguage type;
-        private final Expression assignedExpression;
+        private final AbstractObjectOfLanguage assignedExpression;
         private final ConstantTreeGlobalObjects direction;
 
         @Override 
@@ -863,7 +823,7 @@ class P4LanguageObject {
             return (assignedExpression != null);
         }
 
-        public Expression getAssignedExpression() {
+        public AbstractObjectOfLanguage getAssignedExpression() {
             return this.assignedExpression;
         }
 
@@ -884,7 +844,7 @@ class P4LanguageObject {
             this.assignedExpression = null;
         }
 
-        public Parameter(String name, AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage type, ConstantTreeGlobalObjects direction, Expression assignedExpression) {
+        public Parameter(String name, AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage type, ConstantTreeGlobalObjects direction, AbstractObjectOfLanguage assignedExpression) {
             super(name, nameSpace);
             this.type = type;
             this.assignedExpression = assignedExpression;
@@ -1007,7 +967,7 @@ class P4LanguageObject {
 
     public class Direction {
         private ArrayList<String> directions;
-        private Map<String, AbstractObjectOfLanguage> directionTypeObjects;
+        private Map<String, ConstantTreeGlobalObjects> directionTypeObjects;
 
         {
             directions = new ArrayList<>();
@@ -1015,13 +975,14 @@ class P4LanguageObject {
             directions.add("out");
             directions.add("inout");
 
+            directionTypeObjects = new HashMap<>();
 
             for(String type : directions) {
                 directionTypeObjects.put(type, new ConstantTreeGlobalObjects(type));
             }
         }
 
-        public AbstractObjectOfLanguage getLanguageObjectOfDirection(String type) {
+        public ConstantTreeGlobalObjects getLanguageObjectOfDirection(String type) {
             assert directions.contains(type);
 
             return directionTypeObjects.get(type);

@@ -87,7 +87,7 @@ import superc.p4parser.P4TokenCreator;
 
 import superc.p4parser.GraphViz;
 // import static guru.nidi.graphviz.model.Factory.*;
-import superc.CallGraphGenerator;
+import superc.p4parser.CallGraphGenerator;
 
 import superc.p4parser.P4Context.SymbolTable.STField;
 
