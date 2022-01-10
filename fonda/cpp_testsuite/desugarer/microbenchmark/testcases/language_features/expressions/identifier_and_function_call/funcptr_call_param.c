@@ -1,5 +1,5 @@
 #ifdef HAS_PARAM
-int foo();
+int foo(int a);
 
 int foo(int a) {
   return a;

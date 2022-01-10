@@ -3,10 +3,10 @@ typedef int a;
 #endif
 
 int main() {
-#ifdef B
+#ifdef A
   typedef a a;
-#endif
   a x;
   x++;
+#endif
   return 0;
 }
