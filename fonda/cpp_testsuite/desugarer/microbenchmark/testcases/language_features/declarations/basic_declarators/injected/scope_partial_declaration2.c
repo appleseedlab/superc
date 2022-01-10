@@ -9,8 +9,15 @@ char x;
 int main() {
 // this hides the "int x;" declaration in any configurations
 #ifdef A
-  float x;
+  double x;
 // symtab: x -> float:A, char:!A&&!A  (int:!A&&A=False, i.e., no configurations)
 #endif
   x++;
+
+#ifdef A
+  int flag = sizeof(x) == 8;
+#else
+  int flag = sizeof(x) == 1;
+#endif
+  printf("%d\n", flag);
 }

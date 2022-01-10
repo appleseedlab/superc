@@ -1,11 +1,17 @@
 #ifdef A
 const char x = 'c';
 #else
-char x = 'c';
+char x = 'd';
 #endif
 
 void foo(const char c[4])
 {
+  #ifdef A
+  int flag = c[2] == 'c';
+  #else
+  int flag = c[2] == 'd';
+  #endif
+  printf("%d\n", flag);
   return;
 }
 
