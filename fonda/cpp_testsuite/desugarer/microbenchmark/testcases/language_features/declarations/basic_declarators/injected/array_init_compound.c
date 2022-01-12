@@ -1,22 +1,20 @@
-#ifdef A
+#ifdef ENABLE_A
 const char x = 'c';
 #else
 char x = 'd';
 #endif
 
-void foo(const char c[4])
+int foo(const char c[4])
 {
-  #ifdef A
+  #ifdef ENABLE_A
   int flag = c[2] == 'c';
   #else
   int flag = c[2] == 'd';
   #endif
-  printf("%d\n", flag);
-  return;
+  return flag;
 }
 
 int main ()
 {
-  foo((char[]){'a','b',x,'d'});
-  return 0;
+  return foo((char[]){'a','b',x,'d'});
 }

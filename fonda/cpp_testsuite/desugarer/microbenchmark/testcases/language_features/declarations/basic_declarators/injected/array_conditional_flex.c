@@ -1,6 +1,4 @@
-#include <stdio.h>
-
-#ifdef A
+#ifdef ENABLE_A
 typedef int x;
 #else
 typedef short x;
@@ -8,10 +6,10 @@ typedef short x;
 
 int main() {
   x id[2] = {1, 2};
-  #ifdef A
+  #ifdef ENABLE_A
   int flag = sizeof(id) == 8;
   #else
   int flag = sizeof(id) == 4;
   #endif
-  printf("%d\n", flag);
+  return flag;
 }

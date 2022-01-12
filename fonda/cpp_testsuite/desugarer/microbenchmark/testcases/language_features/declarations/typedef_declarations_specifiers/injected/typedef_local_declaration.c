@@ -1,11 +1,15 @@
-int main() {
 #ifdef ENABLE_A
-  int x;
-#else
-  double x;
+typedef int a;
 #endif
 
-  x = 1;
+int main() {
+  #ifdef ENABLE_A
+  typedef a a;
+  a x;
+  #else
+  long x;  
+  #endif
+
   x++;
 
   #ifdef ENABLE_A

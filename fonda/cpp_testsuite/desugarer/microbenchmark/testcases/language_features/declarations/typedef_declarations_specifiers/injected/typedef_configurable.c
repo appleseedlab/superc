@@ -1,16 +1,19 @@
+typedef
 #ifdef ENABLE_A
-#define X 1
+int
 #else
-#define X 2
+double
 #endif
+a;
 
 int main() {
-  int a[1] = {X};
+  a x;
   #ifdef ENABLE_A
-  int flag = a[0] == 1;
+  int flag = sizeof(x) == 4;
   #else
-  int flag = a[0] == 2;
+  int flag = sizeof(x) == 8;
   #endif
   return flag;
+
 }
 

@@ -1,4 +1,4 @@
-#ifdef A
+#ifdef ENABLE_A
 int x = 1;
 #else
 long x = 2;
@@ -6,11 +6,11 @@ long x = 2;
 int main() {
   int a, b = x;
 
-  #ifdef A
+  #ifdef ENABLE_A
   int flag = a == 0 && b == 1;
   #else
   int flag = a == 0 && b == 2;
   #endif
-  printf("%d\n", flag);
+  return flag;
   
 }

@@ -1,14 +1,16 @@
 int main() {
+  int a;
+
   #ifdef ENABLE_A
-  int x[4];
+  a = 0;
   #else
-  double x[5];
+  a = 1;
   #endif
 
   #ifdef ENABLE_A
-  int flag = sizeof(x) == 16;
+  int flag = a == 0;
   #else
-  int flag = sizeof(x) == 40;
+  int flag = a == 1;
   #endif
   return flag;
 }

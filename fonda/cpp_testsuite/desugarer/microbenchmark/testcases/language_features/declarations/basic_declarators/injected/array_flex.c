@@ -1,12 +1,10 @@
-#include <stdio.h>
-
-#ifdef A
+#ifdef ENABLE_A
 #define __flexarr []
 #endif
 int a;
 struct x {
   int x;
-#ifdef A
+#ifdef ENABLE_A
   char name __flexarr;
 #else
   char name[5];
@@ -14,11 +12,10 @@ struct x {
 };
 
 int main() {
-  #ifdef A
+  #ifdef ENABLE_A
   int flag = sizeof(struct x) == 4;
   #else
   int flag = sizeof(struct x) == 12;
   #endif
-  printf("%d\n", flag);
-  return 0;
+  return flag;
 }

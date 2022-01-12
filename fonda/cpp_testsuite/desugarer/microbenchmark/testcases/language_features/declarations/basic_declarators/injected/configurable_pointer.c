@@ -4,18 +4,16 @@ struct s {
 };
 
 int main() {
-  #ifdef A
+  #ifdef ENABLE_A
   int *x;
   #else
   struct s *x;
   #endif
 
-  #ifdef A
+  #ifdef ENABLE_A
   int flag = sizeof(*x) == 4;
   #else
   int flag = sizeof(*x) == 8;
   #endif
-  printf("%d\n", flag);
-  
-  return 0;
+  return flag;
 }

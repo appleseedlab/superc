@@ -1,5 +1,5 @@
 int
-#ifdef A
+#ifdef ENABLE_A
   *
 #else
   **
@@ -7,12 +7,10 @@ int
     c;
 
 int main() {
-  #ifdef A
+  #ifdef ENABLE_A
   int flag = sizeof(*c) == 4;
   #else
   int flag = sizeof(*c) == 8;
   #endif
-  printf("%d\n", flag);
-  
-  return 0;
+  return flag;
 }

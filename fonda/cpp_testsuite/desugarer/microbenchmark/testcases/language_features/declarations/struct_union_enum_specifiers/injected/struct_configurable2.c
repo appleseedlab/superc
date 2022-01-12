@@ -1,17 +1,17 @@
-int main() {
+struct {
+  int a;
 #ifdef ENABLE_A
   int x;
 #else
   double x;
 #endif
+} a;
 
-  x = 1;
-  x++;
-
+int main() {
   #ifdef ENABLE_A
-  int flag = sizeof(x) == 4;
+  int flag = sizeof(a) == 8;
   #else
-  int flag = sizeof(x) == 8;
+  int flag = sizeof(a) == 16;
   #endif
   return flag;
 }
