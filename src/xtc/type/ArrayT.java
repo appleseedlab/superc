@@ -219,7 +219,7 @@ public class ArrayT extends DerivedT {
       if (hasLength()) {
 	  add = "[" + getLength() + "]";
       } else {
-	  add = "*";
+	  add = "[]";
       }
       if (!innerMostIsFunction()) {
 	  return type.printType()+add+extra;
@@ -237,7 +237,7 @@ public class ArrayT extends DerivedT {
       if (hasLength()) {
 	  add = "[" + getLength() + "]";
       } else {
-	  add = "*";
+	  add = "[]";
       }
       if (!innerMostIsFunction()) {
 	  return type.printType()+add;

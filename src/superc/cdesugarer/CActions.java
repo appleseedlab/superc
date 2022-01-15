@@ -9203,7 +9203,7 @@ static public Multiverse<String> sizeofBody(Type t, FreshIDCreator fic, CContext
           if (me.getValue().getDeclarator().isBitFieldSizeDeclarator() || me.getValue().getDeclarator().isNamedBitFieldSizeDeclarator()) {
             structEq = structEq.appendScalar(new LinkedList<String>(){{add(me.getValue().getDeclarator().printType() + fic.freshCId() + ";");}},DesugarOps.concatStringsList);
           } else {
-            structEq = structEq.appendScalar(new LinkedList<String>(){{add(me.getValue().printType() + fic.freshCId() + ";");}},DesugarOps.concatStringsList);
+            structEq = structEq.appendScalar(new LinkedList<String>(){{add( "typeof( " + me.getValue().printType() + ") " + fic.freshCId() + ";");}},DesugarOps.concatStringsList);
           }
         }
       }
@@ -9226,9 +9226,12 @@ static public Multiverse<String> sizeofExpansion(Multiverse<Type> t, FreshIDCrea
     Type tempT = et.getData().resolve();
     if (tempT.isStruct() || tempT.isUnion()) {
       Multiverse<String> innerStruct = sizeofBody(tempT,fic,scope,et.getCondition());
-      innerStruct = innerStruct.prependScalar("sizeof(",DesugarOps.concatStrings);
-      innerStruct = innerStruct.appendScalar(")",DesugarOps.concatStrings);
-      ret.addAll(innerStruct);
+      for (Element<String> e : innerStruct) {
+        String standin = "";
+        standin = fic.freshCId("sizeofStandin");
+        scope.addDeclaration(e.getData() + standin + ";\n");
+        ret.add("sizeof(" + standin + ")",e.getCondition());
+      }
     } else {
       ret.add("sizeof(" + et.getData().printType() + ")",et.getCondition());
     }
@@ -11008,6 +11011,28 @@ private void recordRenaming(String renaming, String original) {
   recordedRenamings.append(String.format("__static_renaming(\"%s\", \"%s\");\n", renaming, original));
 }
 
+public String printMain(CContext scope, PresenceCondition pc) {
+  String ret = "";
+  ret += "int main() {\n";
+  Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope("main", pc);
+  for (Element<SymbolTable.Entry<Type>> entry : entries) {
+    ret += "if (";
+    ret += condToCVar(entry.getCondition());
+    ret += ") {\n";
+    if (entry.getData().isError()) {
+      ret += emitError("main function error") + ";\n";
+    } else if (entry.getData().isUndeclared()) {
+      ret += emitError("main function undefined") + ";\n";
+    } else if (!(entry.getData().getValue() instanceof FunctionOrMethodT)){
+      ret += emitError("main illegally defined") + ";\n";
+    } else {
+      ret += "return " + ((NamedFunctionT) entry.getData().getValue()).getName() + "();";
+    }  // end test of symtab entry type
+    ret += "}\n";
+  } // end loop over symtab entries
+  ret += "return 0; }\n";
+  return ret;
+}
 
 public String staticInitialization(boolean showParseError) {
   StringBuilder sb = new StringBuilder();

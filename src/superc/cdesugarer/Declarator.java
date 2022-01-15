@@ -599,7 +599,7 @@ abstract class Declarator {
       assert expressions.size() > 0;  // otherwise no arraytype will be made
       System.err.println("need to handle the expression to see if the array has a variable size of not");
       for (String expression : expressions) {
-        sb.append(String.format("[%s]", expression == "" ? "0" : expression));
+        sb.append(String.format("[%s]", expression == "" ? "" : expression));
       }
       return sb.toString();
     }
