@@ -217,17 +217,17 @@ public abstract class FunctionOrMethodT extends DerivedT {
     r += ")";
     return r;
   }
-    public String printType(String insert) {
-	String r = result.printType() + insert + "(";
-	for (Iterator<Type> iter = parameters.iterator(); iter.hasNext(); ) {
+  public String printType(String insert) {
+    String r = result.printType() + insert + "(";
+    for (Iterator<Type> iter = parameters.iterator(); iter.hasNext(); ) {
 	    r += iter.next().printType();
 	    if (iter.hasNext() || varargs) {
-		r +=", ";
+        r +=", ";
 	    }
-	}
-	r += ")";
-	return r;
     }
+    r += ")";
+    return r;
+  }
 
     
   public void setDefined() {

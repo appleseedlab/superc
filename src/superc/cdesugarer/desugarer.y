@@ -1126,8 +1126,7 @@ Declaration:  /** complete **/  // List<Multiverse<String>>
           semi += declaringListRange(declaringlistvalues,(Syntax)getNodeAt(subparser,1));
           
           List<Multiverse<String>> valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
-	  System.err.println(valuestring);
-	  setTransformationValue(value, valuestring);
+          setTransformationValue(value, valuestring);
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
@@ -8374,7 +8373,9 @@ protected List<Multiverse<String>> declarationAction(List<DeclaringListValue> de
                               } else {
                                 System.err.println("no len assigned");
                                 //if  the length is implcit, we need to manually assign a value
-                                entrysb.append(renamedDeclaration.toString(trueInitSize(initializer.getData())));
+                                int siz = trueInitSize(initializer.getData());
+                                ((ArrayT)tempT).setLength(siz);
+                                entrysb.append(renamedDeclaration.toString(siz));
                               }
                               entrysb.append(semi + "\n");  // semi-colon
                               entrysb.append("{\n" + initArray(renaming, (ArrayT)tempT, initializer.getData(), scope, combinedCond) + "}");

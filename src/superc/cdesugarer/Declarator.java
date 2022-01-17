@@ -188,7 +188,10 @@ abstract class Declarator {
     public boolean isParenDeclarator() { return true; }
 
     public String toString() {
-      return String.format("(%s)", declarator.toString());
+      String inner = declarator.toString();
+      if (inner.equals(""))
+        return "";
+      return String.format("(%s)",inner);
     }
     public String toString(int len) {
       return String.format("(%s)", declarator.toString(len));
@@ -281,14 +284,20 @@ abstract class Declarator {
     public boolean isPointerDeclarator() { return true; }
 
     public String toString() {
-      return String.format("* (%s)", declarator.toString());  // preserve order of operations
+      String inner = declarator.toString();
+      if (inner.equals(""))
+        return "*";
+      return String.format("* (%s)", inner);  // preserve order of operations
     }
     
     public String toString(int len) {
       return String.format("* (%s)", declarator.toString(len));  // preserve order of operations
     }
     public String printType() {
-      return String.format("* (%s)", declarator.printType());  // preserve order of operations
+      String inner = declarator.printType();
+      if (inner.equals(""))
+        return "*";
+      return String.format("* (%s)", inner);  // preserve order of operations
     }
   }
 
