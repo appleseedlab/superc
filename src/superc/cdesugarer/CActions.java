@@ -6496,7 +6496,7 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
-          Multiverse<String> exprmv = sizeofExpansion(exprval.type,freshIdCreator,(CContext)subparser.scope,pc);
+          Multiverse<String> exprmv = sizeofExpansion(exprval.transformation, exprval.type,freshIdCreator,(CContext)subparser.scope,pc);
           
           todoReminder("typecheck unaryexpression (5)");
 
@@ -9222,8 +9222,13 @@ static public Multiverse<String> sizeofBody(Type t, FreshIDCreator fic, CContext
 }
 
 static public Multiverse<String> sizeofExpansion(Multiverse<Type> t, FreshIDCreator fic, CContext scope, PresenceCondition p) {
+  return sizeofExpansion(new Multiverse<String>("",p),t,fic,scope,p);
+}
+
+
+static public Multiverse<String> sizeofExpansion(Multiverse<String> es, Multiverse<Type> t, FreshIDCreator fic, CContext scope, PresenceCondition p) {
   Multiverse<String> ret = new Multiverse<String>();
-  for (Element<Type> et : t) {
+  for (Element<Type> et : t.filter(p)) {
     Type tempT = et.getData().resolve();
     if (tempT.isStruct() || tempT.isUnion()) {
       Multiverse<String> innerStruct = sizeofBody(tempT,fic,scope,et.getCondition());
@@ -9234,7 +9239,14 @@ static public Multiverse<String> sizeofExpansion(Multiverse<Type> t, FreshIDCrea
         ret.add("sizeof(" + standin + ")",e.getCondition());
       }
     } else {
-      ret.add("sizeof(" + et.getData().printType() + ")",et.getCondition());
+      for (Element<String> ex : es.filter(et.getCondition())) {
+        if (ex.getData().equals("")) {
+          ret.add("sizeof(" + et.getData().printType() + ")",ex.getCondition());
+
+        } else {
+          ret.add("sizeof(" + ex.getData() + ")",ex.getCondition());
+        }
+      }
     }
   }
   return ret;
