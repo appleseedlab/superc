@@ -5991,7 +5991,9 @@ FunctionCall:  /** nomerge **/
                   PresenceCondition new_errorCond = errorCond.or(postfixelem.getCondition());
                   // TODO: unit test
                   valuemv = valuemv.filter(postfixelem.getCondition().not());
-                  valuemv.add(emitError("attempting function call on non-function type"), postfixelem.getCondition());
+                  if (postfixelem.getCondition().isNotFalse()) {
+                    valuemv.add(emitError("attempting function call on non-function type"), postfixelem.getCondition());
+                  }
                   errorCond.delRef(); errorCond = new_errorCond;
                 } // end check for function type
               } // end loop over postfixelems
