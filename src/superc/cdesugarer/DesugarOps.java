@@ -356,7 +356,6 @@ class DesugarOps {
                                                                   FreshIDCreator freshIdCreator,
                                                                   StructOrUnionTypeCreator suTypeCreator) {
     // (1) add each field to the lookaside table and construct the transformation
-
     // get the field table for the current tag, which should be empty
     String renamedTag = freshIdCreator.freshCId(structTag);
     SymbolTable<Declaration> tagtab = scope.addLookasideTable(renamedTag);
@@ -400,20 +399,15 @@ class DesugarOps {
           assert null != renamedField;
           assert null != renamedDeclaration;
 
-          // System.err.println("FIELDNAME " + fieldName);
-          // System.err.println("FJKLDSLKJFDS " + tagtab);
-              
           if (structfield.getData().hasTypeError()) {
-            // System.err.println("WTF : " + fieldName);
             tagtab.putError(fieldName, combinedCond);
 
             PresenceCondition newerrorCond = errorCond.or(combinedCond);
             errorCond.delRef(); errorCond = newerrorCond;
           } else { // declaration has no type error
             Multiverse<SymbolTable.Entry<Declaration>> entries = tagtab.get(fieldName, combinedCond);
-            // System.err.println("MVMVMVMV: " + entries);
-            // System.err.println(combinedCond);
-            for (Element<SymbolTable.Entry<Declaration>> entry : entries) {
+
+	    for (Element<SymbolTable.Entry<Declaration>> entry : entries) {
               if (entry.getData().isError()) {
                 // already an error, just emit a message
                 System.err.println(String.format("INFO: redeclaring struct field %s in an already invalid configuration", fieldName));
@@ -426,10 +420,6 @@ class DesugarOps {
                 renamedDeclaration.setField();
                 // add the type containing the renaming to the struct tag's symtab
                 tagtab.put(fieldName, renamedDeclaration, entry.getCondition());
-                // System.err.println("tagtab.put: " + fieldName);
-                // System.err.println("tagtab.put: " + fieldType);
-                // System.err.println("tagtab.put: " + entry.getCondition());
-                // save the text of the desugared field
                 transformation.append(renamedDeclaration.toString());
                 transformation.append(";");
                 transformation.append(CActions.typespecLines(renamedDeclaration.getTypeSpec()) + "\n");
@@ -448,7 +438,6 @@ class DesugarOps {
       }
     }
     transformation.append("};\n");
-
     // add the combined struct declaration to the top of the scope
     scope.addDeclaration(transformation.toString());
 
@@ -1053,7 +1042,7 @@ class DesugarOps {
   public final static Multiverse.Operator<Type> relOpProduct = (t1, t2) -> {
     Type r1 = t1.resolve();
     Type r2 = t2.resolve();
-
+    
     if ( (r1.isNumber() || r1.isEnum() || r1.isEnumerator())
          &&
          (r2.isNumber() || r2.isEnum() || r2.isEnumerator())) {
@@ -1106,9 +1095,9 @@ class DesugarOps {
     Type r2 = t2.resolve();
 
     //two quantitative values
-    if ( (r1.isStruct() || r1.isUnion())
+    if ( (r1.isStruct() || r1.isUnion() || r1 == ErrorT.TYPE)
          ||
-         (r2.isStruct() || r2.isUnion())) {
+         (r2.isStruct() || r2.isUnion()|| r2 == ErrorT.TYPE)) {
       return ErrorT.TYPE;
     }
     return NumberT.INT;

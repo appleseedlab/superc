@@ -103,6 +103,10 @@ class Declaration {
   public String printType() {
     return String.format("%s %s", typespecifier.toString(), declarator.printType());
   }
+    
+    public String printType(String x) {
+	return String.format("%s %s:%s", typespecifier.toString(), x, declarator.printType());
+    }
   
   public String toString() {
     return String.format("%s %s", typespecifier.toString(), declarator.toString());
