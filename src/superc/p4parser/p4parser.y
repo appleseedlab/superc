@@ -424,7 +424,7 @@ kvPair: /** complete **/
 
 parameterList: /** complete, list **/
       %empty                          {}
-    | nonEmptyParameterList           {}
+    | { ReenterScope(subparser); } nonEmptyParameterList { ExitReentrantScope(subparser); }
     ;
 
 nonEmptyParameterList: /** complete, list **/
@@ -498,8 +498,8 @@ dotPrefix:
 /**************************** PARSER ******************************/
 
 parserDeclaration: /** complete **/
-    parserTypeDeclaration optConstructorParameters { EnterScope(subparser); }
-      L_BRACE parserLocalElements parserStates { ExitScope(subparser); } R_BRACE
+    parserTypeDeclaration optConstructorParameters
+      L_BRACE { EnterScope(subparser); } parserLocalElements parserStates { ExitScope(subparser); } R_BRACE
                              {}
     ;
 
@@ -630,7 +630,9 @@ valueSetDeclaration: /** complete **/
 
 controlDeclaration: /** complete **/
     controlTypeDeclaration optConstructorParameters
-      L_BRACE controlLocalDeclarations APPLY controlBody R_BRACE
+      L_BRACE { EnterScope(subparser); } 
+      controlLocalDeclarations APPLY controlBody 
+      { ExitScope(subparser); } R_BRACE
         {}
     ;
 
@@ -670,7 +672,7 @@ externDeclaration: /** complete **/
             bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           }
         optTypeParameters {}
-        L_BRACE methodPrototypes R_BRACE 
+        L_BRACE { ReenterScope(subparser); } methodPrototypes { ExitScope(subparser); } R_BRACE 
     | externFunctionDeclaration 
     | optAnnotations EXTERN name SEMICOLON // not present in latest language specification
     ;
@@ -772,7 +774,7 @@ optTypeParameters: /** complete **/
     ;
 
 typeParameters: /** complete **/
-    l_angle typeParameterList r_angle {}
+    l_angle { EnterScope(subparser); } typeParameterList { ExitReentrantScope(subparser); } r_angle {}
     ;
 
 typeParameterList: /** complete, list **/
@@ -831,8 +833,10 @@ derivedTypeDeclaration: /** complete **/
     ;
 
 headerTypeDeclaration: /** complete **/
-    optAnnotations HEADER name {} optTypeParameters {}
-      L_BRACE structFieldList R_BRACE
+    optAnnotations HEADER name optTypeParameters
+      L_BRACE { ReenterScope(subparser); } 
+      structFieldList { ExitScope(subparser); }
+      R_BRACE
       {
           saveBaseType(subparser, getNodeAt(subparser, 8));
           bindIdent(subparser, getNodeAt(subparser, 8), getNodeAt(subparser, 7));
@@ -841,16 +845,20 @@ headerTypeDeclaration: /** complete **/
 
 structTypeDeclaration: /** complete **/
     optAnnotations STRUCT name optTypeParameters
-      L_BRACE structFieldList R_BRACE
+      L_BRACE { ReenterScope(subparser); }
+      structFieldList 
+      { ExitScope(subparser); } R_BRACE
       {
-          saveBaseType(subparser, getNodeAt(subparser, 6));
-          bindIdent(subparser, getNodeAt(subparser, 6), getNodeAt(subparser, 5));
+          saveBaseType(subparser, getNodeAt(subparser, 8));
+          bindIdent(subparser, getNodeAt(subparser, 8), getNodeAt(subparser, 7));
       }
     ;
 
 headerUnionDeclaration: /** complete **/
-    optAnnotations HEADER_UNION name {} optTypeParameters {}
-      L_BRACE structFieldList R_BRACE {
+    optAnnotations HEADER_UNION name optTypeParameters
+      L_BRACE { ReenterScope(subparser); }
+      structFieldList 
+      { ExitScope(subparser); } R_BRACE {
         saveBaseType(subparser, getNodeAt(subparser, 8));
         bindIdent(subparser, getNodeAt(subparser, 8), getNodeAt(subparser, 7));
       }
@@ -1016,7 +1024,7 @@ statementOrDeclaration: /** complete **/
 
 tableDeclaration: /** complete **/
     optAnnotations
-        TABLE name L_BRACE tablePropertyList R_BRACE
+        TABLE name L_BRACE { EnterScope(subparser); } tablePropertyList { ExitScope(subparser); } R_BRACE 
           {}
     ;
 
@@ -1030,7 +1038,7 @@ tableProperty: /** complete **/
         {}
     | ACTIONS ASSIGN L_BRACE actionList R_BRACE
         {}
-    | optAnnotations optCONST ENTRIES ASSIGN L_BRACE entriesList R_BRACE
+    | optAnnotations CONST ENTRIES ASSIGN L_BRACE entriesList R_BRACE // updated optCONST to CONST as per new specs
         {}
     | optAnnotations optCONST nonTableKwName ASSIGN initializer SEMICOLON
         {}
@@ -1076,9 +1084,10 @@ entriesList: /** complete, list **/
 /************************* ACTION ********************************/
 
 actionDeclaration: /** complete **/
-    optAnnotations ACTION name L_PAREN parameterList R_PAREN blockStatement {
-        saveBaseType(subparser, getNodeAt(subparser, 6));
-        bindIdent(subparser, getNodeAt(subparser, 6), getNodeAt(subparser, 5));
+    optAnnotations ACTION name L_PAREN parameterList R_PAREN { EnterScope(subparser); } blockStatement {
+        saveBaseType(subparser, getNodeAt(subparser, 7));
+        bindIdent(subparser, getNodeAt(subparser, 7), getNodeAt(subparser, 6));
+        ExitScope(subparser);
       }
     ;
 
@@ -1112,7 +1121,7 @@ initializer: /** complete **/
 /**************** Expressions ****************/
 
 functionDeclaration: /** complete **/
-    functionPrototype blockStatement   {}
+    functionPrototype { ReenterScope(subparser); } blockStatement { ExitScope(subparser); }
     ;
 
 argumentList: /** complete, list **/
@@ -1260,6 +1269,7 @@ nonBraceExpression: /** complete, list **/
     | nonBraceExpression AND expression         {}
     | nonBraceExpression OR expression         {}
     | nonBraceExpression QUESTION expression COLON expression {}
+    | invokingNonBraceExpression {}
     ;
 invokingNonBraceExpression: /** complete, list **/
     | nonBraceExpression l_angle realTypeArgumentList r_angle L_PAREN argumentList R_PAREN

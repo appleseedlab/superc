@@ -1,5 +1,4 @@
 package superc.p4parser;
-import java.beans.Expression;
 import java.io.ObjectInputStream;
 import java.lang.StackWalker.Option;
 import java.lang.reflect.Method;
@@ -11,6 +10,7 @@ import java.util.Map;
 
 import javax.naming.ldap.PagedResultsResponseControl;
 import javax.sound.midi.SysexMessage;
+import javax.swing.plaf.nimbus.AbstractRegionPainter;
 
 import superc.p4parser.P4LanguageObject.TypeOrVoid;
 
@@ -35,7 +35,13 @@ class P4LanguageObject {
         STRUCTFIELD,
         STRING,
         DEFAULT,
-        FUNCTIONPROTOTYPE
+        FUNCTIONPROTOTYPE,
+        CONTROLDECLARATION,
+        PARSERDECLARATION,
+        TABLEDECLARATION,
+        INVOKABLEKEYWORD,
+        BUILTINFUNCTION,
+        VARIABLE
     }
 
     abstract class AbstractObjectOfLanguage {
@@ -51,6 +57,13 @@ class P4LanguageObject {
 
         boolean hasAssociatedType() {
             return false;
+        }
+
+        AbstractObjectOfLanguage getType() {
+            // System.err.println("No associated type found for: \"" + name + "\"");
+            // System.exit(1);
+            assert false : "No associated type found for: \"" + name + "\"";
+            return null;
         }
 
         public String getName() {
@@ -145,10 +158,25 @@ class P4LanguageObject {
             * Outputs the callees present under the current object if it is not present under the global scope.
             * @return
             */
-        public String toStringExtensive(Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab, HashMap<AbstractObjectOfLanguage, HashSet<AbstractObjectOfLanguage>> callGraphObject) {
+        public String toStringExtensive(Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab, HashMap<AbstractObjectOfLanguage, HashSet<AbstractObjectOfLanguage>> callGraphObject, AbstractObjectOfLanguage global_scope) {
             String finalString = name + ": ";
 
             Iterator<String> itr = symtab.get(this).keySet().iterator();
+
+            ArrayList<String> parentCalleeNames = new ArrayList<>();
+            if(callGraphObject.containsKey(this)) {
+                for(AbstractObjectOfLanguage callee : callGraphObject.get(this)) {
+                    parentCalleeNames.add(callee.getName() + "(" + callee.getNameSpace().getName() + ")");
+                }
+            }
+
+            if(! parentCalleeNames.isEmpty()) {
+                for(int i = 0; i < parentCalleeNames.size(); i++) {
+                    finalString += parentCalleeNames.get(i) + (i == parentCalleeNames.size() - 1 ? "" : ", ");
+                }
+            }
+            
+            finalString += (itr.hasNext() && !parentCalleeNames.isEmpty() ? ", " : "");
 
             while(itr.hasNext()) {
                 String childKey = (String) itr.next();
@@ -158,6 +186,7 @@ class P4LanguageObject {
                     finalString += itr.hasNext() ? ", " : "";
                     continue;
                 }
+                // System.out.println("debug: " + childLangObj.getName() + " with parent: " + childLangObj.getParentNameSpaces(global_scope));
 
                 ArrayList<String> calleeNames = new ArrayList<>();
                 if(callGraphObject.containsKey(childLangObj)) {
@@ -175,17 +204,31 @@ class P4LanguageObject {
             return finalString;
         }
 
-        public String toDotString(Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab, HashMap<AbstractObjectOfLanguage, HashSet<AbstractObjectOfLanguage>> callGraphObject) {
+        public String toDotString(Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab, HashMap<AbstractObjectOfLanguage, HashSet<AbstractObjectOfLanguage>> callGraphObject, AbstractObjectOfLanguage global_scope) {
             String finalString = "";
 
             Iterator<String> itr = symtab.get(this).keySet().iterator();
-            finalString += this.hashCode() + ";";
-            finalString += this.hashCode() + " [label=\"" + this.name + "\"];";
+            finalString += this.hashCode(global_scope) + ";";
+            finalString += this.hashCode(global_scope) + " [label=\"" + this.name + "\"];";
+            ArrayList<AbstractObjectOfLanguage> parentCalleeNames = new ArrayList<>();
+            if(callGraphObject.containsKey(this)) {
+                for(AbstractObjectOfLanguage callee : callGraphObject.get(this)) {
+                    parentCalleeNames.add(callee);
+                }
+            }
+
+            if(! parentCalleeNames.isEmpty()) {
+                for(AbstractObjectOfLanguage localCallee : parentCalleeNames) {
+                    finalString += this.hashCode(global_scope) + "->" + localCallee.hashCode(global_scope) + ";";
+                    finalString += localCallee.hashCode(global_scope) + " [label=\"" + localCallee.name + "\"];";
+                }
+            }
+
             while(itr.hasNext()) {
                 String childKey = (String) itr.next();
                 AbstractObjectOfLanguage childLangObj = symtab.get(this).get(childKey);
-                finalString += this.hashCode() + " -> " + childLangObj.hashCode() + " [style=dashed, color=blue];";
-                finalString += childLangObj.hashCode() + " [label=\"" + childLangObj.name + "\"];";
+                finalString += this.hashCode(global_scope) + " -> " + childLangObj.hashCode(global_scope) + " [style=dashed, color=blue];";
+                finalString += childLangObj.hashCode(global_scope) + " [label=\"" + childLangObj.name + "\"];";
 
                 if(symtab.containsKey(childLangObj)) {
                     continue;
@@ -200,8 +243,8 @@ class P4LanguageObject {
 
                 if(! calleeNames.isEmpty()) {
                     for(AbstractObjectOfLanguage localCallee : calleeNames) {
-                        finalString += childLangObj.hashCode() + "->" + localCallee.hashCode() + ";";
-                        finalString += localCallee.hashCode() + " [label=\"" + localCallee.name + "\"];";
+                        finalString += childLangObj.hashCode(global_scope) + "->" + localCallee.hashCode(global_scope) + ";";
+                        finalString += localCallee.hashCode(global_scope) + " [label=\"" + localCallee.name + "\"];";
                     }
                 }
 
@@ -452,6 +495,7 @@ class P4LanguageObject {
             return this.type != null;
         }
 
+        @Override
         public AbstractObjectOfLanguage getType() {
             return this.type;
         }
@@ -523,6 +567,7 @@ class P4LanguageObject {
             return true;
         }
 
+        @Override
         public AbstractObjectOfLanguage getType() {
             return this.type;
         }
@@ -743,6 +788,55 @@ class P4LanguageObject {
         }
     }
 
+    // Basic AST node classes. Making them new language object to support compiler built in functions
+    class ControlDeclaration extends AbstractObjectOfLanguage {
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.CONTROLDECLARATION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public ControlDeclaration(String name, AbstractObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+        }
+    }
+
+    class ParserDeclaration extends AbstractObjectOfLanguage {
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.PARSERDECLARATION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public ParserDeclaration(String name, AbstractObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+        }
+    }
+
+    class TableDeclaration extends AbstractObjectOfLanguage {
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.TABLEDECLARATION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public TableDeclaration(String name, AbstractObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+        }
+    }
+
     // Support Classes
 
     class TypeOrVoid extends AbstractObjectOfLanguage {
@@ -764,6 +858,18 @@ class P4LanguageObject {
         @Override
         boolean hasAssociatedType() {
             return true;
+        }
+
+        @Override
+        AbstractObjectOfLanguage getType() {
+            if(this.typeRef != null) {
+                return this.typeRef;
+            } else if(this.identifier != null) {
+                return this.identifier;
+            } else {
+                assert this.voidVar != null;
+                return this.voidVar;
+            }
         }
 
         boolean isConstantTreeGlobalObjects() {
@@ -799,14 +905,13 @@ class P4LanguageObject {
         }
     }
 
-    class Parameter extends AbstractObjectOfLanguage {
+    class Variable extends AbstractObjectOfLanguage {
         private final AbstractObjectOfLanguage type;
         private final AbstractObjectOfLanguage assignedExpression;
-        private final ConstantTreeGlobalObjects direction;
 
         @Override 
         public LObjectKind getConstructType() {
-            return LObjectKind.PARAMETER;
+            return LObjectKind.VARIABLE;
         }
 
         @Override
@@ -819,6 +924,11 @@ class P4LanguageObject {
             return true;
         }
 
+        @Override
+        public AbstractObjectOfLanguage getType() {
+            return this.type;
+        }
+
         boolean hasAssignedExpression() {
             return (assignedExpression != null);
         }
@@ -827,8 +937,30 @@ class P4LanguageObject {
             return this.assignedExpression;
         }
 
-        public AbstractObjectOfLanguage getType() {
-            return this.type;
+        public Variable(String name, AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage type) {
+            super(name, nameSpace);
+            this.type = type;
+            this.assignedExpression = null;
+        }
+
+        public Variable(String name, AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage type, AbstractObjectOfLanguage assignedExpression) {
+            super(name, nameSpace);
+            this.type = type;
+            this.assignedExpression = assignedExpression;
+        } 
+    }
+
+    class Parameter extends Variable {
+        private final ConstantTreeGlobalObjects direction;
+
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.PARAMETER;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return false;
         }
 
         public ConstantTreeGlobalObjects getDirection() {
@@ -838,16 +970,12 @@ class P4LanguageObject {
         // Right now we are assuming that the invoker has already created or retrieved the type and direction object
         // and will pass it to us
         public Parameter(String name, AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage type, ConstantTreeGlobalObjects direction) {
-            super(name, nameSpace);
-            this.type = type;
+            super(name, nameSpace, type);
             this.direction = direction;
-            this.assignedExpression = null;
         }
 
         public Parameter(String name, AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage type, ConstantTreeGlobalObjects direction, AbstractObjectOfLanguage assignedExpression) {
-            super(name, nameSpace);
-            this.type = type;
-            this.assignedExpression = assignedExpression;
+            super(name, nameSpace, type, assignedExpression);
             this.direction = direction;
         }
     }
@@ -885,6 +1013,7 @@ class P4LanguageObject {
             return true;
         }
 
+        @Override
         public AbstractObjectOfLanguage getType() {
             return this.type;
         }
@@ -907,6 +1036,38 @@ class P4LanguageObject {
         }
 
         public OLangString(String name, AbstractObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+        }
+    }
+
+    class InvokableLanguageKeyword extends AbstractObjectOfLanguage {
+        @Override
+        public boolean isScoped() {
+            return false;
+        }
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.INVOKABLEKEYWORD;
+        }
+
+        public InvokableLanguageKeyword(String name, AbstractObjectOfLanguage nameSpace) {
+            super(name, nameSpace);
+        }
+    }
+
+    class BuiltinFunction extends AbstractObjectOfLanguage {
+        @Override
+        public boolean isScoped() {
+            return false;
+        }
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.BUILTINFUNCTION;
+        }
+
+        public BuiltinFunction(String name, AbstractObjectOfLanguage nameSpace) {
             super(name, nameSpace);
         }
     }
@@ -986,6 +1147,31 @@ class P4LanguageObject {
             assert directions.contains(type);
 
             return directionTypeObjects.get(type);
+        }
+    }
+
+    static class ReservedKeywords {
+        public static HashSet<String> nonTypeNameKeywords = new HashSet<>();
+        public static HashSet<String> nonTableKwNameKeywords = new HashSet<>();
+        static {
+            nonTypeNameKeywords.add("key");
+            nonTypeNameKeywords.add("actions");
+            nonTypeNameKeywords.add("state");
+            nonTypeNameKeywords.add("entries");
+            nonTypeNameKeywords.add("type");
+            nonTypeNameKeywords.add("apply");
+
+            nonTableKwNameKeywords.add("state");
+            nonTableKwNameKeywords.add("type");
+            nonTableKwNameKeywords.add("apply");
+        }
+
+        public static boolean isNonTypeNameKeyword(String name) {
+            return nonTypeNameKeywords.contains(name);
+        }
+
+        public static boolean isNonTableKwNameKeywords(String name) {
+            return nonTableKwNameKeywords.contains(name);
         }
     }
 }
