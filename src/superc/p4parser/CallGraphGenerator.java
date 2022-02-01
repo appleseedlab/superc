@@ -54,14 +54,14 @@ public class CallGraphGenerator {
     public static final AbstractObjectOfLanguage undefined_scope = p4LanguageObject.new ConstantTreeGlobalObjects("UNDEFINED");
     public static final AbstractObjectOfLanguage undeclared_object = p4LanguageObject.new ConstantTreeGlobalObjects("UNDECLARED OBJECT");
     public static final AbstractObjectOfLanguage default_language_object = p4LanguageObject.new ConstantTreeGlobalObjects("DEFAULT");
-    private static final BaseTypes baseTypes = p4LanguageObject.new BaseTypes();
+    private static final BaseTypesCollection baseTypesCollection = p4LanguageObject.new BaseTypesCollection();
     private static final Direction directionClass = p4LanguageObject.new Direction();
     Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab;
     Stack<AbstractObjectOfLanguage> scope;
     // A list of grammar constructs that are not yet supported and might contain invocation
     HashSet<String> notExplicitlySupported = new HashSet<>(Arrays.asList());
-    // private Map<BaseTypes, AbstractObjectOfLanguage> baseTypeObjectOfLanguages = new HashMap<>();
-    // private Map<String, BaseTypes> baseTypeValues = new HashMap<>();
+    // private Map<baseTypesCollection, AbstractObjectOfLanguage> baseTypeObjectOfLanguages = new HashMap<>();
+    // private Map<String, baseTypesCollection> baseTypeValues = new HashMap<>();
 
     // accept and reject are two parser states not defined by the user but is in the logic
     ArrayList<String> implicitParserStates = new ArrayList<>() {{
@@ -77,7 +77,7 @@ public class CallGraphGenerator {
         this.scope = new Stack<>();
         this.callGraphObject = new HashMap<>();
 
-        // for (BaseTypes e: BaseTypes.values()) {
+        // for (baseTypesCollection e: baseTypesCollection.values()) {
         //     baseTypeValues.put(e.baseString, e);
         //     baseTypeObjectOfLanguages.put(e, new AbstractObjectOfLanguage(e.baseString, AbstractObjectOfLanguage.global_scope));
         // }
@@ -85,11 +85,11 @@ public class CallGraphGenerator {
         scope.add(global_scope);
     }
 
-    // public AbstractObjectOfLanguage getObjectOfLanguageForBaseType(String typeString, AbstractObjectOfLanguage scope) {
-    //     assert baseTypeValues.containsKey(typeString) : "Not a type string. Assuming that the passed in value has been previously check if it a valid base type";
-    //     AbstractObjectOfLanguage check = baseTypeObjectOfLanguages.get(BaseTypes.BIT);
-    //     return baseTypeObjectOfLanguages.get(baseTypeValues.get(typeString));
-    // }
+    public boolean isFunctionAndMethodDuplicate(AbstractObjectOfLanguage newObj, AbstractObjectOfLanguage oldObj) {
+        // TODO: check for same argument length and parameter names if same length (issue1334.p4 for example)
+
+        return true;
+    }
 
     /**
      * Creates the scope if not present, creates entity for name under scope if not present.
@@ -111,11 +111,17 @@ public class CallGraphGenerator {
         }
 
         if(symtab.get(scope).containsKey(name)) {
-            // TODO: Functions and method can have overloadings - take care of that
+            boolean isDuplicateFunctionOrMethod = true;
+            if(newLangObj.getConstructType() == LObjectKind.FUNCTION ||
+                newLangObj.getConstructType() == LObjectKind.METHOD) {
+                    isDuplicateFunctionOrMethod = isFunctionAndMethodDuplicate(newLangObj, symtab.get(scope).get(name));
+                }
             // TODO: Tuples are exceptions
-            System.err.println("Multiple declaration error: another entity with the same name (" 
-                                + name + 
-                                ") already exists");
+            if(isDuplicateFunctionOrMethod) {
+                System.err.println("Multiple declaration error: another entity with the same name (" 
+                                    + name + 
+                                    ") already exists");
+            }
             // System.exit(1);
         } else {
             // nodeObj = p4LanguageObject.new LanguageObject(name, scope);
@@ -273,6 +279,14 @@ public class CallGraphGenerator {
         AbstractObjectOfLanguage callee = symtabLookup(scope.peek(), name);
 
         assert callee != null : "UNCAUGHT Calling to an undefined symbol when expecting it to be defined beforehand (" + name + ")";
+        addAsCallee(callee);
+    }
+
+    /**
+     * Adds the passed in language object as a callee to the current scope.
+     * @param callee The object that should be added as a callee
+     */
+    public void addAsCallee(AbstractObjectOfLanguage callee) {
         if( !callGraphObject.containsKey(scope.peek())) {
             callGraphObject.put(scope.peek(), new HashSet<>());
         }
@@ -319,28 +333,27 @@ public class CallGraphGenerator {
             return default_language_object;
         }
 
-        // TODO: parse values inside parameters
         public AbstractObjectOfLanguage visitcontrolDeclaration(GNode n) {
             // If need to parse parameters, visit the controltypedeclaration instead of static function to get name
-            String controlBlockName = getNameOfControlBlock(n.getGeneric(0));
+            String controlBlockName = getNameOfControlBlock(getGNodeUnderConditional(n.getGeneric(0)));
 
             ControlDeclaration controlObj = p4LanguageObject.new ControlDeclaration(controlBlockName, scope.peek());
             addToSymtab(scope.peek(), controlBlockName, controlObj);
             scope.add(controlObj);
 
-            visitcontrolTypeDeclaration(n.getGeneric(0), false);
+            visitcontrolTypeDeclaration(getGNodeUnderConditional(n.getGeneric(0)), false);
 
-            dispatch(n.getGeneric(1)); // optConstructorParameters
-            dispatch(n.getGeneric(3)); // controlLocalDeclarations
+            dispatch(getGNodeUnderConditional(n.getGeneric(1))); // optConstructorParameters
+            dispatch(getGNodeUnderConditional(n.getGeneric(3))); // controlLocalDeclarations
             String applyBlockName = n.get(4).toString();
 
             // start parse controlBody
             GNode oldN = n;
-            n = n.getGeneric(5); // controlBody
+            n = getGNodeUnderConditional(n.getGeneric(5)); // controlBody
             AbstractObjectOfLanguage apply = addToSymtab(scope.peek(), applyBlockName);
             scope.add(apply);
 
-            dispatch(n.getGeneric(0)); // controlBody can have only one child
+            dispatch(getGNodeUnderConditional(n.getGeneric(0))); // controlBody can have only one child
             
             scope.pop();
             n = oldN;
@@ -351,21 +364,21 @@ public class CallGraphGenerator {
         }
 
         public AbstractObjectOfLanguage visitheaderTypeDeclaration(GNode n) {
-            String headerTypeName = getStringUnderName(n.getGeneric(2));
+            String headerTypeName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
             HeaderTypeDeclaration headerTypeDeclarationObject = p4LanguageObject.new HeaderTypeDeclaration(headerTypeName, scope.peek());
             addToSymtab(scope.peek(), headerTypeName, headerTypeDeclarationObject);
             scope.add(headerTypeDeclarationObject);
 
             // default functions associated with headers
-            FunctionPrototype isValid = p4LanguageObject.new FunctionPrototype("isValid", scope.peek(), baseTypes.getLanguageObjectOfBaseType("bool"));
-            FunctionPrototype setValid = p4LanguageObject.new FunctionPrototype("setValid", scope.peek(), baseTypes.getVoidLanguageObject());
-            FunctionPrototype setInvalid = p4LanguageObject.new FunctionPrototype("setInvalid", scope.peek(), baseTypes.getVoidLanguageObject());
+            FunctionPrototype isValid = p4LanguageObject.new FunctionPrototype("isValid", scope.peek(), baseTypesCollection.getLanguageObjectOfBaseType("bool"));
+            FunctionPrototype setValid = p4LanguageObject.new FunctionPrototype("setValid", scope.peek(), baseTypesCollection.getVoidLanguageObject());
+            FunctionPrototype setInvalid = p4LanguageObject.new FunctionPrototype("setInvalid", scope.peek(), baseTypesCollection.getVoidLanguageObject());
             addToSymtab(scope.peek(), "isValid", isValid);
             addToSymtab(scope.peek(), "setValid", setValid);
             addToSymtab(scope.peek(), "setInvalid", setInvalid);
 
-            dispatch(n.getGeneric(3)); // optTypeParameters
-            dispatch(n.getGeneric(5)); // structFieldList
+            dispatch(getGNodeUnderConditional(n.getGeneric(3))); // optTypeParameters
+            dispatch(getGNodeUnderConditional(n.getGeneric(5))); // structFieldList
 
             scope.pop();
 
@@ -373,13 +386,13 @@ public class CallGraphGenerator {
         }
 
         public AbstractObjectOfLanguage visitheaderUnionDeclaration(GNode n) {
-            String headerUnionName = getStringUnderName(n.getGeneric(2));
+            String headerUnionName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
             HeaderUnionDeclaration headerUnionDeclarationObject = p4LanguageObject.new HeaderUnionDeclaration(headerUnionName, scope.peek());
             addToSymtab(scope.peek(), headerUnionName, headerUnionDeclarationObject);
             scope.add(headerUnionDeclarationObject);
 
-            dispatch(n.getGeneric(3)); // optTypeParameters
-            dispatch(n.getGeneric(5)); // structFieldList
+            dispatch(getGNodeUnderConditional(n.getGeneric(3))); // optTypeParameters
+            dispatch(getGNodeUnderConditional(n.getGeneric(5))); // structFieldList
 
             scope.pop();
 
@@ -394,7 +407,7 @@ public class CallGraphGenerator {
             For specializedType and headerStackType the inner constructs are parsed and the value associated with that typeName is returned
             For tupletype, a new "tuple" symbol is added to the symtab and that is returned
             */
-            GNode innerNode = n.getGeneric(0);
+            GNode innerNode = getGNodeUnderConditional(n.getGeneric(0));
             String typeName;
             AbstractObjectOfLanguage typeObject;
     
@@ -409,7 +422,7 @@ public class CallGraphGenerator {
                         // if size of baseType is greater than 3 then it is a production with expression inside it
                         dispatch(innerNode.getGeneric(3));
                     }
-                    return baseTypes.getLanguageObjectOfBaseType(baseTypeString);
+                    return baseTypesCollection.getLanguageObjectOfBaseType(baseTypeString);
                 case "specializedType":
                     typeName = getNameFromTypeName(innerNode.getGeneric(0));
                     typeObject = symtabLookup(scope.peek(), typeName);
@@ -419,15 +432,15 @@ public class CallGraphGenerator {
                     return typeObject;
                 case "headerStackType":
                     String headerStackName;
-                        if(n.getGeneric(1).getName().equals("typeName")) {
-                            headerStackName = getNameFromTypeName(n.getGeneric(0));
+                        if(getGNodeUnderConditional(n.getGeneric(1)).getName().equals("typeName")) {
+                            headerStackName = getNameFromTypeName(getGNodeUnderConditional(n.getGeneric(0)));
                         } else {
-                            headerStackName = getStringUnderSpecializedTypeName(n.getGeneric(0));
+                            headerStackName = getStringUnderSpecializedTypeName(getGNodeUnderConditional(n.getGeneric(0)));
                         }
                     
                         typeObject = symtabLookup(scope.peek(), headerStackName);
                     
-                        dispatch(n.getGeneric(2)); // expression
+                        dispatch(getGNodeUnderConditional(n.getGeneric(2))); // expression
         
                         return typeObject;
                 case "tupleType":
@@ -442,13 +455,13 @@ public class CallGraphGenerator {
         }
 
         public AbstractObjectOfLanguage visitstructTypeDeclaration(GNode n) {
-            String structName = getStringUnderName(n.getGeneric(2));
+            String structName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
             StructTypeDeclaration structTypeObj = p4LanguageObject.new StructTypeDeclaration(structName, scope.peek());
             addToSymtab(scope.peek(), structName, structTypeObj);
             scope.add(structTypeObj);
 
-            dispatch(n.getGeneric(3)); // optTypeParameters
-            dispatch(n.getGeneric(5)); // structFieldList
+            dispatch(getGNodeUnderConditional(n.getGeneric(3))); // optTypeParameters
+            dispatch(getGNodeUnderConditional(n.getGeneric(5))); // structFieldList
 
             scope.pop();
 
@@ -456,9 +469,9 @@ public class CallGraphGenerator {
         }
 
         public AbstractObjectOfLanguage visitstructField(GNode n) {
-            dispatch(n.getGeneric(0)); // optAnnotations
-            AbstractObjectOfLanguage typeRefObj = (AbstractObjectOfLanguage) dispatch(n.getGeneric(1));
-            String fieldName = getStringUnderName(n.getGeneric(2));
+            dispatch(getGNodeUnderConditional(n.getGeneric(0))); // optAnnotations
+            AbstractObjectOfLanguage typeRefObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(1)));
+            String fieldName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
             Variable newStructFieldObj = p4LanguageObject.new Variable(fieldName, scope.peek(), typeRefObj);
             addToSymtab(scope.peek(), fieldName, newStructFieldObj);
 
@@ -469,16 +482,22 @@ public class CallGraphGenerator {
             // Two productions - one that annotations in the beginning and one does not
             int typeRefIndex = 0;
             if(n.size() == 5) { // with the annotations
-                dispatch(n.getGeneric(0)); // annotations
+                dispatch(getGNodeUnderConditional(n.getGeneric(0))); // annotations
                 typeRefIndex = 1;
             }
 
             AbstractObjectOfLanguage typeRefObj = (AbstractObjectOfLanguage) dispatch(n.getGeneric(typeRefIndex));
             String variableName = getStringUnderName(n.getGeneric(typeRefIndex+1));
-            AbstractObjectOfLanguage optionalInitializer = (AbstractObjectOfLanguage) dispatch(n.getGeneric(typeRefIndex+2));
-            Variable variableObj = p4LanguageObject.new Variable(variableName, scope.peek(), typeRefObj, optionalInitializer);
+            Variable variableObj = p4LanguageObject.new Variable(variableName, scope.peek(), typeRefObj);
             addToSymtab(scope.peek(), variableName, variableObj);
+            scope.add(variableObj);
 
+            if(getGNodeUnderConditional(n.getGeneric(typeRefIndex + 2)).size() > 0) {
+                AbstractObjectOfLanguage optionalInitializer = (AbstractObjectOfLanguage) dispatch(n.getGeneric(typeRefIndex+2));
+                variableObj.setAssignedExpression(optionalInitializer);
+            }
+
+            scope.pop();
             return variableObj;
         }
 
@@ -488,25 +507,25 @@ public class CallGraphGenerator {
             First one has 6 values and other has 7 values, the latter cause of added type
             */
             if(n.size() == 6) {
-                String enumName = getStringUnderName(n.getGeneric(2));
+                String enumName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
                 EnumDeclaration enumObj = p4LanguageObject.new EnumDeclaration(enumName, scope.peek());
                 addToSymtab(scope.peek(), enumName, enumObj);
                 scope.add(enumObj);
 
-                dispatch(n.getGeneric(4)); // identifierList
+                dispatch(getGNodeUnderConditional(n.getGeneric(4))); // identifierList
 
                 scope.pop();
                 return enumObj;
             } else {
-                String enumName = getStringUnderName(n.getGeneric(3));
-                String typeName = getNameFromTypeName(n.getGeneric(2));
+                String enumName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(3)));
+                String typeName = getNameFromTypeName(getGNodeUnderConditional(n.getGeneric(2)));
 
                 AbstractObjectOfLanguage type = symtabLookup(scope.peek(), typeName);
                 EnumDeclaration enumObj = p4LanguageObject.new EnumDeclaration(enumName, scope.peek(), type);
                 addToSymtab(scope.peek(), enumName, enumObj);
                 scope.add(enumObj);
 
-                dispatch(n.getGeneric(5)); // specifiedIdentifierList
+                dispatch(getGNodeUnderConditional(n.getGeneric(5))); // specifiedIdentifierList
 
                 scope.pop();
                 return enumObj;
@@ -518,16 +537,16 @@ public class CallGraphGenerator {
             // Two types of associated type values: typeRef and derivedTypeDeclaration
             // derivedTypeDeclaration declares a new type and uses that type, so need to parse that first
 
-            String typeName = getStringUnderName(n.getGeneric(3));
+            String typeName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(3)));
 
-            if(n.getGeneric(2).getName() == "typeRef") {
-                // System.out.println(n.getGeneric(2).getName());
-                AbstractObjectOfLanguage typeRefObj = (AbstractObjectOfLanguage) dispatch(n.getGeneric(2));
+            if(getGNodeUnderConditional(n.getGeneric(2)).getName() == "typeRef") {
+                // System.out.println(getGNodeUnderConditional(n.getGeneric(2)).getName());
+                AbstractObjectOfLanguage typeRefObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(2)));
                 // System.out.println(typeRefObj.getClass());
                 // System.out.println(typeRefObj.getName());
                 assert typeRefObj != default_language_object;
 
-                String typeDefName = getStringUnderName(n.getGeneric(3));
+                String typeDefName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(3)));
                 TypeDefDeclaration typeDefObj;
                 if(n.get(1).toString() == "typedef") {
                     typeDefObj = p4LanguageObject.new TypeDefDeclaration(typeDefName, scope.peek(), typeRefObj, true);
@@ -539,10 +558,10 @@ public class CallGraphGenerator {
 
                 return typeDefObj;
             } else {
-                AbstractObjectOfLanguage derivedTypeDeclarationObj = (AbstractObjectOfLanguage) dispatch(n.getGeneric(2));
+                AbstractObjectOfLanguage derivedTypeDeclarationObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(2)));
                 assert derivedTypeDeclarationObj != default_language_object;
 
-                String typeDefName = getStringUnderName(n.getGeneric(3));
+                String typeDefName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(3)));
                 TypeDefDeclaration typeDefObj;
                 if(n.get(1).toString() == "typedef") {
                     typeDefObj = p4LanguageObject.new TypeDefDeclaration(typeDefName, scope.peek(), derivedTypeDeclarationObj, true);
@@ -567,16 +586,16 @@ public class CallGraphGenerator {
          * @param addToSymtab
          * @return
          */
-        public AbstractObjectOfLanguage visitparserTypeDeclaration(GNode n, Boolean addToSymtab) {
-            String parserTypeName = getStringUnderName(n.getGeneric(2));
+        public AbstractObjectOfLanguage visitparserTypeDeclaration(GNode n, boolean addToSymtab) {
+            String parserTypeName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
             ParserTypeDeclaration parserTypeObj = p4LanguageObject.new ParserTypeDeclaration(parserTypeName, scope.peek());
             if(addToSymtab) {
                 addToSymtab(scope.peek(), parserTypeName, parserTypeObj);
                 scope.add(parserTypeObj);
             }
 
-            dispatch(n.getGeneric(3)); // optTypeParameters
-            dispatch(n.getGeneric(5)); // parameterList
+            dispatch(getGNodeUnderConditional(n.getGeneric(3))); // optTypeParameters
+            dispatch(getGNodeUnderConditional(n.getGeneric(5))); // parameterList
 
             if(addToSymtab) {
                 scope.pop();
@@ -596,15 +615,15 @@ public class CallGraphGenerator {
          * @return
          */
         public AbstractObjectOfLanguage visitcontrolTypeDeclaration(GNode n, Boolean addToSymtab) {
-            String controlTypeName = getStringUnderName(n.getGeneric(2));
+            String controlTypeName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
             ControlTypeDeclaration controlTypeObj = p4LanguageObject.new ControlTypeDeclaration(controlTypeName, scope.peek());
             if(addToSymtab) {
                 addToSymtab(scope.peek(), controlTypeName, controlTypeObj);
                 scope.add(controlTypeObj);
             }
 
-            dispatch(n.getGeneric(3)); // optTypeParameters
-            dispatch(n.getGeneric(5)); // parameterList
+            dispatch(getGNodeUnderConditional(n.getGeneric(3))); // optTypeParameters
+            dispatch(getGNodeUnderConditional(n.getGeneric(5))); // parameterList
 
             if(addToSymtab) {
                 scope.pop();
@@ -614,13 +633,13 @@ public class CallGraphGenerator {
         }
 
         public AbstractObjectOfLanguage visitpackageTypeDeclaration(GNode n) {
-            String packageTypeName = getStringUnderName(n.getGeneric(2));
+            String packageTypeName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
             PackageTypeDeclaration packageTypeObj = p4LanguageObject.new PackageTypeDeclaration(packageTypeName, scope.peek());
             addToSymtab(scope.peek(), packageTypeName, packageTypeObj);
             scope.add(packageTypeObj);
 
-            dispatch(n.getGeneric(3)); // optTypeParameters
-            dispatch(n.getGeneric(5)); // parameterList
+            dispatch(getGNodeUnderConditional(n.getGeneric(3))); // optTypeParameters
+            dispatch(getGNodeUnderConditional(n.getGeneric(5))); // parameterList
 
             scope.pop();
 
@@ -629,10 +648,10 @@ public class CallGraphGenerator {
 
         public AbstractObjectOfLanguage visittypeOrVoid(GNode n) {
             if(n.get(0).toString() == "void") {
-                return baseTypes.getVoidLanguageObject();
+                return baseTypesCollection.getVoidLanguageObject();
             } else if(n.get(0) instanceof GNode) {
-                assert n.getGeneric(0).getName() == "typeRef";
-                return (AbstractObjectOfLanguage) dispatch(n.getGeneric(0));
+                assert getGNodeUnderConditional(n.getGeneric(0)).getName() == "typeRef";
+                return (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(0)));
             } else { // IDENTIFIER - may be type variable
                 String identifier = n.get(0).toString();
                 return retrieveSymbolOrTypeVariable(scope.peek(), identifier);
@@ -640,29 +659,38 @@ public class CallGraphGenerator {
         }
 
         public AbstractObjectOfLanguage visitfunctionPrototype(GNode n) {
-            AbstractObjectOfLanguage typeOrVoid = (AbstractObjectOfLanguage) dispatch(n.getGeneric(0));
+            return visitfunctionPrototype(n, true);
+        }
 
-            String functionPrototypeName = getStringUnderName(n.getGeneric(1));
+        public AbstractObjectOfLanguage visitfunctionPrototype(GNode n, boolean addToSymtab) {
+            AbstractObjectOfLanguage typeOrVoid = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(0)));
+
+            String functionPrototypeName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(1)));
             AbstractObjectOfLanguage functionPrototypeObj = p4LanguageObject.new FunctionPrototype(functionPrototypeName, scope.peek(), typeOrVoid);
-            addToSymtab(scope.peek(), functionPrototypeName, functionPrototypeObj);
-            scope.add(functionPrototypeObj);
 
-            dispatch(n.getGeneric(2)); // optTypeParameters
-            dispatch(n.getGeneric(4)); // parameterList
+            if(addToSymtab) {
+                addToSymtab(scope.peek(), functionPrototypeName, functionPrototypeObj);
+                scope.add(functionPrototypeObj);
+            }
 
-            scope.pop();
+            dispatch(getGNodeUnderConditional(n.getGeneric(2))); // optTypeParameters
+            dispatch(getGNodeUnderConditional(n.getGeneric(4))); // parameterList
+
+            if(addToSymtab) {
+                scope.pop();
+            }
 
             return functionPrototypeObj;
         }
 
         public AbstractObjectOfLanguage visitactionDeclaration(GNode n) {
             // Each action in the list of actions for a table must have a distinct name
-            String actionBlockName = getStringUnderName(n.getGeneric(2));
+            String actionBlockName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
             AbstractObjectOfLanguage actionObj =  addToSymtab(scope.peek(), actionBlockName);
             scope.add(actionObj);
 
-            dispatch(n.getGeneric(4)); // parameterList
-            dispatch(n.getGeneric(6)); // blockStatement
+            dispatch(getGNodeUnderConditional(n.getGeneric(4))); // parameterList
+            dispatch(getGNodeUnderConditional(n.getGeneric(6))); // blockStatement
 
             scope.pop();
 
@@ -673,29 +701,39 @@ public class CallGraphGenerator {
         // . member values has structfield list inside it, so no function calls inside it - but matters for data flow
         // header functions - push_front
         public AbstractObjectOfLanguage visitassignmentOrMethodCallStatement(GNode n) {
-            if(n.getGeneric(0).getName() == "methodCallStatements") {
+            if(getGNodeUnderConditional(n.getGeneric(0)).getName() == "methodCallStatements") {
                 // method call statements
-                return (AbstractObjectOfLanguage) dispatch(n.getGeneric(0));
+                return (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(0)));
             } else {
                 // assignment statement
-                // TODO: need to assert that this lvalue call does not invoke functions
-                dispatch(n.getGeneric(0)); // lvalue
-                dispatch(n.getGeneric(2)); // expression
+                AbstractObjectOfLanguage lvalue = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(0))); // lvalue
+                // Asserting that this lvalue call does not invoke functions
+                assert lvalue.getConstructType() != LObjectKind.EXTERNDECLARATION ||
+                    lvalue.getConstructType() != LObjectKind.EXTERNFUNCTIONDECLARATION ||
+                    lvalue.getConstructType() != LObjectKind.FUNCTION ||
+                    lvalue.getConstructType() != LObjectKind.FUNCTIONPROTOTYPE ||
+                    lvalue.getConstructType() != LObjectKind.PARSERDECLARATION ||
+                    lvalue.getConstructType() != LObjectKind.PARSERTYPEDECLARATION ||
+                    lvalue.getConstructType() != LObjectKind.CONTROLDECLARATION ||
+                    lvalue.getConstructType() != LObjectKind.CONTROLTYPEDECLARATION ||
+                    lvalue.getConstructType() != LObjectKind.PACKAGETYPEDECLARATION;
+
+                dispatch(getGNodeUnderConditional(n.getGeneric(2))); // expression
                 return default_language_object;
             }
         }
 
         public AbstractObjectOfLanguage visitmethodCallStatements(GNode n) {
-            dispatch(n.getGeneric(0)); // lvalue
+            dispatch(getGNodeUnderConditional(n.getGeneric(0))); // lvalue
 
             // There are two possible set of sub productions, both which have argument list under it
             // but one has typeArgumentList before argument list, so argumentList is not at the same place
             // hence check the size to see which production we are currently under and dispatching
             // the visitor at the respective argumentList position
             if(n.size() == 5) {
-                dispatch(n.getGeneric(2)); //argumentlist
+                dispatch(getGNodeUnderConditional(n.getGeneric(2))); //argumentlist
             } else { 
-                dispatch(n.getGeneric(5)); // argumentList
+                dispatch(getGNodeUnderConditional(n.getGeneric(5))); // argumentList
             }
 
             return default_language_object;
@@ -712,22 +750,22 @@ public class CallGraphGenerator {
             // L_BRACKET expression R_BRACKET - size 3
             // L_BRACKET expression COLON expression R_BRACKET - size 5
 
-            dispatch(n.getGeneric(1)); // always expression 
+            dispatch(getGNodeUnderConditional(n.getGeneric(1))); // always expression 
 
             if(n.size() == 5) { // L_BRACKET expression COLON expression R_BRACKET
-                dispatch(n.getGeneric(3)); // expression
+                dispatch(getGNodeUnderConditional(n.getGeneric(3))); // expression
             }
 
             return default_language_object;
         }
 
         public AbstractObjectOfLanguage visitargument(GNode n) {
-            if(n.getGeneric(0).getName() == "expression") {
-                // System.out.println("visiting argument expression with name: " + n.getGeneric(0).getName());
-                return (AbstractObjectOfLanguage) dispatch(n.getGeneric(0));
+            if(getGNodeUnderConditional(n.getGeneric(0)).getName() == "expression") {
+                // System.out.println("visiting argument expression with name: " + getGNodeUnderConditional(n.getGeneric(0)).getName());
+                return (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(0)));
             } else {
-                // System.out.println("visting names argument expression with name: " + n.getGeneric(0).toString());
-                return (AbstractObjectOfLanguage) dispatch(n.getGeneric(2));
+                // System.out.println("visting names argument expression with name: " + getGNodeUnderConditional(n.getGeneric(0)).toString());
+                return (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(2)));
             }
         }
 
@@ -758,8 +796,8 @@ public class CallGraphGenerator {
                 switch(childNode.getName()) {
                     case "expression":
                         finalValue = (AbstractObjectOfLanguage) dispatch(childNode);
-                        // if(getValueUnderConditional(n.getGeneric(1)).getName() == "dot_name") {
-                        //     String dotNameString = getStringUnderDotName(getGNodeUnderConditional(n.getGeneric(1)));
+                        // if(getValueUnderConditional(getGNodeUnderConditional(n.getGeneric(1))).getName() == "dot_name") {
+                        //     String dotNameString = getStringUnderDotName(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(1))));
                         //     AbstractObjectOfLanguage lookup = symtabLookup(finalValue, dotNameString);
                         //     System.out.println("dot name found: " + lookup.getName() + " under scope: " + finalValue.getName());
                         //     return lookup;
@@ -777,7 +815,7 @@ public class CallGraphGenerator {
                     case "dotPrefix":
                         // dotPrefix nonTypeName
                         // continuing because the while loop will reach nonTypeName
-                        assert getGNodeUnderConditional(n.getGeneric(1)).getName() == "nonTypeName";
+                        assert getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(1))).getName() == "nonTypeName";
                         // System.out.println("dot prefix");
                         childNode = getGNodeUnderConditional((GNode) itr.next());
                         assert childNode.getName() == "nonTypeName";
@@ -786,8 +824,8 @@ public class CallGraphGenerator {
                     case "typeName":
                         // typeName dot_name
                         // doing namespacing
-                        AbstractObjectOfLanguage typeNameLO = symtabLookup(localScope, getNameFromTypeName(getGNodeUnderConditional(n.getGeneric(0))));
-                        // String dotNameString = getStringUnderDotName(getGNodeUnderConditional(n.getGeneric(1)));
+                        AbstractObjectOfLanguage typeNameLO = symtabLookup(localScope, getNameFromTypeName(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0)))));
+                        // String dotNameString = getStringUnderDotName(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(1))));
                         // finalValue = symtabLookup(typeNameLO, dotNameString);
                         // childNode = (GNode) itr.next();
                         // assert childNode.getName() == "dot_name";
@@ -799,8 +837,8 @@ public class CallGraphGenerator {
                         String dotNameString = getStringUnderDotName(childNode);
                         finalValue = symtabLookup(localScope, dotNameString);
                         localScope = finalValue;
-                        // System.out.println("new value under dot name: " + dotNameString);
-
+                        System.out.println("new value under dot name: " + dotNameString);
+                        break;
                     default:
                         finalValue = (AbstractObjectOfLanguage) dispatch(childNode);
                 }
@@ -810,18 +848,18 @@ public class CallGraphGenerator {
         }
 
         public AbstractObjectOfLanguage visitexternDeclaration(GNode n) {
-            if(getGNodeUnderConditional(n.getGeneric(0)).getName() == "externFunctionDeclaration") { // separate dispatch available for this
+            if(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0))).getName() == "externFunctionDeclaration") { // separate dispatch available for this
                 // TODO: check if externFunctionDeclaration can be merged back again
-                return (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(0)));
+                return (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0))));
             } else {
-                if(getGNodeUnderConditional(n.getGeneric(2)).getName() == "nonTypeName") {
-                    String externName = getStringUnderNonTypeName(getGNodeUnderConditional(n.getGeneric(2)));
+                if(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2))).getName() == "nonTypeName") {
+                    String externName = getStringUnderNonTypeName(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2))));
                     AbstractObjectOfLanguage externObj = p4LanguageObject.new ExternDeclaration(externName, scope.peek());
                     addToSymtab(scope.peek(), externName, externObj);
                     scope.add(externObj);
 
-                    dispatch(n.getGeneric(3)); // optTypeParameters
-                    dispatch(n.getGeneric(5)); // methodPrototypes
+                    dispatch(getGNodeUnderConditional(n.getGeneric(3))); // optTypeParameters
+                    dispatch(getGNodeUnderConditional(n.getGeneric(5))); // methodPrototypes
 
                     scope.pop();
 
@@ -837,27 +875,27 @@ public class CallGraphGenerator {
         // extern function declarations are invokable constructs as per the language specs
         // so keeping track of that in the symbol table for future invocations
         public AbstractObjectOfLanguage visitexternFunctionDeclaration(GNode n) {
-            FunctionPrototype functionPrototypeObj = (FunctionPrototype) dispatch(n.getGeneric(2));
+            String externFunctionName = getStringUnderFunctionPrototype(n.getGeneric(2));
+            ExternFunctionDeclaration externFunctionDeclarationObj = p4LanguageObject.new ExternFunctionDeclaration(externFunctionName, scope.peek());
+            addToSymtab(scope.peek(), externFunctionName, externFunctionDeclarationObj);
+            scope.add(externFunctionDeclarationObj);
 
-            ExternFunctionDeclaration externFunctionDeclarationObj = p4LanguageObject.new ExternFunctionDeclaration(functionPrototypeObj.getName(), scope.peek(), functionPrototypeObj);
-            addToSymtab(scope.peek(), functionPrototypeObj.getName(), externFunctionDeclarationObj);
+            visitfunctionPrototype(getGNodeUnderConditional(n.getGeneric(2)), false);
 
+            scope.pop();
             return externFunctionDeclarationObj;
         }
 
         // Interesting: functionDeclaration not part of P416? not in online language specification -- experimental
         //
         public AbstractObjectOfLanguage visitfunctionDeclaration(GNode n) {
-            // TODO: need to take care of typeOrVoid if we are keeping track of defined variables (use FunctionPrototype in P4LanguageObject?)
-            // dispatch(n.getGeneric(0));
-
             // as per language specification, functionPrototype will describe the name and type signature of the function
-            String functionName = getStringUnderFunctionPrototype(n.getGeneric(0));
+            String functionName = getStringUnderFunctionPrototype(getGNodeUnderConditional(n.getGeneric(0)));
             AbstractObjectOfLanguage functionObj = addToSymtab(scope.peek(), functionName);
             scope.add(functionObj);
 
-            dispatch(n.getGeneric(0)); // functionPrototype (for parameters)
-            dispatch(n.getGeneric(1)); // blockstatement
+            visitfunctionPrototype(getGNodeUnderConditional(n.getGeneric(0)), false); // functionPrototype (for parameters)
+            dispatch(getGNodeUnderConditional(n.getGeneric(1))); // blockstatement
 
             scope.pop();
 
@@ -876,20 +914,20 @@ public class CallGraphGenerator {
                Where last one is a constructor 
             */
 
-            if(getGNodeUnderConditional(n.getGeneric(0)).getName() == "constructorMethodPrototype") {
-                return (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(0)));
+            if(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0))).getName() == "constructorMethodPrototype") {
+                return (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0))));
             } else if(n.get(1) instanceof Syntax) { // keyword ABSTRACT
                 // TODO: need to handle abstract methods
-                dispatch(n.getGeneric(0)); // optAnnotations
+                dispatch(getGNodeUnderConditional(n.getGeneric(0))); // optAnnotations
 
-                AbstractObjectOfLanguage functionObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(2)));
+                AbstractObjectOfLanguage functionObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2))));
 
                 return functionObj;
             } else {
-                assert getGNodeUnderConditional(n.getGeneric(1)).getName() == "functionPrototype" : "unhandled case in method prototype";
-                dispatch(n.getGeneric(0)); // optAnnotations
+                assert getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(1))).getName() == "functionPrototype" : "unhandled case in method prototype";
+                dispatch(getGNodeUnderConditional(n.getGeneric(0))); // optAnnotations
 
-                AbstractObjectOfLanguage functionObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(1)));
+                AbstractObjectOfLanguage functionObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(1))));
 
                 return functionObj;
             }
@@ -901,13 +939,12 @@ public class CallGraphGenerator {
 
             // methodPrototype -> constructorMethodPrototype is directly under parent extern scope
             // so can retrieve the extern block's name from the scope
-            // TODO: check if there is a better way
 
             assert type_identifier.equals(scope.peek().getName()) : "Extern constructor not of the same name as extern block";
             AbstractObjectOfLanguage constructor = addToSymtab(scope.peek(), type_identifier);
             scope.add(constructor);
 
-            dispatch(n.getGeneric(3)); // parameterList
+            dispatch(getGNodeUnderConditional(n.getGeneric(3))); // parameterList
 
             scope.pop();
 
@@ -915,12 +952,12 @@ public class CallGraphGenerator {
         }
 
         public AbstractObjectOfLanguage visitparameter(GNode n) {
-            dispatch(n.getGeneric(0)); // optAnnotations
-            String type_ref_string = getTypeStringUnderTypeRef(n.getGeneric(2));
-            String name = getStringUnderName(n.getGeneric(3));
+            dispatch(getGNodeUnderConditional(n.getGeneric(0))); // optAnnotations
+            String type_ref_string = getTypeStringUnderTypeRef(getGNodeUnderConditional(n.getGeneric(2)));
+            String name = getStringUnderName(getGNodeUnderConditional(n.getGeneric(3)));
             String directionString;
-            if(n.getGeneric(1).size() > 0) {
-                directionString = n.getGeneric(1).get(0).toString();
+            if(getGNodeUnderConditional(n.getGeneric(1)).size() > 0) {
+                directionString = getGNodeUnderConditional(n.getGeneric(1)).get(0).toString();
             } else {
                 directionString = "";
             }
@@ -935,8 +972,8 @@ public class CallGraphGenerator {
 
             AbstractObjectOfLanguage parameterType;
 
-            if(baseTypes.isBaseType(type_ref_string)) {
-                parameterType = baseTypes.getLanguageObjectOfBaseType(type_ref_string);
+            if(baseTypesCollection.isBaseType(type_ref_string)) {
+                parameterType = baseTypesCollection.getLanguageObjectOfBaseType(type_ref_string);
             } else {
                 parameterType = symtabLookup(scope.peek(), type_ref_string);
             }
@@ -947,7 +984,7 @@ public class CallGraphGenerator {
                 // "optAnnotations direction typeRef name ASSIGN expression {}" productiom
                 // so need to take care of expression
                 // The other production is just "optAnnotations direction typeRef name"
-                AbstractObjectOfLanguage expression = (AbstractObjectOfLanguage) dispatch(n.getGeneric(5));
+                AbstractObjectOfLanguage expression = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(5)));
                 newParameterObj = p4LanguageObject.new Parameter(name, scope.peek(), parameterType, direction, expression);
             } else {
                 newParameterObj = p4LanguageObject.new Parameter(name, scope.peek(), parameterType, direction);
@@ -962,36 +999,40 @@ public class CallGraphGenerator {
             /*
             Two possible productions:
                 name
-                typeParameterList COMMA name ----- recursive
+                typeParameterList COMMA name ----- list
             */
-            TypeParameter typeParameterObj;
-            if(getGNodeUnderConditional(n.getGeneric(0)).getName() == "typeParameterList") {
-                // typeParameterList COMMA name ----- recursive
-                dispatch(n.getGeneric(0));
-                String name = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
-                typeParameterObj = p4LanguageObject.new TypeParameter(name, scope.peek());
-                // System.out.println("adding type parameter: " + name + " to scope: " + scope.peek().getName());
-                addToSymtab(scope.peek(), name, typeParameterObj);
-            } else {
-                // just 'name'
-                String name = getStringUnderName(getGNodeUnderConditional(n.getGeneric(0)));
+            TypeParameter typeParameterObj = null;
+            // typeParameterList is tagged as list, so instead of being recursive it will have a list
+            // of type parameters. So iterating over them
+            Iterator itr = n.iterator();
+            Node next;
+            while(itr.hasNext()) {
+                next = (Node) itr.next();
+                assert next instanceof GNode == true;
+                GNode childNode = (GNode) next;
+                Object valueUnderConditional = getValueUnderConditional(childNode);
+                if (valueUnderConditional instanceof Syntax) continue; // ","
+                childNode = (GNode) valueUnderConditional;
+                assert childNode.getName() == "name";
+                String name = getStringUnderName(childNode);
                 // System.out.println("adding type parameter: " + name + " to scope: " + scope.peek().getName());
                 typeParameterObj = p4LanguageObject.new TypeParameter(name, scope.peek());
                 addToSymtab(scope.peek(), name, typeParameterObj);
             }
+            assert typeParameterObj != null;
 
             return typeParameterObj;
         }
 
         public AbstractObjectOfLanguage visitparserDeclaration(GNode n) {
-            String parserName = getStringUnderParserTypeDeclaration(n.getGeneric(0));
+            String parserName = getStringUnderParserTypeDeclaration(getGNodeUnderConditional(n.getGeneric(0)));
             ParserDeclaration parserObj = p4LanguageObject.new ParserDeclaration(parserName, scope.peek());
             addToSymtab(scope.peek(), parserName, parserObj);
             scope.add(parserObj);
 
-            visitparserTypeDeclaration(n.getGeneric(0), false);
-            dispatch(n.getGeneric(3)); // parserLocalElements TODO: valueSetDeclaration needs to be traced for data flow
-            dispatch(n.getGeneric(4)); // parserStates
+            visitparserTypeDeclaration(getGNodeUnderConditional(n.getGeneric(0)), false);
+            dispatch(getGNodeUnderConditional(n.getGeneric(3))); // parserLocalElements TODO: valueSetDeclaration needs to be traced for data flow
+            dispatch(getGNodeUnderConditional(n.getGeneric(4))); // parserStates
 
             // built in functions
             addToSymtab(scope.peek(), "apply", p4LanguageObject.new InvokableLanguageKeyword("apply", scope.peek()));
@@ -1001,13 +1042,55 @@ public class CallGraphGenerator {
             return parserObj;
         }
 
+        public AbstractObjectOfLanguage visittypeArg(GNode n) {
+            if(getValueUnderConditional(n.getGeneric(0)) instanceof Syntax) {
+                // void or dontcare (_)
+                return baseTypesCollection.getLanguageObjectOfBaseType(getValueUnderConditional(n.getGeneric(0)).toString());
+            } else {
+                if(getGNodeUnderConditional(n.getGeneric(0)).getName() == "nonTypeName") {
+                    String name = getStringUnderNonTypeName(getGNodeUnderConditional(n.getGeneric(0)));
+                    return nonTypeNameSymtabLookUp(scope.peek(), name, true);
+                } else {
+                    return (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(0)));
+                }
+            }
+        }
+
+        public AbstractObjectOfLanguage visitvalueSetDeclaration(GNode n) {
+            AbstractObjectOfLanguage type;
+            String name = getStringUnderName(getGNodeUnderConditional(n.getGeneric(8)));
+            AbstractObjectOfLanguage newobj = addToSymtab(scope.peek(), name);
+            scope.add(newobj);
+
+            switch(getGNodeUnderConditional(n.getGeneric(3)).getName()) {
+                case "typeName":
+                    String typeName = getNameFromTypeName(getGNodeUnderConditional(n.getGeneric(3)));
+                    type = symtabLookup(scope.peek(), typeName);
+                    break;
+                case "baseType":
+                    String baseTypeString = getBaseTypeAsString(getGNodeUnderConditional(n.getGeneric(3)));
+                    type = baseTypesCollection.getLanguageObjectOfBaseType(baseTypeString);
+                    break;
+                case "tupleType":
+                    // TODO: not void, it is of tuple type
+                    System.out.println("Unhandled case of tuple type.");
+                    System.exit(1);
+                    // type = baseTypesCollection.getLanguageObjectOfBaseType("void");
+            }
+            dispatch(getGNodeUnderConditional(n.getGeneric(6))); // expression
+
+            scope.pop();
+
+            return newobj;
+        }
+
         public AbstractObjectOfLanguage visitparserState(GNode n) {
-            String stateName = getStringUnderName(n.getGeneric(2));
+            String stateName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
             AbstractObjectOfLanguage stateObj = addToSymtab(scope.peek(), stateName);
             scope.add(stateObj);
 
-            dispatch(n.getGeneric(4)); // parserStatements
-            dispatch(n.getGeneric(5)); // transitionStatement
+            dispatch(getGNodeUnderConditional(n.getGeneric(4))); // parserStatements
+            dispatch(getGNodeUnderConditional(n.getGeneric(5))); // transitionStatement
 
             scope.pop();
             
@@ -1017,7 +1100,7 @@ public class CallGraphGenerator {
 
         public AbstractObjectOfLanguage visitstateExpression(GNode n) {
             if(n.size() == 1) { // selectExpression; (name SEMICOLON is handled in callGraphVisitor)
-                return (AbstractObjectOfLanguage) dispatch(n.getGeneric(0));
+                return (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(0)));
             }
             return default_language_object;
         }
@@ -1025,11 +1108,11 @@ public class CallGraphGenerator {
         // TODO: check if we need to list table scope (if not, remove from callGraphGenerator as well)
         // TODO: take care of MATCH_KIND and KEY ASSIGN production of tablepropertylist
         public AbstractObjectOfLanguage visittableDeclaration(GNode n) {
-            String tableName = getStringUnderName(n.getGeneric(2));
+            String tableName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
             AbstractObjectOfLanguage tableObj = addToSymtab(scope.peek(), tableName);
             scope.add(tableObj);
 
-            dispatch(n.getGeneric(4)); // tablePropertyList
+            dispatch(getGNodeUnderConditional(n.getGeneric(4))); // tablePropertyList
 
             // built in functions
             addToSymtab(scope.peek(), "apply", p4LanguageObject.new InvokableLanguageKeyword("apply", scope.peek()));
@@ -1040,38 +1123,66 @@ public class CallGraphGenerator {
         }
 
         public AbstractObjectOfLanguage visitconstantDeclaration(GNode n) {
-            dispatch(n.getGeneric(0)); // optAnnotations
-            AbstractObjectOfLanguage typeRefObj = (AbstractObjectOfLanguage) dispatch(n.getGeneric(2));
-            String name = getStringUnderName(n.getGeneric(3));
-            AbstractObjectOfLanguage initializer = (AbstractObjectOfLanguage) dispatch(n.getGeneric(5));
-            AbstractObjectOfLanguage constVariable = p4LanguageObject.new Variable(name, scope.peek(), typeRefObj, initializer);
+            dispatch(getGNodeUnderConditional(n.getGeneric(0))); // optAnnotations
+            AbstractObjectOfLanguage typeRefObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(2)));
+            String name = getStringUnderName(getGNodeUnderConditional(n.getGeneric(3)));
+            Variable constVariable = p4LanguageObject.new Variable(name, scope.peek(), typeRefObj);
             addToSymtab(scope.peek(), name, constVariable);
+            scope.add(constVariable);
 
+            AbstractObjectOfLanguage initializer = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(5)));
+            constVariable.setAssignedExpression(initializer);
+
+            scope.pop();
             return constVariable;
         }
 
         public AbstractObjectOfLanguage visitaction(GNode n) {
-            String actionRefName = getNameUnderActionRef(n.getGeneric(1));
-            if(n.getGeneric(1).size() > 1) {
+            String actionRefName = getNameUnderActionRef(getGNodeUnderConditional(n.getGeneric(1)));
+            if(getGNodeUnderConditional(n.getGeneric(1)).size() > 1) {
                 // actionRef production contains argumentlist
-                dispatch(n.getGeneric(1).getGeneric(2));
+                dispatch(getGNodeUnderConditional(n.getGeneric(1)).getGeneric(2));
             }
 
             return symtabLookup(scope.peek(), actionRefName);
         }
 
         public AbstractObjectOfLanguage visitentry(GNode n) {
-            dispatch(n.getGeneric(1)); // keysetExpression
-            String actionRefName = getNameUnderActionRef(n.getGeneric(2));
-            if(n.getGeneric(2).size() > 1) {
+            dispatch(getGNodeUnderConditional(n.getGeneric(1))); // keysetExpression
+            String actionRefName = getNameUnderActionRef(getGNodeUnderConditional(n.getGeneric(2)));
+            if(getGNodeUnderConditional(n.getGeneric(2)).size() > 1) {
                 // actionRef production contains argumentlist
-                dispatch(n.getGeneric(2).getGeneric(2));
+                dispatch(getGNodeUnderConditional(n.getGeneric(2)).getGeneric(2));
             }
 
             AbstractObjectOfLanguage actionRefObj = symtabLookup(scope.peek(), actionRefName);
-            dispatch(n.getGeneric(3));
+            dispatch(getGNodeUnderConditional(n.getGeneric(3)));
 
             return actionRefObj;
+        }
+
+        public AbstractObjectOfLanguage visitinstantiation(GNode n) {
+            int typeRefIndx = 0;
+            if(n.getGeneric(0).getName() == "annotations") {
+                typeRefIndx = 1;
+                dispatch(getGNodeUnderConditional(n.getGeneric(0))); // annotations
+            }
+            AbstractObjectOfLanguage typeRefObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(typeRefIndx)));
+            dispatch(getGNodeUnderConditional(n.getGeneric(typeRefIndx + 2))); // argumentList
+            String name = getStringUnderName(getGNodeUnderConditional(n.getGeneric(typeRefIndx+4)));
+            Variable instantiationVar = p4LanguageObject.new Variable(name, scope.peek(), typeRefObj);
+            addToSymtab(scope.peek(), name, instantiationVar);
+
+            scope.add(instantiationVar);
+
+            AbstractObjectOfLanguage initializer = null;
+            if(n.size() > typeRefIndx + 6) {
+                instantiationVar.setAssignedExpression((AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(typeRefIndx + 6))));
+            }
+
+            scope.pop();
+
+            return initializer;
         }
     };
 
@@ -1106,24 +1217,24 @@ public class CallGraphGenerator {
 
         public Node visitcontrolDeclaration(GNode n) {
             // If need to parse parameters, visit the controltypedeclaration instead of static function to get name
-            String controlBlockName = getNameOfControlBlock(n.getGeneric(0));
+            String controlBlockName = getNameOfControlBlock(getGNodeUnderConditional(n.getGeneric(0)));
 
             AbstractObjectOfLanguage controlObj = symtabLookup(scope.peek(), controlBlockName);
             scope.add(controlObj);
 
             // skipping visiting controlTypeDeclaration
 
-            dispatch(n.getGeneric(3)); // controlLocalDeclarations
+            dispatch(getGNodeUnderConditional(n.getGeneric(3))); // controlLocalDeclarations
             String applyBlockName = n.get(4).toString();
 
             // start parse controlBody
             GNode oldN = n;
-            n = n.getGeneric(5); // controlBody
+            n = getGNodeUnderConditional(n.getGeneric(5)); // controlBody
             AbstractObjectOfLanguage apply = symtabLookup(scope.peek(), applyBlockName);
             // lookupInSymTabAndAddAsCallee(applyBlockName); // TODO: ask if need to insert this as a callee?
             scope.add(apply);
 
-            dispatch(n.getGeneric(0)); // controlBody can have only one child
+            dispatch(getGNodeUnderConditional(n.getGeneric(0))); // controlBody can have only one child
             
             scope.pop();
             n = oldN;
@@ -1135,12 +1246,12 @@ public class CallGraphGenerator {
 
         public Node visitactionDeclaration(GNode n) {
             // Each action in the list of actions for a table must have a distinct name
-            String actionBlockName = getStringUnderName(n.getGeneric(2));
+            String actionBlockName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
             AbstractObjectOfLanguage actionObj =  symtabLookup(scope.peek(), actionBlockName);
             scope.add(actionObj);
 
-            dispatch(n.getGeneric(4)); // parameterList
-            dispatch(n.getGeneric(6)); // blockStatement 
+            dispatch(getGNodeUnderConditional(n.getGeneric(4))); // parameterList
+            dispatch(getGNodeUnderConditional(n.getGeneric(6))); // blockStatement 
 
             scope.pop();
 
@@ -1151,15 +1262,15 @@ public class CallGraphGenerator {
         //
         public Node visitfunctionDeclaration(GNode n) {
             // TODO: need to take care of typeOrVoid if we are keeping track of defined variables (can devolve into identifier or type ident)
-            dispatch(n.getGeneric(0));
+            dispatch(getGNodeUnderConditional(n.getGeneric(0)));
 
             // as per language specification, functionPrototype will describe the name and type signature of the function
-            String functionName = getStringUnderFunctionPrototype(n.getGeneric(0));
+            String functionName = getStringUnderFunctionPrototype(getGNodeUnderConditional(n.getGeneric(0)));
             AbstractObjectOfLanguage functionObj = symtabLookup(scope.peek(), functionName);
             scope.add(functionObj);
 
-            dispatch(n.getGeneric(0)); // functionPrototype (for parameters)
-            dispatch(n.getGeneric(1)); // blockstatement
+            dispatch(getGNodeUnderConditional(n.getGeneric(0))); // functionPrototype (for parameters)
+            dispatch(getGNodeUnderConditional(n.getGeneric(1))); // blockstatement
 
             scope.pop();
 
@@ -1167,12 +1278,12 @@ public class CallGraphGenerator {
         }
 
         public Node visitparserDeclaration(GNode n) {
-            String parserName = getStringUnderParserTypeDeclaration(n.getGeneric(0)); // TODO: take of parameter list here if needed to
+            String parserName = getStringUnderParserTypeDeclaration(getGNodeUnderConditional(n.getGeneric(0))); // TODO: take of parameter list here if needed to
             AbstractObjectOfLanguage parserObj = symtabLookup(scope.peek(), parserName);
             scope.add(parserObj);
 
-            dispatch(n.getGeneric(3)); // parserLocalElements TODO: valueSetDeclaration needs to be traced for data flow
-            dispatch(n.getGeneric(4)); // parserStates
+            dispatch(getGNodeUnderConditional(n.getGeneric(3))); // parserLocalElements TODO: valueSetDeclaration needs to be traced for data flow
+            dispatch(getGNodeUnderConditional(n.getGeneric(4))); // parserStates
 
             scope.pop();
 
@@ -1180,12 +1291,12 @@ public class CallGraphGenerator {
         }
 
         public Node visitparserState(GNode n) {
-            String stateName = getStringUnderName(n.getGeneric(2));
+            String stateName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
             AbstractObjectOfLanguage stateObj = symtabLookup(scope.peek(), stateName);
             scope.add(stateObj);
 
-            dispatch(n.getGeneric(4)); // parserStatements
-            dispatch(n.getGeneric(5)); // transitionStatement
+            dispatch(getGNodeUnderConditional(n.getGeneric(4))); // parserStatements
+            dispatch(getGNodeUnderConditional(n.getGeneric(5))); // transitionStatement
 
             scope.pop();
             
@@ -1194,17 +1305,17 @@ public class CallGraphGenerator {
         }
 
         public Node visitexternDeclaration(GNode n) {
-            if(getGNodeUnderConditional(n.getGeneric(0)).getName() == "externFunctionDeclaration") { // generic dispatch
-                dispatch(getGNodeUnderConditional(n.getGeneric(0)));
+            if(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0))).getName() == "externFunctionDeclaration") { // generic dispatch
+                dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0))));
                 return n;
             } else {
-                if(getGNodeUnderConditional(n.getGeneric(2)).getName() == "nonTypeName") {
-                    String externName = getStringUnderNonTypeName(getGNodeUnderConditional(n.getGeneric(2)));
+                if(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2))).getName() == "nonTypeName") {
+                    String externName = getStringUnderNonTypeName(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2))));
                     AbstractObjectOfLanguage externObj = symtabLookup(scope.peek(), externName);
                     scope.add(externObj);
 
-                    dispatch(n.getGeneric(3)); // optTypeParameters
-                    dispatch(n.getGeneric(5)); // methodPrototypes
+                    dispatch(getGNodeUnderConditional(n.getGeneric(3))); // optTypeParameters
+                    dispatch(getGNodeUnderConditional(n.getGeneric(5))); // methodPrototypes
 
                     scope.pop();
                 } else {
@@ -1228,27 +1339,27 @@ public class CallGraphGenerator {
                Where last one is a constructor 
             */
 
-            if(getGNodeUnderConditional(n.getGeneric(0)).getName() == "constructorMethodPrototype") {
-                dispatch(n.getGeneric(0));
+            if(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0))).getName() == "constructorMethodPrototype") {
+                dispatch(getGNodeUnderConditional(n.getGeneric(0)));
             } else if(n.get(1) instanceof Syntax) { // keyword ABSTRACT
-                dispatch(n.getGeneric(0)); // optAnnotations
+                dispatch(getGNodeUnderConditional(n.getGeneric(0))); // optAnnotations
 
                 // TODO: need to handle abstract methods
-                String functionName = getStringUnderFunctionPrototype(getGNodeUnderConditional(n.getGeneric(2)));
+                String functionName = getStringUnderFunctionPrototype(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2))));
                 AbstractObjectOfLanguage functionObj = symtabLookup(scope.peek(), functionName);
                 scope.add(functionObj);
 
-                dispatch(n.getGeneric(2));
+                dispatch(getGNodeUnderConditional(n.getGeneric(2)));
 
                 scope.pop();
             } else {
-                assert getGNodeUnderConditional(n.getGeneric(1)).getName() == "functionPrototype" : "unhandled case in method prototype";
-                dispatch(n.getGeneric(0)); // optAnnotations
-                String functionName = getStringUnderFunctionPrototype(getGNodeUnderConditional(n.getGeneric(1)));
+                assert getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(1))).getName() == "functionPrototype" : "unhandled case in method prototype";
+                dispatch(getGNodeUnderConditional(n.getGeneric(0))); // optAnnotations
+                String functionName = getStringUnderFunctionPrototype(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(1))));
                 AbstractObjectOfLanguage functionObj = symtabLookup(scope.peek(), functionName);
                 scope.add(functionObj);
 
-                dispatch(n.getGeneric(1));
+                dispatch(getGNodeUnderConditional(n.getGeneric(1)));
 
                 scope.pop();
             }
@@ -1267,7 +1378,7 @@ public class CallGraphGenerator {
             AbstractObjectOfLanguage constructor = symtabLookup(scope.peek(), type_identifier);
             scope.add(constructor);
 
-            dispatch(n.getGeneric(3)); // parameterList
+            dispatch(getGNodeUnderConditional(n.getGeneric(3))); // parameterList
 
             scope.pop();
 
@@ -1277,34 +1388,34 @@ public class CallGraphGenerator {
         public Node visitdirectApplication(GNode n) {
             // As per the grammar we can have only one typename before the `.apply`, so nesting can't happen
             
-            String calleeName = getNameFromTypeName(n.getGeneric(0));
+            String calleeName = getNameFromTypeName(getGNodeUnderConditional(n.getGeneric(0)));
 
             lookupInSymTabAndAddAsCallee(calleeName);
 
-            // dispatch(n.getGeneric(4)); // argumentList
+            // dispatch(getGNodeUnderConditional(n.getGeneric(4))); // argumentList
 
             return n;
         }
 
         public Node visitassignmentOrMethodCallStatement(GNode n) {
-            if(n.getGeneric(0).getName() == "methodCallStatements") {
+            if(getGNodeUnderConditional(n.getGeneric(0)).getName() == "methodCallStatements") {
                 // method call statements
-                dispatch(n.getGeneric(0));
+                dispatch(getGNodeUnderConditional(n.getGeneric(0)));
             } else { // TODO: make clear which production
-                dispatch(n.getGeneric(0)); // lvalue
-                dispatch(n.getGeneric(2)); // expression
+                dispatch(getGNodeUnderConditional(n.getGeneric(0))); // lvalue
+                dispatch(getGNodeUnderConditional(n.getGeneric(2))); // expression
             }
 
             return n;
         }
 
         public Node visitmethodCallStatements(GNode n) {
-            dispatch(n.getGeneric(0)); // lvalue
+            dispatch(getGNodeUnderConditional(n.getGeneric(0))); // lvalue
 
             // only legal value of lvalue for method call statements is prefixedNonTypeName
             // with dot_name as lvalueExpressions cannot be used for method call statements
             // (see end of document). getStringUnderLvaluePrefixNonTypeName asserts that
-            String calleeMethodName = getStringUnderLvaluePrefixNonTypeName(n.getGeneric(0));
+            String calleeMethodName = getStringUnderLvaluePrefixNonTypeName(getGNodeUnderConditional(n.getGeneric(0)));
             lookupInSymTabAndAddAsCallee(calleeMethodName);
 
             // There are two possible set of sub productions, both which have argument list under it
@@ -1312,9 +1423,9 @@ public class CallGraphGenerator {
             // hence check the size to see which production we are currently under and dispatching
             // the visitor at the respective argumentList position
             if(n.size() == 5) {
-                dispatch(n.getGeneric(2)); //argumentlist
+                dispatch(getGNodeUnderConditional(n.getGeneric(2))); //argumentlist
             } else { 
-                dispatch(n.getGeneric(5)); // argumentList
+                dispatch(getGNodeUnderConditional(n.getGeneric(5))); // argumentList
             }
 
             return n;
@@ -1322,11 +1433,11 @@ public class CallGraphGenerator {
 
         // TODO: check if we need to list table scope (if not, remove from definitions dispatcher as well)
         public Node visittableDeclaration(GNode n) {
-            String tableName = getStringUnderName(n.getGeneric(2));
+            String tableName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
             AbstractObjectOfLanguage tableObj = symtabLookup(scope.peek(), tableName);
             scope.add(tableObj);
 
-            dispatch(n.getGeneric(4)); // tablePropertyList
+            dispatch(getGNodeUnderConditional(n.getGeneric(4))); // tablePropertyList
 
             scope.pop();
 
@@ -1336,21 +1447,21 @@ public class CallGraphGenerator {
         public Node visitstateExpression(GNode n) {
             if(n.size() == 2) { // name SEMICOLON
                 // TODO: need to handle keywords like accept or reject
-                String stateName = getStringUnderName(n.getGeneric(0));
+                String stateName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(0)));
                 if( !implicitParserStates.contains(stateName)) {
                     lookupInSymTabAndAddAsCallee(stateName);
                 }
             } else { // selectExpression;
-                dispatch(n.getGeneric(0));
+                dispatch(getGNodeUnderConditional(n.getGeneric(0)));
             }
             return n;
         }
 
         public Node visitselectCase(GNode n) {
             // TODO trace keysetExpression for data
-            dispatch(n.getGeneric(0)); // keysetExpression
+            dispatch(getGNodeUnderConditional(n.getGeneric(0))); // keysetExpression
 
-            String selectName = getStringUnderName(n.getGeneric(2));
+            String selectName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
             if ( !implicitParserStates.contains(selectName)) {
                 lookupInSymTabAndAddAsCallee(selectName);
             }
@@ -1359,10 +1470,10 @@ public class CallGraphGenerator {
         }
 
         public Node visitaction(GNode n) {
-            String actionRefName = getNameUnderActionRef(n.getGeneric(1));
-            if(n.getGeneric(1).size() > 1) {
+            String actionRefName = getNameUnderActionRef(getGNodeUnderConditional(n.getGeneric(1)));
+            if(getGNodeUnderConditional(n.getGeneric(1)).size() > 1) {
                 // actionRef production contains argumentlist
-                dispatch(n.getGeneric(1).getGeneric(2));
+                dispatch(getGNodeUnderConditional(n.getGeneric(1)).getGeneric(2));
             }
             lookupInSymTabAndAddAsCallee(actionRefName);
 
@@ -1370,13 +1481,13 @@ public class CallGraphGenerator {
         }
 
         public Node visitentry(GNode n) {
-            dispatch(n.getGeneric(1)); // keysetExpression
-            String actionRefName = getNameUnderActionRef(n.getGeneric(2));
-            if(n.getGeneric(2).size() > 1) {
+            dispatch(getGNodeUnderConditional(n.getGeneric(1))); // keysetExpression
+            String actionRefName = getNameUnderActionRef(getGNodeUnderConditional(n.getGeneric(2)));
+            if(getGNodeUnderConditional(n.getGeneric(2)).size() > 1) {
                 // actionRef production contains argumentlist
-                dispatch(n.getGeneric(2).getGeneric(2));
+                dispatch(getGNodeUnderConditional(n.getGeneric(2)).getGeneric(2));
             }
-            dispatch(n.getGeneric(3));
+            dispatch(getGNodeUnderConditional(n.getGeneric(3)));
 
             lookupInSymTabAndAddAsCallee(actionRefName);
 
@@ -1384,30 +1495,32 @@ public class CallGraphGenerator {
         }
 
         public Node visitinvokingExpression(GNode n) {
-            if(getValueUnderConditional(n.getGeneric(0)) instanceof Syntax) {
-                dispatch(getGNodeUnderConditional(n.getGeneric(1))); // typeRef
-                dispatch(getGNodeUnderConditional(n.getGeneric(3))); // expression
+            if(getValueUnderConditional(getGNodeUnderConditional(n.getGeneric(0))) instanceof Syntax) {
+                dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(1)))); // typeRef
+                dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(3)))); // expression
                 return n;
             }
             
-            GNode nGetGeneric0 = getGNodeUnderConditional(n.getGeneric(0));
+            GNode nGetGeneric0 = getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0)));
             if(nGetGeneric0.getName() == "namedType") {
                 // one of three possible productions, starts with namedType
                 String namedType = getStringUnderNamedType(nGetGeneric0);
                 lookupInSymTabAndAddAsCallee(namedType);
 
-                dispatch(getGNodeUnderConditional(n.getGeneric(2))); // argumentList
+                dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2)))); // argumentList
             } else { // first element pointing to name is an expression, extract from that
-                AbstractObjectOfLanguage expressionCallee = getCalleeFromExpression(nGetGeneric0, this);
-                callGraphObject.get(scope.peek()).add(expressionCallee);
+                // AbstractObjectOfLanguage expressionCallee = getCalleeFromExpression(nGetGeneric0, this);
+                AbstractObjectOfLanguage expressionCallee = getCalleeFromExpression(nGetGeneric0);
+                System.out.println("Adding scope: " + expressionCallee.getName() + " as a callee of: " + scope.peek().getName());
+                addAsCallee(expressionCallee);
 
                 // two possible productions, one contains extra set of type arguments 
                 // inside angle brackets (of size 4 & 7)
                 if(n.size() == 4) {
-                    dispatch(getGNodeUnderConditional(n.getGeneric(2))); // argumentList
+                    dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2)))); // argumentList
                 } else {
-                    dispatch(getGNodeUnderConditional(n.getGeneric(2))); // realTypeArgumentList
-                    dispatch(getGNodeUnderConditional(n.getGeneric(5))); // argumentList
+                    dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2)))); // realTypeArgumentList
+                    dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(5)))); // argumentList
                     // TODO: data inside realTypeArguments? can refer nontypenames
                 }
             }
@@ -1417,30 +1530,48 @@ public class CallGraphGenerator {
 
         public Node visitinvokingNonBraceExpression(GNode n) {
             if(n.get(0) instanceof Syntax) {
-                dispatch(getGNodeUnderConditional(n.getGeneric(1))); // typeRef
-                dispatch(getGNodeUnderConditional(n.getGeneric(3))); // expression
+                dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(1)))); // typeRef
+                dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(3)))); // expression
             }
 
-            GNode nGetGeneric0 = getGNodeUnderConditional(n.getGeneric(0));
+            GNode nGetGeneric0 = getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0)));
             if(nGetGeneric0.getName() == "namedType") {
                 // one of three possible productions, starts with namedType
                 String namedType = getStringUnderNamedType(nGetGeneric0);
                 lookupInSymTabAndAddAsCallee(namedType);
 
-                dispatch(getGNodeUnderConditional(n.getGeneric(2))); // argumentList
+                dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2)))); // argumentList
             } else { // first element pointing to name is an expression, extract from that
-                AbstractObjectOfLanguage expressionCallee = getCalleeFromNonBraceExpression(nGetGeneric0, this);
-                callGraphObject.get(scope.peek()).add(expressionCallee);
+                AbstractObjectOfLanguage expressionCallee = getCalleeFromNonBraceExpression(nGetGeneric0);
+                addAsCallee(expressionCallee);
 
                 // two possible productions, one contains extra set of type arguments 
                 // inside angle brackets (of size 4 & 7)
                 if(n.size() == 4) {
-                    dispatch(getGNodeUnderConditional(n.getGeneric(2))); // argumentList
+                    dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2)))); // argumentList
                 } else {
-                    dispatch(getGNodeUnderConditional(n.getGeneric(3))); // realTypeArgumentList
-                    dispatch(getGNodeUnderConditional(n.getGeneric(5))); // argumentList
+                    dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(3)))); // realTypeArgumentList
+                    dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(5)))); // argumentList
                     // TODO: data inside realTypeArguments? can refer nontypenames
                 }
+            }
+
+            return n;
+        }
+
+        public Node visitinstantiation(GNode n) {
+            int typeRefIndx = 0;
+            if(n.getGeneric(0).getName() == "annotations") {
+                typeRefIndx = 1;
+                dispatch(getGNodeUnderConditional(n.getGeneric(0))); // annotations
+            }
+            String typeRefName = getTypeStringUnderTypeRef(getGNodeUnderConditional(n.getGeneric(typeRefIndx)));
+            lookupInSymTabAndAddAsCallee(typeRefName);
+
+            dispatch(getGNodeUnderConditional(n.getGeneric(typeRefIndx + 2))); // argumentList
+
+            if(n.size() > typeRefIndx + 6) {
+                dispatch(getGNodeUnderConditional(n.getGeneric(typeRefIndx + 6))); // optInitializer
             }
 
             return n;
@@ -1455,13 +1586,11 @@ public class CallGraphGenerator {
     public String getNameUnderActionRef(GNode n) {
         assert n.getName() == "actionRef";
 
-        String actionRefName = getStringUnderPrefixedNonTypeName(n.getGeneric(0));
+        String actionRefName = getStringUnderPrefixedNonTypeName(getGNodeUnderConditional(n.getGeneric(0)));
 
         return actionRefName;
     }
 
-    // nonTypeName, dotPrefix nonTypeName, typeName dot_name, expression dot_name
-    // Note: `NOT expression` will be taken care of by recursion
     /**
      * Handles possible expressions that can be used to invoke an entity.
      * 
@@ -1469,52 +1598,79 @@ public class CallGraphGenerator {
      * and is invoking a previously declared entity (callee).
      * Handles those possible expressions, including namespacing if present, and adds
      * the invoked entity as a call to the current scope object.
+     * 
+     * nonTypeName, dotPrefix nonTypeName, typeName dot_name, expression dot_name
+     * Note: `NOT expression` will be taken care of by recursion
      * @param n
      * @return
      */
-    public AbstractObjectOfLanguage getCalleeFromExpression(GNode n, Visitor visitor) {
-        assert n.getName() == "expression" : "Wrong method. Current construct is: " + n.getName();
+    public AbstractObjectOfLanguage getCalleeFromExpression(GNode n) {
+        Iterator itr = n.iterator();
+        AbstractObjectOfLanguage finalValue = null;
+        AbstractObjectOfLanguage localScope = scope.peek();
+        while(itr.hasNext()) {
+            Node next = (Node) itr.next();
+            if(next instanceof Syntax) {
+                assert next.toString() == "!" : "Encountered an invalid expression when expecting something to be invoked";
+                if(next.toString() != "!") {
+                    System.out.println("Encountered an invalid expression when expecting something to be invoked");
+                    System.exit(1);
+                }
+                continue;
+            }
 
-        if(n.get(0) instanceof Syntax) { // NOT expression
-            assert n.get(0).toString() == "!";
-            return getCalleeFromExpression(getGNodeUnderConditional(n.getGeneric(1)), visitor);
+            Object underConditional = getValueUnderConditional((GNode) next);
+            if(underConditional instanceof Syntax) {
+                assert ((Node) underConditional).toString() == "!" : "Encountered an invalid expression when expecting something to be invoked";
+                if(((Node) underConditional).toString() != "!") {
+                    System.out.println("Encountered an invalid expression when expecting something to be invoked");
+                    System.exit(1);
+                }
+                continue;
+            }
+
+            GNode childNode = (GNode) underConditional;
+            switch(childNode.getName()) {
+                case "expression":
+                    finalValue = getCalleeFromExpression(childNode);
+                    localScope = finalValue;
+                    assert getGNodeUnderConditional(n.getGeneric(1)).getName() == "dot_name" : "Not an invoking expression";
+                    break;
+                case "nonTypeName":
+                    // nonTypeName
+                    AbstractObjectOfLanguage lookup = nonTypeNameSymtabLookUp(localScope, getStringUnderNonTypeName(getGNodeUnderConditional(childNode)), true);
+                    // System.out.println("found nonTypeName: " + lookup.getName());
+                    finalValue = lookup;
+                    localScope = lookup;
+                    // return lookup;
+                    break;
+                case "dotPrefix":
+                    // dotPrefix nonTypeName
+                    // continuing because the while loop will reach nonTypeName
+                    assert getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(1))).getName() == "nonTypeName";
+                    // System.out.println("dot prefix");
+                    childNode = getGNodeUnderConditional((GNode) itr.next());
+                    assert childNode.getName() == "nonTypeName";
+                    AbstractObjectOfLanguage lookupNonTypeName = nonTypeNameSymtabLookUp(localScope, getStringUnderNonTypeName(getGNodeUnderConditional(childNode)), false);
+                    return lookupNonTypeName;
+                case "typeName":
+                    // typeName dot_name
+                    // doing namespacing
+                    AbstractObjectOfLanguage typeNameLO = symtabLookup(localScope, getNameFromTypeName(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0)))));
+                    localScope = typeNameLO;
+                    finalValue = typeNameLO;
+                    break;
+                case "dot_name":
+                    String dotNameString = getStringUnderDotName(childNode);
+                    finalValue = symtabLookup(localScope, dotNameString);
+                    localScope = finalValue;
+                    break;
+                default:
+                    assert false : childNode.getName() + "::Encountered a situation where expression inside invoking expression was not of expected value";
+            }
         }
-
-        assert ((Node) n.get(0)).isGeneric();
-
-        String dotNameString;
-        GNode firstChild = n.getGeneric(0);
-        if(n.getGeneric(0).getName() == "Conditional") {
-            firstChild = getGNodeUnderConditional(n.getGeneric(0));
-        }
-        switch(firstChild.getName()) {
-            case "nonTypeName":
-                // nonTypeName
-                return nonTypeNameSymtabLookUp(scope.peek(), getStringUnderNonTypeName(getGNodeUnderConditional(n.getGeneric(0))), true);
-            case "dotPrefix":
-                // dotPrefix nonTypeName
-                return nonTypeNameSymtabLookUp(scope.peek(), getStringUnderNonTypeName(getGNodeUnderConditional(n.getGeneric(1))), false);
-            case "typeName":
-                // typeName dot_name
-                // doing namespacing
-                AbstractObjectOfLanguage typeNameLO = symtabLookup(scope.peek(), getNameFromTypeName(getGNodeUnderConditional(n.getGeneric(0))));
-                dotNameString = getStringUnderDotName(getGNodeUnderConditional(n.getGeneric(1)));
-                return symtabLookup(typeNameLO, dotNameString);
-            case "expression":
-                // expression dot_name
-                // namespace
-                assert n.size() == 2 && n.getGeneric(1).getName() == "dot_name";
-                AbstractObjectOfLanguage expressionLO = getCalleeFromExpression(getGNodeUnderConditional(n.getGeneric(0)), visitor);
-                dotNameString = getStringUnderDotName(getGNodeUnderConditional(n.getGeneric(1)));
-                return symtabLookup(expressionLO, dotNameString);
-            case "invokingExpression":
-                return (AbstractObjectOfLanguage) visitor.dispatch(firstChild);
-            default:
-                assert false : "Encountered a situation where expression inside invoking expression was not of expected value";
-        }
-
-        assert false : "should not be reaching this place";
-        return symtabLookup(scope.peek(), n.getName());
+        assert finalValue != null;
+        return finalValue;
     }
 
     // nonTypeName, dotPrefix nonTypeName, typeName dot_name, expression dot_name
@@ -1530,50 +1686,74 @@ public class CallGraphGenerator {
      * @param n
      * @return
      */
-    public AbstractObjectOfLanguage getCalleeFromNonBraceExpression(GNode n, Visitor visitor) {
-        assert n.getName() == "expression" : "current name is: " + n.getName();
+    public AbstractObjectOfLanguage getCalleeFromNonBraceExpression(GNode n) {
+        Iterator itr = n.iterator();
+        AbstractObjectOfLanguage finalValue = null;
+        AbstractObjectOfLanguage localScope = scope.peek();
+        while(itr.hasNext()) {
+            Node next = (Node) itr.next();
+            if(next instanceof Syntax) {
+                assert next.toString() == "!" : "Encountered an invalid expression when expecting something to be invoked";
+                if(next.toString() != "!") {
+                    System.out.println("Encountered an invalid expression when expecting something to be invoked");
+                    System.exit(1);
+                }
+                continue;
+            }
 
-        if(n.get(0) instanceof Syntax) { // NOT expression
-            assert n.get(0).toString() == "!";
-            return getCalleeFromExpression(n.getGeneric(1), visitor);
+            Object underConditional = getValueUnderConditional((GNode) next);
+
+            if(underConditional instanceof Syntax) {
+                assert ((Node) underConditional).toString() == "!" : "Encountered an invalid expression when expecting something to be invoked";
+                if(((Node) underConditional).toString() != "!") {
+                    System.out.println("Encountered an invalid expression when expecting something to be invoked");
+                    System.exit(1);
+                }
+                continue;
+            }
+
+            GNode childNode = (GNode) underConditional;
+            switch(childNode.getName()) {
+                case "nonBraceExpression":
+                    finalValue = getCalleeFromNonBraceExpression(childNode);
+                    localScope = finalValue;
+                    assert getGNodeUnderConditional(n.getGeneric(1)).getName() == "dot_name" : "Not an invoking expression";
+                    break;
+                case "nonTypeName":
+                    // nonTypeName
+                    AbstractObjectOfLanguage lookup = nonTypeNameSymtabLookUp(localScope, getStringUnderNonTypeName(getGNodeUnderConditional(childNode)), true);
+                    // System.out.println("found nonTypeName: " + lookup.getName());
+                    finalValue = lookup;
+                    localScope = lookup;
+                    // return lookup;
+                    break;
+                case "dotPrefix":
+                    // dotPrefix nonTypeName
+                    // continuing because the while loop will reach nonTypeName
+                    assert getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(1))).getName() == "nonTypeName";
+                    // System.out.println("dot prefix");
+                    childNode = getGNodeUnderConditional((GNode) itr.next());
+                    assert childNode.getName() == "nonTypeName";
+                    AbstractObjectOfLanguage lookupNonTypeName = nonTypeNameSymtabLookUp(localScope, getStringUnderNonTypeName(getGNodeUnderConditional(childNode)), false);
+                    return lookupNonTypeName;
+                case "typeName":
+                    // typeName dot_name
+                    // doing namespacing
+                    AbstractObjectOfLanguage typeNameLO = symtabLookup(localScope, getNameFromTypeName(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0)))));
+                    localScope = typeNameLO;
+                    finalValue = typeNameLO;
+                    break;
+                case "dot_name":
+                    String dotNameString = getStringUnderDotName(childNode);
+                    finalValue = symtabLookup(localScope, dotNameString);
+                    localScope = finalValue;
+                    break;
+                default:
+                    assert false : childNode.getName() + "::Encountered a situation where expression inside invoking expression was not of expected value";
+            }
         }
-
-        assert ((Node) n.get(0)).isGeneric();
-
-        String dotNameString;
-        GNode firstChild = n.getGeneric(0);
-        if(n.getGeneric(0).getName() == "Conditional") {
-            firstChild = getGNodeUnderConditional(n.getGeneric(0));
-        }
-        switch(firstChild.getName()) {
-            case "nonTypeName":
-                // nonTypeName
-                return nonTypeNameSymtabLookUp(scope.peek(), getStringUnderNonTypeName(getGNodeUnderConditional(n.getGeneric(0))), true);
-            case "dotPrefix":
-                // dotPrefix nonTypeName
-                assert n.size() > 1;
-                return nonTypeNameSymtabLookUp(scope.peek(), getStringUnderNonTypeName(getGNodeUnderConditional(n.getGeneric(1))), false);
-            case "typeName":
-                // typeName dot_name
-                // doing namespacing
-                AbstractObjectOfLanguage typeNameLO = symtabLookup(scope.peek(), getNameFromTypeName(getGNodeUnderConditional(n.getGeneric(0))));
-                dotNameString = getStringUnderDotName(getGNodeUnderConditional(n.getGeneric(1)));
-                return symtabLookup(typeNameLO, dotNameString);
-            case "expression":
-                // nonBraceExpression dot_name
-                // namespace
-                assert n.size() == 2 && n.getGeneric(1).getName() == "dot_name";
-                AbstractObjectOfLanguage expressionLO = getCalleeFromNonBraceExpression(getGNodeUnderConditional(n.getGeneric(0)), visitor);
-                dotNameString = getStringUnderDotName(getGNodeUnderConditional(n.getGeneric(1)));
-                return symtabLookup(expressionLO, dotNameString);
-            case "invokingNonBraceExpression":
-                return (AbstractObjectOfLanguage) visitor.dispatch(firstChild);
-            default:
-                assert false : "Encountered a situation where expression inside invoking expression was not of expected value";
-        }
-
-        assert false : "should not be reaching this place";
-        return symtabLookup(scope.peek(), n.getName());
+        assert finalValue != null;
+        return finalValue;
     }
 
     public GNode getGNodeUnderConditional(GNode n) {
@@ -1595,10 +1775,10 @@ public class CallGraphGenerator {
     public String getStringUnderNamedType(GNode n) {
         assert n.getName() == "namedType";
 
-        if(n.getGeneric(0).getName() == "typeName") { // typeName
-            return getNameFromTypeName(n.getGeneric(0));
+        if(getGNodeUnderConditional(n.getGeneric(0)).getName() == "typeName") { // typeName
+            return getNameFromTypeName(getGNodeUnderConditional(n.getGeneric(0)));
         } else { //specializedType
-            return getStringUnderSpecializedTypeName(n.getGeneric(0));
+            return getStringUnderSpecializedTypeName(getGNodeUnderConditional(n.getGeneric(0)));
         }
     }
 
@@ -1607,14 +1787,14 @@ public class CallGraphGenerator {
 
         // TODO: take care of typeArgumentList
 
-        return getNameFromTypeName(n.getGeneric(0));
+        return getNameFromTypeName(getGNodeUnderConditional(n.getGeneric(0)));
     }
 
     public String getNameFromTypeName(GNode n) {
         assert n.getName() == "typeName";
 
         // only child is prefixedType and that is used only under typeName
-        n = n.getGeneric(0);
+        n = getGNodeUnderConditional(n.getGeneric(0));
 
         // prefixedType can have just TYPE_IDENTIFIER or can be prefixed with a dot
         if(n.size() > 1) {
@@ -1630,7 +1810,7 @@ public class CallGraphGenerator {
         assert n.getName() == "controlTypeDeclaration";
 
         // Third child node is the `name` construct
-        return getStringUnderName(n.getGeneric(2));
+        return getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
     }
 
     // TODO: !! (need to change AbstractObjectOfLanguage to include which construct each symbol is from)
@@ -1647,7 +1827,7 @@ public class CallGraphGenerator {
             return n.get(0).toString();
         } else {
             // nonTypeName
-            return getStringUnderNonTypeName(n.getGeneric(0));
+            return getStringUnderNonTypeName(getGNodeUnderConditional(n.getGeneric(0)));
         }
     }
 
@@ -1663,9 +1843,9 @@ public class CallGraphGenerator {
 
     public String getStringUnderPrefixedNonTypeName(GNode n) {
         assert n.getName() == "prefixedNonTypeName";
-        assert ! ((GNode) n.getGeneric(0)).getName().equals("dotPrefix") : "Retrieving nontypenames with a dot as a prefix not supported yet";
+        assert ! ((GNode) getGNodeUnderConditional(n.getGeneric(0))).getName().equals("dotPrefix") : "Retrieving nontypenames with a dot as a prefix not supported yet";
 
-        return getStringUnderNonTypeName(n.getGeneric(0));
+        return getStringUnderNonTypeName(getGNodeUnderConditional(n.getGeneric(0)));
     }
 
     /**
@@ -1682,7 +1862,7 @@ public class CallGraphGenerator {
         assert n.getName() == "lvalue";
         assert n.get(0) instanceof Node && ((Node) n.get(0)).isGeneric();
 
-        GNode firstChild = n.getGeneric(0);
+        GNode firstChild = getGNodeUnderConditional(n.getGeneric(0));
         if(firstChild.getName() == "lvalue") {
             return traverseLvalueAndGetStringUnderPrefixedNonTypeName(n);
         } else if(firstChild.getName() == "prefixedNonTypeName") {
@@ -1734,7 +1914,7 @@ public class CallGraphGenerator {
         }
         Iterator nit = n.iterator();
         AbstractObjectOfLanguage finalValue = null;
-        GNode childNode = n.getGeneric(0);
+        GNode childNode = getGNodeUnderConditional(n.getGeneric(0));
 
         for(int i = 1; i < n.size() + 1; i++) {
             // System.out.println("child name: " + childNode.getName());
@@ -1770,7 +1950,6 @@ public class CallGraphGenerator {
                     // }
                     break;
                 case "lvalueExpression":
-                    // TODO: change scope?
                     scope.add(localScope);
                     visitor.dispatch(childNode.getGeneric(1));
                     if(childNode.size() > 3) {
@@ -1797,15 +1976,15 @@ public class CallGraphGenerator {
     public String getTypeStringUnderTypeRef(GNode n) {
         assert n.getName() == "typeRef";
         
-        switch(n.getGeneric(0).getName()) {
+        switch(getGNodeUnderConditional(n.getGeneric(0)).getName()) {
             case "typeName":
-                return getNameFromTypeName(n.getGeneric(0));
+                return getNameFromTypeName(getGNodeUnderConditional(n.getGeneric(0)));
             case "baseType":
-                return getBaseTypeAsString(n.getGeneric(0));
+                return getBaseTypeAsString(getGNodeUnderConditional(n.getGeneric(0)));
             case "specializedType":
-                return getStringUnderSpecializedTypeName(n.getGeneric(0));
+                return getStringUnderSpecializedTypeName(getGNodeUnderConditional(n.getGeneric(0)));
             case "headerStackType":
-                return getStringUnderHeaderStackType(n.getGeneric(0));
+                return getStringUnderHeaderStackType(getGNodeUnderConditional(n.getGeneric(0)));
             case "tupleType":
                 return "tuple"; // TODO: example cases and figure out tuple nesting
             default:
@@ -1827,10 +2006,10 @@ public class CallGraphGenerator {
         assert n.getName() == "headerStackType";
 
         // TODO: handle expression inside
-        if(n.getGeneric(0).getName() == "typeName") {
-            return getNameFromTypeName(n.getGeneric(0));
-        } else if(n.getGeneric(0).getName() == "specializedType") {
-            return getStringUnderSpecializedTypeName(n.getGeneric(0));
+        if(getGNodeUnderConditional(n.getGeneric(0)).getName() == "typeName") {
+            return getNameFromTypeName(getGNodeUnderConditional(n.getGeneric(0)));
+        } else if(getGNodeUnderConditional(n.getGeneric(0)).getName() == "specializedType") {
+            return getStringUnderSpecializedTypeName(getGNodeUnderConditional(n.getGeneric(0)));
         } else {
             System.err.println("Unhandled header stack type case");
             System.exit(1);
@@ -1840,25 +2019,25 @@ public class CallGraphGenerator {
     }
 
     public String getStringUnderDotName(GNode n) {
-        return getStringUnderName(n.getGeneric(1));
+        return getStringUnderName(getGNodeUnderConditional(n.getGeneric(1)));
     }
 
     public String getStringUnderFunctionPrototype(GNode n) {
         assert n.getName() == "functionPrototype";
         
-        return getStringUnderName(n.getGeneric(1));
+        return getStringUnderName(getGNodeUnderConditional(n.getGeneric(1)));
     }
 
     public String getStringUnderParserTypeDeclaration(GNode n) {
         assert n.getName() == "parserTypeDeclaration";
 
-        return getStringUnderName(n.getGeneric(2));
+        return getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
     }
 
     public String getStringUnderActionRef(GNode n) {
         assert n.getName() == "actionRef";
 
-        String prefixedNonTypeName = getStringUnderPrefixedNonTypeName(n.getGeneric(0));
+        String prefixedNonTypeName = getStringUnderPrefixedNonTypeName(getGNodeUnderConditional(n.getGeneric(0)));
 
         // TODO: parse argumentList?
 

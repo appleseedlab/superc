@@ -341,6 +341,8 @@ public class SuperP4 extends Tool {
            "Print the parsed AST.").
       bool("preprocessorUsageMatrix", "preprocessorUsageMatrix", false,
            "Print intersection matrix of grammar constructs and preprocessor present inside each construct.").
+      bool("callGraph", "callGraph", false,
+           "Print Call graph image").
       bool("printSource", "printSource", false,
            "Print the parsed AST in C source form.").
       bool("suppressConditions", "suppressConditions", false,
@@ -1211,15 +1213,17 @@ public class SuperP4 extends Tool {
         runtime.console().format((Node) translationUnit).pln().flush();
       }
 
-      if(runtime.test("preprocessorUsageMatrix")) {
 
+      if(runtime.test("callGraph")) {
         CallGraphGenerator graph = new CallGraphGenerator();
         graph.buildSymbolTable((Node) translationUnit);
         graph.buildCallGraph((Node) translationUnit);
         graph.printCallGraph();
         graph.createCallGraphVisual(file.getName() + ".callGraph");
+      }
+      if(runtime.test("preprocessorUsageMatrix")) {
 
-        if(! true) {
+        if(true) {
 
           ArrayList<String> template = readTemplate("/mnt/onos-satellite/pipelines/fabric/src/main/resources/V1Template.txt");
           collectBlockNames((Node) translationUnit, template);
@@ -1257,10 +1261,10 @@ public class SuperP4 extends Tool {
             }
           }
 
-          System.out.println("Printing call graph");
-          for(String key: callGraph.keySet()) {
-            System.out.println(key + " is calling: " + callGraph.get(key));
-          }
+          // System.out.println("Printing call graph");
+          // for(String key: callGraph.keySet()) {
+          //   System.out.println(key + " is calling: " + callGraph.get(key));
+          // }
 
           expandCPP();
           removeEmpty(presenceCondMap);
@@ -1282,8 +1286,8 @@ public class SuperP4 extends Tool {
           
           // System.out.println(presenceCondMap);
 
-          String dot_string = toDot(callGraph, "callGraph");
-          System.out.println("digraph{" + dot_string + "}");
+          // String dot_string = toDot(callGraph, "callGraph");
+          // System.out.println("digraph{" + dot_string + "}");
         }
 
         if (runtime.test("printSource")) {
@@ -1876,13 +1880,13 @@ public class SuperP4 extends Tool {
     // System.out.println(obj.getClass());
     if(obj instanceof Node) {
       Node node = (Node) obj;
-      System.out.println("name is: " + node.getName() + " of class " + node.getClass());
-      if(node.getName().equals("nonTypeName")) {
-        System.out.println("next is: " + (node.get(0) instanceof Syntax ? node.get(0) : node.getGeneric(0)));
-      }
-      if(node.isToken()) {
-        System.out.println("Token texT:" + node.getTokenText());
-      }
+      // System.out.println("name is: " + node.getName() + " of class " + node.getClass());
+      // if(node.getName().equals("nonTypeName")) {
+      //   System.out.println("next is: " + (node.get(0) instanceof Syntax ? node.get(0) : node.getGeneric(0)));
+      // }
+      // if(node.isToken()) {
+      //   System.out.println("Token texT:" + node.getTokenText());
+      // }
       Iterator its = node.iterator();
       // System.out.println(noded.getName());
       String lastValue = "";
@@ -2159,6 +2163,7 @@ public class SuperP4 extends Tool {
 
   public void printMatrix(HashMap<String, HashSet<String>> workingSet) {
     System.out.println("\nPRINTING MATRIX");
+    System.out.println(workingSet);
     HashSet<String> allValuesTogether = new HashSet<>();
 
     for(String key : workingSet.keySet()) {
@@ -2251,7 +2256,7 @@ public class SuperP4 extends Tool {
   }
 
   public Object visit(Node node) {
-    System.out.println("name: " + node.getName());
+    // System.out.println("name: " + node.getName());
     Iterator itr = node.iterator();
 
     // declarationoptions - contains only list of blocks names we want to track
@@ -2419,6 +2424,7 @@ public class SuperP4 extends Tool {
       }
       dot_string += ";";
     }
+    System.out.println(dot_string);
     createDotGraph(dot_string, filename);
     return dot_string;
   }

@@ -458,17 +458,10 @@ instantiation: /** complete **/
                      {}
       | typeRef L_PAREN argumentList R_PAREN name SEMICOLON
                      {}
-      | instantiationWithAssignment
-      ;
-      
-instantiationWithAssignment: /** complete **/
-      /* experimental */
       | annotations typeRef L_PAREN argumentList R_PAREN name ASSIGN objInitializer SEMICOLON
-                     {}
-      /* experimental */
+
       | typeRef L_PAREN argumentList R_PAREN name ASSIGN objInitializer SEMICOLON
-                     {}
-    ;
+      ;
 
 /* experimental; includes the following 3 productions */
 objInitializer:
@@ -1124,7 +1117,7 @@ functionDeclaration: /** complete **/
     functionPrototype { ReenterScope(subparser); } blockStatement { ExitScope(subparser); }
     ;
 
-argumentList: /** complete, list **/
+argumentList: /** complete **/
     %empty                             {}
     | nonEmptyArgList                    {}
     ;

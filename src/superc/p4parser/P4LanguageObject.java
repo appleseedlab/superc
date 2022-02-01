@@ -41,7 +41,10 @@ class P4LanguageObject {
         TABLEDECLARATION,
         INVOKABLEKEYWORD,
         BUILTINFUNCTION,
-        VARIABLE
+        VARIABLE,
+        BASETYPE,
+        FUNCTION,
+        METHOD
     }
 
     abstract class AbstractObjectOfLanguage {
@@ -366,8 +369,9 @@ class P4LanguageObject {
 
         @Override
         public AbstractObjectOfLanguage getNameSpace() {
-            System.err.println("ConstantTreeGlobalObjects do not have a namespace since they are global level");
-            System.exit(1);
+            // System.err.println("ConstantTreeGlobalObjects do not have a namespace since they are global level");
+            // System.exit(1);
+            assert false : "ConstantTreeGlobalObjects do not have a namespace since they are global level";
 
             return null;
         }
@@ -689,8 +693,6 @@ class P4LanguageObject {
 
     // combines function prototype
     class ExternFunctionDeclaration extends AbstractObjectOfLanguage {
-        private final FunctionPrototype functionPrototype;
-
         @Override
         public LObjectKind getConstructType() {
             return LObjectKind.EXTERNFUNCTIONDECLARATION;
@@ -701,25 +703,8 @@ class P4LanguageObject {
             return true;
         }
 
-        public ArrayList<Parameter> getParameters() {
-            return this.functionPrototype.getParameters();
-        }
-
-        AbstractObjectOfLanguage getReturnType() {
-            return this.functionPrototype.getTypeOrVoid();
-        }
-
-        public void addToParameters(Parameter parameter) {
-            this.functionPrototype.addToParameters(parameter);
-        }
-
-        public boolean hasParameters() {
-            return this.functionPrototype.hasParameters();
-        }
-
-        public ExternFunctionDeclaration(String name, AbstractObjectOfLanguage nameSpace, FunctionPrototype functionPrototype){
+        public ExternFunctionDeclaration(String name, AbstractObjectOfLanguage nameSpace){
             super(name, nameSpace);
-            this.functionPrototype = functionPrototype;
         }
     }
 
@@ -780,6 +765,10 @@ class P4LanguageObject {
 
         public void addParameter(Parameter parameter) {
             this.parameterList.add(parameter);
+        }
+
+        public ArrayList<Parameter> getParameterList() {
+            return this.parameterList;
         }
 
         public ControlTypeDeclaration(String name, AbstractObjectOfLanguage nameSpace) {
@@ -907,7 +896,7 @@ class P4LanguageObject {
 
     class Variable extends AbstractObjectOfLanguage {
         private final AbstractObjectOfLanguage type;
-        private final AbstractObjectOfLanguage assignedExpression;
+        private AbstractObjectOfLanguage assignedExpression;
 
         @Override 
         public LObjectKind getConstructType() {
@@ -935,6 +924,10 @@ class P4LanguageObject {
 
         public AbstractObjectOfLanguage getAssignedExpression() {
             return this.assignedExpression;
+        }
+
+        public void setAssignedExpression(AbstractObjectOfLanguage expression) {
+            this.assignedExpression = expression;
         }
 
         public Variable(String name, AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage type) {
@@ -1072,11 +1065,36 @@ class P4LanguageObject {
         }
     }
 
-    public class BaseTypes {
+    class BaseTypes extends AbstractObjectOfLanguage {
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.BASETYPE;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return false;
+        }
+
+        @Override
+        public AbstractObjectOfLanguage getNameSpace() {
+            // System.err.println("ConstantTreeGlobalObjects do not have a namespace since they are global level");
+            // System.exit(1);
+            assert false : "Error: Base types cannot be used as namespaces. Referring to (" + this.getName() + ") base type.";
+
+            return null;
+        }
+
+        public BaseTypes(String name) {
+            super(name, null);
+        }
+    }
+
+    public class BaseTypesCollection {
         private ArrayList<String> baseTypes;
         private Map<String, AbstractObjectOfLanguage> baseTypeObjects;
-        private ConstantTreeGlobalObjects voidObject;
-        private ConstantTreeGlobalObjects dontCareObject;
+        private BaseTypes voidObject;
+        private BaseTypes dontCareObject;
         private String voidString = "void";
         private String dontCare = "_";
 
@@ -1092,11 +1110,11 @@ class P4LanguageObject {
             baseTypeObjects = new HashMap<>();
 
             for(String type : baseTypes) {
-                baseTypeObjects.put(type, new ConstantTreeGlobalObjects(type));
+                baseTypeObjects.put(type, new BaseTypes(type));
             }
 
-            voidObject = new ConstantTreeGlobalObjects(voidString);
-            dontCareObject = new ConstantTreeGlobalObjects(dontCare);
+            voidObject = new BaseTypes(voidString);
+            dontCareObject = new BaseTypes(dontCare);
         }
 
         public boolean isBaseType(String type) {
@@ -1109,11 +1127,11 @@ class P4LanguageObject {
             return baseTypeObjects.get(type);
         }
 
-        public ConstantTreeGlobalObjects getVoidLanguageObject() {
+        public BaseTypes getVoidLanguageObject() {
             return this.voidObject;
         }
 
-        public ConstantTreeGlobalObjects getDontCareLanguageObject() {
+        public BaseTypes getDontCareLanguageObject() {
             return this.dontCareObject;
         }
 
