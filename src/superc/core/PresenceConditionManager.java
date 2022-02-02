@@ -702,20 +702,21 @@ public class PresenceConditionManager {
   private static Node oneNode = GNode.create("IntegerConstant", "1");
 
   private static Node zeroNode = GNode.create("IntegerConstant", "0");
-    
 
+
+  /*
+     PresenceCondition variations:
+     1. traditional one, just BDDs
+     2. desguaring versions, maintain BDDs and z3 simultaneously
+     3. optimal (?) one, just BDDs, but translate to z3 only when requested/printed
+  */
+    
   /** A reference-counted presence condition that automatically cleans up BDD when
     * nothing references it anymore.
     */
   public class PresenceCondition {
     /** The BDD backing the presence condition. */
     private BDD bdd;
-
-    /** The tree representation of this expression. */
-    private Node tree;
-
-    /** The z3 expression representation of this expression. */
-    private BoolExpr expr;
 
     /** Whether simplification was already run or not. */
     private boolean isSimplified = false;
@@ -732,16 +733,12 @@ public class PresenceConditionManager {
     private PresenceCondition(BDD bdd, Node tree, BoolExpr expr) {
       this.bdd = bdd;
       this.refs = 1;
-      this.tree = tree;
-      this.expr = expr;
       // this.simplify();
     }
     
     private PresenceCondition(boolean value) {
       this.bdd = value ? B.one() : B.zero();
       this.refs = 1;
-      this.tree = value ? oneNode : zeroNode;
-      this.expr = value ? ctx.mkTrue() : ctx.mkFalse();
       this.isSimplified = true;
     }
     
@@ -762,18 +759,7 @@ public class PresenceConditionManager {
     
     /** Return the negated presence condition. */
     public PresenceCondition not() {
-      GNode nottree;
-      BoolExpr notexpr;
-      if (this.tree.getName().equals("LogicalNegationExpression")) {
-        nottree = (GNode) this.tree.get(0);
-        // TODO: just remove the negation
-        notexpr = (BoolExpr) ctx.mkNot(this.expr).simplify();
-      } else {
-        nottree = GNode.create("LogicalNegationExpression", this.tree);
-        // this.simplify();
-        notexpr = ctx.mkNot(this.expr);
-      }
-      return new PresenceCondition(bdd.not(), nottree, notexpr);
+      return new PresenceCondition(bdd.not(), null, null);
     }
     
     /** Return this presence condition and c.  Free any intermediate bdds. */
@@ -791,9 +777,7 @@ public class PresenceConditionManager {
       } else {
         // this.simplify();
         // c.simplify();
-        return new PresenceCondition(bdd.and(c.bdd),
-                                     GNode.create("LogicalAndExpression", this.tree, c.tree),
-                                     ctx.mkAnd(this.expr, c.expr));
+        return new PresenceCondition(bdd.and(c.bdd), null, null);
       }
     }
 
@@ -828,9 +812,7 @@ public class PresenceConditionManager {
       } else {
         // this.simplify();
         // c.simplify();
-        return new PresenceCondition(bdd.or(c.bdd),
-                                     GNode.create("LogicalOrExpression", this.tree, c.tree),
-                                     ctx.mkOr(this.expr, c.expr));
+        return new PresenceCondition(bdd.or(c.bdd), null, null);
       }
     }
 
@@ -914,38 +896,11 @@ public class PresenceConditionManager {
       }
     }
 
-    public boolean useContextSimplify = true;
-    public String nameContextSimplify = "ctx-simplify";  // better than "simplify" alone
-    // public String nameContextSimplify = "ctx-solver-simplify";  // best simplification, but very slow due to calls to solver
-    
     protected void simplify() {
-      if (! isSimplified) {
-        isSimplified = true;
-        if (isFalse()) {
-          this.expr = ctx.mkFalse();
-        } else if (isTrue()) {
-          this.expr = ctx.mkTrue();
-        } else {
-          if (useContextSimplify) {
-            this.expr = contextsimplify(expr);
-          }
-          this.expr = (BoolExpr) expr.simplify();
-        }
-      }
     }
 
     protected BoolExpr contextsimplify(BoolExpr expr) {
-      Goal goal = ctx.mkGoal(true, false, false);
-      goal.add(expr);
-      Tactic tactic = ctx.mkTactic(nameContextSimplify);
-      ApplyResult ar = tactic.apply(goal);
-
-      if (ar.getNumSubgoals() != 1) {
-        throw new AssertionError("expected only one subgoal from z3 tactic");
-      }
-
-      Goal result = ar.getSubgoals()[0];
-      return result.AsBoolExpr();
+      return null;
     }
 
     // TODO: don't expose the BDDs outside presence condition manager
@@ -962,16 +917,88 @@ public class PresenceConditionManager {
      * Get the expression tree representation of this presence condition.
      */
     public Node tree() {
-      return tree;
+      return null;
     }
     
     /**
      * Get the z3 expression representation of this presence condition.
      */
     public BoolExpr z3() {
-      return expr;
+      return null;
     }
     
+    /**
+     * Get the z3 expression representation of this presence condition using
+     * the underlying bdd.
+     * @param z3ctx context to use.
+     * @return z3 expression representation of this presence condition.
+     */
+    private BoolExpr bddToZ3(Context z3ctx) {
+      List<byte[]> allsat = bdd.allsat();
+
+      List<BoolExpr> allSatExprList = new ArrayList<>();
+
+      Map<String, BoolExpr> exprMap = new HashMap<>();
+      Map<String, BoolExpr> negatedExprMap = new HashMap<>();
+
+      for (byte[] oneSat: allsat) {
+        List<BoolExpr> oneSatExprList = new ArrayList<>();
+
+        for (int i = 0; i < oneSat.length; i++) {
+          byte varVal = oneSat[i];
+
+          // if dont-care, dont add
+          if (varVal != 0 && varVal != 1) {
+            continue;
+          }
+
+          // pull or create the var expression
+          String varName = vars.getName(i);
+          BoolExpr varExpr = null;
+
+          varExpr = exprMap.get(varName);
+          if (varExpr == null) {
+            varExpr = z3ctx.mkBoolConst(varName);
+            exprMap.put(varName, varExpr);
+          }
+
+          if (varVal == 0) {
+            // negate
+            BoolExpr negatedVarExpr = negatedExprMap.get(varName);
+            if (negatedVarExpr == null) {
+              negatedVarExpr = z3ctx.mkNot(varExpr);
+              negatedExprMap.put(varName, negatedVarExpr);
+            }
+            varExpr = negatedVarExpr;
+          }
+          assert (varExpr != null);
+
+          // push the z3 symbol, i.e., conjunct
+          oneSatExprList.add(varExpr);
+        } // end of traversing one sat expr
+
+        // push the one sat expr, i.e., disjunct
+        BoolExpr oneSatExpr = (BoolExpr)z3ctx.mkAnd(oneSatExprList.toArray(new BoolExpr[oneSatExprList.size()]));
+        allSatExprList.add( oneSatExpr );        
+      }
+      BoolExpr allSatExpr = (BoolExpr)z3ctx.mkOr(allSatExprList.toArray(new BoolExpr[allSatExprList.size()]));
+      return allSatExpr;
+    }
+
+    /** 
+     * Get SMTLIB2 formatted benchmark.
+     */
+    public String toSMT2() {
+      Context z3ctx = new Context();
+      BoolExpr z3rep = bddToZ3(z3ctx);
+      Solver s = z3ctx.mkSolver();
+      s.add(z3rep);
+      String rep = s.toString();
+      z3ctx.close();
+
+      return rep;
+    }
+
     /**
      * Print the BDD expression to a writer.
      *
@@ -984,24 +1011,24 @@ public class PresenceConditionManager {
       printBDD(bdd, writer);
     }
 
-    /**
-     * Print the presence condition using z3 to a writer.
-     *
-     * @param writer The writer.
-     * @throws IOException Because it uses a Writer.
-     */
-    public void printz3(BoolExpr expr, Writer writer) throws IOException {
-      // boolean save = useContextSimplify;
-      // useContextSimplify = false;
-      // this.simplify();
-      // useContextSimplify = save;
+    // /**
+    //  * Print the presence condition using z3 to a writer.
+    //  *
+    //  * @param writer The writer.
+    //  * @throws IOException Because it uses a Writer.
+    //  */
+    // public void printz3(BoolExpr expr, Writer writer) throws IOException {
+    //   // boolean save = useContextSimplify;
+    //   // useContextSimplify = false;
+    //   // this.simplify();
+    //   // useContextSimplify = save;
 
-      // writer.write(expr.toString());
+    //   // writer.write(expr.toString());
 
-      Solver solver = getZ3Context().mkSimpleSolver();
-      solver.add(expr);
-      writer.write(solver.toString().replace("\n", ""));
-    }
+    //   Solver solver = getZ3Context().mkSimpleSolver();
+    //   solver.add(expr);
+    //   writer.write(solver.toString().replace("\n", ""));
+    // }
 
     // /**
     //  * Print the BDD as a CNF clauses.
@@ -1214,6 +1241,509 @@ public class PresenceConditionManager {
       }
     }
   }
+
+  // /** A reference-counted presence condition that automatically cleans up BDD when
+  //   * nothing references it anymore.
+  //   */
+  // public class PresenceCondition {
+  //   /** The BDD backing the presence condition. */
+  //   private BDD bdd;
+
+  //   /** The tree representation of this expression. */
+  //   private Node tree;
+
+  //   /** The z3 expression representation of this expression. */
+  //   private BoolExpr expr;
+
+  //   /** Whether simplification was already run or not. */
+  //   private boolean isSimplified = false;
+
+  //   /**
+  //    * The number of references to the presence condition, used to
+  //    * automatically destroy the BDD object.
+  //    */
+  //   private int refs;
+
+  //   /** Creates a new PresenceCondition out of the given bdd.  Make sure the bdd
+  //     * is not shared by anyone else.
+  //     */
+  //   private PresenceCondition(BDD bdd, Node tree, BoolExpr expr) {
+  //     this.bdd = bdd;
+  //     this.refs = 1;
+  //     this.tree = tree;
+  //     this.expr = expr;
+  //     // this.simplify();
+  //   }
+    
+  //   private PresenceCondition(boolean value) {
+  //     this.bdd = value ? B.one() : B.zero();
+  //     this.refs = 1;
+  //     this.tree = value ? oneNode : zeroNode;
+  //     this.expr = value ? ctx.mkTrue() : ctx.mkFalse();
+  //     this.isSimplified = true;
+  //   }
+    
+  //   public boolean isTrue() {
+  //     return bdd.isOne();
+  //   }
+    
+  //   public boolean isFalse() {
+  //     return bdd.isZero();
+  //   }
+    
+  //   public boolean isNotFalse() {
+  //     return ! isFalse();
+  //   }
+
+  //   // TODO: z3 simplify
+  //   // ApplyResult ar = applyTactic(ctx, ctx.mkTactic("simplify"), goal);
+    
+  //   /** Return the negated presence condition. */
+  //   public PresenceCondition not() {
+  //     GNode nottree;
+  //     BoolExpr notexpr;
+  //     if (this.tree.getName().equals("LogicalNegationExpression")) {
+  //       nottree = (GNode) this.tree.get(0);
+  //       // TODO: just remove the negation
+  //       notexpr = (BoolExpr) ctx.mkNot(this.expr).simplify();
+  //     } else {
+  //       nottree = GNode.create("LogicalNegationExpression", this.tree);
+  //       // this.simplify();
+  //       notexpr = ctx.mkNot(this.expr);
+  //     }
+  //     return new PresenceCondition(bdd.not(), nottree, notexpr);
+  //   }
+    
+  //   /** Return this presence condition and c.  Free any intermediate bdds. */
+  //   public PresenceCondition and(PresenceCondition c) {
+  //     if (this.is(c)) {
+  //       return this.addRef();
+  //     } else if (c.isTrue()) {
+  //       return this.addRef();
+  //     } else if (this.isTrue()) {
+  //       return c.addRef();
+  //     } else if (this.isFalse()) {
+  //       return new PresenceCondition(false);
+  //     } else if (c.isFalse()) {
+  //       return new PresenceCondition(false);
+  //     } else {
+  //       // this.simplify();
+  //       // c.simplify();
+  //       return new PresenceCondition(bdd.and(c.bdd),
+  //                                    GNode.create("LogicalAndExpression", this.tree, c.tree),
+  //                                    ctx.mkAnd(this.expr, c.expr));
+  //     }
+  //   }
+
+  //   /** Return this presence condition and not c.  Free any intermediate bdds. */
+  //   public PresenceCondition andNot(PresenceCondition c) {
+  //     PresenceCondition not = c.not();
+  //     PresenceCondition result = this.and(not);
+  //     not.delRef();
+  //     return result;
+  //     // PresenceCondition newPresenceCondition;
+  //     // BDD notBDD;
+      
+  //     // notBDD = c.bdd.not();
+  //     // newPresenceCondition = new PresenceCondition(bdd.and(notBDD));
+  //     // notBDD.free();
+      
+  //     // return newPresenceCondition;
+  //   }
+    
+  //   /** Return this presence condition or c.  Free any intermediate bdds. */
+  //   public PresenceCondition or(PresenceCondition c) {
+  //     if (this.is(c)) {
+  //       return this.addRef();
+  //     } else if (c.isFalse()) {
+  //       return this.addRef();
+  //     } else if (this.isFalse()) {
+  //       return c.addRef();
+  //     } else if (this.isTrue()) {
+  //       return new PresenceCondition(true);
+  //     } else if (c.isTrue()) {
+  //       return new PresenceCondition(true);
+  //     } else {
+  //       // this.simplify();
+  //       // c.simplify();
+  //       return new PresenceCondition(bdd.or(c.bdd),
+  //                                    GNode.create("LogicalOrExpression", this.tree, c.tree),
+  //                                    ctx.mkOr(this.expr, c.expr));
+  //     }
+  //   }
+
+  //   // TODO: handle restrict and simplify for other representations or
+  //   // // remove their use
+  //   // /** Restrict */
+  //   // public PresenceCondition restrict(PresenceCondition c) {
+  //   //   return new PresenceCondition(bdd.restrict(c.getBDD()));
+  //   // }
+    
+  //   // /** Simplify */
+  //   // public PresenceCondition simplify(PresenceCondition c) {
+  //   //   return new PresenceCondition(bdd.simplify(c.getBDD()));
+  //   // }
+
+  //   // /** One sat */
+  //   // public PresenceCondition satOne() {
+  //   //   // TODO: may need to remove this and rework its users
+  //   //   return new PresenceCondition(bdd.satOne());
+  //   // }
+    
+  //   /** All sats */
+  //   public void allsat() {
+  //     bdd.allsat();
+  //   }
+    
+  //   /** Compare */
+  //   public boolean is(PresenceCondition presenceCondition) {
+  //     return is(presenceCondition.getBDD());
+  //   }
+    
+  //   /** Compare */
+  //   public boolean is(BDD bdd) {
+  //     return this.bdd.equals(bdd);
+  //   }
+    
+  //   /**
+  //    *
+  //    */
+  //   public boolean isMutuallyExclusive(PresenceCondition presenceCondition) {
+  //     PresenceCondition and;
+      
+  //     and = this.and(presenceCondition);
+      
+  //     if (and.isFalse()) {
+  //       and.delRef();
+        
+  //       return true;
+  //     }
+  //     else {
+  //       and.delRef();
+        
+  //       return false;
+  //     }
+  //   }
+    
+
+  //   public PresenceCondition addRef() {
+  //     if (refs > 0) {
+  //       refs++;
+  //     }
+      
+  //     return this;
+  //   }
+    
+  //   public void delRef() {
+  //     if (refs > 0) {
+  //       refs--;
+        
+  //       if (0 == refs) {
+  //         bdd.free();
+  //       }
+  //     }
+  //   }
+
+  //   public boolean useContextSimplify = true;
+  //   public String nameContextSimplify = "ctx-simplify";  // better than "simplify" alone
+  //   // public String nameContextSimplify = "ctx-solver-simplify";  // best simplification, but very slow due to calls to solver
+    
+  //   protected void simplify() {
+  //     if (! isSimplified) {
+  //       isSimplified = true;
+  //       if (isFalse()) {
+  //         this.expr = ctx.mkFalse();
+  //       } else if (isTrue()) {
+  //         this.expr = ctx.mkTrue();
+  //       } else {
+  //         if (useContextSimplify) {
+  //           this.expr = contextsimplify(expr);
+  //         }
+  //         this.expr = (BoolExpr) expr.simplify();
+  //       }
+  //     }
+  //   }
+
+  //   protected BoolExpr contextsimplify(BoolExpr expr) {
+  //     Goal goal = ctx.mkGoal(true, false, false);
+  //     goal.add(expr);
+  //     Tactic tactic = ctx.mkTactic(nameContextSimplify);
+  //     ApplyResult ar = tactic.apply(goal);
+
+  //     if (ar.getNumSubgoals() != 1) {
+  //       throw new AssertionError("expected only one subgoal from z3 tactic");
+  //     }
+
+  //     Goal result = ar.getSubgoals()[0];
+  //     return result.AsBoolExpr();
+  //   }
+
+  //   // TODO: don't expose the BDDs outside presence condition manager
+  //   /**
+  //    * Get the raw BDD backing this presence condition.
+  //    *
+  //    * @return The raw BDD.
+  //    */
+  //   public BDD getBDD() {
+  //     return bdd;
+  //   }
+
+  //   /**
+  //    * Get the expression tree representation of this presence condition.
+  //    */
+  //   public Node tree() {
+  //     return tree;
+  //   }
+    
+  //   /**
+  //    * Get the z3 expression representation of this presence condition.
+  //    */
+  //   public BoolExpr z3() {
+  //     return expr;
+  //   }
+    
+  //   /**
+  //    * Print the BDD expression to a writer.
+  //    *
+  //    * @param writer The writer.
+  //    * @throws IOException Because it uses a Writer.
+  //    */
+  //   public void print(Writer writer) throws IOException {
+      
+  //     printz3(expr, writer);
+  //     // printBDD(bdd, writer);
+  //   }
+
+  //   /**
+  //    * Print the presence condition using z3 to a writer.
+  //    *
+  //    * @param writer The writer.
+  //    * @throws IOException Because it uses a Writer.
+  //    */
+  //   public void printz3(BoolExpr expr, Writer writer) throws IOException {
+  //     // boolean save = useContextSimplify;
+  //     // useContextSimplify = false;
+  //     // this.simplify();
+  //     // useContextSimplify = save;
+
+  //     // writer.write(expr.toString());
+
+  //     Solver solver = getZ3Context().mkSimpleSolver();
+  //     solver.add(expr);
+  //     writer.write(solver.toString().replace("\n", ""));
+  //   }
+
+  //   // /**
+  //   //  * Print the BDD as a CNF clauses.
+  //   //  *
+  //   //  * @param writer The writer.
+  //   //  * @throws IOException Because it uses a Writer.
+  //   //  */
+  //   // public void printCNF(Writer writer) throws IOException {
+  //   //   if (this.isTrue()) {
+  //   //     writer.write("1");
+
+  //   //     return;
+
+  //   //   } else if (this.isFalse()) {
+  //   //     writer.write("0");
+
+  //   //     return;
+  //   //   }
+
+  //   //   // We use the allsat() function on the bdd to get the clauses.
+  //   //   // allsat is in DNF, so we first negate the bdd.  Then, to
+  //   //   // generate CNF, we negate the clauses to make them conjunctive
+  //   //   // again.
+  //   //   PresenceCondition not = this.not();
+  //   //   List allsat = (List) not.getBDD().allsat();
+
+  //   //   for (Object o : allsat) {
+  //   //     byte[] sat = (byte[]) o;
+  //   //     ArrayList<Integer> clause = new ArrayList<Integer>();
+  //   //     StringBuilder sb = new StringBuilder();
+  //   //     for (int i = 0; i < sat.length; i++) {
+  //   //       int sign = 1;
+              
+  //   //       switch (sat[i]) {
+  //   //       case 1:
+  //   //         // negate again
+  //   //         sign = -1;
+  //   //       case 0:
+  //   //         String varname = not.presenceConditionManager().getVariableManager().getName(i);
+  //   //         // if (varname.startsWith("(defined ")) {
+  //   //         if (varname.contains("CONFIG")) {
+  //   //         // if (varname.startsWith("(defined CONFIG_")) {
+  //   //           // varname = varname.substring(9, varname.length() - 1);
+  //   //           if (-1 == sign) {
+  //   //             sb.append("-");
+  //   //           }
+  //   //           // sb.append("[");
+  //   //           sb.append(varname);
+  //   //           // sb.append("]");
+  //   //           sb.append(",");
+  //   //         }
+  //   //         break;
+  //   //       }
+  //   //     }
+  //   //     if (sb.toString().length() > 0) {
+  //   //       writer.write("(");
+  //   //       writer.write(sb.toString());
+  //   //       writer.write(")");
+  //   //     }
+  //   //   }
+
+  //   //   not.delRef();
+  //   // }
+
+  //   /**
+  //    * Print the BDD as a CNF clauses.
+  //    *
+  //    * @param writer The writer.
+  //    * @throws IOException Because it uses a Writer.
+  //    */
+  //   public void printNotCNF(PresenceCondition cond, Writer writer) throws IOException {
+  //     if (cond.isTrue()) {
+  //       writer.write("0");
+
+  //       return;
+
+  //     } else if (cond.isFalse()) {
+  //       writer.write("1");
+
+  //       return;
+  //     }
+
+  //     // We use the allsat() function on the bdd to get the clauses.
+  //     // allsat is in DNF, so we first negate the bdd.  Then, to
+  //     // generate CNF, we negate the clauses to make them conjunctive
+  //     // again.
+  //     List allsat = (List) cond.getBDD().allsat();
+
+  //     for (Object o : allsat) {
+  //       byte[] sat = (byte[]) o;
+  //       ArrayList<Integer> clause = new ArrayList<Integer>();
+  //       StringBuilder sb = new StringBuilder();
+  //       for (int i = 0; i < sat.length; i++) {
+  //         int sign = 1;
+              
+  //         switch (sat[i]) {
+  //         case 1:
+  //           // negate again
+  //           sign = -1;
+  //         case 0:
+  //           String varname = cond.presenceConditionManager().getVariableManager().getName(i);
+  //           // if (varname.startsWith("(defined ")) {
+  //           if (varname.contains("CONFIG")) {
+  //           // if (varname.startsWith("(defined CONFIG_")) {
+  //             // varname = varname.substring(9, varname.length() - 1);
+  //             if (-1 == sign) {
+  //               sb.append("-");
+  //             }
+  //             // sb.append("[");
+  //             sb.append(varname);
+  //             // sb.append("]");
+  //             sb.append(",");
+  //           }
+  //           break;
+  //         }
+  //       }
+  //       if (sb.toString().length() > 0) {
+  //         writer.write("(");
+  //         writer.write(sb.toString());
+  //         writer.write(")");
+  //       }
+  //     }
+  //   }
+
+  //   /**
+  //    * Get the set of all config vars used.
+  //    *
+  //    * @return The set of all config vars used.
+  //    */
+  //   public Set<String> getAllConfigs() {
+  //     return getAllConfigsFromBDD(bdd);
+  //   }
+
+  //   public PresenceConditionManager presenceConditionManager() {
+  //     return PresenceConditionManager.this;
+  //   }
+
+  //   // /** Output the presence condition as a valid cpp conditional expression */
+  //   // public String toCNF() {
+  //   //   StringWriter writer = new StringWriter();
+
+  //   //   try {
+  //   //     PresenceCondition not = this.not();
+  //   //     printNotCNF(not, writer);
+  //   //     not.delRef();
+  //   //   } catch (IOException e) {
+  //   //     // An inelegant way to sidestep not being able to throw an
+  //   //     // exception from the overridden toString method.
+  //   //     throw new RuntimeException();
+  //   //   }
+
+  //   //   return writer.toString();
+  //   // }
+
+  //   // /** Output the presence condition as a valid cpp conditional expression */
+  //   // public String toNotCNF() {
+  //   //   StringWriter writer = new StringWriter();
+
+  //   //   try {
+  //   //     printNotCNF(this, writer);
+  //   //   } catch (IOException e) {
+  //   //     // An inelegant way to sidestep not being able to throw an
+  //   //     // exception from the overridden toString method.
+  //   //     throw new RuntimeException();
+  //   //   }
+
+  //   //   return writer.toString();
+  //   // }
+
+  //   /** Output the presence condition as a valid cpp conditional expression */
+  //   public String toString() {
+  //     // TODO: do boolean expression simplification
+  //     // return this.tree.toString();
+  //     StringWriter writer = new StringWriter();
+
+  //     if (! suppressConditions) {
+  //       try {
+  //         print(writer);
+  //       } catch (IOException e) {
+  //         // An inelegant way to sidestep not being able to throw an
+  //         // exception from the overridden toString method.
+  //         throw new RuntimeException();
+  //       }
+  //     } else {
+  //       writer.append("PRESENCE_CONDITION");
+  //     }
+
+  //     return writer.toString();
+  //   }
+
+  //   // /**
+  //   //  * Use the underlying BDD's hashcode so that the same conditions
+  //   //  * will have the same hash code.
+  //   //  */
+  //   // @Override
+  //   // public int hashCode() {
+  //   //   return this.bdd.hashCode();
+  //   // }
+
+  //   /**
+  //    *
+  //    */
+  //   @Override
+  //   public boolean equals(Object cond) {
+  //     if (cond instanceof PresenceCondition) {
+  //       return this.is((PresenceCondition) cond);
+  //       // return this.hashCode() == ((PresenceCondition) cond).hashCode();
+  //     } else {
+  //       return false;
+  //     }
+  //   }
+  // }
   
   /**
    * Manages BDD variables and provides a string representation for
