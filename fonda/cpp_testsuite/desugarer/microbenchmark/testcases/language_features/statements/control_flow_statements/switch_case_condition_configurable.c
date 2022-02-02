@@ -1,4 +1,4 @@
-const int x = 2;
+#define X 2
 
 int main()
 {
@@ -6,7 +6,7 @@ int main()
   switch (a)
     {
 #ifdef A
-    case x:
+    case X:
       a=1;
       break;
 #endif

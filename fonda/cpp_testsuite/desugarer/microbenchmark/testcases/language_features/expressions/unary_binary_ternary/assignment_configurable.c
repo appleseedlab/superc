@@ -1,7 +1,7 @@
 int main() {
   int a;
 
-  #if A
+  #ifdef A
   a = 0;
   #else
   a = 1;

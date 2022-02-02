@@ -39,7 +39,13 @@ class Tool:
     os.chdir(test_dir)
 
     args = [self.tool, copied_test]
-    hercules_code, _, _ = run_command(args)
+    hercules_code, hercules_out, hercules_err = run_command(args)
+
+    with open(os.path.join(test_dir, 'out.log'), 'wb+') as f:
+      f.write(hercules_out)
+    with open(os.path.join(test_dir, 'err.log'), 'wb+') as f:
+      f.write(hercules_err)
+    
 
     ifdeftoif_file_name = file_name.replace('.c', '_ifdeftoif.c')
     ifdeftoif_file_path = os.path.join(test_dir, ifdeftoif_file_name)
