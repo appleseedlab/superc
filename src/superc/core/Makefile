@@ -50,6 +50,7 @@ PACKAGE_LOC = superc/core
 SOURCE = \
 	Syntax.java \
 	PresenceConditionManager.java \
+	PresenceConditionManagerZ3.java \
 	Lexer.java \
 	LexerCreator.java \
 	TokenCreator.java \
