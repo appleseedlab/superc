@@ -45,7 +45,7 @@ import superc.core.TokenCreator;
 import superc.core.HeaderFileManager;
 import superc.core.MacroTable;
 import superc.core.ExpressionParser;
-import superc.core.ConditionEvaluator;
+import superc.core.ConditionEvaluatorZ3;
 import superc.core.StopWatch;
 import superc.core.StreamTimer;
 import superc.core.Preprocessor;
@@ -53,8 +53,8 @@ import superc.core.TokenFilter;
 import superc.core.ForkMergeParser;
 import superc.core.SemanticValues;
 
-import superc.core.PresenceConditionManager;
 import superc.core.PresenceConditionManager.PresenceCondition;
+import superc.core.PresenceConditionManagerZ3;
 
 import superc.core.Syntax;
 import superc.core.Syntax.Kind;
@@ -397,9 +397,9 @@ public class SugarC extends Tool {
   public Node parse(Reader in, File file) throws IOException, ParseException {
     HeaderFileManager fileManager;
     MacroTable macroTable;
-    PresenceConditionManager presenceConditionManager;
+    PresenceConditionManagerZ3 presenceConditionManager;
     ExpressionParser expressionParser;
-    ConditionEvaluator conditionEvaluator;
+    ConditionEvaluatorZ3 conditionEvaluator;
     Iterator<Syntax> preprocessor;
     Node result = null;
     StopWatch parserTimer = null, preprocessorTimer = null, lexerTimer = null;
@@ -407,12 +407,13 @@ public class SugarC extends Tool {
     // Initialize the preprocessor with built-ins and command-line
     // macros and includes.
     macroTable = new MacroTable(tokenCreator);
-    presenceConditionManager = new PresenceConditionManager();
+    presenceConditionManager = new PresenceConditionManagerZ3();
+    System.err.println(presenceConditionManager.ctx);
     presenceConditionManager.suppressConditions(runtime.test("suppressConditions"));
     expressionParser = ExpressionParser.fromRats();
-    conditionEvaluator = new ConditionEvaluator(expressionParser,
-                                                presenceConditionManager,
-                                                macroTable);
+    conditionEvaluator = new ConditionEvaluatorZ3(expressionParser,
+                                                 presenceConditionManager,
+                                                 macroTable);
     if (null != runtime.getString("restrictFreeToPrefix")) {
       macroTable.restrictPrefix(runtime.getString("restrictFreeToPrefix"));
       conditionEvaluator.restrictPrefix(runtime.getString("restrictFreeToPrefix"));
