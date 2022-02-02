@@ -66,6 +66,7 @@ SOURCE = \
 	Clauses.java \
 	TokenFilter.java \
 	ConditionEvaluator.java \
+	ConditionEvaluatorZ3.java \
 	HeaderFileManager.java \
 	DirectiveParser.java \
 	MacroTable.java \
