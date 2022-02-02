@@ -35,15 +35,11 @@ From the root of the xtc source tree, run the following:
 
     java superc.SuperC -silent -printAST file_to_transform.c
 
-## Running the SuperC desugarer
+## Running the SugarC preprocessor desugarer
 
     java superc.SugarC file_to_desugarer.c > desugared_file.c
 
-## Running the SuperP4 parser
-
-    java superc.SuperP4 -silent -printAST file_to_transform.p4
-
-## Using preprocessed headers
+### Using preprocessed headers
 
 Preprocessing the headers only needs to be done once:
 
@@ -52,6 +48,11 @@ Preprocessing the headers only needs to be done once:
 Use the headers with SuperC/SugarC like this:
 
     java superc.SugarC $(cat ~/src/preprocessed_sysdirs/supercargs.txt) helloworld.c
+
+
+## Running the SuperP4 parser
+
+    java superc.SuperP4 -silent -printAST file_to_transform.p4
 
 ## Testing SuperC's parser
 
