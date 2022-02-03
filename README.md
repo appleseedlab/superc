@@ -45,20 +45,15 @@ From the root of the xtc source tree, run the following:
 
 ## Testing SuperC's parser
 
-### Requirements
+First set `SUPERC_SCRATCH=~/tmp/superc` to some existing directory for holding temp files.
 
-- A python 2 interpreter for some tests
-- Setting `SUPERC_SCRATCH=~/tmp/superc` to some existing directory for holding temp files.
-
-### Running the tests
-
-From the root of the source tree, run
+The, from the root of the source tree, run
 
     make check-cpp  # run SuperC tests
 
 ## Using SuperC with Linux source code
 
-Use the script [`scripts/superc_linux.sh`](scripts/superc_linux.sh).  See [`scripts/data.sh`](scripts/data.sh) for example usage.  Linux versions past 2013 have not been tested.
+Use the script [`scripts/superc_linux.sh`](scripts/superc_linux.sh).  See [`scripts/data.sh`](scripts/data.sh) for example usage.  (Linux versions past 2013 have not been tested.)
 
 ## Regenerating SuperC's parsers for development
 

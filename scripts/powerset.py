@@ -30,12 +30,12 @@ def powerset(iterable):
 varset = stdin.read().splitlines()
 
 if len(varset) > 4:
-    print "too many combinations"
+    print("too many combinations")
     exit(1)
 
 for i in powerset(varset):
     str = ""
     for v in i:
         str += " -D" + v
-    print str
+    print(str)
 
