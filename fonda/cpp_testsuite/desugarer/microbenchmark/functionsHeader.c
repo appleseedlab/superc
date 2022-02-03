@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 void __static_parse_error(char *msg) {
@@ -16,8 +15,3 @@ void __static_renaming(char *renaming, char *original) {
 void __static_condition_renaming(char *expression, char *renaming) {
   printf("condition renaming: %s -> %s\n", expression, renaming);
 }
-
-const bool __static_condition_default_4 = (0);
-const bool __static_condition_default_5 = !(0);
-const bool __static_condition_default_10 = (0);
-const bool __static_condition_default_11 = !(0);
