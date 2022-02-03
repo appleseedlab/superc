@@ -8,3 +8,8 @@ struct x {
   int y;
 };
 #endif
+
+int main() {
+  struct x x;
+  return x.s;
+}

@@ -4,7 +4,7 @@ int foo(int *);
 
 #ifdef VOID_ABSTRACT
 void foo (void);
-void *fwo(void, void);
+void *fwo(void);
 void fwotwo(void*,void*);
 #endif
 

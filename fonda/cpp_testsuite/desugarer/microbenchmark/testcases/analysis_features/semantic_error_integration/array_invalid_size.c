@@ -1,5 +1,9 @@
 #ifdef INVALID
 int a[-1];
 #else
-int b[1];
+int a[1];
 #endif
+
+int main() {
+  return a[0];
+}
