@@ -235,7 +235,7 @@ a syntax error causing a spurious error cascade, which isn't too bad.
    track of which identifiers represent types, and which represent namespaces.
 */
 
-start:
+start: /** complete **/
        program;
 
 
@@ -306,14 +306,13 @@ annotation: /** complete **/
         {}
     | AT name L_PAREN annotationBody R_PAREN
         {}
-    | AT name L_BRACKET expressionList R_BRACKET
+    | AT name L_BRACKET structuredAnnotationBody R_BRACKET
         {}
-    | AT name L_BRACKET kvList R_BRACKET
-        {}
-    // Experimental: backwards compatibility with P4-14 pragmas (which
-    // themselves are experimental!)
-    | PRAGMA name annotationBody END_PRAGMA
-        {}
+    ;
+
+structuredAnnotationBody
+    : expressionList
+    | kvList
     ;
 
 annotationBody: /** complete, list **/
@@ -425,7 +424,7 @@ kvPair: /** complete **/
 
 parameterList: /** complete, list **/
       %empty                          {}
-    | nonEmptyParameterList           {}
+    | { ReenterScope(subparser); } nonEmptyParameterList { ExitReentrantScope(subparser); }
     ;
 
 nonEmptyParameterList: /** complete, list **/
@@ -459,13 +458,10 @@ instantiation: /** complete **/
                      {}
       | typeRef L_PAREN argumentList R_PAREN name SEMICOLON
                      {}
-      /* experimental */
       | annotations typeRef L_PAREN argumentList R_PAREN name ASSIGN objInitializer SEMICOLON
-                     {}
-      /* experimental */
+
       | typeRef L_PAREN argumentList R_PAREN name ASSIGN objInitializer SEMICOLON
-                     {}
-    ;
+      ;
 
 /* experimental; includes the following 3 productions */
 objInitializer:
@@ -495,8 +491,8 @@ dotPrefix:
 /**************************** PARSER ******************************/
 
 parserDeclaration: /** complete **/
-    parserTypeDeclaration optConstructorParameters { EnterScope(subparser); }
-      L_BRACE parserLocalElements parserStates { ExitScope(subparser); } R_BRACE
+    parserTypeDeclaration optConstructorParameters
+      L_BRACE { EnterScope(subparser); } parserLocalElements parserStates { ExitScope(subparser); } R_BRACE
                              {}
     ;
 
@@ -627,7 +623,9 @@ valueSetDeclaration: /** complete **/
 
 controlDeclaration: /** complete **/
     controlTypeDeclaration optConstructorParameters
-      L_BRACE controlLocalDeclarations APPLY controlBody R_BRACE
+      L_BRACE { EnterScope(subparser); } 
+      controlLocalDeclarations APPLY controlBody 
+      { ExitScope(subparser); } R_BRACE
         {}
     ;
 
@@ -667,9 +665,13 @@ externDeclaration: /** complete **/
             bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           }
         optTypeParameters {}
-        L_BRACE methodPrototypes R_BRACE 
-    | optAnnotations EXTERN functionPrototype SEMICOLON 
-    | optAnnotations EXTERN name SEMICOLON 
+        L_BRACE { ReenterScope(subparser); } methodPrototypes { ExitScope(subparser); } R_BRACE 
+    | externFunctionDeclaration 
+    | optAnnotations EXTERN name SEMICOLON // not present in latest language specification
+    ;
+
+externFunctionDeclaration: /** complete **/
+    optAnnotations EXTERN functionPrototype SEMICOLON 
     ;
 
 methodPrototypes: /** complete, list **/
@@ -686,8 +688,12 @@ functionPrototype:
 methodPrototype: /** complete **/
     optAnnotations functionPrototype SEMICOLON {}
     | optAnnotations ABSTRACT functionPrototype SEMICOLON {}  // experimental
-    | optAnnotations TYPE_IDENTIFIER L_PAREN parameterList R_PAREN SEMICOLON  // constructor
+    | constructorMethodPrototype {}
                                         {}
+    ;
+
+constructorMethodPrototype: /** complete **/
+    optAnnotations TYPE_IDENTIFIER L_PAREN parameterList R_PAREN SEMICOLON  // constructor
     ;
 
 /************************** TYPES ****************************/
@@ -761,7 +767,7 @@ optTypeParameters: /** complete **/
     ;
 
 typeParameters: /** complete **/
-    l_angle typeParameterList r_angle {}
+    l_angle { EnterScope(subparser); } typeParameterList { ExitReentrantScope(subparser); } r_angle {}
     ;
 
 typeParameterList: /** complete, list **/
@@ -820,8 +826,10 @@ derivedTypeDeclaration: /** complete **/
     ;
 
 headerTypeDeclaration: /** complete **/
-    optAnnotations HEADER name {} optTypeParameters {}
-      L_BRACE structFieldList R_BRACE
+    optAnnotations HEADER name optTypeParameters
+      L_BRACE { ReenterScope(subparser); } 
+      structFieldList { ExitScope(subparser); }
+      R_BRACE
       {
           saveBaseType(subparser, getNodeAt(subparser, 8));
           bindIdent(subparser, getNodeAt(subparser, 8), getNodeAt(subparser, 7));
@@ -830,16 +838,20 @@ headerTypeDeclaration: /** complete **/
 
 structTypeDeclaration: /** complete **/
     optAnnotations STRUCT name optTypeParameters
-      L_BRACE structFieldList R_BRACE
+      L_BRACE { ReenterScope(subparser); }
+      structFieldList 
+      { ExitScope(subparser); } R_BRACE
       {
-          saveBaseType(subparser, getNodeAt(subparser, 6));
-          bindIdent(subparser, getNodeAt(subparser, 6), getNodeAt(subparser, 5));
+          saveBaseType(subparser, getNodeAt(subparser, 8));
+          bindIdent(subparser, getNodeAt(subparser, 8), getNodeAt(subparser, 7));
       }
     ;
 
 headerUnionDeclaration: /** complete **/
-    optAnnotations HEADER_UNION name {} optTypeParameters {}
-      L_BRACE structFieldList R_BRACE {
+    optAnnotations HEADER_UNION name optTypeParameters
+      L_BRACE { ReenterScope(subparser); }
+      structFieldList 
+      { ExitScope(subparser); } R_BRACE {
         saveBaseType(subparser, getNodeAt(subparser, 8));
         bindIdent(subparser, getNodeAt(subparser, 8), getNodeAt(subparser, 7));
       }
@@ -916,15 +928,17 @@ typedefDeclaration: /** complete **/
 
 assignmentOrMethodCallStatement: /** complete **/
 // These rules are overly permissive, but they avoid some conflicts
-      lvalue L_PAREN argumentList R_PAREN SEMICOLON
+    methodCallStatements
         {}
-
-    | lvalue l_angle typeArgumentList r_angle L_PAREN argumentList R_PAREN SEMICOLON
-        {}
-
     | lvalue ASSIGN expression SEMICOLON
         {}
+    ;
 
+methodCallStatements:
+    lvalue L_PAREN argumentList R_PAREN SEMICOLON
+        {}
+    | lvalue l_angle typeArgumentList r_angle L_PAREN argumentList R_PAREN SEMICOLON
+        {}
     ;
 
 emptyStatement: /** complete **/
@@ -1003,7 +1017,7 @@ statementOrDeclaration: /** complete **/
 
 tableDeclaration: /** complete **/
     optAnnotations
-        TABLE name L_BRACE tablePropertyList R_BRACE
+        TABLE name L_BRACE { EnterScope(subparser); } tablePropertyList { ExitScope(subparser); } R_BRACE 
           {}
     ;
 
@@ -1017,7 +1031,7 @@ tableProperty: /** complete **/
         {}
     | ACTIONS ASSIGN L_BRACE actionList R_BRACE
         {}
-    | optAnnotations optCONST ENTRIES ASSIGN L_BRACE entriesList R_BRACE
+    | optAnnotations CONST ENTRIES ASSIGN L_BRACE entriesList R_BRACE // updated optCONST to CONST as per new specs
         {}
     | optAnnotations optCONST nonTableKwName ASSIGN initializer SEMICOLON
         {}
@@ -1035,8 +1049,12 @@ keyElement: /** complete **/
 
 actionList: /** complete, list **/
     %empty {}
-    | actionList optAnnotations actionRef SEMICOLON
+    | actionList action
         {}
+    ;
+
+action: /** complete **/
+    optAnnotations actionRef SEMICOLON
     ;
 
 actionRef: /** complete **/
@@ -1059,9 +1077,10 @@ entriesList: /** complete, list **/
 /************************* ACTION ********************************/
 
 actionDeclaration: /** complete **/
-    optAnnotations ACTION name L_PAREN parameterList R_PAREN blockStatement {
-        saveBaseType(subparser, getNodeAt(subparser, 6));
-        bindIdent(subparser, getNodeAt(subparser, 6), getNodeAt(subparser, 5));
+    optAnnotations ACTION name L_PAREN parameterList R_PAREN { EnterScope(subparser); } blockStatement {
+        saveBaseType(subparser, getNodeAt(subparser, 7));
+        bindIdent(subparser, getNodeAt(subparser, 7), getNodeAt(subparser, 6));
+        ExitScope(subparser);
       }
     ;
 
@@ -1095,10 +1114,10 @@ initializer: /** complete **/
 /**************** Expressions ****************/
 
 functionDeclaration: /** complete **/
-    functionPrototype blockStatement   {}
+    functionPrototype { ReenterScope(subparser); } blockStatement { ExitScope(subparser); }
     ;
 
-argumentList: /** complete, list **/
+argumentList: /** complete **/
     %empty                             {}
     | nonEmptyArgList                    {}
     ;
@@ -1133,9 +1152,12 @@ lvalue: /** complete **/
     prefixedNonTypeName                {}
     | THIS                               {}  // experimental
     | lvalue dot_name %prec DOT          {}
-    | lvalue L_BRACKET expression R_BRACKET          {}
-    | lvalue L_BRACKET expression COLON expression R_BRACKET {}
+    | lvalue lvalueExpression          {}
     ;
+
+lvalueExpression: /** complete **/
+    L_BRACKET expression R_BRACKET          {}
+    | L_BRACKET expression COLON expression R_BRACKET {}
 
 expression: /** complete, list **/
     INTEGER                            {}
@@ -1184,6 +1206,9 @@ expression: /** complete, list **/
     | expression AND expression         {}
     | expression OR expression         {}
     | expression QUESTION expression COLON expression {}
+    | invokingExpression {}
+    ;
+invokingExpression: /** complete, list **/
     | expression l_angle realTypeArgumentList r_angle L_PAREN argumentList R_PAREN
         {}
     | expression L_PAREN argumentList R_PAREN
@@ -1237,6 +1262,9 @@ nonBraceExpression: /** complete, list **/
     | nonBraceExpression AND expression         {}
     | nonBraceExpression OR expression         {}
     | nonBraceExpression QUESTION expression COLON expression {}
+    | invokingNonBraceExpression {}
+    ;
+invokingNonBraceExpression: /** complete, list **/
     | nonBraceExpression l_angle realTypeArgumentList r_angle L_PAREN argumentList R_PAREN
         {}
     | nonBraceExpression L_PAREN argumentList R_PAREN

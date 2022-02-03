@@ -1,0 +1,56 @@
+TranslationUnit(
+  start(
+    program(
+      input(
+        Conditional(
+          (declare-fun |(defined CONFIG_A)| () Bool)(assert |(defined CONFIG_A)|),
+          superc.core.Syntax$Language(
+            ";"
+          )
+        ),
+        Conditional(
+          ,
+          declaration(
+            externDeclaration(
+              optAnnotations(),
+              superc.core.Syntax$Language(
+                "extern"
+              ),
+              name(
+                nonTypeName(
+                  superc.core.Syntax$Text(
+                    "not_a_list"
+                  )
+                )
+              ),
+              superc.core.Syntax$Language(
+                ";"
+              )
+            )
+          )
+        ),
+        Conditional(
+          (declare-fun |(defined CONFIG_B)| () Bool)(assert |(defined CONFIG_B)|),
+          declaration(
+            externDeclaration(
+              optAnnotations(),
+              superc.core.Syntax$Language(
+                "extern"
+              ),
+              name(
+                nonTypeName(
+                  superc.core.Syntax$Text(
+                    "hello"
+                  )
+                )
+              ),
+              superc.core.Syntax$Language(
+                ";"
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
