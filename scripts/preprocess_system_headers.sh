@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# ### Using preprocessed headers
+# Preprocessing the headers only needs to be done once:
+#     bash scripts/preprocess_system_headers.sh ~/src/preprocessed_sysdirs/
+# Use the headers with SuperC/SugarC like this:
+#     java superc.SugarC $(cat ~/src/preprocessed_sysdirs/supercargs.txt) helloworld.c
+
 if [ $# -lt 1 ]; then
   echo -e "A tool to preprocess system headers."
   echo -e ""
