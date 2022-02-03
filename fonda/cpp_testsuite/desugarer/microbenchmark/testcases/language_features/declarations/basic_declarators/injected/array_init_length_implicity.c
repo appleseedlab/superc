@@ -1,4 +1,4 @@
-#ifdef ENABLE_IMPLICIT_LENGTH
+#ifdef ENABLE_A
 int x[] = {-2, 4, 5};
 #else
 int y[5] = {1, 2, 3, 4, 5};
@@ -6,10 +6,9 @@ int y[5] = {1, 2, 3, 4, 5};
 
 int main ()
 {
-  #ifdef ENABLE_IMPLICIT_LENGTH
-  int flag = sizeof(x) == 12;
+  #ifdef ENABLE_A
+  return sizeof(x);
   #else
-  int flag = sizeof(y) == 20;
+  return sizeof(y);
   #endif
-  return flag;
 }

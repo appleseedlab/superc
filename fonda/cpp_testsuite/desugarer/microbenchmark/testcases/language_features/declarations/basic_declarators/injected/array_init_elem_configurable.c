@@ -6,11 +6,6 @@
 
 int main() {
   int a[1] = {X};
-  #ifdef ENABLE_A
-  int flag = a[0] == 1;
-  #else
-  int flag = a[0] == 2;
-  #endif
-  return flag;
+  return a[0];
 }
 

@@ -13,9 +13,8 @@ struct x {
 
 int main() {
   #ifdef ENABLE_A
-  int flag = sizeof(struct x) == 4;
+  return sizeof(struct x);
   #else
-  int flag = sizeof(struct x) == 12;
+  return sizeof(struct x);
   #endif
-  return flag;
 }

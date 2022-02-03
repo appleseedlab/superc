@@ -7,9 +7,8 @@ typedef short x;
 int main() {
   x id[2] = {1, 2};
   #ifdef ENABLE_A
-  int flag = sizeof(id) == 8;
+  return sizeof(id);
   #else
-  int flag = sizeof(id) == 4;
+  return sizeof(id);
   #endif
-  return flag;
 }

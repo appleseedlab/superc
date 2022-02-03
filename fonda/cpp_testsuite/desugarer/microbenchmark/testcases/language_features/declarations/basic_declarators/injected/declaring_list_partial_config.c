@@ -6,11 +6,6 @@ long x = 2;
 int main() {
   int a, b = x;
 
-  #ifdef ENABLE_A
-  int flag = a == 0 && b == 1;
-  #else
-  int flag = a == 0 && b == 2;
-  #endif
-  return flag;
+  return a + b;
   
 }
