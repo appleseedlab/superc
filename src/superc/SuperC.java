@@ -927,10 +927,6 @@ public class SuperC extends Tool {
       preprocessor = new StreamTimer<Syntax>(preprocessor, preprocessorTimer);
     }
 
-    if (runtime.test("newErrorHandling")) {
-      ForkMergeParser.setNewErrorHandling(true);
-    }
-      
     // Run SuperC.
     if (null != runtime.getString("sourcelinePC")) {
       // TODO: currently, we get pc using preprocessor only, which misses some common patterns like if(IS_ENABLED(CONFIG_MACRO)).
@@ -1361,6 +1357,10 @@ public class SuperC extends Tool {
       parser.showAccepts(runtime.test("showAccepts"));
       parser.showFM(runtime.test("showFM"));
       parser.showLookaheads(runtime.test("showLookaheads"));
+      if (runtime.test("newErrorHandling")) {
+        parser.setNewErrorHandling(true);
+        parser.setSaveErrorCond(true);
+      }
 
       if (runtime.hasValue("killswitch")
           && null != runtime.getString("killswitch")) {

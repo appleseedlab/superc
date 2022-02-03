@@ -51,7 +51,6 @@ import superc.core.Syntax.Error;
 import superc.core.Syntax.ErrorType;
 
 import superc.core.PresenceConditionManager.PresenceCondition;
-import superc.cdesugarer.CContext;
 
 /**
  * This class expands macros and processes header files
@@ -98,19 +97,14 @@ public class ForkMergeParser {
   /** The state number of the the starting state. */
   final private static int STARTSTATE = 0;
 
-  /**
-   * Turn new error handling on.  Experimental and currently broken!
-   * This will preserve the semantic value subparsers in the error
-   * state with an Syntax.Error object.  The subparser will be merged
-   * instead of thrown away.
-   */
-  private static boolean NEW_ERROR_HANDLING = false;
+  /** Turn new error handling on. */
+  private boolean newErrorHandling = false;
 
   /** Save the disjunction of invalid configurations. */
-  final private static boolean SAVE_ERROR_COND = false;
+  private boolean saveErrorCond = false;
 
-  /** The disjunction of invalid configurations. */
-  private PresenceCondition invalid;
+  /** The disjunction of parse error conditions. */
+  private PresenceCondition errorCond;
 
   /** The parse tables. */
   private ParseTables tables;
@@ -267,16 +261,31 @@ public class ForkMergeParser {
 
     skipConditionalCache = new HashMap<Integer, OrderedSyntax>();
 
-    if (SAVE_ERROR_COND) {
-      this.invalid = presenceConditionManager.newFalse();
-    }
+    this.errorCond = presenceConditionManager.newFalse();
   }
 
   /**
-   * assigns the given value to NEW_ERROR_HANDLING
+   * Enables new error handling, where error parsers are allowed to
+   * merge with others instead of being dropped immediately on parser
+   * error.
    */
-  public static void setNewErrorHandling(boolean b) {
-    NEW_ERROR_HANDLING = b;
+  public void setNewErrorHandling(boolean b) {
+    newErrorHandling = b;
+  }
+
+  /**
+   * Save a presence condition that is the union of all presence
+   * conditions.
+   */
+  public void setSaveErrorCond(boolean b) {
+    saveErrorCond = b;
+  }
+
+  /**
+   * Get the current parse error condition.
+   */
+  public PresenceCondition getErrorCond() {
+    return this.errorCond.addRef();
   }
 
   /**
@@ -964,10 +973,6 @@ public class ForkMergeParser {
       throw new RuntimeException("need to handle remaining error subparsers");
     }
 
-    if (SAVE_ERROR_COND) {
-      // System.err.println(this.invalid.satOne());
-    }
-
     if (accepted.size() == 0) {
       return null;
     } else {
@@ -1011,16 +1016,18 @@ public class ForkMergeParser {
             + subparser.lookahead.token.syntax.getLocation());
     }
 
-    if (SAVE_ERROR_COND) {
-      PresenceCondition or = this.invalid.or(subparser.getPresenceCondition());
-      this.invalid.delRef();
-      this.invalid = or;
-    }
+    // if (SAVE_ERROR_COND) {
+    //   PresenceCondition or = this.invalid.or(subparser.getPresenceCondition());
+    //   this.invalid.delRef();
+    //   this.invalid = or;
+    // }
 
-    if (NEW_ERROR_HANDLING) {
+    if (newErrorHandling) {
       //if the error subparser still exists at EOF, it can't merge and should end.
       if (subparser.lookahead.token.syntax.kind() == Kind.EOF) {
-        CContext.addToParseErrorCond(subparser.getPresenceCondition());
+        PresenceCondition newErrorCond = this.errorCond.or(subparser.getPresenceCondition());
+        this.errorCond.delRef();
+        this.errorCond = newErrorCond;
         return false;
       }
       // Move to the next token or start conditional.
@@ -1918,7 +1925,11 @@ public class ForkMergeParser {
           }
         }
 
-        CContext.addToParseErrorCond(e.presenceCondition);
+        {
+          PresenceCondition newErrorCond = this.errorCond.or(e.presenceCondition);
+          this.errorCond.delRef();
+          this.errorCond = newErrorCond;
+        }
           
         // OR the presence conditions.
         PresenceCondition or
@@ -1961,7 +1972,7 @@ public class ForkMergeParser {
    * @param The merged set of subparsers.
    */
   private List<Subparser> merge(List<Subparser> subset) {
-    if (NEW_ERROR_HANDLING) {
+    if (newErrorHandling) {
       // First merge errors.
       subset = mergeErrors(subset);
       

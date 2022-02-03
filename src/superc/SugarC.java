@@ -208,7 +208,7 @@ public class SugarC extends Tool {
 
       // New error handling.
       bool("newErrorHandling", "newErrorHandling", true,
-           "Use new error handling that puts errors in the AST.").
+           "Use new error handling that puts errors in the AST.  True by default.").
       
       // Desugaring features
       bool("linkerThunks", "linkerThunks", false,
@@ -476,10 +476,6 @@ public class SugarC extends Tool {
       .showErrors(! runtime.test("hideErrors"));
     ((Preprocessor) preprocessor)
       .singleConfigurationSysheaders(runtime.test("singleConfigSysheaders"));
-
-    if (runtime.test("newErrorHandling")) {
-      ForkMergeParser.setNewErrorHandling(true);
-    }
     
     // Run SuperC.
     
@@ -513,6 +509,10 @@ public class SugarC extends Tool {
     parser = new ForkMergeParser(CParseTables.getInstance(), semanticValues,
                                  actions, initialParsingContext,
                                  preprocessor, presenceConditionManager);
+    // TODO: avoid using static variable to make parser state
+    // available to CContext
+    CContext.parser = parser;
+    
     parser.saveLayoutTokens(true); // need these for desugaring
     parser.setLazyForking(true);
     parser.setSharedReductions(true);
@@ -523,6 +523,10 @@ public class SugarC extends Tool {
     parser.showAccepts(runtime.test("showAccepts"));
     parser.showFM(runtime.test("showFM"));
     parser.showLookaheads(runtime.test("showLookaheads"));
+    if (runtime.test("newErrorHandling")) {
+      parser.setNewErrorHandling(true);
+      parser.setSaveErrorCond(true);
+    }
 
     if (runtime.hasValue("killswitch")
         && null != runtime.getString("killswitch")) {
