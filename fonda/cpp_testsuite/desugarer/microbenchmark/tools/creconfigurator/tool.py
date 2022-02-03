@@ -2,6 +2,8 @@ import os
 import sys
 import configparser
 import shutil
+import time
+import logging
 
 from common.run_command import run_command
 from common import utils
@@ -48,11 +50,44 @@ class Tool:
 
   def run_creconfig(self):
     shutil.copytree(utils.TEST_CASE_DIR, self.source_dir)
-    os.chdir(self.test_dir)
-    args = ['java',
+  
+    # make sure each macro starts with "ENABLE_"
+    for root, _, files in os.walk(self.source_dir):
+      for filename in files:
+        if filename.endswith('.c'):
+          filepath = os.path.join(root, filename)
+          with open(filepath, 'r') as f:
+            lines = f.readlines()
+
+          for i in range(len(lines)):
+            if '#ifdef' in lines[i]:
+              lines[i] = self.rename_macro(lines[i], '#ifdef')
+            if 'defined' in lines[i]:
+              lines[i] = self.rename_macro(lines[i], 'defined')
+          
+          with open(filepath, 'w+') as f:
+            f.writelines(lines)
+
+    for i in range(1):
+      os.chdir(self.test_dir)
+      args = ['java',
                 f'-Xms{self.xms}',
                 f'-Xmx{self.xmx}',
                 '-jar',
                 self.jar]
-    run_command(args)
+      start_time = time.time()
+      #run_command(args)
+      # weird errors with subprocess.run, use os.opoen as workaround
+      reconfig_process = os.popen(' '.join(args))
+      out = reconfig_process.read()
+      reconfig_process.close()
+
+      logging.debug(f'total running time is {time.time() - start_time} seconds')
+
+  def rename_macro(self, line, key_word):
+    line_split = line.split(' ')
+    index = line_split.index(key_word)
+    line_split[index+1] = 'ENABLE_' + line_split[index+1]
+    return ' '.join(line_split)
+
 

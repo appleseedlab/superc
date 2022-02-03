@@ -5,7 +5,7 @@ int main() {
   float x[5];
   #endif
 
-  x[5];
+  x[3];
   
   return 0;
 }

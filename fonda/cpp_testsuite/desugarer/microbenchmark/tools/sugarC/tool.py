@@ -17,6 +17,9 @@ class Tool:
     self.working_dir = config.get('paths', 'workingDir')
     self.run_dir = config.get('paths', 'runDir')
 
+    if os.path.exists(self.working_dir):
+      shutil.rmtree(self.working_dir)
+
 
   def run(self, testcase: str) -> TestReturn:
 

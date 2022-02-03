@@ -1,15 +1,15 @@
 typedef union {
   int* a;
   long b;
-#ifdef TRANPARENT
+#ifdef TRANSPARENT
 } U __attribute__ ((__transparent_union__));
 #else
-} U
+} U;
 #endif
 
 extern void foo(U);
 
-#ifdef TRANPARENT
+#ifdef TRANSPARENT
 int main ()
 {
   int x;
