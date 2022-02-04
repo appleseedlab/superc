@@ -8,10 +8,5 @@ struct {
 } a;
 
 int main() {
-  #ifdef ENABLE_A
-  int flag = sizeof(a) == 8;
-  #else
-  int flag = sizeof(a) == 16;
-  #endif
-  return flag;
+  return sizeof(a);
 }

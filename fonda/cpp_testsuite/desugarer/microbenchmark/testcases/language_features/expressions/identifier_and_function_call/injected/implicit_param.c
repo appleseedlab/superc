@@ -1,17 +1,16 @@
-#ifdef A
+#ifdef ENABLE_A
 typedef signed int a;
 #else
-typedef unsigned int a;
+typedef long a;
 #endif
 
 int foo(a x)
 {
   x++;
-  return 0;
+  return sizeof(a);
 }
 
 int main()
 {
-  foo(1);
-  return 0;
+  return foo(1);
 }

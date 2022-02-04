@@ -8,12 +8,7 @@ a;
 
 int main() {
   a x;
-  #ifdef ENABLE_A
-  int flag = sizeof(x) == 4;
-  #else
-  int flag = sizeof(x) == 8;
-  #endif
-  return flag;
+  return sizeof(x);
 
 }
 

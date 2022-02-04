@@ -1,13 +1,13 @@
 int main()
 {
-  #ifdef A
+  #ifdef ENABLE_A
   int *x;
   #else
-  long x;
+  int x;
   #endif
   union {
     typeof(x) a;
     int b;
   } y;
-  return 0;
+  return sizeof(y);
 }

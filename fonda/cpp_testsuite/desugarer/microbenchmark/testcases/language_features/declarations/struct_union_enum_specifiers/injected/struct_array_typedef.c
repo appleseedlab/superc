@@ -14,10 +14,5 @@ int x;
 #endif
 
 int main() {
-  #ifdef ENABLE_A
-  int flag = sizeof(x) == 128;
-  #else
-  int flag = sizeof(x) == 4;
-  #endif
-  return flag;
+  return sizeof(x);
 }

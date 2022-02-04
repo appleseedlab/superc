@@ -1,4 +1,4 @@
-#ifdef ENABLE_FORWARD
+#ifdef ENABLE_A
 enum bob;
 
 enum bob x;
@@ -6,7 +6,7 @@ enum bob x;
 enum bob { A };
 #endif
 
-#ifdef ENABLE_ASSIGN
+#ifdef ENABLE_B
 enum E y;
 
 enum E {
@@ -18,20 +18,17 @@ enum E {
 #endif
 
 int main() {
-#ifdef ENABLE_FORWARD
-  int flag1 = sizeof(enum bob) == 4;
-#else
-  int flag1 = 1;
+  int size1 = 1;
+#ifdef ENABLE_A
+  size1 = sizeof(enum bob);
 #endif
 
-#ifdef ENABLE_ASSIGN
-  int flag2 = sizeof(enum E) == 8;
-#else
-  int flag2 = 1;
+  int size2 = 2;
+#ifdef ENABLE_B
+  size2 = sizeof(enum E);
 #endif
 
-  int flag = flag1 && flag2;
-  return flag;
+  return size1 + size2;
 
 
 }

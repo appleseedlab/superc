@@ -12,10 +12,5 @@ struct x {
 int main()
 {
   struct x a;
-  #ifdef ENABLE_A
-  int flag = sizeof(a) == 4;
-  #else
-  int flag = sizeof(a) == 8;
-  #endif
-  return flag;
+  return sizeof(a);
 }

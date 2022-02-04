@@ -22,14 +22,5 @@ struct T {
 };
 #endif
 int main() {
-  #ifdef ENABLE_A
-  #ifdef ENABLE_B
-  int flag = sizeof(struct X) == 16;
-  #else
-  int flag = sizeof(struct X) == 8;
-  #endif
-  #else
-  int flag = sizeof(struct T) == 8;
-  #endif
-  return flag;
+  return sizeof(struct X) + sizeof(struct T);
 }

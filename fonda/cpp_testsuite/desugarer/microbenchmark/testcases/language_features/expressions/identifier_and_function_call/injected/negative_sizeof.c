@@ -5,17 +5,17 @@ struct X {
 };
 
 struct Y {
-#ifdef A
+#ifdef ENABLE_A
   int a;
   int b;
 #else
-  int a;
-  int b;
+  long a;
+  long b;
 #endif
 } y;
 
 int main()
 {
-  int a[sizeof(struct X) - sizeof y];
-  return 0;
+  int res = (int) sizeof(struct X) - (int) sizeof(y);
+  return res;
 }

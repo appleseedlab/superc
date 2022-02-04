@@ -1,4 +1,4 @@
-#ifdef HAS_PARAM
+#ifdef ENABLE_A
 int foo(int a);
 
 int foo(int a) {
@@ -13,12 +13,11 @@ int foo() {
 #endif
 
 int main() {
-#ifdef HAS_PARAM
+#ifdef ENABLE_A
   int (*ptr) (int) = foo;
-  ptr(10);
+  return ptr(10);
 #else
   int (*ptr) () = foo;
-  ptr();
+  return ptr();
 #endif
-  return 0;
 }

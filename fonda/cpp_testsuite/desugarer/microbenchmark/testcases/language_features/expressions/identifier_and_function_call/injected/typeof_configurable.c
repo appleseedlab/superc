@@ -1,13 +1,12 @@
 int main()
 {
   typeof (
-#ifdef A
+#ifdef ENABLE_A
           int *
 #else
           char *
 #endif
           ) x;
   typeof(x) y;
-  y = 0;
-  return 0;
+  return sizeof(*y);
 }
