@@ -1,13 +1,13 @@
 int main ()
 {
   int y;
-#ifdef A
-  int x;
+#ifdef ENABLE_A
+  int x = 1;
 #else
-  int z;
+  int z = 2;
 #endif
 
-#ifdef A
+#ifdef ENABLE_A
   switch (x) {
 #else
   switch (z) {

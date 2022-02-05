@@ -2,10 +2,10 @@
 
 int main()
 {
-  int a;
+  int a = 2;
   switch (a)
     {
-#ifdef A
+#ifdef ENABLE_A
     case X:
       a=1;
       break;
@@ -13,5 +13,5 @@ int main()
     default:
       a=2;
     }
-  return 0;
+  return a;
 }

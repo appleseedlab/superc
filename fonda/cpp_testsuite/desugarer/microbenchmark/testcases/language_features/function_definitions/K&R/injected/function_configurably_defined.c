@@ -1,4 +1,4 @@
-#ifdef CONFIG_A
+#ifdef ENABLE_A
 typedef struct myfirststruct {
   int x;
 } myfirststruct;
@@ -11,3 +11,12 @@ static inline myfirststruct* func(sk)
   return (myfirststruct*)sk;
 }
 #endif
+
+int main() {
+  #ifdef ENABLE_A
+  myfirststruct *sk;
+  return sizeof(func(sk));
+  #else
+  return 0;
+  #endif
+}
