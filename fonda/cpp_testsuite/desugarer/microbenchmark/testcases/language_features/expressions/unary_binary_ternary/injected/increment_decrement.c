@@ -1,11 +1,9 @@
 int main() {
-  int a;
-
+  int x = 10;
   #ifdef ENABLE_A
-  a = 0;
+  x++;
   #else
-  a = 1;
+  x--;
   #endif
-
-  return a;
+  return x;
 }

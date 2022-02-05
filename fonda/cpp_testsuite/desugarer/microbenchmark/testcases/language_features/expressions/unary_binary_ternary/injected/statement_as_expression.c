@@ -1,10 +1,10 @@
-int x;
+int x = 1;
 
 int main()
 {
   int y;
-#ifdef A
+#ifdef ENABLE_A
   y = ({x;});
 #endif
-  return 0;
+  return y;
 }

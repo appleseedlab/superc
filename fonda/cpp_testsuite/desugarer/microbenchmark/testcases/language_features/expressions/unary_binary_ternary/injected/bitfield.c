@@ -1,6 +1,6 @@
 struct x
 {
-#ifdef ENABLE_BITFIELD
+#ifdef ENABLE_A
   int field: 4;
 #else
   long field;
@@ -10,10 +10,9 @@ struct x
 int main() {
   struct x a,*b;
   
-  #ifdef ENABLE_BITFIELD
-  int flag = sizeof(a) == 4;
+  #ifdef ENABLE_A
+  return sizeof(a);
   #else
-  int flag = sizeof(*b) == 8;
+  return sizeof(*b);
   #endif
-  return flag;
 }
