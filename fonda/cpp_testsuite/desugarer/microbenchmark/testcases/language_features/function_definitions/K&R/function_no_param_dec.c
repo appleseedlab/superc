@@ -1,4 +1,4 @@
-#ifdef HAS_PARAM
+#ifdef ENABLE_A
 int foo(int a);
 #else
 int foo();
