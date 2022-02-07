@@ -1,13 +1,13 @@
 #ifdef ENABLE_A
 enum bob;
 
-enum bob x;
+//enum bob x;
 
 enum bob { A };
 #endif
 
 #ifdef ENABLE_B
-enum E y;
+//enum E y;
 
 enum E {
         B = 0x01FFFFFFFFFFFFFF,

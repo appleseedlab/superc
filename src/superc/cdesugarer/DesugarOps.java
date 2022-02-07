@@ -322,7 +322,7 @@ class DesugarOps {
         }
       }
     }
-    if (flexList.size() <= 1) {
+    if (flexList.size() < 1) {
       return processStructDefinition(keyword,structTag,structfields,pc,scope,freshIdCreator,suTypeCreator);
     }
     PresenceCondition remaining = (new PresenceConditionManager()).newTrue();

@@ -132,14 +132,23 @@ def comp(expect,reality,ms,f):
     return f + ' :: match'
   return f + ' :: ' + str(matches) + '/' + str(size) + '\n\t' + str(expect) + '/' + str(reality) + '\n\t' + str(fails)
 
-def printRes(s):
+def printStatus(s):
+  st = ""
   for a in s:
     if ':: match' in a:
-      print(a)
+      st += a + "\n"
   for a in s:
     if ':: match' not in a:
-      print(a)
-      
+      st += a + "\n"
+  return st
+
+def printRes(s):
+  res = printStatus(s)
+  res = "~~~Results~~~\n" + res
+  ff = open("autoRunnerResults.txt","w")
+  ff.write(res)
+  ff.close()
+  print(res)
 
 def runFiles(fileList,results):
   for f in fileList:

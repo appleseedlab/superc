@@ -4,9 +4,10 @@ struct x {
   int b;
   #endif
   int c;
+  int d;
 };
 
 int main(void) {
-  struct x myFirstStruct = {1, 2};
+  struct x myFirstStruct = {1, 2, 3};
   return myFirstStruct.c;
 }

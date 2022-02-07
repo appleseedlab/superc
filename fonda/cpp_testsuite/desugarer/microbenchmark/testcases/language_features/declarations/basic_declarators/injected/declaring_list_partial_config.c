@@ -4,7 +4,7 @@ int x = 1;
 long x = 2;
 #endif
 int main() {
-  int a, b = x;
+  int a = 1, b = x;
 
   return a + b;
   
