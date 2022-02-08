@@ -1,8 +1,9 @@
-int main()
-{
+int main() {
   int val;
-#ifdef ASM
+  #ifdef ENABLE_A
   __asm__("bswap %0" : "=r" (val) : "0" (val));
-#endif
+  return 1;
+  #else
   return 0;
+  #endif
 }

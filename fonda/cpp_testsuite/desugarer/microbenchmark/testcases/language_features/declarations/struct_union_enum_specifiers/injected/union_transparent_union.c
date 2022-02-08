@@ -1,19 +1,24 @@
 typedef union {
   int* a;
   long b;
-#ifdef TRANSPARENT
+#ifdef ENABLE_A
 } U __attribute__ ((__transparent_union__));
 #else
 } U;
 #endif
 
-extern void foo(U);
+int foo(U x) {
+  return 1;
+}
 
-#ifdef TRANSPARENT
+
 int main ()
 {
   int x;
-  foo (&x);
+  #ifdef ENABLE_A
+  return foo (&x);
+  #else
   return 0;
+  #endif
 }
-#endif
+

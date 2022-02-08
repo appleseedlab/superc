@@ -1,11 +1,11 @@
 int main()
 {
-  int x;
+  int x = 2;
   if (x) {
     goto lab;
   }
  lab:
-  #ifdef A
+  #ifdef ENABLE_A
   x = 1;
   #endif
   return x;

@@ -1,21 +1,25 @@
-#ifdef ANONYMOUS
+#ifdef ENABLE_A
 struct {
   char p;
 } data;
 #endif
 
 int main() {
-#ifdef LOCAL_STRUCT
+#ifdef ENABLE_A
+
+#else
   struct s;
   
   struct s {
     int y;
-  };
+  } data;
 #endif
   
-#ifdef ANONYMOUS
+#ifdef ENABLE_A
   data.p;
 #endif
 
-  return 0;
+  return sizeof(data);
 }
+
+// sizeof(data)

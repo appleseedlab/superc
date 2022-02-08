@@ -1,6 +1,9 @@
 #include <stdarg.h>
 
-#ifdef VARG
+#ifdef ENABLE_A
+int foo(int num, ...);
+#endif
+
 int foo(int num, ...) {
   int sum = 0;
   va_list valist;
@@ -13,8 +16,10 @@ int foo(int num, ...) {
 }
 
 int main() {
-  foo(2, 1, 3);
-  foo(3, 1, 2, 3);
-  return 0;
+  #ifdef ENABLE_A
+  return foo(4, 2, 3, 4, 5);
+  #else
+  return foo(2, 1, 2);
+  #endif
+
 }
-#endif
