@@ -1,4 +1,4 @@
-struct s1 x;
+struct s1 *x;
 
 struct s2 {
   int data;
@@ -12,7 +12,7 @@ struct s1 {
 
 int main() {
 #ifdef CAST
-  return ((struct s2) x).data;
+  return ((struct s2 *) x)->data;
 #endif
 }
 

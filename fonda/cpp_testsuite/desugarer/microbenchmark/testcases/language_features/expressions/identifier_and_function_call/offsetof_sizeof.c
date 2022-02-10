@@ -9,5 +9,5 @@ size_t x = offsetof(struct t, z);
 #ifdef SIZEOF
 long l;
 
-size_t x = sizeof(l);
+size_t y = sizeof(l);
 #endif

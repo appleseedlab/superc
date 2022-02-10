@@ -1,9 +1,7 @@
 #ifdef STATIC_CONST_AUTO_REGISTER
 static const int a;
 extern const char b;
-auto const float c;
-auto volatile double d;
-register const float e;
+volatile double d;
 #endif
 
 #ifdef SIGNED_UNSIGNED
@@ -17,3 +15,10 @@ unsigned long long int l;
 signed int m;
 unsigned int n;
 #endif
+
+int main() {
+  #ifdef STATIC_CONST_AUTO_REGISTER
+  auto c;
+  register const float e;
+  #endif
+}

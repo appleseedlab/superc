@@ -3,7 +3,7 @@ int foo(int *);
 #endif
 
 #ifdef VOID_ABSTRACT
-void foo (void);
+void foo2 (void);
 void *fwo(void);
 void fwotwo(void*,void*);
 #endif

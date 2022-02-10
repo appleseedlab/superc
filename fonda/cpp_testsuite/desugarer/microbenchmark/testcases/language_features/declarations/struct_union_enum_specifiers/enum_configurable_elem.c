@@ -3,7 +3,7 @@
 #else
 #define START 0
 #endif
-enum E {A = START, B, C, D};
+enum E {E = START, B, C, D};
 
 int main() {
 enum E a;

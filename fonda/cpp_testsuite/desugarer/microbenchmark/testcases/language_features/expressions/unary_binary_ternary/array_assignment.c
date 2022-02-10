@@ -1,7 +1,7 @@
 int main()
 {
 #ifdef ASSIGN
-  char x[3] = {"first", "second", "third"};
+  char x[5] = "first";
 #else
   char x[10];
 #endif

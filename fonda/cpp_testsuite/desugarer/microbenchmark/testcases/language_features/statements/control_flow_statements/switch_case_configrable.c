@@ -14,7 +14,7 @@ int main()
     x = 4;
     break;
     #endif
-    #default
+    default:
     x = 0;
   }
   return x;
