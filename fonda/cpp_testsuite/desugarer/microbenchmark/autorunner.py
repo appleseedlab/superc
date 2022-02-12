@@ -22,10 +22,10 @@ def getMacroList(f):
   ms = []
   o = open(f,'r')
   for l in o:
-    if "ifdef" in l:
+    if "ifdef" in l or "elif" in l:
       words = (re.sub(' +', ' ', l)).split(' ')
       for w in words:
-        if 'ifdef' in w:
+        if 'ifdef' in w or ( "elif" in l and "defined" in w):
           conf = words[words.index(w)+1]
           conf = conf.strip('\n')
           if conf not in ms:

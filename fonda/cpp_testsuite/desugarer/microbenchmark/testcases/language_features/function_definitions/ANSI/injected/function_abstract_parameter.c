@@ -15,7 +15,7 @@ int foo(int *x)
 #else
 int foo (void) { return 2; }
 int *fwo(void) { int x = 1; return &x; }
-int fwotwo(void*,void*) { return 1;}
+int fwotwo(void*a,void*b) { return 1;}
 #endif
 
 int main() {

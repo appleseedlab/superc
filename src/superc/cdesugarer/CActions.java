@@ -4178,6 +4178,7 @@ public class CActions implements SemanticActions {
           }
           parametersmv.destruct();
           // no need to filter, since we started parametersmv with the subparser pc
+          System.err.println(paramlistmv);
           setTransformationValue(value, paramlistmv);
         }
     break;
@@ -5765,7 +5766,7 @@ public class CActions implements SemanticActions {
           ExpressionValue postfixexprval = getCompleteNodeExpressionValue(subparser, 4, pc);
           /* System.err.println("PFTYPE: " + postfixexprval.type); */
           /* System.err.println("PFTRAN: " + postfixexprval.transformation); */
-	  if (postfixexprval.hasValidType()) {
+          if (postfixexprval.hasValidType()) {
             /* postfixexprval.transformation; */
             Multiverse<String> lparen
               = new Multiverse<String>((String) getNodeAt(subparser, 3).getTokenText(), pc);
@@ -5778,15 +5779,15 @@ public class CActions implements SemanticActions {
             // similar.
             List<ExpressionValue> exprlist
               = (List<ExpressionValue>) getTransformationValue(subparser, 2);
-	    System.err.println(exprlist);
+            System.err.println(exprlist);
             Multiverse<List<String>> exprlistmv
               = new Multiverse<List<String>>(new LinkedList<String>(), pc);
             Multiverse<List<Type>> exprlisttypemv
               = new Multiverse<List<Type>>(new LinkedList<Type>(), pc);
             boolean hasinvalidparameter = false;
             for (ExpressionValue listelem : exprlist) {
-	      if (! listelem.hasValidType()) {
-	      hasinvalidparameter = true;
+              if (! listelem.hasValidType()) {
+                hasinvalidparameter = true;
                 break;
               }
               // wrap each listelem's string and type in a list
@@ -5895,7 +5896,7 @@ public class CActions implements SemanticActions {
                               break;
                             }
                           
-                          } else if (compatTypes(formal, actual)) {
+                          } else if (compatParam(formal, actual)) {
                             valuemv = appendStringToMV(valuemv, exprliststring.getData().get(i) + ",", combinedCond);
                           } else {
                             match = false;
@@ -5935,8 +5936,8 @@ public class CActions implements SemanticActions {
                   PresenceCondition new_errorCond = errorCond.or(postfixelem.getCondition());
                   // TODO: unit test
                   valuemv = valuemv.filter(postfixelem.getCondition().not());
-		  valuemv.add(emitError("attempting function call on non-function type"),postfixelem.getCondition());
-		  errorCond.delRef(); errorCond = new_errorCond;
+                  valuemv.add(emitError("attempting function call on non-function type"),postfixelem.getCondition());
+                  errorCond.delRef(); errorCond = new_errorCond;
                 } // end check for function type
               } // end loop over postfixelems
               typemv.add(ErrorT.TYPE, errorCond);
@@ -9288,7 +9289,7 @@ static public Multiverse<String> sizeofExpansion(Multiverse<String> es, Multiver
     } else {
       if (!es.isEmpty() && !(es.filter(et.getCondition())).isEmpty()) {
 	for (Element<String> ex : es.filter(et.getCondition())) {
-	  if (ex.getData().equals("") || et.getData().isPointer()) {
+	  if (ex.getData().equals("")) {
 	    ret.add("sizeof(" + et.getData().printType() + ")",ex.getCondition());
 	  } else {
 	    ret.add("sizeof(" + ex.getData() + ")",ex.getCondition());
@@ -9317,6 +9318,14 @@ static public Multiverse<Boolean> hasField(UnionT u, Type t, CContext scope, Pre
     res.add(found,e.getCondition());
   }
   return res;
+}
+
+static public boolean compatParam(Type t1u, Type t2u) {
+  Type t1 = t1u.resolve(), t2 = t2u.resolve();
+  if ((t1.isPointer() || t1.isArray()) && t2.isNumber()) {
+    return true;
+  }
+  return compatTypes(t1u,t2u);
 }
 
 static public boolean compatTypes(Type t1u, Type t2u) {
