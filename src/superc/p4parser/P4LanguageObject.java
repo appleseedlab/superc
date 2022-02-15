@@ -16,6 +16,9 @@ import superc.p4parser.P4LanguageObject.TypeOrVoid;
 
 // For symbols
 class P4LanguageObject {
+    // Boolean flags to turn on and off features
+    boolean OUTPUT_TYPES = true;
+
     // conditioned callees
     enum LObjectKind {
         CONSTANTVALUE,
@@ -44,8 +47,15 @@ class P4LanguageObject {
         VARIABLE,
         BASETYPE,
         FUNCTION,
-        METHOD
+        METHOD,
+        TUPLETYPE,
+        SPECIALIZEDTYPE,
+        HEADERSTACKTYPE,
+        ANONYMOUS,
+        SUBCLASS
     }
+
+    // TODO handle constructor method prototype parameters & action declarations
 
     abstract class AbstractObjectOfLanguage {
         private final String name;
@@ -58,8 +68,25 @@ class P4LanguageObject {
         // abstract method to return respective enum
         abstract LObjectKind getConstructType();
 
+        boolean hasParameters() {
+            return false;
+        }
+
+        boolean isParameterListEmpty() {
+            return false;
+        }
+
+        void addToParameterList(Parameter parameter) {
+            assert false : "Cannot add parameters to this (" + this.name + ") type of language object";
+        }
+
         boolean hasAssociatedType() {
             return false;
+        }
+
+        ArrayList<Parameter> getParameterList() {
+            assert false : "Cannot retrieve parameters from this (" + this.name + ") type of language object";
+            return null;
         }
 
         AbstractObjectOfLanguage getType() {
@@ -70,11 +97,27 @@ class P4LanguageObject {
         }
 
         public String getName() {
+            return this.getName(false);
+        }
+
+        public String getName(boolean output_types) {
             if(this.name == null) {
                 System.err.println(this.getConstructType().toString() + " construct does not have a name associated with it.");
             }
 
-            return this.name;
+            if(output_types) {
+                if(this.hasAssociatedType() &&
+                   this.getConstructType() != LObjectKind.FUNCTIONPROTOTYPE &&
+                   this.getConstructType() != LObjectKind.ENUMDECLARATION &&
+                   this.getConstructType() != LObjectKind.STRUCTTYPEDECLARATION
+                   ) {
+                    return this.name +  "(" + this.getType().getConstructType() + ")";    
+                } else {
+                    return this.name +  "(" + this.getConstructType() + ")";
+                }
+            } else {
+                return this.name;
+            }
         }
 
         public boolean hasName() {
@@ -169,7 +212,7 @@ class P4LanguageObject {
             ArrayList<String> parentCalleeNames = new ArrayList<>();
             if(callGraphObject.containsKey(this)) {
                 for(AbstractObjectOfLanguage callee : callGraphObject.get(this)) {
-                    parentCalleeNames.add(callee.getName() + "(" + callee.getNameSpace().getName() + ")");
+                    parentCalleeNames.add(callee.getName(OUTPUT_TYPES) + "(" + callee.getNameSpace().getName(OUTPUT_TYPES) + ")");
                 }
             }
 
@@ -184,7 +227,7 @@ class P4LanguageObject {
             while(itr.hasNext()) {
                 String childKey = (String) itr.next();
                 AbstractObjectOfLanguage childLangObj = symtab.get(this).get(childKey);
-                finalString += childLangObj.getName();
+                finalString += childLangObj.getName(OUTPUT_TYPES);
                 if(symtab.containsKey(childLangObj)) {
                     finalString += itr.hasNext() ? ", " : "";
                     continue;
@@ -194,7 +237,7 @@ class P4LanguageObject {
                 ArrayList<String> calleeNames = new ArrayList<>();
                 if(callGraphObject.containsKey(childLangObj)) {
                     for(AbstractObjectOfLanguage callee : callGraphObject.get(childLangObj)) {
-                        calleeNames.add(callee.getName());
+                        calleeNames.add(callee.getName(OUTPUT_TYPES));
                     }
                 }
 
@@ -212,7 +255,7 @@ class P4LanguageObject {
 
             Iterator<String> itr = symtab.get(this).keySet().iterator();
             finalString += this.hashCode(global_scope) + ";";
-            finalString += this.hashCode(global_scope) + " [label=\"" + this.name + "\"];";
+            finalString += this.hashCode(global_scope) + " [label=\"" + this.getName(OUTPUT_TYPES) + "\"];";
             ArrayList<AbstractObjectOfLanguage> parentCalleeNames = new ArrayList<>();
             if(callGraphObject.containsKey(this)) {
                 for(AbstractObjectOfLanguage callee : callGraphObject.get(this)) {
@@ -223,7 +266,7 @@ class P4LanguageObject {
             if(! parentCalleeNames.isEmpty()) {
                 for(AbstractObjectOfLanguage localCallee : parentCalleeNames) {
                     finalString += this.hashCode(global_scope) + "->" + localCallee.hashCode(global_scope) + ";";
-                    finalString += localCallee.hashCode(global_scope) + " [label=\"" + localCallee.name + "\"];";
+                    finalString += localCallee.hashCode(global_scope) + " [label=\"" + localCallee.getName(OUTPUT_TYPES) + "\"];";
                 }
             }
 
@@ -231,7 +274,13 @@ class P4LanguageObject {
                 String childKey = (String) itr.next();
                 AbstractObjectOfLanguage childLangObj = symtab.get(this).get(childKey);
                 finalString += this.hashCode(global_scope) + " -> " + childLangObj.hashCode(global_scope) + " [style=dashed, color=blue];";
-                finalString += childLangObj.hashCode(global_scope) + " [label=\"" + childLangObj.name + "\"];";
+                finalString += childLangObj.hashCode(global_scope) + " [label=\"" + childLangObj.getName(OUTPUT_TYPES) + "\"];";
+
+                // If it is a subclass, put it under the parent class in graph
+                if(childLangObj.getConstructType() == LObjectKind.SUBCLASS) {
+                    finalString += ((SubClass) childLangObj).getOriginalClass().hashCode(global_scope) + "->" + childLangObj.hashCode(global_scope) + "[color=red]";
+                    finalString += childLangObj.hashCode(global_scope) + " [style=filled, fillcolor=bisque];";
+                }
 
                 if(symtab.containsKey(childLangObj)) {
                     continue;
@@ -448,6 +497,29 @@ class P4LanguageObject {
         }
     }
 
+    class HeaderStackType extends AbstractObjectOfLanguage {
+        AbstractObjectOfLanguage parentScope;
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.HEADERSTACKTYPE;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        public AbstractObjectOfLanguage getNameSpace() {
+            return this.parentScope;
+        }
+
+        public HeaderStackType(String name, AbstractObjectOfLanguage nameSpace, HeaderTypeDeclaration parentScope) {
+            super(name, nameSpace);
+            this.parentScope = parentScope;
+        }
+    }
+
     class StructTypeDeclaration extends AbstractObjectOfLanguage {
         private final ArrayList<StructField> structFieldList;
         @Override 
@@ -600,14 +672,22 @@ class P4LanguageObject {
             return false;
         }
 
+        @Override
         public boolean hasParameters() {
+            return true;
+        }
+
+        @Override
+        public boolean isParameterListEmpty() {
             return !this.parameterList.isEmpty();
         }
 
+        @Override
         public void addToParameterList(Parameter parameter) {
             this.parameterList.add(parameter);
         }
 
+        @Override
         public ArrayList<Parameter> getParameterList() {
             return this.parameterList;
         }
@@ -631,14 +711,22 @@ class P4LanguageObject {
             return false;
         }
 
+        @Override
         public boolean hasParameters() {
+            return true;
+        }
+
+        @Override
+        public boolean isParameterListEmpty() {
             return !this.parameterList.isEmpty();
         }
 
+        @Override
         public void addToParameterList(Parameter parameter) {
             this.parameterList.add(parameter);
         }
 
+        @Override
         public ArrayList<Parameter> getParameterList() {
             return this.parameterList;
         }
@@ -722,19 +810,33 @@ class P4LanguageObject {
             return true;
         }
 
-        AbstractObjectOfLanguage getTypeOrVoid() {
+        @Override
+        public boolean hasAssociatedType() {
+            return true;
+        }
+
+        @Override
+        AbstractObjectOfLanguage getType() {
             return this.typeOrVoid;
         }
 
-        public ArrayList<Parameter> getParameters() {
+        @Override
+        public ArrayList<Parameter> getParameterList() {
             return this.parameterList;
         }
 
-        public void addToParameters(Parameter parameter) {
+        @Override
+        public void addToParameterList(Parameter parameter) {
             this.parameterList.add(parameter);
         }
 
+        @Override
         public boolean hasParameters() {
+            return true;
+        }
+
+        @Override
+        public boolean isParameterListEmpty() {
             return !this.parameterList.isEmpty();
         }
 
@@ -759,14 +861,22 @@ class P4LanguageObject {
             return true;
         }
 
+        @Override
         public boolean hasParameters() {
+            return true;
+        }
+
+        @Override
+        public boolean isParameterListEmpty() {
             return !this.parameterList.isEmpty();
         }
 
-        public void addParameter(Parameter parameter) {
+        @Override
+        public void addToParameterList(Parameter parameter) {
             this.parameterList.add(parameter);
         }
 
+        @Override
         public ArrayList<Parameter> getParameterList() {
             return this.parameterList;
         }
@@ -1087,6 +1197,140 @@ class P4LanguageObject {
 
         public BaseTypes(String name) {
             super(name, null);
+        }
+    }
+
+    class AnonymousType extends AbstractObjectOfLanguage {
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.ANONYMOUS;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return false;
+        }
+
+        @Override
+        public String getName() {
+            System.err.println("Error: cannot get name for anonymous types.");
+            System.exit(1);
+            return "";
+        }
+
+        public AnonymousType(AbstractObjectOfLanguage nameSpace) {
+            super("", nameSpace);
+        }
+    }
+
+    class TupleType extends AnonymousType {
+        private final ArrayList<AbstractObjectOfLanguage> typeArgumentsList;
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.TUPLETYPE;
+        }
+
+        public void addToTypeArgumentList(AbstractObjectOfLanguage typeArg) {
+            typeArgumentsList.add(typeArg);
+        }
+
+        public ArrayList<AbstractObjectOfLanguage> getTypeArgumentList() {
+            return typeArgumentsList;
+        }
+
+        public boolean hasTypeArguments() {
+            return ! typeArgumentsList.isEmpty();
+        }
+
+        public TupleType(AbstractObjectOfLanguage nameSpace) {
+            super(nameSpace);
+            typeArgumentsList = new ArrayList<>();;
+        }
+    }
+
+    class SpecializedType extends AbstractObjectOfLanguage {
+        private final ArrayList<AbstractObjectOfLanguage> typeArgumentsList;
+        private final AbstractObjectOfLanguage type;
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.SPECIALIZEDTYPE;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return false;
+        }
+
+        @Override
+        public boolean hasAssociatedType() {
+            return true;
+        }
+
+        @Override 
+        public AbstractObjectOfLanguage getType() {
+            return this.type;
+        }
+
+        @Override 
+        public AbstractObjectOfLanguage getNameSpace() {
+            return this.type;
+        }
+
+        public void addToTypeArgumentList(AbstractObjectOfLanguage typeArg) {
+            typeArgumentsList.add(typeArg);
+        }
+
+        public ArrayList<AbstractObjectOfLanguage> getTypeArgumentList() {
+            return typeArgumentsList;
+        }
+
+        public boolean hasTypeArguments() {
+            return ! typeArgumentsList.isEmpty();
+        }
+
+        public SpecializedType(String name, AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage type) {
+            super(name, nameSpace);
+            this.type = type;
+            typeArgumentsList = new ArrayList<>();;
+        }
+    }
+
+    public class SubClass extends AbstractObjectOfLanguage{
+        AbstractObjectOfLanguage originalClass;
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.SUBCLASS;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        @Override
+        public boolean hasAssociatedType() {
+            return true;
+        }
+
+        @Override
+        public AbstractObjectOfLanguage getType() {
+            return this.originalClass;
+        }
+
+        // @Override
+        // public String getName() {
+        //     return "(" + this.originalClass.getName() + ") " + super.getName();
+        // }
+
+        public AbstractObjectOfLanguage getOriginalClass() {
+            return this.originalClass;
+        }
+
+        public SubClass(String name, AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage originalClass) {
+            super(name, nameSpace);
+            this.originalClass = originalClass;
         }
     }
 
