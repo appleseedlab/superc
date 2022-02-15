@@ -373,7 +373,9 @@ public class SuperP4 extends Tool {
            "Show lookaheads on each parse loop (warning: very voluminous "
            + "output!)").
       bool("macroTable", "macroTable", false,
-           "Show the macro symbol table.")
+           "Show the macro symbol table.").
+      bool("macroDependencies", "macroDependencies", false,
+      "Show which macros depend on free macros")
       ;
   }
   
@@ -623,7 +625,8 @@ public class SuperP4 extends Tool {
     // macros and includes.
     macroTable = new MacroTable(tokenCreator);
     macroTable
-      .getConfigurationVariables(runtime.test("configurationVariables"));
+      .getConfigurationVariables(runtime.test("configurationVariables") || 
+                                 runtime.test("macroDependencies"));
     macroTable.getHeaderGuards(runtime.test("headerGuards"));
     presenceConditionManager = new PresenceConditionManager();
     if (runtime.test("suppressConditions")) {
@@ -1244,8 +1247,8 @@ public class SuperP4 extends Tool {
             System.out.println("\nHello, this is key " + key + " with the set: " + conditionalsInsideSpecificBlosk.get(key));
           }
 
-          printMatrix(conditionalsInsideSpecificBlosk);
-          // printMatrix(conditionalsInsideEverything);
+          // printMatrix(conditionalsInsideSpecificBlosk);
+          printMatrix(conditionalsInsideEverything);
 
           collectASTData((Node) translationUnit);
           convertNotConditionalsAndRemoveDefinedWordForStatPurposes(presenceCondMap);
@@ -1573,7 +1576,6 @@ public class SuperP4 extends Tool {
         result = (Node) translationUnit;
       }
     }
-    
     // Print optional statistics and debugging information.
     if (runtime.test("macroTable")) {
       System.err.println("Macro Table");
@@ -1586,6 +1588,21 @@ public class SuperP4 extends Tool {
           System.err.println("config_var " + name);
         }
       }
+    }
+
+    if (runtime.test("macroDependencies")) {
+      Set<String> configVariables = new HashSet<>();
+
+      for (String name : macroTable.configurationVariables) {
+        if (! macroTable.headerGuards.contains(name))  {
+          configVariables.add(name);
+        }
+      }
+
+      System.out.println("Configuration (free) variables: " + configVariables);
+      HashMap<String, HashSet<String>> dependentStrings = macroTable.getDependentMacros(configVariables);
+      System.out.println(dependentStrings);
+      printMatrix(dependentStrings);
     }
 
     if (runtime.test("headerGuards")) {

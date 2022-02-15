@@ -108,6 +108,29 @@ public class MacroTable {
     return getHeaderGuards;
   }
 
+  public HashMap<String, HashSet<String>> getDependentMacros(Set<String> freeMacros) {
+    HashMap<String, HashSet<String>> finalStrings = new HashMap<>();
+    for(String name : table.keySet()) {
+      for(Entry pcs : table.get(name)) {
+        for(String free_macro : freeMacros) {
+          String formattedDefinedMacro = "(defined " + free_macro + ")";
+          String formattedNotDefinedMacro = "!(defined " + free_macro + ")";
+          // System.out.println("pcs: " + pcs.presenceCondition);
+          // System.out.println("pcs: " + pcs.presenceCondition.getAllConfigs());
+          if((pcs.presenceCondition.getAllConfigs().contains(formattedDefinedMacro) ||
+             pcs.presenceCondition.getAllConfigs().contains(formattedNotDefinedMacro)) &&
+             ! free_macro.equals(name)) {
+            if( !finalStrings.containsKey(free_macro)) {
+              finalStrings.put(free_macro, new HashSet<>());
+            }
+            finalStrings.get(free_macro).add(name);
+          }
+        }
+      }
+    }
+    return finalStrings;
+  }
+
   /**
    * Only allow macros with a given prefix to be free macros.  Pass
    * null to turn this feature off.  It is off by default.
