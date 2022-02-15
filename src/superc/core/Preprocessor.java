@@ -240,6 +240,9 @@ public class Preprocessor implements Iterator<Syntax> {
   /** An EOF token. */
   private final Syntax EOF;
 
+  /** Last token processed. */
+  private Syntax currentToken = null;
+
   /** Create a new macro preprocessor */
   public Preprocessor(HeaderFileManager fileManager, MacroTable macroTable,
                       PresenceConditionManager presenceConditionManager,
@@ -352,12 +355,27 @@ public class Preprocessor implements Iterator<Syntax> {
     return configurationAwarenessOff;
   }
 
-  
+  /**
+   * Peek for last token processed.
+   * @return Last token processed.
+   */
+  public Syntax token() {
+    return this.currentToken;
+  }
+
   /**
    * This class scans the input tokens, expanding macros and
    * evaluating directives, and returns tokens.
    */
   public Syntax next() {
+    this.currentToken = this.__next();
+    return token();
+  }
+  /**
+   * This class scans the input tokens, expanding macros and
+   * evaluating directives, and returns tokens.
+   */
+  private Syntax __next() {
     // Get the next token from the source file or the token buffer.
     Syntax syntax = getNext();
 
@@ -1706,12 +1724,12 @@ public class Preprocessor implements Iterator<Syntax> {
       Syntax linemarker
         = fileManager.includeHeader(headerName, sysHeader, includeNext,
                                     presenceConditionManager, macroTable);
-
+      
       // System.err.println(singleConfigurationSysheaders);
       // System.err.println(fileManager.inSystemHeader());
       // System.err.println(sysHeader);
       // System.err.println(! isConfigurationAwarenessOff());
-
+      
       if (singleConfigurationSysheaders
           && fileManager.inSystemHeader()
           && ! isConfigurationAwarenessOff()) {
@@ -4088,8 +4106,7 @@ public class Preprocessor implements Iterator<Syntax> {
                 // feature.  When an empty variaidic argument is
                 // pasted with a comma, the comma is removed.  If the
                 // variadic is not empty, no pasting occurs.
-
-                if (args.size() == f.formals.size()) {
+                if (null != f.formals && args.size() == f.formals.size()) {
                   // Swallow the comma (don't add it to the expanded
                   // definition.)  Then skip the variadic argument
                   // since we know it's empty.

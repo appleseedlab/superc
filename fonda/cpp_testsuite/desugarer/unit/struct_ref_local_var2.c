@@ -5,5 +5,7 @@ typedef struct evp_cipher_ctx_st EVP_CIPHER_CTX;
 char *DoEncryption(EVP_CIPHER_CTX *CTX, const char *Msg, size_t MsgLen) {
   malloc((size_t) 1);
   char *Buffer = malloc((MsgLen + 16) % -16);
+  size_t len;
+  *Buffer = len;
   return Buffer;
 }

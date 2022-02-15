@@ -83,4 +83,8 @@ public class UnitT extends Type {
     return "unit";
   }
 
+  public String printType() {
+    return "unit";
+  }
+  
 }

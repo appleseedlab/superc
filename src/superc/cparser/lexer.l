@@ -135,7 +135,7 @@ octal_constant="0"[0-7]*{integer_suffix_opt}
 hex_constant="0"[xX][0-9a-fA-F]+{integer_suffix_opt}
 
 /* Define escape sequences. */
-simple_escape=[abefnrtv\'\"?\\]
+simple_escape=[abefnrtv\'\"?\\@]
 octal_escape=[0-7]{1,3}
 hex_escape="x"[0-9a-fA-F]+
 escape_sequence=[\\]({simple_escape}|{octal_escape}|{hex_escape})

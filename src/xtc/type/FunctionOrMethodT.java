@@ -31,6 +31,10 @@ import java.util.List;
  */
 public abstract class FunctionOrMethodT extends DerivedT {
 
+    
+  private boolean isDefined;
+  
+    
   /** The result type. */
   protected Type result;
 
@@ -68,6 +72,7 @@ public abstract class FunctionOrMethodT extends DerivedT {
     this.parameters = parameters;
     this.varargs    = varargs;
     this.exceptions = exceptions;
+    isDefined = false;
   }
 
   public Type seal() {
@@ -201,4 +206,37 @@ public abstract class FunctionOrMethodT extends DerivedT {
     }
   }
 
+  public String printType() {
+    String r = result.printType() + "(";
+    for (Iterator<Type> iter = parameters.iterator(); iter.hasNext(); ) {
+      r += iter.next().printType();
+      if (iter.hasNext() || varargs) {
+        r +=", ";
+      }
+    }
+    r += ")";
+    return r;
+  }
+  public String printType(String insert) {
+    String r = result.printType() + insert + "(";
+    for (Iterator<Type> iter = parameters.iterator(); iter.hasNext(); ) {
+	    r += iter.next().printType();
+	    if (iter.hasNext() || varargs) {
+        r +=", ";
+	    }
+    }
+    r += ")";
+    return r;
+  }
+
+    
+  public void setDefined() {
+    isDefined = true;
+  }
+
+  public boolean getDefined() {
+    return isDefined;
+  }
+
+    
 }

@@ -1,6 +1,6 @@
 struct s;
 
-struct y;
+struct t;
 
 struct s {
   int x;

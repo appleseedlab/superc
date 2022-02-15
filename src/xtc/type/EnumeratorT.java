@@ -115,4 +115,8 @@ public class EnumeratorT extends WrappedT {
     out.append(name);
   }
 
+  public String printType() {
+    return name;
+  }
+  
 }

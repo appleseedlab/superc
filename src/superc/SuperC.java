@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.Reader;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.StringReader;
 import java.io.OutputStreamWriter;
 import java.io.IOException;
@@ -33,12 +34,14 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Scanner;
 import java.util.Map;
 import java.util.IdentityHashMap;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.*;
 
 import superc.core.Lexer;
 import superc.core.LexerCreator;
@@ -108,6 +111,8 @@ import org.sat4j.specs.ISolver;
 import org.sat4j.specs.TimeoutException;
 import org.sat4j.tools.ModelIterator;
 
+import org.json.simple.JSONObject;
+
 /**
  * The SuperC configuration-preserving preprocessor and parsing.
  *
@@ -115,6 +120,202 @@ import org.sat4j.tools.ModelIterator;
  * @version $Revision: 1.130 $
  */
 public class SuperC extends Tool {
+  /**
+   * A node for tree-like representation of source code for conditional blocks
+   * defined by conditional preprocessor directives.
+   */
+  private static class ConditionalBlock {
+    /**
+     * Line number where the conditional block starts in the source code. A
+     * conditional block starts with a`#if` or `#elif` directive. Thus, the
+     * corresponding line in the source code contains one of these directives.
+     */
+    private int startLine;
+    
+    /**
+     * Line number where the conditional block ends in the source code. A conditional
+     * block ends with a `#elif` (the beginning of the next conditional block)
+     * or `#endif` directive. Thus, the corresponding line in the source code
+     * contains one of these directives.
+     */
+    private int endLine;
+
+    /**
+     * List of sub conditional block groups contained. A conditional block
+     * group is a conditional ladder (#if [#elif]* #endif), which might contain
+     * one or more conditional blocks.
+     */
+    private List<List<ConditionalBlock>> subBlocks;
+
+    /**
+     * Complete presence condition for the conditional block.
+     */
+    private PresenceCondition pc;
+
+    /**
+     * Parent conditional block.
+     */
+    private ConditionalBlock parent;
+
+    @Override
+    public String toString() {
+      // TODO: representation can possibly be optimized to have smaller output files as pcs can be shared
+      return String.format( "{\"StartLine\": %s, \"EndLine\": %s, \"PC\": \"%s\", \"Sub\": %s}", startLine, endLine, pc.toSMT2().toString().replaceAll("\n", "\\\\n"), subBlocks);
+    }
+
+    /**
+     * Read and return conditional block groups from preprocessor. Once returned,
+     * the preprocessor will be at EOF token, or at END token of a conditional
+     * block if it could not be matched with any START token.
+     * @param preprocessor The preprocessor to iterate over.
+     * @param pathToFileOfInterest The path to the file of interest.
+     * @return A list of condition block groups each represented as a list
+     * of conditional blocks.
+     */
+    public static List<List<ConditionalBlock>> getConditionalBlockGroups(Preprocessor preprocessor, String pathToFileOfInterest) {
+      return readConditionalBlockGroups(preprocessor, pathToFileOfInterest);
+    }
+
+    /**
+     * Constructor.
+     */
+    private ConditionalBlock() {
+      this.subBlocks = new ArrayList<>();
+    }
+
+    /**
+     * Check if the syntax is located within the file of interest.
+     * @param syntax A syntax instance to check for.
+     * @param pathToFileOfInterest The path to the file of interest.
+     * @return true if syntax is within the file of interest, false otherwise.
+     */
+    private static boolean isInterestingFile(Syntax syntax, String pathToFileOfInterest) {
+      return syntax != null && syntax.hasLocation() && syntax.getLocation() != null && pathToFileOfInterest.endsWith(syntax.getLocation().file);
+    }
+
+    /**
+     * Read and return a condition block. The preprocessor must be at the beginning
+     * token of the conditional block to read, i.e., START or NEXT. Once returned,
+     * the preprocessor will be at the end token of the conditional block,
+     * i.e., NEXT or END.
+     * @param preprocessor The preprocessor to iterate over.
+     * @param pathToFileOfInterest The path to the file of interest.
+     * @return A condition block.
+     */
+    private static ConditionalBlock readConditionalBlock(Preprocessor preprocessor, String pathToFileOfInterest) {
+      // Token/tag/file checks.
+      assert preprocessor != null && preprocessor.token() != null
+          && preprocessor.token().kind() == Kind.CONDITIONAL && preprocessor.token().toConditional() != null
+          && (preprocessor.token().toConditional().tag() == Syntax.ConditionalTag.START 
+              || preprocessor.token().toConditional().tag() == Syntax.ConditionalTag.NEXT);
+      assert isInterestingFile(preprocessor.token(), pathToFileOfInterest);
+
+      ConditionalBlock cb = new ConditionalBlock();
+      PresenceCondition pc = preprocessor.token().toConditional().presenceCondition();
+      cb.pc = pc;
+      int startLine = preprocessor.token().getLocation().line;
+
+      // Read any nested ConditionalBlockGroups inside, until the end of
+      // the current block.
+      cb.subBlocks = readConditionalBlockGroups(preprocessor, pathToFileOfInterest);
+
+      // Assign parents
+      for(List<ConditionalBlock> l : cb.subBlocks) {
+        for(ConditionalBlock subBlock: l) {
+          subBlock.parent = cb;
+        }
+      }
+      // Verify it is the end token of the conditional block.    
+      ConditionalTag currentTokenTag = preprocessor.token().toConditional().tag();
+      assert currentTokenTag == Syntax.ConditionalTag.NEXT || currentTokenTag == Syntax.ConditionalTag.END;
+
+      // Assign line range.
+      int endLine = preprocessor.token().getLocation().line;
+      cb.startLine = startLine;
+      cb.endLine = endLine;
+
+      // Return.
+      return cb;
+    }
+
+    /**
+     * Read and return a conditional block group. The preprocessor must be
+     * at START conditional preprocessor token of the conditional block group
+     * to read. Once returned, the preprocessor will be at the END token of
+     * the conditional block group read.
+     * 
+     * @param preprocessor The preprocessor to iterate over.
+     * @param pathToFileOfInterest The path to the file of interest.
+     * @return A condition block group represented as a list of conditional
+     * blocks. null if the condition block group is invalid, i.e., due to macro
+     * expansion from a file different than pathToFileOfInterest.
+     */
+    private static List<ConditionalBlock> readConditionalBlockGroup(Preprocessor preprocessor, String pathToFileOfInterest) {
+      // Token/tag/file checks.
+      assert preprocessor != null && preprocessor.token() != null
+          && preprocessor.token().kind() == Kind.CONDITIONAL && preprocessor.token().toConditional() != null
+          && preprocessor.token().toConditional().tag() == Syntax.ConditionalTag.START;
+      assert isInterestingFile(preprocessor.token(), pathToFileOfInterest);
+
+      List<ConditionalBlock> cbGroup = new ArrayList<>();
+      ConditionalTag currentTag = preprocessor.token().toConditional().tag();
+      
+      while (currentTag != Syntax.ConditionalTag.END) { // read until the end of the block group
+        ConditionalBlock cb = readConditionalBlock(preprocessor, pathToFileOfInterest);
+        cbGroup.add(cb);
+        currentTag = preprocessor.token().toConditional().tag();
+        assert currentTag == Syntax.ConditionalTag.NEXT || currentTag == Syntax.ConditionalTag.END;
+      }
+      assert currentTag == Syntax.ConditionalTag.END;
+
+      // If the locations of the start and the end of the conditional block
+      // group are the same, it is because macro expansion from some other
+      // file was occurred, which is not a condition block group within the
+      // file of interest.
+      if (cbGroup.get(0).startLine == cbGroup.get(0).endLine ) {
+        return null;
+      }
+      return cbGroup;
+    }
+
+    /**
+     * Read and return conditional block groups from preprocessor. Once returned,
+     * the preprocessor will be at EOF token, or at END token of a conditional
+     * block if it could not be matched with any START token.
+     * @param preprocessor The preprocessor to iterate over.
+     * @param pathToFileOfInterest The path to the file of interest.
+     * @return A list of condition block groups each represented as a list
+     * of conditional blocks.
+     */
+    private static List<List<ConditionalBlock>> readConditionalBlockGroups(Preprocessor preprocessor, String pathToFileOfInterest) {  
+      List<List<ConditionalBlock>> cbGroups = new ArrayList<>();
+      preprocessor.next();
+
+      while (preprocessor.token().kind() != Kind.EOF) {
+        if (isInterestingFile(preprocessor.token(), pathToFileOfInterest) && preprocessor.token().kind() == Kind.CONDITIONAL) {
+          ConditionalTag currentTag = preprocessor.token().toConditional().tag();
+          if (currentTag == Syntax.ConditionalTag.NEXT || currentTag == Syntax.ConditionalTag.END) {
+            // Dangling NEXT or END: end of this context, return.
+            return cbGroups;
+          } else if (currentTag == Syntax.ConditionalTag.START) {
+            // Start a new conditional block group.
+            List<ConditionalBlock> cbGroup = readConditionalBlockGroup(preprocessor, pathToFileOfInterest);
+            if (cbGroup != null) { // null means the group was a conditional macro expansion from header -- not really a cb group in the sourcefile
+              cbGroups.add(cbGroup);
+            }
+            assert preprocessor.token().toConditional().tag() == Syntax.ConditionalTag.END;
+          } else {
+            // Shouldn't be possible.
+            assert false;
+          }
+        }
+        preprocessor.next();        
+      }
+      assert preprocessor.token().kind() == Kind.EOF;
+      return cbGroups;
+    }
+  }
+
   /** The user defined include paths */
   List<String> I;
   
@@ -215,6 +416,8 @@ public class SuperC extends Tool {
            "Preprocess but don't print.").
       bool("follow-set", "follow-set", false,
            "Compute the FOLLOW sets of each token in the preprocessed input.").
+      bool("make-main", "make-main", false,
+           "Create a main function to call main variants.").
 
       // // Desugarer component selection
       // bool("desugar", "desugarer", false,
@@ -356,7 +559,10 @@ public class SuperC extends Tool {
            "Show lookaheads on each parse loop (warning: very voluminous "
            + "output!)").
       bool("macroTable", "macroTable", false,
-           "Show the macro symbol table.")
+           "Show the macro symbol table.").
+      word("sourcelinePC", "sourcelinePC", false,
+            "Prints presence conditions as a list of conditional block groups "
+            + "to the specified file.")
       ;
   }
   
@@ -720,9 +926,53 @@ public class SuperC extends Tool {
     if (runtime.test("time")) {
       preprocessor = new StreamTimer<Syntax>(preprocessor, preprocessorTimer);
     }
-      
+
     // Run SuperC.
-    if (runtime.test("follow-set")) {
+    if (null != runtime.getString("sourcelinePC")) {
+      // TODO: currently, we get pc using preprocessor only, which misses some common patterns like if(IS_ENABLED(CONFIG_MACRO)).
+      String outputPath = runtime.getString("sourcelinePC");
+
+      //
+      // Get presence condition tree
+      //
+      List<List<ConditionalBlock>> cbGroups = ConditionalBlock.getConditionalBlockGroups((Preprocessor)preprocessor, file.getAbsolutePath());
+
+      //
+      // Wrap the presence condition tree with the dummy root
+      //
+      // Count the number of lines
+      Scanner sc = new Scanner(file);
+      int lineCount = 0;
+      while(sc.hasNextLine() ) {
+        lineCount++;
+        sc.nextLine();
+      } 
+      sc.close();
+      // Create the dummy root
+      ConditionalBlock root = new ConditionalBlock();
+      root.startLine = 0;
+      root.endLine = lineCount + 1;
+      root.subBlocks = cbGroups;
+      for(List<ConditionalBlock> cbGroup : cbGroups) {
+        for(ConditionalBlock cb : cbGroup) {
+          cb.parent = root;
+        }
+      }
+      root.pc = presenceConditionManager.newTrue();
+      root.parent = null;
+
+      //
+      // Write output
+      //
+      System.err.println("Writing the presence conditions to \"" + outputPath  + "\".");
+      try {
+        FileWriter fr = new FileWriter(outputPath);
+        fr.write(root.toString());
+        fr.close();
+      } catch(Exception e) {
+        System.err.println("Exception while writing file: " + e);
+      }
+    } else if (runtime.test("follow-set")) {
       // Compute the follow-set of each token of the preprocessed
       // input.
 
@@ -733,6 +983,7 @@ public class SuperC extends Tool {
         .collectStatistics(runtime.test("statisticsLanguage"));
       CActions actions = CActions.getInstance();
       actions.collectStatistics(runtime.test("statisticsLanguage"));
+      
       ForkMergeParser parser
         = new ForkMergeParser(CParseTables.getInstance(),
                               CValues.getInstance(), actions,
@@ -1106,6 +1357,10 @@ public class SuperC extends Tool {
       parser.showAccepts(runtime.test("showAccepts"));
       parser.showFM(runtime.test("showFM"));
       parser.showLookaheads(runtime.test("showLookaheads"));
+      if (runtime.test("newErrorHandling")) {
+        parser.setNewErrorHandling(true);
+        parser.setSaveErrorCond(true);
+      }
 
       if (runtime.hasValue("killswitch")
           && null != runtime.getString("killswitch")) {
@@ -1723,7 +1978,21 @@ public class SuperC extends Tool {
       throw new UnsupportedOperationException("unexpected type");
     } 
   }
-  
+
+  /**
+   * Write the JSONObject instance to a file.
+   */
+  private void writeJson(JSONObject jsonObj, String filePath) {
+    try {
+      FileWriter fr = new FileWriter(filePath);
+      jsonObj.writeJSONString(fr);
+      fr.close();
+    } catch(Exception e) {
+      // TODO: properly handle this
+      System.err.println("Exception while writing file: " + e);
+    }
+  }
+
   /**
    * Preprocess the given CPP CST.
    * 

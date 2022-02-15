@@ -45,7 +45,7 @@ import superc.core.TokenCreator;
 import superc.core.HeaderFileManager;
 import superc.core.MacroTable;
 import superc.core.ExpressionParser;
-import superc.core.ConditionEvaluator;
+import superc.core.ConditionEvaluatorZ3;
 import superc.core.StopWatch;
 import superc.core.StreamTimer;
 import superc.core.Preprocessor;
@@ -53,8 +53,8 @@ import superc.core.TokenFilter;
 import superc.core.ForkMergeParser;
 import superc.core.SemanticValues;
 
-import superc.core.PresenceConditionManager;
 import superc.core.PresenceConditionManager.PresenceCondition;
+import superc.core.PresenceConditionManagerZ3;
 
 import superc.core.Syntax;
 import superc.core.Syntax.Kind;
@@ -206,9 +206,15 @@ public class SugarC extends Tool {
            "Pass preprocessor error tokens to the parser.  Makes for more "
            + "specific presence conditions.").
 
+      // New error handling.
+      bool("newErrorHandling", "newErrorHandling", true,
+           "Use new error handling that puts errors in the AST.  True by default.").
+      
       // Desugaring features
       bool("linkerThunks", "linkerThunks", false,
            "Emit thunks for single-configuration linking (experimental).").
+      bool("make-main", "make-main", false,
+           "Create a main function to call main variants.").
       
       // Output and debugging
       bool("printAST", "printAST", false,
@@ -391,9 +397,9 @@ public class SugarC extends Tool {
   public Node parse(Reader in, File file) throws IOException, ParseException {
     HeaderFileManager fileManager;
     MacroTable macroTable;
-    PresenceConditionManager presenceConditionManager;
+    PresenceConditionManagerZ3 presenceConditionManager;
     ExpressionParser expressionParser;
-    ConditionEvaluator conditionEvaluator;
+    ConditionEvaluatorZ3 conditionEvaluator;
     Iterator<Syntax> preprocessor;
     Node result = null;
     StopWatch parserTimer = null, preprocessorTimer = null, lexerTimer = null;
@@ -401,12 +407,13 @@ public class SugarC extends Tool {
     // Initialize the preprocessor with built-ins and command-line
     // macros and includes.
     macroTable = new MacroTable(tokenCreator);
-    presenceConditionManager = new PresenceConditionManager();
+    presenceConditionManager = new PresenceConditionManagerZ3();
+    System.err.println(presenceConditionManager.ctx);
     presenceConditionManager.suppressConditions(runtime.test("suppressConditions"));
     expressionParser = ExpressionParser.fromRats();
-    conditionEvaluator = new ConditionEvaluator(expressionParser,
-                                                presenceConditionManager,
-                                                macroTable);
+    conditionEvaluator = new ConditionEvaluatorZ3(expressionParser,
+                                                 presenceConditionManager,
+                                                 macroTable);
     if (null != runtime.getString("restrictFreeToPrefix")) {
       macroTable.restrictPrefix(runtime.getString("restrictFreeToPrefix"));
       conditionEvaluator.restrictPrefix(runtime.getString("restrictFreeToPrefix"));
@@ -469,9 +476,9 @@ public class SugarC extends Tool {
       .showErrors(! runtime.test("hideErrors"));
     ((Preprocessor) preprocessor)
       .singleConfigurationSysheaders(runtime.test("singleConfigSysheaders"));
-
+    
     // Run SuperC.
-
+    
     // Run the SuperC preprocessor and parser.
     ForkMergeParser parser;
     Object translationUnit;
@@ -502,6 +509,10 @@ public class SugarC extends Tool {
     parser = new ForkMergeParser(CParseTables.getInstance(), semanticValues,
                                  actions, initialParsingContext,
                                  preprocessor, presenceConditionManager);
+    // TODO: avoid using static variable to make parser state
+    // available to CContext
+    CContext.parser = parser;
+    
     parser.saveLayoutTokens(true); // need these for desugaring
     parser.setLazyForking(true);
     parser.setSharedReductions(true);
@@ -512,6 +523,10 @@ public class SugarC extends Tool {
     parser.showAccepts(runtime.test("showAccepts"));
     parser.showFM(runtime.test("showFM"));
     parser.showLookaheads(runtime.test("showLookaheads"));
+    if (runtime.test("newErrorHandling")) {
+      parser.setNewErrorHandling(true);
+      parser.setSaveErrorCond(true);
+    }
 
     if (runtime.hasValue("killswitch")
         && null != runtime.getString("killswitch")) {
@@ -542,25 +557,31 @@ public class SugarC extends Tool {
       System.out.print("\n");
 
       // emit extern declarations for desugaring runtime.
+      if (runtime.test("newErrorHandling")) {
+        System.out.print("extern void __static_parse_error(char *msg);\n");
+      }
       System.out.print("extern void __static_type_error(char *msg);\n");
       System.out.print("extern void __static_renaming(char *renaming, char *original);\n");
       System.out.print("extern void __static_condition_renaming(char *expression, char *renaming);\n");
       System.out.print("\n");
 
       // emit the static initializer definition
-      System.out.print(actions.staticInitialization());
-            
+      System.out.print(actions.staticInitialization(runtime.test("newErrorHandling")));
+
       // write the user-defined types at the top of the scope.
       System.out.print(scope.getDeclarations(pcTrue));
-
+      
       // write the transformed C
-      Multiverse<String> extdeclmv = actions.getCompleteNodeSingleValue(root, pcTrue);
-      System.out.print(actions.concatMultiverseStrings(extdeclmv)); extdeclmv.destruct();
+      System.out.print(CContext.getOutput());
       System.out.print("\n");
 
       if (runtime.test("linkerThunks")) {
         // write the multiplexer functions for linking
         System.out.print(actions.linkerThunks(scope, pcTrue));
+      }
+
+      if (runtime.test("make-main")) {
+        System.out.print(actions.printMain(scope, pcTrue));
       }
     }
 

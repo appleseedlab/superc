@@ -20,6 +20,7 @@ import xtc.type.StructT;
 import xtc.type.VariableT;
 import xtc.type.InternalT;
 import xtc.type.ErrorT;
+import superc.cdesugarer.CActions.LineNumbers;
 
 import xtc.Constants;
 
@@ -48,6 +49,7 @@ class TypeSpecifier {
   /** Any other attributes. */
   private List<Attribute> attributes;
 
+
   // The internal state for tracking type specifiers.
   private boolean seenSigned;
   private boolean seenUnsigned;
@@ -73,16 +75,16 @@ class TypeSpecifier {
     this.threadlocal = ts.threadlocal;
     this.function = ts.function;
     if (null != ts.attributes) this.attributes = new ArrayList<Attribute>(ts.attributes);
-    this.seenSigned = seenSigned;
-    this.seenUnsigned = seenUnsigned;
-    this.seenBool = seenBool;
-    this.seenChar = seenChar;
-    this.seenShort = seenShort;
-    this.seenInt = seenInt;
-    this.longCount = longCount;
-    this.seenFloat = seenFloat;
-    this.seenDouble = seenDouble;
-    this.seenComplex = seenComplex;
+    this.seenSigned = ts.seenSigned;
+    this.seenUnsigned = ts.seenUnsigned;
+    this.seenBool = ts.seenBool;
+    this.seenChar = ts.seenChar;
+    this.seenShort = ts.seenShort;
+    this.seenInt = ts.seenInt;
+    this.longCount = ts.longCount;
+    this.seenFloat = ts.seenFloat;
+    this.seenDouble = ts.seenDouble;
+    this.seenComplex = ts.seenComplex;
   }
 
   /**
@@ -171,7 +173,7 @@ class TypeSpecifier {
    */
   public String toString() {
     if (getType().isError()) {
-      throw new IllegalStateException("error type specifiers have no desugaring transformation.");
+	return "error";
     } else {
       StringBuilder sb = new StringBuilder();
       for (Syntax token : transformation) {
@@ -179,7 +181,7 @@ class TypeSpecifier {
         sb.append(" ");
       }
       return sb.toString();
-    }
+      }
   }
 
   public void addTransformation(Syntax token) {
@@ -484,16 +486,16 @@ class TypeSpecifier {
   }
 
   /** Process the typeof specifier. */
-  public void visitTypeofSpecifier(Type type) {
+  public void visitTypeofSpecifier(Type t) {
     if (hasType()) {
       multipleTypes();
     } else {
       // Strip any annotations from the type, but do keep the
       // qualifiers.
-      if (type.hasEnum()) {
-        type = DesugarOps.cOps.qualify(type.toEnum(), type);
+      if (t.hasEnum()) {
+        type = DesugarOps.cOps.qualify(t.toEnum(), t);
       } else {
-        type = DesugarOps.cOps.qualify(type.resolve(), type);
+        type = DesugarOps.cOps.qualify(t.resolve(), t);
       }
     }
   }
@@ -603,6 +605,8 @@ class TypeSpecifier {
         seenDouble ||
         (null != type)) {
       multipleTypes();
+    } else if (seenSigned || seenUnsigned ){
+      errorMsg("can't have signed/unsigned floating point value.");
     } else {
       seenFloat = true;
     }
@@ -614,6 +618,8 @@ class TypeSpecifier {
         seenFloat ||
         (null != type)) {
       multipleTypes();
+    } else if (seenSigned || seenUnsigned ){
+      errorMsg("can't have signed/unsigned floating point value.");
     } else {
       seenDouble = true;
     }
@@ -684,9 +690,12 @@ class TypeSpecifier {
   protected void errorMsg(String msg) {
     // TODO: tie into error reporting
     System.err.println(msg);
+    setError();
   }
 
   public void setError() {
     this.type = ErrorT.TYPE;
+    this.transformation = new LinkedList<Syntax>();
+    
   }
 }

@@ -30,7 +30,7 @@ def main():
                 for dirFiles in os.listdir(curDir):
                     if os.path.exists(curDir + '/' + dirFiles) and os.path.isdir(curDir + '/' + dirFiles):
                         inclusionDirList.append(curDir + "/" + dirFiles)
-                    elif (dirFiles.endswith('.c') and not dirFiles.endswith('desugared.c')):
+                    elif (dirFiles.endswith('.c') and not dirFiles.endswith('desugared.c') and not dirFiles.endswith('expected.c')):
                         sumTOut = os.path.relpath(curDir + "/" + dirFiles, os.getcwd())
                         #check if file can be ran with gcc (no configs)
                         print ("gcc -c " + sumTOut)

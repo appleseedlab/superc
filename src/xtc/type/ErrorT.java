@@ -79,4 +79,7 @@ public class ErrorT extends Type {
     return "<error>";
   }
 
+  public String printType() {
+    return "<error>";
+  }
 }

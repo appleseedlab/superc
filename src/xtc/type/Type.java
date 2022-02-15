@@ -666,6 +666,19 @@ public abstract class Type extends Node {
     return this;
   }
 
+  /**
+   * Remove this type's constant value
+   *
+   * @return This type.
+   * @throws IllegalArgumentException Signals an invalid value.
+   * @throws IllegalStateException Signals that this type is sealed.
+   */
+  public Type removeConstant() {
+    checkNotSealed();
+    this.constant = null;
+    return this;
+  }
+  
   // =========================================================================
 
   /**
@@ -1940,4 +1953,11 @@ public abstract class Type extends Node {
     return Collections.unmodifiableList(types);
   }
 
+  /**
+   * prints the type as it would be written
+   * this is only meant to replicate a given type
+   * not to be used as a replacement
+   */
+  public abstract String printType();
+  
 }

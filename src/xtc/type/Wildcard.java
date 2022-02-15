@@ -89,4 +89,8 @@ public class Wildcard extends Parameter {
     return t.isWildcard();
   }
 
+  public String printType() {
+    return "";
+  }
+  
 }

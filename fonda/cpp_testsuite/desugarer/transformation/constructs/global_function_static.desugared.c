@@ -1,75 +1,77 @@
 #include <stdbool.h>
 
+extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
 extern void __static_renaming(char *renaming, char *original);
 extern void __static_condition_renaming(char *expression, char *renaming);
 
-void __static_initializer_6();
+void __static_initializer_default();
 
-extern const bool __static_condition_3;
-extern const bool __static_condition_1;
-extern const bool __static_condition_5;
-void __static_initializer_6() {
+extern const bool __static_condition_default_3;
+extern const bool __static_condition_default_2;
+extern const bool __static_condition_default_5;
+void __static_initializer_default() {
 __static_renaming("__x_0", "x");
-__static_renaming("__x_2", "x");
+__static_renaming("__x_1", "x");
 __static_renaming("__main_4", "main");
 
-__static_condition_renaming("__static_condition_1", "(declare-fun |(defined A)| () Bool)(assert |(defined A)|)");
-__static_condition_renaming("__static_condition_3", "(declare-fun |(defined A)| () Bool)(assert (not |(defined A)|))");
-__static_condition_renaming("__static_condition_5", "(declare-fun |(defined A)| () Bool)(assert (not |(defined A)|))");
+__static_condition_renaming("__static_condition_default_2", "(defined A)");
+__static_condition_renaming("__static_condition_default_3", "!(defined A)");
+__static_condition_renaming("__static_condition_default_5", "!(defined A)");
 
 };
-static int  __x_0 ();
-static char  __x_2 ();
-int  __main_4 ();
 
-static int  __x_0 () {
+static int  (__x_0) () {
 
 {
-if (__static_condition_1) {
-{
-
-if (__static_condition_1) {
-return 1 ;
-
-}
-}
-
-}
-
-}
-}
-static char  __x_2 () {
+if (__static_condition_default_2) {
 
 {
-if (__static_condition_3) {
 {
 
-if (__static_condition_3) {
-return 2 ;
 
+
+return 1 ;// L3
 }
 }
 
-}
-
-}
-}
-int  __main_4 () {
-{
-
-{
-if (__static_condition_1) {
- __x_0  ( ) ;
-
-}
-
-if (__static_condition_5) {
- __x_2  ( ) ;
 
 }
 
 }}
+static char  (__x_1) () {
+
+{
+if (__static_condition_default_3) {
+
+{
+{
+
+
+
+return 2 ;// L7
+}
+}
+
+
+}
+
+}}
+int  (__main_4) () {
+
+{
+{
+
+
+
+if (__static_condition_default_2) {
+ __x_0 ( ) ; // L12
+}
+if (__static_condition_default_5) {
+ __x_1 ( ) ; // L12
+}
+}
+}
 
 
 }

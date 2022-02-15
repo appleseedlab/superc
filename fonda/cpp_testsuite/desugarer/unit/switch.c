@@ -1,5 +1,4 @@
-#include <stdio.h>
-
+void printf(const char[], ...);
 enum {
       SPI_FREQUENCY_20MHZ,
       SPI_FREQUENCY_33MHZ,

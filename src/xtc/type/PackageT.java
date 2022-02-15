@@ -94,5 +94,8 @@ public class PackageT extends Type {
     out.append(name);
     out.append(')');
   }
-
+  
+  public String printType() {
+    return name;
+  }
 }

@@ -113,4 +113,39 @@ public class PointerT extends DerivedT {
     out.append(')');
   }
 
+   
+    public boolean innerMostIsFunction() {
+	if (type.resolve().isPointer()) {
+	    return ((PointerT)type.resolve()).innerMostIsFunction();
+	} else if (type.resolve().isArray()) {
+	    return ((ArrayT)type.resolve()).innerMostIsFunction();
+
+	}
+	return type.resolve().isFunction();
+    }
+
+    public String printType(String extra) {
+      if (!innerMostIsFunction()) {
+	  return type.printType()+"*"+extra;
+      } else if (type.resolve().isPointer()) {
+	  return ((PointerT)type.resolve()).printType("*"+extra); 
+      } else if (type.resolve().isArray()) {
+	  return ((ArrayT)type.resolve()).printType("*"+extra); 
+      } else {
+	  return ((FunctionT)type.resolve()).printType("*"+extra);
+      }
+    }
+    
+  public String printType() {
+      if (!innerMostIsFunction()) {
+	  return type.printType()+"*";
+      } else if (type.resolve().isPointer()) {
+	  return ((PointerT)type.resolve()).printType("*"); 
+      } else if (type.resolve().isArray()) {
+	  return ((ArrayT)type.resolve()).printType("*"); 
+      } else {
+	  return ((FunctionT)type.resolve()).printType("*");
+      }
+  }
+
 }

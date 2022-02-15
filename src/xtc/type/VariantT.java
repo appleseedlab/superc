@@ -274,4 +274,7 @@ public class VariantT extends DerivedT {
     }
   }
 
+  public String printType() {
+    return qname;
+  }
 }

@@ -3,14 +3,24 @@ package superc.cdesugarer;
 import java.util.List;
 import java.util.LinkedList;
 
+import xtc.Constants;
 import xtc.type.Type;
 import xtc.type.NumberT;
+import xtc.type.ErrorT;
 import xtc.type.IntegerT;
 import xtc.type.FloatT;
 import xtc.type.VoidT;
 import xtc.type.PointerT;
 import xtc.type.ArrayT;
 import xtc.type.FunctionT;
+import superc.core.PresenceConditionManager;
+import superc.core.PresenceConditionManager.PresenceCondition;
+import superc.cdesugarer.Multiverse;
+import superc.cdesugarer.Multiverse.Element;
+import superc.cdesugarer.SymbolTable.Entry;
+import java.util.Map;
+
+
 
 /**
  * The superclass of all declaration initializers.
@@ -42,6 +52,11 @@ abstract class Initializer {
   /** True if an list initializer */
   boolean isList() { return false; }
 
+  /** Returns the possible strings given the type */
+    public Multiverse<String> renamedList(Multiverse<Type> t, PresenceCondition p, CContext scope) {return new Multiverse<String>("",p);}
+    
+    public abstract PresenceCondition getErrorsIn(Multiverse<Type> t, PresenceCondition p);
+    
   // /**
   //  * Return the type of this initializer for use in checking against
   //  * the declaration.
@@ -49,7 +64,12 @@ abstract class Initializer {
   // abstract public Type getType();
 
   abstract public boolean hasValidType();
-
+  public boolean hasList() { return false; }
+  public boolean hasNonConst() {return false; }
+  public List<Initializer> getList() { return null; }
+  public boolean hasChild() { return false; }
+  public Initializer getChild() { return null; }
+  
   public String toString() {
     throw new AssertionError("Initializer subclass has not implemented toString yet");
   }
@@ -68,6 +88,9 @@ abstract class Initializer {
     public String toString() {
       return "";
     }
+      public PresenceCondition getErrorsIn(Multiverse<Type> t, PresenceCondition p) {
+	  return p;
+      }
   }
 
   /**
@@ -92,6 +115,22 @@ abstract class Initializer {
     public String toString() {
       return String.format("= %s", initializer.toString());
     }
+
+    public boolean hasList() { return initializer.hasList(); }
+    public boolean hasNonConst() { return initializer.hasNonConst(); }
+    public List<Initializer> getList() { return initializer.getList(); }
+    public boolean hasChild() { return true; }
+    public Initializer getChild() { return initializer; }
+    public Multiverse<String> renamedList(Multiverse<Type> t, PresenceCondition p, CContext scope) {
+      Multiverse<String> m = new Multiverse<String>("= ", p);
+      Multiverse<String> lists = initializer.renamedList(t,p,scope);
+      Multiverse<String> ret = m.product(lists,DesugarOps.propEmptyString);
+      m.destruct(); lists.destruct();
+      return ret;
+    }
+      public PresenceCondition getErrorsIn(Multiverse<Type> t, PresenceCondition p) {
+	  return initializer.getErrorsIn(t,p);
+      }
   }
 
   /**
@@ -113,6 +152,9 @@ abstract class Initializer {
     }
     
     boolean isExpression() { return true; }
+    public boolean hasNonConst() { boolean x =  !type.hasAttribute(Constants.ATT_CONSTANT) && !type.hasConstant();
+      System.err.println(Boolean.toString(x));
+      return x;}
 
     public boolean hasValidType() {
       return ! type.isError();
@@ -121,6 +163,19 @@ abstract class Initializer {
     public String toString() {
       return expression;
     }
+
+    public Multiverse<String> renamedList(Multiverse<Type> t, PresenceCondition p, CContext scope) {
+      return new Multiverse<String>(expression,p);
+    }
+      public PresenceCondition getErrorsIn(Multiverse<Type> t, PresenceCondition p) {
+	  PresenceCondition issues = (new PresenceConditionManager()).newFalse();
+	  for (Element<Type> e : t) {
+	      if (!CActions.compatTypes(e.getData(),type)) {
+		  issues = issues.or(e.getCondition());
+	      }
+	  }
+	  return issues;
+      }
   }
 
   /**
@@ -161,6 +216,71 @@ abstract class Initializer {
       }
       return String.format("{ %s }", sb.toString());
     }
+
+    public boolean hasList() { return true; }
+
+    public boolean hasNonConst() {
+      for (Initializer i : list) {
+        if (i.hasNonConst()) {
+          return true;
+        }
+      }
+      return false;
+    }
+    
+    public List<Initializer> getList() { return list; }
+    
+    public Multiverse<String> renamedList(Multiverse<Type> t, PresenceCondition p, CContext scope)
+    {
+      Multiverse<String> ret = new Multiverse<String>("{",p);
+      boolean notFirst = false;
+      for (Initializer i : list) {
+        if (notFirst) {
+          Multiverse<String> m = new Multiverse<String>(", ", p);
+          Multiverse<String> mt = ret;
+          ret = ret.product(m,DesugarOps.propEmptyString);
+          m.destruct(); mt.destruct();
+        }
+        if ( i.isDesignated()) {
+          Multiverse<String> temp = i.renamedList(t,p,scope);
+          Multiverse<String> st = ret.product(temp,DesugarOps.propEmptyString);
+          ret.destruct(); ret = st; 
+          temp.destruct();
+          
+        } else {
+          Multiverse<String> temp = i.renamedList(t,p,scope);
+          Multiverse<String> st = ret.product(temp,DesugarOps.propEmptyString);
+          ret.destruct(); temp.destruct(); ret = st; 
+        }
+        notFirst = true;
+      }
+      if (!ret.isEmpty()) {
+        Multiverse<String> temp = new Multiverse<String>("}",p);
+        Multiverse<String> st = ret.product(temp,DesugarOps.propEmptyString);
+        ret.destruct();temp.destruct();ret=st;
+        return ret;
+      } else {
+        return new Multiverse<String>("",p);
+      }
+    }
+
+      public PresenceCondition getErrorsIn(Multiverse<Type> t, PresenceCondition p) {
+	  PresenceCondition issues = (new PresenceConditionManager()).newFalse();
+	  for (Element<Type> et : t) {
+	      Type st = et.getData();
+	      if (st.isStruct() || st.isUnion() || st.isArray()) {
+		  if (st.isArray()) {
+		      st = ((ArrayT)st).getType();
+		  }
+		  for (Initializer i : list) {
+		      issues = issues.or(i.getErrorsIn(new Multiverse<Type>(st,et.getCondition()),et.getCondition()));
+		  }
+	      } else {
+		  issues = issues.or(et.getCondition());
+	      }
+	  }
+	  return issues;
+      }
   }
 
   /**
@@ -191,6 +311,37 @@ abstract class Initializer {
     public String toString() {
       return String.format("%s %s", designation.toString(), initializer.toString());
     }
+
+    public Designation getDesignation() {
+      return designation;
+    }
+
+    public String getInitString() {
+      return initializer.toString();
+    }
+    
+    public boolean hasChild() { return true; }
+    public Initializer getChild() { return initializer; }
+
+    public boolean hasNonConst() { return initializer.hasNonConst(); }
+
+    public Multiverse<String> renamedList(Multiverse<Type> t, PresenceCondition p, CContext scope) {
+      Multiverse<String> l,r,ret;
+      Multiverse<Type> lTypes = new Multiverse<Type>();
+      l = designation.renamedList(t,p,scope,lTypes);
+      r = initializer.renamedList(lTypes,p,scope);
+      if (l.isEmpty() || r.isEmpty()) {
+        return new Multiverse<String>("",p);
+      }
+      ret = l.product(r,DesugarOps.propEmptyString);
+      l.destruct();r.destruct();
+      return ret;
+    }
+
+      public PresenceCondition getErrorsIn(Multiverse<Type> t, PresenceCondition p) {
+	  return (new PresenceConditionManager()).newFalse();
+      }
+      
   }
 
   /**
@@ -210,6 +361,37 @@ abstract class Initializer {
         sb.append(designator.toString());
       }
       return String.format("%s =", sb.toString());
+    }
+
+    public int getListSize() {
+      return list.size();
+    }
+
+    public Designator getDesignator() {
+      return list.get(0);
+    }
+    public Designator getDesignator(int i) {
+      return list.get(i);
+    }
+
+    public Multiverse<String> renamedList(Multiverse<Type> t, PresenceCondition p, CContext scope, Multiverse<Type> retTypes) {
+      Multiverse<Type> curT;
+      Multiverse<String> ret = list.get(0).renamedList(t,p,scope);
+      curT = list.get(0).updateTypes(t,p,scope);
+      for (int i = 1; i < list.size(); ++i) {
+        Multiverse<String> next = list.get(i).renamedList(curT,p,scope);
+        Multiverse<String> combo = ret.product(next,DesugarOps.propEmptyString);
+        ret.destruct();next.destruct();ret = combo;
+        Multiverse<Type> nextT = list.get(i).updateTypes(curT,p,scope);
+        curT.destruct(); curT = nextT;
+      }
+      Multiverse<String> eq = new Multiverse<String>("=",p);
+      Multiverse<String> res = ret.product(eq,DesugarOps.propEmptyString);
+      ret.destruct(); eq.destruct(); ret = res;
+      for (Element<Type> e : curT) {
+        retTypes.add(e);
+      }
+      return ret;
     }
   }
 
@@ -248,6 +430,8 @@ abstract class Initializer {
 
     /** True if a struct or union designator. */
     public boolean isStructUnion() { return false; }
+    public abstract Multiverse<String> renamedList(Multiverse<Type> t, PresenceCondition p, CContext scope);
+    public abstract Multiverse<Type> updateTypes(Multiverse<Type> t, PresenceCondition p, CContext scope);
   }
 
   /**
@@ -271,6 +455,36 @@ abstract class Initializer {
     public String toString() {
       return String.format("[%s]", expression);
     }
+    
+    public String getExpression() {
+      return expression;
+    }
+
+    public Multiverse<String> renamedList(Multiverse<Type> t, PresenceCondition p, CContext scope) {
+      Multiverse<String> ret = new Multiverse<String>();
+      for (Element<Type> et : t) {
+        if (et.getData().resolve().isArray()) {
+          ret.add("[" + expression + "]",et.getCondition());
+        } else {
+          ret.add("",et.getCondition());
+        }
+      }
+      return ret;
+    }
+    
+    public Multiverse<Type> updateTypes(Multiverse<Type> t, PresenceCondition p, CContext scope) {
+      System.err.println("StartA:" +t);
+      Multiverse<Type> ret = new Multiverse<Type>();
+      for (Element<Type> et : t) {
+        if (et.getData().resolve().isArray()) {
+          ret.add(((ArrayT)et.getData()).getType(),et.getCondition());
+        } else {
+          ret.add(ErrorT.TYPE,et.getCondition());
+        }
+      }
+      System.err.println("EndA:" +ret);
+      return ret;
+    }
   }
 
   /**
@@ -290,5 +504,52 @@ abstract class Initializer {
     public String toString() {
       return String.format(".%s", ident);
     }
+
+    public String getName() {
+      return ident;
+    }
+
+    public Multiverse<String> renamedList(Multiverse<Type> t, PresenceCondition p, CContext scope) {
+      Multiverse<String> ret = new Multiverse<String>();
+      for (Element<Type> et : t) {
+        SymbolTable<Declaration> tagtab = scope.getLookasideTableAnyScope(et.getData().getName());
+        Multiverse<List<Map.Entry<String,Declaration>>> m = tagtab.getLists(p);
+        for (Element<List<Map.Entry<String,Declaration>>> em : m) {
+          String toAdd = "";
+          System.err.println(em.getData());
+          for (Map.Entry<String,Declaration> me : em.getData()) {
+            if (me.getKey().equals(ident)) {
+              toAdd = "." + me.getValue().getName();
+              break;
+            }
+          }
+          System.err.println(ident + ":" + toAdd);
+          ret.add(toAdd,et.getCondition().and(em.getCondition()));
+        }
+      }
+      return ret;
+    }
+
+    public Multiverse<Type> updateTypes(Multiverse<Type> t, PresenceCondition p, CContext scope) {
+      System.err.println("StartS:" +t);
+      Multiverse<Type> ret = new Multiverse<Type>();
+      for (Element<Type> et : t) {
+        SymbolTable<Declaration> tagtab = scope.getLookasideTableAnyScope(et.getData().getName());
+        Multiverse<List<Map.Entry<String,Declaration>>> m = tagtab.getLists(p);
+        for (Element<List<Map.Entry<String,Declaration>>> em : m) {
+          Type toAdd = ErrorT.TYPE;
+          for (Map.Entry<String,Declaration> me : em.getData()) {
+            if (me.getKey().equals(ident)) {
+              toAdd = me.getValue().getType().resolve();
+              break;
+            }
+          }
+          ret.add(toAdd,et.getCondition().and(em.getCondition()));
+        }
+      }
+      System.err.println("EndS:" +ret);
+      return ret;
+    }
+  
   }
 }

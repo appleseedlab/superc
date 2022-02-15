@@ -70,4 +70,8 @@ public class AnnotatedT extends WrappedT {
     out.append(')');
   }
 
+  public String printType() {
+    return getType().printType();
+  }
+
 }

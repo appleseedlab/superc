@@ -92,4 +92,9 @@ public abstract class Parameter extends Type {
     return binding;
   }
 
+  public String printType() {
+    return binding.printType();
+  }
+
+
 }

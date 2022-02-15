@@ -83,4 +83,8 @@ public class VoidT extends Type {
     return "void";
   }
 
+  public String printType() {
+    return "void";
+  }
+  
 }

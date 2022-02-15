@@ -88,4 +88,8 @@ public class NamedParameter extends Parameter {
     return name;
   }
 
+  public String printType() {
+    return super.printType() + " " + name;
+  }
+
 }

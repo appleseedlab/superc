@@ -89,5 +89,7 @@ public class UnionT extends StructOrUnionT {
     out.append("union ");
     out.append(name);
   }
-
+  public String printType() {
+    return "union " + name;
+  }
 }

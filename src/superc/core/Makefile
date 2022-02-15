@@ -50,6 +50,7 @@ PACKAGE_LOC = superc/core
 SOURCE = \
 	Syntax.java \
 	PresenceConditionManager.java \
+	PresenceConditionManagerZ3.java \
 	Lexer.java \
 	LexerCreator.java \
 	TokenCreator.java \
@@ -65,6 +66,7 @@ SOURCE = \
 	Clauses.java \
 	TokenFilter.java \
 	ConditionEvaluator.java \
+	ConditionEvaluatorZ3.java \
 	HeaderFileManager.java \
 	DirectiveParser.java \
 	MacroTable.java \
