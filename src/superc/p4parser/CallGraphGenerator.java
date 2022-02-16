@@ -1769,18 +1769,19 @@ public class CallGraphGenerator {
             } else { // first element pointing to name is an expression, extract from that
                 // AbstractObjectOfLanguage expressionCallee = getCalleeFromExpression(nGetGeneric0, this);
                 AbstractObjectOfLanguage expressionCallee = getCalleeFromExpression(nGetGeneric0, this);
- 
                 if(expressionCallee.hasAssociatedType() && expressionCallee.getType().getConstructType() == LObjectKind.TYPEPARAMETER
                    || n.size() > 4) {
                     assert n.size() > 4;
                 }
+
+                addAsCallee(expressionCallee);
 
                 if(n.size() == 4) {
                     dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2)))); // argumentList
                 } else {
                     assert n.hasProperty("realTypeArguments");
                     ArrayList<AbstractObjectOfLanguage> realTypeArguments = (ArrayList<AbstractObjectOfLanguage>) n.getProperty("realTypeArguments");
-
+        
                     // AbstractObjectOfLanguage typearguments = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(2)));
                     // System.out.println("type arguments: " + typearguments.getName());
                     dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(5)))); // argumentList
@@ -1795,7 +1796,7 @@ public class CallGraphGenerator {
                         // System.err.println("It's final return value is of type: " + expressionCallee.getName());
                     }
                 }
-                addAsCallee(expressionCallee);
+                // System.out.println("expression callee: " + expressionCallee.getName() + " to be added as calle under: " + scope.peek().getName());
             }
 
             return n;
