@@ -1206,6 +1206,7 @@ expression: /** complete, list **/
     | expression AND expression         {}
     | expression OR expression         {}
     | expression QUESTION expression COLON expression {}
+    | L_PAREN typeRef R_PAREN expression %prec PREFIX {}
     | invokingExpression {}
     ;
 invokingExpression: /** complete, list **/
@@ -1215,7 +1216,6 @@ invokingExpression: /** complete, list **/
         {}
     | namedType L_PAREN argumentList R_PAREN
         {}
-    | L_PAREN typeRef R_PAREN expression %prec PREFIX {}
     ;
 
 nonBraceExpression: /** complete, list **/
@@ -1262,6 +1262,7 @@ nonBraceExpression: /** complete, list **/
     | nonBraceExpression AND expression         {}
     | nonBraceExpression OR expression         {}
     | nonBraceExpression QUESTION expression COLON expression {}
+    | L_PAREN typeRef R_PAREN expression %prec PREFIX {}
     | invokingNonBraceExpression {}
     ;
 invokingNonBraceExpression: /** complete, list **/
@@ -1271,7 +1272,6 @@ invokingNonBraceExpression: /** complete, list **/
         {}
     | namedType L_PAREN argumentList R_PAREN
         {}
-    | L_PAREN typeRef R_PAREN expression %prec PREFIX {}
     ;
 
 intOrStr:

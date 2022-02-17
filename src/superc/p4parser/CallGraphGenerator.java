@@ -1973,7 +1973,11 @@ public class CallGraphGenerator {
                         nextVal = getValueUnderConditional((GNode) itr.next());
                     }
                     assert nextVal.toString() == "]";
-                } else {
+                } else if(next.toString() == "(") {
+                    // casting -> production: L_PAREN typeRef R_PAREN expression %prec PREFIX
+                    // return the value under the last expression value
+                    return getCalleeFromExpression(getGNodeUnderConditional(n.getGeneric(3)), visitor);
+                }  else {
                     assert false : "Encountered an invalid expression when expecting something to be invoked (" + next.toString() + ")";
                 }
                 continue;
@@ -1995,6 +1999,10 @@ public class CallGraphGenerator {
                         nextVal = getValueUnderConditional((GNode) itr.next());
                     }
                     assert nextVal.toString() == "]";
+                } else if(underConditional.toString() == "(") {
+                    // casting -> production: L_PAREN typeRef R_PAREN expression %prec PREFIX
+                    // return the value under the last expression value
+                    return getCalleeFromExpression(getGNodeUnderConditional(n.getGeneric(3)), visitor);
                 } else {
                     assert false : "Encountered an invalid expression when expecting something to be invoked (" + underConditional.toString() + ")";
                 }
