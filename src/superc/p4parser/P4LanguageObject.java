@@ -65,6 +65,8 @@ class P4LanguageObject {
         private ArrayList<Parameter> optConstructorParameters = null;
         // private ArrayList<Annotation> optAnnotations = null;
         private ArrayList<TypeParameter> optTypeParameters = null;
+        // parsed type parameters
+        private ArrayList<AbstractObjectOfLanguage> parsedOptTypeParameters = null;
         // abstract method to return respective enum
         abstract LObjectKind getConstructType();
 
@@ -141,11 +143,35 @@ class P4LanguageObject {
         }
 
         boolean hasOptTypeParameters() {
+            if(this.optTypeParameters == null) {
+                return false;
+            }
+
             return !this.optTypeParameters.isEmpty();
         }
 
         ArrayList<TypeParameter> getOptTypeParameters() {
             return this.optTypeParameters;
+        }
+
+        void addParsedOptTypeParameters(AbstractObjectOfLanguage typeParameter) {
+            if(this.parsedOptTypeParameters == null) {
+                this.parsedOptTypeParameters = new ArrayList<>();
+            }
+
+            this.parsedOptTypeParameters.add(typeParameter);
+        }
+
+        boolean hasParsedOptTypeParameters() {
+            if(this.parsedOptTypeParameters == null) {
+                return false;
+            }
+
+            return !this.parsedOptTypeParameters.isEmpty();
+        }
+
+        ArrayList<AbstractObjectOfLanguage> getParsedOptTypeParameters() {
+            return this.parsedOptTypeParameters;
         }
 
         public AbstractObjectOfLanguage getNameSpace() {
@@ -798,7 +824,9 @@ class P4LanguageObject {
 
     class FunctionPrototype extends AbstractObjectOfLanguage {
         private final ArrayList<Parameter> parameterList;
-        private final AbstractObjectOfLanguage typeOrVoid;
+        // not final for generic return types that have to be of this name space, so they will be added later when this
+        // object is created and used as that generic type's scope.
+        private AbstractObjectOfLanguage typeOrVoid;
 
         @Override
         public LObjectKind getConstructType() {
@@ -818,6 +846,12 @@ class P4LanguageObject {
         @Override
         AbstractObjectOfLanguage getType() {
             return this.typeOrVoid;
+        }
+
+        public void setType(AbstractObjectOfLanguage typeOrVoid) {
+            assert this.typeOrVoid == null;
+
+            this.typeOrVoid = typeOrVoid;
         }
 
         @Override
@@ -844,6 +878,12 @@ class P4LanguageObject {
             super(name, nameSpace);
             this.parameterList = new ArrayList<>();
             this.typeOrVoid = typeOrVoid;
+        }
+
+        public FunctionPrototype(String name, AbstractObjectOfLanguage nameSpace){
+            super(name, nameSpace);
+            this.parameterList = new ArrayList<>();
+            this.typeOrVoid = null;
         }
     }
 
@@ -1245,12 +1285,13 @@ class P4LanguageObject {
 
         public TupleType(AbstractObjectOfLanguage nameSpace) {
             super(nameSpace);
-            typeArgumentsList = new ArrayList<>();;
+            typeArgumentsList = new ArrayList<>();
         }
     }
 
     class SpecializedType extends AbstractObjectOfLanguage {
         private final ArrayList<AbstractObjectOfLanguage> typeArgumentsList;
+
         private final AbstractObjectOfLanguage type;
         @Override
         public LObjectKind getConstructType() {
@@ -1277,6 +1318,21 @@ class P4LanguageObject {
             return this.type;
         }
 
+        @Override
+        void addParsedOptTypeParameters(AbstractObjectOfLanguage typeParameter) {
+            this.type.addParsedOptTypeParameters(typeParameter);
+        }
+
+        @Override 
+        boolean hasParsedOptTypeParameters() {
+            return this.type.hasParsedOptTypeParameters();
+        }
+
+        @Override
+        ArrayList<AbstractObjectOfLanguage> getParsedOptTypeParameters() {
+            return this.type.getParsedOptTypeParameters();
+        }
+
         public void addToTypeArgumentList(AbstractObjectOfLanguage typeArg) {
             typeArgumentsList.add(typeArg);
         }
@@ -1292,7 +1348,7 @@ class P4LanguageObject {
         public SpecializedType(String name, AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage type) {
             super(name, nameSpace);
             this.type = type;
-            typeArgumentsList = new ArrayList<>();;
+            typeArgumentsList = new ArrayList<>();
         }
     }
 

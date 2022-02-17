@@ -1221,7 +1221,7 @@ public class SuperP4 extends Tool {
         CallGraphGenerator graph = new CallGraphGenerator();
         graph.buildSymbolTable((Node) translationUnit);
         graph.buildCallGraph((Node) translationUnit);
-        graph.printCallGraph();
+        // graph.printCallGraph();
         graph.createCallGraphVisual(file.getName() + ".callGraph");
       }
       if(runtime.test("preprocessorUsageMatrix")) {
