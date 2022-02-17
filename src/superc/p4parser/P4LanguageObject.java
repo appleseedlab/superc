@@ -807,6 +807,7 @@ class P4LanguageObject {
 
     // combines function prototype
     class ExternFunctionDeclaration extends AbstractObjectOfLanguage {
+        private FunctionPrototype functionPrototype;
         @Override
         public LObjectKind getConstructType() {
             return LObjectKind.EXTERNFUNCTIONDECLARATION;
@@ -817,8 +818,25 @@ class P4LanguageObject {
             return true;
         }
 
+        public void setFunctionPrototype(FunctionPrototype functionPrototype) {
+            assert this.functionPrototype == null;
+
+            this.functionPrototype = functionPrototype;
+        }
+
+        @Override
+        public boolean hasAssociatedType() {
+            return this.functionPrototype.hasAssociatedType();
+        }
+
+        @Override
+        AbstractObjectOfLanguage getType() {
+            return this.functionPrototype.getType();
+        }
+
         public ExternFunctionDeclaration(String name, AbstractObjectOfLanguage nameSpace){
             super(name, nameSpace);
+            this.functionPrototype = null;
         }
     }
 

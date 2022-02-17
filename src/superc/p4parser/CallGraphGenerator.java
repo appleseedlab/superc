@@ -922,7 +922,7 @@ public class CallGraphGenerator {
                     case "nonTypeName":
                         // nonTypeName
                         // System.out.println("trying to lookup " + childNode.toString() + " under scope: " + localScope.getName());
-                        AbstractObjectOfLanguage lookup = getAssociatedGenericValueIfGeneric(nonTypeNameSymtabLookUp(localScope, getStringUnderNonTypeName(getGNodeUnderConditional(childNode)), false));
+                        AbstractObjectOfLanguage lookup = getAssociatedGenericValueIfGeneric(nonTypeNameSymtabLookUp(localScope, getStringUnderNonTypeName(getGNodeUnderConditional(childNode)), false), childNode);
                         // System.out.println("found nonTypeName: " + lookup.getName());
                         finalValue = lookup;
                         localScope = lookup;
@@ -937,12 +937,12 @@ public class CallGraphGenerator {
                         childNode = getGNodeUnderConditional((GNode) itr.next());
                         assert childNode.getName() == "nonTypeName";
                         // System.out.println("dotPrefix: " + localScope.getName());
-                        AbstractObjectOfLanguage lookupNonTypeName = getAssociatedGenericValueIfGeneric(nonTypeNameSymtabLookUp(localScope, getStringUnderNonTypeName(getGNodeUnderConditional(childNode)), false));
+                        AbstractObjectOfLanguage lookupNonTypeName = getAssociatedGenericValueIfGeneric(nonTypeNameSymtabLookUp(localScope, getStringUnderNonTypeName(getGNodeUnderConditional(childNode)), false), childNode);
                         return lookupNonTypeName;
                     case "typeName":
                         // typeName dot_name
                         // doing namespacing
-                        AbstractObjectOfLanguage typeNameLO = getAssociatedGenericValueIfGeneric(symtabLookup(localScope, getNameFromTypeName(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0))))));
+                        AbstractObjectOfLanguage typeNameLO = getAssociatedGenericValueIfGeneric(symtabLookup(localScope, getNameFromTypeName(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0))))), childNode);
                         // String dotNameString = getStringUnderDotName(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(1))));
                         // finalValue = symtabLookup(typeNameLO, dotNameString);
                         // childNode = (GNode) itr.next();
@@ -955,7 +955,9 @@ public class CallGraphGenerator {
                     case "dot_name":
                         String dotNameString = getStringUnderDotName(childNode);
                         // System.out.println("localscope: " + localScope.getName());
-                        finalValue = getAssociatedGenericValueIfGeneric(symtabLookup(localScope, dotNameString));
+                        AbstractObjectOfLanguage symtabLookUpValue = symtabLookup(localScope, dotNameString);
+                        // System.out.println("look up result: " + symtabLookUpValue.getName() + " under node: " + childNode);
+                        finalValue = getAssociatedGenericValueIfGeneric(symtabLookUpValue, childNode);
                         localScope = finalValue;
                         // System.out.println("dotname: " + finalValue.getName());
                         // System.out.println("new value under dot name: " + dotNameString);
@@ -995,23 +997,25 @@ public class CallGraphGenerator {
                 // passed in associated with that type.
                 if(expressionCallee.hasAssociatedType() && expressionCallee.getType().getConstructType() == LObjectKind.TYPEPARAMETER
                    || n.size() > 4) {
-                    //    System.out.println(expressionCallee.getName() + " has type return value");
+                    //    System.out.println(expressionCallee.getName() + " has type return value: " + expressionCallee.getType().getConstructType());
                     assert n.size() > 4;
                 }
 
                 if(n.size() == 4) {
                     dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2)))); // argumentList
                 } else {
-                    parseRealTypeArgumentsList(getGNodeUnderConditional(n.getGeneric(2)), expressionCallee, this); // realTypeArgumentList
+                    ArrayList<AbstractObjectOfLanguage> parsedOptTypeParameters = parseparsedOptTypeParameters(getGNodeUnderConditional(n.getGeneric(2)), this); // realTypeArgumentList
+                    n.setProperty("parsedOptTypeParameters", parsedOptTypeParameters);
+                    // System.out.println("setting property for: " + n);
                     // AbstractObjectOfLanguage typearguments = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(2)));
-                    // System.out.println("type arguments: " + typearguments.getName());
+                    
                     dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(5)))); // argumentList
                     // TODO: data inside realTypeArguments? can refer nontypenames
 
                     if(expressionCallee.hasAssociatedType() && expressionCallee.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
                         // System.out.println("Return type is of type parameter: " + expressionCallee.getType().getName() + " whose namespace is: " + expressionCallee.getType().getNameSpace().getName());
 
-                        expressionCallee = getAssociatedValueOfGenericType(expressionCallee.getType());
+                        expressionCallee = getAssociatedValueOfGenericType(expressionCallee.getType(), n);
                         // System.err.println("It's final return value is of type: " + expressionCallee.getName());
                     }
                 }
@@ -1065,7 +1069,8 @@ public class CallGraphGenerator {
             addToSymtab(scope.peek(), externFunctionName, externFunctionDeclarationObj);
             scope.add(externFunctionDeclarationObj);
 
-            visitfunctionPrototype(getGNodeUnderConditional(n.getGeneric(2)), false);
+            FunctionPrototype functionPrototype = (FunctionPrototype) visitfunctionPrototype(getGNodeUnderConditional(n.getGeneric(2)), false);
+            externFunctionDeclarationObj.setFunctionPrototype(functionPrototype);
 
             scope.pop();
             return externFunctionDeclarationObj;
@@ -1254,8 +1259,9 @@ public class CallGraphGenerator {
         public AbstractObjectOfLanguage visittupleType(GNode n) {
             TupleType newTuple = p4LanguageObject.new TupleType(scope.peek());
 
-            GNode typeArgumentList = getGNodeUnderConditional(n.getGeneric(2));
-            Iterator itr = typeArgumentList.iterator();
+            GNode typeArgumentListNode = getGNodeUnderConditional(n.getGeneric(2));
+            ArrayList<AbstractObjectOfLanguage> typeArgumentsList = new ArrayList<>();
+            Iterator itr = typeArgumentListNode.iterator();
             while(itr.hasNext()) {
                 Object nextValue = itr.next();
                 if(nextValue instanceof Syntax) {
@@ -1269,9 +1275,12 @@ public class CallGraphGenerator {
                 // Cannot be a comma any more, so just GNode of typeArg
                 GNode typeArg = (GNode) nextValue;
                 AbstractObjectOfLanguage typeArgObject = (AbstractObjectOfLanguage) dispatch(typeArg);
-                newTuple.addParsedOptTypeParameters(typeArgObject);
+                typeArgumentsList.add(typeArgObject);
                 // newTuple.addToTypeArgumentList(typeArgObject);
             }
+
+            n.setProperty("parsedOptTypeParameters", typeArgumentsList);
+            // System.out.println("setting tuple propert: " + n);
 
             return newTuple;
         }
@@ -1281,8 +1290,9 @@ public class CallGraphGenerator {
             AbstractObjectOfLanguage typeObj = symtabLookup(scope.peek(), name);
             SpecializedType specializedType = p4LanguageObject.new SpecializedType(name, scope.peek(), typeObj);
 
-            GNode typeArgumentList = getGNodeUnderConditional(n.getGeneric(2));
-            Iterator itr = typeArgumentList.iterator();
+            GNode typeArgumentListNode = getGNodeUnderConditional(n.getGeneric(2));
+            ArrayList<AbstractObjectOfLanguage> typeArgumentsList = new ArrayList<>();
+            Iterator itr = typeArgumentListNode.iterator();
             while(itr.hasNext()) {
                 Object nextValue = itr.next();
                 if(nextValue instanceof Syntax) {
@@ -1296,9 +1306,12 @@ public class CallGraphGenerator {
                 // Cannot be a comma any more, so just GNode of typeArg
                 GNode typeArg = (GNode) nextValue;
                 AbstractObjectOfLanguage typeArgObject = (AbstractObjectOfLanguage) dispatch(typeArg);
-                specializedType.addParsedOptTypeParameters(typeArgObject);
+                typeArgumentsList.add(typeArgObject);
                 // specializedType.addToTypeArgumentList(typeArgObject);
             }
+
+            n.setProperty("parsedOptTypeParameters", typeArgumentsList);
+            // System.out.println("setting special property: " + n);
 
             return specializedType;
         }
@@ -1822,8 +1835,8 @@ public class CallGraphGenerator {
                 if(n.size() == 4) {
                     dispatch(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2)))); // argumentList
                 } else {
-                    assert expressionCallee.hasParsedOptTypeParameters();
-                    ArrayList<AbstractObjectOfLanguage> realTypeArguments = expressionCallee.getParsedOptTypeParameters();
+                    assert n.hasProperty("parsedOptTypeParameters");
+                    ArrayList<AbstractObjectOfLanguage> realTypeArguments = (ArrayList<AbstractObjectOfLanguage>) n.getProperty("parsedOptTypeParameters");
         
                     // AbstractObjectOfLanguage typearguments = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(2)));
                     // System.out.println("type arguments: " + typearguments.getName());
@@ -1833,7 +1846,7 @@ public class CallGraphGenerator {
                     if(expressionCallee.hasAssociatedType() && expressionCallee.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
                         // System.out.println("Return type is of type parameter: " + expressionCallee.getType().getName() + " whose namespace is: " + expressionCallee.getType().getNameSpace().getName());
 
-                        expressionCallee = getAssociatedValueOfGenericType(expressionCallee.getType());
+                        expressionCallee = getAssociatedValueOfGenericType(expressionCallee.getType(), n);
                         // System.err.println("It's final return value is of type: " + expressionCallee.getName());
                     }
                 }
@@ -1910,26 +1923,28 @@ public class CallGraphGenerator {
         return actionRefName;
     }
 
-    public AbstractObjectOfLanguage getAssociatedGenericValueIfGeneric(AbstractObjectOfLanguage typeObject) {
+    public AbstractObjectOfLanguage getAssociatedGenericValueIfGeneric(AbstractObjectOfLanguage typeObject, GNode n) {
         if(typeObject.getConstructType() == LObjectKind.TYPEPARAMETER) {
-            return getAssociatedValueOfGenericType(typeObject);
+            return getAssociatedValueOfGenericType(typeObject, n);
         }
 
         return typeObject;
     }    
 
-    public AbstractObjectOfLanguage getAssociatedValueOfGenericType(AbstractObjectOfLanguage typeParameter) {
+    public AbstractObjectOfLanguage getAssociatedValueOfGenericType(AbstractObjectOfLanguage typeParameter, GNode mainNode) {
         assert typeParameter.getConstructType() == LObjectKind.TYPEPARAMETER;
 
         AbstractObjectOfLanguage parent = typeParameter.getNameSpace();
         // System.out.println("Retrieved parent: " + parent.getName() + " of construct type: " + parent.getConstructType());
-        assert parent.hasOptTypeParameters() && parent.hasParsedOptTypeParameters();
-
+        assert parent.hasOptTypeParameters();
+        assert mainNode.hasProperty("parsedOptTypeParameters") : mainNode;
+        ArrayList<AbstractObjectOfLanguage> parsedOptTypeParameters = (ArrayList<AbstractObjectOfLanguage>) mainNode.getProperty("parsedOptTypeParameters");
+        // System.out.println("property values: " + parsedOptTypeParameters.get(0).getName());
         int indexOfType = parent.getOptTypeParameters().indexOf(typeParameter);
 
-        assert parent.getParsedOptTypeParameters().size() >= indexOfType + 1;
+        assert parsedOptTypeParameters.size() >= indexOfType + 1;
 
-        return parent.getParsedOptTypeParameters().get(indexOfType);
+        return parsedOptTypeParameters.get(indexOfType);
         // if(expressionCallee.hasAssociatedType() && expressionCallee.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
         //     // System.out.println("Return type is of type parameter: " + expressionCallee.getType().getName());
         //     int indexOfReturnType = expressionCallee.getOptTypeParameters().indexOf(expressionCallee.getType());
@@ -2372,7 +2387,8 @@ public class CallGraphGenerator {
         }
     }
 
-    public void parseRealTypeArgumentsList(GNode n, AbstractObjectOfLanguage langObj, Visitor visitor) {
+    public ArrayList<AbstractObjectOfLanguage> parseparsedOptTypeParameters(GNode n, Visitor visitor) {
+        ArrayList<AbstractObjectOfLanguage> parsedOptTypeParameters = new ArrayList<>();
         assert n.getName() == "realTypeArgumentList";
 
         Iterator itr = n.iterator();
@@ -2384,8 +2400,10 @@ public class CallGraphGenerator {
             }
 
             GNode nextChild = (GNode) nextVal;
-            langObj.addParsedOptTypeParameters((AbstractObjectOfLanguage) visitor.dispatch(nextChild));
+            parsedOptTypeParameters.add((AbstractObjectOfLanguage) visitor.dispatch(nextChild));
         }
+
+        return parsedOptTypeParameters;
     }
 
     /**
