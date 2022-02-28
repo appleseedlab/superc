@@ -1081,11 +1081,13 @@ public class CallGraphGenerator {
         public AbstractObjectOfLanguage visitfunctionDeclaration(GNode n) {
             // as per language specification, functionPrototype will describe the name and type signature of the function
             String functionName = getStringUnderFunctionPrototype(getGNodeUnderConditional(n.getGeneric(0)));
-            AbstractObjectOfLanguage functionObj = addToSymtab(scope.peek(), functionName);
+            FunctionDeclaration functionObj = p4LanguageObject.new FunctionDeclaration(functionName, scope.peek());
             scope.add(functionObj);
 
-            visitfunctionPrototype(getGNodeUnderConditional(n.getGeneric(0)), false); // functionPrototype (for parameters)
-            dispatch(getGNodeUnderConditional(n.getGeneric(1))); // blockstatement
+            FunctionPrototype functionPrototype = (FunctionPrototype) visitfunctionPrototype(getGNodeUnderConditional(n.getGeneric(0)), false); // functionPrototype (for parameters)
+            functionObj.setFunctionPrototype(functionPrototype);
+            AbstractObjectOfLanguage blockStatement = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(1))); // blockstatement
+            functionObj.setBlockStatement(blockStatement);
 
             scope.pop();
 

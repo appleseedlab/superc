@@ -52,7 +52,8 @@ class P4LanguageObject {
         SPECIALIZEDTYPE,
         HEADERSTACKTYPE,
         ANONYMOUS,
-        SUBCLASS
+        SUBCLASS,
+        FUNCTIONDECLARATION
     }
 
     // TODO handle constructor method prototype parameters & action declarations
@@ -835,6 +836,56 @@ class P4LanguageObject {
         }
 
         public ExternFunctionDeclaration(String name, AbstractObjectOfLanguage nameSpace){
+            super(name, nameSpace);
+            this.functionPrototype = null;
+        }
+    }
+
+    class FunctionDeclaration extends RegularLanguageObject {
+        private FunctionPrototype functionPrototype;
+        private AbstractObjectOfLanguage blockStatement;
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.FUNCTIONDECLARATION;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public void setFunctionPrototype(FunctionPrototype functionPrototype) {
+            assert this.functionPrototype == null;
+
+            this.functionPrototype = functionPrototype;
+        }
+
+        public void setBlockStatement(AbstractObjectOfLanguage blockStatement) {
+            assert this.blockStatement == null;
+
+            this.blockStatement = blockStatement;
+        }
+
+        public AbstractObjectOfLanguage getBlockStatement() {
+            return this.blockStatement;
+        }
+
+        public FunctionPrototype getFunctionPrototype() {
+            return this.functionPrototype;
+        }
+
+        @Override
+        public boolean hasAssociatedType() {
+            return this.functionPrototype.hasAssociatedType();
+        }
+
+        @Override
+        AbstractObjectOfLanguage getType() {
+            return this.functionPrototype.getType();
+        }
+
+        public FunctionDeclaration(String name, AbstractObjectOfLanguage nameSpace){
             super(name, nameSpace);
             this.functionPrototype = null;
         }
