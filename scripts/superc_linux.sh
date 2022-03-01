@@ -255,11 +255,6 @@ fi
 ################# Check Environment and Command-Line Arguments #################
 ################################################################################
 
-if [ -z "$JAVA_DEV_ROOT" ]
-then
-    "Please run xtc/scripts/env.sh before `basename $0`."
-fi
-
 if [ ! -z $runtimes ]; then
     which bc >/dev/null 2>&1
     if [[ $? -eq 0 ]]; then
@@ -325,7 +320,7 @@ if [ ! -z $serverList ]; then
     if [ ! -z $testSlaves ]; then
         for server in $servers; do
             echo "Checking $server:$remoteDir"
-            ssh $server "source $JAVA_DEV_ROOT/scripts/env.sh; cd $remoteDir;superc_linux.sh -c -S-printSource arch/x86/kernel/acpi/realmode/regs.c" 2>&1 | grep comparison_succeeded
+            ssh $server "cd $remoteDir;superc_linux.sh -c -S-printSource arch/x86/kernel/acpi/realmode/regs.c" 2>&1 | grep comparison_succeeded
             if [ $? -ne 0 ]; then
                 echo $retval
                 echo "$server failed."
@@ -406,7 +401,14 @@ elif [ ! -z $fileList ]; then
     done
 fi
 
-tempfilebase=$($JAVA_DEV_ROOT/scripts/tempfile.sh -p super) || exit
+which mktemp >/dev/null 2>&1
+
+if [ $? -ne 0 ]; then
+    echo "superc_linux.sh requires mktemp to create temp files"
+    exit 1
+fi
+
+tempfilebase=$(mktemp superXXXXXXXX) || exit
 tempfiles="$tempfilebase"
 header_args=$tempfilebase.headers || exit
 config_args=$tempfilebase.configs || exit
