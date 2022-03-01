@@ -11,7 +11,7 @@ publications can be found.
 
 Building SuperC requires `bison`, `libz3-java`, `libjson-java`, and `sat4j`.  For debian and ubuntu run
 
-    apt-get install bison libz3-java libjson-java sat4j
+    apt-get install bison libz3-java=4.8.7-4build1 libjson-java sat4j
 
 The following environment variables are expected by SuperC/xtc, changing `/path/to/repository/` to the root of the repository.
 
