@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # this script installs SuperC (https://github.com/appleseedlab/superc/
 
 # set this to the prefix you would like to install superc to
@@ -25,8 +27,8 @@ prefix="${user_prefix:-${HOME}/.local}"
 echo -e "${GREEN}Installing to prefix ${prefix}${ENDCOLOR}"
 echo -e ""
 
-jarpath="${prefix}/share/superc/"
-binpath="${prefix}/bin/"
+jarpath="${prefix}/share/superc"
+binpath="${prefix}/bin"
 
 mkdir -p "${jarpath}"
 mkdir -p "${binpath}"
@@ -51,7 +53,7 @@ chmod 755 make.cross
 
 echo -e ""
 echo -e "${GREEN}Update your java CLASSPATH to contain all the requisite jarfiles for SuperC.${ENDCOLOR}"
-echo -e "export CLASSPATH="'${CLASSPATH}'":/usr/share/java/org.sat4j.core.jar:/usr/share/java/json-lib.jar:${jarpath}/z3-4.8.12-x64-glibc-2.31/bin/com.microsoft.z3.jar:${jarpath}/JavaBDD/javabdd-1.0b2.jar:${jarpath}/xtc.jar:$PWD/superc.jar"
+echo -e "export CLASSPATH="'${CLASSPATH}'":/usr/share/java/org.sat4j.core.jar:/usr/share/java/json-lib.jar:${jarpath}/z3-4.8.12-x64-glibc-2.31/bin/com.microsoft.z3.jar:${jarpath}/JavaBDD/javabdd-1.0b2.jar:${jarpath}/xtc.jar:${jarpath}/superc.jar"
 echo -e ""
 
 echo -e "${GREEN}Update your PATH to include ${binpath}${ENDCOLOR}"
