@@ -1,14 +1,14 @@
 control process_int_main () {
     apply {
-        if(hdr.int_header == 1) {
-            hdr = hdr - 1;
+        if(1 == 1) {
+            int i = 1;
         }
     }
 }
 
 control FabricEgress () {
     apply {
-        process_int_main.apply(hdr);
+        process_int_main.apply();
     }
 }
 

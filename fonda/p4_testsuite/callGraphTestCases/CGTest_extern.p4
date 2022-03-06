@@ -1,4 +1,4 @@
-extern packet_in {
+extern packet_in<T> {
     void extract(out int headerLvalue);
     T lookahead();
     bit<32> length();  // This method may be unavailable in some architectures

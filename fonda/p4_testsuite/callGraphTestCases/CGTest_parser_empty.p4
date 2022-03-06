@@ -1,3 +1,3 @@
-parser P<H>(inout H data) { 
+parser P(inout int data) { 
     state check {}
 }

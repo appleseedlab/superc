@@ -1,4 +1,4 @@
-control pipe() {
+control pipe(out bool pass) {
     action Reject(bit<8> rej, bit<8> bar) {
         if (rej == 0) {
             pass = true;

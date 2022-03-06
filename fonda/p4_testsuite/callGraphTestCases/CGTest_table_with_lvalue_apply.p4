@@ -1,5 +1,5 @@
 control pipe() {
-    action Reject(bit<8> rej, bit<8> bar) {
+    action Reject(bit<8> rej, bit<8> bar, bool pass) {
         if (rej == 0) {
             pass = true;
         } else {

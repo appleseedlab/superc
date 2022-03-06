@@ -1,5 +1,6 @@
-parser P<H>(inout H data) { 
+parser P(inout int data) { 
     state start {
+        int b;
         transition select(b) {
             0: parse_tcp_option_ss;
             1: parse_tcp_option_s;
