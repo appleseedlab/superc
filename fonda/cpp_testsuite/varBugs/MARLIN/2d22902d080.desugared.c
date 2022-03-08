@@ -7,20 +7,20 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_190;
+extern const bool __static_condition_default_13;
 extern const bool __static_condition_default_227;
+extern const bool __static_condition_default_175;
+extern const bool __static_condition_default_182;
+extern const bool __static_condition_default_211;
 extern const bool __static_condition_default_215;
 extern const bool __static_condition_default_195;
 extern const bool __static_condition_default_222;
-extern const bool __static_condition_default_220;
-extern const bool __static_condition_default_191;
-extern const bool __static_condition_default_13;
-extern const bool __static_condition_default_190;
-extern const bool __static_condition_default_223;
-extern const bool __static_condition_default_182;
-extern const bool __static_condition_default_211;
 extern const bool __static_condition_default_208;
+extern const bool __static_condition_default_220;
+extern const bool __static_condition_default_223;
 extern const bool __static_condition_default_221;
-extern const bool __static_condition_default_175;
+extern const bool __static_condition_default_191;
 void __static_initializer_default() {
 __static_renaming("__ptrdiff_t_0", "ptrdiff_t");
 __static_renaming("__size_t_1", "size_t");

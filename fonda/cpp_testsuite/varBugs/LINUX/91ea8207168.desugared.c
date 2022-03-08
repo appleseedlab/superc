@@ -7,37 +7,37 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_260;
+extern const bool __static_condition_default_229;
+extern const bool __static_condition_default_249;
+extern const bool __static_condition_default_230;
+extern const bool __static_condition_default_256;
+extern const bool __static_condition_default_236;
+extern const bool __static_condition_default_239;
+extern const bool __static_condition_default_244;
+extern const bool __static_condition_default_204;
+extern const bool __static_condition_default_264;
+extern const bool __static_condition_default_263;
+extern const bool __static_condition_default_262;
+extern const bool __static_condition_default_248;
+extern const bool __static_condition_default_196;
+extern const bool __static_condition_default_238;
+extern const bool __static_condition_default_265;
+extern const bool __static_condition_default_243;
 extern const bool __static_condition_default_222;
+extern const bool __static_condition_default_261;
+extern const bool __static_condition_default_189;
+extern const bool __static_condition_default_247;
+extern const bool __static_condition_default_209;
+extern const bool __static_condition_default_237;
+extern const bool __static_condition_default_225;
 extern const bool __static_condition_default_250;
 extern const bool __static_condition_default_205;
-extern const bool __static_condition_default_209;
-extern const bool __static_condition_default_249;
-extern const bool __static_condition_default_254;
-extern const bool __static_condition_default_196;
-extern const bool __static_condition_default_225;
-extern const bool __static_condition_default_260;
-extern const bool __static_condition_default_27;
-extern const bool __static_condition_default_248;
 extern const bool __static_condition_default_255;
-extern const bool __static_condition_default_261;
+extern const bool __static_condition_default_27;
+extern const bool __static_condition_default_254;
 extern const bool __static_condition_default_251;
-extern const bool __static_condition_default_236;
-extern const bool __static_condition_default_237;
-extern const bool __static_condition_default_262;
-extern const bool __static_condition_default_256;
-extern const bool __static_condition_default_229;
-extern const bool __static_condition_default_189;
-extern const bool __static_condition_default_204;
-extern const bool __static_condition_default_247;
-extern const bool __static_condition_default_243;
 extern const bool __static_condition_default_259;
-extern const bool __static_condition_default_263;
-extern const bool __static_condition_default_238;
-extern const bool __static_condition_default_244;
-extern const bool __static_condition_default_264;
-extern const bool __static_condition_default_230;
-extern const bool __static_condition_default_239;
-extern const bool __static_condition_default_265;
 void __static_initializer_default() {
 __static_renaming("____assert_fail_4", "__assert_fail");
 __static_renaming("____assert_perror_fail_9", "__assert_perror_fail");
@@ -315,10 +315,10 @@ if (__static_condition_default_248) {
 
 
 if (__static_condition_default_249) {
- __memset_31  ( __pfnnid_map_232 ,0xff,sizeof(unsigned char[1])) ; // L52
+ __memset_31  ( __pfnnid_map_232 ,0xff,sizeof((  __pfnnid_map_232  ))) ; // L52
 }
 if (__static_condition_default_250) {
- __memset_32  ( __pfnnid_map_232 ,0xff,sizeof(unsigned char[1])) ; // L52
+ __memset_32  ( __pfnnid_map_232 ,0xff,sizeof((  __pfnnid_map_232  ))) ; // L52
 }
 if (__static_condition_default_251) {
 __static_type_error("type error") ; // L52

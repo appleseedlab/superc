@@ -168,6 +168,7 @@
 import java.lang.StringBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.Iterator;
@@ -5554,8 +5555,12 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
                   typemv.add(entry.getData().getValue().toVariable().getType(), entry.getCondition());
                 }
               } else if (entry.getData().getValue() instanceof NamedFunctionT) {
-                String result  // use the renamed symbol
-                  = String.format(" %s ", ((NamedFunctionT) entry.getData().getValue()).getName());
+                String result;  // use the renamed symbol
+                if (!keepMem || !(Arrays.asList(memNames)).contains(originalName) ) {
+                  result = String.format(" %s ", ((NamedFunctionT) entry.getData().getValue()).getName());
+                } else {
+                  result = originalName;
+                }
                 sbmv.add(result, entry.getCondition());
                 typemv.add(((NamedFunctionT) entry.getData().getValue()).toFunctionT(), entry.getCondition());
               } else if (entry.getData().getValue() instanceof EnumeratorT) {
@@ -5575,7 +5580,6 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
           // it and the symtab should always return a non-empty mv
           assert ! sbmv.isEmpty();
           entries.destruct();
-          System.err.println(typemv);
           setTransformationValue(value, new ExpressionValue(sbmv, typemv,new Multiverse<LineNumbers>(new LineNumbers((Syntax)getNodeAt(subparser, 1)),cond)));
         }  /* We cannot use a typedef name as a variable */
         ;
@@ -8211,7 +8215,14 @@ AsmKeyword:   // ADDED
 %%
 
 boolean wrotePrologue = false;
-        
+
+static boolean keepMem = false;
+static String memNames[] = {"malloc", "calloc", "free"};
+
+public static void keepMemoryNames(boolean f) {
+  keepMem = f;
+}
+
 // TUTORIAL: this section of the grammar gets copied into the
 // resulting parser, specifically the CActions.java class
 

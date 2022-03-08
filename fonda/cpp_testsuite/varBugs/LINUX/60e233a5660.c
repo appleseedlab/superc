@@ -1,7 +1,7 @@
 #include <errno.h>
 #include <stdio.h>
 
-#define UEVENT_BUFFER_SIZE2048/* buffer for the variables */
+#define UEVENT_BUFFER_SIZE 2048 /* buffer for the variables */
 
 static char buf[UEVENT_BUFFER_SIZE];
 static int buflen = 0;

@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_7;
 extern const bool __static_condition_default_8;
+extern const bool __static_condition_default_7;
 extern const bool __static_condition_default_11;
 extern const bool __static_condition_default_10;
 void __static_initializer_default() {
@@ -39,16 +39,16 @@ int  (__inet_ehash_locks_alloc_6) () {
 
 
 if (__static_condition_default_7) {
- __x_4  =  __malloc_1  ( __size_5 ) ; // L21
+ __x_4  = malloc ( __size_5 ) ; // L21
 }
 if (__static_condition_default_8) {
 if (  __size_5  > 12 )// L17
 {
- __x_4  =  __malloc_1  ( __size_5 ) ; // L18
+ __x_4  = malloc ( __size_5 ) ; // L18
 }
 else
 {
- __x_4  =  __malloc_1  ( __size_5 ) ; // L21
+ __x_4  = malloc ( __size_5 ) ; // L21
 }
 }
 if ( !  __x_4  )// L22
@@ -77,7 +77,7 @@ if (__static_condition_default_10) {
 
 
 
- __free_3  ( __x_4 ) ; // L35
+free ( __x_4 ) ; // L35
  __x_4  = ( void  * ) 0 ; // L3:L37
 }
 }
@@ -91,7 +91,7 @@ if (__static_condition_default_11) {
 
 if (  __size_5  > 12 )// L31
 {
- __free_3  ( __x_4 ) ; // L32
+free ( __x_4 ) ; // L32
 }
 else
 {

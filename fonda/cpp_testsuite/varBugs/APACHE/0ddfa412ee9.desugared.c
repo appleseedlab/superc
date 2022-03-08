@@ -8,8 +8,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_2;
-extern const bool __static_condition_default_6;
 extern const bool __static_condition_default_7;
+extern const bool __static_condition_default_6;
 void __static_initializer_default() {
 __static_renaming("__ssl_array_index_0", "ssl_array_index");
 __static_renaming("__ssl_cmp_alpn_protos_1", "ssl_cmp_alpn_protos");

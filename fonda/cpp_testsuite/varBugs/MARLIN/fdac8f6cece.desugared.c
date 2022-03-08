@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_3;
 extern const bool __static_condition_default_2;
+extern const bool __static_condition_default_3;
 void __static_initializer_default() {
 __static_renaming("__zprobe_zoffset_0", "zprobe_zoffset");
 __static_renaming("__Config_ResetDefault_1", "Config_ResetDefault");

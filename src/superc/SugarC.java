@@ -215,7 +215,8 @@ public class SugarC extends Tool {
            "Emit thunks for single-configuration linking (experimental).").
       bool("make-main", "make-main", false,
            "Create a main function to call main variants.").
-      
+      bool("keep-mem", "keep-mem", false,
+           "Retains free and alloc function naming for static analysis.").
       // Output and debugging
       bool("printAST", "printAST", false,
            "Print the parsed AST.").
@@ -479,7 +480,9 @@ public class SugarC extends Tool {
     if (runtime.test("newErrorHandling")) {
       ForkMergeParser.setNewErrorHandling(true);
     }
-    
+    if (runtime.test("keep-mem")) {
+      CActions.keepMemoryNames(true);
+    }
     // Run SuperC.
     
     // Run the SuperC preprocessor and parser.

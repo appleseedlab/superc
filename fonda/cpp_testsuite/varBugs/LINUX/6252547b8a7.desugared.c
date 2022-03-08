@@ -7,14 +7,14 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_14;
+extern const bool __static_condition_default_7;
+extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_8;
 extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_15;
 extern const bool __static_condition_default_9;
-extern const bool __static_condition_default_7;
-extern const bool __static_condition_default_8;
-extern const bool __static_condition_default_4;
-extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_10;
 void __static_initializer_default() {
 __static_renaming("__irq_domain_simple_ops_0", "irq_domain_simple_ops");
 __static_renaming("__irq_2", "irq");

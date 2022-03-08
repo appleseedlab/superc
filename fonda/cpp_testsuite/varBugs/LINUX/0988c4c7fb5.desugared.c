@@ -7,19 +7,19 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_28;
-extern const bool __static_condition_default_23;
+extern const bool __static_condition_default_26;
+extern const bool __static_condition_default_21;
 extern const bool __static_condition_default_27;
 extern const bool __static_condition_default_20;
+extern const bool __static_condition_default_32;
+extern const bool __static_condition_default_23;
+extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_24;
 extern const bool __static_condition_default_29;
-extern const bool __static_condition_default_22;
-extern const bool __static_condition_default_16;
-extern const bool __static_condition_default_31;
-extern const bool __static_condition_default_26;
 extern const bool __static_condition_default_17;
-extern const bool __static_condition_default_21;
-extern const bool __static_condition_default_32;
+extern const bool __static_condition_default_28;
+extern const bool __static_condition_default_22;
+extern const bool __static_condition_default_31;
 void __static_initializer_default() {
 __static_renaming("____assert_fail_4", "__assert_fail");
 __static_renaming("____assert_perror_fail_9", "__assert_perror_fail");

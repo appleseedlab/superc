@@ -7,11 +7,11 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_9;
 extern const bool __static_condition_default_3;
 extern const bool __static_condition_default_5;
 extern const bool __static_condition_default_6;
+extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_10;
 void __static_initializer_default() {
 __static_renaming("__nondet_0", "nondet");

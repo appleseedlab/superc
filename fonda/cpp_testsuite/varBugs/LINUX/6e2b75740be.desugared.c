@@ -8,9 +8,9 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_17;
+extern const bool __static_condition_default_15;
 extern const bool __static_condition_default_14;
 extern const bool __static_condition_default_16;
-extern const bool __static_condition_default_15;
 void __static_initializer_default() {
 __static_renaming("__malloc_1", "malloc");
 __static_renaming("__free_3", "free");
@@ -60,13 +60,13 @@ long  __err_10= 0;// L21
 
 void  * (__ptr_11)= ( void  * ) 0;// L22
 
-if ( (  __hdr_8  =  __malloc_1  (2 * sizeof(void*)) ) == ( void  * ) 0 )// L24
+if ( (  __hdr_8  = malloc (2 * sizeof(void*)) ) == ( void  * ) 0 )// L24
 {
 return - 12 ;// L25
 }
  __mod_9  = ( void  * )  __hdr_8  ; // L27
 if (__static_condition_default_14) {
-(  __mod_9  [ 0 ] ) =  __malloc_1  (32) ; // L14:L30
+(  __mod_9  [ 0 ] ) = malloc (32) ; // L14:L30
 }
 if (__static_condition_default_14) {
 if ( ! (  __mod_9  [ 0 ] ) )// L31
@@ -87,10 +87,10 @@ goto free_mod_3;
 }
 }
 if (__static_condition_default_15) {
- __ptr_11  =  __malloc_1  (512) ; // L38
+ __ptr_11  = malloc (512) ; // L38
 }
 if (__static_condition_default_14) {
- __ptr_11  =  __malloc_1  (512) ; // L38
+ __ptr_11  = malloc (512) ; // L38
 }
 if ( !  __ptr_11  )// L39
 {
@@ -143,14 +143,14 @@ free_unload_0:
 
 free_core_1:
 {
- __free_3  ((  __mod_9  [ 1 ] )) ; // L60
+free ((  __mod_9  [ 1 ] )) ; // L60
 }
 }
 if (__static_condition_default_16) {
 
 free_percpu_2:
 {
- __free_3  ((  __mod_9  [ 0 ] )) ; // L63
+free ((  __mod_9  [ 0 ] )) ; // L63
 }
 }
 if (__static_condition_default_16) {
@@ -160,7 +160,7 @@ free_mod_3:
 
 free_hdr_4:
 {
- __free_3  ( __hdr_8 ) ; // L67
+free ( __hdr_8 ) ; // L67
 }
 }
 }
@@ -174,7 +174,7 @@ free_mod_6:
 
 free_hdr_7:
 {
- __free_3  ( __hdr_8 ) ; // L67
+free ( __hdr_8 ) ; // L67
 }
 }
 }

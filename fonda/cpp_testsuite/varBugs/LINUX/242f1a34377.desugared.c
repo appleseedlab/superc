@@ -8,11 +8,11 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_3;
+extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_10;
-extern const bool __static_condition_default_11;
 extern const bool __static_condition_default_5;
 extern const bool __static_condition_default_1;
-extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_11;
 void __static_initializer_default() {
 __static_renaming("__crypto_alloc_ablkcipher_0", "crypto_alloc_ablkcipher");
 __static_renaming("__test_cipher_2", "test_cipher");

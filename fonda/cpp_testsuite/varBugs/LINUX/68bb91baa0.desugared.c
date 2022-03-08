@@ -8,15 +8,15 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_12;
+extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_7;
+extern const bool __static_condition_default_2;
 extern const bool __static_condition_default_13;
 extern const bool __static_condition_default_8;
-extern const bool __static_condition_default_2;
-extern const bool __static_condition_default_1;
-extern const bool __static_condition_default_12;
-extern const bool __static_condition_default_7;
-extern const bool __static_condition_default_9;
 extern const bool __static_condition_default_4;
-extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_1;
 void __static_initializer_default() {
 __static_renaming("__i2c_dw_init_0", "i2c_dw_init");
 __static_renaming("__i2c_dw_init_3", "i2c_dw_init");
