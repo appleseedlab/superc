@@ -341,6 +341,8 @@ public class SuperP4 extends Tool {
            "Print the parsed AST.").
       bool("preprocessorUsageMatrix", "preprocessorUsageMatrix", false,
            "Print intersection matrix of grammar constructs and preprocessor present inside each construct.").
+      word("templateFileForMatrix", "templateFileForMatrix", true,
+           "Path to text file containing the blocks names in the main package instantiation..").
       bool("callGraph", "callGraph", false,
            "Print Call graph image").
       bool("printSource", "printSource", false,
@@ -1225,73 +1227,73 @@ public class SuperP4 extends Tool {
         graph.createCallGraphVisual(file.getName() + ".callGraph");
       }
       if(runtime.test("preprocessorUsageMatrix")) {
+        String templateFilePath = null;
+        for (Object o : runtime.getList("templateFileForMatrix")) {
+          if (o instanceof String) {
+            String s;
 
-        if(true) {
+            if(templateFilePath != null) {
+              System.err.println("Passed in two paths for template file. Expecting only one of syntax \"-templateFileForMatrix \"PATH_TO_TEMPLATE_FILE.txt\"\"");
+            }
+            
+            s = (String) o;
+            templateFilePath = s;
+          }
+        }
 
-          ArrayList<String> template = readTemplate("/mnt/onos-satellite/pipelines/fabric/src/main/resources/V1Template.txt");
+        if(templateFilePath != null) {
+          ArrayList<String> template = readTemplate(templateFilePath);
           collectBlockNames((Node) translationUnit, template);
           template_block_map = (HashMap<String, String>) stripParenthesis(template_block_map);
           blockValues = (ArrayList<String>) stripParenthesis(blockValues);
           initializeConditionalsInside();
-          System.out.println(template_block_map);
-          System.out.println(blockValues);
-
+          System.out.println("Passed in block names and actual mapped function values:" + template_block_map);
+          // System.out.println(blockValues);
+    
+          // collect macros for specific block names collected based on user input
           walkAST((Node) translationUnit, "", false);
-          walkASTForAllConstructs((Node) translationUnit, null);
+        }    
+
+        //collect macros for all blocks
+        walkASTForAllConstructs((Node) translationUnit, null);
+
+        // cleaning up the data
+        if(templateFilePath != null) {
           convertNotConditionalsAndRemoveDefinedWordForStatPurposes(conditionalsInsideSpecificBlosk);
-          convertNotConditionalsAndRemoveDefinedWordForStatPurposes(conditionalsInsideEverything);
-
-          
-          for(String key : conditionalsInsideSpecificBlosk.keySet()) {
-            // eliminateCancellations(conditionalsInsideSpecificBlosk.get(key), key);
-            System.out.println("\nHello, this is key " + key + " with the set: " + conditionalsInsideSpecificBlosk.get(key));
-          }
-
-          // printMatrix(conditionalsInsideSpecificBlosk);
-          printMatrix(conditionalsInsideEverything);
+          System.out.println("--------Printing out macros present DIRECTLY under the specific construct blocks--------\n");
+          printMatrix(conditionalsInsideSpecificBlosk);
+          System.out.println("\n--------Done printing macros present DIRECTLY under the specific construct blocks--------\n\n");
 
           collectASTData((Node) translationUnit);
           convertNotConditionalsAndRemoveDefinedWordForStatPurposes(presenceCondMap);
 
           for(String e: presenceCondMap.keySet()) {
-            // System.out.println(e + ": " + presenceCondMap.get(e));
-
             if(conditionalsInsideSpecificBlosk.containsKey(e)) {
               if(! conditionalsInsideSpecificBlosk.get(e).equals(presenceCondMap.get(e))) {
-                System.err.println("ERORORO not equal: " + e);
+                System.err.println("Something not right: " + e);
                 System.exit(1);
               }
             }
           }
 
-          // System.out.println("Printing call graph");
-          // for(String key: callGraph.keySet()) {
-          //   System.out.println(key + " is calling: " + callGraph.get(key));
-          // }
-
           expandCPP();
           removeEmpty(presenceCondMap);
-          System.out.println(blockValues);
-          for(String e: presenceCondMap.keySet()) {
-            if(blockValues.contains(e))
-              System.out.println(e + ": " + presenceCondMap.get(e));
-
-            // if(conditionalsInsideSpecificBlosk.containsKey(e)) {
-            //   System.out.println("old " + e + ": " + conditionalsInsideSpecificBlosk.get(e));
-            //   // presenceCondMap.get(e).removeAll(conditionalsInsideSpecificBlosk.get(e));
-            //   // System.out.println("diff: " + presenceCondMap.get(e));
-            // }
-          }
 
           presenceCondMap = keepOnlySpecifics(blockValues, presenceCondMap);
+          System.out.println("---!!---Printing out macros present ANYWHERE under the specific construct blocks---!!---\n");
           printMatrix(presenceCondMap);
-
-          
-          // System.out.println(presenceCondMap);
-
-          // String dot_string = toDot(callGraph, "callGraph");
-          // System.out.println("digraph{" + dot_string + "}");
+          System.out.println("\n---!!---Done printing macros present ANYWHERE under the specific construct blocks---!!---\n");
         }
+
+        convertNotConditionalsAndRemoveDefinedWordForStatPurposes(conditionalsInsideEverything);
+        System.out.println("--------Printing out macro mappings for all constructs--------\n");
+        printMatrix(conditionalsInsideEverything);
+        System.out.println("\n--------Done printing mappings for all constructs--------\n");
+        
+        // System.out.println(presenceCondMap);
+
+        // String dot_string = toDot(callGraph, "callGraph");
+        // System.out.println("digraph{" + dot_string + "}");
 
         if (runtime.test("printSource")) {
           OutputStreamWriter writer = new OutputStreamWriter(System.out);
@@ -1987,14 +1989,14 @@ public class SuperP4 extends Tool {
   public void initializeConditionalsInside() {
     conditionalsInsideSpecificBlosk = new HashMap<>();
     if(! blockValues.isEmpty()) {
+      // removing package name and the variable name as it is not blocks we are interested in
       blockValues.remove(0);
       blockValues.remove(blockValues.size()-1);
+
       for(int i = 0; i < blockValues.size(); i++) {
         conditionalsInsideSpecificBlosk.put(blockValues.get(i), new HashSet<>());
       }
     }
-
-    System.out.println("It is: " + conditionalsInsideSpecificBlosk);
   }
 
   public String walkAST(Object obj, String currentBlock, boolean isDeclaration) {
@@ -2005,30 +2007,21 @@ public class SuperP4 extends Tool {
       while(its.hasNext()) {
         Object cur = its.next();
         String rValue;
-        // int conditionalsInsideSpecificBloskSizeBefore = 0;
-        // int conditionalsInsideSpecificBloskSizeAfter = 0;
-        // if(currentBlock != "")
-        //   conditionalsInsideSpecificBloskSizeBefore = conditionalsInsideSpecificBlosk.get(currentBlock).size();
+
         if(cur instanceof Node && ((Node) cur).getName().equals("declaration")) {
+          // since the "modules" when instantiating the package are declaration based constructs
           rValue = walkAST(cur, currentBlock, true);
         } else {
           if(cur instanceof Node && ((Node) cur).getName().equals("nonTypeName")) {
             Set methods = ((Node) cur).properties();
-            // if(counter == 0)
-            // System.out.println("properties: ");
               for (Object method : methods) {
-                System.out.printf("%s", method.toString());
+                System.out.printf("method: %s", method.toString());
                 System.out.println();
               }
-              counter = 1;
           }
           rValue = walkAST(cur, currentBlock, isDeclaration);
         }
-        // if(currentBlock != "")
-        //   conditionalsInsideSpecificBloskSizeAfter = conditionalsInsideSpecificBlosk.get(currentBlock).size();
-        // if(conditionalsInsideSpecificBloskSizeAfter != conditionalsInsideSpecificBloskSizeBefore) {
-        //   System.out.println("PCs added inside: " + currentBlock + " at loc: " + node.getLocation());
-        // }
+
         if(cur instanceof Node && ((Node) cur).getName().equals("declaration")){
           // System.out.println("sending back " + currentBlock);
           currentBlock = "";
@@ -2045,15 +2038,13 @@ public class SuperP4 extends Tool {
         if(isDeclaration && (! currentBlock.isEmpty())) {
           // System.out.println("curBlock: " + currentBlock);
           // System.out.println(conditionalsInsideSpecificBlosk.get(currentBlock));
-          // System.out.println("adding value in block: " + currentBlock + " at loc: " + node.getLocation());
+          // System.out.println("adding value in block: " + currentBlock + " at loc: " + obj + " " + pc.getAllConfigs().toString());
           // System.out.println(currentBlock);
           conditionalsInsideSpecificBlosk.get(currentBlock).addAll(pc.getAllConfigs());
         }
         // System.out.println(pc);
       }
       if(obj instanceof String) {
-        Method[] methods = obj.getClass().getDeclaredMethods();
-
         if(blockValues.contains(obj.toString())) {
           return obj.toString();
         }
@@ -2166,21 +2157,12 @@ public class SuperP4 extends Tool {
       }
 
       workingSet.get(key).addAll(temp);
-
-      // Iterator<String> itr2 = workingSet.get(key).iterator();
-      // while(itr2.hasNext()) {
-      //   String str = itr2.next();
-      //   str.replace("(defined", "");
-      //   str.replace(")", "");
-      //   workingSet.get(key).add(str);
-      // }
-      // System.out.println("After size for " + key + " is " + workingSet.get(key).size());
     }
   }
 
   public void printMatrix(HashMap<String, HashSet<String>> workingSet) {
-    System.out.println("\nPRINTING MATRIX");
-    System.out.println(workingSet);
+    // System.out.println("\nPRINTING MATRIX");
+    // System.out.println(workingSet);
     HashSet<String> allValuesTogether = new HashSet<>();
 
     for(String key : workingSet.keySet()) {
@@ -2190,31 +2172,31 @@ public class SuperP4 extends Tool {
     ArrayList<String> sortedConditionalValues = new ArrayList<>(allValuesTogether);
     Collections.sort(sortedConditionalValues);
 
-    ArrayList<String> sortedBlockNames = new ArrayList<>(workingSet.keySet());
-    // Collections.sort(sortedBlockNames);
+    ArrayList<String> constructNames = new ArrayList<>(workingSet.keySet());
+    // Collections.sort(constructNames);
 
-    int [][] matrix = new int[sortedConditionalValues.size()][sortedBlockNames.size()];
+    int [][] matrix = new int[sortedConditionalValues.size()][constructNames.size()];
 
 
     for(int i = 0; i < sortedConditionalValues.size(); i++) {
-      for(int j = 0; j < sortedBlockNames.size(); j++) {
-        matrix[i][j] = workingSet.get(sortedBlockNames.get(j)).contains(sortedConditionalValues.get(i)) ? 1 : 0;
+      for(int j = 0; j < constructNames.size(); j++) {
+        matrix[i][j] = workingSet.get(constructNames.get(j)).contains(sortedConditionalValues.get(i)) ? 1 : 0;
       }
     }
 
     // Loop through all elements of current row
     for (int j = 0; j < matrix[0].length; j++) {
-        System.out.print(sortedBlockNames.get(j)+ " ");
+        System.out.print(constructNames.get(j)+ " ");
     }
     System.out.println();
     
     for (int i = 0; i < matrix.length; i++) {
       System.out.print(sortedConditionalValues.get(i) + " ");
-            // Loop through all elements of current row
-            for (int j = 0; j < matrix[i].length; j++) {
-                System.out.print(matrix[i][j] + " ");
-            }
-            System.out.println();
+      // Loop through all elements of current row
+      for (int j = 0; j < matrix[i].length; j++) {
+          System.out.print(matrix[i][j] + " ");
+      }
+      System.out.println();
     }
   }
 
