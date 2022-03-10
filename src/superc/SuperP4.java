@@ -1601,10 +1601,12 @@ public class SuperP4 extends Tool {
         }
       }
 
-      System.out.println("Configuration (free) variables: " + configVariables);
+      // System.out.println("Configuration (free) variables: " + configVariables);
       HashMap<String, HashSet<String>> dependentStrings = macroTable.getDependentMacros(configVariables);
-      System.out.println(dependentStrings);
+      // System.out.println(dependentStrings);
+      System.out.println("--------Printing maco dependencies--------\n");
       printMatrix(dependentStrings);
+      System.out.println("\n--------Done printing macro dependencies--------\n");
     }
 
     if (runtime.test("headerGuards")) {
