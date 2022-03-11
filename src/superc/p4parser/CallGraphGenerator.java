@@ -20,12 +20,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
-import java.util.concurrent.ThreadPoolExecutor.DiscardPolicy;
-import java.util.function.Function;
-
-import javax.sound.midi.SysexMessage;
-import javax.swing.plaf.synth.SynthLookAndFeel;
-import javax.xml.crypto.dsig.spec.DigestMethodParameterSpec;
 
 import superc.core.Syntax;
 import superc.core.Syntax.Language;
@@ -1112,7 +1106,7 @@ public class CallGraphGenerator {
                 if(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2))).getName() == "nonTypeName") {
                     String externName = getStringUnderNonTypeName(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2))));
                     AbstractObjectOfLanguage externObj = p4LanguageObject.new ExternDeclaration(externName, scope.peek());;
-                    if(getGNodeUnderConditional(n.getGeneric(5)).size() > 0) {
+                    if(getGNodeUnderConditional(n.getGeneric(3)).size() > 0) {
                         // has type parameters, so generator
                         externObj = p4LanguageObject.new ExternDeclarationGenerator((ExternDeclaration) externObj);
                     }
