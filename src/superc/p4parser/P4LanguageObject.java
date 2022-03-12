@@ -1,6 +1,4 @@
 package superc.p4parser;
-import java.io.ObjectInputStream;
-import java.lang.StackWalker.Option;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,11 +6,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.naming.ldap.PagedResultsResponseControl;
-import javax.sound.midi.SysexMessage;
-import javax.swing.plaf.nimbus.AbstractRegionPainter;
-
-import superc.p4parser.P4LanguageObject.TypeOrVoid;
 
 // For symbols
 class P4LanguageObject {
@@ -82,7 +75,7 @@ class P4LanguageObject {
         }
 
         public boolean hasParameters() {
-            return this.parameters.isEmpty();
+            return ! this.parameters.isEmpty();
         }
 
         public void addParameter(Parameter parameter) {
