@@ -523,30 +523,27 @@ class P4LanguageObject {
             if(scopeToAddUnder == null) {
                 scopeToAddUnder = newInstance;
             }
-            // if(! parsedTypeParameters.isEmpty()) {
-            //     assert this.hasParameters() : this + " Assuming that if package type declaration has type parameters, then there are regular parameters passed in with generic types";
-            //     assert ! parsedParameters.isEmpty();
-            // }
 
             if(! parsedParameters.isEmpty()) {
                 assert this.getParameters().size() == parsedParameters.size();
+            }
                 
-                ArrayList<Parameter> originalParameters = this.getParameters();
-                for(int i = 0; i < originalParameters.size(); i++) {
-                    Parameter currentParam = originalParameters.get(i);
-                    if(currentParam.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
-                        assert this.getOptTypeParameters().contains(currentParam.getType());
+            ArrayList<Parameter> originalParameters = this.getParameters();
+            for(int i = 0; i < originalParameters.size(); i++) {
+                Parameter currentParam = originalParameters.get(i);
+                if(currentParam.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
+                    assert this.getOptTypeParameters().contains(currentParam.getType());
 
-                        int typeIndex = this.getOptTypeParameters().indexOf(currentParam.getType());
-                        AbstractObjectOfLanguage type = parsedTypeParameters.get(typeIndex);
-                        Parameter newParam = new Parameter(currentParam.getName(), scopeToAddUnder, type, currentParam.getDirection(), currentParam.getAssignedExpression());
-                        newInstance.addParameter(newParam);
-                        addToSymtab(scopeToAddUnder, newParam.getName(), newParam, symtab);
-                    } else {
-                        Parameter newParam = new Parameter(currentParam.getName(), scopeToAddUnder, currentParam.getType(), currentParam.getDirection(), currentParam.getAssignedExpression());
-                        newInstance.addParameter(newParam);
-                        addToSymtab(scopeToAddUnder, newParam.getName(), newParam, symtab);
-                    }
+                    int typeIndex = this.getOptTypeParameters().indexOf(currentParam.getType());
+                    AbstractObjectOfLanguage type = parsedTypeParameters.get(typeIndex);
+                    System.out.println("replacing with type: " + type.getName() + " of: " + currentParam.getName());
+                    Parameter newParam = new Parameter(currentParam.getName(), scopeToAddUnder, type, currentParam.getDirection(), currentParam.getAssignedExpression());
+                    newInstance.addParameter(newParam);
+                    addToSymtab(scopeToAddUnder, newParam.getName(), newParam, symtab);
+                } else {
+                    Parameter newParam = new Parameter(currentParam.getName(), scopeToAddUnder, currentParam.getType(), currentParam.getDirection(), currentParam.getAssignedExpression());
+                    newInstance.addParameter(newParam);
+                    addToSymtab(scopeToAddUnder, newParam.getName(), newParam, symtab);
                 }
             }
 
@@ -1230,8 +1227,6 @@ class P4LanguageObject {
 
     // combines control type declaration
     class ControlTypeDeclaration extends RegularLanguageObject {
-        private final ArrayList<Parameter> parameterList;
-
         @Override 
         public LObjectKind getConstructType() {
             return LObjectKind.CONTROLTYPEDECLARATION;
@@ -1244,7 +1239,6 @@ class P4LanguageObject {
 
         public ControlTypeDeclaration(String name, AbstractObjectOfLanguage nameSpace) {
             super(name, nameSpace);
-            this.parameterList = new ArrayList<>();
         }
     }
 
