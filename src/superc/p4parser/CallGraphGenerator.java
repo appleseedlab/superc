@@ -1363,20 +1363,16 @@ public class CallGraphGenerator {
         }
 
         public AbstractObjectOfLanguage visitspecializedType(GNode n) {
+            return visitspecializedType(n, false);
+        }
+
+        // has special variable for fromInstantiation since instantiation construct
+        // can provide its own parameter arguments that can be used to look up symtab constructs
+        // with generic
+        public AbstractObjectOfLanguage visitspecializedType(GNode n, boolean fromInstantiation) {
             String name = getNameFromTypeName(getGNodeUnderConditional(n.getGeneric(0)));
 
-            boolean hasPreviousTempValues = false;
-            if(! temporaryValues.empty() && ! temporaryValues.peek().getParameters().isEmpty()) {
-                hasPreviousTempValues = true;
-                // System.out.println("At specialized type trying to get a value but previous callee has put in ");
-            }
-
-            if(! temporaryValues.empty() && ! temporaryValues.peek().getTypeParameters().isEmpty()) {
-                // System.out.println("At specialized type where the callee has already put in type parameters so still adding new temp values in stack - analyze this situation");
-                hasPreviousTempValues = false;
-            }
-
-            if(! hasPreviousTempValues) {
+            if(! fromInstantiation) {
                 temporaryValues.add(new TemporaryParameterValues());
             }
 
@@ -1384,7 +1380,7 @@ public class CallGraphGenerator {
 
             AbstractObjectOfLanguage typeObj = symtabLookup(scope.peek(), name);
 
-            if(! hasPreviousTempValues) {
+            if(! fromInstantiation) {
                 temporaryValues.pop();
             }
 
@@ -1392,6 +1388,10 @@ public class CallGraphGenerator {
         }
 
         public AbstractObjectOfLanguage visitheaderStackType(GNode n) {
+            return visitheaderStackType(n, false);
+        }
+
+        public AbstractObjectOfLanguage visitheaderStackType(GNode n, boolean fromInstantiation) {
             // since header stack type is just a regular header or specialized type with multiple
             // instances (an array of headers) - https://p4.org/p4-spec/docs/P4-16-working-spec.html#sec-header-stacks
             // TODO: we do not keep track of number of elements in the array
@@ -1426,7 +1426,7 @@ public class CallGraphGenerator {
                 // specializedType
                 assert firstChild.getName() == "specializedType";
                 dispatch(getGNodeUnderConditional(n.getGeneric(2))); // expression
-                return (AbstractObjectOfLanguage) dispatch(firstChild);
+                return visitspecializedType(firstChild, fromInstantiation);
             }
         }
 
@@ -1558,9 +1558,15 @@ public class CallGraphGenerator {
             }
 
             temporaryValues.add(new TemporaryParameterValues());
-
+            AbstractObjectOfLanguage typeRefObj;
             dispatch(n.getGeneric(typeRefIndx + 2)); // argumentList
-            AbstractObjectOfLanguage typeRefObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(typeRefIndx)));
+            if(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(typeRefIndx)).getGeneric(0)).getName() == "specializedType") {
+                typeRefObj = visitspecializedType(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(typeRefIndx)).getGeneric(0)), true);
+            } else if  (getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(typeRefIndx)).getGeneric(0)).getName() == "headerStackType") {
+                typeRefObj = visitheaderStackType(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(typeRefIndx)).getGeneric(0)), true);
+            } else {
+                typeRefObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(typeRefIndx)));
+            }
 
             String name = getStringUnderName(getGNodeUnderConditional(n.getGeneric(typeRefIndx+4)));
             SubClass instantiationVar = p4LanguageObject.new SubClass(name, scope.peek(), typeRefObj);
