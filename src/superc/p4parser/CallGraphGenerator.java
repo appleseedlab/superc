@@ -316,7 +316,8 @@ public class CallGraphGenerator {
         } else {
             AbstractObjectOfLanguage symtabValue = symtab.get(localScope).get(typeName);
             if(generateInstance && symtabValue.isGeneratorClass()) {
-                // System.out.println("Generating instance of: " + symtabValue.getName());
+                // System.out.println("Generating instance of: " + symtabValue.getName() + " " + symtabValue);
+                // System.out.println("parameters size: " + temporaryValues.peek().getParameters().size() + "; type parameters size: " + temporaryValues.peek().getTypeParameters().size());
                 assert (!temporaryValues.isEmpty()) && (!temporaryValues.peek().getParameters().isEmpty() | !temporaryValues.peek().getTypeParameters().isEmpty());
                 symtabValue = ((Generator) symtabValue).generateInstance(temporaryValues.peek().getTypeParameters(), temporaryValues.peek().getParameters(), symtab.get(symtabValue), symtab);
             }
@@ -670,7 +671,12 @@ public class CallGraphGenerator {
          */
         public AbstractObjectOfLanguage visitparserTypeDeclaration(GNode n, boolean addToSymtab) {
             String parserTypeName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
-            ParserTypeDeclaration parserTypeObj = p4LanguageObject.new ParserTypeDeclaration(parserTypeName, scope.peek());
+            AbstractObjectOfLanguage parserTypeObj = p4LanguageObject.new ParserTypeDeclaration(parserTypeName, scope.peek());
+
+            if(getGNodeUnderConditional(n.getGeneric(3)).size() > 0) { // has type parameters, so generator
+                parserTypeObj = p4LanguageObject.new ParserTypeDeclarationGenerator((ParserTypeDeclaration) parserTypeObj);
+            }
+
             if(addToSymtab) {
                 addToSymtab(scope.peek(), parserTypeName, parserTypeObj);
                 scope.add(parserTypeObj);
@@ -893,6 +899,7 @@ public class CallGraphGenerator {
         }
 
         public AbstractObjectOfLanguage visitargument(GNode n) {
+            assert !temporaryValues.empty();
             if(n.get(0) instanceof Syntax || 
                 getValueUnderConditional(n.getGeneric(0)) instanceof Syntax) {
                 temporaryValues.peek().addToParameters(baseTypesCollection.getDontCareLanguageObject());
@@ -907,7 +914,6 @@ public class CallGraphGenerator {
                 // System.out.println("visting names argument expression with name: " + getGNodeUnderConditional(n.getGeneric(0)).toString());
                 value = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(2)));
             }
-
             temporaryValues.peek().addToParameters(value);
             return value;
         }
@@ -1094,6 +1100,7 @@ public class CallGraphGenerator {
                 returnValue = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(0)));
             }
 
+            assert !temporaryValues.empty();
             temporaryValues.peek().addToTypeParameters(returnValue);
             return returnValue;
         }
@@ -1246,7 +1253,7 @@ public class CallGraphGenerator {
             } else {
                 newParameterObj = p4LanguageObject.new Parameter(name, scope.peek(), parameterType, direction);
             }
-            // System.out.println("adding new parameter: '" + name + "' to scope: " + scope.peek().getName());
+            // System.out.println("adding new parameter: '" + name + "' to scope: " + scope.peek().getName() + " " + scope.peek());
             addToSymtab(scope.peek(), name, newParameterObj);
             scope.peek().addParameter(newParameterObj);
 
@@ -1289,12 +1296,21 @@ public class CallGraphGenerator {
 
         public AbstractObjectOfLanguage visitparserDeclaration(GNode n) {
             String parserName = getStringUnderParserTypeDeclaration(getGNodeUnderConditional(n.getGeneric(0)));
+            
             ParserDeclaration parserObj = p4LanguageObject.new ParserDeclaration(parserName, scope.peek());
+            // if it has type parameters under parserTypeDeclaration, cannot happen as per language specifications
+            // (https://p4.org/p4-spec/docs/P4-16-working-spec.html#sec-parser-decl)
+            if(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0))).getGeneric(3).size() > 0) {
+                System.err.println("Parser declaration (" + parserName + ") cannot have generics.");
+                System.exit(1);
+            }
+
             addToSymtab(scope.peek(), parserName, parserObj);
             scope.add(parserObj);
 
-            ParserTypeDeclaration parserTypeDeclaration = (ParserTypeDeclaration) visitparserTypeDeclaration(getGNodeUnderConditional(n.getGeneric(0)), false);
-            parserObj.setParserTypeDeclaration(parserTypeDeclaration);
+            AbstractObjectOfLanguage parserTypeDeclaration = visitparserTypeDeclaration(getGNodeUnderConditional(n.getGeneric(0)), false);
+            assert !parserTypeDeclaration.isGeneratorClass();
+            parserObj.setParserTypeDeclaration((ParserTypeDeclaration) parserTypeDeclaration);
 
             dispatch(getGNodeUnderConditional(n.getGeneric(1))); // optConstructorParameters
             dispatch(getGNodeUnderConditional(n.getGeneric(3))); // parserLocalElements TODO: valueSetDeclaration needs to be traced for data flow
@@ -1330,6 +1346,7 @@ public class CallGraphGenerator {
                 }
             }
 
+            assert !temporaryValues.empty();
             temporaryValues.peek().addToTypeParameters(returnValue);
             return returnValue;
         }
@@ -1348,13 +1365,28 @@ public class CallGraphGenerator {
         public AbstractObjectOfLanguage visitspecializedType(GNode n) {
             String name = getNameFromTypeName(getGNodeUnderConditional(n.getGeneric(0)));
 
-            temporaryValues.add(new TemporaryParameterValues());
+            boolean hasPreviousTempValues = false;
+            if(! temporaryValues.empty() && ! temporaryValues.peek().getParameters().isEmpty()) {
+                hasPreviousTempValues = true;
+                // System.out.println("At specialized type trying to get a value but previous callee has put in ");
+            }
+
+            if(! temporaryValues.empty() && ! temporaryValues.peek().getTypeParameters().isEmpty()) {
+                // System.out.println("At specialized type where the callee has already put in type parameters so still adding new temp values in stack - analyze this situation");
+                hasPreviousTempValues = false;
+            }
+
+            if(! hasPreviousTempValues) {
+                temporaryValues.add(new TemporaryParameterValues());
+            }
 
             dispatch(getGNodeUnderConditional(n.getGeneric(2))); // typeArgumentList
 
             AbstractObjectOfLanguage typeObj = symtabLookup(scope.peek(), name);
 
-            temporaryValues.pop();
+            if(! hasPreviousTempValues) {
+                temporaryValues.pop();
+            }
 
             return typeObj;
         }
@@ -1527,8 +1559,8 @@ public class CallGraphGenerator {
 
             temporaryValues.add(new TemporaryParameterValues());
 
-            AbstractObjectOfLanguage typeRefObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(typeRefIndx)));
             dispatch(n.getGeneric(typeRefIndx + 2)); // argumentList
+            AbstractObjectOfLanguage typeRefObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(typeRefIndx)));
 
             String name = getStringUnderName(getGNodeUnderConditional(n.getGeneric(typeRefIndx+4)));
             SubClass instantiationVar = p4LanguageObject.new SubClass(name, scope.peek(), typeRefObj);

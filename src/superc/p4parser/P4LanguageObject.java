@@ -523,80 +523,31 @@ class P4LanguageObject {
             if(scopeToAddUnder == null) {
                 scopeToAddUnder = newInstance;
             }
-            if(! parsedTypeParameters.isEmpty()) {
-                assert this.hasParameters() : "Assuming that if package type declaration has type parameters, then there are regular parameters passed in with generic types";
-                assert ! parsedParameters.isEmpty();
-            }
+            // if(! parsedTypeParameters.isEmpty()) {
+            //     assert this.hasParameters() : this + " Assuming that if package type declaration has type parameters, then there are regular parameters passed in with generic types";
+            //     assert ! parsedParameters.isEmpty();
+            // }
 
-            assert this.getParameters().size() == parsedParameters.size();
-            
-            ArrayList<Parameter> originalParameters = this.getParameters();
-            for(int i = 0; i < originalParameters.size(); i++) {
-                Parameter currentParam = originalParameters.get(i);
-                if(currentParam.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
-                    assert this.getOptTypeParameters().contains(currentParam.getType());
+            if(! parsedParameters.isEmpty()) {
+                assert this.getParameters().size() == parsedParameters.size();
+                
+                ArrayList<Parameter> originalParameters = this.getParameters();
+                for(int i = 0; i < originalParameters.size(); i++) {
+                    Parameter currentParam = originalParameters.get(i);
+                    if(currentParam.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
+                        assert this.getOptTypeParameters().contains(currentParam.getType());
 
-                    int typeIndex = this.getOptTypeParameters().indexOf(currentParam.getType());
-                    AbstractObjectOfLanguage type = parsedTypeParameters.get(typeIndex);
-                    Parameter newParam = new Parameter(currentParam.getName(), scopeToAddUnder, type, currentParam.getDirection(), currentParam.getAssignedExpression());
-                    newInstance.addParameter(newParam);
-                    addToSymtab(scopeToAddUnder, newParam.getName(), newParam, symtab);
-                } else {
-                    Parameter newParam = new Parameter(currentParam.getName(), scopeToAddUnder, currentParam.getType(), currentParam.getDirection(), currentParam.getAssignedExpression());
-                    newInstance.addParameter(newParam);
-                    addToSymtab(scopeToAddUnder, newParam.getName(), newParam, symtab);
+                        int typeIndex = this.getOptTypeParameters().indexOf(currentParam.getType());
+                        AbstractObjectOfLanguage type = parsedTypeParameters.get(typeIndex);
+                        Parameter newParam = new Parameter(currentParam.getName(), scopeToAddUnder, type, currentParam.getDirection(), currentParam.getAssignedExpression());
+                        newInstance.addParameter(newParam);
+                        addToSymtab(scopeToAddUnder, newParam.getName(), newParam, symtab);
+                    } else {
+                        Parameter newParam = new Parameter(currentParam.getName(), scopeToAddUnder, currentParam.getType(), currentParam.getDirection(), currentParam.getAssignedExpression());
+                        newInstance.addParameter(newParam);
+                        addToSymtab(scopeToAddUnder, newParam.getName(), newParam, symtab);
+                    }
                 }
-            }
-
-            return newInstance;
-        }
-    }
-
-    class ParserDeclarationGenerator extends Generator {
-        ParserTypeDeclarationGenerator parserTypeDeclarationGenerator;
-
-        @Override
-        public LObjectKind getConstructType() {
-            return LObjectKind.PARSERDECLARATIONGENERATOR;
-        }
-
-        public void setParserTypeDeclarationGenerator(ParserTypeDeclarationGenerator parserTypeDeclarationGenerator) {
-            assert this.parserTypeDeclarationGenerator == parserTypeDeclarationGenerator;
-
-            this.parserTypeDeclarationGenerator = parserTypeDeclarationGenerator;
-        }
-
-        public ParserTypeDeclarationGenerator getParserTypeDeclarationGenerator() {
-            return this.parserTypeDeclarationGenerator;
-        }
-
-        public ParserDeclarationGenerator(ParserDeclaration parserDeclaration) {
-            super(parserDeclaration);
-        }
-
-        public ParserDeclaration generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
-                                                      ArrayList<AbstractObjectOfLanguage> parsedParameters,
-                                                      ArrayList<TypeParameter> typeMappings,
-                                                      Map<String, AbstractObjectOfLanguage> valuesUnderScope,
-                                                      Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
-            ParserDeclaration newInstance = new ParserDeclaration(this.getName(), this.getNameSpace());
-            ParserTypeDeclaration newParserTypeDecl = this.parserTypeDeclarationGenerator.generateInstance(parsedTypeParameters, parsedParameters, typeMappings, valuesUnderScope, symtab, newInstance);
-
-            newInstance.setParserTypeDeclaration(newParserTypeDecl);
-
-            for(String names : valuesUnderScope.keySet()) {
-                AbstractObjectOfLanguage childUnderScope = valuesUnderScope.get(names);
-                AbstractObjectOfLanguage newChildToAdd;
-                if(childUnderScope.isGeneratorClass()) {
-                    newChildToAdd = ((Generator) childUnderScope).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, valuesUnderScope, symtab);
-                } else if(childUnderScope.hasAssociatedType() && childUnderScope.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
-                    assert false : "NEED TO HANDLE THIS! " + childUnderScope.getName() + " has generic type: " + childUnderScope.getType().getName();
-                    newChildToAdd = childUnderScope;
-                } else {
-                    newChildToAdd = childUnderScope;
-                }
-
-                addToSymtab(newInstance, newChildToAdd.getName(), newChildToAdd, symtab);
             }
 
             return newInstance;
