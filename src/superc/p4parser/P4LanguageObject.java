@@ -29,6 +29,7 @@ class P4LanguageObject {
         EXTERNFUNCTIONDECLARATION,
         PARAMETER,
         CONTROLTYPEDECLARATION,
+        CONTROLTYPEDECLARATIONGENERATOR,
         TYPEORVOID,
         TYPEPARAMETER,
         STRUCTFIELD,
@@ -480,6 +481,7 @@ class P4LanguageObject {
 
                     int typeIndex = this.getOptTypeParameters().indexOf(currentParam.getType());
                     AbstractObjectOfLanguage type = parsedTypeParameters.get(typeIndex);
+                    // System.out.println("replacing with type: " + type.getName() + " of: " + currentParam.getName());
                     Parameter newParam = new Parameter(currentParam.getName(), newInstance, type, currentParam.getDirection(), currentParam.getAssignedExpression());
                     newInstance.addParameter(newParam);
                     addToSymtab(newInstance, newParam.getName(), newParam, symtab);
@@ -504,25 +506,12 @@ class P4LanguageObject {
             super(parserTypeDeclaration);
         }
 
-        @Override
         public ParserTypeDeclaration generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
                                                       ArrayList<AbstractObjectOfLanguage> parsedParameters,
                                                       ArrayList<TypeParameter> typeMappings,
                                                       Map<String, AbstractObjectOfLanguage> valuesUnderScope,
                                                       Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
-            return generateInstance(parsedTypeParameters, parsedParameters, typeMappings, valuesUnderScope, symtab, null);
-        }
-
-        public ParserTypeDeclaration generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
-                                                      ArrayList<AbstractObjectOfLanguage> parsedParameters,
-                                                      ArrayList<TypeParameter> typeMappings,
-                                                      Map<String, AbstractObjectOfLanguage> valuesUnderScope,
-                                                      Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab,
-                                                      AbstractObjectOfLanguage scopeToAddUnder) {
             ParserTypeDeclaration newInstance = new ParserTypeDeclaration(this.getName(), this.getNameSpace());
-            if(scopeToAddUnder == null) {
-                scopeToAddUnder = newInstance;
-            }
 
             if(! parsedParameters.isEmpty()) {
                 assert this.getParameters().size() == parsedParameters.size();
@@ -536,14 +525,58 @@ class P4LanguageObject {
 
                     int typeIndex = this.getOptTypeParameters().indexOf(currentParam.getType());
                     AbstractObjectOfLanguage type = parsedTypeParameters.get(typeIndex);
-                    System.out.println("replacing with type: " + type.getName() + " of: " + currentParam.getName());
-                    Parameter newParam = new Parameter(currentParam.getName(), scopeToAddUnder, type, currentParam.getDirection(), currentParam.getAssignedExpression());
+                    // System.out.println("replacing with type: " + type.getName() + " of: " + currentParam.getName());
+                    Parameter newParam = new Parameter(currentParam.getName(), newInstance, type, currentParam.getDirection(), currentParam.getAssignedExpression());
                     newInstance.addParameter(newParam);
-                    addToSymtab(scopeToAddUnder, newParam.getName(), newParam, symtab);
+                    addToSymtab(newInstance, newParam.getName(), newParam, symtab);
                 } else {
-                    Parameter newParam = new Parameter(currentParam.getName(), scopeToAddUnder, currentParam.getType(), currentParam.getDirection(), currentParam.getAssignedExpression());
+                    Parameter newParam = new Parameter(currentParam.getName(), newInstance, currentParam.getType(), currentParam.getDirection(), currentParam.getAssignedExpression());
                     newInstance.addParameter(newParam);
-                    addToSymtab(scopeToAddUnder, newParam.getName(), newParam, symtab);
+                    addToSymtab(newInstance, newParam.getName(), newParam, symtab);
+                }
+            }
+
+            return newInstance;
+        }
+    }
+
+    class ControlTypeDeclarationGenerator extends Generator {
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.CONTROLTYPEDECLARATIONGENERATOR;
+        }
+
+        public ControlTypeDeclarationGenerator(ControlTypeDeclaration controlTypeDeclaration) {
+            super(controlTypeDeclaration);
+        }
+
+        public ControlTypeDeclaration generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
+                                                      ArrayList<AbstractObjectOfLanguage> parsedParameters,
+                                                      ArrayList<TypeParameter> typeMappings,
+                                                      Map<String, AbstractObjectOfLanguage> valuesUnderScope,
+                                                      Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
+            ControlTypeDeclaration newInstance = new ControlTypeDeclaration(this.getName(), this.getNameSpace());
+
+            if(! parsedParameters.isEmpty()) {
+                assert this.getParameters().size() == parsedParameters.size();
+            }
+                
+            ArrayList<Parameter> originalParameters = this.getParameters();
+            for(int i = 0; i < originalParameters.size(); i++) {
+                Parameter currentParam = originalParameters.get(i);
+                if(currentParam.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
+                    assert this.getOptTypeParameters().contains(currentParam.getType());
+
+                    int typeIndex = this.getOptTypeParameters().indexOf(currentParam.getType());
+                    AbstractObjectOfLanguage type = parsedTypeParameters.get(typeIndex);
+                    // System.out.println("replacing with type: " + type.getName() + " of: " + currentParam.getName());
+                    Parameter newParam = new Parameter(currentParam.getName(), newInstance, type, currentParam.getDirection(), currentParam.getAssignedExpression());
+                    newInstance.addParameter(newParam);
+                    addToSymtab(newInstance, newParam.getName(), newParam, symtab);
+                } else {
+                    Parameter newParam = new Parameter(currentParam.getName(), newInstance, currentParam.getType(), currentParam.getDirection(), currentParam.getAssignedExpression());
+                    newInstance.addParameter(newParam);
+                    addToSymtab(newInstance, newParam.getName(), newParam, symtab);
                 }
             }
 

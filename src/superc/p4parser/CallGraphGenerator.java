@@ -316,7 +316,7 @@ public class CallGraphGenerator {
         } else {
             AbstractObjectOfLanguage symtabValue = symtab.get(localScope).get(typeName);
             if(generateInstance && symtabValue.isGeneratorClass()) {
-                // System.out.println("Generating instance of: " + symtabValue.getName() + " " + symtabValue);
+                System.out.println("Generating instance of: " + symtabValue.getName() + " " + symtabValue);
                 // System.out.println("parameters size: " + temporaryValues.peek().getParameters().size() + "; type parameters size: " + temporaryValues.peek().getTypeParameters().size());
                 assert (!temporaryValues.isEmpty()) && (!temporaryValues.peek().getParameters().isEmpty() | !temporaryValues.peek().getTypeParameters().isEmpty());
                 symtabValue = ((Generator) symtabValue).generateInstance(temporaryValues.peek().getTypeParameters(), temporaryValues.peek().getParameters(), symtab.get(symtabValue), symtab);
@@ -404,7 +404,12 @@ public class CallGraphGenerator {
             addToSymtab(scope.peek(), controlBlockName, controlObj);
             scope.add(controlObj);
 
-            visitcontrolTypeDeclaration(getGNodeUnderConditional(n.getGeneric(0)), false);
+            AbstractObjectOfLanguage controlTypeDecl = visitcontrolTypeDeclaration(getGNodeUnderConditional(n.getGeneric(0)), false);
+
+            if(controlTypeDecl.isGeneratorClass()) {
+                System.err.println("Control declaration (" + controlBlockName + ") cannot have generics.");
+                System.exit(1);
+            }
 
             dispatch(getGNodeUnderConditional(n.getGeneric(1))); // optConstructorParameters
             dispatch(getGNodeUnderConditional(n.getGeneric(3))); // controlLocalDeclarations
@@ -704,7 +709,12 @@ public class CallGraphGenerator {
          */
         public AbstractObjectOfLanguage visitcontrolTypeDeclaration(GNode n, Boolean addToSymtab) {
             String controlTypeName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
-            ControlTypeDeclaration controlTypeObj = p4LanguageObject.new ControlTypeDeclaration(controlTypeName, scope.peek());
+            AbstractObjectOfLanguage controlTypeObj = p4LanguageObject.new ControlTypeDeclaration(controlTypeName, scope.peek());
+
+            if(getGNodeUnderConditional(n.getGeneric(3)).size() > 0) { // has type parameters, so generator
+                controlTypeObj = p4LanguageObject.new ControlTypeDeclarationGenerator((ControlTypeDeclaration) controlTypeObj);
+            }
+
             if(addToSymtab) {
                 addToSymtab(scope.peek(), controlTypeName, controlTypeObj);
                 scope.add(controlTypeObj);
@@ -723,7 +733,13 @@ public class CallGraphGenerator {
 
         public AbstractObjectOfLanguage visitpackageTypeDeclaration(GNode n) {
             String packageTypeName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
-            PackageTypeDeclaration packageTypeObj = p4LanguageObject.new PackageTypeDeclaration(packageTypeName, scope.peek());
+            AbstractObjectOfLanguage packageTypeObj = p4LanguageObject.new PackageTypeDeclaration(packageTypeName, scope.peek());
+
+            // check if it has generic parameters, if so make it generator class
+            if(getGNodeUnderConditional(n.getGeneric(3)).size() > 0) {
+                packageTypeObj = p4LanguageObject.new PackageTypeDeclarationGenerator((PackageTypeDeclaration) packageTypeObj);
+            }
+
             addToSymtab(scope.peek(), packageTypeName, packageTypeObj);
             scope.add(packageTypeObj);
 
