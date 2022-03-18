@@ -2652,7 +2652,9 @@ public class CallGraphGenerator {
     }
 
     public void printCallGraph() {
-        for(AbstractObjectOfLanguage key : symtab.keySet()) {
+        ArrayList<AbstractObjectOfLanguage> sortedSymtabKeys = new ArrayList<>(symtab.keySet());
+        Collections.sort(sortedSymtabKeys);
+        for(AbstractObjectOfLanguage key : sortedSymtabKeys) {
             System.out.println(key.toStringExtensive(symtab, callGraphObject, global_scope));
         }
         // System.out.println(callGraphObject);

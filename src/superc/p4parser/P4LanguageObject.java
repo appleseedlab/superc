@@ -1,10 +1,13 @@
 package superc.p4parser;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
 
 
 // For symbols
@@ -62,7 +65,7 @@ class P4LanguageObject {
 
     // TODO handle constructor method prototype parameters & action declarations
 
-    abstract class AbstractObjectOfLanguage {
+    abstract class AbstractObjectOfLanguage implements Comparable<AbstractObjectOfLanguage>{
         private final String name;
         private final AbstractObjectOfLanguage nameSpace;
         abstract boolean isScoped();
@@ -202,13 +205,29 @@ class P4LanguageObject {
             return name + "(" + this.getNameSpaceString(global_scope) + ")";
         }
 
+        @Override
+        public int compareTo(AbstractObjectOfLanguage e) {
+            return this.getName(true).compareTo(e.getName(true));
+        }
+
         /**
             * A toString function to use when in-depth detail about current object is needed.
             * Outputs the callees present under the current object if it is not present under the global scope.
             * @return
             */
-        public String toStringExtensive(Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab, HashMap<AbstractObjectOfLanguage, HashSet<AbstractObjectOfLanguage>> callGraphObject, AbstractObjectOfLanguage global_scope) {
+        public String toStringExtensive(Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtabGiven, HashMap<AbstractObjectOfLanguage, HashSet<AbstractObjectOfLanguage>> callGraphObjectGiven, AbstractObjectOfLanguage global_scope) {
             String finalString = name + ": ";
+
+            TreeMap<AbstractObjectOfLanguage, TreeMap<String, AbstractObjectOfLanguage>> symtab = new TreeMap<>();
+
+            for(AbstractObjectOfLanguage mainKey : symtabGiven.keySet()) {
+                symtab.put(mainKey, new TreeMap<String, AbstractObjectOfLanguage>());
+                for(String childKey : symtabGiven.get(mainKey).keySet()) {
+                    symtab.get(mainKey).put(childKey, symtabGiven.get(mainKey).get(childKey));
+                }
+            }
+
+            TreeMap<AbstractObjectOfLanguage, HashSet<AbstractObjectOfLanguage>> callGraphObject = new TreeMap<>(callGraphObjectGiven);
 
             Iterator<String> itr = symtab.get(this).keySet().iterator();
 
@@ -245,6 +264,7 @@ class P4LanguageObject {
                 }
 
                 if(! calleeNames.isEmpty()) {
+                    Collections.sort(calleeNames);
                     finalString += ": " + calleeNames.toString();
                 }
                 finalString += (itr.hasNext() ? ", " : "");

@@ -344,7 +344,9 @@ public class SuperP4 extends Tool {
       word("templateFileForMatrix", "templateFileForMatrix", true,
            "Path to text file containing the blocks names in the main package instantiation..").
       bool("callGraph", "callGraph", false,
-           "Print Call graph image").
+           "Create a call graph plot (will be saved as a PDF with same name)").
+      bool("printCallGraph", "printCallGraph", false,
+           "Print the calculated call graph").
       bool("printSource", "printSource", false,
            "Print the parsed AST in C source form.").
       bool("suppressConditions", "suppressConditions", false,
@@ -1219,11 +1221,13 @@ public class SuperP4 extends Tool {
       }
 
 
-      if(runtime.test("callGraph")) {
+      if(runtime.test("callGraph") || runtime.test("printCallGraph")) {
         CallGraphGenerator graph = new CallGraphGenerator();
         graph.buildSymbolTable((Node) translationUnit);
         graph.buildCallGraph((Node) translationUnit);
-        // graph.printCallGraph();
+        if(runtime.test("printCallGraph")) {
+          graph.printCallGraph();
+        }
         graph.createCallGraphVisual(file.getName() + ".callGraph");
       }
       if(runtime.test("preprocessorUsageMatrix")) {
