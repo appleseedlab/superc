@@ -27,7 +27,9 @@ class P4LanguageObject {
         EXTERNDECLARATION,
         EXTERNDECLARATIONGENERATOR,
         EXTERNFUNCTIONDECLARATION,
+        EXTERNFUNCTIONDECLARATIONGENERATOR,
         PARAMETER,
+        PARAMETERGENERATOR,
         CONTROLTYPEDECLARATION,
         CONTROLTYPEDECLARATIONGENERATOR,
         TYPEORVOID,
@@ -44,6 +46,7 @@ class P4LanguageObject {
         INVOKABLEKEYWORD,
         BUILTINFUNCTION,
         VARIABLE,
+        VARIABLEGENERATOR,
         BASETYPE,
         FUNCTION,
         METHOD,
@@ -52,7 +55,8 @@ class P4LanguageObject {
         HEADERSTACKTYPE,
         ANONYMOUS,
         SUBCLASS,
-        FUNCTIONDECLARATION
+        FUNCTIONDECLARATION,
+        FUNCTIONDECLARATIONGENERATOR
     }
 
     // TODO handle constructor method prototype parameters & action declarations
@@ -64,7 +68,7 @@ class P4LanguageObject {
         // not making this private to avoid allocating memory since it is not present most times
         private ArrayList<Parameter> optConstructorParameters = null;
         // private ArrayList<Annotation> optAnnotations = null;
-        private ArrayList<Parameter> parameters;
+        private ArrayList<AbstractObjectOfLanguage> parameters;
         
         // abstract method to return respective enum
         abstract LObjectKind getConstructType();
@@ -79,11 +83,12 @@ class P4LanguageObject {
             return ! this.parameters.isEmpty();
         }
 
-        public void addParameter(Parameter parameter) {
+        public void addParameter(AbstractObjectOfLanguage parameter) {
+            assert parameter.getConstructType() == LObjectKind.PARAMETER || parameter.getConstructType() == LObjectKind.PARAMETERGENERATOR;
             this.parameters.add(parameter);
         }
 
-        public ArrayList<Parameter> getParameters() {
+        public ArrayList<AbstractObjectOfLanguage> getParameters() {
             return this.parameters;
         }
 
@@ -405,21 +410,33 @@ class P4LanguageObject {
             return this.originalRegularObject;
         }
 
+        @Override
+        public boolean hasAssociatedType() {
+            return this.getRegularLanguageObject().hasAssociatedType();
+        }
+
+        @Override
+        AbstractObjectOfLanguage getType() {
+            return this.getRegularLanguageObject().getType();
+        }
+
         public AbstractObjectOfLanguage generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters,
                                                         ArrayList<AbstractObjectOfLanguage> parsedParameters,
                                                         Map<String, AbstractObjectOfLanguage> valuesUnderScope,
                                                         Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
-            return this.generateInstance(parsedTypeParameters, parsedParameters, this.getOptTypeParameters(), valuesUnderScope, symtab);
+            return this.generateInstance(parsedTypeParameters, parsedParameters, this.getOptTypeParameters(), this.getParameters(), valuesUnderScope, symtab);
         }
 
         // type mappings are introduced for cases one generator function calls a child generator construct's generateInstance function and passes in
         // in its own (parent) parsedTypeParameters and parsedParameters to the child generator construct. So in those cases those values
         // are passed to the parent's generic types and not the child's. Hence to differentiate it we pass in typeMappings
         // example is ExternDeclarationGenerator potentially calling a child functionPrototype's generator function
+        // Similar case for parameter mappings (e.g. nested function prototypes)
 
         abstract public AbstractObjectOfLanguage generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
                                                                ArrayList<AbstractObjectOfLanguage> parsedParameters,
                                                                ArrayList<TypeParameter> typeMappings,
+                                                               ArrayList<AbstractObjectOfLanguage> parameterMappings,
                                                                Map<String, AbstractObjectOfLanguage> valuesUnderScope,
                                                                Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab);
 
@@ -463,6 +480,7 @@ class P4LanguageObject {
         public PackageTypeDeclaration generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
                                                       ArrayList<AbstractObjectOfLanguage> parsedParameters,
                                                       ArrayList<TypeParameter> typeMappings,
+                                                      ArrayList<AbstractObjectOfLanguage> parameterMappings,
                                                       Map<String, AbstractObjectOfLanguage> valuesUnderScope,
                                                       Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
             PackageTypeDeclaration newInstance = new PackageTypeDeclaration(this.getName(), this.getNameSpace());
@@ -471,25 +489,20 @@ class P4LanguageObject {
                 assert ! parsedParameters.isEmpty();
             }
 
-            assert this.getParameters().size() == parsedParameters.size();
+            assert parameterMappings.size() == parsedParameters.size();
             
-            ArrayList<Parameter> originalParameters = this.getParameters();
-            for(int i = 0; i < this.getParameters().size(); i++) {
-                Parameter currentParam = originalParameters.get(i);
-                if(currentParam.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
-                    assert this.getOptTypeParameters().contains(currentParam.getType());
+            ArrayList<AbstractObjectOfLanguage> originalParameters = parameterMappings;
+            for(int i = 0; i < parameterMappings.size(); i++) {
+                AbstractObjectOfLanguage currentParam = originalParameters.get(i);
+                AbstractObjectOfLanguage newParam = currentParam;
 
-                    int typeIndex = this.getOptTypeParameters().indexOf(currentParam.getType());
-                    AbstractObjectOfLanguage type = parsedTypeParameters.get(typeIndex);
-                    // System.out.println("replacing with type: " + type.getName() + " of: " + currentParam.getName());
-                    Parameter newParam = new Parameter(currentParam.getName(), newInstance, type, currentParam.getDirection(), currentParam.getAssignedExpression());
-                    newInstance.addParameter(newParam);
-                    addToSymtab(newInstance, newParam.getName(), newParam, symtab);
-                } else {
-                    Parameter newParam = new Parameter(currentParam.getName(), newInstance, currentParam.getType(), currentParam.getDirection(), currentParam.getAssignedExpression());
-                    newInstance.addParameter(newParam);
-                    addToSymtab(newInstance, newParam.getName(), newParam, symtab);
+                if(currentParam.isGeneratorClass()) {
+                    assert typeMappings.contains(currentParam.getType());
+                    newParam = ((ParameterGenerator) currentParam).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, originalParameters, symtab.get(valuesUnderScope.get(currentParam.getName())), symtab);
                 }
+
+                newInstance.addParameter(newParam);
+                addToSymtab(newInstance, newParam.getName(), newParam, symtab);
             }
 
             return newInstance;
@@ -509,31 +522,27 @@ class P4LanguageObject {
         public ParserTypeDeclaration generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
                                                       ArrayList<AbstractObjectOfLanguage> parsedParameters,
                                                       ArrayList<TypeParameter> typeMappings,
+                                                      ArrayList<AbstractObjectOfLanguage> parameterMappings,
                                                       Map<String, AbstractObjectOfLanguage> valuesUnderScope,
                                                       Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
             ParserTypeDeclaration newInstance = new ParserTypeDeclaration(this.getName(), this.getNameSpace());
 
             if(! parsedParameters.isEmpty()) {
-                assert this.getParameters().size() == parsedParameters.size();
+                assert parameterMappings.size() == parsedParameters.size();
             }
                 
-            ArrayList<Parameter> originalParameters = this.getParameters();
+            ArrayList<AbstractObjectOfLanguage> originalParameters = parameterMappings;
             for(int i = 0; i < originalParameters.size(); i++) {
-                Parameter currentParam = originalParameters.get(i);
-                if(currentParam.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
-                    assert this.getOptTypeParameters().contains(currentParam.getType());
+                AbstractObjectOfLanguage currentParam = originalParameters.get(i);
+                AbstractObjectOfLanguage newParam = currentParam;
 
-                    int typeIndex = this.getOptTypeParameters().indexOf(currentParam.getType());
-                    AbstractObjectOfLanguage type = parsedTypeParameters.get(typeIndex);
-                    // System.out.println("replacing with type: " + type.getName() + " of: " + currentParam.getName());
-                    Parameter newParam = new Parameter(currentParam.getName(), newInstance, type, currentParam.getDirection(), currentParam.getAssignedExpression());
-                    newInstance.addParameter(newParam);
-                    addToSymtab(newInstance, newParam.getName(), newParam, symtab);
-                } else {
-                    Parameter newParam = new Parameter(currentParam.getName(), newInstance, currentParam.getType(), currentParam.getDirection(), currentParam.getAssignedExpression());
-                    newInstance.addParameter(newParam);
-                    addToSymtab(newInstance, newParam.getName(), newParam, symtab);
+                if(currentParam.isGeneratorClass()) {
+                    assert typeMappings.contains(currentParam.getType());
+                    newParam = ((ParameterGenerator) currentParam).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, originalParameters, symtab.get(valuesUnderScope.get(currentParam.getName())), symtab);   
                 }
+
+                newInstance.addParameter(newParam);
+                addToSymtab(newInstance, newParam.getName(), newParam, symtab);
             }
 
             return newInstance;
@@ -553,31 +562,27 @@ class P4LanguageObject {
         public ControlTypeDeclaration generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
                                                       ArrayList<AbstractObjectOfLanguage> parsedParameters,
                                                       ArrayList<TypeParameter> typeMappings,
+                                                      ArrayList<AbstractObjectOfLanguage> parameterMappings,
                                                       Map<String, AbstractObjectOfLanguage> valuesUnderScope,
                                                       Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
             ControlTypeDeclaration newInstance = new ControlTypeDeclaration(this.getName(), this.getNameSpace());
 
             if(! parsedParameters.isEmpty()) {
-                assert this.getParameters().size() == parsedParameters.size();
+                assert parameterMappings.size() == parsedParameters.size();
             }
-                
-            ArrayList<Parameter> originalParameters = this.getParameters();
+            
+            ArrayList<AbstractObjectOfLanguage> originalParameters = parameterMappings;
             for(int i = 0; i < originalParameters.size(); i++) {
-                Parameter currentParam = originalParameters.get(i);
-                if(currentParam.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
-                    assert this.getOptTypeParameters().contains(currentParam.getType());
+                AbstractObjectOfLanguage currentParam = originalParameters.get(i);
+                AbstractObjectOfLanguage newParam = currentParam;
 
-                    int typeIndex = this.getOptTypeParameters().indexOf(currentParam.getType());
-                    AbstractObjectOfLanguage type = parsedTypeParameters.get(typeIndex);
-                    // System.out.println("replacing with type: " + type.getName() + " of: " + currentParam.getName());
-                    Parameter newParam = new Parameter(currentParam.getName(), newInstance, type, currentParam.getDirection(), currentParam.getAssignedExpression());
-                    newInstance.addParameter(newParam);
-                    addToSymtab(newInstance, newParam.getName(), newParam, symtab);
-                } else {
-                    Parameter newParam = new Parameter(currentParam.getName(), newInstance, currentParam.getType(), currentParam.getDirection(), currentParam.getAssignedExpression());
-                    newInstance.addParameter(newParam);
-                    addToSymtab(newInstance, newParam.getName(), newParam, symtab);
+                if(currentParam.isGeneratorClass()) {
+                    assert typeMappings.contains(currentParam.getType());
+                    newParam = ((ParameterGenerator) currentParam).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, originalParameters, symtab.get(valuesUnderScope.get(currentParam.getName())), symtab);   
                 }
+
+                newInstance.addParameter(newParam);
+                addToSymtab(newInstance, newParam.getName(), newParam, symtab);
             }
 
             return newInstance;
@@ -597,40 +602,38 @@ class P4LanguageObject {
         public ExternDeclaration generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
                                                       ArrayList<AbstractObjectOfLanguage> parsedParameters,
                                                       ArrayList<TypeParameter> typeMappings,
+                                                      ArrayList<AbstractObjectOfLanguage> parameterMappings,
                                                       Map<String, AbstractObjectOfLanguage> valuesUnderScope,
                                                       Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
             assert this.getOptTypeParameters().size() == parsedTypeParameters.size();
-            assert this.getParameters().size() == parsedParameters.size();
+            assert parameterMappings.size() == parsedParameters.size();
             ExternDeclaration newInstance = new ExternDeclaration(this.getName(), this.getNameSpace());
 
             for(String names : valuesUnderScope.keySet()) {
                 AbstractObjectOfLanguage childUnderScope = valuesUnderScope.get(names);
                 AbstractObjectOfLanguage newChildToAdd;
                 if(childUnderScope.isGeneratorClass()) {
-                    newChildToAdd = ((Generator) childUnderScope).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, valuesUnderScope, symtab);
+                    newChildToAdd = ((Generator) childUnderScope).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab);
                 } else if(childUnderScope.getName().equals(this.getName())) {
                     // constructor
                     newChildToAdd = addToSymtab(newInstance, childUnderScope.getName(), symtab);
 
-                    ArrayList<Parameter> originalParameters = childUnderScope.getParameters();
+                    ArrayList<AbstractObjectOfLanguage> originalParameters = parameterMappings;
                     for(int i = 0; i < originalParameters.size(); i++) {
-                        Parameter currentParam = originalParameters.get(i);
-                        if(currentParam.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
+                        AbstractObjectOfLanguage currentParam = originalParameters.get(i);
+                        AbstractObjectOfLanguage newParam = currentParam;
+
+                        if(currentParam.isGeneratorClass()) {
                             assert typeMappings.contains(currentParam.getType());
-        
-                            int typeIndex = typeMappings.indexOf(currentParam.getType());
-                            AbstractObjectOfLanguage type = parsedTypeParameters.get(typeIndex);
-                            Parameter newParam = new Parameter(currentParam.getName(), newChildToAdd, type, currentParam.getDirection(), currentParam.getAssignedExpression());
-                            newChildToAdd.addParameter(newParam);
-                            addToSymtab(newChildToAdd, newParam.getName(), newParam, symtab);
-                        } else {
-                            Parameter newParam = new Parameter(currentParam.getName(), newChildToAdd, currentParam.getType(), currentParam.getDirection(), currentParam.getAssignedExpression());
-                            newChildToAdd.addParameter(newParam);
-                            addToSymtab(newChildToAdd, newParam.getName(), newParam, symtab);
+                            newParam = ((ParameterGenerator) currentParam).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, originalParameters, symtab.get(valuesUnderScope.get(currentParam.getName())), symtab);   
                         }
+
+                        newInstance.addParameter(newParam);
+                        newChildToAdd = newParam;
+                        // addToSymtab(newInstance, newParam.getName(), newParam, symtab);
                     }
                 } else if(childUnderScope.hasAssociatedType() && childUnderScope.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
-                    assert false : "NEED TO HANDLE THIS! " + childUnderScope.getName() + " has generic type: " + childUnderScope.getType().getName();
+                    assert false : "NEED TO HANDLE THIS! " + childUnderScope.getName() + " has generic type: " + childUnderScope.getType().getName() + " of construct: " + childUnderScope.getConstructType();
                     newChildToAdd = childUnderScope;
                 } else {
                     newChildToAdd = childUnderScope;
@@ -651,18 +654,8 @@ class P4LanguageObject {
             return LObjectKind.FUNCTIONPROTOTYPEGENERATOR;
         }
 
-        @Override
-        public boolean hasAssociatedType() {
-            return super.getRegularLanguageObject().hasAssociatedType();
-        }
-
-        @Override
-        AbstractObjectOfLanguage getType() {
-            return super.getRegularLanguageObject().getType();
-        }
-
         public void setType(AbstractObjectOfLanguage typeOrVoid) {
-            ((FunctionPrototype) super.getRegularLanguageObject()).setType(typeOrVoid);
+            ((FunctionPrototype) this.getRegularLanguageObject()).setType(typeOrVoid);
         }
 
         public FunctionPrototypeGenerator(FunctionPrototype functionPrototype){
@@ -672,8 +665,18 @@ class P4LanguageObject {
         public AbstractObjectOfLanguage generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
                                                       ArrayList<AbstractObjectOfLanguage> parsedParameters,
                                                       ArrayList<TypeParameter> typeMappings,
+                                                      ArrayList<AbstractObjectOfLanguage> parameterMappings,
                                                       Map<String, AbstractObjectOfLanguage> valuesUnderScope,
                                                       Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
+            return this.generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, null);
+        }
+        public AbstractObjectOfLanguage generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
+                                                         ArrayList<AbstractObjectOfLanguage> parsedParameters,
+                                                         ArrayList<TypeParameter> typeMappings,
+                                                         ArrayList<AbstractObjectOfLanguage> parameterMappings,
+                                                         Map<String, AbstractObjectOfLanguage> valuesUnderScope,
+                                                         Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab,
+                                                         AbstractObjectOfLanguage parentScope) {
             AbstractObjectOfLanguage newType;
             AbstractObjectOfLanguage typeOrVoid = super.getRegularLanguageObject().getType();
             boolean doesHaveTypeParameters = false;
@@ -686,8 +689,8 @@ class P4LanguageObject {
                     assert typeMappings.contains(typeOrVoid) : this.getName() + " is supposed to contain the generic: " + typeOrVoid.getName();
 
                     if(parsedTypeParameters.isEmpty()) {
-                        assert doesParameterListContainThisGeneric(this.getParameters(), typeOrVoid);
-                        int indexOfGeneric = getIndexOfParameterWithTheGeneric(this.getParameters(), typeOrVoid);
+                        assert doesParameterListContainThisGeneric(parameterMappings, typeOrVoid);
+                        int indexOfGeneric = getIndexOfParameterWithTheGeneric(parameterMappings, typeOrVoid);
                         // assert indexOfGeneric >= 0 : "Generic: " + typeOrVoid.getName() + " not present inside generator class";
                         newType = parsedParameters.get(indexOfGeneric);
                         if(newType.hasAssociatedType()) {
@@ -702,15 +705,15 @@ class P4LanguageObject {
                 newType = typeOrVoid;
             }
 
-            // assert this.getParameters().size() == parsedParameters.size();
+            // assert parameterMappings.size() == parsedParameters.size();
 
             FunctionPrototype newInstance = new FunctionPrototype(this.getName(), this.getNameSpace(), newType);;
             FunctionPrototypeGenerator newPrototypeInstance = null;
 
-            ArrayList<Parameter> originalParameters = this.getParameters();
+            // ArrayList<AbstractObjectOfLanguage> parameterMappings = parameterMappings;
             if(! doesHaveTypeParameters) {
-                for(int i = 0; i < originalParameters.size(); i++) {
-                    Parameter currentParam = originalParameters.get(i);
+                for(int i = 0; i < parameterMappings.size(); i++) {
+                    AbstractObjectOfLanguage currentParam = parameterMappings.get(i);
                     if(currentParam.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
                         if(! typeMappings.contains(currentParam.getType())) {
                             doesHaveTypeParameters = true;
@@ -726,48 +729,315 @@ class P4LanguageObject {
                     newPrototypeInstance.addOptTypeParameters(e);
                 }
             }
-            
-            for(int i = 0; i < originalParameters.size(); i++) {
-                Parameter newParam;
-                Parameter currentParam = originalParameters.get(i);
-                AbstractObjectOfLanguage newParamType;
-                if(currentParam.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
-                    if(! typeMappings.contains(currentParam.getType())) {
-                        doesHaveTypeParameters = true;
-                        newParamType = currentParam.getType();                   
-                    } else {
-                        assert typeMappings.contains(currentParam.getType());
-    
-                        if(parsedTypeParameters.isEmpty()) {
-                            assert doesParameterListContainThisGeneric(this.getParameters(), currentParam.getType());
-                            int indexOfGeneric = getIndexOfParameterWithTheGeneric(this.getParameters(), currentParam.getType());
-                            // assert indexOfGeneric >= 0 : "Generic: " + currentParam.getType().getName() + " not present inside generator class";
-                            newParamType = parsedParameters.get(indexOfGeneric);
-                            if(newType.hasAssociatedType()) {
-                                newParamType = newType.getType();
-                            }
-                        } else {
-                            int indexOfGeneric = typeMappings.indexOf(currentParam.getType());
-                            newParamType = parsedTypeParameters.get(indexOfGeneric);
-                        }
-                    }
+
+            // We pass in parent scope for cases when functionPrototype is part of a parent construct (functionDeclaration & externFunctionDeclaration)
+            // where the parameters are added to the parent scope and not the functionPrototype scope
+            if(parentScope == null) {
+                if(doesHaveTypeParameters) {
+                    parentScope = newPrototypeInstance;
                 } else {
-                    newParamType = currentParam.getType();
+                    parentScope = newInstance;
+                }
+            }
+            
+            for(int i = 0; i < parameterMappings.size(); i++) {
+                AbstractObjectOfLanguage newParam;
+                AbstractObjectOfLanguage currentParam = parameterMappings.get(i);
+
+                if(currentParam.isGeneratorClass()) {
+                    newParam = ((ParameterGenerator) currentParam).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, symtab.get(valuesUnderScope.get(currentParam.getName())), symtab);
+                } else {
+                    newParam = currentParam;
                 }
 
                 if(doesHaveTypeParameters) {
                     assert newPrototypeInstance != null;
-                    newParam = new Parameter(currentParam.getName(), newPrototypeInstance, newParamType, currentParam.getDirection(), currentParam.getAssignedExpression());
                     newPrototypeInstance.addParameter(newParam);
-                    addToSymtab(newPrototypeInstance, newParam.getName(), newParam, symtab);
                 } else {
-                    newParam = new Parameter(currentParam.getName(), newInstance, newParamType, currentParam.getDirection(), currentParam.getAssignedExpression());
                     newInstance.addParameter(newParam);
-                    addToSymtab(newInstance, newParam.getName(), newParam, symtab);
                 }
+
+                addToSymtab(parentScope, newParam.getName(), newParam, symtab);
             }
 
             return (doesHaveTypeParameters ? newPrototypeInstance : newInstance);
+        }
+    }
+
+    class ExternFunctionDeclarationGenerator extends Generator {
+        private FunctionPrototypeGenerator functionPrototypeGenerator;
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.EXTERNFUNCTIONDECLARATIONGENERATOR;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return this.getRegularLanguageObject().isScoped();
+        }
+
+        public void setFunctionPrototype(FunctionPrototypeGenerator functionPrototypeGenerator) {
+            assert this.functionPrototypeGenerator == null;
+
+            this.functionPrototypeGenerator = functionPrototypeGenerator;
+        }
+
+        public FunctionPrototypeGenerator getFunctionPrototype() {
+            return this.functionPrototypeGenerator;
+        }
+
+        @Override
+        public boolean hasAssociatedType() {
+            return this.functionPrototypeGenerator.hasAssociatedType();
+        }
+
+        @Override
+        AbstractObjectOfLanguage getType() {
+            return this.functionPrototypeGenerator.getType();
+        }
+
+        public ExternFunctionDeclarationGenerator(ExternFunctionDeclaration externDeclaration){
+            super(externDeclaration);
+            this.functionPrototypeGenerator = null;
+        }
+
+        public AbstractObjectOfLanguage generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
+                                                      ArrayList<AbstractObjectOfLanguage> parsedParameters,
+                                                      ArrayList<TypeParameter> typeMappings,
+                                                      ArrayList<AbstractObjectOfLanguage> parameterMappings,
+                                                      Map<String, AbstractObjectOfLanguage> valuesUnderScope,
+                                                      Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
+
+            AbstractObjectOfLanguage externObj = new ExternFunctionDeclaration(this.getName(), this.getNameSpace());
+            AbstractObjectOfLanguage functionPrototype = this.getFunctionPrototype().generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, externObj);
+            if(functionPrototype.isGeneratorClass()) {
+                externObj = new ExternFunctionDeclarationGenerator((ExternFunctionDeclaration) externObj);
+                ((ExternFunctionDeclarationGenerator) externObj).setFunctionPrototype((FunctionPrototypeGenerator) functionPrototype);
+            } else {
+                ((ExternFunctionDeclaration) externObj).setFunctionPrototype((FunctionPrototype) functionPrototype);
+            }
+
+            return externObj;
+        }
+    }
+
+    class VariableGenerator extends Generator {
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.VARIABLEGENERATOR;
+        }
+
+        boolean hasAssignedExpression() {
+            return (((Variable) this.getRegularLanguageObject()).getAssignedExpression() != null);
+        }
+
+        public AbstractObjectOfLanguage getAssignedExpression() {
+            return (((Variable) this.getRegularLanguageObject()).getAssignedExpression());
+        }
+
+        public void setAssignedExpression(AbstractObjectOfLanguage expression) {
+            ((Variable) this.getRegularLanguageObject()).assignedExpression = expression;
+        }
+
+        public VariableGenerator(Variable variable) {
+            super(variable);
+        }
+
+        public AbstractObjectOfLanguage generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
+                                                         ArrayList<AbstractObjectOfLanguage> parsedParameters,
+                                                         ArrayList<TypeParameter> typeMappings,
+                                                         ArrayList<AbstractObjectOfLanguage> parameterMappings,
+                                                         Map<String, AbstractObjectOfLanguage> valuesUnderScope,
+                                                         Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
+            AbstractObjectOfLanguage newVarType;
+            if(! typeMappings.contains(this.getType())) {
+                // the generic type of this variable is not yet defined,
+                // so still generic thus still generator type
+                return this;              
+            }
+
+            if(parsedTypeParameters.isEmpty()) {
+                // if(parameterMappings == null) {
+                //     System.err.println("Cannot be null when no type parameters are passed!");
+                //     System.exit(1);
+                // }
+                assert parameterMappings != null;
+                assert doesParameterListContainThisGeneric(parameterMappings, this.getType()) : this.getName();
+                int indexOfGeneric = getIndexOfParameterWithTheGeneric(parameterMappings, this.getType());
+                // assert indexOfGeneric >= 0 : "Generic: " + this.getType().getName() + " not present inside generator class";
+                newVarType = parsedParameters.get(indexOfGeneric);
+            } else {
+                int indexOfGeneric = typeMappings.indexOf(this.getType());
+                newVarType = parsedTypeParameters.get(indexOfGeneric);
+            }
+
+            if(newVarType.hasAssociatedType()) {
+                assert newVarType.getType().getConstructType() != LObjectKind.TYPEPARAMETER && !newVarType.getType().isGeneratorClass();
+                newVarType = newVarType.getType();
+            }
+            
+            Variable newVar = new Variable(this.getName(), this.getNameSpace(), newVarType, this.getAssignedExpression());
+
+            return newVar;
+        }
+    }
+
+    class FunctionDeclarationGenerator extends Generator {
+        private FunctionPrototypeGenerator functionPrototypeGenerator;
+
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.FUNCTIONDECLARATIONGENERATOR;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        public void setFunctionPrototype(FunctionPrototypeGenerator functionPrototypeGenerator) {
+            assert this.functionPrototypeGenerator == null;
+
+            this.functionPrototypeGenerator = functionPrototypeGenerator;
+        }
+
+        public FunctionPrototypeGenerator getFunctionPrototype() {
+            return this.functionPrototypeGenerator;
+        }
+
+        @Override
+        public boolean hasAssociatedType() {
+            return this.functionPrototypeGenerator.hasAssociatedType();
+        }
+
+        @Override
+        AbstractObjectOfLanguage getType() {
+            return this.functionPrototypeGenerator.getType();
+        }
+
+        public void setBlockStatement(AbstractObjectOfLanguage blockStatement) {
+            assert ((FunctionDeclaration) this.getRegularLanguageObject()).getBlockStatement() == null;
+
+            ((FunctionDeclaration) this.getRegularLanguageObject()).setBlockStatement(blockStatement);
+        }
+
+        public AbstractObjectOfLanguage getBlockStatement() {
+            return ((FunctionDeclaration) this.getRegularLanguageObject()).getBlockStatement();
+        }
+
+        public FunctionDeclarationGenerator(FunctionDeclaration functionDeclaration){
+            super(functionDeclaration);
+            this.functionPrototypeGenerator = null;
+        }
+
+        public AbstractObjectOfLanguage generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
+                                                         ArrayList<AbstractObjectOfLanguage> parsedParameters,
+                                                         ArrayList<TypeParameter> typeMappings,
+                                                         ArrayList<AbstractObjectOfLanguage> parameterMappings,
+                                                         Map<String, AbstractObjectOfLanguage> valuesUnderScope,
+                                                         Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
+
+            AbstractObjectOfLanguage functionObj = new FunctionDeclaration(this.getName(), this.getNameSpace());
+            AbstractObjectOfLanguage functionPrototype = this.getFunctionPrototype().generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, functionObj);
+            if(functionPrototype.isGeneratorClass()) {
+                functionObj = new FunctionDeclarationGenerator((FunctionDeclaration) functionObj);
+                ((FunctionDeclarationGenerator) functionObj).setFunctionPrototype((FunctionPrototypeGenerator) functionPrototype);
+                ((FunctionDeclarationGenerator) functionObj).setBlockStatement(((FunctionDeclaration) this.getRegularLanguageObject()).getBlockStatement());
+            } else {
+                ((FunctionDeclaration) functionObj).setFunctionPrototype((FunctionPrototype) functionPrototype);
+                ((FunctionDeclaration) functionObj).setBlockStatement(((FunctionDeclaration) this.getRegularLanguageObject()).getBlockStatement());
+            }
+
+            for(String names : valuesUnderScope.keySet()) {
+                AbstractObjectOfLanguage childUnderScope = valuesUnderScope.get(names);
+                AbstractObjectOfLanguage newChildToAdd;
+                if(childUnderScope.isGeneratorClass()) {
+                    newChildToAdd = ((Generator) childUnderScope).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings,valuesUnderScope, symtab);
+                } else if(childUnderScope.getConstructType() == LObjectKind.TYPEPARAMETER) {
+                    // Type parameters are a child of functions since they are looked up in symtab when setting types of variables
+                    // so just ignore this
+                    if(typeMappings.contains(childUnderScope)) {
+                        // we do not add it back since the type parameter is defined in this invocation 
+                        // and will no longer be generic
+                        continue;
+                    }
+                    newChildToAdd = childUnderScope;
+                } else if (childUnderScope.hasAssociatedType() && childUnderScope.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
+                    assert false : "NEED TO HANDLE THIS! " + childUnderScope.getName() + " has generic type: " + childUnderScope.getType().getName() + " of construct: " + childUnderScope.getConstructType();
+                    newChildToAdd = childUnderScope;
+                } else {
+                    newChildToAdd = childUnderScope;
+                }
+
+                addToSymtab(functionObj, newChildToAdd.getName(), newChildToAdd, symtab);
+            }
+
+            return functionObj;
+        }
+    }
+
+    class ParameterGenerator extends VariableGenerator {
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.PARAMETERGENERATOR;
+        }
+
+        public ParameterGenerator(Parameter parameter) {
+            super(parameter);
+        }
+
+        public ConstantTreeGlobalObjects getDirection() {
+            return ((Parameter) this.getRegularLanguageObject()).getDirection();
+        }
+
+        // public AbstractObjectOfLanguage generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
+        //                                                  ArrayList<AbstractObjectOfLanguage> parsedParameters,
+        //                                                  ArrayList<TypeParameter> typeMappings,
+        //                                                  Map<String, AbstractObjectOfLanguage> valuesUnderScope,
+        //                                                  Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
+        //     return this.generateInstance(parsedTypeParameters, parsedParameters, typeMappings, null, valuesUnderScope, symtab);
+        // }
+
+        public AbstractObjectOfLanguage generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
+                                                         ArrayList<AbstractObjectOfLanguage> parsedParameters,
+                                                         ArrayList<TypeParameter> typeMappings,
+                                                         ArrayList<AbstractObjectOfLanguage> parameterMappings,
+                                                         Map<String, AbstractObjectOfLanguage> valuesUnderScope,
+                                                         Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
+            AbstractObjectOfLanguage newParamType;
+            if(! typeMappings.contains(this.getType())) {
+                // the generic type of this variable is not yet defined,
+                // so still generic thus still generator type
+                return this;              
+            }
+            
+            assert typeMappings.contains(this.getType());
+
+            if(parsedTypeParameters.isEmpty()) {
+                // if(parameterMappings == null) {
+                //     System.err.println("Cannot be null when no type parameters are passed!");
+                //     System.exit(1);
+                // }
+                assert parameterMappings != null;
+                assert doesParameterListContainThisGeneric(parameterMappings, this.getType()) : this.getName();
+                int indexOfGeneric = getIndexOfParameterWithTheGeneric(parameterMappings, this.getType());
+                // assert indexOfGeneric >= 0 : "Generic: " + this.getType().getName() + " not present inside generator class";
+                newParamType = parsedParameters.get(indexOfGeneric);
+            } else {
+                int indexOfGeneric = typeMappings.indexOf(this.getType());
+                newParamType = parsedTypeParameters.get(indexOfGeneric);
+            }
+
+            if(newParamType.hasAssociatedType()) {
+                assert newParamType.getType().getConstructType() != LObjectKind.TYPEPARAMETER && !newParamType.getType().isGeneratorClass();
+                newParamType = newParamType.getType();
+            }
+
+            // System.out.println("replacing parameter with type of: " + this.getName() + " with new type: " + newParamType.getName() + " (old type: " + this.getType().getName() + ")");
+            
+            Parameter newParam = new Parameter(this.getName(), this.getNameSpace(), newParamType, this.getDirection(), this.getAssignedExpression());
+
+            return newParam;
         }
     }
 
@@ -1861,6 +2131,7 @@ class P4LanguageObject {
     }
 
     public AbstractObjectOfLanguage addToSymtab(AbstractObjectOfLanguage scope, String name, AbstractObjectOfLanguage newLangObj, Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
+        // System.out.println("adding: " + name + " under scope: " + scope.getName()  + scope.getConstructType() + " with current construct type: " + newLangObj.getConstructType());
         if( !symtab.containsKey(scope)) {
             symtab.put(scope, new HashMap<>());
         }
@@ -1887,10 +2158,11 @@ class P4LanguageObject {
         return newLangObj;
     }
 
-    public int getIndexOfParameterWithTheGeneric(ArrayList<Parameter> parameters, AbstractObjectOfLanguage typeParameter) {
+    public int getIndexOfParameterWithTheGeneric(ArrayList<AbstractObjectOfLanguage> parameters, AbstractObjectOfLanguage typeParameter) {
         int index = -1;
         for(int i = 0; i < parameters.size(); i++) {
-            Parameter p = parameters.get(i);
+            assert parameters.get(i).getConstructType() == LObjectKind.PARAMETER || parameters.get(i).getConstructType() == LObjectKind.PARAMETERGENERATOR;
+            AbstractObjectOfLanguage p = parameters.get(i);
             if(p.getType().getConstructType() == LObjectKind.TYPEPARAMETER &&
                p.getType() == typeParameter) {
                    index = i;
@@ -1900,7 +2172,7 @@ class P4LanguageObject {
         return index;
     }
 
-    public boolean doesParameterListContainThisGeneric(ArrayList<Parameter> parameters, AbstractObjectOfLanguage type) {
+    public boolean doesParameterListContainThisGeneric(ArrayList<AbstractObjectOfLanguage> parameters, AbstractObjectOfLanguage type) {
         int indexOfIt = getIndexOfParameterWithTheGeneric(parameters, type);
 
         if(indexOfIt < 0) {
