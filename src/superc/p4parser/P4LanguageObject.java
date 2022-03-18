@@ -16,6 +16,7 @@ class P4LanguageObject {
     enum LObjectKind {
         CONSTANTVALUE,
         HEADERTYPEDECLARATION,
+        HEADERTYPEDECLARATIONGENERATOR,
         HEADERUNIONDECLARATION,
         STRUCTTYPEDECLARATION,
         ENUMDECLARATION,
@@ -1038,6 +1039,78 @@ class P4LanguageObject {
             Parameter newParam = new Parameter(this.getName(), this.getNameSpace(), newParamType, this.getDirection(), this.getAssignedExpression());
 
             return newParam;
+        }
+    }
+
+    class HeaderTypeDeclarationGenerator extends Generator {
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.HEADERTYPEDECLARATIONGENERATOR;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        ArrayList<StructField> getStructFieldList() {
+            return ((HeaderTypeDeclaration) this.getRegularLanguageObject()).getStructFieldList();
+        }
+
+        public boolean hasStructFieldList() {
+            return ((HeaderTypeDeclaration) this.getRegularLanguageObject()).hasStructFieldList();
+        }
+
+        public void addToStructFieldList(StructField structField) {
+            ((HeaderTypeDeclaration) this.getRegularLanguageObject()).addToStructFieldList(structField);
+        }
+
+        HeaderTypeDeclarationGenerator(HeaderTypeDeclaration headerTypeDeclaration) {
+            super(headerTypeDeclaration);
+        }
+
+        public HeaderTypeDeclaration generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
+                                                         ArrayList<AbstractObjectOfLanguage> parsedParameters,
+                                                         ArrayList<TypeParameter> typeMappings,
+                                                         ArrayList<AbstractObjectOfLanguage> parameterMappings,
+                                                         Map<String, AbstractObjectOfLanguage> valuesUnderScope,
+                                                         Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
+            HeaderTypeDeclaration headerTypeDecl = new HeaderTypeDeclaration(this.getName(), this.getNameSpace());
+
+            assert parsedParameters.isEmpty() && parameterMappings.isEmpty() : "Haven't explored cases where header is invoked in a nested block where the parent block has parameters passed in (headers do not have passed in parameters, just generic types).";
+            assert typeMappings.size() == this.getOptTypeParameters().size();
+
+            for(String names : valuesUnderScope.keySet()) {
+                AbstractObjectOfLanguage childUnderScope = valuesUnderScope.get(names);
+                AbstractObjectOfLanguage newChildToAdd;
+                if(childUnderScope.isGeneratorClass()) {
+                    newChildToAdd = ((Generator) childUnderScope).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab);
+                } else if(childUnderScope.getConstructType() == LObjectKind.TYPEPARAMETER) {
+                    // Type parameters are a child of functions since they are looked up in symtab when setting types of variables
+                    // so just ignore this
+                    if(typeMappings.contains(childUnderScope)) {
+                        // we do not add it back since the type parameter is defined in this invocation 
+                        // and will no longer be generic
+                        continue;
+                    }
+                    newChildToAdd = childUnderScope;
+                } else if (childUnderScope.hasAssociatedType() && childUnderScope.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
+                    assert false : "NEED TO HANDLE THIS! " + childUnderScope.getName() + " has generic type: " + childUnderScope.getType().getName() + " of construct: " + childUnderScope.getConstructType();
+                    newChildToAdd = childUnderScope;
+                } else {
+                    newChildToAdd = childUnderScope;
+                }
+
+                if(newChildToAdd.isGeneratorClass()) {
+                    System.out.println("Error: new child of headerdeclaration (" + newChildToAdd.getName() + ")still remains of type generic.");
+                    System.exit(1);
+                }
+
+                addToSymtab(headerTypeDecl, newChildToAdd.getName(), newChildToAdd, symtab);
+            }
+
+            return headerTypeDecl;
+
         }
     }
 

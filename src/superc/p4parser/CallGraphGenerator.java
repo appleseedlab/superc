@@ -440,7 +440,12 @@ public class CallGraphGenerator {
 
         public AbstractObjectOfLanguage visitheaderTypeDeclaration(GNode n) {
             String headerTypeName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
-            HeaderTypeDeclaration headerTypeDeclarationObject = p4LanguageObject.new HeaderTypeDeclaration(headerTypeName, scope.peek());
+            AbstractObjectOfLanguage headerTypeDeclarationObject = p4LanguageObject.new HeaderTypeDeclaration(headerTypeName, scope.peek());
+
+            if(getGNodeUnderConditional(n.getGeneric(3)).size() > 0) {
+                headerTypeDeclarationObject = p4LanguageObject.new HeaderTypeDeclarationGenerator((HeaderTypeDeclaration) headerTypeDeclarationObject);
+            }
+
             addToSymtab(scope.peek(), headerTypeName, headerTypeDeclarationObject);
             scope.add(headerTypeDeclarationObject);
 
@@ -533,7 +538,10 @@ public class CallGraphGenerator {
             AbstractObjectOfLanguage typeRefObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(1)));
             String fieldName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
             // System.out.println("visiting struct field: " + fieldName + " with type: " + typeRefObj.getConstructType() );
-            Variable newStructFieldObj = p4LanguageObject.new Variable(fieldName, scope.peek(), typeRefObj);
+            AbstractObjectOfLanguage newStructFieldObj = p4LanguageObject.new Variable(fieldName, scope.peek(), typeRefObj);
+            if(typeRefObj.getConstructType() == LObjectKind.TYPEPARAMETER) {
+                newStructFieldObj = p4LanguageObject.new VariableGenerator((Variable) newStructFieldObj);
+            }
             addToSymtab(scope.peek(), fieldName, newStructFieldObj);
 
             return newStructFieldObj;
