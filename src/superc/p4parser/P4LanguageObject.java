@@ -459,6 +459,48 @@ class P4LanguageObject {
                                                                ArrayList<AbstractObjectOfLanguage> parameterMappings,
                                                                Map<String, AbstractObjectOfLanguage> valuesUnderScope,
                                                                Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab);
+        public void handleGenericsUnderScope(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
+                                            ArrayList<AbstractObjectOfLanguage> parsedParameters,
+                                            ArrayList<TypeParameter> typeMappings,
+                                            ArrayList<AbstractObjectOfLanguage> parameterMappings,
+                                            Map<String, AbstractObjectOfLanguage> valuesUnderScope,
+                                            Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab,
+                                            AbstractObjectOfLanguage newInstance) {
+            for(String names : valuesUnderScope.keySet()) {
+                AbstractObjectOfLanguage childUnderScope = valuesUnderScope.get(names);
+                AbstractObjectOfLanguage newChildToAdd;
+                if(childUnderScope.getConstructType() == LObjectKind.PARAMETER  || childUnderScope.getConstructType() == LObjectKind.PARAMETERGENERATOR) {
+                    // assuming that parameters will be handled separately
+                    continue;
+                }
+                if(childUnderScope.isGeneratorClass()) {
+                    newChildToAdd = ((Generator) childUnderScope).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab);
+                } else if(childUnderScope.getConstructType() == LObjectKind.TYPEPARAMETER) {
+                    // Type parameters are a child of functions since they are looked up in symtab when setting types of variables
+                    // so just ignore this
+                    if(typeMappings.contains(childUnderScope)) {
+                        // we do not add it back since the type parameter is defined in this invocation 
+                        // and will no longer be generic
+                        // System.out.println("skipping: " + childUnderScope.getName());
+                        continue;
+                    }
+                    // System.out.println("adding type: " + childUnderScope.getName());
+                    newChildToAdd = childUnderScope;
+                } else if (childUnderScope.hasAssociatedType() && childUnderScope.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
+                    assert false : "NEED TO HANDLE THIS! " + childUnderScope.getName() + " has generic type: " + childUnderScope.getType().getName() + " of construct: " + childUnderScope.getConstructType();
+                    newChildToAdd = childUnderScope;
+                } else {
+                    newChildToAdd = childUnderScope;
+                }
+
+                if(newChildToAdd.isGeneratorClass()) {
+                    System.out.println("Error: new child (" + newChildToAdd.getName() + ")still remains of type generic.");
+                    System.exit(1);
+                }
+
+                addToSymtab(newInstance, newChildToAdd.getName(), newChildToAdd, symtab);
+            }
+        }
 
         public Generator(RegularLanguageObject regularLanguageObject) {
             super(regularLanguageObject.getName(), regularLanguageObject.getNameSpace());
@@ -525,6 +567,8 @@ class P4LanguageObject {
                 addToSymtab(newInstance, newParam.getName(), newParam, symtab);
             }
 
+            this.handleGenericsUnderScope(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, newInstance);
+
             return newInstance;
         }
     }
@@ -564,6 +608,8 @@ class P4LanguageObject {
                 newInstance.addParameter(newParam);
                 addToSymtab(newInstance, newParam.getName(), newParam, symtab);
             }
+
+            this.handleGenericsUnderScope(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, newInstance);
 
             return newInstance;
         }
@@ -605,6 +651,8 @@ class P4LanguageObject {
                 addToSymtab(newInstance, newParam.getName(), newParam, symtab);
             }
 
+            this.handleGenericsUnderScope(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, newInstance);
+
             return newInstance;
         }
     }
@@ -634,6 +682,15 @@ class P4LanguageObject {
                 AbstractObjectOfLanguage newChildToAdd;
                 if(childUnderScope.isGeneratorClass()) {
                     newChildToAdd = ((Generator) childUnderScope).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab);
+                }  else if(childUnderScope.getConstructType() == LObjectKind.TYPEPARAMETER) {
+                    // Type parameters are a child of functions since they are looked up in symtab when setting types of variables
+                    // so just ignore this
+                    if(typeMappings.contains(childUnderScope)) {
+                        // we do not add it back since the type parameter is defined in this invocation 
+                        // and will no longer be generic
+                        continue;
+                    }
+                    newChildToAdd = childUnderScope;
                 } else if(childUnderScope.getName().equals(this.getName())) {
                     // constructor
                     newChildToAdd = addToSymtab(newInstance, childUnderScope.getName(), symtab);
@@ -688,7 +745,7 @@ class P4LanguageObject {
                                                       ArrayList<AbstractObjectOfLanguage> parameterMappings,
                                                       Map<String, AbstractObjectOfLanguage> valuesUnderScope,
                                                       Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
-            return this.generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, null);
+            return this.generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, LObjectKind.FUNCTIONPROTOTYPE);
         }
         public AbstractObjectOfLanguage generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
                                                          ArrayList<AbstractObjectOfLanguage> parsedParameters,
@@ -696,7 +753,7 @@ class P4LanguageObject {
                                                          ArrayList<AbstractObjectOfLanguage> parameterMappings,
                                                          Map<String, AbstractObjectOfLanguage> valuesUnderScope,
                                                          Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab,
-                                                         AbstractObjectOfLanguage parentScope) {
+                                                         LObjectKind classType) {
             AbstractObjectOfLanguage newType;
             AbstractObjectOfLanguage typeOrVoid = super.getRegularLanguageObject().getType();
             boolean doesHaveTypeParameters = false;
@@ -726,14 +783,14 @@ class P4LanguageObject {
             }
 
             // assert parameterMappings.size() == parsedParameters.size();
-
-            FunctionPrototype newInstance = new FunctionPrototype(this.getName(), this.getNameSpace(), newType);;
+            FunctionPrototype newInstance = getRespectiveFunctionPrototypeClass(this.getName(), this.getNameSpace(), newType, classType);
+            // FunctionPrototype newInstance = new FunctionPrototype(this.getName(), this.getNameSpace(), newType);
             FunctionPrototypeGenerator newPrototypeInstance = null;
 
             // ArrayList<AbstractObjectOfLanguage> parameterMappings = parameterMappings;
             if(! doesHaveTypeParameters) {
-                for(int i = 0; i < parameterMappings.size(); i++) {
-                    AbstractObjectOfLanguage currentParam = parameterMappings.get(i);
+                for(int i = 0; i < this.getParameters().size(); i++) {
+                    AbstractObjectOfLanguage currentParam = this.getParameters().get(i);
                     if(currentParam.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
                         if(! typeMappings.contains(currentParam.getType())) {
                             doesHaveTypeParameters = true;
@@ -744,7 +801,8 @@ class P4LanguageObject {
             }
 
             if(doesHaveTypeParameters){
-                newPrototypeInstance = new FunctionPrototypeGenerator(newInstance);
+                // newPrototypeInstance = new FunctionPrototypeGenerator(newInstance);
+                newPrototypeInstance = getRespectiveFunctionPrototypeGeneratorClass(newInstance);
                 for(TypeParameter e : this.getOptTypeParameters()) {
                     newPrototypeInstance.addOptTypeParameters(e);
                 }
@@ -752,17 +810,16 @@ class P4LanguageObject {
 
             // We pass in parent scope for cases when functionPrototype is part of a parent construct (functionDeclaration & externFunctionDeclaration)
             // where the parameters are added to the parent scope and not the functionPrototype scope
-            if(parentScope == null) {
-                if(doesHaveTypeParameters) {
-                    parentScope = newPrototypeInstance;
-                } else {
-                    parentScope = newInstance;
-                }
+            AbstractObjectOfLanguage parentScope;
+            if(doesHaveTypeParameters) {
+                parentScope = newPrototypeInstance;
+            } else {
+                parentScope = newInstance;
             }
-            
-            for(int i = 0; i < parameterMappings.size(); i++) {
+            // TODO: this.getParameters vs parameterMappings
+            for(int i = 0; i < this.getParameters().size(); i++) {
                 AbstractObjectOfLanguage newParam;
-                AbstractObjectOfLanguage currentParam = parameterMappings.get(i);
+                AbstractObjectOfLanguage currentParam = this.getParameters().get(i);
 
                 if(currentParam.isGeneratorClass()) {
                     newParam = ((ParameterGenerator) currentParam).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, symtab.get(valuesUnderScope.get(currentParam.getName())), symtab);
@@ -777,6 +834,11 @@ class P4LanguageObject {
                     newInstance.addParameter(newParam);
                 }
 
+                if(newParam.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
+                    assert newParam.isGeneratorClass();
+                    addToSymtab(parentScope, newParam.getType().getName(), newParam.getType(), symtab);
+                }
+
                 addToSymtab(parentScope, newParam.getName(), newParam, symtab);
             }
 
@@ -784,41 +846,14 @@ class P4LanguageObject {
         }
     }
 
-    class ExternFunctionDeclarationGenerator extends Generator {
-        private FunctionPrototypeGenerator functionPrototypeGenerator;
+    class ExternFunctionDeclarationGenerator extends FunctionPrototypeGenerator {
         @Override
         public LObjectKind getConstructType() {
             return LObjectKind.EXTERNFUNCTIONDECLARATIONGENERATOR;
         }
 
-        @Override
-        public boolean isScoped() {
-            return this.getRegularLanguageObject().isScoped();
-        }
-
-        public void setFunctionPrototype(FunctionPrototypeGenerator functionPrototypeGenerator) {
-            assert this.functionPrototypeGenerator == null;
-
-            this.functionPrototypeGenerator = functionPrototypeGenerator;
-        }
-
-        public FunctionPrototypeGenerator getFunctionPrototype() {
-            return this.functionPrototypeGenerator;
-        }
-
-        @Override
-        public boolean hasAssociatedType() {
-            return this.functionPrototypeGenerator.hasAssociatedType();
-        }
-
-        @Override
-        AbstractObjectOfLanguage getType() {
-            return this.functionPrototypeGenerator.getType();
-        }
-
         public ExternFunctionDeclarationGenerator(ExternFunctionDeclaration externDeclaration){
             super(externDeclaration);
-            this.functionPrototypeGenerator = null;
         }
 
         public AbstractObjectOfLanguage generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
@@ -828,16 +863,19 @@ class P4LanguageObject {
                                                       Map<String, AbstractObjectOfLanguage> valuesUnderScope,
                                                       Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
 
-            AbstractObjectOfLanguage externObj = new ExternFunctionDeclaration(this.getName(), this.getNameSpace());
-            AbstractObjectOfLanguage functionPrototype = this.getFunctionPrototype().generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, externObj);
-            if(functionPrototype.isGeneratorClass()) {
-                externObj = new ExternFunctionDeclarationGenerator((ExternFunctionDeclaration) externObj);
-                ((ExternFunctionDeclarationGenerator) externObj).setFunctionPrototype((FunctionPrototypeGenerator) functionPrototype);
-            } else {
-                ((ExternFunctionDeclaration) externObj).setFunctionPrototype((FunctionPrototype) functionPrototype);
-            }
+            // AbstractObjectOfLanguage externObj = new ExternFunctionDeclaration(this.getName(), this.getNameSpace());
+            // AbstractObjectOfLanguage functionPrototype = this.getFunctionPrototype().generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, externObj);
+            AbstractObjectOfLanguage functionPrototype = super.generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, LObjectKind.EXTERNFUNCTIONDECLARATION);
+            // if(functionPrototype.isGeneratorClass()) {
+            //     externObj = new ExternFunctionDeclarationGenerator((ExternFunctionDeclaration) externObj);
+            //     // ((ExternFunctionDeclarationGenerator) externObj).setFunctionPrototype((FunctionPrototypeGenerator) functionPrototype);
+            // } else {
+            //     // ((ExternFunctionDeclaration) externObj).setFunctionPrototype((FunctionPrototype) functionPrototype);
+            // }
 
-            return externObj;
+            this.handleGenericsUnderScope(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, functionPrototype);
+
+            return functionPrototype;
         }
     }
 
@@ -902,9 +940,7 @@ class P4LanguageObject {
         }
     }
 
-    class FunctionDeclarationGenerator extends Generator {
-        private FunctionPrototypeGenerator functionPrototypeGenerator;
-
+    class FunctionDeclarationGenerator extends FunctionPrototypeGenerator {
         @Override
         public LObjectKind getConstructType() {
             return LObjectKind.FUNCTIONDECLARATIONGENERATOR;
@@ -913,26 +949,6 @@ class P4LanguageObject {
         @Override
         public boolean isScoped() {
             return true;
-        }
-
-        public void setFunctionPrototype(FunctionPrototypeGenerator functionPrototypeGenerator) {
-            assert this.functionPrototypeGenerator == null;
-
-            this.functionPrototypeGenerator = functionPrototypeGenerator;
-        }
-
-        public FunctionPrototypeGenerator getFunctionPrototype() {
-            return this.functionPrototypeGenerator;
-        }
-
-        @Override
-        public boolean hasAssociatedType() {
-            return this.functionPrototypeGenerator.hasAssociatedType();
-        }
-
-        @Override
-        AbstractObjectOfLanguage getType() {
-            return this.functionPrototypeGenerator.getType();
         }
 
         public void setBlockStatement(AbstractObjectOfLanguage blockStatement) {
@@ -947,7 +963,6 @@ class P4LanguageObject {
 
         public FunctionDeclarationGenerator(FunctionDeclaration functionDeclaration){
             super(functionDeclaration);
-            this.functionPrototypeGenerator = null;
         }
 
         public AbstractObjectOfLanguage generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
@@ -957,42 +972,20 @@ class P4LanguageObject {
                                                          Map<String, AbstractObjectOfLanguage> valuesUnderScope,
                                                          Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
 
-            AbstractObjectOfLanguage functionObj = new FunctionDeclaration(this.getName(), this.getNameSpace());
-            AbstractObjectOfLanguage functionPrototype = this.getFunctionPrototype().generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, functionObj);
+            // AbstractObjectOfLanguage functionObj = new FunctionDeclaration(this.getName(), this.getNameSpace());
+            AbstractObjectOfLanguage functionPrototype = super.generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, LObjectKind.FUNCTIONDECLARATION);
             if(functionPrototype.isGeneratorClass()) {
-                functionObj = new FunctionDeclarationGenerator((FunctionDeclaration) functionObj);
-                ((FunctionDeclarationGenerator) functionObj).setFunctionPrototype((FunctionPrototypeGenerator) functionPrototype);
-                ((FunctionDeclarationGenerator) functionObj).setBlockStatement(((FunctionDeclaration) this.getRegularLanguageObject()).getBlockStatement());
+                // functionObj = new FunctionDeclarationGenerator((FunctionDeclaration) functionObj);
+                // ((FunctionDeclarationGenerator) functionObj).setFunctionPrototype((FunctionPrototypeGenerator) functionPrototype);
+                ((FunctionDeclarationGenerator) functionPrototype).setBlockStatement(((FunctionDeclaration) this.getRegularLanguageObject()).getBlockStatement());
             } else {
-                ((FunctionDeclaration) functionObj).setFunctionPrototype((FunctionPrototype) functionPrototype);
-                ((FunctionDeclaration) functionObj).setBlockStatement(((FunctionDeclaration) this.getRegularLanguageObject()).getBlockStatement());
+                // ((FunctionDeclaration) functionObj).setFunctionPrototype((FunctionPrototype) functionPrototype);
+                ((FunctionDeclaration) functionPrototype).setBlockStatement(((FunctionDeclaration) this.getRegularLanguageObject()).getBlockStatement());
             }
 
-            for(String names : valuesUnderScope.keySet()) {
-                AbstractObjectOfLanguage childUnderScope = valuesUnderScope.get(names);
-                AbstractObjectOfLanguage newChildToAdd;
-                if(childUnderScope.isGeneratorClass()) {
-                    newChildToAdd = ((Generator) childUnderScope).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings,valuesUnderScope, symtab);
-                } else if(childUnderScope.getConstructType() == LObjectKind.TYPEPARAMETER) {
-                    // Type parameters are a child of functions since they are looked up in symtab when setting types of variables
-                    // so just ignore this
-                    if(typeMappings.contains(childUnderScope)) {
-                        // we do not add it back since the type parameter is defined in this invocation 
-                        // and will no longer be generic
-                        continue;
-                    }
-                    newChildToAdd = childUnderScope;
-                } else if (childUnderScope.hasAssociatedType() && childUnderScope.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
-                    assert false : "NEED TO HANDLE THIS! " + childUnderScope.getName() + " has generic type: " + childUnderScope.getType().getName() + " of construct: " + childUnderScope.getConstructType();
-                    newChildToAdd = childUnderScope;
-                } else {
-                    newChildToAdd = childUnderScope;
-                }
+            this.handleGenericsUnderScope(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, functionPrototype);
 
-                addToSymtab(functionObj, newChildToAdd.getName(), newChildToAdd, symtab);
-            }
-
-            return functionObj;
+            return functionPrototype;
         }
     }
 
@@ -1018,7 +1011,7 @@ class P4LanguageObject {
         //     return this.generateInstance(parsedTypeParameters, parsedParameters, typeMappings, null, valuesUnderScope, symtab);
         // }
 
-        public AbstractObjectOfLanguage generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
+        public AbstractObjectOfLanguage  generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
                                                          ArrayList<AbstractObjectOfLanguage> parsedParameters,
                                                          ArrayList<TypeParameter> typeMappings,
                                                          ArrayList<AbstractObjectOfLanguage> parameterMappings,
@@ -1099,34 +1092,7 @@ class P4LanguageObject {
             assert parsedParameters.isEmpty() && parameterMappings.isEmpty() : "Haven't explored cases where header is invoked in a nested block where the parent block has parameters passed in (headers do not have passed in parameters, just generic types).";
             assert typeMappings.size() == this.getOptTypeParameters().size();
 
-            for(String names : valuesUnderScope.keySet()) {
-                AbstractObjectOfLanguage childUnderScope = valuesUnderScope.get(names);
-                AbstractObjectOfLanguage newChildToAdd;
-                if(childUnderScope.isGeneratorClass()) {
-                    newChildToAdd = ((Generator) childUnderScope).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab);
-                } else if(childUnderScope.getConstructType() == LObjectKind.TYPEPARAMETER) {
-                    // Type parameters are a child of functions since they are looked up in symtab when setting types of variables
-                    // so just ignore this
-                    if(typeMappings.contains(childUnderScope)) {
-                        // we do not add it back since the type parameter is defined in this invocation 
-                        // and will no longer be generic
-                        continue;
-                    }
-                    newChildToAdd = childUnderScope;
-                } else if (childUnderScope.hasAssociatedType() && childUnderScope.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
-                    assert false : "NEED TO HANDLE THIS! " + childUnderScope.getName() + " has generic type: " + childUnderScope.getType().getName() + " of construct: " + childUnderScope.getConstructType();
-                    newChildToAdd = childUnderScope;
-                } else {
-                    newChildToAdd = childUnderScope;
-                }
-
-                if(newChildToAdd.isGeneratorClass()) {
-                    System.out.println("Error: new child of headerdeclaration (" + newChildToAdd.getName() + ")still remains of type generic.");
-                    System.exit(1);
-                }
-
-                addToSymtab(headerTypeDecl, newChildToAdd.getName(), newChildToAdd, symtab);
-            }
+            this.handleGenericsUnderScope(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, headerTypeDecl);
 
             return headerTypeDecl;
 
@@ -1492,62 +1458,23 @@ class P4LanguageObject {
         // }
     }
 
-    class ExternFunctionDeclaration extends RegularLanguageObject {
-        private FunctionPrototype functionPrototype;
+    class ExternFunctionDeclaration extends FunctionPrototype {
         @Override
         public LObjectKind getConstructType() {
             return LObjectKind.EXTERNFUNCTIONDECLARATION;
         }
 
-        @Override
-        public boolean isScoped() {
-            return true;
-        }
-
-        public void setFunctionPrototype(FunctionPrototype functionPrototype) {
-            assert this.functionPrototype == null;
-
-            this.functionPrototype = functionPrototype;
-        }
-
-        public FunctionPrototype getFunctionPrototype() {
-            return this.functionPrototype;
-        }
-
-        @Override
-        public boolean hasAssociatedType() {
-            return this.functionPrototype.hasAssociatedType();
-        }
-
-        @Override
-        AbstractObjectOfLanguage getType() {
-            return this.functionPrototype.getType();
-        }
-
-        public ExternFunctionDeclaration(String name, AbstractObjectOfLanguage nameSpace){
-            super(name, nameSpace);
-            this.functionPrototype = null;
+        public ExternFunctionDeclaration(String name, AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage typeOrVoid){
+            super(name, nameSpace, typeOrVoid);
         }
     }
 
-    class FunctionDeclaration extends RegularLanguageObject {
-        private FunctionPrototype functionPrototype;
+    class FunctionDeclaration extends FunctionPrototype {
         private AbstractObjectOfLanguage blockStatement;
 
         @Override
         public LObjectKind getConstructType() {
             return LObjectKind.FUNCTIONDECLARATION;
-        }
-
-        @Override
-        public boolean isScoped() {
-            return true;
-        }
-
-        public void setFunctionPrototype(FunctionPrototype functionPrototype) {
-            assert this.functionPrototype == null;
-
-            this.functionPrototype = functionPrototype;
         }
 
         public void setBlockStatement(AbstractObjectOfLanguage blockStatement) {
@@ -1560,23 +1487,9 @@ class P4LanguageObject {
             return this.blockStatement;
         }
 
-        public FunctionPrototype getFunctionPrototype() {
-            return this.functionPrototype;
-        }
-
-        @Override
-        public boolean hasAssociatedType() {
-            return this.functionPrototype.hasAssociatedType();
-        }
-
-        @Override
-        AbstractObjectOfLanguage getType() {
-            return this.functionPrototype.getType();
-        }
-
-        public FunctionDeclaration(String name, AbstractObjectOfLanguage nameSpace){
-            super(name, nameSpace);
-            this.functionPrototype = null;
+        public FunctionDeclaration(String name, AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage typeOrVoid){
+            super(name, nameSpace, typeOrVoid);
+            this.blockStatement = null;
         }
     }
 
@@ -2225,6 +2138,7 @@ class P4LanguageObject {
     public AbstractObjectOfLanguage addToSymtab(AbstractObjectOfLanguage scope, String name, AbstractObjectOfLanguage newLangObj, Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
         // System.out.println("adding: " + name + " under scope: " + scope.getName()  + scope.getConstructType() + " with current construct type: " + newLangObj.getConstructType());
         if( !symtab.containsKey(scope)) {
+            // System.out.println("new symtab: " + scope.getName() + " of construct: " + scope.getConstructType());
             symtab.put(scope, new HashMap<>());
         }
 
@@ -2272,6 +2186,46 @@ class P4LanguageObject {
         } else {
             return true;
         }
+    }
+
+    public FunctionPrototype getRespectiveFunctionPrototypeClass(String functionPrototypeName, AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage typeOrVoid, LObjectKind classType) {
+        FunctionPrototype functionPrototypeObj;
+        switch(classType) {
+            case FUNCTIONPROTOTYPE:
+                functionPrototypeObj = new FunctionPrototype(functionPrototypeName, nameSpace, typeOrVoid);
+                break;
+            case EXTERNFUNCTIONDECLARATION:
+                functionPrototypeObj = new ExternFunctionDeclaration(functionPrototypeName, nameSpace, typeOrVoid);
+                break;
+            case FUNCTIONDECLARATION:
+                functionPrototypeObj = new FunctionDeclaration(functionPrototypeName, nameSpace, typeOrVoid);
+                break;
+            default:
+                assert false : "Unhandled class: " + classType.toString();
+                functionPrototypeObj = null;
+        }
+
+        return functionPrototypeObj;
+    }
+
+    public FunctionPrototypeGenerator getRespectiveFunctionPrototypeGeneratorClass(FunctionPrototype functionPrototypeObj) {
+        FunctionPrototypeGenerator newInstance;
+        switch(functionPrototypeObj.getConstructType()) {
+            case FUNCTIONPROTOTYPE:
+                newInstance = new FunctionPrototypeGenerator((FunctionPrototype) functionPrototypeObj);
+                break;
+            case EXTERNFUNCTIONDECLARATION:
+                newInstance = new ExternFunctionDeclarationGenerator((ExternFunctionDeclaration) functionPrototypeObj);
+                break;
+            case FUNCTIONDECLARATION:
+                newInstance = new FunctionDeclarationGenerator((FunctionDeclaration) functionPrototypeObj);
+                break;
+            default:
+                assert false : "Unhandled class: " + functionPrototypeObj.getConstructType().toString();
+                newInstance = null;
+        }
+
+        return newInstance;
     }
 }
 

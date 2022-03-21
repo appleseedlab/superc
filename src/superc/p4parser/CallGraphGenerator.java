@@ -322,7 +322,7 @@ public class CallGraphGenerator {
             // (like in type checking stage where we get type of variable and that type is of generator class) vs. creating an instance of that generator class for calls.
             if(symtabValue.isGeneratorClass() && !temporaryValues.isEmpty() && 
                 (!temporaryValues.peek().getParameters().isEmpty() | !temporaryValues.peek().getTypeParameters().isEmpty())) {
-                System.out.println("Generating instance of: " + symtabValue.getName() + " " + symtabValue);
+                // System.out.println("Generating instance of: " + symtabValue.getName());
                 // System.out.println("parameters size: " + temporaryValues.peek().getParameters().size() + "; type parameters size: " + temporaryValues.peek().getTypeParameters().size());
                 assert (!temporaryValues.isEmpty());
                 assert (!temporaryValues.peek().getParameters().isEmpty() | !temporaryValues.peek().getTypeParameters().isEmpty());
@@ -783,10 +783,10 @@ public class CallGraphGenerator {
         }
 
         public AbstractObjectOfLanguage visitfunctionPrototype(GNode n) {
-            return visitfunctionPrototype(n, true);
+            return visitfunctionPrototype(n, LObjectKind.FUNCTIONPROTOTYPE);
         }
 
-        public AbstractObjectOfLanguage visitfunctionPrototype(GNode n, boolean addToSymtab) {
+        public AbstractObjectOfLanguage visitfunctionPrototype(GNode n, LObjectKind classType) {
             // AbstractObjectOfLanguage typeOrVoid = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(0)));
             AbstractObjectOfLanguage typeOrVoid;
             GNode typeOrVoidNode = getGNodeUnderConditional(n.getGeneric(0));
@@ -800,36 +800,28 @@ public class CallGraphGenerator {
             } else { // IDENTIFIER - may be type variable
                 identifier = typeOrVoidNode.get(0).toString();
                 typeOrVoid = symtabLookupIfExists(scope.peek(), identifier, true, true);
-                // System.out.println("looking up result: " + typeOrVoid.getName());
-                if(typeOrVoid == undeclared_object) {
-                    if(! addToSymtab) {
-                        typeOrVoid = retrieveSymbolOrTypeVariable(scope.peek(), identifier);
-                    } else {
-                        typeOrVoid = undeclared_object;
-                    }
-                }    
+                // System.out.println("looking up result: " + typeOrVoid.getName());  
             }    
 
             String functionPrototypeName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(1)));
             // System.out.println("Type value is: " + (typeOrVoid.getName()) + " with identifier: " + identifier + " for func prototype: " + functionPrototypeName + " add to symtab value: " + addToSymtab);
-            AbstractObjectOfLanguage functionPrototypeObj = p4LanguageObject.new FunctionPrototype(functionPrototypeName, scope.peek(), typeOrVoid);
+            AbstractObjectOfLanguage functionPrototypeObj = p4LanguageObject.getRespectiveFunctionPrototypeClass(functionPrototypeName, scope.peek(), typeOrVoid, classType);
+            
             if(typeOrVoid.getConstructType() == LObjectKind.TYPEPARAMETER ||
-               getGNodeUnderConditional(n.getGeneric(2)).size() > 0) {
-                functionPrototypeObj = p4LanguageObject.new FunctionPrototypeGenerator((FunctionPrototype) functionPrototypeObj);
+                getGNodeUnderConditional(n.getGeneric(2)).size() > 0) {
+                functionPrototypeObj = p4LanguageObject.getRespectiveFunctionPrototypeGeneratorClass((FunctionPrototype) functionPrototypeObj);
             }
 
-            if(addToSymtab) {
-                addToSymtab(scope.peek(), functionPrototypeName, functionPrototypeObj);
-                scope.add(functionPrototypeObj);
-                if(typeOrVoid == undeclared_object) {
-                    // System.err.println("adding type parameter to symbol tabkle");
-                    assert identifier != null;
-                    typeOrVoid = retrieveSymbolOrTypeVariable(scope.peek(), identifier);
-                    if(functionPrototypeObj.isGeneratorClass()) {
-                        ((FunctionPrototypeGenerator) functionPrototypeObj).setType(typeOrVoid);
-                    } else {
-                        ((FunctionPrototype) functionPrototypeObj).setType(typeOrVoid);
-                    }
+            addToSymtab(scope.peek(), functionPrototypeName, functionPrototypeObj);
+            scope.add(functionPrototypeObj);
+            if(typeOrVoid == undeclared_object) {
+                // System.err.println("adding type parameter to symbol table");
+                assert identifier != null;
+                typeOrVoid = retrieveSymbolOrTypeVariable(scope.peek(), identifier);
+                if(functionPrototypeObj.isGeneratorClass()) {
+                    ((FunctionPrototypeGenerator) functionPrototypeObj).setType(typeOrVoid);
+                } else {
+                    ((FunctionPrototype) functionPrototypeObj).setType(typeOrVoid);
                 }
             }
 
@@ -837,9 +829,7 @@ public class CallGraphGenerator {
             dispatch(getGNodeUnderConditional(n.getGeneric(4))); // parameterList
             // dispatch(getGNodeUnderConditional(n.getGeneric(4))); // parameterList
 
-            if(addToSymtab) {
-                scope.pop();
-            }
+            scope.pop();
 
             // System.out.println("Created function prototype: " + functionPrototypeName + " with parameters: " + 
             // functionPrototypeObj.getParameterList() + " and return type: " + functionPrototypeObj.getType() + 
@@ -1164,60 +1154,61 @@ public class CallGraphGenerator {
         // extern function declarations are invokable constructs as per the language specs
         // so keeping track of that in the symbol table for future invocations
         public AbstractObjectOfLanguage visitexternFunctionDeclaration(GNode n) {
-            String externFunctionName = getStringUnderFunctionPrototype(n.getGeneric(2));
-            AbstractObjectOfLanguage externFunctionDeclarationObj = p4LanguageObject.new ExternFunctionDeclaration(externFunctionName, scope.peek());
+            // String externFunctionName = getStringUnderFunctionPrototype(n.getGeneric(2));
+            // AbstractObjectOfLanguage externFunctionDeclarationObj = p4LanguageObject.new ExternFunctionDeclaration(externFunctionName, scope.peek());
 
-            if(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2)).getGeneric(2)).size() > 0) {
-                externFunctionDeclarationObj = p4LanguageObject.new ExternFunctionDeclarationGenerator((ExternFunctionDeclaration) externFunctionDeclarationObj);
-            }
+            // if(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2)).getGeneric(2)).size() > 0) {
+            //     externFunctionDeclarationObj = p4LanguageObject.new ExternFunctionDeclarationGenerator((ExternFunctionDeclaration) externFunctionDeclarationObj);
+            // }
 
-            addToSymtab(scope.peek(), externFunctionName, externFunctionDeclarationObj);
-            scope.add(externFunctionDeclarationObj);
+            // addToSymtab(scope.peek(), externFunctionName, externFunctionDeclarationObj);
+            // scope.add(externFunctionDeclarationObj);
 
-            AbstractObjectOfLanguage functionPrototype = (AbstractObjectOfLanguage) visitfunctionPrototype(getGNodeUnderConditional(n.getGeneric(2)), false);
+            AbstractObjectOfLanguage functionPrototype = (AbstractObjectOfLanguage) visitfunctionPrototype(getGNodeUnderConditional(n.getGeneric(2)), LObjectKind.EXTERNFUNCTIONDECLARATION);
 
-            if(externFunctionDeclarationObj.isGeneratorClass()) {
-                assert functionPrototype.isGeneratorClass();
-                ((ExternFunctionDeclarationGenerator) externFunctionDeclarationObj).setFunctionPrototype((FunctionPrototypeGenerator)functionPrototype);
-            } else {
-                assert !functionPrototype.isGeneratorClass();
-                ((ExternFunctionDeclaration) externFunctionDeclarationObj).setFunctionPrototype((FunctionPrototype)functionPrototype);
-            }
-            // externFunctionDeclarationObj.setFunctionPrototype(functionPrototype);
+            // if(externFunctionDeclarationObj.isGeneratorClass()) {
+            //     assert functionPrototype.isGeneratorClass();
+            //     ((ExternFunctionDeclarationGenerator) externFunctionDeclarationObj).setFunctionPrototype((FunctionPrototypeGenerator)functionPrototype);
+            // } else {
+            //     assert !functionPrototype.isGeneratorClass();
+            //     ((ExternFunctionDeclaration) externFunctionDeclarationObj).setFunctionPrototype((FunctionPrototype)functionPrototype);
+            // }
+            // // externFunctionDeclarationObj.setFunctionPrototype(functionPrototype);
 
-            scope.pop();
-            return externFunctionDeclarationObj;
+            // scope.pop();
+            return functionPrototype;
         }
 
         // Interesting: functionDeclaration not part of P416? not in online language specification -- experimental
         //
         public AbstractObjectOfLanguage visitfunctionDeclaration(GNode n) {
             // as per language specification, functionPrototype will describe the name and type signature of the function
-            String functionName = getStringUnderFunctionPrototype(getGNodeUnderConditional(n.getGeneric(0)));
-            AbstractObjectOfLanguage functionObj = p4LanguageObject.new FunctionDeclaration(functionName, scope.peek());
+            // String functionName = getStringUnderFunctionPrototype(getGNodeUnderConditional(n.getGeneric(0)));
+            // AbstractObjectOfLanguage functionObj = p4LanguageObject.new FunctionDeclaration(functionName, scope.peek());
 
-            if(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0)).getGeneric(2)).size() > 0) {
-                functionObj = p4LanguageObject.new FunctionDeclarationGenerator((FunctionDeclaration) functionObj);
-            }
+            // if(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(0)).getGeneric(2)).size() > 0) {
+            //     functionObj = p4LanguageObject.new FunctionDeclarationGenerator((FunctionDeclaration) functionObj);
+            // }
 
-            addToSymtab(scope.peek(), functionName, functionObj);
-            scope.add(functionObj);
+            // addToSymtab(scope.peek(), functionName, functionObj);
+            // scope.add(functionObj);
 
-            AbstractObjectOfLanguage functionPrototype = visitfunctionPrototype(getGNodeUnderConditional(n.getGeneric(0)), false); // functionPrototype (for parameters)
+            AbstractObjectOfLanguage functionPrototype = visitfunctionPrototype(getGNodeUnderConditional(n.getGeneric(0)), LObjectKind.FUNCTIONDECLARATION); // functionPrototype (for parameters)
+            scope.add(functionPrototype);
             AbstractObjectOfLanguage blockStatement = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(1))); // blockstatement
 
-            if(functionObj.isGeneratorClass()) {
+            if(functionPrototype.isGeneratorClass()) {
                 assert functionPrototype.isGeneratorClass();
-                ((FunctionDeclarationGenerator) functionObj).setFunctionPrototype((FunctionPrototypeGenerator) functionPrototype);
-                ((FunctionDeclarationGenerator) functionObj).setBlockStatement(blockStatement);
+                // ((FunctionDeclarationGenerator) functionPrototype).setFunctionPrototype((FunctionPrototypeGenerator) functionPrototype);
+                ((FunctionDeclarationGenerator) functionPrototype).setBlockStatement(blockStatement);
             } else {
-                ((FunctionDeclaration) functionObj).setFunctionPrototype((FunctionPrototype) functionPrototype);
-                ((FunctionDeclaration) functionObj).setBlockStatement(blockStatement);
+                // ((FunctionDeclaration) functionPrototype).setFunctionPrototype((FunctionPrototype) functionPrototype);
+                ((FunctionDeclaration) functionPrototype).setBlockStatement(blockStatement);
             }
             
             scope.pop();
 
-            return functionObj;
+            return functionPrototype;
         }
 
         public AbstractObjectOfLanguage visitmethodPrototype(GNode n) {
