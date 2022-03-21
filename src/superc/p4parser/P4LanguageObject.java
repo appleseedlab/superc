@@ -113,12 +113,11 @@ class P4LanguageObject {
             }
 
             if(output_types) {
-                if(this.hasAssociatedType() &&
-                   this.getConstructType() != LObjectKind.FUNCTIONPROTOTYPE &&
-                   this.getConstructType() != LObjectKind.ENUMDECLARATION &&
-                   this.getConstructType() != LObjectKind.STRUCTTYPEDECLARATION
-                   ) {
-                    return this.name +  "(" + this.getType().getConstructType() + ")";    
+                if(this.hasAssociatedType()) {
+                    // Switching this to include regular construct type as well to differentiate
+                    // cases where a generator construct has an already defined type value that doesn't change
+                    // after generating new instance (CGTest_generic_variable.p4 test case)
+                    return this.name +  "(" + this.getConstructType() + ", " + this.getType().getConstructType() + ")";
                 } else {
                     return this.name +  "(" + this.getConstructType() + ")";
                 }
