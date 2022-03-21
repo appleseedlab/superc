@@ -1,0 +1,7 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/6252547b8a7.c:12:7: warning: Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
+  int irq = *ops; // (4) ERROR
+      ^~~   ~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/6252547b8a7.c:12:13: warning: Dereference of null pointer (loaded from variable 'ops') [core.NullDereference]
+  int irq = *ops; // (4) ERROR
+            ^~~~
+2 warnings generated.

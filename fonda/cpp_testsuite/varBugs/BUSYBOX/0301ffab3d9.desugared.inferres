@@ -1,0 +1,14 @@
+
+BUSYBOX/0301ffab3d9.desugared.c:51: error: Dead Store
+  The value written to &__gdp_0 (type char*) is never used.
+  49. char  * (__gdp_0);// L4
+  50. 
+  51.  __gdp_0  = "group_desc" ; // L7
+       ^
+  52. { int  __j_1= 0;// L8
+  53.  for ( ;  __j_1  < 10 ;  __j_1  ++ ) // L8
+
+
+Found 1 issue
+  Issue Type(ISSUED_TYPE_ID): #
+      Dead Store(DEAD_STORE): 1

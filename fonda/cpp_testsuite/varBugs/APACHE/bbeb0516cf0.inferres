@@ -1,0 +1,14 @@
+
+APACHE/bbeb0516cf0.c:19: error: Null Dereference
+  pointer `r` last assigned on line 18 could be null and is dereferenced by call to `cgi_handler()` at line 19, column 3.
+  17. {
+  18.   char *r = NULL;
+  19.   cgi_handler(r);
+        ^
+  20.   return 0;
+  21. }
+
+
+Found 1 issue
+          Issue Type(ISSUED_TYPE_ID): #
+  Null Dereference(NULL_DEREFERENCE): 1

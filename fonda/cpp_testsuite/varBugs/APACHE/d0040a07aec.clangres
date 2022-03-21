@@ -1,0 +1,7 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/d0040a07aec.c:11:3: error: use of undeclared identifier 'limits'
+  limits = (rand() % 2) ? 1 : 0; // ERROR: limits not declared
+  ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/d0040a07aec.c:12:16: error: use of undeclared identifier 'limits'
+  printf("%d", limits);
+               ^
+2 errors generated.

@@ -1,0 +1,32 @@
+
+LINUX/51fd36f3fad.desugared.c:216: error: Uninitialized Value
+  The value read from __tmp_38 was never initialized.
+  214. }
+  215. }
+  216. return  __tmp_38  ;// L45
+       ^
+  217. }
+  218. }
+
+LINUX/51fd36f3fad.desugared.c:256: error: Uninitialized Value
+  The value read from __expires_47 was never initialized.
+  254. }
+  255. if (__static_condition_default_54) {
+  256. return  __expires_47  ;// L60
+       ^
+  257. }
+  258. if (__static_condition_default_55) {
+
+LINUX/51fd36f3fad.desugared.c:300: error: Uninitialized Value
+  The value read from __expires_47 was never initialized.
+  298. }
+  299. if (__static_condition_default_60) {
+  300. return  __expires_47  ;// L60
+       ^
+  301. }
+  302. if (__static_condition_default_61) {
+
+
+Found 3 issues
+                Issue Type(ISSUED_TYPE_ID): #
+  Uninitialized Value(UNINITIALIZED_VALUE): 3

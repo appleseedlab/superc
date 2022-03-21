@@ -1,0 +1,10 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c:1428:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
+ __apr_rmm_init_1093  ( __rmm_lock_1099 ) ; // L14
+ ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c:1431:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
+ __apr_rmm_init_1094  ( __rmm_lock_1099 ) ; // L14
+ ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c:1434:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
+ __apr_rmm_init_1095  ( __rmm_lock_1099 ) ; // L14
+ ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+3 warnings generated.

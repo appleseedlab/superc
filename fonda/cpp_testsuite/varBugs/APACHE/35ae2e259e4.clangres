@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/35ae2e259e4.c:24:10: warning: Potential leak of memory pointed to by 'eckey' [unix.Malloc]
+  return 0;
+         ^
+1 warning generated.

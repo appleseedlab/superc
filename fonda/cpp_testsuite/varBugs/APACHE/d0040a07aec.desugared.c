@@ -2922,7 +2922,7 @@ if (__static_condition_default_2042) {
 
 
 if (__static_condition_default_2043) {
- __limits_2036  = (  __rand_1609 ( ) % 2 ) ? 1 : 0 ; // L11
+ __limits_2036  = ( rand( ) % 2 ) ? 1 : 0 ; // L11
 }
 if (__static_condition_default_2044) {
 __static_type_error("type error") ; // L11

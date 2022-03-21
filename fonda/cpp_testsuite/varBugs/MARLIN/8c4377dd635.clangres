@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/8c4377dd635.c:16:20: error: called object type 'void' is not a function or function pointer
+  SERIAL_ECHO_START(" PIDDEBUG "); // ERROR
+  ~~~~~~~~~~~~~~~~~^
+1 error generated.

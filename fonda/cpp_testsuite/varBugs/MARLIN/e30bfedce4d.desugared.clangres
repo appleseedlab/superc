@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/e30bfedce4d.desugared.c:48:6: warning: Value stored to '__xGridSpacing_1' during its initialization is never read [deadcode.DeadStores]
+int  __xGridSpacing_1=  __left_probe_bed_position_0 ;// L24
+     ^~~~~~~~~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.

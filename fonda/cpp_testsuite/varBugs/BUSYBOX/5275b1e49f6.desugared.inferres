@@ -1,0 +1,50 @@
+
+BUSYBOX/5275b1e49f6.desugared.c:3005: error: Dead Store
+  The value written to &__k_crcs_2043 (type int) is never used.
+  3003. 
+  3004. 
+  3005.  __k_crcs_2043  =  __someInt_2042  ; // L25
+         ^
+  3006. }
+  3007. }
+
+BUSYBOX/5275b1e49f6.desugared.c:2935: error: Dead Store
+  The value written to &__m_has_modinfo_2040 (type int) is never used.
+  2933. {
+  2934. if (__static_condition_default_2048) {
+  2935.  __m_has_modinfo_2040  = 1 ; // L18
+         ^
+  2936. }
+  2937. }
+
+BUSYBOX/5275b1e49f6.desugared.c:2949: error: Dead Store
+  The value written to &__m_has_modinfo_2040 (type int) is never used.
+  2947. {
+  2948. if (__static_condition_default_2050) {
+  2949.  __m_has_modinfo_2040  = 1 ; // L18
+         ^
+  2950. }
+  2951. }
+
+BUSYBOX/5275b1e49f6.desugared.c:3145: error: Dead Store
+  The value written to &__k_crcs_2043 (type int) is never used.
+  3143. 
+  3144. 
+  3145.  __k_crcs_2043  =  __someInt_2042  ; // L25
+         ^
+  3146. }
+  3147. }
+
+BUSYBOX/5275b1e49f6.desugared.c:3075: error: Dead Store
+  The value written to &__m_has_modinfo_2040 (type int) is never used.
+  3073. {
+  3074. if (__static_condition_default_2060) {
+  3075.  __m_has_modinfo_2040  = 1 ; // L18
+         ^
+  3076. }
+  3077. }
+
+
+Found 7 issues (console output truncated to 5, see '/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/infer-out/report.txt' for the full list)
+  Issue Type(ISSUED_TYPE_ID): #
+      Dead Store(DEAD_STORE): 7

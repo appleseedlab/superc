@@ -1,0 +1,41 @@
+
+BUSYBOX/b273d665181.desugared.c:2937: error: Uninitialized Value
+  The value read from __info_2036 was never initialized.
+  2935. {
+  2936. if (__static_condition_default_2044) {
+  2937.  __printf_421  ("%d", __info_2036 ) ; // L16
+         ^
+  2938. }
+  2939. if (__static_condition_default_2045) {
+
+BUSYBOX/b273d665181.desugared.c:2948: error: Uninitialized Value
+  The value read from __info_2036 was never initialized.
+  2946. {
+  2947. if (__static_condition_default_2047) {
+  2948.  __printf_421  ("%d", __info_2036 ) ; // L16
+         ^
+  2949. }
+  2950. if (__static_condition_default_2048) {
+
+BUSYBOX/b273d665181.desugared.c:3008: error: Uninitialized Value
+  The value read from __info_2036 was never initialized.
+  3006. {
+  3007. if (__static_condition_default_2054) {
+  3008.  __printf_421  ("%d", __info_2036 ) ; // L16
+         ^
+  3009. }
+  3010. if (__static_condition_default_2055) {
+
+BUSYBOX/b273d665181.desugared.c:3019: error: Uninitialized Value
+  The value read from __info_2036 was never initialized.
+  3017. {
+  3018. if (__static_condition_default_2057) {
+  3019.  __printf_421  ("%d", __info_2036 ) ; // L16
+         ^
+  3020. }
+  3021. if (__static_condition_default_2058) {
+
+
+Found 4 issues
+                Issue Type(ISSUED_TYPE_ID): #
+  Uninitialized Value(UNINITIALIZED_VALUE): 4

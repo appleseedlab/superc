@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.c:30:7: warning: Branch condition evaluates to a garbage value [core.uninitialized.Branch]
+  if (buf) { //WARNING
+      ^~~
+1 warning generated.

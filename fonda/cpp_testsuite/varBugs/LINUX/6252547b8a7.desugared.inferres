@@ -1,0 +1,14 @@
+
+LINUX/6252547b8a7.desugared.c:49: error: Dead Store
+  The value written to &__irq_2 (type int) is never used.
+  47. 
+  48. 
+  49. int  __irq_2= *  __ops_1 ;// L12
+      ^
+  50. 
+  51. }
+
+
+Found 1 issue
+  Issue Type(ISSUED_TYPE_ID): #
+      Dead Store(DEAD_STORE): 1

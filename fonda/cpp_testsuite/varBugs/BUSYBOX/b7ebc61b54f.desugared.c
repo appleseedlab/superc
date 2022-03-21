@@ -1308,7 +1308,7 @@ int  (__main_803) (int  __argc_801, char  * (* (__argv_802))) {
 
 __static_type_error("type error : no valid expression"); // L13
 if (__static_condition_default_804) {
-if (  __rand_465 ( ) % 2 )// L15
+if ( rand( ) % 2 )// L15
 {
 
 {

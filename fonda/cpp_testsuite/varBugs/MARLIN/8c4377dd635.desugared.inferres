@@ -1,0 +1,41 @@
+
+MARLIN/8c4377dd635.desugared.c:72: error: Dead Store
+  The value written to &__pid_output_4 (type float) is never used.
+  70. 
+  71. 
+  72. float  __pid_output_4= 1;// L11
+      ^
+  73. 
+  74. int  __e_5= 0;// L12
+
+MARLIN/8c4377dd635.desugared.c:89: error: Dead Store
+  The value written to &__pid_output_4 (type float) is never used.
+  87. 
+  88. 
+  89. float  __pid_output_4= 1;// L11
+      ^
+  90. 
+  91. int  __e_5= 0;// L12
+
+MARLIN/8c4377dd635.desugared.c:116: error: Dead Store
+  The value written to &__pid_output_4 (type float) is never used.
+  114. 
+  115. 
+  116. float  __pid_output_4= 1;// L11
+       ^
+  117. 
+  118. int  __e_5= 0;// L12
+
+MARLIN/8c4377dd635.desugared.c:133: error: Dead Store
+  The value written to &__pid_output_4 (type float) is never used.
+  131. 
+  132. 
+  133. float  __pid_output_4= 1;// L11
+       ^
+  134. 
+  135. int  __e_5= 0;// L12
+
+
+Found 4 issues
+  Issue Type(ISSUED_TYPE_ID): #
+      Dead Store(DEAD_STORE): 4

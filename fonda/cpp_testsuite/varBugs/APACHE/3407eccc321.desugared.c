@@ -2942,7 +2942,7 @@ int  (__main_2049) (void  ) {
 
 
 if (__static_condition_default_2050) {
-if (  __rand_1609 ( ) % 2 )// L11
+if ( rand( ) % 2 )// L11
 {
 
 {

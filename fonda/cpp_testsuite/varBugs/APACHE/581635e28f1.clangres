@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/581635e28f1.c:7:16: error: use of undeclared identifier 'APR_INET6'
+  int family = APR_INET6;
+               ^
+1 error generated.

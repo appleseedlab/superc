@@ -1,0 +1,7 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/66517915e09.desugared.c:48:6: warning: Value stored to '__codec_hw_write_1' during its initialization is never read [deadcode.DeadStores]
+int  __codec_hw_write_1=  __i2c_master_send_0 ;// L16
+     ^~~~~~~~~~~~~~~~~~   ~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/66517915e09.desugared.c:70:6: warning: Value stored to '__codec_hw_write_5' during its initialization is never read [deadcode.DeadStores]
+int  __codec_hw_write_5=  __i2c_master_send_0 ;// L24
+     ^~~~~~~~~~~~~~~~~~   ~~~~~~~~~~~~~~~~~~~
+2 warnings generated.

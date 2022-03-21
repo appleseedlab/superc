@@ -21,13 +21,12 @@ class Warning:
 
     def tostr(self):
         return ' '.join([self.sanitize(),str(self.line),str(self.lineA),str(self.lineB)])
-    
-    
+        
     def areEq(self,inner):
         print(self.tostr() + ' ||' + inner.tostr())
         return self.sanitize() == inner.sanitize() and inner.line >= self.lineA and inner.line <= self.lineB
 
-def getAlarm(fi):
+def getClangAlarm(fi):
     orig = fi + ".clangres"
     desug = fi + ".desugared.clangres"
     warningsO = []
@@ -63,6 +62,8 @@ def getAlarm(fi):
         i = i+1
     f.close()
     i = 0
+    if len(warningsO) == 0:
+        return 'none   ', len(warningsO), len(warningsD)
     while i < len(warningsO):
         found = False
         for d in warningsD:
@@ -70,9 +71,59 @@ def getAlarm(fi):
                 found = True
                 break
         if not found:
-            return 'missing: ' + warningsO[i].msg
+            return 'missing', len(warningsO), len(warningsD)
         i = i+1
-    return 'match'
+    return 'match  ', len(warningsO), len(warningsD)
+
+def getInferAlarm(fi,firel):
+    orig = fi + ".inferres"
+    desug = fi + ".desugared.inferres"
+    warningsO = []
+    warningsD = []
+    f = open(orig)
+    for x in f:
+        if firel in x and 'error:' in x:
+            x = x.rstrip()
+            y = Warning()
+            y.msg = x.split('error:')[1]
+            y.line = int(x.split(':')[1])
+            warningsO.append(y)
+    f.close()
+    f = open(desug)
+    lines = []
+    for x in f:
+        lines.append(x.rstrip())
+    i = 0
+    while i < len(lines) - 4:
+        l = lines[i]
+        if firel in l and 'error:' in l and '// L' in lines[i+4]:
+            z = Warning()
+            z.msg = l.split('error:')[1]
+            linestr = lines[i+4].split('// L')[1]
+            if ':L' in linestr:
+                z.lineA = int(linestr.split(':L')[0])
+                z.lineB = int(linestr.split(':L')[1])
+            else:
+                z.lineA = int(linestr)
+                z.lineB = int(linestr)
+            warningsD.append(z)
+            i = i+1
+        i = i+1
+    f.close()
+    i = 0
+    if len(warningsO) == 0:
+        return 'none   ', len(warningsO), len(warningsD)
+    while i < len(warningsO):
+        found = False
+        for d in warningsD:
+            if d.areEq(warningsO[i]):
+                found = True
+                break
+        if not found:
+            return 'missing', len(warningsO), len(warningsD)
+        i = i+1
+    return 'match  ', len(warningsO), len(warningsD)
+
 
 def remove_prefix(text, prefix):
     return text[text.startswith(prefix) and len(prefix):]
@@ -99,7 +150,7 @@ def main():
                         if len(sumTOut + dirFiles) > maxC:
                             maxC = len(sumTOut + dirFiles)
 
-    sumTable.write('File' + (maxC - 4)*' ' + 'Status        Clang\n'+(4)*'-'+ (maxC - 4)*' '+'------        -----\n')
+    sumTable.write('File' + (maxC - 4)*' ' + 'Status        Clang        Infer\n'+(4)*'-'+ (maxC - 4)*' '+'------        -----        -----\n')
 
     jsFile = open('configs.json','r+')
     if os.stat('configs.json').st_size == 0:
@@ -136,6 +187,7 @@ def main():
                             js[filewobase] = inc
                             
                         os.system('clang --analyze ' + inc + ' ' + curDir + '/' + dirFiles + " 2> " + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.clangres')
+                        os.system('infer -- clang -c ' + inc + ' ' + curDir + '/' + dirFiles + " > " + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.inferres')
 
                         if os.path.getsize(curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c') <= 32:
                             sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'SuperC failed *\n')
@@ -143,10 +195,12 @@ def main():
                         else:
                             os.system('clang -Wno-everything -emit-llvm -c ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c')
                             os.system('clang --analyze ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c 2> ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.clangres')
+                            os.system('infer -- clang -c ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c > ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.inferres')
                         if os.path.exists(os.getcwd() + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.bc'):
                             os.system('mv ' + dirFiles[:len(dirFiles) - 2] + '.desugared.bc ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.bc')
-                            alarm = getAlarm(curDir + '/' + dirFiles[:len(dirFiles) - 2])
-                            sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' +'BC generated  ' + alarm + '\n')
+                            alarmc , origsc, desugc = getClangAlarm(curDir + '/' + dirFiles[:len(dirFiles) - 2])
+                            alarmi , origsi, desugi = getInferAlarm(curDir + '/' + dirFiles[:len(dirFiles) - 2],sumTOut)
+                            sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' +'BC generated  ' + alarmc + ' ' + str(origsc) + '/' + str(desugc) + (' ' if desugc > 9 else '  ') + alarmi + ' ' + str(origsi) + '/' + str(desugi)  +  '\n')
                         else:
                             sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' +'BC failed     *\n')
                                 

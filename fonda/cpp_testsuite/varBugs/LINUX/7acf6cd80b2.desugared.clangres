@@ -1,0 +1,10 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/7acf6cd80b2.desugared.c:77:6: warning: Value stored to '__x_3' during its initialization is never read [deadcode.DeadStores]
+int  __x_3= *  __inode_2 ;// L8
+     ^~~~~  ~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/7acf6cd80b2.desugared.c:170:2: warning: Value stored to '__driver_data_15' is never read [deadcode.DeadStores]
+ __driver_data_15  = &  __some_int_1  ; // L39
+ ^                   ~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/7acf6cd80b2.desugared.c:175:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
+ __tty_release_14  ( __driver_data_15 ) ; // L44
+ ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+3 warnings generated.

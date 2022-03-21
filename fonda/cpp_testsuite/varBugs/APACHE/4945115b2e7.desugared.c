@@ -3001,9 +3001,9 @@ if (__static_condition_default_2051) {
 
 
 
-__FILE_59  * (__dbg_2036)=  __fopen_344  ("con","w");// L8
+__FILE_59  * (__dbg_2036)= fopen ("con","w");// L8
 
-__FILE_59  * (__dbg_2038)=  __fopen_354  ("con","w");// L8
+__FILE_59  * (__dbg_2038)= fopen ("con","w");// L8
 
 if (__static_condition_default_2040) {
 __static_type_error("invalid declaration of dbg under this presence condition");
@@ -3013,9 +3013,9 @@ if (__static_condition_default_2041) {
 __static_type_error("invalid declaration of dbg under this presence condition");
 }
 
-__FILE_59  * (__dbg_2042)=  __fopen_344  ("/dev/tty","w");// L10
+__FILE_59  * (__dbg_2042)= fopen ("/dev/tty","w");// L10
 
-__FILE_59  * (__dbg_2044)=  __fopen_354  ("/dev/tty","w");// L10
+__FILE_59  * (__dbg_2044)= fopen ("/dev/tty","w");// L10
 
 if (__static_condition_default_2046) {
 __static_type_error("invalid declaration of dbg under this presence condition");
@@ -3041,28 +3041,28 @@ if (__static_condition_default_2056) {
 __static_type_error("type error") ; // L15
 }
 if (__static_condition_default_2057) {
-if (  __rand_1609 ( ) % 2 )// L18
+if ( rand( ) % 2 )// L18
 {
 return  ;// L19
 }
 }
 if (__static_condition_default_2058) {
- __fclose_330  ( __dbg_2036 ) ; // L22
+fclose ( __dbg_2036 ) ; // L22
 }
 if (__static_condition_default_2059) {
- __fclose_330  ( __dbg_2038 ) ; // L22
+fclose ( __dbg_2038 ) ; // L22
 }
 if (__static_condition_default_2060) {
- __fclose_330  ( __dbg_2042 ) ; // L22
+fclose ( __dbg_2042 ) ; // L22
 }
 if (__static_condition_default_2061) {
- __fclose_330  ( __dbg_2044 ) ; // L22
+fclose ( __dbg_2044 ) ; // L22
 }
 if (__static_condition_default_2062) {
 __static_type_error("type error") ; // L22
 }
 if (__static_condition_default_2063) {
-if (  __rand_1609 ( ) % 2 )// L18
+if ( rand( ) % 2 )// L18
 {
 return  ;// L19
 }
@@ -3083,9 +3083,9 @@ if (__static_condition_default_2064) {
 
 
 
-__FILE_59  * (__dbg_2037)=  __fopen_346  ("con","w");// L8
+__FILE_59  * (__dbg_2037)= fopen ("con","w");// L8
 
-__FILE_59  * (__dbg_2039)=  __fopen_356  ("con","w");// L8
+__FILE_59  * (__dbg_2039)= fopen ("con","w");// L8
 
 if (__static_condition_default_2040) {
 __static_type_error("invalid declaration of dbg under this presence condition");
@@ -3095,9 +3095,9 @@ if (__static_condition_default_2041) {
 __static_type_error("invalid declaration of dbg under this presence condition");
 }
 
-__FILE_59  * (__dbg_2043)=  __fopen_346  ("/dev/tty","w");// L10
+__FILE_59  * (__dbg_2043)= fopen ("/dev/tty","w");// L10
 
-__FILE_59  * (__dbg_2045)=  __fopen_356  ("/dev/tty","w");// L10
+__FILE_59  * (__dbg_2045)= fopen ("/dev/tty","w");// L10
 
 if (__static_condition_default_2046) {
 __static_type_error("invalid declaration of dbg under this presence condition");
@@ -3123,28 +3123,28 @@ if (__static_condition_default_2069) {
 __static_type_error("type error") ; // L15
 }
 if (__static_condition_default_2070) {
-if (  __rand_1609 ( ) % 2 )// L18
+if ( rand( ) % 2 )// L18
 {
 return  ;// L19
 }
 }
 if (__static_condition_default_2071) {
- __fclose_330  ( __dbg_2037 ) ; // L22
+fclose ( __dbg_2037 ) ; // L22
 }
 if (__static_condition_default_2072) {
- __fclose_330  ( __dbg_2039 ) ; // L22
+fclose ( __dbg_2039 ) ; // L22
 }
 if (__static_condition_default_2073) {
- __fclose_330  ( __dbg_2043 ) ; // L22
+fclose ( __dbg_2043 ) ; // L22
 }
 if (__static_condition_default_2074) {
- __fclose_330  ( __dbg_2045 ) ; // L22
+fclose ( __dbg_2045 ) ; // L22
 }
 if (__static_condition_default_2075) {
 __static_type_error("type error") ; // L22
 }
 if (__static_condition_default_2076) {
-if (  __rand_1609 ( ) % 2 )// L18
+if ( rand( ) % 2 )// L18
 {
 return  ;// L19
 }
@@ -3165,13 +3165,13 @@ if (__static_condition_default_2077) {
 
 
 
-__FILE_59  * (__dbg_2036)=  __fopen_344  ("con","w");// L8
+__FILE_59  * (__dbg_2036)= fopen ("con","w");// L8
 
-__FILE_59  * (__dbg_2037)=  __fopen_346  ("con","w");// L8
+__FILE_59  * (__dbg_2037)= fopen ("con","w");// L8
 
-__FILE_59  * (__dbg_2038)=  __fopen_354  ("con","w");// L8
+__FILE_59  * (__dbg_2038)= fopen ("con","w");// L8
 
-__FILE_59  * (__dbg_2039)=  __fopen_356  ("con","w");// L8
+__FILE_59  * (__dbg_2039)= fopen ("con","w");// L8
 
 if (__static_condition_default_2040) {
 __static_type_error("invalid declaration of dbg under this presence condition");
@@ -3181,13 +3181,13 @@ if (__static_condition_default_2041) {
 __static_type_error("invalid declaration of dbg under this presence condition");
 }
 
-__FILE_59  * (__dbg_2042)=  __fopen_344  ("/dev/tty","w");// L10
+__FILE_59  * (__dbg_2042)= fopen ("/dev/tty","w");// L10
 
-__FILE_59  * (__dbg_2043)=  __fopen_346  ("/dev/tty","w");// L10
+__FILE_59  * (__dbg_2043)= fopen ("/dev/tty","w");// L10
 
-__FILE_59  * (__dbg_2044)=  __fopen_354  ("/dev/tty","w");// L10
+__FILE_59  * (__dbg_2044)= fopen ("/dev/tty","w");// L10
 
-__FILE_59  * (__dbg_2045)=  __fopen_356  ("/dev/tty","w");// L10
+__FILE_59  * (__dbg_2045)= fopen ("/dev/tty","w");// L10
 
 if (__static_condition_default_2046) {
 __static_type_error("invalid declaration of dbg under this presence condition");
@@ -3252,52 +3252,52 @@ if (__static_condition_default_2095) {
 __static_type_error("invalid type found in if statement");
 }
 if (__static_condition_default_2096) {
- __fclose_330  ( __dbg_2036 ) ; // L22
+fclose ( __dbg_2036 ) ; // L22
 }
 if (__static_condition_default_2097) {
- __fclose_330  ( __dbg_2037 ) ; // L22
+fclose ( __dbg_2037 ) ; // L22
 }
 if (__static_condition_default_2098) {
- __fclose_330  ( __dbg_2038 ) ; // L22
+fclose ( __dbg_2038 ) ; // L22
 }
 if (__static_condition_default_2099) {
- __fclose_330  ( __dbg_2039 ) ; // L22
+fclose ( __dbg_2039 ) ; // L22
 }
 if (__static_condition_default_2100) {
- __fclose_330  ( __dbg_2042 ) ; // L22
+fclose ( __dbg_2042 ) ; // L22
 }
 if (__static_condition_default_2101) {
- __fclose_330  ( __dbg_2043 ) ; // L22
+fclose ( __dbg_2043 ) ; // L22
 }
 if (__static_condition_default_2102) {
- __fclose_330  ( __dbg_2044 ) ; // L22
+fclose ( __dbg_2044 ) ; // L22
 }
 if (__static_condition_default_2103) {
- __fclose_330  ( __dbg_2045 ) ; // L22
+fclose ( __dbg_2045 ) ; // L22
 }
 if (__static_condition_default_2104) {
- __fclose_332  ( __dbg_2036 ) ; // L22
+fclose ( __dbg_2036 ) ; // L22
 }
 if (__static_condition_default_2105) {
- __fclose_332  ( __dbg_2037 ) ; // L22
+fclose ( __dbg_2037 ) ; // L22
 }
 if (__static_condition_default_2106) {
- __fclose_332  ( __dbg_2038 ) ; // L22
+fclose ( __dbg_2038 ) ; // L22
 }
 if (__static_condition_default_2107) {
- __fclose_332  ( __dbg_2039 ) ; // L22
+fclose ( __dbg_2039 ) ; // L22
 }
 if (__static_condition_default_2108) {
- __fclose_332  ( __dbg_2042 ) ; // L22
+fclose ( __dbg_2042 ) ; // L22
 }
 if (__static_condition_default_2109) {
- __fclose_332  ( __dbg_2043 ) ; // L22
+fclose ( __dbg_2043 ) ; // L22
 }
 if (__static_condition_default_2110) {
- __fclose_332  ( __dbg_2044 ) ; // L22
+fclose ( __dbg_2044 ) ; // L22
 }
 if (__static_condition_default_2111) {
- __fclose_332  ( __dbg_2045 ) ; // L22
+fclose ( __dbg_2045 ) ; // L22
 }
 if (__static_condition_default_2112) {
 __static_type_error("type error") ; // L22

@@ -1,0 +1,7 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.c:14:9: warning: Value stored to 'a' during its initialization is never read [deadcode.DeadStores]
+  char *a = val;
+        ^   ~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.c:16:3: warning: Value stored to 'val' is never read [deadcode.DeadStores]
+  val = (s && s[1]) ? s+1 : NULL;
+  ^     ~~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.

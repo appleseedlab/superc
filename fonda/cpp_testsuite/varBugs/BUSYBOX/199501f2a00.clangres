@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/199501f2a00.c:21:3: warning: Null pointer passed to 2nd parameter expecting 'nonnull' [core.NonNullParamChecker]
+  strcat(buf, dt); // ERROR
+  ^~~~~~~~~~~~~~~
+1 warning generated.

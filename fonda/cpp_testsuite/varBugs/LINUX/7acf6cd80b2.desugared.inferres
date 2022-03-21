@@ -1,0 +1,23 @@
+
+LINUX/7acf6cd80b2.desugared.c:77: error: Dead Store
+  The value written to &__x_3 (type int) is never used.
+  75. 
+  76. 
+  77. int  __x_3= *  __inode_2 ;// L8
+      ^
+  78. 
+  79. }
+
+LINUX/7acf6cd80b2.desugared.c:170: error: Dead Store
+  The value written to &__driver_data_15 (type int*) is never used.
+  168. }
+  169. }
+  170.  __driver_data_15  = &  __some_int_1  ; // L39
+        ^
+  171. return 0 ;// L41
+  172. 
+
+
+Found 2 issues
+  Issue Type(ISSUED_TYPE_ID): #
+      Dead Store(DEAD_STORE): 2

@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/ee3f34e8572.c:44:11: warning: Value stored to 'rt' during its initialization is never read [deadcode.DeadStores]
+    char *rt =(char *) dst; // (3)
+          ^~  ~~~~~~~~~~~~
+1 warning generated.

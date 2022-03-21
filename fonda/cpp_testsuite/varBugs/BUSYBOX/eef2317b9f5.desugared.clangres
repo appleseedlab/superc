@@ -1,0 +1,19 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1687:5: warning: Potential leak of memory pointed to by '__buf_964' [unix.Malloc]
+if (__static_condition_default_972) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1693:7: warning: Branch condition evaluates to a garbage value [core.uninitialized.Branch]
+if (  __buf_964  )// L30
+      ^~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1704:5: warning: Potential leak of memory pointed to by '__buf_964' [unix.Malloc]
+if (__static_condition_default_974) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1750:2: warning: Value stored to '__buf_964' is never read [deadcode.DeadStores]
+ __buf_964  = malloc ( __bufsize_965 ) ; // L26
+ ^            ~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1753:2: warning: Value stored to '__buf_964' is never read [deadcode.DeadStores]
+ __buf_964  = malloc ( __bufsize_965 ) ; // L26
+ ^            ~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1755:5: warning: Potential leak of memory pointed to by '__buf_964' [unix.Malloc]
+if (__static_condition_default_978) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+6 warnings generated.

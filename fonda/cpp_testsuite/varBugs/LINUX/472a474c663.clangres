@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/472a474c663.c:14:8: warning: Dereference of null pointer (loaded from variable 'ptr') [core.NullDereference]
+  *ptr = 'a';
+   ~~~ ^
+1 warning generated.

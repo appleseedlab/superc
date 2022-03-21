@@ -2906,13 +2906,13 @@ int  __src_2042;// L14
 int  __dst_2043;// L14
 
 if (__static_condition_default_2046) {
- __src_2042  =  __rand_1609 ( ) % 100 ; // L15
+ __src_2042  = rand( ) % 100 ; // L15
 }
 if (__static_condition_default_2047) {
 __static_type_error("type error") ; // L15
 }
 if (__static_condition_default_2048) {
- __dst_2043  =  __rand_1609 ( ) % 200 ; // L16
+ __dst_2043  = rand( ) % 200 ; // L16
 }
 if (__static_condition_default_2049) {
 __static_type_error("type error") ; // L16

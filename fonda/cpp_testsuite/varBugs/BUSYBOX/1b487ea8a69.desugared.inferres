@@ -1,0 +1,23 @@
+
+BUSYBOX/1b487ea8a69.desugared.c:2938: error: Null Dereference
+  pointer `__scontext_2038` last assigned on line 2932 could be null and is dereferenced at line 2938, column 26.
+  2936. {
+  2937. if (__static_condition_default_2045) {
+  2938.  __printf_421  (" %lc\n",*  __scontext_2038 ) ; // L14
+                                 ^
+  2939. }
+  2940. if (__static_condition_default_2046) {
+
+BUSYBOX/1b487ea8a69.desugared.c:2995: error: Null Dereference
+  pointer `__scontext_2038` last assigned on line 2989 could be null and is dereferenced at line 2995, column 26.
+  2993. {
+  2994. if (__static_condition_default_2054) {
+  2995.  __printf_421  (" %lc\n",*  __scontext_2038 ) ; // L14
+                                 ^
+  2996. }
+  2997. if (__static_condition_default_2055) {
+
+
+Found 2 issues
+          Issue Type(ISSUED_TYPE_ID): #
+  Null Dereference(NULL_DEREFERENCE): 2

@@ -2932,7 +2932,7 @@ if (__static_condition_default_2043) {
 char  * (__scontext_2038)= ( ( void  * ) 0 );// L7
 
 if (__static_condition_default_2044) {
-if (  __rand_1609 ( ) % 2 )// L13
+if ( rand( ) % 2 )// L13
 {
 if (__static_condition_default_2045) {
  __printf_421  (" %lc\n",*  __scontext_2038 ) ; // L14
@@ -2989,7 +2989,7 @@ if (__static_condition_default_2052) {
 char  * (__scontext_2038)= ( ( void  * ) 0 );// L7
 
 if (__static_condition_default_2053) {
-if (  __rand_1609 ( ) % 2 )// L13
+if ( rand( ) % 2 )// L13
 {
 if (__static_condition_default_2054) {
  __printf_421  (" %lc\n",*  __scontext_2038 ) ; // L14

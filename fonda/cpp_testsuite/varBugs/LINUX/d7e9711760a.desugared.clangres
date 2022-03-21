@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/d7e9711760a.desugared.c:1398:2: warning: Value stored to '__reserved_803' is never read [deadcode.DeadStores]
+ __reserved_803  = 1 ; // L30
+ ^                 ~
+1 warning generated.

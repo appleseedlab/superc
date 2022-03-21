@@ -1,0 +1,7 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/30e053248da.c:31:3: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
+  int x = *length; // (6) ERROR
+  ^~~~~   ~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/30e053248da.c:31:7: warning: Value stored to 'x' during its initialization is never read [deadcode.DeadStores]
+  int x = *length; // (6) ERROR
+      ^   ~~~~~~~
+2 warnings generated.

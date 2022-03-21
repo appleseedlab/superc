@@ -2955,7 +2955,7 @@ if (__static_condition_default_2056) {
 
 
 
-int  __random_2051=  __rand_1609 ( ) % 2;// L27
+int  __random_2051= rand( ) % 2;// L27
 
 if (__static_condition_default_2052) {
 __static_type_error("invalid declaration of random under this presence condition");
@@ -2997,7 +2997,7 @@ if (__static_condition_default_2059) {
 
 
 
-int  __random_2051=  __rand_1609 ( ) % 2;// L27
+int  __random_2051= rand( ) % 2;// L27
 
 if (__static_condition_default_2052) {
 __static_type_error("invalid declaration of random under this presence condition");

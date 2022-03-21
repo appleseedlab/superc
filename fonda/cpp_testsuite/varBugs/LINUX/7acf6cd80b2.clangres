@@ -1,0 +1,10 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/7acf6cd80b2.c:8:7: warning: Value stored to 'x' during its initialization is never read [deadcode.DeadStores]
+  int x = *inode; // ERROR (7)
+      ^   ~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/7acf6cd80b2.c:39:3: warning: Value stored to 'driver_data' is never read [deadcode.DeadStores]
+  driver_data = &some_int;
+  ^             ~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/7acf6cd80b2.c:44:3: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
+  tty_release(driver_data); // (3)
+  ^~~~~~~~~~~~~~~~~~~~~~~~
+3 warnings generated.

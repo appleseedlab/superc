@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/d7e9711760a.c:30:7: warning: Value stored to 'reserved' is never read [deadcode.DeadStores]
+      reserved = 1;
+      ^          ~
+1 warning generated.

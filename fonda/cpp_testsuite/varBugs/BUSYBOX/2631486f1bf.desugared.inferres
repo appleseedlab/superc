@@ -1,0 +1,51 @@
+
+BUSYBOX/2631486f1bf.desugared.c:3193: error: Uninitialized Value
+  The value read from __curr_2072 was never initialized.
+  3191. }
+  3192.  __curr_2072  -> __next_2039 =  __head_2073  ; // L67
+  3193.  __head_2073  =  __curr_2072  ; // L68
+         ^
+  3194.  __arr_2075  [ (  __size_2074  - 1 ) -  __i_2076  ] =  __curr_2072  ; // L69
+  3195. }
+
+BUSYBOX/2631486f1bf.desugared.c:3194: error: Uninitialized Value
+  The value read from __curr_2072 was never initialized.
+  3192.  __curr_2072  -> __next_2039 =  __head_2073  ; // L67
+  3193.  __head_2073  =  __curr_2072  ; // L68
+  3194.  __arr_2075  [ (  __size_2074  - 1 ) -  __i_2076  ] =  __curr_2072  ; // L69
+         ^
+  3195. }
+  3196. }
+
+BUSYBOX/2631486f1bf.desugared.c:3192: error: Uninitialized Value
+  The value read from __head_2073 was never initialized.
+  3190. __static_type_error("type error") ; // L66
+  3191. }
+  3192.  __curr_2072  -> __next_2039 =  __head_2073  ; // L67
+         ^
+  3193.  __head_2073  =  __curr_2072  ; // L68
+  3194.  __arr_2075  [ (  __size_2074  - 1 ) -  __i_2076  ] =  __curr_2072  ; // L69
+
+BUSYBOX/2631486f1bf.desugared.c:3277: error: Uninitialized Value
+  The value read from __curr_2072 was never initialized.
+  3275. }
+  3276.  __curr_2072  -> __next_2039 =  __head_2073  ; // L67
+  3277.  __head_2073  =  __curr_2072  ; // L68
+         ^
+  3278.  __arr_2075  [ (  __size_2074  - 1 ) -  __i_2076  ] =  __curr_2072  ; // L69
+  3279. }
+
+BUSYBOX/2631486f1bf.desugared.c:3278: error: Uninitialized Value
+  The value read from __curr_2072 was never initialized.
+  3276.  __curr_2072  -> __next_2039 =  __head_2073  ; // L67
+  3277.  __head_2073  =  __curr_2072  ; // L68
+  3278.  __arr_2075  [ (  __size_2074  - 1 ) -  __i_2076  ] =  __curr_2072  ; // L69
+         ^
+  3279. }
+  3280. }
+
+
+Found 7 issues (console output truncated to 5, see '/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/infer-out/report.txt' for the full list)
+                                            Issue Type(ISSUED_TYPE_ID): #
+                              Uninitialized Value(UNINITIALIZED_VALUE): 6
+  Pointer To Integral Implicit Cast(POINTER_TO_INTEGRAL_IMPLICIT_CAST): 1

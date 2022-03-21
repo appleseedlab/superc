@@ -1,0 +1,7 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.c:15:15: error: initializer element is not a compile-time constant
+char *iobuf = malloc(IOBUF_SIZE);
+              ^~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.c:23:30: error: use of undeclared identifier 'HTTP_OK'
+  mime_type = responseNum == HTTP_OK ? "application/octet-stream" : "text/html";
+                             ^
+2 errors generated.

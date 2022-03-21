@@ -3184,7 +3184,7 @@ if (__static_condition_default_2087) {
 __static_type_error("type error") ; // L65
 }
 if (__static_condition_default_2088) {
- __curr_2072  -> __val_2038 =  __rand_1609 ( ) % 10 ; // L66
+ __curr_2072  -> __val_2038 = rand( ) % 10 ; // L66
 }
 if (__static_condition_default_2089) {
 __static_type_error("type error") ; // L66
@@ -3197,7 +3197,7 @@ __static_type_error("type error") ; // L66
 }
 }
 if (__static_condition_default_2090) {
-if (  __rand_1609 ( ) % 2 )// L72
+if ( rand( ) % 2 )// L72
 {
 
 {
@@ -3268,7 +3268,7 @@ if (__static_condition_default_2099) {
 __static_type_error("type error") ; // L65
 }
 if (__static_condition_default_2100) {
- __curr_2072  -> __val_2038 =  __rand_1609 ( ) % 10 ; // L66
+ __curr_2072  -> __val_2038 = rand( ) % 10 ; // L66
 }
 if (__static_condition_default_2101) {
 __static_type_error("type error") ; // L66
@@ -3281,7 +3281,7 @@ __static_type_error("type error") ; // L66
 }
 }
 if (__static_condition_default_2102) {
-if (  __rand_1609 ( ) % 2 )// L72
+if ( rand( ) % 2 )// L72
 {
 
 {

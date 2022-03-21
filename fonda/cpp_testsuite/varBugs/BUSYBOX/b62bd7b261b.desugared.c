@@ -3257,7 +3257,7 @@ while ( *  __s_2391  )// L23
 
 *  __p_2392  = *  __s_2391  ; // L24
 if (__static_condition_default_2403) {
-if (  __rand_1609 ( ) % 2 )// L26
+if ( rand( ) % 2 )// L26
 {
 
 {
@@ -3352,7 +3352,7 @@ while ( *  __s_2391  )// L23
 
 *  __p_2392  = *  __s_2391  ; // L24
 if (__static_condition_default_2411) {
-if (  __rand_1609 ( ) % 2 )// L26
+if ( rand( ) % 2 )// L26
 {
 
 {
@@ -3389,7 +3389,7 @@ int  (__main_2415) (int  __argc_2413, char  * (* (__argv_2414))) {
 
 
 if (__static_condition_default_2416) {
-if (  __rand_1609 ( ) % 2 )// L43
+if ( rand( ) % 2 )// L43
 {
 if (__static_condition_default_2417) {
  __make_device_2395 ( ) ; // L44

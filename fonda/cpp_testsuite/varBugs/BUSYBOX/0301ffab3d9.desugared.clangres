@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/0301ffab3d9.desugared.c:51:2: warning: Value stored to '__gdp_0' is never read [deadcode.DeadStores]
+ __gdp_0  = "group_desc" ; // L7
+ ^          ~~~~~~~~~~~~
+1 warning generated.

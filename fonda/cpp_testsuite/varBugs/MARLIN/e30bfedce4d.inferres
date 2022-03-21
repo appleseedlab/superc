@@ -1,0 +1,14 @@
+
+MARLIN/e30bfedce4d.c:24: error: Dead Store
+  The value written to &xGridSpacing (type int) is never used.
+  22. 
+  23.   #ifdef AUTO_BED_LEVELING_GRID
+  24.   int xGridSpacing = left_probe_bed_position;
+        ^
+  25.   #else
+  26.   float z_at_pt_1, z_at_pt_2, z_at_pt_3;
+
+
+Found 1 issue
+  Issue Type(ISSUED_TYPE_ID): #
+      Dead Store(DEAD_STORE): 1

@@ -1,0 +1,35 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/31873ec707d.c:7:3: error: unknown type name 'int16_t'; did you mean '__int16_t'?
+  int16_t xx=x*10;
+  ^~~~~~~
+  __int16_t
+/usr/include/x86_64-linux-gnu/bits/types.h:38:26: note: '__int16_t' declared here
+typedef signed short int __int16_t;
+                         ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/31873ec707d.c:8:3: error: use of undeclared identifier 'conv'
+  conv[0]=(xx>=0)?'+':'-';
+  ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/31873ec707d.c:10:3: error: use of undeclared identifier 'conv'
+  conv[1]=(xx/10000)%10+'0';
+  ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/31873ec707d.c:11:3: error: use of undeclared identifier 'conv'
+  conv[2]=(xx/1000)%10+'0';
+  ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/31873ec707d.c:12:3: error: use of undeclared identifier 'conv'
+  conv[3]=(xx/100)%10+'0';
+  ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/31873ec707d.c:13:3: error: use of undeclared identifier 'conv'
+  conv[4]=(xx/10)%10+'0';
+  ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/31873ec707d.c:14:3: error: use of undeclared identifier 'conv'
+  conv[5]='.';
+  ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/31873ec707d.c:15:3: error: use of undeclared identifier 'conv'
+  conv[6]=(xx)%10+'0';
+  ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/31873ec707d.c:16:3: error: use of undeclared identifier 'conv'
+  conv[7]=0;
+  ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/31873ec707d.c:17:10: error: use of undeclared identifier 'conv'
+  return conv;
+         ^
+10 errors generated.

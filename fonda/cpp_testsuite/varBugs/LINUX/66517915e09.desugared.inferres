@@ -1,0 +1,23 @@
+
+LINUX/66517915e09.desugared.c:48: error: Dead Store
+  The value written to &__codec_hw_write_1 (type int) is never used.
+  46. 
+  47. 
+  48. int  __codec_hw_write_1=  __i2c_master_send_0 ;// L16
+      ^
+  49. 
+  50. if (__static_condition_default_2) {
+
+LINUX/66517915e09.desugared.c:70: error: Dead Store
+  The value written to &__codec_hw_write_5 (type int) is never used.
+  68. 
+  69. 
+  70. int  __codec_hw_write_5=  __i2c_master_send_0 ;// L24
+      ^
+  71. 
+  72. if (__static_condition_default_6) {
+
+
+Found 2 issues
+  Issue Type(ISSUED_TYPE_ID): #
+      Dead Store(DEAD_STORE): 2

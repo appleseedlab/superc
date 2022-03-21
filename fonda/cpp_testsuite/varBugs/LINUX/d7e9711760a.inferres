@@ -1,0 +1,14 @@
+
+LINUX/d7e9711760a.c:30: error: Dead Store
+  The value written to &reserved (type int) is never used.
+  28.     #ifdef CONFIG_QUOTA_DEBUG
+  29.     if (inode_get_rsv_space() > 0) // (3)
+  30.       reserved = 1;
+            ^
+  31.     #endif
+  32. 
+
+
+Found 1 issue
+  Issue Type(ISSUED_TYPE_ID): #
+      Dead Store(DEAD_STORE): 1

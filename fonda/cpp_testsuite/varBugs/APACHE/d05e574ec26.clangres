@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/d05e574ec26.c:21:1: warning: Potential leak of memory pointed to by 'buf' [unix.Malloc]
+}
+^
+1 warning generated.

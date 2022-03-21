@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/061fd0a353e.c:21:14: error: use of undeclared label 'expected_hwif_error'
+        goto expected_hwif_error; //ERROR
+             ^
+1 error generated.

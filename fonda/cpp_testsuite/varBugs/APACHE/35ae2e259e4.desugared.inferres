@@ -1,0 +1,51 @@
+
+APACHE/35ae2e259e4.desugared.c:1374: error: Null Dereference
+  pointer `__eckey_798` last assigned on line 1359 could be null and is dereferenced at line 1374, column 1.
+  1372. 
+  1373. 
+  1374. *  __eckey_798  = 30 ; // L12
+        ^
+  1375. }
+  1376. }
+
+APACHE/35ae2e259e4.desugared.c:1398: error: Null Dereference
+  pointer `__eckey_798` last assigned on line 1359 could be null and is dereferenced at line 1398, column 1.
+  1396. 
+  1397. 
+  1398. *  __eckey_798  = 15 ; // L17
+        ^
+  1399. }
+  1400. }
+
+APACHE/35ae2e259e4.desugared.c:1443: error: Null Dereference
+  pointer `__eckey_798` last assigned on line 1428 could be null and is dereferenced at line 1443, column 1.
+  1441. 
+  1442. 
+  1443. *  __eckey_798  = 30 ; // L12
+        ^
+  1444. }
+  1445. }
+
+APACHE/35ae2e259e4.desugared.c:1467: error: Null Dereference
+  pointer `__eckey_798` last assigned on line 1428 could be null and is dereferenced at line 1467, column 1.
+  1465. 
+  1466. 
+  1467. *  __eckey_798  = 15 ; // L17
+        ^
+  1468. }
+  1469. }
+
+APACHE/35ae2e259e4.desugared.c:1497: error: Dead Store
+  The value written to &__eckey_798 (type int*) is never used.
+  1495. 
+  1496. if (__static_condition_default_821) {
+  1497.  __eckey_798  = malloc (sizeof(int)) ; // L10
+         ^
+  1498. }
+  1499. if (__static_condition_default_822) {
+
+
+Found 6 issues (console output truncated to 5, see '/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/infer-out/report.txt' for the full list)
+          Issue Type(ISSUED_TYPE_ID): #
+  Null Dereference(NULL_DEREFERENCE): 4
+              Dead Store(DEAD_STORE): 2

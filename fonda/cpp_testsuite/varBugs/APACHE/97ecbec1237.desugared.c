@@ -1465,7 +1465,7 @@ int  (__main_821) (void  ) {
 
 
 if (__static_condition_default_822) {
-if (  __rand_465 ( ) % 2 )// L40
+if ( rand( ) % 2 )// L40
 {
 
 {

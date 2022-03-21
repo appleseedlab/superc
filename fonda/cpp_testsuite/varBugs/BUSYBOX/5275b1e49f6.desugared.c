@@ -2912,7 +2912,7 @@ if (__static_condition_default_2047) {
 
 
 
-int  __r_2038=  __rand_1609 ( ) % 2;// L6
+int  __r_2038= rand( ) % 2;// L6
 
 int  __m_has_modinfo_2040;// L7
 
@@ -3052,7 +3052,7 @@ if (__static_condition_default_2059) {
 
 
 
-int  __r_2038=  __rand_1609 ( ) % 2;// L6
+int  __r_2038= rand( ) % 2;// L6
 
 int  __m_has_modinfo_2040;// L7
 

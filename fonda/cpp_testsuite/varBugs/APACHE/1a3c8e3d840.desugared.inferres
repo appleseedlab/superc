@@ -1,0 +1,23 @@
+
+APACHE/1a3c8e3d840.desugared.c:1333: error: Dead Store
+  The value written to &__thisopt_798 (type int) is never used.
+  1331. 
+  1332. if (__static_condition_default_804) {
+  1333.  __thisopt_798  = ( 1 << 3 ) ; // L4:L13
+         ^
+  1334. }
+  1335. if (__static_condition_default_805) {
+
+APACHE/1a3c8e3d840.desugared.c:1369: error: Dead Store
+  The value written to &__thisopt_798 (type int) is never used.
+  1367. 
+  1368. if (__static_condition_default_808) {
+  1369.  __thisopt_798  = ( 1 << 3 ) ; // L4:L13
+         ^
+  1370. }
+  1371. if (__static_condition_default_809) {
+
+
+Found 2 issues
+  Issue Type(ISSUED_TYPE_ID): #
+      Dead Store(DEAD_STORE): 2

@@ -8355,7 +8355,7 @@ public class CActions implements SemanticActions {
 boolean wrotePrologue = false;
 
 static boolean keepMem = false;
-static String memNames[] = {"malloc", "calloc", "free"};
+static String memNames[] = {"malloc", "calloc", "free", "fopen", "fclose", "rand"};
 
 public static void keepMemoryNames(boolean f) {
   keepMem = f;

@@ -1,0 +1,40 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:2929:2: warning: Value stored to '__m_has_modinfo_2040' is never read [deadcode.DeadStores]
+ __m_has_modinfo_2040  = 0 ; // L16
+ ^                       ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:2935:2: warning: Value stored to '__m_has_modinfo_2040' is never read [deadcode.DeadStores]
+ __m_has_modinfo_2040  = 1 ; // L18
+ ^                       ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:2943:2: warning: Value stored to '__m_has_modinfo_2040' is never read [deadcode.DeadStores]
+ __m_has_modinfo_2040  = 0 ; // L16
+ ^                       ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:2949:2: warning: Value stored to '__m_has_modinfo_2040' is never read [deadcode.DeadStores]
+ __m_has_modinfo_2040  = 1 ; // L18
+ ^                       ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:2954:2: warning: Value stored to '__k_crcs_2043' is never read [deadcode.DeadStores]
+ __k_crcs_2043  = 0 ; // L21
+ ^                ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:3005:2: warning: Value stored to '__k_crcs_2043' is never read [deadcode.DeadStores]
+ __k_crcs_2043  =  __someInt_2042  ; // L25
+ ^                 ~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:3069:2: warning: Value stored to '__m_has_modinfo_2040' is never read [deadcode.DeadStores]
+ __m_has_modinfo_2040  = 0 ; // L16
+ ^                       ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:3075:2: warning: Value stored to '__m_has_modinfo_2040' is never read [deadcode.DeadStores]
+ __m_has_modinfo_2040  = 1 ; // L18
+ ^                       ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:3083:2: warning: Value stored to '__m_has_modinfo_2040' is never read [deadcode.DeadStores]
+ __m_has_modinfo_2040  = 0 ; // L16
+ ^                       ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:3089:2: warning: Value stored to '__m_has_modinfo_2040' is never read [deadcode.DeadStores]
+ __m_has_modinfo_2040  = 1 ; // L18
+ ^                       ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:3094:2: warning: Value stored to '__k_crcs_2043' is never read [deadcode.DeadStores]
+ __k_crcs_2043  = 0 ; // L21
+ ^                ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:3145:2: warning: Value stored to '__k_crcs_2043' is never read [deadcode.DeadStores]
+ __k_crcs_2043  =  __someInt_2042  ; // L25
+ ^                 ~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:3209:2: warning: Value stored to '__k_crcs_2043' is never read [deadcode.DeadStores]
+ __k_crcs_2043  = 0 ; // L21
+ ^                ~
+13 warnings generated.

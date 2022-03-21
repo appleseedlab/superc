@@ -6,7 +6,6 @@ allTests.out
 *.o
 *.pyc
 *.plist
-*.clangres
 /fonda/cpp_testsuite/desugarer/masterTypeCheck/binary
 /fonda/cpp_testsuite/desugarer/masterTypeCheck/unary
 /fonda/cpp_testsuite/desugarer/masterTypeCheck/other

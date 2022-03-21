@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/f48ec1d7885.c:9:11: error: use of undeclared identifier 'CFQ_WEIGHT_DEFAULT'
+  d = d * CFQ_WEIGHT_DEFAULT; // ERROR
+          ^
+1 error generated.

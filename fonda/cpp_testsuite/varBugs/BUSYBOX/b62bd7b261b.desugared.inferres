@@ -1,0 +1,51 @@
+
+BUSYBOX/b62bd7b261b.desugared.c:3213: error: Dead Store
+  The value written to &__a_2393 (type char*) is never used.
+  3211.  __val_2390  = "mode - device permissions" ; // L12
+  3212. }
+  3213. char  * (__a_2393)=  __val_2390 ;// L14
+        ^
+  3214. 
+  3215. if (__static_condition_default_2399) {
+
+BUSYBOX/b62bd7b261b.desugared.c:3219: error: Dead Store
+  The value written to &__val_2390 (type char*) is never used.
+  3217. }
+  3218. if (__static_condition_default_2400) {
+  3219.  __val_2390  = (  __s_2391  &&  __s_2391  [ 1 ] ) ?  __s_2391  + 1 : ( ( void  * ) 0 ) ; // L16:L395
+                       ^
+  3220. }
+  3221. }
+
+BUSYBOX/b62bd7b261b.desugared.c:3246: error: Dead Store
+  The value written to &__val_2390 (type char*) is never used.
+  3244.  __s_2391  =  __strchr_2169  ( __val_2390 ,' ') ; // L15
+  3245. }
+  3246.  __val_2390  = (  __s_2391  &&  __s_2391  [ 1 ] ) ?  __s_2391  + 1 : ( ( void  * ) 0 ) ; // L16:L395
+                       ^
+  3247. int  __n_2394= 0;// L20
+  3248. 
+
+BUSYBOX/b62bd7b261b.desugared.c:3269: error: Uninitialized Value
+  The value read from __p_2392 was never initialized.
+  3267. 
+  3268.  __n_2394  ++ ; // L27
+  3269.  __p_2392  +=  __n_2394  - 1 ; // L28
+         ^
+  3270. }
+  3271. }
+
+BUSYBOX/b62bd7b261b.desugared.c:3277: error: Uninitialized Value
+  The value read from __p_2392 was never initialized.
+  3275. __static_type_error("invalid type found in if statement");
+  3276. }
+  3277.  __p_2392  ++ ; // L31
+         ^
+  3278.  __s_2391  ++ ; // L32
+  3279. }
+
+
+Found 20 issues (console output truncated to 5, see '/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/infer-out/report.txt' for the full list)
+                Issue Type(ISSUED_TYPE_ID): #
+  Uninitialized Value(UNINITIALIZED_VALUE): 14
+                    Dead Store(DEAD_STORE): 6

@@ -1443,7 +1443,7 @@ unsigned int  (__skb_checksum_811) () {
 unsigned int  __csum_810= 0;// L37
 
 if (__static_condition_default_812) {
-while (  __rand_465 ( ) % 2 )// L39
+while ( rand( ) % 2 )// L39
 {
 
 {
@@ -1451,7 +1451,7 @@ while (  __rand_465 ( ) % 2 )// L39
 
 
 
-if (  __rand_465 ( ) % 2 )// L40
+if ( rand( ) % 2 )// L40
 {
 
 {
@@ -1508,7 +1508,7 @@ if (__static_condition_default_803) {
  __spin_lock_irq_800 ( ) ; // L57
 }
 if (__static_condition_default_812) {
-while (  __rand_465 ( ) % 2 )// L58
+while ( rand( ) % 2 )// L58
 {
 
 {

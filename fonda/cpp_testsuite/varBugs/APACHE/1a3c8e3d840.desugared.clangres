@@ -1,0 +1,7 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1a3c8e3d840.desugared.c:1333:2: warning: Value stored to '__thisopt_798' is never read [deadcode.DeadStores]
+ __thisopt_798  = ( 1 << 3 ) ; // L4:L13
+ ^                ~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1a3c8e3d840.desugared.c:1369:2: warning: Value stored to '__thisopt_798' is never read [deadcode.DeadStores]
+ __thisopt_798  = ( 1 << 3 ) ; // L4:L13
+ ^                ~~~~~~~~~~
+2 warnings generated.

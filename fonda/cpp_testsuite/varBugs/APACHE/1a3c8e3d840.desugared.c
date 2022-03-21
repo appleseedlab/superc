@@ -1321,7 +1321,7 @@ if (__static_condition_default_802) {
 int  __thisopt_798;// L9
 
 if (__static_condition_default_803) {
-if (  __rand_465 ( ) % 2 )// L11
+if ( rand( ) % 2 )// L11
 {
 
 {
@@ -1357,7 +1357,7 @@ if (__static_condition_default_806) {
 int  __thisopt_798;// L9
 
 if (__static_condition_default_807) {
-if (  __rand_465 ( ) % 2 )// L11
+if ( rand( ) % 2 )// L11
 {
 
 {

@@ -1,0 +1,14 @@
+
+LINUX/d7e9711760a.desugared.c:1398: error: Dead Store
+  The value written to &__reserved_803 (type int) is never used.
+  1396. if (  __inode_get_rsv_space_802 ( ) > 0 )// L29
+  1397. {
+  1398.  __reserved_803  = 1 ; // L30
+         ^
+  1399. }
+  1400. __static_type_error("type error : no valid expression"); // L33
+
+
+Found 1 issue
+  Issue Type(ISSUED_TYPE_ID): #
+      Dead Store(DEAD_STORE): 1

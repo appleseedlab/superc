@@ -1,0 +1,7 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1570:5: warning: Potential leak of memory pointed to by '__sc_1084' [unix.Malloc]
+if (__static_condition_default_1093) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1604:5: warning: Potential leak of memory pointed to by '__sc_1085' [unix.Malloc]
+if (__static_condition_default_1098) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.

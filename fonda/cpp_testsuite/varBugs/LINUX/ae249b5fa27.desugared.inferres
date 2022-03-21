@@ -1,0 +1,23 @@
+
+LINUX/ae249b5fa27.desugared.c:284: error: Uninitialized Value
+  The value read from __r_236 was never initialized.
+  282. }
+  283. if (__static_condition_default_245) {
+  284. ( (  __r_236  != 0xff ) ? ( void   ) ( 0 ) :  ____assert_fail_4  ("r != 0xff","/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/ae249b5fa27.c",19, __PRETTY_FUNCTION__ ) ) ; // L19:L91
+            ^
+  285. }
+  286. if (__static_condition_default_246) {
+
+LINUX/ae249b5fa27.desugared.c:289: error: Uninitialized Value
+  The value read from __r_236 was never initialized.
+  287. __static_type_error("type error") ; // L19:L91
+  288. }
+  289. return ( int   )  __r_236  ;// L21
+       ^
+  290. }
+  291. }
+
+
+Found 2 issues
+                Issue Type(ISSUED_TYPE_ID): #
+  Uninitialized Value(UNINITIALIZED_VALUE): 2

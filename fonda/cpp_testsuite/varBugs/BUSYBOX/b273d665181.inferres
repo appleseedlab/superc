@@ -1,0 +1,14 @@
+
+BUSYBOX/b273d665181.c:16: error: Uninitialized Value
+  The value read from info was never initialized.
+  14.   #ifdef BB_FEATURE_LS_FILETYPES
+  15.   if (rand() % 2)
+  16.     printf("%d", info); // ERROR
+          ^
+  17.   #endif
+  18. }
+
+
+Found 1 issue
+                Issue Type(ISSUED_TYPE_ID): #
+  Uninitialized Value(UNINITIALIZED_VALUE): 1

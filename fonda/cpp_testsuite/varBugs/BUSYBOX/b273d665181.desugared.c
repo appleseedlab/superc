@@ -2931,7 +2931,7 @@ if (__static_condition_default_2042) {
  __info_2036  = 0 ; // L11
 }
 if (__static_condition_default_2043) {
-if (  __rand_1609 ( ) % 2 )// L15
+if ( rand( ) % 2 )// L15
 {
 if (__static_condition_default_2044) {
  __printf_421  ("%d", __info_2036 ) ; // L16
@@ -2942,7 +2942,7 @@ __static_type_error("type error") ; // L16
 }
 }
 if (__static_condition_default_2046) {
-if (  __rand_1609 ( ) % 2 )// L15
+if ( rand( ) % 2 )// L15
 {
 if (__static_condition_default_2047) {
  __printf_421  ("%d", __info_2036 ) ; // L16
@@ -3002,7 +3002,7 @@ if (__static_condition_default_2052) {
  __info_2036  = 0 ; // L11
 }
 if (__static_condition_default_2053) {
-if (  __rand_1609 ( ) % 2 )// L15
+if ( rand( ) % 2 )// L15
 {
 if (__static_condition_default_2054) {
  __printf_421  ("%d", __info_2036 ) ; // L16
@@ -3013,7 +3013,7 @@ __static_type_error("type error") ; // L16
 }
 }
 if (__static_condition_default_2056) {
-if (  __rand_1609 ( ) % 2 )// L15
+if ( rand( ) % 2 )// L15
 {
 if (__static_condition_default_2057) {
  __printf_421  ("%d", __info_2036 ) ; // L16

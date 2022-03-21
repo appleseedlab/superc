@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/fdac8f6cece.c:9:21: error: use of undeclared identifier 'Z_PROBE_OFFSET_FROM_EXTRUDER'
+  zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER; // ERROR
+                    ^
+1 error generated.

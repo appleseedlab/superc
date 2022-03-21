@@ -1,0 +1,14 @@
+
+LINUX/d6c7e113959.desugared.c:45: error: Dead Store
+  The value written to &__pdata_0 (type int*) is never used.
+  43. 
+  44. 
+  45. *  __pdata_0  ++ ; // L5
+         ^
+  46. return 0 ;// L6
+  47. }
+
+
+Found 1 issue
+  Issue Type(ISSUED_TYPE_ID): #
+      Dead Store(DEAD_STORE): 1

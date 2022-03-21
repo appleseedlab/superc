@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/d530db0db90.c:18:25: error: invalid operands to binary expression ('void' and 'int')
+    if (*VORTEX_PCI(vp) < 0) // ERROR
+        ~~~~~~~~~~~~~~~ ^ ~
+1 error generated.

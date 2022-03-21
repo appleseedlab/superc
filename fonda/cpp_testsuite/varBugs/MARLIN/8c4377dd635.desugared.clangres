@@ -1,0 +1,7 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/8c4377dd635.desugared.c:94:2: warning: Value stored to '__pid_output_4' is never read [deadcode.DeadStores]
+ __pid_output_4  = 0 ; // L19
+ ^                 ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/8c4377dd635.desugared.c:138:2: warning: Value stored to '__pid_output_4' is never read [deadcode.DeadStores]
+ __pid_output_4  = 0 ; // L19
+ ^                 ~
+2 warnings generated.

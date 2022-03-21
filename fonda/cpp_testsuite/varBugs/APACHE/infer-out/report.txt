@@ -1,0 +1,23 @@
+#0
+test.c:3015: error: Resource Leak
+  resource of type `_IO_FILE` acquired by call to `fopen()` at line 3002, column 28 is not released after line 3015, column 1.
+  3013. if ( rand( ) % 2 )// L18
+  3014. {
+  3015. return  ;// L19
+        ^
+  3016. }
+  3017. }
+
+#1
+test.c:3015: error: Resource Leak
+  resource of type `_IO_FILE` acquired by call to `fopen()` at line 3004, column 28 is not released after line 3015, column 1.
+  3013. if ( rand( ) % 2 )// L18
+  3014. {
+  3015. return  ;// L19
+        ^
+  3016. }
+  3017. }
+
+Found 2 issues
+    Issue Type(ISSUED_TYPE_ID): #
+  Resource Leak(RESOURCE_LEAK): 2

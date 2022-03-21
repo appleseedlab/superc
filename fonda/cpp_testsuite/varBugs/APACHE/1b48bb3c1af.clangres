@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.c:14:3: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
+  apr_rmm_init(rmm_lock); // ERROR: rmm_lock uninitialized
+  ^~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.

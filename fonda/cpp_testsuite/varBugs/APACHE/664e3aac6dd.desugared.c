@@ -1541,7 +1541,7 @@ char  __buffer_1084[1024];// L7
 int  __i_1085;// L9
 
 if (__static_condition_default_1088) {
-if (  __rand_465 ( ) % 2 )// L10
+if ( rand( ) % 2 )// L10
 {
 
 {

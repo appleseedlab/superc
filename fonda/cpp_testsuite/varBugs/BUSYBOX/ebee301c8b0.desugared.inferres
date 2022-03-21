@@ -1,0 +1,23 @@
+
+BUSYBOX/ebee301c8b0.desugared.c:2921: error: Uninitialized Value
+  The value read from __dst_2043 was never initialized.
+  2919. }
+  2920. if (__static_condition_default_2050) {
+  2921.  __copySubFile_2038  ( __src_2042 , __dst_2043 ) ; // L18
+         ^
+  2922. }
+  2923. if (__static_condition_default_2051) {
+
+BUSYBOX/ebee301c8b0.desugared.c:2921: error: Uninitialized Value
+  The value read from __src_2042 was never initialized.
+  2919. }
+  2920. if (__static_condition_default_2050) {
+  2921.  __copySubFile_2038  ( __src_2042 , __dst_2043 ) ; // L18
+         ^
+  2922. }
+  2923. if (__static_condition_default_2051) {
+
+
+Found 2 issues
+                Issue Type(ISSUED_TYPE_ID): #
+  Uninitialized Value(UNINITIALIZED_VALUE): 2

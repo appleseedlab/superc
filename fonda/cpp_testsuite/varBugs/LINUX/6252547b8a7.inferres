@@ -1,0 +1,24 @@
+
+LINUX/6252547b8a7.c:12: error: Dead Store
+  The value written to &irq (type int) is never used.
+  10. void irq_domain_add(int *ops)
+  11. {
+  12.   int irq = *ops; // (4) ERROR
+        ^
+  13. }
+  14. #endif
+
+LINUX/6252547b8a7.c:25: error: Null Dereference
+  pointer `ops` last assigned on line 19 could be null and is dereferenced by call to `irq_domain_add()` at line 25, column 3.
+  23.   #endif
+  24. 
+  25.   irq_domain_add(ops); // (3)
+        ^
+  26. }
+  27. #endif
+
+
+Found 2 issues
+          Issue Type(ISSUED_TYPE_ID): #
+  Null Dereference(NULL_DEREFERENCE): 1
+              Dead Store(DEAD_STORE): 1

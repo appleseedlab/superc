@@ -1,0 +1,10 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b7ebc61b54f.c:7:23: error: invalid token in macro parameter list
+#define LIST_FILENAME(1U<<11)
+                      ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b7ebc61b54f.c:13:13: error: use of undeclared identifier 'LIST_FILENAME'
+  all_fmt = LIST_FILENAME;
+            ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b7ebc61b54f.c:16:17: error: use of undeclared identifier 'TIME_MASK'
+    all_fmt &= ~TIME_MASK;
+                ^
+3 errors generated.

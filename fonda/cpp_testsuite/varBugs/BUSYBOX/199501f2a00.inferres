@@ -1,0 +1,14 @@
+
+BUSYBOX/199501f2a00.c:21: error: Null Dereference
+  pointer `dt` last assigned on line 7 could be null and is dereferenced by call to `strcat()` at line 21, column 3.
+  19.   strcpy(buf, "module option(s): ");
+  20. 
+  21.   strcat(buf, dt); // ERROR
+        ^
+  22.   #endif
+  23. }
+
+
+Found 1 issue
+          Issue Type(ISSUED_TYPE_ID): #
+  Null Dereference(NULL_DEREFERENCE): 1

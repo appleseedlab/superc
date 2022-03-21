@@ -216,7 +216,10 @@ public class SugarC extends Tool {
       bool("make-main", "make-main", false,
            "Create a main function to call main variants.").
       bool("keep-mem", "keep-mem", false,
-           "Retains free and alloc function naming for static analysis.").
+           "Retains naming for memory related functions used in static analysis.").
+      bool("hide-static-error", "hide-static-error", false,
+           "Adds a macro definition to replace static type error functions with empty space").
+      
       // Output and debugging
       bool("printAST", "printAST", false,
            "Print the parsed AST.").
@@ -568,6 +571,10 @@ public class SugarC extends Tool {
 
       // write the user-defined types at the top of the scope.
       System.out.print(scope.getDeclarations(pcTrue));
+
+      if (runtime.test("hide-static-error")) {
+        System.out.print("#define __static_type_error(msg) ;");
+      }
       
       // write the transformed C
       System.out.print(CContext.getOutput());

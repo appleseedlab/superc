@@ -1349,7 +1349,7 @@ for (  __i_804  = 0 ;  __i_804  < 10 ;  __i_804  ++ )// L21
 
 __static_type_error("type error : no valid expression"); // L22
 if (__static_condition_default_810) {
-if (  __rand_465 ( ) % 2 )// L23
+if ( rand( ) % 2 )// L23
 {
 
 {
@@ -1379,7 +1379,7 @@ for (  __i_805  = 0 ;  __i_805  < 10 ;  __i_805  ++ )// L21
 
 __static_type_error("type error : no valid expression"); // L22
 if (__static_condition_default_812) {
-if (  __rand_465 ( ) % 2 )// L23
+if ( rand( ) % 2 )// L23
 {
 
 {

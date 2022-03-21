@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.c:16:3: warning: Potential leak of memory pointed to by 'sc' [unix.Malloc]
+  return;
+  ^~~~~~
+1 warning generated.

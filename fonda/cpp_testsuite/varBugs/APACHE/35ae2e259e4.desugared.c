@@ -1362,7 +1362,7 @@ if (__static_condition_default_804) {
 __static_type_error("type error") ; // L10
 }
 if (__static_condition_default_805) {
-if (  __rand_465 ( ) % 2 )// L11
+if ( rand( ) % 2 )// L11
 {
 if (__static_condition_default_806) {
 
@@ -1431,7 +1431,7 @@ if (__static_condition_default_813) {
 __static_type_error("type error") ; // L10
 }
 if (__static_condition_default_814) {
-if (  __rand_465 ( ) % 2 )// L11
+if ( rand( ) % 2 )// L11
 {
 if (__static_condition_default_815) {
 

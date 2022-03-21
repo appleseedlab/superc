@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/1b487ea8a69.c:14:22: warning: Dereference of null pointer (loaded from variable 'scontext') [core.NullDereference]
+    printf(" %lc\n", *scontext); // ERROR
+                     ^~~~~~~~~
+1 warning generated.

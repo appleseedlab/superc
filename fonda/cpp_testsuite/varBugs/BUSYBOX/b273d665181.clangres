@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b273d665181.c:16:5: warning: 2nd function call argument is an uninitialized value [core.CallAndMessage]
+    printf("%d", info); // ERROR
+    ^~~~~~~~~~~~~~~~~~
+1 warning generated.

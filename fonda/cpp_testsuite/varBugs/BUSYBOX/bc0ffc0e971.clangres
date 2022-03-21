@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.c:43:29: warning: Use of memory after it is freed [unix.Malloc]
+  for (ch = clist; ch; ch = ch->next) // ERROR
+                            ^~~~~~~~
+1 warning generated.

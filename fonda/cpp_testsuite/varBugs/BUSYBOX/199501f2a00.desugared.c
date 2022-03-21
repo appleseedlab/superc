@@ -3189,7 +3189,7 @@ if (__static_condition_default_2394) {
 char  * (__dt_2390)= ( ( void  * ) 0 );// L7
 
 if (__static_condition_default_2395) {
-if (  __rand_1609 ( ) % 2 )// L9
+if ( rand( ) % 2 )// L9
 {
 
 {
@@ -3225,7 +3225,7 @@ if (__static_condition_default_2397) {
 char  * (__dt_2390)= ( ( void  * ) 0 );// L7
 
 if (__static_condition_default_2398) {
-if (  __rand_1609 ( ) % 2 )// L9
+if ( rand( ) % 2 )// L9
 {
 
 {
@@ -3272,7 +3272,7 @@ if (__static_condition_default_2400) {
 char  * (__dt_2390)= ( ( void  * ) 0 );// L7
 
 if (__static_condition_default_2401) {
-if (  __rand_1609 ( ) % 2 )// L9
+if ( rand( ) % 2 )// L9
 {
 
 {
@@ -3308,7 +3308,7 @@ if (__static_condition_default_2403) {
 char  * (__dt_2390)= ( ( void  * ) 0 );// L7
 
 if (__static_condition_default_2404) {
-if (  __rand_1609 ( ) % 2 )// L9
+if ( rand( ) % 2 )// L9
 {
 
 {

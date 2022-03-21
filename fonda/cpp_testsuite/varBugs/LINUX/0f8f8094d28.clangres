@@ -1,0 +1,14 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/0f8f8094d28.c:26:21: error: use of undeclared identifier 'PAGE_SHIFT'
+int* kmalloc_caches[KMALLOC_SHIFT_HIGH + 1];
+                    ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/0f8f8094d28.c:18:42: note: expanded from macro 'KMALLOC_SHIFT_HIGH'
+#define KMALLOC_SHIFT_HIGH ((MAX_ORDER + PAGE_SHIFT - 1) <= 25 ? \
+                                         ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/0f8f8094d28.c:26:21: error: use of undeclared identifier 'PAGE_SHIFT'
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/0f8f8094d28.c:19:41: note: expanded from macro 'KMALLOC_SHIFT_HIGH'
+                           (MAX_ORDER + PAGE_SHIFT - 1) : 25)
+                                        ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/0f8f8094d28.c:34:19: error: use of undeclared identifier 'PAGE_SHIFT'
+  for (i = 1; i < PAGE_SHIFT + MAX_ORDER; i++)
+                  ^
+3 errors generated.

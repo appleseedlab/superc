@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1f46088b38d.c:14:20: error: use of undeclared identifier 'SIGPIPE'
+  apr_signal_block(SIGPIPE); // ERROR: SIGPIPE undeclared
+                   ^
+1 error generated.
