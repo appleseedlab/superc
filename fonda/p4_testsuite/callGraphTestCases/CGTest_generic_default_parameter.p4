@@ -1,3 +1,5 @@
+// Need to check how this works as new instance of generic_value is still of type T
+// rather than bit<16> from dummy
 control dummy(out bit<16> b) {
     apply {
     }
