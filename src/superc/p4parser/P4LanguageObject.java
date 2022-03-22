@@ -1521,7 +1521,9 @@ class P4LanguageObject {
         public void setType(AbstractObjectOfLanguage typeOrVoid) {
             // assert this.typeOrVoid == null;
             if(this.typeOrVoid != null) {
-                System.err.println("Old type being replaced for: " + this.getName() + ". Old type: " + this.typeOrVoid.getName() + ", new type being set: " + typeOrVoid.getName());
+                if(this.typeOrVoid.getName() != "UNDECLARED OBJECT") {
+                    System.err.println("Old type being replaced for: " + this.getName() + ". Old type: " + this.typeOrVoid.getName() + ", new type being set: " + typeOrVoid.getName());
+                }
             }
 
             this.typeOrVoid = typeOrVoid;

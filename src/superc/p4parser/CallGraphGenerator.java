@@ -806,9 +806,13 @@ public class CallGraphGenerator {
             String functionPrototypeName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(1)));
             // System.out.println("Type value is: " + (typeOrVoid.getName()) + " with identifier: " + identifier + " for func prototype: " + functionPrototypeName + " add to symtab value: " + addToSymtab);
             AbstractObjectOfLanguage functionPrototypeObj = p4LanguageObject.getRespectiveFunctionPrototypeClass(functionPrototypeName, scope.peek(), typeOrVoid, classType);
+
+            // can optimize this
+            boolean areParametersGeneric = isAnyParameterGeneric(getGNodeUnderConditional(n.getGeneric(4)), getGNodeUnderConditional(n.getGeneric(2)));
             
             if(typeOrVoid.getConstructType() == LObjectKind.TYPEPARAMETER ||
-                getGNodeUnderConditional(n.getGeneric(2)).size() > 0) {
+                getGNodeUnderConditional(n.getGeneric(2)).size() > 0 ||
+                areParametersGeneric) {
                 functionPrototypeObj = p4LanguageObject.getRespectiveFunctionPrototypeGeneratorClass((FunctionPrototype) functionPrototypeObj);
             }
 
@@ -1304,6 +1308,7 @@ public class CallGraphGenerator {
 
             if(parameterType.getConstructType() == LObjectKind.TYPEPARAMETER) {
                 newParameterObj = p4LanguageObject.new ParameterGenerator((Parameter) newParameterObj);
+                // assert scope.peek().isGeneratorClass() : "Trying to add generic parameter: " + newParameterObj.getName() + " but parent is set to be generator class. Parent: " + scope.peek().getName() + "(" + scope.peek().getConstructType() + ")";
             }
             // System.out.println("adding new parameter: '" + name + "' to scope: " + scope.peek().getName() + " " + scope.peek());
             addToSymtab(scope.peek(), name, newParameterObj);
@@ -2569,6 +2574,93 @@ public class CallGraphGenerator {
             assert false : "Undefined value accessed : " + n.getName();
         }
         return finalValue;
+    }
+
+    /**
+     * Takes in parameterList node and return true if any of them have a generic type
+     * @param n
+     * @return
+     */
+    public boolean isAnyParameterGeneric(GNode n, GNode optTypeParameters) {
+        assert n.getName() == "parameterList";
+        assert optTypeParameters.getName() == "optTypeParameters";
+
+        if(n.size() == 0) {
+            return false;
+        }
+
+        Iterator itr;
+
+        ArrayList<String> typeParams = new ArrayList<>();
+        if(optTypeParameters.size() != 0) {
+            // typeParameterList iterator
+            itr = getGNodeUnderConditional(getGNodeUnderConditional(optTypeParameters.getGeneric(0)).getGeneric(1)).iterator();
+                while(itr.hasNext()) {
+                Object next = itr.next();
+                if(next instanceof Syntax || getValueUnderConditional(next) instanceof Syntax) {
+                    // COMMA
+                    continue;
+                }
+                GNode name = getGNodeUnderConditional((GNode) next);
+                assert name.getName() == "name";
+                typeParams.add(getStringUnderName(name));
+            }
+        }
+
+
+        GNode nonEmptyParameterList = getGNodeUnderConditional(n.getGeneric(0));
+        itr = nonEmptyParameterList.iterator();
+        while(itr.hasNext()) {
+            Object next = itr.next();
+            if(next instanceof Syntax || getValueUnderConditional(next) instanceof Syntax) {
+                // COMMA
+                continue;
+            }
+            GNode parameter = getGNodeUnderConditional((GNode) next);
+            GNode typeRef = getGNodeUnderConditional(getGNodeUnderConditional(parameter.getGeneric(2)).getGeneric(0));
+            AbstractObjectOfLanguage typeObj;
+            String typeName;
+            switch(typeRef.getName()) {
+                case "typeName":
+                    typeName = getNameFromTypeName(typeRef);
+                    typeObj = symtabLookupIfExists(scope.peek(), typeName, true, true);
+                    // Since type names point directly to the type and not a instance of that type -
+                    // Update: generic-struct.p4i - the type can be a typedef
+                    // assert !typeObject.hasAssociatedType() : typeObject.getName() + "of constructor: " + typeObject.getConstructType() + " with type: " + typeObject.getType().getName() + " of constructor: " + typeObject.getType().getConstructType();
+                    break;
+                case "baseType":
+                    typeName = getBaseTypeAsString(typeRef);
+                    typeObj = baseTypesCollection.getLanguageObjectOfBaseType(typeName);
+                    break;
+                case "specializedType":
+                    typeName = getStringUnderSpecializedTypeName(typeRef);
+                    typeObj = symtabLookupIfExists(scope.peek(), typeName, true, true);
+                    break;
+                case "headerStackType":
+                    typeName = getStringUnderHeaderStackType(typeRef);
+                    typeObj = symtabLookupIfExists(scope.peek(), typeName, true, true);
+                    break;
+                case "tupleType":
+                    typeObj = default_language_object;
+                    typeName = "";
+                    break;
+                default:
+                    System.err.println("Unhandled new case for typeRef: " + typeRef.getName());
+                    System.exit(1);
+                    typeObj = default_language_object;
+                    typeName = "";
+            }
+
+            if(typeObj.isGeneratorClass() || typeObj.getConstructType() == LObjectKind.TYPEPARAMETER ||
+              (typeObj.hasAssociatedType() && typeObj.getType().isGeneratorClass())) {
+                return true;
+            } else if(typeObj == undeclared_object && typeParams.contains(typeName)) {
+                return true;
+            }
+
+        }
+
+        return false;
     }
 
     public String getTypeStringUnderTypeRef(GNode n) {
