@@ -7,9 +7,23 @@ extern test<T> {
     // getTheSum wouldn't be an instance when extern
     // resolved - so wouldn't be generated again
     T getTheSum(in T a, bit<16> b);
+
+    // no generic return type
+    bool isEqual(in bit<16> a, T b);
 }
+
+// doesn't have global type parameter (extern declaration parent of method prototype)
+extern parentNotGeneric {
+    parentNotGeneric();
+    bool isEqual2<T>(in bit<16> a, T b);
+}
+
 parser name(bit<16> a) {
     test<bit<16>>() e;
+    parentNotGeneric() f;
+
+    bool isEqual = e.isEqual(5, 6);
+    bool isEqual2 = f.isEqual2(5, 10w6);
 
     state State {
         e.getTheDifference(a, 5);

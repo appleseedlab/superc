@@ -9,3 +9,8 @@ parser name(bit<16> a) {
         e.getTheDifference(a, 5);
     }
 }
+// Note: output is:
+// getTheDifference: a(PARAMETER, BASETYPE), b(PARAMETER, BASETYPE)
+// getTheDifference: H(TYPEPARAMETER), a(PARAMETERGENERATOR, TYPEPARAMETER), b(PARAMETER, BASETYPE)
+// getTheDifference: H(TYPEPARAMETER), a(PARAMETERGENERATOR, TYPEPARAMETER), b(PARAMETER, BASETYPE)
+// Need to differentiate the first two
