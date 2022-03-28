@@ -59,7 +59,7 @@
  */
 # define LANGUAGE_FULL(token, jflex_text, tag_text) LANGUAGE(token, jflex_text)
 
-#else
+#else /* ifdef LANGUAGE_TAGS */
 # define LANGUAGE(token, text) token(getID(#token), text),
 # define TEXT(token, regex, hasName) token(getID(#token), null, hasName),
 # define PREPROCESSOR(token, pptag, text) \
@@ -67,7 +67,7 @@
 # define PREPROCESSOR_TEXT(token, pptag, regex, hasName) \
   token(getID(#token), null, hasName, PreprocessorTag.pptag),
 # define LANGUAGE_FULL(token, jflex_text, tag_text) LANGUAGE(token, tag_text)
-#endif
+#endif /* end of ifndef LANGUAGE_TAGS */
 
 
 #ifndef LANGUAGE_TAGS // Generate the lexer specification.
@@ -122,8 +122,8 @@ import superc.core.Syntax.EOF;
 %line
 %column
 
-%state COMMENT PRAGMA_LINE
-%xstate PP_FRACTION_NON_EMPTY PP_FRACTION_CAN_BE_EMPTY RANGE_DOTS RANGE_END
+%state COMMENT PRAGMA_LINE PREPROC
+%xstate PP_FRACTION_NON_EMPTY PP_FRACTION_CAN_BE_EMPTY RANGE_DOTS RANGE_END 
 
 /* Uncomment this for a lexer debugging.  See the JFlex manual. */
 // %debug
@@ -153,7 +153,7 @@ linecomment="//"[^\r\n]*{newline}
 
 %%
 
-<YYINITIAL> {
+<YYINITIAL, PREPROC> {
 
 // yyline + 1, yychar, yychar + yylength()
 
@@ -163,6 +163,13 @@ linecomment="//"[^\r\n]*{newline}
 
 {whitespace}+
 { return new Layout(yytext(), false); }
+
+<PREPROC> {
+  \n {
+    yybegin(YYINITIAL);
+    return new Layout(yytext(), true);
+  }
+}
 
 {whitespace}*({newline}|{linecomment})+{whitespace}*
 {
@@ -179,7 +186,7 @@ linecomment="//"[^\r\n]*{newline}
   return new Layout(yytext(), true); 
 }
 
-#else // Generate the P4Tag enumeration.
+#else // Generate the P4Tag enumeration. ifdef LANGUAGE_TAGS
 package PACKAGE_NAME;
 
 import superc.core.Syntax.Layout;
@@ -187,7 +194,7 @@ import superc.core.Syntax.PreprocessorTag;
 import superc.core.Syntax.Language;
 
 public enum P4Tag implements superc.core.Syntax.LanguageTag {
-#endif
+#endif // END of ifndef LANGUAGE_TAGS
 
 LANGUAGE(ABSTRACT,"abstract")
 LANGUAGE(ACTION,"action")
@@ -239,7 +246,7 @@ PREPROCESSOR_TEXT(INTEGER,NUMBER,{numbers},false)
 PREPROCESSOR(L_PAREN,OPEN_PAREN,"(")
 PREPROCESSOR(R_PAREN,CLOSE_PAREN,")")
 PREPROCESSOR(COMMA,COMMA,",")
-PREPROCESSOR(HASH,HASH,"#")
+// PREPROCESSOR(HASH,HASH,"#")
 PREPROCESSOR(DHASH,DOUBLE_HASH,"##")
 
 LANGUAGE(RANGE,"..")
@@ -315,6 +322,19 @@ return new Layout(comment.toString(), false);
 [^*\n]+ {comment.append(yytext());}
 "*" {comment.append(yytext());}
 \n {comment.append(yytext()); commentnl = true;}
+}
+
+"#" {
+Language<P4Tag> syntax = new Language<P4Tag>(P4Tag.HASH);           
+                                                                  
+syntax.setLocation(new Location(fileName, yyline+1, yycolumn+1));     
+yybegin(PREPROC);
+return syntax;                                                    
+}
+
+<PREPROC> {
+  \\\n {
+  }
 }
 
 // Checks if there is only one decimal point to indicate it is a float
@@ -409,12 +429,13 @@ return new Layout(comment.toString(), false);
 }
 
 
-#else
+#else /* ifdef LANGUAGE_TAGS */
 TYPE_IDENTIFIER(getID("TYPE_IDENTIFIER"), null, true),
 END_PRAGMA(getID("END_PRAGMA"), null),
 PRAGMA(getID("PRAGMA"), "@pragma"),
 FLOATING_CONSTANT(getID("FLOATING_CONSTANT"), null, false, PreprocessorTag.NUMBER),
-PPNUM(getID("PPNUM"), null, false, PreprocessorTag.NUMBER)
+PPNUM(getID("PPNUM"), null, false, PreprocessorTag.NUMBER),
+HASH(getID("HASH"), "#", PreprocessorTag.HASH)
 ;
 
   private final int id;
@@ -477,5 +498,5 @@ PPNUM(getID("PPNUM"), null, false, PreprocessorTag.NUMBER)
   }
 
 }
-#endif
+#endif /* end LANGUAGE_TAGS */
 
