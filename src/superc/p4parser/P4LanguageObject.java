@@ -21,7 +21,9 @@ class P4LanguageObject {
         HEADERTYPEDECLARATION,
         HEADERTYPEDECLARATIONGENERATOR,
         HEADERUNIONDECLARATION,
+        HEADERUNIONDECLARATIONGENERATOR,
         STRUCTTYPEDECLARATION,
+        STRUCTTYPEDECLARATIONGENERATOR,
         ENUMDECLARATION,
         TYPEDEFDECLARATION,
         PARSERTYPEDECLARATION,
@@ -475,6 +477,7 @@ class P4LanguageObject {
                 }
                 if(childUnderScope.isGeneratorClass()) {
                     newChildToAdd = ((Generator) childUnderScope).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab);
+                    // System.out.println("generated instance of: " + childUnderScope.getName() + " of newtype: " + newChildToAdd.getConstructType() + " " + (newChildToAdd.hasAssociatedType() ? newChildToAdd.getType().getConstructType() : ""));
                 } else if(childUnderScope.getConstructType() == LObjectKind.TYPEPARAMETER) {
                     // Type parameters are a child of functions since they are looked up in symtab when setting types of variables
                     // so just ignore this
@@ -494,8 +497,9 @@ class P4LanguageObject {
                 }
 
                 if(newChildToAdd.isGeneratorClass()) {
-                    System.out.println("Error: new child (" + newChildToAdd.getName() + ")still remains of type generic.");
-                    System.exit(1);
+                    assert newInstance.isGeneratorClass();
+                    // System.out.println("Error: new child (" + newChildToAdd.getName() + ")still remains of type generic.");
+                    // System.exit(1);
                 }
 
                 addToSymtab(newInstance, newChildToAdd.getName(), newChildToAdd, symtab);
@@ -908,33 +912,41 @@ class P4LanguageObject {
                                                          Map<String, AbstractObjectOfLanguage> valuesUnderScope,
                                                          Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
             AbstractObjectOfLanguage newVarType;
-            if(! typeMappings.contains(this.getType())) {
-                // the generic type of this variable is not yet defined,
-                // so still generic thus still generator type
-                return this;              
-            }
-
-            if(parsedTypeParameters.isEmpty()) {
-                // if(parameterMappings == null) {
-                //     System.err.println("Cannot be null when no type parameters are passed!");
-                //     System.exit(1);
-                // }
-                assert parameterMappings != null;
-                assert doesParameterListContainThisGeneric(parameterMappings, this.getType()) : this.getName();
-                int indexOfGeneric = getIndexOfParameterWithTheGeneric(parameterMappings, this.getType());
-                // assert indexOfGeneric >= 0 : "Generic: " + this.getType().getName() + " not present inside generator class";
-                newVarType = parsedParameters.get(indexOfGeneric);
+            if(this.getType().isGeneratorClass()) {
+                System.out.println("Type of variable is of generator class. Generating it. Type: " + this.getType().getName() + " of construct: " + this.getType().getConstructType());
+                newVarType = ((Generator) this.getType()).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab);
             } else {
-                int indexOfGeneric = typeMappings.indexOf(this.getType());
-                newVarType = parsedTypeParameters.get(indexOfGeneric);
+                if(! typeMappings.contains(this.getType())) {
+                    // the generic type of this variable is not yet defined,
+                    // so still generic thus still generator type
+                    return this;             
+                }
+
+                if(parsedTypeParameters.isEmpty()) {
+                    // if(parameterMappings == null) {
+                    //     System.err.println("Cannot be null when no type parameters are passed!");
+                    //     System.exit(1);
+                    // }
+                    assert parameterMappings != null;
+                    assert doesParameterListContainThisGeneric(parameterMappings, this.getType()) : this.getName();
+                    int indexOfGeneric = getIndexOfParameterWithTheGeneric(parameterMappings, this.getType());
+                    // assert indexOfGeneric >= 0 : "Generic: " + this.getType().getName() + " not present inside generator class";
+                    newVarType = parsedParameters.get(indexOfGeneric);
+                } else {
+                    int indexOfGeneric = typeMappings.indexOf(this.getType());
+                    newVarType = parsedTypeParameters.get(indexOfGeneric);
+                }
             }
 
             if(newVarType.hasAssociatedType()) {
                 assert newVarType.getType().getConstructType() != LObjectKind.TYPEPARAMETER && !newVarType.getType().isGeneratorClass();
                 newVarType = newVarType.getType();
             }
-            
-            Variable newVar = new Variable(this.getName(), this.getNameSpace(), newVarType, this.getAssignedExpression());
+            AbstractObjectOfLanguage newVar = new Variable(this.getName(), this.getNameSpace(), newVarType, this.getAssignedExpression());
+
+            // if(newVarType.getConstructType() == LObjectKind.TYPEPARAMETER) {
+            //     newVar = new VariableGenerator((Variable) newVar);
+            // }
 
             return newVar;
         }
@@ -1095,6 +1107,103 @@ class P4LanguageObject {
             this.handleGenericsUnderScope(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, headerTypeDecl);
 
             return headerTypeDecl;
+
+        }
+    }
+
+    class StructTypeDeclarationGenerator extends Generator {
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.STRUCTTYPEDECLARATIONGENERATOR;
+        }
+
+        @Override
+        public boolean isScoped() {
+            return true;
+        }
+
+        ArrayList<StructField> getStructFieldList() {
+            return ((StructTypeDeclaration) this.getRegularLanguageObject()).getStructFieldList();
+        }
+
+        public boolean hasStructFieldList() {
+            return ((StructTypeDeclaration) this.getRegularLanguageObject()).hasStructFieldList();
+        }
+
+        public void addToStructFieldList(StructField structField) {
+            ((StructTypeDeclaration) this.getRegularLanguageObject()).addToStructFieldList(structField);
+        }
+
+        StructTypeDeclarationGenerator(StructTypeDeclaration structTypeDeclaration) {
+            super(structTypeDeclaration);
+        }
+
+        public AbstractObjectOfLanguage generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
+                                                         ArrayList<AbstractObjectOfLanguage> parsedParameters,
+                                                         ArrayList<TypeParameter> typeMappings,
+                                                         ArrayList<AbstractObjectOfLanguage> parameterMappings,
+                                                         Map<String, AbstractObjectOfLanguage> valuesUnderScope,
+                                                         Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
+            AbstractObjectOfLanguage newInstance = new StructTypeDeclaration(this.getName(), this.getNameSpace());
+
+            assert parsedParameters.isEmpty() && parameterMappings.isEmpty() : "Haven't explored cases where struct type is invoked in a nested block where the parent block has parameters passed in (struct types do not have passed in parameters, just generic types).";
+            assert typeMappings.size() == this.getOptTypeParameters().size();
+
+            ArrayList<TypeParameter> optTypeParameters = this.getOptTypeParameters();
+
+            // TODO: CGTest_generic_struct.p4 case
+            for(int i = 0; i < parsedTypeParameters.size(); i++) {
+                AbstractObjectOfLanguage passedInType = parsedTypeParameters.get(i);
+                if(passedInType.getConstructType() == LObjectKind.TYPEPARAMETER ||
+                    passedInType.isGeneratorClass() ||
+                    passedInType.hasAssociatedType() && (passedInType.getType().isGeneratorClass() || passedInType.getType().getConstructType() == LObjectKind.TYPEPARAMETER)) {
+                        return this;
+                }
+            }
+            
+            this.handleGenericsUnderScope(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, newInstance);
+
+            return newInstance;
+
+        }
+    }
+
+    class HeaderUnionDeclarationGenerator extends Generator {
+        @Override 
+        public LObjectKind getConstructType() {
+            return LObjectKind.HEADERUNIONDECLARATIONGENERATOR;
+        }
+
+        ArrayList<StructField> getStructFieldList() {
+            return ((HeaderUnionDeclaration) this.getRegularLanguageObject()).getStructFieldList();
+        }
+
+        public boolean hasStructFieldList() {
+            return ((HeaderUnionDeclaration) this.getRegularLanguageObject()).hasStructFieldList();
+        }
+
+        public void addToStructFieldList(StructField structField) {
+            ((HeaderUnionDeclaration) this.getRegularLanguageObject()).addToStructFieldList(structField);
+        }
+
+        HeaderUnionDeclarationGenerator(HeaderUnionDeclaration headerUnionDeclaration) {
+            super(headerUnionDeclaration);
+        }
+
+        public AbstractObjectOfLanguage generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters, 
+                                                         ArrayList<AbstractObjectOfLanguage> parsedParameters,
+                                                         ArrayList<TypeParameter> typeMappings,
+                                                         ArrayList<AbstractObjectOfLanguage> parameterMappings,
+                                                         Map<String, AbstractObjectOfLanguage> valuesUnderScope,
+                                                         Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab) {
+            AbstractObjectOfLanguage newInstance = new HeaderUnionDeclaration(this.getName(), this.getNameSpace());
+
+            assert parsedParameters.isEmpty() && parameterMappings.isEmpty() : "Haven't explored cases where struct type is invoked in a nested block where the parent block has parameters passed in (struct types do not have passed in parameters, just generic types).";
+            assert typeMappings.size() == this.getOptTypeParameters().size();
+
+            this.handleGenericsUnderScope(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, newInstance);
+
+            return newInstance;
 
         }
     }

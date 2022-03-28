@@ -15,6 +15,8 @@ header header1_test<T> {
     childStruct structTest;
 }
 
+const bit<16> a = 2 * 5;
+
 control test() {
     header1_test<bit<16>> hdr_var;
     bit<16> value;

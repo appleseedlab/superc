@@ -1,0 +1,8 @@
+SuperP4, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing CGTest_generic_headerUnion.p4 ...
+GLOBAL: HU(HEADERUNIONDECLARATIONGENERATOR), test(CONTROLDECLARATION)
+HU: generic(VARIABLE, BASETYPE), regular(VARIABLE, BASETYPE)
+HU: T(TYPEPARAMETER), generic(VARIABLEGENERATOR, TYPEPARAMETER), regular(VARIABLE, BASETYPE)
+test: apply(DEFAULT), test(VARIABLE, HEADERUNIONDECLARATION)
+/mnt/fonda/p4_testsuite/callGraphTestCases/CGTest_generic_headerUnion.p4.callGraph.pdf

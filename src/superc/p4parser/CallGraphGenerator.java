@@ -467,7 +467,12 @@ public class CallGraphGenerator {
 
         public AbstractObjectOfLanguage visitheaderUnionDeclaration(GNode n) {
             String headerUnionName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
-            HeaderUnionDeclaration headerUnionDeclarationObject = p4LanguageObject.new HeaderUnionDeclaration(headerUnionName, scope.peek());
+            AbstractObjectOfLanguage headerUnionDeclarationObject = p4LanguageObject.new HeaderUnionDeclaration(headerUnionName, scope.peek());
+
+            if(getGNodeUnderConditional(n.getGeneric(3)).size() > 0) {
+                headerUnionDeclarationObject = p4LanguageObject.new HeaderUnionDeclarationGenerator((HeaderUnionDeclaration) headerUnionDeclarationObject);
+            }
+
             addToSymtab(scope.peek(), headerUnionName, headerUnionDeclarationObject);
             scope.add(headerUnionDeclarationObject);
 
@@ -521,7 +526,12 @@ public class CallGraphGenerator {
 
         public AbstractObjectOfLanguage visitstructTypeDeclaration(GNode n) {
             String structName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
-            StructTypeDeclaration structTypeObj = p4LanguageObject.new StructTypeDeclaration(structName, scope.peek());
+            AbstractObjectOfLanguage structTypeObj = p4LanguageObject.new StructTypeDeclaration(structName, scope.peek());
+
+            if(getGNodeUnderConditional(n.getGeneric(3)).size() > 0) {
+                structTypeObj = p4LanguageObject.new StructTypeDeclarationGenerator((StructTypeDeclaration) structTypeObj);
+            }
+
             addToSymtab(scope.peek(), structName, structTypeObj);
             scope.add(structTypeObj);
 
@@ -539,7 +549,7 @@ public class CallGraphGenerator {
             String fieldName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(2)));
             // System.out.println("visiting struct field: " + fieldName + " with type: " + typeRefObj.getConstructType() );
             AbstractObjectOfLanguage newStructFieldObj = p4LanguageObject.new Variable(fieldName, scope.peek(), typeRefObj);
-            if(typeRefObj.getConstructType() == LObjectKind.TYPEPARAMETER) {
+            if(typeRefObj.getConstructType() == LObjectKind.TYPEPARAMETER || typeRefObj.isGeneratorClass()) {
                 newStructFieldObj = p4LanguageObject.new VariableGenerator((Variable) newStructFieldObj);
             }
             addToSymtab(scope.peek(), fieldName, newStructFieldObj);
@@ -616,6 +626,8 @@ public class CallGraphGenerator {
                 String enumName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(3)));
                 AbstractObjectOfLanguage type = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(2)));
 
+                assert !type.isGeneratorClass() : "Haven't explored a case where an enum can be declared of generic type.";
+
                 EnumDeclaration enumObj = p4LanguageObject.new EnumDeclaration(enumName, scope.peek(), type);
                 addToSymtab(scope.peek(), enumName, enumObj);
                 scope.add(enumObj);
@@ -652,6 +664,7 @@ public class CallGraphGenerator {
                 // System.out.println(typeRefObj.getClass());
                 // System.out.println(typeRefObj.getName());
                 assert typeRefObj != default_language_object;
+                assert !typeRefObj.isGeneratorClass();
 
                 String typeDefName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(3)));
                 TypeDefDeclaration typeDefObj;
@@ -667,6 +680,7 @@ public class CallGraphGenerator {
             } else {
                 AbstractObjectOfLanguage derivedTypeDeclarationObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(2)));
                 assert derivedTypeDeclarationObj != default_language_object;
+                assert !derivedTypeDeclarationObj.isGeneratorClass();
 
                 String typeDefName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(3)));
                 TypeDefDeclaration typeDefObj;
@@ -1571,12 +1585,20 @@ public class CallGraphGenerator {
             dispatch(getGNodeUnderConditional(n.getGeneric(0))); // optAnnotations
             AbstractObjectOfLanguage typeRefObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(2)));
             String name = getStringUnderName(getGNodeUnderConditional(n.getGeneric(3)));
-            Variable constVariable = p4LanguageObject.new Variable(name, scope.peek(), typeRefObj);
+            AbstractObjectOfLanguage constVariable = p4LanguageObject.new Variable(name, scope.peek(), typeRefObj);
+            if(typeRefObj.getConstructType() == LObjectKind.TYPEPARAMETER || typeRefObj.isGeneratorClass()) {
+                constVariable = p4LanguageObject.new VariableGenerator((Variable) constVariable);
+            }
             addToSymtab(scope.peek(), name, constVariable);
             scope.add(constVariable);
 
             AbstractObjectOfLanguage initializer = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(5)));
-            constVariable.setAssignedExpression(initializer);
+            assert !initializer.isGeneratorClass();
+            if(constVariable.isGeneratorClass()) {
+                ((VariableGenerator) constVariable).setAssignedExpression(initializer);    
+            } else {
+                ((Variable) constVariable).setAssignedExpression(initializer);
+            }
 
             scope.pop();
             return constVariable;
