@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 
 // For symbols
@@ -228,7 +229,14 @@ class P4LanguageObject {
                 }
             }
 
-            TreeMap<AbstractObjectOfLanguage, HashSet<AbstractObjectOfLanguage>> callGraphObject = new TreeMap<>(callGraphObjectGiven);
+            TreeMap<AbstractObjectOfLanguage, TreeSet<AbstractObjectOfLanguage>> callGraphObject = new TreeMap<>();
+            // HashMap<AbstractObjectOfLanguage, HashSet<AbstractObjectOfLanguage>>
+            for(AbstractObjectOfLanguage mainKey : callGraphObjectGiven.keySet()) {
+                callGraphObject.put(mainKey, new TreeSet<>());
+                for(AbstractObjectOfLanguage childKey : callGraphObjectGiven.get(mainKey)) {
+                    callGraphObject.get(mainKey).add(childKey);
+                }
+            }
 
             Iterator<String> itr = symtab.get(this).keySet().iterator();
 
@@ -1160,7 +1168,7 @@ class P4LanguageObject {
                         return this;
                 }
             }
-            
+
             this.handleGenericsUnderScope(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, newInstance);
 
             return newInstance;
