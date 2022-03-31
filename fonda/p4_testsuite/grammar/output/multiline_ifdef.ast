@@ -1,0 +1,68 @@
+SuperP4, v. 2.4.0, (C) 2009-2012 New York University
+Portions Copyright (c) 1989, 1990 James A. Roskind
+Processing /mnt/fonda/p4_testsuite/grammar/multiline_ifdef.p4 ...
+TranslationUnit(
+  start(
+    program(
+      input(
+        Conditional(
+          ,
+          declaration(
+            constantDeclaration(
+              optAnnotations(),
+              superc.core.Syntax$Language(
+                "const"
+              ),
+              typeRef(
+                baseType(
+                  superc.core.Syntax$Language(
+                    "int"
+                  )
+                )
+              ),
+              name(
+                nonTypeName(
+                  superc.core.Syntax$Text(
+                    "a"
+                  )
+                )
+              ),
+              superc.core.Syntax$Language(
+                "="
+              ),
+              Conditional(
+                (declare-fun |(defined TEST_VAR)| () Bool)(assert |(defined TEST_VAR)|),
+                initializer(
+                  expression(
+                    Conditional(
+                      (declare-fun |(defined TEST_VAR)| () Bool)(assert |(defined TEST_VAR)|),
+                      superc.core.Syntax$Text(
+                        "1"
+                      )
+                    )
+                  )
+                ),
+                (declare-fun |(defined TEST_VAR)| () Bool)(assert (not |(defined TEST_VAR)|)),
+                initializer(
+                  expression(
+                    Conditional(
+                      (declare-fun |(defined TEST_VAR)| () Bool)(assert (not |(defined TEST_VAR)|)),
+                      nonTypeName(
+                        superc.core.Syntax$Text(
+                          "CUR_VERSION"
+                        )
+                      )
+                    )
+                  )
+                )
+              ),
+              superc.core.Syntax$Language(
+                ";"
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)

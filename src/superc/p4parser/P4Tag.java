@@ -57,7 +57,7 @@ INTEGER(getID("INTEGER"), null, false, PreprocessorTag.NUMBER),
 L_PAREN(getID("L_PAREN"), "(", PreprocessorTag.OPEN_PAREN),
 R_PAREN(getID("R_PAREN"), ")", PreprocessorTag.CLOSE_PAREN),
 COMMA(getID("COMMA"), ",", PreprocessorTag.COMMA),
-
+HASH(getID("HASH"), "#", PreprocessorTag.HASH),
 DHASH(getID("DHASH"), "##", PreprocessorTag.DOUBLE_HASH),
 
 RANGE(getID("RANGE"), ".."),
@@ -110,7 +110,6 @@ END_PRAGMA(getID("END_PRAGMA"), null),
 PRAGMA(getID("PRAGMA"), "@pragma"),
 FLOATING_CONSTANT(getID("FLOATING_CONSTANT"), null, false, PreprocessorTag.NUMBER),
 PPNUM(getID("PPNUM"), null, false, PreprocessorTag.NUMBER),
-HASH(getID("HASH"), "#", PreprocessorTag.HASH)
 ;
 
   private final int id;

@@ -146,14 +146,19 @@ preprocessor numbers. */
 exponent_part=([eE]|[pP])[-+]?[0-9]+
 preprocessing_number="."?[0-9]+([0-9a-zA-Z._]|{exponent_part})*
 
-whitespace=[ \t\r]+
-newline=\n
+h_tab=[\011]
+v_tab=[\013]
+c_return=[\015]
+horizontal_white=[ ]|{h_tab}
+newline=\r|\n|\r\n
+// comment=[/][*]([^*/]|[^*][/]|[*][^/])*[*][/]
 linecomment="//"[^\r\n]*{newline}
-
+continuation="\\\n"
+whitespace=({horizontal_white})+|({v_tab}|{c_return})+|{continuation}
 
 %%
 
-<YYINITIAL, PREPROC> {
+<YYINITIAL> {
 
 // yyline + 1, yychar, yychar + yylength()
 
@@ -163,13 +168,6 @@ linecomment="//"[^\r\n]*{newline}
 
 {whitespace}+
 { return new Layout(yytext(), false); }
-
-<PREPROC> {
-  \n {
-    yybegin(YYINITIAL);
-    return new Layout(yytext(), true);
-  }
-}
 
 {whitespace}*({newline}|{linecomment})+{whitespace}*
 {
@@ -246,7 +244,7 @@ PREPROCESSOR_TEXT(INTEGER,NUMBER,{numbers},false)
 PREPROCESSOR(L_PAREN,OPEN_PAREN,"(")
 PREPROCESSOR(R_PAREN,CLOSE_PAREN,")")
 PREPROCESSOR(COMMA,COMMA,",")
-// PREPROCESSOR(HASH,HASH,"#")
+PREPROCESSOR(HASH,HASH,"#")
 PREPROCESSOR(DHASH,DOUBLE_HASH,"##")
 
 LANGUAGE(RANGE,"..")
@@ -322,19 +320,6 @@ return new Layout(comment.toString(), false);
 [^*\n]+ {comment.append(yytext());}
 "*" {comment.append(yytext());}
 \n {comment.append(yytext()); commentnl = true;}
-}
-
-"#" {
-Language<P4Tag> syntax = new Language<P4Tag>(P4Tag.HASH);           
-                                                                  
-syntax.setLocation(new Location(fileName, yyline+1, yycolumn+1));     
-yybegin(PREPROC);
-return syntax;                                                    
-}
-
-<PREPROC> {
-  \\\n {
-  }
 }
 
 // Checks if there is only one decimal point to indicate it is a float
@@ -435,7 +420,6 @@ END_PRAGMA(getID("END_PRAGMA"), null),
 PRAGMA(getID("PRAGMA"), "@pragma"),
 FLOATING_CONSTANT(getID("FLOATING_CONSTANT"), null, false, PreprocessorTag.NUMBER),
 PPNUM(getID("PPNUM"), null, false, PreprocessorTag.NUMBER),
-HASH(getID("HASH"), "#", PreprocessorTag.HASH)
 ;
 
   private final int id;
