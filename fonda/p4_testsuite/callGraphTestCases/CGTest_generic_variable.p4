@@ -1,24 +1,18 @@
-// example does not compile with p4c
-// test case made just to test SuperP4 generics
-bit<16> getSum<S>(S a) {
-    S b;
-
-    b = a + 5;
+X getSum<X>(X a) {
+    X b;
 
     return b;
 }
 
-bool isEqual<T, S>(T u, S v) {
-    if(u == v) {
-        return true;
-    }
-
+bool isEqual<T>(T a, bit<16> u) {
+    bit<16> c = getSum(u);
+    // bit<16> c = getSum<T>(a); // this does not compile
     return false;
 }
 
 control test_control(bit<16> a) {
-    bit<16> c = getSum(5);
-    bool isEqualAnswer = isEqual<bit<16>, bit<16>>(1, 2);
+    
+    bool isEqualAnswer = isEqual<bit<16>>(16w1, 16w12);
 
     apply {}
 }
