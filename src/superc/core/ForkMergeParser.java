@@ -908,9 +908,23 @@ public class ForkMergeParser {
       }
       processedParsers.clear();
 
+      // Check termination conditions for the parser.
       if (subparsers.size() == 0) {
-        // Done.
+        // Done, because all subparsers have reached the ACCEPT state
         break;
+      } else {
+        int numErrorParsers = 0;
+        for (Subparser subparser : subparsers) {
+          switch (subparser.lookahead.getAction()) {
+          case ERROR:
+            numErrorParsers++;
+            break;
+          }
+        }
+        if (subparsers.size() == numErrorParsers) {
+          // Done, because all subparsers are in the error state
+          break;
+        }
       }
 
       // Merge subparsers.
