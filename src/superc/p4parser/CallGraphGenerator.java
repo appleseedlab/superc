@@ -103,6 +103,8 @@ public class CallGraphGenerator {
         this.overridableConstructs.add(LObjectKind.FUNCTIONPROTOTYPE);
         this.overridableConstructs.add(LObjectKind.FUNCTIONPROTOTYPEGENERATOR);
         this.overridableConstructs.add(LObjectKind.METHOD);
+        this.overridableConstructs.add(LObjectKind.EXTERNFUNCTIONDECLARATION);
+        this.overridableConstructs.add(LObjectKind.EXTERNFUNCTIONDECLARATIONGENERATOR);
 
         // for (baseTypesCollection e: baseTypesCollection.values()) {
         //     baseTypeValues.put(e.baseString, e);
