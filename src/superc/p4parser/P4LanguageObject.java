@@ -305,60 +305,71 @@ class P4LanguageObject {
         }
 
         public String toDotString(Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab, HashMap<AbstractObjectOfLanguage, HashSet<AbstractObjectOfLanguage>> callGraphObject, AbstractObjectOfLanguage global_scope) {
+            boolean showVariables = true;
+            boolean showCallGraph = true;
             String finalString = "";
+            String initialString = "";
 
             Iterator<String> itr = symtab.get(this).keySet().iterator();
             finalString += this.hashCode(global_scope) + ";";
             finalString += this.hashCode(global_scope) + " [label=\"" + this.getName(OUTPUT_TYPES) + "\"];";
-            ArrayList<AbstractObjectOfLanguage> parentCalleeNames = new ArrayList<>();
-            if(callGraphObject.containsKey(this)) {
-                for(AbstractObjectOfLanguage callee : callGraphObject.get(this)) {
-                    parentCalleeNames.add(callee);
-                }
-            }
-
-            if(! parentCalleeNames.isEmpty()) {
-                for(AbstractObjectOfLanguage localCallee : parentCalleeNames) {
-                    finalString += this.hashCode(global_scope) + "->" + localCallee.hashCode(global_scope) + ";";
-                    finalString += localCallee.hashCode(global_scope) + " [label=\"" + localCallee.getName(OUTPUT_TYPES) + "\"];";
-                }
-            }
-
-            while(itr.hasNext()) {
-                String childKey = (String) itr.next();
-                AbstractObjectOfLanguage childLangObj = symtab.get(this).get(childKey);
-                finalString += this.hashCode(global_scope) + " -> " + childLangObj.hashCode(global_scope) + " [style=dashed, color=blue];";
-                finalString += childLangObj.hashCode(global_scope) + " [label=\"" + childLangObj.getName(OUTPUT_TYPES) + "\"];";
-
-                // If it is a subclass, put it under the parent class in graph
-                if(childLangObj.getConstructType() == LObjectKind.SUBCLASS) {
-                    finalString += ((SubClass) childLangObj).getOriginalClass().hashCode(global_scope) + "->" + childLangObj.hashCode(global_scope) + "[color=red]";
-                    finalString += childLangObj.hashCode(global_scope) + " [style=filled, fillcolor=bisque];";
-                }
-
-                if(symtab.containsKey(childLangObj)) {
-                    continue;
-                }
-
-                ArrayList<AbstractObjectOfLanguage> calleeNames = new ArrayList<>();
-                if(callGraphObject.containsKey(childLangObj)) {
-                    for(AbstractObjectOfLanguage callee : callGraphObject.get(childLangObj)) {
-                        calleeNames.add(callee);
+            initialString = finalString;
+            
+            if(showCallGraph) {
+                ArrayList<AbstractObjectOfLanguage> parentCalleeNames = new ArrayList<>();
+                if(callGraphObject.containsKey(this)) {
+                    for(AbstractObjectOfLanguage callee : callGraphObject.get(this)) {
+                        parentCalleeNames.add(callee);
                     }
                 }
 
-                if(! calleeNames.isEmpty()) {
-                    for(AbstractObjectOfLanguage localCallee : calleeNames) {
-                        finalString += childLangObj.hashCode(global_scope) + "->" + localCallee.hashCode(global_scope) + ";";
-                        finalString += localCallee.hashCode(global_scope) + " [label=\"" + localCallee.name + "\"];";
+                if(! parentCalleeNames.isEmpty()) {
+                    for(AbstractObjectOfLanguage localCallee : parentCalleeNames) {
+                        finalString += this.hashCode(global_scope) + "->" + localCallee.hashCode(global_scope) + ";";
+                        finalString += localCallee.hashCode(global_scope) + " [label=\"" + localCallee.getName(OUTPUT_TYPES) + "\"];";
                     }
                 }
+            }
 
+            if(showVariables) {
+                while(itr.hasNext()) {
+                    String childKey = (String) itr.next();
+                    AbstractObjectOfLanguage childLangObj = symtab.get(this).get(childKey);
+                    finalString += this.hashCode(global_scope) + " -> " + childLangObj.hashCode(global_scope) + " [style=dashed, color=blue];";
+                    finalString += childLangObj.hashCode(global_scope) + " [label=\"" + childLangObj.getName(OUTPUT_TYPES) + "\"];";
+
+                    // If it is a subclass, put it under the parent class in graph
+                    if(childLangObj.getConstructType() == LObjectKind.SUBCLASS) {
+                        finalString += ((SubClass) childLangObj).getOriginalClass().hashCode(global_scope) + "->" + childLangObj.hashCode(global_scope) + "[color=red]";
+                        finalString += childLangObj.hashCode(global_scope) + " [style=filled, fillcolor=bisque];";
+                    }
+
+                    if(symtab.containsKey(childLangObj)) {
+                        continue;
+                    }
+
+                    if(showCallGraph) {
+                        ArrayList<AbstractObjectOfLanguage> calleeNames = new ArrayList<>();
+                        if(callGraphObject.containsKey(childLangObj)) {
+                            for(AbstractObjectOfLanguage callee : callGraphObject.get(childLangObj)) {
+                                calleeNames.add(callee);
+                            }
+                        }
+
+                        if(! calleeNames.isEmpty()) {
+                            for(AbstractObjectOfLanguage localCallee : calleeNames) {
+                                finalString += childLangObj.hashCode(global_scope) + "->" + localCallee.hashCode(global_scope) + ";";
+                                finalString += localCallee.hashCode(global_scope) + " [label=\"" + localCallee.name + "\"];";
+                            }
+                        }
+                    }
+
+                }
             }
 
             // finalString += this.hashCode() + " [label=\"" + this.name + "\"]";
             // System.out.println(finalString);
-            return finalString;
+            return (initialString.equals(finalString) ? "" : finalString);
         }
 
         /**
