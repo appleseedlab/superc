@@ -1808,29 +1808,31 @@ public class CallGraphGenerator {
         }
 
         public AbstractObjectOfLanguage visitaction(GNode n) {
-            temporaryValues.add(new TemporaryParameterValues());
-            String actionRefName = getNameUnderActionRef(getGNodeUnderConditional(n.getGeneric(1)));
-            if(getGNodeUnderConditional(n.getGeneric(1)).size() > 1) {
-                // actionRef production contains argumentlist
-                dispatch(getGNodeUnderConditional(n.getGeneric(1)).getGeneric(2)); // argumentList
-            }
+            dispatch(n.getGeneric(0)); // optAnnotations
 
-            temporaryValues.pop();
+            return (AbstractObjectOfLanguage) dispatch(n.getGeneric(1)); // return result of visitactionRef
+        }
+
+        public AbstractObjectOfLanguage visitactionRef(GNode n) {
+            temporaryValues.add(new TemporaryParameterValues());
+            String actionRefName = getStringUnderPrefixedNonTypeName(getGNodeUnderConditional(n.getGeneric(0)));
+            if(n.size() > 1) {
+                // actionRef production contains argumentlist
+                dispatch(getGNodeUnderConditional(n.getGeneric(2))); // argumentList
+            }
+            
             AbstractObjectOfLanguage callee = symtabLookup(scope.peek(), actionRefName);
             n.setProperty("callee", callee);
+
+            temporaryValues.pop();
 
             return callee;
         }
 
         public AbstractObjectOfLanguage visitentry(GNode n) {
             dispatch(getGNodeUnderConditional(n.getGeneric(0))); // keysetExpression
-            String actionRefName = getNameUnderActionRef(getGNodeUnderConditional(n.getGeneric(2)));
-            if(getGNodeUnderConditional(n.getGeneric(2)).size() > 1) {
-                // actionRef production contains argumentlist
-                dispatch(getGNodeUnderConditional(n.getGeneric(2)).getGeneric(2));
-            }
 
-            AbstractObjectOfLanguage actionRefObj = symtabLookup(scope.peek(), actionRefName);
+            AbstractObjectOfLanguage actionRefObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(2)));
             dispatch(getGNodeUnderConditional(n.getGeneric(3))); // optAnnotations
 
             return actionRefObj;
@@ -2189,16 +2191,23 @@ public class CallGraphGenerator {
         }
 
         public Node visitaction(GNode n) {
+            dispatch(getGNodeUnderConditional(n.getGeneric(0))); // optAnnotations
+
+            dispatch(getGNodeUnderConditional(n.getGeneric(1))); // actionRef
+
+            return n;
+        }
+
+        public Node visitactionRef(GNode n) {
             assert n.hasProperty("callee");
             addAsCallee((AbstractObjectOfLanguage) n.getProperty("callee"));
 
             temporaryValues.add(new TemporaryParameterValues());
-            String actionRefName = getNameUnderActionRef(getGNodeUnderConditional(n.getGeneric(1)));
-            if(getGNodeUnderConditional(n.getGeneric(1)).size() > 1) {
+            String actionRefName = getStringUnderPrefixedNonTypeName(getGNodeUnderConditional(n.getGeneric(0)));
+            if(n.size() > 1) {
                 // actionRef production contains argumentlist
-                dispatch(getGNodeUnderConditional(n.getGeneric(1)).getGeneric(2));
+                dispatch(getGNodeUnderConditional(n.getGeneric(2)));
             }
-            // lookupInSymTabAndAddAsCallee(actionRefName);
 
             temporaryValues.pop();
             return n;
@@ -2206,14 +2215,9 @@ public class CallGraphGenerator {
 
         public Node visitentry(GNode n) {
             dispatch(getGNodeUnderConditional(n.getGeneric(0))); // keysetExpression
-            String actionRefName = getNameUnderActionRef(getGNodeUnderConditional(n.getGeneric(2)));
-            if(getGNodeUnderConditional(n.getGeneric(2)).size() > 1) {
-                // actionRef production contains argumentlist
-                dispatch(getGNodeUnderConditional(n.getGeneric(2)).getGeneric(2));
-            }
-            dispatch(getGNodeUnderConditional(n.getGeneric(3)));
 
-            lookupInSymTabAndAddAsCallee(actionRefName);
+            dispatch(getGNodeUnderConditional(n.getGeneric(2))); // actionRef
+            dispatch(getGNodeUnderConditional(n.getGeneric(3))); // optAnnotations
 
             return n;
         }
