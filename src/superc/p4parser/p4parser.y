@@ -308,6 +308,9 @@ annotation: /** complete **/
         {}
     | AT name L_BRACKET structuredAnnotationBody R_BRACKET
         {}
+    // Experimental as per P4C lexer (https://github.com/p4lang/p4c/blob/4a40ce4a15957de76e3a161c3778f1f0b6ac5780/frontends/parsers/p4/p4parser.ypp)
+    // For backward compatibility with p4-14
+    | PRAGMA name annotationBody END_PRAGMA
     ;
 
 structuredAnnotationBody
@@ -492,7 +495,7 @@ dotPrefix:
 
 parserDeclaration: /** complete **/
     parserTypeDeclaration optConstructorParameters
-      L_BRACE { EnterScope(subparser); } parserLocalElements parserStates { ExitScope(subparser); } R_BRACE
+      L_BRACE { ReenterScope(subparser); } parserLocalElements parserStates { ExitScope(subparser); } R_BRACE
                              {}
     ;
 
@@ -623,7 +626,7 @@ valueSetDeclaration: /** complete **/
 
 controlDeclaration: /** complete **/
     controlTypeDeclaration optConstructorParameters
-      L_BRACE { EnterScope(subparser); } 
+      L_BRACE { ReenterScope(subparser); } 
       controlLocalDeclarations APPLY controlBody 
       { ExitScope(subparser); } R_BRACE
         {}
