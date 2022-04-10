@@ -1214,10 +1214,15 @@ public class CallGraphGenerator {
                 // one of three possible productions, starts with namedType
                 dispatch(getGNodeUnderConditional(n.getGeneric(2))); // argumentList
 
-                String namedType = getStringUnderNamedType(nGetGeneric0);
-                AbstractObjectOfLanguage namedTypeObj = symtabLookup(scope.peek(), namedType);
+                if(getGNodeUnderConditional(nGetGeneric0.getGeneric(0)).getName() == "typeName") {
+                    String namedType = getStringUnderNamedType(nGetGeneric0);
+                    AbstractObjectOfLanguage namedTypeObj = symtabLookup(scope.peek(), namedType);
 
-                returnValue = namedTypeObj;
+                    returnValue = namedTypeObj;
+                } else { // specializedType
+                    AbstractObjectOfLanguage specialiazedType = visitspecializedType(getGNodeUnderConditional(nGetGeneric0.getGeneric(0)), true);
+                    returnValue = specialiazedType;
+                }
             } else { 
                 // two possible productions, one contains extra set of type arguments 
                 // inside angle brackets (of size 4 & 7)
@@ -1253,10 +1258,15 @@ public class CallGraphGenerator {
                 // one of three possible productions, starts with namedType
                 dispatch(getGNodeUnderConditional(n.getGeneric(2))); // argumentList
 
-                String namedType = getStringUnderNamedType(nGetGeneric0);
-                AbstractObjectOfLanguage namedTypeObj = symtabLookup(scope.peek(), namedType);
+                if(getGNodeUnderConditional(nGetGeneric0.getGeneric(0)).getName() == "typeName") {
+                    String namedType = getStringUnderNamedType(nGetGeneric0);
+                    AbstractObjectOfLanguage namedTypeObj = symtabLookup(scope.peek(), namedType);
 
-                returnValue = namedTypeObj;
+                    returnValue = namedTypeObj;
+                } else { // specializedType
+                    AbstractObjectOfLanguage specialiazedType = visitspecializedType(getGNodeUnderConditional(nGetGeneric0.getGeneric(0)), true);
+                    returnValue = specialiazedType;
+                }
             } else { 
                 // two possible productions, one contains extra set of type arguments 
                 // inside angle brackets (of size 4 & 7)
