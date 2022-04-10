@@ -52,6 +52,8 @@ public class CallGraphGenerator {
     private static final Direction directionClass = p4LanguageObject.new Direction();
     Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab;
     Stack<AbstractObjectOfLanguage> scope;
+    private final String nodeLanguageObjectPropertyString = "languageObject";
+    private final ArrayList<String> defaultHeaderFunction;
     // A list of grammar constructs that are not yet supported and might contain invocation
     HashSet<String> notExplicitlySupported = new HashSet<>(Arrays.asList());
     // private Map<baseTypesCollection, AbstractObjectOfLanguage> baseTypeObjectOfLanguages = new HashMap<>();
@@ -105,6 +107,15 @@ public class CallGraphGenerator {
         this.overridableConstructs.add(LObjectKind.METHOD);
         this.overridableConstructs.add(LObjectKind.EXTERNFUNCTIONDECLARATION);
         this.overridableConstructs.add(LObjectKind.EXTERNFUNCTIONDECLARATIONGENERATOR);
+        this.overridableConstructs.add(LObjectKind.FUNCTIONPROTOTYPEPLACEHOLDER);
+
+        defaultHeaderFunction = new ArrayList<>();
+        // default functions associated with headers
+        defaultHeaderFunction.add("isValid");
+        defaultHeaderFunction.add("setValid");
+        defaultHeaderFunction.add("setInvalid");
+        defaultHeaderFunction.add("minSizeInBits");
+        defaultHeaderFunction.add("minSizeInBytes");
 
         // for (baseTypesCollection e: baseTypesCollection.values()) {
         //     baseTypeValues.put(e.baseString, e);
@@ -112,12 +123,6 @@ public class CallGraphGenerator {
         // }
 
         scope.add(global_scope);
-    }
-
-    public boolean isFunctionAndMethodDuplicate(AbstractObjectOfLanguage newObj, AbstractObjectOfLanguage oldObj) {
-        // TODO: check for same argument length and parameter names if same length (issue1334.p4 for example)
-
-        return true;
     }
 
     /**
@@ -140,22 +145,33 @@ public class CallGraphGenerator {
         }
 
         if(symtab.get(scope).containsKey(name)) {
-            boolean isDuplicateFunctionOrMethod = true;
-            if(overridableConstructs.contains(newLangObj.getConstructType())) {
-                    isDuplicateFunctionOrMethod = isFunctionAndMethodDuplicate(newLangObj, symtab.get(scope).get(name));
-            }
-            // TODO: Tuples are exceptions
-            if(isDuplicateFunctionOrMethod) {
+            if(newLangObj.getConstructType() == LObjectKind.FUNCTIONPROTOTYPEPLACEHOLDER) {
+                assert symtab.get(scope).get(name).getConstructType() == LObjectKind.FUNCTIONPROTOTYPEPLACEHOLDER;
+            } else {
+                // TODO: Tuples are exceptions
                 if(!overridableConstructs.contains(newLangObj.getConstructType())) {
-                       System.err.println("Error: " + name + " is already defined and is neither a function nor a method");
-                       System.exit(1);
+                    // header default values exception
+                    if(scope.getConstructType() == LObjectKind.HEADERSTACKTYPE ||
+                       scope.getConstructType() == LObjectKind.HEADERTYPEDECLARATION ||
+                       scope.getConstructType() == LObjectKind.HEADERTYPEDECLARATIONGENERATOR ||
+                       scope.getConstructType() == LObjectKind.HEADERUNIONDECLARATION ||
+                       scope.getConstructType() == LObjectKind.HEADERUNIONDECLARATIONGENERATOR) {
+                           if(defaultHeaderFunction.contains(name)) {
+                               System.err.println("Adding a variable of same name as a default header function, so not adding it and ignoring it: " + name);
+                           }
+                    } else if(newLangObj.getConstructType() == LObjectKind.VARIABLE) {
+                        assert symtab.get(scope).get(name).getConstructType() == LObjectKind.VARIABLE;
+                        System.err.println("Adding a new variable (" + newLangObj.getName() + ") that will overshadow another variable."); // technically not adding it to the symtab, just ignoring it. TODO: check if need to create a new object for data tracing purposes
+                    } else {
+                        assert false : "Error: " + name + " is already defined and is neither a function nor a method";
+                        System.err.println("Error: " + name + " is already defined and is neither a function nor a method: " + scope.getName());
+                        // System.exit(1);
+                    }
                 } else {
-                    System.err.println("Multiple declaration warning (FIX): another entity with the same name (" 
-                                        + name + 
-                                        ") already exists");
+                    System.err.println("Unhandled case where two functions with the same number of parameters are defined. Still need to handle overloading functions and methods when number of parameters are same but parameters names are different: " + name);
                 }
+                // System.exit(1);
             }
-            // System.exit(1);
         } else {
             // nodeObj = p4LanguageObject.new LanguageObject(name, scope);
             symtab.get(scope).put(name, newLangObj);
@@ -270,6 +286,10 @@ public class CallGraphGenerator {
         return lookupValue;
     }
 
+    public AbstractObjectOfLanguage retrieveSymbolOrTypeVariable(AbstractObjectOfLanguage localScope, String typeName) {
+        return retrieveSymbolOrTypeVariable(localScope, typeName, false);
+    }
+
     /**
      * Similar to symtab lookup, but treats the value as a type variable 
      * if it is not found in the symbol table
@@ -278,7 +298,7 @@ public class CallGraphGenerator {
      * @param getAssociatedType if set to true, will return the associated type of object, if it has
      * @return
      */
-    public AbstractObjectOfLanguage retrieveSymbolOrTypeVariable(AbstractObjectOfLanguage localScope, String typeName) {
+    public AbstractObjectOfLanguage retrieveSymbolOrTypeVariable(AbstractObjectOfLanguage localScope, String typeName, boolean createTypeVar) {
         AbstractObjectOfLanguage lookupValue = symtabLookupIfExists(localScope, typeName, true, true);
         if (lookupValue == undeclared_object) {
             TypeParameter typeParameterObj = p4LanguageObject.new TypeParameter(typeName, localScope);
@@ -287,6 +307,15 @@ public class CallGraphGenerator {
             addToSymtab(scope.peek(), typeName, typeParameterObj);
             return typeParameterObj;
         } else {
+            if(createTypeVar && lookupValue.getConstructType() != LObjectKind.TYPEPARAMETER) {
+                System.err.println("Currently parsing type variable identifier " + typeName + " will be shadowing " + typeName + " of construct tye: " + lookupValue.getConstructType());
+
+                TypeParameter typeParameterObj = p4LanguageObject.new TypeParameter(typeName, localScope);
+                // System.out.println("Creating new type variable: " + typeParameterObj.getName());
+                // NOTE: initially was not adding to symbol table
+                addToSymtab(scope.peek(), typeName, typeParameterObj);
+                return typeParameterObj;
+            }
             return lookupValue;
         }
     }
@@ -318,6 +347,13 @@ public class CallGraphGenerator {
             return symtabLookupIfExists(localScope.getNameSpace(), typeName, getAssociatedType, generateInstance);
         } else {
             AbstractObjectOfLanguage symtabValue = symtab.get(localScope).get(typeName);
+            if(symtabValue.getConstructType() == LObjectKind.FUNCTIONPROTOTYPEPLACEHOLDER) {
+                assert !temporaryValues.isEmpty() : temporaryValues.size();
+                typeName += "_" + temporaryValues.peek().getParameters().size();
+                assert doesSymbolExist(localScope, typeName) : typeName;
+                symtabValue = symtab.get(localScope).get(typeName);
+                assert symtabValue.getConstructType() != LObjectKind.FUNCTIONPROTOTYPEPLACEHOLDER;
+            }
             // if(generateInstance && symtabValue.isGeneratorClass()) {
             // Changed symtab lookup to invoke the generate instance function on a generated class 
             // if and only if either parameters or type parameters were parsed/read in. This makes it simpler to identify when a symtab look up is just to retrieve types 
@@ -385,6 +421,7 @@ public class CallGraphGenerator {
             assert ! notExplicitlySupported.contains(n.getName()) : n.getName() + " is not supported at the moment";
 
             // just visiting the child nodes since no specific dispatch is available for current node
+            AbstractObjectOfLanguage valueToReturn = default_language_object;
             Iterator itr = n.iterator();
             while(itr.hasNext()) {
                 Object nextObj = itr.next();
@@ -400,9 +437,9 @@ public class CallGraphGenerator {
                     // assert ((PresenceCondition) nextObj).getAllConfigs().size() == 0 : "non-empty PresenceCondition nodes not supported at the moment";
                     continue;
                 }
-                dispatch((Node) nextObj);
+                valueToReturn = (AbstractObjectOfLanguage) dispatch((Node) nextObj);
             }
-            return default_language_object;
+            return valueToReturn;
         }
 
         public AbstractObjectOfLanguage visitcontrolDeclaration(GNode n) {
@@ -457,9 +494,13 @@ public class CallGraphGenerator {
             FunctionPrototype isValid = p4LanguageObject.new FunctionPrototype("isValid", scope.peek(), baseTypesCollection.getLanguageObjectOfBaseType("bool"));
             FunctionPrototype setValid = p4LanguageObject.new FunctionPrototype("setValid", scope.peek(), baseTypesCollection.getVoidLanguageObject());
             FunctionPrototype setInvalid = p4LanguageObject.new FunctionPrototype("setInvalid", scope.peek(), baseTypesCollection.getVoidLanguageObject());
+            FunctionPrototype minSizeInBits = p4LanguageObject.new FunctionPrototype("minSizeInBits", scope.peek(), baseTypesCollection.getLanguageObjectOfBaseType("int"));
+            FunctionPrototype minSizeInBytes = p4LanguageObject.new FunctionPrototype("minSizeInBytes", scope.peek(), baseTypesCollection.getLanguageObjectOfBaseType("int"));
             addToSymtab(scope.peek(), "isValid", isValid);
             addToSymtab(scope.peek(), "setValid", setValid);
             addToSymtab(scope.peek(), "setInvalid", setInvalid);
+            addToSymtab(scope.peek(), "minSizeInBits", setInvalid);
+            addToSymtab(scope.peek(), "minSizeInBytes", setInvalid);
 
             dispatch(getGNodeUnderConditional(n.getGeneric(3))); // optTypeParameters
             dispatch(getGNodeUnderConditional(n.getGeneric(5))); // structFieldList
@@ -484,6 +525,23 @@ public class CallGraphGenerator {
 
             dispatch(getGNodeUnderConditional(n.getGeneric(3))); // optTypeParameters
             dispatch(getGNodeUnderConditional(n.getGeneric(5))); // structFieldList
+
+            // Header union has access to all members inside it, so adding those member under this scope as well
+            Map<String, AbstractObjectOfLanguage> valuesUnderOriginal = symtab.get(headerUnionDeclarationObject);
+            Map<String, AbstractObjectOfLanguage> valuesUnder = new HashMap<>();
+            for(String key : valuesUnderOriginal.keySet()) {
+                valuesUnder.put(key, valuesUnderOriginal.get(key));
+            }
+
+            for(String key : valuesUnder.keySet()) {
+                Map<String, AbstractObjectOfLanguage> childValues = symtab.get(valuesUnder.get(key).getType());
+                for(String childKey : childValues.keySet()) {
+                    if(doesSymbolExist(scope.peek(), childKey)) {
+                        continue;
+                    }
+                    addToSymtab(scope.peek(), childKey, childValues.get(childKey));
+                }
+            }
 
             scope.pop();
             headerUnionDeclarationObject.setNode(n);
@@ -696,7 +754,7 @@ public class CallGraphGenerator {
                 return typeDefObj;
             } else {
                 AbstractObjectOfLanguage derivedTypeDeclarationObj = (AbstractObjectOfLanguage) dispatch(getGNodeUnderConditional(n.getGeneric(2)));
-                assert derivedTypeDeclarationObj != default_language_object;
+                assert derivedTypeDeclarationObj != default_language_object : derivedTypeDeclarationObj.getConstructType();
                 assert !derivedTypeDeclarationObj.isGeneratorClass();
 
                 String typeDefName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(3)));
@@ -743,6 +801,7 @@ public class CallGraphGenerator {
             dispatch(getGNodeUnderConditional(n.getGeneric(5))); // parameterList
 
             if(addToSymtab) {
+                addToSymtab(scope.peek(), "apply");
                 scope.pop();
             }
 
@@ -779,7 +838,7 @@ public class CallGraphGenerator {
             dispatch(getGNodeUnderConditional(n.getGeneric(5))); // parameterList
 
             if(addToSymtab) {
-                // addToSymtab(scope.peek(), "apply");
+                addToSymtab(scope.peek(), "apply");
                 scope.pop();
             }
 
@@ -844,7 +903,14 @@ public class CallGraphGenerator {
                 // System.out.println("looking up result: " + typeOrVoid.getName());  
             }    
 
-            String functionPrototypeName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(1)));
+            String functionPrototypeNameOriginal= getStringUnderName(getGNodeUnderConditional(n.getGeneric(1)));
+            FunctionPrototypePlaceHolder placeHolder = p4LanguageObject.new FunctionPrototypePlaceHolder(functionPrototypeNameOriginal, scope.peek());
+            addToSymtab(scope.peek(), functionPrototypeNameOriginal, placeHolder);
+            // Key to differentiating function and method overloading (name mangling)
+            // NOTE! P4 allows function overloading of same parameter sizes but only when the parameter names are different - NOT SUPPORTED YET
+            // System.out.println(getParameterSize(getGNodeUnderConditional(n.getGeneric(4))));
+            String functionPrototypeName = functionPrototypeNameOriginal + "_" + getParameterSize(getGNodeUnderConditional(n.getGeneric(4)), false); // adding parameter size to the name
+            String functionPrototypeNameWithoutDefaultVals = functionPrototypeNameOriginal + "_" + getParameterSizeWithoutDefaultValues(getGNodeUnderConditional(n.getGeneric(4))); // adding parameter size to the name but excluding default values count
             // System.out.println("Type value is: " + (typeOrVoid.getName()) + " with identifier: " + identifier + " for func prototype: " + functionPrototypeName + " add to symtab value: " + addToSymtab);
             AbstractObjectOfLanguage functionPrototypeObj = p4LanguageObject.getRespectiveFunctionPrototypeClass(functionPrototypeName, scope.peek(), typeOrVoid, classType);
 
@@ -859,6 +925,10 @@ public class CallGraphGenerator {
             }
 
             addToSymtab(scope.peek(), functionPrototypeName, functionPrototypeObj);
+            if(! functionPrototypeName.equals(functionPrototypeNameWithoutDefaultVals)) {
+                System.err.println("re-adding function name: " + functionPrototypeNameOriginal + " but mangled with parameter size excluding default values.");
+                addToSymtab(scope.peek(), functionPrototypeNameWithoutDefaultVals, functionPrototypeObj);
+            }
             scope.add(functionPrototypeObj);
             if(typeOrVoid == undeclared_object) {
                 // System.err.println("adding type parameter to symbol table");
@@ -881,6 +951,8 @@ public class CallGraphGenerator {
             // functionPrototypeObj.getParameterList() + " and return type: " + functionPrototypeObj.getType() + 
             // " along with type parameters: " + functionPrototypeObj.getOptTypeParameters());
             functionPrototypeObj.setNode(n);
+            assert !n.hasProperty(nodeLanguageObjectPropertyString);
+            n.setProperty(nodeLanguageObjectPropertyString, functionPrototypeObj);
 
             return functionPrototypeObj;
         }
@@ -1451,6 +1523,7 @@ public class CallGraphGenerator {
             }
         }
 
+        // CHANGE THIS TO FUNCTION
         public AbstractObjectOfLanguage visitconstructorMethodPrototype(GNode n) {            
             String type_identifier = n.get(1).toString();
             // System.out.println("constructor inside: " + type_identifier);
@@ -1459,6 +1532,22 @@ public class CallGraphGenerator {
             // so can retrieve the extern block's name from the scope
 
             assert type_identifier.equals(scope.peek().getName()) : "Extern constructor not of the same name as extern block. Potential constructor name: " + type_identifier + ", extern name: " + scope.peek().getName();
+            // String functionPrototypeNameOriginal = type_identifier;
+            // String functionPrototypeName = functionPrototypeNameOriginal + "_" + getParameterSize(getGNodeUnderConditional(n.getGeneric(3)), false); // adding parameter size to the name
+            // String functionPrototypeNameWithoutDefaultVals = functionPrototypeNameOriginal + "_" + getParameterSizeWithoutDefaultValues(getGNodeUnderConditional(n.getGeneric(3))); // adding parameter size to the name but excluding default values count
+            // // System.out.println("Type value is: " + (typeOrVoid.getName()) + " with identifier: " + identifier + " for func prototype: " + functionPrototypeName + " add to symtab value: " + addToSymtab);
+            // AbstractObjectOfLanguage functionPrototypeObj = p4LanguageObject.getRespectiveFunctionPrototypeClass(functionPrototypeName, scope.peek(), typeOrVoid, LObjectKind.FUNCTIONPROTOTYPE);
+
+            // // can optimize this
+            // boolean areParametersGeneric = isAnyParameterGeneric(getGNodeUnderConditional(n.getGeneric(3)), getGNodeUnderConditional(n.getGeneric(2)));
+            
+            // assert !areParametersGeneric;
+
+            // addToSymtab(scope.peek(), functionPrototypeName, functionPrototypeObj);
+            // if(! functionPrototypeName.equals(functionPrototypeNameWithoutDefaultVals)) {
+            //     System.err.println("re-adding function name: " + functionPrototypeNameOriginal + " but mangled with parameter size excluding default values.");
+            //     addToSymtab(scope.peek(), functionPrototypeNameWithoutDefaultVals, functionPrototypeObj);
+            // }
             AbstractObjectOfLanguage constructor = addToSymtab(scope.peek(), type_identifier);
             // scope.add(constructor);
 
@@ -1507,6 +1596,7 @@ public class CallGraphGenerator {
                 if(expression.hasAssociatedType()) {
                     assert !expression.getType().isGeneratorClass();
                 }
+
             }
 
             newParameterObj = p4LanguageObject.new Parameter(name, scope.peek(), parameterType, direction, expression);
@@ -1519,6 +1609,10 @@ public class CallGraphGenerator {
             // System.out.println("adding new parameter: '" + name + "' to scope: " + scope.peek().getName() + " " + scope.peek());
             addToSymtab(scope.peek(), name, newParameterObj);
             scope.peek().addParameter(newParameterObj);
+
+            if(n.size() == 6) {
+                newParameterObj.increaseDefaultParameterCount();
+            }
 
             newParameterObj.setNode(n);
             return newParameterObj;
@@ -1545,7 +1639,7 @@ public class CallGraphGenerator {
                 assert childNode.getName() == "name";
                 String name = getStringUnderName(childNode);
                 // System.out.println("adding type parameter: " + name + " to scope: " + scope.peek().getName());
-                AbstractObjectOfLanguage retrievedValue = retrieveSymbolOrTypeVariable(scope.peek(), name);
+                AbstractObjectOfLanguage retrievedValue = retrieveSymbolOrTypeVariable(scope.peek(), name, true);
                 assert retrievedValue.getConstructType() == LObjectKind.TYPEPARAMETER : "assertion failed. Expected typeparmeter construct type but got: " + retrievedValue.getConstructType();
                 typeParameterObj = (TypeParameter) retrievedValue;
                 // since type parameters only occur inside optTypeParameters
@@ -1669,10 +1763,10 @@ public class CallGraphGenerator {
                 // ex: complex2.p4
                 String name = getNameFromTypeName(firstChild);
                 AbstractObjectOfLanguage headerValue = symtabLookup(scope.peek(), name);
-                assert headerValue.getConstructType() == LObjectKind.HEADERTYPEDECLARATION;
+                assert headerValue.getConstructType() == LObjectKind.HEADERTYPEDECLARATION || headerValue.getConstructType() == LObjectKind.HEADERUNIONDECLARATION;
                 // System.out.println("new header stack type: " + name + " creating under scope: " + headerValue.getName());
-                HeaderStackType newHdrStack = p4LanguageObject.new HeaderStackType(name, headerValue, (HeaderTypeDeclaration) headerValue);
-                addToSymtab(headerValue, name, newHdrStack);
+                HeaderStackType newHdrStack = p4LanguageObject.new HeaderStackType(name, headerValue, headerValue);
+                // addToSymtab(headerValue, name, newHdrStack); // will be re-adding the type that will cause an error
 
                 InvokableLanguageKeyword next = p4LanguageObject.new InvokableLanguageKeyword("next", newHdrStack);
                 InvokableLanguageKeyword last = p4LanguageObject.new InvokableLanguageKeyword("last", newHdrStack);
@@ -1977,15 +2071,15 @@ public class CallGraphGenerator {
         // Interesting: functionDeclaration not part of P416? not in online language specification -- experimental
         //
         public Node visitfunctionDeclaration(GNode n) {
-            // TODO: need to take care of typeOrVoid if we are keeping track of defined variables (can devolve into identifier or type ident)
-            dispatch(getGNodeUnderConditional(n.getGeneric(0)));
+            Node functionPrototype = getGNodeUnderConditional(n.getGeneric(0));
 
-            // as per language specification, functionPrototype will describe the name and type signature of the function
-            String functionName = getStringUnderFunctionPrototype(getGNodeUnderConditional(n.getGeneric(0)));
-            AbstractObjectOfLanguage functionObj = symtabLookup(scope.peek(), functionName, true, false);
+            dispatch(functionPrototype);
+
+            assert functionPrototype.hasProperty(nodeLanguageObjectPropertyString);
+            AbstractObjectOfLanguage functionObj = (AbstractObjectOfLanguage) functionPrototype.getProperty(nodeLanguageObjectPropertyString);
             scope.add(functionObj);
 
-            dispatch(getGNodeUnderConditional(n.getGeneric(0))); // functionPrototype (for parameters)
+            // dispatch(getGNodeUnderConditional(n.getGeneric(0))); // functionPrototype (for parameters)
             dispatch(getGNodeUnderConditional(n.getGeneric(1))); // blockstatement
 
             scope.pop();
@@ -2059,23 +2153,24 @@ public class CallGraphGenerator {
                 dispatch(getGNodeUnderConditional(n.getGeneric(0)));
             } else if(n.get(1) instanceof Syntax) { // keyword ABSTRACT
                 dispatch(getGNodeUnderConditional(n.getGeneric(0))); // optAnnotations
+                GNode functionPrototypeNode = getGNodeUnderConditional(n.getGeneric(2));
+                assert functionPrototypeNode.hasProperty(nodeLanguageObjectPropertyString);
 
-                // TODO: need to handle abstract methods
-                String functionName = getStringUnderFunctionPrototype(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(2))));
-                AbstractObjectOfLanguage functionObj = symtabLookup(scope.peek(), functionName, true, false);
+                AbstractObjectOfLanguage functionObj = (AbstractObjectOfLanguage) functionPrototypeNode.getProperty(nodeLanguageObjectPropertyString);
                 scope.add(functionObj);
 
-                dispatch(getGNodeUnderConditional(n.getGeneric(2)));
+                dispatch(functionPrototypeNode);
 
                 scope.pop();
             } else {
                 assert getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(1))).getName() == "functionPrototype" : "unhandled case in method prototype";
                 dispatch(getGNodeUnderConditional(n.getGeneric(0))); // optAnnotations
-                String functionName = getStringUnderFunctionPrototype(getGNodeUnderConditional(getGNodeUnderConditional(n.getGeneric(1))));
-                AbstractObjectOfLanguage functionObj = symtabLookup(scope.peek(), functionName, true, false);
+                GNode functionPrototypeNode = getGNodeUnderConditional(n.getGeneric(1));
+                assert functionPrototypeNode.hasProperty(nodeLanguageObjectPropertyString);
+                AbstractObjectOfLanguage functionObj = (AbstractObjectOfLanguage) functionPrototypeNode.getProperty(nodeLanguageObjectPropertyString);
                 scope.add(functionObj);
 
-                dispatch(getGNodeUnderConditional(n.getGeneric(1)));
+                dispatch(functionPrototypeNode);
 
                 scope.pop();
             }
@@ -2298,12 +2393,12 @@ public class CallGraphGenerator {
             String instanceName = getStringUnderName(getGNodeUnderConditional(n.getGeneric(typeRefIndx + 4)));
 
             dispatch(getGNodeUnderConditional(n.getGeneric(typeRefIndx + 2))); // argumentList
-
-            AbstractObjectOfLanguage instanceType = symtabLookup(scope.peek(), instanceName);
+            AbstractObjectOfLanguage instanceType = symtabLookup(scope.peek(), instanceName, false, true);
+            // AbstractObjectOfLanguage instanceType = symtabLookup(scope.peek(), instanceName);
 
             // assert instanceType.getConstructType() == LObjectKind.SUBCLASS : instanceType.getName() + " has constructor: " + instanceType.getConstructType() + " instead of ";
 
-            addAsCallee(instanceType);
+            addAsCallee(getParameterTypeIfPresent(instanceType));
 
             scope.add(instanceType);
             if(n.size() > typeRefIndx + 6) {
@@ -3036,10 +3131,48 @@ public class CallGraphGenerator {
         return prefixedNonTypeName;
     }
 
+    public int getParameterSize(GNode n, boolean subtractDefaultValues) {
+        assert n.getName() == "parameterList";
+
+        if(n.size() == 0) {
+            return 0;
+        }
+
+        GNode nonEmptyParameterList = getGNodeUnderConditional(n.getGeneric(0));
+        int counter = 0;
+        int defaultValues = 0;
+
+        Iterator itr = nonEmptyParameterList.iterator();
+        while(itr.hasNext()) {
+            Object next = itr.next();
+
+            if(next instanceof Syntax || getValueUnderConditional(next) instanceof Syntax) {
+                // Comma
+                continue; 
+            }
+
+            assert next instanceof GNode;
+            assert getGNodeUnderConditional((GNode) next).getName() == "parameter" : getGNodeUnderConditional((GNode) next).getName();
+            counter += 1;
+            if(getGNodeUnderConditional((GNode) next).size() == 6) {
+                defaultValues += 1;
+            }
+        }
+
+        return subtractDefaultValues ? (counter - defaultValues) : counter;
+    }
+
+    public int getParameterSizeWithoutDefaultValues(GNode n) {
+        return getParameterSize(n, true);
+    }
+
     public void printCallGraph() {
         ArrayList<AbstractObjectOfLanguage> sortedSymtabKeys = new ArrayList<>(symtab.keySet());
         Collections.sort(sortedSymtabKeys);
         for(AbstractObjectOfLanguage key : sortedSymtabKeys) {
+            if(key.getConstructType() == LObjectKind.FUNCTIONPROTOTYPEPLACEHOLDER) {
+                continue;
+            }
             System.out.println(key.toStringExtensive(symtab, callGraphObject, global_scope));
         }
         // System.out.println(callGraphObject);
@@ -3048,6 +3181,9 @@ public class CallGraphGenerator {
     public String toDot() {
         String dotFormat = "";
         for(AbstractObjectOfLanguage key : symtab.keySet()) {
+            if(key.getConstructType() == LObjectKind.FUNCTIONPROTOTYPEPLACEHOLDER) {
+                continue;
+            }
             dotFormat += key.toDotString(symtab, callGraphObject, global_scope);
         }
 

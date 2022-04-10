@@ -68,7 +68,8 @@ class P4LanguageObject {
         ANONYMOUS,
         SUBCLASS,
         FUNCTIONDECLARATION,
-        FUNCTIONDECLARATIONGENERATOR
+        FUNCTIONDECLARATIONGENERATOR,
+        FUNCTIONPROTOTYPEPLACEHOLDER
     }
 
     // TODO handle constructor method prototype parameters & action declarations
@@ -81,6 +82,8 @@ class P4LanguageObject {
         private ArrayList<Parameter> optConstructorParameters = null;
         // private ArrayList<Annotation> optAnnotations = null;
         private ArrayList<AbstractObjectOfLanguage> parameters;
+
+        private int defaultParameterCount;
         
         // abstract method to return respective enum
         abstract LObjectKind getConstructType();
@@ -209,11 +212,20 @@ class P4LanguageObject {
         //     this.optAnnotations.add(annotation);
         // }
 
+        public void increaseDefaultParameterCount() {
+            defaultParameterCount += 1;
+        }
+
+        public int getDefaultParameterCount() {
+            return this.defaultParameterCount;
+        }
+
         public AbstractObjectOfLanguage(String name, AbstractObjectOfLanguage nameSpace) {
             this.name = name;
             this.nameSpace = nameSpace;
             this.parameters = new ArrayList<>();
             this.associatedNode = null;
+            this.defaultParameterCount = 0;
         }
 
         public AbstractObjectOfLanguage(AbstractObjectOfLanguage nameSpace) {
@@ -245,8 +257,14 @@ class P4LanguageObject {
             TreeMap<AbstractObjectOfLanguage, TreeMap<String, AbstractObjectOfLanguage>> symtab = new TreeMap<>();
 
             for(AbstractObjectOfLanguage mainKey : symtabGiven.keySet()) {
+                if(mainKey.getConstructType() == LObjectKind.FUNCTIONPROTOTYPEPLACEHOLDER) {
+                    continue;
+                }
                 symtab.put(mainKey, new TreeMap<String, AbstractObjectOfLanguage>());
                 for(String childKey : symtabGiven.get(mainKey).keySet()) {
+                    if(symtabGiven.get(mainKey).get(childKey).getConstructType() == LObjectKind.FUNCTIONPROTOTYPEPLACEHOLDER) {
+                        continue;
+                    }
                     symtab.get(mainKey).put(childKey, symtabGiven.get(mainKey).get(childKey));
                 }
             }
@@ -254,8 +272,14 @@ class P4LanguageObject {
             TreeMap<AbstractObjectOfLanguage, TreeSet<AbstractObjectOfLanguage>> callGraphObject = new TreeMap<>();
             // HashMap<AbstractObjectOfLanguage, HashSet<AbstractObjectOfLanguage>>
             for(AbstractObjectOfLanguage mainKey : callGraphObjectGiven.keySet()) {
+                if(mainKey.getConstructType() == LObjectKind.FUNCTIONPROTOTYPEPLACEHOLDER) {
+                    continue;
+                }
                 callGraphObject.put(mainKey, new TreeSet<>());
                 for(AbstractObjectOfLanguage childKey : callGraphObjectGiven.get(mainKey)) {
+                    if(childKey.getConstructType() == LObjectKind.FUNCTIONPROTOTYPEPLACEHOLDER) {
+                        continue;
+                    }
                     callGraphObject.get(mainKey).add(childKey);
                 }
             }
@@ -265,6 +289,9 @@ class P4LanguageObject {
             ArrayList<String> parentCalleeNames = new ArrayList<>();
             if(callGraphObject.containsKey(this)) {
                 for(AbstractObjectOfLanguage callee : callGraphObject.get(this)) {
+                    if(callee.getConstructType() == LObjectKind.FUNCTIONPROTOTYPEPLACEHOLDER) {
+                        continue;
+                    }
                     parentCalleeNames.add(callee.getName(OUTPUT_TYPES) + "(" + callee.getNameSpace().getName(OUTPUT_TYPES) + ")");
                 }
             }
@@ -280,6 +307,9 @@ class P4LanguageObject {
             while(itr.hasNext()) {
                 String childKey = (String) itr.next();
                 AbstractObjectOfLanguage childLangObj = symtab.get(this).get(childKey);
+                if(childLangObj.getConstructType() == LObjectKind.FUNCTIONPROTOTYPEPLACEHOLDER) {
+                    continue;
+                }
                 finalString += childLangObj.getName(OUTPUT_TYPES);
                 if(symtab.containsKey(childLangObj)) {
                     finalString += itr.hasNext() ? ", " : "";
@@ -335,6 +365,9 @@ class P4LanguageObject {
                 while(itr.hasNext()) {
                     String childKey = (String) itr.next();
                     AbstractObjectOfLanguage childLangObj = symtab.get(this).get(childKey);
+                    if(childLangObj.getConstructType() == LObjectKind.FUNCTIONPROTOTYPEPLACEHOLDER) {
+                        continue;
+                    }
                     finalString += this.hashCode(global_scope) + " -> " + childLangObj.hashCode(global_scope) + " [style=dashed, color=blue];";
                     finalString += childLangObj.hashCode(global_scope) + " [label=\"" + childLangObj.getName(OUTPUT_TYPES) + "\"];";
 
@@ -481,6 +514,16 @@ class P4LanguageObject {
         @Override
         AbstractObjectOfLanguage getType() {
             return this.getRegularLanguageObject().getType();
+        }
+
+        @Override
+        public void increaseDefaultParameterCount() {
+            this.getRegularLanguageObject().increaseDefaultParameterCount();
+        }
+
+        @Override
+        public int getDefaultParameterCount() {
+            return this.getRegularLanguageObject().getDefaultParameterCount();
         }
 
         public AbstractObjectOfLanguage generateInstance(ArrayList<AbstractObjectOfLanguage> parsedTypeParameters,
@@ -679,6 +722,8 @@ class P4LanguageObject {
                 addToSymtab(newInstance, newParam.getName(), newParam, symtab);
             }
 
+            addToSymtab(newInstance, "apply", symtab);
+
             // this.handleGenericsUnderScope(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings,  symtab, visitor, scope, newInstance);
 
             return newInstance;
@@ -723,6 +768,8 @@ class P4LanguageObject {
                 addToSymtab(newInstance, newParam.getName(), newParam, symtab);
             }
 
+            addToSymtab(newInstance, "apply", symtab);
+
             // this.handleGenericsUnderScope(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings,  symtab, visitor, scope, newInstance);
 
             return newInstance;
@@ -748,14 +795,17 @@ class P4LanguageObject {
                                                       Visitor visitor,
                                                       Stack<AbstractObjectOfLanguage> scope) {
                                                         //   System.out.println("generating for: " + this.getName());
-            assert this.getOptTypeParameters().size() == parsedTypeParameters.size() : "optypeparam size: " + this.getOptTypeParameters().size() + " parsedtype: " + parsedTypeParameters.size();
-            assert parameterMappings.size() == parsedParameters.size();
+            // assert this.getOptTypeParameters().size() == parsedTypeParameters.size() : "optypeparam size: " + this.getOptTypeParameters().size() + " parsedtype: " + parsedTypeParameters.size(); // proven unnecessary with issue2480.p4
+            // assert parameterMappings.size() == parsedParameters.size() : this.getName() + " parmetermapping size: " + parameterMappings.size() + " parsedparameters: " + parsedParameters.size(); // issue2273 - since constructors make the extern declaration itself a function
             ExternDeclaration newInstance = new ExternDeclaration(this.getName(), this.getNameSpace());
 
             for(String names : valuesUnderScope.keySet()) {
                 AbstractObjectOfLanguage childUnderScope = valuesUnderScope.get(names);
                 AbstractObjectOfLanguage newChildToAdd;
-                if(childUnderScope.isGeneratorClass()) {
+                if(childUnderScope.getConstructType() == LObjectKind.FUNCTIONPROTOTYPEPLACEHOLDER) {
+                    newChildToAdd = childUnderScope;
+                }
+                else if(childUnderScope.isGeneratorClass()) {
                     newChildToAdd = ((Generator) childUnderScope).generateInstance(parsedTypeParameters, parsedParameters, typeMappings, parameterMappings, valuesUnderScope, symtab, visitor, scope);
                 }  else if(childUnderScope.getConstructType() == LObjectKind.TYPEPARAMETER) {
                     // Type parameters are a child of functions since they are looked up in symtab when setting types of variables
@@ -871,7 +921,7 @@ class P4LanguageObject {
                 for(int i = 0; i < this.getParameters().size(); i++) {
                     AbstractObjectOfLanguage currentParam = this.getParameters().get(i);
                     if(currentParam.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
-                        System.out.println(this.getName() + " has: " + this.getParameters().size() + " and given: " + parsedParameters.size());
+                        // System.out.println(this.getName() + " has: " + this.getParameters().size() + " and given: " + parsedParameters.size());
                         if(! typeMappings.contains(currentParam.getType())) {
                             if(parsedParameters.isEmpty() || 
                                parsedParameters.size() != this.getParameters().size() || // when a child is called from parent
@@ -1526,7 +1576,7 @@ class P4LanguageObject {
             return this.parentScope;
         }
 
-        public HeaderStackType(String name, AbstractObjectOfLanguage nameSpace, HeaderTypeDeclaration parentScope) {
+        public HeaderStackType(String name, AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage parentScope) {
             super(name, nameSpace);
             this.parentScope = parentScope;
         }
@@ -1578,13 +1628,11 @@ class P4LanguageObject {
             return true;
         }
 
-        @Override
-        boolean hasAssociatedType() {
+        boolean doesEnumHaveType() {
             return this.type != null;
         }
 
-        @Override
-        public AbstractObjectOfLanguage getType() {
+        public AbstractObjectOfLanguage getEnumType() {
             return this.type;
         }
 
@@ -1819,6 +1867,44 @@ class P4LanguageObject {
         public FunctionPrototype(String name, AbstractObjectOfLanguage nameSpace, AbstractObjectOfLanguage typeOrVoid){
             super(name, nameSpace);
             this.typeOrVoid = typeOrVoid;
+        }
+    }
+
+
+    class FunctionPrototypePlaceHolder extends RegularLanguageObject {
+        // Class that is stored in symbol table to indicate that there is at least one function that
+        // exists under the scope with this name but need the number of parameters to get the exact functions
+        @Override
+        public LObjectKind getConstructType() {
+            return LObjectKind.FUNCTIONPROTOTYPEPLACEHOLDER;
+        }
+
+        @Override
+        public boolean isScoped() {
+            assert false : "Cannot get scope of placeholder object";
+            System.err.println("Cannot get scope of placeholder object");
+            System.exit(1);
+            return false;
+        }
+
+        @Override
+        public boolean hasAssociatedType() {
+            assert false : "Cannot check for types of placeholder object";
+            System.err.println("Cannot check for types of placeholder object");
+            System.exit(1);
+            return false;
+        }
+
+        @Override
+        AbstractObjectOfLanguage getType() {
+            assert false : "Cannot get type of placeholder object";
+            System.err.println("Cannot get type of placeholder object");
+            System.exit(1);
+            return null;
+        }
+
+        public FunctionPrototypePlaceHolder(String name, AbstractObjectOfLanguage nameSpace){
+            super(name, nameSpace);
         }
     }
 
