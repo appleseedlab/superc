@@ -617,10 +617,10 @@ class P4LanguageObject {
             PackageTypeDeclaration newInstance = new PackageTypeDeclaration(this.getName(), this.getNameSpace());
             if(! parsedTypeParameters.isEmpty()) {
                 assert this.hasParameters() : "Assuming that if package type declaration has type parameters, then there are regular parameters passed in with generic types";
-                assert ! parsedParameters.isEmpty();
+                // assert ! parsedParameters.isEmpty(); // doesn't necessarily need to have parameters passed (arch1.p4 example)
             }
 
-            assert parameterMappings.size() == parsedParameters.size();
+            // assert parameterMappings.size() == parsedParameters.size() : "parametermapping size: " + parameterMappings.size() + " but parsedParameter size: " + parsedParameters.size();
             
             ArrayList<AbstractObjectOfLanguage> originalParameters = parameterMappings;
             for(int i = 0; i < parameterMappings.size(); i++) {
@@ -661,9 +661,9 @@ class P4LanguageObject {
                                                       Visitor visitor,
                                                       Stack<AbstractObjectOfLanguage> scope) {
             ParserTypeDeclaration newInstance = new ParserTypeDeclaration(this.getName(), this.getNameSpace());
-            if(! parsedParameters.isEmpty()) {
-                assert parameterMappings.size() == parsedParameters.size();
-            }
+            // if(! parsedParameters.isEmpty()) {
+            //     assert parameterMappings.size() == parsedParameters.size();
+            // }
                 
             ArrayList<AbstractObjectOfLanguage> originalParameters = parameterMappings;
             for(int i = 0; i < originalParameters.size(); i++) {
@@ -705,9 +705,9 @@ class P4LanguageObject {
                                                       Stack<AbstractObjectOfLanguage> scope) {
             ControlTypeDeclaration newInstance = new ControlTypeDeclaration(this.getName(), this.getNameSpace());
 
-            if(! parsedParameters.isEmpty()) {
-                assert parameterMappings.size() == parsedParameters.size();
-            }
+            // if(! parsedParameters.isEmpty()) {
+            //     assert parameterMappings.size() == parsedParameters.size();
+            // }
             
             ArrayList<AbstractObjectOfLanguage> originalParameters = parameterMappings;
             for(int i = 0; i < originalParameters.size(); i++) {
@@ -747,7 +747,8 @@ class P4LanguageObject {
                                                       Map<AbstractObjectOfLanguage, Map<String, AbstractObjectOfLanguage>> symtab,
                                                       Visitor visitor,
                                                       Stack<AbstractObjectOfLanguage> scope) {
-            assert this.getOptTypeParameters().size() == parsedTypeParameters.size();
+                                                          System.out.println("generating for: " + this.getName());
+            assert this.getOptTypeParameters().size() == parsedTypeParameters.size() : "optypeparam size: " + this.getOptTypeParameters().size() + " parsedtype: " + parsedTypeParameters.size();
             assert parameterMappings.size() == parsedParameters.size();
             ExternDeclaration newInstance = new ExternDeclaration(this.getName(), this.getNameSpace());
 
@@ -870,9 +871,17 @@ class P4LanguageObject {
                 for(int i = 0; i < this.getParameters().size(); i++) {
                     AbstractObjectOfLanguage currentParam = this.getParameters().get(i);
                     if(currentParam.getType().getConstructType() == LObjectKind.TYPEPARAMETER) {
+                        System.out.println(this.getName() + " has: " + this.getParameters().size() + " and given: " + parsedParameters.size());
                         if(! typeMappings.contains(currentParam.getType())) {
-                            doesHaveTypeParameters = true;
-                            break;
+                            if(parsedParameters.isEmpty() || 
+                               parsedParameters.size() != this.getParameters().size() || // when a child is called from parent
+                               parsedParameters.get(i).isGeneratorClass() || 
+                               parsedParameters.get(i).getConstructType() == LObjectKind.TYPEPARAMETER ||
+                               (parsedParameters.get(i).hasAssociatedType() && parsedParameters.get(i).getType().getConstructType() == LObjectKind.TYPEPARAMETER)) {
+                                //    System.out.println("marked as generator becaues of: " + currentParam.getName());
+                                doesHaveTypeParameters = true;
+                                break;
+                            }
                         }
                     }
                 }
