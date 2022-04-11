@@ -160,8 +160,8 @@ public class CallGraphGenerator {
                                System.err.println("Adding a variable of same name as a default header function, so not adding it and ignoring it: " + name);
                            }
                     } else if(newLangObj.getConstructType() == LObjectKind.VARIABLE) {
-                        assert symtab.get(scope).get(name).getConstructType() == LObjectKind.VARIABLE;
-                        System.err.println("Adding a new variable (" + newLangObj.getName() + ") that will overshadow another variable."); // technically not adding it to the symtab, just ignoring it. TODO: check if need to create a new object for data tracing purposes
+                        // assert symtab.get(scope).get(name).getConstructType() == LObjectKind.VARIABLE;
+                        System.err.println("Adding a new variable (" + newLangObj.getName() + ") that will overshadow another value (" + symtab.get(scope).get(name).getConstructType() + ")."); // technically not adding it to the symtab, just ignoring it. TODO: check if need to create a new object for data tracing purposes
                     } else {
                         assert false : "Error: " + name + " is already defined and is neither a function nor a method";
                         System.err.println("Error: " + name + " is already defined and is neither a function nor a method: " + scope.getName());
