@@ -144,8 +144,10 @@ public class SuperP4 extends Tool {
   private final static boolean SIMPLIFY_NESTED_CONDITIONALS = true;
 
   HashSet set = new HashSet<>();
-  ArrayList<String> blockValues = new ArrayList<String>();
-  HashMap<String, String> template_block_map = new HashMap<>();
+  // ArrayList<String> blockValues = new ArrayList<String>();
+  ArrayList<ArrayList<String>> blockValues = new ArrayList<>();
+  // HashMap<String, String> template_block_map = new HashMap<>();
+  ArrayList<HashMap<String, String>> template_block_map = new ArrayList<>();
   HashMap<String, HashSet<String>> conditionalsInsideSpecificBlosk;
   HashMap<String, HashSet<String>> conditionalsInsideEverything = new HashMap<>();
   int counter = 0;
@@ -1246,48 +1248,63 @@ public class SuperP4 extends Tool {
         }
 
         if(templateFilePath != null) {
+          blockValues.add(new ArrayList<String>());
+          template_block_map.add(new HashMap<String, String>());
+
           ArrayList<String> template = readTemplate(templateFilePath);
           collectBlockNames((Node) translationUnit, template);
-          template_block_map = (HashMap<String, String>) stripParenthesis(template_block_map);
-          blockValues = (ArrayList<String>) stripParenthesis(blockValues);
-          initializeConditionalsInside();
+          // System.err.println("Final count: " + template_block_map.size() + "\nblock size: " + blockValues.size());
+          for(int i = 0; i < template_block_map.size(); i++) {
+            template_block_map.set(i, (HashMap<String, String>) stripParenthesis(template_block_map.get(i)));
+          }
+          // template_block_map = (HashMap<String, String>) stripParenthesis(template_block_map);
           System.out.println("Passed in block names and actual mapped function values:" + template_block_map);
-          // System.out.println(blockValues);
-    
-          // collect macros for specific block names collected based on user input
-          walkAST((Node) translationUnit, "", false);
-        }    
+          for(int i = 0; i < blockValues.size(); i++) {
+            blockValues.set(i, (ArrayList<String>) stripParenthesis(blockValues.get(i)));
+          }
+
+          // blockValues = (ArrayList<String>) stripParenthesis(blockValues);
+          for(ArrayList<String> blockValue : blockValues) {
+            if(blockValue.isEmpty()) {
+              continue;
+            }
+
+            initializeConditionalsInside(blockValue);
+            // System.out.println(blockValue);
+      
+            // collect macros for specific block names collected based on user input
+            walkAST((Node) translationUnit, "", false, blockValue);
+
+            convertNotConditionalsAndRemoveDefinedWordForStatPurposes(conditionalsInsideSpecificBlosk);
+            System.out.println("--------Printing out macros present DIRECTLY under the specific construct blocks--------\n");
+            printMatrix(conditionalsInsideSpecificBlosk);
+            System.out.println("\n--------Done printing macros present DIRECTLY under the specific construct blocks--------\n\n");
+
+            collectASTData((Node) translationUnit);
+            convertNotConditionalsAndRemoveDefinedWordForStatPurposes(presenceCondMap);
+
+            for(String e: presenceCondMap.keySet()) {
+              if(conditionalsInsideSpecificBlosk.containsKey(e)) {
+                if(! conditionalsInsideSpecificBlosk.get(e).equals(presenceCondMap.get(e))) {
+                  System.err.println("Something not right: " + e);
+                  System.exit(1);
+                }
+              }
+            }
+
+            expandCPP();
+            removeEmpty(presenceCondMap);
+
+            presenceCondMap = keepOnlySpecifics(blockValue, presenceCondMap);
+            System.out.println("---!!---Printing out macros present ANYWHERE under the specific construct blocks---!!---\n");
+            printMatrix(presenceCondMap);
+            System.out.println("\n---!!---Done printing macros present ANYWHERE under the specific construct blocks---!!---\n");
+            presenceCondMap.clear();
+          }
+        }
 
         //collect macros for all blocks
         walkASTForAllConstructs((Node) translationUnit, null);
-
-        // cleaning up the data
-        if(templateFilePath != null) {
-          convertNotConditionalsAndRemoveDefinedWordForStatPurposes(conditionalsInsideSpecificBlosk);
-          System.out.println("--------Printing out macros present DIRECTLY under the specific construct blocks--------\n");
-          printMatrix(conditionalsInsideSpecificBlosk);
-          System.out.println("\n--------Done printing macros present DIRECTLY under the specific construct blocks--------\n\n");
-
-          collectASTData((Node) translationUnit);
-          convertNotConditionalsAndRemoveDefinedWordForStatPurposes(presenceCondMap);
-
-          for(String e: presenceCondMap.keySet()) {
-            if(conditionalsInsideSpecificBlosk.containsKey(e)) {
-              if(! conditionalsInsideSpecificBlosk.get(e).equals(presenceCondMap.get(e))) {
-                System.err.println("Something not right: " + e);
-                System.exit(1);
-              }
-            }
-          }
-
-          expandCPP();
-          removeEmpty(presenceCondMap);
-
-          presenceCondMap = keepOnlySpecifics(blockValues, presenceCondMap);
-          System.out.println("---!!---Printing out macros present ANYWHERE under the specific construct blocks---!!---\n");
-          printMatrix(presenceCondMap);
-          System.out.println("\n---!!---Done printing macros present ANYWHERE under the specific construct blocks---!!---\n");
-        }
 
         convertNotConditionalsAndRemoveDefinedWordForStatPurposes(conditionalsInsideEverything);
         System.out.println("--------Printing out macro mappings for all constructs--------\n");
@@ -1921,29 +1938,36 @@ public class SuperP4 extends Tool {
         String rValue = collectBlockNames(cur, template);
         // System.out.println("rvalue is: " + rValue);
 
-        if(blockValues.size() == 0) {
+        if(blockValues.get(blockValues.size() - 1).size() == 0) {
           if(node.getName() == "instantiation" &&
           rValue.toLowerCase().equals(template.get(0).toLowerCase())) {
-               template_block_map.put(template.get(blockValues.size()), rValue);
-               blockValues.add(rValue);
+               template_block_map.get(template_block_map.size() - 1).put(template.get(blockValues.get(blockValues.size() - 1).size()), rValue);
+               blockValues.get(blockValues.size() - 1).add(rValue);
              }
           lastValue = rValue;
         } 
         else {
           lastValue = lastValue.concat(rValue);
           if (node.getName() == "argument") {
-            assert blockValues.size() < (template.size()-1) : "number of values in blockValues should be less than number of provided argument, but current it is: " + blockValues.size() + " with the value:"  + blockValues;
+            assert blockValues.get(blockValues.size() - 1).size() < (template.size()-1) : "number of values in blockValues should be less than number of provided argument, but current it is: " + blockValues.get(blockValues.size() - 1).size() + " with the value:"  + blockValues.get(blockValues.size() - 1);
 
-            template_block_map.put(template.get(blockValues.size()), lastValue);
-            blockValues.add(lastValue);
+            template_block_map.get(template_block_map.size() - 1).put(template.get(blockValues.get(blockValues.size() - 1).size()), lastValue);
+            blockValues.get(blockValues.size() - 1).add(lastValue);
             lastValue = "";
           } 
           if(node.getName() == "name") {
-            assert blockValues.size() == (template.size()-1) : "At the name construct, meaning we should have reached end of instantiation block but not all values obtained. Current values: " + blockValues;
-
-            template_block_map.put(template.get(blockValues.size()), lastValue);
-            blockValues.add(lastValue);
-            lastValue = "";          
+            // assert blockValues.get(blockValues.size() - 1).size() == (template.size()-1) : "At the name construct, meaning we should have reached end of instantiation block but not all values obtained. Current values: " + blockValues.get(blockValues.size() - 1);
+            if(blockValues.get(blockValues.size() - 1).size() != (template.size()-1)) {
+              blockValues.get(blockValues.size() - 1).clear();
+              template_block_map.get(template_block_map.size() - 1).clear();
+            } else {
+              template_block_map.get(template_block_map.size() - 1).put(template.get(blockValues.get(blockValues.size() - 1).size()), lastValue);
+              blockValues.get(blockValues.size() - 1).add(lastValue);
+              lastValue = "";
+              // System.err.println("Encountered name value, adding new block value");
+              blockValues.add(new ArrayList<String>());
+              template_block_map.add(new HashMap<String, String>());
+            }     
           }
         }
       }
@@ -1992,7 +2016,7 @@ public class SuperP4 extends Tool {
     }
   }
 
-  public void initializeConditionalsInside() {
+  public void initializeConditionalsInside(ArrayList<String> blockValues) {
     conditionalsInsideSpecificBlosk = new HashMap<>();
     if(! blockValues.isEmpty()) {
       // removing package name and the variable name as it is not blocks we are interested in
@@ -2005,7 +2029,7 @@ public class SuperP4 extends Tool {
     }
   }
 
-  public String walkAST(Object obj, String currentBlock, boolean isDeclaration) {
+  public String walkAST(Object obj, String currentBlock, boolean isDeclaration, ArrayList<String> blockValues) {
     // System.out.println(obj.getClass());
     if(obj instanceof Node) {
       Node node = (Node) obj;
@@ -2016,7 +2040,7 @@ public class SuperP4 extends Tool {
 
         if(cur instanceof Node && ((Node) cur).getName().equals("declaration")) {
           // since the "modules" when instantiating the package are declaration based constructs
-          rValue = walkAST(cur, currentBlock, true);
+          rValue = walkAST(cur, currentBlock, true, blockValues);
         } else {
           if(cur instanceof Node && ((Node) cur).getName().equals("nonTypeName")) {
             Set methods = ((Node) cur).properties();
@@ -2025,7 +2049,7 @@ public class SuperP4 extends Tool {
                 System.out.println();
               }
           }
-          rValue = walkAST(cur, currentBlock, isDeclaration);
+          rValue = walkAST(cur, currentBlock, isDeclaration, blockValues);
         }
 
         if(cur instanceof Node && ((Node) cur).getName().equals("declaration")){
@@ -2102,48 +2126,7 @@ public class SuperP4 extends Tool {
     }
   }
 
-  public void eliminateCancellations(ArrayList<String> array, String hashMapKey) {
-    HashMap<String, Integer> counter = new HashMap<>();
 
-    for(String element: array) {
-      if(counter.containsKey(element)) {
-        counter.put(element, counter.get(element) + 1);
-      }
-      else {
-        counter.put(element, 1);
-      }
-    }
-
-    for(String key: counter.keySet()) {
-      if(counter.containsKey("!" + key)) {
-        String notVar = "!" + key;
-        if(counter.get(key) <= 0 || counter.get(notVar) <= 0) {
-          continue;
-        }
-        int cur_int = counter.get(key);
-        int other_int = counter.get(notVar);
-        counter.put(key, cur_int - other_int);
-        counter.put(notVar, other_int - cur_int);
-
-        // if(counter.get(key) == 0) {
-        //   counter.remove(key);
-        // }
-        // if (counter.get(notVar) == 0) {
-        //   counter.remove(notVar);
-        // }
-      }
-    }
-
-    // System.out.println(hashMapKey + ": " + counter);
-
-    conditionalsInsideSpecificBlosk.get(hashMapKey).clear();
-    for(String key: counter.keySet()) {
-      if(counter.get(key) <= 0) {
-        continue;
-      }
-      conditionalsInsideSpecificBlosk.get(hashMapKey).add(key);
-    }
-  }
  boolean printUnit = false;
   public void convertNotConditionalsAndRemoveDefinedWordForStatPurposes(HashMap<String, HashSet<String>> workingSet) {
     for(String key : workingSet.keySet()) {
