@@ -5,6 +5,6 @@ GLOBAL: only_package(PACKAGETYPEDECLARATION)(GLOBAL(CONSTANTVALUE)), parser_decl
 only_package: _p(PARAMETER, PARSERTYPEDECLARATION)
 only_package: T(TYPEPARAMETER), _p(PARAMETERGENERATOR, TYPEPARAMETER)
 parser_decl: a(VARIABLE, BASETYPE), accept(DEFAULT), apply(INVOKABLEKEYWORD), b(PARAMETER, BASETYPE), reject(DEFAULT), start(DEFAULT): [accept(DEFAULT)]
-parser_type_decl: b(PARAMETER, BASETYPE)
-parser_type_decl: T(TYPEPARAMETER), b(PARAMETERGENERATOR, TYPEPARAMETER)
+parser_type_decl: apply(DEFAULT), b(PARAMETER, BASETYPE)
+parser_type_decl: T(TYPEPARAMETER), apply(DEFAULT), b(PARAMETERGENERATOR, TYPEPARAMETER)
 /mnt/fonda/p4_testsuite/callGraphTestCases/CGTest_generic_package_parser.p4.callGraph.pdf
