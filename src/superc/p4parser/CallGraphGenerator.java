@@ -196,8 +196,8 @@ public class CallGraphGenerator {
             symtab.addToSymtab(scope.peek(), "isValid", isValid);
             symtab.addToSymtab(scope.peek(), "setValid", setValid);
             symtab.addToSymtab(scope.peek(), "setInvalid", setInvalid);
-            symtab.addToSymtab(scope.peek(), "minSizeInBits", setInvalid);
-            symtab.addToSymtab(scope.peek(), "minSizeInBytes", setInvalid);
+            symtab.addToSymtab(scope.peek(), "minSizeInBits", minSizeInBits);
+            symtab.addToSymtab(scope.peek(), "minSizeInBytes", minSizeInBytes);
 
             dispatch(getGNodeUnderConditional(n.getGeneric(3))); // optTypeParameters
             dispatch(getGNodeUnderConditional(n.getGeneric(5))); // structFieldList
