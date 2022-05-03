@@ -12,7 +12,7 @@ for file in os.listdir('output_files/'):
 print(files)
 
 for file in files:
-    os.system("java superc.SuperP4 -printCallGraph " + file + ".p4 > " + tmp_output_file_name)
+    os.system("java superc.SuperP4 -silent -printCallGraph " + file + ".p4 > " + tmp_output_file_name)
     result = filecmp.cmp('output_files/' + file + ".out", tmp_output_file_name)
     if result != True:
         print("FAILED: " + file + " output differs")

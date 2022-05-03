@@ -1,8 +1,4 @@
-SuperP4, v. 2.4.0, (C) 2009-2012 New York University
-Portions Copyright (c) 1989, 1990 James A. Roskind
-Processing CGTest_functionOverload.p4 ...
 GLOBAL: isGreaterThan_2(FUNCTIONDECLARATION, BASETYPE), isGreaterThan_3(FUNCTIONDECLARATION, BASETYPE), test_control(CONTROLDECLARATION)
 isGreaterThan_2: a(PARAMETER, BASETYPE), b(PARAMETER, BASETYPE)
 isGreaterThan_3: c(PARAMETER, BASETYPE), d(PARAMETER, BASETYPE), e(PARAMETER, BASETYPE)
 test_control: isGreaterThan_2(FUNCTIONDECLARATION, BASETYPE)(GLOBAL(CONSTANTVALUE)), isGreaterThan_3(FUNCTIONDECLARATION, BASETYPE)(GLOBAL(CONSTANTVALUE)), a(PARAMETER, BASETYPE), apply(DEFAULT), c(VARIABLE, BASETYPE), d(VARIABLE, BASETYPE)
-/mnt/fonda/p4_testsuite/callGraphTestCases/CGTest_functionOverload.p4.callGraph.pdf
