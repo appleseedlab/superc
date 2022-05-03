@@ -81,7 +81,7 @@ public class GraphViz
     /**
      * Load the config.properties file.
      */
-    private final static String cfgProp = "../../../src/superc/p4parser/config.properties";
+    private final static String cfgProp = System.getenv("JAVA_DEV_ROOT") + "/src/superc/p4parser/config.properties";
     private final static Properties configFile = new Properties() {
         private final static long serialVersionUID = 1L; {
             try {
@@ -93,7 +93,7 @@ public class GraphViz
     /**
      * The dir. where temporary files will be created.
      */
-  private static String TEMP_DIR = "../../../src/superc/p4parser/tmp/";
+  private static String TEMP_DIR = System.getenv("JAVA_DEV_ROOT") + "/src/superc/p4parser/tmp/";
 
     /**
      * Where is your dot program located? It will be called externally.
