@@ -234,11 +234,13 @@ public class CallGraphGenerator {
 
             for(String key : valuesUnder.keySet()) {
                 Map<String, AbstractObjectOfLanguage> childValues = symtab.getSymTab().get(valuesUnder.get(key).getType());
-                for(String childKey : childValues.keySet()) {
-                    if(symtab.doesSymbolExist(scope.peek(), childKey)) {
-                        continue;
+                if(childValues != null) {
+                    for(String childKey : childValues.keySet()) {
+                        if(symtab.doesSymbolExist(scope.peek(), childKey)) {
+                            continue;
+                        }
+                        symtab.addToSymtab(scope.peek(), childKey, childValues.get(childKey));
                     }
-                    symtab.addToSymtab(scope.peek(), childKey, childValues.get(childKey));
                 }
             }
 
