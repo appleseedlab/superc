@@ -58,7 +58,10 @@ SOURCE = \
 	P4Context.java \
 	GraphViz.java \
 	CallGraphGenerator.java \
-	P4LanguageObject.java
+	P4LanguageObject.java \
+	Symbols.java \
+	SymbolTable.java \
+	TemporaryParameterValues.java
 
 
 JNI_SOURCE =

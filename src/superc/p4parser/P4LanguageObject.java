@@ -1,20 +1,16 @@
 package superc.p4parser;
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import xtc.tree.Visitor;
+
 import xtc.tree.GNode;
-import xtc.tree.Node;
-import java.util.Stack;
-import superc.core.Syntax;
+import xtc.tree.Visitor;
 
 // For symbols
 class P4LanguageObject {
