@@ -11,7 +11,7 @@ publications can be found.
 
 Building SuperC requires `bison` and `sat4j`.  For debian and ubuntu run
 
-    apt-get install bison libz3-java sat4j
+    apt-get install bison libz3-java sat4j graphviz
 
 The following environment variables are expected by SuperC/xtc.
 
