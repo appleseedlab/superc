@@ -1,51 +1,50 @@
 
-BUSYBOX/061fd0a353e.desugared.c:3063: error: Dead Store
-  The value written to &__argc_2036 (type int) is never used.
-  3061. if (  __r_2038  )// L15
-  3062. {
-  3063.  __p_2040  = *  __argv_2037  ++ , --  __argc_2036  ; // L16
-                                          ^
-  3064. }
-  3065. }
+BUSYBOX/061fd0a353e.desugared.c:36: error: Uninitialized Value
+  The value read from __c_3 was never initialized.
+  34. switch (  __c_3  )// L12
+  35. {
+  36. case 'W' :
+      ^
+  37. {
+  38. 
 
-BUSYBOX/061fd0a353e.desugared.c:3063: error: Dead Store
-  The value written to &__argv_2037 (type char**) is never used.
-  3061. if (  __r_2038  )// L15
-  3062. {
-  3063.  __p_2040  = *  __argv_2037  ++ , --  __argc_2036  ; // L16
-                        ^
-  3064. }
-  3065. }
+BUSYBOX/061fd0a353e.desugared.c:44: error: Uninitialized Value
+  The value read from __c_3 was never initialized.
+  42. break ; // L17
+  43. }
+  44. case 'U' :
+      ^
+  45. {
+  46. 
 
-BUSYBOX/061fd0a353e.desugared.c:2941: error: Uninitialized Value
-  The value read from __c_2041 was never initialized.
-  2939. switch (  __c_2041  )// L12
-  2940. {
-  2941. case 'W' :
-        ^
-  2942. {
-  2943. 
+BUSYBOX/061fd0a353e.desugared.c:58: error: Uninitialized Value
+  The value read from __c_3 was never initialized.
+  56. break ; // L22
+  57. }
+  58. case 'R' :
+      ^
+  59. {
+  60. 
 
-BUSYBOX/061fd0a353e.desugared.c:2959: error: Uninitialized Value
-  The value read from __c_2041 was never initialized.
-  2957. switch (  __c_2041  )// L12
-  2958. {
-  2959. case 'W' :
-        ^
-  2960. {
-  2961. 
+BUSYBOX/061fd0a353e.desugared.c:49: error: Uninitialized Value
+  The value read from __p_2 was never initialized.
+  47. 
+  48. 
+  49. if ( !  __p_2  )// L20
+              ^
+  50. {
+  51. 
 
-BUSYBOX/061fd0a353e.desugared.c:2972: error: Uninitialized Value
-  The value read from __c_2041 was never initialized.
-  2970. break ; // L17
-  2971. }
-  2972. case 'U' :
-        ^
-  2973. {
-  2974. 
+BUSYBOX/061fd0a353e.desugared.c:63: error: Uninitialized Value
+  The value read from __p_2 was never initialized.
+  61. 
+  62. 
+  63. if ( !  __p_2  )// L27
+              ^
+  64. {
+  65. 
 
 
-Found 40 issues (console output truncated to 5, see '/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/infer-out/report.txt' for the full list)
+Found 5 issues (console output truncated to 5, see '/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/infer-out/report.txt' for the full list)
                 Issue Type(ISSUED_TYPE_ID): #
-  Uninitialized Value(UNINITIALIZED_VALUE): 36
-                    Dead Store(DEAD_STORE): 4
+  Uninitialized Value(UNINITIALIZED_VALUE): 5

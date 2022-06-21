@@ -7,20 +7,15 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_12;
-extern const bool __static_condition_default_6;
 extern const bool __static_condition_default_5;
-extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_6;
 void __static_initializer_default() {
 __static_renaming("__serial_echopair_P_l_2", "serial_echopair_P_l");
 __static_renaming("__Config_PrintSettings_4", "Config_PrintSettings");
 __static_renaming("__main_9", "main");
-__static_renaming("__main_10", "main");
 
-__static_condition_renaming("__static_condition_default_5", "!(defined MESH_BED_LEVELING) && !(defined DISABLE_M503)");
-__static_condition_renaming("__static_condition_default_6", "(defined MESH_BED_LEVELING) && !(defined DISABLE_M503)");
-__static_condition_renaming("__static_condition_default_11", "(defined DISABLE_M503)");
-__static_condition_renaming("__static_condition_default_12", "!(defined DISABLE_M503)");
+__static_condition_renaming("__static_condition_default_5", "!(defined MESH_BED_LEVELING)");
+__static_condition_renaming("__static_condition_default_6", "(defined MESH_BED_LEVELING)");
 
 };
 
@@ -96,25 +91,6 @@ while( 0 );// L5:L15
 }}
 int  (__main_9) (int  __argc_7, char  * (* (__argv_8))) {
 
-if (__static_condition_default_11) {
-
-{
-{
-
-
-
-__static_type_error("type error") ; // L24
-return 0 ;// L25
-}
-}
-
-
-}
-}
-int  (__main_10) (int  __argc_7, char  * (* (__argv_8))) {
-
-if (__static_condition_default_12) {
-
 {
 {
 
@@ -126,6 +102,5 @@ return 0 ;// L25
 }
 
 
-}
 }
 

@@ -1,4 +1,0 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/e39363a9def.c:17:3: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
-  return err; // ERROR (3)
-  ^~~~~~~~~~
-1 warning generated.

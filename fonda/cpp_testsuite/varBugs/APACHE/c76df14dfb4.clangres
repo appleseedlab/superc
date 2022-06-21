@@ -1,4 +1,5 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.c:42:7: warning: Value stored to 'flags' is never read [deadcode.DeadStores]
-      flags |= T_ESCAPE_SHELL_CMD;
-      ^        ~~~~~~~~~~~~~~~~~~
-1 warning generated.
+In file included from <built-in>:342:
+<command line>:2:8: error: 'defined' cannot be used as a macro name
+#undef defined
+       ^
+1 error generated.

@@ -1,0 +1,26 @@
+APACHE 2a6cbfa00e0.c
+Macros:
+	SHARED_MODULE
+[-USHARED_MODULE ]
+97 :: Line:16
+	Potential leak of memory pointed to by 'sc' [unix.Malloc]
+Desugared Clang Results:
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1496:5: warning: Potential leak of memory pointed to by '__sc_1019' [unix.Malloc]
+if (__static_condition_default_1028) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1499:5: warning: Potential leak of memory pointed to by '__sc_1018' [unix.Malloc]
+if (__static_condition_default_1029) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1525:10: warning: Value stored to '__sc_1021' during its initialization is never read [deadcode.DeadStores]
+char  * (__sc_1021)= malloc (sizeof(char) * 45);// L6
+         ^~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1527:1: warning: Potential leak of memory pointed to by '__sc_1021' [unix.Malloc]
+__static_type_error("type error") ; // L9
+^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1531:5: warning: Potential leak of memory pointed to by '__sc_1020' [unix.Malloc]
+if (__static_condition_default_1034) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+5 warnings generated.
+Matches:
+Unmatched ids:
+	97

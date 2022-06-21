@@ -1,13 +1,13 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:3172:2: warning: Value stored to '__flags_2323' is never read [deadcode.DeadStores]
- __flags_2323  |= ( 0x01 ) ; // L4:L42
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:2149:2: warning: Value stored to '__flags_1818' is never read [deadcode.DeadStores]
+ __flags_1818  |= ( 0x01 ) ; // L4:L42
  ^                ~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:3241:2: warning: Value stored to '__flags_2323' is never read [deadcode.DeadStores]
- __flags_2323  |= ( 0x01 ) ; // L4:L42
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:2213:2: warning: Value stored to '__flags_1818' is never read [deadcode.DeadStores]
+ __flags_1818  |= ( 0x01 ) ; // L4:L42
  ^                ~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:3310:2: warning: Value stored to '__flags_2323' is never read [deadcode.DeadStores]
- __flags_2323  |= ( 0x01 ) ; // L4:L42
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:2305:2: warning: Value stored to '__flags_1818' is never read [deadcode.DeadStores]
+ __flags_1818  |= ( 0x01 ) ; // L4:L42
  ^                ~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:3379:2: warning: Value stored to '__flags_2323' is never read [deadcode.DeadStores]
- __flags_2323  |= ( 0x01 ) ; // L4:L42
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:2397:2: warning: Value stored to '__flags_1818' is never read [deadcode.DeadStores]
+ __flags_1818  |= ( 0x01 ) ; // L4:L42
  ^                ~~~~~~~~
 4 warnings generated.

@@ -1,33 +1,24 @@
 
-BUSYBOX/eef2317b9f5.desugared.c:1750: error: Dead Store
-  The value written to &__buf_964 (type char*) is never used.
-  1748. }
-  1749. if (__static_condition_default_976) {
-  1750.  __buf_964  = malloc ( __bufsize_965 ) ; // L26
-         ^
-  1751. }
-  1752. if (__static_condition_default_977) {
+BUSYBOX/eef2317b9f5.desugared.c:50: error: Dead Store
+  The value written to &__bufsize_28 (type int) is never used.
+  48. char  * (__buf_27);// L6
+  49. 
+  50. int  __bufsize_28= 8196;// L7
+      ^
+  51. 
+  52. int  __i_29;// L8
 
-BUSYBOX/eef2317b9f5.desugared.c:1753: error: Dead Store
-  The value written to &__buf_964 (type char*) is never used.
-  1751. }
-  1752. if (__static_condition_default_977) {
-  1753.  __buf_964  = malloc ( __bufsize_965 ) ; // L26
-         ^
-  1754. }
-  1755. if (__static_condition_default_978) {
-
-BUSYBOX/eef2317b9f5.desugared.c:1693: error: Uninitialized Value
-  The value read from __buf_964 was never initialized.
-  1691. all_done_0:
-  1692. {
-  1693. if (  __buf_964  )// L30
-              ^
-  1694. {
-  1695. 
+BUSYBOX/eef2317b9f5.desugared.c:76: error: Uninitialized Value
+  The value read from __buf_27 was never initialized.
+  74. all_done_0:
+  75. {
+  76. if (  __buf_27  )// L30
+            ^
+  77. {
+  78. 
 
 
-Found 3 issues
+Found 2 issues
                 Issue Type(ISSUED_TYPE_ID): #
-                    Dead Store(DEAD_STORE): 2
   Uninitialized Value(UNINITIALIZED_VALUE): 1
+                    Dead Store(DEAD_STORE): 1

@@ -1,0 +1,9 @@
+BUSYBOX eef2317b9f5.c
+Macros:
+	CONFIG_FEATURE_CLEAN_UP
+[-UCONFIG_FEATURE_CLEAN_UP ]
+67 :: Line:26
+	Value stored to 'buf' is never read [deadcode.DeadStores]
+68 :: Line:34
+	Potential leak of memory pointed to by 'buf' [unix.Malloc]
+File Failed

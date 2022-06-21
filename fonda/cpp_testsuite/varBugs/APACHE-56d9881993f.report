@@ -1,0 +1,6 @@
+APACHE 56d9881993f.c
+Macros:
+	APR_HAS_SENDFILE
+[-UAPR_HAS_SENDFILE ]
+Desugared Clang Results:
+Original file has no warnings

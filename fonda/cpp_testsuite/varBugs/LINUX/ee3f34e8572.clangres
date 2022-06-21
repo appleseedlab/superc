@@ -1,4 +1,5 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/ee3f34e8572.c:44:11: warning: Value stored to 'rt' during its initialization is never read [deadcode.DeadStores]
-    char *rt =(char *) dst; // (3)
-          ^~  ~~~~~~~~~~~~
-1 warning generated.
+In file included from <built-in>:342:
+<command line>:3:8: error: 'defined' cannot be used as a macro name
+#undef defined
+       ^
+1 error generated.

@@ -1,0 +1,6 @@
+BUSYBOX 0301ffab3d9.c
+Macros:
+	EXT2FS_ENABLE_SWAPFS
+[-UEXT2FS_ENABLE_SWAPFS ]
+Desugared Clang Results:
+Original file has no warnings

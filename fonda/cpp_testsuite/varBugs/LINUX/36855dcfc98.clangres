@@ -1,0 +1,4 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/36855dcfc98.c:6:3: warning: Value stored to 'wakeup' is never read [deadcode.DeadStores]
+  wakeup = 0;
+  ^        ~
+1 warning generated.

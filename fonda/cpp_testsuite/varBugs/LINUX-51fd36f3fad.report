@@ -1,0 +1,6 @@
+LINUX 51fd36f3fad.c
+Macros:
+	CONFIG_64BIT
+[-UCONFIG_64BIT ]
+Desugared Clang Results:
+Original file has no warnings

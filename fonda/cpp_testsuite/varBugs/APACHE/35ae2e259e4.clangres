@@ -1,4 +1,5 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/35ae2e259e4.c:24:10: warning: Potential leak of memory pointed to by 'eckey' [unix.Malloc]
-  return 0;
-         ^
-1 warning generated.
+In file included from <built-in>:342:
+<command line>:2:9: error: 'defined' cannot be used as a macro name
+#define defined 1
+        ^
+1 error generated.

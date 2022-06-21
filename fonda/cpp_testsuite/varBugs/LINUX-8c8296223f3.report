@@ -1,0 +1,6 @@
+LINUX 8c8296223f3.c
+Macros:
+	CONFIG_PROC_PAGE_MONITOR
+[-UCONFIG_PROC_PAGE_MONITOR ]
+Desugared Clang Results:
+Original file has no warnings

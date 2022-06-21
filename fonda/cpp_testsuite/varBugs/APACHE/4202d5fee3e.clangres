@@ -1,0 +1,8 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/4202d5fee3e.c:9:16: error: use of undeclared identifier 'certdb'; did you mean 'certtdb'?
+  printf("%c", certdb); // ERROR: certdb undeclared
+               ^~~~~~
+               certtdb
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/4202d5fee3e.c:4:6: note: 'certtdb' declared here
+char certtdb = 'A';
+     ^
+1 error generated.

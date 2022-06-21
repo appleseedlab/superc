@@ -1,7 +1,7 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/ebee301c8b0.desugared.c:2921:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/ebee301c8b0.desugared.c:2920:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
  __copySubFile_2038  ( __src_2042 , __dst_2043 ) ; // L18
  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/ebee301c8b0.desugared.c:2921:2: warning: 2nd function call argument is an uninitialized value [core.CallAndMessage]
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/ebee301c8b0.desugared.c:2920:2: warning: 2nd function call argument is an uninitialized value [core.CallAndMessage]
  __copySubFile_2038  ( __src_2042 , __dst_2043 ) ; // L18
  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 2 warnings generated.

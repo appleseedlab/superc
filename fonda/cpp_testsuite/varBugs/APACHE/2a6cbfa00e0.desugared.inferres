@@ -1,2 +1,14 @@
 
-  No issues found  
+APACHE/2a6cbfa00e0.desugared.c:1525: error: Dead Store
+  The value written to &__sc_1021 (type char*) is never used.
+  1523. char  * (__sc_1020)= malloc (sizeof(char) * 45);// L6
+  1524. 
+  1525. char  * (__sc_1021)= malloc (sizeof(char) * 45);// L6
+        ^
+  1526. 
+  1527. __static_type_error("type error") ; // L9
+
+
+Found 1 issue
+  Issue Type(ISSUED_TYPE_ID): #
+      Dead Store(DEAD_STORE): 1

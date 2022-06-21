@@ -1,0 +1,6 @@
+APACHE 664e3aac6dd.c
+Macros:
+	WIN32X
+[-UWIN32X ]
+Desugared Clang Results:
+Original file has no warnings

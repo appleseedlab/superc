@@ -1,0 +1,22 @@
+BUSYBOX 1b487ea8a69.c
+Macros:
+	ENABLE_SELINUX
+	ENABLE_FEATURE_STAT_FORMAT
+[-UENABLE_SELINUX -UENABLE_FEATURE_STAT_FORMAT ]
+[-DENABLE_SELINUX=1 -UENABLE_FEATURE_STAT_FORMAT ]
+54 :: Line:14
+	Dereference of null pointer (loaded from variable 'scontext') [core.NullDereference]
+[-UENABLE_SELINUX -DENABLE_FEATURE_STAT_FORMAT=1 ]
+[-DENABLE_SELINUX=1 -DENABLE_FEATURE_STAT_FORMAT=1 ]
+Desugared Clang Results:
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/1b487ea8a69.desugared.c:2937:26: warning: Dereference of null pointer (loaded from variable '__scontext_2038') [core.NullDereference]
+ __printf_421  (" %lc\n",*  __scontext_2038 ) ; // L14
+                         ^~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/1b487ea8a69.desugared.c:2994:26: warning: Dereference of null pointer (loaded from variable '__scontext_2038') [core.NullDereference]
+ __printf_421  (" %lc\n",*  __scontext_2038 ) ; // L14
+                         ^~~~~~~~~~~~~~~~~~
+2 warnings generated.
+Matches:
+	54 has a match!
+Unmatched ids:
+	None!

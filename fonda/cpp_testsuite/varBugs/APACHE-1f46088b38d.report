@@ -1,0 +1,6 @@
+APACHE 1f46088b38d.c
+Macros:
+	SIGPIPE
+[-USIGPIPE ]
+Desugared Clang Results:
+Original file has no warnings

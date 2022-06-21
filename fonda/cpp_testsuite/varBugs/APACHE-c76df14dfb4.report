@@ -1,0 +1,29 @@
+APACHE c76df14dfb4.c
+Macros:
+	CROSS_COMPILE
+	defined
+	NEED_ENHANCED_ESCAPES
+[-UCROSS_COMPILE -Udefined -UNEED_ENHANCED_ESCAPES ]
+[-DCROSS_COMPILE=1 -Udefined -UNEED_ENHANCED_ESCAPES ]
+[-UCROSS_COMPILE -Ddefined=1 -UNEED_ENHANCED_ESCAPES ]
+[-DCROSS_COMPILE=1 -Ddefined=1 -UNEED_ENHANCED_ESCAPES ]
+[-UCROSS_COMPILE -Udefined -DNEED_ENHANCED_ESCAPES=1 ]
+[-DCROSS_COMPILE=1 -Udefined -DNEED_ENHANCED_ESCAPES=1 ]
+[-UCROSS_COMPILE -Ddefined=1 -DNEED_ENHANCED_ESCAPES=1 ]
+[-DCROSS_COMPILE=1 -Ddefined=1 -DNEED_ENHANCED_ESCAPES=1 ]
+[-UCROSS_COMPILE -Udefined -UNEED_ENHANCED_ESCAPES ]
+Desugared Clang Results:
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:2149:2: warning: Value stored to '__flags_1818' is never read [deadcode.DeadStores]
+ __flags_1818  |= ( 0x01 ) ; // L4:L42
+ ^                ~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:2213:2: warning: Value stored to '__flags_1818' is never read [deadcode.DeadStores]
+ __flags_1818  |= ( 0x01 ) ; // L4:L42
+ ^                ~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:2305:2: warning: Value stored to '__flags_1818' is never read [deadcode.DeadStores]
+ __flags_1818  |= ( 0x01 ) ; // L4:L42
+ ^                ~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:2397:2: warning: Value stored to '__flags_1818' is never read [deadcode.DeadStores]
+ __flags_1818  |= ( 0x01 ) ; // L4:L42
+ ^                ~~~~~~~~
+4 warnings generated.
+Original file has no warnings

@@ -7,8 +7,8 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_3;
 extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_3;
 void __static_initializer_default() {
 __static_renaming("__do_page_fault_0", "do_page_fault");
 __static_renaming("__do_sect_fault_1", "do_sect_fault");

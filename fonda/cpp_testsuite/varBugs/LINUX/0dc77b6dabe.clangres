@@ -1,0 +1,5 @@
+In file included from <built-in>:342:
+<command line>:4:9: error: 'defined' cannot be used as a macro name
+#define defined 1
+        ^
+1 error generated.

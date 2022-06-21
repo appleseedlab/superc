@@ -1,0 +1,6 @@
+APACHE dbafef17dd1.c
+Macros:
+	HAS_APACHE_REGEX_LIB
+[-UHAS_APACHE_REGEX_LIB ]
+Desugared Clang Results:
+Original file has no warnings

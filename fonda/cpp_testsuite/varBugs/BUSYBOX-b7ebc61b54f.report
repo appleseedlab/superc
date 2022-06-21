@@ -1,0 +1,6 @@
+BUSYBOX b7ebc61b54f.c
+Macros:
+	CONFIG_FEATURE_LS_TIMESTAMPS
+[-UCONFIG_FEATURE_LS_TIMESTAMPS ]
+Desugared Clang Results:
+Original file has no warnings

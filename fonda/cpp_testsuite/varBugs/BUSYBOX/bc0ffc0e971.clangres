@@ -1,4 +1,4 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.c:43:29: warning: Use of memory after it is freed [unix.Malloc]
-  for (ch = clist; ch; ch = ch->next) // ERROR
-                            ^~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.c:46:3: warning: Potential leak of memory pointed to by 'clist' [unix.Malloc]
+  return 0;
+  ^~~~~~~~
 1 warning generated.

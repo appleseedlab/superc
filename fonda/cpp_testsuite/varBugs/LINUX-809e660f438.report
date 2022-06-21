@@ -1,0 +1,6 @@
+LINUX 809e660f438.c
+Macros:
+	CONFIG_ARM_LPAE
+[-UCONFIG_ARM_LPAE ]
+Desugared Clang Results:
+Original file has no warnings

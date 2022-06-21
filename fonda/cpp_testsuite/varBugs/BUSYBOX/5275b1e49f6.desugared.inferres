@@ -1,50 +1,50 @@
 
-BUSYBOX/5275b1e49f6.desugared.c:3005: error: Dead Store
-  The value written to &__k_crcs_2043 (type int) is never used.
-  3003. 
-  3004. 
-  3005.  __k_crcs_2043  =  __someInt_2042  ; // L25
+BUSYBOX/5275b1e49f6.desugared.c:1170: error: Dead Store
+  The value written to &__k_crcs_970 (type int) is never used.
+  1168. 
+  1169. 
+  1170.  __k_crcs_970  =  __someInt_969  ; // L25
          ^
-  3006. }
-  3007. }
+  1171. }
+  1172. }
 
-BUSYBOX/5275b1e49f6.desugared.c:2935: error: Dead Store
-  The value written to &__m_has_modinfo_2040 (type int) is never used.
-  2933. {
-  2934. if (__static_condition_default_2048) {
-  2935.  __m_has_modinfo_2040  = 1 ; // L18
+BUSYBOX/5275b1e49f6.desugared.c:1204: error: Dead Store
+  The value written to &__k_crcs_970 (type int) is never used.
+  1202. 
+  1203. 
+  1204.  __k_crcs_970  =  __someInt_969  ; // L25
          ^
-  2936. }
-  2937. }
+  1205. }
+  1206. }
 
-BUSYBOX/5275b1e49f6.desugared.c:2949: error: Dead Store
-  The value written to &__m_has_modinfo_2040 (type int) is never used.
-  2947. {
-  2948. if (__static_condition_default_2050) {
-  2949.  __m_has_modinfo_2040  = 1 ; // L18
+BUSYBOX/5275b1e49f6.desugared.c:1141: error: Dead Store
+  The value written to &__m_has_modinfo_967 (type int) is never used.
+  1139. {
+  1140. if (__static_condition_default_974) {
+  1141.  __m_has_modinfo_967  = 1 ; // L18
          ^
-  2950. }
-  2951. }
+  1142. }
+  1143. }
 
-BUSYBOX/5275b1e49f6.desugared.c:3145: error: Dead Store
-  The value written to &__k_crcs_2043 (type int) is never used.
-  3143. 
-  3144. 
-  3145.  __k_crcs_2043  =  __someInt_2042  ; // L25
+BUSYBOX/5275b1e49f6.desugared.c:1155: error: Dead Store
+  The value written to &__m_has_modinfo_967 (type int) is never used.
+  1153. {
+  1154. if (__static_condition_default_975) {
+  1155.  __m_has_modinfo_967  = 1 ; // L18
          ^
-  3146. }
-  3147. }
+  1156. }
+  1157. }
 
-BUSYBOX/5275b1e49f6.desugared.c:3075: error: Dead Store
-  The value written to &__m_has_modinfo_2040 (type int) is never used.
-  3073. {
-  3074. if (__static_condition_default_2060) {
-  3075.  __m_has_modinfo_2040  = 1 ; // L18
+BUSYBOX/5275b1e49f6.desugared.c:1300: error: Dead Store
+  The value written to &__k_crcs_970 (type int) is never used.
+  1298. 
+  1299. 
+  1300.  __k_crcs_970  =  __someInt_969  ; // L25
          ^
-  3076. }
-  3077. }
+  1301. }
+  1302. }
 
 
-Found 7 issues (console output truncated to 5, see '/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/infer-out/report.txt' for the full list)
+Found 8 issues (console output truncated to 5, see '/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/infer-out/report.txt' for the full list)
   Issue Type(ISSUED_TYPE_ID): #
-      Dead Store(DEAD_STORE): 7
+      Dead Store(DEAD_STORE): 8

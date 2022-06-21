@@ -1,7 +1,7 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/1b487ea8a69.desugared.c:2938:26: warning: Dereference of null pointer (loaded from variable '__scontext_2038') [core.NullDereference]
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/1b487ea8a69.desugared.c:2937:26: warning: Dereference of null pointer (loaded from variable '__scontext_2038') [core.NullDereference]
  __printf_421  (" %lc\n",*  __scontext_2038 ) ; // L14
                          ^~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/1b487ea8a69.desugared.c:2995:26: warning: Dereference of null pointer (loaded from variable '__scontext_2038') [core.NullDereference]
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/1b487ea8a69.desugared.c:2994:26: warning: Dereference of null pointer (loaded from variable '__scontext_2038') [core.NullDereference]
  __printf_421  (" %lc\n",*  __scontext_2038 ) ; // L14
                          ^~~~~~~~~~~~~~~~~~
 2 warnings generated.

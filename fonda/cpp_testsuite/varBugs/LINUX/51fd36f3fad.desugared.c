@@ -7,27 +7,9 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_52;
+extern const bool __static_condition_default_33;
 extern const bool __static_condition_default_43;
-extern const bool __static_condition_default_44;
-extern const bool __static_condition_default_56;
-extern const bool __static_condition_default_36;
-extern const bool __static_condition_default_39;
-extern const bool __static_condition_default_55;
-extern const bool __static_condition_default_60;
-extern const bool __static_condition_default_58;
-extern const bool __static_condition_default_61;
-extern const bool __static_condition_default_57;
-extern const bool __static_condition_default_59;
-extern const bool __static_condition_default_35;
-extern const bool __static_condition_default_45;
-extern const bool __static_condition_default_50;
-extern const bool __static_condition_default_29;
-extern const bool __static_condition_default_54;
-extern const bool __static_condition_default_53;
-extern const bool __static_condition_default_31;
 extern const bool __static_condition_default_42;
-extern const bool __static_condition_default_51;
 void __static_initializer_default() {
 __static_renaming("__int8_t_0", "int8_t");
 __static_renaming("__int16_t_1", "int16_t");
@@ -58,39 +40,21 @@ __static_renaming("__uintptr_t_25", "uintptr_t");
 __static_renaming("__intmax_t_26", "intmax_t");
 __static_renaming("__uintmax_t_27", "uintmax_t");
 __static_renaming("__s32_28", "s32");
-__static_renaming("__s64_30", "s64");
-__static_renaming("__u64_32", "u64");
-__static_renaming("__ktime_set_34", "ktime_set");
-__static_renaming("__tmp_38", "tmp");
-__static_renaming("__sec_40", "sec");
-__static_renaming("__ktime_add_ns_41", "ktime_add_ns");
-__static_renaming("__time_delta_46", "time_delta");
-__static_renaming("__expires_47", "expires");
-__static_renaming("__tick_nohz_stop_sched_tick_48", "tick_nohz_stop_sched_tick");
-__static_renaming("__tick_nohz_stop_sched_tick_49", "tick_nohz_stop_sched_tick");
-__static_renaming("__main_64", "main");
+__static_renaming("__s64_29", "s64");
+__static_renaming("__u64_30", "u64");
+__static_renaming("__ktime_set_32", "ktime_set");
+__static_renaming("__tmp_35", "tmp");
+__static_renaming("__sec_36", "sec");
+__static_renaming("__ktime_add_ns_37", "ktime_add_ns");
+__static_renaming("__time_delta_38", "time_delta");
+__static_renaming("__expires_39", "expires");
+__static_renaming("__tick_nohz_stop_sched_tick_40", "tick_nohz_stop_sched_tick");
+__static_renaming("__tick_nohz_stop_sched_tick_41", "tick_nohz_stop_sched_tick");
+__static_renaming("__main_46", "main");
 
-__static_condition_renaming("__static_condition_default_29", "(defined __int8_t_defined)");
-__static_condition_renaming("__static_condition_default_31", "(defined __int8_t_defined)");
-__static_condition_renaming("__static_condition_default_35", "(defined __int8_t_defined) && !(defined CONFIG_64BIT) && !(defined CONFIG_KTIME_SCALAR)");
-__static_condition_renaming("__static_condition_default_36", "!(defined __int8_t_defined) && !(defined CONFIG_64BIT) && !(defined CONFIG_KTIME_SCALAR)");
-__static_condition_renaming("__static_condition_default_39", "(defined __int8_t_defined) && !(defined CONFIG_64BIT) && !(defined CONFIG_KTIME_SCALAR)");
-__static_condition_renaming("__static_condition_default_42", "(defined __int8_t_defined) && !(defined CONFIG_64BIT) && !(defined CONFIG_KTIME_SCALAR)");
-__static_condition_renaming("__static_condition_default_43", "!(defined __int8_t_defined) && !(defined CONFIG_64BIT) && !(defined CONFIG_KTIME_SCALAR)");
-__static_condition_renaming("__static_condition_default_44", "!(defined __int8_t_defined) && !(defined CONFIG_64BIT) && !(defined CONFIG_KTIME_SCALAR)");
-__static_condition_renaming("__static_condition_default_45", "!(defined __int8_t_defined) && !(defined CONFIG_64BIT) && !(defined CONFIG_KTIME_SCALAR)");
-__static_condition_renaming("__static_condition_default_50", "!(defined CONFIG_64BIT) && (defined CONFIG_KTIME_SCALAR) || (defined CONFIG_64BIT)");
-__static_condition_renaming("__static_condition_default_51", "!(defined __int8_t_defined) && !(defined CONFIG_64BIT) && (defined CONFIG_KTIME_SCALAR) || !(defined __int8_t_defined) && (defined CONFIG_64BIT)");
-__static_condition_renaming("__static_condition_default_52", "!(defined __int8_t_defined) && !(defined CONFIG_64BIT) && (defined CONFIG_KTIME_SCALAR) || !(defined __int8_t_defined) && (defined CONFIG_64BIT)");
-__static_condition_renaming("__static_condition_default_53", "(defined __int8_t_defined) && !(defined CONFIG_64BIT) && (defined CONFIG_KTIME_SCALAR) || (defined __int8_t_defined) && (defined CONFIG_64BIT)");
-__static_condition_renaming("__static_condition_default_54", "!(defined __int8_t_defined) && !(defined CONFIG_64BIT) && (defined CONFIG_KTIME_SCALAR) || !(defined __int8_t_defined) && (defined CONFIG_64BIT)");
-__static_condition_renaming("__static_condition_default_55", "(defined __int8_t_defined) && !(defined CONFIG_64BIT) && (defined CONFIG_KTIME_SCALAR) || (defined __int8_t_defined) && (defined CONFIG_64BIT)");
-__static_condition_renaming("__static_condition_default_56", "!(defined CONFIG_64BIT) && !(defined CONFIG_KTIME_SCALAR)");
-__static_condition_renaming("__static_condition_default_57", "!(defined __int8_t_defined) && !(defined CONFIG_64BIT) && !(defined CONFIG_KTIME_SCALAR)");
-__static_condition_renaming("__static_condition_default_58", "!(defined __int8_t_defined) && !(defined CONFIG_64BIT) && !(defined CONFIG_KTIME_SCALAR)");
-__static_condition_renaming("__static_condition_default_59", "(defined __int8_t_defined) && !(defined CONFIG_64BIT) && !(defined CONFIG_KTIME_SCALAR)");
-__static_condition_renaming("__static_condition_default_60", "!(defined __int8_t_defined) && !(defined CONFIG_64BIT) && !(defined CONFIG_KTIME_SCALAR)");
-__static_condition_renaming("__static_condition_default_61", "(defined __int8_t_defined) && !(defined CONFIG_64BIT) && !(defined CONFIG_KTIME_SCALAR)");
+__static_condition_renaming("__static_condition_default_33", "!(defined CONFIG_64BIT) && !(defined CONFIG_KTIME_SCALAR)");
+__static_condition_renaming("__static_condition_default_42", "!(defined CONFIG_64BIT) && (defined CONFIG_KTIME_SCALAR) || (defined CONFIG_64BIT)");
+__static_condition_renaming("__static_condition_default_43", "!(defined CONFIG_64BIT) && !(defined CONFIG_KTIME_SCALAR)");
 
 };
 typedef signed char  __int8_t_0;// L36
@@ -122,8 +86,8 @@ typedef unsigned long int  __uintptr_t_25;// L122
 typedef long int  __intmax_t_26;// L134
 typedef unsigned long int  __uintmax_t_27;// L135
 typedef __int32_t_2  __s32_28;// L4
-typedef __int64_t_3  __s64_30;// L5
-typedef __uint64_t_7  __u64_32;// L6
+typedef __int64_t_3  __s64_29;// L5
+typedef __uint64_t_7  __u64_30;// L6
 
 // typedef moved to top of scope
 // typedef moved to top of scope
@@ -156,23 +120,97 @@ typedef __uint64_t_7  __u64_32;// L6
 // typedef moved to top of scope
 // typedef moved to top of scope
 // typedef moved to top of scope
-static inline __s64_30  (__ktime_set_34) (const long  __secs_33) {
+static inline __s64_29  (__ktime_set_32) (const long  __secs_31) {
 
-if (__static_condition_default_36) {
+if (__static_condition_default_33) {
 
 {
 {
 
 
 
-return ( __s64_30   )  __secs_33  * 1000000000L ;// L31
+return ( __s64_29   )  __secs_31  * 1000000000L ;// L31
 }
 }
 
 
 }
 }
-__s64_30  (__ktime_add_ns_41) (__u64_32  __nsec_37) {
+__s64_29  (__ktime_add_ns_37) (__u64_30  __nsec_34) {
+
+if (__static_condition_default_33) {
+
+{
+{
+
+
+
+__s64_29  __tmp_35;// L36
+
+if (  __nsec_34  < 1000000000L )// L38
+{
+
+{
+{
+
+
+
+ __tmp_35  =  __nsec_34  ; // L39
+}
+}
+}
+else
+{
+
+{
+{
+
+
+
+unsigned long  __sec_36=  __nsec_34  / 1000000000L;// L41
+
+ __tmp_35  =  __ktime_set_32  (( __s32_28   )  __sec_36 ) ; // L42
+}
+}
+}
+return  __tmp_35  ;// L45
+}
+}
+
+
+}
+}
+static __u64_30  (__tick_nohz_stop_sched_tick_40) () {
+
+if (__static_condition_default_42) {
+
+{
+{
+
+
+
+__u64_30  __time_delta_38= ( __u64_30   ) 7881299347898368000;// L52
+
+__s64_29  __expires_39;// L53
+
+if (  __time_delta_38  < ( ( __s64_29   ) ~ ( ( __u64_30   ) 1 << 63 ) ) )// L55
+{
+ __expires_39  = (  __time_delta_38  ) ; // L25:L56
+}
+else
+{
+if (__static_condition_default_42) {
+ __expires_39  = ( ( __s64_29   ) ~ ( ( __u64_30   ) 1 << 63 ) ) ; // L16:L58
+}
+}
+return  __expires_39  ;// L60
+}
+}
+
+
+}
+}
+static __u64_30  (__tick_nohz_stop_sched_tick_41) () {
 
 if (__static_condition_default_43) {
 
@@ -181,145 +219,39 @@ if (__static_condition_default_43) {
 
 
 
-__s64_30  __tmp_38;// L36
+__u64_30  __time_delta_38= ( __u64_30   ) 7881299347898368000;// L52
 
-if (  __nsec_37  < 1000000000L )// L38
+__s64_29  __expires_39;// L53
+
+if (  __time_delta_38  < ( ( __s64_29   ) ~ ( ( __u64_30   ) 1 << 63 ) ) )// L55
 {
-if (__static_condition_default_44) {
-
-{
-{
-
-
-
- __tmp_38  =  __nsec_37  ; // L39
-}
-}
-}
+ __expires_39  =  __ktime_add_ns_37  ( __time_delta_38 ) ; // L56
 }
 else
 {
-if (__static_condition_default_45) {
+if (__static_condition_default_43) {
+ __expires_39  = ( ( __s64_29   ) ~ ( ( __u64_30   ) 1 << 63 ) ) ; // L16:L58
+}
+}
+return  __expires_39  ;// L60
+}
+}
+
+
+}
+}
+int  (__main_46) (int  __argc_44, char  * (* (__argv_45))) {
 
 {
 {
 
 
 
-unsigned long  __sec_40=  __nsec_37  / 1000000000L;// L41
-
- __tmp_38  =  __ktime_set_34  (( __s32_28   )  __sec_40 ) ; // L42
+if (__static_condition_default_42) {
+ __tick_nohz_stop_sched_tick_40 ( ) ; // L65
 }
-}
-}
-}
-return  __tmp_38  ;// L45
-}
-}
-
-
-}
-}
-static __u64_32  (__tick_nohz_stop_sched_tick_48) () {
-
-if (__static_condition_default_50) {
-
-{
-{
-
-
-
-__u64_32  __time_delta_46= ( __u64_32   ) 7881299347898368000;// L52
-
-__s64_30  __expires_47;// L53
-
-if (__static_condition_default_31) {
-__static_type_error("invalid declaration of expires under this presence condition");
-}
-
-if (__static_condition_default_51) {
-if (  __time_delta_46  < ( ( __s64_30   ) ~ ( ( __u64_32   ) 1 << 63 ) ) )// L55
-{
- __expires_47  = (  __time_delta_46  ) ; // L25:L56
-}
-else
-{
-if (__static_condition_default_52) {
- __expires_47  = ( ( __s64_30   ) ~ ( ( __u64_32   ) 1 << 63 ) ) ; // L16:L58
-}
-}
-}
-if (__static_condition_default_53) {
-__static_type_error("invalid type found in ifelse statement");
-}
-if (__static_condition_default_54) {
-return  __expires_47  ;// L60
-}
-if (__static_condition_default_55) {
-__static_type_error("invalid type found in return expression");
-}
-}
-}
-
-
-}
-}
-static __u64_32  (__tick_nohz_stop_sched_tick_49) () {
-
-if (__static_condition_default_56) {
-
-{
-{
-
-
-
-__u64_32  __time_delta_46= ( __u64_32   ) 7881299347898368000;// L52
-
-__s64_30  __expires_47;// L53
-
-if (__static_condition_default_31) {
-__static_type_error("invalid declaration of expires under this presence condition");
-}
-
-if (__static_condition_default_57) {
-if (  __time_delta_46  < ( ( __s64_30   ) ~ ( ( __u64_32   ) 1 << 63 ) ) )// L55
-{
- __expires_47  =  __ktime_add_ns_41  ( __time_delta_46 ) ; // L56
-}
-else
-{
-if (__static_condition_default_58) {
- __expires_47  = ( ( __s64_30   ) ~ ( ( __u64_32   ) 1 << 63 ) ) ; // L16:L58
-}
-}
-}
-if (__static_condition_default_59) {
-__static_type_error("invalid type found in ifelse statement");
-}
-if (__static_condition_default_60) {
-return  __expires_47  ;// L60
-}
-if (__static_condition_default_61) {
-__static_type_error("invalid type found in return expression");
-}
-}
-}
-
-
-}
-}
-int  (__main_64) (int  __argc_62, char  * (* (__argv_63))) {
-
-{
-{
-
-
-
-if (__static_condition_default_50) {
- __tick_nohz_stop_sched_tick_48 ( ) ; // L65
-}
-if (__static_condition_default_56) {
- __tick_nohz_stop_sched_tick_49 ( ) ; // L65
+if (__static_condition_default_43) {
+ __tick_nohz_stop_sched_tick_41 ( ) ; // L65
 }
 return 0 ;// L66
 }

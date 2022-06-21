@@ -1,4 +1,0 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/bbeb0516cf0.c:6:3: warning: Null pointer passed to 1st parameter expecting 'nonnull' [core.NonNullParamChecker]
-  strcat(r, "something");
-  ^~~~~~~~~~~~~~~~~~~~~~
-1 warning generated.

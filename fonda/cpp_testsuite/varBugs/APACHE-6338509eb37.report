@@ -1,0 +1,6 @@
+APACHE 6338509eb37.c
+Macros:
+	HAVE_FIPS
+[-UHAVE_FIPS ]
+Desugared Clang Results:
+Original file has no warnings

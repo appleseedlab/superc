@@ -1,0 +1,10 @@
+MARLIN 53be0f3399e.c
+Macros:
+	BABYSTEPPING
+	DELTA
+[-UBABYSTEPPING -UDELTA ]
+[-DBABYSTEPPING=1 -UDELTA ]
+[-UBABYSTEPPING -DDELTA=1 ]
+[-DBABYSTEPPING=1 -DDELTA=1 ]
+Desugared Clang Results:
+Original file has no warnings

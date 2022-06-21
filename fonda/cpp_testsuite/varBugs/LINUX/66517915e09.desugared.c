@@ -8,13 +8,13 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_4;
-extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_14;
+extern const bool __static_condition_default_2;
+extern const bool __static_condition_default_8;
 extern const bool __static_condition_default_13;
 extern const bool __static_condition_default_6;
-extern const bool __static_condition_default_8;
-extern const bool __static_condition_default_2;
 extern const bool __static_condition_default_15;
+extern const bool __static_condition_default_16;
 void __static_initializer_default() {
 __static_renaming("__i2c_master_send_0", "i2c_master_send");
 __static_renaming("__codec_hw_write_1", "codec_hw_write");

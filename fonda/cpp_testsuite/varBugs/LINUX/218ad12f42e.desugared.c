@@ -7,10 +7,10 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_8;
-extern const bool __static_condition_default_7;
 extern const bool __static_condition_default_11;
 extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_8;
+extern const bool __static_condition_default_7;
 void __static_initializer_default() {
 __static_renaming("__malloc_1", "malloc");
 __static_renaming("__free_3", "free");

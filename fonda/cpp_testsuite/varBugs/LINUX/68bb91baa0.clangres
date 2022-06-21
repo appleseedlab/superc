@@ -1,7 +1,5 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/68bb91baa0.c:9:5: error: redefinition of 'i2c_dw_init'
-int i2c_dw_init()// ERROR
-    ^
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/68bb91baa0.c:2:5: note: previous definition is here
-int i2c_dw_init()
-    ^
+In file included from <built-in>:342:
+<command line>:3:8: error: 'defined' cannot be used as a macro name
+#undef defined
+       ^
 1 error generated.

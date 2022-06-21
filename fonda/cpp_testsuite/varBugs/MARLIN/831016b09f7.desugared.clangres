@@ -1,4 +1,0 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/831016b09f7.desugared.c:81:7: warning: Value stored to '__time_7' during its initialization is never read [deadcode.DeadStores]
-char  __time_7[30]= "time_here";// L14
-      ^~~~~~~~      ~~~~~~~~~~~
-1 warning generated.

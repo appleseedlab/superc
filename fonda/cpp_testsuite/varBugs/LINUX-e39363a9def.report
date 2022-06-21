@@ -1,0 +1,19 @@
+LINUX e39363a9def.c
+Macros:
+	CONFIG_NETPOLL
+	CONFIG_IPV6
+[-UCONFIG_NETPOLL -UCONFIG_IPV6 ]
+[-DCONFIG_NETPOLL=1 -UCONFIG_IPV6 ]
+40 :: Line:17
+	Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
+[-UCONFIG_NETPOLL -DCONFIG_IPV6=1 ]
+[-DCONFIG_NETPOLL=1 -DCONFIG_IPV6=1 ]
+Desugared Clang Results:
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/e39363a9def.desugared.c:77:1: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
+return  __err_1  ;// L17
+^~~~~~~~~~~~~~~
+1 warning generated.
+Matches:
+	40 has a match!
+Unmatched ids:
+	None!

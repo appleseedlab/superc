@@ -7,87 +7,87 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_246;
-extern const bool __static_condition_default_395;
-extern const bool __static_condition_default_243;
-extern const bool __static_condition_default_252;
-extern const bool __static_condition_default_818;
-extern const bool __static_condition_default_1073;
-extern const bool __static_condition_default_352;
-extern const bool __static_condition_default_417;
-extern const bool __static_condition_default_1082;
-extern const bool __static_condition_default_264;
-extern const bool __static_condition_default_282;
-extern const bool __static_condition_default_594;
-extern const bool __static_condition_default_270;
-extern const bool __static_condition_default_736;
-extern const bool __static_condition_default_420;
-extern const bool __static_condition_default_296;
-extern const bool __static_condition_default_240;
-extern const bool __static_condition_default_1077;
-extern const bool __static_condition_default_379;
-extern const bool __static_condition_default_299;
-extern const bool __static_condition_default_1094;
-extern const bool __static_condition_default_819;
-extern const bool __static_condition_default_60;
-extern const bool __static_condition_default_1074;
-extern const bool __static_condition_default_595;
+extern const bool __static_condition_default_1089;
+extern const bool __static_condition_default_305;
 extern const bool __static_condition_default_627;
 extern const bool __static_condition_default_288;
-extern const bool __static_condition_default_1088;
-extern const bool __static_condition_default_1054;
-extern const bool __static_condition_default_302;
-extern const bool __static_condition_default_1024;
-extern const bool __static_condition_default_237;
-extern const bool __static_condition_default_1092;
-extern const bool __static_condition_default_293;
-extern const bool __static_condition_default_805;
-extern const bool __static_condition_default_1036;
-extern const bool __static_condition_default_308;
-extern const bool __static_condition_default_629;
-extern const bool __static_condition_default_215;
-extern const bool __static_condition_default_378;
-extern const bool __static_condition_default_1025;
-extern const bool __static_condition_default_341;
-extern const bool __static_condition_default_394;
-extern const bool __static_condition_default_432;
-extern const bool __static_condition_default_249;
-extern const bool __static_condition_default_429;
-extern const bool __static_condition_default_1053;
-extern const bool __static_condition_default_1093;
-extern const bool __static_condition_default_426;
-extern const bool __static_condition_default_602;
-extern const bool __static_condition_default_261;
-extern const bool __static_condition_default_305;
-extern const bool __static_condition_default_349;
-extern const bool __static_condition_default_414;
-extern const bool __static_condition_default_267;
-extern const bool __static_condition_default_621;
-extern const bool __static_condition_default_234;
-extern const bool __static_condition_default_273;
-extern const bool __static_condition_default_1083;
-extern const bool __static_condition_default_1048;
-extern const bool __static_condition_default_279;
-extern const bool __static_condition_default_276;
-extern const bool __static_condition_default_1037;
+extern const bool __static_condition_default_246;
 extern const bool __static_condition_default_604;
-extern const bool __static_condition_default_361;
-extern const bool __static_condition_default_255;
-extern const bool __static_condition_default_423;
-extern const bool __static_condition_default_623;
-extern const bool __static_condition_default_285;
-extern const bool __static_condition_default_1087;
+extern const bool __static_condition_default_1090;
+extern const bool __static_condition_default_296;
 extern const bool __static_condition_default_67;
-extern const bool __static_condition_default_1089;
-extern const bool __static_condition_default_1047;
-extern const bool __static_condition_default_258;
-extern const bool __static_condition_default_806;
-extern const bool __static_condition_default_1030;
-extern const bool __static_condition_default_325;
-extern const bool __static_condition_default_579;
-extern const bool __static_condition_default_581;
+extern const bool __static_condition_default_267;
 extern const bool __static_condition_default_804;
+extern const bool __static_condition_default_1094;
+extern const bool __static_condition_default_1048;
+extern const bool __static_condition_default_1078;
+extern const bool __static_condition_default_264;
+extern const bool __static_condition_default_293;
+extern const bool __static_condition_default_1083;
+extern const bool __static_condition_default_1037;
+extern const bool __static_condition_default_308;
+extern const bool __static_condition_default_341;
+extern const bool __static_condition_default_1038;
+extern const bool __static_condition_default_215;
+extern const bool __static_condition_default_276;
+extern const bool __static_condition_default_249;
+extern const bool __static_condition_default_270;
+extern const bool __static_condition_default_378;
+extern const bool __static_condition_default_426;
+extern const bool __static_condition_default_325;
+extern const bool __static_condition_default_395;
+extern const bool __static_condition_default_1088;
+extern const bool __static_condition_default_429;
+extern const bool __static_condition_default_279;
+extern const bool __static_condition_default_1049;
+extern const bool __static_condition_default_594;
+extern const bool __static_condition_default_282;
+extern const bool __static_condition_default_258;
+extern const bool __static_condition_default_273;
+extern const bool __static_condition_default_234;
+extern const bool __static_condition_default_352;
+extern const bool __static_condition_default_417;
+extern const bool __static_condition_default_1075;
+extern const bool __static_condition_default_361;
 extern const bool __static_condition_default_1031;
+extern const bool __static_condition_default_432;
+extern const bool __static_condition_default_252;
+extern const bool __static_condition_default_1025;
+extern const bool __static_condition_default_299;
+extern const bool __static_condition_default_285;
+extern const bool __static_condition_default_819;
+extern const bool __static_condition_default_1032;
+extern const bool __static_condition_default_60;
+extern const bool __static_condition_default_629;
+extern const bool __static_condition_default_1095;
+extern const bool __static_condition_default_1074;
+extern const bool __static_condition_default_243;
+extern const bool __static_condition_default_255;
+extern const bool __static_condition_default_623;
+extern const bool __static_condition_default_1026;
+extern const bool __static_condition_default_1093;
+extern const bool __static_condition_default_240;
+extern const bool __static_condition_default_621;
+extern const bool __static_condition_default_579;
+extern const bool __static_condition_default_423;
+extern const bool __static_condition_default_394;
+extern const bool __static_condition_default_420;
+extern const bool __static_condition_default_1084;
+extern const bool __static_condition_default_302;
+extern const bool __static_condition_default_581;
+extern const bool __static_condition_default_237;
+extern const bool __static_condition_default_261;
+extern const bool __static_condition_default_818;
+extern const bool __static_condition_default_602;
+extern const bool __static_condition_default_805;
+extern const bool __static_condition_default_379;
+extern const bool __static_condition_default_595;
+extern const bool __static_condition_default_806;
+extern const bool __static_condition_default_349;
+extern const bool __static_condition_default_1054;
+extern const bool __static_condition_default_414;
+extern const bool __static_condition_default_736;
+extern const bool __static_condition_default_1055;
 void __static_initializer_default() {
 __static_renaming("__ptrdiff_t_0", "ptrdiff_t");
 __static_renaming("__size_t_1", "size_t");
@@ -504,60 +504,61 @@ __static_renaming("__strdup_897", "strdup");
 __static_renaming("__strndup_901", "strndup");
 __static_renaming("__strndup_902", "strndup");
 __static_renaming("__strchr_905", "strchr");
-__static_renaming("__strrchr_908", "strrchr");
-__static_renaming("__strcspn_911", "strcspn");
+__static_renaming("__strchr_906", "strchr");
+__static_renaming("__strrchr_909", "strrchr");
 __static_renaming("__strcspn_912", "strcspn");
-__static_renaming("__strspn_915", "strspn");
+__static_renaming("__strcspn_913", "strcspn");
 __static_renaming("__strspn_916", "strspn");
-__static_renaming("__strpbrk_919", "strpbrk");
-__static_renaming("__strstr_922", "strstr");
-__static_renaming("__strtok_925", "strtok");
-__static_renaming("____strtok_r_929", "__strtok_r");
-__static_renaming("__strtok_r_933", "strtok_r");
-__static_renaming("__strlen_935", "strlen");
+__static_renaming("__strspn_917", "strspn");
+__static_renaming("__strpbrk_920", "strpbrk");
+__static_renaming("__strstr_923", "strstr");
+__static_renaming("__strtok_926", "strtok");
+__static_renaming("____strtok_r_930", "__strtok_r");
+__static_renaming("__strtok_r_934", "strtok_r");
 __static_renaming("__strlen_936", "strlen");
 __static_renaming("__strlen_937", "strlen");
 __static_renaming("__strlen_938", "strlen");
-__static_renaming("__strnlen_942", "strnlen");
+__static_renaming("__strlen_939", "strlen");
 __static_renaming("__strnlen_943", "strnlen");
-__static_renaming("__strerror_945", "strerror");
+__static_renaming("__strnlen_944", "strnlen");
 __static_renaming("__strerror_946", "strerror");
-__static_renaming("__strerror_r_951", "strerror_r");
+__static_renaming("__strerror_947", "strerror");
 __static_renaming("__strerror_r_952", "strerror_r");
-__static_renaming("__strerror_l_955", "strerror_l");
-__static_renaming("____bzero_959", "__bzero");
+__static_renaming("__strerror_r_953", "strerror_r");
+__static_renaming("__strerror_l_956", "strerror_l");
 __static_renaming("____bzero_960", "__bzero");
 __static_renaming("____bzero_961", "__bzero");
 __static_renaming("____bzero_962", "__bzero");
-__static_renaming("__bcopy_967", "bcopy");
+__static_renaming("____bzero_963", "__bzero");
 __static_renaming("__bcopy_968", "bcopy");
-__static_renaming("__bzero_972", "bzero");
+__static_renaming("__bcopy_969", "bcopy");
 __static_renaming("__bzero_973", "bzero");
-__static_renaming("__bcmp_978", "bcmp");
+__static_renaming("__bzero_974", "bzero");
 __static_renaming("__bcmp_979", "bcmp");
-__static_renaming("__index_982", "index");
-__static_renaming("__rindex_985", "rindex");
-__static_renaming("__ffs_987", "ffs");
-__static_renaming("__strcasecmp_990", "strcasecmp");
-__static_renaming("__strncasecmp_995", "strncasecmp");
+__static_renaming("__bcmp_980", "bcmp");
+__static_renaming("__index_983", "index");
+__static_renaming("__rindex_986", "rindex");
+__static_renaming("__ffs_988", "ffs");
+__static_renaming("__strcasecmp_991", "strcasecmp");
 __static_renaming("__strncasecmp_996", "strncasecmp");
-__static_renaming("__strsep_999", "strsep");
-__static_renaming("__strsignal_1001", "strsignal");
-__static_renaming("____stpcpy_1004", "__stpcpy");
-__static_renaming("__stpcpy_1007", "stpcpy");
-__static_renaming("____stpncpy_1012", "__stpncpy");
+__static_renaming("__strncasecmp_997", "strncasecmp");
+__static_renaming("__strsep_1000", "strsep");
+__static_renaming("__strsignal_1002", "strsignal");
+__static_renaming("____stpcpy_1005", "__stpcpy");
+__static_renaming("__stpcpy_1008", "stpcpy");
 __static_renaming("____stpncpy_1013", "__stpncpy");
-__static_renaming("__stpncpy_1018", "stpncpy");
+__static_renaming("____stpncpy_1014", "__stpncpy");
 __static_renaming("__stpncpy_1019", "stpncpy");
-__static_renaming("____stpncpy_chk_1061", "__stpncpy_chk");
+__static_renaming("__stpncpy_1020", "stpncpy");
 __static_renaming("____stpncpy_chk_1062", "__stpncpy_chk");
-__static_renaming("____stpncpy_alias_1067", "__stpncpy_alias");
+__static_renaming("____stpncpy_chk_1063", "__stpncpy_chk");
 __static_renaming("____stpncpy_alias_1068", "__stpncpy_alias");
-__static_renaming("__buffer_1084", "buffer");
-__static_renaming("__i_1085", "i");
-__static_renaming("__ap_get_win32_interpreter_1086", "ap_get_win32_interpreter");
-__static_renaming("__main_1090", "main");
+__static_renaming("____stpncpy_alias_1069", "__stpncpy_alias");
+__static_renaming("__buffer_1085", "buffer");
+__static_renaming("__i_1086", "i");
+__static_renaming("__ap_get_win32_interpreter_1087", "ap_get_win32_interpreter");
 __static_renaming("__main_1091", "main");
+__static_renaming("__main_1092", "main");
 
 __static_condition_renaming("__static_condition_default_60", "!(defined _STDLIB_H) && !(defined __STRICT_ANSI__) && !(defined __need_malloc_and_calloc) && !(defined _SYS_WAIT_H) && (defined _BITS_TYPESIZES_H)");
 __static_condition_renaming("__static_condition_default_67", "!(defined _STDLIB_H) && !(defined __STRICT_ANSI__) && !(defined __need_malloc_and_calloc) && !(defined _SYS_WAIT_H)");
@@ -619,30 +620,29 @@ __static_condition_renaming("__static_condition_default_805", "!(defined _STDLIB
 __static_condition_renaming("__static_condition_default_806", "(defined _STDLIB_H)");
 __static_condition_renaming("__static_condition_default_818", "!(defined _STDLIB_H) && !(defined __STRICT_ANSI__)");
 __static_condition_renaming("__static_condition_default_819", "(defined _STDLIB_H) && !(defined __STRICT_ANSI__)");
-__static_condition_renaming("__static_condition_default_1024", "!(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1025", "(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1030", "!(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1031", "(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1036", "!(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1037", "(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1047", "(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1048", "!(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1053", "!(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1054", "(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1073", "!(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1074", "(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1077", "(defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1082", "!(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1083", "(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1087", "(defined WIN32X)");
-__static_condition_renaming("__static_condition_default_1088", "!(defined _STDLIB_H) && (defined __STRICT_ANSI__) && !(defined __need_malloc_and_calloc) && (defined WIN32X)");
-__static_condition_renaming("__static_condition_default_1089", "!(defined _STDLIB_H) && !(defined __STRICT_ANSI__) && (defined WIN32X) || !(defined _STDLIB_H) && (defined __STRICT_ANSI__) && (defined __need_malloc_and_calloc) && (defined WIN32X) || (defined _STDLIB_H) && (defined WIN32X)");
-__static_condition_renaming("__static_condition_default_1092", "!(defined WIN32X)");
-__static_condition_renaming("__static_condition_default_1093", "(defined WIN32X)");
-__static_condition_renaming("__static_condition_default_1094", "!(defined _STDLIB_H) && !(defined __STRICT_ANSI__) && !(defined __need_malloc_and_calloc) || !(defined _STDLIB_H) && !(defined __STRICT_ANSI__) && (defined __need_malloc_and_calloc) && (defined __CORRECT_ISO_CPP_STRING_H_PROTO) || !(defined _STDLIB_H) && (defined __STRICT_ANSI__) && (defined __CORRECT_ISO_CPP_STRING_H_PROTO) || (defined _STDLIB_H) && (defined __CORRECT_ISO_CPP_STRING_H_PROTO)");
+__static_condition_renaming("__static_condition_default_1025", "!(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1026", "(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1031", "!(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1032", "(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1037", "!(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1038", "(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1048", "(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1049", "!(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1054", "!(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1055", "(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1074", "!(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1075", "(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1078", "(defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1083", "!(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1084", "(defined _STDLIB_H) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1088", "(defined WIN32X)");
+__static_condition_renaming("__static_condition_default_1089", "!(defined _STDLIB_H) && (defined __STRICT_ANSI__) && !(defined __need_malloc_and_calloc) && (defined WIN32X)");
+__static_condition_renaming("__static_condition_default_1090", "!(defined _STDLIB_H) && !(defined __STRICT_ANSI__) && (defined WIN32X) || !(defined _STDLIB_H) && (defined __STRICT_ANSI__) && (defined __need_malloc_and_calloc) && (defined WIN32X) || (defined _STDLIB_H) && (defined WIN32X)");
+__static_condition_renaming("__static_condition_default_1093", "!(defined WIN32X)");
+__static_condition_renaming("__static_condition_default_1094", "(defined WIN32X)");
+__static_condition_renaming("__static_condition_default_1095", "!(defined _STDLIB_H) && !(defined __STRICT_ANSI__) && !(defined __need_malloc_and_calloc)");
 
-if (__static_condition_default_1094)
-{
+if (__static_condition_default_1095) {
 __static_parse_error("Unable to parse");
 }
 };
@@ -1468,51 +1468,52 @@ extern char  * ((__strdup_897) (const char  * (____s_896)));// L171:L172
 extern char  * ((__strndup_901) (const char  * (____string_898), __size_t_1  ____n_899));// L179:L180
 extern char  * ((__strndup_902) (const char  * (____string_898), __size_t_799  ____n_900));// L179:L180
 extern char  * ((__strchr_905) (const char  * (____s_903), int  ____c_904));// L231:L232
-extern char  * ((__strrchr_908) (const char  * (____s_906), int  ____c_907));// L258:L259
-extern __size_t_1  (__strcspn_911) (const char  * (____s_909), const char  * (____reject_910));// L280:L281
-extern __size_t_799  (__strcspn_912) (const char  * (____s_909), const char  * (____reject_910));// L280:L281
-extern __size_t_1  (__strspn_915) (const char  * (____s_913), const char  * (____accept_914));// L284:L285
-extern __size_t_799  (__strspn_916) (const char  * (____s_913), const char  * (____accept_914));// L284:L285
-extern char  * ((__strpbrk_919) (const char  * (____s_917), const char  * (____accept_918)));// L310:L311
-extern char  * ((__strstr_922) (const char  * (____haystack_920), const char  * (____needle_921)));// L337:L338
-extern char  * ((__strtok_925) (char  * __restrict  ____s_923, const char  * __restrict  ____delim_924));// L343:L344
-extern char  * ((____strtok_r_929) (char  * __restrict  ____s_926, const char  * __restrict  ____delim_927, char  * (* __restrict  ____save_ptr_928)));// L349:L352
-extern char  * ((__strtok_r_933) (char  * __restrict  ____s_930, const char  * __restrict  ____delim_931, char  * (* __restrict  ____save_ptr_932)));// L354:L356
-extern __size_t_1  (__strlen_935) (const char  * (____s_934));// L394:L395
-extern __size_t_799  (__strlen_936) (const char  * (____s_934));// L394:L395
-extern __size_t_1  (__strlen_937) (const char  * (____s_934));// L394:L395
-extern __size_t_799  (__strlen_938) (const char  * (____s_934));// L394:L395
-extern __size_t_1  (__strnlen_942) (const char  * (____string_939), __size_t_1  ____maxlen_940);// L401:L402
-extern __size_t_799  (__strnlen_943) (const char  * (____string_939), __size_t_799  ____maxlen_941);// L401:L402
-extern char  * ((__strerror_945) (int  ____errnum_944));// L408
-extern char  * ((__strerror_946) (int  ____errnum_944));// L408
-extern int  (__strerror_r_951) (int  ____errnum_947, char  * (____buf_948), __size_t_1  ____buflen_949);// L422:L424
-extern int  (__strerror_r_952) (int  ____errnum_947, char  * (____buf_948), __size_t_799  ____buflen_950);// L422:L424
-extern char  * ((__strerror_l_955) (int  ____errnum_953, ____locale_t_883  ____l_954));// L440
-extern void  (____bzero_959) (void  * (____s_956), __size_t_1  ____n_957);// L446
-extern void  (____bzero_960) (void  * (____s_956), __size_t_799  ____n_958);// L446
-extern void  (____bzero_961) (void  * (____s_956), __size_t_1  ____n_957);// L446
-extern void  (____bzero_962) (void  * (____s_956), __size_t_799  ____n_958);// L446
-extern void  (__bcopy_967) (const void  * (____src_963), void  * (____dest_964), __size_t_1  ____n_965);// L450:L451
-extern void  (__bcopy_968) (const void  * (____src_963), void  * (____dest_964), __size_t_799  ____n_966);// L450:L451
-extern void  (__bzero_972) (void  * (____s_969), __size_t_1  ____n_970);// L454
-extern void  (__bzero_973) (void  * (____s_969), __size_t_799  ____n_971);// L454
-extern int  (__bcmp_978) (const void  * (____s1_974), const void  * (____s2_975), __size_t_1  ____n_976);// L457:L458
-extern int  (__bcmp_979) (const void  * (____s1_974), const void  * (____s2_975), __size_t_799  ____n_977);// L457:L458
-extern char  * ((__index_982) (const char  * (____s_980), int  ____c_981));// L484:L485
-extern char  * ((__rindex_985) (const char  * (____s_983), int  ____c_984));// L512:L513
-extern int  (__ffs_987) (int  ____i_986);// L518
-extern int  (__strcasecmp_990) (const char  * (____s1_988), const char  * (____s2_989));// L529:L530
-extern int  (__strncasecmp_995) (const char  * (____s1_991), const char  * (____s2_992), __size_t_1  ____n_993);// L533:L534
-extern int  (__strncasecmp_996) (const char  * (____s1_991), const char  * (____s2_992), __size_t_799  ____n_994);// L533:L534
-extern char  * ((__strsep_999) (char  * (* __restrict  ____stringp_997), const char  * __restrict  ____delim_998));// L552:L554
-extern char  * ((__strsignal_1001) (int  ____sig_1000));// L559
-extern char  * ((____stpcpy_1004) (char  * __restrict  ____dest_1002, const char  * __restrict  ____src_1003));// L562:L563
-extern char  * ((__stpcpy_1007) (char  * __restrict  ____dest_1005, const char  * __restrict  ____src_1006));// L564:L565
-extern char  * ((____stpncpy_1012) (char  * __restrict  ____dest_1008, const char  * __restrict  ____src_1009, __size_t_1  ____n_1010));// L569:L571
-extern char  * ((____stpncpy_1013) (char  * __restrict  ____dest_1008, const char  * __restrict  ____src_1009, __size_t_799  ____n_1011));// L569:L571
-extern char  * ((__stpncpy_1018) (char  * __restrict  ____dest_1014, const char  * __restrict  ____src_1015, __size_t_1  ____n_1016));// L572:L574
-extern char  * ((__stpncpy_1019) (char  * __restrict  ____dest_1014, const char  * __restrict  ____src_1015, __size_t_799  ____n_1017));// L572:L574
+extern char  * ((__strchr_906) (const char  * (____s_903), int  ____c_904));// L231:L232
+extern char  * ((__strrchr_909) (const char  * (____s_907), int  ____c_908));// L258:L259
+extern __size_t_1  (__strcspn_912) (const char  * (____s_910), const char  * (____reject_911));// L280:L281
+extern __size_t_799  (__strcspn_913) (const char  * (____s_910), const char  * (____reject_911));// L280:L281
+extern __size_t_1  (__strspn_916) (const char  * (____s_914), const char  * (____accept_915));// L284:L285
+extern __size_t_799  (__strspn_917) (const char  * (____s_914), const char  * (____accept_915));// L284:L285
+extern char  * ((__strpbrk_920) (const char  * (____s_918), const char  * (____accept_919)));// L310:L311
+extern char  * ((__strstr_923) (const char  * (____haystack_921), const char  * (____needle_922)));// L337:L338
+extern char  * ((__strtok_926) (char  * __restrict  ____s_924, const char  * __restrict  ____delim_925));// L343:L344
+extern char  * ((____strtok_r_930) (char  * __restrict  ____s_927, const char  * __restrict  ____delim_928, char  * (* __restrict  ____save_ptr_929)));// L349:L352
+extern char  * ((__strtok_r_934) (char  * __restrict  ____s_931, const char  * __restrict  ____delim_932, char  * (* __restrict  ____save_ptr_933)));// L354:L356
+extern __size_t_1  (__strlen_936) (const char  * (____s_935));// L394:L395
+extern __size_t_799  (__strlen_937) (const char  * (____s_935));// L394:L395
+extern __size_t_1  (__strlen_938) (const char  * (____s_935));// L394:L395
+extern __size_t_799  (__strlen_939) (const char  * (____s_935));// L394:L395
+extern __size_t_1  (__strnlen_943) (const char  * (____string_940), __size_t_1  ____maxlen_941);// L401:L402
+extern __size_t_799  (__strnlen_944) (const char  * (____string_940), __size_t_799  ____maxlen_942);// L401:L402
+extern char  * ((__strerror_946) (int  ____errnum_945));// L408
+extern char  * ((__strerror_947) (int  ____errnum_945));// L408
+extern int  (__strerror_r_952) (int  ____errnum_948, char  * (____buf_949), __size_t_1  ____buflen_950);// L422:L424
+extern int  (__strerror_r_953) (int  ____errnum_948, char  * (____buf_949), __size_t_799  ____buflen_951);// L422:L424
+extern char  * ((__strerror_l_956) (int  ____errnum_954, ____locale_t_883  ____l_955));// L440
+extern void  (____bzero_960) (void  * (____s_957), __size_t_1  ____n_958);// L446
+extern void  (____bzero_961) (void  * (____s_957), __size_t_799  ____n_959);// L446
+extern void  (____bzero_962) (void  * (____s_957), __size_t_1  ____n_958);// L446
+extern void  (____bzero_963) (void  * (____s_957), __size_t_799  ____n_959);// L446
+extern void  (__bcopy_968) (const void  * (____src_964), void  * (____dest_965), __size_t_1  ____n_966);// L450:L451
+extern void  (__bcopy_969) (const void  * (____src_964), void  * (____dest_965), __size_t_799  ____n_967);// L450:L451
+extern void  (__bzero_973) (void  * (____s_970), __size_t_1  ____n_971);// L454
+extern void  (__bzero_974) (void  * (____s_970), __size_t_799  ____n_972);// L454
+extern int  (__bcmp_979) (const void  * (____s1_975), const void  * (____s2_976), __size_t_1  ____n_977);// L457:L458
+extern int  (__bcmp_980) (const void  * (____s1_975), const void  * (____s2_976), __size_t_799  ____n_978);// L457:L458
+extern char  * ((__index_983) (const char  * (____s_981), int  ____c_982));// L484:L485
+extern char  * ((__rindex_986) (const char  * (____s_984), int  ____c_985));// L512:L513
+extern int  (__ffs_988) (int  ____i_987);// L518
+extern int  (__strcasecmp_991) (const char  * (____s1_989), const char  * (____s2_990));// L529:L530
+extern int  (__strncasecmp_996) (const char  * (____s1_992), const char  * (____s2_993), __size_t_1  ____n_994);// L533:L534
+extern int  (__strncasecmp_997) (const char  * (____s1_992), const char  * (____s2_993), __size_t_799  ____n_995);// L533:L534
+extern char  * ((__strsep_1000) (char  * (* __restrict  ____stringp_998), const char  * __restrict  ____delim_999));// L552:L554
+extern char  * ((__strsignal_1002) (int  ____sig_1001));// L559
+extern char  * ((____stpcpy_1005) (char  * __restrict  ____dest_1003, const char  * __restrict  ____src_1004));// L562:L563
+extern char  * ((__stpcpy_1008) (char  * __restrict  ____dest_1006, const char  * __restrict  ____src_1007));// L564:L565
+extern char  * ((____stpncpy_1013) (char  * __restrict  ____dest_1009, const char  * __restrict  ____src_1010, __size_t_1  ____n_1011));// L569:L571
+extern char  * ((____stpncpy_1014) (char  * __restrict  ____dest_1009, const char  * __restrict  ____src_1010, __size_t_799  ____n_1012));// L569:L571
+extern char  * ((__stpncpy_1019) (char  * __restrict  ____dest_1015, const char  * __restrict  ____src_1016, __size_t_1  ____n_1017));// L572:L574
+extern char  * ((__stpncpy_1020) (char  * __restrict  ____dest_1015, const char  * __restrict  ____src_1016, __size_t_799  ____n_1018));// L572:L574
 /* no function due to type errors in the function prototype */
 /* no function due to type errors in the function prototype */
 /* no function due to type errors in the function prototype */
@@ -1520,27 +1521,27 @@ extern char  * ((__stpncpy_1019) (char  * __restrict  ____dest_1014, const char 
 /* no function due to type errors in the function prototype */
 /* no function due to type errors in the function prototype */
 /* no function due to type errors in the function prototype */
-extern char  * ((____stpncpy_chk_1061) (char  * (____dest_1055), const char  * (____src_1056), __size_t_1  ____n_1057, __size_t_1  ____destlen_1059));// L130:L131
-extern char  * ((____stpncpy_chk_1062) (char  * (____dest_1055), const char  * (____src_1056), __size_t_799  ____n_1058, __size_t_799  ____destlen_1060));// L130:L131
-extern char  * ((____stpncpy_alias_1067) (char  * (____dest_1063), const char  * (____src_1064), __size_t_1  ____n_1065));// L132:L133
-extern char  * ((____stpncpy_alias_1068) (char  * (____dest_1063), const char  * (____src_1064), __size_t_799  ____n_1066));// L132:L133
+extern char  * ((____stpncpy_chk_1062) (char  * (____dest_1056), const char  * (____src_1057), __size_t_1  ____n_1058, __size_t_1  ____destlen_1060));// L130:L131
+extern char  * ((____stpncpy_chk_1063) (char  * (____dest_1056), const char  * (____src_1057), __size_t_799  ____n_1059, __size_t_799  ____destlen_1061));// L130:L131
+extern char  * ((____stpncpy_alias_1068) (char  * (____dest_1064), const char  * (____src_1065), __size_t_1  ____n_1066));// L132:L133
+extern char  * ((____stpncpy_alias_1069) (char  * (____dest_1064), const char  * (____src_1065), __size_t_799  ____n_1067));// L132:L133
 /* no function due to type errors in the function prototype */
 /* no function due to type errors in the function prototype */
 /* no function due to type errors in the function prototype */
-void  (__ap_get_win32_interpreter_1086) () {
-
-if (__static_condition_default_1087) {
-
-{
-{
-
-
-
-char  __buffer_1084[1024];// L7
-
-int  __i_1085;// L9
+void  (__ap_get_win32_interpreter_1087) () {
 
 if (__static_condition_default_1088) {
+
+{
+{
+
+
+
+char  __buffer_1085[1024];// L7
+
+int  __i_1086;// L9
+
+if (__static_condition_default_1089) {
 if ( rand( ) % 2 )// L10
 {
 
@@ -1549,7 +1550,7 @@ if ( rand( ) % 2 )// L10
 
 
 
-for (  __i_1085  = 0 ;  __i_1085  < sizeof((  __buffer_1084  )) ;  __i_1085  ++ )// L11
+for (  __i_1086  = 0 ;  __i_1086  < sizeof((  __buffer_1085  )) ;  __i_1086  ++ )// L11
 {
 
 {
@@ -1560,30 +1561,14 @@ for (  __i_1085  = 0 ;  __i_1085  < sizeof((  __buffer_1084  )) ;  __i_1085  ++ 
 }
 }
 }
- __buffer_1084  [  __i_1085  ] = '\0' ; // L14
+ __buffer_1085  [  __i_1086  ] = '\0' ; // L14
 }
 }
 }
 }
-if (__static_condition_default_1089) {
+if (__static_condition_default_1090) {
 __static_type_error("invalid type found in if statement");
 }
-}
-}
-
-
-}
-}
-int  (__main_1090) (void  ) {
-
-if (__static_condition_default_1092) {
-
-{
-{
-
-
-
-return 0 ;// L24
 }
 }
 
@@ -1599,7 +1584,23 @@ if (__static_condition_default_1093) {
 
 
 
- __ap_get_win32_interpreter_1086 ( ) ; // L22
+return 0 ;// L24
+}
+}
+
+
+}
+}
+int  (__main_1092) (void  ) {
+
+if (__static_condition_default_1094) {
+
+{
+{
+
+
+
+ __ap_get_win32_interpreter_1087 ( ) ; // L22
 return 0 ;// L24
 }
 }

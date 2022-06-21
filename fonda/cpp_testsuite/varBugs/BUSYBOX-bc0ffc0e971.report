@@ -1,0 +1,47 @@
+BUSYBOX bc0ffc0e971.c
+Macros:
+	ENABLE_FEATURE_CLEAN_UP
+[-UENABLE_FEATURE_CLEAN_UP ]
+75 :: Line:46
+	Potential leak of memory pointed to by 'clist' [unix.Malloc]
+Desugared Clang Results:
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2257:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_1823', which is incompatible with sizeof operand type 'struct (anonymous struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2238:1)' [unix.MallocSizeof]
+ __ch_1848  = malloc (sizeof(__sizeofStandin_1852)) ; // L29
+              ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2260:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_1823', which is incompatible with sizeof operand type 'struct (anonymous struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2238:1)' [unix.MallocSizeof]
+ __ch_1848  = malloc (sizeof(__sizeofStandin_1852)) ; // L29
+              ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2262:30: warning: Dereference of undefined pointer value [core.NullDereference]
+ __ch_1848  -> __ifname_1822 =  __ifname_1847  ; // L30
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2262:33: warning: Potential leak of memory pointed to by '__ch_1848' [unix.Malloc]
+ __ch_1848  -> __ifname_1822 =  __ifname_1847  ; // L30
+                                ^~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2297:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_1824', which is incompatible with sizeof operand type 'struct (anonymous struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2279:1)' [unix.MallocSizeof]
+ __ch_1849  = malloc (sizeof(__sizeofStandin_1855)) ; // L29
+              ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2300:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_1824', which is incompatible with sizeof operand type 'struct (anonymous struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2279:1)' [unix.MallocSizeof]
+ __ch_1849  = malloc (sizeof(__sizeofStandin_1855)) ; // L29
+              ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2302:30: warning: Dereference of undefined pointer value [core.NullDereference]
+ __ch_1849  -> __ifname_1822 =  __ifname_1847  ; // L30
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2302:33: warning: Potential leak of memory pointed to by '__ch_1849' [unix.Malloc]
+ __ch_1849  -> __ifname_1822 =  __ifname_1847  ; // L30
+                                ^~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2333:39: warning: Potential leak of memory pointed to by '__ch_1872' [unix.Malloc]
+for (  __ch_1872  =  __clist_1870  ;  __ch_1872  ;  __ch_1872  =  __ch_1872  -> __next_1821 )// L43
+                                      ^~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2338:5: warning: Potential leak of memory pointed to by '__clist_1870' [unix.Malloc]
+if (__static_condition_default_1876) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2339:39: warning: Potential leak of memory pointed to by '__ch_1873' [unix.Malloc]
+for (  __ch_1873  =  __clist_1871  ;  __ch_1873  ;  __ch_1873  =  __ch_1873  -> __next_1821 )// L43
+                                      ^~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2344:5: warning: Potential leak of memory pointed to by '__clist_1871' [unix.Malloc]
+if (__static_condition_default_1877) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+12 warnings generated.
+Matches:
+Unmatched ids:
+	75

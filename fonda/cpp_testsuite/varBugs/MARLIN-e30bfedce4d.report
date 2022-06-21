@@ -1,0 +1,22 @@
+MARLIN e30bfedce4d.c
+Macros:
+	ENABLE_AUTO_BED_LEVELING
+	AUTO_BED_LEVELING_GRID
+[-UENABLE_AUTO_BED_LEVELING -UAUTO_BED_LEVELING_GRID ]
+[-DENABLE_AUTO_BED_LEVELING=1 -UAUTO_BED_LEVELING_GRID ]
+7 :: Line:24
+	Value stored to 'xGridSpacing' during its initialization is never read [deadcode.DeadStores]
+[-UENABLE_AUTO_BED_LEVELING -DAUTO_BED_LEVELING_GRID=1 ]
+[-DENABLE_AUTO_BED_LEVELING=1 -DAUTO_BED_LEVELING_GRID=1 ]
+8 :: Line:24
+	Value stored to 'xGridSpacing' during its initialization is never read [deadcode.DeadStores]
+Desugared Clang Results:
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/e30bfedce4d.desugared.c:48:6: warning: Value stored to '__xGridSpacing_1' during its initialization is never read [deadcode.DeadStores]
+int  __xGridSpacing_1=  __left_probe_bed_position_0 ;// L24
+     ^~~~~~~~~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.
+Matches:
+	7 has a match!
+	8 has a match!
+Unmatched ids:
+	None!

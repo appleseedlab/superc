@@ -1,39 +1,39 @@
 
-BUSYBOX/b273d665181.desugared.c:2937: error: Uninitialized Value
+BUSYBOX/b273d665181.desugared.c:2936: error: Uninitialized Value
   The value read from __info_2036 was never initialized.
-  2935. {
-  2936. if (__static_condition_default_2044) {
-  2937.  __printf_421  ("%d", __info_2036 ) ; // L16
+  2934. {
+  2935. if (__static_condition_default_2044) {
+  2936.  __printf_421  ("%d", __info_2036 ) ; // L16
          ^
-  2938. }
-  2939. if (__static_condition_default_2045) {
+  2937. }
+  2938. if (__static_condition_default_2045) {
 
-BUSYBOX/b273d665181.desugared.c:2948: error: Uninitialized Value
+BUSYBOX/b273d665181.desugared.c:2947: error: Uninitialized Value
   The value read from __info_2036 was never initialized.
-  2946. {
-  2947. if (__static_condition_default_2047) {
-  2948.  __printf_421  ("%d", __info_2036 ) ; // L16
+  2945. {
+  2946. if (__static_condition_default_2047) {
+  2947.  __printf_421  ("%d", __info_2036 ) ; // L16
          ^
-  2949. }
-  2950. if (__static_condition_default_2048) {
+  2948. }
+  2949. if (__static_condition_default_2048) {
 
-BUSYBOX/b273d665181.desugared.c:3008: error: Uninitialized Value
+BUSYBOX/b273d665181.desugared.c:3007: error: Uninitialized Value
   The value read from __info_2036 was never initialized.
-  3006. {
-  3007. if (__static_condition_default_2054) {
-  3008.  __printf_421  ("%d", __info_2036 ) ; // L16
+  3005. {
+  3006. if (__static_condition_default_2054) {
+  3007.  __printf_421  ("%d", __info_2036 ) ; // L16
          ^
-  3009. }
-  3010. if (__static_condition_default_2055) {
+  3008. }
+  3009. if (__static_condition_default_2055) {
 
-BUSYBOX/b273d665181.desugared.c:3019: error: Uninitialized Value
+BUSYBOX/b273d665181.desugared.c:3018: error: Uninitialized Value
   The value read from __info_2036 was never initialized.
-  3017. {
-  3018. if (__static_condition_default_2057) {
-  3019.  __printf_421  ("%d", __info_2036 ) ; // L16
+  3016. {
+  3017. if (__static_condition_default_2057) {
+  3018.  __printf_421  ("%d", __info_2036 ) ; // L16
          ^
-  3020. }
-  3021. if (__static_condition_default_2058) {
+  3019. }
+  3020. if (__static_condition_default_2058) {
 
 
 Found 4 issues

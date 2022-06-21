@@ -1,14 +1,23 @@
 
-BUSYBOX/199501f2a00.desugared.c:3283: error: Dead Store
-  The value written to &__dt_2390 (type char*) is never used.
-  3281. 
-  3282. 
-  3283.  __dt_2390  = "-i" ; // L10
+BUSYBOX/199501f2a00.desugared.c:1543: error: Dead Store
+  The value written to &__dt_1258 (type char*) is never used.
+  1541. 
+  1542. 
+  1543.  __dt_1258  = "-i" ; // L10
          ^
-  3284. }
-  3285. }
+  1544. }
+  1545. }
+
+BUSYBOX/199501f2a00.desugared.c:1557: error: Dead Store
+  The value written to &__dt_1258 (type char*) is never used.
+  1555. 
+  1556. 
+  1557.  __dt_1258  = "-i" ; // L10
+         ^
+  1558. }
+  1559. }
 
 
-Found 1 issue
+Found 2 issues
   Issue Type(ISSUED_TYPE_ID): #
-      Dead Store(DEAD_STORE): 1
+      Dead Store(DEAD_STORE): 2

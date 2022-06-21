@@ -7,44 +7,44 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_259;
-extern const bool __static_condition_default_240;
-extern const bool __static_condition_default_261;
-extern const bool __static_condition_default_190;
-extern const bool __static_condition_default_197;
-extern const bool __static_condition_default_270;
-extern const bool __static_condition_default_241;
-extern const bool __static_condition_default_242;
-extern const bool __static_condition_default_245;
-extern const bool __static_condition_default_260;
-extern const bool __static_condition_default_273;
-extern const bool __static_condition_default_205;
-extern const bool __static_condition_default_206;
-extern const bool __static_condition_default_258;
-extern const bool __static_condition_default_269;
-extern const bool __static_condition_default_223;
-extern const bool __static_condition_default_255;
-extern const bool __static_condition_default_266;
-extern const bool __static_condition_default_267;
-extern const bool __static_condition_default_272;
-extern const bool __static_condition_default_264;
-extern const bool __static_condition_default_226;
-extern const bool __static_condition_default_265;
-extern const bool __static_condition_default_250;
-extern const bool __static_condition_default_254;
-extern const bool __static_condition_default_239;
-extern const bool __static_condition_default_253;
-extern const bool __static_condition_default_238;
-extern const bool __static_condition_default_243;
-extern const bool __static_condition_default_271;
-extern const bool __static_condition_default_19;
 extern const bool __static_condition_default_262;
-extern const bool __static_condition_default_28;
-extern const bool __static_condition_default_244;
-extern const bool __static_condition_default_210;
+extern const bool __static_condition_default_271;
+extern const bool __static_condition_default_259;
 extern const bool __static_condition_default_230;
+extern const bool __static_condition_default_253;
+extern const bool __static_condition_default_261;
+extern const bool __static_condition_default_238;
+extern const bool __static_condition_default_258;
+extern const bool __static_condition_default_260;
 extern const bool __static_condition_default_263;
+extern const bool __static_condition_default_266;
+extern const bool __static_condition_default_240;
+extern const bool __static_condition_default_28;
+extern const bool __static_condition_default_205;
 extern const bool __static_condition_default_246;
+extern const bool __static_condition_default_265;
+extern const bool __static_condition_default_264;
+extern const bool __static_condition_default_254;
+extern const bool __static_condition_default_272;
+extern const bool __static_condition_default_190;
+extern const bool __static_condition_default_239;
+extern const bool __static_condition_default_226;
+extern const bool __static_condition_default_242;
+extern const bool __static_condition_default_244;
+extern const bool __static_condition_default_267;
+extern const bool __static_condition_default_250;
+extern const bool __static_condition_default_19;
+extern const bool __static_condition_default_241;
+extern const bool __static_condition_default_243;
+extern const bool __static_condition_default_270;
+extern const bool __static_condition_default_223;
+extern const bool __static_condition_default_206;
+extern const bool __static_condition_default_210;
+extern const bool __static_condition_default_269;
+extern const bool __static_condition_default_273;
+extern const bool __static_condition_default_197;
+extern const bool __static_condition_default_245;
+extern const bool __static_condition_default_255;
 void __static_initializer_default() {
 __static_renaming("____assert_fail_4", "__assert_fail");
 __static_renaming("____assert_perror_fail_9", "__assert_perror_fail");
@@ -157,8 +157,7 @@ __static_condition_renaming("__static_condition_default_271", "!(defined CONFIG_
 __static_condition_renaming("__static_condition_default_272", "(defined CONFIG_PROC_PAGE_MONITOR)");
 __static_condition_renaming("__static_condition_default_273", "(defined CONFIG_DISCONTIGMEM) && (defined __CORRECT_ISO_CPP_STRING_H_PROTO)");
 
-if (__static_condition_default_273)
-{
+if (__static_condition_default_273) {
 __static_parse_error("Unable to parse");
 }
 };

@@ -1,4 +1,10 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/061fd0a353e.c:21:14: error: use of undeclared label 'expected_hwif_error'
-        goto expected_hwif_error; //ERROR
-             ^
-1 error generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/061fd0a353e.c:16:9: warning: Value stored to 'p' is never read [deadcode.DeadStores]
+        p = *argv++, --argc;
+        ^   ~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/061fd0a353e.c:20:10: warning: Branch condition evaluates to a garbage value [core.uninitialized.Branch]
+      if(!p)
+         ^~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/061fd0a353e.c:27:10: warning: Branch condition evaluates to a garbage value [core.uninitialized.Branch]
+      if(!p)
+         ^~
+3 warnings generated.

@@ -1,0 +1,22 @@
+APACHE 1b48bb3c1af.c
+Macros:
+	APU_HAS_LDAP
+	APR_HAS_SHARED_MEMORY
+[-UAPU_HAS_LDAP -UAPR_HAS_SHARED_MEMORY ]
+[-DAPU_HAS_LDAP=1 -UAPR_HAS_SHARED_MEMORY ]
+[-UAPU_HAS_LDAP -DAPR_HAS_SHARED_MEMORY=1 ]
+[-DAPU_HAS_LDAP=1 -DAPR_HAS_SHARED_MEMORY=1 ]
+103 :: Line:14
+	1st function call argument is an uninitialized value [core.CallAndMessage]
+Desugared Clang Results:
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c:1273:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
+ __apr_rmm_init_1019  ( __rmm_lock_1023 ) ; // L14
+ ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c:1276:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
+ __apr_rmm_init_1020  ( __rmm_lock_1023 ) ; // L14
+ ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.
+Matches:
+	103 has a match!
+Unmatched ids:
+	None!

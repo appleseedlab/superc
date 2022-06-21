@@ -7,308 +7,308 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_801;
-extern const bool __static_condition_default_198;
-extern const bool __static_condition_default_819;
-extern const bool __static_condition_default_868;
-extern const bool __static_condition_default_686;
-extern const bool __static_condition_default_380;
-extern const bool __static_condition_default_315;
-extern const bool __static_condition_default_813;
-extern const bool __static_condition_default_529;
-extern const bool __static_condition_default_1383;
-extern const bool __static_condition_default_1396;
-extern const bool __static_condition_default_290;
-extern const bool __static_condition_default_1072;
-extern const bool __static_condition_default_223;
-extern const bool __static_condition_default_537;
-extern const bool __static_condition_default_761;
-extern const bool __static_condition_default_1391;
-extern const bool __static_condition_default_382;
-extern const bool __static_condition_default_541;
-extern const bool __static_condition_default_872;
-extern const bool __static_condition_default_632;
-extern const bool __static_condition_default_998;
-extern const bool __static_condition_default_123;
-extern const bool __static_condition_default_408;
-extern const bool __static_condition_default_375;
-extern const bool __static_condition_default_650;
-extern const bool __static_condition_default_432;
-extern const bool __static_condition_default_347;
-extern const bool __static_condition_default_288;
-extern const bool __static_condition_default_634;
-extern const bool __static_condition_default_647;
-extern const bool __static_condition_default_751;
-extern const bool __static_condition_default_461;
-extern const bool __static_condition_default_1036;
-extern const bool __static_condition_default_204;
-extern const bool __static_condition_default_1324;
-extern const bool __static_condition_default_759;
-extern const bool __static_condition_default_657;
-extern const bool __static_condition_default_789;
-extern const bool __static_condition_default_275;
-extern const bool __static_condition_default_553;
-extern const bool __static_condition_default_497;
-extern const bool __static_condition_default_248;
-extern const bool __static_condition_default_972;
-extern const bool __static_condition_default_193;
-extern const bool __static_condition_default_651;
-extern const bool __static_condition_default_807;
-extern const bool __static_condition_default_736;
-extern const bool __static_condition_default_757;
-extern const bool __static_condition_default_173;
-extern const bool __static_condition_default_677;
-extern const bool __static_condition_default_1367;
-extern const bool __static_condition_default_788;
-extern const bool __static_condition_default_613;
-extern const bool __static_condition_default_201;
-extern const bool __static_condition_default_755;
-extern const bool __static_condition_default_780;
-extern const bool __static_condition_default_702;
-extern const bool __static_condition_default_767;
-extern const bool __static_condition_default_1397;
-extern const bool __static_condition_default_619;
-extern const bool __static_condition_default_1318;
-extern const bool __static_condition_default_1325;
-extern const bool __static_condition_default_270;
-extern const bool __static_condition_default_787;
-extern const bool __static_condition_default_238;
-extern const bool __static_condition_default_1022;
-extern const bool __static_condition_default_864;
-extern const bool __static_condition_default_1005;
-extern const bool __static_condition_default_779;
-extern const bool __static_condition_default_699;
-extern const bool __static_condition_default_317;
-extern const bool __static_condition_default_793;
-extern const bool __static_condition_default_1385;
-extern const bool __static_condition_default_345;
-extern const bool __static_condition_default_1387;
-extern const bool __static_condition_default_633;
-extern const bool __static_condition_default_709;
-extern const bool __static_condition_default_402;
-extern const bool __static_condition_default_717;
-extern const bool __static_condition_default_659;
-extern const bool __static_condition_default_217;
-extern const bool __static_condition_default_499;
-extern const bool __static_condition_default_583;
-extern const bool __static_condition_default_701;
-extern const bool __static_condition_default_573;
-extern const bool __static_condition_default_1348;
-extern const bool __static_condition_default_475;
-extern const bool __static_condition_default_564;
-extern const bool __static_condition_default_715;
-extern const bool __static_condition_default_1051;
-extern const bool __static_condition_default_670;
-extern const bool __static_condition_default_979;
-extern const bool __static_condition_default_282;
-extern const bool __static_condition_default_875;
-extern const bool __static_condition_default_417;
-extern const bool __static_condition_default_1389;
-extern const bool __static_condition_default_700;
-extern const bool __static_condition_default_991;
-extern const bool __static_condition_default_638;
-extern const bool __static_condition_default_363;
-extern const bool __static_condition_default_955;
-extern const bool __static_condition_default_438;
-extern const bool __static_condition_default_1401;
-extern const bool __static_condition_default_486;
-extern const bool __static_condition_default_544;
-extern const bool __static_condition_default_373;
-extern const bool __static_condition_default_229;
-extern const bool __static_condition_default_263;
-extern const bool __static_condition_default_284;
-extern const bool __static_condition_default_249;
-extern const bool __static_condition_default_296;
-extern const bool __static_condition_default_357;
-extern const bool __static_condition_default_53;
-extern const bool __static_condition_default_668;
-extern const bool __static_condition_default_511;
-extern const bool __static_condition_default_1331;
-extern const bool __static_condition_default_1042;
-extern const bool __static_condition_default_491;
-extern const bool __static_condition_default_649;
 extern const bool __static_condition_default_235;
-extern const bool __static_condition_default_894;
-extern const bool __static_condition_default_625;
-extern const bool __static_condition_default_938;
-extern const bool __static_condition_default_661;
-extern const bool __static_condition_default_735;
-extern const bool __static_condition_default_803;
-extern const bool __static_condition_default_393;
-extern const bool __static_condition_default_515;
-extern const bool __static_condition_default_823;
-extern const bool __static_condition_default_311;
-extern const bool __static_condition_default_846;
-extern const bool __static_condition_default_963;
-extern const bool __static_condition_default_1081;
-extern const bool __static_condition_default_1092;
-extern const bool __static_condition_default_444;
-extern const bool __static_condition_default_708;
-extern const bool __static_condition_default_769;
-extern const bool __static_condition_default_264;
-extern const bool __static_condition_default_395;
-extern const bool __static_condition_default_255;
-extern const bool __static_condition_default_1100;
-extern const bool __static_condition_default_693;
-extern const bool __static_condition_default_1319;
-extern const bool __static_condition_default_538;
-extern const bool __static_condition_default_1098;
-extern const bool __static_condition_default_1394;
-extern const bool __static_condition_default_559;
-extern const bool __static_condition_default_727;
-extern const bool __static_condition_default_258;
-extern const bool __static_condition_default_419;
-extern const bool __static_condition_default_792;
-extern const bool __static_condition_default_331;
-extern const bool __static_condition_default_756;
-extern const bool __static_condition_default_1043;
-extern const bool __static_condition_default_259;
-extern const bool __static_condition_default_883;
-extern const bool __static_condition_default_621;
-extern const bool __static_condition_default_721;
-extern const bool __static_condition_default_1347;
-extern const bool __static_condition_default_333;
-extern const bool __static_condition_default_536;
-extern const bool __static_condition_default_891;
-extern const bool __static_condition_default_1073;
-extern const bool __static_condition_default_469;
-extern const bool __static_condition_default_560;
-extern const bool __static_condition_default_723;
-extern const bool __static_condition_default_267;
-extern const bool __static_condition_default_645;
-extern const bool __static_condition_default_817;
-extern const bool __static_condition_default_978;
-extern const bool __static_condition_default_278;
-extern const bool __static_condition_default_1368;
-extern const bool __static_condition_default_250;
-extern const bool __static_condition_default_797;
-extern const bool __static_condition_default_1099;
-extern const bool __static_condition_default_169;
-extern const bool __static_condition_default_386;
-extern const bool __static_condition_default_550;
-extern const bool __static_condition_default_685;
-extern const bool __static_condition_default_542;
-extern const bool __static_condition_default_637;
-extern const bool __static_condition_default_734;
-extern const bool __static_condition_default_293;
-extern const bool __static_condition_default_455;
-extern const bool __static_condition_default_503;
-extern const bool __static_condition_default_858;
-extern const bool __static_condition_default_549;
-extern const bool __static_condition_default_1015;
-extern const bool __static_condition_default_1388;
-extern const bool __static_condition_default_578;
-extern const bool __static_condition_default_1377;
-extern const bool __static_condition_default_494;
-extern const bool __static_condition_default_747;
-extern const bool __static_condition_default_365;
-extern const bool __static_condition_default_967;
-extern const bool __static_condition_default_1080;
-extern const bool __static_condition_default_1093;
-extern const bool __static_condition_default_473;
-extern const bool __static_condition_default_431;
-extern const bool __static_condition_default_980;
-extern const bool __static_condition_default_488;
-extern const bool __static_condition_default_834;
-extern const bool __static_condition_default_1371;
-extern const bool __static_condition_default_543;
-extern const bool __static_condition_default_1112;
-extern const bool __static_condition_default_257;
-extern const bool __static_condition_default_646;
-extern const bool __static_condition_default_493;
-extern const bool __static_condition_default_791;
-extern const bool __static_condition_default_241;
-extern const bool __static_condition_default_590;
-extern const bool __static_condition_default_887;
-extern const bool __static_condition_default_1007;
-extern const bool __static_condition_default_1113;
-extern const bool __static_condition_default_299;
-extern const bool __static_condition_default_1028;
-extern const bool __static_condition_default_84;
-extern const bool __static_condition_default_280;
-extern const bool __static_condition_default_1384;
-extern const bool __static_condition_default_1342;
-extern const bool __static_condition_default_1392;
-extern const bool __static_condition_default_182;
-extern const bool __static_condition_default_662;
+extern const bool __static_condition_default_380;
 extern const bool __static_condition_default_745;
-extern const bool __static_condition_default_692;
-extern const bool __static_condition_default_521;
-extern const bool __static_condition_default_836;
-extern const bool __static_condition_default_636;
-extern const bool __static_condition_default_929;
-extern const bool __static_condition_default_367;
-extern const bool __static_condition_default_388;
-extern const bool __static_condition_default_907;
-extern const bool __static_condition_default_746;
-extern const bool __static_condition_default_286;
-extern const bool __static_condition_default_1027;
-extern const bool __static_condition_default_369;
-extern const bool __static_condition_default_658;
-extern const bool __static_condition_default_1341;
-extern const bool __static_condition_default_842;
-extern const bool __static_condition_default_914;
-extern const bool __static_condition_default_516;
-extern const bool __static_condition_default_957;
-extern const bool __static_condition_default_271;
-extern const bool __static_condition_default_1009;
-extern const bool __static_condition_default_471;
-extern const bool __static_condition_default_852;
+extern const bool __static_condition_default_1378;
+extern const bool __static_condition_default_317;
+extern const bool __static_condition_default_717;
+extern const bool __static_condition_default_1081;
+extern const bool __static_condition_default_578;
+extern const bool __static_condition_default_543;
+extern const bool __static_condition_default_693;
+extern const bool __static_condition_default_1395;
+extern const bool __static_condition_default_633;
+extern const bool __static_condition_default_823;
 extern const bool __static_condition_default_170;
-extern const bool __static_condition_default_512;
-extern const bool __static_condition_default_1066;
-extern const bool __static_condition_default_862;
-extern const bool __static_condition_default_412;
-extern const bool __static_condition_default_552;
-extern const bool __static_condition_default_1393;
-extern const bool __static_condition_default_187;
-extern const bool __static_condition_default_602;
-extern const bool __static_condition_default_313;
-extern const bool __static_condition_default_781;
-extern const bool __static_condition_default_1330;
-extern const bool __static_condition_default_210;
-extern const bool __static_condition_default_341;
-extern const bool __static_condition_default_539;
-extern const bool __static_condition_default_944;
-extern const bool __static_condition_default_433;
-extern const bool __static_condition_default_1089;
-extern const bool __static_condition_default_510;
-extern const bool __static_condition_default_1065;
-extern const bool __static_condition_default_514;
-extern const bool __static_condition_default_1390;
-extern const bool __static_condition_default_878;
-extern const bool __static_condition_default_684;
-extern const bool __static_condition_default_663;
-extern const bool __static_condition_default_848;
-extern const bool __static_condition_default_274;
-extern const bool __static_condition_default_768;
-extern const bool __static_condition_default_760;
-extern const bool __static_condition_default_1057;
-extern const bool __static_condition_default_809;
-extern const bool __static_condition_default_683;
-extern const bool __static_condition_default_840;
-extern const bool __static_condition_default_752;
-extern const bool __static_condition_default_753;
-extern const bool __static_condition_default_597;
-extern const bool __static_condition_default_623;
-extern const bool __static_condition_default_1386;
-extern const bool __static_condition_default_244;
-extern const bool __static_condition_default_1050;
-extern const bool __static_condition_default_253;
-extern const bool __static_condition_default_489;
-extern const bool __static_condition_default_825;
-extern const bool __static_condition_default_76;
-extern const bool __static_condition_default_608;
-extern const bool __static_condition_default_1035;
-extern const bool __static_condition_default_568;
+extern const bool __static_condition_default_255;
+extern const bool __static_condition_default_864;
+extern const bool __static_condition_default_559;
 extern const bool __static_condition_default_246;
-extern const bool __static_condition_default_337;
-extern const bool __static_condition_default_523;
-extern const bool __static_condition_default_355;
-extern const bool __static_condition_default_1376;
-extern const bool __static_condition_default_585;
-extern const bool __static_condition_default_956;
+extern const bool __static_condition_default_187;
+extern const bool __static_condition_default_270;
+extern const bool __static_condition_default_1372;
+extern const bool __static_condition_default_779;
+extern const bool __static_condition_default_408;
+extern const bool __static_condition_default_963;
+extern const bool __static_condition_default_1402;
+extern const bool __static_condition_default_497;
+extern const bool __static_condition_default_550;
+extern const bool __static_condition_default_597;
+extern const bool __static_condition_default_538;
+extern const bool __static_condition_default_709;
+extern const bool __static_condition_default_840;
+extern const bool __static_condition_default_702;
+extern const bool __static_condition_default_491;
+extern const bool __static_condition_default_621;
+extern const bool __static_condition_default_568;
+extern const bool __static_condition_default_768;
+extern const bool __static_condition_default_872;
+extern const bool __static_condition_default_375;
 extern const bool __static_condition_default_1058;
+extern const bool __static_condition_default_432;
+extern const bool __static_condition_default_1027;
+extern const bool __static_condition_default_395;
+extern const bool __static_condition_default_736;
+extern const bool __static_condition_default_1073;
+extern const bool __static_condition_default_955;
+extern const bool __static_condition_default_1065;
+extern const bool __static_condition_default_887;
+extern const bool __static_condition_default_357;
+extern const bool __static_condition_default_803;
+extern const bool __static_condition_default_1072;
+extern const bool __static_condition_default_293;
+extern const bool __static_condition_default_699;
+extern const bool __static_condition_default_173;
+extern const bool __static_condition_default_244;
+extern const bool __static_condition_default_278;
+extern const bool __static_condition_default_1377;
+extern const bool __static_condition_default_647;
+extern const bool __static_condition_default_929;
+extern const bool __static_condition_default_337;
+extern const bool __static_condition_default_455;
+extern const bool __static_condition_default_412;
+extern const bool __static_condition_default_659;
+extern const bool __static_condition_default_204;
+extern const bool __static_condition_default_788;
+extern const bool __static_condition_default_511;
+extern const bool __static_condition_default_819;
+extern const bool __static_condition_default_751;
+extern const bool __static_condition_default_956;
+extern const bool __static_condition_default_1397;
+extern const bool __static_condition_default_516;
+extern const bool __static_condition_default_825;
+extern const bool __static_condition_default_891;
+extern const bool __static_condition_default_747;
+extern const bool __static_condition_default_241;
+extern const bool __static_condition_default_290;
+extern const bool __static_condition_default_723;
+extern const bool __static_condition_default_299;
+extern const bool __static_condition_default_433;
+extern const bool __static_condition_default_734;
+extern const bool __static_condition_default_658;
+extern const bool __static_condition_default_1392;
+extern const bool __static_condition_default_76;
+extern const bool __static_condition_default_637;
+extern const bool __static_condition_default_1089;
+extern const bool __static_condition_default_560;
+extern const bool __static_condition_default_253;
+extern const bool __static_condition_default_417;
+extern const bool __static_condition_default_878;
+extern const bool __static_condition_default_438;
+extern const bool __static_condition_default_1387;
+extern const bool __static_condition_default_817;
+extern const bool __static_condition_default_296;
+extern const bool __static_condition_default_313;
+extern const bool __static_condition_default_834;
+extern const bool __static_condition_default_701;
+extern const bool __static_condition_default_753;
+extern const bool __static_condition_default_1385;
+extern const bool __static_condition_default_1036;
+extern const bool __static_condition_default_473;
+extern const bool __static_condition_default_991;
+extern const bool __static_condition_default_1325;
+extern const bool __static_condition_default_1066;
+extern const bool __static_condition_default_238;
+extern const bool __static_condition_default_685;
+extern const bool __static_condition_default_1100;
+extern const bool __static_condition_default_662;
+extern const bool __static_condition_default_1388;
+extern const bool __static_condition_default_661;
+extern const bool __static_condition_default_1349;
+extern const bool __static_condition_default_275;
+extern const bool __static_condition_default_657;
+extern const bool __static_condition_default_431;
+extern const bool __static_condition_default_760;
+extern const bool __static_condition_default_182;
+extern const bool __static_condition_default_623;
+extern const bool __static_condition_default_331;
+extern const bool __static_condition_default_746;
+extern const bool __static_condition_default_980;
+extern const bool __static_condition_default_1391;
+extern const bool __static_condition_default_564;
+extern const bool __static_condition_default_677;
+extern const bool __static_condition_default_345;
+extern const bool __static_condition_default_769;
+extern const bool __static_condition_default_755;
+extern const bool __static_condition_default_608;
+extern const bool __static_condition_default_1332;
+extern const bool __static_condition_default_791;
+extern const bool __static_condition_default_852;
+extern const bool __static_condition_default_670;
+extern const bool __static_condition_default_382;
+extern const bool __static_condition_default_471;
+extern const bool __static_condition_default_883;
+extern const bool __static_condition_default_998;
+extern const bool __static_condition_default_684;
+extern const bool __static_condition_default_590;
+extern const bool __static_condition_default_489;
+extern const bool __static_condition_default_1368;
+extern const bool __static_condition_default_613;
+extern const bool __static_condition_default_649;
+extern const bool __static_condition_default_715;
+extern const bool __static_condition_default_369;
+extern const bool __static_condition_default_801;
+extern const bool __static_condition_default_634;
+extern const bool __static_condition_default_787;
+extern const bool __static_condition_default_1022;
+extern const bool __static_condition_default_486;
+extern const bool __static_condition_default_402;
+extern const bool __static_condition_default_625;
+extern const bool __static_condition_default_957;
+extern const bool __static_condition_default_708;
+extern const bool __static_condition_default_388;
+extern const bool __static_condition_default_494;
+extern const bool __static_condition_default_1007;
+extern const bool __static_condition_default_645;
+extern const bool __static_condition_default_756;
+extern const bool __static_condition_default_809;
+extern const bool __static_condition_default_257;
+extern const bool __static_condition_default_1343;
+extern const bool __static_condition_default_373;
+extern const bool __static_condition_default_475;
+extern const bool __static_condition_default_683;
+extern const bool __static_condition_default_267;
+extern const bool __static_condition_default_663;
+extern const bool __static_condition_default_1342;
+extern const bool __static_condition_default_201;
+extern const bool __static_condition_default_515;
+extern const bool __static_condition_default_365;
+extern const bool __static_condition_default_274;
+extern const bool __static_condition_default_521;
+extern const bool __static_condition_default_1043;
+extern const bool __static_condition_default_807;
+extern const bool __static_condition_default_797;
+extern const bool __static_condition_default_280;
+extern const bool __static_condition_default_686;
+extern const bool __static_condition_default_793;
+extern const bool __static_condition_default_781;
+extern const bool __static_condition_default_1348;
+extern const bool __static_condition_default_529;
+extern const bool __static_condition_default_1389;
+extern const bool __static_condition_default_523;
+extern const bool __static_condition_default_1331;
+extern const bool __static_condition_default_536;
+extern const bool __static_condition_default_842;
+extern const bool __static_condition_default_341;
+extern const bool __static_condition_default_271;
+extern const bool __static_condition_default_780;
+extern const bool __static_condition_default_347;
+extern const bool __static_condition_default_488;
+extern const bool __static_condition_default_493;
+extern const bool __static_condition_default_510;
+extern const bool __static_condition_default_541;
+extern const bool __static_condition_default_761;
+extern const bool __static_condition_default_967;
+extern const bool __static_condition_default_193;
+extern const bool __static_condition_default_499;
+extern const bool __static_condition_default_1092;
+extern const bool __static_condition_default_1369;
+extern const bool __static_condition_default_1050;
+extern const bool __static_condition_default_1051;
+extern const bool __static_condition_default_638;
+extern const bool __static_condition_default_651;
+extern const bool __static_condition_default_894;
+extern const bool __static_condition_default_759;
+extern const bool __static_condition_default_848;
+extern const bool __static_condition_default_53;
+extern const bool __static_condition_default_1112;
+extern const bool __static_condition_default_1080;
+extern const bool __static_condition_default_461;
+extern const bool __static_condition_default_1386;
+extern const bool __static_condition_default_650;
+extern const bool __static_condition_default_1098;
+extern const bool __static_condition_default_539;
+extern const bool __static_condition_default_757;
+extern const bool __static_condition_default_868;
+extern const bool __static_condition_default_858;
+extern const bool __static_condition_default_249;
+extern const bool __static_condition_default_1384;
+extern const bool __static_condition_default_1394;
+extern const bool __static_condition_default_542;
+extern const bool __static_condition_default_286;
+extern const bool __static_condition_default_813;
+extern const bool __static_condition_default_978;
+extern const bool __static_condition_default_264;
+extern const bool __static_condition_default_549;
+extern const bool __static_condition_default_84;
+extern const bool __static_condition_default_315;
+extern const bool __static_condition_default_210;
+extern const bool __static_condition_default_355;
+extern const bool __static_condition_default_503;
+extern const bool __static_condition_default_700;
+extern const bool __static_condition_default_944;
+extern const bool __static_condition_default_836;
+extern const bool __static_condition_default_1393;
+extern const bool __static_condition_default_1042;
+extern const bool __static_condition_default_123;
+extern const bool __static_condition_default_552;
+extern const bool __static_condition_default_311;
+extern const bool __static_condition_default_1009;
+extern const bool __static_condition_default_386;
+extern const bool __static_condition_default_512;
+extern const bool __static_condition_default_363;
+extern const bool __static_condition_default_692;
+extern const bool __static_condition_default_469;
+extern const bool __static_condition_default_333;
+extern const bool __static_condition_default_537;
+extern const bool __static_condition_default_544;
+extern const bool __static_condition_default_198;
+extern const bool __static_condition_default_583;
+extern const bool __static_condition_default_636;
+extern const bool __static_condition_default_907;
+extern const bool __static_condition_default_288;
+extern const bool __static_condition_default_573;
+extern const bool __static_condition_default_668;
+extern const bool __static_condition_default_263;
+extern const bool __static_condition_default_875;
+extern const bool __static_condition_default_646;
+extern const bool __static_condition_default_619;
+extern const bool __static_condition_default_792;
+extern const bool __static_condition_default_1113;
+extern const bool __static_condition_default_862;
+extern const bool __static_condition_default_1319;
+extern const bool __static_condition_default_1057;
+extern const bool __static_condition_default_217;
+extern const bool __static_condition_default_250;
+extern const bool __static_condition_default_229;
+extern const bool __static_condition_default_721;
+extern const bool __static_condition_default_602;
+extern const bool __static_condition_default_938;
+extern const bool __static_condition_default_282;
+extern const bool __static_condition_default_632;
+extern const bool __static_condition_default_972;
+extern const bool __static_condition_default_1326;
+extern const bool __static_condition_default_393;
+extern const bool __static_condition_default_789;
+extern const bool __static_condition_default_514;
+extern const bool __static_condition_default_1005;
+extern const bool __static_condition_default_248;
+extern const bool __static_condition_default_367;
+extern const bool __static_condition_default_259;
+extern const bool __static_condition_default_258;
+extern const bool __static_condition_default_444;
+extern const bool __static_condition_default_1015;
+extern const bool __static_condition_default_169;
+extern const bool __static_condition_default_914;
+extern const bool __static_condition_default_752;
+extern const bool __static_condition_default_1320;
+extern const bool __static_condition_default_979;
+extern const bool __static_condition_default_284;
+extern const bool __static_condition_default_419;
+extern const bool __static_condition_default_1390;
+extern const bool __static_condition_default_1035;
+extern const bool __static_condition_default_727;
+extern const bool __static_condition_default_1028;
+extern const bool __static_condition_default_1099;
+extern const bool __static_condition_default_1093;
+extern const bool __static_condition_default_846;
+extern const bool __static_condition_default_585;
+extern const bool __static_condition_default_553;
+extern const bool __static_condition_default_767;
+extern const bool __static_condition_default_1398;
+extern const bool __static_condition_default_223;
+extern const bool __static_condition_default_735;
 void __static_initializer_default() {
 __static_renaming("__ptrdiff_t_0", "ptrdiff_t");
 __static_renaming("__size_t_1", "size_t");
@@ -609,61 +609,62 @@ __static_renaming("__strdup_1191", "strdup");
 __static_renaming("__strndup_1195", "strndup");
 __static_renaming("__strndup_1196", "strndup");
 __static_renaming("__strchr_1199", "strchr");
-__static_renaming("__strrchr_1202", "strrchr");
-__static_renaming("__strcspn_1205", "strcspn");
+__static_renaming("__strchr_1200", "strchr");
+__static_renaming("__strrchr_1203", "strrchr");
 __static_renaming("__strcspn_1206", "strcspn");
-__static_renaming("__strspn_1209", "strspn");
+__static_renaming("__strcspn_1207", "strcspn");
 __static_renaming("__strspn_1210", "strspn");
-__static_renaming("__strpbrk_1213", "strpbrk");
-__static_renaming("__strstr_1216", "strstr");
-__static_renaming("__strtok_1219", "strtok");
-__static_renaming("____strtok_r_1223", "__strtok_r");
-__static_renaming("__strtok_r_1227", "strtok_r");
-__static_renaming("__strlen_1229", "strlen");
+__static_renaming("__strspn_1211", "strspn");
+__static_renaming("__strpbrk_1214", "strpbrk");
+__static_renaming("__strstr_1217", "strstr");
+__static_renaming("__strtok_1220", "strtok");
+__static_renaming("____strtok_r_1224", "__strtok_r");
+__static_renaming("__strtok_r_1228", "strtok_r");
 __static_renaming("__strlen_1230", "strlen");
 __static_renaming("__strlen_1231", "strlen");
 __static_renaming("__strlen_1232", "strlen");
-__static_renaming("__strnlen_1236", "strnlen");
+__static_renaming("__strlen_1233", "strlen");
 __static_renaming("__strnlen_1237", "strnlen");
-__static_renaming("__strerror_1239", "strerror");
+__static_renaming("__strnlen_1238", "strnlen");
 __static_renaming("__strerror_1240", "strerror");
-__static_renaming("__strerror_r_1245", "strerror_r");
+__static_renaming("__strerror_1241", "strerror");
 __static_renaming("__strerror_r_1246", "strerror_r");
-__static_renaming("__strerror_l_1249", "strerror_l");
-__static_renaming("____bzero_1253", "__bzero");
+__static_renaming("__strerror_r_1247", "strerror_r");
+__static_renaming("__strerror_l_1250", "strerror_l");
 __static_renaming("____bzero_1254", "__bzero");
 __static_renaming("____bzero_1255", "__bzero");
 __static_renaming("____bzero_1256", "__bzero");
-__static_renaming("__bcopy_1261", "bcopy");
+__static_renaming("____bzero_1257", "__bzero");
 __static_renaming("__bcopy_1262", "bcopy");
-__static_renaming("__bzero_1266", "bzero");
+__static_renaming("__bcopy_1263", "bcopy");
 __static_renaming("__bzero_1267", "bzero");
-__static_renaming("__bcmp_1272", "bcmp");
+__static_renaming("__bzero_1268", "bzero");
 __static_renaming("__bcmp_1273", "bcmp");
-__static_renaming("__index_1276", "index");
-__static_renaming("__rindex_1279", "rindex");
-__static_renaming("__ffs_1281", "ffs");
-__static_renaming("__strcasecmp_1284", "strcasecmp");
-__static_renaming("__strncasecmp_1289", "strncasecmp");
+__static_renaming("__bcmp_1274", "bcmp");
+__static_renaming("__index_1277", "index");
+__static_renaming("__rindex_1280", "rindex");
+__static_renaming("__ffs_1282", "ffs");
+__static_renaming("__strcasecmp_1285", "strcasecmp");
 __static_renaming("__strncasecmp_1290", "strncasecmp");
-__static_renaming("__strsep_1293", "strsep");
-__static_renaming("__strsignal_1295", "strsignal");
-__static_renaming("____stpcpy_1298", "__stpcpy");
-__static_renaming("__stpcpy_1301", "stpcpy");
-__static_renaming("____stpncpy_1306", "__stpncpy");
+__static_renaming("__strncasecmp_1291", "strncasecmp");
+__static_renaming("__strsep_1294", "strsep");
+__static_renaming("__strsignal_1296", "strsignal");
+__static_renaming("____stpcpy_1299", "__stpcpy");
+__static_renaming("__stpcpy_1302", "stpcpy");
 __static_renaming("____stpncpy_1307", "__stpncpy");
-__static_renaming("__stpncpy_1312", "stpncpy");
+__static_renaming("____stpncpy_1308", "__stpncpy");
 __static_renaming("__stpncpy_1313", "stpncpy");
-__static_renaming("____stpncpy_chk_1355", "__stpncpy_chk");
+__static_renaming("__stpncpy_1314", "stpncpy");
 __static_renaming("____stpncpy_chk_1356", "__stpncpy_chk");
-__static_renaming("____stpncpy_alias_1361", "__stpncpy_alias");
+__static_renaming("____stpncpy_chk_1357", "__stpncpy_chk");
 __static_renaming("____stpncpy_alias_1362", "__stpncpy_alias");
-__static_renaming("__line_1379", "line");
-__static_renaming("__remotefd_1380", "remotefd");
-__static_renaming("__logMessage_1381", "logMessage");
+__static_renaming("____stpncpy_alias_1363", "__stpncpy_alias");
+__static_renaming("__line_1380", "line");
+__static_renaming("__remotefd_1381", "remotefd");
 __static_renaming("__logMessage_1382", "logMessage");
-__static_renaming("__doSyslogd_1395", "doSyslogd");
-__static_renaming("__main_1400", "main");
+__static_renaming("__logMessage_1383", "logMessage");
+__static_renaming("__doSyslogd_1396", "doSyslogd");
+__static_renaming("__main_1401", "main");
 
 __static_condition_renaming("__static_condition_default_53", "!(defined __need___FILE) && (defined _BITS_TYPESIZES_H)");
 __static_condition_renaming("__static_condition_default_76", "!(defined __need___FILE) && !(defined _BITS_TYPESIZES_H) && (defined ____mbstate_t_defined) || !(defined __need___FILE) && (defined _BITS_TYPESIZES_H)");
@@ -937,39 +938,38 @@ __static_condition_renaming("__static_condition_default_1099", "!(defined __need
 __static_condition_renaming("__static_condition_default_1100", "(defined __need___FILE)");
 __static_condition_renaming("__static_condition_default_1112", "!(defined __need___FILE) && !(defined __STRICT_ANSI__)");
 __static_condition_renaming("__static_condition_default_1113", "(defined __need___FILE) && !(defined __STRICT_ANSI__)");
-__static_condition_renaming("__static_condition_default_1318", "!(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1319", "(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1324", "!(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1325", "(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1330", "!(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1331", "(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1341", "(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1342", "!(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1347", "!(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1348", "(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1367", "!(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1368", "(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1371", "(defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1376", "!(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1377", "(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1383", "!(defined _FORTIFY_SOURCE) && !(defined CONFIG_FEATURE_REMOTE_LOG) || (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && !(defined CONFIG_FEATURE_REMOTE_LOG) || (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && !(defined CONFIG_FEATURE_REMOTE_LOG) || (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && !(defined CONFIG_FEATURE_REMOTE_LOG)");
-__static_condition_renaming("__static_condition_default_1384", "!(defined _FORTIFY_SOURCE) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
-__static_condition_renaming("__static_condition_default_1385", "!(defined __need___FILE) && (defined __STRICT_ANSI__) && !(defined _FORTIFY_SOURCE) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && (defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && (defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && (defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
-__static_condition_renaming("__static_condition_default_1386", "(defined __need___FILE) && (defined __STRICT_ANSI__) && !(defined _FORTIFY_SOURCE) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && (defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && (defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && (defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
-__static_condition_renaming("__static_condition_default_1387", "!(defined __need___FILE) && !(defined __STRICT_ANSI__) && !(defined _FORTIFY_SOURCE) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
-__static_condition_renaming("__static_condition_default_1388", "(defined __need___FILE) && !(defined __STRICT_ANSI__) && !(defined _FORTIFY_SOURCE) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
-__static_condition_renaming("__static_condition_default_1389", "!(defined __need___FILE) && !(defined _FORTIFY_SOURCE) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
-__static_condition_renaming("__static_condition_default_1390", "(defined __need___FILE) && !(defined _FORTIFY_SOURCE) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
-__static_condition_renaming("__static_condition_default_1391", "(defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0) && !(defined CONFIG_FEATURE_REMOTE_LOG)");
-__static_condition_renaming("__static_condition_default_1392", "(defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
-__static_condition_renaming("__static_condition_default_1393", "!(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
-__static_condition_renaming("__static_condition_default_1394", "(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
-__static_condition_renaming("__static_condition_default_1396", "!(defined _FORTIFY_SOURCE) || (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) || (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) || (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1397", "(defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
-__static_condition_renaming("__static_condition_default_1401", "!(defined __need___FILE) && !(defined _BITS_TYPESIZES_H) && !(defined _ANSI_STDARG_H_) && (defined __CORRECT_ISO_CPP_STRING_H_PROTO) || !(defined __need___FILE) && !(defined _BITS_TYPESIZES_H) && (defined _ANSI_STDARG_H_) && !(defined __GNUC_VA_LIST) || !(defined __need___FILE) && !(defined _BITS_TYPESIZES_H) && (defined _ANSI_STDARG_H_) && (defined __GNUC_VA_LIST) && (defined __CORRECT_ISO_CPP_STRING_H_PROTO) || !(defined __need___FILE) && (defined _BITS_TYPESIZES_H) || (defined __need___FILE) && (defined __CORRECT_ISO_CPP_STRING_H_PROTO)");
+__static_condition_renaming("__static_condition_default_1319", "!(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1320", "(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1325", "!(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1326", "(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1331", "!(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1332", "(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1342", "(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1343", "!(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1348", "!(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1349", "(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1368", "!(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1369", "(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1372", "(defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1377", "!(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1378", "(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1384", "!(defined _FORTIFY_SOURCE) && !(defined CONFIG_FEATURE_REMOTE_LOG) || (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && !(defined CONFIG_FEATURE_REMOTE_LOG) || (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && !(defined CONFIG_FEATURE_REMOTE_LOG) || (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && !(defined CONFIG_FEATURE_REMOTE_LOG)");
+__static_condition_renaming("__static_condition_default_1385", "!(defined _FORTIFY_SOURCE) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
+__static_condition_renaming("__static_condition_default_1386", "!(defined __need___FILE) && (defined __STRICT_ANSI__) && !(defined _FORTIFY_SOURCE) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && (defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && (defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && (defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
+__static_condition_renaming("__static_condition_default_1387", "(defined __need___FILE) && (defined __STRICT_ANSI__) && !(defined _FORTIFY_SOURCE) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && (defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && (defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && (defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
+__static_condition_renaming("__static_condition_default_1388", "!(defined __need___FILE) && !(defined __STRICT_ANSI__) && !(defined _FORTIFY_SOURCE) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
+__static_condition_renaming("__static_condition_default_1389", "(defined __need___FILE) && !(defined __STRICT_ANSI__) && !(defined _FORTIFY_SOURCE) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
+__static_condition_renaming("__static_condition_default_1390", "!(defined __need___FILE) && !(defined _FORTIFY_SOURCE) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && (defined CONFIG_FEATURE_REMOTE_LOG) || !(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
+__static_condition_renaming("__static_condition_default_1391", "(defined __need___FILE) && !(defined _FORTIFY_SOURCE) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && (defined CONFIG_FEATURE_REMOTE_LOG) || (defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
+__static_condition_renaming("__static_condition_default_1392", "(defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0) && !(defined CONFIG_FEATURE_REMOTE_LOG)");
+__static_condition_renaming("__static_condition_default_1393", "(defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
+__static_condition_renaming("__static_condition_default_1394", "!(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
+__static_condition_renaming("__static_condition_default_1395", "(defined __need___FILE) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0) && (defined CONFIG_FEATURE_REMOTE_LOG)");
+__static_condition_renaming("__static_condition_default_1397", "!(defined _FORTIFY_SOURCE) || (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) || (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) || (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1398", "(defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0)");
+__static_condition_renaming("__static_condition_default_1402", "!(defined __need___FILE) && !(defined _BITS_TYPESIZES_H) && (defined _ANSI_STDARG_H_) && !(defined __GNUC_VA_LIST) || !(defined __need___FILE) && (defined _BITS_TYPESIZES_H)");
 
-if (__static_condition_default_1401)
-{
+if (__static_condition_default_1402) {
 __static_parse_error("Unable to parse");
 }
 };
@@ -1527,51 +1527,52 @@ extern char  * ((__strdup_1191) (const char  * (____s_1190)));// L171:L172
 extern char  * ((__strndup_1195) (const char  * (____string_1192), __size_t_1  ____n_1193));// L179:L180
 extern char  * ((__strndup_1196) (const char  * (____string_1192), __size_t_1091  ____n_1194));// L179:L180
 extern char  * ((__strchr_1199) (const char  * (____s_1197), int  ____c_1198));// L231:L232
-extern char  * ((__strrchr_1202) (const char  * (____s_1200), int  ____c_1201));// L258:L259
-extern __size_t_1  (__strcspn_1205) (const char  * (____s_1203), const char  * (____reject_1204));// L280:L281
-extern __size_t_1091  (__strcspn_1206) (const char  * (____s_1203), const char  * (____reject_1204));// L280:L281
-extern __size_t_1  (__strspn_1209) (const char  * (____s_1207), const char  * (____accept_1208));// L284:L285
-extern __size_t_1091  (__strspn_1210) (const char  * (____s_1207), const char  * (____accept_1208));// L284:L285
-extern char  * ((__strpbrk_1213) (const char  * (____s_1211), const char  * (____accept_1212)));// L310:L311
-extern char  * ((__strstr_1216) (const char  * (____haystack_1214), const char  * (____needle_1215)));// L337:L338
-extern char  * ((__strtok_1219) (char  * __restrict  ____s_1217, const char  * __restrict  ____delim_1218));// L343:L344
-extern char  * ((____strtok_r_1223) (char  * __restrict  ____s_1220, const char  * __restrict  ____delim_1221, char  * (* __restrict  ____save_ptr_1222)));// L349:L352
-extern char  * ((__strtok_r_1227) (char  * __restrict  ____s_1224, const char  * __restrict  ____delim_1225, char  * (* __restrict  ____save_ptr_1226)));// L354:L356
-extern __size_t_1  (__strlen_1229) (const char  * (____s_1228));// L394:L395
-extern __size_t_1091  (__strlen_1230) (const char  * (____s_1228));// L394:L395
-extern __size_t_1  (__strlen_1231) (const char  * (____s_1228));// L394:L395
-extern __size_t_1091  (__strlen_1232) (const char  * (____s_1228));// L394:L395
-extern __size_t_1  (__strnlen_1236) (const char  * (____string_1233), __size_t_1  ____maxlen_1234);// L401:L402
-extern __size_t_1091  (__strnlen_1237) (const char  * (____string_1233), __size_t_1091  ____maxlen_1235);// L401:L402
-extern char  * ((__strerror_1239) (int  ____errnum_1238));// L408
-extern char  * ((__strerror_1240) (int  ____errnum_1238));// L408
-extern int  (__strerror_r_1245) (int  ____errnum_1241, char  * (____buf_1242), __size_t_1  ____buflen_1243);// L422:L424
-extern int  (__strerror_r_1246) (int  ____errnum_1241, char  * (____buf_1242), __size_t_1091  ____buflen_1244);// L422:L424
-extern char  * ((__strerror_l_1249) (int  ____errnum_1247, ____locale_t_1177  ____l_1248));// L440
-extern void  (____bzero_1253) (void  * (____s_1250), __size_t_1  ____n_1251);// L446
-extern void  (____bzero_1254) (void  * (____s_1250), __size_t_1091  ____n_1252);// L446
-extern void  (____bzero_1255) (void  * (____s_1250), __size_t_1  ____n_1251);// L446
-extern void  (____bzero_1256) (void  * (____s_1250), __size_t_1091  ____n_1252);// L446
-extern void  (__bcopy_1261) (const void  * (____src_1257), void  * (____dest_1258), __size_t_1  ____n_1259);// L450:L451
-extern void  (__bcopy_1262) (const void  * (____src_1257), void  * (____dest_1258), __size_t_1091  ____n_1260);// L450:L451
-extern void  (__bzero_1266) (void  * (____s_1263), __size_t_1  ____n_1264);// L454
-extern void  (__bzero_1267) (void  * (____s_1263), __size_t_1091  ____n_1265);// L454
-extern int  (__bcmp_1272) (const void  * (____s1_1268), const void  * (____s2_1269), __size_t_1  ____n_1270);// L457:L458
-extern int  (__bcmp_1273) (const void  * (____s1_1268), const void  * (____s2_1269), __size_t_1091  ____n_1271);// L457:L458
-extern char  * ((__index_1276) (const char  * (____s_1274), int  ____c_1275));// L484:L485
-extern char  * ((__rindex_1279) (const char  * (____s_1277), int  ____c_1278));// L512:L513
-extern int  (__ffs_1281) (int  ____i_1280);// L518
-extern int  (__strcasecmp_1284) (const char  * (____s1_1282), const char  * (____s2_1283));// L529:L530
-extern int  (__strncasecmp_1289) (const char  * (____s1_1285), const char  * (____s2_1286), __size_t_1  ____n_1287);// L533:L534
-extern int  (__strncasecmp_1290) (const char  * (____s1_1285), const char  * (____s2_1286), __size_t_1091  ____n_1288);// L533:L534
-extern char  * ((__strsep_1293) (char  * (* __restrict  ____stringp_1291), const char  * __restrict  ____delim_1292));// L552:L554
-extern char  * ((__strsignal_1295) (int  ____sig_1294));// L559
-extern char  * ((____stpcpy_1298) (char  * __restrict  ____dest_1296, const char  * __restrict  ____src_1297));// L562:L563
-extern char  * ((__stpcpy_1301) (char  * __restrict  ____dest_1299, const char  * __restrict  ____src_1300));// L564:L565
-extern char  * ((____stpncpy_1306) (char  * __restrict  ____dest_1302, const char  * __restrict  ____src_1303, __size_t_1  ____n_1304));// L569:L571
-extern char  * ((____stpncpy_1307) (char  * __restrict  ____dest_1302, const char  * __restrict  ____src_1303, __size_t_1091  ____n_1305));// L569:L571
-extern char  * ((__stpncpy_1312) (char  * __restrict  ____dest_1308, const char  * __restrict  ____src_1309, __size_t_1  ____n_1310));// L572:L574
-extern char  * ((__stpncpy_1313) (char  * __restrict  ____dest_1308, const char  * __restrict  ____src_1309, __size_t_1091  ____n_1311));// L572:L574
+extern char  * ((__strchr_1200) (const char  * (____s_1197), int  ____c_1198));// L231:L232
+extern char  * ((__strrchr_1203) (const char  * (____s_1201), int  ____c_1202));// L258:L259
+extern __size_t_1  (__strcspn_1206) (const char  * (____s_1204), const char  * (____reject_1205));// L280:L281
+extern __size_t_1091  (__strcspn_1207) (const char  * (____s_1204), const char  * (____reject_1205));// L280:L281
+extern __size_t_1  (__strspn_1210) (const char  * (____s_1208), const char  * (____accept_1209));// L284:L285
+extern __size_t_1091  (__strspn_1211) (const char  * (____s_1208), const char  * (____accept_1209));// L284:L285
+extern char  * ((__strpbrk_1214) (const char  * (____s_1212), const char  * (____accept_1213)));// L310:L311
+extern char  * ((__strstr_1217) (const char  * (____haystack_1215), const char  * (____needle_1216)));// L337:L338
+extern char  * ((__strtok_1220) (char  * __restrict  ____s_1218, const char  * __restrict  ____delim_1219));// L343:L344
+extern char  * ((____strtok_r_1224) (char  * __restrict  ____s_1221, const char  * __restrict  ____delim_1222, char  * (* __restrict  ____save_ptr_1223)));// L349:L352
+extern char  * ((__strtok_r_1228) (char  * __restrict  ____s_1225, const char  * __restrict  ____delim_1226, char  * (* __restrict  ____save_ptr_1227)));// L354:L356
+extern __size_t_1  (__strlen_1230) (const char  * (____s_1229));// L394:L395
+extern __size_t_1091  (__strlen_1231) (const char  * (____s_1229));// L394:L395
+extern __size_t_1  (__strlen_1232) (const char  * (____s_1229));// L394:L395
+extern __size_t_1091  (__strlen_1233) (const char  * (____s_1229));// L394:L395
+extern __size_t_1  (__strnlen_1237) (const char  * (____string_1234), __size_t_1  ____maxlen_1235);// L401:L402
+extern __size_t_1091  (__strnlen_1238) (const char  * (____string_1234), __size_t_1091  ____maxlen_1236);// L401:L402
+extern char  * ((__strerror_1240) (int  ____errnum_1239));// L408
+extern char  * ((__strerror_1241) (int  ____errnum_1239));// L408
+extern int  (__strerror_r_1246) (int  ____errnum_1242, char  * (____buf_1243), __size_t_1  ____buflen_1244);// L422:L424
+extern int  (__strerror_r_1247) (int  ____errnum_1242, char  * (____buf_1243), __size_t_1091  ____buflen_1245);// L422:L424
+extern char  * ((__strerror_l_1250) (int  ____errnum_1248, ____locale_t_1177  ____l_1249));// L440
+extern void  (____bzero_1254) (void  * (____s_1251), __size_t_1  ____n_1252);// L446
+extern void  (____bzero_1255) (void  * (____s_1251), __size_t_1091  ____n_1253);// L446
+extern void  (____bzero_1256) (void  * (____s_1251), __size_t_1  ____n_1252);// L446
+extern void  (____bzero_1257) (void  * (____s_1251), __size_t_1091  ____n_1253);// L446
+extern void  (__bcopy_1262) (const void  * (____src_1258), void  * (____dest_1259), __size_t_1  ____n_1260);// L450:L451
+extern void  (__bcopy_1263) (const void  * (____src_1258), void  * (____dest_1259), __size_t_1091  ____n_1261);// L450:L451
+extern void  (__bzero_1267) (void  * (____s_1264), __size_t_1  ____n_1265);// L454
+extern void  (__bzero_1268) (void  * (____s_1264), __size_t_1091  ____n_1266);// L454
+extern int  (__bcmp_1273) (const void  * (____s1_1269), const void  * (____s2_1270), __size_t_1  ____n_1271);// L457:L458
+extern int  (__bcmp_1274) (const void  * (____s1_1269), const void  * (____s2_1270), __size_t_1091  ____n_1272);// L457:L458
+extern char  * ((__index_1277) (const char  * (____s_1275), int  ____c_1276));// L484:L485
+extern char  * ((__rindex_1280) (const char  * (____s_1278), int  ____c_1279));// L512:L513
+extern int  (__ffs_1282) (int  ____i_1281);// L518
+extern int  (__strcasecmp_1285) (const char  * (____s1_1283), const char  * (____s2_1284));// L529:L530
+extern int  (__strncasecmp_1290) (const char  * (____s1_1286), const char  * (____s2_1287), __size_t_1  ____n_1288);// L533:L534
+extern int  (__strncasecmp_1291) (const char  * (____s1_1286), const char  * (____s2_1287), __size_t_1091  ____n_1289);// L533:L534
+extern char  * ((__strsep_1294) (char  * (* __restrict  ____stringp_1292), const char  * __restrict  ____delim_1293));// L552:L554
+extern char  * ((__strsignal_1296) (int  ____sig_1295));// L559
+extern char  * ((____stpcpy_1299) (char  * __restrict  ____dest_1297, const char  * __restrict  ____src_1298));// L562:L563
+extern char  * ((__stpcpy_1302) (char  * __restrict  ____dest_1300, const char  * __restrict  ____src_1301));// L564:L565
+extern char  * ((____stpncpy_1307) (char  * __restrict  ____dest_1303, const char  * __restrict  ____src_1304, __size_t_1  ____n_1305));// L569:L571
+extern char  * ((____stpncpy_1308) (char  * __restrict  ____dest_1303, const char  * __restrict  ____src_1304, __size_t_1091  ____n_1306));// L569:L571
+extern char  * ((__stpncpy_1313) (char  * __restrict  ____dest_1309, const char  * __restrict  ____src_1310, __size_t_1  ____n_1311));// L572:L574
+extern char  * ((__stpncpy_1314) (char  * __restrict  ____dest_1309, const char  * __restrict  ____src_1310, __size_t_1091  ____n_1312));// L572:L574
 /* no function due to type errors in the function prototype */
 /* no function due to type errors in the function prototype */
 /* no function due to type errors in the function prototype */
@@ -1579,31 +1580,16 @@ extern char  * ((__stpncpy_1313) (char  * __restrict  ____dest_1308, const char 
 /* no function due to type errors in the function prototype */
 /* no function due to type errors in the function prototype */
 /* no function due to type errors in the function prototype */
-extern char  * ((____stpncpy_chk_1355) (char  * (____dest_1349), const char  * (____src_1350), __size_t_1  ____n_1351, __size_t_1  ____destlen_1353));// L130:L131
-extern char  * ((____stpncpy_chk_1356) (char  * (____dest_1349), const char  * (____src_1350), __size_t_1091  ____n_1352, __size_t_1091  ____destlen_1354));// L130:L131
-extern char  * ((____stpncpy_alias_1361) (char  * (____dest_1357), const char  * (____src_1358), __size_t_1  ____n_1359));// L132:L133
-extern char  * ((____stpncpy_alias_1362) (char  * (____dest_1357), const char  * (____src_1358), __size_t_1091  ____n_1360));// L132:L133
+extern char  * ((____stpncpy_chk_1356) (char  * (____dest_1350), const char  * (____src_1351), __size_t_1  ____n_1352, __size_t_1  ____destlen_1354));// L130:L131
+extern char  * ((____stpncpy_chk_1357) (char  * (____dest_1350), const char  * (____src_1351), __size_t_1091  ____n_1353, __size_t_1091  ____destlen_1355));// L130:L131
+extern char  * ((____stpncpy_alias_1362) (char  * (____dest_1358), const char  * (____src_1359), __size_t_1  ____n_1360));// L132:L133
+extern char  * ((____stpncpy_alias_1363) (char  * (____dest_1358), const char  * (____src_1359), __size_t_1091  ____n_1361));// L132:L133
 /* no function due to type errors in the function prototype */
 /* no function due to type errors in the function prototype */
 /* no function due to type errors in the function prototype */
-void  (__logMessage_1381) (char  * (__msg_1378)) {
+void  (__logMessage_1382) (char  * (__msg_1379)) {
 
 {
-if (__static_condition_default_1383) {
-
-{
-{
-
-
-
-static char  __line_1379[512];// L6
-
-}
-}
-
-
-}
-
 if (__static_condition_default_1384) {
 
 {
@@ -1611,34 +1597,49 @@ if (__static_condition_default_1384) {
 
 
 
-static char  __line_1379[512];// L6
+static char  __line_1380[512];// L6
 
-int  __remotefd_1380= 1;// L9
-
-if (  __remotefd_1380  )// L11
-{
-
-{
-{
+}
+}
 
 
+}
 
 if (__static_condition_default_1385) {
- __memset_1118  (&  __line_1379 ,0,sizeof((  __line_1379  ))) ; // L12
-}
+
+{
+{
+
+
+
+static char  __line_1380[512];// L6
+
+int  __remotefd_1381= 1;// L9
+
+if (  __remotefd_1381  )// L11
+{
+
+{
+{
+
+
+
 if (__static_condition_default_1386) {
- __memset_1119  (&  __line_1379 ,0,sizeof((  __line_1379  ))) ; // L12
+ __memset_1118  (&  __line_1380 ,0,sizeof((  __line_1380  ))) ; // L12
 }
 if (__static_condition_default_1387) {
- __memset_1120  (&  __line_1379 ,0,sizeof((  __line_1379  ))) ; // L12
+ __memset_1119  (&  __line_1380 ,0,sizeof((  __line_1380  ))) ; // L12
 }
 if (__static_condition_default_1388) {
- __memset_1121  (&  __line_1379 ,0,sizeof((  __line_1379  ))) ; // L12
+ __memset_1120  (&  __line_1380 ,0,sizeof((  __line_1380  ))) ; // L12
 }
 if (__static_condition_default_1389) {
- __printf_421  ( __line_1379 ,sizeof((  __line_1379  )),"<%s>", __msg_1378 ) ; // L13
+ __memset_1121  (&  __line_1380 ,0,sizeof((  __line_1380  ))) ; // L12
 }
 if (__static_condition_default_1390) {
+ __printf_421  ( __line_1380 ,sizeof((  __line_1380  )),"<%s>", __msg_1379 ) ; // L13
+}
+if (__static_condition_default_1391) {
 __static_type_error("type error") ; // L13
 }
 }
@@ -1651,24 +1652,9 @@ __static_type_error("type error") ; // L13
 }
 
 }}
-void  (__logMessage_1382) (char  * (__msg_1378)) {
+void  (__logMessage_1383) (char  * (__msg_1379)) {
 
 {
-if (__static_condition_default_1391) {
-
-{
-{
-
-
-
-static char  __line_1379[512];// L6
-
-}
-}
-
-
-}
-
 if (__static_condition_default_1392) {
 
 {
@@ -1676,11 +1662,26 @@ if (__static_condition_default_1392) {
 
 
 
-static char  __line_1379[512];// L6
+static char  __line_1380[512];// L6
 
-int  __remotefd_1380= 1;// L9
+}
+}
 
-if (  __remotefd_1380  )// L11
+
+}
+
+if (__static_condition_default_1393) {
+
+{
+{
+
+
+
+static char  __line_1380[512];// L6
+
+int  __remotefd_1381= 1;// L9
+
+if (  __remotefd_1381  )// L11
 {
 
 {
@@ -1689,10 +1690,10 @@ if (  __remotefd_1380  )// L11
 
 
 __static_type_error("type error") ; // L12
-if (__static_condition_default_1393) {
- __printf_421  ( __line_1379 ,sizeof((  __line_1379  )),"<%s>", __msg_1378 ) ; // L13
-}
 if (__static_condition_default_1394) {
+ __printf_421  ( __line_1380 ,sizeof((  __line_1380  )),"<%s>", __msg_1379 ) ; // L13
+}
+if (__static_condition_default_1395) {
 __static_type_error("type error") ; // L13
 }
 }
@@ -1705,32 +1706,32 @@ __static_type_error("type error") ; // L13
 }
 
 }}
-void  (__doSyslogd_1395) (void  ) {
+void  (__doSyslogd_1396) (void  ) {
 
 {
 {
 
 
 
-if (__static_condition_default_1396) {
- __logMessage_1381  ("syslogd started") ; // L20
-}
 if (__static_condition_default_1397) {
  __logMessage_1382  ("syslogd started") ; // L20
 }
+if (__static_condition_default_1398) {
+ __logMessage_1383  ("syslogd started") ; // L20
+}
 }
 }
 
 
 }
-int  (__main_1400) (int  __argc_1398, char  * (* (__argv_1399))) {
+int  (__main_1401) (int  __argc_1399, char  * (* (__argv_1400))) {
 
 {
 {
 
 
 
- __doSyslogd_1395 ( ) ; // L25
+ __doSyslogd_1396 ( ) ; // L25
 return 0 ;// L26
 }
 }

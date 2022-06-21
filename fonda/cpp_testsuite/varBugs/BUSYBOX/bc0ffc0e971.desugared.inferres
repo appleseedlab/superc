@@ -1,21 +1,21 @@
 
-BUSYBOX/bc0ffc0e971.desugared.c:3391: error: Uninitialized Value
-  The value read from __ch_2419 was never initialized.
-  3389.  __ch_2419  -> __ifname_2393 =  __ifname_2418  ; // L30
-  3390.  __ch_2419  -> __next_2392 = *  __clist_2416  ; // L31
-  3391. *  __clist_2416  =  __ch_2419  ; // L32
+BUSYBOX/bc0ffc0e971.desugared.c:2264: error: Uninitialized Value
+  The value read from __ch_1848 was never initialized.
+  2262.  __ch_1848  -> __ifname_1822 =  __ifname_1847  ; // L30
+  2263.  __ch_1848  -> __next_1821 = *  __clist_1845  ; // L31
+  2264. *  __clist_1845  =  __ch_1848  ; // L32
         ^
-  3392. }
-  3393. }
+  2265. }
+  2266. }
 
-BUSYBOX/bc0ffc0e971.desugared.c:3458: error: Uninitialized Value
-  The value read from __ch_2420 was never initialized.
-  3456.  __ch_2420  -> __ifname_2393 =  __ifname_2418  ; // L30
-  3457.  __ch_2420  -> __next_2392 = *  __clist_2417  ; // L31
-  3458. *  __clist_2417  =  __ch_2420  ; // L32
+BUSYBOX/bc0ffc0e971.desugared.c:2304: error: Uninitialized Value
+  The value read from __ch_1849 was never initialized.
+  2302.  __ch_1849  -> __ifname_1822 =  __ifname_1847  ; // L30
+  2303.  __ch_1849  -> __next_1821 = *  __clist_1846  ; // L31
+  2304. *  __clist_1846  =  __ch_1849  ; // L32
         ^
-  3459. }
-  3460. }
+  2305. }
+  2306. }
 
 
 Found 2 issues

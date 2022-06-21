@@ -1,4 +1,0 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/c708c57e247.c:18:28: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
-    *((__u64 *)parm_block) ^= *((__u64 *)buf+i*8); // ERROR
-                           ^  ~~~~~~~~~~~~~~~~~~~
-1 warning generated.

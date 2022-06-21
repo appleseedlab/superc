@@ -1,0 +1,17 @@
+BUSYBOX 199501f2a00.c
+Macros:
+	ENABLE_FEATURE_MODPROBE_MULTIPLE_OPTIONS
+[-UENABLE_FEATURE_MODPROBE_MULTIPLE_OPTIONS ]
+94 :: Line:21
+	Null pointer passed to 2nd parameter expecting 'nonnull' [core.NonNullParamChecker]
+Desugared Clang Results:
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/199501f2a00.desugared.c:1543:2: warning: Value stored to '__dt_1258' is never read [deadcode.DeadStores]
+ __dt_1258  = "-i" ; // L10
+ ^            ~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/199501f2a00.desugared.c:1557:2: warning: Value stored to '__dt_1258' is never read [deadcode.DeadStores]
+ __dt_1258  = "-i" ; // L10
+ ^            ~~~~
+2 warnings generated.
+Matches:
+Unmatched ids:
+	94
