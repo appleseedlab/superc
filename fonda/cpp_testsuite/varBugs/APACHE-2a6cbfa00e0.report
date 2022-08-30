@@ -2,7 +2,7 @@ APACHE 2a6cbfa00e0.c
 Macros:
 	SHARED_MODULE
 [-USHARED_MODULE ]
-97 :: Line:16
+108 :: Line:16
 	Potential leak of memory pointed to by 'sc' [unix.Malloc]
 Desugared Clang Results:
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1496:5: warning: Potential leak of memory pointed to by '__sc_1019' [unix.Malloc]
@@ -23,4 +23,4 @@ if (__static_condition_default_1034) {
 5 warnings generated.
 Matches:
 Unmatched ids:
-	97
+	108

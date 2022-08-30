@@ -252,7 +252,7 @@ def main(toinclude):
                             js[filewobase] = inc
                         ''' 
                         
-                        #os.system('infer -- clang -c ' + inc + ' ' + curDir + '/' + dirFiles + " > " + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.inferres')
+                        os.system('infer --pulse -- clang -c ' + stdInc + ' ' + curDir + '/' + dirFiles + " > " + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.inferres')
 
                         if os.path.getsize(curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c') <= 32:
                             sumTable.write(sumTOut + (maxC - len(sumTOut))*' ' + 'SuperC failed\n')
@@ -260,7 +260,7 @@ def main(toinclude):
                         else:
                             os.system('clang -Wno-everything -emit-llvm -c ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c')
                             os.system('clang --analyze ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c 2> ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.clangres')
-                            #os.system('infer -- clang -c ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c > ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.inferres')
+                            os.system('infer --pulse --enable-issue-type -- clang -c ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.c > ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.inferres')
                         if os.path.exists(os.getcwd() + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.bc'):
                             report += 'Desugared Clang Results:\n'
                             ff = open (curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.clangres','r')
@@ -268,8 +268,8 @@ def main(toinclude):
                             ff.close()
                             os.system('mv ' + dirFiles[:len(dirFiles) - 2] + '.desugared.bc ' + curDir + '/' + dirFiles[:len(dirFiles) - 2] + '.desugared.bc')
                             report += getClangAlarm(realFile[:-2], warningsC)
-                            #alarmi = getInferAlarm(curDir + '/' + dirFiles[:len(dirFiles) - 2],sumTOut)
-                            sumTable.write(report)
+                            alarmi = getInferAlarm(curDir + '/' + dirFiles[:len(dirFiles) - 2],sumTOut)
+                            sumTable.write(report + "\n" + alarmi + "\n")
                         else:
                             report += 'File Failed\n'
                             sumTable.write(report)

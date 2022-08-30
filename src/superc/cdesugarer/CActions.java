@@ -571,7 +571,8 @@ public class CActions implements SemanticActions {
     {
           // TODO
           System.err.println("ERROR: unsupported semantic action: FunctionDefinition");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -668,7 +669,8 @@ public class CActions implements SemanticActions {
   case 23:
     {
           System.err.println("ERROR: unsupported semantic action: FunctionPrototype (6)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
         }
     break;
@@ -676,7 +678,8 @@ public class CActions implements SemanticActions {
   case 24:
     {
           System.err.println("ERROR: unsupported semantic action: FunctionPrototype (7)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -685,7 +688,8 @@ public class CActions implements SemanticActions {
   case 25:
     {
           System.err.println("ERROR: unsupported semantic action: FunctionPrototype (8)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -694,7 +698,8 @@ public class CActions implements SemanticActions {
   case 26:
     {
           System.err.println("ERROR: unsupported semantic action: FunctionPrototype (9)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -703,7 +708,8 @@ public class CActions implements SemanticActions {
   case 27:
     {
           System.err.println("ERROR: unsupported semantic action: FunctionPrototype (10)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
         }
@@ -712,7 +718,8 @@ public class CActions implements SemanticActions {
   case 28:
     {
           System.err.println("ERROR: unsupported semantic action: FunctionOldPrototype");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
           bindFunDef(subparser, null, getNodeAt(subparser, 1));
         }
     break;
@@ -722,7 +729,8 @@ public class CActions implements SemanticActions {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("ERROR: unsupported semantic action: FunctionOldPrototype");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -731,7 +739,8 @@ public class CActions implements SemanticActions {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("ERROR: unsupported semantic action: FunctionOldPrototype");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -740,7 +749,8 @@ public class CActions implements SemanticActions {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("ERROR: unsupported semantic action: FunctionOldPrototype");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -749,7 +759,8 @@ public class CActions implements SemanticActions {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("ERROR: unsupported semantic action: FunctionOldPrototype");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -757,7 +768,8 @@ public class CActions implements SemanticActions {
     {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -778,7 +790,8 @@ public class CActions implements SemanticActions {
     {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -839,7 +852,8 @@ public class CActions implements SemanticActions {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition(5)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -848,7 +862,8 @@ public class CActions implements SemanticActions {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition(6)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -857,7 +872,8 @@ public class CActions implements SemanticActions {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition(7)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -866,7 +882,8 @@ public class CActions implements SemanticActions {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("ERROR: unsupported semantic action: NestedFunctionDefinition(8)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -875,7 +892,8 @@ public class CActions implements SemanticActions {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("ERROR: unsupported semantic action: NestedFunctionOldPrototype");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -884,7 +902,8 @@ public class CActions implements SemanticActions {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("ERROR: unsupported semantic action: NestedFunctionOldPrototype");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -893,7 +912,8 @@ public class CActions implements SemanticActions {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("ERROR: unsupported semantic action: NestedFunctionOldPrototype");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -902,7 +922,8 @@ public class CActions implements SemanticActions {
           saveBaseType(subparser, getNodeAt(subparser, 2));
           bindFunDef(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));
           System.err.println("ERROR: unsupported semantic action: NestedFunctionOldPrototype");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -2612,14 +2633,16 @@ public class CActions implements SemanticActions {
   case 183:
     {
           System.err.println("ERROR: unsupported semantic action: StructDeclaration (2)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
   case 184:
     {
           System.err.println("ERROR: unsupported semantic action: StructDeclaration (3)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -2644,21 +2667,24 @@ public class CActions implements SemanticActions {
   case 186:
     {
           System.err.println("ERROR: unsupported semantic action: StructDeclaration (5)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
   case 187:
     {
           System.err.println("ERROR: unsupported semantic action: StructDefaultDeclaringList (1)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
   case 188:
     {
           System.err.println("ERROR: unsupported semantic action: StructDefaultDeclaringList (2)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -2716,14 +2742,16 @@ public class CActions implements SemanticActions {
   case 193:
     {
           System.err.println("ERROR: unsupported semantic action: StructIdentifierDeclarator");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
   case 194:
     {
           System.err.println("ERROR: unsupported semantic action: StructIdentifierDeclarator");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -3414,7 +3442,8 @@ public class CActions implements SemanticActions {
   case 240:
     {
           System.err.println("ERROR: unsupported semantic action: IdentifierList");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -3671,14 +3700,16 @@ public class CActions implements SemanticActions {
   case 260:
     {
           System.err.println("ERROR: unsupported semantic action: Designation (2)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
   case 261:
     {
           System.err.println("ERROR: unsupported semantic action: Designation (3)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -3713,7 +3744,8 @@ public class CActions implements SemanticActions {
   case 265:
     {
           System.err.println("ERROR: unsupported semantic action: Designator (2)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -3738,21 +3770,24 @@ public class CActions implements SemanticActions {
   case 268:
     {
           System.err.println("ERROR: unsupported semantic action: ObsoleteArrayDesignation");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
   case 269:
     {
           System.err.println("ERROR: unsupported semantic action: ObsoleteArrayDesignation");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
   case 270:
     {
           System.err.println("ERROR: unsupported semantic action: ObsoleteFieldDesignation");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -4255,21 +4290,24 @@ public class CActions implements SemanticActions {
   case 318:
     {
           System.err.println("ERROR: unsupported semantic action: PostfixOldFunctionDeclarator");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
   case 319:
     {
           System.err.println("ERROR: unsupported semantic action: PostfixOldFunctionDeclarator");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
   case 320:
     {
           System.err.println("ERROR: unsupported semantic action: PostfixOldFunctionDeclarator");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -4594,7 +4632,8 @@ public class CActions implements SemanticActions {
           todoReminder("check that case expression is int");
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("ERROR: unsupported semantic action: SwitchLabeledStatement (2)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -4703,7 +4742,8 @@ public class CActions implements SemanticActions {
     {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("ERROR: unsupported semantic action: LocalLabelDeclaration");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -4711,7 +4751,8 @@ public class CActions implements SemanticActions {
     {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("ERROR: unsupported semantic action: LocalLabelList");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -4719,7 +4760,8 @@ public class CActions implements SemanticActions {
     {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("ERROR: unsupported semantic action: LocalLabelList");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -5237,7 +5279,8 @@ public class CActions implements SemanticActions {
     {
           PresenceCondition pc = subparser.getPresenceCondition();
           System.err.println("ERROR: unsupported semantic action: GotoStatement (2)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -6603,7 +6646,8 @@ public class CActions implements SemanticActions {
   case 438:
     {
           System.err.println("ERROR: unsupported semantic action: TypeCompatibilityExpression");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -6729,7 +6773,8 @@ public class CActions implements SemanticActions {
   case 444:
     {
           System.err.println("ERROR: unsupported semantic action: AlignofExpression (2)");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -6748,7 +6793,8 @@ public class CActions implements SemanticActions {
   case 447:
     {
           System.err.println("ERROR: unsupported semantic action: LabelAddressExpression");
-          System.exit(1);
+          subparser.lookahead.setError();
+          //System.exit(1);
         }
     break;
 
@@ -11166,7 +11212,7 @@ public String staticInitialization(boolean showParseError) {
                           invalidGlobals.toString()));
   if (showParseError && CContext.getParseErrorCond().isNotFalse()) {
   sb.append("if (" + parseErrorCond +
-            ")\n{\n__static_parse_error(\"Unable to parse\");\n}\n");
+            ") {\n__static_parse_error(\"Unable to parse\");\n}\n");
   }
 
   sb.append("};\n");

@@ -15,8 +15,11 @@ free ((  __mod_9  [ 1 ] )) ; // L60
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/6e2b75740be.desugared.c:153:1: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
 free ((  __mod_9  [ 0 ] )) ; // L63
 ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/6e2b75740be.desugared.c:177:1: warning: Attempt to free released memory [unix.Malloc]
+free ( __hdr_8 ) ; // L67
+^~~~~~~~~~~~~~~~
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/6e2b75740be.desugared.c:182:9: warning: Potential leak of memory pointed to by '__mod_9' [unix.Malloc]
 return  __err_10  ;// L69
         ^~~~~~~~
-5 warnings generated.
+6 warnings generated.
 Original file has no warnings

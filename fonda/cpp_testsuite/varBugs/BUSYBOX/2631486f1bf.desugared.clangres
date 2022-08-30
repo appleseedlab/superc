@@ -4,16 +4,16 @@
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1253:42: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_963', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_986)' [unix.MallocSizeof]
  __curr_979  = ( struct __dnode_963  * ) malloc (sizeof(typeof(__sizeofStandin_986))) ; // L65
                  ~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1256:27: warning: Dereference of undefined pointer value [core.NullDereference]
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1256:27: warning: Access to field '__val_964' results in a dereference of an undefined pointer value (loaded from variable '__curr_979') [core.NullDereference]
  __curr_979  -> __val_964 = rand( ) % 10 ; // L66
- ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1259:27: warning: Dereference of undefined pointer value [core.NullDereference]
+ ~~~~~~~~~~               ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1259:27: warning: Access to field '__val_964' results in a dereference of an undefined pointer value (loaded from variable '__curr_979') [core.NullDereference]
  __curr_979  -> __val_964 = rand( ) % 10 ; // L66
- ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+ ~~~~~~~~~~               ^
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1261:28: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
  __curr_979  -> __next_965 =  __head_980  ; // L67
                            ^  ~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1261:28: warning: Dereference of undefined pointer value [core.NullDereference]
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1261:28: warning: Access to field '__next_965' results in a dereference of an undefined pointer value (loaded from variable '__curr_979') [core.NullDereference]
  __curr_979  -> __next_965 =  __head_980  ; // L67
- ~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+ ~~~~~~~~~~                ^
 6 warnings generated.

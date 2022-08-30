@@ -13,9 +13,9 @@ char  * (__a_1261)=  __val_1258 ;// L14
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1482:2: warning: Value stored to '__val_1258' is never read [deadcode.DeadStores]
  __val_1258  = (  __s_1259  &&  __s_1259  [ 1 ] ) ?  __s_1259  + 1 : ( ( void  * ) 0 ) ; // L16:L395
  ^             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1494:14: warning: Dereference of undefined pointer value [core.NullDereference]
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1494:14: warning: Dereference of undefined pointer value (loaded from variable '__p_1260') [core.NullDereference]
 *  __p_1260  = *  __s_1259  ; // L24
-~~~~~~~~~~~~~^~~~~~~~~~~~~
+   ~~~~~~~~  ^
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1556:1: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
 char  * (__a_1261)=  __val_1258 ;// L14
 ^~~~~~~~~~~~~~~~~    ~~~~~~~~~~
@@ -31,7 +31,7 @@ char  * (__a_1261)=  __val_1258 ;// L14
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1587:2: warning: Value stored to '__val_1258' is never read [deadcode.DeadStores]
  __val_1258  = (  __s_1259  &&  __s_1259  [ 1 ] ) ?  __s_1259  + 1 : ( ( void  * ) 0 ) ; // L16:L395
  ^             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1599:14: warning: Dereference of undefined pointer value [core.NullDereference]
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1599:14: warning: Dereference of undefined pointer value (loaded from variable '__p_1260') [core.NullDereference]
 *  __p_1260  = *  __s_1259  ; // L24
-~~~~~~~~~~~~~^~~~~~~~~~~~~
+   ~~~~~~~~  ^
 12 warnings generated.

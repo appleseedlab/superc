@@ -2,7 +2,7 @@ LINUX 36855dcfc98.c
 Macros:
 	CONFIG_BF60x
 [-UCONFIG_BF60x ]
-10 :: Line:6
+11 :: Line:6
 	Value stored to 'wakeup' is never read [deadcode.DeadStores]
 Desugared Clang Results:
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/36855dcfc98.desugared.c:32:2: warning: Value stored to '__wakeup_0' is never read [deadcode.DeadStores]
@@ -10,6 +10,6 @@ Desugared Clang Results:
  ^             ~
 1 warning generated.
 Matches:
-	10 has a match!
+	11 has a match!
 Unmatched ids:
 	None!

@@ -4,7 +4,7 @@ Macros:
 	ENABLE_FEATURE_STAT_FORMAT
 [-UENABLE_SELINUX -UENABLE_FEATURE_STAT_FORMAT ]
 [-DENABLE_SELINUX=1 -UENABLE_FEATURE_STAT_FORMAT ]
-54 :: Line:14
+57 :: Line:14
 	Dereference of null pointer (loaded from variable 'scontext') [core.NullDereference]
 [-UENABLE_SELINUX -DENABLE_FEATURE_STAT_FORMAT=1 ]
 [-DENABLE_SELINUX=1 -DENABLE_FEATURE_STAT_FORMAT=1 ]
@@ -17,6 +17,6 @@ Desugared Clang Results:
                          ^~~~~~~~~~~~~~~~~~
 2 warnings generated.
 Matches:
-	54 has a match!
+	57 has a match!
 Unmatched ids:
 	None!

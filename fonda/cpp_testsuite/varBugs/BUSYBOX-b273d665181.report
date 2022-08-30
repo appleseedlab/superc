@@ -4,7 +4,7 @@ Macros:
 	BB_FEATURE_LS_USERNAME
 [-UBB_FEATURE_LS_FILETYPES -UBB_FEATURE_LS_USERNAME ]
 [-DBB_FEATURE_LS_FILETYPES=1 -UBB_FEATURE_LS_USERNAME ]
-57 :: Line:16
+60 :: Line:16
 	2nd function call argument is an uninitialized value [core.CallAndMessage]
 [-UBB_FEATURE_LS_FILETYPES -DBB_FEATURE_LS_USERNAME=1 ]
 [-DBB_FEATURE_LS_FILETYPES=1 -DBB_FEATURE_LS_USERNAME=1 ]
@@ -26,6 +26,6 @@ Desugared Clang Results:
  ^              ~
 5 warnings generated.
 Matches:
-	57 has a match!
+	60 has a match!
 Unmatched ids:
 	None!

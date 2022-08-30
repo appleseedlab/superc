@@ -4,19 +4,19 @@ Macros:
 	CONFIG_UNIX98_PTYS
 [-UCONFIG_DEVPTS_MULTIPLE_INSTANCES -UCONFIG_UNIX98_PTYS ]
 [-DCONFIG_DEVPTS_MULTIPLE_INSTANCES=1 -UCONFIG_UNIX98_PTYS ]
-45 :: Line:8
-	Value stored to 'x' during its initialization is never read [deadcode.DeadStores]
-[-UCONFIG_DEVPTS_MULTIPLE_INSTANCES -DCONFIG_UNIX98_PTYS=1 ]
-46 :: Line:39
-	Value stored to 'driver_data' is never read [deadcode.DeadStores]
-47 :: Line:44
-	1st function call argument is an uninitialized value [core.CallAndMessage]
-[-DCONFIG_DEVPTS_MULTIPLE_INSTANCES=1 -DCONFIG_UNIX98_PTYS=1 ]
 48 :: Line:8
 	Value stored to 'x' during its initialization is never read [deadcode.DeadStores]
+[-UCONFIG_DEVPTS_MULTIPLE_INSTANCES -DCONFIG_UNIX98_PTYS=1 ]
 49 :: Line:39
 	Value stored to 'driver_data' is never read [deadcode.DeadStores]
 50 :: Line:44
+	1st function call argument is an uninitialized value [core.CallAndMessage]
+[-DCONFIG_DEVPTS_MULTIPLE_INSTANCES=1 -DCONFIG_UNIX98_PTYS=1 ]
+51 :: Line:8
+	Value stored to 'x' during its initialization is never read [deadcode.DeadStores]
+52 :: Line:39
+	Value stored to 'driver_data' is never read [deadcode.DeadStores]
+53 :: Line:44
 	1st function call argument is an uninitialized value [core.CallAndMessage]
 Desugared Clang Results:
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/7acf6cd80b2.desugared.c:77:6: warning: Value stored to '__x_3' during its initialization is never read [deadcode.DeadStores]
@@ -30,11 +30,11 @@ int  __x_3= *  __inode_2 ;// L8
  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 3 warnings generated.
 Matches:
-	45 has a match!
-	46 has a match!
-	47 has a match!
 	48 has a match!
 	49 has a match!
 	50 has a match!
+	51 has a match!
+	52 has a match!
+	53 has a match!
 Unmatched ids:
 	None!

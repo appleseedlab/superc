@@ -6,7 +6,7 @@ Macros:
 [-DAPU_HAS_LDAP=1 -UAPR_HAS_SHARED_MEMORY ]
 [-UAPU_HAS_LDAP -DAPR_HAS_SHARED_MEMORY=1 ]
 [-DAPU_HAS_LDAP=1 -DAPR_HAS_SHARED_MEMORY=1 ]
-103 :: Line:14
+115 :: Line:14
 	1st function call argument is an uninitialized value [core.CallAndMessage]
 Desugared Clang Results:
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c:1273:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
@@ -17,6 +17,6 @@ Desugared Clang Results:
  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 2 warnings generated.
 Matches:
-	103 has a match!
+	115 has a match!
 Unmatched ids:
 	None!

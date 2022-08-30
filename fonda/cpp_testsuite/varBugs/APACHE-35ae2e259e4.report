@@ -7,21 +7,21 @@ Macros:
 [-UHAVE_ECC -Ddefined=1 ]
 [-DHAVE_ECC=1 -Ddefined=1 ]
 Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/35ae2e259e4.desugared.c:1373:17: warning: Dereference of undefined pointer value [core.NullDereference]
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/35ae2e259e4.desugared.c:1373:17: warning: Dereference of undefined pointer value (loaded from variable '__eckey_798') [core.NullDereference]
 *  __eckey_798  = 30 ; // L12
-~~~~~~~~~~~~~~~~^~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/35ae2e259e4.desugared.c:1397:17: warning: Dereference of undefined pointer value [core.NullDereference]
+   ~~~~~~~~~~~  ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/35ae2e259e4.desugared.c:1397:17: warning: Dereference of undefined pointer value (loaded from variable '__eckey_798') [core.NullDereference]
 *  __eckey_798  = 15 ; // L17
-~~~~~~~~~~~~~~~~^~~~
+   ~~~~~~~~~~~  ^
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/35ae2e259e4.desugared.c:1403:5: warning: Potential leak of memory pointed to by '__eckey_798' [unix.Malloc]
 if (__static_condition_default_809) {
     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/35ae2e259e4.desugared.c:1442:17: warning: Dereference of undefined pointer value [core.NullDereference]
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/35ae2e259e4.desugared.c:1442:17: warning: Dereference of undefined pointer value (loaded from variable '__eckey_798') [core.NullDereference]
 *  __eckey_798  = 30 ; // L12
-~~~~~~~~~~~~~~~~^~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/35ae2e259e4.desugared.c:1466:17: warning: Dereference of undefined pointer value [core.NullDereference]
+   ~~~~~~~~~~~  ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/35ae2e259e4.desugared.c:1466:17: warning: Dereference of undefined pointer value (loaded from variable '__eckey_798') [core.NullDereference]
 *  __eckey_798  = 15 ; // L17
-~~~~~~~~~~~~~~~~^~~~
+   ~~~~~~~~~~~  ^
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/35ae2e259e4.desugared.c:1472:5: warning: Potential leak of memory pointed to by '__eckey_798' [unix.Malloc]
 if (__static_condition_default_818) {
     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,5 +34,8 @@ if (__static_condition_default_818) {
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/35ae2e259e4.desugared.c:1501:5: warning: Potential leak of memory pointed to by '__eckey_798' [unix.Malloc]
 if (__static_condition_default_823) {
     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-9 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/35ae2e259e4.desugared.c:1501:5: warning: Potential leak of memory pointed to by '__eckey_798' [unix.Malloc]
+if (__static_condition_default_823) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+10 warnings generated.
 Original file has no warnings

@@ -1,4 +1,4 @@
-In file included from <built-in>:342:
+In file included from <built-in>:344:
 <command line>:2:8: error: 'defined' cannot be used as a macro name
 #undef defined
        ^
