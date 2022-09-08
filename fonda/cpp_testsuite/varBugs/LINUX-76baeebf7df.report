@@ -30,4 +30,16 @@ Macros:
 [-UCONFIG_X86_32 -DCONFIG_NUMA=1 -DCONFIG_DEBUG_PER_CPU_MAPS=1 -UCONFIG_PCI -DCONFIG_X86_64=1 ]
 [-DCONFIG_X86_32=1 -DCONFIG_NUMA=1 -DCONFIG_DEBUG_PER_CPU_MAPS=1 -UCONFIG_PCI -DCONFIG_X86_64=1 ]
 [-UCONFIG_X86_32 -UCONFIG_NUMA -UCONFIG_DEBUG_PER_CPU_MAPS -DCONFIG_PCI=1 -DCONFIG_X86_64=1 ]
-File Failed
+Desugared Clang Results:
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/76baeebf7df.desugared.c:1629:31: warning: Dereference of undefined pointer value (loaded from variable '__mask_1132') [core.NullDereference]
+ __printf_421  ("mask: %ld\n",*  __mask_1132 ) ; // L137
+                              ^~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/76baeebf7df.desugared.c:1632:31: warning: Dereference of undefined pointer value (loaded from variable '__mask_1134') [core.NullDereference]
+ __printf_421  ("mask: %ld\n",*  __mask_1134 ) ; // L137
+                              ^~~~~~~~~~~~~~
+2 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
+Original file has no warnings
+Original file has no warnings

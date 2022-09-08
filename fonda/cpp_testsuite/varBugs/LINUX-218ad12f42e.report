@@ -3,4 +3,28 @@ Macros:
 	CONFIG_NUMA
 [-UCONFIG_NUMA ]
 Desugared Clang Results:
+Desugared Infer Results:
+
+LINUX/218ad12f42e.desugared.c:63: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 42 is not freed after the last access at line 63, column 1.
+  61. 
+  62. 
+  63. }
+      ^
+  64. void  (__inet_ehash_locks_free_9) () {
+  65. 
+
+LINUX/218ad12f42e.desugared.c:123: error: Memory Leak
+  Memory dynamically allocated by `malloc`, indirectly via call to `__inet_ehash_locks_alloc_6()` on line 116 is not freed after the last access at line 123, column 1.
+  121. 
+  122. 
+  123. }
+       ^
+  124. 
+
+
+Found 2 issues
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 2
+Original file has no warnings
 Original file has no warnings

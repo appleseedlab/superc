@@ -5,27 +5,31 @@ Macros:
 	CONFIG_OF_IRQ
 [-UCONFIG_TWL4030_CORE -UCONFIG_IRQ_DOMAIN -UCONFIG_OF_IRQ ]
 [-DCONFIG_TWL4030_CORE=1 -UCONFIG_IRQ_DOMAIN -UCONFIG_OF_IRQ ]
-31 :: Line:12
+clang :: 31 :: Line:12
 	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
-32 :: Line:12
+clang :: 32 :: Line:12
 	Dereference of null pointer (loaded from variable 'ops') [core.NullDereference]
+infer :: 33 :: Line:25
+	Null Dereference
 [-UCONFIG_TWL4030_CORE -DCONFIG_IRQ_DOMAIN=1 -UCONFIG_OF_IRQ ]
-33 :: Line:12
+clang :: 34 :: Line:12
 	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
 [-DCONFIG_TWL4030_CORE=1 -DCONFIG_IRQ_DOMAIN=1 -UCONFIG_OF_IRQ ]
-34 :: Line:12
+clang :: 35 :: Line:12
 	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
-35 :: Line:12
+clang :: 36 :: Line:12
 	Dereference of null pointer (loaded from variable 'ops') [core.NullDereference]
+infer :: 37 :: Line:25
+	Null Dereference
 [-UCONFIG_TWL4030_CORE -UCONFIG_IRQ_DOMAIN -DCONFIG_OF_IRQ=1 ]
 [-DCONFIG_TWL4030_CORE=1 -UCONFIG_IRQ_DOMAIN -DCONFIG_OF_IRQ=1 ]
-36 :: Line:12
+clang :: 38 :: Line:12
 	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_TWL4030_CORE -DCONFIG_IRQ_DOMAIN=1 -DCONFIG_OF_IRQ=1 ]
-37 :: Line:12
+clang :: 39 :: Line:12
 	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
 [-DCONFIG_TWL4030_CORE=1 -DCONFIG_IRQ_DOMAIN=1 -DCONFIG_OF_IRQ=1 ]
-38 :: Line:12
+clang :: 40 :: Line:12
 	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_TWL4030_CORE -UCONFIG_IRQ_DOMAIN -UCONFIG_OF_IRQ ]
 Desugared Clang Results:
@@ -36,14 +40,21 @@ int  __irq_2= *  __ops_1 ;// L12
 int  __irq_2= *  __ops_1 ;// L12
               ^~~~~~~~~~
 2 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
 	31 has a match!
 	32 has a match!
-	33 has a match!
 	34 has a match!
 	35 has a match!
 	36 has a match!
-	37 has a match!
 	38 has a match!
+	39 has a match!
+	40 has a match!
 Unmatched ids:
 	None!
+Matches:
+Unmatched ids:
+	33
+	37

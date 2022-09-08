@@ -1,0 +1,32 @@
+
+BUSYBOX/bc0ffc0e971.desugared.c:3382: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 3380 is not freed after the last access at line 3382, column 5.
+  3380.  __ch_2419  = malloc (sizeof(__sizeofStandin_2423)) ; // L29
+  3381. }
+  3382. if (__static_condition_default_2437) {
+            ^
+  3383.  __ch_2419  = malloc (sizeof(__sizeofStandin_2423)) ; // L29
+  3384. }
+
+BUSYBOX/bc0ffc0e971.desugared.c:3449: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 3447 is not freed after the last access at line 3449, column 5.
+  3447.  __ch_2420  = malloc (sizeof(__sizeofStandin_2426)) ; // L29
+  3448. }
+  3449. if (__static_condition_default_2447) {
+            ^
+  3450.  __ch_2420  = malloc (sizeof(__sizeofStandin_2426)) ; // L29
+  3451. }
+
+BUSYBOX/bc0ffc0e971.desugared.c:3491: error: Memory Leak
+  Memory dynamically allocated by `malloc`, indirectly via call to `__prepend_new_eth_table_2428()` on line 3483 is not freed after the last access at line 3491, column 5.
+  3489. }
+  3490. }
+  3491. if (__static_condition_default_2457) {
+            ^
+  3492. for (  __ch_2454  =  __clist_2452  ;  __ch_2454  ;  __ch_2454  =  __ch_2454  -> __next_2392 )// L43
+  3493. {
+
+
+Found 3 issues
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 3

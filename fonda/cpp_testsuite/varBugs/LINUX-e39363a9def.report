@@ -4,8 +4,10 @@ Macros:
 	CONFIG_IPV6
 [-UCONFIG_NETPOLL -UCONFIG_IPV6 ]
 [-DCONFIG_NETPOLL=1 -UCONFIG_IPV6 ]
-41 :: Line:17
+clang :: 45 :: Line:17
 	Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
+infer :: 46 :: Line:17
+	Uninitialized Value
 [-UCONFIG_NETPOLL -DCONFIG_IPV6=1 ]
 [-DCONFIG_NETPOLL=1 -DCONFIG_IPV6=1 ]
 Desugared Clang Results:
@@ -13,7 +15,13 @@ Desugared Clang Results:
 return  __err_1  ;// L17
 ^~~~~~~~~~~~~~~
 1 warning generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
-	41 has a match!
+	45 has a match!
 Unmatched ids:
 	None!
+Matches:
+Unmatched ids:
+	46

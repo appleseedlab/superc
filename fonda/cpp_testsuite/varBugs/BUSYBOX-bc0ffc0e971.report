@@ -2,55 +2,93 @@ BUSYBOX bc0ffc0e971.c
 Macros:
 	ENABLE_FEATURE_CLEAN_UP
 [-UENABLE_FEATURE_CLEAN_UP ]
-81 :: Line:46
+clang :: 138 :: Line:46
 	Potential leak of memory pointed to by 'clist' [unix.Malloc]
+infer :: 139 :: Line:40
+	Memory Leak
+infer :: 140 :: Line:40
+	Null Dereference
 Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2184:1: warning: Attempt to free released memory [unix.Malloc]
-free ( __ch_1826  -> __ifname_1822) ; // L15
-^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2257:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_1823', which is incompatible with sizeof operand type 'struct (unnamed struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2238:1)' [unix.MallocSizeof]
- __ch_1848  = malloc (sizeof(__sizeofStandin_1852)) ; // L29
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3380:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_2394', which is incompatible with sizeof operand type 'struct (unnamed struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3337:1)' [unix.MallocSizeof]
+ __ch_2419  = malloc (sizeof(__sizeofStandin_2423)) ; // L29
               ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2260:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_1823', which is incompatible with sizeof operand type 'struct (unnamed struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2238:1)' [unix.MallocSizeof]
- __ch_1848  = malloc (sizeof(__sizeofStandin_1852)) ; // L29
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3383:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_2394', which is incompatible with sizeof operand type 'struct (unnamed struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3337:1)' [unix.MallocSizeof]
+ __ch_2419  = malloc (sizeof(__sizeofStandin_2423)) ; // L29
               ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2262:30: warning: Access to field '__ifname_1822' results in a dereference of an undefined pointer value (loaded from variable '__ch_1848') [core.NullDereference]
- __ch_1848  -> __ifname_1822 =  __ifname_1847  ; // L30
- ~~~~~~~~~                   ^
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2262:33: warning: Potential leak of memory pointed to by '__ch_1848' [unix.Malloc]
- __ch_1848  -> __ifname_1822 =  __ifname_1847  ; // L30
-                                ^~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2297:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_1824', which is incompatible with sizeof operand type 'struct (unnamed struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2279:1)' [unix.MallocSizeof]
- __ch_1849  = malloc (sizeof(__sizeofStandin_1855)) ; // L29
-              ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2300:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_1824', which is incompatible with sizeof operand type 'struct (unnamed struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2279:1)' [unix.MallocSizeof]
- __ch_1849  = malloc (sizeof(__sizeofStandin_1855)) ; // L29
-              ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2302:30: warning: Access to field '__ifname_1822' results in a dereference of an undefined pointer value (loaded from variable '__ch_1849') [core.NullDereference]
- __ch_1849  -> __ifname_1822 =  __ifname_1847  ; // L30
- ~~~~~~~~~                   ^
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2302:33: warning: Potential leak of memory pointed to by '__ch_1849' [unix.Malloc]
- __ch_1849  -> __ifname_1822 =  __ifname_1847  ; // L30
-                                ^~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2333:39: warning: Potential leak of memory pointed to by '__ch_1872' [unix.Malloc]
-for (  __ch_1872  =  __clist_1870  ;  __ch_1872  ;  __ch_1872  =  __ch_1872  -> __next_1821 )// L43
-                                      ^~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2333:67: warning: Use of memory after it is freed [unix.Malloc]
-for (  __ch_1872  =  __clist_1870  ;  __ch_1872  ;  __ch_1872  =  __ch_1872  -> __next_1821 )// L43
-                                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2338:5: warning: Potential leak of memory pointed to by '__clist_1870' [unix.Malloc]
-if (__static_condition_default_1876) {
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3385:5: warning: Potential leak of memory pointed to by '__ch_2419' [unix.Malloc]
+if (__static_condition_default_2438) {
     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2339:39: warning: Potential leak of memory pointed to by '__ch_1873' [unix.Malloc]
-for (  __ch_1873  =  __clist_1871  ;  __ch_1873  ;  __ch_1873  =  __ch_1873  -> __next_1821 )// L43
-                                      ^~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2339:67: warning: Use of memory after it is freed [unix.Malloc]
-for (  __ch_1873  =  __clist_1871  ;  __ch_1873  ;  __ch_1873  =  __ch_1873  -> __next_1821 )// L43
-                                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2344:5: warning: Potential leak of memory pointed to by '__clist_1871' [unix.Malloc]
-if (__static_condition_default_1877) {
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3388:30: warning: Access to field '__ifname_2393' results in a dereference of an undefined pointer value (loaded from variable '__ch_2419') [core.NullDereference]
+ __ch_2419  -> __ifname_2393 =  __ifname_2418  ; // L30
+ ~~~~~~~~~                   ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3447:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_2395', which is incompatible with sizeof operand type 'struct (unnamed struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3405:1)' [unix.MallocSizeof]
+ __ch_2420  = malloc (sizeof(__sizeofStandin_2426)) ; // L29
+              ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3450:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_2395', which is incompatible with sizeof operand type 'struct (unnamed struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3405:1)' [unix.MallocSizeof]
+ __ch_2420  = malloc (sizeof(__sizeofStandin_2426)) ; // L29
+              ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3452:5: warning: Potential leak of memory pointed to by '__ch_2420' [unix.Malloc]
+if (__static_condition_default_2448) {
     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-15 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3455:30: warning: Access to field '__ifname_2393' results in a dereference of an undefined pointer value (loaded from variable '__ch_2420') [core.NullDereference]
+ __ch_2420  -> __ifname_2393 =  __ifname_2418  ; // L30
+ ~~~~~~~~~                   ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3486:39: warning: Potential leak of memory pointed to by '__ch_2453' [unix.Malloc]
+for (  __ch_2453  =  __clist_2451  ;  __ch_2453  ;  __ch_2453  =  __ch_2453  -> __next_2392 )// L43
+                                      ^~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3486:67: warning: Use of memory after it is freed [unix.Malloc]
+for (  __ch_2453  =  __clist_2451  ;  __ch_2453  ;  __ch_2453  =  __ch_2453  -> __next_2392 )// L43
+                                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3491:5: warning: Potential leak of memory pointed to by '__clist_2451' [unix.Malloc]
+if (__static_condition_default_2457) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3492:39: warning: Potential leak of memory pointed to by '__ch_2454' [unix.Malloc]
+for (  __ch_2454  =  __clist_2452  ;  __ch_2454  ;  __ch_2454  =  __ch_2454  -> __next_2392 )// L43
+                                      ^~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3492:67: warning: Use of memory after it is freed [unix.Malloc]
+for (  __ch_2454  =  __clist_2452  ;  __ch_2454  ;  __ch_2454  =  __ch_2454  -> __next_2392 )// L43
+                                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3497:5: warning: Potential leak of memory pointed to by '__clist_2452' [unix.Malloc]
+if (__static_condition_default_2458) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+14 warnings generated.
+Desugared Infer Results:
+
+BUSYBOX/bc0ffc0e971.desugared.c:3382: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 3380 is not freed after the last access at line 3382, column 5.
+  3380.  __ch_2419  = malloc (sizeof(__sizeofStandin_2423)) ; // L29
+  3381. }
+  3382. if (__static_condition_default_2437) {
+            ^
+  3383.  __ch_2419  = malloc (sizeof(__sizeofStandin_2423)) ; // L29
+  3384. }
+
+BUSYBOX/bc0ffc0e971.desugared.c:3449: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 3447 is not freed after the last access at line 3449, column 5.
+  3447.  __ch_2420  = malloc (sizeof(__sizeofStandin_2426)) ; // L29
+  3448. }
+  3449. if (__static_condition_default_2447) {
+            ^
+  3450.  __ch_2420  = malloc (sizeof(__sizeofStandin_2426)) ; // L29
+  3451. }
+
+BUSYBOX/bc0ffc0e971.desugared.c:3491: error: Memory Leak
+  Memory dynamically allocated by `malloc`, indirectly via call to `__prepend_new_eth_table_2428()` on line 3483 is not freed after the last access at line 3491, column 5.
+  3489. }
+  3490. }
+  3491. if (__static_condition_default_2457) {
+            ^
+  3492. for (  __ch_2454  =  __clist_2452  ;  __ch_2454  ;  __ch_2454  =  __ch_2454  -> __next_2392 )// L43
+  3493. {
+
+
+Found 3 issues
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 3
 Matches:
 Unmatched ids:
-	81
+	138
+Matches:
+Unmatched ids:
+	139
+	140

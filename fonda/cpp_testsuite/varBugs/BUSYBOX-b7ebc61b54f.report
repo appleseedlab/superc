@@ -3,4 +3,8 @@ Macros:
 	CONFIG_FEATURE_LS_TIMESTAMPS
 [-UCONFIG_FEATURE_LS_TIMESTAMPS ]
 Desugared Clang Results:
+Desugared Infer Results:
+
+  No issues found  
+Original file has no warnings
 Original file has no warnings

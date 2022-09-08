@@ -7,15 +7,15 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_3;
 extern const bool __static_condition_default_4;
 extern const bool __static_condition_default_5;
-extern const bool __static_condition_default_11;
-extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_13;
 extern const bool __static_condition_default_1;
+extern const bool __static_condition_default_3;
+extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_11;
 void __static_initializer_default() {
 __static_renaming("__backlight_device_unregister_0", "backlight_device_unregister");
 __static_renaming("__acpi_video_bus_put_one_device_2", "acpi_video_bus_put_one_device");

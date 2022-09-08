@@ -3,40 +3,93 @@ Macros:
 	CONFIG_FEATURE_LS_RECURSIVE
 	CONFIG_FEATURE_LS_SORTFILES
 [-UCONFIG_FEATURE_LS_RECURSIVE -UCONFIG_FEATURE_LS_SORTFILES ]
-72 :: Line:67
+clang :: 110 :: Line:67
 	Assigned value is garbage or undefined [core.uninitialized.Assign]
+infer :: 111 :: Line:66
+	Null Dereference
+infer :: 112 :: Line:67
+	Uninitialized Value
 [-DCONFIG_FEATURE_LS_RECURSIVE=1 -UCONFIG_FEATURE_LS_SORTFILES ]
-73 :: Line:67
+clang :: 113 :: Line:67
 	Assigned value is garbage or undefined [core.uninitialized.Assign]
+infer :: 114 :: Line:66
+	Null Dereference
+infer :: 115 :: Line:67
+	Uninitialized Value
 [-UCONFIG_FEATURE_LS_RECURSIVE -DCONFIG_FEATURE_LS_SORTFILES=1 ]
-74 :: Line:67
+clang :: 116 :: Line:67
 	Assigned value is garbage or undefined [core.uninitialized.Assign]
+infer :: 117 :: Line:66
+	Null Dereference
+infer :: 118 :: Line:67
+	Uninitialized Value
 [-DCONFIG_FEATURE_LS_RECURSIVE=1 -DCONFIG_FEATURE_LS_SORTFILES=1 ]
-75 :: Line:67
+clang :: 119 :: Line:67
 	Assigned value is garbage or undefined [core.uninitialized.Assign]
+infer :: 120 :: Line:66
+	Null Dereference
+infer :: 121 :: Line:67
+	Uninitialized Value
 Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1250:42: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_963', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_986)' [unix.MallocSizeof]
- __curr_979  = ( struct __dnode_963  * ) malloc (sizeof(typeof(__sizeofStandin_986))) ; // L65
-                 ~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1253:42: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_963', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_986)' [unix.MallocSizeof]
- __curr_979  = ( struct __dnode_963  * ) malloc (sizeof(typeof(__sizeofStandin_986))) ; // L65
-                 ~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1256:27: warning: Access to field '__val_964' results in a dereference of an undefined pointer value (loaded from variable '__curr_979') [core.NullDereference]
- __curr_979  -> __val_964 = rand( ) % 10 ; // L66
- ~~~~~~~~~~               ^
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1259:27: warning: Access to field '__val_964' results in a dereference of an undefined pointer value (loaded from variable '__curr_979') [core.NullDereference]
- __curr_979  -> __val_964 = rand( ) % 10 ; // L66
- ~~~~~~~~~~               ^
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1261:28: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
- __curr_979  -> __next_965 =  __head_980  ; // L67
-                           ^  ~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1261:28: warning: Access to field '__next_965' results in a dereference of an undefined pointer value (loaded from variable '__curr_979') [core.NullDereference]
- __curr_979  -> __next_965 =  __head_980  ; // L67
- ~~~~~~~~~~                ^
-6 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3171:44: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' [unix.MallocSizeof]
+ __curr_2072  = ( struct __dnode_2037  * ) malloc (sizeof(typeof(__sizeofStandin_2079))) ; // L65
+                  ~~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3174:44: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' [unix.MallocSizeof]
+ __curr_2072  = ( struct __dnode_2037  * ) malloc (sizeof(typeof(__sizeofStandin_2079))) ; // L65
+                  ~~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3177:44: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' [unix.MallocSizeof]
+ __curr_2072  = ( struct __dnode_2037  * ) malloc (sizeof(typeof(__sizeofStandin_2079))) ; // L65
+                  ~~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3180:44: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' [unix.MallocSizeof]
+ __curr_2072  = ( struct __dnode_2037  * ) malloc (sizeof(typeof(__sizeofStandin_2079))) ; // L65
+                  ~~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3186:29: warning: Access to field '__val_2038' results in a dereference of an undefined pointer value (loaded from variable '__curr_2072') [core.NullDereference]
+ __curr_2072  -> __val_2038 = rand( ) % 10 ; // L66
+ ~~~~~~~~~~~                ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3191:30: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
+ __curr_2072  -> __next_2039 =  __head_2073  ; // L67
+                             ^  ~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3191:30: warning: Access to field '__next_2039' results in a dereference of an undefined pointer value (loaded from variable '__curr_2072') [core.NullDereference]
+ __curr_2072  -> __next_2039 =  __head_2073  ; // L67
+ ~~~~~~~~~~~                 ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3255:44: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' [unix.MallocSizeof]
+ __curr_2072  = ( struct __dnode_2037  * ) malloc (sizeof(typeof(__sizeofStandin_2079))) ; // L65
+                  ~~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3258:44: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' [unix.MallocSizeof]
+ __curr_2072  = ( struct __dnode_2037  * ) malloc (sizeof(typeof(__sizeofStandin_2079))) ; // L65
+                  ~~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3261:44: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' [unix.MallocSizeof]
+ __curr_2072  = ( struct __dnode_2037  * ) malloc (sizeof(typeof(__sizeofStandin_2079))) ; // L65
+                  ~~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3264:44: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' [unix.MallocSizeof]
+ __curr_2072  = ( struct __dnode_2037  * ) malloc (sizeof(typeof(__sizeofStandin_2079))) ; // L65
+                  ~~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3270:29: warning: Access to field '__val_2038' results in a dereference of an undefined pointer value (loaded from variable '__curr_2072') [core.NullDereference]
+ __curr_2072  -> __val_2038 = rand( ) % 10 ; // L66
+ ~~~~~~~~~~~                ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3275:30: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
+ __curr_2072  -> __next_2039 =  __head_2073  ; // L67
+                             ^  ~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3275:30: warning: Access to field '__next_2039' results in a dereference of an undefined pointer value (loaded from variable '__curr_2072') [core.NullDereference]
+ __curr_2072  -> __next_2039 =  __head_2073  ; // L67
+ ~~~~~~~~~~~                 ^
+14 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
 Unmatched ids:
-	72
-	73
-	74
-	75
+	110
+	113
+	116
+	119
+Matches:
+Unmatched ids:
+	111
+	112
+	114
+	115
+	117
+	118
+	120
+	121

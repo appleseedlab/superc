@@ -22,4 +22,8 @@ free ( __hdr_8 ) ; // L67
 return  __err_10  ;// L69
         ^~~~~~~~
 6 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
+Original file has no warnings
 Original file has no warnings

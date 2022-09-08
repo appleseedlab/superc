@@ -7,4 +7,8 @@ Macros:
 [-UDEBUG_CGI -DOS2=1 ]
 [-DDEBUG_CGI=1 -DOS2=1 ]
 Desugared Clang Results:
+Desugared Infer Results:
+
+  No issues found  
+Original file has no warnings
 Original file has no warnings

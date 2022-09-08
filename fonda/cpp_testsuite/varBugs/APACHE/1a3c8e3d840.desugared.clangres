@@ -1,13 +1,7 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1a3c8e3d840.desugared.c:273:2: warning: Value stored to '__thisopt_252' is never read [deadcode.DeadStores]
- __thisopt_252  = ( 1 << 3 ) ; // L4:L13
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1a3c8e3d840.desugared.c:1332:2: warning: Value stored to '__thisopt_798' is never read [deadcode.DeadStores]
+ __thisopt_798  = ( 1 << 3 ) ; // L4:L13
  ^                ~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1a3c8e3d840.desugared.c:287:2: warning: Value stored to '__thisopt_252' is never read [deadcode.DeadStores]
- __thisopt_252  = ( 1 << 3 ) ; // L4:L13
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1a3c8e3d840.desugared.c:1368:2: warning: Value stored to '__thisopt_798' is never read [deadcode.DeadStores]
+ __thisopt_798  = ( 1 << 3 ) ; // L4:L13
  ^                ~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1a3c8e3d840.desugared.c:318:2: warning: Value stored to '__thisopt_252' is never read [deadcode.DeadStores]
- __thisopt_252  = ( 1 << 3 ) ; // L4:L13
- ^                ~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1a3c8e3d840.desugared.c:332:2: warning: Value stored to '__thisopt_252' is never read [deadcode.DeadStores]
- __thisopt_252  = ( 1 << 3 ) ; // L4:L13
- ^                ~~~~~~~~~~
-4 warnings generated.
+2 warnings generated.

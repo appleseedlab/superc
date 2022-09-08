@@ -4,8 +4,10 @@ Macros:
 	ENABLE_FEATURE_STAT_FORMAT
 [-UENABLE_SELINUX -UENABLE_FEATURE_STAT_FORMAT ]
 [-DENABLE_SELINUX=1 -UENABLE_FEATURE_STAT_FORMAT ]
-57 :: Line:14
+clang :: 68 :: Line:14
 	Dereference of null pointer (loaded from variable 'scontext') [core.NullDereference]
+infer :: 69 :: Line:14
+	Null Dereference
 [-UENABLE_SELINUX -DENABLE_FEATURE_STAT_FORMAT=1 ]
 [-DENABLE_SELINUX=1 -DENABLE_FEATURE_STAT_FORMAT=1 ]
 Desugared Clang Results:
@@ -16,7 +18,13 @@ Desugared Clang Results:
  __printf_421  (" %lc\n",*  __scontext_2038 ) ; // L14
                          ^~~~~~~~~~~~~~~~~~
 2 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
-	57 has a match!
+	68 has a match!
 Unmatched ids:
 	None!
+Matches:
+Unmatched ids:
+	69

@@ -3,4 +3,8 @@ Macros:
 	__STDC_VERSION__
 [-U__STDC_VERSION__ ]
 Desugared Clang Results:
+Desugared Infer Results:
+
+  No issues found  
+Original file has no warnings
 Original file has no warnings

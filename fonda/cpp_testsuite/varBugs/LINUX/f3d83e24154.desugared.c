@@ -7,24 +7,24 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_230;
-extern const bool __static_condition_default_212;
-extern const bool __static_condition_default_191;
-extern const bool __static_condition_default_232;
 extern const bool __static_condition_default_5;
-extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_221;
-extern const bool __static_condition_default_176;
+extern const bool __static_condition_default_191;
+extern const bool __static_condition_default_212;
 extern const bool __static_condition_default_222;
-extern const bool __static_condition_default_225;
-extern const bool __static_condition_default_224;
-extern const bool __static_condition_default_231;
-extern const bool __static_condition_default_192;
+extern const bool __static_condition_default_221;
+extern const bool __static_condition_default_14;
 extern const bool __static_condition_default_183;
-extern const bool __static_condition_default_216;
-extern const bool __static_condition_default_223;
-extern const bool __static_condition_default_196;
+extern const bool __static_condition_default_232;
+extern const bool __static_condition_default_225;
 extern const bool __static_condition_default_209;
+extern const bool __static_condition_default_231;
+extern const bool __static_condition_default_223;
+extern const bool __static_condition_default_176;
+extern const bool __static_condition_default_196;
+extern const bool __static_condition_default_224;
+extern const bool __static_condition_default_216;
+extern const bool __static_condition_default_230;
+extern const bool __static_condition_default_192;
 void __static_initializer_default() {
 __static_renaming("__ptrdiff_t_0", "ptrdiff_t");
 __static_renaming("__size_t_1", "size_t");

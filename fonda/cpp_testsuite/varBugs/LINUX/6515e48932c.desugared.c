@@ -7,12 +7,12 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_11;
-extern const bool __static_condition_default_10;
-extern const bool __static_condition_default_5;
-extern const bool __static_condition_default_3;
-extern const bool __static_condition_default_1;
 extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_3;
+extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_1;
+extern const bool __static_condition_default_5;
 void __static_initializer_default() {
 __static_renaming("__omap2_set_globals_242x_0", "omap2_set_globals_242x");
 __static_renaming("__omap_h4_map_io_2", "omap_h4_map_io");

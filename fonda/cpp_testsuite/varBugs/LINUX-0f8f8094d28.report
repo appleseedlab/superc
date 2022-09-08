@@ -31,4 +31,8 @@ Macros:
 [-DCONFIG_FORCE_MAX_ZONEORDER=1 -Ddefined=1 -DCONFIG_SLAB=1 -UCONFIG_SLOB -DCONFIG_LOCKDEP=1 ]
 [-UCONFIG_FORCE_MAX_ZONEORDER -Udefined -UCONFIG_SLAB -DCONFIG_SLOB=1 -DCONFIG_LOCKDEP=1 ]
 Desugared Clang Results:
+Desugared Infer Results:
+
+  No issues found  
+Original file has no warnings
 Original file has no warnings

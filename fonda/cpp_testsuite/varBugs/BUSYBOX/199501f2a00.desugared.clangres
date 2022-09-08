@@ -1,7 +1,4 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/199501f2a00.desugared.c:1543:2: warning: Value stored to '__dt_1258' is never read [deadcode.DeadStores]
- __dt_1258  = "-i" ; // L10
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/199501f2a00.desugared.c:3282:2: warning: Value stored to '__dt_2390' is never read [deadcode.DeadStores]
+ __dt_2390  = "-i" ; // L10
  ^            ~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/199501f2a00.desugared.c:1557:2: warning: Value stored to '__dt_1258' is never read [deadcode.DeadStores]
- __dt_1258  = "-i" ; // L10
- ^            ~~~~
-2 warnings generated.
+1 warning generated.

@@ -6,5 +6,4 @@ Macros:
 [-DBABYSTEPPING=1 -UDELTA ]
 [-UBABYSTEPPING -DDELTA=1 ]
 [-DBABYSTEPPING=1 -DDELTA=1 ]
-Desugared Clang Results:
-Original file has no warnings
+File Failed

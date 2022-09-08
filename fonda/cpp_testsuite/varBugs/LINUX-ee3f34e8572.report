@@ -20,4 +20,8 @@ Desugared Clang Results:
 ( ( *  __rt_814  ) ++ ) ; // L23:L45
   ^~~~~~~~~~~~~~~~~~~
 2 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
+Original file has no warnings
 Original file has no warnings

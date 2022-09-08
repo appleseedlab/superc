@@ -7,4 +7,8 @@ Macros:
 [-UCONFIG_LBDAF -DCONFIG_AMIGA_Z2RAM=1 ]
 [-DCONFIG_LBDAF=1 -DCONFIG_AMIGA_Z2RAM=1 ]
 Desugared Clang Results:
+Desugared Infer Results:
+
+  No issues found  
+Original file has no warnings
 Original file has no warnings

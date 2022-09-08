@@ -1,25 +1,25 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.desugared.c:2230:25: error: initializer element is not a compile-time constant
-char  * (__iobuf_1822)= malloc (8192);// L15
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.desugared.c:3291:25: error: initializer element is not a compile-time constant
+char  * (__iobuf_2392)= malloc (8192);// L15
                         ^~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.desugared.c:2231:25: error: initializer element is not a compile-time constant
-char  * (__iobuf_1823)= malloc (8192);// L15
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.desugared.c:3292:25: error: initializer element is not a compile-time constant
+char  * (__iobuf_2393)= malloc (8192);// L15
                         ^~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.desugared.c:2232:25: error: initializer element is not a compile-time constant
-char  * (__iobuf_1824)= malloc (8192);// L15
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.desugared.c:3293:25: error: initializer element is not a compile-time constant
+char  * (__iobuf_2394)= malloc (8192);// L15
                         ^~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.desugared.c:2233:25: error: initializer element is not a compile-time constant
-char  * (__iobuf_1825)= malloc (8192);// L15
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.desugared.c:3294:25: error: initializer element is not a compile-time constant
+char  * (__iobuf_2395)= malloc (8192);// L15
                         ^~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.desugared.c:2234:25: error: initializer element is not a compile-time constant
-char  * (__iobuf_1826)= malloc (8192);// L15
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.desugared.c:3295:25: error: initializer element is not a compile-time constant
+char  * (__iobuf_2397)= malloc (8192);// L15
                         ^~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.desugared.c:2235:25: error: initializer element is not a compile-time constant
-char  * (__iobuf_1827)= malloc (8192);// L15
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.desugared.c:3296:25: error: initializer element is not a compile-time constant
+char  * (__iobuf_2398)= malloc (8192);// L15
                         ^~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.desugared.c:2236:25: error: initializer element is not a compile-time constant
-char  * (__iobuf_1828)= malloc (8192);// L15
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.desugared.c:3297:25: error: initializer element is not a compile-time constant
+char  * (__iobuf_2399)= malloc (8192);// L15
                         ^~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.desugared.c:2237:25: error: initializer element is not a compile-time constant
-char  * (__iobuf_1829)= malloc (8192);// L15
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/95755181b82.desugared.c:3298:25: error: initializer element is not a compile-time constant
+char  * (__iobuf_2400)= malloc (8192);// L15
                         ^~~~~~~~~~~~~
 8 errors generated.

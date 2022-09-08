@@ -7,4 +7,8 @@ Macros:
 [-UHAVE_SYSLOG -DAPLOG_MAX_LOGLEVEL=1 ]
 [-DHAVE_SYSLOG=1 -DAPLOG_MAX_LOGLEVEL=1 ]
 Desugared Clang Results:
+Desugared Infer Results:
+
+  No issues found  
+Original file has no warnings
 Original file has no warnings

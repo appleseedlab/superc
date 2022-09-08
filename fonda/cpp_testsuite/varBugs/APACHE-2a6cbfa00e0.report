@@ -2,25 +2,32 @@ APACHE 2a6cbfa00e0.c
 Macros:
 	SHARED_MODULE
 [-USHARED_MODULE ]
-108 :: Line:16
+clang :: 184 :: Line:16
 	Potential leak of memory pointed to by 'sc' [unix.Malloc]
 Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1496:5: warning: Potential leak of memory pointed to by '__sc_1019' [unix.Malloc]
-if (__static_condition_default_1028) {
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1569:5: warning: Potential leak of memory pointed to by '__sc_1084' [unix.Malloc]
+if (__static_condition_default_1093) {
     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1499:5: warning: Potential leak of memory pointed to by '__sc_1018' [unix.Malloc]
-if (__static_condition_default_1029) {
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1603:5: warning: Potential leak of memory pointed to by '__sc_1085' [unix.Malloc]
+if (__static_condition_default_1098) {
     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1525:10: warning: Value stored to '__sc_1021' during its initialization is never read [deadcode.DeadStores]
-char  * (__sc_1021)= malloc (sizeof(char) * 45);// L6
-         ^~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1527:1: warning: Potential leak of memory pointed to by '__sc_1021' [unix.Malloc]
-__static_type_error("type error") ; // L9
-^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1531:5: warning: Potential leak of memory pointed to by '__sc_1020' [unix.Malloc]
-if (__static_condition_default_1034) {
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-5 warnings generated.
+2 warnings generated.
+Desugared Infer Results:
+
+APACHE/2a6cbfa00e0.desugared.c:1600: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1593 is not freed after the last access at line 1600, column 5.
+  1598. 
+  1599. __static_type_error("type error") ; // L9
+  1600. if (__static_condition_default_1097) {
+            ^
+  1601. free ( __sc_1085 ) ; // L12
+  1602. }
+
+
+Found 1 issue
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 1
 Matches:
 Unmatched ids:
-	108
+	184
+Original file has no warnings

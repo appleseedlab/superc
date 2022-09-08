@@ -2,4 +2,13 @@ LINUX d7e9711760a.c
 Macros:
 	CONFIG_QUOTA_DEBUG
 [-UCONFIG_QUOTA_DEBUG ]
-File Failed
+Desugared Clang Results:
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/d7e9711760a.desugared.c:1397:2: warning: Value stored to '__reserved_803' is never read [deadcode.DeadStores]
+ __reserved_803  = 1 ; // L30
+ ^                 ~
+1 warning generated.
+Desugared Infer Results:
+
+  No issues found  
+Original file has no warnings
+Original file has no warnings

@@ -40,4 +40,8 @@ if (__static_condition_default_2056) {
 if (__static_condition_default_2057) {
     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 12 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
+Original file has no warnings
 Original file has no warnings

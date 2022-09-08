@@ -7,4 +7,8 @@ Macros:
 [-UCONFIG_RCU_CPU_STALL_INFO -DCONFIG_RCU_FAST_NO_HZ=1 ]
 [-DCONFIG_RCU_CPU_STALL_INFO=1 -DCONFIG_RCU_FAST_NO_HZ=1 ]
 Desugared Clang Results:
+Desugared Infer Results:
+
+  No issues found  
+Original file has no warnings
 Original file has no warnings

@@ -7,4 +7,8 @@ Macros:
 [-UCONFIG_VLAN_8021Q -DCONFIG_RPS=1 ]
 [-DCONFIG_VLAN_8021Q=1 -DCONFIG_RPS=1 ]
 Desugared Clang Results:
+Desugared Infer Results:
+
+  No issues found  
+Original file has no warnings
 Original file has no warnings

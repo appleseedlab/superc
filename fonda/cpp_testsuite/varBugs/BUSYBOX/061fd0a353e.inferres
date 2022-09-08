@@ -1,0 +1,23 @@
+
+BUSYBOX/061fd0a353e.c:20: error: Uninitialized Value
+  `p` is read without initialization.
+  18.       #ifdef CONFIG_FEATURE_HDPARM_HDIO_UNREGISTER_HWIF
+  19.     case 'U':
+  20.       if(!p)
+                ^
+  21.         goto expected_hwif_error; //ERROR
+  22.       break;
+
+BUSYBOX/061fd0a353e.c:27: error: Uninitialized Value
+  `p` is read without initialization.
+  25.       #ifdef CONFIG_FEATURE_HDPARM_HDIO_SCAN_HWIF
+  26.     case 'R':
+  27.       if(!p)
+                ^
+  28.         goto expected_hwif_error;
+  29. 
+
+
+Found 2 issues
+                      Issue Type(ISSUED_TYPE_ID): #
+  Uninitialized Value(PULSE_UNINITIALIZED_VALUE): 2

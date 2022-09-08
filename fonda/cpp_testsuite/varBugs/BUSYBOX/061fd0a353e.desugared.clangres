@@ -1,0 +1,7 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/061fd0a353e.desugared.c:3062:2: warning: Value stored to '__p_2040' is never read [deadcode.DeadStores]
+ __p_2040  = *  __argv_2037  ++ , --  __argc_2036  ; // L16
+ ^           ~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/061fd0a353e.desugared.c:3229:2: warning: Value stored to '__p_2040' is never read [deadcode.DeadStores]
+ __p_2040  = *  __argv_2037  ++ , --  __argc_2036  ; // L16
+ ^           ~~~~~~~~~~~~~~~~~~
+2 warnings generated.

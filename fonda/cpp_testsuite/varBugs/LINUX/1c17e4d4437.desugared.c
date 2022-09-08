@@ -7,14 +7,14 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_24;
+extern const bool __static_condition_default_23;
+extern const bool __static_condition_default_19;
 extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_18;
-extern const bool __static_condition_default_23;
-extern const bool __static_condition_default_24;
-extern const bool __static_condition_default_11;
-extern const bool __static_condition_default_21;
-extern const bool __static_condition_default_19;
 extern const bool __static_condition_default_20;
+extern const bool __static_condition_default_21;
 void __static_initializer_default() {
 __static_renaming("__printf_1", "printf");
 __static_renaming("__sprintf_4", "sprintf");

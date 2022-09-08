@@ -3,9 +3,11 @@ Macros:
 	TEMP_RESIDENCY_TIME
 [-UTEMP_RESIDENCY_TIME ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 MARLIN 53be0f3399e.c
 Macros:
 	BABYSTEPPING
@@ -14,42 +16,57 @@ Macros:
 [-DBABYSTEPPING=1 -UDELTA ]
 [-UBABYSTEPPING -DDELTA=1 ]
 [-DBABYSTEPPING=1 -DDELTA=1 ]
-Desugared Clang Results:
-Original file has no warnings
-
-none   0 0
+File Failed
 MARLIN 31873ec707d.c
 Macros:
 	ULTRA_LCD
 [-UULTRA_LCD ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 MARLIN 2d22902d080.c
 Macros:
 	SDSUPPORT
 [-USDSUPPORT ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 MARLIN a7fc1f83c81.c
 Macros:
 	SDSUPPORT
 [-USDSUPPORT ]
 Desugared Clang Results:
-Original file has no warnings
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/a7fc1f83c81.desugared.c:199:6: warning: Value stored to '__len_217' during its initialization is never read [deadcode.DeadStores]
+int  __len_217=  __strlen_108  ( __prepend_216 ) + 13 + 1;// L10
+     ^~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/a7fc1f83c81.desugared.c:201:6: warning: Value stored to '__len_218' during its initialization is never read [deadcode.DeadStores]
+int  __len_218=  __strlen_109  ( __prepend_216 ) + 13 + 1;// L10
+     ^~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/a7fc1f83c81.desugared.c:211:7: warning: Value stored to '__lfilename_221' during its initialization is never read [deadcode.DeadStores]
+char  __lfilename_221[13]= "FOLDERNAME12\0";// L15
+      ^~~~~~~~~~~~~~~      ~~~~~~~~~~~~~~~~
+3 warnings generated.
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 MARLIN 30248214c7f.c
 Macros:
 	defined
 [-Udefined ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 MARLIN 2db384a21d6.c
 Macros:
 	MESH_BED_LEVELING
@@ -59,9 +76,11 @@ Macros:
 [-UMESH_BED_LEVELING -DDISABLE_M503=1 ]
 [-DMESH_BED_LEVELING=1 -DDISABLE_M503=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 MARLIN b8e79dce897.c
 Macros:
 	ULTRA_LCD
@@ -77,38 +96,46 @@ Macros:
 [-DULTRA_LCD=1 -DENCODER_RATE_MULTIPLIER=1 -DTEMP_SENSOR_0=1 ]
 [-UULTRA_LCD -UENCODER_RATE_MULTIPLIER -UTEMP_SENSOR_0 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 MARLIN 8c4377dd635.c
 Macros:
 	MARLIN_H
 	PIDTEMP
 	PID_DEBUG
 [-UMARLIN_H -UPIDTEMP -UPID_DEBUG ]
-1 :: Line:19
+clang :: 1 :: Line:19
 	Value stored to 'pid_output' is never read [deadcode.DeadStores]
 [-DMARLIN_H=1 -UPIDTEMP -UPID_DEBUG ]
-2 :: Line:19
+clang :: 2 :: Line:19
 	Value stored to 'pid_output' is never read [deadcode.DeadStores]
 [-UMARLIN_H -DPIDTEMP=1 -UPID_DEBUG ]
 [-DMARLIN_H=1 -DPIDTEMP=1 -UPID_DEBUG ]
 [-UMARLIN_H -UPIDTEMP -DPID_DEBUG=1 ]
-3 :: Line:19
+clang :: 3 :: Line:19
 	Value stored to 'pid_output' is never read [deadcode.DeadStores]
 [-DMARLIN_H=1 -UPIDTEMP -DPID_DEBUG=1 ]
-4 :: Line:19
+clang :: 4 :: Line:19
 	Value stored to 'pid_output' is never read [deadcode.DeadStores]
 [-UMARLIN_H -DPIDTEMP=1 -DPID_DEBUG=1 ]
 [-DMARLIN_H=1 -DPIDTEMP=1 -DPID_DEBUG=1 ]
 [-UMARLIN_H -UPIDTEMP -UPID_DEBUG ]
-5 :: Line:19
+clang :: 5 :: Line:19
 	Value stored to 'pid_output' is never read [deadcode.DeadStores]
 Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/8c4377dd635.desugared.c:59:2: warning: Value stored to '__pid_output_0' is never read [deadcode.DeadStores]
- __pid_output_0  = 0 ; // L19
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/8c4377dd635.desugared.c:94:2: warning: Value stored to '__pid_output_4' is never read [deadcode.DeadStores]
+ __pid_output_4  = 0 ; // L19
  ^                 ~
-1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/8c4377dd635.desugared.c:138:2: warning: Value stored to '__pid_output_4' is never read [deadcode.DeadStores]
+ __pid_output_4  = 0 ; // L19
+ ^                 ~
+2 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
 	1 has a match!
 	2 has a match!
@@ -117,8 +144,7 @@ Matches:
 	5 has a match!
 Unmatched ids:
 	None!
-
-missing1 0
+Original file has no warnings
 MARLIN fc3c76fc164.c
 Macros:
 	HAS_HEATER_THERMAL_PROTECTION
@@ -128,9 +154,11 @@ Macros:
 [-UHAS_HEATER_THERMAL_PROTECTION -DHAS_BED_THERMAL_PROTECTION=1 ]
 [-DHAS_HEATER_THERMAL_PROTECTION=1 -DHAS_BED_THERMAL_PROTECTION=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 MARLIN 831016b09f7.c
 Macros:
 	ULTRA_LCD
@@ -140,33 +168,41 @@ Macros:
 [-UULTRA_LCD -DSDSUPPORT=1 ]
 [-DULTRA_LCD=1 -DSDSUPPORT=1 ]
 Desugared Clang Results:
-Original file has no warnings
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/831016b09f7.desugared.c:81:7: warning: Value stored to '__time_7' during its initialization is never read [deadcode.DeadStores]
+char  __time_7[30]= "time_here";// L14
+      ^~~~~~~~      ~~~~~~~~~~~
+1 warning generated.
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 MARLIN e30bfedce4d.c
 Macros:
 	ENABLE_AUTO_BED_LEVELING
 	AUTO_BED_LEVELING_GRID
 [-UENABLE_AUTO_BED_LEVELING -UAUTO_BED_LEVELING_GRID ]
 [-DENABLE_AUTO_BED_LEVELING=1 -UAUTO_BED_LEVELING_GRID ]
-8 :: Line:24
+clang :: 8 :: Line:24
 	Value stored to 'xGridSpacing' during its initialization is never read [deadcode.DeadStores]
 [-UENABLE_AUTO_BED_LEVELING -DAUTO_BED_LEVELING_GRID=1 ]
 [-DENABLE_AUTO_BED_LEVELING=1 -DAUTO_BED_LEVELING_GRID=1 ]
-9 :: Line:24
+clang :: 9 :: Line:24
 	Value stored to 'xGridSpacing' during its initialization is never read [deadcode.DeadStores]
 Desugared Clang Results:
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/e30bfedce4d.desugared.c:48:6: warning: Value stored to '__xGridSpacing_1' during its initialization is never read [deadcode.DeadStores]
 int  __xGridSpacing_1=  __left_probe_bed_position_0 ;// L24
      ^~~~~~~~~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 warning generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
 	8 has a match!
 	9 has a match!
 Unmatched ids:
 	None!
-
-none   0 0
+Original file has no warnings
 MARLIN 7336e6df070.c
 Macros:
 	Z_DUAL_STEPPER_DRIVERS
@@ -190,17 +226,21 @@ Macros:
 [-UZ_DUAL_STEPPER_DRIVERS -DZ_DUAL_ENDSTOPS=1 -DHAS_Z_MIN=1 -DHAS_Z_MAX=1 ]
 [-DZ_DUAL_STEPPER_DRIVERS=1 -DZ_DUAL_ENDSTOPS=1 -DHAS_Z_MIN=1 -DHAS_Z_MAX=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 MARLIN fdac8f6cece.c
 Macros:
 	ENABLE_AUTO_BED_LEVELING
 [-UENABLE_AUTO_BED_LEVELING ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX d530db0db90.c
 Macros:
 	CONFIG_VORTEX
@@ -210,47 +250,125 @@ Macros:
 [-UCONFIG_VORTEX -DCONFIG_PCI=1 ]
 [-DCONFIG_VORTEX=1 -DCONFIG_PCI=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX bc8cec0dff0.c
 Macros:
 	CONFIG_JFFS2_FS_WBUF_VERIFY
 [-UCONFIG_JFFS2_FS_WBUF_VERIFY ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
-LINUX/d7e9711760a    SuperC failed
+LINUX/bc8cec0dff0.desugared.c:198: error: Memory Leak
+  Memory dynamically allocated by `malloc`, indirectly via call to `__jffs2_nor_wbuf_flash_setup_7()` on line 187 is not freed after the last access at line 198, column 1.
+  196. 
+  197. 
+  198. }
+       ^
+  199. 
+
+
+Found 1 issue
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 1
+Original file has no warnings
+Original file has no warnings
 LINUX d7e9711760a.c
 Macros:
 	CONFIG_QUOTA_DEBUG
 [-UCONFIG_QUOTA_DEBUG ]
-File Failed
+Desugared Clang Results:
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/d7e9711760a.desugared.c:1397:2: warning: Value stored to '__reserved_803' is never read [deadcode.DeadStores]
+ __reserved_803  = 1 ; // L30
+ ^                 ~
+1 warning generated.
+Desugared Infer Results:
+
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 221ac329e93.c
 Macros:
 	CONFIG_KPROBES
 [-UCONFIG_KPROBES ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+LINUX/221ac329e93.desugared.c:4742: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 4681 is not freed after the last access at line 4742, column 1.
+  4740. 
+  4741. }
+  4742. }
+        ^
+  4743. int  (__main_3993) (int  __argc_3990, char  * (* (__argv_3991))) {
+  4744. 
+
+LINUX/221ac329e93.desugared.c:4742: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 4691 is not freed after the last access at line 4742, column 1.
+  4740. 
+  4741. }
+  4742. }
+        ^
+  4743. int  (__main_3993) (int  __argc_3990, char  * (* (__argv_3991))) {
+  4744. 
+
+LINUX/221ac329e93.desugared.c:4742: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 4701 is not freed after the last access at line 4742, column 1.
+  4740. 
+  4741. }
+  4742. }
+        ^
+  4743. int  (__main_3993) (int  __argc_3990, char  * (* (__argv_3991))) {
+  4744. 
+
+LINUX/221ac329e93.desugared.c:4742: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 4711 is not freed after the last access at line 4742, column 1.
+  4740. 
+  4741. }
+  4742. }
+        ^
+  4743. int  (__main_3993) (int  __argc_3990, char  * (* (__argv_3991))) {
+  4744. 
+
+
+Found 4 issues
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 4
+Original file has no warnings
+Original file has no warnings
 LINUX 51fd36f3fad.c
 Macros:
 	CONFIG_64BIT
 [-UCONFIG_64BIT ]
 Desugared Clang Results:
-Original file has no warnings
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/51fd36f3fad.desugared.c:216:1: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
+return  __tmp_38  ;// L45
+^~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/51fd36f3fad.desugared.c:256:1: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
+return  __expires_47  ;// L60
+^~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/51fd36f3fad.desugared.c:300:1: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
+return  __expires_47  ;// L60
+^~~~~~~~~~~~~~~~~~~~
+3 warnings generated.
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 208d89843b7.c
 Macros:
 	CONFIG_HIGHMEM
 [-UCONFIG_HIGHMEM ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX ee3f34e8572.c
 Macros:
 	SCTP_DEBUG
@@ -273,9 +391,11 @@ Desugared Clang Results:
 ( ( *  __rt_814  ) ++ ) ; // L23:L45
   ^~~~~~~~~~~~~~~~~~~
 2 warnings generated.
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 472a474c663.c
 Macros:
 	CONFIG_SMP
@@ -285,9 +405,11 @@ Desugared Clang Results:
 *  __ptr_3  = 'a' ; // L14
    ~~~~~~~  ^
 1 warning generated.
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 657e9649e74.c
 Macros:
 	CONFIG_PREEMPT
@@ -297,9 +419,11 @@ Macros:
 [-UCONFIG_PREEMPT -DCONFIG_TCP_MD5SIG=1 ]
 [-DCONFIG_PREEMPT=1 -DCONFIG_TCP_MD5SIG=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX f7ab9b407b3.c
 Macros:
 	CONFIG_TMPFS
@@ -315,26 +439,30 @@ Macros:
 [-DCONFIG_TMPFS=1 -DCONFIG_SHMEM=1 -DCONFIG_DRM_I915=1 ]
 [-UCONFIG_TMPFS -UCONFIG_SHMEM -UCONFIG_DRM_I915 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 36855dcfc98.c
 Macros:
 	CONFIG_BF60x
 [-UCONFIG_BF60x ]
-11 :: Line:6
+clang :: 11 :: Line:6
 	Value stored to 'wakeup' is never read [deadcode.DeadStores]
 Desugared Clang Results:
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/36855dcfc98.desugared.c:32:2: warning: Value stored to '__wakeup_0' is never read [deadcode.DeadStores]
  __wakeup_0  = 0 ; // L6
  ^             ~
 1 warning generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
 	11 has a match!
 Unmatched ids:
 	None!
-
-none   0 0
+Original file has no warnings
 LINUX e1fbd9210d5.c
 Macros:
 	CONFIG_LBDAF
@@ -344,9 +472,11 @@ Macros:
 [-UCONFIG_LBDAF -DCONFIG_AMIGA_Z2RAM=1 ]
 [-DCONFIG_LBDAF=1 -DCONFIG_AMIGA_Z2RAM=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 66517915e09.c
 Macros:
 	CONFIG_SND_FSI_AK4642
@@ -360,55 +490,55 @@ Macros:
 [-DCONFIG_SND_FSI_AK4642=1 -DCONFIG_SND_FSI_DA7210=1 -UCONFIG_I2C -UCONFIG_SND_SOC_DA7210 -UCONFIG_SND_SOC_AK4642 ]
 [-UCONFIG_SND_FSI_AK4642 -UCONFIG_SND_FSI_DA7210 -DCONFIG_I2C=1 -UCONFIG_SND_SOC_DA7210 -UCONFIG_SND_SOC_AK4642 ]
 [-DCONFIG_SND_FSI_AK4642=1 -UCONFIG_SND_FSI_DA7210 -DCONFIG_I2C=1 -UCONFIG_SND_SOC_DA7210 -UCONFIG_SND_SOC_AK4642 ]
-13 :: Line:24
+clang :: 13 :: Line:24
 	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_SND_FSI_AK4642 -DCONFIG_SND_FSI_DA7210=1 -DCONFIG_I2C=1 -UCONFIG_SND_SOC_DA7210 -UCONFIG_SND_SOC_AK4642 ]
-14 :: Line:16
+clang :: 14 :: Line:16
 	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-DCONFIG_SND_FSI_AK4642=1 -DCONFIG_SND_FSI_DA7210=1 -DCONFIG_I2C=1 -UCONFIG_SND_SOC_DA7210 -UCONFIG_SND_SOC_AK4642 ]
-15 :: Line:16
+clang :: 15 :: Line:16
 	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
-16 :: Line:24
+clang :: 16 :: Line:24
 	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_SND_FSI_AK4642 -UCONFIG_SND_FSI_DA7210 -UCONFIG_I2C -DCONFIG_SND_SOC_DA7210=1 -UCONFIG_SND_SOC_AK4642 ]
 [-DCONFIG_SND_FSI_AK4642=1 -UCONFIG_SND_FSI_DA7210 -UCONFIG_I2C -DCONFIG_SND_SOC_DA7210=1 -UCONFIG_SND_SOC_AK4642 ]
 [-UCONFIG_SND_FSI_AK4642 -DCONFIG_SND_FSI_DA7210=1 -UCONFIG_I2C -DCONFIG_SND_SOC_DA7210=1 -UCONFIG_SND_SOC_AK4642 ]
 [-DCONFIG_SND_FSI_AK4642=1 -DCONFIG_SND_FSI_DA7210=1 -UCONFIG_I2C -DCONFIG_SND_SOC_DA7210=1 -UCONFIG_SND_SOC_AK4642 ]
 [-UCONFIG_SND_FSI_AK4642 -UCONFIG_SND_FSI_DA7210 -DCONFIG_I2C=1 -DCONFIG_SND_SOC_DA7210=1 -UCONFIG_SND_SOC_AK4642 ]
-17 :: Line:16
+clang :: 17 :: Line:16
 	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-DCONFIG_SND_FSI_AK4642=1 -UCONFIG_SND_FSI_DA7210 -DCONFIG_I2C=1 -DCONFIG_SND_SOC_DA7210=1 -UCONFIG_SND_SOC_AK4642 ]
-18 :: Line:16
+clang :: 18 :: Line:16
 	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
-19 :: Line:24
+clang :: 19 :: Line:24
 	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_SND_FSI_AK4642 -DCONFIG_SND_FSI_DA7210=1 -DCONFIG_I2C=1 -DCONFIG_SND_SOC_DA7210=1 -UCONFIG_SND_SOC_AK4642 ]
-20 :: Line:16
+clang :: 20 :: Line:16
 	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-DCONFIG_SND_FSI_AK4642=1 -DCONFIG_SND_FSI_DA7210=1 -DCONFIG_I2C=1 -DCONFIG_SND_SOC_DA7210=1 -UCONFIG_SND_SOC_AK4642 ]
-21 :: Line:16
+clang :: 21 :: Line:16
 	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
-22 :: Line:24
+clang :: 22 :: Line:24
 	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_SND_FSI_AK4642 -UCONFIG_SND_FSI_DA7210 -UCONFIG_I2C -UCONFIG_SND_SOC_DA7210 -DCONFIG_SND_SOC_AK4642=1 ]
 [-DCONFIG_SND_FSI_AK4642=1 -UCONFIG_SND_FSI_DA7210 -UCONFIG_I2C -UCONFIG_SND_SOC_DA7210 -DCONFIG_SND_SOC_AK4642=1 ]
 [-UCONFIG_SND_FSI_AK4642 -DCONFIG_SND_FSI_DA7210=1 -UCONFIG_I2C -UCONFIG_SND_SOC_DA7210 -DCONFIG_SND_SOC_AK4642=1 ]
 [-DCONFIG_SND_FSI_AK4642=1 -DCONFIG_SND_FSI_DA7210=1 -UCONFIG_I2C -UCONFIG_SND_SOC_DA7210 -DCONFIG_SND_SOC_AK4642=1 ]
 [-UCONFIG_SND_FSI_AK4642 -UCONFIG_SND_FSI_DA7210 -DCONFIG_I2C=1 -UCONFIG_SND_SOC_DA7210 -DCONFIG_SND_SOC_AK4642=1 ]
-23 :: Line:24
+clang :: 23 :: Line:24
 	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-DCONFIG_SND_FSI_AK4642=1 -UCONFIG_SND_FSI_DA7210 -DCONFIG_I2C=1 -UCONFIG_SND_SOC_DA7210 -DCONFIG_SND_SOC_AK4642=1 ]
-24 :: Line:24
+clang :: 24 :: Line:24
 	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_SND_FSI_AK4642 -DCONFIG_SND_FSI_DA7210=1 -DCONFIG_I2C=1 -UCONFIG_SND_SOC_DA7210 -DCONFIG_SND_SOC_AK4642=1 ]
-25 :: Line:16
+clang :: 25 :: Line:16
 	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
-26 :: Line:24
+clang :: 26 :: Line:24
 	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-DCONFIG_SND_FSI_AK4642=1 -DCONFIG_SND_FSI_DA7210=1 -DCONFIG_I2C=1 -UCONFIG_SND_SOC_DA7210 -DCONFIG_SND_SOC_AK4642=1 ]
-27 :: Line:16
+clang :: 27 :: Line:16
 	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
-28 :: Line:24
+clang :: 28 :: Line:24
 	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_SND_FSI_AK4642 -UCONFIG_SND_FSI_DA7210 -UCONFIG_I2C -DCONFIG_SND_SOC_DA7210=1 -DCONFIG_SND_SOC_AK4642=1 ]
 Desugared Clang Results:
@@ -419,6 +549,9 @@ int  __codec_hw_write_1=  __i2c_master_send_0 ;// L16
 int  __codec_hw_write_5=  __i2c_master_send_0 ;// L24
      ^~~~~~~~~~~~~~~~~~   ~~~~~~~~~~~~~~~~~~~
 2 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
 	13 has a match!
 	14 has a match!
@@ -438,8 +571,7 @@ Matches:
 	28 has a match!
 Unmatched ids:
 	None!
-
-none   0 0
+Original file has no warnings
 LINUX 7c6048b7c83.c
 Macros:
 	defined
@@ -455,17 +587,21 @@ Macros:
 [-Ddefined=1 -DCONFIG_BACKLIGHT_CLASS_DEVICE=1 -DCONFIG_ACPI_VIDEO=1 ]
 [-Udefined -UCONFIG_BACKLIGHT_CLASS_DEVICE -UCONFIG_ACPI_VIDEO ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX f3d83e24154.c
 Macros:
 	defined
 [-Udefined ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX eb91f1d0a53.c
 Macros:
 	defined
@@ -489,9 +625,11 @@ Macros:
 [-Udefined -DCONFIG_SLAB=1 -DCONFIG_NUMA=1 -DCONFIG_KMEMTRACE=1 ]
 [-Ddefined=1 -DCONFIG_SLAB=1 -DCONFIG_NUMA=1 -DCONFIG_KMEMTRACE=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 1f758a4341a.c
 Macros:
 	CONFIG_ZONE_DMA
@@ -501,9 +639,11 @@ Macros:
 [-UCONFIG_ZONE_DMA -DCONFIG_EP93XX_ETH=1 ]
 [-DCONFIG_ZONE_DMA=1 -DCONFIG_EP93XX_ETH=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 0988c4c7fb5.c
 Macros:
 	CONFIG_VLAN_8021Q
@@ -513,9 +653,11 @@ Macros:
 [-UCONFIG_VLAN_8021Q -DCONFIG_RPS=1 ]
 [-DCONFIG_VLAN_8021Q=1 -DCONFIG_RPS=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 242f1a34377.c
 Macros:
 	CONFIG_CRYPTO_BLKCIPHER
@@ -525,9 +667,11 @@ Macros:
 [-UCONFIG_CRYPTO_BLKCIPHER -DCONFIG_CRYPTO_TEST=1 ]
 [-DCONFIG_CRYPTO_BLKCIPHER=1 -DCONFIG_CRYPTO_TEST=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 2f02c15a5d9.c
 Macros:
 	CONFIG_SSB_DRIVER_EXTIF
@@ -537,17 +681,33 @@ Macros:
 [-UCONFIG_SSB_DRIVER_EXTIF -DCONFIG_BCM47XX=1 ]
 [-DCONFIG_SSB_DRIVER_EXTIF=1 -DCONFIG_BCM47XX=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 8c8296223f3.c
 Macros:
 	CONFIG_PROC_PAGE_MONITOR
 [-UCONFIG_PROC_PAGE_MONITOR ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+LINUX/8c8296223f3.desugared.c:1413: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1393 is not freed after the last access at line 1413, column 1.
+  1411. 
+  1412. }
+  1413. }
+        ^
+  1414. int  (__main_813) (int  __argc_811, char  * (* (__argv_812))) {
+  1415. 
+
+
+Found 1 issue
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 1
+Original file has no warnings
+Original file has no warnings
 LINUX 68bb91baa0.c
 Macros:
 	CONFIG_I2C_DESIGNWARE_PLATFORM
@@ -563,9 +723,11 @@ Macros:
 [-DCONFIG_I2C_DESIGNWARE_PLATFORM=1 -DCONFIG_I2C_DESIGNWARE_PCI=1 -Ddefined=1 ]
 [-UCONFIG_I2C_DESIGNWARE_PLATFORM -UCONFIG_I2C_DESIGNWARE_PCI -Udefined ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 1c17e4d4437.c
 Macros:
 	CONFIG_RCU_CPU_STALL_INFO
@@ -575,9 +737,11 @@ Macros:
 [-UCONFIG_RCU_CPU_STALL_INFO -DCONFIG_RCU_FAST_NO_HZ=1 ]
 [-DCONFIG_RCU_CPU_STALL_INFO=1 -DCONFIG_RCU_FAST_NO_HZ=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX f48ec1d7885.c
 Macros:
 	CONFIG_BLK_CGROUP
@@ -587,9 +751,11 @@ Macros:
 [-UCONFIG_BLK_CGROUP -DCONFIG_IOSCHED_CFQ=1 ]
 [-DCONFIG_BLK_CGROUP=1 -DCONFIG_IOSCHED_CFQ=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 0dc77b6dabe.c
 Macros:
 	CONFIG_ANDROID
@@ -613,9 +779,22 @@ Macros:
 [-UCONFIG_ANDROID -DCONFIG_SYSFS=1 -DCONFIG_EXTCON=1 -Ddefined=1 ]
 [-DCONFIG_ANDROID=1 -DCONFIG_SYSFS=1 -DCONFIG_EXTCON=1 -Ddefined=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+LINUX/0dc77b6dabe.desugared.c:303: error: Memory Leak
+  Memory dynamically allocated by `malloc`, indirectly via call to `__extcon_class_init_34()` on line 294 is not freed after the last access at line 303, column 1.
+  301. 
+  302. }
+  303. }
+       ^
+  304. 
+
+
+Found 1 issue
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 1
+Original file has no warnings
+Original file has no warnings
 LINUX 6515e48932c.c
 Macros:
 	defined
@@ -625,9 +804,11 @@ Macros:
 [-Udefined -DCONFIG_MACH_OMAP_H4=1 ]
 [-Ddefined=1 -DCONFIG_MACH_OMAP_H4=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 91ea8207168.c
 Macros:
 	CONFIG_NODES_SHIFT
@@ -643,9 +824,11 @@ Macros:
 [-DCONFIG_NODES_SHIFT=1 -DCONFIG_DISCONTIGMEM=1 -DCONFIG_PROC_PAGE_MONITOR=1 ]
 [-UCONFIG_NODES_SHIFT -UCONFIG_DISCONTIGMEM -UCONFIG_PROC_PAGE_MONITOR ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 6e2b75740be.c
 Macros:
 	defined
@@ -670,10 +853,11 @@ free ( __hdr_8 ) ; // L67
 return  __err_10  ;// L69
         ^~~~~~~~
 6 warnings generated.
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
-LINUX/76baeebf7df    SuperC failed
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 76baeebf7df.c
 Macros:
 	CONFIG_X86_32
@@ -706,15 +890,49 @@ Macros:
 [-UCONFIG_X86_32 -DCONFIG_NUMA=1 -DCONFIG_DEBUG_PER_CPU_MAPS=1 -UCONFIG_PCI -DCONFIG_X86_64=1 ]
 [-DCONFIG_X86_32=1 -DCONFIG_NUMA=1 -DCONFIG_DEBUG_PER_CPU_MAPS=1 -UCONFIG_PCI -DCONFIG_X86_64=1 ]
 [-UCONFIG_X86_32 -UCONFIG_NUMA -UCONFIG_DEBUG_PER_CPU_MAPS -DCONFIG_PCI=1 -DCONFIG_X86_64=1 ]
-File Failed
+Desugared Clang Results:
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/76baeebf7df.desugared.c:1629:31: warning: Dereference of undefined pointer value (loaded from variable '__mask_1132') [core.NullDereference]
+ __printf_421  ("mask: %ld\n",*  __mask_1132 ) ; // L137
+                              ^~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/76baeebf7df.desugared.c:1632:31: warning: Dereference of undefined pointer value (loaded from variable '__mask_1134') [core.NullDereference]
+ __printf_421  ("mask: %ld\n",*  __mask_1134 ) ; // L137
+                              ^~~~~~~~~~~~~~
+2 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 218ad12f42e.c
 Macros:
 	CONFIG_NUMA
 [-UCONFIG_NUMA ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+LINUX/218ad12f42e.desugared.c:63: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 42 is not freed after the last access at line 63, column 1.
+  61. 
+  62. 
+  63. }
+      ^
+  64. void  (__inet_ehash_locks_free_9) () {
+  65. 
+
+LINUX/218ad12f42e.desugared.c:123: error: Memory Leak
+  Memory dynamically allocated by `malloc`, indirectly via call to `__inet_ehash_locks_alloc_6()` on line 116 is not freed after the last access at line 123, column 1.
+  121. 
+  122. 
+  123. }
+       ^
+  124. 
+
+
+Found 2 issues
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 2
+Original file has no warnings
+Original file has no warnings
 LINUX ae249b5fa27.c
 Macros:
 	CONFIG_DISCONTIGMEM
@@ -731,17 +949,21 @@ Desugared Clang Results:
 return ( int   )  __r_236  ;// L21
 ^~~~~~~~~~~~~~~~~~~~~~~~~
 2 warnings generated.
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX e67bc51e574.c
 Macros:
 	CONFIG_TRACING
 [-UCONFIG_TRACING ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX c708c57e247.c
 Macros:
 	CONFIG_S390_PRNG
@@ -751,17 +973,21 @@ Desugared Clang Results:
 * ( ( ____u64_0  * )  __parm_block_1  ) ^= * ( ( ____u64_0  * )  __buf_3  +  __i_4  * 8 ) ; // L18
                                         ^  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 warning generated.
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 809e660f438.c
 Macros:
 	CONFIG_ARM_LPAE
 [-UCONFIG_ARM_LPAE ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 0f8f8094d28.c
 Macros:
 	CONFIG_FORCE_MAX_ZONEORDER
@@ -795,9 +1021,11 @@ Macros:
 [-DCONFIG_FORCE_MAX_ZONEORDER=1 -Ddefined=1 -DCONFIG_SLAB=1 -UCONFIG_SLOB -DCONFIG_LOCKDEP=1 ]
 [-UCONFIG_FORCE_MAX_ZONEORDER -Udefined -UCONFIG_SLAB -DCONFIG_SLOB=1 -DCONFIG_LOCKDEP=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 6252547b8a7.c
 Macros:
 	CONFIG_TWL4030_CORE
@@ -805,27 +1033,31 @@ Macros:
 	CONFIG_OF_IRQ
 [-UCONFIG_TWL4030_CORE -UCONFIG_IRQ_DOMAIN -UCONFIG_OF_IRQ ]
 [-DCONFIG_TWL4030_CORE=1 -UCONFIG_IRQ_DOMAIN -UCONFIG_OF_IRQ ]
-31 :: Line:12
+clang :: 31 :: Line:12
 	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
-32 :: Line:12
+clang :: 32 :: Line:12
 	Dereference of null pointer (loaded from variable 'ops') [core.NullDereference]
+infer :: 33 :: Line:25
+	Null Dereference
 [-UCONFIG_TWL4030_CORE -DCONFIG_IRQ_DOMAIN=1 -UCONFIG_OF_IRQ ]
-33 :: Line:12
+clang :: 34 :: Line:12
 	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
 [-DCONFIG_TWL4030_CORE=1 -DCONFIG_IRQ_DOMAIN=1 -UCONFIG_OF_IRQ ]
-34 :: Line:12
+clang :: 35 :: Line:12
 	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
-35 :: Line:12
+clang :: 36 :: Line:12
 	Dereference of null pointer (loaded from variable 'ops') [core.NullDereference]
+infer :: 37 :: Line:25
+	Null Dereference
 [-UCONFIG_TWL4030_CORE -UCONFIG_IRQ_DOMAIN -DCONFIG_OF_IRQ=1 ]
 [-DCONFIG_TWL4030_CORE=1 -UCONFIG_IRQ_DOMAIN -DCONFIG_OF_IRQ=1 ]
-36 :: Line:12
+clang :: 38 :: Line:12
 	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_TWL4030_CORE -DCONFIG_IRQ_DOMAIN=1 -DCONFIG_OF_IRQ=1 ]
-37 :: Line:12
+clang :: 39 :: Line:12
 	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
 [-DCONFIG_TWL4030_CORE=1 -DCONFIG_IRQ_DOMAIN=1 -DCONFIG_OF_IRQ=1 ]
-38 :: Line:12
+clang :: 40 :: Line:12
 	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_TWL4030_CORE -UCONFIG_IRQ_DOMAIN -UCONFIG_OF_IRQ ]
 Desugared Clang Results:
@@ -836,19 +1068,24 @@ int  __irq_2= *  __ops_1 ;// L12
 int  __irq_2= *  __ops_1 ;// L12
               ^~~~~~~~~~
 2 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
 	31 has a match!
 	32 has a match!
-	33 has a match!
 	34 has a match!
 	35 has a match!
 	36 has a match!
-	37 has a match!
 	38 has a match!
+	39 has a match!
+	40 has a match!
 Unmatched ids:
 	None!
-
-none   0 0
+Matches:
+Unmatched ids:
+	33
+	37
 LINUX d6c7e113959.c
 Macros:
 	CONFIG_REGULATOR_MAX8660
@@ -858,17 +1095,21 @@ Macros:
 [-UCONFIG_REGULATOR_MAX8660 -DCONFIG_OF=1 ]
 [-DCONFIG_REGULATOR_MAX8660=1 -DCONFIG_OF=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX e39363a9def.c
 Macros:
 	CONFIG_NETPOLL
 	CONFIG_IPV6
 [-UCONFIG_NETPOLL -UCONFIG_IPV6 ]
 [-DCONFIG_NETPOLL=1 -UCONFIG_IPV6 ]
-41 :: Line:17
+clang :: 45 :: Line:17
 	Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
+infer :: 46 :: Line:17
+	Uninitialized Value
 [-UCONFIG_NETPOLL -DCONFIG_IPV6=1 ]
 [-DCONFIG_NETPOLL=1 -DCONFIG_IPV6=1 ]
 Desugared Clang Results:
@@ -876,20 +1117,26 @@ Desugared Clang Results:
 return  __err_1  ;// L17
 ^~~~~~~~~~~~~~~
 1 warning generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
-	41 has a match!
+	45 has a match!
 Unmatched ids:
 	None!
-
-none   0 0
+Matches:
+Unmatched ids:
+	46
 LINUX 30e053248da.c
 Macros:
 	CONFIG_SECURITY
 [-UCONFIG_SECURITY ]
-43 :: Line:31
+clang :: 49 :: Line:31
 	Assigned value is garbage or undefined [core.uninitialized.Assign]
-44 :: Line:31
+clang :: 50 :: Line:31
 	Value stored to 'x' during its initialization is never read [deadcode.DeadStores]
+infer :: 51 :: Line:41
+	Uninitialized Value
 Desugared Clang Results:
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/30e053248da.desugared.c:111:7: warning: Branch condition evaluates to a garbage value [core.uninitialized.Branch]
 if (  __error_8  )// L26
@@ -901,12 +1148,16 @@ int  __x_9= *  __length_7 ;// L31
 int  __x_9= *  __length_7 ;// L31
      ^~~~~  ~~~~~~~~~~~~~
 3 warnings generated.
-Matches:
-	44 has a match!
-Unmatched ids:
-	43
+Desugared Infer Results:
 
-missing2 0
+  No issues found  
+Matches:
+	50 has a match!
+Unmatched ids:
+	49
+Matches:
+Unmatched ids:
+	51
 LINUX d549f55f2e1.c
 Macros:
 	CONFIG_VLAN_8021Q
@@ -916,29 +1167,35 @@ Macros:
 [-UCONFIG_VLAN_8021Q -Ddefined=1 ]
 [-DCONFIG_VLAN_8021Q=1 -Ddefined=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 7acf6cd80b2.c
 Macros:
 	CONFIG_DEVPTS_MULTIPLE_INSTANCES
 	CONFIG_UNIX98_PTYS
 [-UCONFIG_DEVPTS_MULTIPLE_INSTANCES -UCONFIG_UNIX98_PTYS ]
 [-DCONFIG_DEVPTS_MULTIPLE_INSTANCES=1 -UCONFIG_UNIX98_PTYS ]
-48 :: Line:8
+clang :: 54 :: Line:8
 	Value stored to 'x' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_DEVPTS_MULTIPLE_INSTANCES -DCONFIG_UNIX98_PTYS=1 ]
-49 :: Line:39
+clang :: 55 :: Line:39
 	Value stored to 'driver_data' is never read [deadcode.DeadStores]
-50 :: Line:44
+clang :: 56 :: Line:44
 	1st function call argument is an uninitialized value [core.CallAndMessage]
+infer :: 57 :: Line:44
+	Uninitialized Value
 [-DCONFIG_DEVPTS_MULTIPLE_INSTANCES=1 -DCONFIG_UNIX98_PTYS=1 ]
-51 :: Line:8
+clang :: 58 :: Line:8
 	Value stored to 'x' during its initialization is never read [deadcode.DeadStores]
-52 :: Line:39
+clang :: 59 :: Line:39
 	Value stored to 'driver_data' is never read [deadcode.DeadStores]
-53 :: Line:44
+clang :: 60 :: Line:44
 	1st function call argument is an uninitialized value [core.CallAndMessage]
+infer :: 61 :: Line:44
+	Uninitialized Value
 Desugared Clang Results:
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/7acf6cd80b2.desugared.c:77:6: warning: Value stored to '__x_3' during its initialization is never read [deadcode.DeadStores]
 int  __x_3= *  __inode_2 ;// L8
@@ -950,25 +1207,32 @@ int  __x_3= *  __inode_2 ;// L8
  __tty_release_14  ( __driver_data_15 ) ; // L44
  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 3 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
-	48 has a match!
-	49 has a match!
-	50 has a match!
-	51 has a match!
-	52 has a match!
-	53 has a match!
+	54 has a match!
+	55 has a match!
+	56 has a match!
+	58 has a match!
+	59 has a match!
+	60 has a match!
 Unmatched ids:
 	None!
-
-none   0 0
+Matches:
+Unmatched ids:
+	57
+	61
 LINUX 60e233a5660.c
 Macros:
 	defined
 [-Udefined ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 LINUX 63878acfafb.c
 Macros:
 	CONFIG_ARCH_OMAP3
@@ -988,60 +1252,61 @@ Desugared Clang Results:
 return  __v_16  ;// L40
 ^~~~~~~~~~~~~~
 1 warning generated.
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 BUSYBOX 5275b1e49f6.c
 Macros:
 	CONFIG_FEATURE_INSMOD_VERSION_CHECKING
 [-UCONFIG_FEATURE_INSMOD_VERSION_CHECKING ]
 Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:1135:2: warning: Value stored to '__m_has_modinfo_967' is never read [deadcode.DeadStores]
- __m_has_modinfo_967  = 0 ; // L16
- ^                      ~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:1141:2: warning: Value stored to '__m_has_modinfo_967' is never read [deadcode.DeadStores]
- __m_has_modinfo_967  = 1 ; // L18
- ^                      ~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:1149:2: warning: Value stored to '__m_has_modinfo_967' is never read [deadcode.DeadStores]
- __m_has_modinfo_967  = 0 ; // L16
- ^                      ~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:1155:2: warning: Value stored to '__m_has_modinfo_967' is never read [deadcode.DeadStores]
- __m_has_modinfo_967  = 1 ; // L18
- ^                      ~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:1159:2: warning: Value stored to '__k_crcs_970' is never read [deadcode.DeadStores]
- __k_crcs_970  = 0 ; // L21
- ^               ~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:1170:2: warning: Value stored to '__k_crcs_970' is never read [deadcode.DeadStores]
- __k_crcs_970  =  __someInt_969  ; // L25
- ^                ~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:1204:2: warning: Value stored to '__k_crcs_970' is never read [deadcode.DeadStores]
- __k_crcs_970  =  __someInt_969  ; // L25
- ^                ~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:1265:2: warning: Value stored to '__m_has_modinfo_967' is never read [deadcode.DeadStores]
- __m_has_modinfo_967  = 0 ; // L16
- ^                      ~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:1271:2: warning: Value stored to '__m_has_modinfo_967' is never read [deadcode.DeadStores]
- __m_has_modinfo_967  = 1 ; // L18
- ^                      ~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:1279:2: warning: Value stored to '__m_has_modinfo_967' is never read [deadcode.DeadStores]
- __m_has_modinfo_967  = 0 ; // L16
- ^                      ~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:1285:2: warning: Value stored to '__m_has_modinfo_967' is never read [deadcode.DeadStores]
- __m_has_modinfo_967  = 1 ; // L18
- ^                      ~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:1289:2: warning: Value stored to '__k_crcs_970' is never read [deadcode.DeadStores]
- __k_crcs_970  = 0 ; // L21
- ^               ~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:1300:2: warning: Value stored to '__k_crcs_970' is never read [deadcode.DeadStores]
- __k_crcs_970  =  __someInt_969  ; // L25
- ^                ~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:1334:2: warning: Value stored to '__k_crcs_970' is never read [deadcode.DeadStores]
- __k_crcs_970  =  __someInt_969  ; // L25
- ^                ~~~~~~~~~~~~~
-14 warnings generated.
-Original file has no warnings
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:2928:2: warning: Value stored to '__m_has_modinfo_2040' is never read [deadcode.DeadStores]
+ __m_has_modinfo_2040  = 0 ; // L16
+ ^                       ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:2934:2: warning: Value stored to '__m_has_modinfo_2040' is never read [deadcode.DeadStores]
+ __m_has_modinfo_2040  = 1 ; // L18
+ ^                       ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:2942:2: warning: Value stored to '__m_has_modinfo_2040' is never read [deadcode.DeadStores]
+ __m_has_modinfo_2040  = 0 ; // L16
+ ^                       ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:2948:2: warning: Value stored to '__m_has_modinfo_2040' is never read [deadcode.DeadStores]
+ __m_has_modinfo_2040  = 1 ; // L18
+ ^                       ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:2953:2: warning: Value stored to '__k_crcs_2043' is never read [deadcode.DeadStores]
+ __k_crcs_2043  = 0 ; // L21
+ ^                ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:3004:2: warning: Value stored to '__k_crcs_2043' is never read [deadcode.DeadStores]
+ __k_crcs_2043  =  __someInt_2042  ; // L25
+ ^                 ~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:3068:2: warning: Value stored to '__m_has_modinfo_2040' is never read [deadcode.DeadStores]
+ __m_has_modinfo_2040  = 0 ; // L16
+ ^                       ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:3074:2: warning: Value stored to '__m_has_modinfo_2040' is never read [deadcode.DeadStores]
+ __m_has_modinfo_2040  = 1 ; // L18
+ ^                       ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:3082:2: warning: Value stored to '__m_has_modinfo_2040' is never read [deadcode.DeadStores]
+ __m_has_modinfo_2040  = 0 ; // L16
+ ^                       ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:3088:2: warning: Value stored to '__m_has_modinfo_2040' is never read [deadcode.DeadStores]
+ __m_has_modinfo_2040  = 1 ; // L18
+ ^                       ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:3093:2: warning: Value stored to '__k_crcs_2043' is never read [deadcode.DeadStores]
+ __k_crcs_2043  = 0 ; // L21
+ ^                ~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:3144:2: warning: Value stored to '__k_crcs_2043' is never read [deadcode.DeadStores]
+ __k_crcs_2043  =  __someInt_2042  ; // L25
+ ^                 ~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.desugared.c:3208:2: warning: Value stored to '__k_crcs_2043' is never read [deadcode.DeadStores]
+ __k_crcs_2043  = 0 ; // L21
+ ^                ~
+13 warnings generated.
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 BUSYBOX 5cd6461b6fb.c
 Macros:
 	CONFIG_FEATURE_HTTPD_CGI
@@ -1057,17 +1322,21 @@ Macros:
 [-DCONFIG_FEATURE_HTTPD_CGI=1 -DCONFIG_LFS=1 -DCONFIG_FEATURE_HTTPD_BASIC_AUTH=1 ]
 [-UCONFIG_FEATURE_HTTPD_CGI -UCONFIG_LFS -UCONFIG_FEATURE_HTTPD_BASIC_AUTH ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 BUSYBOX 1b487ea8a69.c
 Macros:
 	ENABLE_SELINUX
 	ENABLE_FEATURE_STAT_FORMAT
 [-UENABLE_SELINUX -UENABLE_FEATURE_STAT_FORMAT ]
 [-DENABLE_SELINUX=1 -UENABLE_FEATURE_STAT_FORMAT ]
-57 :: Line:14
+clang :: 68 :: Line:14
 	Dereference of null pointer (loaded from variable 'scontext') [core.NullDereference]
+infer :: 69 :: Line:14
+	Null Dereference
 [-UENABLE_SELINUX -DENABLE_FEATURE_STAT_FORMAT=1 ]
 [-DENABLE_SELINUX=1 -DENABLE_FEATURE_STAT_FORMAT=1 ]
 Desugared Clang Results:
@@ -1078,20 +1347,26 @@ Desugared Clang Results:
  __printf_421  (" %lc\n",*  __scontext_2038 ) ; // L14
                          ^~~~~~~~~~~~~~~~~~
 2 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
-	57 has a match!
+	68 has a match!
 Unmatched ids:
 	None!
-
-none   0 0
+Matches:
+Unmatched ids:
+	69
 BUSYBOX b7ebc61b54f.c
 Macros:
 	CONFIG_FEATURE_LS_TIMESTAMPS
 [-UCONFIG_FEATURE_LS_TIMESTAMPS ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 BUSYBOX ebee301c8b0.c
 Macros:
 	defined
@@ -1104,17 +1379,21 @@ Desugared Clang Results:
  __copySubFile_2038  ( __src_2042 , __dst_2043 ) ; // L18
  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 2 warnings generated.
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 BUSYBOX b273d665181.c
 Macros:
 	BB_FEATURE_LS_FILETYPES
 	BB_FEATURE_LS_USERNAME
 [-UBB_FEATURE_LS_FILETYPES -UBB_FEATURE_LS_USERNAME ]
 [-DBB_FEATURE_LS_FILETYPES=1 -UBB_FEATURE_LS_USERNAME ]
-60 :: Line:16
+clang :: 74 :: Line:16
 	2nd function call argument is an uninitialized value [core.CallAndMessage]
+infer :: 75 :: Line:16
+	Uninitialized Value
 [-UBB_FEATURE_LS_FILETYPES -DBB_FEATURE_LS_USERNAME=1 ]
 [-DBB_FEATURE_LS_FILETYPES=1 -DBB_FEATURE_LS_USERNAME=1 ]
 Desugared Clang Results:
@@ -1134,104 +1413,245 @@ Desugared Clang Results:
  __info_2036  = 0 ; // L11
  ^              ~
 5 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
-	60 has a match!
+	74 has a match!
 Unmatched ids:
 	None!
-
-none   0 0
+Matches:
+Unmatched ids:
+	75
 BUSYBOX df7b6577c6a.c
 Macros:
 	ENABLE_DESKTOP
 [-UENABLE_DESKTOP ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
-BUSYBOX/061fd0a353e  SuperC failed
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 BUSYBOX 061fd0a353e.c
 Macros:
 	CONFIG_FEATURE_HDPARM_HDIO_UNREGISTER_HWIF
 	CONFIG_FEATURE_HDPARM_HDIO_SCAN_HWIF
 [-UCONFIG_FEATURE_HDPARM_HDIO_UNREGISTER_HWIF -UCONFIG_FEATURE_HDPARM_HDIO_SCAN_HWIF ]
-64 :: Line:16
+clang :: 82 :: Line:16
 	Value stored to 'p' is never read [deadcode.DeadStores]
 [-DCONFIG_FEATURE_HDPARM_HDIO_UNREGISTER_HWIF=1 -UCONFIG_FEATURE_HDPARM_HDIO_SCAN_HWIF ]
 [-UCONFIG_FEATURE_HDPARM_HDIO_UNREGISTER_HWIF -DCONFIG_FEATURE_HDPARM_HDIO_SCAN_HWIF=1 ]
-65 :: Line:16
+clang :: 83 :: Line:16
 	Value stored to 'p' is never read [deadcode.DeadStores]
-66 :: Line:27
+clang :: 84 :: Line:27
 	Branch condition evaluates to a garbage value [core.uninitialized.Branch]
+infer :: 85 :: Line:27
+	Uninitialized Value
 [-DCONFIG_FEATURE_HDPARM_HDIO_UNREGISTER_HWIF=1 -DCONFIG_FEATURE_HDPARM_HDIO_SCAN_HWIF=1 ]
-67 :: Line:16
+clang :: 86 :: Line:16
 	Value stored to 'p' is never read [deadcode.DeadStores]
-68 :: Line:20
+clang :: 87 :: Line:20
 	Branch condition evaluates to a garbage value [core.uninitialized.Branch]
-69 :: Line:27
+clang :: 88 :: Line:27
 	Branch condition evaluates to a garbage value [core.uninitialized.Branch]
-File Failed
-BUSYBOX/eef2317b9f5  SuperC failed
+infer :: 89 :: Line:20
+	Uninitialized Value
+infer :: 90 :: Line:27
+	Uninitialized Value
+Desugared Clang Results:
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/061fd0a353e.desugared.c:3062:2: warning: Value stored to '__p_2040' is never read [deadcode.DeadStores]
+ __p_2040  = *  __argv_2037  ++ , --  __argc_2036  ; // L16
+ ^           ~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/061fd0a353e.desugared.c:3229:2: warning: Value stored to '__p_2040' is never read [deadcode.DeadStores]
+ __p_2040  = *  __argv_2037  ++ , --  __argc_2036  ; // L16
+ ^           ~~~~~~~~~~~~~~~~~~
+2 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
+Matches:
+	82 has a match!
+	83 has a match!
+	86 has a match!
+Unmatched ids:
+	84
+	87
+	88
+Matches:
+Unmatched ids:
+	85
+	89
+	90
 BUSYBOX eef2317b9f5.c
 Macros:
 	CONFIG_FEATURE_CLEAN_UP
 [-UCONFIG_FEATURE_CLEAN_UP ]
-70 :: Line:26
+clang :: 95 :: Line:26
 	Value stored to 'buf' is never read [deadcode.DeadStores]
-71 :: Line:34
+clang :: 96 :: Line:34
 	Potential leak of memory pointed to by 'buf' [unix.Malloc]
-File Failed
+infer :: 97 :: Line:26
+	Memory Leak
+Desugared Clang Results:
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1686:5: warning: Potential leak of memory pointed to by '__buf_964' [unix.Malloc]
+if (__static_condition_default_972) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1692:7: warning: Branch condition evaluates to a garbage value [core.uninitialized.Branch]
+if (  __buf_964  )// L30
+      ^~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1703:5: warning: Potential leak of memory pointed to by '__buf_964' [unix.Malloc]
+if (__static_condition_default_974) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1749:2: warning: Value stored to '__buf_964' is never read [deadcode.DeadStores]
+ __buf_964  = malloc ( __bufsize_965 ) ; // L26
+ ^            ~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1752:2: warning: Value stored to '__buf_964' is never read [deadcode.DeadStores]
+ __buf_964  = malloc ( __bufsize_965 ) ; // L26
+ ^            ~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1754:5: warning: Potential leak of memory pointed to by '__buf_964' [unix.Malloc]
+if (__static_condition_default_978) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1754:5: warning: Potential leak of memory pointed to by '__buf_964' [unix.Malloc]
+if (__static_condition_default_978) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+7 warnings generated.
+Desugared Infer Results:
+
+BUSYBOX/eef2317b9f5.desugared.c:1749: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1749 is not freed after the last access at line 1749, column 2.
+  1747. }
+  1748. if (__static_condition_default_976) {
+  1749.  __buf_964  = malloc ( __bufsize_965 ) ; // L26
+         ^
+  1750. }
+  1751. if (__static_condition_default_977) {
+
+BUSYBOX/eef2317b9f5.desugared.c:1752: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1752 is not freed after the last access at line 1752, column 2.
+  1750. }
+  1751. if (__static_condition_default_977) {
+  1752.  __buf_964  = malloc ( __bufsize_965 ) ; // L26
+         ^
+  1753. }
+  1754. if (__static_condition_default_978) {
+
+
+Found 2 issues
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 2
+Matches:
+	95 has a match!
+Unmatched ids:
+	96
+Matches:
+Unmatched ids:
+	97
 BUSYBOX 192c35f6eb2.c
 Macros:
 	CONFIG_FEATURE_REMOTE_LOG
 [-UCONFIG_FEATURE_REMOTE_LOG ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 BUSYBOX 2631486f1bf.c
 Macros:
 	CONFIG_FEATURE_LS_RECURSIVE
 	CONFIG_FEATURE_LS_SORTFILES
 [-UCONFIG_FEATURE_LS_RECURSIVE -UCONFIG_FEATURE_LS_SORTFILES ]
-72 :: Line:67
+clang :: 110 :: Line:67
 	Assigned value is garbage or undefined [core.uninitialized.Assign]
+infer :: 111 :: Line:66
+	Null Dereference
+infer :: 112 :: Line:67
+	Uninitialized Value
 [-DCONFIG_FEATURE_LS_RECURSIVE=1 -UCONFIG_FEATURE_LS_SORTFILES ]
-73 :: Line:67
+clang :: 113 :: Line:67
 	Assigned value is garbage or undefined [core.uninitialized.Assign]
+infer :: 114 :: Line:66
+	Null Dereference
+infer :: 115 :: Line:67
+	Uninitialized Value
 [-UCONFIG_FEATURE_LS_RECURSIVE -DCONFIG_FEATURE_LS_SORTFILES=1 ]
-74 :: Line:67
+clang :: 116 :: Line:67
 	Assigned value is garbage or undefined [core.uninitialized.Assign]
+infer :: 117 :: Line:66
+	Null Dereference
+infer :: 118 :: Line:67
+	Uninitialized Value
 [-DCONFIG_FEATURE_LS_RECURSIVE=1 -DCONFIG_FEATURE_LS_SORTFILES=1 ]
-75 :: Line:67
+clang :: 119 :: Line:67
 	Assigned value is garbage or undefined [core.uninitialized.Assign]
+infer :: 120 :: Line:66
+	Null Dereference
+infer :: 121 :: Line:67
+	Uninitialized Value
 Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1250:42: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_963', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_986)' [unix.MallocSizeof]
- __curr_979  = ( struct __dnode_963  * ) malloc (sizeof(typeof(__sizeofStandin_986))) ; // L65
-                 ~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1253:42: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_963', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_986)' [unix.MallocSizeof]
- __curr_979  = ( struct __dnode_963  * ) malloc (sizeof(typeof(__sizeofStandin_986))) ; // L65
-                 ~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1256:27: warning: Access to field '__val_964' results in a dereference of an undefined pointer value (loaded from variable '__curr_979') [core.NullDereference]
- __curr_979  -> __val_964 = rand( ) % 10 ; // L66
- ~~~~~~~~~~               ^
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1259:27: warning: Access to field '__val_964' results in a dereference of an undefined pointer value (loaded from variable '__curr_979') [core.NullDereference]
- __curr_979  -> __val_964 = rand( ) % 10 ; // L66
- ~~~~~~~~~~               ^
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1261:28: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
- __curr_979  -> __next_965 =  __head_980  ; // L67
-                           ^  ~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:1261:28: warning: Access to field '__next_965' results in a dereference of an undefined pointer value (loaded from variable '__curr_979') [core.NullDereference]
- __curr_979  -> __next_965 =  __head_980  ; // L67
- ~~~~~~~~~~                ^
-6 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3171:44: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' [unix.MallocSizeof]
+ __curr_2072  = ( struct __dnode_2037  * ) malloc (sizeof(typeof(__sizeofStandin_2079))) ; // L65
+                  ~~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3174:44: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' [unix.MallocSizeof]
+ __curr_2072  = ( struct __dnode_2037  * ) malloc (sizeof(typeof(__sizeofStandin_2079))) ; // L65
+                  ~~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3177:44: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' [unix.MallocSizeof]
+ __curr_2072  = ( struct __dnode_2037  * ) malloc (sizeof(typeof(__sizeofStandin_2079))) ; // L65
+                  ~~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3180:44: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' [unix.MallocSizeof]
+ __curr_2072  = ( struct __dnode_2037  * ) malloc (sizeof(typeof(__sizeofStandin_2079))) ; // L65
+                  ~~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3186:29: warning: Access to field '__val_2038' results in a dereference of an undefined pointer value (loaded from variable '__curr_2072') [core.NullDereference]
+ __curr_2072  -> __val_2038 = rand( ) % 10 ; // L66
+ ~~~~~~~~~~~                ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3191:30: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
+ __curr_2072  -> __next_2039 =  __head_2073  ; // L67
+                             ^  ~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3191:30: warning: Access to field '__next_2039' results in a dereference of an undefined pointer value (loaded from variable '__curr_2072') [core.NullDereference]
+ __curr_2072  -> __next_2039 =  __head_2073  ; // L67
+ ~~~~~~~~~~~                 ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3255:44: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' [unix.MallocSizeof]
+ __curr_2072  = ( struct __dnode_2037  * ) malloc (sizeof(typeof(__sizeofStandin_2079))) ; // L65
+                  ~~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3258:44: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' [unix.MallocSizeof]
+ __curr_2072  = ( struct __dnode_2037  * ) malloc (sizeof(typeof(__sizeofStandin_2079))) ; // L65
+                  ~~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3261:44: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' [unix.MallocSizeof]
+ __curr_2072  = ( struct __dnode_2037  * ) malloc (sizeof(typeof(__sizeofStandin_2079))) ; // L65
+                  ~~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3264:44: warning: Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' [unix.MallocSizeof]
+ __curr_2072  = ( struct __dnode_2037  * ) malloc (sizeof(typeof(__sizeofStandin_2079))) ; // L65
+                  ~~~~~~~~~~~~~~~~~~~~~~   ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3270:29: warning: Access to field '__val_2038' results in a dereference of an undefined pointer value (loaded from variable '__curr_2072') [core.NullDereference]
+ __curr_2072  -> __val_2038 = rand( ) % 10 ; // L66
+ ~~~~~~~~~~~                ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3275:30: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
+ __curr_2072  -> __next_2039 =  __head_2073  ; // L67
+                             ^  ~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.desugared.c:3275:30: warning: Access to field '__next_2039' results in a dereference of an undefined pointer value (loaded from variable '__curr_2072') [core.NullDereference]
+ __curr_2072  -> __next_2039 =  __head_2073  ; // L67
+ ~~~~~~~~~~~                 ^
+14 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
 Unmatched ids:
-	72
-	73
-	74
-	75
-
-missing3 0
+	110
+	113
+	116
+	119
+Matches:
+Unmatched ids:
+	111
+	112
+	114
+	115
+	117
+	118
+	120
+	121
 BUSYBOX 95755181b82.c
 Macros:
 	ENABLE_FEATURE_HTTPD_GZIP
@@ -1250,75 +1670,115 @@ File Failed
 BUSYBOX cc3f20b9bdf.c
 Macros:
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 BUSYBOX cf1f2ace391.c
 Macros:
 	ENABLE_DEBUG_INIT
 [-UENABLE_DEBUG_INIT ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 BUSYBOX bc0ffc0e971.c
 Macros:
 	ENABLE_FEATURE_CLEAN_UP
 [-UENABLE_FEATURE_CLEAN_UP ]
-81 :: Line:46
+clang :: 138 :: Line:46
 	Potential leak of memory pointed to by 'clist' [unix.Malloc]
+infer :: 139 :: Line:40
+	Memory Leak
+infer :: 140 :: Line:40
+	Null Dereference
 Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2184:1: warning: Attempt to free released memory [unix.Malloc]
-free ( __ch_1826  -> __ifname_1822) ; // L15
-^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2257:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_1823', which is incompatible with sizeof operand type 'struct (unnamed struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2238:1)' [unix.MallocSizeof]
- __ch_1848  = malloc (sizeof(__sizeofStandin_1852)) ; // L29
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3380:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_2394', which is incompatible with sizeof operand type 'struct (unnamed struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3337:1)' [unix.MallocSizeof]
+ __ch_2419  = malloc (sizeof(__sizeofStandin_2423)) ; // L29
               ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2260:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_1823', which is incompatible with sizeof operand type 'struct (unnamed struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2238:1)' [unix.MallocSizeof]
- __ch_1848  = malloc (sizeof(__sizeofStandin_1852)) ; // L29
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3383:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_2394', which is incompatible with sizeof operand type 'struct (unnamed struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3337:1)' [unix.MallocSizeof]
+ __ch_2419  = malloc (sizeof(__sizeofStandin_2423)) ; // L29
               ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2262:30: warning: Access to field '__ifname_1822' results in a dereference of an undefined pointer value (loaded from variable '__ch_1848') [core.NullDereference]
- __ch_1848  -> __ifname_1822 =  __ifname_1847  ; // L30
- ~~~~~~~~~                   ^
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2262:33: warning: Potential leak of memory pointed to by '__ch_1848' [unix.Malloc]
- __ch_1848  -> __ifname_1822 =  __ifname_1847  ; // L30
-                                ^~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2297:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_1824', which is incompatible with sizeof operand type 'struct (unnamed struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2279:1)' [unix.MallocSizeof]
- __ch_1849  = malloc (sizeof(__sizeofStandin_1855)) ; // L29
-              ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2300:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_1824', which is incompatible with sizeof operand type 'struct (unnamed struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2279:1)' [unix.MallocSizeof]
- __ch_1849  = malloc (sizeof(__sizeofStandin_1855)) ; // L29
-              ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2302:30: warning: Access to field '__ifname_1822' results in a dereference of an undefined pointer value (loaded from variable '__ch_1849') [core.NullDereference]
- __ch_1849  -> __ifname_1822 =  __ifname_1847  ; // L30
- ~~~~~~~~~                   ^
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2302:33: warning: Potential leak of memory pointed to by '__ch_1849' [unix.Malloc]
- __ch_1849  -> __ifname_1822 =  __ifname_1847  ; // L30
-                                ^~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2333:39: warning: Potential leak of memory pointed to by '__ch_1872' [unix.Malloc]
-for (  __ch_1872  =  __clist_1870  ;  __ch_1872  ;  __ch_1872  =  __ch_1872  -> __next_1821 )// L43
-                                      ^~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2333:67: warning: Use of memory after it is freed [unix.Malloc]
-for (  __ch_1872  =  __clist_1870  ;  __ch_1872  ;  __ch_1872  =  __ch_1872  -> __next_1821 )// L43
-                                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2338:5: warning: Potential leak of memory pointed to by '__clist_1870' [unix.Malloc]
-if (__static_condition_default_1876) {
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3385:5: warning: Potential leak of memory pointed to by '__ch_2419' [unix.Malloc]
+if (__static_condition_default_2438) {
     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2339:39: warning: Potential leak of memory pointed to by '__ch_1873' [unix.Malloc]
-for (  __ch_1873  =  __clist_1871  ;  __ch_1873  ;  __ch_1873  =  __ch_1873  -> __next_1821 )// L43
-                                      ^~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2339:67: warning: Use of memory after it is freed [unix.Malloc]
-for (  __ch_1873  =  __clist_1871  ;  __ch_1873  ;  __ch_1873  =  __ch_1873  -> __next_1821 )// L43
-                                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:2344:5: warning: Potential leak of memory pointed to by '__clist_1871' [unix.Malloc]
-if (__static_condition_default_1877) {
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3388:30: warning: Access to field '__ifname_2393' results in a dereference of an undefined pointer value (loaded from variable '__ch_2419') [core.NullDereference]
+ __ch_2419  -> __ifname_2393 =  __ifname_2418  ; // L30
+ ~~~~~~~~~                   ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3447:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_2395', which is incompatible with sizeof operand type 'struct (unnamed struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3405:1)' [unix.MallocSizeof]
+ __ch_2420  = malloc (sizeof(__sizeofStandin_2426)) ; // L29
+              ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3450:15: warning: Result of 'malloc' is converted to a pointer of type '__ethtable_t_2395', which is incompatible with sizeof operand type 'struct (unnamed struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3405:1)' [unix.MallocSizeof]
+ __ch_2420  = malloc (sizeof(__sizeofStandin_2426)) ; // L29
+              ^~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3452:5: warning: Potential leak of memory pointed to by '__ch_2420' [unix.Malloc]
+if (__static_condition_default_2448) {
     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-15 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3455:30: warning: Access to field '__ifname_2393' results in a dereference of an undefined pointer value (loaded from variable '__ch_2420') [core.NullDereference]
+ __ch_2420  -> __ifname_2393 =  __ifname_2418  ; // L30
+ ~~~~~~~~~                   ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3486:39: warning: Potential leak of memory pointed to by '__ch_2453' [unix.Malloc]
+for (  __ch_2453  =  __clist_2451  ;  __ch_2453  ;  __ch_2453  =  __ch_2453  -> __next_2392 )// L43
+                                      ^~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3486:67: warning: Use of memory after it is freed [unix.Malloc]
+for (  __ch_2453  =  __clist_2451  ;  __ch_2453  ;  __ch_2453  =  __ch_2453  -> __next_2392 )// L43
+                                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3491:5: warning: Potential leak of memory pointed to by '__clist_2451' [unix.Malloc]
+if (__static_condition_default_2457) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3492:39: warning: Potential leak of memory pointed to by '__ch_2454' [unix.Malloc]
+for (  __ch_2454  =  __clist_2452  ;  __ch_2454  ;  __ch_2454  =  __ch_2454  -> __next_2392 )// L43
+                                      ^~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3492:67: warning: Use of memory after it is freed [unix.Malloc]
+for (  __ch_2454  =  __clist_2452  ;  __ch_2454  ;  __ch_2454  =  __ch_2454  -> __next_2392 )// L43
+                                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3497:5: warning: Potential leak of memory pointed to by '__clist_2452' [unix.Malloc]
+if (__static_condition_default_2458) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+14 warnings generated.
+Desugared Infer Results:
+
+BUSYBOX/bc0ffc0e971.desugared.c:3382: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 3380 is not freed after the last access at line 3382, column 5.
+  3380.  __ch_2419  = malloc (sizeof(__sizeofStandin_2423)) ; // L29
+  3381. }
+  3382. if (__static_condition_default_2437) {
+            ^
+  3383.  __ch_2419  = malloc (sizeof(__sizeofStandin_2423)) ; // L29
+  3384. }
+
+BUSYBOX/bc0ffc0e971.desugared.c:3449: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 3447 is not freed after the last access at line 3449, column 5.
+  3447.  __ch_2420  = malloc (sizeof(__sizeofStandin_2426)) ; // L29
+  3448. }
+  3449. if (__static_condition_default_2447) {
+            ^
+  3450.  __ch_2420  = malloc (sizeof(__sizeofStandin_2426)) ; // L29
+  3451. }
+
+BUSYBOX/bc0ffc0e971.desugared.c:3491: error: Memory Leak
+  Memory dynamically allocated by `malloc`, indirectly via call to `__prepend_new_eth_table_2428()` on line 3483 is not freed after the last access at line 3491, column 5.
+  3489. }
+  3490. }
+  3491. if (__static_condition_default_2457) {
+            ^
+  3492. for (  __ch_2454  =  __clist_2452  ;  __ch_2454  ;  __ch_2454  =  __ch_2454  -> __next_2392 )// L43
+  3493. {
+
+
+Found 3 issues
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 3
 Matches:
 Unmatched ids:
-	81
-
-missing3 0
+	138
+Matches:
+Unmatched ids:
+	139
+	140
 BUSYBOX b62bd7b261b.c
 Macros:
 	ENABLE_FEATURE_MDEV_CONF
@@ -1328,93 +1788,110 @@ Macros:
 [-DENABLE_FEATURE_MDEV_CONF=1 -UENABLE_FEATURE_MDEV_RENAME -UENABLE_FEATURE_MDEV_RENAME_REGEXP ]
 [-UENABLE_FEATURE_MDEV_CONF -DENABLE_FEATURE_MDEV_RENAME=1 -UENABLE_FEATURE_MDEV_RENAME_REGEXP ]
 [-DENABLE_FEATURE_MDEV_CONF=1 -DENABLE_FEATURE_MDEV_RENAME=1 -UENABLE_FEATURE_MDEV_RENAME_REGEXP ]
-89 :: Line:14
+clang :: 149 :: Line:14
 	Value stored to 'a' during its initialization is never read [deadcode.DeadStores]
-90 :: Line:16
+clang :: 150 :: Line:16
 	Value stored to 'val' is never read [deadcode.DeadStores]
 [-UENABLE_FEATURE_MDEV_CONF -UENABLE_FEATURE_MDEV_RENAME -DENABLE_FEATURE_MDEV_RENAME_REGEXP=1 ]
 [-DENABLE_FEATURE_MDEV_CONF=1 -UENABLE_FEATURE_MDEV_RENAME -DENABLE_FEATURE_MDEV_RENAME_REGEXP=1 ]
 [-UENABLE_FEATURE_MDEV_CONF -DENABLE_FEATURE_MDEV_RENAME=1 -DENABLE_FEATURE_MDEV_RENAME_REGEXP=1 ]
 [-DENABLE_FEATURE_MDEV_CONF=1 -DENABLE_FEATURE_MDEV_RENAME=1 -DENABLE_FEATURE_MDEV_RENAME_REGEXP=1 ]
-91 :: Line:16
+clang :: 151 :: Line:16
 	Value stored to 'val' is never read [deadcode.DeadStores]
-92 :: Line:24
+clang :: 152 :: Line:24
 	Dereference of undefined pointer value (loaded from variable 'p') [core.NullDereference]
+infer :: 153 :: Line:24
+	Uninitialized Value
 [-UENABLE_FEATURE_MDEV_CONF -UENABLE_FEATURE_MDEV_RENAME -UENABLE_FEATURE_MDEV_RENAME_REGEXP ]
 Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1451:1: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
-char  * (__a_1261)=  __val_1258 ;// L14
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:3212:1: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
+char  * (__a_2393)=  __val_2390 ;// L14
 ^~~~~~~~~~~~~~~~~    ~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1451:10: warning: Value stored to '__a_1261' during its initialization is never read [deadcode.DeadStores]
-char  * (__a_1261)=  __val_1258 ;// L14
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:3212:10: warning: Value stored to '__a_2393' during its initialization is never read [deadcode.DeadStores]
+char  * (__a_2393)=  __val_2390 ;// L14
          ^~~~~~~~    ~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1457:2: warning: Value stored to '__val_1258' is never read [deadcode.DeadStores]
- __val_1258  = (  __s_1259  &&  __s_1259  [ 1 ] ) ?  __s_1259  + 1 : ( ( void  * ) 0 ) ; // L16:L395
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:3218:2: warning: Value stored to '__val_2390' is never read [deadcode.DeadStores]
+ __val_2390  = (  __s_2391  &&  __s_2391  [ 1 ] ) ?  __s_2391  + 1 : ( ( void  * ) 0 ) ; // L16:L395
  ^             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1457:19: warning: Branch condition evaluates to a garbage value [core.uninitialized.Branch]
- __val_1258  = (  __s_1259  &&  __s_1259  [ 1 ] ) ?  __s_1259  + 1 : ( ( void  * ) 0 ) ; // L16:L395
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:3218:19: warning: Branch condition evaluates to a garbage value [core.uninitialized.Branch]
+ __val_2390  = (  __s_2391  &&  __s_2391  [ 1 ] ) ?  __s_2391  + 1 : ( ( void  * ) 0 ) ; // L16:L395
                   ^~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1482:2: warning: Value stored to '__val_1258' is never read [deadcode.DeadStores]
- __val_1258  = (  __s_1259  &&  __s_1259  [ 1 ] ) ?  __s_1259  + 1 : ( ( void  * ) 0 ) ; // L16:L395
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:3245:2: warning: Value stored to '__val_2390' is never read [deadcode.DeadStores]
+ __val_2390  = (  __s_2391  &&  __s_2391  [ 1 ] ) ?  __s_2391  + 1 : ( ( void  * ) 0 ) ; // L16:L395
  ^             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1494:14: warning: Dereference of undefined pointer value (loaded from variable '__p_1260') [core.NullDereference]
-*  __p_1260  = *  __s_1259  ; // L24
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:3245:19: warning: Branch condition evaluates to a garbage value [core.uninitialized.Branch]
+ __val_2390  = (  __s_2391  &&  __s_2391  [ 1 ] ) ?  __s_2391  + 1 : ( ( void  * ) 0 ) ; // L16:L395
+                  ^~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:3257:14: warning: Dereference of undefined pointer value (loaded from variable '__p_2392') [core.NullDereference]
+*  __p_2392  = *  __s_2391  ; // L24
    ~~~~~~~~  ^
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1556:1: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
-char  * (__a_1261)=  __val_1258 ;// L14
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:3307:1: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
+char  * (__a_2393)=  __val_2390 ;// L14
 ^~~~~~~~~~~~~~~~~    ~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1556:10: warning: Value stored to '__a_1261' during its initialization is never read [deadcode.DeadStores]
-char  * (__a_1261)=  __val_1258 ;// L14
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:3307:10: warning: Value stored to '__a_2393' during its initialization is never read [deadcode.DeadStores]
+char  * (__a_2393)=  __val_2390 ;// L14
          ^~~~~~~~    ~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1562:2: warning: Value stored to '__val_1258' is never read [deadcode.DeadStores]
- __val_1258  = (  __s_1259  &&  __s_1259  [ 1 ] ) ?  __s_1259  + 1 : ( ( void  * ) 0 ) ; // L16:L395
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:3313:2: warning: Value stored to '__val_2390' is never read [deadcode.DeadStores]
+ __val_2390  = (  __s_2391  &&  __s_2391  [ 1 ] ) ?  __s_2391  + 1 : ( ( void  * ) 0 ) ; // L16:L395
  ^             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1562:19: warning: Branch condition evaluates to a garbage value [core.uninitialized.Branch]
- __val_1258  = (  __s_1259  &&  __s_1259  [ 1 ] ) ?  __s_1259  + 1 : ( ( void  * ) 0 ) ; // L16:L395
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:3313:19: warning: Branch condition evaluates to a garbage value [core.uninitialized.Branch]
+ __val_2390  = (  __s_2391  &&  __s_2391  [ 1 ] ) ?  __s_2391  + 1 : ( ( void  * ) 0 ) ; // L16:L395
                   ^~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1587:2: warning: Value stored to '__val_1258' is never read [deadcode.DeadStores]
- __val_1258  = (  __s_1259  &&  __s_1259  [ 1 ] ) ?  __s_1259  + 1 : ( ( void  * ) 0 ) ; // L16:L395
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:3340:2: warning: Value stored to '__val_2390' is never read [deadcode.DeadStores]
+ __val_2390  = (  __s_2391  &&  __s_2391  [ 1 ] ) ?  __s_2391  + 1 : ( ( void  * ) 0 ) ; // L16:L395
  ^             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:1599:14: warning: Dereference of undefined pointer value (loaded from variable '__p_1260') [core.NullDereference]
-*  __p_1260  = *  __s_1259  ; // L24
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:3340:19: warning: Branch condition evaluates to a garbage value [core.uninitialized.Branch]
+ __val_2390  = (  __s_2391  &&  __s_2391  [ 1 ] ) ?  __s_2391  + 1 : ( ( void  * ) 0 ) ; // L16:L395
+                  ^~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b62bd7b261b.desugared.c:3352:14: warning: Dereference of undefined pointer value (loaded from variable '__p_2392') [core.NullDereference]
+*  __p_2392  = *  __s_2391  ; // L24
    ~~~~~~~~  ^
-12 warnings generated.
+14 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
-	89 has a match!
-	90 has a match!
-	91 has a match!
-	92 has a match!
+	149 has a match!
+	150 has a match!
+	151 has a match!
+	152 has a match!
 Unmatched ids:
 	None!
-
-none   0 0
+Matches:
+Unmatched ids:
+	153
 BUSYBOX 0301ffab3d9.c
 Macros:
 	EXT2FS_ENABLE_SWAPFS
 [-UEXT2FS_ENABLE_SWAPFS ]
 Desugared Clang Results:
-Original file has no warnings
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/0301ffab3d9.desugared.c:51:2: warning: Value stored to '__gdp_0' is never read [deadcode.DeadStores]
+ __gdp_0  = "group_desc" ; // L7
+ ^          ~~~~~~~~~~~~
+1 warning generated.
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 BUSYBOX 199501f2a00.c
 Macros:
 	ENABLE_FEATURE_MODPROBE_MULTIPLE_OPTIONS
 [-UENABLE_FEATURE_MODPROBE_MULTIPLE_OPTIONS ]
-103 :: Line:21
+clang :: 182 :: Line:21
 	Null pointer passed to 2nd parameter expecting 'nonnull' [core.NonNullParamChecker]
 Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/199501f2a00.desugared.c:1543:2: warning: Value stored to '__dt_1258' is never read [deadcode.DeadStores]
- __dt_1258  = "-i" ; // L10
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/199501f2a00.desugared.c:3282:2: warning: Value stored to '__dt_2390' is never read [deadcode.DeadStores]
+ __dt_2390  = "-i" ; // L10
  ^            ~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/199501f2a00.desugared.c:1557:2: warning: Value stored to '__dt_1258' is never read [deadcode.DeadStores]
- __dt_1258  = "-i" ; // L10
- ^            ~~~~
-2 warnings generated.
+1 warning generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
 Unmatched ids:
-	103
-
-missing1 0
+	182
+Original file has no warnings
 APACHE d0040a07aec.c
 Macros:
 	defined
@@ -1424,9 +1901,11 @@ Macros:
 [-Udefined -DRLIMIT_NPROC=1 ]
 [-Ddefined=1 -DRLIMIT_NPROC=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE c76df14dfb4.c
 Macros:
 	CROSS_COMPILE
@@ -1442,54 +1921,64 @@ Macros:
 [-DCROSS_COMPILE=1 -Ddefined=1 -DNEED_ENHANCED_ESCAPES=1 ]
 [-UCROSS_COMPILE -Udefined -UNEED_ENHANCED_ESCAPES ]
 Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:2149:2: warning: Value stored to '__flags_1818' is never read [deadcode.DeadStores]
- __flags_1818  |= ( 0x01 ) ; // L4:L42
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:3171:2: warning: Value stored to '__flags_2323' is never read [deadcode.DeadStores]
+ __flags_2323  |= ( 0x01 ) ; // L4:L42
  ^                ~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:2213:2: warning: Value stored to '__flags_1818' is never read [deadcode.DeadStores]
- __flags_1818  |= ( 0x01 ) ; // L4:L42
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:3240:2: warning: Value stored to '__flags_2323' is never read [deadcode.DeadStores]
+ __flags_2323  |= ( 0x01 ) ; // L4:L42
  ^                ~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:2305:2: warning: Value stored to '__flags_1818' is never read [deadcode.DeadStores]
- __flags_1818  |= ( 0x01 ) ; // L4:L42
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:3309:2: warning: Value stored to '__flags_2323' is never read [deadcode.DeadStores]
+ __flags_2323  |= ( 0x01 ) ; // L4:L42
  ^                ~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:2397:2: warning: Value stored to '__flags_1818' is never read [deadcode.DeadStores]
- __flags_1818  |= ( 0x01 ) ; // L4:L42
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:3378:2: warning: Value stored to '__flags_2323' is never read [deadcode.DeadStores]
+ __flags_2323  |= ( 0x01 ) ; // L4:L42
  ^                ~~~~~~~~
 4 warnings generated.
-Original file has no warnings
+Desugared Infer Results:
 
-missing1 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE 97ecbec1237.c
 Macros:
 	APR_HAS_SHARED_MEMORY
 [-UAPR_HAS_SHARED_MEMORY ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE bbeb0516cf0.c
 Macros:
 	APR_FILES_AS_SOCKETS
 [-UAPR_FILES_AS_SOCKETS ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE 1f46088b38d.c
 Macros:
 	SIGPIPE
 [-USIGPIPE ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE 9327311d30f.c
 Macros:
 	APR_HAS_SHARED_MEMORY
 [-UAPR_HAS_SHARED_MEMORY ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE 35ae2e259e4.c
 Macros:
 	HAVE_ECC
@@ -1530,9 +2019,59 @@ if (__static_condition_default_823) {
 if (__static_condition_default_823) {
     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 10 warnings generated.
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+APACHE/35ae2e259e4.desugared.c:1366: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1358 is not freed after the last access at line 1366, column 5.
+  1364. if ( rand( ) % 2 )// L11
+  1365. {
+  1366. if (__static_condition_default_806) {
+            ^
+  1367. 
+  1368. {
+
+APACHE/35ae2e259e4.desugared.c:1373: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1358 is not freed after the last access at line 1373, column 1.
+  1371. 
+  1372. 
+  1373. *  __eckey_798  = 30 ; // L12
+        ^
+  1374. }
+  1375. }
+
+APACHE/35ae2e259e4.desugared.c:1397: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1358 is not freed after the last access at line 1397, column 1.
+  1395. 
+  1396. 
+  1397. *  __eckey_798  = 15 ; // L17
+        ^
+  1398. }
+  1399. }
+
+APACHE/35ae2e259e4.desugared.c:1435: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1427 is not freed after the last access at line 1435, column 5.
+  1433. if ( rand( ) % 2 )// L11
+  1434. {
+  1435. if (__static_condition_default_815) {
+            ^
+  1436. 
+  1437. {
+
+APACHE/35ae2e259e4.desugared.c:1442: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1427 is not freed after the last access at line 1442, column 1.
+  1440. 
+  1441. 
+  1442. *  __eckey_798  = 30 ; // L12
+        ^
+  1443. }
+  1444. }
+
+
+Found 8 issues (console output truncated to 5, see '/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/infer-out/report.txt' for the full list)
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 8
+Original file has no warnings
+Original file has no warnings
 APACHE 4202d5fee3e.c
 Macros:
 	APU_HAS_LDAP
@@ -1542,9 +2081,11 @@ Macros:
 [-UAPU_HAS_LDAP -DAPU_HAS_LDAP_NETSCAPE_SSL=1 ]
 [-DAPU_HAS_LDAP=1 -DAPU_HAS_LDAP_NETSCAPE_SSL=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE/b833f064550   SuperC failed
 APACHE b833f064550.c
 Macros:
@@ -1556,58 +2097,61 @@ Macros:
 	APR_HAVE_IPV6
 [-UAPR_HAVE_IPV6 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE 2a6cbfa00e0.c
 Macros:
 	SHARED_MODULE
 [-USHARED_MODULE ]
-108 :: Line:16
+clang :: 184 :: Line:16
 	Potential leak of memory pointed to by 'sc' [unix.Malloc]
 Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1496:5: warning: Potential leak of memory pointed to by '__sc_1019' [unix.Malloc]
-if (__static_condition_default_1028) {
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1569:5: warning: Potential leak of memory pointed to by '__sc_1084' [unix.Malloc]
+if (__static_condition_default_1093) {
     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1499:5: warning: Potential leak of memory pointed to by '__sc_1018' [unix.Malloc]
-if (__static_condition_default_1029) {
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1603:5: warning: Potential leak of memory pointed to by '__sc_1085' [unix.Malloc]
+if (__static_condition_default_1098) {
     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1525:10: warning: Value stored to '__sc_1021' during its initialization is never read [deadcode.DeadStores]
-char  * (__sc_1021)= malloc (sizeof(char) * 45);// L6
-         ^~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1527:1: warning: Potential leak of memory pointed to by '__sc_1021' [unix.Malloc]
-__static_type_error("type error") ; // L9
-^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/2a6cbfa00e0.desugared.c:1531:5: warning: Potential leak of memory pointed to by '__sc_1020' [unix.Malloc]
-if (__static_condition_default_1034) {
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-5 warnings generated.
+2 warnings generated.
+Desugared Infer Results:
+
+APACHE/2a6cbfa00e0.desugared.c:1600: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1593 is not freed after the last access at line 1600, column 5.
+  1598. 
+  1599. __static_type_error("type error") ; // L9
+  1600. if (__static_condition_default_1097) {
+            ^
+  1601. free ( __sc_1085 ) ; // L12
+  1602. }
+
+
+Found 1 issue
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 1
 Matches:
 Unmatched ids:
-	108
-
-missing1 0
+	184
+Original file has no warnings
 APACHE 1a3c8e3d840.c
 Macros:
 	HAVE_TLSV1_X
 [-UHAVE_TLSV1_X ]
 Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1a3c8e3d840.desugared.c:273:2: warning: Value stored to '__thisopt_252' is never read [deadcode.DeadStores]
- __thisopt_252  = ( 1 << 3 ) ; // L4:L13
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1a3c8e3d840.desugared.c:1332:2: warning: Value stored to '__thisopt_798' is never read [deadcode.DeadStores]
+ __thisopt_798  = ( 1 << 3 ) ; // L4:L13
  ^                ~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1a3c8e3d840.desugared.c:287:2: warning: Value stored to '__thisopt_252' is never read [deadcode.DeadStores]
- __thisopt_252  = ( 1 << 3 ) ; // L4:L13
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1a3c8e3d840.desugared.c:1368:2: warning: Value stored to '__thisopt_798' is never read [deadcode.DeadStores]
+ __thisopt_798  = ( 1 << 3 ) ; // L4:L13
  ^                ~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1a3c8e3d840.desugared.c:318:2: warning: Value stored to '__thisopt_252' is never read [deadcode.DeadStores]
- __thisopt_252  = ( 1 << 3 ) ; // L4:L13
- ^                ~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1a3c8e3d840.desugared.c:332:2: warning: Value stored to '__thisopt_252' is never read [deadcode.DeadStores]
- __thisopt_252  = ( 1 << 3 ) ; // L4:L13
- ^                ~~~~~~~~~~
-4 warnings generated.
-Original file has no warnings
+2 warnings generated.
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE test.c
 Macros:
 	XX
@@ -1623,33 +2167,41 @@ Macros:
 [-DXX=1 -DYY=1 -DZZ=1 ]
 [-UXX -UYY -UZZ ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE dbafef17dd1.c
 Macros:
 	HAS_APACHE_REGEX_LIB
 [-UHAS_APACHE_REGEX_LIB ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE 3407eccc321.c
 Macros:
 	__STDC_VERSION__
 [-U__STDC_VERSION__ ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE 664e3aac6dd.c
 Macros:
 	WIN32X
 [-UWIN32X ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE d05e574ec26.c
 Macros:
 	APR_HAS_SHARED_MEMORY
@@ -1692,17 +2244,21 @@ if (__static_condition_default_2056) {
 if (__static_condition_default_2057) {
     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 12 warnings generated.
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE 6338509eb37.c
 Macros:
 	HAVE_FIPS
 [-UHAVE_FIPS ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE 0900800fbab.c
 Macros:
 	HAVE_SYSLOG
@@ -1712,17 +2268,21 @@ Macros:
 [-UHAVE_SYSLOG -DAPLOG_MAX_LOGLEVEL=1 ]
 [-DHAVE_SYSLOG=1 -DAPLOG_MAX_LOGLEVEL=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE 0ddfa412ee9.c
 Macros:
 	HAVE_TLS_ALPN
 [-UHAVE_TLS_ALPN ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE 4945115b2e7.c
 Macros:
 	DEBUG_CGI
@@ -1732,17 +2292,21 @@ Macros:
 [-UDEBUG_CGI -DOS2=1 ]
 [-DDEBUG_CGI=1 -DOS2=1 ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE 56d9881993f.c
 Macros:
 	APR_HAS_SENDFILE
 [-UAPR_HAS_SENDFILE ]
 Desugared Clang Results:
-Original file has no warnings
+Desugared Infer Results:
 
-none   0 0
+  No issues found  
+Original file has no warnings
+Original file has no warnings
 APACHE 1b48bb3c1af.c
 Macros:
 	APU_HAS_LDAP
@@ -1751,19 +2315,28 @@ Macros:
 [-DAPU_HAS_LDAP=1 -UAPR_HAS_SHARED_MEMORY ]
 [-UAPU_HAS_LDAP -DAPR_HAS_SHARED_MEMORY=1 ]
 [-DAPU_HAS_LDAP=1 -DAPR_HAS_SHARED_MEMORY=1 ]
-115 :: Line:14
+clang :: 186 :: Line:14
 	1st function call argument is an uninitialized value [core.CallAndMessage]
+infer :: 187 :: Line:14
+	Uninitialized Value
 Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c:1273:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
- __apr_rmm_init_1019  ( __rmm_lock_1023 ) ; // L14
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c:1427:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
+ __apr_rmm_init_1093  ( __rmm_lock_1099 ) ; // L14
  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c:1276:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
- __apr_rmm_init_1020  ( __rmm_lock_1023 ) ; // L14
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c:1430:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
+ __apr_rmm_init_1094  ( __rmm_lock_1099 ) ; // L14
  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-2 warnings generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c:1433:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
+ __apr_rmm_init_1095  ( __rmm_lock_1099 ) ; // L14
+ ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+3 warnings generated.
+Desugared Infer Results:
+
+  No issues found  
 Matches:
-	115 has a match!
+	186 has a match!
 Unmatched ids:
 	None!
-
-none   0 0
+Matches:
+Unmatched ids:
+	187

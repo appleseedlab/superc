@@ -3,4 +3,47 @@ Macros:
 	CONFIG_KPROBES
 [-UCONFIG_KPROBES ]
 Desugared Clang Results:
+Desugared Infer Results:
+
+LINUX/221ac329e93.desugared.c:4742: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 4681 is not freed after the last access at line 4742, column 1.
+  4740. 
+  4741. }
+  4742. }
+        ^
+  4743. int  (__main_3993) (int  __argc_3990, char  * (* (__argv_3991))) {
+  4744. 
+
+LINUX/221ac329e93.desugared.c:4742: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 4691 is not freed after the last access at line 4742, column 1.
+  4740. 
+  4741. }
+  4742. }
+        ^
+  4743. int  (__main_3993) (int  __argc_3990, char  * (* (__argv_3991))) {
+  4744. 
+
+LINUX/221ac329e93.desugared.c:4742: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 4701 is not freed after the last access at line 4742, column 1.
+  4740. 
+  4741. }
+  4742. }
+        ^
+  4743. int  (__main_3993) (int  __argc_3990, char  * (* (__argv_3991))) {
+  4744. 
+
+LINUX/221ac329e93.desugared.c:4742: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 4711 is not freed after the last access at line 4742, column 1.
+  4740. 
+  4741. }
+  4742. }
+        ^
+  4743. int  (__main_3993) (int  __argc_3990, char  * (* (__argv_3991))) {
+  4744. 
+
+
+Found 4 issues
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 4
+Original file has no warnings
 Original file has no warnings

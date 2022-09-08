@@ -1,0 +1,7 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/53be0f3399e.desugared.c:1913:55: error: invalid output constraint '=w' in asm
+__asm__  volatile   ( "1: sbiw %0,1""\n\t""brne 1b" : "=w" (  ____count_120  ) : "0" (  ____count_120  ) );
+                                                      ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/53be0f3399e.desugared.c:1929:55: error: invalid output constraint '=w' in asm
+__asm__  volatile   ( "1: sbiw %0,1""\n\t""brne 1b" : "=w" (  ____count_120  ) : "0" (  ____count_120  ) );
+                                                      ^
+2 errors generated.

@@ -1,4 +1,22 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:76:7: warning: Branch condition evaluates to a garbage value [core.uninitialized.Branch]
-if (  __buf_27  )// L30
-      ^~~~~~~~
-1 warning generated.
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1686:5: warning: Potential leak of memory pointed to by '__buf_964' [unix.Malloc]
+if (__static_condition_default_972) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1692:7: warning: Branch condition evaluates to a garbage value [core.uninitialized.Branch]
+if (  __buf_964  )// L30
+      ^~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1703:5: warning: Potential leak of memory pointed to by '__buf_964' [unix.Malloc]
+if (__static_condition_default_974) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1749:2: warning: Value stored to '__buf_964' is never read [deadcode.DeadStores]
+ __buf_964  = malloc ( __bufsize_965 ) ; // L26
+ ^            ~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1752:2: warning: Value stored to '__buf_964' is never read [deadcode.DeadStores]
+ __buf_964  = malloc ( __bufsize_965 ) ; // L26
+ ^            ~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1754:5: warning: Potential leak of memory pointed to by '__buf_964' [unix.Malloc]
+if (__static_condition_default_978) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1754:5: warning: Potential leak of memory pointed to by '__buf_964' [unix.Malloc]
+if (__static_condition_default_978) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+7 warnings generated.
