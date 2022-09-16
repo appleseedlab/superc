@@ -552,6 +552,10 @@ public class SugarC extends Tool {
       CContext scope = initialParsingContext;
       SymbolTable<Type> symtab = scope.getSymbolTable();
       PresenceCondition pcTrue = presenceConditionManager.newTrue();
+      String mainMethod = "";
+      if (runtime.test("make-main")) {
+        mainMethod = actions.printMain(scope, pcTrue);
+      }
 
       // emit headers
       System.out.print("#include <stdbool.h>\n");
@@ -586,7 +590,7 @@ public class SugarC extends Tool {
       }
 
       if (runtime.test("make-main")) {
-        System.out.print(actions.printMain(scope, pcTrue));
+        System.out.print(mainMethod);
       }
     }
 

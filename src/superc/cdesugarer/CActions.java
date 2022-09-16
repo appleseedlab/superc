@@ -11167,7 +11167,7 @@ private void recordRenaming(String renaming, String original) {
 
 public String printMain(CContext scope, PresenceCondition pc) {
   String ret = "";
-  ret += "int main() {\n";
+  ret += "int main(int argc, char **argv) {\n";
   Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope("main", pc);
   for (Element<SymbolTable.Entry<Type>> entry : entries) {
     ret += "if (";
@@ -11180,7 +11180,12 @@ public String printMain(CContext scope, PresenceCondition pc) {
     } else if (!(entry.getData().getValue() instanceof FunctionOrMethodT)){
       ret += emitError("main illegally defined") + ";\n";
     } else {
-      ret += "return " + ((NamedFunctionT) entry.getData().getValue()).getName() + "();";
+      NamedFunctionT mainMethod = (NamedFunctionT) entry.getData().getValue();
+      ret += "return " + mainMethod.getName() + "(";
+      if (mainMethod.getParameters().size() == 2) {
+        ret += "argc, argv";
+      }
+      ret += ");";
     }  // end test of symtab entry type
     ret += "}\n";
   } // end loop over symtab entries
