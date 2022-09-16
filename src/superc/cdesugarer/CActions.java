@@ -11181,11 +11181,17 @@ public String printMain(CContext scope, PresenceCondition pc) {
       ret += emitError("main illegally defined") + ";\n";
     } else {
       NamedFunctionT mainMethod = (NamedFunctionT) entry.getData().getValue();
-      ret += "return " + mainMethod.getName() + "(";
+      if (mainMethod.getResult().isInteger()) {
+        ret += "return ";
+      }
+      ret +=  mainMethod.getName() + "(";
       if (mainMethod.getParameters().size() == 2) {
         ret += "argc, argv";
       }
-      ret += ");";
+      ret += ");\n";
+      if (!mainMethod.getResult().isInteger()) {
+        ret += "return 0;\n";
+      }
     }  // end test of symtab entry type
     ret += "}\n";
   } // end loop over symtab entries
