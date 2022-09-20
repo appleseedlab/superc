@@ -4683,13 +4683,15 @@ public class CActions implements SemanticActions {
 
   case 355:
     {
+          LineNumbers lBraceLN = new LineNumbers((Syntax)getNodeAt(subparser,5));
+          LineNumbers rBraceLN = new LineNumbers((Syntax)getNodeAt(subparser,1));
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = ((CContext) subparser.scope);
           
           List<Multiverse<DeclarationOrStatementValue>> body = (List<Multiverse<DeclarationOrStatementValue>>) getTransformationValue(subparser, 3);
           StringBuilder valuesb = new StringBuilder();
           DeclarationOrStatementValue dsv = new DeclarationOrStatementValue("");
-          dsv.setChildrenBlock("{",body,"}");
+          dsv.setChildrenBlock("{"+lBraceLN.getComment(),body,"}"+rBraceLN.getComment());
 
           setTransformationValue(value, dsv);
         }
@@ -4856,7 +4858,7 @@ public class CActions implements SemanticActions {
            // should not violate mutual-exclusion in the multiverse
             // TODO: use dce and other optimizations to remove superfluous __static_type_error calls
             // since desugarOps can't have empty multiverses we need to add error entries
-            // so here we should purge the errorCond from the string multiverse before appending
+           // so here we should purge the errorCond from the string multiverse before appending
             todoReminder("add emitError back to ExpressionStatement once type checking is done");
             if (errorCond.isNotFalse()) {
               expr = expr.filter(errorCond.not());
@@ -4887,7 +4889,7 @@ public class CActions implements SemanticActions {
           todoReminder("check the type of the conditional expression SelectionStatement (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 3, pc);
-	  System.err.println(exprval);
+          System.err.println(exprval);
           Syntax ifsyn = (getSyntaxMV(subparser, 5,pc)).get(0).getData();
           String ifstr = ifsyn.getTokenText();
           String lparenstr = (getSyntaxMV(subparser, 4,pc)).get(0).getData().getTokenText();
@@ -4935,6 +4937,8 @@ public class CActions implements SemanticActions {
           LineNumbers lw = new LineNumbers(ifsyn, rparensyn);
           Multiverse<DeclarationOrStatementValue> ifbranchmv = getCompleteNodeMultiverseValue(subparser, 3, pc);
           String elsestr = (getSyntaxMV(subparser, 2,pc)).get(0).getData().getTokenText();
+          LineNumbers elw = new LineNumbers((getSyntaxMV(subparser, 2,pc)).get(0).getData());
+          elsestr += elw.getComment();
           Multiverse<DeclarationOrStatementValue> elsebranchmv = getCompleteNodeMultiverseValue(subparser, 1, pc);
 
           String errorstmt = String.format("%s;", emitError("invalid type found in ifelse statement"));
@@ -4949,7 +4953,7 @@ public class CActions implements SemanticActions {
             Multiverse<DeclarationOrStatementValue> dsv = DesugarOps.StringToDSV.transform(appendmv);
 
             for (Element<DeclarationOrStatementValue> d : dsv) {
-              d.getData().setChildrenElse(ifbranchmv,elsebranchmv);
+              d.getData().setChildrenElse(ifbranchmv,elsestr,elsebranchmv);
             }
                         
             PresenceCondition invalidCond = exprval.invalidTypeCondition(pc);
@@ -5119,10 +5123,10 @@ public class CActions implements SemanticActions {
           ExpressionValue initval = getCompleteNodeExpressionValue(subparser, 7, pc);
           String semi1 = ";";
           ExpressionValue testval = getCompleteNodeExpressionValue(subparser, 5, pc);
-	  String semi2 = ";";
+          String semi2 = ";";
           ExpressionValue updateval = getCompleteNodeExpressionValue(subparser, 3, pc);
-	  System.err.println(updateval);
-	  Syntax rparensyn = (getSyntaxMV(subparser, 2,pc)).get(0).getData(); 
+          System.err.println(updateval);
+          Syntax rparensyn = (getSyntaxMV(subparser, 2,pc)).get(0).getData(); 
           String rparen = rparensyn.getTokenText();
           LineNumbers lw = new LineNumbers(forsyn,rparensyn);
 
@@ -10106,6 +10110,7 @@ public static class DeclarationOrStatementValue implements Copyable{
   private List<DeclarationOrStatementValue> switchChildren;
   private String childPrepend;
   private boolean isElse;
+  private String elseString;
   private boolean isDo;
   private String childAppend;
   private boolean isDecl;
@@ -10122,6 +10127,7 @@ public static class DeclarationOrStatementValue implements Copyable{
     children = null;
     switchChildren = null;
     isElse = false;
+    elseString = "else";
     isDo = false;
     isDecl = false;
     isEmpty = false;
@@ -10142,6 +10148,7 @@ public static class DeclarationOrStatementValue implements Copyable{
     children = null;
     switchChildren = null;
     isElse = false;
+    elseString = "else";
     isDo = false;
     isDecl = false;
     isLabel = false;
@@ -10159,6 +10166,7 @@ public static class DeclarationOrStatementValue implements Copyable{
     children = x.children;
     switchChildren = x.switchChildren;
     isElse = x.isElse;
+    elseString = x.elseString;
     isDo = x.isDo;
     isDecl = x.isDecl;
     isLabel = x.isLabel;
@@ -10199,6 +10207,7 @@ public static class DeclarationOrStatementValue implements Copyable{
       d.switchChildren = null;
     }
     d.isElse = isElse;
+    d.elseString = elseString;
     d.isDo = isDo;
     d.isDecl = isDecl;
     d.isLabel = isLabel;
@@ -10251,8 +10260,9 @@ public static class DeclarationOrStatementValue implements Copyable{
     isEmpty = false;
   }
   
-  public void setChildrenElse(Multiverse<DeclarationOrStatementValue> a,Multiverse<DeclarationOrStatementValue> b) {
+  public void setChildrenElse(Multiverse<DeclarationOrStatementValue> a, String elseStr, Multiverse<DeclarationOrStatementValue> b) {
     isElse = true;
+    elseString = elseStr;
     children = new LinkedList<Multiverse<DeclarationOrStatementValue>>();
     children.add(a);
     children.add(b);
@@ -10378,7 +10388,8 @@ public static class DeclarationOrStatementValue implements Copyable{
         }
       }
       ret += "}\n";
-      ret += "else\n{\n";
+      ret += elseString;
+      ret += "\n{\n";
       for (Element<DeclarationOrStatementValue> e : children.get(1)) {
         if (e.getCondition().and(p).isNotFalse()) {
           if (e.getCondition().is(p) || e.getData().isDecl) {
