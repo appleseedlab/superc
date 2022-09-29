@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -1347,7 +1348,7 @@ int  (__main_1095) (int  __argc_1092, char  * (* (__argv_1093))) {
 
 if (__static_condition_default_1098) {
 
-{
+{// L4
 {
 
 
@@ -1358,30 +1359,30 @@ if (  __n_1094  < 0 )// L7
 {
 if (__static_condition_default_1099) {
 
-{
+{// L7
 {
 
 
 
  __printf_421  ("can't get groups") ; // L9
 }
-}
+}// L13
 }
 if (__static_condition_default_1100) {
 
-{
+{// L7
 {
 
 
 
 __static_type_error("invalid type found in return expression");
 }
-}
+}// L13
 }
 }
 return 0 ;// L14
 }
-}
+}// L15
 
 
 }
@@ -1390,7 +1391,7 @@ int  (__main_1096) (int  __argc_1092, char  * (* (__argv_1093))) {
 
 if (__static_condition_default_1101) {
 
-{
+{// L4
 {
 
 
@@ -1401,30 +1402,30 @@ if (  __n_1094  < 0 )// L7
 {
 if (__static_condition_default_1102) {
 
-{
+{// L7
 {
 
 
 
  __printf_421  ("can't get groups") ; // L9
 }
-}
+}// L13
 }
 if (__static_condition_default_1103) {
 
-{
+{// L7
 {
 
 
 
 __static_type_error("invalid type found in return expression");
 }
-}
+}// L13
 }
 }
 return 0 ;// L14
 }
-}
+}// L15
 
 
 }
@@ -1433,7 +1434,7 @@ int  (__main_1097) (int  __argc_1092, char  * (* (__argv_1093))) {
 
 if (__static_condition_default_1104) {
 
-{
+{// L4
 {
 
 
@@ -1444,30 +1445,30 @@ if (  __n_1094  < 0 )// L7
 {
 if (__static_condition_default_1105) {
 
-{
+{// L7
 {
 
 
 
 __static_type_error("type error") ; // L9
 }
-}
+}// L13
 }
 if (__static_condition_default_1106) {
 
-{
+{// L7
 {
 
 
 
 __static_type_error("invalid type found in return expression");
 }
-}
+}// L13
 }
 }
 return 0 ;// L14
 }
-}
+}// L15
 
 
 }

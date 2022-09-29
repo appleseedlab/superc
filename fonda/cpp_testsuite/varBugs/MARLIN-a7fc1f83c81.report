@@ -2,19 +2,4 @@ MARLIN a7fc1f83c81.c
 Macros:
 	SDSUPPORT
 [-USDSUPPORT ]
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/a7fc1f83c81.desugared.c:199:6: warning: Value stored to '__len_217' during its initialization is never read [deadcode.DeadStores]
-int  __len_217=  __strlen_108  ( __prepend_216 ) + 13 + 1;// L10
-     ^~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/a7fc1f83c81.desugared.c:201:6: warning: Value stored to '__len_218' during its initialization is never read [deadcode.DeadStores]
-int  __len_218=  __strlen_109  ( __prepend_216 ) + 13 + 1;// L10
-     ^~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/a7fc1f83c81.desugared.c:211:7: warning: Value stored to '__lfilename_221' during its initialization is never read [deadcode.DeadStores]
-char  __lfilename_221[13]= "FOLDERNAME12\0";// L15
-      ^~~~~~~~~~~~~~~      ~~~~~~~~~~~~~~~~
-3 warnings generated.
-Desugared Infer Results:
-
-  No issues found  
-Original file has no warnings
-Original file has no warnings
+File Failed

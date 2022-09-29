@@ -1,9 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/53be0f3399e.c:1:10: error: 'util/delay.h' file not found with <angled> include; use "quotes" instead
-#include <util/delay.h> // http://download.savannah.gnu.org/releases/avr-libc/binary-releases/ for the util/delay library
-         ^~~~~~~~~~~~~~
-         "util/delay.h"
-In file included from /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/53be0f3399e.c:1:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/util/delay.h:45:10: fatal error: 'util/delay_basic.h' file not found
-#include <util/delay_basic.h>
-         ^~~~~~~~~~~~~~~~~~~~
-2 errors generated.
+sh: 1: clang: not found

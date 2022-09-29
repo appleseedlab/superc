@@ -6,28 +6,6 @@ Macros:
 [-DAPU_HAS_LDAP=1 -UAPR_HAS_SHARED_MEMORY ]
 [-UAPU_HAS_LDAP -DAPR_HAS_SHARED_MEMORY=1 ]
 [-DAPU_HAS_LDAP=1 -DAPR_HAS_SHARED_MEMORY=1 ]
-clang :: 186 :: Line:14
-	1st function call argument is an uninitialized value [core.CallAndMessage]
-infer :: 187 :: Line:14
+infer :: 24 :: Line:14
 	Uninitialized Value
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c:1427:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
- __apr_rmm_init_1093  ( __rmm_lock_1099 ) ; // L14
- ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c:1430:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
- __apr_rmm_init_1094  ( __rmm_lock_1099 ) ; // L14
- ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c:1433:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
- __apr_rmm_init_1095  ( __rmm_lock_1099 ) ; // L14
- ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-3 warnings generated.
-Desugared Infer Results:
-
-  No issues found  
-Matches:
-	186 has a match!
-Unmatched ids:
-	None!
-Matches:
-Unmatched ids:
-	187
+File Failed

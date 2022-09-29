@@ -2,9 +2,4 @@ APACHE dbafef17dd1.c
 Macros:
 	HAS_APACHE_REGEX_LIB
 [-UHAS_APACHE_REGEX_LIB ]
-Desugared Clang Results:
-Desugared Infer Results:
-
-  No issues found  
-Original file has no warnings
-Original file has no warnings
+File Failed

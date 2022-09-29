@@ -1,4 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/6338509eb37.c:9:7: error: use of undeclared identifier 'fips'
-  if (fips == 0)
-      ^
-1 error generated.
+sh: 1: clang: not found

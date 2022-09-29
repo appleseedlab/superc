@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -1426,7 +1427,7 @@ void  (__setup_node_to_cpumask_map_1106) (void  ) {
 
 if (__static_condition_default_1107) {
 
-{
+{// L27
 {
 
 
@@ -1446,7 +1447,7 @@ if (__static_condition_default_1110) {
 }
 }
 }
-}
+}// L33
 
 
 }
@@ -1457,13 +1458,13 @@ static inline void  (__setup_node_to_cpumask_map_1120) (void  ) {
 {
 if (__static_condition_default_1124) {
 
-{
+{// L64
 {
 
 
 
 }
-}
+}// L64
 
 
 }
@@ -1474,7 +1475,7 @@ const __cpumask_t_1092  * ((__cpumask_of_node_1121) (int  __node_1111)) {
 {
 if (__static_condition_default_1125) {
 
-{
+{// L37
 {
 
 
@@ -1482,7 +1483,7 @@ if (__static_condition_default_1125) {
 if (  __node_1111  >=  __nr_node_ids_1101  )// L38
 {
 
-{
+{// L38
 {
 
 
@@ -1490,12 +1491,12 @@ if (  __node_1111  >=  __nr_node_ids_1101  )// L38
 __static_type_error("type error : no valid expression"); // L39:L40
 return  __cpu_none_mask_1095  ;// L41
 }
-}
+}// L42
 }
 if (  __node_to_cpumask_map_1102  [  __node_1111  ] == ( ( void  * ) 0 ) )// L43
 {
 
-{
+{// L43
 {
 
 
@@ -1503,11 +1504,11 @@ if (  __node_to_cpumask_map_1102  [  __node_1111  ] == ( ( void  * ) 0 ) )// L43
 __static_type_error("type error : no valid expression"); // L44
 return  __cpu_online_mask_1098  ;// L45
 }
-}
+}// L46
 }
 return  __node_to_cpumask_map_1102  [  __node_1111  ] ;// L47
 }
-}
+}// L48
 
 
 }
@@ -1518,7 +1519,7 @@ const __cpumask_t_1093  * ((__cpumask_of_node_1122) (int  __node_1111)) {
 {
 if (__static_condition_default_1126) {
 
-{
+{// L37
 {
 
 
@@ -1526,7 +1527,7 @@ if (__static_condition_default_1126) {
 if (  __node_1111  >=  __nr_node_ids_1101  )// L38
 {
 
-{
+{// L38
 {
 
 
@@ -1534,12 +1535,12 @@ if (  __node_1111  >=  __nr_node_ids_1101  )// L38
 __static_type_error("type error : no valid expression"); // L39:L40
 return  __cpu_none_mask_1096  ;// L41
 }
-}
+}// L42
 }
 __static_type_error("invalid type found in if statement");
 return  __node_to_cpumask_map_1103  [  __node_1111  ] ;// L47
 }
-}
+}// L48
 
 
 }
@@ -1550,7 +1551,7 @@ const __cpumask_t_1094  * ((__cpumask_of_node_1123) (int  __node_1111)) {
 {
 if (__static_condition_default_1127) {
 
-{
+{// L37
 {
 
 
@@ -1558,7 +1559,7 @@ if (__static_condition_default_1127) {
 if (  __node_1111  >=  __nr_node_ids_1101  )// L38
 {
 
-{
+{// L38
 {
 
 
@@ -1566,12 +1567,12 @@ if (  __node_1111  >=  __nr_node_ids_1101  )// L38
 __static_type_error("type error : no valid expression"); // L39:L40
 return  __cpu_none_mask_1097  ;// L41
 }
-}
+}// L42
 }
 if (  __node_to_cpumask_map_1104  [  __node_1111  ] == ( ( void  * ) 0 ) )// L43
 {
 
-{
+{// L43
 {
 
 
@@ -1579,11 +1580,11 @@ if (  __node_to_cpumask_map_1104  [  __node_1111  ] == ( ( void  * ) 0 ) )// L43
 __static_type_error("type error : no valid expression"); // L44
 return  __cpu_online_mask_1100  ;// L45
 }
-}
+}// L46
 }
 return  __node_to_cpumask_map_1104  [  __node_1111  ] ;// L47
 }
-}
+}// L48
 
 
 }
@@ -1593,14 +1594,14 @@ static inline int  (__get_mp_bus_to_node_1129) (int  __busnum_1128) {
 
 if (__static_condition_default_1130) {
 
-{
+{// L112
 {
 
 
 
 return 0 ;// L113
 }
-}
+}// L114
 
 
 }
@@ -1609,7 +1610,7 @@ static int  (__local_cpus_show_1136) (int  __node_1131) {
 
 if (__static_condition_default_1137) {
 
-{
+{// L128
 {
 
 
@@ -1636,7 +1637,7 @@ __static_type_error("type error") ; // L137
 }
 return  __len_1135  ;// L139
 }
-}
+}// L140
 
 
 }
@@ -1645,7 +1646,7 @@ static int  (__dev_attr_show_1144) (int  __node_1142) {
 
 if (__static_condition_default_1137) {
 
-{
+{// L143
 {
 
 
@@ -1655,7 +1656,7 @@ int  __ret_1143;// L144
  __ret_1143  =  __local_cpus_show_1136  ( __node_1142 ) ; // L145
 return  __ret_1143  ;// L146
 }
-}
+}// L147
 
 
 }
@@ -1664,7 +1665,7 @@ int  (__pcibios_scan_root_1145) () {
 
 if (__static_condition_default_1137) {
 
-{
+{// L150
 {
 
 
@@ -1673,7 +1674,7 @@ if (__static_condition_default_1146) {
 return  __get_mp_bus_to_node_1129  (0) ;// L151
 }
 }
-}
+}// L152
 
 
 }
@@ -1682,7 +1683,7 @@ int  (__main_1150) (int  __argc_1147, char  * (* (__argv_1148))) {
 
 if (__static_condition_default_1152) {
 
-{
+{// L156
 {
 
 
@@ -1698,7 +1699,7 @@ if (__static_condition_default_1155) {
 }
 return 0 ;// L165
 }
-}
+}// L166
 
 
 }
@@ -1707,7 +1708,7 @@ int  (__main_1151) (int  __argc_1147, char  * (* (__argv_1148))) {
 
 if (__static_condition_default_1156) {
 
-{
+{// L156
 {
 
 
@@ -1720,7 +1721,7 @@ int  __node_1149=  __pcibios_scan_root_1145 ( );// L162
  __dev_attr_show_1144  ( __node_1149 ) ; // L163
 return 0 ;// L165
 }
-}
+}// L166
 
 
 }

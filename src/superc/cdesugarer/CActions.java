@@ -5761,8 +5761,8 @@ public class CActions implements SemanticActions {
           // the type
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 3, pc);
-          String lparen = getNodeAt(subparser, 2).getTokenText();
-          String rparen = getNodeAt(subparser, 1).getTokenText();
+          String lparen = "(";
+          String rparen = ")";
 
 
           if (exprval.hasValidType()) {
@@ -5820,9 +5820,9 @@ public class CActions implements SemanticActions {
           if (postfixexprval.hasValidType()) {
             /* postfixexprval.transformation; */
             Multiverse<String> lparen
-              = new Multiverse<String>((String) getNodeAt(subparser, 3).getTokenText(), pc);
+              = new Multiverse<String>("(", pc);
             Multiverse<String> rparen
-              = new Multiverse<String>((String) getNodeAt(subparser, 1).getTokenText(), pc);
+              = new Multiverse<String>(")", pc);
 
             // Get all possible expression lists by successively taking
             // the combined product of each element of the list.  See

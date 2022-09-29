@@ -1,7 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/ae249b5fa27.desugared.c:283:15: warning: The left operand of '!=' is a garbage value [core.UndefinedBinaryOperatorResult]
-( (  __r_236  != 0xff ) ? ( void   ) ( 0 ) :  ____assert_fail_4  ("r != 0xff","/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/ae249b5fa27.c",19, __PRETTY_FUNCTION__ ) ) ; // L19:L91
-     ~~~~~~~  ^
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/ae249b5fa27.desugared.c:288:1: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
-return ( int   )  __r_236  ;// L21
-^~~~~~~~~~~~~~~~~~~~~~~~~
-2 warnings generated.
+sh: 1: clang: not found

@@ -2,28 +2,4 @@ LINUX 6e2b75740be.c
 Macros:
 	defined
 [-Udefined ]
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/6e2b75740be.desugared.c:95:9: warning: Potential leak of memory pointed to by '__ptr_11' [unix.Malloc]
-if ( !  __ptr_11  )// L39
-        ^~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/6e2b75740be.desugared.c:121:10: warning: Value stored to '__dest_12' during its initialization is never read [deadcode.DeadStores]
-void  * (__dest_12)= (  __mod_9  [ 1 ] );// L46
-         ^~~~~~~~~   ~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/6e2b75740be.desugared.c:146:1: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
-free ((  __mod_9  [ 1 ] )) ; // L60
-^~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/6e2b75740be.desugared.c:153:1: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
-free ((  __mod_9  [ 0 ] )) ; // L63
-^~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/6e2b75740be.desugared.c:177:1: warning: Attempt to free released memory [unix.Malloc]
-free ( __hdr_8 ) ; // L67
-^~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/6e2b75740be.desugared.c:182:9: warning: Potential leak of memory pointed to by '__mod_9' [unix.Malloc]
-return  __err_10  ;// L69
-        ^~~~~~~~
-6 warnings generated.
-Desugared Infer Results:
-
-  No issues found  
-Original file has no warnings
-Original file has no warnings
+File Failed

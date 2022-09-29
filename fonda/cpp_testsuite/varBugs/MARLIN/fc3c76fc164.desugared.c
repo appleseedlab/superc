@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -36,14 +37,14 @@ int  (__main_7) (void  ) {
 
 if (__static_condition_default_8) {
 
-{
+{// L17
 {
 
 
 
 return 0 ;// L18
 }
-}
+}// L19
 
 
 }

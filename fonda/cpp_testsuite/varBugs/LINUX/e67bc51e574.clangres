@@ -1,7 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/e67bc51e574.c:11:20: error: too many arguments to function call, expected 0, have 1
-  trace_dump_stack(0); // ERROR
-  ~~~~~~~~~~~~~~~~ ^
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/e67bc51e574.c:7:20: note: 'trace_dump_stack' declared here
-static inline void trace_dump_stack(void) { }
-                   ^
-1 error generated.
+sh: 1: clang: not found

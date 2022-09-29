@@ -2,19 +2,4 @@ LINUX 51fd36f3fad.c
 Macros:
 	CONFIG_64BIT
 [-UCONFIG_64BIT ]
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/51fd36f3fad.desugared.c:216:1: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
-return  __tmp_38  ;// L45
-^~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/51fd36f3fad.desugared.c:256:1: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
-return  __expires_47  ;// L60
-^~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/51fd36f3fad.desugared.c:300:1: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
-return  __expires_47  ;// L60
-^~~~~~~~~~~~~~~~~~~~
-3 warnings generated.
-Desugared Infer Results:
-
-  No issues found  
-Original file has no warnings
-Original file has no warnings
+File Failed

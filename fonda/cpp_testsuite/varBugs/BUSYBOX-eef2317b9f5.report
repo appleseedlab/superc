@@ -2,63 +2,6 @@ BUSYBOX eef2317b9f5.c
 Macros:
 	CONFIG_FEATURE_CLEAN_UP
 [-UCONFIG_FEATURE_CLEAN_UP ]
-clang :: 95 :: Line:26
-	Value stored to 'buf' is never read [deadcode.DeadStores]
-clang :: 96 :: Line:34
-	Potential leak of memory pointed to by 'buf' [unix.Malloc]
-infer :: 97 :: Line:26
+infer :: 12 :: Line:26
 	Memory Leak
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1686:5: warning: Potential leak of memory pointed to by '__buf_964' [unix.Malloc]
-if (__static_condition_default_972) {
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1692:7: warning: Branch condition evaluates to a garbage value [core.uninitialized.Branch]
-if (  __buf_964  )// L30
-      ^~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1703:5: warning: Potential leak of memory pointed to by '__buf_964' [unix.Malloc]
-if (__static_condition_default_974) {
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1749:2: warning: Value stored to '__buf_964' is never read [deadcode.DeadStores]
- __buf_964  = malloc ( __bufsize_965 ) ; // L26
- ^            ~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1752:2: warning: Value stored to '__buf_964' is never read [deadcode.DeadStores]
- __buf_964  = malloc ( __bufsize_965 ) ; // L26
- ^            ~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1754:5: warning: Potential leak of memory pointed to by '__buf_964' [unix.Malloc]
-if (__static_condition_default_978) {
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.desugared.c:1754:5: warning: Potential leak of memory pointed to by '__buf_964' [unix.Malloc]
-if (__static_condition_default_978) {
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-7 warnings generated.
-Desugared Infer Results:
-
-BUSYBOX/eef2317b9f5.desugared.c:1749: error: Memory Leak
-  Memory dynamically allocated by `malloc` on line 1749 is not freed after the last access at line 1749, column 2.
-  1747. }
-  1748. if (__static_condition_default_976) {
-  1749.  __buf_964  = malloc ( __bufsize_965 ) ; // L26
-         ^
-  1750. }
-  1751. if (__static_condition_default_977) {
-
-BUSYBOX/eef2317b9f5.desugared.c:1752: error: Memory Leak
-  Memory dynamically allocated by `malloc` on line 1752 is not freed after the last access at line 1752, column 2.
-  1750. }
-  1751. if (__static_condition_default_977) {
-  1752.  __buf_964  = malloc ( __bufsize_965 ) ; // L26
-         ^
-  1753. }
-  1754. if (__static_condition_default_978) {
-
-
-Found 2 issues
-  Issue Type(ISSUED_TYPE_ID): #
-  Memory Leak(MEMORY_LEAK_C): 2
-Matches:
-	95 has a match!
-Unmatched ids:
-	96
-Matches:
-Unmatched ids:
-	97
+File Failed

@@ -12,9 +12,4 @@ Macros:
 [-UCONFIG_NODES_SHIFT -DCONFIG_DISCONTIGMEM=1 -DCONFIG_PROC_PAGE_MONITOR=1 ]
 [-DCONFIG_NODES_SHIFT=1 -DCONFIG_DISCONTIGMEM=1 -DCONFIG_PROC_PAGE_MONITOR=1 ]
 [-UCONFIG_NODES_SHIFT -UCONFIG_DISCONTIGMEM -UCONFIG_PROC_PAGE_MONITOR ]
-Desugared Clang Results:
-Desugared Infer Results:
-
-  No issues found  
-Original file has no warnings
-Original file has no warnings
+File Failed

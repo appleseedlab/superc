@@ -6,13 +6,4 @@ Macros:
 [-DULTRA_LCD=1 -USDSUPPORT ]
 [-UULTRA_LCD -DSDSUPPORT=1 ]
 [-DULTRA_LCD=1 -DSDSUPPORT=1 ]
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/831016b09f7.desugared.c:81:7: warning: Value stored to '__time_7' during its initialization is never read [deadcode.DeadStores]
-char  __time_7[30]= "time_here";// L14
-      ^~~~~~~~      ~~~~~~~~~~~
-1 warning generated.
-Desugared Infer Results:
-
-  No issues found  
-Original file has no warnings
-Original file has no warnings
+File Failed

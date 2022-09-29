@@ -2,9 +2,4 @@ MARLIN fdac8f6cece.c
 Macros:
 	ENABLE_AUTO_BED_LEVELING
 [-UENABLE_AUTO_BED_LEVELING ]
-Desugared Clang Results:
-Desugared Infer Results:
-
-  No issues found  
-Original file has no warnings
-Original file has no warnings
+File Failed

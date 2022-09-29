@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -254,7 +255,7 @@ int  (__pfn_to_nid_237) (unsigned long  __pfn_235) {
 
 if (__static_condition_default_238) {
 
-{
+{// L14
 {
 
 
@@ -287,7 +288,7 @@ __static_type_error("type error") ; // L19:L91
 }
 return ( int   )  __r_236  ;// L21
 }
-}
+}// L22
 
 
 }
@@ -296,7 +297,7 @@ int  (__pfn_valid_249) (int  __pfn_247) {
 
 if (__static_condition_default_250) {
 
-{
+{// L25
 {
 
 
@@ -305,7 +306,7 @@ int  __nid_248=  __pfn_to_nid_237  ( __pfn_247 );// L26
 
 return (  __nid_248  >= 0 ) ;// L28
 }
-}
+}// L29
 
 
 }
@@ -314,7 +315,7 @@ int  (__kpageflags_read_252) () {
 
 if (__static_condition_default_253) {
 
-{
+{// L38
 {
 
 
@@ -324,7 +325,7 @@ unsigned int  __pfn_251= 0;// L39
 for (  ;  __pfn_251  <  __max_pfn_234  ;  __pfn_251  ++ )// L41
 {
 
-{
+{// L41
 {
 
 
@@ -342,11 +343,11 @@ if (  __pfn_valid_249  ( __pfn_251 ) )// L42
 }
 }
 }
-}
+}// L44
 }
 return 0 ;// L46
 }
-}
+}// L47
 
 
 }
@@ -356,20 +357,20 @@ void  (__setup_bootmem_256) (void  ) {
 {
 if (__static_condition_default_258) {
 
-{
+{// L51
 {
 
 
 
 }
-}
+}// L55
 
 
 }
 
 if (__static_condition_default_259) {
 
-{
+{// L51
 {
 
 
@@ -384,7 +385,7 @@ if (__static_condition_default_262) {
 __static_type_error("type error") ; // L53
 }
 }
-}
+}// L55
 
 
 }
@@ -395,20 +396,20 @@ void  (__setup_bootmem_257) (void  ) {
 {
 if (__static_condition_default_263) {
 
-{
+{// L51
 {
 
 
 
 }
-}
+}// L55
 
 
 }
 
 if (__static_condition_default_264) {
 
-{
+{// L51
 {
 
 
@@ -423,7 +424,7 @@ if (__static_condition_default_267) {
 __static_type_error("type error") ; // L53
 }
 }
-}
+}// L55
 
 
 }
@@ -431,7 +432,7 @@ __static_type_error("type error") ; // L53
 }}
 int  (__main_268) () {
 
-{
+{// L58
 {
 
 
@@ -452,7 +453,7 @@ if (__static_condition_default_272) {
 return 0 ;// L63
 }
 }
-}
+}// L64
 
 
 }

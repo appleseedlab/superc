@@ -1,8 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/7336e6df070.c:44:8: error: use of undeclared identifier 'old_z_max_endstop'; did you mean 'old_z2_max_endstop'?
-  if (!old_z_max_endstop && !locked_z_motor) WRITE;
-       ^~~~~~~~~~~~~~~~~
-       old_z2_max_endstop
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/7336e6df070.c:37:13: note: 'old_z2_max_endstop' declared here
-static bool old_z2_max_endstop = false;
-            ^
-1 error generated.
+sh: 1: clang: not found

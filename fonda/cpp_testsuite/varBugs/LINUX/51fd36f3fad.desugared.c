@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -7,27 +8,27 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
+extern const bool __static_condition_default_51;
 extern const bool __static_condition_default_43;
-extern const bool __static_condition_default_54;
-extern const bool __static_condition_default_29;
 extern const bool __static_condition_default_56;
-extern const bool __static_condition_default_59;
+extern const bool __static_condition_default_52;
+extern const bool __static_condition_default_29;
 extern const bool __static_condition_default_36;
 extern const bool __static_condition_default_39;
 extern const bool __static_condition_default_58;
-extern const bool __static_condition_default_60;
 extern const bool __static_condition_default_53;
-extern const bool __static_condition_default_52;
-extern const bool __static_condition_default_31;
-extern const bool __static_condition_default_44;
 extern const bool __static_condition_default_57;
-extern const bool __static_condition_default_45;
-extern const bool __static_condition_default_51;
-extern const bool __static_condition_default_42;
-extern const bool __static_condition_default_50;
-extern const bool __static_condition_default_55;
-extern const bool __static_condition_default_35;
 extern const bool __static_condition_default_61;
+extern const bool __static_condition_default_31;
+extern const bool __static_condition_default_55;
+extern const bool __static_condition_default_59;
+extern const bool __static_condition_default_50;
+extern const bool __static_condition_default_54;
+extern const bool __static_condition_default_45;
+extern const bool __static_condition_default_42;
+extern const bool __static_condition_default_44;
+extern const bool __static_condition_default_60;
+extern const bool __static_condition_default_35;
 void __static_initializer_default() {
 __static_renaming("__int8_t_0", "int8_t");
 __static_renaming("__int16_t_1", "int16_t");
@@ -160,14 +161,14 @@ static inline __s64_30  (__ktime_set_34) (const long  __secs_33) {
 
 if (__static_condition_default_36) {
 
-{
+{// L30
 {
 
 
 
 return ( __s64_30   )  __secs_33  * 1000000000L ;// L31
 }
-}
+}// L32
 
 
 }
@@ -176,7 +177,7 @@ __s64_30  (__ktime_add_ns_41) (__u64_32  __nsec_37) {
 
 if (__static_condition_default_43) {
 
-{
+{// L35
 {
 
 
@@ -187,21 +188,21 @@ if (  __nsec_37  < 1000000000L )// L38
 {
 if (__static_condition_default_44) {
 
-{
+{// L38
 {
 
 
 
  __tmp_38  =  __nsec_37  ; // L39
 }
+}// L40
 }
 }
-}
-else
+else// L40
 {
 if (__static_condition_default_45) {
 
-{
+{// L40
 {
 
 
@@ -210,12 +211,12 @@ unsigned long  __sec_40=  __nsec_37  / 1000000000L;// L41
 
  __tmp_38  =  __ktime_set_34  (( __s32_28   )  __sec_40 ) ; // L42
 }
-}
+}// L43
 }
 }
 return  __tmp_38  ;// L45
 }
-}
+}// L46
 
 
 }
@@ -224,7 +225,7 @@ static __u64_32  (__tick_nohz_stop_sched_tick_48) () {
 
 if (__static_condition_default_50) {
 
-{
+{// L51
 {
 
 
@@ -242,7 +243,7 @@ if (  __time_delta_46  < ( ( __s64_30   ) ~ ( ( __u64_32   ) 1 << 63 ) ) )// L55
 {
  __expires_47  = (  __time_delta_46  ) ; // L25:L56
 }
-else
+else// L57
 {
 if (__static_condition_default_52) {
  __expires_47  = ( ( __s64_30   ) ~ ( ( __u64_32   ) 1 << 63 ) ) ; // L16:L58
@@ -259,7 +260,7 @@ if (__static_condition_default_55) {
 __static_type_error("invalid type found in return expression");
 }
 }
-}
+}// L61
 
 
 }
@@ -268,7 +269,7 @@ static __u64_32  (__tick_nohz_stop_sched_tick_49) () {
 
 if (__static_condition_default_56) {
 
-{
+{// L51
 {
 
 
@@ -286,7 +287,7 @@ if (  __time_delta_46  < ( ( __s64_30   ) ~ ( ( __u64_32   ) 1 << 63 ) ) )// L55
 {
  __expires_47  =  __ktime_add_ns_41  ( __time_delta_46 ) ; // L56
 }
-else
+else// L57
 {
 if (__static_condition_default_58) {
  __expires_47  = ( ( __s64_30   ) ~ ( ( __u64_32   ) 1 << 63 ) ) ; // L16:L58
@@ -303,14 +304,14 @@ if (__static_condition_default_61) {
 __static_type_error("invalid type found in return expression");
 }
 }
-}
+}// L61
 
 
 }
 }
 int  (__main_64) (int  __argc_62, char  * (* (__argv_63))) {
 
-{
+{// L64
 {
 
 
@@ -323,7 +324,7 @@ if (__static_condition_default_56) {
 }
 return 0 ;// L66
 }
-}
+}// L67
 
 
 }

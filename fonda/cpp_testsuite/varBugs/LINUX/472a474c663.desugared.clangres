@@ -1,4 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/472a474c663.desugared.c:87:13: warning: Dereference of null pointer (loaded from variable '__ptr_3') [core.NullDereference]
-*  __ptr_3  = 'a' ; // L14
-   ~~~~~~~  ^
-1 warning generated.
+sh: 1: clang: not found

@@ -1,4 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/63878acfafb.desugared.c:159:1: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
-return  __v_16  ;// L40
-^~~~~~~~~~~~~~
-1 warning generated.
+sh: 1: clang: not found

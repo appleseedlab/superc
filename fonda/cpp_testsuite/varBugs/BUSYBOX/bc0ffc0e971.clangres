@@ -1,4 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.c:46:3: warning: Potential leak of memory pointed to by 'clist' [unix.Malloc]
-  return 0;
-  ^~~~~~~~
-1 warning generated.
+sh: 1: clang: not found

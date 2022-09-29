@@ -12,22 +12,4 @@ Macros:
 [-UCROSS_COMPILE -Ddefined=1 -DNEED_ENHANCED_ESCAPES=1 ]
 [-DCROSS_COMPILE=1 -Ddefined=1 -DNEED_ENHANCED_ESCAPES=1 ]
 [-UCROSS_COMPILE -Udefined -UNEED_ENHANCED_ESCAPES ]
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:3171:2: warning: Value stored to '__flags_2323' is never read [deadcode.DeadStores]
- __flags_2323  |= ( 0x01 ) ; // L4:L42
- ^                ~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:3240:2: warning: Value stored to '__flags_2323' is never read [deadcode.DeadStores]
- __flags_2323  |= ( 0x01 ) ; // L4:L42
- ^                ~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:3309:2: warning: Value stored to '__flags_2323' is never read [deadcode.DeadStores]
- __flags_2323  |= ( 0x01 ) ; // L4:L42
- ^                ~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/c76df14dfb4.desugared.c:3378:2: warning: Value stored to '__flags_2323' is never read [deadcode.DeadStores]
- __flags_2323  |= ( 0x01 ) ; // L4:L42
- ^                ~~~~~~~~
-4 warnings generated.
-Desugared Infer Results:
-
-  No issues found  
-Original file has no warnings
-Original file has no warnings
+File Failed

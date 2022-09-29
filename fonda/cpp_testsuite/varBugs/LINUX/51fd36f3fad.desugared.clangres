@@ -1,10 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/51fd36f3fad.desugared.c:216:1: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
-return  __tmp_38  ;// L45
-^~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/51fd36f3fad.desugared.c:256:1: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
-return  __expires_47  ;// L60
-^~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/51fd36f3fad.desugared.c:300:1: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
-return  __expires_47  ;// L60
-^~~~~~~~~~~~~~~~~~~~
-3 warnings generated.
+sh: 1: clang: not found

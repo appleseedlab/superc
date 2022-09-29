@@ -1,7 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.c:26:3: warning: Value stored to 'buf' is never read [deadcode.DeadStores]
-  buf = malloc(bufsize);
-  ^     ~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/eef2317b9f5.c:34:10: warning: Potential leak of memory pointed to by 'buf' [unix.Malloc]
-  return 0;
-         ^
-2 warnings generated.
+sh: 1: clang: not found

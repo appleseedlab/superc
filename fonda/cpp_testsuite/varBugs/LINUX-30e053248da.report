@@ -2,30 +2,6 @@ LINUX 30e053248da.c
 Macros:
 	CONFIG_SECURITY
 [-UCONFIG_SECURITY ]
-clang :: 49 :: Line:31
-	Assigned value is garbage or undefined [core.uninitialized.Assign]
-clang :: 50 :: Line:31
-	Value stored to 'x' during its initialization is never read [deadcode.DeadStores]
-infer :: 51 :: Line:41
+infer :: 4 :: Line:41
 	Uninitialized Value
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/30e053248da.desugared.c:111:7: warning: Branch condition evaluates to a garbage value [core.uninitialized.Branch]
-if (  __error_8  )// L26
-      ^~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/30e053248da.desugared.c:124:1: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
-int  __x_9= *  __length_7 ;// L31
-^~~~~~~~~~  ~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/30e053248da.desugared.c:124:6: warning: Value stored to '__x_9' during its initialization is never read [deadcode.DeadStores]
-int  __x_9= *  __length_7 ;// L31
-     ^~~~~  ~~~~~~~~~~~~~
-3 warnings generated.
-Desugared Infer Results:
-
-  No issues found  
-Matches:
-	50 has a match!
-Unmatched ids:
-	49
-Matches:
-Unmatched ids:
-	51
+File Failed

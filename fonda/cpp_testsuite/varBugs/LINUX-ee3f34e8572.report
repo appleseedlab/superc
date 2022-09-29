@@ -12,16 +12,4 @@ Macros:
 [-USCTP_DEBUG -DCONFIG_SCTP_DBG_MSG=1 -Ddefined=1 ]
 [-DSCTP_DEBUG=1 -DCONFIG_SCTP_DBG_MSG=1 -Ddefined=1 ]
 [-USCTP_DEBUG -UCONFIG_SCTP_DBG_MSG -Udefined ]
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/ee3f34e8572.desugared.c:1494:3: warning: Dereference of null pointer (loaded from variable '__rt_814') [core.NullDereference]
-( ( *  __rt_814  ) ++ ) ; // L23:L45
-  ^~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/ee3f34e8572.desugared.c:1515:3: warning: Dereference of null pointer (loaded from variable '__rt_814') [core.NullDereference]
-( ( *  __rt_814  ) ++ ) ; // L23:L45
-  ^~~~~~~~~~~~~~~~~~~
-2 warnings generated.
-Desugared Infer Results:
-
-  No issues found  
-Original file has no warnings
-Original file has no warnings
+File Failed

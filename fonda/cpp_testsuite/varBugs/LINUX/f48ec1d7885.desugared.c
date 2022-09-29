@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -26,7 +27,7 @@ static long  (__cfq_scale_slice_1) () {
 
 if (__static_condition_default_2) {
 
-{
+{// L7
 {
 
 
@@ -36,7 +37,7 @@ long  __d_0= 1;// L8
 __static_type_error("type error : no valid expression"); // L9
 return  __d_0  ;// L10
 }
-}
+}// L11
 
 
 }
@@ -45,14 +46,14 @@ int  (__main_3) () {
 
 if (__static_condition_default_5) {
 
-{
+{// L16
 {
 
 
 
 return 0 ;// L20
 }
-}
+}// L21
 
 
 }
@@ -61,7 +62,7 @@ int  (__main_4) () {
 
 if (__static_condition_default_6) {
 
-{
+{// L16
 {
 
 
@@ -69,7 +70,7 @@ if (__static_condition_default_6) {
  __cfq_scale_slice_1 ( ) ; // L18
 return 0 ;// L20
 }
-}
+}// L21
 
 
 }

@@ -1,16 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b273d665181.desugared.c:2936:2: warning: 2nd function call argument is an uninitialized value [core.CallAndMessage]
- __printf_421  ("%d", __info_2036 ) ; // L16
- ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b273d665181.desugared.c:2947:2: warning: 2nd function call argument is an uninitialized value [core.CallAndMessage]
- __printf_421  ("%d", __info_2036 ) ; // L16
- ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b273d665181.desugared.c:3007:2: warning: 2nd function call argument is an uninitialized value [core.CallAndMessage]
- __printf_421  ("%d", __info_2036 ) ; // L16
- ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b273d665181.desugared.c:3018:2: warning: 2nd function call argument is an uninitialized value [core.CallAndMessage]
- __printf_421  ("%d", __info_2036 ) ; // L16
- ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b273d665181.desugared.c:3072:2: warning: Value stored to '__info_2036' is never read [deadcode.DeadStores]
- __info_2036  = 0 ; // L11
- ^              ~
-5 warnings generated.
+sh: 1: clang: not found

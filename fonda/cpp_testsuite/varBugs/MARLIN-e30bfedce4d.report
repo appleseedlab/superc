@@ -4,23 +4,6 @@ Macros:
 	AUTO_BED_LEVELING_GRID
 [-UENABLE_AUTO_BED_LEVELING -UAUTO_BED_LEVELING_GRID ]
 [-DENABLE_AUTO_BED_LEVELING=1 -UAUTO_BED_LEVELING_GRID ]
-clang :: 8 :: Line:24
-	Value stored to 'xGridSpacing' during its initialization is never read [deadcode.DeadStores]
 [-UENABLE_AUTO_BED_LEVELING -DAUTO_BED_LEVELING_GRID=1 ]
 [-DENABLE_AUTO_BED_LEVELING=1 -DAUTO_BED_LEVELING_GRID=1 ]
-clang :: 9 :: Line:24
-	Value stored to 'xGridSpacing' during its initialization is never read [deadcode.DeadStores]
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/e30bfedce4d.desugared.c:48:6: warning: Value stored to '__xGridSpacing_1' during its initialization is never read [deadcode.DeadStores]
-int  __xGridSpacing_1=  __left_probe_bed_position_0 ;// L24
-     ^~~~~~~~~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 warning generated.
-Desugared Infer Results:
-
-  No issues found  
-Matches:
-	8 has a match!
-	9 has a match!
-Unmatched ids:
-	None!
-Original file has no warnings
+File Failed

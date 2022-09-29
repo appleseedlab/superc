@@ -1,4 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1a3c8e3d840.c:13:17: error: use of undeclared identifier 'SSL_PROTOCOL_TLSV1_1'
-      thisopt = SSL_PROTOCOL_TLSV1_1;
-                ^
-1 error generated.
+sh: 1: clang: not found

@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -38,14 +39,14 @@ void  (__backlight_device_unregister_0) () {
 
 if (__static_condition_default_1) {
 
-{
+{// L7
 {
 
 
 
 return  ;// L8
 }
-}
+}// L9
 
 
 }
@@ -54,7 +55,7 @@ static int  (__acpi_video_bus_put_one_device_2) () {
 
 if (__static_condition_default_3) {
 
-{
+{// L14
 {
 
 
@@ -67,7 +68,7 @@ __static_type_error("type error") ; // L15
 }
 return 0 ;// L16
 }
-}
+}// L17
 
 
 }
@@ -76,14 +77,14 @@ int  (__main_8) (int  __argc_6, char  * (* (__argv_7))) {
 
 if (__static_condition_default_10) {
 
-{
+{// L21
 {
 
 
 
 return 0 ;// L25
 }
-}
+}// L26
 
 
 }
@@ -92,7 +93,7 @@ int  (__main_9) (int  __argc_6, char  * (* (__argv_7))) {
 
 if (__static_condition_default_11) {
 
-{
+{// L21
 {
 
 
@@ -107,7 +108,7 @@ if (__static_condition_default_14) {
 return 0 ;// L25
 }
 }
-}
+}// L26
 
 
 }

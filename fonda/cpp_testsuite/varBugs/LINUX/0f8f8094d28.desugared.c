@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -39,7 +40,7 @@ static void  (__init_node_lock_keys_5) () {
 
 if (__static_condition_default_4) {
 
-{
+{// L31
 {
 
 
@@ -48,7 +49,7 @@ int  __i_3;// L32
 
 __static_type_error("no valid type in iterationstatement (3)");
 }
-}
+}// L43
 
 
 }
@@ -57,13 +58,13 @@ int  (__init_node_lock_keys_6) () {
 
 if (__static_condition_default_7) {
 
-{
+{// L51
 {
 
 
 
 }
-}
+}// L52
 
 
 }
@@ -73,14 +74,14 @@ void  (__init_lock_keys_8) (void  ) {
 {
 if (__static_condition_default_4) {
 
-{
+{// L46
 {
 
 
 
  __init_node_lock_keys_5 ( ) ; // L47
 }
-}
+}// L48
 
 
 }
@@ -91,13 +92,13 @@ void  (__init_lock_keys_9) (void  ) {
 {
 if (__static_condition_default_7) {
 
-{
+{// L55
 {
 
 
 
 }
-}
+}// L56
 
 
 }
@@ -105,7 +106,7 @@ if (__static_condition_default_7) {
 }}
 void  (__kmem_cache_init_late_10) (void  ) {
 
-{
+{// L60
 {
 
 
@@ -117,13 +118,13 @@ if (__static_condition_default_11) {
  __init_lock_keys_9 ( ) ; // L61
 }
 }
-}
+}// L62
 
 
 }
 int  (__main_12) (void  ) {
 
-{
+{// L65
 {
 
 
@@ -138,7 +139,7 @@ if (__static_condition_default_13) {
 return 0 ;// L69
 }
 }
-}
+}// L70
 
 
 }

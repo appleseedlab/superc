@@ -1,5 +1,1 @@
-In file included from <built-in>:344:
-<command line>:1:8: error: 'defined' cannot be used as a macro name
-#undef defined
-       ^
-1 error generated.
+sh: 1: clang: not found

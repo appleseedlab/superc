@@ -1,0 +1,119 @@
+[11892][      debug] Sqlite write daemon: starting up
+[11892][      debug] Sqlite write daemon: set up complete, waiting for connections
+[11892][environment] CWD = /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs
+[11892][environment] No .inferconfig file found
+[11892][environment] Project root = /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs
+[11892][environment] INFER_ARGS =   @/tmp/args.tmp.0ac9c4
+[11892][environment] command line arguments:   infer --pulse-only -- clang -c
+[11892][environment]                           /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c
+[11892][environment] Available memory at startup: 27844 MB
+[11892][environment] Active checkers: pulse (C/C++/ObjC, C#/.Net, Erlang, Java)
+[11892][environment] Scheduler: file
+[11892][environment] Cores used: 10
+[11892][environment] Infer version v1.1.0-ea7f6cc90
+[11892][environment] Copyright 2009 - present Facebook. All Rights Reserved.
+[11892][environment] 
+[11892][   progress] Capturing in make/cc mode...
+[11892][      debug] 
+[11892][      debug] *** Beginning capture of file /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c ***
+[11892][      debug] Elapsed: 110ms.
+[11892][      debug] GC stats for capture:
+[11892][      debug]   minor_words: 9.96292e+06
+[11892][      debug]   promoted_words: 512369
+[11892][      debug]   major_words: 563468
+[11892][      debug]   minor_collections: 13
+[11892][      debug]   major_collections: 3
+[11892][      debug]   compactions: 0
+[11892][      debug]   top_heap_words: 1006592
+[11892][      debug]   
+[11892][environment] Parallel jobs: 10
+[11892][   progress] Found 1 source file to analyze in /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/infer-out
+[11898][   progress] APACHE/1b48bb3c1af.desugared.c starting
+[11898][   progress] APACHE/1b48bb3c1af.desugared.c DONE
+[11892][      debug] Backend stats:
+[11892][      debug]   longest_proc_duration_heap= [__static_initializer_default -> 239ms, __main_1107 -> 21ms, __util_ldap_cache_init_1100 -> 15ms, __apr_rmm_init_1095 -> 10ms, __apr_rmm_init_1094 -> 3ms, __main_1106 -> 0ms, __apr_rmm_init_1093 -> 0ms]
+[11892][      debug]   summary_file_try_load= 23
+[11892][      debug]   summary_read_from_disk= 0
+[11892][      debug]   summary_cache_hits= 0 (0%)
+[11892][      debug]   summary_cache_misses= 23
+[11892][      debug]   ondemand_procs_analyzed= 7
+[11892][      debug]   ondemand_local_cache_hits= 570 (96%)
+[11892][      debug]   ondemand_local_cache_misses= 23
+[11892][      debug]   proc_locker_lock_time_user= 0.00000000
+[11892][      debug]   proc_locker_lock_time_sys= 0.00000000
+[11892][      debug]   proc_locker_lock_time_wall= 0.00000000
+[11892][      debug]   proc_locker_unlock_time_user= 0.00000000
+[11892][      debug]   proc_locker_unlock_time_sys= 0.00000000
+[11892][      debug]   proc_locker_unlock_time_wall= 0.00000000
+[11892][      debug]   restart_scheduler_useful_time_user= 0.00000000
+[11892][      debug]   restart_scheduler_useful_time_sys= 0.00000000
+[11892][      debug]   restart_scheduler_useful_time_wall= 0.00000000
+[11892][      debug]   restart_scheduler_total_time_user= 0.00000000
+[11892][      debug]   restart_scheduler_total_time_sys= 0.00000000
+[11892][      debug]   restart_scheduler_total_time_wall= 0.00000000
+[11892][      debug]   pulse_aliasing_contradictions= 0
+[11892][      debug]   pulse_args_length_contradictions= 0
+[11892][      debug]   pulse_captured_vars_length_contradictions= 0
+[11892][      debug]   pulse_summaries_count= [2 -> 5, 10 -> 1, 11 -> 1]
+[11892][      debug]   
+[11892][      debug] GC stats for backend_stats.gc_stats_add.:
+[11892][      debug]   minor_words: 5.462e+07
+[11892][      debug]   promoted_words: 5.66347e+06
+[11892][      debug]   major_words: 5.81223e+06
+[11892][      debug]   minor_collections: 54
+[11892][      debug]   major_collections: 4
+[11892][      debug]   compactions: 0
+[11892][      debug]   top_heap_words: 16191488
+[11892][      debug]   
+[11892][      debug] GC stats for backend_stats.gc_stats_max.:
+[11892][      debug]   minor_words: 5.46194e+07
+[11892][      debug]   promoted_words: 5.66347e+06
+[11892][      debug]   major_words: 5.81223e+06
+[11892][      debug]   minor_collections: 54
+[11892][      debug]   major_collections: 4
+[11892][      debug]   compactions: 0
+[11892][      debug]   top_heap_words: 7132160
+[11892][      debug]   
+[11892][      debug] Average over 10 processes
+[11892][      debug] GC stats for backend_stats.gc_stats_average.:
+[11892][      debug]   minor_words: 5.462e+06
+[11892][      debug]   promoted_words: 566347
+[11892][      debug]   major_words: 581223
+[11892][      debug]   minor_collections: 5
+[11892][      debug]   major_collections: 0
+[11892][      debug]   compactions: 0
+[11892][      debug]   top_heap_words: 1619148
+[11892][      debug]   
+[11892][      debug] Analysis phase finished in 324ms
+[11892][      debug] backend_stats.scheduler_process_analysis_time_user= 0.01871300
+[11892][      debug] backend_stats.scheduler_process_analysis_time_sys= 0.00917000
+[11892][      debug] backend_stats.scheduler_process_analysis_time_wall= 0.32442054
+[11892][      debug] GC stats for analysis_scheduler:
+[11892][      debug]   minor_words: 89708
+[11892][      debug]   promoted_words: 2359
+[11892][      debug]   major_words: 11065
+[11892][      debug]   minor_collections: 2
+[11892][      debug]   major_collections: 2
+[11892][      debug]   compactions: 1
+[11892][      debug]   top_heap_words: 1006592
+[11892][      debug]   
+[11892][      debug] GC stats for report:
+[11892][      debug]   minor_words: 3185
+[11892][      debug]   promoted_words: 0
+[11892][      debug]   major_words: 0
+[11892][      debug]   minor_collections: 0
+[11892][      debug]   major_collections: 0
+[11892][      debug]   compactions: 0
+[11892][      debug]   top_heap_words: 1006592
+[11892][      debug]   
+[11892][      debug] GC stats for main_process_full:
+[11892][      debug]   minor_words: 1.21104e+07
+[11892][      debug]   promoted_words: 967355
+[11892][      debug]   major_words: 1.04905e+06
+[11892][      debug]   minor_collections: 21
+[11892][      debug]   major_collections: 5
+[11892][      debug]   compactions: 1
+[11892][      debug]   top_heap_words: 1006592
+[11892][      debug]   
+[11893][      debug] Detected 0 spec overwrittes.
+[11893][      debug] Sqlite write daemon: terminating

@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -191,7 +192,7 @@ void  (__cardreader_222) (char  * (__prepend_216)) {
 
 if (__static_condition_default_223) {
 
-{
+{// L9
 {
 
 
@@ -219,7 +220,7 @@ __static_type_error("type error : no valid expression"); // L21
 __static_type_error("type error : no valid expression"); // L22
 __static_type_error("type error : no valid expression"); // L23
 }
-}
+}// L25
 
 
 }
@@ -228,7 +229,7 @@ int  (__main_226) (int  __argc_224, char  * (* (__argv_225))) {
 
 if (__static_condition_default_228) {
 
-{
+{// L30
 {
 
 
@@ -236,7 +237,7 @@ if (__static_condition_default_228) {
 __static_type_error("type error") ; // L31
 return 0 ;// L32
 }
-}
+}// L33
 
 
 }
@@ -245,7 +246,7 @@ int  (__main_227) (int  __argc_224, char  * (* (__argv_225))) {
 
 if (__static_condition_default_229) {
 
-{
+{// L30
 {
 
 
@@ -253,7 +254,7 @@ if (__static_condition_default_229) {
  __cardreader_222  ("") ; // L31
 return 0 ;// L32
 }
-}
+}// L33
 
 
 }

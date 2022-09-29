@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -24,7 +25,7 @@ int  (__main_1) () {
 
 if (__static_condition_default_3) {
 
-{
+{// L12
 {
 
 
@@ -32,7 +33,7 @@ if (__static_condition_default_3) {
 __static_type_error("type error") ; // L13
 return 0 ;// L14
 }
-}
+}// L15
 
 
 }
@@ -41,7 +42,7 @@ int  (__main_2) () {
 
 if (__static_condition_default_4) {
 
-{
+{// L12
 {
 
 
@@ -49,7 +50,7 @@ if (__static_condition_default_4) {
  __z_0  += 3 ; // L13
 return 0 ;// L14
 }
-}
+}// L15
 
 
 }

@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -191,7 +192,7 @@ void  (__process_commands_219) () {
 {
 if (__static_condition_default_220) {
 
-{
+{// L6
 {
 
 
@@ -199,14 +200,14 @@ if (__static_condition_default_220) {
 char  * (__starpos_218)= ( ( void  * ) 0 );// L7
 
 }
-}
+}// L14
 
 
 }
 
 if (__static_condition_default_221) {
 
-{
+{// L6
 {
 
 
@@ -225,7 +226,7 @@ if (  __starpos_218  != ( ( void  * ) 0 ) )// L10
 }
 __static_type_error("type error : no valid expression"); // L12
 }
-}
+}// L14
 
 
 }
@@ -233,7 +234,7 @@ __static_type_error("type error : no valid expression"); // L12
 }}
 int  (__main_226) (int  __argc_224, char  * (* (__argv_225))) {
 
-{
+{// L17
 {
 
 
@@ -241,7 +242,7 @@ int  (__main_226) (int  __argc_224, char  * (* (__argv_225))) {
  __process_commands_219 ( ) ; // L18
 return 0 ;// L19
 }
-}
+}// L20
 
 
 }

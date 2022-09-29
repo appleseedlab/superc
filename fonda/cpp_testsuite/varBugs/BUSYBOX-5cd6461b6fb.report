@@ -12,9 +12,4 @@ Macros:
 [-UCONFIG_FEATURE_HTTPD_CGI -DCONFIG_LFS=1 -DCONFIG_FEATURE_HTTPD_BASIC_AUTH=1 ]
 [-DCONFIG_FEATURE_HTTPD_CGI=1 -DCONFIG_LFS=1 -DCONFIG_FEATURE_HTTPD_BASIC_AUTH=1 ]
 [-UCONFIG_FEATURE_HTTPD_CGI -UCONFIG_LFS -UCONFIG_FEATURE_HTTPD_BASIC_AUTH ]
-Desugared Clang Results:
-Desugared Infer Results:
-
-  No issues found  
-Original file has no warnings
-Original file has no warnings
+File Failed

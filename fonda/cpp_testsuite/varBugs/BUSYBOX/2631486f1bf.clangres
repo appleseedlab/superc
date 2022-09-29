@@ -1,4 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/2631486f1bf.c:67:16: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
-    curr->next = head;
-               ^ ~~~~
-1 warning generated.
+sh: 1: clang: not found

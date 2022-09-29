@@ -11,85 +11,23 @@ Macros:
 [-DCONFIG_SND_FSI_AK4642=1 -DCONFIG_SND_FSI_DA7210=1 -UCONFIG_I2C -UCONFIG_SND_SOC_DA7210 -UCONFIG_SND_SOC_AK4642 ]
 [-UCONFIG_SND_FSI_AK4642 -UCONFIG_SND_FSI_DA7210 -DCONFIG_I2C=1 -UCONFIG_SND_SOC_DA7210 -UCONFIG_SND_SOC_AK4642 ]
 [-DCONFIG_SND_FSI_AK4642=1 -UCONFIG_SND_FSI_DA7210 -DCONFIG_I2C=1 -UCONFIG_SND_SOC_DA7210 -UCONFIG_SND_SOC_AK4642 ]
-clang :: 13 :: Line:24
-	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_SND_FSI_AK4642 -DCONFIG_SND_FSI_DA7210=1 -DCONFIG_I2C=1 -UCONFIG_SND_SOC_DA7210 -UCONFIG_SND_SOC_AK4642 ]
-clang :: 14 :: Line:16
-	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-DCONFIG_SND_FSI_AK4642=1 -DCONFIG_SND_FSI_DA7210=1 -DCONFIG_I2C=1 -UCONFIG_SND_SOC_DA7210 -UCONFIG_SND_SOC_AK4642 ]
-clang :: 15 :: Line:16
-	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
-clang :: 16 :: Line:24
-	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_SND_FSI_AK4642 -UCONFIG_SND_FSI_DA7210 -UCONFIG_I2C -DCONFIG_SND_SOC_DA7210=1 -UCONFIG_SND_SOC_AK4642 ]
 [-DCONFIG_SND_FSI_AK4642=1 -UCONFIG_SND_FSI_DA7210 -UCONFIG_I2C -DCONFIG_SND_SOC_DA7210=1 -UCONFIG_SND_SOC_AK4642 ]
 [-UCONFIG_SND_FSI_AK4642 -DCONFIG_SND_FSI_DA7210=1 -UCONFIG_I2C -DCONFIG_SND_SOC_DA7210=1 -UCONFIG_SND_SOC_AK4642 ]
 [-DCONFIG_SND_FSI_AK4642=1 -DCONFIG_SND_FSI_DA7210=1 -UCONFIG_I2C -DCONFIG_SND_SOC_DA7210=1 -UCONFIG_SND_SOC_AK4642 ]
 [-UCONFIG_SND_FSI_AK4642 -UCONFIG_SND_FSI_DA7210 -DCONFIG_I2C=1 -DCONFIG_SND_SOC_DA7210=1 -UCONFIG_SND_SOC_AK4642 ]
-clang :: 17 :: Line:16
-	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-DCONFIG_SND_FSI_AK4642=1 -UCONFIG_SND_FSI_DA7210 -DCONFIG_I2C=1 -DCONFIG_SND_SOC_DA7210=1 -UCONFIG_SND_SOC_AK4642 ]
-clang :: 18 :: Line:16
-	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
-clang :: 19 :: Line:24
-	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_SND_FSI_AK4642 -DCONFIG_SND_FSI_DA7210=1 -DCONFIG_I2C=1 -DCONFIG_SND_SOC_DA7210=1 -UCONFIG_SND_SOC_AK4642 ]
-clang :: 20 :: Line:16
-	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-DCONFIG_SND_FSI_AK4642=1 -DCONFIG_SND_FSI_DA7210=1 -DCONFIG_I2C=1 -DCONFIG_SND_SOC_DA7210=1 -UCONFIG_SND_SOC_AK4642 ]
-clang :: 21 :: Line:16
-	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
-clang :: 22 :: Line:24
-	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_SND_FSI_AK4642 -UCONFIG_SND_FSI_DA7210 -UCONFIG_I2C -UCONFIG_SND_SOC_DA7210 -DCONFIG_SND_SOC_AK4642=1 ]
 [-DCONFIG_SND_FSI_AK4642=1 -UCONFIG_SND_FSI_DA7210 -UCONFIG_I2C -UCONFIG_SND_SOC_DA7210 -DCONFIG_SND_SOC_AK4642=1 ]
 [-UCONFIG_SND_FSI_AK4642 -DCONFIG_SND_FSI_DA7210=1 -UCONFIG_I2C -UCONFIG_SND_SOC_DA7210 -DCONFIG_SND_SOC_AK4642=1 ]
 [-DCONFIG_SND_FSI_AK4642=1 -DCONFIG_SND_FSI_DA7210=1 -UCONFIG_I2C -UCONFIG_SND_SOC_DA7210 -DCONFIG_SND_SOC_AK4642=1 ]
 [-UCONFIG_SND_FSI_AK4642 -UCONFIG_SND_FSI_DA7210 -DCONFIG_I2C=1 -UCONFIG_SND_SOC_DA7210 -DCONFIG_SND_SOC_AK4642=1 ]
-clang :: 23 :: Line:24
-	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-DCONFIG_SND_FSI_AK4642=1 -UCONFIG_SND_FSI_DA7210 -DCONFIG_I2C=1 -UCONFIG_SND_SOC_DA7210 -DCONFIG_SND_SOC_AK4642=1 ]
-clang :: 24 :: Line:24
-	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_SND_FSI_AK4642 -DCONFIG_SND_FSI_DA7210=1 -DCONFIG_I2C=1 -UCONFIG_SND_SOC_DA7210 -DCONFIG_SND_SOC_AK4642=1 ]
-clang :: 25 :: Line:16
-	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
-clang :: 26 :: Line:24
-	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-DCONFIG_SND_FSI_AK4642=1 -DCONFIG_SND_FSI_DA7210=1 -DCONFIG_I2C=1 -UCONFIG_SND_SOC_DA7210 -DCONFIG_SND_SOC_AK4642=1 ]
-clang :: 27 :: Line:16
-	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
-clang :: 28 :: Line:24
-	Value stored to 'codec_hw_write' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_SND_FSI_AK4642 -UCONFIG_SND_FSI_DA7210 -UCONFIG_I2C -DCONFIG_SND_SOC_DA7210=1 -DCONFIG_SND_SOC_AK4642=1 ]
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/66517915e09.desugared.c:48:6: warning: Value stored to '__codec_hw_write_1' during its initialization is never read [deadcode.DeadStores]
-int  __codec_hw_write_1=  __i2c_master_send_0 ;// L16
-     ^~~~~~~~~~~~~~~~~~   ~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/66517915e09.desugared.c:70:6: warning: Value stored to '__codec_hw_write_5' during its initialization is never read [deadcode.DeadStores]
-int  __codec_hw_write_5=  __i2c_master_send_0 ;// L24
-     ^~~~~~~~~~~~~~~~~~   ~~~~~~~~~~~~~~~~~~~
-2 warnings generated.
-Desugared Infer Results:
-
-  No issues found  
-Matches:
-	13 has a match!
-	14 has a match!
-	15 has a match!
-	16 has a match!
-	17 has a match!
-	18 has a match!
-	19 has a match!
-	20 has a match!
-	21 has a match!
-	22 has a match!
-	23 has a match!
-	24 has a match!
-	25 has a match!
-	26 has a match!
-	27 has a match!
-	28 has a match!
-Unmatched ids:
-	None!
-Original file has no warnings
+File Failed

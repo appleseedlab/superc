@@ -1,4 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/5275b1e49f6.c:25:5: error: use of undeclared identifier 'k_crcs'
-    k_crcs = someInt;
-    ^
-1 error generated.
+sh: 1: clang: not found

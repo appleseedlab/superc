@@ -6,9 +6,4 @@ Macros:
 [-DHAS_HEATER_THERMAL_PROTECTION=1 -UHAS_BED_THERMAL_PROTECTION ]
 [-UHAS_HEATER_THERMAL_PROTECTION -DHAS_BED_THERMAL_PROTECTION=1 ]
 [-DHAS_HEATER_THERMAL_PROTECTION=1 -DHAS_BED_THERMAL_PROTECTION=1 ]
-Desugared Clang Results:
-Desugared Infer Results:
-
-  No issues found  
-Original file has no warnings
-Original file has no warnings
+File Failed

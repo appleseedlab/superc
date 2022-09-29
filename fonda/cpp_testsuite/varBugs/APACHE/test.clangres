@@ -1,4 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/test.c:13:3: error: use of undeclared identifier 'z'
-  z += 3;
-  ^
-1 error generated.
+sh: 1: clang: not found

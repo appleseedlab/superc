@@ -1,4 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/36855dcfc98.desugared.c:32:2: warning: Value stored to '__wakeup_0' is never read [deadcode.DeadStores]
- __wakeup_0  = 0 ; // L6
- ^             ~
-1 warning generated.
+sh: 1: clang: not found

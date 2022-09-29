@@ -2,17 +2,4 @@ BUSYBOX 199501f2a00.c
 Macros:
 	ENABLE_FEATURE_MODPROBE_MULTIPLE_OPTIONS
 [-UENABLE_FEATURE_MODPROBE_MULTIPLE_OPTIONS ]
-clang :: 182 :: Line:21
-	Null pointer passed to 2nd parameter expecting 'nonnull' [core.NonNullParamChecker]
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/199501f2a00.desugared.c:3282:2: warning: Value stored to '__dt_2390' is never read [deadcode.DeadStores]
- __dt_2390  = "-i" ; // L10
- ^            ~~~~
-1 warning generated.
-Desugared Infer Results:
-
-  No issues found  
-Matches:
-Unmatched ids:
-	182
-Original file has no warnings
+File Failed

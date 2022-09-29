@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -1343,14 +1344,14 @@ void  (__apr_signal_block_1093) (int  __signal_1092) {
 
 if (__static_condition_default_1096) {
 
-{
+{// L8
 {
 
 
 
  __printf_421  ("%d\n", __signal_1092 ) ; // L9
 }
-}
+}// L10
 
 
 }
@@ -1359,14 +1360,14 @@ void  (__apr_signal_block_1094) (int  __signal_1092) {
 
 if (__static_condition_default_1097) {
 
-{
+{// L8
 {
 
 
 
  __printf_421  ("%d\n", __signal_1092 ) ; // L9
 }
-}
+}// L10
 
 
 }
@@ -1375,21 +1376,21 @@ void  (__apr_signal_block_1095) (int  __signal_1092) {
 
 if (__static_condition_default_1098) {
 
-{
+{// L8
 {
 
 
 
 __static_type_error("type error") ; // L9
 }
-}
+}// L10
 
 
 }
 }
 int  (__main_1099) (void  ) {
 
-{
+{// L13
 {
 
 
@@ -1408,7 +1409,7 @@ __static_type_error("type error : no valid expression"); // L14
 }
 return 0 ;// L15
 }
-}
+}// L16
 
 
 }

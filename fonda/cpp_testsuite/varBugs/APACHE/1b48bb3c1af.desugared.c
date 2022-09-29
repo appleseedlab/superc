@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -1352,14 +1353,14 @@ void  (__apr_rmm_init_1093) (char  * (__rmm_lock_1092)) {
 
 if (__static_condition_default_1096) {
 
-{
+{// L4
 {
 
 
 
  __printf_421  ("%s\n", __rmm_lock_1092 ) ; // L5
 }
-}
+}// L6
 
 
 }
@@ -1368,14 +1369,14 @@ void  (__apr_rmm_init_1094) (char  * (__rmm_lock_1092)) {
 
 if (__static_condition_default_1097) {
 
-{
+{// L4
 {
 
 
 
  __printf_421  ("%s\n", __rmm_lock_1092 ) ; // L5
 }
-}
+}// L6
 
 
 }
@@ -1384,14 +1385,14 @@ void  (__apr_rmm_init_1095) (char  * (__rmm_lock_1092)) {
 
 if (__static_condition_default_1098) {
 
-{
+{// L4
 {
 
 
 
 __static_type_error("type error") ; // L5
 }
-}
+}// L6
 
 
 }
@@ -1401,7 +1402,7 @@ void  (__util_ldap_cache_init_1100) () {
 {
 if (__static_condition_default_1101) {
 
-{
+{// L10
 {
 
 
@@ -1409,14 +1410,14 @@ if (__static_condition_default_1101) {
 char  * (__rmm_lock_1099);// L11
 
 }
-}
+}// L16
 
 
 }
 
 if (__static_condition_default_1102) {
 
-{
+{// L10
 {
 
 
@@ -1433,7 +1434,7 @@ if (__static_condition_default_1105) {
  __apr_rmm_init_1095  ( __rmm_lock_1099 ) ; // L14
 }
 }
-}
+}// L16
 
 
 }
@@ -1443,14 +1444,14 @@ int  (__main_1106) (void  ) {
 
 if (__static_condition_default_1108) {
 
-{
+{// L20
 {
 
 
 
 return 0 ;// L24
 }
-}
+}// L25
 
 
 }
@@ -1459,7 +1460,7 @@ int  (__main_1107) (void  ) {
 
 if (__static_condition_default_1109) {
 
-{
+{// L20
 {
 
 
@@ -1467,7 +1468,7 @@ if (__static_condition_default_1109) {
  __util_ldap_cache_init_1100 ( ) ; // L22
 return 0 ;// L24
 }
-}
+}// L25
 
 
 }

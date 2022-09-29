@@ -2,46 +2,4 @@ APACHE d05e574ec26.c
 Macros:
 	APR_HAS_SHARED_MEMORY
 [-UAPR_HAS_SHARED_MEMORY ]
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/d05e574ec26.desugared.c:2919:10: warning: Value stored to '__buf_2043' during its initialization is never read [deadcode.DeadStores]
-char  * (__buf_2043)=  __apr_rmm_addr_get_2040  (( char  * ) calloc ( __rmm_addr_2037 ,sizeof(char)));// L16
-         ^~~~~~~~~~    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/d05e574ec26.desugared.c:2921:10: warning: Value stored to '__buf_2044' during its initialization is never read [deadcode.DeadStores]
-char  * (__buf_2044)=  __apr_rmm_addr_get_2040  (( char  * ) calloc ( __rmm_addr_2038 ,sizeof(char)));// L16
-         ^~~~~~~~~~    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/d05e574ec26.desugared.c:2921:62: warning: Potential leak of memory pointed to by '__buf_2043' [unix.Malloc]
-char  * (__buf_2044)=  __apr_rmm_addr_get_2040  (( char  * ) calloc ( __rmm_addr_2038 ,sizeof(char)));// L16
-                                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/d05e574ec26.desugared.c:2923:62: warning: Potential leak of memory pointed to by '__buf_2044' [unix.Malloc]
-char  * (__buf_2045)=  __apr_rmm_addr_get_2040  (( char  * ) calloc ( __rmm_addr_2036 ,sizeof(char)));// L16
-                                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/d05e574ec26.desugared.c:2927:10: warning: Value stored to '__buf_2047' during its initialization is never read [deadcode.DeadStores]
-char  * (__buf_2047)=  __apr_rmm_addr_get_2040  (( char  * ) calloc ( __rmm_addr_2036 ,sizeof(char)));// L16
-         ^~~~~~~~~~    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/d05e574ec26.desugared.c:2929:10: warning: Value stored to '__buf_2048' during its initialization is never read [deadcode.DeadStores]
-char  * (__buf_2048)=  __apr_rmm_addr_get_2040  (( char  * ) calloc ( __rmm_addr_2038 ,sizeof(char)));// L16
-         ^~~~~~~~~~    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/d05e574ec26.desugared.c:2929:62: warning: Potential leak of memory pointed to by '__buf_2047' [unix.Malloc]
-char  * (__buf_2048)=  __apr_rmm_addr_get_2040  (( char  * ) calloc ( __rmm_addr_2038 ,sizeof(char)));// L16
-                                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/d05e574ec26.desugared.c:2935:5: warning: Potential leak of memory pointed to by '__buf_2048' [unix.Malloc]
-if (__static_condition_default_2053) {
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/d05e574ec26.desugared.c:2938:5: warning: Potential leak of memory pointed to by '__buf_2041' [unix.Malloc]
-if (__static_condition_default_2054) {
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/d05e574ec26.desugared.c:2941:5: warning: Potential leak of memory pointed to by '__buf_2042' [unix.Malloc]
-if (__static_condition_default_2055) {
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/d05e574ec26.desugared.c:2944:5: warning: Potential leak of memory pointed to by '__buf_2045' [unix.Malloc]
-if (__static_condition_default_2056) {
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/d05e574ec26.desugared.c:2947:5: warning: Potential leak of memory pointed to by '__buf_2046' [unix.Malloc]
-if (__static_condition_default_2057) {
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-12 warnings generated.
-Desugared Infer Results:
-
-  No issues found  
-Original file has no warnings
-Original file has no warnings
+File Failed

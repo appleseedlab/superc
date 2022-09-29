@@ -1,4 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/e30bfedce4d.c:24:7: warning: Value stored to 'xGridSpacing' during its initialization is never read [deadcode.DeadStores]
-  int xGridSpacing = left_probe_bed_position;
-      ^~~~~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~
-1 warning generated.
+sh: 1: clang: not found

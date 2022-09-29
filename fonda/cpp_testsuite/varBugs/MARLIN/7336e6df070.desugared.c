@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -1338,13 +1339,13 @@ void  (__function_1096) () {
 {
 if (__static_condition_default_1098) {
 
-{
+{// L41
 {
 
 
 
 }
-}
+}// L48
 
 
 }
@@ -1352,13 +1353,13 @@ if (__static_condition_default_1098) {
 }}
 void  (__main_1099) () {
 
-{
+{// L50
 {
 
 
 
 }
-}
+}// L50
 
 
 }

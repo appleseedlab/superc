@@ -1,7 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/76baeebf7df.desugared.c:1629:31: warning: Dereference of undefined pointer value (loaded from variable '__mask_1132') [core.NullDereference]
- __printf_421  ("mask: %ld\n",*  __mask_1132 ) ; // L137
-                              ^~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/76baeebf7df.desugared.c:1632:31: warning: Dereference of undefined pointer value (loaded from variable '__mask_1134') [core.NullDereference]
- __printf_421  ("mask: %ld\n",*  __mask_1134 ) ; // L137
-                              ^~~~~~~~~~~~~~
-2 warnings generated.
+sh: 1: clang: not found

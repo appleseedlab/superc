@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -40,7 +41,7 @@ static int  (__da7210_init_3) () {
 
 if (__static_condition_default_4) {
 
-{
+{// L15
 {
 
 
@@ -53,7 +54,7 @@ __static_type_error("invalid declaration of codec_hw_write under this presence c
 
 return 0 ;// L17
 }
-}
+}// L18
 
 
 }
@@ -62,7 +63,7 @@ static int  (__ak4642_init_7) () {
 
 if (__static_condition_default_8) {
 
-{
+{// L23
 {
 
 
@@ -75,7 +76,7 @@ __static_type_error("invalid declaration of codec_hw_write under this presence c
 
 return 0 ;// L25
 }
-}
+}// L26
 
 
 }
@@ -84,7 +85,7 @@ int  (__main_11) (int  __argc_9, char  * (* (__argv_10))) {
 
 if (__static_condition_default_13) {
 
-{
+{// L30
 {
 
 
@@ -94,7 +95,7 @@ if (__static_condition_default_14) {
 }
 return 0 ;// L37
 }
-}
+}// L38
 
 
 }
@@ -103,7 +104,7 @@ int  (__main_12) (int  __argc_9, char  * (* (__argv_10))) {
 
 if (__static_condition_default_15) {
 
-{
+{// L30
 {
 
 
@@ -114,7 +115,7 @@ if (__static_condition_default_16) {
  __ak4642_init_7 ( ) ; // L35
 return 0 ;// L37
 }
-}
+}// L38
 
 
 }

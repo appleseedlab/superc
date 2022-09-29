@@ -20,20 +20,4 @@ Macros:
 [-DCONFIG_ANDROID=1 -UCONFIG_SYSFS -DCONFIG_EXTCON=1 -Ddefined=1 ]
 [-UCONFIG_ANDROID -DCONFIG_SYSFS=1 -DCONFIG_EXTCON=1 -Ddefined=1 ]
 [-DCONFIG_ANDROID=1 -DCONFIG_SYSFS=1 -DCONFIG_EXTCON=1 -Ddefined=1 ]
-Desugared Clang Results:
-Desugared Infer Results:
-
-LINUX/0dc77b6dabe.desugared.c:303: error: Memory Leak
-  Memory dynamically allocated by `malloc`, indirectly via call to `__extcon_class_init_34()` on line 294 is not freed after the last access at line 303, column 1.
-  301. 
-  302. }
-  303. }
-       ^
-  304. 
-
-
-Found 1 issue
-  Issue Type(ISSUED_TYPE_ID): #
-  Memory Leak(MEMORY_LEAK_C): 1
-Original file has no warnings
-Original file has no warnings
+File Failed

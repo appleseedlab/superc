@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -34,20 +35,20 @@ extern void  * ((__malloc_1) (unsigned long  ____size_0));// L5
 extern void  (__free_3) (void  * (____ptr_2));// L7
 int  (__nondet_4) () {
 
-{
+{// L9
 {
 
 
 
 return 42 ;// L9
 }
-}
+}// L9
 
 
 }
 int  (__load_module_13) () {
 
-{
+{// L18
 {
 
 
@@ -72,7 +73,7 @@ if (__static_condition_default_14) {
 if ( ! (  __mod_9  [ 0 ] ) )// L31
 {
 
-{
+{// L32
 {
 
 
@@ -83,7 +84,7 @@ if ( ! (  __mod_9  [ 0 ] ) )// L31
 goto free_mod_3;
 }
 }
-}
+}// L35
 }
 }
 if (__static_condition_default_15) {
@@ -95,7 +96,7 @@ if (__static_condition_default_14) {
 if ( !  __ptr_11  )// L39
 {
 
-{
+{// L39
 {
 
 
@@ -107,13 +108,13 @@ goto free_percpu_2;
 goto free_percpu_5;
 }
 }
-}
+}// L42
 }
 (  __mod_9  [ 1 ] ) =  __ptr_11  ; // L15:L43
 while (  __nondet_4 ( ) )// L45
 {
 
-{
+{// L45
 {
 
 
@@ -127,7 +128,7 @@ if (  __nondet_4 ( ) )// L49
 break ; // L50
 }
 }
-}
+}// L51
 }
 if (  __nondet_4 ( ) )// L53
 {
@@ -181,13 +182,13 @@ free ( __hdr_8 ) ; // L67
 }
 return  __err_10  ;// L69
 }
-}
+}// L70
 
 
 }
 int  (__main_18) (void  ) {
 
-{
+{// L72
 {
 
 
@@ -195,7 +196,7 @@ int  (__main_18) (void  ) {
  __load_module_13 ( ) ; // L73
 return 0 ;// L74
 }
-}
+}// L75
 
 
 }

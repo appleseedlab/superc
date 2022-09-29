@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -29,13 +30,13 @@ void  (__lcd_setstatus_2) (const char  * (__message_0), const _Bool  __persist_1
 
 if (__static_condition_default_3) {
 
-{
+{// L4
 {
 
 
 
 }
-}
+}// L4
 
 
 }
@@ -44,13 +45,13 @@ void  (__lcd_setstatus_5) (const char  * (__message_4)) {
 
 if (__static_condition_default_6) {
 
-{
+{// L7
 {
 
 
 
 }
-}
+}// L7
 
 
 }
@@ -60,20 +61,20 @@ if (__static_condition_default_6) {
 {
 if (__static_condition_default_9) {
 
-{
+{// L12
 {
 
 
 
 }
-}
+}// L17
 
 
 }
 
 if (__static_condition_default_10) {
 
-{
+{// L12
 {
 
 
@@ -82,7 +83,7 @@ char  __time_7[30]= "time_here";// L14
 
 __static_type_error("type error : no valid expression"); // L15
 }
-}
+}// L17
 
 
 }
@@ -90,7 +91,7 @@ __static_type_error("type error : no valid expression"); // L15
 }}
 int  (__main_13) (int  __argc_11, char  * (* (__argv_12))) {
 
-{
+{// L20
 {
 
 
@@ -98,7 +99,7 @@ int  (__main_13) (int  __argc_11, char  * (* (__argv_12))) {
  __getCode_8 ( ) ; // L21
 return 0 ;// L22
 }
-}
+}// L23
 
 
 }

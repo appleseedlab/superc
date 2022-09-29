@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -1360,20 +1361,20 @@ static void  (__lcd_tune_menu_1092) () {
 {
 if (__static_condition_default_1095) {
 
-{
+{// L24
 {
 
 
 
 }
-}
+}// L30
 
 
 }
 
 if (__static_condition_default_1096) {
 
-{
+{// L24
 {
 
 
@@ -1382,14 +1383,14 @@ if (__static_condition_default_1097) {
 do
 {
 
-{
+{// L11
 {
 
 
 
  __printf_421  ("menu multiplier item") ; // L12
 }
-}
+}// L13
 }
 while( 0 );// L13:L27
 }
@@ -1397,7 +1398,7 @@ if (__static_condition_default_1098) {
 __static_type_error("type error : no valid expression"); // L27
 }
 }
-}
+}// L30
 
 
 }
@@ -1408,20 +1409,20 @@ static void  (__lcd_tune_menu_1093) () {
 {
 if (__static_condition_default_1099) {
 
-{
+{// L24
 {
 
 
 
 }
-}
+}// L30
 
 
 }
 
 if (__static_condition_default_1100) {
 
-{
+{// L24
 {
 
 
@@ -1430,14 +1431,14 @@ if (__static_condition_default_1101) {
 do
 {
 
-{
+{// L11
 {
 
 
 
 __static_type_error("type error") ; // L12
 }
-}
+}// L13
 }
 while( 0 );// L13:L27
 }
@@ -1445,7 +1446,7 @@ if (__static_condition_default_1102) {
 __static_type_error("type error : no valid expression"); // L27
 }
 }
-}
+}// L30
 
 
 }
@@ -1456,20 +1457,20 @@ static void  (__lcd_tune_menu_1094) () {
 {
 if (__static_condition_default_1103) {
 
-{
+{// L24
 {
 
 
 
 }
-}
+}// L30
 
 
 }
 
 if (__static_condition_default_1104) {
 
-{
+{// L24
 {
 
 
@@ -1478,14 +1479,14 @@ if (__static_condition_default_1105) {
 do
 {
 
-{
+{// L11
 {
 
 
 
  __printf_421  ("menu multiplier item") ; // L12
 }
-}
+}// L13
 }
 while( 0 );// L13:L27
 }
@@ -1493,7 +1494,7 @@ if (__static_condition_default_1106) {
 __static_type_error("type error : no valid expression"); // L27
 }
 }
-}
+}// L30
 
 
 }
@@ -1501,7 +1502,7 @@ __static_type_error("type error : no valid expression"); // L27
 }}
 int  (__main_1107) (void  ) {
 
-{
+{// L32
 {
 
 
@@ -1517,7 +1518,7 @@ if (__static_condition_default_1110) {
 }
 return 0 ;// L34
 }
-}
+}// L35
 
 
 }

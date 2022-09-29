@@ -4,41 +4,12 @@ Macros:
 	PIDTEMP
 	PID_DEBUG
 [-UMARLIN_H -UPIDTEMP -UPID_DEBUG ]
-clang :: 1 :: Line:19
-	Value stored to 'pid_output' is never read [deadcode.DeadStores]
 [-DMARLIN_H=1 -UPIDTEMP -UPID_DEBUG ]
-clang :: 2 :: Line:19
-	Value stored to 'pid_output' is never read [deadcode.DeadStores]
 [-UMARLIN_H -DPIDTEMP=1 -UPID_DEBUG ]
 [-DMARLIN_H=1 -DPIDTEMP=1 -UPID_DEBUG ]
 [-UMARLIN_H -UPIDTEMP -DPID_DEBUG=1 ]
-clang :: 3 :: Line:19
-	Value stored to 'pid_output' is never read [deadcode.DeadStores]
 [-DMARLIN_H=1 -UPIDTEMP -DPID_DEBUG=1 ]
-clang :: 4 :: Line:19
-	Value stored to 'pid_output' is never read [deadcode.DeadStores]
 [-UMARLIN_H -DPIDTEMP=1 -DPID_DEBUG=1 ]
 [-DMARLIN_H=1 -DPIDTEMP=1 -DPID_DEBUG=1 ]
 [-UMARLIN_H -UPIDTEMP -UPID_DEBUG ]
-clang :: 5 :: Line:19
-	Value stored to 'pid_output' is never read [deadcode.DeadStores]
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/8c4377dd635.desugared.c:94:2: warning: Value stored to '__pid_output_4' is never read [deadcode.DeadStores]
- __pid_output_4  = 0 ; // L19
- ^                 ~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/8c4377dd635.desugared.c:138:2: warning: Value stored to '__pid_output_4' is never read [deadcode.DeadStores]
- __pid_output_4  = 0 ; // L19
- ^                 ~
-2 warnings generated.
-Desugared Infer Results:
-
-  No issues found  
-Matches:
-	1 has a match!
-	2 has a match!
-	3 has a match!
-	4 has a match!
-	5 has a match!
-Unmatched ids:
-	None!
-Original file has no warnings
+File Failed

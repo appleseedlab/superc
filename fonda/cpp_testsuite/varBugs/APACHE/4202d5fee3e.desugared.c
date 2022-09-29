@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -1339,27 +1340,27 @@ void  (__util_ldap_connection_open_1093) () {
 {
 if (__static_condition_default_1094) {
 
-{
+{// L7
 {
 
 
 
 }
-}
+}// L11
 
 
 }
 
 if (__static_condition_default_1095) {
 
-{
+{// L7
 {
 
 
 
 __static_type_error("type error : no valid expression"); // L9
 }
-}
+}// L11
 
 
 }
@@ -1369,14 +1370,14 @@ int  (__main_1096) (void  ) {
 
 if (__static_condition_default_1098) {
 
-{
+{// L15
 {
 
 
 
 return 0 ;// L19
 }
-}
+}// L20
 
 
 }
@@ -1385,7 +1386,7 @@ int  (__main_1097) (void  ) {
 
 if (__static_condition_default_1099) {
 
-{
+{// L15
 {
 
 
@@ -1393,7 +1394,7 @@ if (__static_condition_default_1099) {
  __util_ldap_connection_open_1093 ( ) ; // L17
 return 0 ;// L19
 }
-}
+}// L20
 
 
 }

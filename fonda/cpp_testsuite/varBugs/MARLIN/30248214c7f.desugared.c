@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -21,7 +22,6 @@ extern const bool __static_condition_default_559;
 extern const bool __static_condition_default_1065;
 extern const bool __static_condition_default_972;
 extern const bool __static_condition_default_512;
-extern const bool __static_condition_default_1109;
 extern const bool __static_condition_default_249;
 extern const bool __static_condition_default_573;
 extern const bool __static_condition_default_836;
@@ -29,6 +29,7 @@ extern const bool __static_condition_default_169;
 extern const bool __static_condition_default_84;
 extern const bool __static_condition_default_473;
 extern const bool __static_condition_default_1005;
+extern const bool __static_condition_default_1106;
 extern const bool __static_condition_default_813;
 extern const bool __static_condition_default_274;
 extern const bool __static_condition_default_991;
@@ -61,7 +62,6 @@ extern const bool __static_condition_default_544;
 extern const bool __static_condition_default_807;
 extern const bool __static_condition_default_638;
 extern const bool __static_condition_default_1042;
-extern const bool __static_condition_default_1103;
 extern const bool __static_condition_default_980;
 extern const bool __static_condition_default_883;
 extern const bool __static_condition_default_402;
@@ -80,13 +80,12 @@ extern const bool __static_condition_default_864;
 extern const bool __static_condition_default_263;
 extern const bool __static_condition_default_825;
 extern const bool __static_condition_default_258;
+extern const bool __static_condition_default_1103;
 extern const bool __static_condition_default_264;
 extern const bool __static_condition_default_734;
 extern const bool __static_condition_default_736;
-extern const bool __static_condition_default_1106;
 extern const bool __static_condition_default_578;
 extern const bool __static_condition_default_803;
-extern const bool __static_condition_default_1105;
 extern const bool __static_condition_default_1007;
 extern const bool __static_condition_default_955;
 extern const bool __static_condition_default_278;
@@ -115,6 +114,7 @@ extern const bool __static_condition_default_369;
 extern const bool __static_condition_default_375;
 extern const bool __static_condition_default_315;
 extern const bool __static_condition_default_789;
+extern const bool __static_condition_default_1104;
 extern const bool __static_condition_default_792;
 extern const bool __static_condition_default_998;
 extern const bool __static_condition_default_564;
@@ -165,7 +165,6 @@ extern const bool __static_condition_default_756;
 extern const bool __static_condition_default_745;
 extern const bool __static_condition_default_755;
 extern const bool __static_condition_default_1057;
-extern const bool __static_condition_default_1110;
 extern const bool __static_condition_default_288;
 extern const bool __static_condition_default_625;
 extern const bool __static_condition_default_271;
@@ -174,10 +173,9 @@ extern const bool __static_condition_default_204;
 extern const bool __static_condition_default_393;
 extern const bool __static_condition_default_668;
 extern const bool __static_condition_default_819;
-extern const bool __static_condition_default_1111;
 extern const bool __static_condition_default_602;
-extern const bool __static_condition_default_1104;
 extern const bool __static_condition_default_286;
+extern const bool __static_condition_default_1105;
 extern const bool __static_condition_default_331;
 extern const bool __static_condition_default_779;
 extern const bool __static_condition_default_967;
@@ -227,6 +225,7 @@ extern const bool __static_condition_default_182;
 extern const bool __static_condition_default_489;
 extern const bool __static_condition_default_735;
 extern const bool __static_condition_default_552;
+extern const bool __static_condition_default_1110;
 extern const bool __static_condition_default_373;
 extern const bool __static_condition_default_560;
 extern const bool __static_condition_default_357;
@@ -243,6 +242,7 @@ extern const bool __static_condition_default_717;
 extern const bool __static_condition_default_788;
 extern const bool __static_condition_default_317;
 extern const bool __static_condition_default_862;
+extern const bool __static_condition_default_1111;
 extern const bool __static_condition_default_1015;
 extern const bool __static_condition_default_670;
 extern const bool __static_condition_default_499;
@@ -266,6 +266,7 @@ extern const bool __static_condition_default_1051;
 extern const bool __static_condition_default_280;
 extern const bool __static_condition_default_891;
 extern const bool __static_condition_default_700;
+extern const bool __static_condition_default_1109;
 extern const bool __static_condition_default_53;
 extern const bool __static_condition_default_747;
 extern const bool __static_condition_default_692;
@@ -1346,7 +1347,7 @@ void  (__thermal_runaway_protection_1102) (int  * (__state_1095), unsigned long 
 
 if (__static_condition_default_1103) {
 
-{
+{// L6
 {
 
 
@@ -1354,22 +1355,22 @@ if (__static_condition_default_1103) {
 if (  __temperature_1097  >= (  __target_temperature_1098  -  __hysteresis_degc_1101  ) )// L7
 {
 
-{
+{// L8
 {
 
 
 
 *  __timer_1096  = 123456782l ; // L9
 }
+}// L10
 }
-}
-else
+else// L11
 {
 if (__static_condition_default_1104) {
 if ( (  __millis_1092  - *  __timer_1096  ) > (  __period_seconds_1100  ) * 1000 )// L11
 {
 
-{
+{// L12
 {
 
 
@@ -1378,14 +1379,14 @@ if ( (  __millis_1092  - *  __timer_1096  ) > (  __period_seconds_1100  ) * 1000
  __printf_421  ("%d",( int   )  __heater_id_1099 ) ; // L14
  __printf_421  ("%s","THERMAL RUNAWAY") ; // L15
 }
-}
+}// L16
 }
 }
 if (__static_condition_default_1105) {
 if ( (  __millis_1093  - *  __timer_1096  ) > (  __period_seconds_1100  ) * 1000 )// L11
 {
 
-{
+{// L12
 {
 
 
@@ -1394,14 +1395,14 @@ __static_type_error("type error") ; // L13
 __static_type_error("type error") ; // L14
 __static_type_error("type error") ; // L15
 }
-}
+}// L16
 }
 }
 if (__static_condition_default_1106) {
 if ( (  __millis_1094  - *  __timer_1096  ) > (  __period_seconds_1100  ) * 1000 )// L11
 {
 
-{
+{// L12
 {
 
 
@@ -1410,12 +1411,12 @@ if ( (  __millis_1094  - *  __timer_1096  ) > (  __period_seconds_1100  ) * 1000
  __printf_421  ("%d",( int   )  __heater_id_1099 ) ; // L14
  __printf_421  ("%s","THERMAL RUNAWAY") ; // L15
 }
+}// L16
 }
 }
 }
 }
-}
-}
+}// L17
 
 
 }
@@ -1424,7 +1425,7 @@ int  (__main_1107) (void  ) {
 
 if (__static_condition_default_1109) {
 
-{
+{// L20
 {
 
 
@@ -1432,7 +1433,7 @@ if (__static_condition_default_1109) {
 __static_type_error("type error") ; // L21
 return 0 ;// L22
 }
-}
+}// L23
 
 
 }
@@ -1441,7 +1442,7 @@ int  (__main_1108) (void  ) {
 
 if (__static_condition_default_1110) {
 
-{
+{// L20
 {
 
 
@@ -1449,7 +1450,7 @@ if (__static_condition_default_1110) {
  __thermal_runaway_protection_1102  (0,123456783,145.0f,200.0f,1,10,1) ; // L21
 return 0 ;// L22
 }
-}
+}// L23
 
 
 }

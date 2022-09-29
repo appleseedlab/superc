@@ -1,4 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/8c4377dd635.c:19:3: warning: Value stored to 'pid_output' is never read [deadcode.DeadStores]
-  pid_output = 0;
-  ^            ~
-1 warning generated.
+sh: 1: clang: not found

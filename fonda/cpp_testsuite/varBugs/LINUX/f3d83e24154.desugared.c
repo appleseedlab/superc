@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -201,7 +202,7 @@ void  (__wmi_query_block_220) () {
 
 if (__static_condition_default_221) {
 
-{
+{// L7
 {
 
 
@@ -221,7 +222,7 @@ if (__static_condition_default_225) {
 __static_type_error("type error") ; // L11
 }
 }
-}
+}// L12
 
 
 }
@@ -230,7 +231,7 @@ int  (__get_wmid_devices_226) (void  ) {
 
 if (__static_condition_default_221) {
 
-{
+{// L15
 {
 
 
@@ -238,7 +239,7 @@ if (__static_condition_default_221) {
  __wmi_query_block_220 ( ) ; // L16
 return 0 ;// L17
 }
-}
+}// L18
 
 
 }
@@ -247,7 +248,7 @@ int  (__acer_wmi_init_227) (void  ) {
 
 if (__static_condition_default_221) {
 
-{
+{// L21
 {
 
 
@@ -255,7 +256,7 @@ if (__static_condition_default_221) {
  __get_wmid_devices_226 ( ) ; // L22
 return 0 ;// L23
 }
-}
+}// L24
 
 
 }
@@ -264,14 +265,14 @@ int  (__main_228) () {
 
 if (__static_condition_default_230) {
 
-{
+{// L29
 {
 
 
 
 return 0 ;// L33
 }
-}
+}// L34
 
 
 }
@@ -280,7 +281,7 @@ int  (__main_229) () {
 
 if (__static_condition_default_231) {
 
-{
+{// L29
 {
 
 
@@ -288,7 +289,7 @@ if (__static_condition_default_231) {
  __acer_wmi_init_227 ( ) ; // L31
 return 0 ;// L33
 }
-}
+}// L34
 
 
 }

@@ -1,7 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/ee3f34e8572.desugared.c:1494:3: warning: Dereference of null pointer (loaded from variable '__rt_814') [core.NullDereference]
-( ( *  __rt_814  ) ++ ) ; // L23:L45
-  ^~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/ee3f34e8572.desugared.c:1515:3: warning: Dereference of null pointer (loaded from variable '__rt_814') [core.NullDereference]
-( ( *  __rt_814  ) ++ ) ; // L23:L45
-  ^~~~~~~~~~~~~~~~~~~
-2 warnings generated.
+sh: 1: clang: not found

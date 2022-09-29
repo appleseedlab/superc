@@ -4,36 +4,8 @@ Macros:
 	BB_FEATURE_LS_USERNAME
 [-UBB_FEATURE_LS_FILETYPES -UBB_FEATURE_LS_USERNAME ]
 [-DBB_FEATURE_LS_FILETYPES=1 -UBB_FEATURE_LS_USERNAME ]
-clang :: 74 :: Line:16
-	2nd function call argument is an uninitialized value [core.CallAndMessage]
-infer :: 75 :: Line:16
+infer :: 8 :: Line:16
 	Uninitialized Value
 [-UBB_FEATURE_LS_FILETYPES -DBB_FEATURE_LS_USERNAME=1 ]
 [-DBB_FEATURE_LS_FILETYPES=1 -DBB_FEATURE_LS_USERNAME=1 ]
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b273d665181.desugared.c:2936:2: warning: 2nd function call argument is an uninitialized value [core.CallAndMessage]
- __printf_421  ("%d", __info_2036 ) ; // L16
- ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b273d665181.desugared.c:2947:2: warning: 2nd function call argument is an uninitialized value [core.CallAndMessage]
- __printf_421  ("%d", __info_2036 ) ; // L16
- ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b273d665181.desugared.c:3007:2: warning: 2nd function call argument is an uninitialized value [core.CallAndMessage]
- __printf_421  ("%d", __info_2036 ) ; // L16
- ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b273d665181.desugared.c:3018:2: warning: 2nd function call argument is an uninitialized value [core.CallAndMessage]
- __printf_421  ("%d", __info_2036 ) ; // L16
- ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/b273d665181.desugared.c:3072:2: warning: Value stored to '__info_2036' is never read [deadcode.DeadStores]
- __info_2036  = 0 ; // L11
- ^              ~
-5 warnings generated.
-Desugared Infer Results:
-
-  No issues found  
-Matches:
-	74 has a match!
-Unmatched ids:
-	None!
-Matches:
-Unmatched ids:
-	75
+File Failed

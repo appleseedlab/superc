@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -1362,7 +1363,7 @@ int  (__add_uevent_var_1100) () {
 {
 if (__static_condition_default_1102) {
 
-{
+{// L11
 {
 
 
@@ -1386,7 +1387,7 @@ __static_type_error("type error") ; // L13
 }
 return 0 ;// L14
 }
-}
+}// L15
 
 
 }
@@ -1397,14 +1398,14 @@ int  (__add_uevent_var_1101) () {
 {
 if (__static_condition_default_1106) {
 
-{
+{// L18
 {
 
 
 
 return 0 ;// L18
 }
-}
+}// L18
 
 
 }
@@ -1412,7 +1413,7 @@ return 0 ;// L18
 }}
 int  (__input_add_uevent_modalias_var_1107) () {
 
-{
+{// L22
 {
 
 
@@ -1440,13 +1441,13 @@ if (__static_condition_default_1111) {
 }
 return 0 ;// L27
 }
-}
+}// L28
 
 
 }
 int  (__main_1114) (int  __argc_1112, char  * (* (__argv_1113))) {
 
-{
+{// L31
 {
 
 
@@ -1454,7 +1455,7 @@ int  (__main_1114) (int  __argc_1112, char  * (* (__argv_1113))) {
  __input_add_uevent_modalias_var_1107 ( ) ; // L32
 return 0 ;// L33
 }
-}
+}// L34
 
 
 }

@@ -2,9 +2,4 @@ APACHE 1f46088b38d.c
 Macros:
 	SIGPIPE
 [-USIGPIPE ]
-Desugared Clang Results:
-Desugared Infer Results:
-
-  No issues found  
-Original file has no warnings
-Original file has no warnings
+File Failed

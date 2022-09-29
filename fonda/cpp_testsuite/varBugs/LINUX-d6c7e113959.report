@@ -6,9 +6,4 @@ Macros:
 [-DCONFIG_REGULATOR_MAX8660=1 -UCONFIG_OF ]
 [-UCONFIG_REGULATOR_MAX8660 -DCONFIG_OF=1 ]
 [-DCONFIG_REGULATOR_MAX8660=1 -DCONFIG_OF=1 ]
-Desugared Clang Results:
-Desugared Infer Results:
-
-  No issues found  
-Original file has no warnings
-Original file has no warnings
+File Failed

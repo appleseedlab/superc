@@ -4,48 +4,10 @@ Macros:
 	CONFIG_UNIX98_PTYS
 [-UCONFIG_DEVPTS_MULTIPLE_INSTANCES -UCONFIG_UNIX98_PTYS ]
 [-DCONFIG_DEVPTS_MULTIPLE_INSTANCES=1 -UCONFIG_UNIX98_PTYS ]
-clang :: 54 :: Line:8
-	Value stored to 'x' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_DEVPTS_MULTIPLE_INSTANCES -DCONFIG_UNIX98_PTYS=1 ]
-clang :: 55 :: Line:39
-	Value stored to 'driver_data' is never read [deadcode.DeadStores]
-clang :: 56 :: Line:44
-	1st function call argument is an uninitialized value [core.CallAndMessage]
-infer :: 57 :: Line:44
+infer :: 5 :: Line:44
 	Uninitialized Value
 [-DCONFIG_DEVPTS_MULTIPLE_INSTANCES=1 -DCONFIG_UNIX98_PTYS=1 ]
-clang :: 58 :: Line:8
-	Value stored to 'x' during its initialization is never read [deadcode.DeadStores]
-clang :: 59 :: Line:39
-	Value stored to 'driver_data' is never read [deadcode.DeadStores]
-clang :: 60 :: Line:44
-	1st function call argument is an uninitialized value [core.CallAndMessage]
-infer :: 61 :: Line:44
+infer :: 6 :: Line:44
 	Uninitialized Value
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/7acf6cd80b2.desugared.c:77:6: warning: Value stored to '__x_3' during its initialization is never read [deadcode.DeadStores]
-int  __x_3= *  __inode_2 ;// L8
-     ^~~~~  ~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/7acf6cd80b2.desugared.c:170:2: warning: Value stored to '__driver_data_15' is never read [deadcode.DeadStores]
- __driver_data_15  = &  __some_int_1  ; // L39
- ^                   ~~~~~~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/7acf6cd80b2.desugared.c:175:2: warning: 1st function call argument is an uninitialized value [core.CallAndMessage]
- __tty_release_14  ( __driver_data_15 ) ; // L44
- ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-3 warnings generated.
-Desugared Infer Results:
-
-  No issues found  
-Matches:
-	54 has a match!
-	55 has a match!
-	56 has a match!
-	58 has a match!
-	59 has a match!
-	60 has a match!
-Unmatched ids:
-	None!
-Matches:
-Unmatched ids:
-	57
-	61
+File Failed

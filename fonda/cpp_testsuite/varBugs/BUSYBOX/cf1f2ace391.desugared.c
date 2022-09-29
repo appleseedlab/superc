@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -12,6 +13,7 @@ extern const bool __static_condition_default_510;
 extern const bool __static_condition_default_455;
 extern const bool __static_condition_default_296;
 extern const bool __static_condition_default_1141;
+extern const bool __static_condition_default_2519;
 extern const bool __static_condition_default_1322;
 extern const bool __static_condition_default_412;
 extern const bool __static_condition_default_255;
@@ -40,6 +42,7 @@ extern const bool __static_condition_default_836;
 extern const bool __static_condition_default_473;
 extern const bool __static_condition_default_864;
 extern const bool __static_condition_default_858;
+extern const bool __static_condition_default_2512;
 extern const bool __static_condition_default_270;
 extern const bool __static_condition_default_173;
 extern const bool __static_condition_default_619;
@@ -73,6 +76,7 @@ extern const bool __static_condition_default_2396;
 extern const bool __static_condition_default_347;
 extern const bool __static_condition_default_514;
 extern const bool __static_condition_default_1253;
+extern const bool __static_condition_default_2507;
 extern const bool __static_condition_default_759;
 extern const bool __static_condition_default_1028;
 extern const bool __static_condition_default_701;
@@ -117,7 +121,6 @@ extern const bool __static_condition_default_787;
 extern const bool __static_condition_default_278;
 extern const bool __static_condition_default_1978;
 extern const bool __static_condition_default_809;
-extern const bool __static_condition_default_2509;
 extern const bool __static_condition_default_797;
 extern const bool __static_condition_default_1233;
 extern const bool __static_condition_default_807;
@@ -131,11 +134,12 @@ extern const bool __static_condition_default_431;
 extern const bool __static_condition_default_602;
 extern const bool __static_condition_default_1331;
 extern const bool __static_condition_default_1284;
+extern const bool __static_condition_default_2509;
 extern const bool __static_condition_default_317;
 extern const bool __static_condition_default_2002;
+extern const bool __static_condition_default_2513;
 extern const bool __static_condition_default_1251;
 extern const bool __static_condition_default_670;
-extern const bool __static_condition_default_2519;
 extern const bool __static_condition_default_2006;
 extern const bool __static_condition_default_2278;
 extern const bool __static_condition_default_537;
@@ -200,6 +204,7 @@ extern const bool __static_condition_default_491;
 extern const bool __static_condition_default_223;
 extern const bool __static_condition_default_331;
 extern const bool __static_condition_default_367;
+extern const bool __static_condition_default_2508;
 extern const bool __static_condition_default_757;
 extern const bool __static_condition_default_299;
 extern const bool __static_condition_default_553;
@@ -234,7 +239,6 @@ extern const bool __static_condition_default_1158;
 extern const bool __static_condition_default_536;
 extern const bool __static_condition_default_638;
 extern const bool __static_condition_default_2117;
-extern const bool __static_condition_default_2508;
 extern const bool __static_condition_default_1330;
 extern const bool __static_condition_default_515;
 extern const bool __static_condition_default_2388;
@@ -317,7 +321,6 @@ extern const bool __static_condition_default_1065;
 extern const bool __static_condition_default_1282;
 extern const bool __static_condition_default_286;
 extern const bool __static_condition_default_311;
-extern const bool __static_condition_default_2513;
 extern const bool __static_condition_default_1291;
 extern const bool __static_condition_default_780;
 extern const bool __static_condition_default_1058;
@@ -389,7 +392,6 @@ extern const bool __static_condition_default_1796;
 extern const bool __static_condition_default_1930;
 extern const bool __static_condition_default_2170;
 extern const bool __static_condition_default_788;
-extern const bool __static_condition_default_2512;
 extern const bool __static_condition_default_1834;
 extern const bool __static_condition_default_170;
 extern const bool __static_condition_default_846;
@@ -443,7 +445,6 @@ extern const bool __static_condition_default_552;
 extern const bool __static_condition_default_872;
 extern const bool __static_condition_default_1999;
 extern const bool __static_condition_default_386;
-extern const bool __static_condition_default_2507;
 extern const bool __static_condition_default_2260;
 extern const bool __static_condition_default_1035;
 extern const bool __static_condition_default_313;
@@ -3001,7 +3002,7 @@ void  (__shutdown_signal_2506) (int  __sig_2504) {
 
 if (__static_condition_default_2507) {
 
-{
+{// L10
 {
 
 
@@ -3011,40 +3012,40 @@ char  * (__m_2505);// L11
 if (  __sig_2504  == 15 )// L13
 {
 
-{
+{// L13
 {
 
 
 
  __m_2505  = "reboot" ; // L14
 }
+}// L15
 }
-}
-else
+else// L15
 {
 if (  __sig_2504  == 31 )// L15
 {
 
-{
+{// L15
 {
 
 
 
  __m_2505  = "poweroff" ; // L16
 }
+}// L17
 }
-}
-else
+else// L17
 {
 
-{
+{// L17
 {
 
 
 
  __m_2505  = "halt" ; // L18
 }
-}
+}// L19
 }
 }
 if (__static_condition_default_2508) {
@@ -3054,7 +3055,7 @@ if (__static_condition_default_2509) {
 __static_type_error("type error") ; // L20
 }
 }
-}
+}// L21
 
 
 }
@@ -3063,14 +3064,14 @@ void  (__open_new_terminal_2510) () {
 
 if (__static_condition_default_2512) {
 
-{
+{// L25
 {
 
 
 
 __static_type_error("type error") ; // L26
 }
-}
+}// L27
 
 
 }
@@ -3079,21 +3080,21 @@ void  (__open_new_terminal_2511) () {
 
 if (__static_condition_default_2513) {
 
-{
+{// L25
 {
 
 
 
  __shutdown_signal_2506  (30) ; // L26
 }
-}
+}// L27
 
 
 }
 }
 void  (__run_2514) () {
 
-{
+{// L30
 {
 
 
@@ -3105,26 +3106,26 @@ if (__static_condition_default_2513) {
  __open_new_terminal_2511 ( ) ; // L31
 }
 }
-}
+}// L32
 
 
 }
 void  (__run_actions_2515) () {
 
-{
+{// L35
 {
 
 
 
  __run_2514 ( ) ; // L36
 }
-}
+}// L37
 
 
 }
 int  (__main_2518) (int  __argc_2516, char  * (* (__argv_2517))) {
 
-{
+{// L40
 {
 
 
@@ -3132,7 +3133,7 @@ int  (__main_2518) (int  __argc_2516, char  * (* (__argv_2517))) {
  __run_actions_2515 ( ) ; // L41
 return 0 ;// L42
 }
-}
+}// L43
 
 
 }

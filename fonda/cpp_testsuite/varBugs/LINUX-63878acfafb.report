@@ -12,13 +12,4 @@ Macros:
 [-UCONFIG_ARCH_OMAP3 -DCONFIG_PM=1 -Ddefined=1 ]
 [-DCONFIG_ARCH_OMAP3=1 -DCONFIG_PM=1 -Ddefined=1 ]
 [-UCONFIG_ARCH_OMAP3 -UCONFIG_PM -Udefined ]
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/63878acfafb.desugared.c:159:1: warning: Undefined or garbage value returned to caller [core.uninitialized.UndefReturn]
-return  __v_16  ;// L40
-^~~~~~~~~~~~~~
-1 warning generated.
-Desugared Infer Results:
-
-  No issues found  
-Original file has no warnings
-Original file has no warnings
+File Failed

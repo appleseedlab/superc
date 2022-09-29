@@ -5,56 +5,15 @@ Macros:
 	CONFIG_OF_IRQ
 [-UCONFIG_TWL4030_CORE -UCONFIG_IRQ_DOMAIN -UCONFIG_OF_IRQ ]
 [-DCONFIG_TWL4030_CORE=1 -UCONFIG_IRQ_DOMAIN -UCONFIG_OF_IRQ ]
-clang :: 31 :: Line:12
-	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
-clang :: 32 :: Line:12
-	Dereference of null pointer (loaded from variable 'ops') [core.NullDereference]
-infer :: 33 :: Line:25
+infer :: 1 :: Line:25
 	Null Dereference
 [-UCONFIG_TWL4030_CORE -DCONFIG_IRQ_DOMAIN=1 -UCONFIG_OF_IRQ ]
-clang :: 34 :: Line:12
-	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
 [-DCONFIG_TWL4030_CORE=1 -DCONFIG_IRQ_DOMAIN=1 -UCONFIG_OF_IRQ ]
-clang :: 35 :: Line:12
-	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
-clang :: 36 :: Line:12
-	Dereference of null pointer (loaded from variable 'ops') [core.NullDereference]
-infer :: 37 :: Line:25
+infer :: 2 :: Line:25
 	Null Dereference
 [-UCONFIG_TWL4030_CORE -UCONFIG_IRQ_DOMAIN -DCONFIG_OF_IRQ=1 ]
 [-DCONFIG_TWL4030_CORE=1 -UCONFIG_IRQ_DOMAIN -DCONFIG_OF_IRQ=1 ]
-clang :: 38 :: Line:12
-	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_TWL4030_CORE -DCONFIG_IRQ_DOMAIN=1 -DCONFIG_OF_IRQ=1 ]
-clang :: 39 :: Line:12
-	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
 [-DCONFIG_TWL4030_CORE=1 -DCONFIG_IRQ_DOMAIN=1 -DCONFIG_OF_IRQ=1 ]
-clang :: 40 :: Line:12
-	Value stored to 'irq' during its initialization is never read [deadcode.DeadStores]
 [-UCONFIG_TWL4030_CORE -UCONFIG_IRQ_DOMAIN -UCONFIG_OF_IRQ ]
-Desugared Clang Results:
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/6252547b8a7.desugared.c:49:6: warning: Value stored to '__irq_2' during its initialization is never read [deadcode.DeadStores]
-int  __irq_2= *  __ops_1 ;// L12
-     ^~~~~~~  ~~~~~~~~~~
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/LINUX/6252547b8a7.desugared.c:49:15: warning: Dereference of null pointer (loaded from variable '__ops_1') [core.NullDereference]
-int  __irq_2= *  __ops_1 ;// L12
-              ^~~~~~~~~~
-2 warnings generated.
-Desugared Infer Results:
-
-  No issues found  
-Matches:
-	31 has a match!
-	32 has a match!
-	34 has a match!
-	35 has a match!
-	36 has a match!
-	38 has a match!
-	39 has a match!
-	40 has a match!
-Unmatched ids:
-	None!
-Matches:
-Unmatched ids:
-	33
-	37
+File Failed

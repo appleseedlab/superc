@@ -1,5 +1,1 @@
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/MARLIN/fc3c76fc164.c:11:8: error: must use 'enum' tag to refer to type 'TRState'
-static TRState thermal_runaway_bed_state_machine = { TRInactive, TRInactive, TRInactive, TRInactive };
-       ^
-       enum 
-1 error generated.
+sh: 1: clang: not found

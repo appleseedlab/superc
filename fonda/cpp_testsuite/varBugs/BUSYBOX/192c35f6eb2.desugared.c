@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -1590,7 +1591,7 @@ void  (__logMessage_1381) (char  * (__msg_1378)) {
 {
 if (__static_condition_default_1383) {
 
-{
+{// L5
 {
 
 
@@ -1598,14 +1599,14 @@ if (__static_condition_default_1383) {
 static char  __line_1379[512];// L6
 
 }
-}
+}// L16
 
 
 }
 
 if (__static_condition_default_1384) {
 
-{
+{// L5
 {
 
 
@@ -1617,7 +1618,7 @@ int  __remotefd_1380= 1;// L9
 if (  __remotefd_1380  )// L11
 {
 
-{
+{// L11
 {
 
 
@@ -1641,10 +1642,10 @@ if (__static_condition_default_1390) {
 __static_type_error("type error") ; // L13
 }
 }
+}// L14
 }
 }
-}
-}
+}// L16
 
 
 }
@@ -1655,7 +1656,7 @@ void  (__logMessage_1382) (char  * (__msg_1378)) {
 {
 if (__static_condition_default_1391) {
 
-{
+{// L5
 {
 
 
@@ -1663,14 +1664,14 @@ if (__static_condition_default_1391) {
 static char  __line_1379[512];// L6
 
 }
-}
+}// L16
 
 
 }
 
 if (__static_condition_default_1392) {
 
-{
+{// L5
 {
 
 
@@ -1682,7 +1683,7 @@ int  __remotefd_1380= 1;// L9
 if (  __remotefd_1380  )// L11
 {
 
-{
+{// L11
 {
 
 
@@ -1695,10 +1696,10 @@ if (__static_condition_default_1394) {
 __static_type_error("type error") ; // L13
 }
 }
+}// L14
 }
 }
-}
-}
+}// L16
 
 
 }
@@ -1706,7 +1707,7 @@ __static_type_error("type error") ; // L13
 }}
 void  (__doSyslogd_1395) (void  ) {
 
-{
+{// L19
 {
 
 
@@ -1718,13 +1719,13 @@ if (__static_condition_default_1397) {
  __logMessage_1382  ("syslogd started") ; // L20
 }
 }
-}
+}// L21
 
 
 }
 int  (__main_1400) (int  __argc_1398, char  * (* (__argv_1399))) {
 
-{
+{// L24
 {
 
 
@@ -1732,7 +1733,7 @@ int  (__main_1400) (int  __argc_1398, char  * (* (__argv_1399))) {
  __doSyslogd_1395 ( ) ; // L25
 return 0 ;// L26
 }
-}
+}// L27
 
 
 }

@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -195,20 +196,20 @@ void  (__util_ald_create_cache_219) (char  * (__rmm_addr_218)) {
 {
 if (__static_condition_default_220) {
 
-{
+{// L6
 {
 
 
 
 }
-}
+}// L12
 
 
 }
 
 if (__static_condition_default_221) {
 
-{
+{// L6
 {
 
 
@@ -220,7 +221,7 @@ if (__static_condition_default_223) {
 __static_type_error("type error") ; // L8
 }
 }
-}
+}// L12
 
 
 }
@@ -228,20 +229,20 @@ __static_type_error("type error") ; // L8
 }}
 void  (__util_ald_create_caches_225) (char  * (__rmm_addr_224)) {
 
-{
+{// L15
 {
 
 
 
  __util_ald_create_cache_219  ( __rmm_addr_224 ) ; // L16
 }
-}
+}// L17
 
 
 }
 int  (__main_226) (void  ) {
 
-{
+{// L20
 {
 
 
@@ -254,7 +255,7 @@ if (__static_condition_default_228) {
 }
 return 0 ;// L22
 }
-}
+}// L23
 
 
 }

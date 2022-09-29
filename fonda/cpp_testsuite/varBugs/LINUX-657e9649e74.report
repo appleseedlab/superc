@@ -6,9 +6,4 @@ Macros:
 [-DCONFIG_PREEMPT=1 -UCONFIG_TCP_MD5SIG ]
 [-UCONFIG_PREEMPT -DCONFIG_TCP_MD5SIG=1 ]
 [-DCONFIG_PREEMPT=1 -DCONFIG_TCP_MD5SIG=1 ]
-Desugared Clang Results:
-Desugared Infer Results:
-
-  No issues found  
-Original file has no warnings
-Original file has no warnings
+File Failed

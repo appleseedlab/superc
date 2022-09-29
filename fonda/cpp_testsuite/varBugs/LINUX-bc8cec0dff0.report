@@ -2,20 +2,4 @@ LINUX bc8cec0dff0.c
 Macros:
 	CONFIG_JFFS2_FS_WBUF_VERIFY
 [-UCONFIG_JFFS2_FS_WBUF_VERIFY ]
-Desugared Clang Results:
-Desugared Infer Results:
-
-LINUX/bc8cec0dff0.desugared.c:198: error: Memory Leak
-  Memory dynamically allocated by `malloc`, indirectly via call to `__jffs2_nor_wbuf_flash_setup_7()` on line 187 is not freed after the last access at line 198, column 1.
-  196. 
-  197. 
-  198. }
-       ^
-  199. 
-
-
-Found 1 issue
-  Issue Type(ISSUED_TYPE_ID): #
-  Memory Leak(MEMORY_LEAK_C): 1
-Original file has no warnings
-Original file has no warnings
+File Failed
