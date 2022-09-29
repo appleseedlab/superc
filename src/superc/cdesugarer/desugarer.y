@@ -484,7 +484,7 @@ FunctionPrototype {restartLabelFunction();} CompoundStatement
                       desugaredDeclaration = renamedDeclaration.toString();
                     }
                     assert null != desugaredDeclaration;
-
+                    
                     // renamedDeclaration must be a FunctionT because
                     // that is created by a FunctionDeclarator
                     Type declarationType = renamedDeclaration.getType();
@@ -666,7 +666,8 @@ FunctionPrototype {restartLabelFunction();} CompoundStatement
             // are getting all nodes at this point
             for (Element<String> prototypestr : subprototypestrmv) {
               sb.append(prototypestr.getData());
-              sb.append(" {\n");
+              sb.append(" //M:" + getCompoundRange(bodymv, prototypestr.getCondition()) + "\n");
+              sb.append("{\n");
               sb.append(emitStatementDSV(bodymv, prototypestr.getCondition()));
               sb.append("}\n");
             }
@@ -10169,6 +10170,13 @@ public static class DeclarationOrStatementValue implements Copyable{
       }
     }
   }
+
+  public String getPrepend() {
+    return childPrepend;
+  }
+  public String getAppend() {
+    return childAppend;
+  }
   
   public String getString(PresenceCondition p, CActions ca) {
     String ret = "";
@@ -10820,6 +10828,24 @@ private String emitStatement(Multiverse<String> allStatementConfigs, PresenceCon
     sb.append("\n}");
   }
   return sb.toString();
+}
+
+private String getCompoundRange(Multiverse<DeclarationOrStatementValue> allStatementConfigs, PresenceCondition pc) {
+  int earliest = 0;
+  int latest = 0;
+  for (Multiverse.Element<DeclarationOrStatementValue> statement : allStatementConfigs) {
+    String leftBrace = statement.getData().getPrepend();
+    String rightBrace = statement.getData().getAppend();
+    int leftNum = Integer.parseInt(leftBrace.replaceAll("[^0-9]",""));
+    int rightNum = Integer.parseInt(rightBrace.replaceAll("[^0-9]",""));
+    if (leftNum < earliest || earliest == 0) {
+      earliest = leftNum;
+    }
+    if (rightNum > latest || latest == 0) {
+      latest = rightNum;
+    }
+  }
+  return "L" + Integer.toString(earliest) + ":L" + Integer.toString(latest);
 }
 
 private String emitStatementDSV(Multiverse<DeclarationOrStatementValue> allStatementConfigs, PresenceCondition pc) {
