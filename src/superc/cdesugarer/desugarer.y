@@ -11112,7 +11112,7 @@ public String staticInitialization(boolean showParseError) {
   // writes the extern declarations for the renamed preprocessor BDDs
   System.err.println("TODO: record original presence condition strings in file as well once raw strings are collected");
   for (Integer hash : condVars.keySet()) {
-    sb.append(String.format("extern const bool %s;\n", condVars.get(hash)));
+    sb.append(String.format("int %s() {return rand()%2;};\n", condVars.get(hash)));
   }
 
   sb.append(String.format("%s {\n%s\n%s\n",
@@ -12495,7 +12495,7 @@ public String condToCVar(PresenceCondition cond) {
     if (condVars.containsKey(key)) {
       return condVars.get(key);
     } else {
-      String cvar = freshCId(String.format("static_condition_%s", unitUID));
+      String cvar = freshCId(String.format("static_condition_%s()", unitUID));
       condVars.put(key, cvar);
       staticConditionRenamings.append(String.format("__static_condition_renaming(\"%s\", \"%s\");\n", cvar, cond.toString()));
       return cvar;

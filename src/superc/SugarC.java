@@ -559,9 +559,7 @@ public class SugarC extends Tool {
 
       // emit headers
       System.out.print("#include <stdbool.h>\n");
-      if (runtime.test("keep-mem")) {
-        System.out.print("#include <stdlib.h>\n");
-      }
+      System.out.print("#include <stdlib.h>\n");
 
       System.out.print("\n");
 
