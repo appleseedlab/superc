@@ -12631,7 +12631,7 @@ public String condToCVar(PresenceCondition cond) {
     // non-boolean leaves to C variables.
     int key = cond.hashCode();
     if (condVars.containsKey(key)) {
-      return condVars.get(key);
+      return condVars.get(key)+"()";
     } else {
       String cvar = freshCId(String.format("static_condition_%s", unitUID));
       condVars.put(key, cvar);
