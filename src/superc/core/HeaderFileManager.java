@@ -284,7 +284,18 @@ public class HeaderFileManager implements Iterator<Syntax> {
         syntax = computed.next();
       } else {
         syntax = Preprocessor.EMPTY;
-        if (showHeaders) System.err.println(String.format("exiting header(%d): %s", includes.size(), computed.pfile.file));
+        if (showHeaders) {
+          String includestr;
+          if (include.isComputed()) {
+            includestr = ((Computed) include).completed.toString();
+          } else if (include.isPFile()) {
+            includestr = ((PFile) include).file.toString();
+          } else {
+            includestr = null;
+            throw new AssertionError("unsupported type of include in showHeaders");
+          }
+          System.err.println(String.format("exiting header(%d): %s", includes.size(), includestr));
+        }
         include = includes.pop();
       }
       

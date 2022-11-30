@@ -294,6 +294,11 @@ ifdef JAVA_DEV_ROOT
               $(JAR_TMP)/xtc/parser
 	$(JAR) cf $(BIN_DIR)/rats-runtime.jar -C $(JAR_TMP) xtc
 	$(RMDIR) $(JAR_TMP)
+	$(CPDIR) $(CLASS_DIR) $(JAR_TMP)
+	$(RMDIR) $(JAR_TMP)/CVS
+	$(RM)    $(JAR_TMP)/.cvsignore
+	$(RM)    $(JAR_TMP)/.anchor
+	$(JAR) cmf superc.manifest $(BIN_DIR)/superc.jar -C $(JAR_TMP) superc
 endif
 
 dist    :

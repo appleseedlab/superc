@@ -33,7 +33,7 @@ fi
 
 allArgs=
 timeout=
-while getopts :l:h:p:S:J:G:cPgDekL:wm:h:irvts:bTK:o:d:CAE opt; do
+while getopts :l:h:p:S:J:G:cPgDekL:wx:a:m:h:irvts:bTK:o:d:CAE opt; do
     case $opt in
         l)
             fileList=$OPTARG
@@ -90,6 +90,14 @@ while getopts :l:h:p:S:J:G:cPgDekL:wm:h:irvts:bTK:o:d:CAE opt; do
         w)
             writeConfigDir=true
             allArgs="$allArgs -w"
+            ;;
+        x)
+            makecrossScript="$OPTARG"
+            allArgs="$allArgs -x \"$OPTARG\""
+            ;;
+        a)
+            arch="$OPTARG"
+            allArgs="$allArgs -a \"$OPTARG\""
             ;;
         m)
             masquerade="$OPTARG"
@@ -203,6 +211,8 @@ if [[ ! -z $help || (-z $file && -z $fileList && -z $host && -z $port && -z $ser
     echo "    -k               Extract all (k)build configuration information."
     echo "    -L dir           Get (L)inux configuration from dir."
     echo "    -w               (w)rite configuration to -L dir."
+    echo "    -x               make.cross script for the config. Defaults to \"make\"."
+    echo "    -a               (a)rchitecture to get the config for."
     echo "    -m file          (m)asquerade as file to use its configuration."
     echo "    -K seconds       (K)ill after a timeout.  Depends on \"timeout\"."
     echo "    -t               (t)est command-line args, but don't run SuperC."
@@ -244,11 +254,6 @@ fi
 ################################################################################
 ################# Check Environment and Command-Line Arguments #################
 ################################################################################
-
-if [ -z "$JAVA_DEV_ROOT" ]
-then
-    "Please run xtc/scripts/env.sh before `basename $0`."
-fi
 
 if [ ! -z $runtimes ]; then
     which bc >/dev/null 2>&1
@@ -315,7 +320,7 @@ if [ ! -z $serverList ]; then
     if [ ! -z $testSlaves ]; then
         for server in $servers; do
             echo "Checking $server:$remoteDir"
-            ssh $server "source $JAVA_DEV_ROOT/scripts/env.sh; cd $remoteDir;superc_linux.sh -c -S-printSource arch/x86/kernel/acpi/realmode/regs.c" 2>&1 | grep comparison_succeeded
+            ssh $server "cd $remoteDir;superc_linux.sh -c -S-printSource arch/x86/kernel/acpi/realmode/regs.c" 2>&1 | grep comparison_succeeded
             if [ $? -ne 0 ]; then
                 echo $retval
                 echo "$server failed."
@@ -344,6 +349,16 @@ fi
 
 if [[ ! -z "$writeConfigDir" && -z "$configDir" ]]; then
     echo "-w only applies when using -L"
+    exit
+fi
+
+if [[ ! -z "$makecrossScript" && -z "$writeConfigDir" ]]; then
+    echo "-x only applies when using -w"
+    exit
+fi
+
+if [[ ! -z "$arch" && -z "$writeConfigDir" ]]; then
+    echo "-a only applies when using -w"
     exit
 fi
 
@@ -386,7 +401,14 @@ elif [ ! -z $fileList ]; then
     done
 fi
 
-tempfilebase=$($JAVA_DEV_ROOT/scripts/tempfile.sh -p super) || exit
+which mktemp >/dev/null 2>&1
+
+if [ $? -ne 0 ]; then
+    echo "superc_linux.sh requires mktemp to create temp files"
+    exit 1
+fi
+
+tempfilebase=$(mktemp superXXXXXXXX) || exit
 tempfiles="$tempfilebase"
 header_args=$tempfilebase.headers || exit
 config_args=$tempfilebase.configs || exit
@@ -501,7 +523,18 @@ if [ -z "$servers" ]; then
             elif [[ -z "$configDir" || ! -z "$writeConfigDir" ]]; then
                 # Can't override CC since it is used to emit compiler
                 # information
-                make CHECK="java superc.util.GCCShunt --shunt-filename $config_file --shunt-superc $header_args --shunt-kbuild --shunt-config $config_args" C=2 $obj_file
+                if [[ -z "$makecrossScript" ]]; then
+                    makeScript="make"
+                else
+                    makeScript="$makecrossScript"
+                fi
+                which $makeScript
+                if [[ -z "$arch" ]]; then
+                    archParam=""
+                else
+                    archParam="ARCH=$arch"
+                fi
+                $makeScript $archParam CHECK="java superc.util.GCCShunt --shunt-filename $config_file --shunt-superc $header_args --shunt-kbuild --shunt-config $config_args" C=2 $obj_file
                 getConfigResult=$?
                 # if [ $getConfigResult -ne 0 ]; then
                 # # Try overriding CC instead of CHECK, since the file

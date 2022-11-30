@@ -36,6 +36,8 @@ import xtc.Constants;
 
 import xtc.tree.Location;
 
+import superc.core.ForkMergeParser;
+
 import superc.core.Syntax;
 import superc.core.Syntax.Kind;
 import superc.core.Syntax.LanguageTag;
@@ -163,25 +165,11 @@ public class CContext implements ParsingContext {
     TRUEFALSE
   }
 
-
-  private static PresenceCondition parseErrorCond;
-
-  static
-  {
-    PresenceConditionManager p = new PresenceConditionManager();
-    parseErrorCond = p.newFalse();
-  }
-
-  public static void addToParseErrorCond(PresenceCondition p) {
-    System.err.println(p);
-    parseErrorCond = parseErrorCond.or(p);
-  }
-
-  public static PresenceCondition getParseErrorCond() {
-    return parseErrorCond;
-  }
-
+  public static ForkMergeParser parser;
   
+  public static PresenceCondition getParseErrorCond() {
+    return parser.getErrorCond();
+  }
 
   /** Create a new initial C parsing contex. */
   public CContext() {
