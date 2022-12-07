@@ -239,8 +239,10 @@ public class SugarC extends Tool {
       bool("suppressConditions", "suppressConditions", false,
            "Don't print static conditions.").
       bool("macroTable", "macroTable", false,
-           "Show the macro symbol table.")
-      ;
+           "Show the macro symbol table.").
+      bool("outputBDD", "outputBDD", false,
+           "Writes presence conditions in a BDD format.");
+    
   }
   
   /**
@@ -421,6 +423,10 @@ public class SugarC extends Tool {
     if (null != runtime.getString("restrictFreeToPrefix")) {
       macroTable.restrictPrefix(runtime.getString("restrictFreeToPrefix"));
       conditionEvaluator.restrictPrefix(runtime.getString("restrictFreeToPrefix"));
+    }
+
+    if (false != runtime.test("outputBDD")) {
+      presenceConditionManager.force_bdd = true;
     }
 
     if (null != runtime.getString("restrictConfigToPrefix")) {

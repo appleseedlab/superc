@@ -54,6 +54,10 @@ import com.microsoft.z3.enumerations.Z3_ast_print_mode;
   */
 public class PresenceConditionManager {
 
+  /** Setting to determine of the output format should be converted to Z3.  */
+  public static boolean force_bdd = false;
+ 
+  
   /** The BDD factory. */
   protected BDDFactory B;
 
@@ -925,6 +929,7 @@ public class PresenceConditionManager {
     * nothing references it anymore.
     */
   public class PresenceConditionBDD implements PresenceCondition {
+    
     /** The BDD backing the presence condition. */
     protected BDD bdd;
 
@@ -1126,7 +1131,7 @@ public class PresenceConditionManager {
      * @throws IOException Because it uses a Writer.
      */
     public void print(Writer writer) throws IOException {
-      printBDD(bdd, writer);
+        printBDD(bdd, writer);
     }
 
 
