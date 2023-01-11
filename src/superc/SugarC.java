@@ -46,6 +46,7 @@ import superc.core.HeaderFileManager;
 import superc.core.MacroTable;
 import superc.core.ExpressionParser;
 import superc.core.ConditionEvaluatorZ3;
+import superc.core.ConditionEvaluator;
 import superc.core.StopWatch;
 import superc.core.StreamTimer;
 import superc.core.Preprocessor;
@@ -55,6 +56,7 @@ import superc.core.SemanticValues;
 
 import superc.core.PresenceConditionManager.PresenceCondition;
 import superc.core.PresenceConditionManagerZ3;
+import superc.core.PresenceConditionManager;
 
 import superc.core.Syntax;
 import superc.core.Syntax.Kind;
@@ -240,8 +242,8 @@ public class SugarC extends Tool {
            "Don't print static conditions.").
       bool("macroTable", "macroTable", false,
            "Show the macro symbol table.").
-      bool("outputBDD", "outputBDD", false,
-           "Writes presence conditions in a BDD format.");
+      bool("useBDD", "useBDD", false,
+           "Use BDD for presence condition representation, SugarC uses Z3 by default");
     
   }
   
@@ -403,9 +405,9 @@ public class SugarC extends Tool {
   public Node parse(Reader in, File file) throws IOException, ParseException {
     HeaderFileManager fileManager;
     MacroTable macroTable;
-    PresenceConditionManagerZ3 presenceConditionManager;
+    PresenceConditionManager presenceConditionManager;
     ExpressionParser expressionParser;
-    ConditionEvaluatorZ3 conditionEvaluator;
+    ConditionEvaluator conditionEvaluator;
     Iterator<Syntax> preprocessor;
     Node result = null;
     StopWatch parserTimer = null, preprocessorTimer = null, lexerTimer = null;
@@ -413,20 +415,26 @@ public class SugarC extends Tool {
     // Initialize the preprocessor with built-ins and command-line
     // macros and includes.
     macroTable = new MacroTable(tokenCreator);
-    presenceConditionManager = new PresenceConditionManagerZ3();
+    if (false != runtime.test("useBDD")) {
+      presenceConditionManager = new PresenceConditionManager();
+    } else {
+      presenceConditionManager = new PresenceConditionManagerZ3();
+    }
     System.err.println(presenceConditionManager.ctx);
     presenceConditionManager.suppressConditions(runtime.test("suppressConditions"));
     expressionParser = ExpressionParser.fromRats();
-    conditionEvaluator = new ConditionEvaluatorZ3(expressionParser,
+    if (false != runtime.test("useBDD")) {
+    conditionEvaluator = new ConditionEvaluator(expressionParser,
                                                  presenceConditionManager,
                                                  macroTable);
+    } else {
+    conditionEvaluator = new ConditionEvaluatorZ3(expressionParser,
+                                                  (PresenceConditionManagerZ3)presenceConditionManager,
+                                                 macroTable);
+    }
     if (null != runtime.getString("restrictFreeToPrefix")) {
       macroTable.restrictPrefix(runtime.getString("restrictFreeToPrefix"));
       conditionEvaluator.restrictPrefix(runtime.getString("restrictFreeToPrefix"));
-    }
-
-    if (false != runtime.test("outputBDD")) {
-      presenceConditionManager.force_bdd = true;
     }
 
     if (null != runtime.getString("restrictConfigToPrefix")) {

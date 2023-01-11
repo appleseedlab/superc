@@ -54,10 +54,6 @@ import com.microsoft.z3.enumerations.Z3_ast_print_mode;
   */
 public class PresenceConditionManager {
 
-  /** Setting to determine of the output format should be converted to Z3.  */
-  public static boolean force_bdd = false;
- 
-  
   /** The BDD factory. */
   protected BDDFactory B;
 
