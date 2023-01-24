@@ -9386,7 +9386,7 @@ static public boolean compatParam(Type t1u, Type t2u) {
   System.err.println(t1 + " " + t2);
   if ((t1.isPointer() || t1.isArray()) && t2.isNumber()) {
     return true;
-  } else if (t2.isPointer() && t1.isPointer() && ((PointerT)t2).getType().resolve().isVoid()) {
+  } else if (t2.isPointer() && t1.isPointer()) {
     return true;
   }
   return compatTypes(t1u,t2u);
