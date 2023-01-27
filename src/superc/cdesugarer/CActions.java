@@ -272,292 +272,226 @@ public class CActions implements SemanticActions {
     break;
 
   case 12:
-    {restartLabelFunction();}
+    {restartLabelFunction();
+  // similar to Declaration, but different in that this has a
+  // compoundstatement, while declaration has an initializer.
+  PresenceCondition pc = subparser.getPresenceCondition();
+          
+  // add all variations of the function declaration to the symtab
+  CContext scope = (CContext)subparser.scope;
+
+  Multiverse<Node> prototypeNodemv = staticCondToMultiverse(getNodeAt(subparser, 1), pc);
+  // produce a multiverse of strings for the body to use
+  Multiverse<String> prototypestrmv = new Multiverse<String>();
+  // collect the set of configurations that have valid function prototypes
+  for (Element<Node> prototypeNode : prototypeNodemv) {
+    FunctionPrototypeValue prototype = (FunctionPrototypeValue) getTransformationValue(prototypeNode.getData());
+    Multiverse<TypeSpecifier> typespecifiermv = prototype.typespecifier;
+    Multiverse<Declarator> declaratormv = prototype.declarator;
+    Multiverse<Declarator> newDeclarations = new Multiverse<Declarator>();
+    
+    assert scope.isGlobal(); // function definitions should be global.  nested functions have a separate subgrammar.
+    for (Element<TypeSpecifier> typespecifier : typespecifiermv) {
+      PresenceCondition typespecifierCond = prototypeNode.getCondition().and(typespecifier.getCondition());
+      for (Element<Declarator> declarator : declaratormv) {
+        PresenceCondition combinedCond = typespecifierCond.and(declarator.getCondition());
+        if (combinedCond.isFalse()) {
+          combinedCond.delRef();
+          continue;
+        }
+        String originalName = declarator.getData().getName();
+        Declaration originalDeclaration = new Declaration(typespecifier.getData(), declarator.getData());
+
+        if (originalDeclaration.hasTypeError()) {
+          // if type is invalid, put an error entry, emit a call
+          // to the type error function
+          scope.putError(originalName, combinedCond);
+          recordInvalidGlobalDeclaration(originalName, combinedCond);
+          System.err.println(String.format("INFO: \"%s\" has an invalid type specifier", originalName));
+        } else if (! originalDeclaration.getType().isFunction()) {
+          // if type is not a function type, put an error entry, emit a call
+          // to the type error function
+          scope.putError(originalName, combinedCond);
+          recordInvalidGlobalDeclaration(originalName, combinedCond);
+          System.err.println(String.format("INFO: \"%s\" non-function type specifier in function prototype.  this can happen when, e.g., header guards make typedefs conditional.", originalName));
+        } else {
+          // otherwise loop over each existing entry check for
+          // type errors or add a new declaration
+          Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, combinedCond);
+          for (Element<SymbolTable.Entry<Type>> entry : entries) {
+
+            // the renamed declaration is used to get the type entry in the symtab
+            String renaming;
+            if (!entry.getData().isDeclared()) {
+              renaming = freshCId(originalName);
+            } else { //is declared
+              renaming = entry.getData().getValue().getName();
+            }
+            Declarator renamedDeclarator = declarator.getData().rename(renaming);
+            Declaration renamedDeclaration = new Declaration(typespecifier.getData(), renamedDeclarator);
+            boolean invalidTypeSpec = false;
+            // the renamed function is static to enable linking the original function name
+            if (Constants.ATT_STORAGE_EXTERN == typespecifier.getData().getStorageClass()
+                || Constants.ATT_STORAGE_AUTO == typespecifier.getData().getStorageClass()
+                || Constants.ATT_STORAGE_REGISTER == typespecifier.getData().getStorageClass()
+                || Constants.ATT_STORAGE_TYPEDEF == typespecifier.getData().getStorageClass()) {
+              todoReminder("check that function definitions don't have an auto, extern, register, or typedef storage class and produce a type error if so");
+              invalidTypeSpec = true;
+            }
+
+            // make all renamed declarations static until project-wide, configuration-aware linking is possible
+            String desugaredDeclaration;
+            desugaredDeclaration = renamedDeclaration.toString();
+            assert null != desugaredDeclaration;
+                    
+            // renamedDeclaration must be a FunctionT because
+            // that is created by a FunctionDeclarator
+            Type declarationType = renamedDeclaration.getType();
+
+            if (! declarationType.isFunction()) {
+              System.err.println(String.format("FATAL: unexpected type in function prototype: %s %s", declarationType, renaming));
+              System.exit(1);
+            }
+            Type type = new NamedFunctionT(declarationType.toFunction().getResult(),
+                                           renaming,
+                                           declarationType.toFunction().getParameters(),
+                                           declarationType.toFunction().isVarArgs());
+                    
+            if (entry.getData().isError() || invalidTypeSpec) {
+              // ERROR entry
+              System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
+            } else if (entry.getData().isUndeclared()) {
+              // UNDECLARED entry
+
+              todoReminder("multiplex functions to so that each can have its own function name.  try using function pointers as a kind of vtable.");
+              ((NamedFunctionT)type).setDefined();
+              // update the symbol table for this presence condition
+              scope.put(originalName, type, entry.getCondition());
+
+              // record the global/extern declaration using the original name for later use in handling linking
+              if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                externalLinkage.put(originalName, originalDeclaration, entry.getCondition());
+              }
+
+              newDeclarations.add(renamedDeclarator, entry.getCondition());
+              
+              // shouldn't need to add forward decl, since if
+              // the function had a decl before, that will do
+              // the renaming.  if the function is missing a
+              // decl before def, then the function is
+              // implicitly declared to be () -> int
+                      
+              recordRenaming(renaming, originalName);
+
+            } else {
+              if (entry.getData().getValue() instanceof NamedFunctionT && !((NamedFunctionT)entry.getData().getValue()).getDefined()) {  // there is no Type.isFunctionOrMethod()
+                FunctionT newtype = ((NamedFunctionT) type).toFunctionT();
+                FunctionT previoustype = ((NamedFunctionT) entry.getData().getValue()).toFunctionT();
+                newtype.setDefined();
+                ((NamedFunctionT) entry.getData().getValue()).setDefined();
+                // TODO: make sure a function is only defined
+                // once, although it can be declared multiple
+                // times.
+
+                // already declared entries
+                if (cOps.equal(newtype, previoustype)) {
+                  System.err.println("TODO: distinguish between previous declaration vs definition.");
+                  System.err.println(String.format("INFO: %s is being redeclared in global scope to compatible type", originalName));
+                  String previousname = ((NamedFunctionT) entry.getData().getValue()).getName();
+                  Declarator previousDeclarator = declarator.getData().rename(previousname);
+                  Declaration previousDeclaration = new Declaration(typespecifier.getData(),
+                                                                    previousDeclarator);
+                  // emit the renamed function as static to use the original name for linking when possible
+                  newDeclarations.add(renamedDeclarator, entry.getCondition());
+
+                } else {
+                  scope.putError(originalName, entry.getCondition());
+                  recordInvalidGlobalDeclaration(originalName, entry.getCondition());
+                  // record the global/extern declaration using the original name for later use in handling linking
+                  if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                    externalLinkage.putError(originalName, entry.getCondition());
+                  }
+                }
+              } else { // existing entry is not a function type
+                scope.putError(originalName, entry.getCondition());
+                recordInvalidGlobalDeclaration(originalName, entry.getCondition());
+                // record the global/extern declaration using the original name for later use in handling linking
+                if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                  externalLinkage.putError(originalName, entry.getCondition());
+                }
+                System.err.println(String.format("INFO: attempted to redeclare \"%s\" as function instead of non-function", originalName));
+              }  // end of check for existing function type
+            }  // end test of symtab entry type
+          } // end loop over symtab entries
+        }
+              
+        combinedCond.delRef();
+      } // end of loop over declarators
+      typespecifierCond.delRef();
+    } // end of loop over typespecifiers
+    prototype.declarator.destruct();
+    prototype.declarator = newDeclarations;
+  } 
+}
     break;
 
   case 13:
     {
-          // similar to Declaration, but different in that this has a
-          // compoundstatement, while declaration has an initializer.
-          PresenceCondition pc = subparser.getPresenceCondition();
+  PresenceCondition pc = subparser.getPresenceCondition();
           
-          // add all variations of the function declaration to the symtab
-          CContext scope = (CContext)subparser.scope;
+  // add all variations of the function declaration to the symtab
+  CContext scope = (CContext)subparser.scope;
 
-          todoReminder("don't permit extern prototypes to have a definition");
+  Multiverse<Node> prototypeNodemv = staticCondToMultiverse(getNodeAt(subparser, 3), pc);
 
-          // TODO: investigate why the function prototype can still
-          // have a conditional underneath even though the complete
-          // annotation isn't on functionprototype.  this is why we
-          // are getting all nodes at this point
-          Multiverse<Node> prototypeNodemv = staticCondToMultiverse(getNodeAt(subparser, 3), pc);
-          // produce a multiverse of strings for the body to use
-          Multiverse<String> prototypestrmv = new Multiverse<String>();
-          // collect the set of configurations that have valid function prototypes
-          PresenceCondition validCond = pc.presenceConditionManager().newFalse();
-          for (Element<Node> prototypeNode : prototypeNodemv) {
-            FunctionPrototypeValue prototype = (FunctionPrototypeValue) getTransformationValue(prototypeNode.getData());
-            Multiverse<TypeSpecifier> typespecifiermv = prototype.typespecifier;
-            Multiverse<Declarator> declaratormv = prototype.declarator;
-
-            assert scope.isGlobal(); // function definitions should be global.  nested functions have a separate subgrammar.
-            for (Element<TypeSpecifier> typespecifier : typespecifiermv) {
-              PresenceCondition typespecifierCond = prototypeNode.getCondition().and(typespecifier.getCondition());
-              for (Element<Declarator> declarator : declaratormv) {
-                PresenceCondition combinedCond = typespecifierCond.and(declarator.getCondition());
-                if (combinedCond.isFalse()) {
-                  combinedCond.delRef();
-                  continue;
-                }
-                String originalName = declarator.getData().getName();
-                Declaration originalDeclaration = new Declaration(typespecifier.getData(), declarator.getData());
-
-                if (originalDeclaration.hasTypeError()) {
-                  // if type is invalid, put an error entry, emit a call
-                  // to the type error function
-                  scope.putError(originalName, combinedCond);
-                  recordInvalidGlobalDeclaration(originalName, combinedCond);
-                  System.err.println(String.format("INFO: \"%s\" has an invalid type specifier", originalName));
-                } else if (! originalDeclaration.getType().isFunction()) {
-                  // if type is not a function type, put an error entry, emit a call
-                  // to the type error function
-                  scope.putError(originalName, combinedCond);
-                  recordInvalidGlobalDeclaration(originalName, combinedCond);
-                  System.err.println(String.format("INFO: \"%s\" non-function type specifier in function prototype.  this can happen when, e.g., header guards make typedefs conditional.", originalName));
-                } else {
-                  // otherwise loop over each existing entry check for
-                  // type errors or add a new declaration
-                  Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, combinedCond);
-                  for (Element<SymbolTable.Entry<Type>> entry : entries) {
-
-                    // the renamed declaration is used to get the type entry in the symtab
-                    String renaming;
-                      if (!entry.getData().isDeclared()) {
-                        renaming = freshCId(originalName);
-                      } else { //is declared
-                        renaming = entry.getData().getValue().getName();
-                      }
-                    Declarator renamedDeclarator = declarator.getData().rename(renaming);
-                    Declaration renamedDeclaration = new Declaration(typespecifier.getData(), renamedDeclarator);
-                    boolean invalidTypeSpec = false;
-                    // the renamed function is static to enable linking the original function name
-                    if (Constants.ATT_STORAGE_EXTERN == typespecifier.getData().getStorageClass()
-                        || Constants.ATT_STORAGE_AUTO == typespecifier.getData().getStorageClass()
-                        || Constants.ATT_STORAGE_REGISTER == typespecifier.getData().getStorageClass()
-                        || Constants.ATT_STORAGE_TYPEDEF == typespecifier.getData().getStorageClass()) {
-                      todoReminder("check that function definitions don't have an auto, extern, register, or typedef storage class and produce a type error if so");
-                      invalidTypeSpec = true;
-                    }
-
-                    // make all renamed declarations static until project-wide, configuration-aware linking is possible
-                    String desugaredDeclaration;
-                    if (hasGlobalLinkage(typespecifier.getData())) {
-                      // disabling the thunks for now, pending
-                      // configuration-aware linking support
-                      if (true) {
-                        desugaredDeclaration = renamedDeclaration.toString();
-                      } else {
-                        desugaredDeclaration = makeStaticDeclaration(typespecifier.getData(), renamedDeclarator);
-                      }
-                    } else {
-                      desugaredDeclaration = renamedDeclaration.toString();
-                    }
-                    assert null != desugaredDeclaration;
-                    
-                    // renamedDeclaration must be a FunctionT because
-                    // that is created by a FunctionDeclarator
-                    Type declarationType = renamedDeclaration.getType();
-
-                    if (! declarationType.isFunction()) {
-                      System.err.println(String.format("FATAL: unexpected type in function prototype: %s %s", declarationType, renaming));
-                      System.exit(1);
-                    }
-                    Type type = new NamedFunctionT(declarationType.toFunction().getResult(),
-                                                   renaming,
-                                                   declarationType.toFunction().getParameters(),
-                                                   declarationType.toFunction().isVarArgs());
-                    
-                    if (entry.getData().isError() || invalidTypeSpec) {
-                      // ERROR entry
-                      System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
-                    } else if (entry.getData().isUndeclared()) {
-                      // UNDECLARED entry
-
-                      todoReminder("multiplex functions to so that each can have its own function name.  try using function pointers as a kind of vtable.");
-		      ((NamedFunctionT)type).setDefined();
-                      // update the symbol table for this presence condition
-                      scope.put(originalName, type, entry.getCondition());
-
-                      // record the global/extern declaration using the original name for later use in handling linking
-                      if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
-                        externalLinkage.put(originalName, originalDeclaration, entry.getCondition());
-                      }
-
-                      // emit the renamed function as static to use the original name for linking when possible
-                      /* prototypestrmv.add(renamedDeclaration.toString(), entry.getCondition()); */
-                      prototypestrmv.add(desugaredDeclaration, entry.getCondition());
-
-                      PresenceCondition newValidCond = validCond.or(entry.getCondition());
-                      validCond.delRef(); validCond = newValidCond;
-
-                      // shouldn't need to add forward decl, since if
-                      // the function had a decl before, that will do
-                      // the renaming.  if the function is missing a
-                      // decl before def, then the function is
-                      // implicitly declared to be () -> int
-                      
-                      /* // add the forward declaration to the scope to */
-                      /* // facilitate matching of signatures for linking */
-                      /* StringBuilder forward = new StringBuilder(); */
-                      /* forward.append(renamedDeclaration.toString()); */
-                      /* forward.append(";\n"); */
-                      /* scope.addDeclaration(forward.toString()); */
-                      /* forward = null; */
-                      
-                      recordRenaming(renaming, originalName);
-
-                    } else {
-                      if (entry.getData().getValue() instanceof NamedFunctionT && !((NamedFunctionT)entry.getData().getValue()).getDefined()) {  // there is no Type.isFunctionOrMethod()
-                        FunctionT newtype = ((NamedFunctionT) type).toFunctionT();
-                        FunctionT previoustype = ((NamedFunctionT) entry.getData().getValue()).toFunctionT();
-                        newtype.setDefined();
-			((NamedFunctionT) entry.getData().getValue()).setDefined();
-                        // TODO: make sure a function is only defined
-                        // once, although it can be declared multiple
-                        // times.
-
-                        // already declared entries
-                        if (cOps.equal(newtype, previoustype)) {
-                          System.err.println("TODO: distinguish between previous declaration vs definition.");
-                          System.err.println(String.format("INFO: %s is being redeclared in global scope to compatible type", originalName));
-                          String previousname = ((NamedFunctionT) entry.getData().getValue()).getName();
-                          Declarator previousDeclarator = declarator.getData().rename(previousname);
-                          Declaration previousDeclaration = new Declaration(typespecifier.getData(),
-                                                                           previousDeclarator);
-                          // emit the renamed function as static to use the original name for linking when possible
-                          /* prototypestrmv.add(previousDeclaration.toString(), entry.getCondition()); */
-                          prototypestrmv.add(desugaredDeclaration, entry.getCondition());
-
-                          PresenceCondition newValidCond = validCond.or(entry.getCondition());
-                          validCond.delRef(); validCond = newValidCond;
-                        } else {
-                          scope.putError(originalName, entry.getCondition());
-                          recordInvalidGlobalDeclaration(originalName, entry.getCondition());
-                          // record the global/extern declaration using the original name for later use in handling linking
-                          if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
-                            externalLinkage.putError(originalName, entry.getCondition());
-                          }
-                        }
-                      } else { // existing entry is not a function type
-                        scope.putError(originalName, entry.getCondition());
-                        recordInvalidGlobalDeclaration(originalName, entry.getCondition());
-                        // record the global/extern declaration using the original name for later use in handling linking
-                        if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
-                          externalLinkage.putError(originalName, entry.getCondition());
-                        }
-                        System.err.println(String.format("INFO: attempted to redeclare \"%s\" as function instead of non-function", originalName));
-                      }  // end of check for existing function type
-                    }  // end test of symtab entry type
-                  } // end loop over symtab entries
-                }
-              
-                combinedCond.delRef();
-              } // end of loop over declarators
-              typespecifierCond.delRef();
-            } // end of loop over typespecifiers
-            // TODO: improve memory usage by destructing these.
-            // challenge is that they are shared by nodes.
-            /* typespecifiermv.destruct(); */
-            /* declaratormv.destruct(); */
-          } // end of check for invalid typespecifier
-          // prototypestrmv may be empty if none are valid types
-          prototypeNodemv.destruct();
-
-          if (validCond.isFalse()) {
-            System.err.println("INFO: no valid configuration for this definitions of %s");
-          } else {
-            if (prototypestrmv.isEmpty()) {
-              throw new AssertionError("prototypestrmv should not be empty if validConds is not false");
-            }
-          }
-
-          
-
-          
-          Multiverse<String> resultmv = prototypestrmv;
-          /*Node n = getNodeAt(subparser, 3);
-          
-          if (n.getName().equals("Conditional")) {
-            resultmv = new Multiverse<String>();
-            for (int i = 0; i < n.size(); ++i){
-              if (n.get(i) instanceof Node) {
-                System.err.println(((Node)n.get(i)).getProperty(TRANSFORMATION));
-                resultmv.addAll((Multiverse<String>)((Node)n.get(i)).getProperty(TRANSFORMATION));
-              }
-            }
-          } else {
-            resultmv = (Multiverse<String>) getTransformationValue(subparser, 3);
-            }*/
-          /* // the function prototype can be empty if all prototypes in */
-          /* // that set of configurations all have type errors */
-          /* // (redeclarations, invalid types in parameters, etc).  this */
-          /* // means that we can't use the regular */
-          /* // getCompleteNodeMultiverseValue, which assumes all */
-          /* // children are non-empty. */
-
-          /* System.err.println("JKLFDSJ " + getNodeAt(subparser, 3)); */
-          /* Multiverse<Node> prototypenodemv = staticCondToMultiverse(getNodeAt(subparser, 3), pc); */
-          /* Multiverse<String> resultmv = new Multiverse<String>(); */
-
-          /* // loop through each node, get its multiverse and add to the */
-          /* // resultmv.  update each node's multiverse elements with the static */
-          /* // conditional branch's presence condition using filter. */
-          /* for (Element<Node> elem : prototypenodemv) { */
-          /*   System.err.println("ELEM: " + elem.getData()); */
-          /*   Multiverse<String> nodevaluemv = (Multiverse<String>) getTransformationValue((Node) elem.getData()); */
-          /*   if (! nodevaluemv.isEmpty()) { */
-          /*     Multiverse<String> filtered = nodevaluemv.filter(elem.getCondition()); */
-          /*     resultmv.addAll(filtered); */
-          /*     filtered.destruct(); */
-          /*   } */
-          /* } */
-          /* prototypenodemv.destruct(); */
-
-          StringBuilder sb = new StringBuilder();
-          if (! resultmv.isEmpty()) {
-            Multiverse<String> subprototypestrmv = resultmv.filter(pc);
-            resultmv.destruct();
-    
-            Multiverse<DeclarationOrStatementValue> bodymv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
-            // declarations, including function definitions, should
-            // appear unconditionally in the desugared output, since
-            // renaming handles different configurations.  so add all
-            // resulting definitions to a single element multiverse
-            // under the true condition.
-
-            // TODO: optimization: dedeuplicate functions that have the
-            // same type.  this type deduplication maybe also be useful
-            // for typechecking to find a single type eror.
-
-            // TODO: investigate why the function prototype can still
-            // have a conditional underneath even though the complete
-            // annotation isn't on functionprototype.  this is why we
-            // are getting all nodes at this point
-            for (Element<String> prototypestr : subprototypestrmv) {
-              sb.append(prototypestr.getData());
-              sb.append(" //M:" + getCompoundRange(bodymv, prototypestr.getCondition()) + "\n");
-              sb.append("{\n");
-              sb.append(emitStatementDSV(bodymv, prototypestr.getCondition()));
-              sb.append("}\n");
-            }
-            bodymv.destruct();
-          } else {
-            // the prototype can be empty if there are type errors.
-            sb.append("/* no function due to type errors in the function prototype */\n");
-          }
-          setTransformationValue(value, sb.toString());
-          
+  Multiverse<String> resultmv = new Multiverse<String>();
+  
+  for (Element<Node> prototypeNode : prototypeNodemv) {
+    FunctionPrototypeValue prototype = (FunctionPrototypeValue) getTransformationValue(prototypeNode.getData());
+    Multiverse<TypeSpecifier> typespecifiermv = prototype.typespecifier;
+    Multiverse<Declarator> declaratormv = prototype.declarator;
+    for (Element<TypeSpecifier> typespecifier : typespecifiermv) {
+      PresenceCondition typespecifierCond = prototypeNode.getCondition().and(typespecifier.getCondition());
+      for (Element<Declarator> declarator : declaratormv) {
+        PresenceCondition combinedCond = typespecifierCond.and(declarator.getCondition());
+        if (combinedCond.isFalse()) {
+          combinedCond.delRef();
+          continue;
         }
+        Declaration renamedDeclaration = new Declaration(typespecifier.getData(), declarator.getData());
+        String desugaredDeclaration;
+        desugaredDeclaration = renamedDeclaration.toString();
+        resultmv.add(desugaredDeclaration,combinedCond);
+      }
+    }
+  }
+  
+  StringBuilder sb = new StringBuilder();
+  if (! resultmv.isEmpty()) {
+    Multiverse<String> subprototypestrmv = resultmv.filter(pc);
+    resultmv.destruct();
+    
+    Multiverse<DeclarationOrStatementValue> bodymv = getCompleteNodeSingleValue(subparser, 1, subparser.getPresenceCondition());
+    // declarations, including function definitions, should
+    // appear unconditionally in the desugared output, since
+    // renaming handles different configurations.  so add all
+    // resulting definitions to a single element multiverse
+    // under the true condition.
+    for (Element<String> prototypestr : subprototypestrmv) {
+      sb.append(prototypestr.getData());
+      sb.append(" //M:" + getCompoundRange(bodymv, prototypestr.getCondition()) + "\n");
+      sb.append("{\n");
+      sb.append(emitStatementDSV(bodymv, prototypestr.getCondition()));
+      sb.append("}\n");
+    }
+    bodymv.destruct();
+  } else {
+    // the prototype can be empty if there are type errors.
+    sb.append("/* no function due to type errors in the function prototype */\n");
+  }
+  setTransformationValue(value, sb.toString());
+          
+}
     break;
 
   case 14:
@@ -9591,10 +9525,10 @@ private void setTransformationValue(Object node, Object value) {
  */
 private static class FunctionPrototypeValue {
   /** The type. */
-  public final Multiverse<TypeSpecifier> typespecifier;
+  public Multiverse<TypeSpecifier> typespecifier;
   
   /** The declarator */
-  public final Multiverse<Declarator> declarator;
+  public Multiverse<Declarator> declarator;
 
   /** 
    * This constructor creates a new instance.
