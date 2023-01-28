@@ -571,6 +571,9 @@ FunctionPrototype
     FunctionPrototypeValue prototype = (FunctionPrototypeValue) getTransformationValue(prototypeNode.getData());
     Multiverse<TypeSpecifier> typespecifiermv = prototype.typespecifier;
     Multiverse<Declarator> declaratormv = prototype.declarator;
+    if (declaratormv.isEmpty()) {
+      continue;
+    }
     for (Element<TypeSpecifier> typespecifier : typespecifiermv) {
       PresenceCondition typespecifierCond = prototypeNode.getCondition().and(typespecifier.getCondition());
       for (Element<Declarator> declarator : declaratormv) {
