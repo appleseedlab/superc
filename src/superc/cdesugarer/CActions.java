@@ -450,6 +450,8 @@ public class CActions implements SemanticActions {
     FunctionPrototypeValue prototype = (FunctionPrototypeValue) getTransformationValue(prototypeNode.getData());
     Multiverse<TypeSpecifier> typespecifiermv = prototype.typespecifier;
     Multiverse<Declarator> declaratormv = prototype.declarator;
+    System.err.println("res:" + declaratormv.toString() + " :: " + typespecifiermv.toString());
+
     if (declaratormv.isEmpty()) {
       continue;
     }
@@ -490,6 +492,7 @@ public class CActions implements SemanticActions {
     bodymv.destruct();
   } else {
     // the prototype can be empty if there are type errors.
+    System.err.println("/* no function due to type errors in the function prototype */\n");
     sb.append("/* no function due to type errors in the function prototype */\n");
   }
   setTransformationValue(value, sb.toString());
