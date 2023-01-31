@@ -251,8 +251,8 @@ public class ArrayT extends DerivedT {
       }
   }
 
-  public Type revertForwardRef(List<String> references, String forwardRef) {
-    return new ArrayT(this,type.revertForwardRef(references, forwardRef),varlength,length);
+  public Type revertForwardRef(List<String> references, String forwardRef, String rename) {
+    return new ArrayT(this,type.revertForwardRef(references, forwardRef, rename),varlength,length);
   }
 
   

@@ -700,9 +700,9 @@ class TypeSpecifier {
     
   }
 
-  public TypeSpecifier revertForwardRefs(List<String> references, String forwardRef) {
+  public TypeSpecifier revertForwardRefs(List<String> references, String forwardRef, String rename) {
     TypeSpecifier toRet = new TypeSpecifier(this);
-    toRet.type = type.revertForwardRef(references,forwardRef);
+    toRet.type = type.revertForwardRef(references,forwardRef,rename);
     toRet.transformation = new LinkedList<Syntax>();
     for (Syntax s : transformation) {
       boolean found = false;
@@ -718,6 +718,7 @@ class TypeSpecifier {
         toRet.transformation.add(s);
       }
     }
+    System.err.println(this + "::" + toRet);
     return toRet;
   }
 }

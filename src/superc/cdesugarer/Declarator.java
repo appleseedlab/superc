@@ -794,7 +794,7 @@ abstract class Declarator {
       return sb.toString();
     }
 
-    public ParameterListDeclarator revertForwardRefs(List<Type> oldParams, PresenceCondition cond, CContext scope) {
+    public ParameterListDeclarator revertForwardRefs(List<Type> oldParams,PresenceCondition cond, CContext scope) {
       if (oldParams.size() != parameters.size()) {
         System.err.println("Error bad params given when referting forward references");
         System.exit(1);
@@ -813,8 +813,13 @@ abstract class Declarator {
           for (Element<SymbolTable.Entry<Type>> e : originalTagEntries) {
             names.add(((StructT)e.getData().getValue()).getName());
           }
-          newDecs.add(new Declaration(parameters.get(i).getTypeSpec().revertForwardRefs(names,((StructT)ot).getName()),
-                                      parameters.get(i).getDeclarator()));
+          TypeSpecifier newType = parameters.get(i).getTypeSpec().revertForwardRefs(names,((StructT)ot).getName(),parameters.get(i).getName());
+          scope = scope.reenterScope(cond);
+          scope.getSymbolTable().replaceType(parameters.get(i).getName(),oldParams.get(i).revertForwardRef(names,((StructT)ot).getName(),parameters.get(i).getName()),cond);
+          System.err.println("ps: " + scope.getSymbolTable());
+          scope = scope.exitReentrantScope(cond);
+          
+          newDecs.add(new Declaration(newType,parameters.get(i).getDeclarator()));
         } else {
           newDecs.add(parameters.get(i));
         }

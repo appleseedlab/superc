@@ -19,6 +19,7 @@
 package xtc.type;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * A variable.  This pseudo-type captures the name for globals,
@@ -265,4 +266,9 @@ public class VariableT extends WrappedT {
     return new VariableT(null, type, name, width);
   }
 
+  public Type revertForwardRef(List<String> references, String forwardRef, String rename) {
+    return new VariableT(this, getType().revertForwardRef(references, forwardRef, rename), this.kind, rename);
+  }
+
+  
 }

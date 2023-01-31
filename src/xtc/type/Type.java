@@ -1960,7 +1960,7 @@ public abstract class Type extends Node {
    */
   public abstract String printType();
 
-  public Type revertForwardRef(List<String> references, String forwardRef) {
+  public Type revertForwardRef(List<String> references, String forwardRef, String rename) {
     return this;
   }
   

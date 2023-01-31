@@ -149,8 +149,8 @@ public class PointerT extends DerivedT {
       }
   }
 
-  public Type revertForwardRef(List<String> references, String forwardRef) {
-    return new PointerT(type.revertForwardRef(references, forwardRef));
+  public Type revertForwardRef(List<String> references, String forwardRef, String rename) {
+    return new PointerT(type.revertForwardRef(references, forwardRef, rename));
   }
 
   
