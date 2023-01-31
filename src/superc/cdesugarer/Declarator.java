@@ -12,6 +12,9 @@ import xtc.type.PointerT;
 import xtc.type.ArrayT;
 import xtc.type.FunctionT;
 import xtc.type.VariableT;
+import xtc.type.StructT;
+import superc.core.PresenceConditionManager.PresenceCondition;
+import superc.cdesugarer.Multiverse.Element;
 
 /**
  * The superclass of all C declarator constructs.
@@ -104,6 +107,12 @@ abstract class Declarator {
   public String toString(int len) {
       return "ERROR: incompatible array length specifier";
     }
+  
+  public Declarator switchForwardRef(List<Type> oldParams, PresenceCondition cond, CContext scope) {
+    System.err.println("Error: tried to switch forward reference parrams for non-function declarator");
+    System.exit(1);
+    return this;
+  }
   
   public abstract String printType();
   /**
@@ -700,6 +709,9 @@ abstract class Declarator {
     }
     public boolean isFlexible() {
       return declarator.isFlexible();
+    } 
+    public Declarator switchForwardRef(List<Type> oldParams, PresenceCondition cond, CContext scope) {
+      return new FunctionDeclarator(declarator,parameters.revertForwardRefs(oldParams,cond,scope));
     }
   }
 
@@ -780,6 +792,35 @@ abstract class Declarator {
       }
       sb.append(")");
       return sb.toString();
+    }
+
+    public ParameterListDeclarator revertForwardRefs(List<Type> oldParams, PresenceCondition cond, CContext scope) {
+      if (oldParams.size() != parameters.size()) {
+        System.err.println("Error bad params given when referting forward references");
+        System.exit(1);
+      }
+      List<Declaration> newDecs = new LinkedList<Declaration>();
+      for (int i = 0; i < oldParams.size(); ++i) {
+        Type ot = ((VariableT)oldParams.get(i)).getType();
+        while (ot.isPointer()) {
+          ot = ((PointerT)ot).getType();
+        }
+        if (ot.isStruct()) {
+          String originalTag = scope.getForwardTagReferenceAnyScope(((StructT)ot).getName());
+          Multiverse<SymbolTable.Entry<Type>> originalTagEntries
+            = scope.getInAnyScope(CContext.toTagName(originalTag), cond);
+          List<String> names = new LinkedList<String>();
+          for (Element<SymbolTable.Entry<Type>> e : originalTagEntries) {
+            names.add(((StructT)e.getData().getValue()).getName());
+          }
+          newDecs.add(new Declaration(parameters.get(i).getTypeSpec().revertForwardRefs(names,((StructT)ot).getName()),
+                                      parameters.get(i).getDeclarator()));
+        } else {
+          newDecs.add(parameters.get(i));
+        }
+      }
+      ParameterListDeclarator p = new ParameterListDeclarator(newDecs, varargs);
+      return p;
     }
   }
 

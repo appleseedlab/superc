@@ -94,4 +94,14 @@ public class StructT extends StructOrUnionT {
     return "struct " + name;
   }
 
+  public Type revertForwardRef(List<String> references, String forwardRef) {
+    for (String s : references) {
+      if (s.equals(name)) {
+        Type t = new StructT(this,nonce,forwardRef,copy(members)); 
+        return t;
+      }
+    }
+    return this;      
+  }
+
 }

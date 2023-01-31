@@ -20,6 +20,7 @@ package xtc.type;
 
 import java.io.IOException;
 import xtc.tree.Attribute;
+import java.util.List;
 
 /**
  * A pointer type.
@@ -148,4 +149,9 @@ public class PointerT extends DerivedT {
       }
   }
 
+  public Type revertForwardRef(List<String> references, String forwardRef) {
+    return new PointerT(type.revertForwardRef(references, forwardRef));
+  }
+
+  
 }

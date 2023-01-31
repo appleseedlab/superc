@@ -20,6 +20,7 @@ package xtc.type;
 
 import java.io.IOException;
 import xtc.tree.Attribute;
+import java.util.List;
 
 /**
  * An array type.  An array can either be of fixed or variable length,
@@ -249,5 +250,10 @@ public class ArrayT extends DerivedT {
 	  return ((FunctionT)type.resolve()).printType(add);
       }
   }
+
+  public Type revertForwardRef(List<String> references, String forwardRef) {
+    return new ArrayT(this,type.revertForwardRef(references, forwardRef),varlength,length);
+  }
+
   
 }

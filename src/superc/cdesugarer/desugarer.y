@@ -518,16 +518,11 @@ FunctionPrototype
                 // times.
 
                 // already declared entries
-                if (cOps.equal(newtype, previoustype)) {
-                  System.err.println("TODO: distinguish between previous declaration vs definition.");
-                  System.err.println(String.format("INFO: %s is being redeclared in global scope to compatible type", originalName));
-                  String previousname = ((NamedFunctionT) entry.getData().getValue()).getName();
-                  Declarator previousDeclarator = declarator.getData().rename(previousname);
-                  Declaration previousDeclaration = new Declaration(typespecifier.getData(),
-                                                                    previousDeclarator);
-                  // emit the renamed function as static to use the original name for linking when possible
-                  newDeclarations.add(renamedDeclarator, entry.getCondition());
 
+                if (cOps.equal(newtype, previoustype)) {
+                  newDeclarations.add(renamedDeclarator, entry.getCondition());
+                } else if (functionCouldExist(newtype,previoustype,scope,entry.getCondition())) {
+                  transformForwardParams(renamedDeclarator,previoustype,entry.getCondition(),newDeclarations,scope);
                 } else {
                   scope.putError(originalName, entry.getCondition());
                   recordInvalidGlobalDeclaration(originalName, entry.getCondition());
@@ -571,7 +566,6 @@ FunctionPrototype
     FunctionPrototypeValue prototype = (FunctionPrototypeValue) getTransformationValue(prototypeNode.getData());
     Multiverse<TypeSpecifier> typespecifiermv = prototype.typespecifier;
     Multiverse<Declarator> declaratormv = prototype.declarator;
-    System.err.println("res:" + declaratormv.toString() + " :: " + typespecifiermv.toString());
 
     if (declaratormv.isEmpty()) {
       continue;
@@ -9221,6 +9215,59 @@ static public boolean compatTypes(Type t1u, Type t2u) {
   //outside of these, just direct equal
   return cOps.equal(t1, t2);
 }
+
+static public boolean functionCouldExist(Type newType, Type prevType, CContext scope, PresenceCondition cond) {
+  if (!newType.isFunction() || !prevType.isFunction()) {
+    return false;
+  }
+  List<Type> newParams = ((FunctionT)newType).getParameters();
+  List<Type> oldParams = ((FunctionT)prevType).getParameters();
+
+  if (newParams.size() != oldParams.size()) {
+    return false;
+  }
+  for (int i = 0; i < newParams.size(); ++i) {
+    Type newT = ((VariableT)newParams.get(i)).getType();
+    Type oldT = ((VariableT)oldParams.get(i)).getType();
+    if (cOps.equal(newT,oldT)) {
+      continue;
+    }
+    while (newT.isPointer()) {
+      if (!oldT.isPointer()) {
+        return false;
+      }
+      newT = ((PointerT)newT).getType();
+      oldT = ((PointerT)oldT).getType();
+    }
+    
+    if (newT.isStruct() && oldT.isStruct()) {
+      if (! ((StructT)oldT).getName().startsWith("__forward_tag_reference")){
+        return false;
+      }
+      String originalTag = scope.getForwardTagReferenceAnyScope(((StructT)oldT).getName());                
+      
+      Multiverse<SymbolTable.Entry<Type>> originalTagEntries
+      = scope.getInAnyScope(CContext.toTagName(originalTag), cond);
+      
+      boolean found = false;
+      for (Element<SymbolTable.Entry<Type>> e : originalTagEntries) {
+        found = found || cOps.equal(e.getData().getValue(),newT);
+      }
+      if (!found) {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+  return true;
+}
+
+static public void transformForwardParams(Declarator toTransform, Type prevType, PresenceCondition cond, Multiverse<Declarator> decs, CContext scope) {
+  List<Type> oldParams = ((FunctionT)prevType).getParameters();
+  decs.add(toTransform.switchForwardRef(oldParams,cond,scope),cond);
+}
+
 
 /***************************************************************************
  **** Class to create fresh ids.

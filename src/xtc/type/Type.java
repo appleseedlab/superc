@@ -1959,5 +1959,9 @@ public abstract class Type extends Node {
    * not to be used as a replacement
    */
   public abstract String printType();
+
+  public Type revertForwardRef(List<String> references, String forwardRef) {
+    return this;
+  }
   
 }
