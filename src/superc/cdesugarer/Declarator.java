@@ -805,7 +805,7 @@ abstract class Declarator {
         while (ot.isPointer()) {
           ot = ((PointerT)ot).getType();
         }
-        if (ot.isStruct()) {
+        if (ot.isStruct() && ((StructT)ot).getName().startsWith("__forward_tag_reference_")) {
           String originalTag = scope.getForwardTagReferenceAnyScope(((StructT)ot).getName());
           Multiverse<SymbolTable.Entry<Type>> originalTagEntries
             = scope.getInAnyScope(CContext.toTagName(originalTag), cond);
