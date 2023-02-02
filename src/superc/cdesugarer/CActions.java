@@ -394,8 +394,8 @@ public class CActions implements SemanticActions {
                 // times.
 
                 // already declared entries
-
                 if (cOps.equal(newtype, previoustype)) {
+
                   newDeclarations.add(renamedDeclarator, entry.getCondition());
                 } else if (functionCouldExist(newtype,previoustype,scope,entry.getCondition())) {
                   transformForwardParams(renamedDeclarator,previoustype,entry.getCondition(),newDeclarations,scope);

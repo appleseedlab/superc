@@ -1502,13 +1502,15 @@ public class C {
   protected Type compose(Type t1, Type t2, boolean pedantic, boolean recursive) {
     if (recursive) {
       // Preserve any wrapped types.
-      if (t1.isEnum()) {
+      System.err.println(t1 + "+" + t2);
+        if (t1.isEnum()) {
         return t1.equals(t2) ? t1 : ErrorT.TYPE;
         
       } else if (t1.isWrapped()) {
         Type w1 = t1.toWrapped().getType();
         Type c  = compose(w1, t2, pedantic, true);
-        
+        System.err.println(t1 + "x" + c);
+
         if (c.isError()) {
           return ErrorT.TYPE;
           
@@ -1677,11 +1679,11 @@ public class C {
     } else {
       if (! f1.getName().equals(f2.getName())) return ErrorT.TYPE;
     }
-
+    
     // The flag for whether the component types differ from this type.
     boolean differs = false;
-
     // Compare the results.
+
     if (! hasSameQualifiers(f1.getResult(), f2.getResult())) return ErrorT.TYPE;
     final Type res = compose(f1.getResult(), f2.getResult(), true);
     if (res.isError()) return ErrorT.TYPE;
@@ -1731,6 +1733,7 @@ public class C {
       return ErrorT.TYPE;
     }
     if (f1.isVarArgs() != f2.isVarArgs()) return ErrorT.TYPE;
+    System.err.println(f1 + "::" + f2 + ":" + differs);
 
     final int size = f1.getParameters().size();
     List<Type> par = differs ? new ArrayList<Type>(f1.getParameters()) : null;
@@ -1738,6 +1741,7 @@ public class C {
       final Type p1 = f1.getParameters().get(i);
       final Type p2 = f2.getParameters().get(i);
       if (pedantic && ! hasSameQualifiers(p1, p2)) return ErrorT.TYPE;
+      System.err.println(p1 + ";" + p2);
       final Type p3 = compose(p1, p2, true);
       if (p3.isError()) return ErrorT.TYPE;
 
@@ -1747,6 +1751,7 @@ public class C {
         par.set(i, p3);
       }
     }
+    System.err.println(f1 + "::" + f2 + ":" + differs);
 
     // Ignore the exceptions and we are done.
     if (! differs) return f1;
