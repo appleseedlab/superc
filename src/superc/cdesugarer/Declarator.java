@@ -308,6 +308,10 @@ abstract class Declarator {
         return "*";
       return String.format("* (%s)", inner);  // preserve order of operations
     }
+
+    public Declarator switchForwardRef(List<Type> oldParams, PresenceCondition cond, CContext scope) {
+      return declarator.switchForwardRef(oldParams,cond,scope);
+    }
   }
 
   /**

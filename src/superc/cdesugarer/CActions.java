@@ -6457,28 +6457,84 @@ public class CActions implements SemanticActions {
 
   case 430:
     {
-          // TODO: need to look at the unaryoperator to determine whether it's the correct type usage
-          PresenceCondition pc = subparser.getPresenceCondition();
-          ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
+  // TODO: need to look at the unaryoperator to determine whether it's the correct type usage
+  PresenceCondition pc = subparser.getPresenceCondition();
+  ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
+  Multiverse<String> resultmv = new Multiverse<String>();
+  Multiverse<Type> resulttypemv = new Multiverse<Type>();
+          
+  Multiverse<Syntax> opmv = this.<Syntax>getCompleteNodeSingleValue(subparser, 2, pc);
+  Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
+  for (Element<String> op : opstr) {
+    if (op.getData().equals("*")) {
 
-          Multiverse<Syntax> opmv = this.<Syntax>getCompleteNodeSingleValue(subparser, 2, pc);
-          if (exprval.hasValidType() && !exprval.transformation.isEmpty()) {
-            Multiverse<String> opstr = DesugarOps.syntaxToString.transform(opmv);
-            Multiverse<String> resultmv = opstr.product(exprval.transformation, DesugarOps.concatStrings);
-            Multiverse<Type> typemv = exprval.type.join(opmv, DesugarOps.checkUnaryOp);
-            PresenceCondition errorCond = typemv.getConditionOf(ErrorT.TYPE);
-            PresenceCondition validTypes = errorCond.not();
-            resultmv = resultmv.filter(validTypes);
-            
-            setTransformationValue(value,
-                                   new ExpressionValue(resultmv,
-                                                       typemv,
-                                                       exprval.integrateSyntax(opmv)));  // TODO: placeholder until type checking
+      Multiverse<Type> types = exprval.type.filter(op.getCondition());
+      for (Element<Type> t : types) {
+        if (!t.getData().isPointer() && !t.getData().isArray()) {
+          resultmv.add(emitError("no valid type found in unary operation"),t.getCondition());
+          resulttypemv.add(ErrorT.TYPE,t.getCondition());
+        } else {
+          System.err.println(op.getData() + " :: " + t.getData());
+
+          Type innerType;
+          if (t.getData().isPointer()) {
+            innerType = t.getData().toPointer().getType();
           } else {
-            setTransformationValue(value, new ExpressionValue(emitError("no valid type found in unary operation"),                                                                                    ErrorT.TYPE,
-                                                              exprval.integrateSyntax(opmv),pc));
+            innerType = t.getData().toArray().getType();
+          }
+          if (innerType.isStruct() && innerType.toStruct().getName().startsWith("__forward_tag_reference")) {
+            CContext scope = (CContext) subparser.scope;
+            String originalTag = scope.getForwardTagReferenceAnyScope(innerType.getName());
+                       
+            Multiverse<SymbolTable.Entry<Type>> originalTagEntries
+              = scope.getInAnyScope(CContext.toTagName(originalTag), t.getCondition());
+            
+            for (Element<SymbolTable.Entry<Type>> e : originalTagEntries) {
+              if (e.getData().isError()) {
+                resultmv.add(emitError("no valid type found in unary operation"),t.getCondition());
+                resulttypemv.add(ErrorT.TYPE,e.getCondition());
+              } else {
+                StructT refed =  e.getData().getValue().toStruct();
+                for (Element<String> es : exprval.transformation.filter(e.getCondition())) {
+                  resultmv.add(es.getData() + "->" + refed.getName(), es.getCondition());
+                  resulttypemv.add(refed,es.getCondition());
+                }
+              }
+            }
+          } else {
+            if (exprval.hasValidType() && !exprval.transformation.isEmpty()) {
+              Multiverse<String> strings = opstr.filter(t.getCondition()).product(exprval.transformation, DesugarOps.concatStrings);
+              Multiverse<Type> subtypes = exprval.type.filter(t.getCondition()).join(opmv, DesugarOps.checkUnaryOp);
+              PresenceCondition errorCond = subtypes.getConditionOf(ErrorT.TYPE);
+              PresenceCondition validTypes = errorCond.not();
+              resultmv.addAll(strings.filter(validTypes));
+              resulttypemv.addAll(subtypes);
+            } else {
+              resultmv.add(emitError("no valid type found in unary operation"),t.getCondition());
+              resulttypemv.add(ErrorT.TYPE,t.getCondition());
+
+            }
           }
         }
+      }
+    } else {
+      if (exprval.hasValidType() && !exprval.transformation.isEmpty()) {
+        Multiverse<String> strings = opstr.filter(op.getCondition()).product(exprval.transformation, DesugarOps.concatStrings);
+        Multiverse<Type> types = exprval.type.filter(op.getCondition()).join(opmv, DesugarOps.checkUnaryOp);
+        PresenceCondition errorCond = types.getConditionOf(ErrorT.TYPE);
+        PresenceCondition validTypes = errorCond.not();
+        resultmv.addAll(strings.filter(validTypes));
+        resulttypemv.addAll(types);
+      } else {
+        resultmv.add(emitError("no valid type found in unary operation"),op.getCondition());
+        resulttypemv.add(ErrorT.TYPE,op.getCondition());
+
+      }
+    }
+  }
+setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
+                                                  exprval.integrateSyntax(opmv)));
+}
     break;
 
   case 431:
