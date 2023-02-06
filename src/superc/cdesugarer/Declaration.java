@@ -128,6 +128,8 @@ class Declaration {
          !declarator.isFunctionDeclarator() &&
          !declarator.isPointerDeclarator() &&
          !declarator.isPointerAbstractDeclarator() &&
+         !declarator.isQualifiedPointerDeclarator() &&
+         !declarator.isQualifiedPointerAbstractDeclarator() &&
          !declarator.isEmptyDeclarator()) ||
         //if the left is inline, right must be a function
         (typespecifier.hasInline() && !declarator.isFunctionDeclarator()))
