@@ -8464,7 +8464,7 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
 boolean wrotePrologue = false;
 
 static boolean keepMem = false;
-static String memNames[] = {"malloc", "calloc", "free", "fopen", "fclose", "rand"};
+static String memNames[] = {"malloc", "calloc", "free", "fopen", "fclose", "rand", "memcpy", "memset"};
 
 public static void keepMemoryNames(boolean f) {
   keepMem = f;
