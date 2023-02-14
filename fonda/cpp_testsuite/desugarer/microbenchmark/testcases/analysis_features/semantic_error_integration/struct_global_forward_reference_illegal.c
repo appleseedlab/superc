@@ -11,5 +11,6 @@ struct t {
 
 int main() {
   struct s s;
+  s.z->p = 2;
   return s.z->p;
 }

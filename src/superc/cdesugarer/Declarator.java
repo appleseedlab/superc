@@ -817,12 +817,15 @@ abstract class Declarator {
           for (Element<SymbolTable.Entry<Type>> e : originalTagEntries) {
             names.add(((StructT)e.getData().getValue()).getName());
           }
-          TypeSpecifier newType = parameters.get(i).getTypeSpec().revertForwardRefs(names,((StructT)ot).getName(),parameters.get(i).getName());
+          if (!parameters.get(i).hasName()) {
+            System.err.println("error: parameter has no name");
+            System.exit(1);
+          }
+          String renamed = parameters.get(i).getName();
+          TypeSpecifier newType = parameters.get(i).getTypeSpec().revertForwardRefs(names,((StructT)ot).getName(),renamed);
           scope = scope.reenterScope(cond);
-          scope.getSymbolTable().replaceType(parameters.get(i).getName(),oldParams.get(i).revertForwardRef(names,((StructT)ot).getName(),parameters.get(i).getName()),cond);
-          System.err.println("ps: " + scope.getSymbolTable());
+          scope.getSymbolTable().replaceType(renamed,oldParams.get(i).revertForwardRef(names,((StructT)ot).getName(),renamed),cond);
           scope = scope.exitReentrantScope(cond);
-          
           newDecs.add(new Declaration(newType,parameters.get(i).getDeclarator()));
         } else {
           newDecs.add(parameters.get(i));

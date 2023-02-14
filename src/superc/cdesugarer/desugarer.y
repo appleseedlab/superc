@@ -403,7 +403,6 @@ FunctionPrototype
           
   // add all variations of the function declaration to the symtab
   CContext scope = (CContext)subparser.scope;
-
   Multiverse<Node> prototypeNodemv = staticCondToMultiverse(getNodeAt(subparser, 1), pc);
   // produce a multiverse of strings for the body to use
   Multiverse<String> prototypestrmv = new Multiverse<String>();
@@ -413,7 +412,6 @@ FunctionPrototype
     Multiverse<TypeSpecifier> typespecifiermv = prototype.typespecifier;
     Multiverse<Declarator> declaratormv = prototype.declarator;
     Multiverse<Declarator> newDeclarations = new Multiverse<Declarator>();
-    
     assert scope.isGlobal(); // function definitions should be global.  nested functions have a separate subgrammar.
     for (Element<TypeSpecifier> typespecifier : typespecifiermv) {
       PresenceCondition typespecifierCond = prototypeNode.getCondition().and(typespecifier.getCondition());
@@ -425,7 +423,6 @@ FunctionPrototype
         }
         String originalName = declarator.getData().getName();
         Declaration originalDeclaration = new Declaration(typespecifier.getData(), declarator.getData());
-
         if (originalDeclaration.hasTypeError()) {
           // if type is invalid, put an error entry, emit a call
           // to the type error function
@@ -508,7 +505,7 @@ FunctionPrototype
               recordRenaming(renaming, originalName);
 
             } else {
-              if (entry.getData().getValue() instanceof NamedFunctionT && !((NamedFunctionT)entry.getData().getValue()).getDefined()) {  // there is no Type.isFunctionOrMethod()
+              if (entry.getData().getValue().isNamedFunction()) {  // there is no Type.isFunctionOrMethod()
                 FunctionT newtype = ((NamedFunctionT) type).toFunctionT();
                 FunctionT previoustype = ((NamedFunctionT) entry.getData().getValue()).toFunctionT();
                 newtype.setDefined();
@@ -523,6 +520,7 @@ FunctionPrototype
                   newDeclarations.add(renamedDeclarator, entry.getCondition());
                 } else if (functionCouldExist(newtype,previoustype,scope,entry.getCondition())) {
                   transformForwardParams(renamedDeclarator,previoustype,entry.getCondition(),newDeclarations,scope);
+                  System.err.println(newDeclarations + "::" + entry.getCondition());
                 } else {
                   scope.putError(originalName, entry.getCondition());
                   recordInvalidGlobalDeclaration(originalName, entry.getCondition());
@@ -1080,21 +1078,34 @@ Declaration:  /** complete **/  // List<Multiverse<String>>
           
         	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
           String semi = getNodeAt(subparser, 1).getTokenText();
-          semi += declaringListRange(declaringlistvalues,(Syntax)getNodeAt(subparser,1));
-          
-          List<Multiverse<String>> valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
+          semi += declaringListRange(declaringlistvalues,(Syntax)getNodeAt(subparser,1));          
+          //List<Multiverse<String>> valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
+          //          
+          //semi += declaringListRange(declaringlistvalues,(Syntax)getNodeAt(subparser,1));
+          semi += "\n";
+          List<Multiverse<String>> valuestring;
+          if (scope.isGlobal()) {
+            valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
+          } else {
+            valuestring = declAddSemi(declaringlistvalues, semi, pc);
+          }
           setTransformationValue(value, valuestring);
         }
         | DefaultDeclaringList { KillReentrantScope(subparser); } SEMICOLON
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = ((CContext) subparser.scope);
-
+          
         	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
           String semi = getNodeAt(subparser, 1).getTokenText();
-          semi += declaringListRange(declaringlistvalues,(Syntax)getNodeAt(subparser,1));
-          
-          List<Multiverse<String>> valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
+          semi += declaringListRange(declaringlistvalues,(Syntax)getNodeAt(subparser,1));          
+          semi += "\n";
+          List<Multiverse<String>> valuestring;
+          if (scope.isGlobal()) {
+            valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
+          } else {
+            valuestring = declAddSemi(declaringlistvalues, semi, pc);
+          }
           setTransformationValue(value, valuestring);
         }
         ;
@@ -1105,19 +1116,9 @@ Declaration:  /** complete **/  // List<Multiverse<String>>
 DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
         DeclarationQualifierList IdentifierDeclarator
         {
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
-        }
-        AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
-        {
           PresenceCondition pc = subparser.getPresenceCondition();
-          // add the int type by default
-          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 6, pc);
-          if (types.isEmpty()) {
-            TypeSpecifier t = new TypeSpecifier();
-            t.setError();
-            types.add(t,pc);
-          }
+          
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitInt();
           ts.addTransformation(new Language<CTag>(CTag.INT));
@@ -1125,26 +1126,39 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
             = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           types = types.product(inttbmv, DesugarOps.specifierProduct);  // don't destruct prior types, since it is a semantic value
           inttbmv.destruct();
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
           
-          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 5, pc);
-          // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
+          if (!((CContext) subparser.scope).isGlobal()) {
+            Multiverse<String> combo = declarationListAction(types,declarators,subparser.getPresenceCondition(),((CContext) subparser.scope));
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),combo));
+          } else {
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition())));
+          }
+        } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          Multiverse<Initializer> initializers = this.<Initializer>getCompleteNodeMultiverseValue(subparser, 1, pc);
+          DeclaringListValue decl = (DeclaringListValue) getTransformationValue(subparser,4);
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
-          declaringlist.add(new DeclaringListValue(types, declarators, initializers));
+          if (((CContext) subparser.scope).isGlobal()) {
+            decl.initializer = initializers;
+            declaringlist.add(decl);
+          } else {
+            setupInitials(declaringlist,decl,initializers,pc,((CContext) subparser.scope));
+          }
           setTransformationValue(value, declaringlist);
         }
         | TypeQualifierList IdentifierDeclarator
         {
-          // legacy type checking
-          saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
-        }
-        AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
-        {
-          PresenceCondition pc = subparser.getPresenceCondition();
 
-          // add the int type by default
-          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 6, pc);
+          //TODO : If EmptyInitializer, check how semicolon is added. 
+          
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
           TypeSpecifier ts = new TypeSpecifier();
           ts.visitInt();
           ts.addTransformation(new Language<CTag>(CTag.INT));
@@ -1152,102 +1166,146 @@ DefaultDeclaringList:  /** nomerge **/  /* Can't  redeclare typedef names */
             = new Multiverse<TypeSpecifier>(ts, subparser.getPresenceCondition());
           types = types.product(inttbmv, DesugarOps.specifierProduct);  // don't destruct prior types, since it is a semantic value
           inttbmv.destruct();
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
           
-          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 5, pc);
-          // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
-          List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
-          declaringlist.add(new DeclaringListValue(types, declarators, initializers));
-          setTransformationValue(value, declaringlist);
-        }
-        | DefaultDeclaringList COMMA AttributeSpecifierListOpt IdentifierDeclarator
-        {
-          // reuses saved base type
-          bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
-        }
-        AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
+          if (!((CContext) subparser.scope).isGlobal()) {
+            Multiverse<String> combo = declarationListAction(types,declarators,subparser.getPresenceCondition(),((CContext) subparser.scope));
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),combo));
+          } else {
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition())));
+          }
+        } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           
-          // TODO: hoist initiazliers around the entire InitializedDeclaration
-          List<DeclaringListValue> declaringlist = (List<DeclaringListValue>) getTransformationValue(subparser, 8);
-          // there must be at least one element in the DeclaringList
-          // according to the grammar
+          Multiverse<Initializer> initializers = this.<Initializer>getCompleteNodeMultiverseValue(subparser, 1, pc);
+          DeclaringListValue decl = (DeclaringListValue) getTransformationValue(subparser,4);
+          List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
+          if (((CContext) subparser.scope).isGlobal()) {
+            decl.initializer = initializers;
+            declaringlist.add(decl);
+          } else {
+            setupInitials(declaringlist,decl,initializers,pc,((CContext) subparser.scope));
+          }
+          setTransformationValue(value, declaringlist);
+        }          
+        | DefaultDeclaringList COMMA AttributeSpecifierListOpt IdentifierDeclarator
+        {
+          bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
+          PresenceCondition pc = subparser.getPresenceCondition();
+          List<DeclaringListValue> declaringlist = (List<DeclaringListValue>) getTransformationValue(subparser, 4);
           assert declaringlist.size() > 0;
-          // each element is given the same typespecifiermultiverse, so
-          // we can take it from the first element, which is
-          // guaranteed to be there.
           Multiverse<TypeSpecifier> types = declaringlist.get(0).typespecifier;
-          // the rest of the action is the same as its other
-          // productions, except we add to the list instead of making
-          // a new one
-          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 5, pc);
-          // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
-          declaringlist.add(new DeclaringListValue(types, declarators, initializers));
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
+          if (!((CContext) subparser.scope).isGlobal()) {
+            Multiverse<String> combo = declarationListAction(types,declarators,subparser.getPresenceCondition(),((CContext) subparser.scope));
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),combo));
+          } else {
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition())));
+          }
+        } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          Multiverse<Initializer> initializers = this.<Initializer>getCompleteNodeMultiverseValue(subparser, 1, pc);
+          DeclaringListValue decl = (DeclaringListValue) getTransformationValue(subparser,4);
+          List<DeclaringListValue> declaringlist = (List<DeclaringListValue>)getTransformationValue(subparser,8);
+          if (((CContext) subparser.scope).isGlobal()) {
+            decl.initializer = initializers;
+            declaringlist.add(decl);
+          } else {
+            setupInitials(declaringlist,decl,initializers,pc,((CContext) subparser.scope));
+          }
           setTransformationValue(value, declaringlist);
         }
         ;
 
 DeclaringList:  /** nomerge **/
-        DeclarationSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
-        {
-          saveBaseType(subparser, getNodeAt(subparser, 5));
-          bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));  // TODO: use new bindIdent to find typedefname
-          PresenceCondition pc = subparser.getPresenceCondition();
-          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 5, pc);
-          if (types.isEmpty()) {
-            TypeSpecifier t = new TypeSpecifier();
-            t.setError();
-            types.add(t,pc);
-          }
-          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 4, pc);
-          // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
-          List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
-          declaringlist.add(new DeclaringListValue(types, declarators, initializers));
-          setTransformationValue(value, declaringlist);
-        }
-        | TypeSpecifier Declarator AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
-        {
+        DeclarationSpecifier Declarator {
           saveBaseType(subparser, getNodeAt(subparser, 2));
-          bindIdent(subparser, getNodeAt(subparser, 5), getNodeAt(subparser, 4));  // TODO: use new bindIdent to find typedefname
-
+          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
           PresenceCondition pc = subparser.getPresenceCondition();
           
-          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 5, pc);
-          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 4, pc);
-          // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
-          List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
-          declaringlist.add(new DeclaringListValue(types, declarators, initializers));
-          setTransformationValue(value, declaringlist);
-        }
-        | DeclaringList COMMA AttributeSpecifierListOpt Declarator
-        {
-          // legacy type checking
-          // reuses saved base type
-          bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
+          if (!((CContext) subparser.scope).isGlobal()) {
+            Multiverse<String> combo = declarationListAction(types,declarators,subparser.getPresenceCondition(),((CContext) subparser.scope));
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),combo));
+          } else {
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition())));
+          }
         } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
         {
           PresenceCondition pc = subparser.getPresenceCondition();
           
-          // TODO: hoist initiazliers around the entire InitializedDeclaration
-          List<DeclaringListValue> declaringlist = (List<DeclaringListValue>) getTransformationValue(subparser, 8);
-          // there must be at least one element in the DeclaringList
-          // according to the grammar
+          Multiverse<Initializer> initializers = this.<Initializer>getCompleteNodeMultiverseValue(subparser, 1, pc);
+          DeclaringListValue decl = (DeclaringListValue) getTransformationValue(subparser,4);
+          List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
+          if (((CContext) subparser.scope).isGlobal()) {
+            decl.initializer = initializers;
+            declaringlist.add(decl);
+          } else {
+            setupInitials(declaringlist,decl,initializers,pc,((CContext) subparser.scope));
+          }
+          setTransformationValue(value, declaringlist);
+        }
+        | TypeSpecifier Declarator {
+          saveBaseType(subparser, getNodeAt(subparser, 2));
+          bindIdent(subparser, getNodeAt(subparser, 2), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          Multiverse<TypeSpecifier> types = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
+          if (!((CContext) subparser.scope).isGlobal()) {
+            Multiverse<String> combo = declarationListAction(types,declarators,subparser.getPresenceCondition(),((CContext) subparser.scope));
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),combo));
+          } else {
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition())));
+          }
+        } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          Multiverse<Initializer> initializers = this.<Initializer>getCompleteNodeMultiverseValue(subparser, 1, pc);
+          DeclaringListValue decl = (DeclaringListValue) getTransformationValue(subparser,4);
+          List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
+          if (((CContext) subparser.scope).isGlobal()) {
+            decl.initializer = initializers;
+            declaringlist.add(decl);
+          } else {
+            setupInitials(declaringlist,decl,initializers,pc,((CContext) subparser.scope));
+          }
+          setTransformationValue(value, declaringlist);
+        }
+        | DeclaringList COMMA AttributeSpecifierListOpt Declarator
+        {
+          bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
+          PresenceCondition pc = subparser.getPresenceCondition();
+          List<DeclaringListValue> declaringlist = (List<DeclaringListValue>) getTransformationValue(subparser, 4);
           assert declaringlist.size() > 0;
-          // each element is given the same typespecifiermultiverse, so
-          // we can take it from the first element, which is
-          // guaranteed to be there.
           Multiverse<TypeSpecifier> types = declaringlist.get(0).typespecifier;
-          // the rest of the action is the same as its other
-          // productions, except we add to the list instead of making
-          // a new one
-          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 5, pc);
-          // TODO: just represent assembly and attributes as strings that get pass with the declaration object
-          Multiverse<Initializer> initializers = (Multiverse<Initializer>) getTransformationValue(subparser, 1);
-          declaringlist.add(new DeclaringListValue(types, declarators, initializers));
+          Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
+          if (!((CContext) subparser.scope).isGlobal()) {
+            Multiverse<String> combo = declarationListAction(types,declarators,subparser.getPresenceCondition(),((CContext) subparser.scope));
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),combo));
+          } else {
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition())));
+          }
+        } AssemblyExpressionOpt AttributeSpecifierListOpt InitializerOpt
+        {
+          PresenceCondition pc = subparser.getPresenceCondition();
+          
+          Multiverse<Initializer> initializers = this.<Initializer>getCompleteNodeMultiverseValue(subparser, 1, pc);
+          DeclaringListValue decl = (DeclaringListValue) getTransformationValue(subparser,4);
+          List<DeclaringListValue> declaringlist = (List<DeclaringListValue>)getTransformationValue(subparser,8);
+          if (((CContext) subparser.scope).isGlobal()) {
+            decl.initializer = initializers;
+            declaringlist.add(decl);
+          } else {
+            setupInitials(declaringlist,decl,initializers,pc,((CContext) subparser.scope));
+          }
           setTransformationValue(value, declaringlist);
         }
         ;
@@ -3630,7 +3688,7 @@ TypeName: /** nomerge **/  // Multiverse<Declaration>
         }
         ;
 
-InitializerOpt: /** nomerge **/ // Multiverse<Initializer>
+InitializerOpt: /** complete **/ // Multiverse<Initializer>
         /* nothing */
         {
           // EmptyInitializer
@@ -5489,7 +5547,7 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
           // get the renamings from the symtab
           PresenceCondition cond = subparser.getPresenceCondition();
           Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(originalName, cond);
-
+          System.err.println(entries);
           // convert the renamings to stringbuilders
           Multiverse<String> sbmv = new Multiverse<String>();
           Multiverse<Type> typemv = new Multiverse<Type>();
@@ -5562,6 +5620,7 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
           // it and the symtab should always return a non-empty mv
           assert ! sbmv.isEmpty();
           entries.destruct();
+          System.err.println(new ExpressionValue(sbmv, typemv,new Multiverse<LineNumbers>(new LineNumbers((Syntax)getNodeAt(subparser, 1)),cond)));
           setTransformationValue(value, new ExpressionValue(sbmv, typemv,new Multiverse<LineNumbers>(new LineNumbers((Syntax)getNodeAt(subparser, 1)),cond)));
         }  /* We cannot use a typedef name as a variable */
         ;
@@ -6600,7 +6659,6 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 1, pc);
 
           Multiverse<String> exprmv = sizeofExpansion(exprval.transformation, exprval.type,freshIdCreator,(CContext)subparser.scope,pc);
-          
           todoReminder("typecheck unaryexpression (5)");
 
           Type constSizeOf = C.SIZEOF.copy();
@@ -8269,11 +8327,161 @@ public static void keepMemoryNames(boolean f) {
 /***************************************************************************
  **** Semantic actions
  ***************************************************************************/
+ protected List<Multiverse<String>> declAddSemi(List<DeclaringListValue> declaringlistvalues,
+                                               String semi,
+                                               PresenceCondition pc) {
+  List<Multiverse<String>> toret = new LinkedList<Multiverse<String>>();
+  for (DeclaringListValue d : declaringlistvalues ) {
+    toret.add(d.desugared.appendScalar(semi,DesugarOps.concatStrings));
+  }
+  return toret;
+ }
+
+ protected void setupInitials(List<DeclaringListValue> declList, DeclaringListValue decl, Multiverse<Initializer> initializermv, PresenceCondition pc, CContext scope){
+   if (initializermv.size() == 1 && initializermv.get(0).getData().isEmpty()) {
+     declList.add(decl);
+   } else {
+     System.err.println(decl);
+     for (Element<Declarator> declarator : decl.declarator) {
+       String originalName = declarator.getData().getName();
+       Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, declarator.getCondition());
+       for (Element<SymbolTable.Entry<Type>> entry : entries) {
+         Type t = entry.getData().getValue().toVariable().getType();
+         if (initializermv.size() == 1 && ! initializermv.get(0).getData().hasList()) {
+           declList.add(checkInitializers(decl.filter(entry.getCondition()),initializermv,entry.getCondition(),scope,false));
+         } else {
+           declList.add(decl.filter(entry.getCondition()));
+           for (Element<Initializer> ei : initializermv) {
+             if (!ei.getData().isEmpty()) {
+               declList.add(checkInitializers(decl.filter(entry.getCondition()),initializermv.filter(ei.getCondition()),ei.getCondition(),scope,true));
+             }
+           }
+         }
+       }
+     }
+   }
+ }
+
+ protected DeclaringListValue checkInitializers(DeclaringListValue decl, Multiverse<Initializer> initializermv, PresenceCondition pc, CContext scope, boolean splitMainInit) {
+   Multiverse<String> initStr;
+   if (splitMainInit) {
+     initStr = new Multiverse<String>("if (" + condToCVar(pc) + ") {\n" ,pc);
+   } else {
+     initStr = new Multiverse<String>("",pc);
+   }
+  for (Element<Initializer> initializer : initializermv) {
+    if (initializer.getData().isEmpty()) {
+      continue;
+    }
+    for (Element<Declarator> declarator : decl.declarator) {
+      PresenceCondition combinedCond = initializer.getCondition().and(declarator.getCondition()).and(pc);
+      String originalName = declarator.getData().getName();
+      if (!initializer.getData().hasValidType()) {
+        scope.putError(originalName,combinedCond);
+        continue;
+      }
+      for (Element<TypeSpecifier> typespecifier : decl.typespecifier) {
+        PresenceCondition finalcond = typespecifier.getCondition().and(combinedCond);
+        if (finalcond.isFalse()) {
+          continue;
+        }
+        Declaration originalDeclaration = new Declaration(typespecifier.getData(), declarator.getData());
+        Type declarationType = originalDeclaration.getType();
+        
+        StringBuilder entrysb = new StringBuilder();  // the desugared output
+        Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, finalcond);
+        for (Element<SymbolTable.Entry<Type>> entry : entries) {
+          String renaming = entry.getData().getValue().toVariable().getName();
+          if (initializer.getData().hasList() && !scope.isGlobal() &&
+              (!declarationType.hasAttribute(Constants.ATT_CONSTANT) && !declarationType.hasConstant())) {
+            Type tempT = declarationType;
+            while (tempT.isWrapped()) {
+              tempT = ((WrappedT)tempT).getType();
+            }
+            if (tempT.isStruct() || tempT.isUnion()){
+              entrysb.append("{\n" + initStruct(renaming, (StructOrUnionT)tempT, initializer.getData(), scope, finalcond) + "}");
+            }
+            if (tempT.isArray()){
+              entrysb.append("{\n" + initArray(renaming, (ArrayT)tempT, initializer.getData(), scope, finalcond) + "}");
+            }
+          } else {
+            boolean compatibleTypes = true;
+            //check for initializer list
+            if (initializer.getData().hasList()) {
+              compatibleTypes = !initializer.getData().hasNonConst();
+            }
+            if (compatibleTypes) {
+              String toAddStr = "";
+              if (initializer.getData().hasList()) {
+                Multiverse<String> mvs = initializer.getData().renamedList(new Multiverse<Type>(declarationType.resolve(),finalcond),finalcond,scope);
+                for (Element<String> evs : mvs) {
+                  if (evs.getData() != "") {
+                    if (splitMainInit) {
+                      toAddStr += renaming;
+                    }
+                    toAddStr += (evs.getData());
+                  } else {
+                    scope.putError(originalName, entry.getCondition());
+                    recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+                    if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                      externalLinkage.putError(originalName, entry.getCondition());
+                    } else if (!scope.isGlobal()) {
+                      toAddStr += ("if (");
+                      toAddStr += (condToCVar(entry.getCondition()));
+                      toAddStr += (") {\n");
+                      toAddStr += (emitError(String.format("improper designator value: %s", originalName)));
+                      toAddStr += (";\n");
+                      toAddStr += ("}\n");
+                    }
+                  }
+                }
+              } else {
+                if (splitMainInit) {
+                  toAddStr += renaming;
+                }
+                toAddStr += (initializer.getData().toString());
+              }
+              if ((declarationType.hasAttribute(Constants.ATT_CONSTANT) || declarationType.hasConstant()) &&
+                  scope.isGlobal()) {
+              } else {
+                entrysb.append(toAddStr + ";");
+              }
+            } else {
+              scope.putError(originalName, entry.getCondition());
+              recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+              if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                externalLinkage.putError(originalName, entry.getCondition());
+              } else if (!scope.isGlobal()) {
+                entrysb.append("if (");
+                entrysb.append(condToCVar(entry.getCondition()));
+                entrysb.append(") {\n");
+                entrysb.append(emitError(String.format("non const value in constant list or struct: %s",
+                                                       originalName)));
+                entrysb.append(";\n");
+                entrysb.append("}\n");
+              }
+            } 
+          }
+          Multiverse<String> toApply = new Multiverse<String>();
+          toApply.add(entrysb.toString(),finalcond);
+          toApply.add("",finalcond.not());
+          initStr = initStr.product(toApply,DesugarOps.concatStrings);
+          toApply.destruct();
+        }
+      }
+    }
+  }
+  if (splitMainInit) {
+    initStr = initStr.product(new Multiverse<String>("}",pc), DesugarOps.concatStrings);
+    return new DeclaringListValue(decl.typespecifier, decl.declarator, initializermv, initStr);
+  }
+  return new DeclaringListValue(decl.typespecifier, decl.declarator, initializermv, decl.desugared.product(initStr,DesugarOps.concatStrings));
+ }        
 
 protected List<Multiverse<String>> declarationAction(List<DeclaringListValue> declaringlistvalues,
-                                   String semi,
-                                   PresenceCondition pc,
-                                   CContext scope) {
+                                                     String semi,
+                                                     PresenceCondition pc,
+                                                     CContext scope) {
   /*
    * to desugar declarations, we need to iterate over all
    * combinations of (1) declarators in the declaring list,
@@ -8460,7 +8668,7 @@ protected List<Multiverse<String>> declarationAction(List<DeclaringListValue> de
                                 Multiverse<String> mvs = initializer.getData().renamedList(new Multiverse<Type>(declarationType.resolve(),combinedCond),combinedCond,scope);
                                 for (Element<String> evs : mvs) {
                                   if (evs.getData() != "") {
-                                    toAddStr += (desugaredDeclaration);
+                                    toAddStr += desugaredDeclaration;
                                     toAddStr += (evs.getData());
                                     toAddStr += (semi);  // semi-colon
                                     recordRenaming(renaming, originalName);
@@ -8480,7 +8688,7 @@ protected List<Multiverse<String>> declarationAction(List<DeclaringListValue> de
                                   }
                                 }
                               } else {
-                                toAddStr += (desugaredDeclaration);
+                                toAddStr += desugaredDeclaration;
                                 toAddStr += (initializer.getData().toString());
                                 toAddStr += (semi);  // semi-colon
                                 recordRenaming(renaming, originalName);
@@ -8565,7 +8773,6 @@ protected List<Multiverse<String>> declarationAction(List<DeclaringListValue> de
                           } // end check for variable type
                         } // end check global/local scope
                       } // end entry kind
-                      entrysb.append("\n");
 
                       if (renamedDeclaration.typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF)) {
                         // typedefs are moved to the top of the scope
@@ -8601,6 +8808,197 @@ protected List<Multiverse<String>> declarationAction(List<DeclaringListValue> de
   } // end loop over declaringlistvalues
   return retmv;
 }
+
+protected Multiverse<String> declarationListAction(Multiverse<TypeSpecifier> typespecifiermv,
+                                                         Multiverse<Declarator> declaratormv,
+                                                         PresenceCondition pc,
+                                                   CContext scope) {
+  
+  StringBuilder valuesb = new StringBuilder();  // the desugared output
+  Multiverse<String> valuemv = new Multiverse<String>();
+  
+  valuemv.add("",pc);
+  // TODO: use typespecifier/declarator to reclassify the
+  // tokens as typedef/ident in parsing context
+  for (Element<TypeSpecifier> typespecifier : typespecifiermv) {
+    PresenceCondition typespecifierCond = pc.and(typespecifier.getCondition());
+    for (Element<Declarator> declarator : declaratormv) {
+      PresenceCondition combinedCond = typespecifierCond.and(declarator.getCondition());
+      if (combinedCond.isNotFalse()) {
+                
+        String originalName = declarator.getData().getName();
+        // get xtc type from type and declarator
+        Declaration tempD = new Declaration(typespecifier.getData(), declarator.getData());
+        if (typespecifier.getData().getType().isError()
+            || tempD.hasTypeError()
+            || (!scope.isGlobal() && new Declaration(typespecifier.getData(), declarator.getData()).isNonPointerForwardRef())
+            ) {
+          // if type is invalid, put an error entry, emit a call
+          // to the type error function
+          scope.putError(originalName, combinedCond);
+          if (scope.isGlobal()) {
+            recordInvalidGlobalDeclaration(originalName, combinedCond);
+          } else {
+            valuesb.append("if (");
+            valuemv = appendStringToMV(valuemv,"if (",combinedCond);
+            String tempC = condToCVar(combinedCond); 
+            valuesb.append(tempC);
+            valuemv = appendStringToMV(valuemv,tempC,combinedCond);
+            valuesb.append(") {\n");
+            valuemv = appendStringToMV(valuemv,") {\n",combinedCond);
+            valuesb.append(emitError(String.format("invalid declaration of %s under this presence condition",
+                                                   originalName)));
+            valuemv = appendStringToMV(valuemv,emitError(String.format("invalid declaration of %s under this presence condition",
+                                                                       originalName)),combinedCond);
+            valuesb.append(";\n");
+            valuemv = appendStringToMV(valuemv,";\n",combinedCond);
+            valuesb.append("}\n");
+            valuemv = appendStringToMV(valuemv,"}\n",combinedCond);
+            
+          }
+        } else {
+          // otherwise loop over each existing entry check for
+          // type errors or add a new declaration
+          Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, combinedCond);
+          for (Element<SymbolTable.Entry<Type>> entry : entries) {
+            String renaming = freshCId(originalName);
+            Declarator renamedDeclarator = declarator.getData().rename(renaming);
+            Declaration renamedDeclaration = new Declaration(typespecifier.getData(),
+                                                             renamedDeclarator);
+            Declaration originalDeclaration = new Declaration(typespecifier.getData(), declarator.getData());
+
+            StringBuilder entrysb = new StringBuilder();
+
+            Type declarationType = renamedDeclaration.getType();
+            Type type;
+            //System.err.println("has typedef:" + renamedDeclaration.typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF));
+            if (renamedDeclaration.typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF)) {
+              type = new AliasT(renaming, declarationType);
+            } else if (declarationType.isFunction()) {
+              type = new NamedFunctionT(declarationType.toFunction().getResult(),
+                                        renaming,
+                                        declarationType.toFunction().getParameters(),
+                                        declarationType.toFunction().isVarArgs());
+            } else {
+              if (scope.isGlobal()) {
+                type = VariableT.newGlobal(declarationType, renaming);
+              } else {
+                type = VariableT.newLocal(declarationType, renaming);
+              }
+            }
+            
+            // make all renamed declarations static until project-wide, configuration-aware linking is possible
+            String desugaredDeclaration;
+            // disabling the thunks for now, pending
+            // configuration-aware linking support
+            desugaredDeclaration = renamedDeclaration.toString();
+            if (entry.getData().isError()) {
+              // ERROR entry
+              System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
+
+            } else if (entry.getData().isUndeclared()) {
+              // UNDECLARED entry
+              // update the symbol table for this presence condition
+
+              // the renamed function is static to enable linking the original function name
+              if (scope.isGlobal() && Constants.ATT_STORAGE_AUTO ==
+                  typespecifier.getData().getStorageClass()) {
+                scope.putError(originalName, entry.getCondition());
+              } else {
+                
+                scope.put(originalName, type, entry.getCondition());
+
+                if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                  externalLinkage.put(originalName, originalDeclaration, entry.getCondition());
+                }
+                String toAddStr = "";
+                
+                toAddStr += desugaredDeclaration;
+                recordRenaming(renaming, originalName);
+                if ((declarationType.hasAttribute(Constants.ATT_CONSTANT) || declarationType.hasConstant()) &&
+                    scope.isGlobal()) {
+                  scope.addDeclaration(toAddStr+";\n");
+                } else {
+                  entrysb.append(toAddStr);
+                }
+              }    
+            } else {  // already declared entries
+              if (! scope.isGlobal()) {
+                // not allowed to redeclare local symbols at all
+                scope.putError(originalName, entry.getCondition());
+                entrysb.append("if (");
+                entrysb.append(condToCVar(entry.getCondition()));
+                entrysb.append(") {\n");
+                entrysb.append(emitError(String.format("redeclaration of local symbol: %s",
+                                                       originalName)));
+                entrysb.append(";\n");
+                entrysb.append("}\n");
+              } else {  // global scope
+                        
+                // declarations only set VariableT or AliasT
+                boolean sameTypeKind
+                  = entry.getData().getValue().isVariable() && type.isVariable()
+                  ||  entry.getData().getValue().isAlias() && type.isAlias();
+
+                // check compatibility of types
+                if (sameTypeKind) {
+                  boolean compatibleTypes = false;
+                  if (type.isVariable()) {
+                    compatibleTypes = cOps.equal(entry.getData().getValue().toVariable().getType(),
+                                                 type.toVariable().getType());
+                  } else if (type.isAlias()) {
+                    compatibleTypes = cOps.equal(entry.getData().getValue().toAlias().getType(),
+                                                 type.toAlias().getType());
+                  } else {
+                    throw new AssertionError("should not be possible given sameTypeKind");
+                  }
+
+                  if (! compatibleTypes) {
+                    // not allowed to redeclare globals to a different type
+                    scope.putError(originalName, entry.getCondition());
+                    recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+                    if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                      externalLinkage.putError(originalName, entry.getCondition());
+                    }
+                  } else {
+                    // emit the same declaration, since it's legal to redeclare globals to a compatible type
+                    /* entrysb.append(renamedDeclaration.toString()); */
+                    entrysb.append(desugaredDeclaration);
+                    System.err.println(String.format("INFO: \"%s\" is being redeclared in global scope to compatible type", originalName));
+                  }
+
+                } else { // not the same kind of type
+                  scope.putError(originalName, entry.getCondition());
+                  System.err.println(String.format("INFO: attempted to redeclare global to a different kind of type: %s", originalName));
+                  recordInvalidGlobalRedeclaration(originalName, entry.getCondition());
+                  if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
+                    externalLinkage.putError(originalName, entry.getCondition());
+                  }
+                } // end check for variable type
+              } // end check global/local scope
+            } // end entry kind
+
+            if (renamedDeclaration.typespecifier.contains(Constants.ATT_STORAGE_TYPEDEF)) {
+              // typedefs are moved to the top of the scope
+              // to support forward references of structs
+              scope.addDeclaration(entrysb.toString() + ";");
+              valuesb.append("// typedef moved to top of scope\n");
+              valuemv = appendStringToMV(valuemv,"// typedef moved to top of scope\n",combinedCond);
+            } else {
+              // not a typedef, so add it to regular output
+              valuesb.append(entrysb.toString());
+              valuemv = appendStringToMV(valuemv,entrysb.toString(),combinedCond);
+            }
+          } // end loop over symtab entries
+          entries.destruct();
+        }
+      } // end check for false combinedCond
+      combinedCond.delRef();
+    } // end loop over declarators
+  } // end loop over typespecifiers
+  return valuemv;
+}
+
 
 class IDSort implements Comparator<Map.Entry<String,Declaration>> {
   private int getID(String x){
@@ -9530,6 +9928,8 @@ private static class DeclaringListValue {
   /** The initializer. */
   public Multiverse<Initializer> initializer;
 
+  public Multiverse<String> desugared;
+  
   /** 
    * This constructor creates a new instance.
    * @param type is the type.
@@ -9542,8 +9942,18 @@ private static class DeclaringListValue {
     this.typespecifier = typespecifier;
     this.declarator = declarator;
     this.initializer = initializer;
+    this.desugared = null;
   }
 
+    private DeclaringListValue(Multiverse<TypeSpecifier> typespecifier,
+                             Multiverse<Declarator> declarator,
+                             Multiverse<Initializer> initializer,
+                             Multiverse<String> desugared) {
+    this.typespecifier = typespecifier;
+    this.declarator = declarator;
+    this.initializer = initializer;
+    this.desugared = desugared;
+  }
 
   public boolean isEmpty() {
     return typespecifier.isEmpty() ||
@@ -9555,7 +9965,12 @@ private static class DeclaringListValue {
   {
     return "TypeSpec: " + typespecifier.toString() +
       "\nDeclarator: " + declarator.toString() +
-      "\nInitializer: " + initializer.toString();
+      "\nInitializer: " + initializer.toString() +
+      "\nDesugared: " + desugared.toString();
+  }
+
+  public DeclaringListValue filter(PresenceCondition p ) {
+    return new DeclaringListValue(typespecifier.filter(p),declarator.filter(p),initializer.filter(p),desugared.filter(p));
   }
 }
 
@@ -11113,7 +11528,7 @@ private void recordRenaming(String renaming, String original) {
 
 public String printMain(CContext scope, PresenceCondition pc) {
   String ret = "";
-  ret += "int main(int argc, char **argv) {\n";
+  ret += "int main(int argc, char **argv) {\n__static_initializer_default();\n";
   Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope("main", pc);
   for (Element<SymbolTable.Entry<Type>> entry : entries) {
     ret += "if (";
@@ -11159,7 +11574,8 @@ public String staticInitialization(boolean showParseError) {
   // writes the extern declarations for the renamed preprocessor BDDs
   System.err.println("TODO: record original presence condition strings in file as well once raw strings are collected");
   for (Integer hash : condVars.keySet()) {
-    sb.append(String.format("int %s() {return rand()%%2;};\n", condVars.get(hash)));
+    //sb.append(String.format("int %s() {return rand()%%2;};\n", condVars.get(hash)));
+    sb.append(String.format("extern const bool %s();\n", condVars.get(hash)));
   }
 
   sb.append(String.format("%s {\n%s\n%s\n",

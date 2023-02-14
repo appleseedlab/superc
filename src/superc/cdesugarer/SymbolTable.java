@@ -461,11 +461,14 @@ public class SymbolTable<T> implements Iterable<String> {
   }
 
   public void replaceType(String renamed, T newValue, PresenceCondition cond) {
+    System.err.println(renamed);
     String originalName = renamed;
     while (originalName.charAt(originalName.length()-1) >= '0' && originalName.charAt(originalName.length()-1) <= '9') {
       originalName = originalName.substring(0,originalName.length()-1);
     }
     originalName = originalName.substring(2,originalName.length()-1);
+    System.err.println(originalName);
+    System.err.println(this);
     Multiverse<Entry<T>> values = map.get(originalName);
     Multiverse<Entry<T>> onlyDeclared = values.filter(cond);
     for (Element<Entry<T>> e : onlyDeclared) {

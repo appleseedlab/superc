@@ -35,6 +35,9 @@ import xtc.tree.Visitor;
 
 import xtc.util.Runtime;
 
+import superc.cdesugarer.NamedFunctionT;
+
+
 /**
  * The superclass of all types.
  *
@@ -1506,7 +1509,7 @@ public abstract class Type extends Node {
   public boolean isMethod() {
     return false;
   }
-
+  
   /**
    * Get this type as a method.
    *
@@ -1518,6 +1521,27 @@ public abstract class Type extends Node {
     throw new ClassCastException("Not a method " + this);
   }
 
+  
+  /**
+   * Determine whether this type is a named function.
+   *
+   * @return <code>true</code> if this type is a named function.
+   */
+  public boolean isNamedFunction() {
+    return false;
+  }
+
+  /**
+   * Get this type as a named function.
+   *
+   * @return This type has a function.
+   * @throws ClassCastException Signals that this type is not a
+   *   named function.
+   */
+  public NamedFunctionT toNamedFunction() {
+    throw new ClassCastException("Not a named function " + this);
+  }
+  
   /**
    * Determine whether this type is a class.
    *

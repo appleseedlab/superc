@@ -2,6 +2,7 @@ import os
 import sys
 import re
 import threading
+from subprocess import PIPE, Popen
 
 CONDHEADERSTR = 'CondHeader.c'
 
@@ -27,7 +28,7 @@ def getMacroList(f):
       for w in words:
         if 'ifdef' in w or ( "elif" in l and "defined" in w):
           conf = words[words.index(w)+1]
-          conf = conf.strip('\n')
+          conf = conf.rstrip().lstrip()
           if conf not in ms:
             ms.append(conf)
   o.close()
@@ -53,9 +54,10 @@ def runBase(f,ms):
       else:
         defs += ' -U ' + m + ' '
     executeCmd = ' '.join(['gcc',defs,f])
-    result = os.popen(executeCmd)
-    if 'error:' in result.read():
-      res.append('-99')
+    p = Popen(executeCmd, shell=True, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = p.communicate()
+    if 'error:' in stderr.decode():
+      res.append('157')
     else:
       result = os.popen('./a.out; echo $?')
       resStr = result.read().strip('\n')
@@ -85,12 +87,12 @@ def writeHeader(defs,name,el):
   for e in el:
     head.write('const bool ')
     head.write(e['var'])
-    head.write(' = ')
+    head.write('() { return ')
     c = e['cond']
     for d in defs.keys():
       c = c.replace('defined ' + d + ')', '1)' if defs[d] else '0)')
     head.write(c)
-    head.write(';\n')
+    head.write('; }\n')
       
 def runDesug(f,ms,el):
   sz = len(ms)
@@ -104,9 +106,10 @@ def runDesug(f,ms,el):
         defs[m] = False
     writeHeader(defs,f[:len(f)-2],el)
     executeCmd = ' '.join(['gcc','functionsHeader.c', f[:len(f)-2] + CONDHEADERSTR,f])
-    result = os.popen(executeCmd)
-    if 'error:' in result.read():
-      res.append('-100')
+    p = Popen(executeCmd, shell=True, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = p.communicate()
+    if 'error:' in stderr.decode():
+      res.append('777')
     else:
       result = os.popen('./a.out; echo $?')
       resStr = result.read().strip('\n')
@@ -162,7 +165,7 @@ def runFiles(fileList,results):
     baseRes = runBase(absFile,macros)
     #desugar file
     os.system('rm ' + absFile[:len(absFile)-2]+".desugared.c")
-    cmd = " ".join(["nohup", "java", "superc.SugarC", "-make-main", "-showActions", absFile, ">", absFile[:len(absFile)-2]+".desugared.c", "2>", absFile[:len(absFile)-2]+".Log"])
+    cmd = " ".join(["nohup", "java", "superc.SugarC", "-keep-mem", "-make-main", "-showActions", "-useBDD", absFile, ">", absFile[:len(absFile)-2]+".desugared.c", "2>", absFile[:len(absFile)-2]+".Log"])
     os.system(cmd)
     if not os.path.exists(absFile[:len(absFile)-2]+".desugared.c"):
       results.append(f + " :: did not desug")

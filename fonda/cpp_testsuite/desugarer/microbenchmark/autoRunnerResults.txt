@@ -1,9 +1,26 @@
 ~~~Results~~~
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/struct_local_illegal.c :: match
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/array_invalid_size.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/struct_struct_declarator.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/typedef_partially_defined.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/cast_type_error.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/variable_partially_defined.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/typedefname_and_variable_declarations.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/invalid_qualifiers.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/reference_error.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/enum_constant_expression.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/primitive_array_declarator.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/partial_redeclaration.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/invalid_loop_confition.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/struct_redeclare.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/function_function_parameters.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/struct_global_forward_reference_illegal.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/array_constant_init.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/local_redeclarations.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/global_redeclaration.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/invalid_types.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/syntactic_error_integration/struct_prohibit_initializer.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/syntactic_error_integration/no_identifier.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/syntactic_error_integration/invalid_typedefs.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/external_declarations/injected/extern_function_dec_def.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/external_declarations/injected/extern_var_dec_configurable.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/external_declarations/injected/extern_repeated.c :: match
@@ -14,6 +31,8 @@
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_abstract_parameter.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/basic_functions.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_pointer.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_qualified_void_pointer.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_pointer_param.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_parameter_multiple_config.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/variadic_arguments/injected/simple_varg.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/declarations/basic_declarators/injected/array_flex.c :: match
@@ -22,6 +41,7 @@
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/declarations/basic_declarators/injected/declaring_list_partial_config.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/declarations/basic_declarators/injected/array_conditional_flex.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/declarations/basic_declarators/injected/scope_partial_declaration1.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/declarations/basic_declarators/injected/self_reference.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/declarations/basic_declarators/injected/declarators_list.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/declarations/basic_declarators/injected/configurable_pointer.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/declarations/basic_declarators/injected/configurable_array.c :: match
@@ -63,6 +83,7 @@
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/expressions/identifier_and_function_call/injected/typeof_configurable.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/expressions/identifier_and_function_call/injected/sizeof_configurable_struct.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/expressions/identifier_and_function_call/injected/implicit_param.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/expressions/identifier_and_function_call/injected/recursive_method_call.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/expressions/identifier_and_function_call/injected/negative_sizeof.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/expressions/identifier_and_function_call/injected/typeof_union_field.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/expressions/identifier_and_function_call/injected/func_call_param.c :: match
@@ -74,67 +95,20 @@
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/expressions/unary_binary_ternary/injected/deref_union_from_struct.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/expressions/unary_binary_ternary/injected/array_assignment.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/expressions/unary_binary_ternary/injected/increment_decrement.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/expressions/unary_binary_ternary/injected/deref_struct_self_reference.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/expressions/unary_binary_ternary/injected/statement_as_expression.c :: match
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/struct_struct_declarator.c :: 1/2
-	['0', '0']/['157', '0']
-	['::0/157']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/typedef_partially_defined.c :: 2/8
-	['0', '0', '0', '0', '0', '0', '0', '0']/['157', '0', '0', '157', '157', '157', '157', '157']
-	['::0/157', ' A B::0/157', ' C::0/157', ' A C::0/157', ' B C::0/157', ' A B C::0/157']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/cast_type_error.c :: 1/2
-	['157', '127']/['127', '127']
-	['::157/127']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/variable_partially_defined.c :: 2/8
-	['127', '0', '0', '0', '0', '0', '0', '0']/['157', '0', '0', '157', '157', '157', '157', '157']
-	['::127/157', ' A B::0/157', ' C::0/157', ' A C::0/157', ' B C::0/157', ' A B C::0/157']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/typedefname_and_variable_declarations.c :: 1/2
-	['157', '0']/['0', '0']
-	['::157/0']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/invalid_qualifiers.c :: 1/16
-	['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']/['0', '157', '157', '157', '157', '157', '157', '157', '157', '157', '157', '157', '157', '157', '157', '157']
-	[' INVALID::0/157', ' SIGNED::0/157', ' INVALID SIGNED::0/157', ' DUPLICATE::0/157', ' INVALID DUPLICATE::0/157', ' SIGNED DUPLICATE::0/157', ' INVALID SIGNED DUPLICATE::0/157', ' INVALID_LONG::0/157', ' INVALID INVALID_LONG::0/157', ' SIGNED INVALID_LONG::0/157', ' INVALID SIGNED INVALID_LONG::0/157', ' DUPLICATE INVALID_LONG::0/157', ' INVALID DUPLICATE INVALID_LONG::0/157', ' SIGNED DUPLICATE INVALID_LONG::0/157', ' INVALID SIGNED DUPLICATE INVALID_LONG::0/157']
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/complex_if.c :: 1/2
-	['157', '127']/['127', '127']
-	['::157/127']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/reference_error.c :: 1/2
-	['127', '0']/['157', '0']
-	['::127/157']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/enum_constant_expression.c :: 1/2
-	['0', '0']/['0', '157']
-	[' INVALID::0/157']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/primitive_array_declarator.c :: 1/2
-	['0', '0']/['0', '157']
-	[' A::0/157']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/partial_redeclaration.c :: 3/4
-	['0', '0', '0', '0']/['0', '0', '0', '157']
-	[' A B::0/157']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/invalid_loop_confition.c :: 1/2
-	['157', '127']/['157', '157']
-	[' A::127/157']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/struct_redeclare.c :: 0/2
-	['0', '0']/['128', '157']
-	['::0/128', ' REDECLARE::0/157']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/struct_global_forward_reference_illegal.c :: 0/2
-	['0', '139']/['157', '49']
-	['::0/157', ' FORWARD::139/49']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/array_constant_init.c :: 1/2
-	['5', '5']/['5', '157']
-	[' CONSTANT::5/157']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/local_redeclarations.c :: 1/2
-	['0', '0']/['0', '157']
-	[' A::0/157']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/global_redeclaration.c :: 3/4
-	['157', '0', '0', '0']/['157', '0', '0', '157']
-	[' A B::0/157']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/syntactic_error_integration/no_identifier.c :: 0/2
-	['127', '127']/['157', '157']
-	['::127/157', ' NOID::127/157']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/syntactic_error_integration/invalid_typedefs.c :: 0/2
-	['127', '127']/['157', '157']
-	['::127/157', ' INVALID_TYPEDEF::127/157']
+	['157', '139']/['157', '3']
+	[' A::139/3']
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/semantic_error_integration/array_invalid_size.c :: 0/2
+	['0', '157']/['777', '777']
+	['::0/777', ' INVALID::157/777']
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/syntactic_error_integration/enum_error.c :: 1/2
-	['0', '0']/['0', '157']
-	[' REPEATED::0/157']
+	['0', '157']/['0', '0']
+	[' REPEATED::157/0']
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/prototype_forward_reference.c :: 0/2
+	['44', '44']/['777', '777']
+	['::44/777', ' A::44/777']
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/K&R/injected/function_typedef_parameter_configurable.c :: did not desug
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/K&R/injected/function_parameters_configurable.c :: did not desug
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/K&R/injected/function_parameters_empty_configurable.c :: did not desug

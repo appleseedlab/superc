@@ -92,4 +92,13 @@ public class NamedFunctionT extends FunctionOrMethodT {
                          getParameters(),
                          isVarArgs());
   }
+
+  public NamedFunctionT toNamedFunction() {
+    return this;
+  }
+
+  public boolean isNamedFunction() {
+    return true;
+  }
+
 }

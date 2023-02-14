@@ -65,6 +65,7 @@ public class FunctionT extends FunctionOrMethodT {
     super(template, result, null, parameters, varargs, null);
   }
 
+  
   public FunctionT copy() {
     FunctionT copy =
       new FunctionT(this, result.copy(), copy(parameters), varargs);

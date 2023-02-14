@@ -136,5 +136,11 @@ class Declaration {
       return true;
     return false;
   }
+
+  public boolean isNonPointerForwardRef() {
+    Type t = typespecifier.getType();
+    return ((t.isStruct() || t.isUnion()) && ((StructOrUnionT)t).getName().startsWith("__forward_tag_reference"))
+      && !(declarator.isPointerDeclarator() || declarator.isQualifiedPointerDeclarator()) ;
+  }
 }
 
