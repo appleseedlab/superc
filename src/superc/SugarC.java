@@ -586,6 +586,7 @@ public class SugarC extends Tool {
       System.out.print("#include <stdbool.h>\n");
       System.out.print("#include <stdlib.h>\n");
       System.out.print("#include <stdio.h>\n");
+      System.out.print("#include <string.h>\n");
 
       System.out.print("\n");
 
