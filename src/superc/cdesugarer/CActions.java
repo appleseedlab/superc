@@ -1059,7 +1059,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> combo = declarationListAction(types,declarators,subparser.getPresenceCondition(),((CContext) subparser.scope));
             setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),combo));
           } else {
-            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition())));
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),pc));
           }
         }
     break;
@@ -1069,7 +1069,7 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           
           Multiverse<Initializer> initializers = this.<Initializer>getCompleteNodeMultiverseValue(subparser, 1, pc);
-          DeclaringListValue decl = (DeclaringListValue) getTransformationValue(subparser,4);
+          DeclaringListValue decl = getCompleteNodeDeclaringListValue(subparser,4,pc);;
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
           if (((CContext) subparser.scope).isGlobal()) {
             decl.initializer = initializers;
@@ -1104,7 +1104,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> combo = declarationListAction(types,declarators,subparser.getPresenceCondition(),((CContext) subparser.scope));
             setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),combo));
           } else {
-            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition())));
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),pc));
           }
         }
     break;
@@ -1114,7 +1114,7 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           
           Multiverse<Initializer> initializers = this.<Initializer>getCompleteNodeMultiverseValue(subparser, 1, pc);
-          DeclaringListValue decl = (DeclaringListValue) getTransformationValue(subparser,4);
+          DeclaringListValue decl = getCompleteNodeDeclaringListValue(subparser,4,pc);;
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
           if (((CContext) subparser.scope).isGlobal()) {
             decl.initializer = initializers;
@@ -1138,7 +1138,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> combo = declarationListAction(types,declarators,subparser.getPresenceCondition(),((CContext) subparser.scope));
             setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),combo));
           } else {
-            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition())));
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),pc));
           }
         }
     break;
@@ -1148,7 +1148,7 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           
           Multiverse<Initializer> initializers = this.<Initializer>getCompleteNodeMultiverseValue(subparser, 1, pc);
-          DeclaringListValue decl = (DeclaringListValue) getTransformationValue(subparser,4);
+          DeclaringListValue decl = getCompleteNodeDeclaringListValue(subparser,4,pc);;
           List<DeclaringListValue> declaringlist = (List<DeclaringListValue>)getTransformationValue(subparser,8);
           if (((CContext) subparser.scope).isGlobal()) {
             decl.initializer = initializers;
@@ -1172,7 +1172,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> combo = declarationListAction(types,declarators,subparser.getPresenceCondition(),((CContext) subparser.scope));
             setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),combo));
           } else {
-            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition())));
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),pc));
           }
         }
     break;
@@ -1182,7 +1182,7 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           
           Multiverse<Initializer> initializers = this.<Initializer>getCompleteNodeMultiverseValue(subparser, 1, pc);
-          DeclaringListValue decl = (DeclaringListValue) getTransformationValue(subparser,4);
+          DeclaringListValue decl = getCompleteNodeDeclaringListValue(subparser,4,pc);;
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
           if (((CContext) subparser.scope).isGlobal()) {
             decl.initializer = initializers;
@@ -1206,7 +1206,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> combo = declarationListAction(types,declarators,subparser.getPresenceCondition(),((CContext) subparser.scope));
             setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),combo));
           } else {
-            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition())));
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),pc));
           }
         }
     break;
@@ -1216,7 +1216,7 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           
           Multiverse<Initializer> initializers = this.<Initializer>getCompleteNodeMultiverseValue(subparser, 1, pc);
-          DeclaringListValue decl = (DeclaringListValue) getTransformationValue(subparser,4);
+          DeclaringListValue decl = getCompleteNodeDeclaringListValue(subparser,4,pc);;
           List<DeclaringListValue> declaringlist = new LinkedList<DeclaringListValue>();
           if (((CContext) subparser.scope).isGlobal()) {
             decl.initializer = initializers;
@@ -1240,7 +1240,7 @@ public class CActions implements SemanticActions {
             Multiverse<String> combo = declarationListAction(types,declarators,subparser.getPresenceCondition(),((CContext) subparser.scope));
             setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),combo));
           } else {
-            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition())));
+            setTransformationValue(value, new DeclaringListValue(types,declarators,new Multiverse<Initializer>(new EmptyInitializer(),subparser.getPresenceCondition()),pc));
           }
         }
     break;
@@ -1250,7 +1250,7 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           
           Multiverse<Initializer> initializers = this.<Initializer>getCompleteNodeMultiverseValue(subparser, 1, pc);
-          DeclaringListValue decl = (DeclaringListValue) getTransformationValue(subparser,4);
+          DeclaringListValue decl = getCompleteNodeDeclaringListValue(subparser,4,pc);
           List<DeclaringListValue> declaringlist = (List<DeclaringListValue>)getTransformationValue(subparser,8);
           if (((CContext) subparser.scope).isGlobal()) {
             decl.initializer = initializers;
@@ -10086,11 +10086,12 @@ private static class DeclaringListValue {
    */
   private DeclaringListValue(Multiverse<TypeSpecifier> typespecifier,
                              Multiverse<Declarator> declarator,
-                             Multiverse<Initializer> initializer) {
+                             Multiverse<Initializer> initializer,
+                             PresenceCondition p) {
     this.typespecifier = typespecifier;
     this.declarator = declarator;
     this.initializer = initializer;
-    this.desugared = null;
+    this.desugared = new Multiverse<String>("",p);
   }
 
     private DeclaringListValue(Multiverse<TypeSpecifier> typespecifier,
@@ -10106,7 +10107,8 @@ private static class DeclaringListValue {
   public boolean isEmpty() {
     return typespecifier.isEmpty() ||
       declarator.isEmpty() ||
-      initializer.isEmpty();
+      initializer.isEmpty() ||
+      desugared.isEmpty();
   }
   
   public String toString()
@@ -10119,6 +10121,17 @@ private static class DeclaringListValue {
 
   public DeclaringListValue filter(PresenceCondition p ) {
     return new DeclaringListValue(typespecifier.filter(p),declarator.filter(p),initializer.filter(p),desugared.filter(p));
+  }
+
+  public void destruct() {
+    typespecifier.destruct(); declarator.destruct(); initializer.destruct(); desugared.destruct();
+  }
+
+  public void addAll(DeclaringListValue d) {
+    typespecifier.addAll(d.typespecifier);
+    declarator.addAll(d.declarator);
+    initializer.addAll(d.initializer);
+    desugared.addAll(d.desugared);
   }
 }
 
@@ -10994,6 +11007,7 @@ private Object getTransformationValue(Subparser subparser, int component) {
  */
 private Object getTransformationValue(Object node) {
   Object transformationValue = ((Node) node).getProperty(TRANSFORMATION);
+  System.err.println();
   assert transformationValue != null;
   if (transformationValue == null) {
     throw new IllegalStateException("getting null transformation value");
@@ -11285,6 +11299,46 @@ private List<StructDeclaringListValue> getCompleteNodeStructDeclListValue(Node n
   // declarationorstatementlist is empty
   return resultlist;
 }
+
+private DeclaringListValue getCompleteNodeDeclaringListValue(Subparser subparser, int component, PresenceCondition pc) {
+  return getCompleteNodeDeclaringListValue(getNodeAt(subparser, component), pc);
+}
+
+private DeclaringListValue getCompleteNodeDeclaringListValue(Node node, PresenceCondition pc) {
+  Multiverse<Node> nodemv = staticCondToMultiverse(node, pc);
+  DeclaringListValue resultDeclList = new DeclaringListValue(new Multiverse<TypeSpecifier>(), new Multiverse<Declarator>(),
+                                                             new Multiverse<Initializer>(), new Multiverse<String>());
+  if (nodemv.isEmpty()) {
+    return resultDeclList;
+  }
+  for (Element<Node> elem : nodemv) {
+    DeclaringListValue innerDecl = (DeclaringListValue) ((Node) elem.getData()).getProperty(TRANSFORMATION);
+    System.err.println(innerDecl);
+    if (!innerDecl.isEmpty()) {
+      DeclaringListValue filtered = innerDecl.filter(elem.getCondition());
+      if (!filtered.isEmpty()) {
+        resultDeclList.addAll(filtered);
+      }
+      filtered.destruct();
+    }
+  }
+  nodemv.destruct();
+  
+  // it should not be possible to have an empty multiverse, as long as
+  // the pc correponds to the current subparsers's pc.
+  assert ! resultDeclList.isEmpty();
+
+  if (resultDeclList.isEmpty()) {
+    return resultDeclList;
+  }
+  
+  DeclaringListValue filtered = resultDeclList.filter(pc);
+  resultDeclList.destruct();
+    
+  return filtered;
+}
+
+
 
 /**
  * Get the semantic value for node that has a "complete" annotation
