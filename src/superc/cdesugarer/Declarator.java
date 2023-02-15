@@ -310,7 +310,7 @@ abstract class Declarator {
     }
 
     public Declarator switchForwardRef(List<Type> oldParams, PresenceCondition cond, CContext scope) {
-      return declarator.switchForwardRef(oldParams,cond,scope);
+      return new PointerDeclarator(declarator.switchForwardRef(oldParams,cond,scope));
     }
   }
 

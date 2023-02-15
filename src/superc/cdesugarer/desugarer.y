@@ -520,7 +520,6 @@ FunctionPrototype
                   newDeclarations.add(renamedDeclarator, entry.getCondition());
                 } else if (functionCouldExist(newtype,previoustype,scope,entry.getCondition())) {
                   transformForwardParams(renamedDeclarator,previoustype,entry.getCondition(),newDeclarations,scope);
-                  System.err.println(newDeclarations + "::" + entry.getCondition());
                 } else {
                   scope.putError(originalName, entry.getCondition());
                   recordInvalidGlobalDeclaration(originalName, entry.getCondition());

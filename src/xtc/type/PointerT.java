@@ -48,7 +48,7 @@ public class PointerT extends DerivedT {
   public PointerT(Type type) {
     this.type = type;
     for (Attribute a : type.attributes())
-	addAttribute(a);
+      addAttribute(a);
   }
 
   /**
