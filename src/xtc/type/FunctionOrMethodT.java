@@ -230,10 +230,11 @@ public abstract class FunctionOrMethodT extends DerivedT {
     r += ")";
     return r;
   }
-
     
   public void setDefined(PresenceCondition p) {
-    isDefined = isDefined.or(p);
+    PresenceCondition newCond = isDefined.or(p);
+    isDefined.delRef();
+    isDefined = newCond;
   }
 
   public boolean getDefined(PresenceCondition p ) {
@@ -241,12 +242,15 @@ public abstract class FunctionOrMethodT extends DerivedT {
   }
 
   public void setDefined() {
-    setDefined((new PresenceConditionManager()).newTrue());
+    PresenceCondition toSet = (new PresenceConditionManager()).newTrue();
+    setDefined(toSet);
+    toSet.delRef();
   }
 
   public boolean getDefined() {
-    return getDefined((new PresenceConditionManager()).newTrue());
+    PresenceCondition toSet = (new PresenceConditionManager()).newTrue();
+    boolean toRet = getDefined((new PresenceConditionManager()).newTrue());
+    toSet.delRef();
+    return toRet;
   }
-  
-  
 }
