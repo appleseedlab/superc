@@ -581,7 +581,8 @@ public class SugarC extends Tool {
       if (runtime.test("make-main")) {
         mainMethod = actions.printMain(scope, pcTrue);
       }
-
+      String prototypeMultiplex = actions.printMultiplexes(scope,pcTrue);
+      
       // emit headers
       System.out.print("#include <stdbool.h>\n");
       System.out.print("#include <stdlib.h>\n");
@@ -618,6 +619,8 @@ public class SugarC extends Tool {
         System.out.print(actions.linkerThunks(scope, pcTrue));
       }
 
+      System.out.print(actions.printMultiplexes(scope,pcTrue));
+      
       if (runtime.test("make-main")) {
         System.out.print(mainMethod);
       }

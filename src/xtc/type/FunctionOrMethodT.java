@@ -22,6 +22,8 @@ import java.io.IOException;
 
 import java.util.Iterator;
 import java.util.List;
+import superc.core.PresenceConditionManager;
+import superc.core.PresenceConditionManager.PresenceCondition;
 
 /**
  * The superclass of function and method types.
@@ -32,7 +34,7 @@ import java.util.List;
 public abstract class FunctionOrMethodT extends DerivedT {
 
     
-  private boolean isDefined;
+  private PresenceCondition isDefined;
   
     
   /** The result type. */
@@ -72,7 +74,7 @@ public abstract class FunctionOrMethodT extends DerivedT {
     this.parameters = parameters;
     this.varargs    = varargs;
     this.exceptions = exceptions;
-    isDefined = false;
+    isDefined = (new PresenceConditionManager()).newFalse();
   }
 
   public Type seal() {
@@ -188,7 +190,7 @@ public abstract class FunctionOrMethodT extends DerivedT {
   }
 
   public void write(Appendable out) throws IOException {
-    out.append('(');
+    out.append(name + ":(");
     for (Iterator<Type> iter = parameters.iterator(); iter.hasNext(); ) {
       iter.next().write(out);
       if (iter.hasNext() || varargs) {
@@ -230,13 +232,21 @@ public abstract class FunctionOrMethodT extends DerivedT {
   }
 
     
+  public void setDefined(PresenceCondition p) {
+    isDefined = isDefined.or(p);
+  }
+
+  public boolean getDefined(PresenceCondition p ) {
+    return isDefined.and(p).isNotFalse();
+  }
+
   public void setDefined() {
-    isDefined = true;
+    setDefined((new PresenceConditionManager()).newTrue());
   }
 
   public boolean getDefined() {
-    return isDefined;
+    return getDefined((new PresenceConditionManager()).newTrue());
   }
-
-    
+  
+  
 }

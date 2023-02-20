@@ -20,10 +20,13 @@ package superc.cdesugarer;
 
 import xtc.type.Type;
 import xtc.type.FunctionT;
+import xtc.type.VariableT;
 import xtc.type.FunctionOrMethodT;
 
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Iterator;
+
 /**
  * This is a slight modification of xtc.type.FunctionT so that it can
  * use the underlying FunctionOrMethodT's name.  This name field is
@@ -81,6 +84,40 @@ public class NamedFunctionT extends FunctionOrMethodT {
     }
     return copy;
   }
+
+  public String printSignature() {
+    String r = result.printType() + " " + name + " (";
+    int count = 0;
+    for (Iterator<Type> iter = parameters.iterator(); iter.hasNext(); ) {
+      Type t = iter.next();
+      if (!t.isVariable()) {System.err.println("illegal parameter print"); System.exit(-99); }
+      VariableT v = t.toVariable();
+      if (v.hasName()) r += v.printSignature();
+      else r += v.printSignature("x"+ String.valueOf(count));
+	    if (iter.hasNext() || varargs) {
+        r +=", ";
+	    }
+    }
+    r += ")";
+    return r;
+  }
+
+  public String getParamNames() {
+    String r = "";
+    int count = 0;
+    for (Iterator<Type> iter = parameters.iterator(); iter.hasNext(); ) {
+      Type t = iter.next();
+      if (!t.isVariable()) {System.err.println("illegal parameter print"); System.exit(-99); }
+      VariableT v = t.toVariable();
+      if (v.hasName()) r += v.getName();
+      else r += "x"+ String.valueOf(count);
+	    if (iter.hasNext() || varargs) {
+        r +=", ";
+	    }
+    }
+    return r;
+  }
+
   
   /**
    * Create a FunctionT.  This is done to support comparing types
@@ -92,7 +129,7 @@ public class NamedFunctionT extends FunctionOrMethodT {
                          getParameters(),
                          isVarArgs());
   }
-
+  
   public NamedFunctionT toNamedFunction() {
     return this;
   }

@@ -213,6 +213,20 @@ public class VariableT extends WrappedT {
     return getType().printType();
   }
 
+  public String printSignature() {
+    return printSignature(getName());
+  }
+  
+  public String printSignature(String name) {
+    if (getType().resolve().isPointer()) {
+      return ((PointerT)getType().resolve()).printType(name); 
+    } else if (getType().resolve().isArray()) {
+      return ((ArrayT)getType().resolve()).printType(name); 
+    } else {
+      return getType().resolve().printType() + " " + name;
+    }
+  }
+  
   // =========================================================================
 
   /**

@@ -1984,6 +1984,11 @@ public abstract class Type extends Node {
    */
   public abstract String printType();
 
+  public String printSignature() { return printType(); }
+
+  public String printSignature(String name) { return printSignature(); }
+  
+  
   public Type revertForwardRef(List<String> references, String forwardRef, String rename) {
     return this;
   }

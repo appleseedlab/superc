@@ -718,7 +718,6 @@ class TypeSpecifier {
         toRet.transformation.add(s);
       }
     }
-    System.err.println(this + "::" + toRet);
     return toRet;
   }
 }

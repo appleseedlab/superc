@@ -396,7 +396,8 @@ FunctionDefinitionExtension:  /** complete **/  // ADDED  // String
 
 FunctionDefinition:  /** complete **/ // added scoping  // String
 FunctionPrototype
-{restartLabelFunction();
+{
+  restartLabelFunction();
   // similar to Declaration, but different in that this has a
   // compoundstatement, while declaration has an initializer.
   PresenceCondition pc = subparser.getPresenceCondition();
@@ -412,6 +413,7 @@ FunctionPrototype
     Multiverse<TypeSpecifier> typespecifiermv = prototype.typespecifier;
     Multiverse<Declarator> declaratormv = prototype.declarator;
     Multiverse<Declarator> newDeclarations = new Multiverse<Declarator>();
+    Multiverse<TypeSpecifier> newTypes = new Multiverse<TypeSpecifier>();
     assert scope.isGlobal(); // function definitions should be global.  nested functions have a separate subgrammar.
     for (Element<TypeSpecifier> typespecifier : typespecifiermv) {
       PresenceCondition typespecifierCond = prototypeNode.getCondition().and(typespecifier.getCondition());
@@ -443,10 +445,12 @@ FunctionPrototype
 
             // the renamed declaration is used to get the type entry in the symtab
             String renaming;
+            String funcName = "";
             if (!entry.getData().isDeclared()) {
               renaming = freshCId(originalName);
             } else { //is declared
-              renaming = entry.getData().getValue().getName();
+              funcName = entry.getData().getValue().getName();
+              renaming = freshCId(entry.getData().getValue().getName());
             }
             Declarator renamedDeclarator = declarator.getData().rename(renaming);
             Declaration renamedDeclaration = new Declaration(typespecifier.getData(), renamedDeclarator);
@@ -488,38 +492,40 @@ FunctionPrototype
               ((NamedFunctionT)type).setDefined();
               // update the symbol table for this presence condition
               scope.put(originalName, type, entry.getCondition());
-
+ 
               // record the global/extern declaration using the original name for later use in handling linking
               if (scope.isGlobal() && isGlobalOrExtern(typespecifier.getData())) {
                 externalLinkage.put(originalName, originalDeclaration, entry.getCondition());
               }
-
+ 
               newDeclarations.add(renamedDeclarator, entry.getCondition());
-              
-              // shouldn't need to add forward decl, since if
-              // the function had a decl before, that will do
-              // the renaming.  if the function is missing a
-              // decl before def, then the function is
-              // implicitly declared to be () -> int
+              newTypes.add(typespecifier.getData(),entry.getCondition());
+               
+                // shouldn't need to add forward decl, since if
+                // the function had a decl before, that will do
+                // the renaming.  if the function is missing a
+                // decl before def, then the function is
+                // implicitly declared to be () -> int
                       
-              recordRenaming(renaming, originalName);
-
-            } else {
-              if (entry.getData().getValue().isNamedFunction()) {  // there is no Type.isFunctionOrMethod()
+                recordRenaming(renaming, originalName);
+            } else { 
+              if (entry.getData().getValue().isNamedFunction() && !((NamedFunctionT) entry.getData().getValue()).getDefined(entry.getCondition())) {  // there is no Type.isFunctionOrMethod()
                 FunctionT newtype = ((NamedFunctionT) type).toFunctionT();
                 FunctionT previoustype = ((NamedFunctionT) entry.getData().getValue()).toFunctionT();
-                newtype.setDefined();
-                ((NamedFunctionT) entry.getData().getValue()).setDefined();
+                newtype.setDefined(entry.getCondition());
+                ((NamedFunctionT) entry.getData().getValue()).setDefined(entry.getCondition());
                 // TODO: make sure a function is only defined
                 // once, although it can be declared multiple
                 // times.
 
                 // already declared entries
                 if (cOps.equal(newtype, previoustype)) {
-
                   newDeclarations.add(renamedDeclarator, entry.getCondition());
+                  newTypes.add(typespecifier.getData(),entry.getCondition());
+                  CContext.addMultiplex(funcName,renaming,entry.getCondition());
                 } else if (functionCouldExist(newtype,previoustype,scope,entry.getCondition())) {
-                  transformForwardParams(renamedDeclarator,previoustype,entry.getCondition(),newDeclarations,scope);
+                  transformFunctionRefs(renamedDeclarator,previoustype,entry.getCondition(),newDeclarations,typespecifier.getData(),newTypes,scope);
+                  CContext.addMultiplex(funcName,renaming,entry.getCondition());
                 } else {
                   scope.putError(originalName, entry.getCondition());
                   recordInvalidGlobalDeclaration(originalName, entry.getCondition());
@@ -547,6 +553,8 @@ FunctionPrototype
     } // end of loop over typespecifiers
     prototype.declarator.destruct();
     prototype.declarator = newDeclarations;
+    prototype.typespecifier.destruct();
+    prototype.typespecifier = newTypes;
   } 
 } CompoundStatement
 {
@@ -608,7 +616,6 @@ FunctionPrototype
     sb.append("/* no function due to type errors in the function prototype */\n");
   }
   setTransformationValue(value, sb.toString());
-          
 }
         /* | FunctionOldPrototype CompoundStatement */
         | FunctionOldPrototype { ReenterScope(subparser); } DeclarationList LBRACE FunctionCompoundStatement { ExitScope(subparser); } RBRACE
@@ -2400,7 +2407,6 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           
           Multiverse<TypeSpecifier> valuemv
             = DesugarOps.processStructDefinitionWithFlex(keyword, structTag, structfields, pc, scope, freshIdCreator, suTypeCreator);
-          System.err.println(valuemv);
           setTransformationValue(value, valuemv);
         }
         | STRUCT AttributeSpecifierListOpt IDENTIFIER LBRACE StructDeclarationList RBRACE
@@ -2442,8 +2448,7 @@ StructOrUnionSpecifier: /** complete **/  // ADDED attributes  // Multiverse<Typ
           // TODO: add attributes to type spec
           String structTag = ((Syntax) getNodeAt(subparser, 1)).getTokenText();
           Multiverse<TypeSpecifier> valuemv = DesugarOps.processStructReference(keyword, structTag, pc, scope, freshIdCreator, suTypeCreator);
-	  System.err.println(valuemv);
-          setTransformationValue(value, valuemv);
+	        setTransformationValue(value, valuemv);
         }
         | STRUCT AttributeSpecifierListOpt TYPEDEFname
         {
@@ -4297,7 +4302,6 @@ PostfixingFunctionDeclarator:  /** nomerge **/ // Multiverse<ParameterListDeclar
           }
           parametersmv.destruct();
           // no need to filter, since we started parametersmv with the subparser pc
-          System.err.println(paramlistmv);
           setTransformationValue(value, paramlistmv);
         }
         ;
@@ -4980,7 +4984,6 @@ SelectionStatement:  /** complete **/ // Multiverse<String>
           todoReminder("check the type of the conditional expression SelectionStatement (1)");
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue exprval = getCompleteNodeExpressionValue(subparser, 3, pc);
-          System.err.println(exprval);
           Syntax ifsyn = (getSyntaxMV(subparser, 5,pc)).get(0).getData();
           String ifstr = ifsyn.getTokenText();
           String lparenstr = (getSyntaxMV(subparser, 4,pc)).get(0).getData().getTokenText();
@@ -5210,7 +5213,6 @@ IterationStatement:  /** complete **/  // Multiverse<String>
           ExpressionValue testval = getCompleteNodeExpressionValue(subparser, 5, pc);
           String semi2 = ";";
           ExpressionValue updateval = getCompleteNodeExpressionValue(subparser, 3, pc);
-          System.err.println(updateval);
           Syntax rparensyn = (getSyntaxMV(subparser, 2,pc)).get(0).getData(); 
           String rparen = rparensyn.getTokenText();
           LineNumbers lw = new LineNumbers(forsyn,rparensyn);
@@ -5546,7 +5548,6 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
           // get the renamings from the symtab
           PresenceCondition cond = subparser.getPresenceCondition();
           Multiverse<SymbolTable.Entry<Type>> entries = scope.getInAnyScope(originalName, cond);
-          System.err.println(entries);
           // convert the renamings to stringbuilders
           Multiverse<String> sbmv = new Multiverse<String>();
           Multiverse<Type> typemv = new Multiverse<Type>();
@@ -5619,7 +5620,6 @@ PrimaryIdentifier: /** nomerge **/ // ExpressionValue
           // it and the symtab should always return a non-empty mv
           assert ! sbmv.isEmpty();
           entries.destruct();
-          System.err.println(new ExpressionValue(sbmv, typemv,new Multiverse<LineNumbers>(new LineNumbers((Syntax)getNodeAt(subparser, 1)),cond)));
           setTransformationValue(value, new ExpressionValue(sbmv, typemv,new Multiverse<LineNumbers>(new LineNumbers((Syntax)getNodeAt(subparser, 1)),cond)));
         }  /* We cannot use a typedef name as a variable */
         ;
@@ -5695,7 +5695,6 @@ StatementAsExpression:  /** nomerge **/  //ADDED
             String res = "( " + e.getData().getString(e.getCondition(),this) + " )";
             valuemv.add(res,e.getCondition());
             Multiverse<Type> tt = e.getData().getType();
-            System.err.println(tt);
             if (tt != null && !tt.isEmpty()) {
               typemv.addAll(tt);
             } else {
@@ -6058,7 +6057,6 @@ FunctionCall:  /** nomerge **/
               errorCond.delRef(); validTypes.delRef();
               
               assert ! valuemv.isEmpty();
-              System.err.println(valuemv + "::" + typemv);
               setTransformationValue(value, new ExpressionValue(valuemv, typemv, postfixexprval.integrateSyntax((Syntax)getNodeAt(subparser, 1))));
             } else {
               setTransformationValue(value, new ExpressionValue(emitError("no valid type for one or more arguments of the function call"),
@@ -6467,8 +6465,7 @@ CompoundLiteral:  /** nomerge **/  /* ADDED */
               cc.delRef();
             }
           }
-	  System.err.println(error);
-          initializerlistmv.destruct();
+	        initializerlistmv.destruct();
 
           Multiverse<String> mv4
             = mv2.product(initializerliststr, DesugarOps.concatStrings); initializerliststr.destruct(); //mv3.destruct();
@@ -6591,8 +6588,7 @@ UnaryExpression:  /** passthrough, nomerge **/  // ExpressionValue
           resultmv.add(emitError("no valid type found in unary operation"),t.getCondition());
           resulttypemv.add(ErrorT.TYPE,t.getCondition());
         } else {
-          System.err.println(op.getData() + " :: " + t.getData());
-
+          
           Type innerType;
           if (t.getData().isPointer()) {
             innerType = t.getData().toPointer().getType();
@@ -6990,7 +6986,6 @@ MultiplicativeExpression:  /** passthrough, nomerge **/  // ExpressionValue
           PresenceCondition pc = subparser.getPresenceCondition();
           ExpressionValue leftval = getCompleteNodeExpressionValue(subparser, 3, pc);
           ExpressionValue rightval = getCompleteNodeExpressionValue(subparser, 1, pc);
-          System.err.println(leftval);
           Multiverse<String> leftmv = leftval.transformation;
           Multiverse<String> opmv = new Multiverse<String>(((Syntax) getNodeAt(subparser, 2)).getTokenText(), pc);
           Multiverse<String> rightmv = rightval.transformation;
@@ -7608,8 +7603,7 @@ AssignmentExpression:  /** passthrough, nomerge **/  // ExpressionValue
 	      valuemv.add("invalid assignment expression", errorCond);
 	    }
             errorCond.delRef(); typesafeCond.delRef();
-	    System.err.println(typemv);
-            setTransformationValue(value, new ExpressionValue(valuemv, typemv, leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers)));
+	          setTransformationValue(value, new ExpressionValue(valuemv, typemv, leftval.lines.product(rightval.lines, DesugarOps.combineLineNumbers)));
             
           } else {  // no valid types
             setTransformationValue(value, new ExpressionValue(emitError("no valid type found in assignment expression"),
@@ -8340,7 +8334,6 @@ public static void keepMemoryNames(boolean f) {
    if (initializermv.size() == 1 && initializermv.get(0).getData().isEmpty()) {
      declList.add(decl);
    } else {
-     System.err.println(decl);
      for (Element<Declarator> declarator : decl.declarator) {
        String originalName = declarator.getData().getName();
        Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, declarator.getCondition());
@@ -9632,7 +9625,6 @@ static public Multiverse<Boolean> hasField(UnionT u, Type t, CContext scope, Pre
 
 static public boolean compatParam(Type t1u, Type t2u) {
   Type t1 = t1u.resolve(), t2 = t2u.resolve();
-  System.err.println("types:" + t1 + " " + t2);
   if ((t1.isPointer() || t1.isArray()) && t2.isNumber()) {
     return true;
   } else if (t2.isPointer() && t1.isPointer()) {
@@ -9673,8 +9665,18 @@ static public boolean functionCouldExist(Type newType, Type prevType, CContext s
   if (!newType.isFunction() || !prevType.isFunction()) {
     return false;
   }
-  List<Type> newParams = ((FunctionT)newType).getParameters();
-  List<Type> oldParams = ((FunctionT)prevType).getParameters();
+  FunctionT newf = newType.toFunction();
+  FunctionT oldf = prevType.toFunction();
+
+  if (!cOps.equal(newf.getResult(),oldf.getResult())) {
+    if (!typeCouldBeRef(newf.getResult(),oldf.getResult(),scope,cond)) {
+      return false;
+    }
+
+  }
+  
+  List<Type> newParams = newf.getParameters();
+  List<Type> oldParams = oldf.getParameters();
 
   if (newParams.size() != oldParams.size()) {
     return false;
@@ -9685,16 +9687,24 @@ static public boolean functionCouldExist(Type newType, Type prevType, CContext s
     if (cOps.equal(newT,oldT)) {
       continue;
     }
-    while (newT.isPointer()) {
+    if (!typeCouldBeRef(newT,oldT,scope,cond)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+static public boolean typeCouldBeRef(Type newT, Type oldT, CContext scope, PresenceCondition cond) {
+  while (newT.isPointer()) {
       if (!oldT.isPointer()) {
         return false;
       }
       newT = ((PointerT)newT).getType();
       oldT = ((PointerT)oldT).getType();
-    }
-    
-    if (newT.isStruct() && oldT.isStruct()) {
-      if (! ((StructT)oldT).getName().startsWith("__forward_tag_reference")){
+  }
+  
+  if (newT.isStruct() && oldT.isStruct()) {
+    if (! ((StructT)oldT).getName().startsWith("__forward_tag_reference")){
         return false;
       }
       String originalTag = scope.getForwardTagReferenceAnyScope(((StructT)oldT).getName());                
@@ -9712,13 +9722,30 @@ static public boolean functionCouldExist(Type newType, Type prevType, CContext s
     } else {
       return false;
     }
-  }
   return true;
 }
 
-static public void transformForwardParams(Declarator toTransform, Type prevType, PresenceCondition cond, Multiverse<Declarator> decs, CContext scope) {
+static public void transformFunctionRefs(Declarator toTransform, Type prevType, PresenceCondition cond, Multiverse<Declarator> decs, TypeSpecifier typespec, Multiverse<TypeSpecifier> types , CContext scope) {
+  if (!prevType.isFunction()) {
+    System.err.println("Error reverting refs of nonfunction");
+    System.exit(1);
+  }
   List<Type> oldParams = ((FunctionT)prevType).getParameters();
   decs.add(toTransform.switchForwardRef(oldParams,cond,scope),cond);
+  Type resType = prevType.toFunction().getResult();
+  while (resType.isPointer()) {resType = resType.toPointer().getType();}
+  if (resType.isStruct() && ((StructT)resType).getName().startsWith("__forward_tag_reference_")) {
+    String originalTag = scope.getForwardTagReferenceAnyScope(((StructT)resType).getName());
+    Multiverse<SymbolTable.Entry<Type>> originalTagEntries
+      = scope.getInAnyScope(CContext.toTagName(originalTag), cond);
+    List<String> names = new LinkedList<String>();
+    for (Element<SymbolTable.Entry<Type>> e : originalTagEntries) {
+      names.add(((StructT)e.getData().getValue()).getName());
+    }
+    types.add(typespec.revertForwardRefs(names,((StructT)resType).getName(),toTransform.getName()),cond);
+  } else {
+    types.add(typespec,cond);
+  }
 }
 
 
@@ -10858,7 +10885,6 @@ private Object getTransformationValue(Subparser subparser, int component) {
  */
 private Object getTransformationValue(Object node) {
   Object transformationValue = ((Node) node).getProperty(TRANSFORMATION);
-  System.err.println();
   assert transformationValue != null;
   if (transformationValue == null) {
     throw new IllegalStateException("getting null transformation value");
@@ -11164,7 +11190,6 @@ private DeclaringListValue getCompleteNodeDeclaringListValue(Node node, Presence
   }
   for (Element<Node> elem : nodemv) {
     DeclaringListValue innerDecl = (DeclaringListValue) ((Node) elem.getData()).getProperty(TRANSFORMATION);
-    System.err.println(innerDecl);
     if (!innerDecl.isEmpty()) {
       DeclaringListValue filtered = innerDecl.filter(elem.getCondition());
       if (!filtered.isEmpty()) {
@@ -11577,6 +11602,35 @@ private void recordInvalidGlobalRedeclaration(String ident, PresenceCondition co
  */
 private void recordRenaming(String renaming, String original) {
   recordedRenamings.append(String.format("__static_renaming(\"%s\", \"%s\");\n", renaming, original));
+}
+
+public String printMultiplexes(CContext scope, PresenceCondition pc) {
+  String ret = "";
+  for (Map.Entry<String,Multiverse<String>> m : CContext.getMultiplexes().entrySet()) {
+    String originalName = m.getKey();
+    while (originalName.charAt(originalName.length()-1) >= '0' && originalName.charAt(originalName.length()-1) <= '9') {
+      originalName = originalName.substring(0,originalName.length()-1);
+    }
+    originalName = originalName.substring(2,originalName.length()-1);
+    Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, pc);
+    for (Element<SymbolTable.Entry<Type>> entry : entries) {
+      if (!entry.getData().isDeclared()) { continue; }
+      Type t = entry.getData().getValue();
+      if (!t.isNamedFunction()) { continue; }
+      NamedFunctionT nft = t.toNamedFunction();
+      if (!m.getKey().equals(nft.getName())) { continue; }
+      ret += nft.printSignature() + " {\n";
+      String params = nft.getParamNames();
+      for (Element<String> plex : m.getValue()) {
+        ret += String.format("if (%s) { return %s(%s); }\n",
+                             condToCVar(plex.getCondition()),
+                             plex.getData(),
+                             params);
+      }
+      ret += "}\n";
+    }
+  }  
+  return ret;
 }
 
 public String printMain(CContext scope, PresenceCondition pc) {
