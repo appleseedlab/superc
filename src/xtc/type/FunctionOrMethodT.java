@@ -249,7 +249,7 @@ public abstract class FunctionOrMethodT extends DerivedT {
 
   public boolean getDefined() {
     PresenceCondition toSet = (new PresenceConditionManager()).newTrue();
-    boolean toRet = getDefined((new PresenceConditionManager()).newTrue());
+    boolean toRet = getDefined(toSet);
     toSet.delRef();
     return toRet;
   }
