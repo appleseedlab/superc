@@ -1,9 +1,9 @@
 struct x;
-
+enum z {R,S,T};
 #ifdef A
 struct x* foo(struct x *);
 #else
-int foo(int a, struct x *z);
+int foo(enum z a, struct x *z);
 #endif
 
 #ifdef B
@@ -26,6 +26,6 @@ int main() {
 #ifdef C
 struct x* foo(struct x* q) { return q;} 
 #else
-int foo(int a, struct x* z) {return a;}
+int foo(enum z a, struct x* z) {return a;}
 #endif
 

@@ -29,6 +29,7 @@
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_typedef_parameter_configurable.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_parameters_configurable.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_parameters_empty_configurable.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_abstract_parameter.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/basic_functions.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_pointer.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_qualified_void_pointer.c :: match
@@ -107,9 +108,6 @@
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/syntactic_error_integration/enum_error.c :: 1/2
 	['0', '157']/['0', '0']
 	[' REPEATED::157/0']
-/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_abstract_parameter.c :: 0/2
-	['16', '4']/['777', '777']
-	['::16/777', ' ENABLE_A::4/777']
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/K&R/injected/function_typedef_parameter_configurable.c :: did not desug
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/K&R/injected/function_parameters_configurable.c :: did not desug
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/K&R/injected/function_parameters_empty_configurable.c :: did not desug

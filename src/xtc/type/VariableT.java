@@ -222,6 +222,8 @@ public class VariableT extends WrappedT {
       return ((PointerT)getType().resolve()).printType(name); 
     } else if (getType().resolve().isArray()) {
       return ((ArrayT)getType().resolve()).printType(name); 
+    } else if (getType().isEnum()) {
+      return getType().printType() + " " + name;
     } else {
       return getType().resolve().printType() + " " + name;
     }
