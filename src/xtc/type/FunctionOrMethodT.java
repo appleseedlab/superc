@@ -34,7 +34,7 @@ import superc.core.PresenceConditionManager.PresenceCondition;
 public abstract class FunctionOrMethodT extends DerivedT {
 
     
-  private PresenceCondition isDefined;
+  //  private PresenceCondition isDefined;
   
     
   /** The result type. */
@@ -74,7 +74,7 @@ public abstract class FunctionOrMethodT extends DerivedT {
     this.parameters = parameters;
     this.varargs    = varargs;
     this.exceptions = exceptions;
-    isDefined = (new PresenceConditionManager()).newFalse();
+    //isDefined = (new PresenceConditionManager()).newFalse();
   }
 
   public Type seal() {
@@ -231,7 +231,7 @@ public abstract class FunctionOrMethodT extends DerivedT {
     return r;
   }
     
-  public void setDefined(PresenceCondition p) {
+  /*  public void setDefined(PresenceCondition p) {
     PresenceCondition newCond = isDefined.or(p);
     isDefined.delRef();
     isDefined = newCond;
@@ -252,5 +252,5 @@ public abstract class FunctionOrMethodT extends DerivedT {
     boolean toRet = getDefined(toSet);
     toSet.delRef();
     return toRet;
-  }
+    }*/
 }
