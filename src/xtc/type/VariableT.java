@@ -20,6 +20,7 @@ package xtc.type;
 
 import java.io.IOException;
 import java.util.List;
+import xtc.Constants;
 
 /**
  * A variable.  This pseudo-type captures the name for globals,
@@ -218,12 +219,14 @@ public class VariableT extends WrappedT {
   }
   
   public String printSignature(String name) {
-    if (getType().resolve().isPointer()) {
-      return ((PointerT)getType().resolve()).printType(name); 
-    } else if (getType().resolve().isArray()) {
-      return ((ArrayT)getType().resolve()).printType(name); 
+    if (getType().isPointer()) {
+      return ((PointerT)getType()).printType(name); 
+    } else if (getType().isArray()) {
+      return ((ArrayT)getType()).printType(name); 
     } else if (getType().isEnum()) {
       return getType().printType() + " " + name;
+    } else if (getType().isAnnotated()) {
+      return getType().toAnnotated().printType(name);
     } else {
       return getType().resolve().printType() + " " + name;
     }

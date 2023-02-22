@@ -262,6 +262,7 @@ import xtc.type.NumberT;
 import xtc.type.IntegerT;
 import xtc.type.FloatT;
 import xtc.type.PointerT;
+import xtc.type.AnnotatedT;
 import xtc.type.Reference;
 import xtc.type.StaticReference;
 import xtc.type.StringReference;
@@ -481,7 +482,7 @@ FunctionPrototype
                                            renaming,
                                            declarationType.toFunction().getParameters(),
                                            declarationType.toFunction().isVarArgs());
-                    
+            
             if (entry.getData().isError() || invalidTypeSpec) {
               // ERROR entry
               System.err.println(String.format("INFO: \"%s\" is being redeclared in an existing invalid declaration", originalName));
@@ -512,21 +513,26 @@ FunctionPrototype
               if (entry.getData().getValue().isNamedFunction()) {  // there is no Type.isFunctionOrMethod()
                 FunctionT newtype = ((NamedFunctionT) type).toFunctionT();
                 FunctionT previoustype = ((NamedFunctionT) entry.getData().getValue()).toFunctionT();
+
                 //newtype.setDefined(entry.getCondition());
                 //((NamedFunctionT) entry.getData().getValue()).setDefined(entry.getCondition());
                 // TODO: make sure a function is only defined
                 // once, although it can be declared multiple
                 // times.
-
+                System.err.println(newtype+"::"+previoustype);
                 // already declared entries
                 if (cOps.equal(newtype, previoustype)) {
+                System.err.println("eq");
                   newDeclarations.add(renamedDeclarator, entry.getCondition());
                   newTypes.add(typespecifier.getData(),entry.getCondition());
                   CContext.addMultiplex(funcName,renaming,entry.getCondition());
                 } else if (functionCouldExist(newtype,previoustype,scope,entry.getCondition())) {
+                System.err.println("could");
                   transformFunctionRefs(renamedDeclarator,previoustype,entry.getCondition(),newDeclarations,typespecifier.getData(),newTypes,scope);
                   CContext.addMultiplex(funcName,renaming,entry.getCondition());
                 } else {
+                System.err.println("err");
+                  
                   scope.putError(originalName, entry.getCondition());
                   recordInvalidGlobalDeclaration(originalName, entry.getCondition());
                   // record the global/extern declaration using the original name for later use in handling linking
@@ -9684,7 +9690,7 @@ static public boolean functionCouldExist(Type newType, Type prevType, CContext s
   for (int i = 0; i < newParams.size(); ++i) {
     Type newT = ((VariableT)newParams.get(i)).getType();
     Type oldT = ((VariableT)oldParams.get(i)).getType();
-    if (cOps.equal(newT,oldT)) {
+    if (cOps.equal(newT.resolve(),oldT.resolve())) {
       continue;
     }
     if (!typeCouldBeRef(newT,oldT,scope,cond)) {
@@ -9695,33 +9701,50 @@ static public boolean functionCouldExist(Type newType, Type prevType, CContext s
 }
 
 static public boolean typeCouldBeRef(Type newT, Type oldT, CContext scope, PresenceCondition cond) {
-  while (newT.isPointer()) {
+  while (newT.isPointer() || newT.isAnnotated() || newT.isArray()) {
+    if (newT.isPointer()) {
       if (!oldT.isPointer()) {
         return false;
       }
       newT = ((PointerT)newT).getType();
       oldT = ((PointerT)oldT).getType();
+    }
+    if (newT.isArray()) {
+      if (!oldT.isArray()) {
+        return false;
+      }
+      newT = ((ArrayT)newT).getType();
+      oldT = ((ArrayT)oldT).getType();
+    }
+    if (newT.isAnnotated()) {
+      if (newT.toAnnotated().sameAnnotations(oldT)) {
+        return false;
+      }
+      newT = ((AnnotatedT)newT).getType();
+      oldT = ((AnnotatedT)oldT).getType();
+    }
   }
+  
   
   if (newT.isStruct() && oldT.isStruct()) {
     if (! ((StructT)oldT).getName().startsWith("__forward_tag_reference")){
-        return false;
-      }
-      String originalTag = scope.getForwardTagReferenceAnyScope(((StructT)oldT).getName());                
-      
-      Multiverse<SymbolTable.Entry<Type>> originalTagEntries
-      = scope.getInAnyScope(CContext.toTagName(originalTag), cond);
-      
-      boolean found = false;
-      for (Element<SymbolTable.Entry<Type>> e : originalTagEntries) {
-        found = found || cOps.equal(e.getData().getValue(),newT);
-      }
-      if (!found) {
-        return false;
-      }
-    } else {
       return false;
     }
+    String originalTag = scope.getForwardTagReferenceAnyScope(((StructT)oldT).getName());                
+    
+    Multiverse<SymbolTable.Entry<Type>> originalTagEntries
+      = scope.getInAnyScope(CContext.toTagName(originalTag), cond);
+    
+    boolean found = false;
+    for (Element<SymbolTable.Entry<Type>> e : originalTagEntries) {
+      found = found || cOps.equal(e.getData().getValue(),newT);
+    }
+    if (!found) {
+      return false;
+    }
+  } else {
+    return false;
+  }
   return true;
 }
 
@@ -11613,6 +11636,7 @@ public String printMultiplexes(CContext scope, PresenceCondition pc) {
     }
     originalName = originalName.substring(2,originalName.length()-1);
     Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, pc);
+    System.err.println(entries);
     for (Element<SymbolTable.Entry<Type>> entry : entries) {
       if (!entry.getData().isDeclared()) { continue; }
       Type t = entry.getData().getValue();

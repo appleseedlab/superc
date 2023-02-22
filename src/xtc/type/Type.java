@@ -209,6 +209,8 @@ public abstract class Type extends Node {
   /** This type's scope. */
   String scope;
 
+  boolean isConst = false;
+  
   /** This type's constant value. */
   Constant constant;
 
@@ -239,6 +241,7 @@ public abstract class Type extends Node {
     this.language = template.language;
     this.scope    = template.scope;
     this.constant = template.constant;
+    this.isConst = template.isConst;
     this.shape    = template.shape;
     if (null != template.attributes) {
       this.attributes = new ArrayList<Attribute>(template.attributes);
@@ -319,6 +322,15 @@ public abstract class Type extends Node {
     return isAnnotated() && (! isSealed()) ? this : new AnnotatedT(this);
   }
 
+  public Type setConst() {
+    isConst = true;
+    return this;
+  };
+
+  public boolean isConst() {
+    return isConst;
+  }
+  
   /**
    * Deannotate this type.  This method strips away any {@link
    * AnnotatedT} from this type.
