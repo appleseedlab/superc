@@ -88,7 +88,7 @@ public class VoidT extends Type {
   }
 
   public void printType(TypeString t) {
-    t.addToFront("void");
+    t.setCore("void");
   }
   
 }

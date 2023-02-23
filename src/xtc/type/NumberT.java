@@ -384,7 +384,7 @@ public abstract class NumberT extends Type {
   }
 
   public void printType(TypeString t) {
-    t.addToFront(toString() + " " );
+    t.setCore(toString());
   }
   
 }

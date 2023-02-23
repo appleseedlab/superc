@@ -2,6 +2,7 @@ package xtc.type;
 
 public class TypeString {
 
+  public String coreType;
   public String retType; 
   public String declPre; 
   public String declPost; 
@@ -10,6 +11,7 @@ public class TypeString {
   public boolean inReturn;
   
   public TypeString() {
+    coreType = "";
     retType = "";
     declPre = "";
     declPost = "";
@@ -18,6 +20,10 @@ public class TypeString {
     inReturn = false;
   }
 
+  public void setCore(String s) {
+    coreType = s;
+  }
+  
   public void addToFront(String s) {
     if (inReturn) {
       retType = retType + s; 
@@ -45,8 +51,7 @@ public class TypeString {
   }
 
   public String toString() {
-    if (!retType.equals(""))
-      return retType + "(" + declPre + id + declPost + ")" + corePost;
-    return declPre + id + declPost + corePost;
+      return coreType + " " + retType + "(" + declPre + id + declPost + ")" + corePost;
+      //return declPre + id + declPost + corePost;
   }
 }

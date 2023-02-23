@@ -88,7 +88,7 @@ public class BooleanT extends Type {
   }
 
   public void printType(TypeString t) {
-    t.addToFront("bool");
+    t.setCore("bool");
   }
   
 }

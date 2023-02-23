@@ -217,6 +217,6 @@ public class EnumT extends WrappedT implements Tagged {
   }
 
     public void printType(TypeString t) {
-    t.addToFront("enum " + name + " ");
+    t.setCore("enum " + name);
   }
 }

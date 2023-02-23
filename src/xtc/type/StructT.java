@@ -95,7 +95,7 @@ public class StructT extends StructOrUnionT {
   }
   
   public void printType(TypeString t) {
-    t.addToFront("struct " + name + " ");
+    t.setCore("struct " + name);
   }
   
   public Type revertForwardRef(List<String> references, String forwardRef, String rename) {
