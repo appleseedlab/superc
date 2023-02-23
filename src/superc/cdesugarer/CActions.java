@@ -11792,7 +11792,7 @@ public String printMultiplexes(CContext scope, PresenceCondition pc) {
       if (!t.isNamedFunction()) { continue; }
       NamedFunctionT nft = t.toNamedFunction();
       if (!m.getKey().equals(nft.getName())) { continue; }
-      ret += nft.printSignature() + " {\n";
+      ret += nft.printType() + " {\n";
       String params = nft.getParamNames();
       for (Element<String> plex : m.getValue()) {
         ret += String.format("if (%s) { return %s(%s); }\n",

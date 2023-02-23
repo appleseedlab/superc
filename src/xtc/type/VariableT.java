@@ -210,26 +210,9 @@ public class VariableT extends WrappedT {
     out.append(')');
   }
 
-  public String printType() {
-    return getType().printType();
-  }
-
-  public String printSignature() {
-    return printSignature(getName());
-  }
-  
-  public String printSignature(String name) {
-    if (getType().isPointer()) {
-      return ((PointerT)getType()).printType(name); 
-    } else if (getType().isArray()) {
-      return ((ArrayT)getType()).printType(name); 
-    } else if (getType().isEnum()) {
-      return getType().printType() + " " + name;
-    } else if (getType().isAnnotated()) {
-      return getType().toAnnotated().printType(name);
-    } else {
-      return getType().resolve().printType() + " " + name;
-    }
+  public void printType(TypeString t) {
+    getType().printType(t);
+    t.id = getName();
   }
   
   // =========================================================================
@@ -284,10 +267,10 @@ public class VariableT extends WrappedT {
   public static VariableT newBitfield(Type type, String name, int width) {
     return new VariableT(null, type, name, width);
   }
-
+  
   public Type revertForwardRef(List<String> references, String forwardRef, String rename) {
     return new VariableT(this, getType().revertForwardRef(references, forwardRef, rename), this.kind, rename);
   }
-
+  
   
 }

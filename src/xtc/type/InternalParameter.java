@@ -101,4 +101,8 @@ public class InternalParameter extends Parameter {
     return Long.toString(nonce);
   }
 
+  public void printType(TypeString t) {
+    t.addToFront(Long.toString(nonce));
+  }
+  
 }

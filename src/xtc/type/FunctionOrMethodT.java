@@ -208,49 +208,34 @@ public abstract class FunctionOrMethodT extends DerivedT {
     }
   }
 
-  public String printType() {
-    String r = result.printType() + "(";
-    for (Iterator<Type> iter = parameters.iterator(); iter.hasNext(); ) {
-      r += iter.next().printType();
-      if (iter.hasNext() || varargs) {
-        r +=", ";
+  public void printType(TypeString t) {
+    System.err.println(t);
+    t.inReturn = true;
+    result.printType(t);
+    t.inReturn = false;
+    System.err.println(t);
+    t.corePost += "(";
+    t.id = name;
+    int count = 0;
+    if (parameters.size() == 1 && parameters.get(0).toVariable().getType().isVoid()) {
+      t.corePost += "void)";
+    } else {
+      for (Iterator<Type> iter = parameters.iterator(); iter.hasNext(); ) {
+        Type type = iter.next();
+        if (!type.isVariable()) {System.err.println("illegal parameter print"); System.exit(-99); }
+        VariableT v = type.toVariable();
+        if (v.hasName()){
+          t.corePost += v.printType();
+        }else{
+          t.corePost += v.printType("x"+ String.valueOf(count));
+        }
+        if (iter.hasNext() || varargs) {
+          t.corePost +=", ";
+        }
+        count++;
       }
+      t.corePost += ")";
     }
-    r += ")";
-    return r;
   }
-  public String printType(String insert) {
-    String r = result.printType() + insert + "(";
-    for (Iterator<Type> iter = parameters.iterator(); iter.hasNext(); ) {
-	    r += iter.next().printType();
-	    if (iter.hasNext() || varargs) {
-        r +=", ";
-	    }
-    }
-    r += ")";
-    return r;
-  }
-    
-  /*  public void setDefined(PresenceCondition p) {
-    PresenceCondition newCond = isDefined.or(p);
-    isDefined.delRef();
-    isDefined = newCond;
-  }
-
-  public boolean getDefined(PresenceCondition p ) {
-    return isDefined.and(p).isNotFalse();
-  }
-
-  public void setDefined() {
-    PresenceCondition toSet = (new PresenceConditionManager()).newTrue();
-    setDefined(toSet);
-    toSet.delRef();
-  }
-
-  public boolean getDefined() {
-    PresenceCondition toSet = (new PresenceConditionManager()).newTrue();
-    boolean toRet = getDefined(toSet);
-    toSet.delRef();
-    return toRet;
-    }*/
+  
 }

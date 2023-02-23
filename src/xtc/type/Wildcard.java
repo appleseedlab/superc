@@ -92,5 +92,8 @@ public class Wildcard extends Parameter {
   public String printType() {
     return "";
   }
+
+  public void printType(TypeString t) {
+  }
   
 }

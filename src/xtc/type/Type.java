@@ -1989,16 +1989,20 @@ public abstract class Type extends Node {
     return Collections.unmodifiableList(types);
   }
 
-  /**
-   * prints the type as it would be written
-   * this is only meant to replicate a given type
-   * not to be used as a replacement
-   */
-  public abstract String printType();
-
-  public String printSignature() { return printType(); }
-
-  public String printSignature(String name) { return printSignature(); }
+  public abstract void printType(TypeString t);
+  
+  public String printType() {
+    TypeString t = new TypeString();
+    printType(t);
+    return t.toString();
+  }
+  
+  public String printType(String s) {
+    TypeString t = new TypeString();
+    printType(t);
+    t.id = s;
+    return t.toString();
+  }
   
   
   public Type revertForwardRef(List<String> references, String forwardRef, String rename) {

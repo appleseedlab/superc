@@ -88,30 +88,11 @@ public class AnnotatedT extends WrappedT {
     out.append(')');
   }
 
-  public String printType(String extra) {
-    String ret = "";
+  public void printType(TypeString t ) {
+    getType().printType(t);
     if (attributes.contains(Constants.ATT_CONSTANT)) {
-      ret = "const ";
+      t.addToFront("const ");
     }
-    if (getType().isPointer())
-      ret += getType().toPointer().printType(extra);
-    else if (getType().isArray())
-      ret += getType().toArray().printType(extra);
-    else if (getType().isFunction())
-      ret += getType().toFunction().printType(extra);
-    else
-      ret += getType().printType() + " " + extra;
-    return ret;
-  }
-  
-  
-  public String printType() {
-    String ret = "";
-    if (attributes.contains(Constants.ATT_CONSTANT)) {
-      ret = "const ";
-    }
-    ret += getType().printType();
-    return ret;
   }
 
 }

@@ -114,50 +114,11 @@ public class PointerT extends DerivedT {
     out.append(')');
   }
 
-   
-    public boolean innerMostIsFunction() {
-	if (type.resolve().isPointer()) {
-	    return ((PointerT)type.resolve()).innerMostIsFunction();
-	} else if (type.resolve().isArray()) {
-	    return ((ArrayT)type.resolve()).innerMostIsFunction();
-
-	}
-	return type.resolve().isFunction();
-    }
-
-    public String printType(String extra) {
-    
-    Type type = getType();
-    if (!innerMostIsFunction()) {
-      return type.printType()+"*"+extra;
-    } else if (type.isPointer()) {
-        return ((PointerT)type).printType("*"+extra); 
-    } else if (type.isArray()) {
-      return ((ArrayT)type).printType("*"+extra); 
-    } else if (type.isAnnotated()) {
-      return type.toAnnotated().printType("*"+extra);
-    } else {
-      return ((FunctionT)type).printType("*"+extra);
-    }
-    
-    }
-    
-  public String printType() {
-    Type type = getType();
-    if (!innerMostIsFunction()) {
-      return type.printType()+"*";
-    } else if (type.isPointer()) {
-        return ((PointerT)type).printType("*"); 
-    } else if (type.isArray()) {
-      return ((ArrayT)type).printType("*"); 
-    } else if (type.isAnnotated()) {
-      return type.toAnnotated().printType("*");
-    } else {
-      return ((FunctionT)type).printType("*");
-    }
-    
+  public void printType(TypeString t) {
+    getType().printType(t);
+    t.addToFront("*");
   }
-
+  
   public Type revertForwardRef(List<String> references, String forwardRef, String rename) {
     return new PointerT(type.revertForwardRef(references, forwardRef, rename));
   }

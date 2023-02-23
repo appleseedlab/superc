@@ -76,5 +76,5 @@ public class FloatT extends NumberT {
   public FloatT toFloat() {
     return this;
   }
-
+  
 }
