@@ -209,11 +209,13 @@ public abstract class FunctionOrMethodT extends DerivedT {
   }
 
   public void printType(TypeString t) {
-    System.err.println(t);
+    if (t.inReturn) {
+      t.coreType = printType();
+      return;
+    }
     t.inReturn = true;
     result.printType(t);
     t.inReturn = false;
-    System.err.println(t);
     t.corePost += "(";
     t.id = name;
     int count = 0;

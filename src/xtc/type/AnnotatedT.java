@@ -91,7 +91,7 @@ public class AnnotatedT extends WrappedT {
   public void printType(TypeString t ) {
     getType().printType(t);
     if (attributes.contains(Constants.ATT_CONSTANT)) {
-      t.addToFront("const ");
+      t.addAttribute("const");
     }
   }
 

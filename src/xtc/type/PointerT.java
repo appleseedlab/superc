@@ -115,7 +115,9 @@ public class PointerT extends DerivedT {
   }
 
   public void printType(TypeString t) {
+    t.wrap++;
     getType().printType(t);
+    t.wrap--;
     t.addToFront("*");
   }
   

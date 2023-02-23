@@ -206,7 +206,9 @@ public class ArrayT extends DerivedT {
   }
 
   public void printType(TypeString t ) {
+    t.wrap++;
     getType().printType(t);
+    t.wrap--;
     if (-1 == length) 
       t.addArray();
     else

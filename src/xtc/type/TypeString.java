@@ -9,6 +9,7 @@ public class TypeString {
   public String corePost; 
   public String id;
   public boolean inReturn;
+  public int wrap;
   
   public TypeString() {
     coreType = "";
@@ -18,6 +19,7 @@ public class TypeString {
     corePost = "";
     id = "";
     inReturn = false;
+    wrap = 0;
   }
 
   public void setCore(String s) {
@@ -26,9 +28,9 @@ public class TypeString {
   
   public void addToFront(String s) {
     if (inReturn) {
-      retType = retType + s; 
+      retType = retType + " " + s; 
     } else {
-      declPre = declPre + s;
+      declPre = declPre + " " + s;
     }
   }
 
@@ -50,6 +52,14 @@ public class TypeString {
     }
   }
 
+  public void addAttribute(String s) {
+    if (wrap > 0) {
+      addToFront(s);
+    }else {
+      coreType = s + coreType;
+    }
+  }
+  
   public String toString() {
       return coreType + " " + retType + "(" + declPre + id + declPost + ")" + corePost;
       //return declPre + id + declPost + corePost;
