@@ -30,7 +30,7 @@ public class TypeString {
     if (inReturn) {
       retType = retType + " " + s; 
     } else {
-      declPre = declPre + " " + s;
+      declPre =  declPre + s;
     }
   }
 
@@ -43,25 +43,28 @@ public class TypeString {
     }
   }
   
-  public void addArray(long l) {
+  public void addArray(String s) {
     if (inReturn) {
-      corePost = "[" + String.valueOf(l) + "]" + corePost;
+      corePost = "[" + s + "]" + corePost;
     } else {
       declPre = "(" + declPre;
-      declPost = declPost + ")[" + String.valueOf(l) + "]";
+      declPost = declPost + ")[" + s + "]";
     }
   }
 
+  
   public void addAttribute(String s) {
     if (wrap > 0) {
       addToFront(s);
-    }else {
-      coreType = s + coreType;
+    } else {
+      coreType = s + " " + coreType;
     }
   }
   
   public String toString() {
+    if (!retType.equals("")) {
       return coreType + " " + retType + "(" + declPre + id + declPost + ")" + corePost;
-      //return declPre + id + declPost + corePost;
+    }
+    return coreType + " " + declPre + id + declPost + corePost;
   }
 }

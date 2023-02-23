@@ -40,6 +40,9 @@ public class ArrayT extends DerivedT {
 
   /** The length. */
   private long length;
+
+  private String lenStr;
+  
   /**
    * Create a new, incomplete array type.
    *
@@ -60,6 +63,7 @@ public class ArrayT extends DerivedT {
     this.type      = type;
     this.varlength = varlength;
     this.length    = -1;
+    this.lenStr = "";
     for (Attribute a : type.attributes())
 	addAttribute(a);
   }
@@ -74,10 +78,20 @@ public class ArrayT extends DerivedT {
     this.type      = type;
     this.varlength = false;
     this.length    = length;
+    this.lenStr = String.valueOf(length);
     for (Attribute a : type.attributes())
-	addAttribute(a);
+      addAttribute(a);
   }
 
+  public ArrayT(Type type, String lenStr) {
+    this.type      = type;
+    this.varlength = false;
+    this.length    = -1;
+    this.lenStr = lenStr;
+    for (Attribute a : type.attributes())
+      addAttribute(a);
+  }
+  
   /**
    * Create a new array type.
    *
@@ -91,6 +105,7 @@ public class ArrayT extends DerivedT {
     this.type      = type;
     this.varlength = varlength;
     this.length    = length;
+    this.lenStr = String.valueOf(length);
   }
 
   public Type seal() {
@@ -174,6 +189,7 @@ public class ArrayT extends DerivedT {
   public void setLength(long length) {
     checkNotSealed();
     this.length = length;
+    lenStr = String.valueOf(length);
   }
 
   public int hashCode() {
@@ -200,7 +216,7 @@ public class ArrayT extends DerivedT {
       out.append(", *");
     } else if (-1 != length) {
       out.append(", ");
-      out.append(Long.toString(length));
+      out.append(lenStr);
     }
     out.append(')');
   }
@@ -209,10 +225,7 @@ public class ArrayT extends DerivedT {
     t.wrap++;
     getType().printType(t);
     t.wrap--;
-    if (-1 == length) 
-      t.addArray();
-    else
-      t.addArray(length);
+    t.addArray(lenStr);
   }
 
   
