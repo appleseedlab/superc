@@ -181,6 +181,7 @@ class DesugarOps {
     Multiverse<Declarator> valuemv = new Multiverse<Declarator>();
 
     for (Element<TypeSpecifier> qualifierlist : qualifierlists) {
+      System.err.println(qualifierlist.toString());
       for (Element<Declarator> declarator : declarators) {
         PresenceCondition combinedCond = qualifierlist.getCondition().and(declarator.getCondition());
         valuemv.add(new QualifiedPointerDeclarator(declarator.getData(),

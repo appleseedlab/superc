@@ -89,9 +89,13 @@ public class AnnotatedT extends WrappedT {
   }
 
   public void printType(TypeString t ) {
-    getType().printType(t);
     if (attributes.contains(Constants.ATT_CONSTANT)) {
-      t.addAttribute("const");
+      t.addAttribute("const",getType());
+    }
+    if (getType().isPointer()) {
+      getType().toPointer().getType().printType(t);
+    } else {
+      getType().printType(t);
     }
   }
 

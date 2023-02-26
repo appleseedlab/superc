@@ -23,48 +23,43 @@ public class TypeString {
   }
 
   public void setCore(String s) {
-    coreType = s;
+    coreType += " " + s;
   }
   
   public void addToFront(String s) {
     if (inReturn) {
       retType = retType + " " + s; 
     } else {
-      declPre =  declPre + s;
+      declPre = s + " " + declPre;
     }
   }
 
-  public void addArray() {
-    if (inReturn) {
-      corePost = "[]" + corePost;
-    } else {
-      declPre = "(" + declPre;
-      declPost = declPost + ")[]";
-    }
+  public void addArray(Type t) {
+    addArray("",t);
   }
   
-  public void addArray(String s) {
-    if (inReturn) {
-      corePost = "[" + s + "]" + corePost;
-    } else {
-      declPre = "(" + declPre;
-      declPost = declPost + ")[" + s + "]";
-    }
+  public void addArray(String s, Type t) {
+    declPost += "[" + s + "]";
   }
 
+  public void addPointer(String s, Type t) {
+    if (t.isArray()) {
+      declPre = "(" + s + " " + declPre;
+      declPost += ")";
+    } else {
+      declPre = s + " " + declPre;
+    }
+  }
   
-  public void addAttribute(String s) {
-    if (wrap > 0) {
-      addToFront(s);
+  public void addAttribute(String s, Type t) {
+    if (t.isPointer()) {
+      addPointer("* " + s, t.toPointer().getType());
     } else {
       coreType = s + " " + coreType;
     }
   }
   
   public String toString() {
-    if (!retType.equals("")) {
-      return coreType + " " + retType + "(" + declPre + id + declPost + ")" + corePost;
-    }
-    return coreType + " " + declPre + id + declPost + corePost;
+      return coreType + " " + retType + " " + declPre + id + declPost + " " + corePost;
   }
 }

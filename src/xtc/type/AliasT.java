@@ -117,7 +117,7 @@ public class AliasT extends WrappedT {
   }
   
   public void printType(TypeString t) {
-    t.coreType = name;
+    t.setCore(name);
   }
   
 }

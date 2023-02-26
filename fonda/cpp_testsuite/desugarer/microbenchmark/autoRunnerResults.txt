@@ -26,12 +26,14 @@
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/external_declarations/injected/extern_repeated.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/external_declarations/injected/extern_global_static.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/prototype_forward_reference.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/const_array_pointer_prototype.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_typedef_parameter_configurable.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_parameters_configurable.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_parameters_empty_configurable.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_abstract_parameter.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/basic_functions.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_pointer.c :: match
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_prototype_const_typedef.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_qualified_void_pointer.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_pointer_param.c :: match
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/function_parameter_multiple_config.c :: match
@@ -108,6 +110,9 @@
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/analysis_features/syntactic_error_integration/enum_error.c :: 1/2
 	['0', '157']/['0', '0']
 	[' REPEATED::157/0']
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/ANSI/injected/prototypes.c :: 0/2
+	['4', '8']/['777', '777']
+	['::4/777', ' A::8/777']
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/K&R/injected/function_typedef_parameter_configurable.c :: did not desug
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/K&R/injected/function_parameters_configurable.c :: did not desug
 /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/desugarer/microbenchmark/testcases/language_features/function_definitions/K&R/injected/function_parameters_empty_configurable.c :: did not desug

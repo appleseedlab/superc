@@ -47,8 +47,8 @@ public class PointerT extends DerivedT {
    */
   public PointerT(Type type) {
     this.type = type;
-    for (Attribute a : type.attributes())
-      addAttribute(a);
+    //    for (Attribute a : type.attributes())
+    //  addAttribute(a);
   }
 
   /**
@@ -115,10 +115,8 @@ public class PointerT extends DerivedT {
   }
 
   public void printType(TypeString t) {
-    t.wrap++;
+    t.addPointer("*",getType());
     getType().printType(t);
-    t.wrap--;
-    t.addToFront("*");
   }
   
   public Type revertForwardRef(List<String> references, String forwardRef, String rename) {

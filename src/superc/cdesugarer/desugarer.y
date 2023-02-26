@@ -9583,29 +9583,29 @@ static public Multiverse<String> sizeofExpansion(Multiverse<String> es, Multiver
     if (tempT.isStruct() || tempT.isUnion()) {
       Multiverse<String> innerStruct = sizeofBody(tempT,fic,scope,et.getCondition());
       for (Element<String> e : innerStruct) {
-	if (!es.isEmpty()) {
-	  String standin = "";
-	  standin = fic.freshCId("sizeofStandin");
-	  scope.addDeclaration(e.getData() + standin + ";\n");
-	  ret.add("sizeof(" + standin + ")",e.getCondition());
-	} else {
-	  String standin = "";
-	  standin = fic.freshCId("sizeofStandin");
-	  scope.addDeclaration(e.getData() + standin + ";\n");
-	  ret.add("sizeof(typeof(" + standin + "))",e.getCondition());
-	}
+        if (!es.isEmpty()) {
+          String standin = "";
+          standin = fic.freshCId("sizeofStandin");
+          scope.addDeclaration(e.getData() + standin + ";\n");
+          ret.add("sizeof(" + standin + ")",e.getCondition());
+        } else {
+          String standin = "";
+          standin = fic.freshCId("sizeofStandin");
+          scope.addDeclaration(e.getData() + standin + ";\n");
+          ret.add("sizeof(typeof(" + standin + "))",e.getCondition());
+        }
       }
     } else {
       if (!es.isEmpty() && !(es.filter(et.getCondition())).isEmpty()) {
-	for (Element<String> ex : es.filter(et.getCondition())) {
-	  if (ex.getData().equals("")) {
-	    ret.add("sizeof(" + et.getData().printType() + ")",ex.getCondition());
-	  } else {
-	    ret.add("sizeof(" + ex.getData() + ")",ex.getCondition());
-	  }
-	}
+        for (Element<String> ex : es.filter(et.getCondition())) {
+          if (ex.getData().equals("")) {
+            ret.add("sizeof(" + et.getData().printType() + ")",ex.getCondition());
+          } else {
+            ret.add("sizeof(" + ex.getData() + ")",ex.getCondition());
+          }
+        }
       } else {
-	ret.add("sizeof(" + et.getData().printType() + ")", et.getCondition());
+        ret.add("sizeof(" + et.getData().printType() + ")", et.getCondition());
       }
     }
   }

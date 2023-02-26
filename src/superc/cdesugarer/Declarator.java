@@ -344,11 +344,10 @@ abstract class Declarator {
     }
 
     public Type getType(Type type) {
-      System.err.println("TODO: check correctness of qualified pointer declarator type");
+      Type pointed = new PointerT(type);
       TypeSpecifier newts = new TypeSpecifier(qualifiers);
-      newts.setType(type);
-      Type qualifiedtype = newts.getType();
-      return declarator.getType(new PointerT(qualifiedtype));
+      newts.setType(pointed);
+      return declarator.getType(newts.getType());
     }
 
     public boolean hasTypeError() {
@@ -445,12 +444,12 @@ abstract class Declarator {
     }
 
     public Type getType(Type type) {
+      Type pointed = new PointerT(type);
       TypeSpecifier newts = new TypeSpecifier(qualifiers);
-      newts.setType(type);
-      Type qualifiedtype = newts.getType();
-      return new PointerT(qualifiedtype);
+      newts.setType(pointed);
+      return newts.getType();
     }
-
+    
     public boolean hasTypeError() {
       return qualifiers.getType().isError();
     }
@@ -510,18 +509,24 @@ abstract class Declarator {
     public boolean isArrayDeclarator() { return true; }
 
     public String toString() {
-      System.err.println("WARNING: do we need parentheses?");
-      return String.format("%s%s", declarator.toString(), arrayabstractdeclarator.toString());
+      if (declarator.isEmptyDeclarator()) {
+        return String.format("%s%s", declarator.toString(), arrayabstractdeclarator.toString());
+      }
+      return String.format("(%s)%s", declarator.toString(), arrayabstractdeclarator.toString());
     }
 
     public String toString(int len) {
-      System.err.println("WARNING: do we need parentheses?");
-      return String.format("%s%s", declarator.toString(), arrayabstractdeclarator.toString(len));
+      if (declarator.isEmptyDeclarator()) {
+        return String.format("%s%s", declarator.toString(), arrayabstractdeclarator.toString(len));
+      }
+      return String.format("(%s)%s", declarator.toString(), arrayabstractdeclarator.toString(len));
     }
 
     public String printType() {
-      System.err.println("WARNING: do we need parentheses?");
-      return String.format("%s%s", declarator.printType(), arrayabstractdeclarator.printType());
+      if (declarator.isEmptyDeclarator() || declarator.isSimpleDeclarator()) {
+        return String.format("%s%s", declarator.printType(), arrayabstractdeclarator.printType());
+      }
+      return String.format("(%s)%s", declarator.printType(), arrayabstractdeclarator.printType());
     }
     public boolean isFlexible() {
       return arrayabstractdeclarator.isFlexible();

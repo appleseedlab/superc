@@ -64,8 +64,8 @@ public class ArrayT extends DerivedT {
     this.varlength = varlength;
     this.length    = -1;
     this.lenStr = "";
-    for (Attribute a : type.attributes())
-	addAttribute(a);
+    //for (Attribute a : type.attributes())
+    //  addAttribute(a);
   }
 
   /**
@@ -79,8 +79,8 @@ public class ArrayT extends DerivedT {
     this.varlength = false;
     this.length    = length;
     this.lenStr = String.valueOf(length);
-    for (Attribute a : type.attributes())
-      addAttribute(a);
+    //for (Attribute a : type.attributes())
+    //  addAttribute(a);
   }
 
   public ArrayT(Type type, String lenStr) {
@@ -88,8 +88,8 @@ public class ArrayT extends DerivedT {
     this.varlength = false;
     this.length    = -1;
     this.lenStr = lenStr;
-    for (Attribute a : type.attributes())
-      addAttribute(a);
+    //for (Attribute a : type.attributes())
+    //  addAttribute(a);
   }
   
   /**
@@ -222,10 +222,8 @@ public class ArrayT extends DerivedT {
   }
 
   public void printType(TypeString t ) {
-    t.wrap++;
+    t.addArray(lenStr,getType());
     getType().printType(t);
-    t.wrap--;
-    t.addArray(lenStr);
   }
 
   
