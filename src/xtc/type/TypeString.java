@@ -23,7 +23,11 @@ public class TypeString {
   }
 
   public void setCore(String s) {
-    coreType += " " + s;
+    if (inReturn) {
+      retType = s + " " + retType;
+    } else {
+      coreType += " " + s;
+    }
   }
   
   public void addToFront(String s) {
@@ -43,7 +47,9 @@ public class TypeString {
   }
 
   public void addPointer(String s, Type t) {
-    if (t.isArray()) {
+    if (inReturn) {
+      retType = s + " " + retType;
+    } else if (t.isArray()) {
       declPre = "(" + s + " " + declPre;
       declPost += ")";
     } else {
@@ -60,6 +66,10 @@ public class TypeString {
   }
   
   public String toString() {
-      return coreType + " " + retType + " " + declPre + id + declPost + " " + corePost;
+    if (!retType.equals("")) {
+      declPre = "(" + declPre;
+      declPost += ")";
+    }
+    return coreType + " " + retType + " " + declPre + id + declPost + " " + corePost;
   }
 }

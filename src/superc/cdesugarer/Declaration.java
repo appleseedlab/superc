@@ -101,7 +101,8 @@ class Declaration {
   }
 
   public String printType() {
-    return String.format("%s %s", typespecifier.toString(), declarator.printType());
+    return getType().printTypeNameless();
+    //return String.format("%s %s", typespecifier.toString(), declarator.printType());
   }
     
     public String printType(String x) {

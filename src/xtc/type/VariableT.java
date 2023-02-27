@@ -214,6 +214,14 @@ public class VariableT extends WrappedT {
     getType().printType(t);
     t.id = getName();
   }
+
+  public String printTypeNameless() {
+    TypeString t = new TypeString();
+    getType().printType(t);
+    t.id = "";
+    return t.toString();
+
+  }
   
   // =========================================================================
 

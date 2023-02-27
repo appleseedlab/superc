@@ -573,7 +573,7 @@ abstract class Declarator {
       System.err.println("TODO: need to handle the expression to see if the array has a variable size of not");
       for (String expression : expressions) {
         if (expression != "") {
-          arrayType = new ArrayT(arrayType,1);
+          arrayType = new ArrayT(arrayType,expression);
         } else {
           arrayType = new ArrayT(arrayType);
         }
