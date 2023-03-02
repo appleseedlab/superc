@@ -13234,7 +13234,7 @@ public String condToCVar(PresenceCondition cond) {
   } else {
     // TODO: traverse the (simplified) expression AST and convert
     // non-boolean leaves to C variables.
-    int key = cond.hashCode();
+    int key = cond.toString().hashCode();
     if (condVars.containsKey(key)) {
       return condVars.get(key)+"()";
     } else {

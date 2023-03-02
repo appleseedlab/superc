@@ -1380,7 +1380,7 @@ public class PresenceConditionManager {
 
       return writer.toString();
     }
-
+    
     // /**
     //  * Use the underlying BDD's hashcode so that the same conditions
     //  * will have the same hash code.
