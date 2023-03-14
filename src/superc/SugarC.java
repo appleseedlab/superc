@@ -192,6 +192,9 @@ public class SugarC extends Tool {
       word("restrictConfigToPrefix", "restrictConfigToPrefix", false,
            "Assume non-config free macros are false when used like "
            + "configuration variables, but keep them free in the macro table").
+      word("restrictConfigToWhitelist", "restrictConfigToWhitelist", false,
+           "Given a file of macros seperated by new lines, assume macros"
+           + " not included in the list are false").
       word("restrictFreeToPrefix", "restrictFreeToPrefix", false,
            "Restricts free macros to those that have the given prefix").
       bool("singleConfigSysheaders", "singleConfigSysheaders", false,
@@ -443,6 +446,10 @@ public class SugarC extends Tool {
       conditionEvaluator.restrictPrefix(runtime.getString("restrictConfigToPrefix"));
     }
 
+    if (null != runtime.getString("restrictConfigToWhitelist")) {
+      conditionEvaluator.restrictWhitelist(runtime.getString("restrictConfigToWhitelist"));
+    }
+    
     if (null != commandline) {
       Syntax syntax;
       
