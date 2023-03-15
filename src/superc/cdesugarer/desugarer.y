@@ -7791,6 +7791,11 @@ AttributeList:  /** list, nomerge **/  // ADDED  // String
           todoReminder("support AttributeList (2), replaced with empty string now");
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
+        | AttributeList COMMA
+        {
+          //attribute lists may end in a series of commas, to accomodate VA_ARGS
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
+        }
         ;
 
 AttributeExpressionOpt:   // ADDED  // String

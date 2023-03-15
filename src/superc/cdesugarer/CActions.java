@@ -7804,11 +7804,18 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
 
   case 518:
     {
-          setTransformationValue(value, "");
+          //attribute lists may end in a series of commas, to accomodate VA_ARGS
+          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
   case 519:
+    {
+          setTransformationValue(value, "");
+        }
+    break;
+
+  case 520:
     {
           setTransformationValue(value, String.format("%s %s",
                                                       getNodeAt(subparser, 2).getTokenText(),
@@ -7816,18 +7823,12 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
         }
     break;
 
-  case 520:
+  case 521:
     {
           // TODO: need to check type of expression list to make sure
           // it's legal and return a type error if it is.
           todoReminder("support AttributeExpressionOpt, replaced with empty string now");
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
-        }
-    break;
-
-  case 521:
-    {
-          // get token from parent
         }
     break;
 
@@ -8223,12 +8224,18 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
 
   case 587:
     {
+          // get token from parent
+        }
+    break;
+
+  case 588:
+    {
           todoReminder("support AssemblyDefinition (1)");
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
-  case 588:
+  case 589:
     {
           ExpressionValue e = getCompleteNodeExpressionValue(subparser, 2, subparser.getPresenceCondition());
           Multiverse<String> temp = e.transformation;
@@ -8239,21 +8246,21 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
         }
     break;
 
-  case 589:
+  case 590:
     {
           todoReminder("support AssemblyExpressionOpt (1)");
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
-  case 590:
+  case 591:
     {
           todoReminder("support AssemblyExpressionOpt (2)");
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
-  case 591:
+  case 592:
     {
           ExpressionValue temp = (ExpressionValue)getTransformationValue(subparser,3);
           Multiverse<String> prepended = temp.transformation.prependScalar("__asm__(", DesugarOps.concatStrings);
@@ -8265,7 +8272,7 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
         }
     break;
 
-  case 592:
+  case 593:
     {
           todoReminder("support AssemblyStatement (2)");
           System.exit(0);
@@ -8275,7 +8282,7 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
         }
     break;
 
-  case 593:
+  case 594:
     {
           Multiverse<TypeSpecifier> qual = getCompleteNodeMultiverseValue(subparser, 5, subparser.getPresenceCondition());
           Multiverse<String> qualS = DesugarOps.TypeSpecifierToString.transform(qual);
@@ -8295,7 +8302,7 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
         }
     break;
 
-  case 594:
+  case 595:
     {
         Multiverse<String> first = getCompleteNodeExpressionValue(subparser,7,subparser.getPresenceCondition()).transformation;
           ExpressionValue sec = (ExpressionValue)getTransformationValue(subparser,5);
@@ -8316,7 +8323,7 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
         }
     break;
 
-  case 595:
+  case 596:
     {
           Multiverse<String> first = getCompleteNodeExpressionValue(subparser,5,subparser.getPresenceCondition()).transformation;
           ExpressionValue sec = (ExpressionValue)getTransformationValue(subparser,3);
@@ -8332,7 +8339,7 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
         }
     break;
 
-  case 596:
+  case 597:
     {
           Multiverse<String> first = getCompleteNodeExpressionValue(subparser,3,subparser.getPresenceCondition()).transformation;
           ExpressionValue sec = (ExpressionValue)getTransformationValue(subparser,1);
@@ -8342,21 +8349,15 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
         }
     break;
 
-  case 597:
+  case 598:
     {
           setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
         }
     break;
 
-  case 598:
-    {
-          setTransformationValue(value, new ExpressionValue(new Multiverse<String>("", subparser.getPresenceCondition()),new Multiverse<Type>(new IntegerT(NumberT.Kind.INT),subparser.getPresenceCondition())));
-        }
-    break;
-
   case 599:
     {
-          setTransformationValue(value, getTransformationValue(subparser,1));
+          setTransformationValue(value, new ExpressionValue(new Multiverse<String>("", subparser.getPresenceCondition()),new Multiverse<Type>(new IntegerT(NumberT.Kind.INT),subparser.getPresenceCondition())));
         }
     break;
 
@@ -8368,6 +8369,12 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
 
   case 601:
     {
+          setTransformationValue(value, getTransformationValue(subparser,1));
+        }
+    break;
+
+  case 602:
+    {
           ExpressionValue  prev = (ExpressionValue)getTransformationValue(subparser,3);
           ExpressionValue  cur = (ExpressionValue)getTransformationValue(subparser,1);
           Multiverse<String> prep = cur.transformation.prependScalar(",", DesugarOps.concatStrings);
@@ -8376,7 +8383,7 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
         }
     break;
 
-  case 602:
+  case 603:
     {
           todoReminder("typecheck Assemblyoperand (1)");
           ExpressionValue str = getCompleteNodeExpressionValue(subparser,4,subparser.getPresenceCondition());
@@ -8390,7 +8397,7 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
         }
     break;
 
-  case 603:
+  case 604:
     {
           String word = ((Syntax) getNodeAt(subparser, 6).get(0)).getTokenText();
           todoReminder("support Assemblyoperand (2)");
@@ -8399,26 +8406,26 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
         }
     break;
 
-  case 604:
+  case 605:
     {
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
-  case 605:
+  case 606:
     {
           setTransformationValue(value, (Multiverse<String>)getTransformationValue(subparser,1));
         }
     break;
 
-  case 606:
+  case 607:
     {
           Multiverse<String> first = getCompleteNodeExpressionValue(subparser,1,subparser.getPresenceCondition()).transformation;
           setTransformationValue(value, first);
         }
     break;
 
-  case 607:
+  case 608:
     {
           Multiverse<String> first = (Multiverse<String>)getTransformationValue(subparser,3);
           Multiverse<String> second = getCompleteNodeExpressionValue(subparser,1,subparser.getPresenceCondition()).transformation;
@@ -8430,21 +8437,21 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
         }
     break;
 
-  case 608:
+  case 609:
     {
           todoReminder("support AssemblyGotoargument (1)");
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
-  case 609:
+  case 610:
     {
           todoReminder("support AssemblyJumpLabels (1)");
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
 
-  case 610:
+  case 611:
     {
           todoReminder("support AssemblyJumpLabels (2)");
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
