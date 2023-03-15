@@ -8349,6 +8349,9 @@ public static void keepMemoryNames(boolean f) {
        String originalName = declarator.getData().getName();
        Multiverse<SymbolTable.Entry<Type>> entries = scope.getInCurrentScope(originalName, declarator.getCondition());
        for (Element<SymbolTable.Entry<Type>> entry : entries) {
+         if (!entry.getData().isDeclared()) {
+           continue;
+         }
          Type t = entry.getData().getValue().toVariable().getType();
          if (initializermv.size() == 1 && ! initializermv.get(0).getData().hasList()) {
            declList.add(checkInitializers(decl.filter(entry.getCondition()),initializermv,entry.getCondition(),scope,false));
