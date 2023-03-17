@@ -8885,11 +8885,11 @@ protected List<Multiverse<String>> declarationAction(List<DeclaringListValue> de
                           entrysb.append(";\n");
                           entrysb.append("}\n");
                         } else {  // global scope
-                        
                           // declarations only set VariableT or AliasT
                           boolean sameTypeKind
                             = entry.getData().getValue().isVariable() && type.isVariable()
-                            ||  entry.getData().getValue().isAlias() && type.isAlias();
+                            ||  entry.getData().getValue().isAlias() && type.isAlias()
+                            ||  entry.getData().getValue().isNamedFunction() && type.isNamedFunction();
 
                           // check compatibility of types
                           if (sameTypeKind) {
@@ -8900,6 +8900,10 @@ protected List<Multiverse<String>> declarationAction(List<DeclaringListValue> de
                             } else if (type.isAlias()) {
                               compatibleTypes = cOps.equal(entry.getData().getValue().toAlias().getType(),
                                                            type.toAlias().getType());
+                            } else if (type.isNamedFunction()) {
+                              compatibleTypes = cOps.equal(entry.getData().getValue(),
+                                                           type.toFunction());
+
                             } else {
                               throw new AssertionError("should not be possible given sameTypeKind");
                             }

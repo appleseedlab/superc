@@ -116,6 +116,10 @@ public class NamedFunctionT extends FunctionOrMethodT {
                          getParameters(),
                          isVarArgs());
   }
+
+  public FunctionT toFunction() {
+    return this.toFunctionT();
+  }
   
   public NamedFunctionT toNamedFunction() {
     return this;

@@ -1996,7 +1996,6 @@ public abstract class Type extends Node {
   }
   
   public String printType() {
-    System.err.println(this.toString());
     TypeString t = new TypeString();
     printType(t);
     return t.toString();

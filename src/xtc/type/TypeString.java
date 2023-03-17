@@ -66,7 +66,7 @@ public class TypeString {
   }
   
   public String toString() {
-    if (!retType.equals("")) {
+    if (!retType.equals("") && !id.equals("")) {
       declPre = "(" + declPre;
       declPost += ")";
     }
