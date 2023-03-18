@@ -236,6 +236,9 @@ public abstract class FunctionOrMethodT extends DerivedT {
         }
         count++;
       }
+      if (varargs) {
+        t.corePost += "...";
+      }
       t.corePost += ")";
     }
   }

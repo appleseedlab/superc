@@ -8750,7 +8750,7 @@ protected List<Multiverse<String>> declarationAction(List<DeclaringListValue> de
                               compatibleTypes = cOps.equal(entry.getData().getValue().toAlias().getType(),
                                                            type.toAlias().getType());
                             } else if (type.isNamedFunction()) {
-                              compatibleTypes = cOps.equal(entry.getData().getValue()l,
+                              compatibleTypes = cOps.equal(entry.getData().getValue(),
                                                            type.toFunction());
 
                             } else {
