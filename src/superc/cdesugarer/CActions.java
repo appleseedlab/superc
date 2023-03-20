@@ -8268,7 +8268,7 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
 
   case 592:
     {
-          ExpressionValue temp = (ExpressionValue)getTransformationValue(subparser,3);
+          ExpressionValue temp = getCompleteNodeExpressionValue(subparser,3,subparser.getPresenceCondition());
           Multiverse<String> prepended = temp.transformation.prependScalar("__asm__(", DesugarOps.concatStrings);
           Multiverse<String> appended = prepended.appendScalar(");", DesugarOps.concatStrings);
           temp.transformation.destruct(); prepended.destruct();
@@ -8295,7 +8295,7 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
           qual.destruct();
           Multiverse<String> preTemp = qualS.prependScalar("__asm__ ", DesugarOps.concatStrings);
           qualS.destruct();
-          ExpressionValue temp = (ExpressionValue)getTransformationValue(subparser,3);
+          ExpressionValue temp = getCompleteNodeExpressionValue(subparser,3,subparser.getPresenceCondition());
           
           Multiverse<String> prepended = temp.transformation.prependScalar(" (", DesugarOps.concatStrings);
           Multiverse<String> appended = prepended.appendScalar(");", DesugarOps.concatStrings);
@@ -8310,9 +8310,9 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
 
   case 595:
     {
-        Multiverse<String> first = getCompleteNodeExpressionValue(subparser,7,subparser.getPresenceCondition()).transformation;
-          ExpressionValue sec = (ExpressionValue)getTransformationValue(subparser,5);
-          ExpressionValue third = (ExpressionValue)getTransformationValue(subparser,3);
+          Multiverse<String> first = getCompleteNodeExpressionValue(subparser,7,subparser.getPresenceCondition()).transformation;
+          ExpressionValue sec = getCompleteNodeExpressionValue(subparser,5,subparser.getPresenceCondition());
+          ExpressionValue third = getCompleteNodeExpressionValue(subparser,3,subparser.getPresenceCondition());
           Multiverse<String> fourth = (Multiverse<String>)getTransformationValue(subparser,1);
           Multiverse<String> prep2 = sec.transformation.prependScalar(":", DesugarOps.concatStrings);
           Multiverse<String> prep3 = third.transformation.prependScalar(":", DesugarOps.concatStrings);
@@ -8332,8 +8332,8 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
   case 596:
     {
           Multiverse<String> first = getCompleteNodeExpressionValue(subparser,5,subparser.getPresenceCondition()).transformation;
-          ExpressionValue sec = (ExpressionValue)getTransformationValue(subparser,3);
-          ExpressionValue third = (ExpressionValue)getTransformationValue(subparser,1);
+          ExpressionValue sec = getCompleteNodeExpressionValue(subparser,3,subparser.getPresenceCondition());
+          ExpressionValue third = getCompleteNodeExpressionValue(subparser,1,subparser.getPresenceCondition());
           Multiverse<String> prep2 = sec.transformation.prependScalar(":", DesugarOps.concatStrings);
           sec.transformation.destruct();
           Multiverse<String> prep3 = third.transformation.prependScalar(":", DesugarOps.concatStrings);
@@ -8348,7 +8348,7 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
   case 597:
     {
           Multiverse<String> first = getCompleteNodeExpressionValue(subparser,3,subparser.getPresenceCondition()).transformation;
-          ExpressionValue sec = (ExpressionValue)getTransformationValue(subparser,1);
+          ExpressionValue sec = getCompleteNodeExpressionValue(subparser,1,subparser.getPresenceCondition());
           Multiverse<String> prep = sec.transformation.prependScalar(":", DesugarOps.concatStrings);
           prep = first.product(prep,DesugarOps.concatStrings);
           setTransformationValue(value, new ExpressionValue(prep,sec.type));
