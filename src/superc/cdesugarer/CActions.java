@@ -8381,8 +8381,8 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
 
   case 602:
     {
-          ExpressionValue  prev = (ExpressionValue)getTransformationValue(subparser,3);
-          ExpressionValue  cur = (ExpressionValue)getTransformationValue(subparser,1);
+          ExpressionValue  prev = getCompleteNodeExpressionValue(subparser,3,subparser.getPresenceCondition());
+          ExpressionValue  cur = getCompleteNodeExpressionValue(subparser,1,subparser.getPresenceCondition());
           Multiverse<String> prep = cur.transformation.prependScalar(",", DesugarOps.concatStrings);
           Multiverse<Type> prept = prev.type.product(cur.type,DesugarOps.propTypeError);
           setTransformationValue(value, new ExpressionValue(prev.transformation.product(prep, DesugarOps.concatStrings),prept));
