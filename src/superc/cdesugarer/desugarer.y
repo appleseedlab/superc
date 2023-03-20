@@ -1430,8 +1430,14 @@ DeclarationQualifierList:  /** list, complete **/  /* const/volatile, AND storag
 
       	  Multiverse<TypeSpecifier> qualList = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 2, pc);
       	  Multiverse<TypeSpecifier> qual = this.<TypeSpecifier>getCompleteNodeMultiverseValue(subparser, 1, pc);
-      	  Multiverse<TypeSpecifier> tb = qualList.product(qual, DesugarOps.specifierProduct);
-      	  setTransformationValue(value, tb);
+          if (!qualList.isEmpty() && !qual.isEmpty()) {
+            Multiverse<TypeSpecifier> tb = qualList.product(qual, DesugarOps.specifierProduct);
+            setTransformationValue(value, tb);
+          } else {
+            TypeSpecifier E = new TypeSpecifier();
+            E.setError();
+            setTransformationValue(value,new Multiverse<TypeSpecifier>(E,pc));
+          }
       	  updateSpecs(subparser,
                       getSpecsAt(subparser, 2),
                       getSpecsAt(subparser, 1),
