@@ -8236,7 +8236,12 @@ Assemblyoperands:  /** list, nomerge **/  // ADDED
           ExpressionValue  prev = getCompleteNodeExpressionValue(subparser,3,subparser.getPresenceCondition());
           ExpressionValue  cur = getCompleteNodeExpressionValue(subparser,1,subparser.getPresenceCondition());
           Multiverse<String> prep = cur.transformation.prependScalar(",", DesugarOps.concatStrings);
-          Multiverse<Type> prept = prev.type.product(cur.type,DesugarOps.propTypeError);
+          Multiverse<Type> prept;
+          if (!prev.type.isEmpty() && !cur.type.isEmpty()) {
+            prept = prev.type.product(cur.type,DesugarOps.propTypeError);
+          } else {
+            prept = new Multiverse<Type>(ErrorT.TYPE,subparser.getPresenceCondition());
+          }
           setTransformationValue(value, new ExpressionValue(prev.transformation.product(prep, DesugarOps.concatStrings),prept));
         }
         ;
