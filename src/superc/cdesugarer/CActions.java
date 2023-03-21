@@ -8314,18 +8314,26 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
           ExpressionValue sec = getCompleteNodeExpressionValue(subparser,5,subparser.getPresenceCondition());
           ExpressionValue third = getCompleteNodeExpressionValue(subparser,3,subparser.getPresenceCondition());
           Multiverse<String> fourth = (Multiverse<String>)getTransformationValue(subparser,1);
-          Multiverse<String> prep2 = sec.transformation.prependScalar(":", DesugarOps.concatStrings);
-          Multiverse<String> prep3 = third.transformation.prependScalar(":", DesugarOps.concatStrings);
-          Multiverse<String> prep4 = fourth.prependScalar(":", DesugarOps.concatStrings);
-          fourth.destruct();
-          Multiverse<String> last = prep3.product(prep4, DesugarOps.concatStrings);
-          prep3.destruct(); prep4.destruct();
-          Multiverse<String> later = prep2.product(last, DesugarOps.concatStrings);
-          prep2.destruct(); last.destruct();
-          Multiverse<String> res = first.product(later, DesugarOps.concatStrings);
-          first.destruct(); later.destruct();
-          Multiverse<Type> ty = sec.type.product(third.type,DesugarOps.propTypeError);
-          setTransformationValue(value, new ExpressionValue(res,ty));
+          if (sec.isEmpty() || third.isEmpty() || first.isEmpty() || fourth.isEmpty()) {
+            setTransformationValue(value, new ExpressionValue(
+                                                              new Multiverse<String>("",subparser.getPresenceCondition()),
+                                                              new Multiverse<Type>(ErrorT.TYPE,subparser.getPresenceCondition())
+                                                              ));
+          
+          } else {
+            Multiverse<String> prep2 = sec.transformation.prependScalar(":", DesugarOps.concatStrings);
+            Multiverse<String> prep3 = third.transformation.prependScalar(":", DesugarOps.concatStrings);
+            Multiverse<String> prep4 = fourth.prependScalar(":", DesugarOps.concatStrings);
+            fourth.destruct();
+            Multiverse<String> last = prep3.product(prep4, DesugarOps.concatStrings);
+            prep3.destruct(); prep4.destruct();
+            Multiverse<String> later = prep2.product(last, DesugarOps.concatStrings);
+            prep2.destruct(); last.destruct();
+            Multiverse<String> res = first.product(later, DesugarOps.concatStrings);
+            first.destruct(); later.destruct();
+            Multiverse<Type> ty = sec.type.product(third.type,DesugarOps.propTypeError);
+            setTransformationValue(value, new ExpressionValue(res,ty));
+          }
         }
     break;
 
@@ -8334,14 +8342,21 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
           Multiverse<String> first = getCompleteNodeExpressionValue(subparser,5,subparser.getPresenceCondition()).transformation;
           ExpressionValue sec = getCompleteNodeExpressionValue(subparser,3,subparser.getPresenceCondition());
           ExpressionValue third = getCompleteNodeExpressionValue(subparser,1,subparser.getPresenceCondition());
-          Multiverse<String> prep2 = sec.transformation.prependScalar(":", DesugarOps.concatStrings);
-          sec.transformation.destruct();
-          Multiverse<String> prep3 = third.transformation.prependScalar(":", DesugarOps.concatStrings);
-          third.transformation.destruct();
-          Multiverse<String> later = prep2.product(prep3, DesugarOps.concatStrings);
-          Multiverse<Type> ty = sec.type.product(third.type,DesugarOps.propTypeError);
-          Multiverse<String> res = first.product(later, DesugarOps.concatStrings);
-          setTransformationValue(value, new ExpressionValue(res,ty));
+          if (sec.isEmpty() || third.isEmpty() || first.isEmpty()) {
+            setTransformationValue(value, new ExpressionValue(
+                                                              new Multiverse<String>("",subparser.getPresenceCondition()),
+                                                              new Multiverse<Type>(ErrorT.TYPE,subparser.getPresenceCondition())
+                                                              ));
+          } else {
+            Multiverse<String> prep2 = sec.transformation.prependScalar(":", DesugarOps.concatStrings);
+            sec.transformation.destruct();
+            Multiverse<String> prep3 = third.transformation.prependScalar(":", DesugarOps.concatStrings);
+            third.transformation.destruct();
+            Multiverse<String> later = prep2.product(prep3, DesugarOps.concatStrings);
+            Multiverse<Type> ty = sec.type.product(third.type,DesugarOps.propTypeError);
+            Multiverse<String> res = first.product(later, DesugarOps.concatStrings);
+            setTransformationValue(value, new ExpressionValue(res,ty));
+          }
         }
     break;
 
@@ -8349,15 +8364,33 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
     {
           Multiverse<String> first = getCompleteNodeExpressionValue(subparser,3,subparser.getPresenceCondition()).transformation;
           ExpressionValue sec = getCompleteNodeExpressionValue(subparser,1,subparser.getPresenceCondition());
-          Multiverse<String> prep = sec.transformation.prependScalar(":", DesugarOps.concatStrings);
-          prep = first.product(prep,DesugarOps.concatStrings);
-          setTransformationValue(value, new ExpressionValue(prep,sec.type));
+          if (sec.isEmpty() || first.isEmpty()) {
+            setTransformationValue(value, new ExpressionValue(
+                                                              new Multiverse<String>("",subparser.getPresenceCondition()),
+                                                              new Multiverse<Type>(ErrorT.TYPE,subparser.getPresenceCondition())
+                                                              ));
+            
+          } else {
+            Multiverse<String> prep = sec.transformation.prependScalar(":", DesugarOps.concatStrings);
+            prep = first.product(prep,DesugarOps.concatStrings);
+            setTransformationValue(value, new ExpressionValue(prep,sec.type));
+          }
         }
     break;
 
   case 598:
     {
-          setTransformationValue(value, getCompleteNodeExpressionValue(subparser, 1, subparser.getPresenceCondition()));
+          ExpressionValue first = getCompleteNodeExpressionValue(subparser,1,subparser.getPresenceCondition());
+          if (first.isEmpty()) {
+            setTransformationValue(value, new ExpressionValue(
+                                                              new Multiverse<String>("",subparser.getPresenceCondition()),
+                                                              new Multiverse<Type>(ErrorT.TYPE,subparser.getPresenceCondition())
+                                                              ));
+            
+          } else {
+            setTransformationValue(value,first);
+          }
+          
         }
     break;
 
