@@ -1012,7 +1012,7 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = ((CContext) subparser.scope);
           
-        	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
+        	List<DeclaringListValue> declaringlistvalues = getCompleteNodeDeclaringListValueList(subparser, 3);
           String semi = getNodeAt(subparser, 1).getTokenText();
           semi += declaringListRange(declaringlistvalues,(Syntax)getNodeAt(subparser,1));          
           //List<Multiverse<String>> valuestring = declarationAction(declaringlistvalues, semi, pc, scope);
@@ -1038,7 +1038,7 @@ public class CActions implements SemanticActions {
           PresenceCondition pc = subparser.getPresenceCondition();
           CContext scope = ((CContext) subparser.scope);
           
-        	List<DeclaringListValue> declaringlistvalues = (List<DeclaringListValue>) getTransformationValue(subparser, 3);
+        	List<DeclaringListValue> declaringlistvalues = getCompleteNodeDeclaringListValueList(subparser, 3);
           String semi = getNodeAt(subparser, 1).getTokenText();
           semi += declaringListRange(declaringlistvalues,(Syntax)getNodeAt(subparser,1));          
           semi += "\n";
@@ -1143,7 +1143,7 @@ public class CActions implements SemanticActions {
     {
           bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
           PresenceCondition pc = subparser.getPresenceCondition();
-          List<DeclaringListValue> declaringlist = (List<DeclaringListValue>) getTransformationValue(subparser, 4);
+          List<DeclaringListValue> declaringlist = getCompleteNodeDeclaringListValueList(subparser, 4);
           assert declaringlist.size() > 0;
           Multiverse<TypeSpecifier> types = declaringlist.get(0).typespecifier;
           Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
@@ -1162,7 +1162,7 @@ public class CActions implements SemanticActions {
           
           Multiverse<Initializer> initializers = this.<Initializer>getCompleteNodeMultiverseValue(subparser, 1, pc);
           DeclaringListValue decl = getCompleteNodeDeclaringListValue(subparser,4,pc);;
-          List<DeclaringListValue> declaringlist = (List<DeclaringListValue>)getTransformationValue(subparser,8);
+          List<DeclaringListValue> declaringlist = getCompleteNodeDeclaringListValueList(subparser,8);
           if (((CContext) subparser.scope).isGlobal()) {
             decl.initializer = initializers;
             declaringlist.add(decl);
@@ -1245,7 +1245,7 @@ public class CActions implements SemanticActions {
     {
           bindIdent(subparser, getNodeAt(subparser, 4), getNodeAt(subparser, 1));  // TODO: use new bindIdent to find typedefname
           PresenceCondition pc = subparser.getPresenceCondition();
-          List<DeclaringListValue> declaringlist = (List<DeclaringListValue>) getTransformationValue(subparser, 4);
+          List<DeclaringListValue> declaringlist = getCompleteNodeDeclaringListValueList(subparser, 4);
           assert declaringlist.size() > 0;
           Multiverse<TypeSpecifier> types = declaringlist.get(0).typespecifier;
           Multiverse<Declarator> declarators = this.<Declarator>getCompleteNodeMultiverseValue(subparser, 1, pc);
@@ -1264,7 +1264,7 @@ public class CActions implements SemanticActions {
           
           Multiverse<Initializer> initializers = this.<Initializer>getCompleteNodeMultiverseValue(subparser, 1, pc);
           DeclaringListValue decl = getCompleteNodeDeclaringListValue(subparser,4,pc);
-          List<DeclaringListValue> declaringlist = (List<DeclaringListValue>)getTransformationValue(subparser,8);
+          List<DeclaringListValue> declaringlist = getCompleteNodeDeclaringListValueList(subparser,8);
           if (((CContext) subparser.scope).isGlobal()) {
             decl.initializer = initializers;
             declaringlist.add(decl);
@@ -11368,6 +11368,32 @@ private List<StructDeclaringListValue> getCompleteNodeStructDeclListValue(Node n
   // declarationorstatementlist is empty
   return resultlist;
 }
+
+private List<DeclaringListValue> getCompleteNodeDeclaringListValueList(Subparser subparser, int component) {
+  return getCompleteNodeDeclaringListValueList(getNodeAt(subparser, component), subparser.getPresenceCondition());
+}
+private List<DeclaringListValue> getCompleteNodeDeclaringListValueList(Node node, PresenceCondition pc) {
+  Multiverse<Node> nodemv = staticCondToMultiverse(node, pc);
+  List<DeclaringListValue> resultlist = new LinkedList<DeclaringListValue>();
+
+  // loop through each node, get its multiverse and add to the
+  // resultmv.  update each node's multiverse elements with the static
+  // conditional branch's presence condition using filter.
+  for (Element<Node> elem : nodemv) {
+    PresenceCondition combinedCond = pc.and(elem.getCondition());
+    List<DeclaringListValue> mvlist = (List<DeclaringListValue>) ((Node) elem.getData()).getProperty(TRANSFORMATION);
+    for (DeclaringListValue dvlval : mvlist) {
+      resultlist.add(dvlval);
+    }
+    combinedCond.delRef();
+  }
+  nodemv.destruct();
+  
+  // the resulting list can be empty, e.g., of the
+  // declarationorstatementlist is empty
+  return resultlist;
+}
+
 
 private DeclaringListValue getCompleteNodeDeclaringListValue(Subparser subparser, int component, PresenceCondition pc) {
   return getCompleteNodeDeclaringListValue(getNodeAt(subparser, component), pc);
