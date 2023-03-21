@@ -8391,7 +8391,6 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
 
   case 603:
     {
-          todoReminder("typecheck Assemblyoperand (1)");
           ExpressionValue str = getCompleteNodeExpressionValue(subparser,4,subparser.getPresenceCondition());
           ExpressionValue expr = getCompleteNodeExpressionValue(subparser,2,subparser.getPresenceCondition());
           Multiverse<String> temp = expr.transformation;
@@ -8406,9 +8405,15 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
   case 604:
     {
           //String word = ((Syntax) getNodeAt(subparser, 6).get(0)).getTokenText();
-          todoReminder("support Assemblyoperand (2)");
-          //System.exit(0);
-          setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
+          todoReminder("Assembly operand 2, add Word");
+          ExpressionValue str = getCompleteNodeExpressionValue(subparser,4,subparser.getPresenceCondition());
+          ExpressionValue expr = getCompleteNodeExpressionValue(subparser,2,subparser.getPresenceCondition());
+          Multiverse<String> temp = expr.transformation;
+          Multiverse<String> prepended = temp.prependScalar("(", DesugarOps.concatStrings);
+          Multiverse<String> appended = prepended.appendScalar(")", DesugarOps.concatStrings);
+          temp.destruct(); prepended.destruct();
+          
+          setTransformationValue(value, new ExpressionValue(str.transformation.product(appended, DesugarOps.concatStrings),expr.type));
         }
     break;
 
