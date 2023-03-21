@@ -8405,9 +8405,9 @@ setTransformationValue(value, new ExpressionValue(resultmv,resulttypemv,
 
   case 604:
     {
-          String word = ((Syntax) getNodeAt(subparser, 6).get(0)).getTokenText();
+          //String word = ((Syntax) getNodeAt(subparser, 6).get(0)).getTokenText();
           todoReminder("support Assemblyoperand (2)");
-          System.exit(0);
+          //System.exit(0);
           setTransformationValue(value, new Multiverse<String>("", subparser.getPresenceCondition()));
         }
     break;
