@@ -163,11 +163,10 @@ public class Multiverse<T> implements Iterable<Multiverse.Element<T>> {
    * @param cond The presence condition.
    */
   public void add(T data, PresenceCondition cond) {
-    if (data == null)
-      {
+    if (data == null) {
       System.out.println("----Alert: null added to table----\n");
       throw new Error();
-      }
+    }
     contents.add(new Element<T>(data, cond));
     cond.addRef();
     if (null == complement) {

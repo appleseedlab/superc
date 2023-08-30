@@ -25,6 +25,7 @@ import superc.cdesugarer.CActions.LineNumbers;
 import xtc.Constants;
 
 import superc.core.Syntax;
+import superc.core.Syntax.Text;
 
 /**
  * A C type specifier.  Adapted from xtc.lang.CAnalyzer.Specifiers.
@@ -697,5 +698,26 @@ class TypeSpecifier {
     this.type = ErrorT.TYPE;
     this.transformation = new LinkedList<Syntax>();
     
+  }
+
+  public TypeSpecifier revertForwardRefs(List<String> references, String forwardRef, String rename) {
+    TypeSpecifier toRet = new TypeSpecifier(this);
+    toRet.type = type.revertForwardRef(references,forwardRef,rename);
+    toRet.transformation = new LinkedList<Syntax>();
+    for (Syntax s : transformation) {
+      boolean found = false;
+      for (String s2 : references) {
+        if (s.getTokenText().equals(s2)) {
+          found = true;
+          break;
+        }
+      }
+      if (found && s instanceof Text) {
+        toRet.transformation.add(((Text)s).replaceText(forwardRef));
+      } else {
+        toRet.transformation.add(s);
+      }
+    }
+    return toRet;
   }
 }

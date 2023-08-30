@@ -86,5 +86,9 @@ public class BooleanT extends Type {
   public String printType() {
     return "bool";
   }
+
+  public void printType(TypeString t) {
+    t.setCore("bool");
+  }
   
 }

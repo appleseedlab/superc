@@ -11,5 +11,6 @@ struct x {
 
 int main() {
   struct x x;
+  x.s = 12;
   return x.s;
 }

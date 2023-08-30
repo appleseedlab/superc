@@ -21,8 +21,13 @@ package superc.core;
 import java.lang.Iterable;
 
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Iterator;
 import java.util.Set;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 import xtc.tree.GNode;
 import xtc.tree.Node;
@@ -86,7 +91,10 @@ public class ConditionEvaluator {
 
   /** The prefix to restrict free macros to. */
   private String restrictPrefix = null;
+
+  private boolean enableRestrictWhitelist = false;
   
+  private List<String> restrictWhitelist = null;
 
   /**
    * Set the pullUndefinedFalse flag.
@@ -125,7 +133,7 @@ public class ConditionEvaluator {
       this.restrictPrefix = prefix;
     }
   }
-
+  
   /**
    * Get the current macro prefix restriction.
    *
@@ -135,6 +143,37 @@ public class ConditionEvaluator {
     return restrictPrefix;
   }
 
+  /** 
+   * Restrict free macros to the given whitelist.
+   *
+   * @param File with whitelisted macros
+   */
+  public void restrictWhitelist(String whitelistFile) {
+    if (null == whitelistFile) {
+      enableRestrictWhitelist = false;
+      this.restrictWhitelist = null;
+    } else {
+      enableRestrictWhitelist = true;
+      this.restrictWhitelist = new LinkedList<String>();
+      try {
+        BufferedReader reader = new BufferedReader(new FileReader(whitelistFile));
+        String line = reader.readLine();
+        while (line != null) {
+          this.restrictWhitelist.add(line);
+          line = reader.readLine();
+        }
+      } catch (IOException e) {
+        System.err.println("Whitelist unable to be read");
+        enableRestrictWhitelist = false;
+        this.restrictWhitelist = null;
+      }
+    }
+  }
+
+  public boolean whitelisted(String param) {
+    return this.restrictWhitelist.contains(param);
+  }
+  
   /**
    * Create a new condition evaluator.
    *
@@ -750,6 +789,10 @@ public class ConditionEvaluator {
                               createDefinedVariable(parameter));
             }
 
+            if (enableRestrictWhitelist && ! whitelisted(parameter)) {
+              return B.zero();
+            }
+            
             if (enableRestrictPrefix && ! parameter.startsWith(restrictPrefix)) {
               // System.err.println("restricting " + parameter + " to undefined");
               return B.zero();

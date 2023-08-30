@@ -46,6 +46,7 @@ import superc.core.HeaderFileManager;
 import superc.core.MacroTable;
 import superc.core.ExpressionParser;
 import superc.core.ConditionEvaluatorZ3;
+import superc.core.ConditionEvaluator;
 import superc.core.StopWatch;
 import superc.core.StreamTimer;
 import superc.core.Preprocessor;
@@ -55,6 +56,7 @@ import superc.core.SemanticValues;
 
 import superc.core.PresenceConditionManager.PresenceCondition;
 import superc.core.PresenceConditionManagerZ3;
+import superc.core.PresenceConditionManager;
 
 import superc.core.Syntax;
 import superc.core.Syntax.Kind;
@@ -190,6 +192,9 @@ public class SugarC extends Tool {
       word("restrictConfigToPrefix", "restrictConfigToPrefix", false,
            "Assume non-config free macros are false when used like "
            + "configuration variables, but keep them free in the macro table").
+      word("restrictConfigToWhitelist", "restrictConfigToWhitelist", false,
+           "Given a file of macros seperated by new lines, assume macros"
+           + " not included in the list are false").
       word("restrictFreeToPrefix", "restrictFreeToPrefix", false,
            "Restricts free macros to those that have the given prefix").
       bool("singleConfigSysheaders", "singleConfigSysheaders", false,
@@ -215,6 +220,10 @@ public class SugarC extends Tool {
            "Emit thunks for single-configuration linking (experimental).").
       bool("make-main", "make-main", false,
            "Create a main function to call main variants.").
+      bool("keep-mem", "keep-mem", false,
+           "Retains naming for memory related functions used in static analysis.").
+      bool("hide-static-error", "hide-static-error", false,
+           "Adds a macro definition to replace static type error functions with empty space").
       
       // Output and debugging
       bool("printAST", "printAST", false,
@@ -235,8 +244,10 @@ public class SugarC extends Tool {
       bool("suppressConditions", "suppressConditions", false,
            "Don't print static conditions.").
       bool("macroTable", "macroTable", false,
-           "Show the macro symbol table.")
-      ;
+           "Show the macro symbol table.").
+      bool("useBDD", "useBDD", false,
+           "Use BDD for presence condition representation, SugarC uses Z3 by default");
+    
   }
   
   /**
@@ -397,9 +408,9 @@ public class SugarC extends Tool {
   public Node parse(Reader in, File file) throws IOException, ParseException {
     HeaderFileManager fileManager;
     MacroTable macroTable;
-    PresenceConditionManagerZ3 presenceConditionManager;
+    PresenceConditionManager presenceConditionManager;
     ExpressionParser expressionParser;
-    ConditionEvaluatorZ3 conditionEvaluator;
+    ConditionEvaluator conditionEvaluator;
     Iterator<Syntax> preprocessor;
     Node result = null;
     StopWatch parserTimer = null, preprocessorTimer = null, lexerTimer = null;
@@ -407,13 +418,23 @@ public class SugarC extends Tool {
     // Initialize the preprocessor with built-ins and command-line
     // macros and includes.
     macroTable = new MacroTable(tokenCreator);
-    presenceConditionManager = new PresenceConditionManagerZ3();
+    if (false != runtime.test("useBDD")) {
+      presenceConditionManager = new PresenceConditionManager();
+    } else {
+      presenceConditionManager = new PresenceConditionManagerZ3();
+    }
     System.err.println(presenceConditionManager.ctx);
     presenceConditionManager.suppressConditions(runtime.test("suppressConditions"));
     expressionParser = ExpressionParser.fromRats();
-    conditionEvaluator = new ConditionEvaluatorZ3(expressionParser,
+    if (false != runtime.test("useBDD")) {
+    conditionEvaluator = new ConditionEvaluator(expressionParser,
                                                  presenceConditionManager,
                                                  macroTable);
+    } else {
+    conditionEvaluator = new ConditionEvaluatorZ3(expressionParser,
+                                                  (PresenceConditionManagerZ3)presenceConditionManager,
+                                                 macroTable);
+    }
     if (null != runtime.getString("restrictFreeToPrefix")) {
       macroTable.restrictPrefix(runtime.getString("restrictFreeToPrefix"));
       conditionEvaluator.restrictPrefix(runtime.getString("restrictFreeToPrefix"));
@@ -425,6 +446,10 @@ public class SugarC extends Tool {
       conditionEvaluator.restrictPrefix(runtime.getString("restrictConfigToPrefix"));
     }
 
+    if (null != runtime.getString("restrictConfigToWhitelist")) {
+      conditionEvaluator.restrictWhitelist(runtime.getString("restrictConfigToWhitelist"));
+    }
+    
     if (null != commandline) {
       Syntax syntax;
       
@@ -476,6 +501,14 @@ public class SugarC extends Tool {
       .showErrors(! runtime.test("hideErrors"));
     ((Preprocessor) preprocessor)
       .singleConfigurationSysheaders(runtime.test("singleConfigSysheaders"));
+
+    if (runtime.test("newErrorHandling")) {
+      ForkMergeParser.setNewErrorHandling(true);
+    }
+    
+    if (runtime.test("keep-mem")) {
+      CActions.keepMemoryNames(true);
+    }
     
     // Run SuperC.
     
@@ -551,9 +584,18 @@ public class SugarC extends Tool {
       CContext scope = initialParsingContext;
       SymbolTable<Type> symtab = scope.getSymbolTable();
       PresenceCondition pcTrue = presenceConditionManager.newTrue();
-
+      String mainMethod = "";
+      if (runtime.test("make-main")) {
+        mainMethod = actions.printMain(scope, pcTrue);
+      }
+      String prototypeMultiplex = actions.printMultiplexes(scope,pcTrue);
+      
       // emit headers
       System.out.print("#include <stdbool.h>\n");
+      System.out.print("#include <stdlib.h>\n");
+      System.out.print("#include <stdio.h>\n");
+      System.out.print("#include <string.h>\n");
+
       System.out.print("\n");
 
       // emit extern declarations for desugaring runtime.
@@ -570,6 +612,10 @@ public class SugarC extends Tool {
 
       // write the user-defined types at the top of the scope.
       System.out.print(scope.getDeclarations(pcTrue));
+
+      if (runtime.test("hide-static-error")) {
+        System.out.print("#define __static_type_error(msg) ;");
+      }
       
       // write the transformed C
       System.out.print(CContext.getOutput());
@@ -580,8 +626,10 @@ public class SugarC extends Tool {
         System.out.print(actions.linkerThunks(scope, pcTrue));
       }
 
+      System.out.print(actions.printMultiplexes(scope,pcTrue));
+      
       if (runtime.test("make-main")) {
-        System.out.print(actions.printMain(scope, pcTrue));
+        System.out.print(mainMethod);
       }
     }
 

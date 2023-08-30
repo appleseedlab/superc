@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -25,20 +26,20 @@ void  (__process_commands_2) () {
 {
 if (__static_condition_default_3) {
 
-{
+{// L18
 {
 
 
 
 }
-}
+}// L29
 
 
 }
 
 if (__static_condition_default_4) {
 
-{
+{// L18
 {
 
 
@@ -48,7 +49,7 @@ int  __left_probe_bed_position_0= 15;// L21
 int  __xGridSpacing_1=  __left_probe_bed_position_0 ;// L24
 
 }
-}
+}// L29
 
 
 }
@@ -56,7 +57,7 @@ int  __xGridSpacing_1=  __left_probe_bed_position_0 ;// L24
 }}
 int  (__main_7) (int  __argc_5, char  * (* (__argv_6))) {
 
-{
+{// L32
 {
 
 
@@ -64,7 +65,7 @@ int  (__main_7) (int  __argc_5, char  * (* (__argv_6))) {
  __process_commands_2 ( ) ; // L33
 return 0 ;// L34
 }
-}
+}// L35
 
 
 }

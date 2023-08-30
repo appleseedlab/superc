@@ -1,0 +1,14 @@
+
+LINUX/7acf6cd80b2.c:44: error: Uninitialized Value
+  `driver_data` is read without initialization.
+  42. 
+  43.  err_release:
+  44.   tty_release(driver_data); // (3)
+                    ^
+  45.   return -1;
+  46. }
+
+
+Found 1 issue
+                      Issue Type(ISSUED_TYPE_ID): #
+  Uninitialized Value(PULSE_UNINITIALIZED_VALUE): 1

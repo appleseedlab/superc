@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -7,11 +8,11 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_15;
 extern const bool __static_condition_default_12;
-extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_15;
 extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_10;
 void __static_initializer_default() {
 __static_renaming("__size_t_0", "size_t");
 __static_renaming("__malloc_2", "malloc");
@@ -45,19 +46,19 @@ int  (__jffs2_nor_wbuf_flash_setup_7) () {
 
 if (__static_condition_default_9) {
 
+{// L16
 {
-{
 
 
 
- __wbuf_5  =  __malloc_2  (32) ; // L17
+ __wbuf_5  = malloc (32) ; // L17
 if ( !  __wbuf_5  )// L18
 {
 return - 12 ;// L19
 }
 return 0 ;// L21
 }
-}
+}// L22
 
 
 }
@@ -66,19 +67,19 @@ int  (__jffs2_nor_wbuf_flash_setup_8) () {
 
 if (__static_condition_default_10) {
 
+{// L16
 {
-{
 
 
 
- __wbuf_5  =  __malloc_2  (32) ; // L17
+ __wbuf_5  = malloc (32) ; // L17
 if ( !  __wbuf_5  )// L18
 {
 return - 12 ;// L19
 }
 return 0 ;// L21
 }
-}
+}// L22
 
 
 }
@@ -87,14 +88,14 @@ static int  (__jffs2_verify_write_11) () {
 
 if (__static_condition_default_12) {
 
-{
+{// L26
 {
 
 
 
 return ( int   ) *  __wbuf_verify_6  ;// L27
 }
-}
+}// L28
 
 
 }
@@ -103,7 +104,7 @@ int  (____jffs2_flush_wbuf_13) () {
 
 if (__static_condition_default_15) {
 
-{
+{// L34
 {
 
 
@@ -111,18 +112,18 @@ if (__static_condition_default_15) {
 do
 {
 
-{
+{// L30
 {
 
 
 
 }
-}
+}// L30
 }
 while( 0 );// L30:L35
 return 0 ;// L36
 }
-}
+}// L37
 
 
 }
@@ -131,7 +132,7 @@ int  (____jffs2_flush_wbuf_14) () {
 
 if (__static_condition_default_16) {
 
-{
+{// L34
 {
 
 
@@ -139,14 +140,14 @@ if (__static_condition_default_16) {
  __jffs2_verify_write_11 ( ) ; // L35
 return 0 ;// L36
 }
-}
+}// L37
 
 
 }
 }
 int  (__jffs2_flash_writev_17) () {
 
-{
+{// L40
 {
 
 
@@ -159,26 +160,26 @@ if (__static_condition_default_16) {
 }
 return 0 ;// L42
 }
-}
+}// L43
 
 
 }
 int  (__jffs2_flash_write_18) () {
 
-{
+{// L46
 {
 
 
 
 return  __jffs2_flash_writev_17 ( ) ;// L47
 }
-}
+}// L48
 
 
 }
 int  (__main_19) () {
 
-{
+{// L51
 {
 
 
@@ -192,7 +193,7 @@ if (__static_condition_default_10) {
  __jffs2_flash_write_18 ( ) ; // L53
 return 0 ;// L54
 }
-}
+}// L55
 
 
 }

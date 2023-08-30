@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -18,8 +19,7 @@ __static_renaming("__main_7", "main");
 __static_condition_renaming("__static_condition_default_8", "!HAS_BED_THERMAL_PROTECTION");
 __static_condition_renaming("__static_condition_default_9", "HAS_BED_THERMAL_PROTECTION");
 
-if (__static_condition_default_9)
-{
+if (__static_condition_default_9) {
 __static_parse_error("Unable to parse");
 }
 };
@@ -37,14 +37,14 @@ int  (__main_7) (void  ) {
 
 if (__static_condition_default_8) {
 
-{
+{// L17
 {
 
 
 
 return 0 ;// L18
 }
-}
+}// L19
 
 
 }

@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -8,9 +9,9 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_17;
-extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_16;
 extern const bool __static_condition_default_15;
+extern const bool __static_condition_default_16;
+extern const bool __static_condition_default_14;
 void __static_initializer_default() {
 __static_renaming("__malloc_1", "malloc");
 __static_renaming("__free_3", "free");
@@ -34,20 +35,20 @@ extern void  * ((__malloc_1) (unsigned long  ____size_0));// L5
 extern void  (__free_3) (void  * (____ptr_2));// L7
 int  (__nondet_4) () {
 
-{
+{// L9
 {
 
 
 
 return 42 ;// L9
 }
-}
+}// L9
 
 
 }
 int  (__load_module_13) () {
 
-{
+{// L18
 {
 
 
@@ -60,19 +61,19 @@ long  __err_10= 0;// L21
 
 void  * (__ptr_11)= ( void  * ) 0;// L22
 
-if ( (  __hdr_8  =  __malloc_1  (2 * sizeof(void*)) ) == ( void  * ) 0 )// L24
+if ( (  __hdr_8  = malloc (2 * sizeof(void*)) ) == ( void  * ) 0 )// L24
 {
 return - 12 ;// L25
 }
  __mod_9  = ( void  * )  __hdr_8  ; // L27
 if (__static_condition_default_14) {
-(  __mod_9  [ 0 ] ) =  __malloc_1  (32) ; // L14:L30
+(  __mod_9  [ 0 ] ) = malloc (32) ; // L14:L30
 }
 if (__static_condition_default_14) {
 if ( ! (  __mod_9  [ 0 ] ) )// L31
 {
 
-{
+{// L32
 {
 
 
@@ -83,19 +84,19 @@ if ( ! (  __mod_9  [ 0 ] ) )// L31
 goto free_mod_3;
 }
 }
-}
+}// L35
 }
 }
 if (__static_condition_default_15) {
- __ptr_11  =  __malloc_1  (512) ; // L38
+ __ptr_11  = malloc (512) ; // L38
 }
 if (__static_condition_default_14) {
- __ptr_11  =  __malloc_1  (512) ; // L38
+ __ptr_11  = malloc (512) ; // L38
 }
 if ( !  __ptr_11  )// L39
 {
 
-{
+{// L39
 {
 
 
@@ -107,13 +108,13 @@ goto free_percpu_2;
 goto free_percpu_5;
 }
 }
-}
+}// L42
 }
 (  __mod_9  [ 1 ] ) =  __ptr_11  ; // L15:L43
 while (  __nondet_4 ( ) )// L45
 {
 
-{
+{// L45
 {
 
 
@@ -127,7 +128,7 @@ if (  __nondet_4 ( ) )// L49
 break ; // L50
 }
 }
-}
+}// L51
 }
 if (  __nondet_4 ( ) )// L53
 {
@@ -143,14 +144,14 @@ free_unload_0:
 
 free_core_1:
 {
- __free_3  ((  __mod_9  [ 1 ] )) ; // L60
+free ((  __mod_9  [ 1 ] )) ; // L60
 }
 }
 if (__static_condition_default_16) {
 
 free_percpu_2:
 {
- __free_3  ((  __mod_9  [ 0 ] )) ; // L63
+free ((  __mod_9  [ 0 ] )) ; // L63
 }
 }
 if (__static_condition_default_16) {
@@ -160,7 +161,7 @@ free_mod_3:
 
 free_hdr_4:
 {
- __free_3  ( __hdr_8 ) ; // L67
+free ( __hdr_8 ) ; // L67
 }
 }
 }
@@ -174,20 +175,20 @@ free_mod_6:
 
 free_hdr_7:
 {
- __free_3  ( __hdr_8 ) ; // L67
+free ( __hdr_8 ) ; // L67
 }
 }
 }
 }
 return  __err_10  ;// L69
 }
-}
+}// L70
 
 
 }
 int  (__main_18) (void  ) {
 
-{
+{// L72
 {
 
 
@@ -195,7 +196,7 @@ int  (__main_18) (void  ) {
  __load_module_13 ( ) ; // L73
 return 0 ;// L74
 }
-}
+}// L75
 
 
 }

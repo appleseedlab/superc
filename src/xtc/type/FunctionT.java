@@ -38,7 +38,7 @@ public class FunctionT extends FunctionOrMethodT {
    * @param result The result type.
    */
   public FunctionT(Type result) {
-    super(null, result, null, new LinkedList<Type>(), false, null);
+    super(null, result, "", new LinkedList<Type>(), false, null);
   }
 
   /**
@@ -49,7 +49,7 @@ public class FunctionT extends FunctionOrMethodT {
    * @param varargs The flag for accepting a variable number of arguments.
    */
   public FunctionT(Type result, List<Type> parameters, boolean varargs) {
-    super(null, result, null, parameters, varargs, null);
+    super(null, result, "", parameters, varargs, null);
   }
 
   /**
@@ -62,9 +62,10 @@ public class FunctionT extends FunctionOrMethodT {
    */
   public FunctionT(Type template, Type result, List<Type> parameters,
                    boolean varargs) {
-    super(template, result, null, parameters, varargs, null);
+    super(template, result, "", parameters, varargs, null);
   }
 
+  
   public FunctionT copy() {
     FunctionT copy =
       new FunctionT(this, result.copy(), copy(parameters), varargs);

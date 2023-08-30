@@ -1,0 +1,13 @@
+
+LINUX/bc8cec0dff0.desugared.c:199: error: Memory Leak
+  Memory dynamically allocated by `malloc`, indirectly via call to `__jffs2_nor_wbuf_flash_setup_7()` on line 188 is not freed after the last access at line 199, column 1.
+  197. 
+  198. 
+  199. }
+       ^
+  200. 
+
+
+Found 1 issue
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 1

@@ -93,5 +93,19 @@ public class StructT extends StructOrUnionT {
   public String printType() {
     return "struct " + name;
   }
+  
+  public void printType(TypeString t) {
+    t.setCore("struct " + name);
+  }
+  
+  public Type revertForwardRef(List<String> references, String forwardRef, String rename) {
+    for (String s : references) {
+      if (s.equals(name)) {
+        Type t = new StructT(this,nonce,forwardRef,copy(members)); 
+        return t;
+      }
+    }
+    return this;      
+  }
 
 }

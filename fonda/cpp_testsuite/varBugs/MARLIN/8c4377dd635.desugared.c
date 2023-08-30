@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -8,16 +9,16 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_3;
-extern const bool __static_condition_default_10;
-extern const bool __static_condition_default_14;
-extern const bool __static_condition_default_12;
-extern const bool __static_condition_default_8;
 extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_8;
 extern const bool __static_condition_default_13;
-extern const bool __static_condition_default_15;
-extern const bool __static_condition_default_19;
-extern const bool __static_condition_default_20;
 extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_14;
+extern const bool __static_condition_default_20;
+extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_12;
+extern const bool __static_condition_default_19;
+extern const bool __static_condition_default_15;
 void __static_initializer_default() {
 __static_renaming("__echomagic_0", "echomagic");
 __static_renaming("__serialprint_2", "serialprint");
@@ -47,14 +48,14 @@ void  (__serialprint_2) (const char  * (__str_1)) {
 
 if (__static_condition_default_3) {
 
-{
+{// L5
 {
 
 
 
 __static_type_error("type error : no valid expression"); // L6
 }
-}
+}// L7
 
 
 }
@@ -64,7 +65,7 @@ void  (__manage_heater_6) () {
 {
 if (__static_condition_default_8) {
 
-{
+{// L10
 {
 
 
@@ -74,14 +75,14 @@ float  __pid_output_4= 1;// L11
 int  __e_5= 0;// L12
 
 }
-}
+}// L22
 
 
 }
 
 if (__static_condition_default_9) {
 
-{
+{// L10
 {
 
 
@@ -97,7 +98,7 @@ if (__static_condition_default_11) {
 __static_type_error("type error : no valid expression"); // L16
 }
 }
-}
+}// L22
 
 
 }
@@ -108,7 +109,7 @@ void  (__manage_heater_7) () {
 {
 if (__static_condition_default_12) {
 
-{
+{// L10
 {
 
 
@@ -118,14 +119,14 @@ float  __pid_output_4= 1;// L11
 int  __e_5= 0;// L12
 
 }
-}
+}// L22
 
 
 }
 
 if (__static_condition_default_13) {
 
-{
+{// L10
 {
 
 
@@ -141,7 +142,7 @@ if (__static_condition_default_15) {
 __static_type_error("type error : no valid expression"); // L3:L16
 }
 }
-}
+}// L22
 
 
 }
@@ -149,7 +150,7 @@ __static_type_error("type error : no valid expression"); // L3:L16
 }}
 int  (__main_18) (int  __argc_16, char  * (* (__argv_17))) {
 
-{
+{// L25
 {
 
 
@@ -162,7 +163,7 @@ if (__static_condition_default_20) {
 }
 return 0 ;// L27
 }
-}
+}// L28
 
 
 }

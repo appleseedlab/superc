@@ -22,6 +22,8 @@ import java.io.IOException;
 
 import java.util.Iterator;
 import java.util.List;
+import superc.core.PresenceConditionManager;
+import superc.core.PresenceConditionManager.PresenceCondition;
 
 /**
  * The superclass of function and method types.
@@ -32,7 +34,7 @@ import java.util.List;
 public abstract class FunctionOrMethodT extends DerivedT {
 
     
-  private boolean isDefined;
+  //  private PresenceCondition isDefined;
   
     
   /** The result type. */
@@ -72,7 +74,7 @@ public abstract class FunctionOrMethodT extends DerivedT {
     this.parameters = parameters;
     this.varargs    = varargs;
     this.exceptions = exceptions;
-    isDefined = false;
+    //isDefined = (new PresenceConditionManager()).newFalse();
   }
 
   public Type seal() {
@@ -188,7 +190,7 @@ public abstract class FunctionOrMethodT extends DerivedT {
   }
 
   public void write(Appendable out) throws IOException {
-    out.append('(');
+    out.append(name + ":(");
     for (Iterator<Type> iter = parameters.iterator(); iter.hasNext(); ) {
       iter.next().write(out);
       if (iter.hasNext() || varargs) {
@@ -206,37 +208,39 @@ public abstract class FunctionOrMethodT extends DerivedT {
     }
   }
 
-  public String printType() {
-    String r = result.printType() + "(";
-    for (Iterator<Type> iter = parameters.iterator(); iter.hasNext(); ) {
-      r += iter.next().printType();
-      if (iter.hasNext() || varargs) {
-        r +=", ";
+  public void printType(TypeString t) {
+    if (t.inReturn) {
+      t.coreType = printType();
+      return;
+    }
+    t.inReturn = true;
+    result.printType(t);
+    t.inReturn = false;
+    t.corePost += "(";
+    t.id = name;
+    int count = 0;
+    if (parameters.size() == 1 && parameters.get(0).toVariable().getType().isVoid()) {
+      t.corePost += "void)";
+    } else {
+      for (Iterator<Type> iter = parameters.iterator(); iter.hasNext(); ) {
+        Type type = iter.next();
+        if (!type.isVariable()) {System.err.println("illegal parameter print"); System.exit(-99); }
+        VariableT v = type.toVariable();
+        if (v.hasName()){
+          t.corePost += v.printType();
+        }else{
+          t.corePost += v.printType("x"+ String.valueOf(count));
+        }
+        if (iter.hasNext() || varargs) {
+          t.corePost +=", ";
+        }
+        count++;
       }
+      if (varargs) {
+        t.corePost += "...";
+      }
+      t.corePost += ")";
     }
-    r += ")";
-    return r;
   }
-  public String printType(String insert) {
-    String r = result.printType() + insert + "(";
-    for (Iterator<Type> iter = parameters.iterator(); iter.hasNext(); ) {
-	    r += iter.next().printType();
-	    if (iter.hasNext() || varargs) {
-        r +=", ";
-	    }
-    }
-    r += ")";
-    return r;
-  }
-
-    
-  public void setDefined() {
-    isDefined = true;
-  }
-
-  public boolean getDefined() {
-    return isDefined;
-  }
-
-    
+  
 }

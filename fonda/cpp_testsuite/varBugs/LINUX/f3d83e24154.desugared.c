@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -8,23 +9,23 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_5;
-extern const bool __static_condition_default_176;
-extern const bool __static_condition_default_223;
-extern const bool __static_condition_default_212;
-extern const bool __static_condition_default_224;
-extern const bool __static_condition_default_230;
-extern const bool __static_condition_default_209;
-extern const bool __static_condition_default_222;
-extern const bool __static_condition_default_225;
-extern const bool __static_condition_default_221;
-extern const bool __static_condition_default_196;
 extern const bool __static_condition_default_191;
-extern const bool __static_condition_default_192;
-extern const bool __static_condition_default_183;
-extern const bool __static_condition_default_216;
-extern const bool __static_condition_default_232;
+extern const bool __static_condition_default_212;
+extern const bool __static_condition_default_222;
+extern const bool __static_condition_default_221;
 extern const bool __static_condition_default_14;
+extern const bool __static_condition_default_183;
+extern const bool __static_condition_default_232;
+extern const bool __static_condition_default_225;
+extern const bool __static_condition_default_209;
 extern const bool __static_condition_default_231;
+extern const bool __static_condition_default_223;
+extern const bool __static_condition_default_176;
+extern const bool __static_condition_default_196;
+extern const bool __static_condition_default_224;
+extern const bool __static_condition_default_216;
+extern const bool __static_condition_default_230;
+extern const bool __static_condition_default_192;
 void __static_initializer_default() {
 __static_renaming("__ptrdiff_t_0", "ptrdiff_t");
 __static_renaming("__size_t_1", "size_t");
@@ -109,8 +110,7 @@ __static_condition_renaming("__static_condition_default_230", "!(defined CONFIG_
 __static_condition_renaming("__static_condition_default_231", "(defined CONFIG_X86) && (defined CONFIG_ACPI_WMI)");
 __static_condition_renaming("__static_condition_default_232", "(defined CONFIG_X86) && (defined CONFIG_ACPI_WMI) && (defined __CORRECT_ISO_CPP_STRING_H_PROTO)");
 
-if (__static_condition_default_232)
-{
+if (__static_condition_default_232) {
 __static_parse_error("Unable to parse");
 }
 };
@@ -202,7 +202,7 @@ void  (__wmi_query_block_220) () {
 
 if (__static_condition_default_221) {
 
-{
+{// L7
 {
 
 
@@ -222,7 +222,7 @@ if (__static_condition_default_225) {
 __static_type_error("type error") ; // L11
 }
 }
-}
+}// L12
 
 
 }
@@ -231,7 +231,7 @@ int  (__get_wmid_devices_226) (void  ) {
 
 if (__static_condition_default_221) {
 
-{
+{// L15
 {
 
 
@@ -239,7 +239,7 @@ if (__static_condition_default_221) {
  __wmi_query_block_220 ( ) ; // L16
 return 0 ;// L17
 }
-}
+}// L18
 
 
 }
@@ -248,7 +248,7 @@ int  (__acer_wmi_init_227) (void  ) {
 
 if (__static_condition_default_221) {
 
-{
+{// L21
 {
 
 
@@ -256,7 +256,7 @@ if (__static_condition_default_221) {
  __get_wmid_devices_226 ( ) ; // L22
 return 0 ;// L23
 }
-}
+}// L24
 
 
 }
@@ -265,14 +265,14 @@ int  (__main_228) () {
 
 if (__static_condition_default_230) {
 
-{
+{// L29
 {
 
 
 
 return 0 ;// L33
 }
-}
+}// L34
 
 
 }
@@ -281,7 +281,7 @@ int  (__main_229) () {
 
 if (__static_condition_default_231) {
 
-{
+{// L29
 {
 
 
@@ -289,7 +289,7 @@ if (__static_condition_default_231) {
  __acer_wmi_init_227 ( ) ; // L31
 return 0 ;// L33
 }
-}
+}// L34
 
 
 }

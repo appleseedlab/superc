@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -7,74 +8,74 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_604;
-extern const bool __static_condition_default_246;
-extern const bool __static_condition_default_423;
-extern const bool __static_condition_default_349;
-extern const bool __static_condition_default_67;
-extern const bool __static_condition_default_420;
-extern const bool __static_condition_default_264;
-extern const bool __static_condition_default_258;
-extern const bool __static_condition_default_361;
-extern const bool __static_condition_default_977;
-extern const bool __static_condition_default_276;
-extern const bool __static_condition_default_293;
-extern const bool __static_condition_default_302;
-extern const bool __static_condition_default_378;
-extern const bool __static_condition_default_352;
-extern const bool __static_condition_default_621;
-extern const bool __static_condition_default_972;
-extern const bool __static_condition_default_594;
-extern const bool __static_condition_default_273;
-extern const bool __static_condition_default_252;
-extern const bool __static_condition_default_623;
-extern const bool __static_condition_default_305;
-extern const bool __static_condition_default_978;
-extern const bool __static_condition_default_215;
-extern const bool __static_condition_default_971;
-extern const bool __static_condition_default_976;
-extern const bool __static_condition_default_325;
-extern const bool __static_condition_default_856;
-extern const bool __static_condition_default_288;
-extern const bool __static_condition_default_255;
-extern const bool __static_condition_default_279;
-extern const bool __static_condition_default_979;
-extern const bool __static_condition_default_267;
-extern const bool __static_condition_default_299;
-extern const bool __static_condition_default_379;
-extern const bool __static_condition_default_973;
-extern const bool __static_condition_default_432;
-extern const bool __static_condition_default_595;
-extern const bool __static_condition_default_341;
-extern const bool __static_condition_default_249;
-extern const bool __static_condition_default_417;
-extern const bool __static_condition_default_629;
-extern const bool __static_condition_default_736;
-extern const bool __static_condition_default_60;
-extern const bool __static_condition_default_414;
-extern const bool __static_condition_default_581;
-extern const bool __static_condition_default_261;
-extern const bool __static_condition_default_234;
-extern const bool __static_condition_default_394;
-extern const bool __static_condition_default_970;
-extern const bool __static_condition_default_240;
-extern const bool __static_condition_default_429;
-extern const bool __static_condition_default_974;
-extern const bool __static_condition_default_426;
-extern const bool __static_condition_default_975;
-extern const bool __static_condition_default_243;
-extern const bool __static_condition_default_296;
-extern const bool __static_condition_default_308;
-extern const bool __static_condition_default_579;
-extern const bool __static_condition_default_395;
-extern const bool __static_condition_default_627;
-extern const bool __static_condition_default_969;
-extern const bool __static_condition_default_282;
-extern const bool __static_condition_default_849;
 extern const bool __static_condition_default_237;
+extern const bool __static_condition_default_255;
+extern const bool __static_condition_default_971;
+extern const bool __static_condition_default_67;
+extern const bool __static_condition_default_736;
+extern const bool __static_condition_default_623;
 extern const bool __static_condition_default_270;
-extern const bool __static_condition_default_285;
+extern const bool __static_condition_default_579;
+extern const bool __static_condition_default_240;
+extern const bool __static_condition_default_594;
+extern const bool __static_condition_default_246;
+extern const bool __static_condition_default_264;
+extern const bool __static_condition_default_361;
+extern const bool __static_condition_default_395;
+extern const bool __static_condition_default_249;
+extern const bool __static_condition_default_282;
+extern const bool __static_condition_default_423;
+extern const bool __static_condition_default_234;
+extern const bool __static_condition_default_849;
+extern const bool __static_condition_default_973;
+extern const bool __static_condition_default_325;
+extern const bool __static_condition_default_378;
+extern const bool __static_condition_default_429;
+extern const bool __static_condition_default_267;
+extern const bool __static_condition_default_215;
+extern const bool __static_condition_default_976;
+extern const bool __static_condition_default_978;
 extern const bool __static_condition_default_602;
+extern const bool __static_condition_default_414;
+extern const bool __static_condition_default_856;
+extern const bool __static_condition_default_420;
+extern const bool __static_condition_default_970;
+extern const bool __static_condition_default_979;
+extern const bool __static_condition_default_276;
+extern const bool __static_condition_default_296;
+extern const bool __static_condition_default_285;
+extern const bool __static_condition_default_302;
+extern const bool __static_condition_default_279;
+extern const bool __static_condition_default_273;
+extern const bool __static_condition_default_243;
+extern const bool __static_condition_default_621;
+extern const bool __static_condition_default_629;
+extern const bool __static_condition_default_261;
+extern const bool __static_condition_default_974;
+extern const bool __static_condition_default_308;
+extern const bool __static_condition_default_432;
+extern const bool __static_condition_default_426;
+extern const bool __static_condition_default_293;
+extern const bool __static_condition_default_299;
+extern const bool __static_condition_default_252;
+extern const bool __static_condition_default_60;
+extern const bool __static_condition_default_595;
+extern const bool __static_condition_default_349;
+extern const bool __static_condition_default_352;
+extern const bool __static_condition_default_394;
+extern const bool __static_condition_default_305;
+extern const bool __static_condition_default_341;
+extern const bool __static_condition_default_581;
+extern const bool __static_condition_default_972;
+extern const bool __static_condition_default_969;
+extern const bool __static_condition_default_975;
+extern const bool __static_condition_default_417;
+extern const bool __static_condition_default_627;
+extern const bool __static_condition_default_604;
+extern const bool __static_condition_default_977;
+extern const bool __static_condition_default_258;
+extern const bool __static_condition_default_288;
+extern const bool __static_condition_default_379;
 void __static_initializer_default() {
 __static_renaming("__ptrdiff_t_0", "ptrdiff_t");
 __static_renaming("__size_t_1", "size_t");
@@ -639,8 +640,7 @@ __static_condition_renaming("__static_condition_default_977", "!(defined _STDLIB
 __static_condition_renaming("__static_condition_default_978", "!(defined _STDLIB_H) && !(defined __STRICT_ANSI__) && (defined __need_malloc_and_calloc) && (defined __malloc_and_calloc_defined) && !(defined CONFIG_FEATURE_CLEAN_UP) || !(defined _STDLIB_H) && (defined __STRICT_ANSI__) && (defined __malloc_and_calloc_defined) && !(defined CONFIG_FEATURE_CLEAN_UP) || (defined _STDLIB_H) && !(defined CONFIG_FEATURE_CLEAN_UP)");
 __static_condition_renaming("__static_condition_default_979", "!(defined _STDLIB_H) && !(defined __STRICT_ANSI__) && !(defined __need_malloc_and_calloc) || (defined _STDLIB_H) && !(defined _BITS_TYPESIZES_H) && (defined __GNU_LIBRARY__) && (defined __THROW) || (defined _STDLIB_H) && (defined _BITS_TYPESIZES_H) && !(defined __GNU_LIBRARY__) || (defined _STDLIB_H) && (defined _BITS_TYPESIZES_H) && (defined __GNU_LIBRARY__) && (defined __THROW)");
 
-if (__static_condition_default_979)
-{
+if (__static_condition_default_979) {
 __static_parse_error("Unable to parse");
 }
 };
@@ -712,12 +712,12 @@ struct ____anonymous_tag_70_71 {
 unsigned int  ____w_termsig_72 : 7;// L72
 unsigned int  ____w_coredump_73 : 1;// L73
 unsigned int  ____w_retcode_74 : 8;// L74
-unsigned int  : 16;// L75
+unsigned int  __anon_id_0_75 : 16;// L75
 };
 struct ____anonymous_tag_76_77 {
 unsigned int  ____w_stopval_78 : 8;// L87
 unsigned int  ____w_stopsig_79 : 8;// L88
-unsigned int  : 16;// L89
+unsigned int  __anon_id_1_80 : 16;// L89
 };
 union __wait_81 {
 int  __w_status_82;// L68
@@ -1110,14 +1110,14 @@ static __inline unsigned int  (____bswap_32_66) (unsigned int  ____bsx_65) {
 
 if (__static_condition_default_67) {
 
-{
+{// L46
 {
 
 
 
 __static_type_error("invalid type found in return expression");
 }
-}
+}// L48
 
 
 }
@@ -1126,14 +1126,14 @@ static __inline ____uint64_t_20  (____bswap_64_69) (____uint64_t_20  ____bsx_68)
 
 if (__static_condition_default_67) {
 
-{
+{// L110
 {
 
 
 
 __static_type_error("invalid type found in return expression");
 }
-}
+}// L112
 
 
 }
@@ -1306,14 +1306,14 @@ static __inline unsigned int  (____bswap_32_324) (unsigned int  ____bsx_323) {
 
 if (__static_condition_default_325) {
 
-{
+{// L46
 {
 
 
 
 __static_type_error("invalid type found in return expression");
 }
-}
+}// L48
 
 
 }
@@ -1322,14 +1322,14 @@ static __inline ____uint64_t_175  (____bswap_64_327) (____uint64_t_175  ____bsx_
 
 if (__static_condition_default_325) {
 
-{
+{// L110
 {
 
 
 
 __static_type_error("invalid type found in return expression");
 }
-}
+}// L112
 
 
 }
@@ -1561,14 +1561,14 @@ static __inline unsigned int  (____bswap_32_855) (unsigned int  ____bsx_854) {
 
 if (__static_condition_default_856) {
 
-{
+{// L46
 {
 
 
 
 __static_type_error("invalid type found in return expression");
 }
-}
+}// L48
 
 
 }
@@ -1577,14 +1577,14 @@ static __inline ____uint64_t_809  (____bswap_64_858) (____uint64_t_809  ____bsx_
 
 if (__static_condition_default_856) {
 
-{
+{// L110
 {
 
 
 
 __static_type_error("invalid type found in return expression");
 }
-}
+}// L112
 
 
 }
@@ -1649,7 +1649,7 @@ int  (__main_968) (int  __argc_962, char  * (* (__argv_963))) {
 {
 if (__static_condition_default_969) {
 
-{
+{// L5
 {
 
 
@@ -1666,7 +1666,7 @@ __static_type_error("invalid type found in while statement");
 if (  __cmd_967  == 8 )// L22
 {
 
-{
+{// L22
 {
 
 
@@ -1676,13 +1676,13 @@ if (  __cmd_967  == 8 )// L22
 goto all_done_0;
 }
 }
-}
+}// L24
 }
 if (__static_condition_default_970) {
- __buf_964  =  __malloc_486  ( __bufsize_965 ) ; // L26
+ __buf_964  = malloc ( __bufsize_965 ) ; // L26
 }
 if (__static_condition_default_971) {
- __buf_964  =  __malloc_487  ( __bufsize_965 ) ; // L26
+ __buf_964  = malloc ( __bufsize_965 ) ; // L26
 }
 if (__static_condition_default_972) {
 __static_type_error("type error") ; // L26
@@ -1693,31 +1693,31 @@ all_done_0:
 if (  __buf_964  )// L30
 {
 
-{
+{// L30
 {
 
 
 
 if (__static_condition_default_973) {
- __free_496  ( __buf_964 ) ; // L31
+free ( __buf_964 ) ; // L31
 }
 if (__static_condition_default_974) {
 __static_type_error("type error") ; // L31
 }
 }
-}
+}// L32
 }
 }
 return 0 ;// L34
 }
-}
+}// L35
 
 
 }
 
 if (__static_condition_default_975) {
 
-{
+{// L5
 {
 
 
@@ -1734,7 +1734,7 @@ __static_type_error("invalid type found in while statement");
 if (  __cmd_967  == 8 )// L22
 {
 
-{
+{// L22
 {
 
 
@@ -1744,13 +1744,13 @@ if (  __cmd_967  == 8 )// L22
 goto all_done_1;
 }
 }
-}
+}// L24
 }
 if (__static_condition_default_976) {
- __buf_964  =  __malloc_486  ( __bufsize_965 ) ; // L26
+ __buf_964  = malloc ( __bufsize_965 ) ; // L26
 }
 if (__static_condition_default_977) {
- __buf_964  =  __malloc_487  ( __bufsize_965 ) ; // L26
+ __buf_964  = malloc ( __bufsize_965 ) ; // L26
 }
 if (__static_condition_default_978) {
 __static_type_error("type error") ; // L26
@@ -1761,7 +1761,7 @@ all_done_1:
 return 0 ;// L34
 }
 }
-}
+}// L35
 
 
 }

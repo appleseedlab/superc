@@ -296,7 +296,7 @@ public class PresenceConditionManagerZ3 extends PresenceConditionManager {
     
     @Override
     public void print(Writer writer) throws IOException {
-      printz3(expr, writer);
+        printz3(expr, writer);
     }
 
     /**

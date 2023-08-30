@@ -83,4 +83,8 @@ public class InterfaceT extends ClassOrInterfaceT {
     return "interface " + qname;
   }
 
+  public void printType(TypeString t) {
+    t.addToFront("interface " + qname + " ");
+  }
+  
 }

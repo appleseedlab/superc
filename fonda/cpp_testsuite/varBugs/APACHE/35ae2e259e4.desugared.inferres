@@ -1,0 +1,50 @@
+
+APACHE/35ae2e259e4.desugared.c:1367: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1359 is not freed after the last access at line 1367, column 5.
+  1365. if ( rand( ) % 2 )// L11
+  1366. {
+  1367. if (__static_condition_default_806) {
+            ^
+  1368. 
+  1369. {// L11
+
+APACHE/35ae2e259e4.desugared.c:1374: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1359 is not freed after the last access at line 1374, column 1.
+  1372. 
+  1373. 
+  1374. *  __eckey_798  = 30 ; // L12
+        ^
+  1375. }
+  1376. }// L13
+
+APACHE/35ae2e259e4.desugared.c:1398: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1359 is not freed after the last access at line 1398, column 1.
+  1396. 
+  1397. 
+  1398. *  __eckey_798  = 15 ; // L17
+        ^
+  1399. }
+  1400. }// L19
+
+APACHE/35ae2e259e4.desugared.c:1436: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1428 is not freed after the last access at line 1436, column 5.
+  1434. if ( rand( ) % 2 )// L11
+  1435. {
+  1436. if (__static_condition_default_815) {
+            ^
+  1437. 
+  1438. {// L11
+
+APACHE/35ae2e259e4.desugared.c:1443: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1428 is not freed after the last access at line 1443, column 1.
+  1441. 
+  1442. 
+  1443. *  __eckey_798  = 30 ; // L12
+        ^
+  1444. }
+  1445. }// L13
+
+
+Found 8 issues (console output truncated to 5, see '/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/infer-out/report.txt' for the full list)
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 8

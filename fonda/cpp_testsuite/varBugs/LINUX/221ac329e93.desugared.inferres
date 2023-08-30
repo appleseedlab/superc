@@ -1,0 +1,41 @@
+
+LINUX/221ac329e93.desugared.c:4743: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 4682 is not freed after the last access at line 4743, column 1.
+  4741. 
+  4742. }
+  4743. }
+        ^
+  4744. int  (__main_3993) (int  __argc_3990, char  * (* (__argv_3991))) {
+  4745. 
+
+LINUX/221ac329e93.desugared.c:4743: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 4692 is not freed after the last access at line 4743, column 1.
+  4741. 
+  4742. }
+  4743. }
+        ^
+  4744. int  (__main_3993) (int  __argc_3990, char  * (* (__argv_3991))) {
+  4745. 
+
+LINUX/221ac329e93.desugared.c:4743: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 4702 is not freed after the last access at line 4743, column 1.
+  4741. 
+  4742. }
+  4743. }
+        ^
+  4744. int  (__main_3993) (int  __argc_3990, char  * (* (__argv_3991))) {
+  4745. 
+
+LINUX/221ac329e93.desugared.c:4743: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 4712 is not freed after the last access at line 4743, column 1.
+  4741. 
+  4742. }
+  4743. }
+        ^
+  4744. int  (__main_3993) (int  __argc_3990, char  * (* (__argv_3991))) {
+  4745. 
+
+
+Found 4 issues
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 4

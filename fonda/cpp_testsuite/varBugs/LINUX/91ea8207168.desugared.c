@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -7,37 +8,37 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_222;
-extern const bool __static_condition_default_250;
-extern const bool __static_condition_default_205;
 extern const bool __static_condition_default_209;
-extern const bool __static_condition_default_249;
-extern const bool __static_condition_default_254;
-extern const bool __static_condition_default_196;
-extern const bool __static_condition_default_225;
-extern const bool __static_condition_default_260;
-extern const bool __static_condition_default_27;
-extern const bool __static_condition_default_248;
-extern const bool __static_condition_default_255;
-extern const bool __static_condition_default_261;
-extern const bool __static_condition_default_251;
-extern const bool __static_condition_default_236;
-extern const bool __static_condition_default_237;
-extern const bool __static_condition_default_262;
-extern const bool __static_condition_default_256;
-extern const bool __static_condition_default_229;
-extern const bool __static_condition_default_189;
-extern const bool __static_condition_default_204;
-extern const bool __static_condition_default_247;
-extern const bool __static_condition_default_243;
-extern const bool __static_condition_default_259;
 extern const bool __static_condition_default_263;
-extern const bool __static_condition_default_238;
+extern const bool __static_condition_default_229;
+extern const bool __static_condition_default_237;
+extern const bool __static_condition_default_247;
+extern const bool __static_condition_default_255;
+extern const bool __static_condition_default_189;
+extern const bool __static_condition_default_27;
+extern const bool __static_condition_default_236;
+extern const bool __static_condition_default_248;
 extern const bool __static_condition_default_244;
+extern const bool __static_condition_default_250;
+extern const bool __static_condition_default_238;
+extern const bool __static_condition_default_196;
 extern const bool __static_condition_default_264;
 extern const bool __static_condition_default_230;
-extern const bool __static_condition_default_239;
+extern const bool __static_condition_default_243;
 extern const bool __static_condition_default_265;
+extern const bool __static_condition_default_251;
+extern const bool __static_condition_default_222;
+extern const bool __static_condition_default_261;
+extern const bool __static_condition_default_204;
+extern const bool __static_condition_default_239;
+extern const bool __static_condition_default_254;
+extern const bool __static_condition_default_256;
+extern const bool __static_condition_default_262;
+extern const bool __static_condition_default_259;
+extern const bool __static_condition_default_260;
+extern const bool __static_condition_default_249;
+extern const bool __static_condition_default_225;
+extern const bool __static_condition_default_205;
 void __static_initializer_default() {
 __static_renaming("____assert_fail_4", "__assert_fail");
 __static_renaming("____assert_perror_fail_9", "__assert_perror_fail");
@@ -142,8 +143,7 @@ __static_condition_renaming("__static_condition_default_263", "!(defined CONFIG_
 __static_condition_renaming("__static_condition_default_264", "(defined CONFIG_DISCONTIGMEM) && (defined CONFIG_PROC_PAGE_MONITOR)");
 __static_condition_renaming("__static_condition_default_265", "(defined __CORRECT_ISO_CPP_STRING_H_PROTO)");
 
-if (__static_condition_default_265)
-{
+if (__static_condition_default_265) {
 __static_parse_error("Unable to parse");
 }
 };
@@ -239,7 +239,7 @@ int  (__pfn_to_nid_235) (unsigned int  __pfn_234) {
 
 if (__static_condition_default_236) {
 
-{
+{// L28
 {
 
 
@@ -255,7 +255,7 @@ __static_type_error("type error") ; // L29:L91
 }
 return ( int   )  __pfnnid_map_232  [  __pfn_234  ] ;// L30
 }
-}
+}// L31
 
 
 }
@@ -264,7 +264,7 @@ int  (__pfn_valid_242) (unsigned int  __pfn_240) {
 
 if (__static_condition_default_236) {
 
-{
+{// L34
 {
 
 
@@ -282,7 +282,7 @@ __static_type_error("invalid type found in return expression");
 }
 return 0 ;// L39
 }
-}
+}// L40
 
 
 }
@@ -292,13 +292,13 @@ void  (__setup_bootmem_245) (void  ) {
 {
 if (__static_condition_default_247) {
 
-{
+{// L50
 {
 
 
 
 }
-}
+}// L54
 
 
 }
@@ -309,22 +309,22 @@ void  (__setup_bootmem_246) (void  ) {
 {
 if (__static_condition_default_248) {
 
-{
+{// L50
 {
 
 
 
 if (__static_condition_default_249) {
- __memset_31  ( __pfnnid_map_232 ,0xff,sizeof(unsigned char[1])) ; // L52
+ __memset_31  ( __pfnnid_map_232 ,0xff,sizeof((  __pfnnid_map_232  ))) ; // L52
 }
 if (__static_condition_default_250) {
- __memset_32  ( __pfnnid_map_232 ,0xff,sizeof(unsigned char[1])) ; // L52
+ __memset_32  ( __pfnnid_map_232 ,0xff,sizeof((  __pfnnid_map_232  ))) ; // L52
 }
 if (__static_condition_default_251) {
 __static_type_error("type error") ; // L52
 }
 }
-}
+}// L54
 
 
 }
@@ -334,7 +334,7 @@ int  (__kpageflags_read_253) () {
 
 if (__static_condition_default_254) {
 
-{
+{// L58
 {
 
 
@@ -345,7 +345,7 @@ if (__static_condition_default_255) {
 for (  ;  __pfn_252  < 0 ;  __pfn_252  ++ )// L61
 {
 
-{
+{// L61
 {
 
 
@@ -355,14 +355,14 @@ if ( ( 1 ) )// L62
  ; // L63
 }
 }
-}
+}// L64
 }
 }
 if (__static_condition_default_256) {
 for (  ;  __pfn_252  <  __max_pfn_233  ;  __pfn_252  ++ )// L61
 {
 
-{
+{// L61
 {
 
 
@@ -372,12 +372,12 @@ if (  __pfn_valid_242  ( __pfn_252 ) )// L62
  ; // L63
 }
 }
-}
+}// L64
 }
 }
 return 0 ;// L66
 }
-}
+}// L67
 
 
 }
@@ -386,7 +386,7 @@ int  (__main_257) () {
 
 if (__static_condition_default_259) {
 
-{
+{// L71
 {
 
 
@@ -399,7 +399,7 @@ if (__static_condition_default_261) {
 }
 return 0 ;// L76
 }
-}
+}// L77
 
 
 }
@@ -408,7 +408,7 @@ int  (__main_258) () {
 
 if (__static_condition_default_262) {
 
-{
+{// L71
 {
 
 
@@ -422,7 +422,7 @@ if (__static_condition_default_264) {
  __kpageflags_read_253 ( ) ; // L74
 return 0 ;// L76
 }
-}
+}// L77
 
 
 }

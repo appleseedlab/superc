@@ -1,0 +1,22 @@
+
+LINUX/218ad12f42e.desugared.c:64: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 43 is not freed after the last access at line 64, column 1.
+  62. 
+  63. 
+  64. }
+      ^
+  65. void  (__inet_ehash_locks_free_9) () {
+  66. 
+
+LINUX/218ad12f42e.desugared.c:124: error: Memory Leak
+  Memory dynamically allocated by `malloc`, indirectly via call to `__inet_ehash_locks_alloc_6()` on line 117 is not freed after the last access at line 124, column 1.
+  122. 
+  123. 
+  124. }
+       ^
+  125. 
+
+
+Found 2 issues
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 2

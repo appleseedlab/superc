@@ -1502,7 +1502,7 @@ public class C {
   protected Type compose(Type t1, Type t2, boolean pedantic, boolean recursive) {
     if (recursive) {
       // Preserve any wrapped types.
-      if (t1.isEnum()) {
+        if (t1.isEnum()) {
         return t1.equals(t2) ? t1 : ErrorT.TYPE;
         
       } else if (t1.isWrapped()) {
@@ -1677,11 +1677,11 @@ public class C {
     } else {
       if (! f1.getName().equals(f2.getName())) return ErrorT.TYPE;
     }
-
+    
     // The flag for whether the component types differ from this type.
     boolean differs = false;
-
     // Compare the results.
+
     if (! hasSameQualifiers(f1.getResult(), f2.getResult())) return ErrorT.TYPE;
     final Type res = compose(f1.getResult(), f2.getResult(), true);
     if (res.isError()) return ErrorT.TYPE;
@@ -1731,7 +1731,7 @@ public class C {
       return ErrorT.TYPE;
     }
     if (f1.isVarArgs() != f2.isVarArgs()) return ErrorT.TYPE;
-
+    
     final int size = f1.getParameters().size();
     List<Type> par = differs ? new ArrayList<Type>(f1.getParameters()) : null;
     for (int i=0; i<size; i++) {

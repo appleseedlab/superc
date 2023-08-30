@@ -1,0 +1,14 @@
+
+APACHE/2a6cbfa00e0.desugared.c:1601: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1594 is not freed after the last access at line 1601, column 5.
+  1599. 
+  1600. __static_type_error("type error") ; // L9
+  1601. if (__static_condition_default_1097) {
+            ^
+  1602. free ( __sc_1085 ) ; // L12
+  1603. }
+
+
+Found 1 issue
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 1

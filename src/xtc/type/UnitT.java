@@ -86,5 +86,9 @@ public class UnitT extends Type {
   public String printType() {
     return "unit";
   }
+
+  public void printType(TypeString t) {
+    t.setCore("unit");
+  }
   
 }

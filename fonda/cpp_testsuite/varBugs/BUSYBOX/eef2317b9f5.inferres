@@ -1,0 +1,14 @@
+
+BUSYBOX/eef2317b9f5.c:26: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 26 is not freed after the last access at line 26, column 3.
+  24.   }
+  25. 
+  26.   buf = malloc(bufsize);
+        ^
+  27. 
+  28.  all_done:
+
+
+Found 1 issue
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 1

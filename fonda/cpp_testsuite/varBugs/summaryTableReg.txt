@@ -1,0 +1,1051 @@
+MARLIN/f87c80889fe   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+MARLIN/53be0f3399e   BC failed
+MARLIN/31873ec707d   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+MARLIN/2d22902d080   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+MARLIN/a7fc1f83c81   BC generated :
+	clang: none  infeasible:0
+Value stored to '__len_218' during its initialization is never read 10 [DEF_SDSUPPORT = True]
+Value stored to '__len_217' during its initialization is never read 10 [DEF_SDSUPPORT = True]
+Value stored to '__lfilename_221' during its initialization is never read 15 [DEF_SDSUPPORT = True]
+
+	infer: none   0 3
+MARLIN/30248214c7f   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+MARLIN/2db384a21d6   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+MARLIN/b8e79dce897   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+MARLIN/8c4377dd635   BC generated :
+	clang: none  infeasible:0
+Value stored to '__pid_output_4' is never read 19 [DEF_PIDTEMP = False, DEF_MARLIN_H = True]
+Value stored to '__pid_output_4' is never read 19 [DEF_PIDTEMP = False, DEF_MARLIN_H = False]
+
+	infer: none   0 4
+MARLIN/fc3c76fc164   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+MARLIN/831016b09f7   BC generated :
+	clang: none  infeasible:0
+Value stored to '__time_7' during its initialization is never read 14 [DEF_SDSUPPORT = True]
+
+	infer: none   0 1
+MARLIN/e30bfedce4d   BC generated :
+	clang: missing 1 infeasible:0
+Value stored to '__xGridSpacing_1' during its initialization is never read 24 [DEF_ENABLE_AUTO_BED_LEVELING = True]
+
+	infer: match  1 1
+MARLIN/7336e6df070   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+MARLIN/fdac8f6cece   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/d530db0db90    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/bc8cec0dff0    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/d7e9711760a    BC generated :
+	clang: missing 1 infeasible:0
+Value stored to '__reserved_803' is never read 30 [DEF_CONFIG_QUOTA_DEBUG = True]
+
+	infer: match  1 1
+LINUX/221ac329e93    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/51fd36f3fad    BC generated :
+	clang: none  infeasible:3
+
+	infer: none   0 3
+LINUX/208d89843b7    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/ee3f34e8572    BC generated :
+	clang: missing 1 infeasible:2
+
+	infer: missing1 0
+LINUX/472a474c663    BC generated :
+	clang: missing 1 infeasible:0
+Dereference of null pointer (loaded from variable '__ptr_3') 14 [DEF_CONFIG_SMP = True]
+
+	infer: none   0 0
+LINUX/657e9649e74    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/f7ab9b407b3    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/36855dcfc98    BC generated :
+	clang: none  infeasible:0
+Value stored to '__wakeup_0' is never read 6 [DEF_CONFIG_BF60x = False]
+
+	infer: none   0 0
+LINUX/e1fbd9210d5    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/66517915e09    BC generated :
+	clang: none  infeasible:0
+Value stored to '__codec_hw_write_5' during its initialization is never read 24 [DEF_CONFIG_SND_FSI_AK4642 = True,
+ DEF_CONFIG_SND_SOC_AK4642 = False]
+Value stored to '__codec_hw_write_1' during its initialization is never read 16 [DEF_CONFIG_SND_FSI_DA7210 = False,
+ DEF_CONFIG_SND_SOC_DA7210 = True]
+
+	infer: none   0 2
+LINUX/7c6048b7c83    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/f3d83e24154    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/eb91f1d0a53    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/1f758a4341a    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/0988c4c7fb5    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/242f1a34377    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/2f02c15a5d9    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/8c8296223f3    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/68bb91baa0     BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/1c17e4d4437    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/f48ec1d7885    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/0dc77b6dabe    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/6515e48932c    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/91ea8207168    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/6e2b75740be    BC generated :
+	clang: none  infeasible:4
+1st function call argument is an uninitialized value 60 [DEF_CONFIG_SMP = False, DEF_CONFIG_MODULE_UNLOAD = False]
+Value stored to '__dest_12' during its initialization is never read 46 []
+
+	infer: none   0 1
+LINUX/76baeebf7df    SuperC failed
+LINUX/76baeebf7df    BC failed
+LINUX/218ad12f42e    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/ae249b5fa27    BC generated :
+	clang: none  infeasible:2
+
+	infer: none   0 2
+LINUX/e67bc51e574    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/c708c57e247    BC generated :
+	clang: missing 1 infeasible:0
+Assigned value is garbage or undefined 18 [DEF_CONFIG_S390_PRNG = True]
+
+	infer: none   0 0
+LINUX/809e660f438    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/0f8f8094d28    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/6252547b8a7    BC generated :
+	clang: missing 2 infeasible:0
+Dereference of null pointer (loaded from variable '__ops_1') 12 [DEF_CONFIG_TWL4030_CORE = True, DEF_CONFIG_OF_IRQ = False]
+Value stored to '__irq_2' during its initialization is never read 12 [DEF_CONFIG_TWL4030_CORE = True,
+ DEF_CONFIG_IRQ_DOMAIN = False]
+
+	infer: missing2 1
+LINUX/d6c7e113959    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 1
+LINUX/e39363a9def    BC generated :
+	clang: missing 1 infeasible:0
+Undefined or garbage value returned to caller 17 [DEF_CONFIG_NETPOLL = True, DEF_CONFIG_IPV6 = False]
+
+	infer: match  1 1
+LINUX/30e053248da    BC generated :
+	clang: missing 2 infeasible:2
+Value stored to '__x_9' during its initialization is never read 31 []
+
+	infer: match  1 3
+LINUX/d549f55f2e1    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/7acf6cd80b2    BC generated :
+	clang: missing 3 infeasible:0
+Value stored to '__driver_data_15' is never read 39 [DEF_CONFIG_UNIX98_PTYS = True]
+1st function call argument is an uninitialized value 44 [DEF_CONFIG_UNIX98_PTYS = True]
+Value stored to '__x_3' during its initialization is never read 8 [DEF_CONFIG_DEVPTS_MULTIPLE_INSTANCES = True]
+
+	infer: match  2 2
+LINUX/60e233a5660    BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+LINUX/63878acfafb    BC generated :
+	clang: none  infeasible:1
+
+	infer: none   0 1
+BUSYBOX/5275b1e49f6  BC generated :
+	clang: none  infeasible:0
+Value stored to '__m_has_modinfo_2040' is never read 18 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF_CONFIG_FEATURE_INSMOD_VERSION_CHECKING = False,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___STRICT_ANSI__ = True]
+Value stored to '__m_has_modinfo_2040' is never read 18 [DEF___OPTIMIZE__ = False,
+ USE__FORTIFY_SOURCE = 1,
+ DEF__FORTIFY_SOURCE = True,
+ USE___OPTIMIZE__ = 0,
+ DEF___need_malloc_and_calloc = False,
+ DEF___STRICT_ANSI__ = True,
+ DEF__STDLIB_H = False,
+ DEF_CONFIG_FEATURE_INSMOD_VERSION_CHECKING = False]
+Value stored to '__m_has_modinfo_2040' is never read 16 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF_CONFIG_FEATURE_INSMOD_VERSION_CHECKING = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___STRICT_ANSI__ = True]
+Value stored to '__k_crcs_2043' is never read 25 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF_CONFIG_FEATURE_INSMOD_VERSION_CHECKING = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___STRICT_ANSI__ = True]
+Value stored to '__m_has_modinfo_2040' is never read 16 [DEF___OPTIMIZE__ = False,
+ DEF__FORTIFY_SOURCE = True,
+ USE__FORTIFY_SOURCE = 0,
+ USE___OPTIMIZE__ = 1,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___STRICT_ANSI__ = True,
+ DEF_CONFIG_FEATURE_INSMOD_VERSION_CHECKING = False]
+Value stored to '__k_crcs_2043' is never read 21 [USE__FORTIFY_SOURCE = 1,
+ USE___OPTIMIZE__ = 1,
+ DEF___OPTIMIZE__ = False,
+ DEF__FORTIFY_SOURCE = True,
+ DEF_CONFIG_FEATURE_INSMOD_VERSION_CHECKING = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False]
+Value stored to '__k_crcs_2043' is never read 21 [DEF__STDLIB_H = False,
+ DEF___need_malloc_and_calloc = True,
+ DEF_CONFIG_FEATURE_INSMOD_VERSION_CHECKING = True]
+Value stored to '__k_crcs_2043' is never read 25 [USE__FORTIFY_SOURCE = 1,
+ DEF___OPTIMIZE__ = False,
+ USE___OPTIMIZE__ = 0,
+ DEF__FORTIFY_SOURCE = True,
+ DEF_CONFIG_FEATURE_INSMOD_VERSION_CHECKING = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF___STRICT_ANSI__ = True,
+ DEF__STDLIB_H = False]
+Value stored to '__m_has_modinfo_2040' is never read 16 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF_CONFIG_FEATURE_INSMOD_VERSION_CHECKING = False,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___STRICT_ANSI__ = True]
+Value stored to '__m_has_modinfo_2040' is never read 18 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF_CONFIG_FEATURE_INSMOD_VERSION_CHECKING = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___STRICT_ANSI__ = True]
+Value stored to '__k_crcs_2043' is never read 21 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF_CONFIG_FEATURE_INSMOD_VERSION_CHECKING = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True]
+Value stored to '__m_has_modinfo_2040' is never read 18 [USE___OPTIMIZE__ = 0,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF_CONFIG_FEATURE_INSMOD_VERSION_CHECKING = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF___STRICT_ANSI__ = True,
+ DEF__STDLIB_H = False]
+Value stored to '__m_has_modinfo_2040' is never read 16 [USE__FORTIFY_SOURCE = 1,
+ USE___OPTIMIZE__ = 0,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF_CONFIG_FEATURE_INSMOD_VERSION_CHECKING = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF___STRICT_ANSI__ = True,
+ DEF__STDLIB_H = False]
+
+	infer: none   0 5
+BUSYBOX/5cd6461b6fb  BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+BUSYBOX/1b487ea8a69  BC generated :
+	clang: missing 1 infeasible:0
+Dereference of null pointer (loaded from variable '__scontext_2038') 14 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___need___FILE = False,
+ DEF_ENABLE_SELINUX = True,
+ DEF___STRICT_ANSI__ = True,
+ DEF_ENABLE_FEATURE_STAT_FORMAT = False,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True]
+Dereference of null pointer (loaded from variable '__scontext_2038') 14 [USE__FORTIFY_SOURCE = 1,
+ USE___OPTIMIZE__ = 0,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___need___FILE = False,
+ DEF___STRICT_ANSI__ = True,
+ DEF_ENABLE_SELINUX = True,
+ DEF_ENABLE_FEATURE_STAT_FORMAT = False,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False]
+
+	infer: match  1 2
+BUSYBOX/b7ebc61b54f  BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+BUSYBOX/ebee301c8b0  BC generated :
+	clang: none  infeasible:2
+
+	infer: none   0 2
+BUSYBOX/b273d665181  BC generated :
+	clang: missing 1 infeasible:2
+2nd function call argument is an uninitialized value 16 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___need___FILE = False,
+ DEF___STRICT_ANSI__ = True,
+ DEF_BB_FEATURE_LS_USERNAME = False,
+ DEF_BB_FEATURE_LS_FILETYPES = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True]
+2nd function call argument is an uninitialized value 16 [DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ USE__FORTIFY_SOURCE = 1,
+ USE___OPTIMIZE__ = 0,
+ DEF___need___FILE = False,
+ DEF_BB_FEATURE_LS_USERNAME = False,
+ DEF___STRICT_ANSI__ = True,
+ DEF_BB_FEATURE_LS_FILETYPES = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False]
+Value stored to '__info_2036' is never read 11 [DEF_BB_FEATURE_LS_USERNAME = True,
+ DEF__STDLIB_H = True,
+ DEF_BB_FEATURE_LS_FILETYPES = True,
+ DEF___need_malloc_and_calloc = False]
+
+	infer: match  1 4
+BUSYBOX/df7b6577c6a  BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+BUSYBOX/061fd0a353e  BC generated :
+	clang: none  infeasible:0
+Value stored to '__p_2040' is never read 16 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF_CONFIG_FEATURE_HDPARM_HDIO_SCAN_HWIF = False,
+ DEF_CONFIG_FEATURE_HDPARM_HDIO_UNREGISTER_HWIF = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___STRICT_ANSI__ = True]
+Value stored to '__p_2040' is never read 16 [DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ USE__FORTIFY_SOURCE = 1,
+ USE___OPTIMIZE__ = 0,
+ DEF_CONFIG_FEATURE_HDPARM_HDIO_UNREGISTER_HWIF = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___STRICT_ANSI__ = True,
+ DEF_CONFIG_FEATURE_HDPARM_HDIO_SCAN_HWIF = False]
+
+	infer: none   0 2
+BUSYBOX/eef2317b9f5  BC generated :
+	clang: missing 1 infeasible:1
+Value stored to '__buf_964' is never read 26 [DEF___malloc_and_calloc_defined = False,
+ DEF___STRICT_ANSI__ = False,
+ DEF___need_malloc_and_calloc = False,
+ USE__FORTIFY_SOURCE = 1,
+ USE___OPTIMIZE__ = 1,
+ DEF__FORTIFY_SOURCE = True,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF_CONFIG_FEATURE_CLEAN_UP = False]
+Value stored to '__buf_964' is never read 26 [USE___OPTIMIZE__ = 1,
+ DEF___malloc_and_calloc_defined = True,
+ DEF___OPTIMIZE__ = False,
+ DEF___STRICT_ANSI__ = False,
+ DEF__FORTIFY_SOURCE = True,
+ USE__FORTIFY_SOURCE = 0,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF_CONFIG_FEATURE_CLEAN_UP = False]
+Potential leak of memory pointed to by '__buf_964' 0 [USE__FORTIFY_SOURCE = 1,
+ USE___OPTIMIZE__ = 1,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___OPTIMIZE__ = True,
+ DEF___malloc_and_calloc_defined = False,
+ DEF___need_malloc_and_calloc = True,
+ DEF__STDLIB_H = False,
+ DEF_CONFIG_FEATURE_CLEAN_UP = True]
+Potential leak of memory pointed to by '__buf_964' 0 [DEF___OPTIMIZE__ = True,
+ DEF___STRICT_ANSI__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ USE__FORTIFY_SOURCE = 1,
+ USE___OPTIMIZE__ = 0,
+ DEF___malloc_and_calloc_defined = False,
+ DEF___need_malloc_and_calloc = True,
+ DEF__STDLIB_H = False,
+ DEF_CONFIG_FEATURE_CLEAN_UP = True]
+Potential leak of memory pointed to by '__buf_964' 0 [DEF___malloc_and_calloc_defined = False,
+ DEF___STRICT_ANSI__ = False,
+ DEF___need_malloc_and_calloc = True,
+ USE__FORTIFY_SOURCE = 1,
+ USE___OPTIMIZE__ = 1,
+ DEF__FORTIFY_SOURCE = True,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF_CONFIG_FEATURE_CLEAN_UP = False]
+Potential leak of memory pointed to by '__buf_964' 0 [DEF___malloc_and_calloc_defined = False,
+ USE__FORTIFY_SOURCE = 1,
+ USE___OPTIMIZE__ = 0,
+ DEF___STRICT_ANSI__ = False,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF___OPTIMIZE__ = True,
+ DEF__STDLIB_H = False,
+ DEF_CONFIG_FEATURE_CLEAN_UP = False]
+
+	infer: match  1 3
+BUSYBOX/192c35f6eb2  BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+BUSYBOX/2631486f1bf  BC generated :
+	clang: missing 1 infeasible:6
+Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' 65 [USE__FORTIFY_SOURCE = 1,
+ USE___OPTIMIZE__ = 0,
+ DEF___OPTIMIZE__ = False,
+ DEF___STRICT_ANSI__ = False,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___malloc_and_calloc_defined = False,
+ DEF___need_malloc_and_calloc = True,
+ DEF___need___FILE = True,
+ DEF__STDLIB_H = False,
+ DEF_CONFIG_FEATURE_LS_SORTFILES = True]
+Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' 65 [DEF___malloc_and_calloc_defined = True,
+ DEF___STRICT_ANSI__ = False,
+ DEF___need_malloc_and_calloc = False,
+ USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___need___FILE = True,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF_CONFIG_FEATURE_LS_SORTFILES = True]
+Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' 65 [DEF___STRICT_ANSI__ = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF___malloc_and_calloc_defined = False,
+ USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___need___FILE = True,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF_CONFIG_FEATURE_LS_SORTFILES = False]
+Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' 65 [DEF__FORTIFY_SOURCE = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF___OPTIMIZE__ = True,
+ DEF___malloc_and_calloc_defined = False,
+ USE___OPTIMIZE__ = 0,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___STRICT_ANSI__ = True,
+ DEF___need___FILE = False,
+ DEF__STDLIB_H = False,
+ DEF_CONFIG_FEATURE_LS_SORTFILES = False]
+Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' 65 [DEF___malloc_and_calloc_defined = False,
+ DEF___STRICT_ANSI__ = False,
+ DEF___need_malloc_and_calloc = False,
+ USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___need___FILE = False,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF_CONFIG_FEATURE_LS_SORTFILES = True]
+Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' 65 [DEF___STRICT_ANSI__ = False,
+ DEF___malloc_and_calloc_defined = False,
+ DEF___need_malloc_and_calloc = True,
+ USE__FORTIFY_SOURCE = 1,
+ USE___OPTIMIZE__ = 1,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___need___FILE = False,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF_CONFIG_FEATURE_LS_SORTFILES = False]
+Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' 65 [USE___OPTIMIZE__ = 0,
+ DEF___malloc_and_calloc_defined = True,
+ DEF___OPTIMIZE__ = True,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___STRICT_ANSI__ = False,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF___need___FILE = False,
+ DEF__STDLIB_H = False,
+ DEF_CONFIG_FEATURE_LS_SORTFILES = True]
+Result of 'malloc' is converted to a pointer of type 'struct __dnode_2037', which is incompatible with sizeof operand type 'typeof (__sizeofStandin_2079)' 65 [DEF___malloc_and_calloc_defined = False,
+ USE___OPTIMIZE__ = 0,
+ DEF___OPTIMIZE__ = True,
+ DEF___STRICT_ANSI__ = False,
+ DEF__FORTIFY_SOURCE = True,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___need_malloc_and_calloc = True,
+ DEF___need___FILE = True,
+ DEF__STDLIB_H = False,
+ DEF_CONFIG_FEATURE_LS_SORTFILES = False]
+
+	infer: missing2 5
+BUSYBOX/95755181b82  BC failed
+BUSYBOX/cc3f20b9bdf  BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+BUSYBOX/cf1f2ace391  BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+BUSYBOX/bc0ffc0e971  BC generated :
+	clang: missing 1 infeasible:10
+Result of 'malloc' is converted to a pointer of type '__ethtable_t_2394', which is incompatible with sizeof operand type 'struct (anonymous struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3337:1)' 29 [DEF___OPTIMIZE__ = True,
+ DEF___need_malloc_and_calloc = False,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___malloc_and_calloc_defined = False,
+ USE___OPTIMIZE__ = 0,
+ DEF___STRICT_ANSI__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___need___FILE = True,
+ DEF__STDLIB_H = False]
+Result of 'malloc' is converted to a pointer of type '__ethtable_t_2395', which is incompatible with sizeof operand type 'struct (anonymous struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3405:1)' 29 [DEF___malloc_and_calloc_defined = False,
+ DEF___STRICT_ANSI__ = False,
+ DEF___need_malloc_and_calloc = True,
+ USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___need___FILE = False,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True]
+Result of 'malloc' is converted to a pointer of type '__ethtable_t_2395', which is incompatible with sizeof operand type 'struct (anonymous struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3405:1)' 29 [DEF___STRICT_ANSI__ = True,
+ DEF___malloc_and_calloc_defined = False,
+ DEF___need_malloc_and_calloc = False,
+ USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___need___FILE = True,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True]
+Result of 'malloc' is converted to a pointer of type '__ethtable_t_2394', which is incompatible with sizeof operand type 'struct (anonymous struct at /home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/BUSYBOX/bc0ffc0e971.desugared.c:3337:1)' 29 [DEF___need_malloc_and_calloc = False,
+ USE___OPTIMIZE__ = 1,
+ DEF___OPTIMIZE__ = True,
+ DEF___STRICT_ANSI__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___malloc_and_calloc_defined = False,
+ USE__FORTIFY_SOURCE = 0,
+ DEF___need___FILE = False,
+ DEF__STDLIB_H = False]
+
+	infer: missing1 2
+BUSYBOX/b62bd7b261b  BC generated :
+	clang: missing 2 infeasible:0
+Branch condition evaluates to a garbage value 16:L395 [DEF___CORRECT_ISO_CPP_STRING_H_PROTO = True,
+ DEF___OPTIMIZE__ = True,
+ USE__FORTIFY_SOURCE = 1,
+ USE___OPTIMIZE__ = 0,
+ DEF__FORTIFY_SOURCE = True,
+ DEF_ENABLE_FEATURE_MDEV_CONF = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME_REGEXP = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___STRICT_ANSI__ = True]
+Value stored to '__val_2390' is never read 16:L395 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF_ENABLE_FEATURE_MDEV_RENAME_REGEXP = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME = True,
+ DEF_ENABLE_FEATURE_MDEV_CONF = True,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True]
+Value stored to '__val_2390' is never read 16:L395 [DEF___OPTIMIZE__ = False,
+ USE__FORTIFY_SOURCE = 1,
+ DEF__FORTIFY_SOURCE = True,
+ USE___OPTIMIZE__ = 0,
+ DEF_ENABLE_FEATURE_MDEV_CONF = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME_REGEXP = True]
+Value stored to '__val_2390' is never read 16:L395 [DEF___OPTIMIZE__ = False,
+ DEF__FORTIFY_SOURCE = True,
+ USE__FORTIFY_SOURCE = 0,
+ USE___OPTIMIZE__ = 1,
+ DEF_ENABLE_FEATURE_MDEV_CONF = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME_REGEXP = False]
+Assigned value is garbage or undefined 14 [DEF_ENABLE_FEATURE_MDEV_RENAME = False,
+ DEF_ENABLE_FEATURE_MDEV_RENAME_REGEXP = False,
+ DEF_ENABLE_FEATURE_MDEV_CONF = True,
+ USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___STRICT_ANSI__ = True]
+Dereference of undefined pointer value (loaded from variable '__p_2392') 24 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___STRICT_ANSI__ = True,
+ DEF___CORRECT_ISO_CPP_STRING_H_PROTO = False,
+ DEF_ENABLE_FEATURE_MDEV_RENAME_REGEXP = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME = True,
+ DEF_ENABLE_FEATURE_MDEV_CONF = True,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True]
+Value stored to '__a_2393' during its initialization is never read 14 [USE__FORTIFY_SOURCE = 1,
+ DEF_ENABLE_FEATURE_MDEV_RENAME = False,
+ DEF_ENABLE_FEATURE_MDEV_RENAME_REGEXP = False,
+ DEF___OPTIMIZE__ = False,
+ DEF__FORTIFY_SOURCE = True,
+ USE___OPTIMIZE__ = 0,
+ DEF_ENABLE_FEATURE_MDEV_CONF = True]
+Value stored to '__a_2393' during its initialization is never read 14 [DEF_ENABLE_FEATURE_MDEV_RENAME = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME_REGEXP = False,
+ DEF_ENABLE_FEATURE_MDEV_CONF = True,
+ USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___OPTIMIZE__ = True]
+Value stored to '__val_2390' is never read 16:L395 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF_ENABLE_FEATURE_MDEV_RENAME_REGEXP = False,
+ DEF_ENABLE_FEATURE_MDEV_RENAME = True,
+ DEF_ENABLE_FEATURE_MDEV_CONF = True,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True]
+Branch condition evaluates to a garbage value 16:L395 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___STRICT_ANSI__ = True,
+ DEF___CORRECT_ISO_CPP_STRING_H_PROTO = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME_REGEXP = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME = True,
+ DEF_ENABLE_FEATURE_MDEV_CONF = True,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True]
+Branch condition evaluates to a garbage value 16:L395 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___STRICT_ANSI__ = True,
+ DEF___CORRECT_ISO_CPP_STRING_H_PROTO = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME_REGEXP = False,
+ DEF_ENABLE_FEATURE_MDEV_RENAME = True,
+ DEF_ENABLE_FEATURE_MDEV_CONF = True,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True]
+Dereference of undefined pointer value (loaded from variable '__p_2392') 24 [DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ USE___OPTIMIZE__ = 0,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___CORRECT_ISO_CPP_STRING_H_PROTO = False,
+ DEF_ENABLE_FEATURE_MDEV_CONF = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME_REGEXP = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___STRICT_ANSI__ = True]
+Branch condition evaluates to a garbage value 16:L395 [USE___OPTIMIZE__ = 0,
+ DEF___CORRECT_ISO_CPP_STRING_H_PROTO = True,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ USE__FORTIFY_SOURCE = 1,
+ DEF_ENABLE_FEATURE_MDEV_CONF = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME_REGEXP = False,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___STRICT_ANSI__ = True]
+Assigned value is garbage or undefined 14 [USE___OPTIMIZE__ = 0,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___OPTIMIZE__ = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF_ENABLE_FEATURE_MDEV_RENAME_REGEXP = False,
+ DEF_ENABLE_FEATURE_MDEV_CONF = False,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___STRICT_ANSI__ = True]
+
+	infer: match  2 5
+BUSYBOX/0301ffab3d9  BC generated :
+	clang: none  infeasible:0
+Value stored to '__gdp_0' is never read 7 [DEF_EXT2FS_ENABLE_SWAPFS = True]
+
+	infer: none   0 1
+BUSYBOX/199501f2a00  BC generated :
+	clang: missing 1 infeasible:0
+Value stored to '__dt_2390' is never read 10 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF_ENABLE_FEATURE_MODPROBE_MULTIPLE_OPTIONS = False,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___STRICT_ANSI__ = True]
+
+	infer: missing1 1
+APACHE/d0040a07aec   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+APACHE/c76df14dfb4   BC generated :
+	clang: missing 1 infeasible:0
+Value stored to '__flags_2323' is never read 4:L42 [USE___OPTIMIZE__ = 0,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ USE__FORTIFY_SOURCE = 1,
+ DEF_NEED_ENHANCED_ESCAPES = False,
+ DEF_OS2 = False,
+ DEF__STDLIB_H = False,
+ DEF_CROSS_COMPILE = False,
+ DEF___need_malloc_and_calloc = False,
+ DEF___CORRECT_ISO_CPP_STRING_H_PROTO = False]
+Value stored to '__flags_2323' is never read 4:L42 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF_NEED_ENHANCED_ESCAPES = False,
+ DEF_OS2 = False,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF_CROSS_COMPILE = False,
+ DEF___CORRECT_ISO_CPP_STRING_H_PROTO = False,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True]
+Value stored to '__flags_2323' is never read 4:L42 [DEF___malloc_and_calloc_defined = True,
+ DEF_OS2 = False,
+ DEF_CROSS_COMPILE = False,
+ DEF___CORRECT_ISO_CPP_STRING_H_PROTO = False,
+ DEF_NEED_ENHANCED_ESCAPES = False,
+ DEF__STDLIB_H = False,
+ DEF___need_malloc_and_calloc = True]
+Value stored to '__flags_2323' is never read 4:L42 [DEF___malloc_and_calloc_defined = False,
+ DEF_OS2 = False,
+ DEF___CORRECT_ISO_CPP_STRING_H_PROTO = False,
+ DEF_CROSS_COMPILE = False,
+ DEF__STDLIB_H = False,
+ DEF_NEED_ENHANCED_ESCAPES = False,
+ DEF___need_malloc_and_calloc = True]
+
+	infer: match  1 4
+APACHE/97ecbec1237   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+APACHE/bbeb0516cf0   BC generated :
+	clang: missing 1 infeasible:0
+
+	infer: missing1 0
+APACHE/1f46088b38d   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+APACHE/9327311d30f   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+APACHE/35ae2e259e4   BC generated :
+	clang: missing 1 infeasible:4
+Value stored to '__eckey_798' is never read 10 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF_HAVE_ECC = True,
+ DEF___malloc_and_calloc_defined = False,
+ DEF___need_malloc_and_calloc = True,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF__STDLIB_H = False]
+Value stored to '__eckey_798' is never read 10 [DEF___OPTIMIZE__ = True,
+ USE___OPTIMIZE__ = 0,
+ DEF__FORTIFY_SOURCE = True,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___need_malloc_and_calloc = True,
+ DEF__STDLIB_H = False,
+ DEF_HAVE_ECC = True,
+ DEF___malloc_and_calloc_defined = False]
+Potential leak of memory pointed to by '__eckey_798' 0 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___STRICT_ANSI__ = False,
+ DEF_HAVE_ECC = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF__STDLIB_H = False]
+Potential leak of memory pointed to by '__eckey_798' 0 [DEF___STRICT_ANSI__ = False,
+ USE___OPTIMIZE__ = 0,
+ DEF___OPTIMIZE__ = True,
+ USE__FORTIFY_SOURCE = 0,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___malloc_and_calloc_defined = True,
+ DEF_HAVE_ECC = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False]
+Potential leak of memory pointed to by '__eckey_798' 0 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF_HAVE_ECC = True,
+ DEF___malloc_and_calloc_defined = False,
+ DEF___need_malloc_and_calloc = True,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF__STDLIB_H = False]
+Potential leak of memory pointed to by '__eckey_798' 0 [USE__FORTIFY_SOURCE = 1,
+ USE___OPTIMIZE__ = 0,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___need_malloc_and_calloc = True,
+ DEF__STDLIB_H = False,
+ DEF_HAVE_ECC = True,
+ DEF___malloc_and_calloc_defined = False]
+
+	infer: match  2 5
+APACHE/4202d5fee3e   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+APACHE/b833f064550   SuperC failed
+APACHE/b833f064550   BC failed
+APACHE/581635e28f1   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 1
+APACHE/2a6cbfa00e0   BC generated :
+	clang: missing 1 infeasible:1
+Potential leak of memory pointed to by '__sc_1085' 0 [DEF___malloc_and_calloc_defined = True,
+ DEF___STRICT_ANSI__ = False,
+ DEF_SHARED_MODULE = False,
+ DEF___need_malloc_and_calloc = False,
+ USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF__STDLIB_H = False]
+
+	infer: missing1 0
+APACHE/1a3c8e3d840   BC generated :
+	clang: none  infeasible:0
+Value stored to '__thisopt_798' is never read 4:L13 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF_HAVE_TLSV1_X = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___STRICT_ANSI__ = True,
+ DEF__STDLIB_H = False]
+Value stored to '__thisopt_798' is never read 4:L13 [USE__FORTIFY_SOURCE = 1,
+ USE___OPTIMIZE__ = 0,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = False,
+ DEF_HAVE_TLSV1_X = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF__STDLIB_H = False,
+ DEF___STRICT_ANSI__ = True]
+
+	infer: none   0 2
+APACHE/test          BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+APACHE/dbafef17dd1   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+APACHE/3407eccc321   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+APACHE/664e3aac6dd   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+APACHE/d05e574ec26   BC generated :
+	clang: missing 1 infeasible:0
+Potential leak of memory pointed to by '__buf_2047' 16 [USE_APR_HAS_SHARED_MEMORY = 1]
+Value stored to '__buf_2044' during its initialization is never read 16 [USE_APR_HAS_SHARED_MEMORY = 1]
+Value stored to '__buf_2048' during its initialization is never read 16 [USE_APR_HAS_SHARED_MEMORY = 1]
+Potential leak of memory pointed to by '__buf_2048' 0 [DEF___malloc_and_calloc_defined = True,
+ DEF___need_malloc_and_calloc = False,
+ DEF___STRICT_ANSI__ = False,
+ DEF__STDLIB_H = False,
+ USE_APR_HAS_SHARED_MEMORY = 1]
+Value stored to '__buf_2047' during its initialization is never read 16 [USE_APR_HAS_SHARED_MEMORY = 1]
+Potential leak of memory pointed to by '__buf_2043' 16 [USE_APR_HAS_SHARED_MEMORY = 1]
+Potential leak of memory pointed to by '__buf_2041' 0 [DEF___need___FILE = False,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___OPTIMIZE__ = True,
+ DEF___malloc_and_calloc_defined = False,
+ USE___OPTIMIZE__ = 1,
+ DEF___STRICT_ANSI__ = False,
+ DEF__STDLIB_H = False,
+ DEF___need_malloc_and_calloc = True,
+ DEF__FORTIFY_SOURCE = True,
+ USE_APR_HAS_SHARED_MEMORY = 1]
+Potential leak of memory pointed to by '__buf_2044' 16 [USE_APR_HAS_SHARED_MEMORY = 1]
+Potential leak of memory pointed to by '__buf_2042' 0 [DEF___OPTIMIZE__ = True,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___malloc_and_calloc_defined = False,
+ DEF__FORTIFY_SOURCE = True,
+ USE___OPTIMIZE__ = 1,
+ DEF___STRICT_ANSI__ = True,
+ DEF__STDLIB_H = False,
+ DEF___need_malloc_and_calloc = False,
+ DEF___need___FILE = True,
+ USE_APR_HAS_SHARED_MEMORY = 1]
+Potential leak of memory pointed to by '__buf_2045' 0 [DEF__FORTIFY_SOURCE = True,
+ DEF___need___FILE = False,
+ DEF___malloc_and_calloc_defined = False,
+ USE___OPTIMIZE__ = 1,
+ DEF___OPTIMIZE__ = True,
+ DEF___STRICT_ANSI__ = True,
+ DEF__STDLIB_H = False,
+ DEF___need_malloc_and_calloc = True,
+ USE__FORTIFY_SOURCE = 0,
+ USE_APR_HAS_SHARED_MEMORY = 1]
+Potential leak of memory pointed to by '__buf_2046' 0 [DEF__FORTIFY_SOURCE = True,
+ USE__FORTIFY_SOURCE = 1,
+ USE___OPTIMIZE__ = 0,
+ DEF___malloc_and_calloc_defined = False,
+ DEF___OPTIMIZE__ = True,
+ DEF___need___FILE = True,
+ DEF__STDLIB_H = False,
+ DEF___STRICT_ANSI__ = True,
+ DEF___need_malloc_and_calloc = True,
+ USE_APR_HAS_SHARED_MEMORY = 1]
+Value stored to '__buf_2043' during its initialization is never read 16 [USE_APR_HAS_SHARED_MEMORY = 1]
+
+	infer: none   0 4
+APACHE/6338509eb37   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+APACHE/0900800fbab   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+APACHE/0ddfa412ee9   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+APACHE/4945115b2e7   BC generated :
+	clang: none  infeasible:0
+
+	infer: missing2 0
+APACHE/56d9881993f   BC generated :
+	clang: none  infeasible:0
+
+	infer: none   0 0
+APACHE/1b48bb3c1af   BC generated :
+	clang: missing 1 infeasible:0
+1st function call argument is an uninitialized value 14 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 0,
+ DEF___OPTIMIZE__ = False,
+ DEF___STRICT_ANSI__ = False,
+ DEF__FORTIFY_SOURCE = False,
+ DEF___need___FILE = False,
+ DEF_APR_HAS_SHARED_MEMORY = True,
+ DEF_APU_HAS_LDAP = True]
+1st function call argument is an uninitialized value 14 [USE___OPTIMIZE__ = 1,
+ USE__FORTIFY_SOURCE = 1,
+ DEF___OPTIMIZE__ = True,
+ DEF__FORTIFY_SOURCE = True,
+ DEF___STRICT_ANSI__ = False,
+ DEF___need___FILE = False,
+ DEF_APR_HAS_SHARED_MEMORY = True,
+ DEF_APU_HAS_LDAP = True]
+1st function call argument is an uninitialized value 14 [DEF___need___FILE = True,
+ DEF_APR_HAS_SHARED_MEMORY = True,
+ DEF_APU_HAS_LDAP = True]
+
+	infer: none   0 0

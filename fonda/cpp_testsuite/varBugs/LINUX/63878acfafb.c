@@ -77,3 +77,4 @@ int main(void)
 {
   omap3pandora_init(); // (1)
   return 0;
+}

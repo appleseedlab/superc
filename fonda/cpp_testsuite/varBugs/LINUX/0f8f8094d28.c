@@ -15,10 +15,10 @@
 #endif
 
 #ifdef CONFIG_SLAB
-#define KMALLOC_SHIFT_HIGH((MAX_ORDER + PAGE_SHIFT - 1) <= 25 ? \
+#define KMALLOC_SHIFT_HIGH ((MAX_ORDER + PAGE_SHIFT - 1) <= 25 ? \
                            (MAX_ORDER + PAGE_SHIFT - 1) : 25)
 #else
-#define KMALLOC_SHIFT_HIGH(PAGE_SHIFT + 1)
+#define KMALLOC_SHIFT_HIGH (PAGE_SHIFT + 1)
 #endif
 
 

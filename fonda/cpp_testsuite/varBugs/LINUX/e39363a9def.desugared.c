@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -8,10 +9,10 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 void __static_initializer_default();
 
 extern const bool __static_condition_default_4;
-extern const bool __static_condition_default_9;
-extern const bool __static_condition_default_3;
 extern const bool __static_condition_default_5;
 extern const bool __static_condition_default_6;
+extern const bool __static_condition_default_9;
+extern const bool __static_condition_default_3;
 extern const bool __static_condition_default_10;
 void __static_initializer_default() {
 __static_renaming("__nondet_0", "nondet");
@@ -31,14 +32,14 @@ __static_condition_renaming("__static_condition_default_10", "(defined CONFIG_NE
 
 int  (__nondet_0) () {
 
-{
+{// L1
 {
 
 
 
 return 42 ;// L1
 }
-}
+}// L1
 
 
 }
@@ -46,7 +47,7 @@ int  (__netpoll_setup_2) () {
 
 if (__static_condition_default_3) {
 
-{
+{// L5
 {
 
 
@@ -77,7 +78,7 @@ put_0:
 return  __err_1  ;// L17
 }
 }
-}
+}// L18
 
 
 }
@@ -86,14 +87,14 @@ int  (__main_7) (void  ) {
 
 if (__static_condition_default_9) {
 
-{
+{// L22
 {
 
 
 
 return 0 ;// L26
 }
-}
+}// L27
 
 
 }
@@ -102,7 +103,7 @@ int  (__main_8) (void  ) {
 
 if (__static_condition_default_10) {
 
-{
+{// L22
 {
 
 
@@ -110,7 +111,7 @@ if (__static_condition_default_10) {
  __netpoll_setup_2 ( ) ; // L24
 return 0 ;// L26
 }
-}
+}// L27
 
 
 }
