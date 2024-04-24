@@ -48,7 +48,8 @@ wget -O superc_linux.sh https://raw.githubusercontent.com/appleseedlab/superc/ma
 chmod 755 superc_linux.sh
 
 # Download and install `make.cross` for cross-compiling Linux source code.
-wget -O make.cross https://raw.githubusercontent.com/fengguang/lkp-tests/master/sbin/make.cross
+wget -O make.cross https://raw.githubusercontent.com/intel/lkp-tests/master/kbuild/make.cross
+wget -O kbuild.sh https://raw.githubusercontent.com/intel/lkp-tests/master/kbuild/kbuild.sh
 chmod 755 make.cross
 
 echo -e ""
