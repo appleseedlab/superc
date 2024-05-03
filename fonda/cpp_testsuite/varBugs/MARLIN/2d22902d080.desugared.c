@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -7,20 +8,20 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_227;
-extern const bool __static_condition_default_215;
-extern const bool __static_condition_default_195;
-extern const bool __static_condition_default_222;
-extern const bool __static_condition_default_220;
-extern const bool __static_condition_default_191;
-extern const bool __static_condition_default_13;
 extern const bool __static_condition_default_190;
-extern const bool __static_condition_default_223;
-extern const bool __static_condition_default_182;
-extern const bool __static_condition_default_211;
-extern const bool __static_condition_default_208;
 extern const bool __static_condition_default_221;
+extern const bool __static_condition_default_220;
+extern const bool __static_condition_default_195;
+extern const bool __static_condition_default_208;
+extern const bool __static_condition_default_211;
+extern const bool __static_condition_default_227;
+extern const bool __static_condition_default_223;
 extern const bool __static_condition_default_175;
+extern const bool __static_condition_default_215;
+extern const bool __static_condition_default_222;
+extern const bool __static_condition_default_191;
+extern const bool __static_condition_default_182;
+extern const bool __static_condition_default_13;
 void __static_initializer_default() {
 __static_renaming("__ptrdiff_t_0", "ptrdiff_t");
 __static_renaming("__size_t_1", "size_t");
@@ -98,8 +99,7 @@ __static_condition_renaming("__static_condition_default_222", "!(defined _FORTIF
 __static_condition_renaming("__static_condition_default_223", "(defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0) && !(defined __CORRECT_ISO_CPP_STRING_H_PROTO) && (defined SDSUPPORT)");
 __static_condition_renaming("__static_condition_default_227", "(defined __CORRECT_ISO_CPP_STRING_H_PROTO)");
 
-if (__static_condition_default_227)
-{
+if (__static_condition_default_227) {
 __static_parse_error("Unable to parse");
 }
 };
@@ -192,7 +192,7 @@ void  (__process_commands_219) () {
 {
 if (__static_condition_default_220) {
 
-{
+{// L6
 {
 
 
@@ -200,14 +200,14 @@ if (__static_condition_default_220) {
 char  * (__starpos_218)= ( ( void  * ) 0 );// L7
 
 }
-}
+}// L14
 
 
 }
 
 if (__static_condition_default_221) {
 
-{
+{// L6
 {
 
 
@@ -226,7 +226,7 @@ if (  __starpos_218  != ( ( void  * ) 0 ) )// L10
 }
 __static_type_error("type error : no valid expression"); // L12
 }
-}
+}// L14
 
 
 }
@@ -234,7 +234,7 @@ __static_type_error("type error : no valid expression"); // L12
 }}
 int  (__main_226) (int  __argc_224, char  * (* (__argv_225))) {
 
-{
+{// L17
 {
 
 
@@ -242,7 +242,7 @@ int  (__main_226) (int  __argc_224, char  * (* (__argv_225))) {
  __process_commands_219 ( ) ; // L18
 return 0 ;// L19
 }
-}
+}// L20
 
 
 }

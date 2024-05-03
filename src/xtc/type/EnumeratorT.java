@@ -118,5 +118,8 @@ public class EnumeratorT extends WrappedT {
   public String printType() {
     return name;
   }
+    public void printType(TypeString t) {
+    t.addToFront("enum " + name + " ");
+  }
   
 }

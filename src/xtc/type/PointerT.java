@@ -20,6 +20,7 @@ package xtc.type;
 
 import java.io.IOException;
 import xtc.tree.Attribute;
+import java.util.List;
 
 /**
  * A pointer type.
@@ -46,8 +47,8 @@ public class PointerT extends DerivedT {
    */
   public PointerT(Type type) {
     this.type = type;
-    for (Attribute a : type.attributes())
-	addAttribute(a);
+    //    for (Attribute a : type.attributes())
+    //  addAttribute(a);
   }
 
   /**
@@ -113,39 +114,14 @@ public class PointerT extends DerivedT {
     out.append(')');
   }
 
-   
-    public boolean innerMostIsFunction() {
-	if (type.resolve().isPointer()) {
-	    return ((PointerT)type.resolve()).innerMostIsFunction();
-	} else if (type.resolve().isArray()) {
-	    return ((ArrayT)type.resolve()).innerMostIsFunction();
-
-	}
-	return type.resolve().isFunction();
-    }
-
-    public String printType(String extra) {
-      if (!innerMostIsFunction()) {
-	  return type.printType()+"*"+extra;
-      } else if (type.resolve().isPointer()) {
-	  return ((PointerT)type.resolve()).printType("*"+extra); 
-      } else if (type.resolve().isArray()) {
-	  return ((ArrayT)type.resolve()).printType("*"+extra); 
-      } else {
-	  return ((FunctionT)type.resolve()).printType("*"+extra);
-      }
-    }
-    
-  public String printType() {
-      if (!innerMostIsFunction()) {
-	  return type.printType()+"*";
-      } else if (type.resolve().isPointer()) {
-	  return ((PointerT)type.resolve()).printType("*"); 
-      } else if (type.resolve().isArray()) {
-	  return ((ArrayT)type.resolve()).printType("*"); 
-      } else {
-	  return ((FunctionT)type.resolve()).printType("*");
-      }
+  public void printType(TypeString t) {
+    t.addPointer("*",getType());
+    getType().printType(t);
+  }
+  
+  public Type revertForwardRef(List<String> references, String forwardRef, String rename) {
+    return new PointerT(type.revertForwardRef(references, forwardRef, rename));
   }
 
+  
 }

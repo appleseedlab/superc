@@ -19,6 +19,8 @@
 package xtc.type;
 
 import java.io.IOException;
+import java.util.List;
+import xtc.Constants;
 
 /**
  * A variable.  This pseudo-type captures the name for globals,
@@ -208,10 +210,19 @@ public class VariableT extends WrappedT {
     out.append(')');
   }
 
-  public String printType() {
-    return getType().printType();
+  public void printType(TypeString t) {
+    getType().printType(t);
+    t.id = getName();
   }
 
+  public String printTypeNameless() {
+    TypeString t = new TypeString();
+    getType().printType(t);
+    t.id = "";
+    return t.toString();
+
+  }
+  
   // =========================================================================
 
   /**
@@ -264,5 +275,10 @@ public class VariableT extends WrappedT {
   public static VariableT newBitfield(Type type, String name, int width) {
     return new VariableT(null, type, name, width);
   }
-
+  
+  public Type revertForwardRef(List<String> references, String forwardRef, String rename) {
+    return new VariableT(this, getType().revertForwardRef(references, forwardRef, rename), this.kind, rename);
+  }
+  
+  
 }

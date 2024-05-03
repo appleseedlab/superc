@@ -925,6 +925,7 @@ public class PresenceConditionManager {
     * nothing references it anymore.
     */
   public class PresenceConditionBDD implements PresenceCondition {
+    
     /** The BDD backing the presence condition. */
     protected BDD bdd;
 
@@ -1126,7 +1127,7 @@ public class PresenceConditionManager {
      * @throws IOException Because it uses a Writer.
      */
     public void print(Writer writer) throws IOException {
-      printBDD(bdd, writer);
+        printBDD(bdd, writer);
     }
 
 
@@ -1379,7 +1380,7 @@ public class PresenceConditionManager {
 
       return writer.toString();
     }
-
+    
     // /**
     //  * Use the underlying BDD's hashcode so that the same conditions
     //  * will have the same hash code.

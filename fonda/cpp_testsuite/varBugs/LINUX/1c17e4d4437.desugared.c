@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -7,13 +8,13 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_23;
-extern const bool __static_condition_default_18;
-extern const bool __static_condition_default_24;
 extern const bool __static_condition_default_11;
-extern const bool __static_condition_default_20;
+extern const bool __static_condition_default_24;
+extern const bool __static_condition_default_23;
 extern const bool __static_condition_default_19;
 extern const bool __static_condition_default_12;
+extern const bool __static_condition_default_18;
+extern const bool __static_condition_default_20;
 extern const bool __static_condition_default_21;
 void __static_initializer_default() {
 __static_renaming("__printf_1", "printf");
@@ -43,14 +44,14 @@ void  (__print_cpu_stall_fast_no_hz_9) (char  * (__cp_5), int  __cpu_6) {
 {
 if (__static_condition_default_11) {
 
-{
+{// L10
 {
 
 
 
  __sprintf_4  ( __cp_5 ,"foobar") ; // L11
 }
-}
+}// L12
 
 
 }
@@ -61,13 +62,13 @@ void  (__print_cpu_stall_fast_no_hz_10) (char  * (__cp_7), int  __cpu_8) {
 {
 if (__static_condition_default_12) {
 
-{
+{// L15
 {
 
 
 
 }
-}
+}// L16
 
 
 }
@@ -78,7 +79,7 @@ void  (__print_cpu_stall_info_16) (int  __cpu_13) {
 {
 if (__static_condition_default_18) {
 
-{
+{// L20
 {
 
 
@@ -93,7 +94,7 @@ if (__static_condition_default_20) {
 }
  __printf_1  ("\t%d: %s\n", __cpu_13 , __fast_no_hz_14 ) ; // L24
 }
-}
+}// L25
 
 
 }
@@ -104,14 +105,14 @@ void  (__print_cpu_stall_info_17) (int  __cpu_15) {
 {
 if (__static_condition_default_21) {
 
-{
+{// L28
 {
 
 
 
  __printf_1  (" %d", __cpu_15 ) ; // L29
 }
-}
+}// L30
 
 
 }
@@ -119,7 +120,7 @@ if (__static_condition_default_21) {
 }}
 int  (__main_22) (void  ) {
 
-{
+{// L34
 {
 
 
@@ -134,7 +135,7 @@ if (__static_condition_default_24) {
 return 0 ;// L38
 }
 }
-}
+}// L39
 
 
 }

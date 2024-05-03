@@ -1,0 +1,14 @@
+
+LINUX/30e053248da.c:41: error: Uninitialized Value
+  `length` is read without initialization during the call to `reiserfs_security_init()`.
+  39.   int length; // (2)
+  40. 
+  41.   retval = reiserfs_security_init(&length); // (3) length not initialized
+                 ^
+  42.   if (retval < 0)
+  43.     {
+
+
+Found 1 issue
+                      Issue Type(ISSUED_TYPE_ID): #
+  Uninitialized Value(PULSE_UNINITIALIZED_VALUE): 1

@@ -92,4 +92,9 @@ public class NamedParameter extends Parameter {
     return super.printType() + " " + name;
   }
 
+  public void printType(TypeString t) {
+    super.printType(t);
+    t.id = name;
+  }
+  
 }

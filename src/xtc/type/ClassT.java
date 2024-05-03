@@ -99,4 +99,9 @@ public class ClassT extends ClassOrInterfaceT {
     return "class " + qname;
   }
 
+  public void printType(TypeString t) {
+    t.addToFront("class ");
+    t.id = qname;
+  }
+  
 }

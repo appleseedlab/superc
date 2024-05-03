@@ -98,4 +98,8 @@ public class PackageT extends Type {
   public String printType() {
     return name;
   }
+
+  public void printType(TypeString t) {
+    t.id = name;
+  }
 }

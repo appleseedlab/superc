@@ -1,0 +1,23 @@
+
+BUSYBOX/eef2317b9f5.desugared.c:1750: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1750 is not freed after the last access at line 1750, column 2.
+  1748. }
+  1749. if (__static_condition_default_976) {
+  1750.  __buf_964  = malloc ( __bufsize_965 ) ; // L26
+         ^
+  1751. }
+  1752. if (__static_condition_default_977) {
+
+BUSYBOX/eef2317b9f5.desugared.c:1753: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 1753 is not freed after the last access at line 1753, column 2.
+  1751. }
+  1752. if (__static_condition_default_977) {
+  1753.  __buf_964  = malloc ( __bufsize_965 ) ; // L26
+         ^
+  1754. }
+  1755. if (__static_condition_default_978) {
+
+
+Found 2 issues
+  Issue Type(ISSUED_TYPE_ID): #
+  Memory Leak(MEMORY_LEAK_C): 2

@@ -117,14 +117,8 @@ public class ParameterizedT extends WrappedT {
     getType().write(out);
   }
   
-  public String printType(){
-    String r = getType().printType() + "<";
-    for (Iterator<Parameter> iter = parameters.iterator(); iter.hasNext(); ) {
-      r += iter.next().printType();
-      if (iter.hasNext()) r +=", ";
-    }
-    r+="> ";
-    return r;
+  public void printType(TypeString t) {
+    //dummy for non C type 
   }
   
 }

@@ -1,0 +1,9 @@
+APACHE d0040a07aec.c
+Macros:
+	defined
+	RLIMIT_NPROC
+[-Udefined -URLIMIT_NPROC ]
+[-Ddefined=1 -URLIMIT_NPROC ]
+[-Udefined -DRLIMIT_NPROC=1 ]
+[-Ddefined=1 -DRLIMIT_NPROC=1 ]
+File Failed

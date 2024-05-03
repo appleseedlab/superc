@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -19,7 +20,7 @@ __static_condition_renaming("__static_condition_default_1", "!APR_HAVE_IPV6");
 
 int  (__parse_url_2) () {
 
-{
+{// L6
 {
 
 
@@ -31,13 +32,13 @@ __static_type_error("invalid declaration of family under this presence condition
 }
 
 }
-}
+}// L8
 
 
 }
 int  (__main_3) (void  ) {
 
-{
+{// L11
 {
 
 
@@ -45,7 +46,7 @@ int  (__main_3) (void  ) {
  __parse_url_2 ( ) ; // L12
 return 0 ;// L13
 }
-}
+}// L14
 
 
 }

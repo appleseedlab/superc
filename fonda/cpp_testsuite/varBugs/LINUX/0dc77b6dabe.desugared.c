@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -7,15 +8,15 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_33;
-extern const bool __static_condition_default_26;
-extern const bool __static_condition_default_38;
-extern const bool __static_condition_default_32;
-extern const bool __static_condition_default_39;
+extern const bool __static_condition_default_10;
 extern const bool __static_condition_default_31;
 extern const bool __static_condition_default_29;
-extern const bool __static_condition_default_10;
+extern const bool __static_condition_default_39;
+extern const bool __static_condition_default_33;
+extern const bool __static_condition_default_38;
+extern const bool __static_condition_default_26;
 extern const bool __static_condition_default_30;
+extern const bool __static_condition_default_32;
 void __static_initializer_default() {
 __static_renaming("__malloc_1", "malloc");
 __static_renaming("__free_3", "free");
@@ -59,7 +60,7 @@ int  (__sysfs_link_sibling_9) (const char  * (__s_name_8)) {
 
 if (__static_condition_default_10) {
 
-{
+{// L21
 {
 
 
@@ -71,7 +72,7 @@ return ( !  __strcmp_6  ( __s_name_8 , __linked_7 ) ) ? - 17 : - 12 ;// L23
  __linked_7  =  __s_name_8  ; // L25
 return 0 ;// L26
 }
-}
+}// L27
 
 
 }
@@ -80,7 +81,7 @@ void  (__sysfs_unlink_sibling_12) (const char  * (__s_name_11)) {
 
 if (__static_condition_default_10) {
 
-{
+{// L30
 {
 
 
@@ -90,7 +91,7 @@ if (  __linked_7  != ( void  * ) 0 && !  __strcmp_6  ( __s_name_11 , __linked_7 
  __linked_7  = ( void  * ) 0 ; // L8:L32
 }
 }
-}
+}// L33
 
 
 }
@@ -99,14 +100,14 @@ int  (__sysfs_create_dir_14) (const char  * (__name_13)) {
 
 if (__static_condition_default_10) {
 
-{
+{// L36
 {
 
 
 
 return  __sysfs_link_sibling_9  ( __name_13 ) ;// L37
 }
-}
+}// L38
 
 
 }
@@ -115,14 +116,14 @@ int  (__kobject_add_16) (const char  * (__name_15)) {
 
 if (__static_condition_default_10) {
 
-{
+{// L41
 {
 
 
 
 return  __sysfs_create_dir_14  ( __name_15 ) ;// L42
 }
-}
+}// L43
 
 
 }
@@ -131,12 +132,12 @@ int  * ((__kobject_create_and_add_20) (const char  * (__name_17))) {
 
 if (__static_condition_default_10) {
 
+{// L46
 {
-{
 
 
 
-int  * (__kobj_18)= ( int  * )  __malloc_1  (sizeof(int));// L47
+int  * (__kobj_18)= ( int  * ) malloc (sizeof(int));// L47
 
 if ( !  __kobj_18  )// L48
 {
@@ -147,19 +148,19 @@ int  __retval_19=  __kobject_add_16  ( __name_17 );// L51
 if (  __retval_19  )// L52
 {
 
+{// L53
 {
-{
 
 
 
- __free_3  ( __kobj_18 ) ; // L54
+free ( __kobj_18 ) ; // L54
  __kobj_18  = ( void  * ) 0 ; // L8:L55
 }
-}
+}// L56
 }
 return  __kobj_18  ;// L58
 }
-}
+}// L59
 
 
 }
@@ -168,7 +169,7 @@ int  * ((__class_compat_register_23) (const char  * (__name_21))) {
 
 if (__static_condition_default_10) {
 
-{
+{// L62
 {
 
 
@@ -182,7 +183,7 @@ return ( void  * ) 0 ;// L67
 }
 return  __kobj_22  ;// L69
 }
-}
+}// L70
 
 
 }
@@ -191,14 +192,14 @@ void  (__class_compat_unregister_25) (const char  * (__name_24)) {
 
 if (__static_condition_default_26) {
 
+{// L73
 {
-{
 
 
 
- __free_3  ( __name_24 ) ; // L74
+free ( __name_24 ) ; // L74
 }
-}
+}// L75
 
 
 }
@@ -208,7 +209,7 @@ int  (__create_extcon_class_28) (void  ) {
 
 if (__static_condition_default_29) {
 
-{
+{// L84
 {
 
 
@@ -229,7 +230,7 @@ if (__static_condition_default_33) {
 return 0 ;// L90
 }
 }
-}
+}// L91
 
 
 }
@@ -238,14 +239,14 @@ int  (__extcon_class_init_34) (void  ) {
 
 if (__static_condition_default_29) {
 
-{
+{// L94
 {
 
 
 
 return  __create_extcon_class_28 ( ) ;// L95
 }
-}
+}// L96
 
 
 }
@@ -254,14 +255,14 @@ void  (__extcon_class_exit_35) (void  ) {
 
 if (__static_condition_default_29) {
 
-{
+{// L99
 {
 
 
 
 return  ;// L100
 }
-}
+}// L101
 
 
 }
@@ -270,14 +271,14 @@ int  (__main_36) (void  ) {
 
 if (__static_condition_default_38) {
 
-{
+{// L105
 {
 
 
 
 return 0 ;// L111
 }
-}
+}// L112
 
 
 }
@@ -286,7 +287,7 @@ int  (__main_37) (void  ) {
 
 if (__static_condition_default_39) {
 
-{
+{// L105
 {
 
 
@@ -296,7 +297,7 @@ if (__static_condition_default_39) {
  __extcon_class_init_34 ( ) ; // L109
 return 0 ;// L111
 }
-}
+}// L112
 
 
 }

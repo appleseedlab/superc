@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -7,280 +8,284 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_183;
-extern const bool __static_condition_default_760;
-extern const bool __static_condition_default_1006;
-extern const bool __static_condition_default_634;
-extern const bool __static_condition_default_769;
-extern const bool __static_condition_default_376;
-extern const bool __static_condition_default_915;
-extern const bool __static_condition_default_358;
-extern const bool __static_condition_default_312;
-extern const bool __static_condition_default_202;
-extern const bool __static_condition_default_768;
-extern const bool __static_condition_default_250;
-extern const bool __static_condition_default_489;
-extern const bool __static_condition_default_432;
-extern const bool __static_condition_default_574;
-extern const bool __static_condition_default_205;
-extern const bool __static_condition_default_170;
-extern const bool __static_condition_default_504;
-extern const bool __static_condition_default_638;
-extern const bool __static_condition_default_211;
-extern const bool __static_condition_default_930;
-extern const bool __static_condition_default_338;
-extern const bool __static_condition_default_1066;
-extern const bool __static_condition_default_869;
-extern const bool __static_condition_default_530;
-extern const bool __static_condition_default_569;
-extern const bool __static_condition_default_383;
-extern const bool __static_condition_default_782;
-extern const bool __static_condition_default_835;
-extern const bool __static_condition_default_490;
-extern const bool __static_condition_default_498;
-extern const bool __static_condition_default_348;
-extern const bool __static_condition_default_753;
-extern const bool __static_condition_default_647;
-extern const bool __static_condition_default_659;
-extern const bool __static_condition_default_389;
-extern const bool __static_condition_default_495;
-extern const bool __static_condition_default_522;
-extern const bool __static_condition_default_746;
-extern const bool __static_condition_default_652;
-extern const bool __static_condition_default_124;
-extern const bool __static_condition_default_396;
-extern const bool __static_condition_default_294;
-extern const bool __static_condition_default_553;
-extern const bool __static_condition_default_694;
-extern const bool __static_condition_default_1097;
-extern const bool __static_condition_default_512;
-extern const bool __static_condition_default_841;
-extern const bool __static_condition_default_249;
-extern const bool __static_condition_default_761;
-extern const bool __static_condition_default_291;
-extern const bool __static_condition_default_671;
-extern const bool __static_condition_default_524;
-extern const bool __static_condition_default_445;
-extern const bool __static_condition_default_892;
-extern const bool __static_condition_default_1059;
-extern const bool __static_condition_default_1090;
-extern const bool __static_condition_default_626;
-extern const bool __static_condition_default_560;
+extern const bool __static_condition_default_1043;
+extern const bool __static_condition_default_888;
+extern const bool __static_condition_default_434;
+extern const bool __static_condition_default_781;
+extern const bool __static_condition_default_849;
+extern const bool __static_condition_default_648;
 extern const bool __static_condition_default_420;
-extern const bool __static_condition_default_824;
-extern const bool __static_condition_default_174;
-extern const bool __static_condition_default_515;
-extern const bool __static_condition_default_550;
-extern const bool __static_condition_default_418;
-extern const bool __static_condition_default_218;
-extern const bool __static_condition_default_54;
-extern const bool __static_condition_default_579;
-extern const bool __static_condition_default_171;
-extern const bool __static_condition_default_884;
-extern const bool __static_condition_default_622;
-extern const bool __static_condition_default_863;
-extern const bool __static_condition_default_1102;
-extern const bool __static_condition_default_470;
-extern const bool __static_condition_default_735;
-extern const bool __static_condition_default_639;
-extern const bool __static_condition_default_516;
+extern const bool __static_condition_default_663;
+extern const bool __static_condition_default_709;
+extern const bool __static_condition_default_841;
+extern const bool __static_condition_default_358;
+extern const bool __static_condition_default_476;
+extern const bool __static_condition_default_432;
+extern const bool __static_condition_default_474;
 extern const bool __static_condition_default_693;
-extern const bool __static_condition_default_242;
-extern const bool __static_condition_default_517;
-extern const bool __static_condition_default_551;
+extern const bool __static_condition_default_183;
+extern const bool __static_condition_default_1029;
+extern const bool __static_condition_default_530;
+extern const bool __static_condition_default_199;
+extern const bool __static_condition_default_859;
+extern const bool __static_condition_default_124;
+extern const bool __static_condition_default_702;
+extern const bool __static_condition_default_348;
+extern const bool __static_condition_default_554;
+extern const bool __static_condition_default_820;
+extern const bool __static_condition_default_413;
+extern const bool __static_condition_default_489;
+extern const bool __static_condition_default_579;
+extern const bool __static_condition_default_634;
+extern const bool __static_condition_default_490;
+extern const bool __static_condition_default_188;
+extern const bool __static_condition_default_865;
+extern const bool __static_condition_default_374;
+extern const bool __static_condition_default_622;
+extern const bool __static_condition_default_194;
+extern const bool __static_condition_default_394;
+extern const bool __static_condition_default_999;
+extern const bool __static_condition_default_1010;
+extern const bool __static_condition_default_312;
+extern const bool __static_condition_default_650;
+extern const bool __static_condition_default_826;
+extern const bool __static_condition_default_964;
+extern const bool __static_condition_default_553;
+extern const bool __static_condition_default_678;
+extern const bool __static_condition_default_366;
+extern const bool __static_condition_default_1103;
+extern const bool __static_condition_default_281;
+extern const bool __static_condition_default_684;
+extern const bool __static_condition_default_54;
+extern const bool __static_condition_default_614;
+extern const bool __static_condition_default_752;
+extern const bool __static_condition_default_1110;
+extern const bool __static_condition_default_538;
+extern const bool __static_condition_default_259;
+extern const bool __static_condition_default_718;
+extern const bool __static_condition_default_1106;
+extern const bool __static_condition_default_275;
+extern const bool __static_condition_default_722;
+extern const bool __static_condition_default_754;
+extern const bool __static_condition_default_522;
+extern const bool __static_condition_default_892;
+extern const bool __static_condition_default_1090;
+extern const bool __static_condition_default_979;
 extern const bool __static_condition_default_1016;
-extern const bool __static_condition_default_843;
-extern const bool __static_condition_default_728;
-extern const bool __static_condition_default_342;
+extern const bool __static_condition_default_260;
+extern const bool __static_condition_default_793;
+extern const bool __static_condition_default_895;
+extern const bool __static_condition_default_1091;
+extern const bool __static_condition_default_254;
+extern const bool __static_condition_default_456;
+extern const bool __static_condition_default_245;
+extern const bool __static_condition_default_1074;
+extern const bool __static_condition_default_516;
+extern const bool __static_condition_default_544;
+extern const bool __static_condition_default_565;
+extern const bool __static_condition_default_560;
+extern const bool __static_condition_default_224;
+extern const bool __static_condition_default_1066;
+extern const bool __static_condition_default_492;
+extern const bool __static_condition_default_338;
+extern const bool __static_condition_default_470;
+extern const bool __static_condition_default_685;
+extern const bool __static_condition_default_664;
+extern const bool __static_condition_default_551;
+extern const bool __static_condition_default_780;
+extern const bool __static_condition_default_524;
+extern const bool __static_condition_default_869;
+extern const bool __static_condition_default_956;
+extern const bool __static_condition_default_445;
+extern const bool __static_condition_default_1023;
+extern const bool __static_condition_default_368;
+extern const bool __static_condition_default_790;
+extern const bool __static_condition_default_389;
+extern const bool __static_condition_default_1008;
+extern const bool __static_condition_default_756;
+extern const bool __static_condition_default_77;
+extern const bool __static_condition_default_249;
+extern const bool __static_condition_default_789;
+extern const bool __static_condition_default_236;
+extern const bool __static_condition_default_439;
+extern const bool __static_condition_default_540;
+extern const bool __static_condition_default_550;
+extern const bool __static_condition_default_1058;
+extern const bool __static_condition_default_332;
 extern const bool __static_condition_default_1052;
+extern const bool __static_condition_default_992;
+extern const bool __static_condition_default_635;
+extern const bool __static_condition_default_843;
+extern const bool __static_condition_default_487;
+extern const bool __static_condition_default_647;
+extern const bool __static_condition_default_247;
+extern const bool __static_condition_default_396;
+extern const bool __static_condition_default_884;
+extern const bool __static_condition_default_1082;
+extern const bool __static_condition_default_591;
+extern const bool __static_condition_default_746;
+extern const bool __static_condition_default_1037;
+extern const bool __static_condition_default_297;
+extern const bool __static_condition_default_646;
+extern const bool __static_condition_default_626;
+extern const bool __static_condition_default_609;
+extern const bool __static_condition_default_433;
+extern const bool __static_condition_default_403;
+extern const bool __static_condition_default_334;
+extern const bool __static_condition_default_498;
+extern const bool __static_condition_default_658;
+extern const bool __static_condition_default_724;
+extern const bool __static_condition_default_915;
+extern const bool __static_condition_default_272;
+extern const bool __static_condition_default_586;
+extern const bool __static_condition_default_652;
+extern const bool __static_condition_default_973;
+extern const bool __static_condition_default_356;
+extern const bool __static_condition_default_1099;
+extern const bool __static_condition_default_539;
+extern const bool __static_condition_default_462;
+extern const bool __static_condition_default_804;
+extern const bool __static_condition_default_170;
+extern const bool __static_condition_default_770;
+extern const bool __static_condition_default_1115;
+extern const bool __static_condition_default_364;
+extern const bool __static_condition_default_598;
+extern const bool __static_condition_default_638;
+extern const bool __static_condition_default_1105;
+extern const bool __static_condition_default_268;
+extern const bool __static_condition_default_710;
+extern const bool __static_condition_default_716;
+extern const bool __static_condition_default_1109;
+extern const bool __static_condition_default_239;
+extern const bool __static_condition_default_824;
+extern const bool __static_condition_default_283;
+extern const bool __static_condition_default_294;
+extern const bool __static_condition_default_747;
+extern const bool __static_condition_default_574;
+extern const bool __static_condition_default_381;
+extern const bool __static_condition_default_818;
+extern const bool __static_condition_default_1006;
+extern const bool __static_condition_default_879;
+extern const bool __static_condition_default_737;
+extern const bool __static_condition_default_218;
+extern const bool __static_condition_default_837;
+extern const bool __static_condition_default_409;
+extern const bool __static_condition_default_753;
+extern const bool __static_condition_default_694;
+extern const bool __static_condition_default_1028;
+extern const bool __static_condition_default_1073;
+extern const bool __static_condition_default_300;
+extern const bool __static_condition_default_512;
+extern const bool __static_condition_default_810;
+extern const bool __static_condition_default_279;
+extern const bool __static_condition_default_251;
+extern const bool __static_condition_default_930;
+extern const bool __static_condition_default_1108;
+extern const bool __static_condition_default_174;
+extern const bool __static_condition_default_863;
+extern const bool __static_condition_default_1044;
+extern const bool __static_condition_default_543;
+extern const bool __static_condition_default_205;
+extern const bool __static_condition_default_660;
+extern const bool __static_condition_default_1104;
+extern const bool __static_condition_default_603;
+extern const bool __static_condition_default_1059;
+extern const bool __static_condition_default_736;
+extern const bool __static_condition_default_728;
+extern const bool __static_condition_default_370;
+extern const bool __static_condition_default_633;
+extern const bool __static_condition_default_561;
+extern const bool __static_condition_default_1067;
+extern const bool __static_condition_default_289;
+extern const bool __static_condition_default_1111;
+extern const bool __static_condition_default_958;
+extern const bool __static_condition_default_258;
+extern const bool __static_condition_default_504;
+extern const bool __static_condition_default_1036;
+extern const bool __static_condition_default_768;
+extern const bool __static_condition_default_748;
+extern const bool __static_condition_default_808;
+extern const bool __static_condition_default_968;
+extern const bool __static_condition_default_980;
+extern const bool __static_condition_default_939;
+extern const bool __static_condition_default_700;
+extern const bool __static_condition_default_981;
+extern const bool __static_condition_default_703;
+extern const bool __static_condition_default_814;
+extern const bool __static_condition_default_314;
+extern const bool __static_condition_default_908;
+extern const bool __static_condition_default_620;
+extern const bool __static_condition_default_1051;
+extern const bool __static_condition_default_256;
+extern const bool __static_condition_default_517;
+extern const bool __static_condition_default_761;
+extern const bool __static_condition_default_687;
+extern const bool __static_condition_default_873;
+extern const bool __static_condition_default_792;
+extern const bool __static_condition_default_500;
+extern const bool __static_condition_default_686;
+extern const bool __static_condition_default_835;
 extern const bool __static_condition_default_669;
 extern const bool __static_condition_default_545;
-extern const bool __static_condition_default_394;
-extern const bool __static_condition_default_230;
-extern const bool __static_condition_default_788;
-extern const bool __static_condition_default_500;
-extern const bool __static_condition_default_662;
-extern const bool __static_condition_default_1008;
-extern const bool __static_condition_default_1095;
-extern const bool __static_condition_default_609;
-extern const bool __static_condition_default_650;
-extern const bool __static_condition_default_77;
-extern const bool __static_condition_default_586;
-extern const bool __static_condition_default_259;
-extern const bool __static_condition_default_703;
-extern const bool __static_condition_default_754;
-extern const bool __static_condition_default_279;
-extern const bool __static_condition_default_540;
-extern const bool __static_condition_default_757;
-extern const bool __static_condition_default_433;
-extern const bool __static_condition_default_409;
-extern const bool __static_condition_default_849;
-extern const bool __static_condition_default_542;
+extern const bool __static_condition_default_265;
 extern const bool __static_condition_default_318;
-extern const bool __static_condition_default_314;
-extern const bool __static_condition_default_1074;
-extern const bool __static_condition_default_908;
-extern const bool __static_condition_default_1036;
-extern const bool __static_condition_default_1044;
-extern const bool __static_condition_default_737;
-extern const bool __static_condition_default_808;
-extern const bool __static_condition_default_633;
-extern const bool __static_condition_default_199;
-extern const bool __static_condition_default_620;
-extern const bool __static_condition_default_736;
-extern const bool __static_condition_default_374;
-extern const bool __static_condition_default_513;
-extern const bool __static_condition_default_658;
-extern const bool __static_condition_default_792;
-extern const bool __static_condition_default_285;
-extern const bool __static_condition_default_368;
-extern const bool __static_condition_default_537;
-extern const bool __static_condition_default_366;
-extern const bool __static_condition_default_462;
-extern const bool __static_condition_default_684;
-extern const bool __static_condition_default_474;
-extern const bool __static_condition_default_781;
-extern const bool __static_condition_default_879;
-extern const bool __static_condition_default_565;
-extern const bool __static_condition_default_700;
-extern const bool __static_condition_default_790;
-extern const bool __static_condition_default_979;
-extern const bool __static_condition_default_260;
-extern const bool __static_condition_default_762;
-extern const bool __static_condition_default_1037;
-extern const bool __static_condition_default_543;
-extern const bool __static_condition_default_793;
-extern const bool __static_condition_default_1100;
-extern const bool __static_condition_default_663;
-extern const bool __static_condition_default_554;
-extern const bool __static_condition_default_716;
-extern const bool __static_condition_default_1028;
-extern const bool __static_condition_default_332;
-extern const bool __static_condition_default_814;
-extern const bool __static_condition_default_1043;
-extern const bool __static_condition_default_194;
-extern const bool __static_condition_default_756;
-extern const bool __static_condition_default_718;
-extern const bool __static_condition_default_724;
-extern const bool __static_condition_default_780;
-extern const bool __static_condition_default_1067;
-extern const bool __static_condition_default_798;
-extern const bool __static_condition_default_747;
-extern const bool __static_condition_default_678;
-extern const bool __static_condition_default_646;
-extern const bool __static_condition_default_804;
+extern const bool __static_condition_default_342;
 extern const bool __static_condition_default_701;
 extern const bool __static_condition_default_876;
-extern const bool __static_condition_default_964;
-extern const bool __static_condition_default_999;
-extern const bool __static_condition_default_584;
-extern const bool __static_condition_default_251;
-extern const bool __static_condition_default_370;
-extern const bool __static_condition_default_651;
-extern const bool __static_condition_default_603;
-extern const bool __static_condition_default_992;
-extern const bool __static_condition_default_297;
-extern const bool __static_condition_default_837;
-extern const bool __static_condition_default_356;
-extern const bool __static_condition_default_300;
-extern const bool __static_condition_default_1081;
-extern const bool __static_condition_default_472;
-extern const bool __static_condition_default_403;
-extern const bool __static_condition_default_687;
-extern const bool __static_condition_default_957;
-extern const bool __static_condition_default_283;
-extern const bool __static_condition_default_973;
-extern const bool __static_condition_default_239;
-extern const bool __static_condition_default_245;
-extern const bool __static_condition_default_873;
-extern const bool __static_condition_default_254;
-extern const bool __static_condition_default_276;
-extern const bool __static_condition_default_810;
-extern const bool __static_condition_default_818;
-extern const bool __static_condition_default_364;
-extern const bool __static_condition_default_722;
-extern const bool __static_condition_default_271;
-extern const bool __static_condition_default_289;
-extern const bool __static_condition_default_544;
-extern const bool __static_condition_default_511;
-extern const bool __static_condition_default_802;
-extern const bool __static_condition_default_888;
-extern const bool __static_condition_default_664;
-extern const bool __static_condition_default_247;
-extern const bool __static_condition_default_865;
-extern const bool __static_condition_default_272;
-extern const bool __static_condition_default_334;
-extern const bool __static_condition_default_1058;
-extern const bool __static_condition_default_1094;
-extern const bool __static_condition_default_268;
-extern const bool __static_condition_default_770;
-extern const bool __static_condition_default_958;
-extern const bool __static_condition_default_686;
-extern const bool __static_condition_default_1091;
-extern const bool __static_condition_default_968;
-extern const bool __static_condition_default_789;
-extern const bool __static_condition_default_439;
-extern const bool __static_condition_default_980;
-extern const bool __static_condition_default_685;
-extern const bool __static_condition_default_826;
-extern const bool __static_condition_default_614;
-extern const bool __static_condition_default_591;
-extern const bool __static_condition_default_895;
-extern const bool __static_condition_default_316;
-extern const bool __static_condition_default_224;
-extern const bool __static_condition_default_381;
-extern const bool __static_condition_default_539;
-extern const bool __static_condition_default_847;
-extern const bool __static_condition_default_434;
-extern const bool __static_condition_default_236;
-extern const bool __static_condition_default_820;
-extern const bool __static_condition_default_387;
-extern const bool __static_condition_default_1082;
-extern const bool __static_condition_default_188;
-extern const bool __static_condition_default_265;
-extern const bool __static_condition_default_748;
-extern const bool __static_condition_default_1106;
-extern const bool __static_condition_default_413;
-extern const bool __static_condition_default_476;
-extern const bool __static_condition_default_752;
-extern const bool __static_condition_default_487;
-extern const bool __static_condition_default_710;
-extern const bool __static_condition_default_456;
-extern const bool __static_condition_default_1023;
-extern const bool __static_condition_default_264;
-extern const bool __static_condition_default_648;
-extern const bool __static_condition_default_281;
-extern const bool __static_condition_default_256;
-extern const bool __static_condition_default_637;
-extern const bool __static_condition_default_85;
-extern const bool __static_condition_default_794;
-extern const bool __static_condition_default_981;
-extern const bool __static_condition_default_346;
-extern const bool __static_condition_default_660;
-extern const bool __static_condition_default_494;
-extern const bool __static_condition_default_624;
-extern const bool __static_condition_default_939;
-extern const bool __static_condition_default_538;
-extern const bool __static_condition_default_492;
-extern const bool __static_condition_default_702;
-extern const bool __static_condition_default_1093;
-extern const bool __static_condition_default_853;
-extern const bool __static_condition_default_859;
-extern const bool __static_condition_default_1073;
-extern const bool __static_condition_default_275;
-extern const bool __static_condition_default_758;
-extern const bool __static_condition_default_258;
-extern const bool __static_condition_default_561;
-extern const bool __static_condition_default_287;
-extern const bool __static_condition_default_1010;
-extern const bool __static_condition_default_1029;
 extern const bool __static_condition_default_1092;
-extern const bool __static_condition_default_598;
-extern const bool __static_condition_default_956;
-extern const bool __static_condition_default_709;
-extern const bool __static_condition_default_1051;
-extern const bool __static_condition_default_635;
+extern const bool __static_condition_default_276;
+extern const bool __static_condition_default_853;
+extern const bool __static_condition_default_794;
+extern const bool __static_condition_default_542;
+extern const bool __static_condition_default_250;
+extern const bool __static_condition_default_537;
+extern const bool __static_condition_default_639;
+extern const bool __static_condition_default_802;
+extern const bool __static_condition_default_264;
+extern const bool __static_condition_default_85;
+extern const bool __static_condition_default_651;
+extern const bool __static_condition_default_230;
+extern const bool __static_condition_default_287;
+extern const bool __static_condition_default_211;
+extern const bool __static_condition_default_242;
+extern const bool __static_condition_default_662;
+extern const bool __static_condition_default_788;
+extern const bool __static_condition_default_513;
+extern const bool __static_condition_default_659;
 extern const bool __static_condition_default_945;
+extern const bool __static_condition_default_847;
+extern const bool __static_condition_default_285;
+extern const bool __static_condition_default_762;
+extern const bool __static_condition_default_387;
+extern const bool __static_condition_default_957;
+extern const bool __static_condition_default_291;
+extern const bool __static_condition_default_758;
+extern const bool __static_condition_default_383;
+extern const bool __static_condition_default_624;
+extern const bool __static_condition_default_671;
+extern const bool __static_condition_default_760;
+extern const bool __static_condition_default_1102;
+extern const bool __static_condition_default_346;
+extern const bool __static_condition_default_376;
+extern const bool __static_condition_default_418;
+extern const bool __static_condition_default_1081;
+extern const bool __static_condition_default_569;
+extern const bool __static_condition_default_271;
+extern const bool __static_condition_default_511;
+extern const bool __static_condition_default_584;
+extern const bool __static_condition_default_316;
+extern const bool __static_condition_default_637;
+extern const bool __static_condition_default_171;
+extern const bool __static_condition_default_495;
+extern const bool __static_condition_default_782;
+extern const bool __static_condition_default_515;
+extern const bool __static_condition_default_202;
+extern const bool __static_condition_default_735;
+extern const bool __static_condition_default_769;
+extern const bool __static_condition_default_494;
+extern const bool __static_condition_default_472;
+extern const bool __static_condition_default_798;
+extern const bool __static_condition_default_757;
 void __static_initializer_default() {
 __static_renaming("____errno_location_0", "__errno_location");
 __static_renaming("__ptrdiff_t_1", "ptrdiff_t");
@@ -549,11 +554,16 @@ __static_renaming("____fgets_alias_1015", "__fgets_alias");
 __static_renaming("____fgets_chk_warn_1022", "__fgets_chk_warn");
 __static_renaming("____cnt_1088", "__cnt");
 __static_renaming("____cptr_1089", "__cptr");
+__static_renaming("__buf_1093", "buf");
+__static_renaming("__buf_1094", "buf");
+__static_renaming("__buf_1095", "buf");
 __static_renaming("__buflen_1096", "buflen");
-__static_renaming("__add_uevent_var_1098", "add_uevent_var");
-__static_renaming("__add_uevent_var_1099", "add_uevent_var");
-__static_renaming("__input_add_uevent_modalias_var_1101", "input_add_uevent_modalias_var");
-__static_renaming("__main_1105", "main");
+__static_renaming("__len_1097", "len");
+__static_renaming("__len_1098", "len");
+__static_renaming("__add_uevent_var_1100", "add_uevent_var");
+__static_renaming("__add_uevent_var_1101", "add_uevent_var");
+__static_renaming("__input_add_uevent_modalias_var_1107", "input_add_uevent_modalias_var");
+__static_renaming("__main_1114", "main");
 
 __static_condition_renaming("__static_condition_default_54", "!(defined __need___FILE) && (defined _BITS_TYPESIZES_H)");
 __static_condition_renaming("__static_condition_default_77", "!(defined __need___FILE) && !(defined _BITS_TYPESIZES_H) && (defined ____mbstate_t_defined) || !(defined __need___FILE) && (defined _BITS_TYPESIZES_H)");
@@ -822,16 +832,19 @@ __static_condition_renaming("__static_condition_default_1082", "!(defined __STRI
 __static_condition_renaming("__static_condition_default_1090", "!(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0) && !(defined __need___FILE) && (defined __USE_EXTERN_INLINES)");
 __static_condition_renaming("__static_condition_default_1091", "!(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0) && !(defined __need___FILE) && !(defined __FILE_defined)");
 __static_condition_renaming("__static_condition_default_1092", "!(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0) && !(defined __need___FILE) && (defined __FILE_defined)");
-__static_condition_renaming("__static_condition_default_1093", "!(defined __STRICT_ANSI__) && !(defined _FORTIFY_SOURCE) && !(defined __need___FILE) || !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && !(defined __need___FILE) || !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && !(defined __need___FILE) || !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && !(defined __need___FILE) || (defined __STRICT_ANSI__) && !(defined __need___FILE)");
-__static_condition_renaming("__static_condition_default_1094", "(defined __need___FILE)");
-__static_condition_renaming("__static_condition_default_1095", "!(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0) && !(defined __need___FILE)");
-__static_condition_renaming("__static_condition_default_1097", "(defined CONFIG_HOTPLUG)");
-__static_condition_renaming("__static_condition_default_1100", "!(defined CONFIG_HOTPLUG)");
-__static_condition_renaming("__static_condition_default_1102", "!(defined CONFIG_HOTPLUG)");
-__static_condition_renaming("__static_condition_default_1106", "!(defined __need___FILE) && !(defined _BITS_TYPESIZES_H) && (defined _ANSI_STDARG_H_) && !(defined __GNUC_VA_LIST) || !(defined __need___FILE) && (defined _BITS_TYPESIZES_H)");
+__static_condition_renaming("__static_condition_default_1099", "(defined __need___FILE) && (defined CONFIG_HOTPLUG)");
+__static_condition_renaming("__static_condition_default_1102", "(defined CONFIG_HOTPLUG)");
+__static_condition_renaming("__static_condition_default_1103", "!(defined __STRICT_ANSI__) && !(defined _FORTIFY_SOURCE) && !(defined __need___FILE) && (defined CONFIG_HOTPLUG) || !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && !(defined __need___FILE) && (defined CONFIG_HOTPLUG) || !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && !(defined __need___FILE) && (defined CONFIG_HOTPLUG) || !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && !(defined __need___FILE) && (defined CONFIG_HOTPLUG) || (defined __STRICT_ANSI__) && !(defined __need___FILE) && (defined CONFIG_HOTPLUG)");
+__static_condition_renaming("__static_condition_default_1104", "!(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0) && !(defined __need___FILE) && (defined CONFIG_HOTPLUG)");
+__static_condition_renaming("__static_condition_default_1105", "(defined __need___FILE) && (defined CONFIG_HOTPLUG)");
+__static_condition_renaming("__static_condition_default_1106", "!(defined CONFIG_HOTPLUG)");
+__static_condition_renaming("__static_condition_default_1108", "!(defined CONFIG_HOTPLUG)");
+__static_condition_renaming("__static_condition_default_1109", "!(defined __STRICT_ANSI__) && !(defined _FORTIFY_SOURCE) && !(defined __need___FILE) || !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && !(_FORTIFY_SOURCE > 0) && !(defined __need___FILE) || !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && !(defined __OPTIMIZE__) && !(defined __need___FILE) || !(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && !(__OPTIMIZE__ > 0) && !(defined __need___FILE) || (defined __STRICT_ANSI__) && !(defined __need___FILE)");
+__static_condition_renaming("__static_condition_default_1110", "(defined __need___FILE)");
+__static_condition_renaming("__static_condition_default_1111", "!(defined __STRICT_ANSI__) && (defined _FORTIFY_SOURCE) && (_FORTIFY_SOURCE > 0) && (defined __OPTIMIZE__) && (__OPTIMIZE__ > 0) && !(defined __need___FILE)");
+__static_condition_renaming("__static_condition_default_1115", "!(defined __need___FILE) && !(defined _BITS_TYPESIZES_H) && (defined _ANSI_STDARG_H_) && !(defined __GNUC_VA_LIST) || !(defined __need___FILE) && (defined _BITS_TYPESIZES_H)");
 
-if (__static_condition_default_1106)
-{
+if (__static_condition_default_1115) {
 __static_parse_error("Unable to parse");
 }
 };
@@ -1341,85 +1354,108 @@ extern char  * ((____fgets_chk_warn_1022) (char  * __restrict  ____s_1017, __siz
 /* no function due to type errors in the function prototype */
 /* no function due to type errors in the function prototype */
 /* no function due to type errors in the function prototype */
+static char  __buf_1093[2048];// L6
+static char  __buf_1094[2048];// L6
+static char  __buf_1095[2048];// L6
 static int  __buflen_1096= 0;// L7
-int  (__add_uevent_var_1098) () {
+int  (__add_uevent_var_1100) () {
 
 {
-if (__static_condition_default_1097) {
+if (__static_condition_default_1102) {
 
+{// L11
 {
-{
 
 
 
-if (__static_condition_default_1097) {
+int  __len_1097=  __sprintf_425  (&  __buf_1093  [  __buflen_1096  ],"MODALIAS=");// L12
+
+int  __len_1098=  __sprintf_425  (&  __buf_1095  [  __buflen_1096  ],"MODALIAS=");// L12
+
+if (__static_condition_default_1099) {
 __static_type_error("invalid declaration of len under this presence condition");
 }
 
-__static_type_error("type error : no valid expression"); // L13
+if (__static_condition_default_1103) {
+ __buflen_1096  +=  __len_1097  + 1 ; // L13
+}
+if (__static_condition_default_1104) {
+ __buflen_1096  +=  __len_1098  + 1 ; // L13
+}
+if (__static_condition_default_1105) {
+__static_type_error("type error") ; // L13
+}
 return 0 ;// L14
 }
-}
+}// L15
 
 
 }
 
 }}
-int  (__add_uevent_var_1099) () {
+int  (__add_uevent_var_1101) () {
 
 {
-if (__static_condition_default_1100) {
+if (__static_condition_default_1106) {
 
-{
+{// L18
 {
 
 
 
 return 0 ;// L18
 }
-}
+}// L18
 
 
 }
 
 }}
-int  (__input_add_uevent_modalias_var_1101) () {
+int  (__input_add_uevent_modalias_var_1107) () {
 
+{// L22
 {
-{
 
 
 
-if (__static_condition_default_1097) {
-if (  __add_uevent_var_1098 ( ) )// L23
-{
-return - 12 ;// L24
-}
-}
 if (__static_condition_default_1102) {
-if (  __add_uevent_var_1099 ( ) )// L23
+if (  __add_uevent_var_1100 ( ) )// L23
 {
 return - 12 ;// L24
 }
 }
-__static_type_error("type error : no valid expression"); // L26
+if (__static_condition_default_1108) {
+if (  __add_uevent_var_1101 ( ) )// L23
+{
+return - 12 ;// L24
+}
+}
+if (__static_condition_default_1109) {
+ __buf_1093  [  __buflen_1096  - 1 ] = 'x' ; // L26
+}
+if (__static_condition_default_1110) {
+ __buf_1094  [  __buflen_1096  - 1 ] = 'x' ; // L26
+}
+if (__static_condition_default_1111) {
+ __buf_1095  [  __buflen_1096  - 1 ] = 'x' ; // L26
+}
 return 0 ;// L27
 }
-}
+}// L28
 
 
 }
-int  (__main_1105) (int  __argc_1103, char  * (* (__argv_1104))) {
+int  (__main_1114) (int  __argc_1112, char  * (* (__argv_1113))) {
 
+{// L31
 {
-{
 
 
 
- __input_add_uevent_modalias_var_1101 ( ) ; // L32
+ __input_add_uevent_modalias_var_1107 ( ) ; // L32
 return 0 ;// L33
 }
-}
+}// L34
 
 
 }

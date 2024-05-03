@@ -35,6 +35,9 @@ import xtc.tree.Visitor;
 
 import xtc.util.Runtime;
 
+import superc.cdesugarer.NamedFunctionT;
+
+
 /**
  * The superclass of all types.
  *
@@ -206,6 +209,8 @@ public abstract class Type extends Node {
   /** This type's scope. */
   String scope;
 
+  boolean isConst = false;
+  
   /** This type's constant value. */
   Constant constant;
 
@@ -236,6 +241,7 @@ public abstract class Type extends Node {
     this.language = template.language;
     this.scope    = template.scope;
     this.constant = template.constant;
+    this.isConst = template.isConst;
     this.shape    = template.shape;
     if (null != template.attributes) {
       this.attributes = new ArrayList<Attribute>(template.attributes);
@@ -316,6 +322,15 @@ public abstract class Type extends Node {
     return isAnnotated() && (! isSealed()) ? this : new AnnotatedT(this);
   }
 
+  public Type setConst() {
+    isConst = true;
+    return this;
+  };
+
+  public boolean isConst() {
+    return isConst;
+  }
+  
   /**
    * Deannotate this type.  This method strips away any {@link
    * AnnotatedT} from this type.
@@ -1506,7 +1521,7 @@ public abstract class Type extends Node {
   public boolean isMethod() {
     return false;
   }
-
+  
   /**
    * Get this type as a method.
    *
@@ -1518,6 +1533,27 @@ public abstract class Type extends Node {
     throw new ClassCastException("Not a method " + this);
   }
 
+  
+  /**
+   * Determine whether this type is a named function.
+   *
+   * @return <code>true</code> if this type is a named function.
+   */
+  public boolean isNamedFunction() {
+    return false;
+  }
+
+  /**
+   * Get this type as a named function.
+   *
+   * @return This type has a function.
+   * @throws ClassCastException Signals that this type is not a
+   *   named function.
+   */
+  public NamedFunctionT toNamedFunction() {
+    throw new ClassCastException("Not a named function " + this);
+  }
+  
   /**
    * Determine whether this type is a class.
    *
@@ -1953,11 +1989,28 @@ public abstract class Type extends Node {
     return Collections.unmodifiableList(types);
   }
 
-  /**
-   * prints the type as it would be written
-   * this is only meant to replicate a given type
-   * not to be used as a replacement
-   */
-  public abstract String printType();
+  public abstract void printType(TypeString t);
+
+  public String printTypeNameless() {
+    return printType();
+  }
+  
+  public String printType() {
+    TypeString t = new TypeString();
+    printType(t);
+    return t.toString();
+  }
+  
+  public String printType(String s) {
+    TypeString t = new TypeString();
+    printType(t);
+    t.id = s;
+    return t.toString();
+  }
+  
+  
+  public Type revertForwardRef(List<String> references, String forwardRef, String rename) {
+    return this;
+  }
   
 }

@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -7,21 +8,21 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_13;
-extern const bool __static_condition_default_190;
-extern const bool __static_condition_default_191;
-extern const bool __static_condition_default_211;
-extern const bool __static_condition_default_215;
-extern const bool __static_condition_default_195;
-extern const bool __static_condition_default_208;
-extern const bool __static_condition_default_223;
-extern const bool __static_condition_default_228;
 extern const bool __static_condition_default_175;
-extern const bool __static_condition_default_219;
-extern const bool __static_condition_default_230;
-extern const bool __static_condition_default_229;
+extern const bool __static_condition_default_190;
+extern const bool __static_condition_default_211;
 extern const bool __static_condition_default_220;
 extern const bool __static_condition_default_182;
+extern const bool __static_condition_default_208;
+extern const bool __static_condition_default_223;
+extern const bool __static_condition_default_191;
+extern const bool __static_condition_default_229;
+extern const bool __static_condition_default_195;
+extern const bool __static_condition_default_219;
+extern const bool __static_condition_default_215;
+extern const bool __static_condition_default_13;
+extern const bool __static_condition_default_230;
+extern const bool __static_condition_default_228;
 void __static_initializer_default() {
 __static_renaming("__ptrdiff_t_0", "ptrdiff_t");
 __static_renaming("__size_t_1", "size_t");
@@ -101,8 +102,7 @@ __static_condition_renaming("__static_condition_default_228", "!(defined SDSUPPO
 __static_condition_renaming("__static_condition_default_229", "(defined SDSUPPORT)");
 __static_condition_renaming("__static_condition_default_230", "(defined __CORRECT_ISO_CPP_STRING_H_PROTO)");
 
-if (__static_condition_default_230)
-{
+if (__static_condition_default_230) {
 __static_parse_error("Unable to parse");
 }
 };
@@ -192,7 +192,7 @@ void  (__cardreader_222) (char  * (__prepend_216)) {
 
 if (__static_condition_default_223) {
 
-{
+{// L9
 {
 
 
@@ -220,7 +220,7 @@ __static_type_error("type error : no valid expression"); // L21
 __static_type_error("type error : no valid expression"); // L22
 __static_type_error("type error : no valid expression"); // L23
 }
-}
+}// L25
 
 
 }
@@ -229,7 +229,7 @@ int  (__main_226) (int  __argc_224, char  * (* (__argv_225))) {
 
 if (__static_condition_default_228) {
 
-{
+{// L30
 {
 
 
@@ -237,7 +237,7 @@ if (__static_condition_default_228) {
 __static_type_error("type error") ; // L31
 return 0 ;// L32
 }
-}
+}// L33
 
 
 }
@@ -246,7 +246,7 @@ int  (__main_227) (int  __argc_224, char  * (* (__argv_225))) {
 
 if (__static_condition_default_229) {
 
-{
+{// L30
 {
 
 
@@ -254,7 +254,7 @@ if (__static_condition_default_229) {
  __cardreader_222  ("") ; // L31
 return 0 ;// L32
 }
-}
+}// L33
 
 
 }
